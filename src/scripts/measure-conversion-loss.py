@@ -26,7 +26,7 @@ plus rien.
 
 ## Le nombre, et ce qu'il vaut
 
-    aller-retour intacts : N/M
+    intact round trips: N/M
 
 **Il mélange sciemment deux choses** — ce qu'un format ne *peut* pas porter, et
 ce que notre conversion perd sans y être obligée. Les séparer demanderait de
@@ -68,9 +68,9 @@ DEFAULT_BINARY = REPO_ROOT / "build" / "dev" / "bin" / "subedit-cli"
 # pas : des coordonnées SubRip, un en-tête WebVTT, des réglages de cellule.
 CORPUS = ("valides", "formats")
 
-BLOCK_OPEN = "<!-- relevé engendré : ne pas modifier à la main -->"
-BLOCK_CLOSE = "<!-- fin du relevé -->"
-RECORDED = re.compile(r"^\s*aller-retour intacts\s*:\s*(\d+)\s*/\s*(\d+)\s*$", re.MULTILINE)
+BLOCK_OPEN = "<!-- generated record: do not edit by hand -->"
+BLOCK_CLOSE = "<!-- end of record -->"
+RECORDED = re.compile(r"^\s*intact round trips\s*:\s*(\d+)\s*/\s*(\d+)\s*$", re.MULTILINE)
 
 # Le nom qu'`inspect` imprime, et la valeur que `--to` attend. Les deux viennent
 # du binaire ; ce qui n'en vient pas est leur correspondance, et c'est pourquoi
@@ -277,7 +277,7 @@ def recorded_count(text):
     """
     found = RECORDED.findall(text)
     if len(found) != 1:
-        fail(f"« aller-retour intacts : N/M » apparaît {len(found)} fois dans"
+        fail(f"« intact round trips: N/M » apparaît {len(found)} fois dans"
              f" {JOURNAL.relative_to(REPO_ROOT)}, une seule attendue")
     return int(found[0][0]), int(found[0][1])
 
@@ -299,13 +299,13 @@ def rewrite_journal(trips, unreadable, refused, known, kept, total):
     if opened < 0 or closed < opened:
         fail(f"bornes du relevé introuvables dans {JOURNAL.relative_to(REPO_ROOT)}")
 
-    body = [f"{BLOCK_OPEN}\n\n", f"    aller-retour intacts : {kept}/{total}\n\n",
-            f"Relevé sur la version {version_of()}, le"
+    body = [f"{BLOCK_OPEN}\n\n", f"    intact round trips: {kept}/{total}\n\n",
+            f"Recorded on version {version_of()}, on"
             f" {datetime.date.today().isoformat()}.\n\n"]
 
     cells = matrix(trips)
     names = sorted({TARGET_OF[name] for _, name, *_ in trips} | set(known))
-    body.append("| Départ \\ Arrivée | " + " | ".join(f"`{name}`" for name in names) + " |\n")
+    body.append("| From \\ Through | " + " | ".join(f"`{name}`" for name in names) + " |\n")
     body.append("| :--- | " + " | ".join("---:" for _ in names) + " |\n")
     for home in names:
         row = [f"| `{home}` "]
@@ -323,23 +323,23 @@ def rewrite_journal(trips, unreadable, refused, known, kept, total):
     lost = [(path, name, via, came_back)
             for path, name, via, intact, came_back in trips if not intact]
     if lost:
-        body.append("| Fichier | Passage par | Première ligne qui ne revient pas |\n")
-        body.append("| :------ | :---------- | :-------------------------------- |\n")
+        body.append("| File | Through | First line that does not come back |\n")
+        body.append("| :--- | :------ | :---------------------------------- |\n")
         for path, _, via, came_back in lost:
             line = first_difference(path, came_back).replace("|", "\\|")
             body.append(f"| `{relative(path)}` | `{via}` | `{line}` |\n")
     else:
-        body.append("Aucun aller-retour altéré.\n")
+        body.append("No round trip altered.\n")
     body.append("\n")
 
     if refused:
-        body.append(f"**{len(refused)} paire(s) que la conversion refuse de faire** — un fichier"
-                    " temporel vers un format en images, sans grille et sans fréquence donnée."
-                    " Un refus n'est pas une perte, et n'entre donc pas dans le compte"
-                    " ci-dessus.\n\n")
+        body.append(f"**{len(refused)} pair(s) the conversion refuses to make** — a timed"
+                    " file to a frame-based format, with no grid and no frame rate given."
+                    " A refusal is not a loss, and so does not enter the count"
+                    " above.\n\n")
     if unreadable:
-        body.append(f"{unreadable} fichier(s) du corpus ne s'ouvrent pas encore et"
-                    " n'entrent dans aucune mesure.\n\n")
+        body.append(f"{unreadable} file(s) of the corpus do not open yet and"
+                    " enter no measurement.\n\n")
 
     written = text[:opened] + "".join(body) + text[closed:]
     if written == text:

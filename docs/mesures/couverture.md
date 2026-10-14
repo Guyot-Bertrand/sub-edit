@@ -1,509 +1,497 @@
-# Cliquet de couverture
+# Coverage ratchet
 
-Le nombre de lignes de `src/lib/` que les tests n'exercent pas. **La porte
-échoue s'il augmente.**
+The number of lines of `src/lib/` that the tests do not exercise. **The gate
+fails if it rises.**
 
-Pourquoi un compte de lignes et non un pourcentage : un pourcentage monte dès
-qu'on ajoute du code bien testé, donc le cliquet monte, donc le travail suivant
-se trouve contraint plus dur sans que personne l'ait décidé. Un compte de
-lignes non couvertes ne réagit qu'à ce qu'on veut réellement surveiller. La
-décision et les alternatives écartées sont dans
-[l'ADR 0015](../adr/0015-memoire-des-mesures.md).
+Why a count of lines and not a percentage: a percentage rises as soon as
+well-tested code is added, so the ratchet rises, so the next piece of work finds
+itself held tighter without anyone having decided it. A count of uncovered
+lines reacts only to what we really want to watch. The decision and the
+alternatives set aside are in
+[ADR 0015](../adr/0015-memoire-des-mesures.md).
 
-## Ce que fait la porte
+## What the gate does
 
-| Situation | Réaction |
+| Situation | Reaction |
 | :-------- | :------- |
-| plus de lignes non couvertes qu'ici | échec, en nommant les fichiers qui en ont gagné |
-| autant | passe, en silence |
-| moins | passe, et invite à lancer `make ratchet` |
-
-`make ratchet` réécrit ce fichier depuis la dernière mesure. **Il n'écrit jamais
-de lui-même :** un fichier versionné ne bouge que si quelqu'un le demande.
-
-## Ce que les lignes non couvertes sont, par famille
-
-**Relu d'un bloc à la relecture de la phase 9**, et la raison de le faire est
-dans la forme du chiffre : il monte d'une ou deux lignes à la fois, chacune pour
-un motif juste, chacune justifiée ici à sa date. Rien n'oblige alors à poser la
-question qui compte — **le total dit-il encore quelque chose ?**
-
-Il le dit, à condition de ne pas le lire comme une quantité. Les soixante-sept
-lignes se rangent en quatre familles, et elles ne se valent pas :
-
-| Famille | Lignes | Ce qu'un test devrait faire pour l'atteindre |
-| :------ | -----: | :------------------------------------------- |
-| une boucle modale de Qt | 46 | cliquer ; `exec()` ne rend la main à personne d'autre |
-| le monde extérieur qui échoue | 11 | faire rater un `fork`, provoquer un `EINTR`, remplir un disque |
-| libmpv, pour de vrai | 4 | une bibliothèque et un serveur d'affichage dans la porte |
-| **une garde que l'appelant rend inatteignable** | **6** | rien : il faudrait l'atteindre par un chemin que le code interdit |
-
-Les trois premières sont **irréductibles par construction**, et leur compte ne
-bouge qu'avec la surface : une modale de plus, un appel système de plus. Les
-justifier une à une est le bon geste, et c'est ce que la suite de ce fichier
-fait depuis la phase 5.
-
-**La quatrième est celle qui grossit, et c'est la seule qui se discute.** Ce sont
-cinq gardes — un produit saturé dont un facteur est nul, une durée partagée en
-zéro parts, un `togglePlayback` sans film, un dialogue qui n'aurait rien retenu.
-Chacune protège un déréférencement ou une division, chacune est **juste**, et
-aucune n'est atteignable : ce qui les rend inatteignables est précisément ce qui
-les rend nécessaires — l'appelant vérifie déjà.
-
-**La leçon, et elle a une date.** En phase 9, deux fonctions du pivot de balises
-portaient des bras de `switch` du même genre ; elles ont été **réécrites** plutôt
-que justifiées, parce que là l'arm inatteignable pouvait disparaître sans rien
-affaiblir — `applyOpening` côté HTML, `appendOff` côté SSA. C'est l'arbitrage à
-refaire chaque fois : **une garde qu'on peut supprimer sans perdre la protection
-se supprime ; une garde qui protège vraiment se garde et se compte.** Les cinq
-d'aujourd'hui sont du second cas.
-
-Ce que cette table change, pour la suite : un relèvement se juge contre la
-famille où il tombe, et non contre le total. Cinq lignes de modale de plus sont
-un fait de surface ; une sixième garde inatteignable était une question — #434
-l'a posée, et y répond plus bas.
-
-## Ce que le cliquet a laissé passer, et pourquoi
-
-Le relever est une décision, pas un ajustement. Chaque relèvement se justifie
-ici, sans quoi le cliquet ne mesure plus rien.
-
-**Deux lignes du modèle de table, en phase 5 — et le relèvement était de trop.**
-Elles avaient été portées au compte des `std::unreachable()` placés après les
-`switch` exhaustifs, qu'aucun test ne peut atteindre par construction. C'était
-faux : `gcovr` ne compte pas ces lignes-là. Les deux non couvertes étaient les
-gardes de rang et de colonne de `data()`, parfaitement atteignables — mais les
-tests censés les éprouver fabriquaient leur index avec `index()`, qui refuse de
-sortir de la table et rend un index invalide. Ils butaient donc sur la première
-garde et n'atteignaient jamais les deux autres.
-
-Corrigé à l'issue #129, en fabriquant ces index avec `createIndex` — ce pour
-quoi l'en-tête l'expose. Le modèle est couvert en entier, et le cliquet
-redescend de 7 à 5.
-
-La leçon vaut d'être écrite : **un relèvement justifié par une lecture du code
-plutôt que par une mesure est un relèvement à vérifier.** Le raisonnement était
-plausible, il tenait une phase entière, et il désignait les mauvaises lignes.
-
-**Trente et une lignes de `QtPrompts`, en phase 5.** C'est le relèvement le plus
-important du projet, et il tient en une phrase : ces lignes ouvrent une boîte
-modale de Qt, qui fait tourner sa propre boucle d'événements jusqu'à ce qu'un
-humain clique. Un test qui en atteint une ne rend jamais la main.
-
-**Mesurées, et nommées** — les quatre méthodes de `qt_prompts.cpp`, plus `run`
-et le constructeur en en-tête. Il n'y en a pas d'autres, et chacune est soit l'appel à `QFileDialog`
-ou `QMessageBox`, soit la garde « l'utilisateur n'a rien choisi », soit la
-construction du retour à partir de ce que la boîte a rendu.
-
-**Ce que ce relèvement achète.** L'interface `Prompts` concentre là tout ce qui
-n'est pas atteignable, au lieu de le répandre dans la fenêtre. En échange, les
-chemins où vivent les fautes — l'utilisateur annule, il choisit d'abandonner, il
-choisit d'enregistrer d'abord, l'écriture échoue — sont parcourus par des tests,
-ce qu'aucune autre disposition ne permettait. `MainWindow` et
-`DiagnosticsPanel` sont couverts en entier.
-
-**Ce qui a été sorti de là plutôt que compté.** Deux décisions vivaient dans ces
-méthodes et n'avaient rien à y faire : quel format un filtre désigne, et ce que
-vaut un bouton de la boîte de confirmation. Exposées, testées, elles ne sont
-plus dans ce compte — c'est ce qui l'a fait tomber de trente-six à
-vingt-cinq.
-
-**Deux lignes de plus en phase 8, et la même règle appliquée deux fois.**
-`Save As…` demande désormais l'encodage, la fin de ligne et la marque, ce qui
-aurait pu ajouter treize lignes intestables à `QtPrompts`. Il en ajoute **une** :
-tout ce qui se construit et se relit — la boîte, le widget des trois champs, ce
-qu'on en tire — vit dans `save_shape.cpp`, où un test le remplit et le lit sans
-jamais entrer dans une boucle d'événements. Ce qui reste dans `QtPrompts` est
-`exec`, et lui seul.
-
-La seconde ligne est dans `save_shape.cpp` : la garde d'une boîte qui ne
-porterait pas la forme, ou qui n'aurait rien retenu. Aucun test ne l'atteint —
-`saveDialogFor` pose toujours la forme, et une boîte acceptée porte toujours un
-nom — et elle reste, parce que le pas suivant déréférence les deux.
-
-**Deux lignes de plus en phase 5, et pour la même raison.** L'issue #132 ajoute
-`QtPrompts::run` — « montre ce dialogue, dis s'il a été accepté ». C'est la
-couture des dialogues que le projet écrit lui-même, et elle est plus étroite que
-les précédentes : les trois dialogues d'opération sont des widgets ordinaires
-qu'un test construit, remplit et interroge, donc seule la boucle modale sort du
-compte. Un `exec()`, une ligne, plutôt qu'une méthode par dialogue.
-
-La première mesure de cette issue en donnait six de plus dans `MainWindow` :
-deux dialogues annulés et trois gardes qu'aucun utilisateur n'atteint, le bouton
-de validation suivant l'état du dialogue. Testées plutôt que justifiées — une
-garde qu'aucun test ne traverse est une promesse que personne ne vérifie, et le
-faux `Prompts` valide sans regarder le bouton, ce qui est exactement la
-situation dont elles protègent.
-
-**Trois lignes de plus en phase 5, et toujours la même raison.** L'issue #133
-ajoute `reportOutcome` — la notice qui dit ce qu'une opération a fait, distincte
-de l'avertissement qui dit ce qui a échoué : deux icônes, deux sens, et un
-utilisateur qui lit « 1 subtitle cleaned, 1 removed » n'a été averti de rien.
-
-Sa confirmation, elle, n'a rien coûté : le dialogue de retrait est un
-`OperationDialog` sans champ, donc il passe par le `run` déjà en place. Une
-opération sans réglage n'avait pas besoin d'une question de plus.
-
-**Une ligne rendue, à la relecture de la phase.** Le constructeur de `QtPrompts`
-était compté : aucun test n'en construisait un, faute d'avoir quoi que ce soit à
-lui demander. La relecture lui en a donné une — les boîtes se posaient sur
-`nullptr`, donc sur aucune fenêtre — et la fenêtre le lui dit désormais
-elle-même. Le test qui l'éprouve construit la classe, ce qui couvre la ligne par
-surcroît. **Trente-cinq, contre trente-six.**
-
-Le reste de `qt_prompts.cpp` ne bouge pas, et ne bougera pas : c'est le
-`QFileDialog` et le `QMessageBox`, et leur boucle d'événements.
-
-**Cinq lignes de plus en phase 9, et la même règle une fois encore.** L'issue
-#352 ajoute `QtPrompts::aboutLoss` — la modale qui annonce ce qu'un format
-d'arrivée ne portera pas, **avant** d'écrire, et dont la réponse peut encore
-être « non ». C'est un `QMessageBox::warning` et rien d'autre : le titre, le
-texte, les deux boutons, celui par défaut, et la comparaison qui dit lequel a
-été cliqué. Un test qui l'atteint entre dans la boucle modale et ne rend jamais
-la main.
-
-**Ce que ce relèvement achète, et il est mesurable.** Tout ce qui décide vit
-ailleurs et est couvert : ce qui est perdu est compté par `convertFor`, les mots
-sont ceux de `noticeOf`, et la fenêtre — refuser, écrire quand même, ne rien
-demander quand rien n'est perdu — est éprouvée à travers le faux `Prompts`.
-Ce qui reste ici est l'appel, et lui seul.
-
-**Cinq et non six** : la méthode tient en une expression, que le formateur étale
-sur cinq lignes. Il n'y a pas de garde à sortir ni de décision à exposer, comme
-`choiceOf` l'avait été pour la boîte des modifications non enregistrées — la
-comparaison à `Save` est le retour même de l'appel.
-
-**Soixante-six, contre soixante et un.**
-
-**L'alternative, pesée et écartée.** On sait piloter une boîte modale depuis un
-test, en programmant sa fermeture avant d'entrer dans la boucle. Cela aurait
-donné un chiffre vert au prix d'un test fragile qui éprouve le dialogue de Qt
-plutôt que nos quatre lignes de raccord. Le cliquet compte et justifie ; il
-n'exige pas zéro.
-
-**Trois lignes de `startProcess`, en phase 6 — et elles ne parlent qu'à un
-manque de mémoire.** L'issue #164 lance un programme extérieur, ce que le projet
-n'avait jamais fait. Les trois lignes sont les deux gardes du préparatif de
-`posix_spawn` et l'enregistrement de leur code d'erreur :
-`posix_spawn_file_actions_init` et `…_addopen` ne peuvent échouer que sur
-`ENOMEM` — ou sur `EBADF` pour un descripteur invalide, et les trois passés ici
-sont `0`, `1` et `2`.
-
-**Mesuré plutôt que lu**, parce que ce fichier dit lui-même qu'un relèvement
-justifié par une lecture du code est un relèvement à vérifier. La lecture
-initiale était fausse : on croyait qu'un fichier de sortie impossible à écrire
-ferait échouer `addopen`, donc qu'un test l'atteindrait. Il n'en est rien —
-`addopen` ne fait qu'enregistrer l'intention, et c'est `posix_spawn` qui rend
-`ENOENT` au moment d'ouvrir. Le test existe, il passe, et il ne traverse aucune
-des trois lignes.
-
-**Ce qui a été couvert plutôt que justifié.** La première mesure en donnait
-quatre : la quatrième était `LaunchErrorKind::Failed`, le cas ni « absent » ni
-« pas à nous ». Un fichier exécutable qui n'est pas un programme le produit —
-le système répond `ENOEXEC` — et le test qui l'éprouve est le seul des trois
-refus qui démontre que la table en est une, et non deux cas particuliers.
-
-**Une ligne de `RealFileSystem::filesIn`, en phase 6.** Le listage d'un
-répertoire lit ses entrées une à une, et chaque avance peut échouer : le
-répertoire peut disparaître entre deux lectures. La ligne non couverte est le
-refus qui en résulte.
-
-**Ce qu'on achète en la gardant.** Sans elle, l'itérateur devient « fin » et la
-fonction rend la liste partielle qu'elle avait — silencieusement. Un appelant
-lirait « voici les fichiers » là où il faudrait lire « je n'ai pas pu finir »,
-et c'est exactement le genre de mensonge qu'une couture au système ne doit pas
-raconter. Le prix est d'une ligne, et il est payé une fois.
-
-**Pourquoi aucun test ne l'atteint.** Il faudrait faire échouer une lecture
-entre deux entrées, depuis l'extérieur, sur un flux de répertoire déjà ouvert :
-retirer les droits ne touche pas un flux ouvert, et effacer le répertoire pendant
-qu'on le lit ne fait pas échouer `readdir` sur Linux. C'est la même famille que
-les trois lignes de `start_process.cpp` — des refus du système qu'un test ne
-sait pas provoquer.
-
-**Une ligne de plus dans `start_process.cpp`, en phase 6.** #172 lui ajoute
-`runAndCapture`, qui pose une question à un programme et attend sa réponse par
-un tube. La ligne non couverte est le refus rendu quand `pipe` échoue — ce qui
-demande d'avoir épuisé les descripteurs du processus, état qu'un test ne peut
-pas fabriquer sans emporter avec lui tout le binaire de tests.
-
-C'est la quatrième de ce fichier et la même famille que les trois autres : des
-refus du système, atteignables seulement en le mettant à genoux. Le reste de la
-fonction est parcouru, y compris ses deux sorties d'erreur utiles — un
-programme absent, et un fichier exécutable qui n'est pas un programme.
-
-**Une ligne de `MpvPlayer::create`, en phase 6.** Bâtir un lecteur peut échouer
-de trois façons — pas de mémoire pour un handle, une option que cette version de
-libmpv ne connaît pas, une initialisation qu'elle refuse — et la ligne non
-couverte est le refus qui en sort. Les trois sont écrites comme une seule
-réponse courante plutôt que comme trois contrôles, précisément pour qu'il n'y en
-ait qu'une : à qui demande un lecteur, ce sont le même événement.
-
-**Ce qui a été restructuré plutôt que compté.** La première mesure en donnait
-cinq. Quatre étaient la même garde défensive — « la propriété n'a pas répondu
-alors qu'une vidéo est ouverte » — répétée dans la durée, la position et l'état
-de lecture. Rien ne fait oublier à un fichier ouvert combien il dure, donc aucun
-test ne pouvait les parcourir. Écrites comme une expression unique, où l'absence
-de réponse est un résultat du même rang que le nombre, elles disparaissent du
-compte sans que rien ne soit perdu — et le code y gagne.
-
-**Huit lignes de plus dans `QtPrompts`, en phase 6.** #175 lui ajoute
-`videoToOpen`, le sélecteur de vidéo : un appel à `QFileDialog`, la garde « rien
-n'a été choisi », et le chemin rendu. C'est la troisième méthode de cette classe
-et la même raison que les précédentes — une boîte modale fait tourner sa propre
-boucle d'événements jusqu'à ce qu'un humain clique.
-
-**Ce qui a été sorti de là plutôt que compté**, comme les fois précédentes : le
-filtre. `videoFilters` assemble la liste d'extensions que le noyau reconnaît, et
-c'est une chose que cette classe peut avoir fausse toute seule — un sélecteur qui
-offrirait un fichier que le reste du programme refuse d'appeler une vidéo serait
-un piège. Exposé, il est éprouvé par un test ordinaire, qui confronte le filtre à
-`isVideoFile` extension par extension.
-
-**Huit lignes de plus en phase 6, et toutes disent la même chose : il n'y a
-pas d'écran ici.** #176 met la vidéo dans la fenêtre, et adopter une fenêtre
-native est un mécanisme X11 — les tests, eux, tournent sur la plateforme Qt
-`offscreen`, qui n'en fournit aucune.
-
-| Lignes | Où | Ce qu'elles font |
-| -----: | :- | :--------------- |
-| 3 | `mpv_player.cpp` | poser `wid` et nommer le contexte X11, quand une fenêtre est donnée |
-| 4 | `player_factory.cpp` | construire un vrai `MpvPlayer` pour cette fenêtre |
-| 1 | `main_window.cpp` | la garde de `Play / Pause` quand aucun film n'est ouvert |
-
-Les sept premières demandent une session X11 pour être parcourues. Ce n'est pas
-une gêne de test mais la propriété même qu'on mesure : un lecteur sans écran est
-ce que #178 a réglé pour tout le reste, et ces sept lignes sont exactement
-l'endroit où l'écran redevient nécessaire. Elles ont été **vérifiées à la main**,
-sous `QT_QPA_PLATFORM=xcb` — et cette vérification a rapporté **deux** défauts que
-le code portait alors : le contexte laissé au choix de mpv ouvrait une fenêtre à
-côté de la nôtre plutôt que dans elle, et la fenêtre adoptée avant d'être à
-l'écran n'était jamais mappée, si bien que le panneau restait vide. Sept lignes
-qu'aucun test ne parcourt sont sept lignes où deux défauts tenaient.
-
-La huitième est une garde défensive derrière une action désactivée. Qt ne
-déclenche pas une action désactivée, donc rien ne peut la parcourir ; la retirer
-ferait dépendre l'absence de plantage de l'état d'un widget.
-
-> **Couverte depuis [#484](https://github.com/Guyot-Bertrand/sub-edit/issues/484)**, le 2026-09-25 : la
-> garde a suivi la lecture dans `VideoPane`, qu'on appelle directement, sans action désactivée devant —
-> `video_pane_test.cpp` la parcourt en demandant la lecture avant qu'un film soit ouvert.
-
-**Ce qui a été couvert plutôt que compté.** La composition de la réplique — le
-passage d'un texte de sous-titre à l'événement ASS que l'incrustation dessine —
-est sortie de `showSubtitle` en fonction libre, `assEventOf`, pour la raison qui
-avait sorti le filtre du sélecteur en #175 : c'est une chose que ce fichier peut
-avoir fausse tout seul, et rien de ce qui part vers libmpv ne se relit.
-`showSubtitle`, lui, est parcouru par deux cas — un lecteur qui a un film, un
-qui n'en a pas.
-
-**Deux lignes de plus dans `QtPrompts`, en phase 7 — et ce sont les mêmes.**
-#254 donne un répertoire à la boîte « ouvrir », pour qu'elle ne s'ouvre plus là
-où le processus a été lancé. L'appel à `QFileDialog::getOpenFileName` passe donc
-de trois arguments à quatre et tient sur quatre lignes au lieu de deux.
-
-Rien de neuf n'est devenu inatteignable : c'est le même appel modal, plus long à
-écrire. Le document disait déjà, en phase 6, que « le reste de `qt_prompts.cpp`
-ne bouge pas, et ne bougera pas : c'est le `QFileDialog` et le `QMessageBox`, et
-leur boucle d'événements ». Il ne bouge toujours pas — il s'écrit seulement sur
-deux lignes de plus. **Quarante, contre trente-huit.**
-
-**Ce qui a été couvert plutôt que compté**, dans le même diff : la lecture et
-l'écriture des trois options nouvelles, les deux palettes du thème, la part
-donnée à la poignée, et le répertoire retenu. Six refus successifs du cliquet
-ont chacun donné un cas de test — une valeur booléenne `false` que personne
-n'écrivait, une largeur nulle, une ligne sans signe égal, les deux surcharges
-qui résolvent l'emplacement, un thème clair qu'on écrivait sans le relire, un
-dialogue de préférences qu'on validait sans jamais l'annuler.
-
-## Quatre lignes montées en phase 9, et elles sont redescendues
-
-**Le cliquet était passé de 61 à 65, et c'était la première fois qu'il montait
-pour du code qui avait vocation à disparaître.** Les quatre lignes étaient dans
-`core/format/subtitle_file.cpp` : le refus que `readAs` opposait aux sept
-formats de la phase 9 qui n'avaient pas encore de lecteur.
-
-**Elles n'étaient pas atteignables, et c'était exactement pourquoi elles
-existaient.** `readAs` reçoit toujours ce que `detectFormat` a reconnu, et les
-deux savoirs étaient d'accord — mais **la phase 9 allait les faire changer neuf
-fois**, une par issue de format. Le jour où l'un aurait avancé sans l'autre, ce
-refus était ce qui séparait une erreur nommée d'un comportement indéfini.
-
-L'alternative était un `std::unreachable()`, qui ne coûte aucune ligne et paie
-la même erreur en corruption silencieuse. Quatre lignes non couvertes étaient
-moins chères.
-
-**Elles s'en sont allées d'elles-mêmes**, comme annoncé. Chaque format livré a
-retiré son étiquette du groupe ; TMPlayer et LRC ont retiré la branche, et le
-cliquet est redescendu sans que personne ait eu à s'en souvenir. Avec elle sont
-partis `WriteErrorKind::NoWriter` — un énumérateur que plus rien n'émettait — et
-la branche d'échec de `textOf`, qui ne pouvait plus être prise : neuf formats
-sur neuf ont un écrivain, et un écrivain ne peut pas échouer.
-
-C'est la forme du pari qui compte, plus que son résultat : **on n'a pas relevé
-le cliquet en promettant de le baisser un jour, on a inscrit à quelle condition
-il baisserait.** La condition est arrivée, et le geste s'est fait tout seul.
-
-**Ce qui a été couvert plutôt que compté**, dans le même diff : les valeurs par
-défaut et la comparaison de `SubStationAlphaExtras`, que le premier jet avait
-écrites sans les éprouver — huit lignes de plus au refus du cliquet, et un cas
-de test qui dit ce qu'une comparaison défaillante coûterait.
-
-**Une ligne de plus dans `main_window.cpp`, en phase 11 — la sixième garde
-inatteignable annoncée plus haut.** #434 ajoute `Append File…`, dont le noyau
-peut légitimement rendre une commande nulle — `appendFile` refuse un projet
-ajouté qui ne porte aucun sous-titre, un cas que ses propres tests
-construisent directement. Depuis la fenêtre, `openProject` ne rend jamais un
-tel projet : les neuf lecteurs refusent tous une lecture qui ne trouverait
-aucun sous-titre, avant même de choisir un format. La garde de la fenêtre
-protège donc un chemin que le code interdit déjà, exactement la famille d'à
-côté.
-
-**Gardée plutôt que supprimée**, la même mise en balance que les quatre
-lignes de `readAs` en phase 9 : l'alternative est un `std::unreachable()`, qui
-ne coûte aucune ligne et paie le jour où un dixième format — ou un lecteur
-relâché — romprait l'invariant par une corruption silencieuse plutôt que par
-un « rien n'a été ajouté ». Une ligne non couverte reste moins chère qu'un
-déréférencement nul en cas d'erreur d'un lecteur à venir.
-
-> **Couverte depuis le 2026-09-26, [#486](https://github.com/Guyot-Bertrand/sub-edit/issues/486).** La
-> garde a suivi `Append File…` dans `ProjectOperations`, qui lit le fichier ajouté par son interface
-> `View` : un double de celle-ci rend un projet vide qu'aucun lecteur ne rendrait, et le cas qui
-> l'atteint est dans `project_operations_test.cpp`. Inatteignable depuis la fenêtre, elle ne l'est plus
-> depuis son collaborateur — le gain que l'[ADR 0035](../adr/0035-les-operations-sortent-de-la-fenetre.md)
-> attendait d'une opération testable sans fenêtre.
-
-## Une ligne de plus dans `hearing_impaired_correction.cpp`, en phase 12
-
-**#500 ajoute les sept nettoyages de Gaupol après les motifs de mentions du
-moteur**, chacun une expression et un remplacement écrits à la main —
-`\1`, `\1 \2`, ou rien. `ReplacementTemplate::parse` demande, pour tout
-remplacement, une fonction qui résout un groupe nommé — le `\g<nom>` que
-Python sait lire — et la seule qu'il y ait à lui donner ici en rend
-toujours l'absence : aucun des sept remplacements ne nomme de groupe, tous
-étant écrits `\1`, `\1 \2` ou vides.
-
-**La ligne non couverte est le corps de cette fonction.** Elle n'est
-appelée que si un remplacement contient un `\g<…>` — et lui en écrire un
-pour la seule raison de la faire s'exécuter changerait une expression
-fidèlement portée de Gaupol pour une raison qui ne lui doit rien. C'est la
-même famille que les gardes déjà comptées plus haut : rien ne l'atteint
-parce que ce qu'on lui donne ne le demande jamais.
-
-**Gardée plutôt que réécrite.** L'interface de `ReplacementTemplate::parse`
-sert aussi `common_errors.cpp`, où un remplacement peut réellement nommer un
-groupe — la retirer d'ici casserait cette généralité pour économiser une
-ligne sur un appel qui n'en a pas l'usage.
-
-## Une ligne de plus dans `line_breaking.cpp`, en phase 12
-
-**#502 porte le `Liner` de Gaupol, et l'une de ses gardes ne peut pas être
-atteinte, par construction de l'algorithme lui-même — pas par ce qu'un
-appelant vérifie avant.** `breakAmong` cherche la meilleure coupure parmi
-les candidats que `possibleBreaksOf` lui donne ; pour plus de deux lignes,
-chaque candidat retenu par `possibleBreaksOf` l'est précisément parce que
-`possibleBreaksOf` a déjà vérifié, en descendant la même récursion, que le
-reste du texte admet au moins une coupure au nombre de lignes demandé. La
-garde `if (!later.breaks.has_value()) continue;` suppose l'échec de ce que
-`possibleBreaksOf` vient de garantir.
-
-**Une démonstration, pas une lecture.** Par récurrence sur `nlines` : à
-`nlines == 2`, `breakAmong` essaie toujours son premier candidat avant que
-son propre seuil d'arrêt ne puisse valoir moins que l'infini, donc il rend
-toujours une coupure dès que `possibleBreaksOf` lui en donne une. À
-`nlines == k`, le seuil d'arrêt ne peut devenir fini qu'après qu'un candidat
-ait réussi — donc aucun candidat antérieur à celui que l'hypothèse de
-récurrence garantit ne peut faire sortir la boucle avant de l'atteindre.
-Cette garantie vaut pour l'implémentation actuelle des deux fonctions ; un
-changement à l'une ou l'autre — l'ordre des candidats, le seuil d'élagage —
-la défait, et c'est pourquoi la garde reste écrite plutôt que retirée.
-
-**Gardée pour cette raison, et parce que Gaupol la porte aussi.**
-`aeidon.Liner._break_lines` a exactement le même `if value[0] is None:
-continue`, invisible à la couverture de tests d'un langage qui n'en mesure
-pas les branches de cette façon. La retirer ferait de `breakAmong` un code
-qui ne peut plus se relire seul — chaque appel récursif supposerait, sans le
-dire, ce que cette note démontre.
-
-## Une ligne de plus dans `correction_run.cpp`, en phase 12
-
-**#504 ajoute `applyCorrections`, qui compose une commande par projet à partir
-de ce qui a été accepté.** Elle assemble `commands` de deux façons — une
-`SetTextCommand` poussée directement pour chaque texte remplacé ou vidé sans
-retrait, une `RemoveCommand` pour le groupe des sous-titres vidés qu'on retire
-— avant de refuser de composer quoi que ce soit si `commands` s'avère vide.
-
-**Une démonstration, pas une lecture.** `applyCorrections` ne construit un
-groupe que pour un projet qui a au moins une `ProposedCorrection` acceptée
-(`groups` n'accueille une entrée que quand `found->items.push_back` a quelque
-chose à y mettre), donc `group.items` n'est jamais vide. Pour chacun de ses
-éléments, la boucle prend l'une des trois branches : `item->proposed` a une
-valeur, et une `SetTextCommand` est poussée directement dans `commands` ; ou il
-n'en a pas et `removeBlankSubtitles` est vrai, et l'index rejoint `emptied` ;
-ou il n'en a pas et `removeBlankSubtitles` est faux, et une `SetTextCommand`
-vide est poussée directement. Le premier élément du groupe emprunte
-nécessairement l'une des trois, donc à la sortie de la boucle, soit `commands`
-tient déjà une entrée, soit `emptied` en tient une — et dans ce second cas,
-`if (!emptied.empty())` pousse la `RemoveCommand` qui manquait. `commands` ne
-peut donc jamais être vide quand la garde le lit.
-
-**Gardée plutôt que retirée**, pour la raison que ce fichier redit à chaque
-entrée de cette famille : l'alternative est de composer une `CompositeCommand`
-vide et de l'appliquer quand même, ce que rien n'empêcherait si un futur
-appelant relâchait l'invariant que cette lecture démontre. Une ligne non
-couverte reste moins chère qu'une commande d'historique qui ne change rien.
-
-## Cinq lignes de plus dans l'assistant, à la relecture de fin de phase 12 (#505)
-
-Le même geste que les deux entrées précédentes — un `switch` exhaustif rendu
-sûr par le compilateur, un risque accepté et déjà écrit ailleurs — appliqué à
-quatre points que la relecture de fin d'issue a mesurés plutôt que supposés.
-
-**Trois gardes de repli, un bloc chacune.** `CorrectionTargetPage::taskChecked`,
-`CorrectionConfirmationPage::reasonOf` et le `taskSettingsOf` local du
-constructeur de `CorrectionWizard` partagent la même forme : un `switch`
-qui couvre chaque valeur d'une énumération à quatre ou six membres, suivi d'un
-`return` que rien n'atteint tant que l'énumération n'en gagne pas un cinquième
-sans mettre à jour le `switch` — ce que le compilateur signale déjà par
-ailleurs (`-Wswitch`). Écrit en toutes lettres plutôt qu'en
-`std::unreachable()` pour rester lisible sans documentation à côté ; compté
-tout de même, puisque `gcovr` ne fait pas la différence.
-
-**Deux lignes dans `CorrectionController`, et le risque que #505 avait déjà
-nommé avant que la mesure ne le confirme.** `pageOwning` répond `nullptr`
-quand aucune page ouverte ne porte l'adresse du projet qu'une correction
-acceptée visait — la garde d'« abandonner referme la fenêtre pendant qu'un
-calcul tourne encore », et son pendant, le `continue` qui saute le projet
-correspondant dans la boucle d'application. Cette adresse n'est jamais
-déréférencée, seulement comparée : le risque tient tout entier dans le fait
-qu'elle peut nommer un projet déjà fermé, ce qui est précisément ce que la
-garde protège contre. La reproduire dans un test demanderait de fermer un
-projet pendant qu'une correction lui est encore promise — soit une vraie
-concurrence, soit une manipulation directe de la mémoire pour la simuler, les
-deux plus coûteuses et plus fragiles que la ligne qu'elles prouveraient.
-
-## Six lignes de plus dans `qt_prompts.cpp`, en phase 14 (#621)
-
-`Prompts::proposeShiftedReopening` est la question que la fenêtre pose quand une traduction
-s'est révélée décalée de façon constante : rouvrir décalée, oui ou non. Sa réalisation de
-production est **une boîte modale** — `QMessageBox::question` — dont `exec()` ne se teste
-pas, exactement comme `aboutLoss` et `aboutUnsavedChanges` à côté d'elle ; les six lignes
-(l'en-tête, le texte, les réponses, l'appel, le retour, l'accolade) rejoignent les quarante-six
-des autres méthodes de ce fichier, qui ne bougent pas.
-
-**Ce qui est couvert plutôt que compté**, dans le même diff : tout le reste de #621, la
-recherche du décalage, la coupe à huit candidats et le refus quand deux décalages se valent —
-un cas construit pour que chacun nettoie l'ouverture à lui seul, ce qui est ce qui fait du
-refus le bon —, et la fenêtre, qui répond à la question par le double `FakePrompts`.
-
-## Relevé
-
-    total : 73
-
-Relevé sur la version 0.15.19, le 2026-10-12.
-
-| Lignes | Fichier |
-| -----: | :------ |
+| more uncovered lines than here | failure, naming the files that gained some |
+| as many | passes, silently |
+| fewer | passes, and invites running `make ratchet` |
+
+`make ratchet` rewrites this file from the last measurement. **It never writes
+of its own accord:** a versioned file moves only if someone asks for it.
+
+## What the uncovered lines are, by family
+
+**Reread as a whole at the review of phase 9**, and the reason for doing so is
+in the shape of the figure: it rises by one or two lines at a time, each for a
+sound reason, each justified here on its date. Nothing then forces the question
+that matters — **does the total still say anything?**
+
+It does, provided it is not read as a quantity. The sixty-seven lines fall into
+four families, and they are not equal:
+
+| Family | Lines | What a test would have to do to reach it |
+| :----- | ----: | :--------------------------------------- |
+| a Qt modal loop | 46 | click; `exec()` hands control to no one else |
+| the outside world failing | 11 | make a `fork` fail, provoke an `EINTR`, fill a disk |
+| libmpv, for real | 4 | a library and a display server inside the gate |
+| **a guard the caller makes unreachable** | **6** | nothing: it would have to be reached by a path the code forbids |
+
+The first three are **irreducible by construction**, and their count moves only
+with the surface: one more modal, one more system call. Justifying them one by
+one is the right gesture, and it is what the rest of this file has done since
+phase 5.
+
+**The fourth is the one that grows, and the only one open to debate.** They are
+five guards — a saturated product one of whose factors is zero, a duration
+shared into zero parts, a `togglePlayback` without a film, a dialog that would
+have kept nothing. Each protects a dereference or a division, each is
+**correct**, and none is reachable: what makes them unreachable is precisely
+what makes them necessary — the caller already checks.
+
+**The lesson, and it has a date.** In phase 9, two functions of the tag pivot
+carried `switch` arms of the same kind; they were **rewritten** rather than
+justified, because there the unreachable arm could disappear without weakening
+anything — `applyOpening` on the HTML side, `appendOff` on the SSA side. It is
+the trade-off to make again every time: **a guard that can be removed without
+losing the protection is removed; a guard that really protects is kept and
+counted.** Today's five are of the second kind.
+
+What this table changes, from now on: a raise is judged against the family it
+falls into, and not against the total. Five more modal lines are a fact of
+surface; a sixth unreachable guard was a question — #434 asked it, and answers
+it further down.
+
+## What the ratchet let through, and why
+
+Raising it is a decision, not an adjustment. Each raise is justified here,
+without which the ratchet no longer measures anything.
+
+**Two lines of the table model, in phase 5 — and the raise was one too many.**
+They had been put down to the `std::unreachable()` placed after the exhaustive
+`switch` statements, which no test can reach by construction. That was wrong:
+`gcovr` does not count those lines. The two uncovered ones were the row and
+column guards of `data()`, perfectly reachable — but the tests meant to exercise
+them built their index with `index()`, which refuses to leave the table and
+returns an invalid index. They therefore stumbled on the first guard and never
+reached the other two.
+
+Corrected in issue #129, by building these indexes with `createIndex` — which is
+what the header exposes it for. The model is covered in full, and the ratchet
+comes back down from 7 to 5.
+
+The lesson is worth writing down: **a raise justified by a reading of the code
+rather than by a measurement is a raise to check.** The reasoning was plausible,
+it held for a whole phase, and it pointed at the wrong lines.
+
+**Thirty-one lines of `QtPrompts`, in phase 5.** It is the largest raise of the
+project, and it fits in one sentence: these lines open a Qt modal box, which
+runs its own event loop until a human clicks. A test that reaches one never
+gets control back.
+
+**Measured, and named** — the four methods of `qt_prompts.cpp`, plus `run` and
+the constructor in the header. There are no others, and each is either the call
+to `QFileDialog` or `QMessageBox`, or the "the user chose nothing" guard, or the
+construction of the return value from what the box returned.
+
+**What this raise buys.** The `Prompts` interface gathers there everything that
+is not reachable, instead of spreading it through the window. In exchange, the
+paths where the faults live — the user cancels, chooses to discard, chooses to
+save first, the write fails — are walked by tests, which no other arrangement
+allowed. `MainWindow` and `DiagnosticsPanel` are covered in full.
+
+**What was taken out of there rather than counted.** Two decisions lived in
+those methods and had no business there: which format a filter designates, and
+what a button of the confirmation box stands for. Exposed, tested, they are no
+longer in this count — that is what brought it down from thirty-six to
+twenty-five.
+
+**Two more lines in phase 8, and the same rule applied twice.** `Save As…` now
+asks for the encoding, the line ending and the mark, which could have added
+thirteen untestable lines to `QtPrompts`. It adds **one**: everything that is
+built and read back — the box, the widget of the three fields, what is drawn
+from it — lives in `save_shape.cpp`, where a test fills it and reads it without
+ever entering an event loop. What remains in `QtPrompts` is `exec`, and that
+alone.
+
+The second line is in `save_shape.cpp`: the guard of a box that would not carry
+the shape, or that would have kept nothing. No test reaches it —
+`saveDialogFor` always sets the shape, and an accepted box always carries a
+name — and it stays, because the next step dereferences both.
+
+**Two more lines in phase 5, and for the same reason.** Issue #132 adds
+`QtPrompts::run` — "show this dialog, say whether it was accepted". It is the
+seam of the dialogs the project writes itself, and it is narrower than the
+previous ones: the three operation dialogs are ordinary widgets that a test
+builds, fills and queries, so only the modal loop leaves the count. One
+`exec()`, one line, rather than one method per dialog.
+
+The first measurement of that issue gave six more in `MainWindow`: two
+cancelled dialogs and three guards no user reaches, the validation button
+following the state of the dialog. Tested rather than justified — a guard that
+no test goes through is a promise nobody checks, and the fake `Prompts`
+validates without looking at the button, which is exactly the situation they
+protect against.
+
+**Three more lines in phase 5, and still the same reason.** Issue #133 adds
+`reportOutcome` — the notice that says what an operation did, distinct from the
+warning that says what failed: two icons, two meanings, and a user who reads
+"1 subtitle cleaned, 1 removed" has been warned of nothing.
+
+Its confirmation cost nothing: the removal dialog is an `OperationDialog`
+without a field, so it goes through the `run` already in place. An operation
+without a setting did not need one more question.
+
+**One line given back, at the review of the phase.** The constructor of
+`QtPrompts` was counted: no test built one, for lack of anything to ask of it.
+The review gave it something — the boxes were set on `nullptr`, so on no window
+— and the window now tells it so itself. The test that exercises this builds the
+class, which covers the line into the bargain. **Thirty-five, against
+thirty-six.**
+
+The rest of `qt_prompts.cpp` does not move, and will not: it is the
+`QFileDialog` and the `QMessageBox`, and their event loop.
+
+**Five more lines in phase 9, and the same rule once again.** Issue #352 adds
+`QtPrompts::aboutLoss` — the modal that announces what a target format will not
+carry, **before** writing, and whose answer can still be "no". It is a
+`QMessageBox::warning` and nothing else: the title, the text, the two buttons,
+the default one, and the comparison that says which was clicked. A test that
+reaches it enters the modal loop and never gets control back.
+
+**What this raise buys, and it is measurable.** Everything that decides lives
+elsewhere and is covered: what is lost is counted by `convertFor`, the words are
+those of `noticeOf`, and the window — refusing, writing anyway, asking nothing
+when nothing is lost — is exercised through the fake `Prompts`. What remains
+here is the call, and that alone.
+
+**Five and not six**: the method fits in one expression, which the formatter
+spreads over five lines. There is no guard to take out nor decision to expose,
+as `choiceOf` had been for the unsaved-changes box — the comparison with `Save`
+is the very return value of the call.
+
+**Sixty-six, against sixty-one.**
+
+**The alternative, weighed and set aside.** One can drive a modal box from a
+test, by scheduling its closing before entering the loop. That would have given
+a green figure at the price of a fragile test that exercises Qt's dialog rather
+than our four lines of glue. The ratchet counts and justifies; it does not
+demand zero.
+
+**Three lines of `startProcess`, in phase 6 — and they speak only to a lack of
+memory.** Issue #164 launches an outside program, which the project had never
+done. The three lines are the two guards of the `posix_spawn` preparation and
+the recording of their error code: `posix_spawn_file_actions_init` and
+`…_addopen` can fail only on `ENOMEM` — or on `EBADF` for an invalid
+descriptor, and the three passed here are `0`, `1` and `2`.
+
+**Measured rather than read**, because this file itself says that a raise
+justified by a reading of the code is a raise to check. The initial reading was
+wrong: it was believed that an output file impossible to write would make
+`addopen` fail, so that a test would reach it. Not at all — `addopen` only
+records the intent, and it is `posix_spawn` that returns `ENOENT` at the moment
+of opening. The test exists, it passes, and it goes through none of the three
+lines.
+
+**What was covered rather than justified.** The first measurement gave four:
+the fourth was `LaunchErrorKind::Failed`, the case neither "absent" nor "not
+ours". An executable file that is not a program produces it — the system
+answers `ENOEXEC` — and the test that exercises it is the only one of the three
+refusals that shows the table is one, and not two special cases.
+
+**One line of `RealFileSystem::filesIn`, in phase 6.** Listing a directory
+reads its entries one by one, and each advance can fail: the directory can
+disappear between two reads. The uncovered line is the resulting refusal.
+
+**What keeping it buys.** Without it, the iterator becomes "end" and the
+function returns the partial list it had — silently. A caller would read "here
+are the files" where it should read "I could not finish", and that is exactly
+the kind of lie a seam to the system must not tell. The price is one line, and
+it is paid once.
+
+**Why no test reaches it.** A read would have to fail between two entries, from
+outside, on a directory stream already open: removing the permissions does not
+touch an open stream, and deleting the directory while it is being read does not
+make `readdir` fail on Linux. It is the same family as the three lines of
+`start_process.cpp` — system refusals a test cannot provoke.
+
+**One more line in `start_process.cpp`, in phase 6.** #172 adds
+`runAndCapture` to it, which asks a program a question and waits for its answer
+through a pipe. The uncovered line is the refusal returned when `pipe` fails —
+which requires having exhausted the process's descriptors, a state a test cannot
+build without taking the whole test binary down with it.
+
+It is the fourth in this file and the same family as the other three: system
+refusals, reachable only by bringing it to its knees. The rest of the function
+is walked, including its two useful error exits — an absent program, and an
+executable file that is not a program.
+
+**One line of `MpvPlayer::create`, in phase 6.** Building a player can fail in
+three ways — no memory for a handle, an option this version of libmpv does not
+know, an initialisation it refuses — and the uncovered line is the refusal that
+comes out of it. The three are written as a single ordinary answer rather than
+as three checks, precisely so that there is only one: to whoever asks for a
+player, they are the same event.
+
+**What was restructured rather than counted.** The first measurement gave five.
+Four were the same defensive guard — "the property did not answer although a
+video is open" — repeated in the duration, the position and the playback state.
+Nothing makes an open file forget how long it lasts, so no test could walk
+them. Written as a single expression, where the absence of an answer is a result
+of the same rank as the number, they disappear from the count without anything
+being lost — and the code gains by it.
+
+**Eight more lines in `QtPrompts`, in phase 6.** #175 adds `videoToOpen` to it,
+the video chooser: a call to `QFileDialog`, the "nothing was chosen" guard, and
+the path returned. It is the third method of this class and the same reason as
+the previous ones — a modal box runs its own event loop until a human clicks.
+
+**What was taken out of there rather than counted**, as the previous times: the
+filter. `videoFilters` assembles the list of extensions the core recognises, and
+it is something this class could get wrong on its own — a chooser that offered a
+file the rest of the program refuses to call a video would be a trap. Exposed,
+it is exercised by an ordinary test, which holds the filter against
+`isVideoFile` extension by extension.
+
+**Eight more lines in phase 6, and all say the same thing: there is no screen
+here.** #176 puts the video in the window, and adopting a native window is an
+X11 mechanism — the tests run on the Qt `offscreen` platform, which provides
+none.
+
+| Lines | Where | What they do |
+| ----: | :---- | :----------- |
+| 3 | `mpv_player.cpp` | set `wid` and name the X11 context, when a window is given |
+| 4 | `player_factory.cpp` | build a real `MpvPlayer` for that window |
+| 1 | `main_window.cpp` | the `Play / Pause` guard when no film is open |
+
+The first seven need an X11 session to be walked. This is not a testing
+inconvenience but the very property being measured: a player without a screen
+is what #178 settled for everything else, and these seven lines are exactly
+where the screen becomes necessary again. They were **checked by hand**, under
+`QT_QPA_PLATFORM=xcb` — and that check brought back **two** defects the code
+then carried: the context left to mpv's choice opened a window beside ours
+rather than inside it, and the window adopted before being on screen was never
+mapped, so the panel stayed empty. Seven lines no test walks are seven lines
+where two defects held.
+
+The eighth is a defensive guard behind a disabled action. Qt does not trigger a
+disabled action, so nothing can walk it; removing it would make the absence of
+a crash depend on the state of a widget.
+
+> **Covered since [#484](https://github.com/Guyot-Bertrand/sub-edit/issues/484)**, on 2026-09-25: the
+> guard followed playback into `VideoPane`, which is called directly, with no disabled action in front —
+> `video_pane_test.cpp` walks it by asking for playback before a film is open.
+
+**What was covered rather than counted.** The composition of the cue — the
+passage from a subtitle text to the ASS event that the overlay draws — was taken
+out of `showSubtitle` as a free function, `assEventOf`, for the reason that had
+taken the filter out of the chooser in #175: it is something this file could get
+wrong on its own, and nothing that goes to libmpv is read back. `showSubtitle`
+is walked by two cases — a player that has a film, one that does not.
+
+**Two more lines in `QtPrompts`, in phase 7 — and they are the same ones.**
+#254 gives the "open" box a directory, so that it no longer opens where the
+process was launched. The call to `QFileDialog::getOpenFileName` therefore goes
+from three arguments to four and takes four lines instead of two.
+
+Nothing new became unreachable: it is the same modal call, longer to write. The
+document already said, in phase 6, that "the rest of `qt_prompts.cpp` does not
+move, and will not: it is the `QFileDialog` and the `QMessageBox`, and their
+event loop". It still does not move — it is just written on two more lines.
+**Forty, against thirty-eight.**
+
+**What was covered rather than counted**, in the same diff: reading and writing
+the three new options, the two palettes of the theme, the share given to the
+handle, and the remembered directory. Six successive refusals of the ratchet
+each gave a test case — a boolean `false` value nobody wrote, a zero width, a
+line without an equals sign, the two overloads that resolve the location, a
+light theme that was written without being read back, a preferences dialog that
+was accepted without ever being cancelled.
+
+## Four lines up in phase 9, and they came back down
+
+**The ratchet had gone from 61 to 65, and it was the first time it rose for
+code meant to disappear.** The four lines were in
+`core/format/subtitle_file.cpp`: the refusal `readAs` gave to the seven formats
+of phase 9 that did not have a reader yet.
+
+**They were not reachable, and that was exactly why they existed.** `readAs`
+always receives what `detectFormat` recognised, and the two pieces of knowledge
+agreed — but **phase 9 was going to change them nine times**, once per format
+issue. The day one moved ahead without the other, this refusal was what
+separated a named error from undefined behaviour.
+
+The alternative was a `std::unreachable()`, which costs no line and pays for the
+same error in silent corruption. Four uncovered lines were cheaper.
+
+**They went away on their own**, as announced. Each format delivered removed its
+label from the group; TMPlayer and LRC removed the branch, and the ratchet came
+back down without anyone having to remember it. With it went
+`WriteErrorKind::NoWriter` — an enumerator nothing emitted any more — and the
+failure branch of `textOf`, which could no longer be taken: nine formats out of
+nine have a writer, and a writer cannot fail.
+
+It is the shape of the bet that matters, more than its result: **the ratchet was
+not raised with a promise to lower it one day; the condition under which it
+would come down was written down.** The condition arrived, and the gesture made
+itself.
+
+**What was covered rather than counted**, in the same diff: the default values
+and the comparison of `SubStationAlphaExtras`, which the first draft had written
+without exercising them — eight more lines at the ratchet's refusal, and a test
+case that says what a faulty comparison would cost.
+
+**One more line in `main_window.cpp`, in phase 11 — the sixth unreachable guard
+announced above.** #434 adds `Append File…`, whose core can legitimately return
+a null command — `appendFile` refuses an appended project that carries no
+subtitle, a case its own tests build directly. From the window, `openProject`
+never returns such a project: the nine readers all refuse a read that would
+find no subtitle, before even choosing a format. The window's guard therefore
+protects a path the code already forbids, exactly the neighbouring family.
+
+**Kept rather than removed**, the same weighing as the four lines of `readAs` in
+phase 9: the alternative is a `std::unreachable()`, which costs no line and pays
+the day a tenth format — or a loosened reader — would break the invariant with
+silent corruption rather than with a "nothing was appended". An uncovered line
+remains cheaper than a null dereference in case of a future reader's error.
+
+> **Covered since 2026-09-26, [#486](https://github.com/Guyot-Bertrand/sub-edit/issues/486).** The
+> guard followed `Append File…` into `ProjectOperations`, which reads the appended file through its
+> `View` interface: a double of it returns an empty project no reader would return, and the case that
+> reaches it is in `project_operations_test.cpp`. Unreachable from the window, it no longer is from its
+> collaborator — the gain [ADR 0035](../adr/0035-les-operations-sortent-de-la-fenetre.md) expected from
+> an operation testable without a window.
+
+## One more line in `hearing_impaired_correction.cpp`, in phase 12
+
+**#500 adds Gaupol's seven clean-ups after the engine's hearing-impaired
+patterns**, each an expression and a replacement written by hand — `\1`,
+`\1 \2`, or nothing. `ReplacementTemplate::parse` asks, for every replacement,
+for a function that resolves a named group — the `\g<name>` that Python can
+read — and the only one there is to give it here always returns its absence:
+none of the seven replacements names a group, all being written `\1`, `\1 \2`
+or empty.
+
+**The uncovered line is the body of that function.** It is called only if a
+replacement contains a `\g<…>` — and writing one for the sole purpose of making
+it run would change an expression faithfully ported from Gaupol for a reason
+that owes it nothing. It is the same family as the guards already counted
+above: nothing reaches it because what it is given never asks for it.
+
+**Kept rather than rewritten.** The interface of `ReplacementTemplate::parse`
+also serves `common_errors.cpp`, where a replacement can really name a group —
+removing it here would break that generality to save one line on a call that has
+no use for it.
+
+## One more line in `line_breaking.cpp`, in phase 12
+
+**#502 ports Gaupol's `Liner`, and one of its guards cannot be reached, by
+construction of the algorithm itself — not by what a caller checks before.**
+`breakAmong` looks for the best break among the candidates `possibleBreaksOf`
+gives it; for more than two lines, each candidate kept by `possibleBreaksOf` is
+kept precisely because `possibleBreaksOf` has already checked, going down the
+same recursion, that the rest of the text admits at least one break at the
+requested number of lines. The guard `if (!later.breaks.has_value()) continue;`
+assumes the failure of what `possibleBreaksOf` has just guaranteed.
+
+**A proof, not a reading.** By induction on `nlines`: at `nlines == 2`,
+`breakAmong` always tries its first candidate before its own stopping threshold
+can be worth less than infinity, so it always returns a break as soon as
+`possibleBreaksOf` gives it one. At `nlines == k`, the stopping threshold can
+become finite only after a candidate has succeeded — so no candidate earlier
+than the one the induction hypothesis guarantees can make the loop exit before
+reaching it. This guarantee holds for the current implementation of the two
+functions; a change to either — the order of the candidates, the pruning
+threshold — undoes it, and that is why the guard stays written rather than
+removed.
+
+**Kept for that reason, and because Gaupol carries it too.**
+`aeidon.Liner._break_lines` has exactly the same `if value[0] is None:
+continue`, invisible to the test coverage of a language that does not measure
+its branches that way. Removing it would make `breakAmong` code that can no
+longer be read on its own — each recursive call would assume, without saying
+so, what this note proves.
+
+## One more line in `correction_run.cpp`, in phase 12
+
+**#504 adds `applyCorrections`, which composes one command per project from
+what was accepted.** It assembles `commands` in two ways — a `SetTextCommand`
+pushed directly for each text replaced or emptied without removal, a
+`RemoveCommand` for the group of emptied subtitles that are removed — before
+refusing to compose anything if `commands` turns out empty.
+
+**A proof, not a reading.** `applyCorrections` builds a group only for a project
+that has at least one accepted `ProposedCorrection` (`groups` takes an entry
+only when `found->items.push_back` has something to put there), so
+`group.items` is never empty. For each of its items, the loop takes one of three
+branches: `item->proposed` has a value, and a `SetTextCommand` is pushed
+directly into `commands`; or it has none and `removeBlankSubtitles` is true, and
+the index joins `emptied`; or it has none and `removeBlankSubtitles` is false,
+and an empty `SetTextCommand` is pushed directly. The first item of the group
+necessarily takes one of the three, so on leaving the loop, either `commands`
+already holds an entry, or `emptied` holds one — and in that second case,
+`if (!emptied.empty())` pushes the `RemoveCommand` that was missing. `commands`
+can therefore never be empty when the guard reads it.
+
+**Kept rather than removed**, for the reason this file repeats at every entry of
+this family: the alternative is to compose an empty `CompositeCommand` and apply
+it anyway, which nothing would prevent if a future caller loosened the invariant
+this reading proves. An uncovered line remains cheaper than a history command
+that changes nothing.
+
+## Five more lines in the wizard, at the end-of-phase-12 review (#505)
+
+The same gesture as the two previous entries — an exhaustive `switch` made safe
+by the compiler, a risk accepted and already written elsewhere — applied to four
+points that the end-of-issue review measured rather than assumed.
+
+**Three fallback guards, one block each.** `CorrectionTargetPage::taskChecked`,
+`CorrectionConfirmationPage::reasonOf` and the local `taskSettingsOf` of the
+`CorrectionWizard` constructor share the same shape: a `switch` that covers
+every value of an enumeration of four or six members, followed by a `return`
+that nothing reaches as long as the enumeration does not gain a fifth without
+updating the `switch` — which the compiler already reports elsewhere
+(`-Wswitch`). Written out in full rather than as `std::unreachable()` to stay
+readable without documentation alongside; counted all the same, since `gcovr`
+does not tell the difference.
+
+**Two lines in `CorrectionController`, and the risk #505 had already named
+before the measurement confirmed it.** `pageOwning` answers `nullptr` when no
+open page carries the address of the project an accepted correction targeted —
+the guard of "discarding closes the window while a computation is still
+running", and its counterpart, the `continue` that skips the corresponding
+project in the application loop. That address is never dereferenced, only
+compared: the risk lies entirely in the fact that it can name a project already
+closed, which is precisely what the guard protects against. Reproducing it in a
+test would require closing a project while a correction is still promised to it
+— either real concurrency, or direct manipulation of memory to simulate it, both
+costlier and more fragile than the line they would prove.
+
+## Six more lines in `qt_prompts.cpp`, in phase 14 (#621)
+
+`Prompts::proposeShiftedReopening` is the question the window asks when a
+translation turned out to be shifted by a constant amount: reopen shifted, yes
+or no. Its production implementation is **a modal box** —
+`QMessageBox::question` — whose `exec()` cannot be tested, exactly like
+`aboutLoss` and `aboutUnsavedChanges` beside it; the six lines (the header, the
+text, the answers, the call, the return, the brace) join the forty-six of the
+other methods of this file, which do not move.
+
+**What is covered rather than counted**, in the same diff: all the rest of
+#621, the search for the shift, the cut at eight candidates and the refusal when
+two shifts are equally good — a case built so that each one cleans the opening
+on its own, which is what makes the refusal the right answer —, and the window,
+which answers the question through the `FakePrompts` double.
+
+## Record
+
+    total: 73
+
+Recorded on version 0.15.19, on 2026-10-12.
+
+| Lines | File |
+| ----: | :--- |
 | 50 | `src/lib/subedit/gui/qt_prompts.cpp` |
 | 4 | `src/lib/subedit/core/process/start_process.cpp` |
 | 3 | `src/lib/subedit/core/io/real_file_system.cpp` |

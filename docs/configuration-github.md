@@ -1,83 +1,85 @@
-# Configuration du dépôt GitHub
+# GitHub repository configuration
 
-Le dépôt `subedit` est **public**. Ce document liste la configuration à appliquer
-dans l'interface GitHub — elle ne vit pas dans le code et se perdrait autrement.
+The `subedit` repository is **public**. This document lists the configuration to
+apply in the GitHub interface — it does not live in the code and would otherwise
+be lost.
 
-## Ce qu'un dépôt public ne permet pas
+## What a public repository does not allow
 
-À poser d'emblée pour éviter les fausses attentes : sur un dépôt public, GitHub
-**n'offre aucun moyen d'empêcher les forks ni la création d'issues**. Ce qui se
-contrôle, c'est ce qui atterrit dans le dépôt, et là le verrouillage est complet.
+To be stated up front so as to avoid false expectations: on a public repository,
+GitHub **offers no way to prevent forks or the creation of issues**. What can be
+controlled is what lands in the repository, and there the lockdown is complete.
 
-Si un jour l'exigence devient « aucune interaction extérieure possible », la
-seule réponse complète est un dépôt privé. La GPL-3.0 n'impose rien tant que le
-binaire n'est pas distribué.
+If one day the requirement becomes "no outside interaction possible", the only
+complete answer is a private repository. The GPL-3.0 imposes nothing as long as
+the binary is not distributed.
 
-## Application
+## Applying it
 
-`src/scripts/setup-github.sh` applique tout ce qui a une API — labels,
-milestones, ruleset — de façon idempotente. Le reste n'en a pas et figure plus
-bas.
+`src/scripts/setup-github.sh` applies everything that has an API — labels,
+milestones, ruleset — idempotently. The rest has none and is listed further
+down.
 
 ```bash
 ./src/scripts/setup-github.sh
 ```
 
-Le ruleset exige la permission **Administration: Read and write** du jeton ;
-un jeton à granularité fine ne l'accorde pas par défaut. Sans elle, le script
-signale l'échec, applique le reste et se termine normalement.
+The ruleset requires the **Administration: Read and write** permission on the
+token; a fine-grained token does not grant it by default. Without it, the script
+reports the failure, applies the rest and exits normally.
 
-## Configuration à appliquer
+## Configuration to apply
 
-### 1. Aucun collaborateur
+### 1. No collaborators
 
-*Settings → Collaborators and teams* — n'ajouter personne.
+*Settings → Collaborators and teams* — add nobody.
 
-C'est la mesure qui fait l'essentiel du travail : sans droit d'écriture,
-un tiers ne peut que forker et proposer une PR, qui se ferme d'un clic.
+This is the measure that does most of the work: without write access, a third
+party can only fork and propose a PR, which is closed in one click.
 
-### 2. Un ruleset sur `main`
+### 2. A ruleset on `main`
 
-*Settings → Rules → Rulesets*, ou `src/scripts/setup-github.sh`.
+*Settings → Rules → Rulesets*, or `src/scripts/setup-github.sh`.
 
-Les libellés ci-dessous sont ceux de l'interface GitHub, et non ceux de l'API.
+The labels below are those of the GitHub interface, not those of the API.
 
-#### « protection de l'historique »
+#### The `protection de l'historique` ruleset
 
-| Champ de l'interface | Valeur |
-| :------------------- | :----- |
+| Interface field | Value |
+| :-------------- | :---- |
 | Ruleset Name | `protection de l'historique` |
 | Enforcement status | **Active** |
-| Bypass list | *laisser vide* |
+| Bypass list | *leave empty* |
 | Target branches → Add target | **Include default branch** |
-| Rules | cocher **Restrict deletions** et **Block force pushes** |
+| Rules | tick **Restrict deletions** and **Block force pushes** |
 
-Le propriétaire étant seul à pouvoir écrire, le risque réel n'est pas un tiers
-malveillant : c'est un `push --force` accidentel de sa part. Une règle dont il
-serait exempté ne protégerait donc de rien — d'où la liste de dérogation vide.
+Since the owner is the only one who can write, the real risk is not a malicious
+third party: it is an accidental `push --force` on their own part. A rule they
+were exempt from would therefore protect against nothing — hence the empty
+bypass list.
 
-#### Il n'y a plus de « porte de qualité »
+#### There is no longer a quality gate ruleset
 
-**Supprimé à la #232.** Ce second ruleset exigeait le check `porte de qualité`
-de `.github/workflows/ci.yml`. Les minutes d'Actions et le stockage du cache
-partaient trop vite pour une exécution par pull request : `ci.yml` et
-`pull-request.yml` ne tournent plus qu'à la demande, et une règle qui attend un
-contrôle que rien ne produira ne protège de rien — elle apprend seulement à
-passer outre par la dérogation admin.
+**Removed in #232.** This second ruleset required the `porte de qualité` check
+of `.github/workflows/ci.yml`. Actions minutes and cache storage were running
+out too fast for one run per pull request: `ci.yml` and `pull-request.yml` now
+run on demand only, and a rule that waits for a check nothing will produce
+protects against nothing — it only teaches one to get past it through the admin
+bypass.
 
-Il avait été mis en `disabled` le 2026-08-27, à l'épuisement du quota d'août.
-`setup-github.sh` ne le recrée plus. S'il existe encore sur le dépôt, il se
-supprime par *Settings → Rules → Rulesets*, ou :
+It had been set to `disabled` on 2026-08-27, when the August quota ran out.
+`setup-github.sh` no longer creates it. If it still exists on the repository, it
+is deleted through *Settings → Rules → Rulesets*, or:
 
 ```console
 $ gh api -X DELETE repos/Guyot-Bertrand/sub-edit/rulesets/20469201
 ```
 
-**Ce qui garde le dépôt est `make check`, en local**, et la pull request dit ce
-qui a été franchi. Ce qui tourne sur GitHub à chaque version est la publication
-des paquets — voir la section 10.
+**What guards the repository is `make check`, run locally**, and the pull
+request states what was passed. What runs on GitHub for each version is the
+publication of the packages — see section 10.
 
-#### Vérifier
+#### Checking
 
 ```bash
 gh api repos/Guyot-Bertrand/sub-edit/rulesets --jq '.[] | "\(.id) \(.name) [\(.enforcement)]"'
@@ -85,66 +87,66 @@ gh api repos/Guyot-Bertrand/sub-edit/rulesets/<id> \
   --jq '{bypass: [.bypass_actors[]? | "\(.actor_type)/\(.actor_id)"], rules: [.rules[].type]}'
 ```
 
-Attendu : `protection de l'historique` seul, sans dérogation, avec les règles
-`deletion` et `non_fast_forward`.
+Expected: `protection de l'historique` alone, with no bypass, with the
+`deletion` and `non_fast_forward` rules.
 
-### 3. Approbation des workflows de fork
+### 3. Approval of fork workflows
 
 *Settings → Actions → General → Fork pull request workflows from outside collaborators*
 → **Require approval for all external contributors**
 
-Empêche qu'une PR d'un inconnu déclenche la CI, et donc consomme des minutes ou
-exécute du code non relu.
+Prevents a PR from a stranger from triggering the CI, and thus consuming minutes
+or running unreviewed code.
 
-### 4. Limites d'interaction
+### 4. Interaction limits
 
 *Settings → Moderation → Interaction limits* → **Limit to prior contributors**
 
-Renouvelable par tranches de six mois. C'est ce qui se rapproche le plus de
-« personne d'autre n'intervient » sur un dépôt public. À renouveler
-explicitement : GitHub laisse la limite expirer sans prévenir.
+Renewable in six-month periods. It is the closest thing to "nobody else steps
+in" on a public repository. To be renewed explicitly: GitHub lets the limit
+expire without warning.
 
-### 5. Réduire la surface publique
+### 5. Reduce the public surface
 
-*Settings → General → Features* — désactiver **Wiki**, **Discussions** et
-**Projects** tant qu'ils ne servent pas.
+*Settings → General → Features* — disable **Wiki**, **Discussions** and
+**Projects** as long as they are not used.
 
-### 6. Propriété du code et contribution
+### 6. Code ownership and contribution
 
-- `.github/CODEOWNERS` désignant le propriétaire sur `*`.
-- `CONTRIBUTING.md` indiquant que le projet n'accepte pas de contributions
-  externes pour l'instant. C'est une politesse autant qu'une protection : ça
-  évite à un tiers de travailler pour rien.
+- `.github/CODEOWNERS` naming the owner on `*`.
+- `CONTRIBUTING.md` stating that the project does not accept outside
+  contributions for now. It is a courtesy as much as a protection: it spares a
+  third party from working for nothing.
 
-### 7. Rétention des journaux et des artefacts
+### 7. Log and artifact retention
 
-*Settings → Actions → General → Artifact and log retention* → **7 jours**
-(réglable de 1 à 90 ; 90 par défaut, mais ce dépôt était **déjà à 30** — mesuré,
-et non supposé, sur l'écart entre `created_at` et `expires_at` des artefacts).
+*Settings → Actions → General → Artifact and log retention* → **7 days**
+(adjustable from 1 to 90; 90 by default, but this repository was **already at
+30** — measured, not assumed, from the gap between the artifacts' `created_at`
+and `expires_at`).
 
-C'est le seul poste de stockage facturé du dépôt avec le cache. Un unique
-artefact est téléversé — `couverture`, le rapport HTML produit par `ci.yml` à
-chaque exécution de la porte, 321 Kio invariablement. **Depuis #232, `ci.yml` ne
-tourne qu'à la demande**, donc le calcul qui suit décrit l'ancien régime ; il
-reste la raison du réglage. À une douzaine d'exécutions par
-jour, le plateau est d'environ 103 Mio à 30 jours et de **~24 Mio à 7 jours**,
-sur les 500 Mio d'un compte gratuit. Les 105 artefacts présents ne pesaient que
-23,4 Mio parce que dix jours d'accumulation seulement les séparaient du départ :
-le plateau n'était pas atteint.
+Together with the cache, it is the only billed storage item of the repository.
+A single artifact is uploaded — `couverture`, the HTML report produced by
+`ci.yml` on each run of the gate, invariably 321 KiB. **Since #232, `ci.yml`
+runs on demand only**, so the calculation that follows describes the former
+regime; it remains the reason for the setting. At a dozen runs a day, the
+plateau is about 103 MiB at 30 days and **~24 MiB at 7 days**, out of the
+500 MiB of a free account. The 105 artifacts present weighed only 23.4 MiB
+because only ten days of accumulation separated them from the start: the plateau
+had not been reached.
 
-Le réglage n'est pas scriptable : l'API des Actions répond
-`403 Resource not accessible by personal access token`. Il se pose donc à la
-main, comme les six précédents.
+The setting cannot be scripted: the Actions API answers
+`403 Resource not accessible by personal access token`. It is therefore set by
+hand, like the six previous ones.
 
-**Il ne fait pas le travail de l'élagueur, et réciproquement.** La durée efface
-les journaux et les artefacts ; elle laisse la ligne d'exécution dans la liste,
-avec ses étapes vides. C'est pourquoi il faut les deux — l'un borne le
-stockage, l'autre le nombre.
+**It does not do the pruner's job, and vice versa.** The retention period erases
+the logs and artifacts; it leaves the run in the list, with its steps empty.
+That is why both are needed — one bounds the storage, the other the count.
 
-#### Vérifier
+#### Checking
 
-Le réglage ne se lit pas par l'API sans jeton d'administration. Ce qui se lit,
-et qui suffit, c'est l'écart que portent les artefacts eux-mêmes :
+The setting cannot be read through the API without an administration token. What
+can be read, and is enough, is the gap carried by the artifacts themselves:
 
 ```bash
 gh api repos/Guyot-Bertrand/sub-edit/actions/artifacts --paginate \
@@ -154,181 +156,181 @@ gh api repos/Guyot-Bertrand/sub-edit/actions/artifacts --paginate \
   done | sort -u
 ```
 
-Attendu : `6`, l'expiration étant calculée depuis le début de l'exécution et non
-depuis le téléversement. Avant l'application du réglage, la même commande
-répondait `29`.
+Expected: `6`, since the expiry is computed from the start of the run and not
+from the upload. Before the setting was applied, the same command answered
+`29`.
 
-Le réglage ne vaut que pour les artefacts créés après lui : ceux d'avant gardent
-la date d'expiration qu'ils portaient déjà. C'est l'élagueur qui les emporte,
-en supprimant leur exécution.
+The setting applies only to artifacts created after it: earlier ones keep the
+expiry date they already carried. It is the pruner that removes them, by
+deleting their run.
 
-### 8. Élagage des exécutions
+### 8. Pruning runs
 
-`.github/workflows/elagage.yml`, tous les lundis à 6 h, et à la main par
+`.github/workflows/elagage.yml`, every Monday at 6:00, and by hand through
 *Actions → élagage → Run workflow*.
 
-**La règle :** de chaque workflow, garder les trente exécutions les plus
-récentes, plus la plus récente dont la branche est `main` si elle n'y est pas
-déjà ; supprimer le reste ; ne jamais toucher une exécution non terminée.
+**The rule:** for each workflow, keep the thirty most recent runs, plus the most
+recent one whose branch is `main` if it is not already among them; delete the
+rest; never touch a run that has not finished.
 
-Contrairement aux sept réglages précédents, celui-ci vit dans le dépôt et non
-dans l'interface — et il n'avait pas le choix. Un jeton personnel ne peut pas
-supprimer une exécution ; seul le `GITHUB_TOKEN` d'un workflow le peut, avec
-`permissions: actions: write`. La règle elle-même est dans
-`src/scripts/prune-runs.sh`, dont `verify-gates.sh` prouve la sélection.
+Unlike the seven previous settings, this one lives in the repository and not in
+the interface — and it had no choice. A personal token cannot delete a run;
+only a workflow's `GITHUB_TOKEN` can, with `permissions: actions: write`. The
+rule itself is in `src/scripts/prune-runs.sh`, whose selection
+`verify-gates.sh` proves.
 
-L'exception sur `main` protège l'analyse complète du lundi, dont la période est
-de sept jours : sans elle, elle sortirait des trente en trois jours. Elle est au
-singulier, ce qui l'empêche de ressusciter les quarante-sept exécutions du
-déclencheur `push` supprimé à la #106.
+The exception for `main` protects the full Monday analysis, whose period is
+seven days: without it, that run would fall out of the thirty within three
+days. It is singular, which prevents it from resurrecting the forty-seven runs
+of the `push` trigger removed in #106.
 
-#### Ce que ça donne
+#### What it gives
 
 | | |
 | :--- | ---: |
-| avant | 146 |
-| à supprimer | 86 |
-| gardées | 60 |
+| before | 146 |
+| to delete | 86 |
+| kept | 60 |
 
-Relevé par `--dry-run` le 2026-08-17, avant que le workflow n'ait tourné : c'est
-donc la sélection qui est mesurée, pas encore la suppression. Le premier passage
-réel se déclenche à la main une fois ce fichier sur `main`, et son résumé porte
-le compte effectif.
+Taken with `--dry-run` on 2026-08-17, before the workflow had run: it is
+therefore the selection that is measured, not yet the deletion. The first real
+pass is triggered by hand once this file is on `main`, and its summary carries
+the actual count.
 
-Les 60 se répartissent en 30 `ci` et 30 `pull request`. L'hebdomadaire du lundi
-était déjà dans les trente : l'exception n'a rien eu à épargner ce jour-là, ce
-qui est le cas normal — elle ne sert que les jours où l'analyse complète a
-vieilli de plus de trente exécutions. Le régime permanent se stabilise à 60, au
-lieu de croître d'une quinzaine par jour.
+The 60 split into 30 `ci` and 30 `pull request`. The weekly Monday run was
+already among the thirty: the exception had nothing to spare that day, which is
+the normal case — it only matters on days when the full analysis has aged by
+more than thirty runs. The steady state settles at 60, instead of growing by
+fifteen or so a day.
 
-#### Vérifier
+#### Checking
 
 ```bash
 ./src/scripts/prune-runs.sh --dry-run
 ```
 
-Lecture seule, et donc lançable avec un jeton personnel : il écrit sur la sortie
-d'erreur le compte total, le nombre à supprimer et le nombre gardé, et sur la
-sortie standard les identifiants condamnés. Après un passage de l'élagueur, le
-nombre à supprimer doit être nul ou proche de zéro.
+Read-only, and therefore runnable with a personal token: it writes to standard
+error the total count, the number to delete and the number kept, and to standard
+output the identifiers marked for deletion. After a pass of the pruner, the
+number to delete should be zero or close to it.
 
-Chaque exécution du workflow écrit d'elle-même son avant/après dans le résumé de
-son travail — un chiffre figé dans ce document vieillirait, celui-là non.
+Each run of the workflow writes its own before/after in its job summary — a
+figure frozen in this document would go stale, that one does not.
 
-### 9. Le `.rpm` sur Fedora
+### 9. The `.rpm` on Fedora
 
-`.github/workflows/fedora.yml`, tous les mardis à 4 h, et à la main par
+`.github/workflows/fedora.yml`, every Tuesday at 4:00, and by hand through
 *Actions → fedora → Run workflow* — issue #266.
 
-**Ce qu'il fait :** produit le `.rpm`, l'installe sur une `fedora:42` en
-conteneur, et lance ce qui en sort. C'est le seul contrôle du dépôt qui joue une
-vraie transaction de gestionnaire de paquets ; tout le reste inspecte le paquet
-sans l'installer, et un paquet peut être irréprochable à l'inspection et refusé
-à l'installation — c'est exactement ce qu'il a trouvé au premier passage.
+**What it does:** builds the `.rpm`, installs it on a `fedora:42` container, and
+runs what comes out of it. It is the only check in the repository that plays a
+real package manager transaction; everything else inspects the package without
+installing it, and a package can be flawless on inspection and refused at
+installation — which is exactly what it found on its first pass.
 
-**Pourquoi hebdomadaire et non par pull request.** Il télécharge Qt et ses
-dépendances, près de trois cents mégaoctets, et le quota d'Actions a déjà été
-épuisé une fois. Ce qu'il éprouve ne bouge qu'avec l'empaquetage, qui bouge
-rarement. Ce qui garde les pull requests entre-temps est local et gratuit :
-`check-installation.sh` refuse un `.rpm` qui possède un répertoire hors de
-`share/subedit`, ce qui était la cause du défaut trouvé.
+**Why weekly and not per pull request.** It downloads Qt and its dependencies,
+close to three hundred megabytes, and the Actions quota has already run out
+once. What it exercises changes only with the packaging, which rarely changes.
+What guards pull requests in the meantime is local and free:
+`check-installation.sh` refuses an `.rpm` that owns a directory outside
+`share/subedit`, which was the cause of the defect found.
 
-**Il n'est requis par aucun ruleset**, et ne doit pas l'être : il ne tourne pas
-sur une pull request, donc l'exiger ferait attendre indéfiniment.
+**No ruleset requires it**, and none must: it does not run on a pull request, so
+requiring it would mean waiting forever.
 
-**Le mardi et non le lundi**, pour ne pas se mettre en travers de l'analyse
-complète de `ci.yml` à 4 h et de l'élagueur à 6 h.
+**Tuesday and not Monday**, so as not to get in the way of the full analysis of
+`ci.yml` at 4:00 and of the pruner at 6:00.
 
-#### Vérifier
+#### Checking
 
 ```bash
 make rpm-check
 ```
 
-Le même geste que le workflow, sur la machine de développement. Il lui faut
-podman ou docker, et il dit lequel il a pris.
+The same gesture as the workflow, on the development machine. It needs podman or
+docker, and says which one it picked.
 
-### 10. Les paquets à chaque tag
+### 10. Packages on each tag
 
-`.github/workflows/release.yml`, quand un tag `vX.Y.Z` est poussé, et à la main
-par *Actions → release → Run workflow* pour republier un tag existant — issue
+`.github/workflows/release.yml`, when a `vX.Y.Z` tag is pushed, and by hand
+through *Actions → release → Run workflow* to republish an existing tag — issue
 #232.
 
-**Ce qu'il fait, dans l'ordre :**
+**What it does, in order:**
 
-1. refuse un nom qui n'est pas `vX.Y.Z`, avant même le checkout ;
-2. `src/scripts/check-release-tag.sh` — le `project(VERSION)` du commit tagué
-   porte le même numéro, et ce commit est sur `main` ;
-3. installe la chaîne d'outils par `setup-toolchain.sh` et lance
-   `make packages` ;
-4. écrit les notes par `git-cliff --current`, la section du journal de cette
-   version ;
-5. crée la release avec le `.deb` et le `.rpm` — ou, pour un tag déjà publié,
-   remplace ses fichiers et ses notes ;
-6. `src/scripts/prune-releases.sh` — élague les releases de patch des milestones
-   passées, sauf à la demande : voir la rétention ci-dessous.
+1. refuses a name that is not `vX.Y.Z`, even before the checkout;
+2. `src/scripts/check-release-tag.sh` — the `project(VERSION)` of the tagged
+   commit carries the same number, and that commit is on `main`;
+3. installs the toolchain through `setup-toolchain.sh` and runs
+   `make packages`;
+4. writes the notes through `git-cliff --current`, the changelog section of
+   that version;
+5. creates the release with the `.deb` and the `.rpm` — or, for a tag already
+   published, replaces its files and its notes;
+6. `src/scripts/prune-releases.sh` — prunes the patch releases of past
+   milestones, except on demand: see retention below.
 
-**Pas de cache et pas d'artefact.** Le cache est le poste de stockage qui a
-coûté ; chaque exécution compile donc à froid, une fois par version plutôt
-qu'une fois par poussée. Les paquets vont directement dans la release, dont les
-fichiers ne comptent pas dans le stockage d'Actions.
+**No cache and no artifact.** The cache is the storage item that cost; each run
+therefore compiles from cold, once per version rather than once per push. The
+packages go straight into the release, whose files do not count towards Actions
+storage.
 
-**Le tag se pose sur le commit de fusion dans `main`**, une fois la pull request
-du bump fusionnée :
+**The tag is put on the merge commit in `main`**, once the pull request carrying
+the bump is merged:
 
 ```console
-$ git -C /home/beber/Projects/subedit tag -a v0.10.10 -m "v0.10.10 — …" <commit de fusion>
+$ git -C /home/beber/Projects/subedit tag -a v0.10.10 -m "v0.10.10 — …" <merge commit>
 $ git -C /home/beber/Projects/subedit push origin v0.10.10
 ```
 
-Un tag posé ailleurs — sur une branche de travail, ou sur un commit dont le
-`CMakeLists.txt` porte un autre numéro — est refusé à l'étape 2, et rien n'est
-construit.
+A tag put elsewhere — on a working branch, or on a commit whose
+`CMakeLists.txt` carries another number — is refused at step 2, and nothing is
+built.
 
-#### La rétention
+#### Retention
 
-| Version | Release et paquets | Tag |
-| :------ | :----------------- | :-- |
-| `vX.Y.0`, mineure ou majeure | gardée toujours | gardé |
-| `vX.Y.Z`, `Z > 0`, milestone en cours | gardée | gardé |
-| `vX.Y.Z`, `Z > 0`, milestone passée | **supprimée** | **gardé** |
+| Version | Release and packages | Tag |
+| :------ | :------------------- | :-- |
+| `vX.Y.0`, minor or major | always kept | kept |
+| `vX.Y.Z`, `Z > 0`, current milestone | kept | kept |
+| `vX.Y.Z`, `Z > 0`, past milestone | **deleted** | **kept** |
 
-« Milestone en cours » est le couple `X.Y` le plus haut parmi les releases. À la
-publication de `v0.11.0`, les releases `0.10.1` à `0.10.N` partent avec leurs
-paquets ; `v0.10.0` reste, et tous les tags aussi.
+"Current milestone" is the highest `X.Y` pair among the releases. When `v0.11.0`
+is published, the releases `0.10.1` to `0.10.N` go with their packages;
+`v0.10.0` stays, and so do all the tags.
 
-**Un correctif sur une milestone passée est élagué dans la foulée** : un `v0.9.1`
-poussé après `v0.10.0` est construit, publié, puis supprimé par la même
-exécution. La règle ne fait pas d'exception pour le plus récent.
+**A fix on a past milestone is pruned straight away**: a `v0.9.1` pushed after
+`v0.10.0` is built, published, then deleted by the same run. The rule makes no
+exception for the most recent one.
 
-**Trois précisions, nées de #399 :**
+**Three clarifications, born of #399:**
 
-- **Une reconstruction à la demande n'élague pas.** Lancé par *Run workflow*,
-  le workflow republie le paquet du tag saisi et s'arrête là : le script lit
-  `GITHUB_EVENT_NAME`, constate `workflow_dispatch`, le dit et sort sans rien
-  supprimer. Sans cela, rebâtir `v0.9.3` alors que `v0.10.0` existe recréerait
-  la release, puis la supprimerait dans le même travail.
-- **Un brouillon n'est pas une version.** Les brouillons sont écartés avant que
-  la milestone en cours soit déduite et avant que quoi que ce soit soit choisi :
-  un brouillon `v0.12.0` créé à la main ne fait pas partir les patchs de 0.11.
-- **Un refus est rouge.** Le script tente toutes les suppressions, puis sort en
-  erreur en nommant chaque release restée ; le travail de publication ne reste
-  pas vert sur une release qu'on croyait élaguée.
+- **An on-demand rebuild does not prune.** Started through *Run workflow*, the
+  workflow republishes the package of the given tag and stops there: the script
+  reads `GITHUB_EVENT_NAME`, sees `workflow_dispatch`, says so and exits without
+  deleting anything. Without this, rebuilding `v0.9.3` while `v0.10.0` exists
+  would recreate the release, then delete it in the same job.
+- **A draft is not a version.** Drafts are set aside before the current
+  milestone is inferred and before anything is selected: a `v0.12.0` draft
+  created by hand does not take away the 0.11 patches.
+- **A refusal is red.** The script attempts every deletion, then exits with an
+  error naming each release left behind; the publishing job does not stay green
+  over a release that was believed pruned.
 
-**Après un refus, le remède est *Re-run failed jobs*, et non *Run workflow*.**
-Rejouer une exécution rouge garde son événement, `push` : le travail reconstruit
-les paquets à froid, remplace les fichiers de la release, puis élague — et
-retente les suppressions qui avaient été refusées. *Run workflow* est un
-`workflow_dispatch` : le script le constate et n'élague pas, si bien que la
-release restée le resterait. Pour la même raison, relancer par *Run workflow* le
-tag qui ouvre une milestone — `v0.11.0` — n'emporte pas les patchs de la
-précédente ; le push suivant, qui relit la liste des releases, les rattrape.
+**After a refusal, the remedy is *Re-run failed jobs*, not *Run workflow*.**
+Re-running a red run keeps its event, `push`: the job rebuilds the packages from
+cold, replaces the release's files, then prunes — and retries the deletions that
+had been refused. *Run workflow* is a `workflow_dispatch`: the script sees it and
+does not prune, so the release left behind would stay. For the same reason,
+re-running through *Run workflow* the tag that opens a milestone — `v0.11.0` —
+does not take away the patches of the previous one; the next push, which
+re-reads the list of releases, catches up with them.
 
-`verify-gates.sh` prouve la sélection sur une liste écrite à la main, ces trois
-comportements contre un `gh` de fortune qui ne touche à aucun dépôt, et deux
-refus du garde de tag.
+`verify-gates.sh` proves the selection on a hand-written list, these three
+behaviours against a makeshift `gh` that touches no repository, and two refusals
+of the tag guard.
 
-#### Vérifier
+#### Checking
 
 ```bash
 ./src/scripts/prune-releases.sh --dry-run
@@ -336,56 +338,56 @@ refus du garde de tag.
 gh release list --repo Guyot-Bertrand/sub-edit
 ```
 
-Le premier est en lecture seule et passe avec un jeton personnel : il écrit les
-tags dont la release partirait, et sur la sortie d'erreur le compte. Chaque
-exécution du workflow écrit d'elle-même son avant/après dans le résumé de son
-travail.
+The first is read-only and works with a personal token: it writes the tags whose
+release would go, and the count to standard error. Each run of the workflow
+writes its own before/after in its job summary.
 
-## Taxonomie des issues
+## Issue taxonomy
 
 ### Labels
 
-| Famille | Valeurs |
-| :------ | :------ |
+| Family | Values |
+| :----- | :----- |
 | `type:` | `bug`, `story`, `enhancement`, `task`, `doc` |
 | `area:` | `build`, `ci`, `cli`, `core`, `doc`, `format`, `gui`, `i18n`, `scripts`, `test`, `text`, `video` |
 | `prio:` | `high`, `medium`, `low` |
-| état | `blocked`, `needs-decision` |
+| state | `blocked`, `needs-decision` |
 
-Les valeurs de `area:` sont **les mêmes que les scopes des messages de commit**.
-Une issue et les commits qui la traitent portent donc le même vocabulaire, ce qui
-rend le CHANGELOG généré directement rapprochable des tickets.
+The values of `area:` are **the same as the scopes of commit messages**. An
+issue and the commits that address it therefore share the same vocabulary, which
+makes the generated CHANGELOG directly traceable to the tickets.
 
-### Gabarits d'issue
+### Issue templates
 
-`.github/ISSUE_TEMPLATE/` porte des **formulaires**, pas des fichiers Markdown :
-GitHub en tire des champs, et un champ requis vide empêche d'ouvrir l'issue. Les
-issues vierges sont désactivées, ce qui force le passage par l'un d'eux.
+`.github/ISSUE_TEMPLATE/` holds **forms**, not Markdown files: GitHub turns them
+into fields, and an empty required field prevents the issue from being opened.
+Blank issues are disabled, which forces going through one of them.
 
-| Gabarit | Pour quoi | Labels posés |
-| :------ | :-------- | :----------- |
-| `story.yml` | une fonctionnalité vue de l'utilisateur | `type:story` |
-| `task.yml` | un travail technique sans effet direct | `type:task` |
-| `bug.yml` | un défaut | `type:bug` |
-| `enhancement.yml` | une amélioration de l'existant | `type:enhancement` |
-| `phase-review.yml` | la relecture qui clôt une phase | `type:task`, `area:doc`, `prio:high` |
+| Template | What for | Labels set |
+| :------- | :------- | :--------- |
+| `story.yml` | a feature seen from the user's side | `type:story` |
+| `task.yml` | technical work with no direct effect | `type:task` |
+| `bug.yml` | a defect | `type:bug` |
+| `enhancement.yml` | an improvement to something existing | `type:enhancement` |
+| `phase-review.yml` | the review that closes a phase | `type:task`, `area:doc`, `prio:high` |
 
-**Le dernier est le seul à arriver pré-rempli**, et c'est ce qui le distingue :
-la relecture de fin de phase a des axes qui valent pour toutes les phases —
-confronter la spec au réalisé, répercuter les renvois, relire le manuel et les
-ADR, confronter les mesures — et les redécouvrir à chaque fois, c'est en oublier
-un. Ce qui est pré-rempli est un point de départ à modifier, pas une formule à
-laisser telle quelle ; deux champs le disent explicitement, parce que la partie
-qui compte est celle qui change d'une phase à l'autre.
+**The last one is the only one that arrives pre-filled**, and that is what sets
+it apart: the end-of-phase review has lines of inquiry that apply to every
+phase — comparing the spec with what was built, propagating cross-references,
+re-reading the manual and the ADRs, comparing the measurements — and
+rediscovering them every time means forgetting one. What is pre-filled is a
+starting point to edit, not a formula to leave as is; two fields say so
+explicitly, because the part that matters is the one that changes from one
+phase to the next.
 
-Ce que le gabarit **n'essaie pas** de pré-remplir : ce que la phase a de
-particulier. Le champ « points à regarder » est requis et sa description
-demande ce qui a surpris pendant la phase — une relecture sans point propre est
-une relecture que personne n'a faite.
+What the template **does not try** to pre-fill: what is particular to the phase.
+The "points to look at" field is required and its description asks what was
+surprising during the phase — a review without a point of its own is a review
+nobody did.
 
 ### Milestones
 
-Un par phase, dans l'ordre du plan de route. Les huit premiers mènent au MVP, les suivants complètent
-l'iso-fonctionnalité. `src/scripts/setup-github.sh` les crée et les tient à
-jour ; la liste de référence est dans
+One per phase, in the order of the roadmap. The first eight lead to the MVP, the
+following ones complete feature parity. `src/scripts/setup-github.sh` creates
+them and keeps them up to date; the reference list is in
 [`feuille-de-route.md`](feuille-de-route.md).

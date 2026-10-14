@@ -58,9 +58,9 @@ CORPUS = REPO_ROOT / "src" / "test" / "data"
 PRIVATE = REPO_ROOT / "src" / "data"
 JOURNAL = REPO_ROOT / "docs" / "mesures" / "detection-de-format.md"
 
-BLOCK_OPEN = "<!-- relevé engendré : ne pas modifier à la main -->"
-BLOCK_CLOSE = "<!-- fin du relevé -->"
-RECORDED = re.compile(r"^\s*formats reconnus\s*:\s*(\d+)\s*/\s*(\d+)\s*$", re.MULTILINE)
+BLOCK_OPEN = "<!-- generated record: do not edit by hand -->"
+BLOCK_CLOSE = "<!-- end of record -->"
+RECORDED = re.compile(r"^\s*recognised formats\s*:\s*(\d+)\s*/\s*(\d+)\s*$", re.MULTILINE)
 
 # Le nom que porte une fixture, et celui que le produit imprime. Les deux tiennent
 # ici parce que rien ne les rapproche ailleurs : le premier est un morceau de nom
@@ -261,7 +261,7 @@ def recorded_score(text):
     """
     found = RECORDED.findall(text)
     if len(found) != 1:
-        fail(f"« formats reconnus : N/M » apparaît {len(found)} fois dans"
+        fail(f"« recognised formats: N/M » apparaît {len(found)} fois dans"
              f" {JOURNAL.relative_to(REPO_ROOT)}, une seule attendue")
     return int(found[0][0]), int(found[0][1])
 
@@ -288,28 +288,28 @@ def rewrite_journal(right, refused, confused):
         fail(f"bornes du relevé introuvables dans {JOURNAL.relative_to(REPO_ROOT)}")
 
     total = len(right) + len(refused) + len(confused)
-    body = [f"{BLOCK_OPEN}\n\n", f"    formats reconnus : {len(right)}/{total}\n\n",
-            f"Relevé sur la version {version_of()}, le"
+    body = [f"{BLOCK_OPEN}\n\n", f"    recognised formats: {len(right)}/{total}\n\n",
+            f"Recorded on version {version_of()}, on"
             f" {datetime.date.today().isoformat()}.\n\n"]
 
-    body.append("| | Fichiers |\n| :--- | -------: |\n")
-    body.append(f"| reconnus | {len(right)} |\n")
-    body.append(f"| refusés, faute d un lecteur | {len(refused)} |\n")
-    body.append(f"| **confondus** | **{len(confused)}** |\n\n")
+    body.append("| | Files |\n| :--- | -------: |\n")
+    body.append(f"| recognised | {len(right)} |\n")
+    body.append(f"| refused, for want of a reader | {len(refused)} |\n")
+    body.append(f"| **confused** | **{len(confused)}** |\n\n")
 
     if refused:
-        body.append("Refusés :\n\n")
+        body.append("Refused:\n\n")
         for path, wanted in refused:
             body.append(f"- `{relative(path)}` — {wanted}\n")
         body.append("\n")
 
     if confused:
-        body.append("| Fichier | Est | Lu comme |\n| :------ | :-- | :------- |\n")
+        body.append("| File | Is | Read as |\n| :--- | :- | :------ |\n")
         for path, wanted, said in confused:
             body.append(f"| `{relative(path)}` | {wanted} | **{said}** |\n")
         body.append("\n")
     else:
-        body.append("**Aucune confusion** : la détection refuse, elle ne se trompe pas.\n\n")
+        body.append("**No confusion**: the detection refuses, it does not get it wrong.\n\n")
 
     written = text[:opened] + "".join(body) + text[closed:]
     if written == text:

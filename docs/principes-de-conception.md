@@ -1,132 +1,130 @@
-# Principes de conception
+# Design principles
 
-Règles permanentes, applicables à tout le code de `subedit`. Elles priment sur
-les habitudes personnelles et sur la commodité du moment. Les specs de chaque
-sous-projet s'y réfèrent plutôt que de les répéter.
+Permanent rules that apply to all of `subedit`'s code. They take precedence over
+personal habits and over the convenience of the moment. The spec of each
+sub-project refers to them rather than repeating them.
 
-## 1. Le compilateur est le premier test
+## 1. The compiler is the first test
 
-**Un type flou est un bug différé.** Toute donnée porteuse de sens a son type ;
-la validation par le compilateur ne se contourne pas au profit d'un conteneur
-générique.
+**A loose type is a deferred bug.** Every piece of data that carries meaning has
+its own type; validation by the compiler is not bypassed in favour of a generic
+container.
 
-Interdit, quelle qu'en soit la commodité :
+Forbidden, however convenient:
 
-- une `map<string, any>` ou une `map<string, variant<…>>` comme modèle de
-  données ou comme configuration ;
-- un `int` nu pour représenter une durée, une position, un numéro de sous-titre
-  ou un indice de piste ;
-- une `string` employée comme énumération ;
-- une structure dont la moitié des champs est valide selon un champ « type ».
+- a `map<string, any>` or a `map<string, variant<…>>` as a data model or as
+  configuration;
+- a bare `int` to represent a duration, a position, a subtitle number or a track
+  index;
+- a `string` used as an enumeration;
+- a structure half of whose fields are valid depending on a "type" field.
 
-Le contre-exemple est dans le projet d'origine : la configuration de Gaupol est
-un dictionnaire imbriqué d'une trentaine de sections dont les valeurs sont
-arbitraires, et chaque lecture est un pari sur le type. Chez nous, c'est une
-structure typée, validée au chargement, fausse impossible à compiler.
+The counter-example is in the original project: Gaupol's configuration is a
+nested dictionary of some thirty sections whose values are arbitrary, and every
+read is a bet on the type. Here it is a typed structure, validated on load, that
+cannot be compiled wrong.
 
-Corollaires :
+Corollaries:
 
-- **types forts** plutôt qu'alias : `Timestamp`, `Duration`, `FrameRate`,
-  `SubtitleIndex` sont des types distincts, non convertibles implicitement entre
-  eux ni vers `int64_t`. Confondre une durée et une position devient une erreur
-  de compilation, pas un bug de timing découvert par l'utilisateur ;
-- **`enum class`** pour tout ensemble fermé de valeurs : format, mode, fin de
-  ligne, cible d'opération ;
-- **rendre les états invalides non représentables** : préférer `std::optional`,
-  `std::variant` et des constructeurs qui valident, plutôt qu'un objet
-  construisible dans un état incohérent puis « initialisé » ensuite.
+- **strong types** rather than aliases: `Timestamp`, `Duration`, `FrameRate`,
+  `SubtitleIndex` are distinct types, not implicitly convertible to one another
+  nor to `int64_t`. Mixing up a duration and a position becomes a compile
+  error, not a timing bug discovered by the user;
+- **`enum class`** for every closed set of values: format, mode, line ending,
+  operation target;
+- **make invalid states unrepresentable**: prefer `std::optional`,
+  `std::variant` and validating constructors over an object that can be
+  constructed in an inconsistent state and "initialised" afterwards.
 
-## 2. Propriété mémoire explicite
+## 2. Explicit memory ownership
 
-La règle tient en une phrase : **à tout instant, il doit être évident qui possède
-quoi.**
+The rule fits in one sentence: **at every moment, it must be obvious who owns
+what.**
 
-- **Sémantique de valeur par défaut.** Une allocation dynamique doit se
-  justifier ; l'absence d'allocation ne se justifie pas.
-- **Aucun `new` ni `delete` nu.** `std::unique_ptr` pour la propriété
-  polymorphique, `std::make_unique` pour la création.
-- **Pointeurs et références nus = observateurs non propriétaires**, dont la durée
-  de vie est garantie par la conception, jamais par la chance.
-- **`std::shared_ptr` seulement si la propriété partagée est démontrée**, pas
-  parce que la durée de vie est confuse. Une propriété confuse se corrige, elle
-  ne s'enrobe pas.
-- **Règle de zéro.** Une classe qui ne gère pas de ressource ne déclare aucun
-  destructeur, constructeur de copie ou opérateur d'affectation. Si elle en
-  déclare un, elle les déclare tous.
-- **Exception documentée : Qt.** La relation parent-enfant de `QObject` est un
-  mécanisme de propriété légitime, limité au code Qt et signalé en commentaire.
+- **Value semantics by default.** A dynamic allocation has to be justified; the
+  absence of one does not.
+- **No bare `new` or `delete`.** `std::unique_ptr` for polymorphic ownership,
+  `std::make_unique` for creation.
+- **Bare pointers and references = non-owning observers**, whose lifetime is
+  guaranteed by design, never by luck.
+- **`std::shared_ptr` only when shared ownership is demonstrated**, not because
+  the lifetime is unclear. Unclear ownership gets fixed, not wrapped.
+- **Rule of zero.** A class that manages no resource declares no destructor,
+  copy constructor or assignment operator. If it declares one, it declares them
+  all.
+- **Documented exception: Qt.** The parent-child relationship of `QObject` is a
+  legitimate ownership mechanism, confined to Qt code and flagged in a comment.
 
-Ces règles ne reposent pas sur la vigilance : LeakSanitizer, embarqué dans le
-preset `asan`, fait échouer les tests sur toute fuite, et clang-tidy rejette les
-allocations propriétaires nues.
+These rules do not rely on vigilance: LeakSanitizer, built into the `asan`
+preset, makes the tests fail on any leak, and clang-tidy rejects bare owning
+allocations.
 
-## 3. Abstraction là où la variation est connue
+## 3. Abstraction where variation is known
 
-SOLID mal appliqué produit une interface par classe, des fabriques partout et un
-code plus rigide que celui qu'il remplace. La règle retenue : **on introduit une
-abstraction quand la variation est réelle et identifiée, pas par principe.**
+SOLID misapplied produces one interface per class, factories everywhere and code
+more rigid than the code it replaces. The rule adopted: **an abstraction is
+introduced when the variation is real and identified, not on principle.**
 
-Dans `subedit`, elle l'est à cinq endroits, connus dès maintenant :
+In `subedit`, it is so in five places, known from now on:
 
-| Point de variation | Pourquoi |
-| :----------------- | :------- |
-| Lecture et écriture de formats | deux implémentations en phase 1, neuf à terme |
-| Moteur d'expressions régulières | PCRE2 contre RE2, non tranché |
-| Lecteur vidéo | libmpv, tranché par l'[ADR 0020](adr/0020-libmpv-pour-le-lecteur-integre.md) ; l'abstraction reste, c'est le backend qui est choisi |
-| Correcteur orthographique | hunspell, nuspell, ou service système |
-| Accès au système de fichiers | remplaçable en test, sans écrire sur disque |
+| Variation point | Why |
+| :-------------- | :-- |
+| Reading and writing formats | two implementations in phase 1, nine eventually |
+| Regular expression engine | PCRE2 versus RE2, not settled |
+| Video player | libmpv, settled by [ADR 0020](adr/0020-libmpv-pour-le-lecteur-integre.md); the abstraction stays, it is the backend that is chosen |
+| Spell checker | hunspell, nuspell, or a system service |
+| File system access | replaceable in tests, without writing to disk |
 
-Partout ailleurs, une classe concrète suffit jusqu'à preuve du contraire. Extraire
-une interface plus tard coûte peu ; se traîner une indirection inutile coûte à
-chaque lecture du code.
+Everywhere else, a concrete class is enough until proven otherwise. Extracting
+an interface later costs little; dragging along a useless indirection costs at
+every reading of the code.
 
-Les autres principes, appliqués sans dogmatisme :
+The other principles, applied without dogma:
 
-- **Responsabilité unique** — un fichier long est un signal, pas une faute en
-  soi. La question n'est pas le nombre de lignes mais : peut-on décrire ce que
-  fait cette unité en une phrase sans « et » ?
-- **Substitution de Liskov** — une implémentation qui doit lever « non
-  supporté » signale une interface mal découpée. Le cas se présentera avec les
-  formats : tous ne portent pas d'en-tête, ne gèrent pas les mêmes balises, et ne
-  travaillent pas tous en temps. C'est le modèle qui doit l'exprimer, pas une
-  exception à l'exécution.
-- **Inversion de dépendance** — le cœur ne connaît ni Qt, ni le disque, ni le
-  réseau. Cette contrainte est déjà vérifiée par la CI.
-- **DRY porte sur la connaissance, pas sur les caractères.** Deux fragments
-  identiques par coïncidence restent séparés ; factoriser une règle métier
-  dupliquée est en revanche impératif.
+- **Single responsibility** — a long file is a signal, not a fault in itself.
+  The question is not the number of lines but: can what this unit does be
+  described in one sentence without an "and"?
+- **Liskov substitution** — an implementation that has to throw "not supported"
+  signals a badly cut interface. The case will come up with formats: not all of
+  them carry a header, handle the same tags, or all work in time. It is the
+  model that must express it, not an exception at run time.
+- **Dependency inversion** — the core knows neither Qt, nor the disk, nor the
+  network. This constraint is already checked by the CI.
+- **DRY is about knowledge, not characters.** Two fragments identical by
+  coincidence stay separate; factoring out a duplicated business rule, on the
+  other hand, is mandatory.
 
-## 4. Testabilité par construction
+## 4. Testability by construction
 
-- Tout le code utile vit en bibliothèque ; les exécutables ne contiennent que du
-  câblage. Ce qui n'est pas testable est signe d'une frontière mal placée.
-- Les dépendances externes — horloge, système de fichiers, processus, lecteur
-  vidéo — passent par une abstraction injectée, afin qu'un test n'ait besoin ni
-  de disque, ni de réseau, ni d'attente.
-- Une fonction pure est préférable à une méthode qui mute un état partagé, y
-  compris quand la seconde est plus courte à écrire.
-- **Un test n'écrit que dans un bac à sable qui lui appartient**, jamais dans le
-  dépôt ni dans le répertoire personnel de qui le lance. Un test qui écrit
-  ailleurs abîme ce qu'il trouve, et — plus vicieux — devient dépendant de ce
-  qui s'y trouvait : il passe chez qui n'a jamais lancé le binaire et échoue
-  chez qui l'a lancé une fois. Le harnais `Scratch` couvre le dépôt,
-  `XDG_CONFIG_HOME` déplacé couvre la configuration, et deux contrôles —
-  `check-untracked.sh`, `check-config-home.sh` — refusent ce qui passe outre.
-- **Un emplacement se reçoit, il ne se cherche pas.** C'est la même règle que
-  l'injection ci-dessus, appliquée à un chemin : un type qui résout lui-même où
-  il vit ne se teste qu'en le laissant écrire là. Le seul code qui résout un
-  emplacement standard est celui du câblage, et il tient dans une fonction que
-  l'on peut appeler — voir `gui::userSettingsPath()` et l'ADR 0022.
+- All the useful code lives in libraries; executables contain only wiring.
+  Something that cannot be tested is the sign of a misplaced boundary.
+- External dependencies — clock, file system, processes, video player — go
+  through an injected abstraction, so that a test needs neither disk, nor
+  network, nor waiting.
+- A pure function is preferable to a method that mutates shared state, even
+  when the latter is shorter to write.
+- **A test writes only into a sandbox it owns**, never into the repository nor
+  into the home directory of whoever runs it. A test that writes elsewhere
+  damages what it finds and — more insidiously — becomes dependent on what was
+  there: it passes for whoever never ran the binary and fails for whoever ran
+  it once. The `Scratch` harness covers the repository, a relocated
+  `XDG_CONFIG_HOME` covers the configuration, and two checks —
+  `check-untracked.sh`, `check-config-home.sh` — refuse whatever gets past them.
+- **A location is received, not looked up.** It is the same rule as the
+  injection above, applied to a path: a type that resolves on its own where it
+  lives can only be tested by letting it write there. The only code that
+  resolves a standard location is the wiring, and it fits in a function that can
+  be called — see `gui::userSettingsPath()` and ADR 0022.
 
-## 5. Performance : mesurer, pas supposer
+## 5. Performance: measure, do not assume
 
-La performance est un objectif transversal, ce qui n'autorise pas
-l'optimisation spéculative.
+Performance is a cross-cutting goal, which does not license speculative
+optimisation.
 
-- Choisir d'emblée la structure de données adaptée relève de la conception, pas
-  de l'optimisation : c'est ce qui est attendu.
-- Toute optimisation qui **complique le code** doit être appuyée par un
-  benchmark, versionné dans `src/test/bench/`, montrant le gain.
-- Éviter les copies gratuites relève de l'hygiène : `string_view` et `span` en
-  paramètre, `move` quand le transfert est réel, allocations hors des boucles.
-- Aucun chiffre de performance n'est annoncé sans mesure à l'appui.
+- Choosing the right data structure from the start is a matter of design, not
+  optimisation: it is what is expected.
+- Any optimisation that **complicates the code** must be backed by a benchmark,
+  versioned in `src/test/bench/`, showing the gain.
+- Avoiding gratuitous copies is a matter of hygiene: `string_view` and `span` as
+  parameters, `move` when the transfer is real, allocations outside loops.
+- No performance figure is announced without a measurement to back it.

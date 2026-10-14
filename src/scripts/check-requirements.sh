@@ -4,7 +4,7 @@
 #
 # Trois sens, tous nécessaires — voir docs/adr/0014-registre-d-exigences.md :
 #
-#   couverture — une exigence `implémentée` est citée par au moins un test, et
+#   couverture — une exigence `implemented` est citée par au moins un test, et
 #                une exigence qui ne l'est pas ne l'est par aucun ;
 #   référence  — tout tag en forme d'identifiant désigne une exigence du
 #                registre ;
@@ -101,10 +101,9 @@ done
 # Lit la table du registre et sort « identifiant état phase barré », un par
 # ligne. Les quatre champs sont sans espace, donc lisibles par un `read` nu.
 #
-# La comparaison des états se fait par index() et non par une expression
-# régulière : les quatre mots portent des accents, et une classe de caractères
-# multi-octets ne se comporte pas de la même façon selon que awk est gawk ou
-# mawk. Une recherche de sous-chaîne compare des octets, partout pareil.
+# States are compared with index() rather than a regular expression: the
+# column may carry a reason after the state word, and a substring search
+# compares bytes, the same way under gawk and mawk.
 read_registry() {
     awk -F'|' -v pattern="${ID_PATTERN}" '
         NF < 4 { next }
@@ -118,11 +117,11 @@ read_registry() {
             gsub(/[` \t]/, "", phase)
 
             state = $(NF - 1)
-            if      (index(state, "implémentée")) label = "implémentée"
-            else if (index(state, "prévue"))      label = "prévue"
-            else if (index(state, "abandonnée"))  label = "abandonnée"
-            else if (index(state, "remplacée"))   label = "remplacée"
-            else                                  label = "inconnu"
+            if      (index(state, "implemented")) label = "implemented"
+            else if (index(state, "planned"))     label = "planned"
+            else if (index(state, "abandoned"))   label = "abandoned"
+            else if (index(state, "replaced"))    label = "replaced"
+            else                                  label = "unknown"
 
             print id, label, phase, (index(raw, "~~") ? "barré" : "nu")
         }
@@ -246,10 +245,10 @@ unknown_state=()
 
 for id in "${!state_of[@]}"; do
     case "${state_of[${id}]}" in
-        implémentée)
+        implemented)
             [[ -n "${cited[${id}]:-}" ]] || uncovered+=("${id}")
             ;;
-        prévue|abandonnée|remplacée)
+        planned|abandoned|replaced)
             [[ -z "${cited[${id}]:-}" ]] || unexpected+=("${id} (${state_of[${id}]})")
             ;;
         *)
@@ -261,7 +260,7 @@ done
 if (( ${#unknown_state[@]} > 0 )); then
     report_failure "états non reconnus :
 $(printf '    %s\n' "${unknown_state[@]}")
-    les quatre états sont : prévue, implémentée, abandonnée, remplacée."
+    les quatre états sont : planned, implemented, abandoned, replaced."
 fi
 
 if (( ${#uncovered[@]} > 0 )); then
@@ -323,7 +322,7 @@ spec_count=0
 for id in "${!state_of[@]}"; do
     expected="nu"
     case "${state_of[${id}]}" in
-        abandonnée|remplacée) expected="barré" ;;
+        abandoned|replaced) expected="barré" ;;
         *) ;;
     esac
     [[ "${struck_in_registry[${id}]}" == "${expected}" ]] \
@@ -363,7 +362,7 @@ if [[ -d "${specs_dir}" ]]; then
             fi
             expected="nu"
             case "${state_of[${id}]}" in
-                abandonnée|remplacée) expected="barré" ;;
+                abandoned|replaced) expected="barré" ;;
                 *) ;;
             esac
             [[ "${struck}" == "${expected}" ]] \

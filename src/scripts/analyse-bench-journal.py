@@ -41,7 +41,7 @@ UNITES = {"ns": 1.0, "µs": 1e3, "ms": 1e6, "s": 1e9}
 
 EN_TETE = re.compile(
     r"^### (?P<version>\S+) — (?P<date>\d{4}-\d{2}-\d{2})"
-    r" — (?P<mode>[^—\n]+?) — charge (?P<charge>\S+)"
+    r" — (?P<mode>[^—\n]+?) — load (?P<charge>\S+)"
 )
 
 
@@ -53,7 +53,7 @@ def duree(cellule):
 
 def releves(texte):
     """Les relevés du journal, du plus ancien au plus récent."""
-    corps = texte.split("<!-- relevés -->", 1)[-1]
+    corps = texte.split("<!-- records -->", 1)[-1]
     trouves, courant = [], None
     for ligne in corps.splitlines():
         en_tete = EN_TETE.match(ligne)
@@ -69,7 +69,7 @@ def releves(texte):
         if courant is None:
             continue
         cellules = [c.strip() for c in ligne.split("|")]
-        if len(cellules) == 5 and cellules[1] not in ("Mesure", ":-----", ""):
+        if len(cellules) == 5 and cellules[1] not in ("Measure", ":-----", ""):
             valeur, ecart = duree(cellules[2]), duree(cellules[3])
             if valeur:
                 courant["mesures"][cellules[1]] = valeur

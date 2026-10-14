@@ -46,7 +46,7 @@ usage: record-bench.sh --xml <sortie.xml> --mode <mode> --load <charge> --below 
   --mode   le mode de compilation à consigner dans l'en-tête de section
            (ex. Release) — c'est à l'appelant de le dire, pas au script de
            le supposer : lui seul sait quel preset CMake a produit le binaire.
-  --load   la charge de la machine au moment de mesurer, ou « inconnue »
+  --load   la charge de la machine au moment de mesurer, ou « unknown »
   --below  le seuil sous lequel une mesure compte comme propre
   --journal  le journal à écrire (défaut : docs/mesures/performances.md) —
              c'est ce qui permet d'éprouver le choix des extrêmes sur un
@@ -169,7 +169,7 @@ with open(journal_path, encoding="utf-8") as handle:
 # ne fait planter ni partition() ni le regex qui suit : le premier rend une
 # moitié vide, le second ne trouve simplement rien à reconduire, et la table
 # des extrêmes se reconstruirait alors depuis le seul run courant (min == max
-# partout), la section « ## Relevés » se dupliquerait, et tout cela passerait
+# partout), la section « ## Records » se dupliquerait, et tout cela passerait
 # pour un ✓. C'est le bug que le commit 0b3ac03 a déjà corrigé une fois, un
 # cran plus loin dans le pipeline ; le vérifier ici ferme l'autre bout.
 #
@@ -179,7 +179,7 @@ with open(journal_path, encoding="utf-8") as handle:
 # l'exception. Un conflit dans la table des extrêmes laissé par un `git add`
 # hâtif se lirait comme un journal propre et perdrait silencieusement un
 # extrême.
-anchors = {"<!-- extrêmes -->": document.count("<!-- extrêmes -->"), "<!-- relevés -->": document.count("<!-- relevés -->")}
+anchors = {"<!-- extremes -->": document.count("<!-- extremes -->"), "<!-- records -->": document.count("<!-- records -->")}
 bad_anchors = {name: count for name, count in anchors.items() if count != 1}
 if bad_anchors:
     details = ", ".join(f"{name!r} : {count} fois" for name, count in bad_anchors.items())
@@ -204,7 +204,7 @@ if conflict_pattern.search(document):
 section_pattern = re.compile(r"^### .*?(?=^### |\Z)", re.MULTILINE | re.DOTALL)
 header_pattern = re.compile(r"^### (?P<version>\S+) — (?P<date>\d{4}-\d{2}-\d{2})")
 
-head, _, records = document.partition("<!-- relevés -->")
+head, _, records = document.partition("<!-- records -->")
 
 kept = []
 for match in section_pattern.finditer(records):
@@ -320,8 +320,8 @@ history = [means for means in (read_means(block) for block in kept) if means]
 current_means = {measure["name"]: measure["mean"] for measure in measures}
 pace = pace_of(current_means, history)
 
-pace_cell = "inconnue" if pace is None else f"×{pace:.2f}"
-lines = [f"### {version} — {today} — {mode} — charge {load} — allure {pace_cell}", "", "| Mesure | Moyenne | Écart-type |", "| :----- | ------: | ---------: |"]
+pace_cell = "unknown" if pace is None else f"×{pace:.2f}"
+lines = [f"### {version} — {today} — {mode} — load {load} — pace {pace_cell}", "", "| Measure | Mean | Standard deviation |", "| :----- | ------: | ---------: |"]
 for measure in measures:
     lines.append(
         f"| {escape_cell(measure['name'])} | {humanise(measure['mean'])} | {humanise(measure['sd'])} |"
@@ -333,7 +333,7 @@ new_records = "\n\n".join([current] + kept)
 # --- extrêmes : jamais élagués, mis à jour si un record tombe ---
 #
 # Les colonnes de date exigent la forme « version — AAAA-MM-JJ » : sans cette
-# contrainte, l'en-tête (« Relevé le ») et la ligne de séparation (« :--- »)
+# contrainte, l'en-tête (« Recorded on ») et la ligne de séparation (« :--- »)
 # du tableau markdown sont elles aussi des lignes « | ... | ... | ... | ... |
 # ... | » valides, et se glisseraient dans `known` comme de fausses mesures.
 extreme_pattern = re.compile(
@@ -342,8 +342,8 @@ extreme_pattern = re.compile(
     r"(?P<max>[^|]+?) \| (?P<maxsrc>\S+ — \d{4}-\d{2}-\d{2}) \|$",
     re.MULTILINE,
 )
-preamble, _, extremes_block = head.partition("<!-- extrêmes -->")
-extremes_block, _, records_head = extremes_block.partition("## Relevés")
+preamble, _, extremes_block = head.partition("<!-- extremes -->")
+extremes_block, _, records_head = extremes_block.partition("## Records")
 
 known = {}
 for match in extreme_pattern.finditer(extremes_block):
@@ -526,7 +526,7 @@ for name in ordered_names:
     comments.append(f"<!-- {name} min={low!r} max={high!r} -->")
 
 new_extremes = "\n".join(
-    ["", "| Mesure | Minimum | Relevé le | Maximum | Relevé le |",
+    ["", "| Measure | Minimum | Recorded on | Maximum | Recorded on |",
      "| :----- | ------: | :-------- | ------: | :-------- |"]
     + rows
     + [""]
@@ -548,11 +548,11 @@ try:
     os.chmod(tmp_path, original_mode)
     with os.fdopen(descriptor, "w", encoding="utf-8") as handle:
         handle.write(preamble)
-        handle.write("<!-- extrêmes -->")
+        handle.write("<!-- extremes -->")
         handle.write(new_extremes)
-        handle.write("\n## Relevés")
+        handle.write("\n## Records")
         handle.write(records_head)
-        handle.write("<!-- relevés -->\n\n")
+        handle.write("<!-- records -->\n\n")
         handle.write(new_records)
         handle.write("\n")
     os.replace(tmp_path, journal_path)

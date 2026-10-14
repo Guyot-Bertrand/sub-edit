@@ -42,7 +42,7 @@ SPREAD_FACTOR = 1.25
 SPREAD_MINIMUM = 5
 
 UNITS = {"ns": 1.0, "µs": 1e3, "ms": 1e6, "s": 1e9}
-HEADER = re.compile(r"^### (?P<version>\S+) — (?P<date>\S+) — [^—]+ — charge (?P<load>\S+)")
+HEADER = re.compile(r"^### (?P<version>\S+) — (?P<date>\S+) — [^—]+ — load (?P<load>\S+)")
 ROW = re.compile(r"^\| (?P<name>.+?) \| (?P<mean>[^|]+?) \| (?P<sd>[^|]+?) \|$", re.MULTILINE)
 TABLE_ROW = re.compile(
     r"^\| (?P<name>.+?) \| (?P<low>[^|]+?) \| (?P<minsrc>[^|]+?)"
@@ -68,7 +68,7 @@ def humanise(value):
 
 def readings(text):
     """Les relevés conservés : version, date, charge, moyennes et dispersions."""
-    body = text.split("<!-- relevés -->", 1)[-1]
+    body = text.split("<!-- records -->", 1)[-1]
     found, current = [], None
     for line in body.splitlines():
         head = HEADER.match(line)
@@ -88,7 +88,7 @@ def readings(text):
         if current is None:
             continue
         cells = [c.strip() for c in line.split("|")]
-        if len(cells) == 5 and cells[1] not in ("Mesure", ":-----", ""):
+        if len(cells) == 5 and cells[1] not in ("Measure", ":-----", ""):
             mean, sd = nanoseconds(cells[2]), nanoseconds(cells[3])
             if mean:
                 current["means"][cells[1]] = mean
@@ -154,8 +154,8 @@ def main():
                 high, maxsrc = mean, reading["stamp"]
             best[name] = (low, minsrc, high, maxsrc)
 
-    head, marker, rest = text.partition("<!-- extrêmes -->")
-    block, records_marker, records = rest.partition("## Relevés")
+    head, marker, rest = text.partition("<!-- extremes -->")
+    block, records_marker, records = rest.partition("## Records")
 
     changes = []
     unjudgeable = []

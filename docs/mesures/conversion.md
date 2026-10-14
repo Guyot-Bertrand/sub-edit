@@ -1,66 +1,64 @@
-# Conversion entre formats
+# Conversion between formats
 
-Ce qu'une conversion perd, **mesuré** paire par paire, et ce que chaque format
-oblige à perdre, **déclaré** à côté.
+What a conversion loses, **measured** pair by pair, and what each format forces
+to be lost, **declared** alongside.
 
-**Une perte, et non un résultat.** L'[ADR 0009](../adr/0009-texte-en-chaine-brute.md)
-annonce depuis la phase 1 qu'un modèle structuré sert de pivot « uniquement lors
-d'une conversion entre formats, où la perte est inévitable et **assumée** ».
-*Assumée* suppose qu'on la connaisse ; c'est ce que l'issue #339 a inscrit dans
-`measure-conversion-loss.py`, sur le modèle de #290 pour la détection
-d'encodage.
+**A loss, not a result.** [ADR 0009](../adr/0009-texte-en-chaine-brute.md) has
+announced since phase 1 that a structured model serves as a pivot "only during
+a conversion between formats, where the loss is inevitable and **accepted**".
+*Accepted* assumes it is known; that is what issue #339 wrote into
+`measure-conversion-loss.py`, on the model of #290 for encoding detection.
 
-## Comment le rejouer
+## How to replay it
 
 ```console
 $ make conversion
 ```
 
-C'est une étape de `check-local` : la mesure se rejoue à chaque pull request, et
-**une divergence d'avec le relevé ci-dessous se voit**. Une perte qui s'aggrave
-échoue, une perte qui se réduit invite à `make conversion-record`, une perte
-inchangée se tait. Ce n'est pas un seuil : le nombre comparé est celui de la
-dernière mesure, jamais une barre qu'on aurait posée.
+It is a step of `check-local`: the measurement is replayed on every pull
+request, and **a departure from the record below shows**. A loss that grows
+fails, a loss that shrinks invites `make conversion-record`, an unchanged loss
+stays silent. It is not a threshold: the number compared is the one of the last
+measurement, never a bar someone has set.
 
-Pour voir ce qui ne revient pas, fichier par fichier :
+To see what does not come back, file by file:
 
 ```console
 $ ./src/scripts/measure-conversion-loss.py --diff
 ```
 
-**Le binaire est un argument**, comme le détecteur l'est pour le score
-d'encodage : la mesure porte sur la sous-commande `convert` que l'utilisateur
-tape, et deux binaires se comparent sur le même corpus sans qu'on touche à
-l'outil.
+**The binary is an argument**, as the detector is for the encoding score: the
+measurement bears on the `convert` subcommand the user types, and two binaries
+compare on the same corpus without touching the tool.
 
 ```console
 $ ./src/scripts/measure-conversion-loss.py --binary ./build/release/bin/subedit-cli
 ```
 
-## Ce qui est mesuré
+## What is measured
 
-**Un aller-retour, et le format de départ est la toise.** Une conversion ne se
-regarde pas de l'extérieur : le fichier d'arrivée est dans un autre format, et
-il n'y a rien à quoi le comparer. Un fichier part en `A`, passe par `B`, revient
-en `A` — ce qui ne revient pas est ce que `B` n'a pas su porter.
+**A round trip, and the starting format is the yardstick.** A conversion cannot
+be looked at from outside: the resulting file is in another format, and there
+is nothing to compare it to. A file leaves as `A`, goes through `B`, comes back
+as `A` — what does not come back is what `B` could not carry.
 
-La mesure n'est exacte que grâce à une propriété que le harnais de #338 tient
-par ailleurs : **un fichier du corpus est déjà ce que notre écriture produit**,
-octet pour octet. Sans elle, un écart pourrait venir de la mise en forme plutôt
-que du passage.
+The measurement is exact only thanks to a property that the harness of #338
+holds elsewhere: **a file of the corpus is already what our writing produces**,
+byte for byte. Without it, a difference could come from the layout rather than
+from the passage.
 
-Le corpus est celui de `src/test/data/` — `valides/`, dix fichiers qui ne se
-ressemblent pas, et `formats/`, la même scène écrite neuf fois. Le corpus privé
-n'est pas lu : absent d'une machine sur deux, il ferait dire deux choses à la
-même porte.
+The corpus is that of `src/test/data/` — `valides/`, ten files that look
+nothing alike, and `formats/`, the same scene written nine times. The private
+corpus is not read: absent from one machine in two, it would make the same gate
+say two things.
 
-<!-- relevé engendré : ne pas modifier à la main -->
+<!-- generated record: do not edit by hand -->
 
-    aller-retour intacts : 58/126
+    intact round trips: 58/126
 
-Relevé sur la version 0.9.22, le 2026-09-09.
+Recorded on version 0.9.22, on 2026-09-09.
 
-| Départ \ Arrivée | `ass` | `lrc` | `microdvd` | `mpl2` | `srt` | `ssa` | `subviewer2` | `tmplayer` | `vtt` |
+| From \ Through | `ass` | `lrc` | `microdvd` | `mpl2` | `srt` | `ssa` | `subviewer2` | `tmplayer` | `vtt` |
 | :--- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
 | `ass` | — | 0/1 | · | 0/1 | 0/1 | 0/1 | 0/1 | 0/1 | 0/1 |
 | `lrc` | 1/1 | — | · | 1/1 | 1/1 | 1/1 | 1/1 | 1/1 | 1/1 |
@@ -72,8 +70,8 @@ Relevé sur la version 0.9.22, le 2026-09-09.
 | `tmplayer` | 1/1 | 0/1 | · | 1/1 | 1/1 | 1/1 | 1/1 | — | 1/1 |
 | `vtt` | 3/4 | 0/4 | · | 3/4 | 3/4 | 3/4 | 3/4 | 0/4 | — |
 
-| Fichier | Passage par | Première ligne qui ne revient pas |
-| :------ | :---------- | :-------------------------------- |
+| File | Through | First line that does not come back |
+| :--- | :------ | :---------------------------------- |
 | `valides/balises.srt` | `vtt` | `<b>ATTENTION</b> — <font color="#ffff00">zone interdite</font>` |
 | `valides/balises.srt` | `mpl2` | `<b>ATTENTION</b> — <font color="#ffff00">zone interdite</font>` |
 | `valides/balises.srt` | `tmplayer` | `00:00:01,000 --> 00:00:03,000` |
@@ -143,184 +141,180 @@ Relevé sur la version 0.9.22, le 2026-09-09.
 | `formats/scene.vtt` | `tmplayer` | `00:01.000 --> 00:03.000` |
 | `formats/scene.vtt` | `lrc` | `00:01.000 --> 00:03.000` |
 
-**26 paire(s) que la conversion refuse de faire** — un fichier temporel vers un format en images, sans grille et sans fréquence donnée. Un refus n'est pas une perte, et n'entre donc pas dans le compte ci-dessus.
+**26 pair(s) the conversion refuses to make** — a timed file to a frame-based format, with no grid and no frame rate given. A refusal is not a loss, and so does not enter the count above.
 
-<!-- fin du relevé -->
+<!-- end of record -->
 
-## La colonne qui ne se remplit pas, et ce qu'elle dit
+## The column that does not fill, and what it says
 
-**On ne revient pas à MicroDVD.** Sa colonne est vide, et sa ligne aussi, parce
-qu'un aller-retour qui le quitte ne peut pas y rentrer : le fichier
-intermédiaire a perdu la fréquence, et la conversion refuse d'en inventer une —
-`convert --to microdvd` demande alors `--frame-rate`.
+**There is no coming back to MicroDVD.** Its column is empty, and so is its
+row, because a round trip that leaves it cannot get back in: the intermediate
+file has lost the frame rate, and the conversion refuses to invent one —
+`convert --to microdvd` then asks for `--frame-rate`.
 
-C'est **la perte déclarée la plus nette des neuf formats**, et la seule qui ne
-se compte pas en pertes. Un en-tête perdu laisse un fichier ; une fréquence
-perdue laisse une conversion impossible.
+It is **the clearest declared loss of the nine formats**, and the only one that
+is not counted in losses. A lost header leaves a file; a lost frame rate leaves
+an impossible conversion.
 
-Ces paires sont donc comptées à part. **Un refus n'est pas une perte** : les
-compter comme telles dirait le contraire de ce qu'ils sont, et gonflerait le
-dénominateur d'un chiffre qui ne mesure plus rien.
+These pairs are therefore counted separately. **A refusal is not a loss**:
+counting them as such would say the opposite of what they are, and inflate the
+denominator of a figure that would no longer measure anything.
 
-## Ce que le nombre vaut, et ce qu'il ne vaut pas
+## What the number is worth, and what it is not
 
-**Il mélange sciemment deux choses** : ce qu'un format ne *peut* pas porter, et
-ce que notre conversion perdrait sans y être obligée. Les séparer demanderait de
-déclarer les soixante-douze cases à la main — et une déclaration écrite à la
-main se périme en silence, ce que #289 a corrigé pour le corpus et que rien
-n'obligerait à recommencer ici.
+**It knowingly mixes two things**: what a format *cannot* carry, and what our
+conversion would lose without being forced to. Separating them would require
+declaring the seventy-two cells by hand — and a declaration written by hand
+goes stale in silence, which #289 corrected for the corpus and which nothing
+would force us to start again here.
 
-Ce qu'il garantit est plus étroit, et se tient tout seul : **une perte ne
-s'aggrave pas sans qu'on le voie.** Ce qu'elle vaut en droit se lit ci-dessous,
-en prose — et c'est là, pas dans le nombre, que la politique de dégradation se
-décide.
+What it guarantees is narrower, and stands on its own: **a loss does not grow
+without anyone seeing it.** What it is worth in principle reads below, in prose
+— and it is there, not in the number, that the degradation policy is decided.
 
-**Et il baisse une fois, à l'arrivée de TMPlayer et de LRC** : 47/80 devient
-60/126, soit une part qui recule de trois cinquièmes à moins de la moitié. Rien
-n'a régressé. Deux formats qui ne portent pas de fin sont entrés dans la
-matrice, et **toute paire qui les traverse perd les siennes par construction** —
-seize colonnes et deux lignes de plus, presque toutes perdantes d'avance. Le
-relevé a donc été réenregistré sciemment, ce que le contrôle demande de faire
-plutôt que de subir.
+**And it falls once, with the arrival of TMPlayer and LRC**: 47/80 becomes
+60/126, a share that drops from three fifths to less than half. Nothing
+regressed. Two formats that carry no end entered the matrix, and **every pair
+that crosses them loses its ends by construction** — sixteen columns and two
+rows more, nearly all losing in advance. The record was therefore re-recorded
+knowingly, which is what the check asks to do rather than suffer.
 
-C'est aussi ce qui montre la limite du chiffre unique, et pourquoi la matrice
-est là : **une ligne se lit, un total ne se lit pas.** Les lignes `lrc` et
-`tmplayer` sont pleines — on part de ces formats sans rien perdre, puisqu'ils
-n'ont rien de plus à perdre. Ce sont leurs colonnes qui sont vides.
+It is also what shows the limit of the single figure, and why the matrix is
+there: **a row can be read, a total cannot.** The `lrc` and `tmplayer` rows are
+full — one leaves those formats without losing anything, since they have
+nothing more to lose. It is their columns that are empty.
 
-## Il baisse une seconde fois, et cette fois c'est un progrès
+## It falls a second time, and this time it is progress
 
-**60/126 devient 58/126 le jour où le pivot de balises existe**, et les deux
-paires perdues sont les deux paires qu'il fallait perdre.
+**60/126 becomes 58/126 the day the tag pivot exists**, and the two pairs lost
+are the two pairs that had to be lost.
 
-**L'aller-retour d'octets récompense celui qui ne fait rien**, et c'est là qu'on
-le voit. Avant le pivot, convertir un `.srt` coloré en WebVTT recopiait
-`<font color="#ffff00">` tel quel : le fichier revenait identique, et le `.vtt`
-produit portait une balise que WebVTT ne définit pas. La mesure comptait cette
-paire intacte parce qu'elle n'avait rien traduit. Le pivot retire la couleur,
-puisque WebVTT n'en a pas — le `.vtt` est enfin du WebVTT, et l'aller-retour ne
-revient plus. **Le fichier intermédiaire est devenu correct, et la mesure a
-baissé de ce fait même.**
+**The byte round trip rewards whoever does nothing**, and this is where it
+shows. Before the pivot, converting a coloured `.srt` to WebVTT copied
+`<font color="#ffff00">` as it was: the file came back identical, and the
+`.vtt` produced carried a tag that WebVTT does not define. The measurement
+counted that pair intact because it had translated nothing. The pivot removes
+the colour, since WebVTT has none — the `.vtt` is at last WebVTT, and the round
+trip no longer comes back. **The intermediate file became correct, and the
+measurement fell for that very reason.**
 
-La seconde paire dit la même chose autrement. MicroDVD et MPL2 n'ont pas de
-balise qui s'arrête : `{y:i}` penche jusqu'au bout de la ligne. Une ligne dont
-une moitié seulement était en gras s'écrit donc sans gras — plutôt qu'avec un
-gras qui déborde sur le reste, ce qu'aurait donné une recopie.
+The second pair says the same thing another way. MicroDVD and MPL2 have no tag
+that stops: `{y:i}` slants to the end of the line. A line only half of which
+was bold is therefore written without bold — rather than with a bold that
+spills over the rest, which a copy would have given.
 
-**C'est ce que l'ADR 0031 appelle la salissure, vue de l'autre côté.** Écrire
-`{\i1}` dans un `.srt` fait un fichier qui revient octet pour octet et que
-l'utilisateur lit de travers ; le traduire fait un fichier juste et un
-aller-retour qui perd. La mesure préfère le premier, et elle a tort — c'est la
-prose qui tranche, comme ce relevé le dit depuis le début.
+**This is what ADR 0031 calls the soiling, seen from the other side.** Writing
+`{\i1}` in a `.srt` makes a file that comes back byte for byte and that the
+user reads wrongly; translating it makes a correct file and a round trip that
+loses. The measurement prefers the first, and it is wrong — it is the prose
+that decides, as this record has said from the start.
 
-**Ce qui reste vrai, et c'est tout ce qu'on lui demande** : le nombre ne bouge
-pas tout seul. Il a fallu venir ici l'écrire.
+**What remains true, and it is all that is asked of it**: the number does not
+move on its own. Someone had to come here and write it.
 
-## La perte déclarée
+## The declared loss
 
-Ce qui suit est **une propriété des formats, pas de notre code**. Elle s'écrit
-avant la première ligne de lecteur, et c'est ce sur quoi le cadrage de la phase 9
-(#337) tranche sa politique de dégradation.
+What follows is **a property of the formats, not of our code**. It is written
+before the first line of a reader, and it is what the framing of phase 9 (#337)
+decides its degradation policy on.
 
-### Ce qui traverse par traduction, depuis le pivot
+### What crosses by translation, since the pivot
 
-**Six choses**, et ce sont celles de Gaupol : gras, italique, souligné, couleur,
-police et taille. Elles sont décodées du vocabulaire de départ, portées dans un
-modèle qui ne vit que le temps de la conversion, et réécrites dans le
-vocabulaire d'arrivée — [ADR 0031](../adr/0031-pivot-de-balises-a-la-conversion.md).
+**Six things**, and they are Gaupol's: bold, italic, underline, colour, font
+and size. They are decoded from the starting vocabulary, carried in a model
+that lives only as long as the conversion, and rewritten in the target
+vocabulary — [ADR 0031](../adr/0031-pivot-de-balises-a-la-conversion.md).
 
-| Vocabulaire | Formats | L'italique s'y écrit |
-| :---------- | :------ | :------------------- |
+| Vocabulary | Formats | Italic is written |
+| :--------- | :------ | :---------------- |
 | HTML | SubRip, WebVTT, SubViewer 2 | `<i>…</i>` |
 | Sub Station Alpha | SSA, Advanced SSA | `{\i1}…{\i0}` |
-| MicroDVD | MicroDVD | `{Y:i}`, jusqu'au bout |
-| MPL2 | MPL2 | `/` en tête de ligne |
-| aucun | TMPlayer, LRC | nulle part |
+| MicroDVD | MicroDVD | `{Y:i}`, to the end |
+| MPL2 | MPL2 | `/` at the start of the line |
+| none | TMPlayer, LRC | nowhere |
 
-**Un vocabulaire partagé n'est pas un pouvoir partagé.** SubRip et WebVTT
-écrivent l'italique de la même façon et ne s'entendent pas sur la couleur ;
-Sub Station Alpha n'écrit pas le souligné qu'Advanced SSA écrit. Ce que chaque
-format sait dire est donc une seconde table, et c'est elle qui décide de la
-perte.
+**A shared vocabulary is not a shared power.** SubRip and WebVTT write italic
+the same way and do not agree on colour; Sub Station Alpha does not write the
+underline that Advanced SSA writes. What each format can say is therefore a
+second table, and it is that table that decides the loss.
 
-**Deux vocabulaires ne savent pas styler un morceau de ligne**, faute d'une
-balise qui s'arrête. Une ligne dont les runs ne s'accordent pas s'écrit sans
-style du tout en MicroDVD et en MPL2 : mieux vaut perdre que déborder.
+**Two vocabularies cannot style part of a line**, for want of a tag that stops.
+A line whose runs do not agree is written with no style at all in MicroDVD and
+in MPL2: better to lose than to spill over.
 
-### Ce qui ne traverse jamais une frontière de format
+### What never crosses a format boundary
 
-**Les données propres à un sous-titre** — les coordonnées de SubRip, l'identifiant
-et les réglages d'une cellule WebVTT, le style nommé, les marges et l'effet
-d'une réplique SSA. Chaque format a les siennes, et elles ne se traduisent pas :
-`align:start position:10%` n'a pas d'équivalent SubRip, `X1:040 X2:600` n'en a
-pas en WebVTT.
+**The data specific to one subtitle** — SubRip's coordinates, the identifier
+and settings of a WebVTT cue, the named style, the margins and the effect of an
+SSA event. Each format has its own, and they do not translate:
+`align:start position:10%` has no SubRip equivalent, `X1:040 X2:600` has none
+in WebVTT.
 
-**L'en-tête**, pour la même raison. `[Script Info]` n'est pas une entête WebVTT,
-et le texte libre qui suit `WEBVTT` n'est pas du SSA.
+**The header**, for the same reason. `[Script Info]` is not a WebVTT header,
+and the free text that follows `WEBVTT` is not SSA.
 
-**La mise en page**, que le pivot laisse dehors — `{\pos(x,y)}`, `{\an8}`,
-`<v Marie>`, `<ruby>`, les horodatages internes de WebVTT. Ils traversent
-intacts un aller-retour dans leur propre format, où rien n'est décodé, et
-disparaissent à la conversion. La traduire demanderait un modèle de mise en page
-que rien d'autre dans le projet ne réclame, et la plupart n'ont d'équivalent
-nulle part.
+**The layout**, which the pivot leaves out — `{\pos(x,y)}`, `{\an8}`,
+`<v Marie>`, `<ruby>`, WebVTT's internal timestamps. They cross a round trip in
+their own format intact, where nothing is decoded, and disappear on
+conversion. Translating it would require a layout model that nothing else in
+the project calls for, and most of them have an equivalent nowhere.
 
-Elles se lisent dans la mesure : `valides/coordonnees.srt` perd ses coordonnées
-en passant par WebVTT, `valides/complet.vtt` perd son en-tête, son bloc `STYLE`,
-sa note, l'identifiant de sa première cellule, ses réglages **et ses deux
-balises de locuteur** en passant par SubRip.
+They can be read in the measurement: `valides/coordonnees.srt` loses its
+coordinates going through WebVTT, `valides/complet.vtt` loses its header, its
+`STYLE` block, its note, the identifier of its first cue, its settings **and
+its two voice tags** going through SubRip.
 
-### Ce qui traverse, sauf là où le format d'arrivée ne sait pas le porter
+### What crosses, except where the target format cannot carry it
 
-| Format | La fin d'une réplique | Les sauts de ligne | L'italique | Précision |
-| :----- | :-------------------- | :----------------- | :--------- | :-------- |
-| SubRip | portée | portés | `<i>…</i>` | milliseconde |
-| WebVTT | portée | portés | `<i>…</i>` | milliseconde |
-| SubViewer 2 | portée | `[br]` | `<i>…</i>` | centième |
-| Sub Station Alpha | portée | `\N` | `{\i1}…{\i0}` | centième |
-| Advanced SSA | portée | `\N` | `{\i1}…{\i0}` | centième |
-| MicroDVD | portée, **en images** | `\|` | `{Y:i}` | image |
-| MPL2 | portée | `\|` | `/` en tête de ligne | dixième |
-| TMPlayer | **absente** | `\|` | **aucun vocabulaire** | seconde |
-| LRC | **absente** | **absents** | **aucun vocabulaire** | centième |
+| Format | The end of a cue | Line breaks | Italic | Precision |
+| :----- | :--------------- | :---------- | :----- | :-------- |
+| SubRip | carried | carried | `<i>…</i>` | millisecond |
+| WebVTT | carried | carried | `<i>…</i>` | millisecond |
+| SubViewer 2 | carried | `[br]` | `<i>…</i>` | hundredth |
+| Sub Station Alpha | carried | `\N` | `{\i1}…{\i0}` | hundredth |
+| Advanced SSA | carried | `\N` | `{\i1}…{\i0}` | hundredth |
+| MicroDVD | carried, **in frames** | `\|` | `{Y:i}` | frame |
+| MPL2 | carried | `\|` | `/` at the start of the line | tenth |
+| TMPlayer | **absent** | `\|` | **no vocabulary** | second |
+| LRC | **absent** | **absent** | **no vocabulary** | hundredth |
 
-**Deux formats n'ont pas de fin.** LRC et TMPlayer ne portent qu'une position
-par ligne ; une lecture invente les fins, et la fin inventée est ce qui ressort
-d'un aller-retour. C'est la promesse « à vide » de la table de #338, vue de
-l'autre côté.
+**Two formats have no end.** LRC and TMPlayer carry only one position per line;
+a reading invents the ends, and the invented end is what comes out of a round
+trip. It is the "empty" promise of the table of #338, seen from the other side.
 
-**LRC ne porte pas de saut de ligne** : une réplique de deux lignes en revient
-sur une seule, et les mots sont recollés par une espace.
+**LRC carries no line break**: a cue of two lines comes back as one, and the
+words are joined by a space.
 
-**MicroDVD compte en images**, et n'énonce aucune grille. Une conversion vers
-lui suppose une fréquence que le fichier ne dira pas à la lecture suivante — la
-promesse conditionnelle de #338, et la question que le cadrage doit trancher.
+**MicroDVD counts in frames**, and states no grid. A conversion to it assumes a
+frame rate that the file will not tell on the next reading — the conditional
+promise of #338, and the question the framing has to settle.
 
-**Une borne que le tableau ne montre pas, et où nous allons plus loin que
-Gaupol.** LRC écrit `mm:ss.cc` et n'a pas de champ d'heures ; ce sont donc les
-minutes qui les portent, et `[62:03.00]` est une heure et deux minutes. Le motif
-de Gaupol prend exactement deux chiffres de minutes : au-delà de 99 minutes 59
-il ne relit plus le fichier, et son écriture, qui découpe la chaîne `HH:MM:SS`
-après les heures, écrit `02:03.00` pour la même position — une réplique déplacée
-d'une heure, en silence.
+**A bound the table does not show, and where we go further than Gaupol.** LRC
+writes `mm:ss.cc` and has no hours field; so it is the minutes that carry them,
+and `[62:03.00]` is one hour and two minutes. Gaupol's pattern takes exactly two
+digits of minutes: beyond 99 minutes 59 it no longer reads the file back, and
+its writing, which cuts the `HH:MM:SS` string after the hours, writes
+`02:03.00` for the same position — a cue moved by an hour, in silence.
 
-Notre lecture prend les minutes pour ce qu'elles sont, aussi longues qu'elles
-soient, et notre écriture les rend entières. L'aller-retour est alors exact quel
-que soit l'endroit du film, ce qui est la seule chose que le format demandait.
-Le signe est accepté des deux côtés, comme chez Gaupol.
+Our reading takes the minutes for what they are, however long they are, and our
+writing renders them whole. The round trip is then exact wherever one is in the
+film, which is the only thing the format asked for. The sign is accepted on
+both sides, as in Gaupol.
 
-**La précision, en revanche, se mesure — et pas là où on l'attendait.** La scène
-de #338 pose toutes ses positions sur la seconde entière, exactement pour
-qu'elle soit la même scène chez le plus pauvre des neuf ; elle ne pouvait donc
-rien en dire. C'est `valides/` qui l'exerce, sans avoir été écrit pour :
-`cadence.srt` porte une position à `01:00:00,017`, et elle revient à `,020` d'un
-passage par SubViewer 2. Le corpus qui ne ressemble à rien trouve ce que le
-corpus régulier ne peut pas trouver, et c'est la raison de garder les deux.
+**Precision, on the other hand, is measured — and not where it was expected.**
+The scene of #338 puts all its positions on the whole second, precisely so that
+it is the same scene in the poorest of the nine; it could therefore say nothing
+about it. It is `valides/` that exercises it, without having been written for
+it: `cadence.srt` carries a position at `01:00:00,017`, and it comes back at
+`,020` from a passage through SubViewer 2. The corpus that looks like nothing
+finds what the regular corpus cannot find, and that is the reason for keeping
+both.
 
-## Ce qui n'entrait pas dans la mesure
+## What did not enter the measurement
 
-Sept des neuf rendus de la scène ne s'ouvraient pas au début de la phase 9 : les
-lecteurs n'étaient pas écrits. Le relevé les comptait à part plutôt que de les
-taire, et leur nombre est descendu d'un à chaque format livré, jusqu'à zéro. La
-ligne disparaît du relevé quand il n'y a rien à compter ; le compteur, lui,
-reste, parce que la question se reposera au premier corpus qu'on ajoutera.
+Seven of the nine renderings of the scene did not open at the start of phase 9:
+the readers were not written. The record counted them separately rather than
+keeping quiet about them, and their number went down by one with each format
+delivered, to zero. The line disappears from the record when there is nothing to
+count; the counter stays, because the question will come up again with the
+first corpus added.

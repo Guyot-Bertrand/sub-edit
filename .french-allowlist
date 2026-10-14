@@ -25,7 +25,6 @@ CMakeLists.txt
 CMakePresets.json
 CONTRIBUTING.md
 Makefile
-README.md
 cliff.toml
 cmake/Ccache.cmake
 cmake/Coverage.cmake
@@ -81,15 +80,7 @@ docs/adr/0039-le-lot-collisions-dossiers-et-arborescence.md
 docs/adr/0040-correct-ecrit-directement-dry-run-propose.md
 docs/adr/0041-afficher-la-video-par-le-rendu-logiciel.md
 docs/adr/README.md
-docs/configuration-github.md
-docs/exigences.md
-docs/feuille-de-route.md
-docs/mesures/conversion.md
-docs/mesures/couverture.md
-docs/mesures/detection-d-encodage.md
-docs/mesures/detection-de-format.md
 docs/mesures/performances.md
-docs/principes-de-conception.md
 docs/specs/00-fondations.md
 docs/specs/01-noyau.md
 docs/specs/02-operations-d-edition.md
