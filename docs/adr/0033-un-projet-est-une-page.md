@@ -1,85 +1,87 @@
-# 0033 — Faire d'un projet une page de la fenêtre
+# 0033 — Make a project a page of the window
 
-Statut : acceptée — 2026-09-22
-Proposée en cadrant la phase 11, issue #426. **Acceptée par #435**, la porte qui précédait la troisième
-tranche de la phase : le multi-projets se livre, au prix décrit ci-dessous et en le connaissant.
+**Date:** 2026-09-22
+**Status:** accepted
 
-## Contexte
+Proposed while scoping phase 11, issue #426. **Accepted by #435**, the gate that preceded the third
+batch of the phase: multi-project support ships, at the price described below and knowing it.
 
-La feuille de route promet des **onglets**, et dit de la phase qui les porte que « le besoin n'est pas
-confirmé ». Cette ADR décrit ce qu'ils coûteraient, pour que #435 décide en le sachant ; **elle ne
-décide pas qu'ils se font.**
+## Context
 
-`MainWindow` fait 1 951 lignes et retient, dans un seul objet, **deux sortes d'état** :
+The roadmap promises **tabs**, and says of the phase that carries them that "the need is not
+confirmed". This ADR describes what they would cost, so that #435 decides knowing it; **it does not
+decide that they are built.**
 
-| À la fenêtre | À un projet |
-| :----------- | :---------- |
-| les menus et leurs actions, la barre d'état, le titre | la session et son historique |
-| le lecteur, la vue vidéo, la minuterie | le modèle et la table |
-| le thème, les répertoires, les réglages de l'ajustement | la ligne où la lecture a été placée |
-| le presse-papiers, la boîte de recherche | la vidéo associée, la réplique que l'image porte |
-| | la correspondance de la recherche |
+`MainWindow` is 1,951 lines long and keeps, in a single object, **two kinds of state**:
 
-Aujourd'hui la fenêtre a **un** projet, et la distinction n'a jamais eu à être faite. Gaupol a des
-onglets dans une fenêtre, chacun une `Page`, et c'est là que vit son état de projet.
+| To the window | To a project |
+| :------------ | :----------- |
+| the menus and their actions, the status bar, the title | the session and its history |
+| the player, the video view, the timer | the model and the table |
+| the theme, the directories, the adjustment settings | the row where playback was placed |
+| the clipboard, the search box | the associated video, the cue the picture carries |
+| | the search match |
 
-## Décision
+Today the window has **one** project, and the distinction never had to be made. Gaupol has
+tabs in a window, each one a `Page`, and that is where its project state lives.
 
-**Un projet est une page.** `ProjectPage` porte la colonne de droite — la session, le modèle, la table,
-l'état de lecture et de recherche —, et **la fenêtre en possède une ou plusieurs**. Quand la page courante
-change, la fenêtre **recalcule ses menus, sa barre d'état, son titre et son film**.
+## Decision
 
-**Le lecteur n'est pas dupliqué** : un seul, dont le film se change avec la page. Ce que la fenêtre sait
-déjà faire — `syncVideo` compare l'association voulue à celle qui est ouverte, et rouvre si elle diffère
-— sert donc à changer d'onglet. **La position de lecture ne survit pas au changement d'onglet**, et le manuel
-le dit.
+**A project is a page.** `ProjectPage` carries the right-hand column — the session, the model, the table,
+the playback and search state —, and **the window owns one or more of them**. When the current page
+changes, the window **recomputes its menus, its status bar, its title and its film**.
 
-> **Amendé le 2026-09-25, [#471](https://github.com/Guyot-Bertrand/sub-edit/issues/471).** À l'usage, sur un
-> vrai bureau, l'utilisateur a jugé ce prix trop lourd. Le lecteur reste unique ; **la position, elle,
-> survit** : chaque page la retient au départ de son onglet (`ProjectPage::resumeAt`), et le lecteur y retourne
-> au retour, en pause. Elle appartient au film sur lequel l'onglet a été quitté : un autre film choisi entre-temps
-> repart du début.
+**The player is not duplicated**: a single one, whose film changes with the page. What the window can
+already do — `syncVideo` compares the wanted association with the one that is open, and reopens if they
+differ — therefore serves to switch tabs. **The playback position does not survive a tab switch**, and the
+manual says so.
 
-**Le presse-papiers reste à la fenêtre** : copier dans un projet et coller dans un autre est ce pour quoi
-on en ouvre deux.
+> **Amended on 2026-09-25, [#471](https://github.com/Guyot-Bertrand/sub-edit/issues/471).** In use, on a
+> real desktop, the user judged this price too heavy. The player stays single; **the position, however,
+> survives**: each page keeps it when its tab is left (`ProjectPage::resumeAt`), and the player goes back
+> to it on return, paused. It belongs to the film the tab was left on: another film chosen in the meantime
+> starts again from the beginning.
 
-**L'extraction se fait d'abord, seule**, sous la forme d'une fenêtre qui possède une seule page, sans aucun
-comportement neuf. Elle prouve la séparation avant qu'un second projet ne l'éprouve.
+**The clipboard stays with the window**: copying in one project and pasting in another is what one opens
+two for.
 
-## Alternatives écartées
+**The extraction comes first, alone**, in the form of a window that owns a single page, without any
+new behaviour. It proves the separation before a second project puts it to the test.
 
-- **Une fenêtre par projet.** Moins chère aujourd'hui : `MainWindow` telle qu'elle est, et un registre
-  d'application. Écartée parce que « fermer tout », « enregistrer tout » et « projet suivant » deviennent
-  alors des gestes **entre** fenêtres, avec un menu par fenêtre qui doit savoir ce que font les autres ; et
-  parce que la feuille de route dit « onglets », que Gaupol en a, et qu'une fenêtre par projet est une autre
-  interface. *Si #435 confirme le besoin de plusieurs projets mais pas d'onglets, c'est la voie de repli.*
-- **Un `QTabWidget` dont on échange l'état de la fenêtre à chaque changement d'onglet.** Sans objet de page,
-  la fenêtre reste le lieu de tout, et **chaque changement d'onglet est une copie d'état dans les deux sens** —
-  précisément là où vivent les fuites d'un projet dans l'autre : une correspondance de recherche, une ligne
-  placée, un film qu'on n'a pas changé.
-- **Un lecteur par page.** Un processus mpv par onglet : de la mémoire pour des films qu'on ne regarde pas, et
-  deux sons possibles à la fois. Le prix d'un seul lecteur, la position perdue au changement d'onglet, est
-  plus faible. *(Ce prix a été levé par #471 : voir l'encadré plus haut.)*
+## Alternatives dismissed
 
-## Conséquences
+- **One window per project.** Cheaper today: `MainWindow` as it is, and an application
+  registry. Dismissed because "close all", "save all" and "next project" then become gestures
+  **between** windows, with a menu per window that must know what the others do; and
+  because the roadmap says "tabs", Gaupol has them, and one window per project is a different
+  interface. *If #435 confirms the need for several projects but not for tabs, this is the fallback.*
+- **A `QTabWidget` whose window state is swapped at each tab switch.** Without a page object,
+  the window remains the place of everything, and **each tab switch is a copy of state in both directions** —
+  precisely where one project's leaks into another live: a search match, a placed row, a film that was
+  not changed.
+- **One player per page.** One mpv process per tab: memory for films nobody is watching, and
+  two possible sounds at once. The price of a single player, the position lost on tab switch, is
+  lower. *(This price was lifted by #471: see the box above.)*
 
-> **Complété le 2026-09-25, [#477](https://github.com/Guyot-Bertrand/sub-edit/issues/477).** Garder toujours un
-> projet ouvert a un effet que la décision n'avait pas vu : lancée sans fichier, la fenêtre montre un projet
-> vierge, et un fichier ouvert s'y ajoutait dans un second onglet, à côté d'un projet inutile. Gaupol ne
-> rencontre pas le cas, puisqu'il démarre sans aucun projet. **Un projet vierge cède désormais sa place** au
-> fichier ouvert sur lui, dans le même onglet (`isBlank` dans `project_page.hpp`). Rien n'y est demandé,
-> puisqu'un projet vierge n'a rien à perdre.
+## Consequences
 
-**Facile** : un projet de plus est une page de plus ; l'annulation est déjà par session, donc par onglet.
+> **Completed on 2026-09-25, [#477](https://github.com/Guyot-Bertrand/sub-edit/issues/477).** Always keeping a
+> project open has an effect the decision had not foreseen: started without a file, the window shows a
+> blank project, and an opened file was added to it in a second tab, next to a useless project. Gaupol does
+> not meet the case, since it starts with no project at all. **A blank project now gives up its place** to
+> the file opened over it, in the same tab (`isBlank` in `project_page.hpp`). Nothing is asked,
+> since a blank project has nothing to lose.
 
-**Difficile** : c'est **la plus grosse réécriture de la phase** — `main_window.cpp` en est traversé —, et le
-seul morceau dont on ne revient pas facilement. Le critère qui la rend sûre est écrit dans l'issue d'extraction :
-**les tests de la fenêtre passent sans qu'on en réécrive un.** Si l'un d'eux doit changer, la séparation n'était
-pas celle qu'on croyait, et l'ADR se rouvre.
+**Easy**: one more project is one more page; undo is already per session, hence per tab.
 
-**#435 a tranché pour le multi-projets, le 2026-09-22.** La phase 11 avait construit le modèle de données
-pour l'accueillir dès la première tranche sans jamais engager la réécriture ; la décision l'engage
-maintenant, en connaissant le prix écrit ci-dessus. Les cinq issues de la troisième tranche — #436 à
-#440 — quittent `blocked`, et l'extraction de [#436](https://github.com/Guyot-Bertrand/sub-edit/issues/436)
-est la première à s'ouvrir : elle pose `ProjectPage` seule, sans onglet, avant qu'un second projet
-n'éprouve la séparation.
+**Hard**: it is **the biggest rewrite of the phase** — `main_window.cpp` is crossed by it from end to end —,
+and the only piece that is not easily undone. The criterion that makes it safe is written in the
+extraction issue: **the window tests pass without rewriting any of them.** If one of them has to change,
+the separation was not the one we thought, and the ADR reopens.
+
+**#435 decided for multi-project support, on 2026-09-22.** Phase 11 had built the data model to
+accommodate it from the first batch without ever committing to the rewrite; the decision commits to it
+now, knowing the price written above. The five issues of the third batch — #436 to
+#440 — leave `blocked`, and the extraction of [#436](https://github.com/Guyot-Bertrand/sub-edit/issues/436)
+is the first to open: it sets up `ProjectPage` alone, without tabs, before a second project
+puts the separation to the test.

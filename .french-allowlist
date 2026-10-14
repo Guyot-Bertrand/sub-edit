@@ -37,12 +37,6 @@ cmake/Tidy.cmake
 cmake/ToolchainSanity.cmake
 cmake/Translations.cmake
 cmake/Warnings.cmake
-docs/adr/0030-ce-qu-un-document-retient-de-son-fichier.md
-docs/adr/0031-pivot-de-balises-a-la-conversion.md
-docs/adr/0032-un-document-un-fichier.md
-docs/adr/0033-un-projet-est-une-page.md
-docs/adr/0034-trois-collaborateurs-de-la-fenetre.md
-docs/adr/0035-les-operations-sortent-de-la-fenetre.md
 docs/adr/0036-icu-pour-les-motifs-de-correction.md
 docs/adr/0037-lire-les-motifs-de-gaupol-tels-quels.md
 docs/adr/0038-sortie-json-lines-versionnee.md

@@ -1,94 +1,93 @@
-# 0031 — Un pivot de balises, pour la seule conversion
+# 0031 — A markup pivot, for conversion only
 
-Statut : acceptée — 2026-09-07
-Décidée en cadrant la phase 9, issue #337.
+**Date:** 2026-09-07
+**Status:** accepted
 
-## Contexte
+Decided while scoping phase 9, issue #337.
 
-L'[ADR 0009](0009-texte-en-chaine-brute.md) a été écrite pour cette phase-ci.
-Elle nomme ASS, et elle promet :
+## Context
 
-> Un modèle structuré reste utilisé, comme chez Gaupol, **uniquement comme pivot
-> lors d'une conversion entre formats**, où la perte est inévitable et assumée.
+[ADR 0009](0009-texte-en-chaine-brute.md) was written for this very phase.
+It names ASS, and it promises:
 
-**Ce pivot n'existe pas.** Rien ne l'avait demandé : SubRip et WebVTT écrivent
-tous deux `<i>…</i>`, si bien qu'une conversion entre eux n'a jamais eu à
-traduire quoi que ce soit. La chaîne brute passait telle quelle, et c'était juste.
+> A structured model is still used, as in Gaupol, **only as a pivot during a
+> conversion between formats**, where the loss is unavoidable and accepted.
 
-Neuf formats, c'est cinq vocabulaires :
+**That pivot does not exist.** Nothing had asked for it: SubRip and WebVTT both
+write `<i>…</i>`, so a conversion between them never had to translate anything.
+The raw string went through as is, and that was right.
 
-| Vocabulaire | Formats | L'italique s'y écrit |
-| :---------- | :------ | :------------------- |
+Nine formats make five vocabularies:
+
+| Vocabulary | Formats | Italics are written |
+| :--------- | :------ | :------------------ |
 | HTML | SubRip, WebVTT, SubViewer 2 | `<i>…</i>` |
 | SSA | Sub Station Alpha, Advanced SSA | `{\i1}…{\i0}` |
-| MicroDVD | MicroDVD | `{Y:i}` jusqu'au bout du sous-titre |
-| MPL2 | MPL2 | `/` en tête de ligne |
-| aucun | TMPlayer, LRC | nulle part |
+| MicroDVD | MicroDVD | `{Y:i}` up to the end of the subtitle |
+| MPL2 | MPL2 | `/` at the start of the line |
+| none | TMPlayer, LRC | nowhere |
 
-Sans traduction, un SSA converti en SubRip rend `{\i1}Il ne dit rien.{\i0}` — du
-texte que l'utilisateur voit, dans un fichier qui ne saura jamais l'interpréter.
-**Ce n'est pas une perte, c'est une salissure** : la perte aurait été de rendre
-`Il ne dit rien.` sans italique, ce qui est lisible.
+Without translation, an SSA converted to SubRip gives `{\i1}He says nothing.{\i0}`
+— text the user sees, in a file that will never know how to interpret it.
+**That is not a loss, it is a smear**: the loss would have been to give
+`He says nothing.` without italics, which is readable.
 
-## Décision
+## Decision
 
-**Le pivot est construit, et il ne vit que le temps d'une conversion.** Un texte
-lu reste une chaîne brute ; ouvrir et enregistrer un fichier dans son propre
-format ne le décode pas et ne le touche pas. L'ADR 0009 n'est ni remplacée ni
-amendée : elle est honorée.
+**The pivot is built, and it lives only for the duration of a conversion.** Text
+that has been read remains a raw string; opening and saving a file in its own
+format neither decodes nor touches it. ADR 0009 is neither superseded nor
+amended: it is honoured.
 
-**Sa portée est celle de Gaupol** — gras, italique, souligné, couleur, police,
-taille. Rien d'autre n'est traduit.
+**Its scope is Gaupol's** — bold, italic, underline, colour, font, size.
+Nothing else is translated.
 
-**Ce que le format d'arrivée ne sait pas écrire est retiré, et la conversion le
-dit.** C'est le seul point où nous ajoutons quelque chose à Gaupol, qui retire
-en silence.
+**What the target format cannot write is removed, and the conversion says so.**
+It is the only point where we add something to Gaupol, which removes silently.
 
-## Alternatives écartées
+## Alternatives dismissed
 
-### Ne rien traduire, et laisser passer les balises
+### Translating nothing, and letting the tags through
 
-C'est ce que ferait une conversion naïve, et le résultat est ci-dessus :
-`{\i1}` visible dans un `.srt`. Le fichier reste valide et le texte devient
-faux. Écartée sans hésitation.
+That is what a naive conversion would do, and the result is above: `{\i1}`
+visible in a `.srt`. The file stays valid and the text becomes wrong. Dismissed
+without hesitation.
 
-### Retirer toutes les balises à la conversion
+### Removing all tags on conversion
 
-Simple, prévisible, et elle perd ce qui aurait pu être gardé. Convertir un SSA
-en SubRip perdrait l'italique alors que SubRip sait l'écrire — une perte
-gratuite, que la mesure de #339 compterait comme telle.
+Simple, predictable, and it loses what could have been kept. Converting an SSA
+to SubRip would lose italics although SubRip can write them — a gratuitous loss,
+which the measurement of #339 would count as such.
 
-### Un modèle structuré permanent
+### A permanent structured model
 
-Écartée en phase 1, pour un motif qui n'a pas bougé : le décodage est
-destructeur, et le rendre permanent ferait perdre à l'ouverture ce qui n'est
-perdu qu'à la conversion. L'ADR 0009 en garde la trace, et sa variante à
-« fragments opaques » reste la porte de sortie qu'elle décrit — cette décision
-ne la referme pas.
+Dismissed in phase 1, for a reason that has not moved: decoding is destructive,
+and making it permanent would lose on opening what is only lost on conversion.
+ADR 0009 keeps the record of it, and its "opaque fragments" variant remains the
+way out it describes — this decision does not close it.
 
-### Traduire aussi la mise en page
+### Translating layout as well
 
-`{\pos(x,y)}`, `{\an8}`, `{\t(...)}`, les styles nommés SSA, `<ruby>` et les
-horodatages internes de WebVTT. Chacun demanderait un modèle de mise en page que
-rien d'autre dans le projet ne réclame, et la plupart n'ont d'équivalent nulle
-part. Ils traversent intacts un aller-retour dans leur propre format, et
-disparaissent à la conversion — en le disant.
+`{\pos(x,y)}`, `{\an8}`, `{\t(...)}`, SSA named styles, `<ruby>` and WebVTT's
+inner timestamps. Each would require a layout model that nothing else in the
+project calls for, and most have no equivalent anywhere. They go through a round
+trip in their own format intact, and disappear on conversion — saying so.
 
-## Conséquences
+## Consequences
 
-**Une conversion n'est plus une réécriture, c'est une traduction**, et son coût
-en tests est celui d'une traduction : chaque paire de vocabulaires a ses cas.
-Cinq vocabulaires font vingt paires ordonnées, dont huit vers ou depuis « aucun »
-et donc triviales.
+**A conversion is no longer a rewrite, it is a translation**, and its cost in
+tests is that of a translation: each pair of vocabularies has its cases. Five
+vocabularies make twenty ordered pairs, eight of which go to or from "none" and
+are therefore trivial.
 
-**La perte devient mesurable, et elle l'est déjà** — `docs/mesures/conversion.md`
-compte les allers-retours intacts avant que le pivot existe, et le nombre bougera
-quand il existera. C'est ce que l'outil de #339 a été écrit pour voir.
+**Loss becomes measurable, and it already is** — `docs/mesures/conversion.md`
+counts the intact round trips before the pivot exists, and the number will move
+when it does. That is what the tool of #339 was written to see.
 
-**Le parseur conscient des balises de l'ADR 0009 n'est toujours pas écrit**, et
-ce pivot ne l'écrit pas. Ce sont deux pièces différentes : le pivot traduit un
-vocabulaire en un autre, le parseur protège les balises pendant qu'une opération
-transforme le texte autour d'elles. La phase 4 s'est passée du second
-([0017](0017-analyseur-de-mentions-ecrit-a-la-main.md)) ; la phase 10 le
-retrouvera sur son chemin. Le pivot lui donnera un vocabulaire commun à
-reconnaître, ce qui est un acompte, pas la pièce.
+**The markup-aware parser of ADR 0009 is still not written**, and this pivot does
+not write it. They are two different pieces: the pivot translates one vocabulary
+into another, the parser protects the tags while an operation transforms the
+text around them. Phase 4 did without the latter
+([0017](0017-analyseur-de-mentions-ecrit-a-la-main.md)); phase 10 will find it
+on its way. The pivot will give it a common vocabulary to recognise, which is a
+down payment, not the piece.
