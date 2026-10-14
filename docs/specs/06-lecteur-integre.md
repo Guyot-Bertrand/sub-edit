@@ -1,414 +1,410 @@
-# Phase 6 — Le lecteur intégré
-
-**Issue de cadrage : #165.** Ce document décide ce que la phase construit, et
-le découpe. Il n'est pas un compte rendu : ce qu'il écrit au futur est ce qui
-reste à faire.
-
-## Objectif
-
-Après un décalage, une transformation ou une conversion de fréquence,
-**vérifier le résultat sur le film**. C'est le geste qui manque : le noyau sait
-déplacer quatre mille sous-titres depuis la phase 2, la fenêtre le montre depuis
-la phase 5, et rien ne dit encore si le résultat tombe juste.
-
-La vidéo se regarde **dans la fenêtre**, avec la réplique courante dessinée
-par-dessus.
-
-## Ce qui a changé, et pourquoi c'est écrit ici
-
-La feuille de route cadrait cette phase autour d'une **prévisualisation par
-lecteur externe** — écrire un fichier temporaire, lancer mpv, MPlayer ou VLC —
-et rangeait le lecteur intégré en phase 14, « la partie la plus coûteuse du
-projet ».
-
-Ce cadrage a été repris. Et l'iso-fonctionnalité le demandait : **Gaupol a les
-deux.** `gaupol/player.py` est un lecteur GStreamer embarqué, distinct de
-`aeidon/agents/preview.py`. La feuille de route avait retenu le second et oublié
-le premier.
-
-Le lecteur externe **disparaît** de la phase. Il n'était qu'un substitut posé
-quand l'intégré semblait trop cher ; le garder en plus coûterait deux surfaces,
-deux sections de manuel et deux jeux de tests pour un geste que l'intégré rend
-mieux.
-
-Ce que cela fait de l'outillage déjà livré, sans détour :
-
-| Issue | Ce qu'elle a livré | Ce qu'il en reste |
-| :---- | :----------------- | :---------------- |
-| #162 | `ffprobe`, et `findExecutable` | **utilisé** — `ffprobe` reste la seule source exacte de la fréquence |
-| #163 | deux fixtures vidéo | **utilisées** — par `ffprobe` et par le lecteur |
-| #164 | `startProcess`, `outcomeOf`, l'attente bornée | **utilisés** — c'est ainsi que `ffprobe` est lancé |
-| #164 | le faux lecteur vidéo | **détourné** — il ne double plus mpv, il double `ffprobe` : écrire sur sa sortie et rendre un code est exactement ce qu'on attend de lui |
-
-Rien n'est perdu, et le faux lecteur mérite d'être renommé quand une issue le
-touchera.
-
-## Portée
-
-**Dedans.**
-
-| Ce que la phase livre | Pourquoi ici |
-| :-------------------- | :----------- |
-| associer un fichier vidéo à un projet | rien ne peut être regardé sans lui |
-| un lecteur dans la fenêtre : ouvrir, chercher, jouer, s'arrêter | l'objet de la phase |
-| la réplique courante dessinée sur l'image | c'est ce qui rend le résultat vérifiable |
-| lire la fréquence d'image avec `ffprobe` | l'outillage est en place, et c'est la seule source exacte |
-| avertir quand une opération pousse des sous-titres au-delà de la fin du film | la durée vient du lecteur, qui l'a déjà |
-
-**Dehors, et pourquoi.**
-
-| Ce qui n'y est pas | Où, et pourquoi |
-| :----------------- | :-------------- |
-| **tout le pilotage sauf jouer et s'arrêter** — barre de position, saut avant et arrière, saut au sous-titre voisin, lecture de la sélection, volume | phase 14, qui les porte toutes et les nomme une par une |
-| avance image par image, pose d'un repère depuis la position courante | phase 14 |
-| prévisualisation par lecteur externe | supprimée, voir plus haut |
-| choix de piste audio, incrustation du timecode | phase 14 |
-| forme d'onde | jamais ; rien ne la demande |
-| déduire la fréquence des positions, sans vidéo | phase 16 |
-| refuser une opération hors des bornes du film | jamais — la phase avertit et n'empêche rien |
-
-**La première ligne a été écrite après coup**, et c'est le défaut que cette
-phase a commis : elle livrait « Jouer / Pause au clavier et au menu » sans dire
-nulle part que Gaupol en a huit de plus, ni où elles allaient. Une fenêtre sans
-barre de lecteur est un choix défendable pour une phase ; ne pas savoir dans
-quelle phase elle arrive n'en est pas un. La feuille de route porte désormais le
-compte, relevé poste par poste contre le menu **Video** de Gaupol.
-
-## Décisions applicables
-
-**D1 — libmpv.** Voir [l'ADR 0020](../adr/0020-libmpv-pour-le-lecteur-integre.md).
-Le critère qui tranche n'est pas cette phase, que Qt Multimedia saurait servir,
-mais le calage fin qui reste à la phase 14 — et qui n'a pas d'API chez lui.
-
-**D2 — la réplique est dessinée depuis le modèle, jamais chargée d'un fichier.**
-libmpv sait charger un fichier de sous-titres externe ; pour un éditeur ce
-serait le mauvais choix, puisqu'il faudrait le réécrire à chaque frappe. Ce qui
-s'affiche vient du même `Project` que la table de la phase 5, donc ce qu'on voit
-sur l'image est ce qu'on vient de taper.
-
-**Il ne suffit pas de ne pas le lui demander**, et #176 l'a mesuré : livré
-`film.mp4`, mpv charge de lui-même le `film.srt` posé à côté — celui-là même
-qu'on édite. L'image aurait montré l'état du disque pendant que la table montre
-la frappe, les deux se séparant à la première correction. `sub-auto=no` tient
-D2 là où elle se serait perdue en silence.
-
-**D3 — prévisualiser un changement, c'est l'appliquer puis l'annuler.** Gaupol
-copie les sous-titres, applique l'opération hors historique, prévisualise, et
-restaure. Il l'a écrit faute d'une annulation fiable ; `subedit` en a une depuis
-la phase 2, que la fenêtre expose depuis la phase 5 — « Annuler : décalage ». Le
-noyau ne gagne donc aucune façon d'exécuter une commande sans l'enregistrer, et
-l'utilisateur voit ce qui lui arrive plutôt qu'un état provisoire invisible.
-
-**D4 — la borne haute avertit, elle ne refuse pas.** Une opération qui pousse
-trois sous-titres après le générique de fin est peut-être exactement ce que
-l'utilisateur veut. Un refus qui se trompe coûte plus cher qu'un avertissement
-qu'on ignore.
-
-**D5 — la convention de nom propose, le choix explicite décide.** À l'ouverture
-d'un fichier de sous-titres, si aucune vidéo n'est associée, on cherche dans le
-même répertoire un fichier vidéo dont le nom sans extension est un préfixe du
-nôtre — `film.mkv` pour `film.fr.srt`, la règle de `find_video`. Ce que la
-convention trouve est **une proposition** : le choix explicite l'écrase et n'est
-jamais réécrasé par elle.
-
-Deux points que la règle de Gaupol laissait ouverts, tranchés par #171 :
-
-- **le préfixe se lit segment par segment**, la frontière étant le point.
-  Gaupol compare des chaînes brutes, où `fil.mkv` répond pour `film.fr.srt` —
-  un film proposé pour un sous-titre qui ne le concerne pas, et l'utilisateur
-  ne s'en aperçoit qu'en regardant la mauvaise image ;
-- **le nom le plus long l'emporte, et une égalité ne propose rien.**
-  `film.fr.mkv` bat `film.mkv` pour `film.fr.srt`, étant le plus proche des
-  deux. Mais `film.mkv` et `film.mp4` ne se départagent pas : ni l'ordre du
-  système de fichiers — qui n'est pas stable — ni l'ordre de notre propre liste
-  d'extensions — que personne ne peut lire — n'est une réponse. Le silence en
-  est une, et D5 fait le reste, puisque le choix de l'utilisateur n'est jamais
-  réécrasé.
-
-**D6 — la fréquence lue dans le conteneur est proposée, jamais imposée.** C'est
-la seconde source de la même donnée, et la phase 16 en apportera une troisième,
-déduite des positions. Une source qui s'impose interdit de croiser ; une source
-qui propose laisse la comparaison possible.
-
-**D7 — la fréquence vient de `ffprobe`, la durée du lecteur.** `container-fps`
-de libmpv est un flottant ; `FrameRate` est un rationnel exact depuis la phase 1,
-et l'approcher serait perdre ce que ce choix protégeait. La durée, elle, n'a pas
-ce problème et le lecteur la connaît déjà : deux sources pour une même donnée
-sans nécessité en feraient une de trop.
-
-## La tolérance à l'absence de `ffprobe`
-
-**Elle n'est pas un mode dégradé, c'est le comportement normal.** Quand
-`ffprobe` manque, `subedit` se passe de ce qu'il apporte — la fréquence d'image
-déclarée. Si une opération en a besoin, **c'est à l'utilisateur de la fournir**,
-exactement comme aujourd'hui.
-
-Aucune opération ne se refuse au motif que `ffprobe` manque, et **le lecteur,
-lui, fonctionne sans lui** : libmpv est une dépendance de compilation, `ffprobe`
-un exécutable qu'on cherche.
-
-L'ordre d'écriture en découle : **la donnée vient de l'utilisateur, et `ffprobe`
-la propose quand il est là.** Pas l'inverse. Un code écrit dans l'autre sens
-traite le chemin normal comme un rattrapage, et c'est celui-là qu'on cesse
-d'éprouver.
-
-## Le noyau
-
-### La vidéo associée
-
-Le projet gagne la notion de vidéo associée à un document. Trois choses la
-composent, et elles ne se confondent pas :
-
-- **le chemin**, choisi ou deviné ;
-- **d'où il vient** — deviné par convention, ou choisi — parce que D5 en dépend ;
-- **ce que le conteneur déclare**, c'est-à-dire la fréquence, ou rien.
-
-La reconnaissance d'un fichier vidéo se fait par extension, liste fermée, comme
-`aeidon.util.is_video_file`. Elle vit avec le reste du vocabulaire du noyau : la
-convention de nom en a besoin, et elle est au noyau.
-
-### La lecture de la fréquence
-
-Un appel à `ffprobe`, qui rend `r_frame_rate` sous forme de rationnel exact.
-`findExecutable` (#162) le trouve. L'appel attend : il prend quelques
-millisecondes, et aucune interface n'a de raison de rendre la main pendant ce
-temps.
-
-**Ce n'est pas `startProcess` qui le lance**, contrairement à ce que cette
-section a d'abord annoncé. #172 lui a écrit un frère, `runAndCapture` : il
-attend, et rend ce que le programme a écrit. Celui de #164 est fait pour un
-lecteur vidéo, qui survit à l'appel qui l'a lancé — il rend la main aussitôt et
-écrit la sortie dans un fichier, qu'il aurait fallu nommer, poser sur un
-support inscriptible, relire et effacer, le tout pour douze octets, et sonder
-`outcomeOf` en boucle en attendant. Poser la question par un tube et attendre
-la réponse dit la même chose en moins.
-
-Trois issues possibles, et une seule est une erreur :
-
-| Ce qui arrive | Ce que le noyau rend |
-| :------------ | :------------------- |
-| `ffprobe` est absent du `PATH` | rien, sans erreur |
-| il répond, mais le fichier n'est pas une vidéo | rien, sans erreur |
-| il répond une fréquence | le rationnel exact |
-
-### Le lecteur
-
-Une couture au sens du principe 3 — « lecteur vidéo » y est nommé comme point de
-variation depuis les fondations, et c'est ce cas-là. Derrière elle, libmpv.
-
-Ce qu'elle expose, et rien de plus tant que la phase 14 n'est pas là :
-
-| Opération | Ce qu'elle fait |
-| :-------- | :-------------- |
-| ouvrir | charge un fichier, ou dit pourquoi il ne s'ouvre pas |
-| chercher | se place à une position, **exactement** |
-| jouer, s'arrêter | ce que les mots disent |
-| position | où en est la lecture, pour suivre la ligne courante |
-| durée | ce que le conteneur déclare, une fois ouvert |
-| dessiner la réplique | poser un texte sur l'image, ou l'effacer — D2 |
-
-**L'interface vit au noyau, l'implémentation dans `subedit_gui`.** La distinction
-est celle du principe 3, et elle a été reprise pendant #173 : `core::VideoPlayer`
-ne nomme ni Qt ni libmpv, et c'est ce qui permet au reste du noyau de raisonner
-sur un lecteur sans en connaître un. `MpvPlayer`, lui, est un élément
-d'interface — il n'existe que pour la fenêtre, il en reçoit la sienne, et rien
-d'autre ne le construira. Faire entrer libmpv dans `subedit_core` aurait donné au
-domaine une dépendance d'infrastructure pour la seule commodité d'un harnais de
-test plus léger, ce qui n'est pas une raison d'architecture.
-
-Le déplacement a d'ailleurs révélé un défaut que la place au noyau masquait :
-**libmpv refuse de démarrer si `LC_NUMERIC` n'est pas « C »**, et `QApplication`
-le règle sur celle de l'utilisateur. Au noyau, les tests tournaient sans
-`QApplication`, donc en locale « C » ; le défaut n'apparaissait pas, et toute
-vraie fenêtre l'aurait rencontré.
-
-**Le rendu, tranché par #173 : la fenêtre native que libmpv adopte**, par la
-propriété `wid`. C'est **un nombre**, et c'est précisément ce qui permet au
-noyau de désigner une fenêtre sans rien savoir d'une fenêtre. La voie est la
-plus courte des deux, et elle laisse la réplique à l'`osd-overlay` de libmpv —
-que D2 autorise, puisque le texte y vient du modèle et non d'un fichier.
-
-**Ce que #176 a trouvé en la posant**, et que rien n'annonçait. Les trois points
-ont été mesurés, chacun après un symptôme visible :
-
-| Ce qui arrive | Ce qu'il a fallu |
-| :------------ | :--------------- |
-| adopter une fenêtre native est **un mécanisme X11** — libmpv le dit dans son propre en-tête | `subedit-gui` demande `xcb` quand la session laisse le choix ouvert, et refuse de construire un lecteur ailleurs |
-| laissé sonder, mpv choisit le contexte de la session — Wayland — où `wid` ne veut rien dire, et **ouvre une fenêtre à côté de la nôtre** | nommer `gpu-context=x11egl` |
-| une fenêtre pas encore à l'écran est adoptée et **jamais mappée** : `IsUnMapped` pour la vie du processus | ouvrir le film au premier `showEvent`, la vue rendue visible d'abord |
-
-Le troisième est celui qui a coûté : le panneau restait vide, et la relecture
-avait conclu au bon fonctionnement en constatant que la fenêtre de mpv était
-**fille** de la vue vidéo — sans lire son état de mappage. Une preuve
-structurelle prise pour une preuve visuelle.
-
-**Ce que la décision de #173 coûte, en une ligne** : le lecteur ne fonctionne
-que sur une plateforme Qt `xcb`. L'[ADR 0020](../adr/0020-libmpv-pour-le-lecteur-integre.md)
-porte le constat et le déclencheur qui la rouvrirait.
-
-### La borne haute
-
-Le noyau ne connaît aujourd'hui qu'une borne, celle de zéro : un décalage
-négatif trop grand rend une position négative, et c'est tout ce qu'il sait dire.
-La durée que le lecteur annonce lui donne l'autre bout.
-
-**Le décalage est le cas le plus net, et il n'est pas le seul.** Une
-transformation dont le second repère tombe après la fin, une conversion de
-fréquence qui étire l'ensemble au-delà : les trois dépassent, et l'avertissement
-doit être branché sur les trois.
-
-Ce que l'avertissement dit : combien de sous-titres dépassent, et de combien le
-plus lointain. Ce qu'il ne fait pas : empêcher quoi que ce soit (D4).
-
-**Ce que #174 a tranché : un calcul, trois formulations.** Les trois opérations
-dépassent de trois façons, mais elles arrivent toutes à la même conclusion — des
-sous-titres qui finissent trop tard — et `beyondEnd` la lit **après l'opération,
-sur l'état qu'elle a produit**, ce que la fenêtre montre de toute façon. Rejouer
-l'arithmétique de chaque commande pour l'annoncer d'avance aurait été trois
-copies de ce que les commandes calculent déjà.
-
-Ce qui reste propre à chacune est la **phrase**, qui nomme l'opération :
-`noticeOf` la compose depuis `CommandKind`, et un avertissement qui ne dirait pas
-laquelle des trois vient de tourner laisserait l'utilisateur deviner.
-
-Trois lectures que le calcul assume, et qu'un test fixe :
-
-- **le périmètre est la sélection**, c'est-à-dire ce que l'opération a touché. Un
-  sous-titre que personne n'a déplacé, déjà au-delà parce que la vidéo associée
-  est la mauvaise, n'est pas le fait de cette opération ;
-- **finir exactement avec la vidéo, c'est finir dedans** — la même lecture que la
-  borne de zéro, qui admet la position zéro ;
-- **le dépassement est celui du plus lointain**, et non du dernier dans l'ordre
-  du fichier : un document en désordre est ordinaire, et ce que l'utilisateur a
-  besoin de savoir est jusqu'où il va.
-
-## La fenêtre
-
-| Élément | Comportement |
-| :------ | :----------- |
-| **Video ▸ Select Video…** | un sélecteur filtré sur les extensions vidéo, positionné sur le répertoire du fichier de sous-titres |
-| ouverture d'un fichier | déclenche la recherche par convention si aucune vidéo n'est choisie (D5) |
-| la vue vidéo | occupe le haut de la fenêtre, la table dessous, la séparation déplaçable |
-| aucune vidéo associée | la vue est absente, la table occupe tout, et rien ne clignote |
-| **Jouer / Pause** | au clavier et au menu |
-| sélectionner une ligne | place la lecture au début de ce sous-titre |
-| la lecture avance | la ligne courante suit, sans voler le focus à qui édite |
-| la réplique | dessinée sur l'image, depuis le modèle (D2) |
-| la vidéo ne s'ouvre pas | le dit, nomme le fichier, et la fenêtre reste utilisable |
-| fréquence lue | proposée dans le dialogue de conversion de fréquence, avec sa provenance |
-| opération hors bornes | l'avertissement déjà en place pour les autres notices, après l'opération |
-
-**Tout ce que l'utilisateur lit est en anglais**, et les mots vivent dans
+# Phase 6 — The built-in player
+
+**Framing issue: #165.** This document decides what the phase builds, and splits
+it. It is not a report: what it writes in the future tense is what remains to be
+done.
+
+## Goal
+
+After a shift, a transformation or a frame rate conversion, **check the result
+against the film**. This is the missing gesture: the core has been able to move
+four thousand subtitles since phase 2, the window has shown it since phase 5,
+and nothing yet says whether the result lands right.
+
+The video is watched **in the window**, with the current line drawn over it.
+
+## What changed, and why it is written here
+
+The roadmap framed this phase around a **preview through an external player** —
+write a temporary file, launch mpv, MPlayer or VLC — and put the built-in player
+in phase 14, "the most expensive part of the project".
+
+That framing was revisited. And iso-functionality demanded it: **Gaupol has
+both.** `gaupol/player.py` is an embedded GStreamer player, distinct from
+`aeidon/agents/preview.py`. The roadmap had kept the second and forgotten the
+first.
+
+The external player **disappears** from the phase. It was only a substitute put
+in place when the built-in one seemed too expensive; keeping it as well would
+cost two surfaces, two manual sections and two sets of tests for a gesture the
+built-in player renders better.
+
+What this makes of the tooling already delivered, plainly:
+
+| Issue | What it delivered | What remains of it |
+| :---- | :---------------- | :----------------- |
+| #162 | `ffprobe`, and `findExecutable` | **used** — `ffprobe` remains the only exact source of the frame rate |
+| #163 | two video fixtures | **used** — by `ffprobe` and by the player |
+| #164 | `startProcess`, `outcomeOf`, the bounded wait | **used** — this is how `ffprobe` is launched |
+| #164 | the fake video player | **repurposed** — it no longer stands in for mpv, it stands in for `ffprobe`: writing to its output and returning a code is exactly what is expected of it |
+
+Nothing is lost, and the fake player deserves to be renamed when an issue
+touches it.
+
+## Scope
+
+**In.**
+
+| What the phase delivers | Why here |
+| :---------------------- | :------- |
+| associating a video file with a project | nothing can be watched without it |
+| a player in the window: open, seek, play, stop | the purpose of the phase |
+| the current line drawn on the image | this is what makes the result checkable |
+| reading the frame rate with `ffprobe` | the tooling is in place, and it is the only exact source |
+| warning when an operation pushes subtitles beyond the end of the film | the duration comes from the player, which already has it |
+
+**Out, and why.**
+
+| What is not in it | Where, and why |
+| :---------------- | :------------- |
+| **all the playback control except play and stop** — position bar, seeking forward and backward, seeking to the neighbouring subtitle, playing the selection, volume | phase 14, which carries them all and names them one by one |
+| frame-by-frame stepping, setting a mark from the current position | phase 14 |
+| preview through an external player | removed, see above |
+| choice of audio track, timecode overlay | phase 14 |
+| waveform | never; nothing asks for it |
+| deducing the frame rate from the positions, without video | phase 16 |
+| refusing an operation outside the bounds of the film | never — the phase warns and prevents nothing |
+
+**The first row was written after the fact**, and this is the defect the phase
+committed: it delivered "Play / Pause from the keyboard and the menu" without
+saying anywhere that Gaupol has eight more, nor where they were going. A window
+without a player bar is a defensible choice for a phase; not knowing in which
+phase it arrives is not. The roadmap now carries the count, taken item by item
+against Gaupol's **Video** menu.
+
+## Applicable decisions
+
+**D1 — libmpv.** See [ADR 0020](../adr/0020-libmpv-pour-le-lecteur-integre.md).
+The deciding criterion is not this phase, which Qt Multimedia could serve, but
+the fine timing that remains for phase 14 — and which has no API there.
+
+**D2 — the line is drawn from the model, never loaded from a file.** libmpv can
+load an external subtitle file; for an editor that would be the wrong choice,
+since the file would have to be rewritten at every keystroke. What is displayed
+comes from the same `Project` as the phase 5 table, so what is seen on the image
+is what was just typed.
+
+**Not asking it is not enough**, and #176 measured it: given `film.mp4`, mpv
+loads on its own the `film.srt` lying next to it — the very one being edited.
+The image would have shown the state of the disk while the table shows the
+typing, the two parting at the first correction. `sub-auto=no` holds D2 where it
+would have been lost silently.
+
+**D3 — previewing a change means applying it and then undoing it.** Gaupol
+copies the subtitles, applies the operation outside the history, previews, and
+restores. It wrote it that way for lack of a reliable undo; `subedit` has had
+one since phase 2, which the window has exposed since phase 5 — "Undo: shift".
+The core therefore gains no way of executing a command without recording it,
+and the user sees what happens to them rather than an invisible provisional
+state.
+
+**D4 — the upper bound warns, it does not refuse.** An operation that pushes
+three subtitles past the end credits may be exactly what the user wants. A
+refusal that is wrong costs more than a warning that is ignored.
+
+**D5 — the naming convention proposes, the explicit choice decides.** When a
+subtitle file is opened, if no video is associated, the same directory is
+searched for a video file whose name without extension is a prefix of ours —
+`film.mkv` for `film.fr.srt`, the rule of `find_video`. What the convention
+finds is **a proposal**: the explicit choice overrides it and is never
+overridden by it in return.
+
+Two points that Gaupol's rule left open, settled by #171:
+
+- **the prefix is read segment by segment**, the boundary being the dot.
+  Gaupol compares raw strings, where `fil.mkv` answers for `film.fr.srt` — a
+  film proposed for a subtitle that has nothing to do with it, and the user
+  only notices by watching the wrong image;
+- **the longest name wins, and a tie proposes nothing.** `film.fr.mkv` beats
+  `film.mkv` for `film.fr.srt`, being the closer of the two. But `film.mkv` and
+  `film.mp4` cannot be told apart: neither the file system's order — which is
+  not stable — nor the order of our own list of extensions — which nobody can
+  read — is an answer. Silence is one, and D5 does the rest, since the user's
+  choice is never overridden.
+
+**D6 — the frame rate read from the container is proposed, never imposed.** It
+is the second source of the same datum, and phase 16 will bring a third,
+deduced from the positions. A source that imposes itself forbids
+cross-checking; a source that proposes leaves comparison possible.
+
+**D7 — the frame rate comes from `ffprobe`, the duration from the player.**
+libmpv's `container-fps` is a floating-point number; `FrameRate` has been an
+exact rational since phase 1, and approximating it would lose what that choice
+protected. The duration does not have this problem and the player already knows
+it: two sources for the same datum without necessity would be one too many.
+
+## Tolerating the absence of `ffprobe`
+
+**It is not a degraded mode, it is the normal behaviour.** When `ffprobe` is
+missing, `subedit` does without what it brings — the declared frame rate. If an
+operation needs it, **it is up to the user to provide it**, exactly as today.
+
+No operation refuses on the ground that `ffprobe` is missing, and **the player
+works without it**: libmpv is a build dependency, `ffprobe` an executable that
+is looked for.
+
+The order of writing follows from this: **the datum comes from the user, and
+`ffprobe` proposes it when it is there.** Not the other way round. Code written
+the other way treats the normal path as a fallback, and that is the one that
+stops being exercised.
+
+## The core
+
+### The associated video
+
+The project gains the notion of a video associated with a document. Three
+things make it up, and they are not to be confused:
+
+- **the path**, chosen or guessed;
+- **where it comes from** — guessed by convention, or chosen — because D5
+  depends on it;
+- **what the container declares**, that is the frame rate, or nothing.
+
+A video file is recognised by its extension, from a closed list, like
+`aeidon.util.is_video_file`. It lives with the rest of the core's vocabulary:
+the naming convention needs it, and the convention belongs to the core.
+
+### Reading the frame rate
+
+A call to `ffprobe`, which returns `r_frame_rate` as an exact rational.
+`findExecutable` (#162) finds it. The call waits: it takes a few milliseconds,
+and no interface has any reason to hand control back in the meantime.
+
+**It is not `startProcess` that launches it**, contrary to what this section
+first announced. #172 wrote it a sibling, `runAndCapture`: it waits, and returns
+what the program wrote. The one from #164 is made for a video player, which
+outlives the call that launched it — it returns at once and writes the output
+to a file, which would have had to be named, placed on writable storage, read
+back and deleted, all for twelve bytes, and `outcomeOf` polled in a loop while
+waiting. Asking the question through a pipe and waiting for the answer says the
+same thing with less.
+
+Three possible outcomes, and only one is an error:
+
+| What happens | What the core returns |
+| :----------- | :-------------------- |
+| `ffprobe` is absent from the `PATH` | nothing, without error |
+| it answers, but the file is not a video | nothing, without error |
+| it answers with a frame rate | the exact rational |
+
+### The player
+
+A seam in the sense of principle 3 — "video player" has been named there as a
+variation point since the foundations, and this is that case. Behind it, libmpv.
+
+What it exposes, and nothing more until phase 14 is here:
+
+| Operation | What it does |
+| :-------- | :----------- |
+| open | loads a file, or says why it does not open |
+| seek | goes to a position, **exactly** |
+| play, stop | what the words say |
+| position | where playback is, to follow the current row |
+| duration | what the container declares, once open |
+| draw the line | puts a text on the image, or clears it — D2 |
+
+**The interface lives in the core, the implementation in `subedit_gui`.** The
+distinction is that of principle 3, and it was revisited during #173:
+`core::VideoPlayer` names neither Qt nor libmpv, and that is what lets the rest
+of the core reason about a player without knowing one. `MpvPlayer`, for its
+part, is an interface element — it exists only for the window, it receives its
+native window from it, and nothing else will build it. Bringing libmpv into
+`subedit_core` would have given the domain an infrastructure dependency for the
+mere convenience of a lighter test harness, which is not an architectural
+reason.
+
+The move also revealed a defect that its place in the core was hiding:
+**libmpv refuses to start if `LC_NUMERIC` is not "C"**, and `QApplication` sets
+it to the user's. In the core, the tests ran without `QApplication`, hence in
+the "C" locale; the defect did not show, and any real window would have hit it.
+
+**The rendering, settled by #173: the native window that libmpv adopts**,
+through the `wid` property. It is **a number**, and that is precisely what lets
+the core designate a window without knowing anything about a window. It is the
+shorter of the two paths, and it leaves the line to libmpv's `osd-overlay` —
+which D2 allows, since the text there comes from the model and not from a file.
+
+**What #176 found when putting it in place**, and which nothing announced. The
+three points were measured, each after a visible symptom:
+
+| What happens | What it took |
+| :----------- | :----------- |
+| adopting a native window is **an X11 mechanism** — libmpv says so in its own header | `subedit-gui` asks for `xcb` when the session leaves the choice open, and refuses to build a player elsewhere |
+| left to probe, mpv picks the session's context — Wayland — where `wid` means nothing, and **opens a window next to ours** | naming `gpu-context=x11egl` |
+| a window not yet on screen is adopted and **never mapped**: `IsUnMapped` for the life of the process | opening the film at the first `showEvent`, the view made visible first |
+
+The third is the one that cost: the panel stayed empty, and the review had
+concluded it worked by observing that mpv's window was a **child** of the video
+view — without reading its mapping state. A structural proof taken for a visual
+proof.
+
+**What the #173 decision costs, in one line**: the player only works on a Qt
+`xcb` platform. [ADR 0020](../adr/0020-libmpv-pour-le-lecteur-integre.md)
+records the finding and the trigger that would reopen it.
+
+### The upper bound
+
+The core today knows only one bound, zero: a negative shift that is too large
+gives a negative position, and that is all it can say. The duration the player
+announces gives it the other end.
+
+**The shift is the clearest case, and it is not the only one.** A
+transformation whose second mark falls after the end, a frame rate conversion
+that stretches the whole beyond it: all three overrun, and the warning must be
+wired to all three.
+
+What the warning says: how many subtitles overrun, and by how much the furthest
+one does. What it does not do: prevent anything (D4).
+
+**What #174 settled: one computation, three phrasings.** The three operations
+overrun in three ways, but they all reach the same conclusion — subtitles that
+end too late — and `beyondEnd` reads it **after the operation, on the state it
+produced**, which the window shows anyway. Replaying each command's arithmetic
+to announce it in advance would have been three copies of what the commands
+already compute.
+
+What remains specific to each is the **sentence**, which names the operation:
+`noticeOf` composes it from `CommandKind`, and a warning that did not say which
+of the three just ran would leave the user guessing.
+
+Three readings the computation assumes, and that a test pins down:
+
+- **the scope is the selection**, that is what the operation touched. A
+  subtitle nobody moved, already beyond because the associated video is the
+  wrong one, is not this operation's doing;
+- **ending exactly with the video means ending inside it** — the same reading
+  as the zero bound, which admits position zero;
+- **the overrun is that of the furthest one**, not of the last in file order: a
+  document out of order is ordinary, and what the user needs to know is how far
+  it goes.
+
+## The window
+
+| Element | Behaviour |
+| :------ | :-------- |
+| **Video ▸ Select Video…** | a file chooser filtered on video extensions, set to the directory of the subtitle file |
+| opening a file | triggers the search by convention if no video is chosen (D5) |
+| the video view | occupies the top of the window, the table below, the splitter movable |
+| no associated video | the view is absent, the table takes all the space, and nothing flickers |
+| **Play / Pause** | from the keyboard and the menu |
+| selecting a row | sets playback to the start of that subtitle |
+| playback advances | the current row follows, without stealing focus from whoever is editing |
+| the line | drawn on the image, from the model (D2) |
+| the video does not open | says so, names the file, and the window remains usable |
+| frame rate read | proposed in the frame rate conversion dialog, with its origin |
+| out-of-bounds operation | the warning already in place for the other notices, after the operation |
+
+**Everything the user reads is in English**, and the words live in
 `core/wording/`.
 
 ## Tests
 
-| Quoi | Comment |
-| :--- | :------ |
-| la lecture de la fréquence | les fixtures de #163, dont celle à `24000/1001` |
-| `ffprobe` absent | le chemin de recherche injecté de #162 |
-| la convention de nom | des fichiers vides aux bonnes extensions, dans `src/test/data/` |
-| la borne haute | unitaire, sur des durées données à la main — aucune vidéo nécessaire |
-| ouvrir, chercher, la durée | la couture, sur les fixtures de #163 — deux secondes de vidéo suffisent |
-| la fenêtre | le harnais Catch2 de #119, hors écran |
+| What | How |
+| :--- | :-- |
+| reading the frame rate | the fixtures of #163, including the one at `24000/1001` |
+| `ffprobe` absent | the injected search path of #162 |
+| the naming convention | empty files with the right extensions, in `src/test/data/` |
+| the upper bound | unit tests, on durations given by hand — no video needed |
+| open, seek, the duration | the seam, on the fixtures of #163 — two seconds of video are enough |
+| the window | the Catch2 harness of #119, off screen |
 
-**Un lecteur sans écran était le point à régler avant tout le reste**, et #178
-l'a réglé. C'était exactement le problème que #117 avait résolu pour la fenêtre
-— `QT_QPA_PLATFORM=offscreen` — et il se reposait pour la vidéo.
+**A player without a screen was the point to settle before everything else**,
+and #178 settled it. It was exactly the problem #117 had solved for the window —
+`QT_QPA_PLATFORM=offscreen` — and it arose again for video.
 
-La réponse est `vo=null`, et elle est mesurée plutôt que promise : avec `vo=auto`
-et sans écran, mpv n'ouvre même pas le fichier — il répond `end-file`, et la
-durée revient « property unavailable ». Ce qu'un test peut alors attendre d'un
-lecteur sans sortie : la durée, la position après une recherche exacte, la
-géométrie de l'image, une lecture qui avance en temps réel. **Pas une image
-décodée** — il n'y a pas de sortie d'où la prendre — et c'est donc dans la
-fenêtre que la réplique dessinée se prouvera, jamais ici.
+The answer is `vo=null`, and it is measured rather than promised: with
+`vo=auto` and no screen, mpv does not even open the file — it answers
+`end-file`, and the duration comes back "property unavailable". What a test can
+then expect from a player without output: the duration, the position after an
+exact seek, the geometry of the image, playback that advances in real time.
+**Not a decoded image** — there is no output to take it from — and so it is in
+the window that the drawn line will be proven, never here.
 
-`src/test/gui/mpv_player_test.cpp` porte cette preuve. C'était
-d'abord un harnais séparé, écrit par #178 avant que la couture existe ; #173 l'a
-absorbé, parce que deux fichiers qui ouvrent les mêmes fixtures pour la même
-raison finissent par diverger, et que celui qui compte est celui qui passe par
-le code employé.
+`src/test/gui/mpv_player_test.cpp` carries that proof. It was first a separate
+harness, written by #178 before the seam existed; #173 absorbed it, because two
+files that open the same fixtures for the same reason end up diverging, and the
+one that counts is the one that goes through the code in use.
 
-## Mesures
+## Measurements
 
-Deux mesures nouvelles, et pas une de plus :
+Two new measurements, and not one more:
 
-- **ouvrir une vidéo et chercher une position** — ce qui se passe à chaque
-  changement de ligne, donc le seul chemin que l'utilisateur sent ;
-- **dessiner la réplique** sur une image, si elle se distingue du bruit.
+- **opening a video and seeking to a position** — what happens at every change
+  of row, hence the only path the user feels;
+- **drawing the line** on an image, if it stands out from the noise.
 
-Le décodage lui-même ne se mesure pas : ce qu'on chronométrerait est libmpv, qui
-n'appartient pas au projet.
+Decoding itself is not measured: what would be timed is libmpv, which does not
+belong to the project.
 
-**Quatre au relevé, et non deux** : chacune des deux s'est dédoublée le jour où
-il a fallu la mesurer. Ouvrir et chercher sont deux appels de coûts très
-différents — 11 ms contre 0,6 — et « dessiner la réplique » s'est séparé en ce
-qui nous appartient : trouver le sous-titre à l'écran, et composer l'événement
-que l'incrustation reçoit. Le reste est libmpv, et n'est pas chronométré.
+**Four in the record, not two**: each of the two split in two the day it had to
+be measured. Opening and seeking are two calls of very different costs — 11 ms
+against 0.6 — and "drawing the line" split into what belongs to us: finding the
+subtitle on screen, and composing the event the overlay receives. The rest is
+libmpv, and is not timed.
 
-## Exigences
+## Requirements
 
-Ajoutées au registre en début d'issue, à l'état `prévue`.
+Added to the registry at the start of the issue, in the `planned` state.
 
-**Ce n'est pas ce qui a été fait**, et l'écart est inscrit plutôt que corrigé
-après coup : les sept lignes sont entrées au registre à la fin de leur issue,
-directement `implémentée`. Rien n'en a souffert — aucune n'a été oubliée, le
-contrôle de `check-requirements.sh` les confronte toutes à un test — mais l'état
-`prévue` n'a donc jamais rien tenu de cette phase. À trancher au cadrage de la
-suivante : soit la pratique rejoint la règle, soit la règle disparaît.
+**That is not what was done**, and the gap is recorded rather than corrected
+after the fact: the seven rows entered the registry at the end of their issue,
+directly `implemented`. Nothing suffered from it — none was forgotten, the
+`check-requirements.sh` check confronts them all with a test — but the
+`planned` state therefore never held anything for this phase. To be settled
+when the next one is framed: either the practice joins the rule, or the rule
+disappears.
 
-| Identifiant | Ce qu'il promet |
-| :---------- | :-------------- |
-| `GUI-VIDEO-01` | choisir une vidéo l'associe au document, et la fenêtre la nomme |
-| `GUI-VIDEO-02` | ouvrir un fichier de sous-titres propose la vidéo voisine de même nom |
-| `GUI-PLAYER-01` | la vidéo s'ouvre dans la fenêtre, et se joue |
-| `GUI-PLAYER-02` | sélectionner un sous-titre place la lecture à son début |
-| `GUI-PLAYER-03` | une vidéo qui ne s'ouvre pas le dit, et laisse la fenêtre utilisable |
-| `GUI-FRAMERATE-02` | la fréquence lue dans la vidéo est proposée, et sa provenance est dite |
-| `GUI-BOUNDS-01` | une opération qui dépasse la fin du film le signale sans l'empêcher |
+| ID | Requirement |
+| :- | :---------- |
+| `GUI-VIDEO-01` | choosing a video associates it with the document, and the window names it |
+| `GUI-VIDEO-02` | opening a subtitle file proposes the neighbouring video of the same name |
+| `GUI-PLAYER-01` | the video opens in the window, and plays |
+| `GUI-PLAYER-02` | selecting a subtitle sets playback to its start |
+| `GUI-PLAYER-03` | a video that does not open says so, and leaves the window usable |
+| `GUI-FRAMERATE-02` | the frame rate read from the video is proposed, and its origin is stated |
+| `GUI-BOUNDS-01` | an operation that overruns the end of the film signals it without preventing it |
 
-## Manuel
+## Manual
 
-Une section de `docs/manual/subedit-gui/`, **écrite à la main**. C'est la
-décision de #116 : `make manual` engendre ses blocs en exécutant le binaire, et
-une fenêtre n'a pas de `--help`. Sa justesse repose sur la relecture de fin de
-phase.
+A section of `docs/manual/subedit-gui/`, **written by hand**. This is the
+decision of #116: `make manual` generates its blocks by running the binary, and
+a window has no `--help`. Its correctness rests on the end-of-phase review.
 
-Ce qu'elle doit dire, au-delà des gestes : que `ffmpeg` n'est pas requis, ce
-qu'on perd sans lui, et qu'aucune opération n'en dépend.
+What it must say, beyond the gestures: that `ffmpeg` is not required, what is
+lost without it, and that no operation depends on it.
 
-## Découpage en issues
+## Split into issues
 
-| Issue | Ce qu'elle porte |
-| :---- | :--------------- |
-| #178 — libmpv dans la chaîne d'outils, et un lecteur sans écran | le paquet, le cache de la CI, et un lecteur qu'un test construit sans sortie visible |
-| #171 — Noyau : la vidéo associée à un document | le chemin, sa provenance, la reconnaissance par extension, la convention de nom (D5) |
-| #172 — Noyau : lire la fréquence avec `ffprobe` | l'appel, le rationnel exact, et les trois issues dont une seule est une erreur |
-| #173 — Noyau : la couture du lecteur, et libmpv derrière | ouvrir, chercher, jouer, s'arrêter, la position, la durée |
-| #174 — Noyau : avertir au-delà de la fin du film | les trois formulations — décalage, transformation, conversion (D4) |
-| #175 — Interface : choisir une vidéo, et la voir | le sélecteur, la proposition à l'ouverture, la barre d'état |
-| #176 — Interface : le lecteur dans la fenêtre | la vue, la réplique dessinée (D2), la ligne qui suit, le clavier |
-| #177 — Interface : la fréquence lue et la borne du film | la proposition dans le dialogue de conversion (D6), l'avertissement de dépassement |
+| Issue | What it carries |
+| :---- | :-------------- |
+| #178 — libmpv in the toolchain, and a player without a screen | the package, the CI cache, and a player that a test builds without visible output |
+| #171 — Core: the video associated with a document | the path, its origin, recognition by extension, the naming convention (D5) |
+| #172 — Core: reading the frame rate with `ffprobe` | the call, the exact rational, and the three outcomes of which only one is an error |
+| #173 — Core: the player seam, and libmpv behind it | open, seek, play, stop, the position, the duration |
+| #174 — Core: warning beyond the end of the film | the three phrasings — shift, transformation, conversion (D4) |
+| #175 — Interface: choosing a video, and seeing it | the file chooser, the proposal on opening, the status bar |
+| #176 — Interface: the player in the window | the view, the drawn line (D2), the row that follows, the keyboard |
+| #177 — Interface: the frame rate read and the bound of the film | the proposal in the conversion dialog (D6), the overrun warning |
 
-#178 passe avant toutes les autres. #173 dépend d'elle et de #171 ; #174 dépend de #173 pour la durée ; les trois issues d'interface
-dépendent de tout ce qui précède. **#176 est celle qui rend le geste possible :
-les cinq qui la précèdent la servent.**
+#178 comes before all the others. #173 depends on it and on #171; #174 depends
+on #173 for the duration; the three interface issues depend on everything
+before them. **#176 is the one that makes the gesture possible: the five before
+it serve it.**
 
-## Renvois
+## Deferrals
 
-| Ce qui est renvoyé | Où |
-| :----------------- | :- |
-| avance image par image, pose d'un repère depuis la position | phase 14 |
-| le pilotage de la lecture au-delà de jouer et s'arrêter | phase 14, qui en tient la liste |
-| croiser la fréquence lue et la fréquence déduite, et présenter un désaccord | phase 16, qui apporte la seconde |
-| le lecteur pour un document de traduction | phase 11, qui apporte le second document |
-| rendu dans une fenêtre native ou dans un contexte OpenGL | **tranché par #173** : la fenêtre native, propriété `wid`. Posée par #176, qui a une fenêtre à donner |
+| What is deferred | Where |
+| :--------------- | :---- |
+| frame-by-frame stepping, setting a mark from the position | phase 14 |
+| playback control beyond play and stop | phase 14, which keeps the list |
+| cross-checking the frame rate read and the frame rate deduced, and presenting a disagreement | phase 16, which brings the second |
+| the player for a translation document | phase 11, which brings the second document |
+| rendering in a native window or in an OpenGL context | **settled by #173**: the native window, `wid` property. Put in place by #176, which has a window to give |
 
-## Critères de fin
+## Completion criteria
 
-- [ ] Les huit issues sont fermées
-- [ ] Les exigences du registre sont `implémentées` et citées par un test
-- [ ] La section de manuel existe et décrit ce qui existe
-- [ ] Les benchmarks sont rejoués et les mesures relevées
-- [ ] La relecture de fin de phase est faite
+- [ ] The eight issues are closed
+- [ ] The registry's requirements are `implemented` and cited by a test
+- [ ] The manual section exists and describes what exists
+- [ ] The benchmarks are rerun and the measurements recorded
+- [ ] The end-of-phase review is done
