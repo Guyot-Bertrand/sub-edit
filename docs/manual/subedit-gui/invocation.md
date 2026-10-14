@@ -1,106 +1,104 @@
 # Invocation
 
-<!-- language: fr -->
-
 ```
-subedit-gui [--version] [<fichier>]
+subedit-gui [--version] [<file>]
 ```
 
-| Argument | Requis | Valeur | Défaut |
-| :------- | :----- | :----- | :----- |
-| `<fichier>` | non | le chemin d'un fichier de sous-titres à ouvrir | aucun — la fenêtre s'ouvre vide |
-| `--version` | non | — | — |
+| Argument | Required | Value | Default |
+| :------- | :------- | :---- | :------ |
+| `<file>` | no | the path of a subtitle file to open | none — the window opens empty |
+| `--version` | no | — | — |
 
-**Un seul fichier.** Les arguments suivants sont ignorés : la fenêtre ne tient
-qu'un projet à la fois.
+**A single file.** The following arguments are ignored: the window holds
+only one project at a time.
 
 ## `--version`
 
-Écrit `subedit <version>` sur la sortie standard et rend la main aussitôt, sans
-ouvrir de fenêtre. Code de retour `0`.
+Writes `subedit <version>` on standard output and returns at once, without
+opening a window. Exit code `0`.
 
 ```console
 $ subedit-gui --version
 subedit <version>
 ```
 
-Le numéro n'est pas recopié ici : ce manuel n'a pas de bloc engendré qui le
-tiendrait à jour, et un numéro figé serait faux dès le prochain incrément.
+The number is not copied here: this manual has no generated block that would
+keep it up to date, and a frozen number would be wrong from the next increment.
 
-## Ouvrir un fichier
+## Opening a file
 
 ```console
 $ subedit-gui film.srt
 ```
 
-Les formats lus sont **les neuf** que le filtre d'ouverture énumère — voir
-[Ouvrir et enregistrer](fichiers.md#ouvrir). Le format est reconnu au contenu et
-non à l'extension, et **l'encodage l'est aussi** : un BOM
-si le fichier en porte un, sinon l'encodage que ses octets proposent.
+The formats read are **the nine** that the open filter lists — see
+[Opening and saving](files.md#opening). The format is recognised by the content and
+not by the extension, and **so is the encoding**: a BOM
+if the file carries one, otherwise the encoding its bytes suggest.
 
-## Quand l'ouverture échoue
+## When opening fails
 
-Un fichier absent, illisible, dont les octets ne se décodent dans aucun
-encodage, ou dont aucun format ne reconnaît le contenu : **la fenêtre s'ouvre
-quand même, vide**, et l'échec est écrit sur la sortie d'erreur.
+A missing file, an unreadable one, one whose bytes decode in no
+encoding, or one whose content no format recognises: **the window opens
+all the same, empty**, and the failure is written on the error stream.
 
-**Le message nomme la cause**, dans les mêmes mots que la ligne de commande :
+**The message names the cause**, in the same words as the command line:
 
-| Message | Ce qui s'est passé |
-| :------ | :----------------- |
-| `does not exist` | le chemin ne désigne aucun fichier |
-| `cannot be opened: permission denied` | le système refuse de l'ouvrir |
-| `cannot be read` | le système a refusé pour une autre raison |
-| `cannot be decoded in the chosen encoding` | les octets ne se lisent pas dans l'encodage retenu |
-| `is in no format this tool knows` | aucun format ne reconnaît le contenu |
-| `holds nothing recognisable as a subtitle` | le format est reconnu, mais rien n'y est un sous-titre |
+| Message | What happened |
+| :------ | :------------ |
+| `does not exist` | the path designates no file |
+| `cannot be opened: permission denied` | the system refuses to open it |
+| `cannot be read` | the system refused for another reason |
+| `cannot be decoded in the chosen encoding` | the bytes do not read in the encoding retained |
+| `is in no format this tool knows` | no format recognises the content |
+| `holds nothing recognisable as a subtitle` | the format is recognised, but nothing in it is a subtitle |
 
 ```console
 $ subedit-gui notes.txt
 subedit-gui: notes.txt: is in no format this tool knows
 ```
 
-Ouvrir vide plutôt que refuser de démarrer : l'outil sert encore à quelque
-chose, et l'échec d'un argument n'est pas une raison de ne pas se lancer.
+Opening empty rather than refusing to start: the tool is still good for
+something, and the failure of an argument is no reason not to launch.
 
-**Un fichier mal formé mais lisible s'ouvre**, et ce que la lecture a rattrapé
-en chemin se lit dans un bouton de la barre d'état — voir
-[les diagnostics d'une lecture](fichiers.md#les-diagnostics-dune-lecture).
+**A badly formed but readable file opens**, and what reading caught up
+along the way can be read in a button of the status bar — see
+[the diagnostics of a read](files.md#the-diagnostics-of-a-read).
 
-## Codes de retour
+## Exit codes
 
-| Code | Quand |
-| :--- | :---- |
-| `0` | la fenêtre s'est ouverte puis a été fermée normalement, ou `--version` a répondu |
-| `2` | une erreur inattendue avant l'ouverture — Qt absent, écran indisponible |
+| Code | When |
+| :--- | :--- |
+| `0` | the window opened then was closed normally, or `--version` answered |
+| `2` | an unexpected error before opening — Qt missing, display unavailable |
 
-L'échec d'ouverture d'un fichier **ne change pas le code de retour** : la
-fenêtre s'est ouverte, et c'est ce que le code rapporte.
+The failure to open a file **does not change the exit code**: the
+window opened, and that is what the code reports.
 
-## La page de manuel
+## The manual page
 
-Une installation dépose `subedit-gui(1)` sous `share/man/man1` :
+An installation lays down `subedit-gui(1)` under `share/man/man1`:
 
 ```console
 $ man subedit-gui
 ```
 
-Elle dit la forme d'appel, `--version`, les messages d'échec d'ouverture, les
-codes de retour, les deux variables d'environnement et le fichier de réglages.
-**Elle ne décrit pas la fenêtre** — c'est ce manuel-ci qui le fait, et la page
-le renvoie ici.
+It gives the calling form, `--version`, the opening failure messages, the
+exit codes, the two environment variables and the settings file.
+**It does not describe the window** — this manual does, and the page
+refers here.
 
-## La plateforme Qt
+## The Qt platform
 
-`QT_QPA_PLATFORM` choisit sur quoi la fenêtre tourne. **Si la variable est
-posée, `subedit-gui` la respecte sans discuter.**
+`QT_QPA_PLATFORM` chooses what the window runs on. **If the variable is
+set, `subedit-gui` respects it without argument.**
 
-Si elle ne l'est pas, il laisse Qt choisir : le lecteur intégré dessine l'image dans
-la fenêtre elle-même, et ne demande rien à la plateforme — voir
-[Le lecteur](lecteur.md).
+If it is not, it lets Qt choose: the built-in player draws the picture in
+the window itself, and asks nothing of the platform — see
+[The player](player.md).
 
-`QT_QPA_PLATFORM=offscreen` fait tourner la fenêtre là où il n'y a pas de
-serveur graphique — c'est ce que font l'intégration continue et les tests.
+`QT_QPA_PLATFORM=offscreen` runs the window where there is no
+graphical server — which is what continuous integration and the tests do.
 
 ## Language
 

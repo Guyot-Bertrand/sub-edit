@@ -10,7 +10,7 @@ subedit-cli case --to title|sentence|upper|lower [--range N-M|N-]
 ```
 
 Puts the texts in **title case, sentence case, capitals or small letters**, without touching a
-tag. It is `Text ▸ Case` of the [window](../subedit-gui/operations.md), with its rules.
+tag. It is `Tools ▸ Case` of the [window](../subedit-gui/operations.md), with its rules.
 
 | `--to` | Effect | `bonjour marie` becomes |
 | :----- | :---- | :---------------------- |

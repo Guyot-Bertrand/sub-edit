@@ -15,3 +15,5 @@ done
 ```
 
 Vuelve a la [guía](../index.md).
+
+O usa `Editar ▸ Desplazar`, que hace lo mismo.

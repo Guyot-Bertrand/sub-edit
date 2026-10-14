@@ -9,7 +9,7 @@ subedit-cli join-repeats (--output FILE | --output-dir DIR | --in-place)
 
 Makes **a single subtitle** of the subtitles that show the same thing one after the other: a text cut into pieces
 that follow each other, as some segmentation tools leave it. It is `Join Repeated Subtitles` of the window —
-[the same engine](../subedit-gui/lignes.md#fusionner-les-sous-titres-répétés).
+[the same engine](../subedit-gui/lines.md#joining-repeated-subtitles).
 
 **A repeat** is a subtitle that has **the same text, the same translation and the same format settings** (a
 style, a position, cue settings) as another one, **and that starts at the latest when that one ends**: they

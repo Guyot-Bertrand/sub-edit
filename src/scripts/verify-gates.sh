@@ -1587,7 +1587,7 @@ PY
         printf '  %s✗ le garde-fou a laissé passer la sombre absente du manuel%s\n' \
             "${RED}" "${RESET}"
         failures=$((failures + 1))
-    elif [[ "${output}" != *"PAIRE"*"seul.png"* || "${output}" == *"ecran.png"* ]]; then
+    elif [[ "${output}" != *"PAIR"*"seul.png"* || "${output}" == *"ecran.png"* ]]; then
         printf '  %s✗ le garde-fou a refusé sans nommer la bonne image%s\n' "${RED}" "${RESET}"
         failures=$((failures + 1))
     else
@@ -1599,6 +1599,86 @@ PY
 }
 
 expect_screenshot_pairs
+
+# One set of screenshots per language — #672.
+#
+# Every manual tree shows its own captures, taken under its own language, and
+# the guard reads each tree on its own, whatever its language. Three proofs on
+# scratch copies, nothing of the repository touched: a capture of a
+# translated tree deleted is refused and named; a translated page showing an
+# image of its tree that nothing produces is refused as frozen; a translated
+# page borrowing the English set is refused as foreign — a window in the wrong
+# language. The first is a copy of the real program and manuals; the others a
+# hand-written set, as the pair proofs above.
+expect_screenshot_trees() {
+    local script="${REPO_ROOT}/src/scripts/check-screenshots.py"
+    local root output
+    root="$(mktemp -d)"
+
+    proof_header '%s▸ a French capture deleted%s\n' "${BOLD}" "${RESET}"
+    mkdir -p "${root}/real/src/test/tools" "${root}/real/docs"
+    cp "${REPO_ROOT}/src/test/tools/screenshots.cpp" "${root}/real/src/test/tools/"
+    cp -r "${REPO_ROOT}/docs/manual" "${REPO_ROOT}/docs/i18n" "${root}/real/docs/"
+    rm "${root}/real/docs/i18n/fr/manual/subedit-gui/captures/fenetre.png"
+    if output="$("${script}" --root "${root}/real" 2>&1)"; then
+        printf '  %s✗ the guard let a missing French capture through%s\n' "${RED}" "${RESET}"
+        failures=$((failures + 1))
+    elif [[ "${output}" == *"BROKEN"*"fenetre.png"*"i18n/fr/manual/subedit-gui/captures"* ]]; then
+        printf '  %s✓ « check-screenshots.py » refused and named fenetre.png of the French set%s\n' \
+            "${GREEN}" "${RESET}"
+    else
+        printf '  %s✗ the guard refused, but not for the right reason%s\n' "${RED}" "${RESET}"
+        failures=$((failures + 1))
+    fi
+
+    mkdir -p "${root}/set/src/test/tools" "${root}/set/docs/manual/subedit-gui/captures" \
+        "${root}/set/docs/i18n/fr/manual/subedit-gui/captures"
+    local english="${root}/set/docs/manual/subedit-gui"
+    local french="${root}/set/docs/i18n/fr/manual/subedit-gui"
+    printf '%s\n' 'capture(w, w, d, "ecran");' 'capture(w, w, d, "ecran-sombre");' \
+        > "${root}/set/src/test/tools/screenshots.cpp"
+    printf '%s\n' '![Light.](captures/ecran.png)' '![Dark.](captures/ecran-sombre.png)' \
+        > "${english}/page.md"
+    cp "${english}/page.md" "${french}/page.md"
+    touch "${english}/captures/ecran.png" "${english}/captures/ecran-sombre.png" \
+        "${french}/captures/ecran.png" "${french}/captures/ecran-sombre.png"
+    if ! "${script}" --root "${root}/set" >/dev/null 2>&1; then
+        printf '  %s✗ the guard refuses two complete sets%s\n' "${RED}" "${RESET}"
+        failures=$((failures + 1))
+    fi
+
+    proof_header '%s▸ a French page showing a capture nothing produces%s\n' "${BOLD}" "${RESET}"
+    touch "${french}/captures/gelee.png"
+    printf '%s\n' '![Frozen.](captures/gelee.png)' >> "${french}/page.md"
+    if output="$("${script}" --root "${root}/set" 2>&1)"; then
+        printf '  %s✗ the guard let a frozen capture through%s\n' "${RED}" "${RESET}"
+        failures=$((failures + 1))
+    elif [[ "${output}" == *"FROZEN"*"gelee.png"* ]]; then
+        printf '  %s✓ « check-screenshots.py » refused and named gelee.png, as expected%s\n' \
+            "${GREEN}" "${RESET}"
+    else
+        printf '  %s✗ the guard refused, but not for the right reason%s\n' "${RED}" "${RESET}"
+        failures=$((failures + 1))
+    fi
+
+    proof_header '%s▸ a French page showing the English capture%s\n' "${BOLD}" "${RESET}"
+    cp "${english}/page.md" "${french}/page.md"
+    printf '%s\n' '![English.](../../../../manual/subedit-gui/captures/ecran.png)' >> "${french}/page.md"
+    if output="$("${script}" --root "${root}/set" 2>&1)"; then
+        printf '  %s✗ the guard let a borrowed capture through%s\n' "${RED}" "${RESET}"
+        failures=$((failures + 1))
+    elif [[ "${output}" == *"FOREIGN"*"page.md"* ]]; then
+        printf '  %s✓ « check-screenshots.py » refused the borrowed capture, as expected%s\n' \
+            "${GREEN}" "${RESET}"
+    else
+        printf '  %s✗ the guard refused, but not for the right reason%s\n' "${RED}" "${RESET}"
+        failures=$((failures + 1))
+    fi
+
+    rm -rf "${root}"
+}
+
+expect_screenshot_trees
 
 # Les renvois du manuel — #243.
 #
@@ -1738,82 +1818,127 @@ expect_cli_manual_gate() {
 
 expect_cli_manual_gate
 
-# Le manuel de `subedit-gui` et les raccourcis de la fenêtre — #612.
+# The manual of `subedit-gui` and the window's shortcuts — #612, #672.
 #
-# **Cinq preuves, une par défaut que le contrôle promet de voir**, et une pour le vert : une
-# ligne de tableau qui nomme une action que la fenêtre n'a pas, un raccourci écrit que l'action
-# ne répond pas, un « aucun » écrit d'une action qui en a un, et **une action dont le raccourci
-# n'est écrit nulle part**. Comme pour le manuel de la ligne de commande, chaque injection porte
-# sur **une copie** du manuel : le contrôle accepte le manuel en argument, si bien que rien du
-# dépôt n'est touché. La dernière injecte du côté de la fenêtre — un faux programme qui ajoute
-# une action à la vraie liste —, parce que le défaut est de ne rien écrire, et qu'on ne retire
-# pas d'un manuel ce qui n'y était pas.
+# **One proof per defect the check promises to see**, and one for green: a table row naming an
+# action the window does not have, a shortcut written that the action does not answer, a "none"
+# written of an action that has one, a page whose tables are headed in another language's words,
+# **an action whose shortcut is written nowhere** — in the English tree and in the French one,
+# each against the window in its own language — a French table quoting the English label, and a
+# tree in a language the window cannot be built in. As for the command-line manual, every
+# injection is made in **a copy** of the manual: the check takes the manual as an argument, and
+# the language of a copy is that of its path (`docs/i18n/<lang>/manual/`), so nothing of the
+# repository is touched. One proof injects on the window's side — a fake program adding an action
+# to the real list —, because the defect is writing nothing, and one does not remove from a manual
+# what was not in it.
 expect_gui_manual_gate() {
     local script="${REPO_ROOT}/src/scripts/check-gui-manual.py"
     local binary="${REPO_ROOT}/build/dev/bin/subedit_list_shortcuts"
     local real_manual="${REPO_ROOT}/docs/manual/subedit-gui"
+    local real_french="${REPO_ROOT}/docs/i18n/fr/manual/subedit-gui"
     local root
     root="$(mktemp -d)"
+    local french="${root}/docs/i18n/fr/manual/subedit-gui"
 
-    proof_header '%s▸ le manuel de subedit-gui, tel qu il est%s\n' "${BOLD}" "${RESET}"
+    proof_header '%s▸ the manual of subedit-gui, as it is%s\n' "${BOLD}" "${RESET}"
     if "${script}" --binary "${binary}" >/dev/null 2>&1; then
-        printf '  %s✓ « check-gui-manual.py » a laissé passer le manuel intact, comme attendu%s\n' \
+        printf '  %s✓ « check-gui-manual.py » let the intact manual through, as expected%s\n' \
             "${GREEN}" "${RESET}"
     else
-        printf '  %s✗ le contrôle refuse le manuel intact%s\n' "${RED}" "${RESET}"
+        printf '  %s✗ the check refuses the intact manual%s\n' "${RED}" "${RESET}"
         failures=$((failures + 1))
     fi
 
     expect_gui_manual_refused() {
-        local label="$1" expected="$2" with_binary="${3:-${binary}}"
+        local label="$1" expected="$2" with_binary="${3:-${binary}}" manual="${4:-${root}/manual}"
+        shift 4 2>/dev/null || shift $#
         local output
-        if output="$("${script}" --binary "${with_binary}" --manual "${root}/manual" 2>&1)"; then
-            printf '  %s✗ le contrôle a laissé passer : %s%s\n' "${RED}" "${label}" "${RESET}"
+        if output="$("${script}" --binary "${with_binary}" --manual "${manual}" "$@" 2>&1)"; then
+            printf '  %s✗ the check let it through: %s%s\n' "${RED}" "${label}" "${RESET}"
             failures=$((failures + 1))
-        elif [[ "${output}" == *"${expected}"* && "${output}" == *"1 écart(s)"* ]]; then
-            printf '  %s✓ « check-gui-manual.py » a refusé, et nommé seul cet écart : %s%s\n' \
+        elif [[ "${output}" == *"${expected}"* && "${output}" == *"1 difference(s)"* ]]; then
+            printf '  %s✓ « check-gui-manual.py » refused, and named this difference alone: %s%s\n' \
                 "${GREEN}" "${label}" "${RESET}"
         else
-            printf '  %s✗ le contrôle a refusé, mais pas pour la bonne raison : %s%s\n' \
+            printf '  %s✗ the check refused, but not for the right reason: %s%s\n' \
                 "${RED}" "${label}" "${RESET}"
             failures=$((failures + 1))
         fi
     }
     fresh_manual() {
-        rm -rf "${root}/manual"
+        rm -rf "${root}/manual" "${root}/docs"
         cp -r "${real_manual}" "${root}/manual"
+        mkdir -p "$(dirname "${french}")"
+        cp -r "${real_french}" "${french}"
     }
 
-    proof_header '%s▸ une ligne de tableau qui nomme une action que la fenêtre n a pas%s\n' "${BOLD}" "${RESET}"
+    proof_header '%s▸ a table row naming an action the window does not have%s\n' "${BOLD}" "${RESET}"
     fresh_manual
-    printf '\n| Commande | Raccourci |\n| :------- | :-------- |\n| `Inexistante` | `Ctrl+Q` |\n' \
+    printf '\n| Command | Shortcut |\n| :------ | :------- |\n| Nonexistent | `Ctrl+Q` |\n' \
         >> "${root}/manual/video.md"
-    expect_gui_manual_refused "une action inventée" "ACTION INCONNUE"
+    expect_gui_manual_refused "an invented action" "UNKNOWN ACTION"
 
-    proof_header '%s▸ un raccourci écrit que l action ne répond pas%s\n' "${BOLD}" "${RESET}"
+    proof_header '%s▸ a shortcut written that the action does not answer%s\n' "${BOLD}" "${RESET}"
     fresh_manual
-    sed -i 's/| `Ctrl+P` | joue si/| `Ctrl+Q` | joue si/' "${root}/manual/lecteur.md"
-    expect_gui_manual_refused "Ctrl+Q pour Play / Pause" "RACCOURCI INCONNU"
+    sed -i 's/| `Ctrl+P` | plays if/| `Ctrl+Q` | plays if/' "${root}/manual/player.md"
+    expect_gui_manual_refused "Ctrl+Q for Play / Pause" "UNKNOWN SHORTCUT"
 
-    proof_header '%s▸ un « aucun » écrit d une action qui a un raccourci%s\n' "${BOLD}" "${RESET}"
+    proof_header '%s▸ a "none" written of an action that has a shortcut%s\n' "${BOLD}" "${RESET}"
     fresh_manual
-    sed -i 's/| `Ctrl+P` | joue si/| aucun | joue si/' "${root}/manual/lecteur.md"
-    expect_gui_manual_refused "aucun pour Play / Pause" "RACCOURCI OUBLIÉ"
+    sed -i 's/| `Ctrl+P` | plays if/| none | plays if/' "${root}/manual/player.md"
+    expect_gui_manual_refused "none for Play / Pause" "FORGOTTEN SHORTCUT"
 
-    proof_header '%s▸ a French page whose language is not declared, read as English%s\n' "${BOLD}" "${RESET}"
+    proof_header '%s▸ a French page in the English tree, read as English%s\n' "${BOLD}" "${RESET}"
     fresh_manual
-    sed -i '/^<!-- language: fr -->$/d' "${root}/manual/lecteur.md"
-    expect_gui_manual_refused "lecteur.md without its declaration" "PAGE LANGUAGE IN DOUBT"
+    cp "${real_french}/player.md" "${root}/manual/player.md"
+    expect_gui_manual_refused "the French player.md in the English tree" "PAGE LANGUAGE IN DOUBT"
 
-    proof_header '%s▸ une action dont le raccourci n est écrit nulle part%s\n' "${BOLD}" "${RESET}"
+    proof_header '%s▸ an action whose shortcut is written nowhere%s\n' "${BOLD}" "${RESET}"
     fresh_manual
-    cat > "${root}/faux-programme" <<FAKE
+    cat > "${root}/fake-program" <<FAKE
 #!/usr/bin/env bash
-"${binary}"
-printf 'Nouvelle action\tCtrl+Alt+Q\n'
+"${binary}" "\$@"
+printf 'New action\tCtrl+Alt+Q\n'
 FAKE
-    chmod +x "${root}/faux-programme"
-    expect_gui_manual_refused "Ctrl+Alt+Q" "RACCOURCI NON DOCUMENTÉ" "${root}/faux-programme"
+    chmod +x "${root}/fake-program"
+    expect_gui_manual_refused "Ctrl+Alt+Q" "UNDOCUMENTED SHORTCUT" "${root}/fake-program"
+
+    proof_header '%s▸ a shortcut row removed from the English manual%s\n' "${BOLD}" "${RESET}"
+    fresh_manual
+    sed -i '/`Ctrl+Shift+W`/d' "${root}/manual/files.md"
+    expect_gui_manual_refused "Ctrl+Shift+W (English)" "UNDOCUMENTED SHORTCUT"
+
+    proof_header '%s▸ the French manual, against the French window%s\n' "${BOLD}" "${RESET}"
+    fresh_manual
+    if "${script}" --binary "${binary}" --manual "${french}" >/dev/null 2>&1; then
+        printf '  %s✓ « check-gui-manual.py » let the intact French manual through, as expected%s\n' \
+            "${GREEN}" "${RESET}"
+    else
+        printf '  %s✗ the check refuses the intact French manual%s\n' "${RED}" "${RESET}"
+        failures=$((failures + 1))
+    fi
+
+    proof_header '%s▸ a shortcut row removed from the French manual%s\n' "${BOLD}" "${RESET}"
+    fresh_manual
+    sed -i '/`Ctrl+Shift+W`/d' "${french}/files.md"
+    expect_gui_manual_refused "Ctrl+Shift+W (French)" "UNDOCUMENTED SHORTCUT" "${binary}" "${french}"
+
+    proof_header '%s▸ a French table quoting the English label%s\n' "${BOLD}" "${RESET}"
+    fresh_manual
+    sed -i 's/| Tout fermer | `Ctrl+Shift+W` |/| Close All | `Ctrl+Shift+W` |/' "${french}/files.md"
+    expect_gui_manual_refused "Close All in the French tree" "UNKNOWN ACTION" "${binary}" "${french}"
+
+    # A language with a vocabulary table, so that the page is read, and no catalogue, so that the
+    # window cannot be built in it: the French table lent under another name.
+    proof_header '%s▸ a manual in a language the window cannot be built in%s\n' "${BOLD}" "${RESET}"
+    fresh_manual
+    local unsupported="${root}/docs/i18n/xx/manual/subedit-gui"
+    mkdir -p "$(dirname "${unsupported}")"
+    cp -r "${real_french}" "${unsupported}"
+    python3 -c 'import json, sys; sys.path.insert(0, sys.argv[1]); import doc_vocabulary; print(json.dumps({"xx": doc_vocabulary.TABLES["fr"]}))' \
+        "${REPO_ROOT}/src/scripts" > "${root}/vocabulary-xx.json"
+    expect_gui_manual_refused "a manual in xx" "WINDOW LANGUAGE UNAVAILABLE" "${binary}" "${unsupported}" \
+        --vocabulary "${root}/vocabulary-xx.json"
 
     rm -rf "${root}"
 }
@@ -1849,14 +1974,15 @@ FAKE
     chmod +x "${root}/fake-gui" "${root}/fake-cli"
 
     local tree="${fixture}/docs/i18n/es/manual" table="${fixture}/vocabulary-es.json"
-    local name script manual binary output
+    local name script manual binary output counted
     local -a extra
     for name in gui cli; do
         script="${REPO_ROOT}/src/scripts/check-${name}-manual.py"
         manual="${tree}/subedit-${name}"
         binary="${root}/fake-${name}"
         extra=()
-        [[ "${name}" == cli ]] && extra=(--man-page "${root}/absent.1.in")
+        counted="1 difference(s)"
+        [[ "${name}" == cli ]] && extra=(--man-page "${root}/absent.1.in") && counted="1 écart(s)"
 
         proof_header '%s▸ a Spanish page, with its vocabulary table (%s)%s\n' "${BOLD}" "${name}" "${RESET}"
         if "${script}" --binary "${binary}" --manual "${manual}" "${extra[@]}" --vocabulary "${table}" >/dev/null 2>&1; then
@@ -1870,7 +1996,7 @@ FAKE
         if output="$("${script}" --binary "${binary}" --manual "${manual}" "${extra[@]}" 2>&1)"; then
             printf '  %s✗ le contrôle a laissé passer une page dont il ne connaît pas la langue%s\n' "${RED}" "${RESET}"
             failures=$((failures + 1))
-        elif [[ "${output}" == *"LANGUE SANS VOCABULAIRE"* && "${output}" == *"1 écart(s)"* ]]; then
+        elif [[ "${output}" == *"LANGUAGE WITHOUT VOCABULARY"* && "${output}" == *"${counted}"* ]]; then
             printf '  %s✓ « check-%s-manual.py » a refusé, et nommé seul cet écart : la langue sans table%s\n' \
                 "${GREEN}" "${name}" "${RESET}"
         else

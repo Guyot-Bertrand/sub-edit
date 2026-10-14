@@ -26,7 +26,7 @@ Erreurs (code 1), chacune nommée :
                         dans l'aide de la sous-commande.
     SOUS-COMMANDE NON LISTÉE / INCONNUE   le tableau d'`invocation.md` et le binaire
                         ne nomment pas les mêmes sous-commandes.
-    LANGUE SANS VOCABULAIRE  une page est dans une langue qui n'a pas de table (`doc_vocabulary.py`) :
+    LANGUAGE WITHOUT VOCABULARY  une page est dans une langue qui n'a pas de table (`doc_vocabulary.py`) :
                         elle ne serait pas lue, et le contrôle ne dirait rien.
     OPTION GLOBALE ABSENTE   une option globale du binaire n'est écrite ni dans
                         `invocation.md` ni dans la page `subedit-cli(1)`.

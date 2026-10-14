@@ -99,7 +99,7 @@ Never by default. The option does what [`disjoint`](disjoint.md) does, **with it
 
 The result is in **the base's format**, whatever the others'. What the crossing costs is
 said file by file, in the window's words — the same sentence as `Append File…` and as
-[pasting from another format](../subedit-gui/presse-papiers.md#les-balises-dun-autre-format-sont-traduites):
+[pasting from another format](../subedit-gui/clipboard.md#tags-of-another-format-are-translated):
 
 ```text
 d.ass: appended 1 subtitle; Advanced SSA into SubRip: 1 tag dropped, the header was dropped

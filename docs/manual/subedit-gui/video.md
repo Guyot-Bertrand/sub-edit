@@ -1,144 +1,142 @@
-# La vidéo associée
+# The associated video
 
-<!-- language: fr -->
+The **Video** menu carries first two commands, and the gestures that drive the film
+— see [The player](player.md#moving-through-the-film).
 
-Le menu **Video** porte d'abord deux commandes, et les gestes qui pilotent le film
-— voir [Le lecteur](lecteur.md#se-déplacer-dans-le-film).
+| Command | Shortcut | What it does |
+| :------ | :------- | :----------- |
+| Select Video… | none | chooses the video file the document goes with |
+| Play / Pause | `Ctrl+P` | plays or stops the video — see [The player](player.md#playing-and-stopping) |
 
-| Commande | Raccourci | Ce qu'elle fait |
-| :------- | :-------- | :-------------- |
-| `Select Video…` | aucun | choisit le fichier vidéo que le document accompagne |
-| `Play / Pause` | `Ctrl+P` | joue ou arrête la vidéo — voir [Le lecteur](lecteur.md#jouer-et-arrêter) |
+The associated video is **a property of the open document**, not a setting of
+the application: opening another subtitle file starts from scratch. It
+is written to no file and disappears with the window.
 
-La vidéo associée est **une propriété du document ouvert**, pas un réglage de
-l'application : ouvrir un autre fichier de sous-titres repart de zéro. Elle
-n'est écrite dans aucun fichier et disparaît avec la fenêtre.
+## The audio track
 
-## La piste audio
+A film can carry several sound tracks — the original version, a dub, a commentary. The
+**`Video ▸ Audio ▸ Language`** submenu lists them, **one entry per track**, and **marks the one playing**:
 
-Un film peut porter plusieurs pistes sonores — la version originale, un doublage, un commentaire. Le
-sous-menu **`Video ▸ Audio ▸ Language`** les liste, **une entrée par piste**, et **marque celle qui joue** :
+| What the file gives | What the entry says |
+| :------------------ | :------------------ |
+| a language and a title | `1: fra — Original` |
+| a language alone | `2: eng` |
+| a title alone | `3: Commentary` |
+| neither | `1` |
 
-| Ce que le fichier donne | Ce que l'entrée dit |
-| :---------------------- | :------------------ |
-| une langue et un titre | `1: fra — Original` |
-| une langue seule | `2: eng` |
-| un titre seul | `3: Commentary` |
-| ni l'un ni l'autre | `1` |
+The number is **the place of the track in the film**, one by one, in the file's order: two tracks
+can say `eng`, and a file silent about its labels still has a first and a second.
 
-Le numéro est **la place de la piste dans le film**, de un en un, dans l'ordre du fichier : deux pistes
-peuvent dire `eng`, et un fichier muet sur ses étiquettes a tout de même une première et une seconde.
+**Choosing an entry plays that track.** The mark is the player's answer, not the click: it tells the
+track that is playing.
 
-**Choisir une entrée joue cette piste.** La marque est la réponse du lecteur, non le clic : elle dit la
-piste qui joue.
+- **The submenu is disabled** with no video or no audio track. With a single track, it stays enabled and
+  shows it, checked: it tells the language of the film. The two volume gestures, which are next to it, stay
+  enabled in any case: see [The volume](player.md#the-volume).
+- **The track is not remembered** from one video to the next, nor from one session to the next: a track number is
+  that of its file, and carrying it over to the next film would choose whatever bears that number there.
+  Going back to a tab reopens its film on the track the player chooses by itself.
+- No shortcut: you change language rarely, and the menu is enough.
 
-- **Le sous-menu est éteint** sans vidéo ou sans piste audio. Avec une seule piste, il reste actif et
-  la montre, cochée : il dit la langue du film. Les deux gestes du volume, qui sont à côté, restent
-  actifs quoi qu'il en soit : voir [Le volume](lecteur.md#le-volume).
-- **La piste n'est pas retenue** d'une vidéo à l'autre, ni d'une session à l'autre : un numéro de piste est
-  celui de son fichier, et le reporter sur le film suivant choisirait ce qui porte ce numéro là-bas.
-  Revenir sur un onglet rouvre son film sur la piste que le lecteur choisit de lui-même.
-- Aucun raccourci : on change de langue rarement, et le menu suffit.
+## Choosing a video
 
-## Choisir une vidéo
-
-Le dialogue s'ouvre sur le répertoire du fichier de sous-titres et filtre sur
-les extensions vidéo reconnues :
+The dialog opens on the directory of the subtitle file and filters on
+the recognised video extensions:
 
     .avi .flv .m2ts .mkv .mov .mp4 .ogg .ogv .vob .webm
 
-Il propose aussi d'afficher tous les fichiers. Renoncer au dialogue ne change
-rien.
+It also offers to show all files. Cancelling the dialog changes
+nothing.
 
-Le fichier choisi est **ouvert aussitôt** : l'image apparaît dans la fenêtre, à
-l'arrêt sur son premier instant. Voir [Le lecteur](lecteur.md).
+The chosen file is **opened at once**: the picture appears in the window,
+paused on its first instant. See [The player](player.md).
 
-**Glisser un fichier vidéo sur la fenêtre fait la même chose** — voir
-[Glisser des fichiers sur la fenêtre](fichiers.md#glisser-des-fichiers-sur-la-fenêtre).
+**Dropping a video file on the window does the same thing** — see
+[Dropping files on the window](files.md#dropping-files-on-the-window).
 
-**La vidéo est celle du projet de l'onglet courant.** Chaque onglet garde la
-sienne ; changer d'onglet change le film. **Revenir sur un onglet reprend son
-film où on l'avait laissé**, en pause, comme toute ouverture. Un autre film
-choisi pour ce projet entre-temps repart, lui, du début.
+**The video is that of the current tab's project.** Each tab keeps
+its own; changing tabs changes the film. **Going back to a tab resumes its
+film where you left it**, paused, like any opening. Another film
+chosen for that project in the meantime starts, for its part, from the beginning.
 
-## La proposition automatique
+## The automatic proposal
 
-À l'ouverture d'un fichier de sous-titres, **si aucune vidéo n'a été choisie**,
-la fenêtre en cherche une dans le même répertoire : un fichier vidéo dont le nom
-sans extension est un préfixe du nôtre, au point près.
+When a subtitle file is opened, **if no video has been chosen**,
+the window looks for one in the same directory: a video file whose name
+without extension is a prefix of ours, up to a dot.
 
-| Fichier de sous-titres | Vidéo trouvée | Pourquoi |
-| :--------------------- | :------------ | :------- |
-| `film.fr.srt` | `film.mkv` | `film` est un préfixe de `film.fr` |
-| `film.en.forced.srt` | `film.mkv` | idem, quel que soit le nombre de segments |
-| `film.fr.srt` | `film.fr.mkv` plutôt que `film.mkv` | le nom le plus long l'emporte |
-| `film.fr.srt` | aucune, si `film.mkv` **et** `film.mp4` sont là | deux candidats ne se départagent pas |
-| `film.fr.srt` | aucune, si seul `fil.mkv` est là | `fil` ne s'arrête pas sur un point |
+| Subtitle file | Video found | Why |
+| :------------ | :---------- | :-- |
+| `film.fr.srt` | `film.mkv` | `film` is a prefix of `film.fr` |
+| `film.en.forced.srt` | `film.mkv` | likewise, whatever the number of segments |
+| `film.fr.srt` | `film.fr.mkv` rather than `film.mkv` | the longest name wins |
+| `film.fr.srt` | none, if `film.mkv` **and** `film.mp4` are there | two candidates cannot be told apart |
+| `film.fr.srt` | none, if only `fil.mkv` is there | `fil` does not stop on a dot |
 
-**Une proposition n'est pas un choix.** Elle se laisse remplacer par une autre
-proposition — ouvrir un autre fichier, enregistrer sous un autre nom. Un choix
-explicite, lui, n'est jamais réécrasé : une fois `Select Video…` utilisé, la
-proposition automatique ne repasse plus derrière.
+**A proposal is not a choice.** It lets itself be replaced by another
+proposal — opening another file, saving under another name. An explicit
+choice, on the other hand, is never overwritten: once `Select Video…` has been used, the
+automatic proposal no longer comes back behind it.
 
-C'est ce qui rend la devinette acceptable : elle est corrigible, et sa
-correction tient.
+That is what makes the guess acceptable: it can be corrected, and its
+correction holds.
 
-## Ce que la barre d'état montre
+## What the status bar shows
 
-À droite de la barre d'état, une ligne dit ce que le document accompagne. Elle
-est la dernière des trois : l'[encodage](fichiers.md#lencodage-dans-la-barre-détat)
-du fichier lu vient en premier, la [grille d'images](grille.md) déduite des
-positions ensuite.
+On the right of the status bar, a line says what the document goes with. It
+is the last of three: the [encoding](files.md#the-encoding-in-the-status-bar)
+of the file read comes first, the [frame grid](frame-grid.md) deduced from the
+positions next.
 
-| Situation | Ce qui est écrit |
-| :-------- | :--------------- |
-| une vidéo est associée | `Video: film.mkv` |
-| … et `ffprobe` en donne la cadence | `Video: film.mkv, 24000/1001 fps` |
-| aucune | `No video` |
+| Situation | What is written |
+| :-------- | :-------------- |
+| a video is associated | `Video: film.mkv` |
+| … and `ffprobe` gives its frame rate | `Video: film.mkv, 24000/1001 fps` |
+| none | `No video` |
 
-**La cadence va avec le film plutôt qu'à côté.** Ce sont un seul fait — ce que
-ce document accompagne — et une troisième mention la mettrait au même rang que
-la [grille déduite des positions](grille.md), qui en est un autre.
+**The frame rate goes with the film rather than beside it.** They are a single fact — what
+this document goes with — and a third mention would put it on the same rank as
+the [grid deduced from the positions](frame-grid.md), which is another one.
 
-## Quand il n'y a pas de film
+## When there is no film
 
-La fenêtre montre un bouton **`Select Video…`** là où l'image irait, plutôt que
-rien du tout. C'est la même commande que celle du menu `Video`, à portée de
-souris : une absence sur laquelle on ne peut pas agir se distingue mal d'un
-défaut.
+The window shows a **`Select Video…`** button where the picture would go, rather than
+nothing at all. It is the same command as the one of the `Video` menu, within
+reach of the mouse: an absence you cannot act on is hard to tell from a
+fault.
 
-Le bouton disparaît dès qu'un film est ouvert, et l'image prend **toute** sa
-place : la hauteur que la table laisse au-dessus d'elle — celle que
-[`window.table-share`](preferences.md) a retenue d'une session à l'autre —, et
-jamais moins que la hauteur minimale de l'image, que la table cède au besoin.
-Quand le film s'en va, le bouton reprend la même place.
+The button disappears as soon as a film is open, and the picture takes **all** its
+place: the height the table leaves above it — the one
+[`window.table-share`](preferences.md) remembered from one session to the next —, and
+never less than the minimum height of the picture, which the table yields if needed.
+When the film goes away, the button takes back the same place.
 
-**Le nom du fichier, jamais son chemin.** Un chemin de deux cents caractères
-chasserait tout le reste de la barre ; le chemin complet est celui que le
-dialogue a montré.
+**The file's name, never its path.** A path of two hundred characters
+would push everything else out of the bar; the full path is the one the
+dialog showed.
 
-## `ffmpeg` n'est pas requis
+## `ffmpeg` is not required
 
-`subedit-gui` interroge `ffprobe` — livré avec `ffmpeg` — pour une chose et une
-seule : **la fréquence d'images que le conteneur déclare**. Elle est lue une fois
-par film, au moment où il est associé.
+`subedit-gui` queries `ffprobe` — shipped with `ffmpeg` — for one thing and one
+thing only: **the frame rate the container declares**. It is read once
+per film, when it is associated.
 
-| Avec `ffprobe` | Sans |
-| :------------- | :--- |
-| la barre d'état écrit la cadence à côté du nom du film | elle n'écrit que le nom |
-| le dialogue de conversion propose la fréquence du film au champ du bas | il ne propose rien, et s'ouvre comme avant |
-| le dialogue d'alignement s'ouvre sur elle | il s'ouvre sur la cadence du projet |
+| With `ffprobe` | Without |
+| :------------- | :------ |
+| the status bar writes the frame rate beside the film's name | it writes only the name |
+| the conversion dialog proposes the film's frame rate in the bottom field | it proposes nothing, and opens as before |
+| the alignment dialog opens on it | it opens on the project's frame rate |
 
-**Rien d'autre n'en dépend, et aucune opération ne se refuse.** Le lecteur, lui,
-n'a pas besoin de `ffprobe` du tout : il s'appuie sur `libmpv`, qui est une
-dépendance de compilation. La durée du film, celle qui sert à signaler ce qui
-dépasse la fin, vient du lecteur et non de `ffprobe`.
+**Nothing else depends on it, and no operation refuses.** The player, for its part,
+does not need `ffprobe` at all: it relies on `libmpv`, which is a
+build dependency. The film's duration, the one used to report what
+goes past the end, comes from the player and not from `ffprobe`.
 
-Ce n'est donc pas un mode dégradé mais **le fonctionnement normal** d'une machine
-qui n'a jamais installé `ffmpeg` : la donnée vient de l'utilisateur, et `ffprobe`
-la propose quand il est là.
+It is therefore not a degraded mode but **the normal operation** of a machine
+that has never installed `ffmpeg`: the data comes from the user, and `ffprobe`
+proposes it when it is there.
 
-Une fréquence lue est un **rationnel exact** — `24000/1001`, et non `23.976`.
-C'est la raison pour laquelle `ffprobe` est gardé pour cette réponse-là : le
-lecteur connaît la même chose sous forme de nombre à virgule, et une fréquence
-approchée re-calerait tout le fichier à côté.
+A frame rate read is an **exact rational** — `24000/1001`, not `23.976`.
+That is the reason `ffprobe` is kept for that answer: the
+player knows the same thing as a floating-point number, and an approximate frame rate
+would re-time the whole file slightly off.

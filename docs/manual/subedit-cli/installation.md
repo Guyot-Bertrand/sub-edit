@@ -28,7 +28,7 @@ sudo dnf install ./subedit-<version>.x86_64.rpm     # Fedora, and relatives
 
 `ffmpeg` is **recommended and not required** by both packages: without it, the
 window only stops offering the frame rate the film declares — see
-[what `ffmpeg` changes](../subedit-gui/video.md#ffmpeg-nest-pas-requis).
+[what `ffmpeg` changes](../subedit-gui/video.md#ffmpeg-is-not-required).
 
 ### What the packages require of the distribution
 
@@ -146,7 +146,7 @@ afterwards. To build the tool alone, without a network, see below.
 
 | What is optional | What is lost without it |
 | :-------------------- | :--------------------- |
-| `ffmpeg`, for its `ffprobe` | the window no longer offers the frame rate the film declares — [the details](../subedit-gui/video.md#ffmpeg-nest-pas-requis) |
+| `ffmpeg`, for its `ffprobe` | the window no longer offers the frame rate the film declares — [the details](../subedit-gui/video.md#ffmpeg-is-not-required) |
 | a display server | nothing for `subedit-cli`; `subedit-gui` needs one to show itself |
 
 ### Building

@@ -1,132 +1,129 @@
-# subedit-gui — manuel
+# subedit-gui — manual
 
-<!-- language: fr -->
+The window of subedit: open a subtitle file and see it in a table. For the
+other program and to know where to start, see [the manual](../index.md).
 
-La fenêtre de subedit : ouvrir un fichier de sous-titres et le voir dans une
-table. Pour l'autre programme et pour savoir par où commencer, voir
-[le manuel](../index.md).
+> **Current state.** The window **opens several files, one tab each**, whatever
+> their encoding — through `Open…` or by dropping them on it —, **displays**,
+> **edits its cells**, **inserts and removes lines**,
+> **undoes**, **saves — choosing the encoding, the line endings and the
+> byte order mark** —, and **marks the subtitles whose positions
+> do not hold together**. It **merges and splits** lines, **cuts,
+> copies and pastes** texts, and **finds and replaces** in the visible text
+> without breaking the tags, in one project or in all. It **opens a translation
+> beside the main file**, aligned by position or by number, in one more column,
+> and saves it separately. The `Tools` menu carries sixteen operations and two spelling entries —
+> shift, transform, convert the frame rate, adjust durations,
+> **append a file, split the project in two**, put in
+> italics, add dialogue dashes, change the case in four ways,
+> remove hearing-impaired mentions, **correct texts through a
+> multi-page assistant**, **check spelling word by word**, align on a frame rate, bring back onto
+> the grid — and the grid analysis, which modifies nothing. The `Projects` menu
+> **saves and closes everything** in one gesture. It **associates a video
+> with the document**, chosen or guessed, and **plays it in the window**, the current
+> line drawn on the picture; it **sets a start, an end or a
+> subtitle from the film's position**, **steps frame by frame** and **nudges an edge by one frame**. The playback bar **seeks, sets the
+> volume and the position**, the table **follows playback** without undoing a manual scroll, positions
+> can be shown **in frames**, and the `Video` menu **chooses the audio track**. Two detections
+> **propose without ever applying**: a translation shifted by a constant amount, which can be **reopened
+> shifted**, and the frame rate conversion that puts a file back on a grid. It **remembers its geometry, the order, width and presence of its
+> columns, and its settings** from one
+> session to the next, and comes **light or dark** as you choose. `Help ▸ Manual`
+> opens **this manual** in a window. This manual describes what exists, never
+> what is planned; what comes next is in the
+> [roadmap](../../feuille-de-route.md).
 
-> **État actuel.** La fenêtre **ouvre plusieurs fichiers, un onglet chacun**, quel
-> que soit leur encodage — par `Open…` ou en les glissant dessus —, **affiche**,
-> **édite ses cellules**, **insère et supprime des lignes**,
-> **annule**, **enregistre — en choisissant l'encodage, les fins de ligne et la
-> marque d'ordre des octets** —, et **marque les sous-titres dont les positions
-> ne tiennent pas debout**. Elle **fusionne et scinde** des lignes, **coupe,
-> copie et colle** des textes, et **cherche et remplace** dans le texte visible
-> sans casser les balises, dans un projet ou dans tous. Elle **ouvre une traduction
-> en regard du principal**, alignée par position ou par numéro, dans une colonne
-> de plus, et l'enregistre à part. Le menu `Tools` porte seize opérations et deux entrées d'orthographe —
-> décaler, transformer, convertir la fréquence d'image, ajuster les durées,
-> **ajouter un fichier à la suite, scinder le projet en deux**, mettre en
-> italique, poser les tirets de dialogue, changer la casse de quatre façons,
-> retirer les mentions pour malentendants, **corriger des textes par un
-> assistant à plusieurs pages**, **vérifier l'orthographe mot à mot**, aligner sur une cadence, ramener sur
-> la grille — et l'analyse de grille, qui ne modifie rien. Le menu `Projects`
-> **enregistre et ferme tout** d'un geste. Elle **associe une vidéo
-> au document**, choisie ou devinée, et la **joue dans la fenêtre**, la réplique
-> courante dessinée sur l'image ; **pose un début, une fin ou un
-> sous-titre depuis la position du film**, **avance image par image** et **décale un bord d'une image**. La barre de lecture **saute, règle le
-> volume et la position**, la table **suit la lecture** sans défaire un défilement à la main, les positions
-> peuvent se montrer **en images**, et le menu `Video` **choisit la piste audio**. Deux détections
-> **proposent sans jamais appliquer** : une traduction décalée d'une valeur constante, qu'on peut **rouvrir
-> décalée**, et la conversion de fréquence qui remet un fichier sur une grille. Elle **retient sa géométrie, l'ordre, la largeur et la présence de ses
-> colonnes, et ses réglages** d'une
-> session à l'autre, et se porte **claire ou sombre** au choix. `Help ▸ Manual`
-> ouvre **ce manuel** dans une fenêtre. Ce manuel décrit ce qui existe, jamais
-> ce qui est prévu ; ce qui vient ensuite est dans la
-> [feuille de route](../../feuille-de-route.md).
+> **The images of this manual are generated, the prose is not.** The examples of
+> `subedit-cli` are generated by running the command; the screenshots
+> are generated by building the real window and photographing it — `make
+> manual` does both. An image therefore cannot describe an interface that
+> no longer exists, and an interface that changes shows in the repository's
+> diff. What remains without a safety net is the text around them, whose
+> accuracy rests on review.
 
-> **Les images de ce manuel sont engendrées, la prose non.** Les exemples de
-> `subedit-cli` sont engendrés en exécutant la commande ; les captures d'écran
-> le sont en construisant la vraie fenêtre et en la photographiant — `make
-> manual` fait les deux. Une image ne peut donc pas décrire une interface qui
-> n'existe plus, et une interface qui change se voit dans le diff du dépôt. Ce
-> qui reste sans filet est le texte autour, dont la justesse repose sur la
-> relecture.
+**Each screen is shown twice, under the two palettes the application
+sets** — `Light` and `Dark`, the ones
+[the preferences](preferences.md#the-theme) offer. Under a desktop whose
+theme governs, `System` gives one or the other according to what the desktop chose.
 
-**Chaque écran est montré deux fois, sous les deux palettes que l'application
-pose** — `Light` et `Dark`, celles que
-[les préférences](preferences.md#le-thème) proposent. Sous un bureau dont le
-thème gouverne, `System` donne l'une ou l'autre selon ce que le bureau a choisi.
+![The window on opening, light palette: the menus, the action bar, the
+strip where the film will take its place, and the subtitle
+table.](captures/fenetre.png)
 
-![La fenêtre à l'ouverture, palette claire : les menus, la barre d'actions, la
-bande où le film prendra place, et la table des
-sous-titres.](captures/fenetre.png)
+![The same window under the dark palette.](captures/fenetre-sombre.png)
 
-![La même fenêtre sous la palette sombre.](captures/fenetre-sombre.png)
+## The menus
 
-## Les menus
+`File`, `Edit`, `View`, `Video`, `Tools`, `Projects`, `Help` — in the order in
+which you use them: the document, what you do to it, how you look at it, what
+goes with it, what examines it, what applies to all open projects, what
+explains it.
 
-`File`, `Edit`, `View`, `Video`, `Tools`, `Projects`, `Help` — dans l'ordre où
-l'on s'en sert : le document, ce qu'on lui fait, comment on le regarde, ce qui
-l'accompagne, ce qui l'examine, ce qui vaut pour tous les projets ouverts, ce qui
-l'explique.
+`View` carries a submenu, `Columns`, one checkable entry per column except `Text`
+— see [The table](table.md#hiding-and-moving-columns) — and a setting, `Positions in Frames`, which shows
+`Start` and `End` as frame numbers — see [Positions in frames](table.md#positions-in-frames).
 
-`View` porte un sous-menu, `Columns`, une entrée à cocher par colonne sauf `Text`
-— voir [La table](table.md#masquer-et-déplacer-les-colonnes) — et un réglage, `Positions in Frames`, qui montre
-`Start` et `End` en numéros d'image — voir [Les positions en images](table.md#les-positions-en-images).
+`Projects` carries two entries, `Save All` and `Close All` — see
+[The Projects menu](files.md#the-projects-menu).
 
-`Projects` porte deux entrées, `Save All` et `Close All` — voir
-[Le menu Projects](fichiers.md#le-menu-projects).
+`Edit` carries five blocks, each under a separator: undoing; the
+clipboard — cut, copy, paste texts; `Find and Replace…`;
+inserting, removing, merging and splitting lines; finally
+`Preferences…`. Undoing is what you do *to* an edit, moving a text
+neither adds nor removes a line, the four of the next block change the number of
+lines, and setting the theme is not an edit at all.
 
-`Edit` porte cinq blocs, chacun sous un séparateur : l'annulation ; le
-presse-papiers — couper, copier, coller des textes ; `Find and Replace…` ;
-l'insertion, la suppression, la fusion et la scission de lignes ; enfin
-`Preferences…`. Défaire est ce qu'on fait *à* une édition, déplacer un texte
-n'ajoute ni ne retire de ligne, les quatre du bloc suivant changent le nombre de
-lignes, et régler le thème n'est pas une édition du tout.
+**Keys are named as the menu displays them**, in English like the rest
+of the interface: `Ins`, `Del`, `Ctrl+Shift+Z`. A key you press and
+that no menu names keeps its English name: `Enter`, `Esc`, `Shift`.
 
-**Les touches sont nommées comme le menu les affiche**, en anglais comme le reste
-de l'interface : `Ins`, `Del`, `Ctrl+Shift+Z`. Une touche qu'on presse et
-qu'aucun menu ne nomme garde son nom français : `Entrée`, `Échap`, `Maj`.
-
-`Help` porte deux entrées, dans l'ordre où le menu les montre. `Manual`, ou
-`F1`, ouvre ce manuel dans une fenêtre — voir
-[Le manuel dans la fenêtre](aide.md). `About subedit` dit la version et la
+`Help` carries two entries, in the order the menu shows them. `Manual`, or
+`F1`, opens this manual in a window — see
+[The manual in the window](help.md). `About subedit` gives the version and the
 licence.
 
-## La barre d'outils
+## The toolbar
 
-Sous les menus, une barre porte **les gestes les plus fréquents**, par groupes.
-Chaque bouton y lit un mot court ; le menu garde l'entrée entière, et le
-raccourci est le même.
+Under the menus, a bar carries **the most frequent gestures**, in groups.
+Each button reads a short word; the menu keeps the whole entry, and the
+shortcut is the same.
 
-| Bouton | Entrée du menu | Raccourci |
-| :----- | :------------- | :-------- |
-| `New` | `File ▸ New Project` | `Ctrl+N` |
-| `Open` | `File ▸ Open…` | `Ctrl+O` |
-| `Save` | `File ▸ Save` | `Ctrl+S` |
-| `Undo` | `Edit ▸ Undo` | `Ctrl+Z` |
-| `Redo` | `Edit ▸ Redo` | `Ctrl+Shift+Z` |
-| `Find` | `Edit ▸ Find and Replace…` | `Ctrl+F` |
-| `Insert` | `Edit ▸ Insert Subtitles…` | `Ins` |
-| `Remove` | `Edit ▸ Remove Subtitles` | `Del` |
-| `Italic` | `Tools ▸ Italic` | `Ctrl+I` |
+| Button | Menu entry | Shortcut |
+| :----- | :--------- | :------- |
+| New | File ▸ New Project | `Ctrl+N` |
+| Open | File ▸ Open… | `Ctrl+O` |
+| Save | File ▸ Save | `Ctrl+S` |
+| Undo | Edit ▸ Undo | `Ctrl+Z` |
+| Redo | Edit ▸ Redo | `Ctrl+Shift+Z` |
+| Find | Edit ▸ Find and Replace… | `Ctrl+F` |
+| Insert | Edit ▸ Insert Subtitles… | `Ins` |
+| Remove | Edit ▸ Remove Subtitles | `Del` |
+| Italic | Tools ▸ Italic | `Ctrl+I` |
 
-**Un bouton éteint l'est pour la même raison que son entrée** : `Undo` sans
-rien à annuler, `Remove` sans ligne choisie. Les entrées de la
-traduction et les opérations du menu `Tools`, sauf `Italic`, restent dans leurs
-menus : elles servent moins souvent, ou pas à tout le monde.
+**A disabled button is disabled for the same reason as its entry**: `Undo` with
+nothing to undo, `Remove` with no line chosen. The translation's entries
+and the operations of the `Tools` menu, except `Italic`, stay in their
+menus: they are used less often, or not by everyone.
 
 ## Sections
 
-| Section | Contenu |
-| :------ | :------ |
-| [Installation](../subedit-cli/installation.md) | construire et installer — la page vaut pour les deux programmes |
-| [Invocation](invocation.md) | lancer la fenêtre, arguments, codes de retour |
-| [Ouvrir et enregistrer](fichiers.md) | les commandes, les onglets, le menu `Projects`, glisser des fichiers, la traduction et la rouvrir décalée, les diagnostics, l'encodage dans la barre d'état, l'aller-retour, la fermeture |
-| [La table](table.md) | ce que chaque colonne montre, les masquer et les déplacer, les positions en images, la colonne de traduction et le texte que les opérations visent |
-| [Éditer une cellule](edition.md) | quelles cellules s'éditent, et comment |
-| [Couper, copier et coller des textes](presse-papiers.md) | les trois entrées, ce qui voyage, les lignes ajoutées, les balises traduites |
-| [Rechercher et remplacer](recherche.md) | le dialogue, les quatre gestes, les deux options, sur quoi porte la recherche, dans tous les projets ouverts |
-| [Insérer, supprimer, fusionner et scinder des lignes](lignes.md) | les quatre entrées, leurs raccourcis, où vont les lignes neuves |
-| [Annuler et rétablir](annulation.md) | l'historique, les deux actions, la marque de modification |
-| [La grille d'images](grille.md) | la cadence déduite des positions, l'analyse, et la conversion qui remet un fichier sur une grille |
-| [Les opérations](operations.md) | décaler, transformer, convertir, ajuster les durées, ajouter un fichier, scinder le projet, mettre en italique, la casse, les tirets, retirer les mentions, aligner, ramener sur la grille, et ce qui dépasse la fin du film |
-| [Correct Texts…](correct-texts.md) | l'assistant de correction : la cible et les tâches, chaque page de tâche, la progression, la confirmation |
-| [Check Spelling…](verifier-orthographe.md) | la vérification orthographique : ses réglages, le parcours, la fermeture au milieu, l'absence de dictionnaire |
-| [La vidéo associée](video.md) | choisir une vidéo, la proposition automatique, la piste audio, la barre d'état, `ffmpeg` |
-| [Le lecteur](lecteur.md) | la vue vidéo, la barre de lecture, jouer, se déplacer, le volume, la table qui suit, la réplique dessinée |
-| [Caler depuis la vidéo](calage.md) | poser le début ou la fin d'un sous-titre, insérer, sélectionner depuis la position du film, avancer image par image, décaler un bord |
-| [Les préférences](preferences.md) | le thème, le fichier de préférences, ses options, et ce qu'il advient d'une valeur illisible |
-| [Le manuel dans la fenêtre](aide.md) | `Help ▸ Manual`, ce qu'il ouvre et comment y naviguer |
+| Section | Contents |
+| :------ | :------- |
+| [Installation](../subedit-cli/installation.md) | build and install — the page applies to both programs |
+| [Invocation](invocation.md) | launching the window, arguments, exit codes |
+| [Opening and saving](files.md) | the commands, the tabs, the `Projects` menu, dropping files, the translation and reopening it shifted, the diagnostics, the encoding in the status bar, the round trip, closing |
+| [The table](table.md) | what each column shows, hiding and moving them, positions in frames, the translation column and the text the operations target |
+| [Editing a cell](editing.md) | which cells can be edited, and how |
+| [Cutting, copying and pasting texts](clipboard.md) | the three entries, what travels, the lines added, the translated tags |
+| [Find and replace](find-and-replace.md) | the dialog, the four gestures, the two options, what the search covers, in all open projects |
+| [Inserting, removing, merging and splitting lines](lines.md) | the four entries, their shortcuts, where the new lines go |
+| [Undo and redo](undo.md) | the history, the two actions, the modification mark |
+| [The frame grid](frame-grid.md) | the frame rate deduced from the positions, the analysis, and the conversion that puts a file back on a grid |
+| [The operations](operations.md) | shift, transform, convert, adjust durations, append a file, split the project, put in italics, the case, the dashes, remove mentions, align, bring back onto the grid, and what goes past the end of the film |
+| [Correct Texts…](correct-texts.md) | the correction assistant: the target and the tasks, each task page, the progress, the confirmation |
+| [Check Spelling…](check-spelling.md) | the spell check: its settings, the walk through, closing in the middle, the absence of a dictionary |
+| [The associated video](video.md) | choosing a video, the automatic proposal, the audio track, the status bar, `ffmpeg` |
+| [The player](player.md) | the video view, the playback bar, playing, moving, the volume, the table that follows, the drawn line |
+| [Timing from the video](timing.md) | setting the start or end of a subtitle, inserting, selecting from the film's position, stepping frame by frame, nudging an edge |
+| [The preferences](preferences.md) | the theme, the preferences file, its options, and what becomes of an unreadable value |
+| [The manual in the window](help.md) | `Help ▸ Manual`, what it opens and how to navigate in it |

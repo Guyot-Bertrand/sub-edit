@@ -1,281 +1,279 @@
-# La table
+# The table
 
-<!-- language: fr -->
+The window shows the subtitles of the open file, one per line, in five
+columns — six when the project carries a translation.
 
-La fenêtre montre les sous-titres du fichier ouvert, un par ligne, dans cinq
-colonnes — six quand le projet porte une traduction.
+**This manual quotes the window's headings as the English window displays
+them**, as it does for the command line; a translated window shows them in
+its own language.
 
-**La fenêtre est en anglais**, comme la ligne de commande. La traduction est
-une phase à elle seule ; ce manuel cite donc les intitulés tels qu'ils
-s'affichent.
-
-| Colonne | Ce qu'elle montre |
-| :------ | :---------------- |
-| `#` | le rang du sous-titre, à partir de 1 |
-| `Start` | la position d'apparition, `HH:MM:SS,mmm` |
-| `End` | la position de disparition |
+| Column | What it shows |
+| :----- | :------------ |
+| `#` | the rank of the subtitle, from 1 |
+| `Start` | the position where it appears, `HH:MM:SS,mmm` |
+| `End` | the position where it disappears |
 | `Duration` | `End − Start` |
-| `Text` | le texte du sous-titre |
-| `Translation` | la traduction du sous-titre — **absente tant que le projet n'en a pas** |
+| `Text` | the text of the subtitle |
+| `Translation` | the translation of the subtitle — **absent as long as the project has none** |
 
-![Les cinq colonnes de la table, sur un fichier de douze sous-titres, palette
-claire.](captures/table.png)
+![The five columns of the table, on a file of twelve subtitles, light
+palette.](captures/table.png)
 
-![La même table sous la palette sombre.](captures/table-sombre.png)
+![The same table under the dark palette.](captures/table-sombre.png)
 
-## La longueur des lignes
+## The length of lines
 
-![La table, palette claire : chaque ligne d'une cellule de texte est suivie de sa
-longueur entre crochets, ici en caractères.](captures/longueurs.png)
+![The table, light palette: each line of a text cell is followed by its
+length in brackets, here in characters.](captures/longueurs.png)
 
-![La même table sous la palette sombre.](captures/longueurs-sombre.png)
+![The same table under the dark palette.](captures/longueurs-sombre.png)
 
-**Chaque ligne d'une cellule de texte est suivie de sa longueur**, `[N]`, en plus
-petit et plus pâle — dans la colonne `Text` comme dans la colonne `Translation`.
-C'est ce que fait Gaupol.
+**Each line of a text cell is followed by its length**, `[N]`, smaller
+and paler — in the `Text` column as in the `Translation` column.
+That is what Gaupol does.
 
-| Ce qui compte | Ce que la table fait |
-| :------------ | :------------------- |
-| **les balises** | ne comptent pas : `<i>Bonjour</i>` fait `[7]`, comme `Bonjour` |
-| **l'arrondi** | vers le bas : une ligne de 12,9 ems s'affiche `[12]` |
-| **une ligne vide** | n'a pas de longueur ; un texte vide non plus |
-| **l'unité** | *ems* par défaut, ou caractères — `Edit ▸ Preferences…` |
-| **une ligne trop longue pour la colonne** | est coupée par `…` **avant** le nombre, qui reste visible |
+| What counts | What the table does |
+| :---------- | :------------------ |
+| **tags** | do not count: `<i>Bonjour</i>` makes `[7]`, like `Bonjour` |
+| **rounding** | downwards: a line of 12.9 ems is displayed `[12]` |
+| **an empty line** | has no length; nor has an empty text |
+| **the unit** | *ems* by default, or characters — `Edit ▸ Preferences…` |
+| **a line too long for the column** | is cut by `…` **before** the number, which stays visible |
 
-**L'*em* est celle de Gaupol, non celle de la typographie** : l'alphabet minuscule
-vaut 0,55 em par lettre, sous la police de la table. Une longueur en *ems* dépend
-donc de la police ; une longueur en caractères compte les points de code, un
-accent pour un.
+**The *em* is Gaupol's, not typography's**: the lower-case alphabet
+is worth 0.55 em per letter, under the table's font. A length in *ems* therefore
+depends on the font; a length in characters counts code points, an
+accent for one.
 
-**La table ne marque pas une ligne trop longue.** Elle montre le nombre, et c'est à
-l'œil de le comparer à la limite que l'on s'est fixée — comme Gaupol. Ce n'est pas
-la limite de l'assistant `Correct Texts…`, qui a son propre réglage.
+**The table does not mark a line that is too long.** It shows the number, and it is up to
+the eye to compare it with the limit you have set yourself — like Gaupol. It is not
+the limit of the `Correct Texts…` assistant, which has its own setting.
 
-**Pour ne pas les voir :** décocher `Show line lengths in cells` dans
-`Edit ▸ Preferences…`. Voir [Les longueurs de lignes](preferences.md#les-longueurs-de-lignes).
+**To not see them:** uncheck `Show line lengths in cells` in
+`Edit ▸ Preferences…`. See [Line lengths](preferences.md#line-lengths).
 
-## Masquer et déplacer les colonnes
+## Hiding and moving columns
 
-**`View ▸ Columns`** porte une entrée à cocher par colonne, **sauf `Text`** :
-sans le texte principal, il n'y aurait plus rien à éditer.
+**`View ▸ Columns`** carries one checkable entry per column, **except `Text`**:
+without the main text, there would be nothing left to edit.
 
-| Entrée | Colonne |
-| :----- | :------ |
+| Entry | Column |
+| :---- | :----- |
 | `View ▸ Columns ▸ No.` | `#` |
 | `View ▸ Columns ▸ Start` | `Start` |
 | `View ▸ Columns ▸ End` | `End` |
 | `View ▸ Columns ▸ Duration` | `Duration` |
-| `View ▸ Columns ▸ Translation` | `Translation` — voir [La colonne de traduction](#la-colonne-de-traduction) |
+| `View ▸ Columns ▸ Translation` | `Translation` — see [The translation column](#the-translation-column) |
 
-Décocher une entrée retire sa colonne, la recocher la remet, à la largeur
-qu'elle avait. **Le réglage vaut pour toute la fenêtre**, tous les onglets
-compris : il y a une seule table, dont le projet change avec l'onglet.
+Unchecking an entry removes its column, checking it again puts it back, at the width
+it had. **The setting applies to the whole window**, all tabs
+included: there is a single table, whose project changes with the tab.
 
-**La cellule courante quitte la colonne qu'on retire** : elle passe dans `Text`,
-sur la même ligne, et la sélection ne bouge pas. Une cellule courante dans une
-colonne que personne ne voit serait une cellule qu'une frappe éditerait à
-l'aveugle.
+**The current cell leaves the column being removed**: it moves into `Text`,
+on the same line, and the selection does not move. A current cell in a
+column nobody sees would be a cell a keystroke would edit
+blind.
 
-**Les colonnes se déplacent en glissant leur en-tête**, n'importe laquelle, `Text`
-comprise. La dernière colonne montrée prend la place que les autres laissent.
+**Columns are moved by dragging their header**, any of them, `Text`
+included. The last column shown takes the space the others leave.
 
-**L'ordre et les colonnes retirées sont retenus d'une session à l'autre**, avec
-les largeurs, dans le [fichier de préférences](preferences.md) — `table.order`
-et `table.hidden`. La colonne de traduction n'y est pas : elle suit sa propre
-règle, et revient avec chaque traduction ouverte.
+**The order and the removed columns are remembered from one session to the next**, with
+the widths, in the [preferences file](preferences.md) — `table.order`
+and `table.hidden`. The translation column is not there: it follows its own
+rule, and comes back with each translation opened.
 
-**Le numéro n'est pas une donnée du fichier** mais le rang de la ligne. Une
-insertion ou une suppression renumérote donc tout ce qui suit, sans que rien ne
-soit réécrit.
+**The number is not data of the file** but the rank of the line. An
+insertion or a removal therefore renumbers everything that follows, without anything
+being rewritten.
 
-**Le séparateur décimal suit le format du fichier** : une virgule pour SubRip,
-un point pour les huit autres. SubRip est le seul des neuf à écrire une virgule.
+**The decimal separator follows the file's format**: a comma for SubRip,
+a point for the eight others. SubRip is the only one of the nine to write a comma.
 
-**C'est le séparateur qui suit, pas l'orthographe entière.** La table écrit
-toujours les heures et toujours trois décimales ; un fichier WebVTT omet les
-heures sous une heure, SubViewer 2 et les deux Sub Station Alpha comptent au
-centième, MPL2 au dixième, TMPlayer à la seconde, MicroDVD en images. Une
-colonne dont la largeur suivrait le format serait plus pénible à lire qu'une
-colonne qui n'est simplement pas l'orthographe exacte du fichier.
+**It is the separator that follows, not the whole spelling.** The table always writes
+the hours and always three decimals; a WebVTT file omits the
+hours under one hour, SubViewer 2 and the two Sub Station Alpha count in
+hundredths, MPL2 in tenths, TMPlayer in seconds, MicroDVD in frames. A
+column whose width followed the format would be more tiresome to read than a
+column that is simply not the exact spelling of the file.
 
-Ce que la table garantit est donc **la valeur et le séparateur**, non le nombre
-de décimales. Ce qu'un format d'arrivée arrondirait est dit au moment de
-l'enregistrement — voir
-[Ce qu'un format ne portera pas](fichiers.md#ce-quun-format-ne-portera-pas-dit-avant-décrire).
+What the table guarantees is therefore **the value and the separator**, not the number
+of decimals. What a target format would round is said at the moment of
+saving — see
+[What a format will not carry](files.md#what-a-format-will-not-carry-said-before-writing).
 
-**La durée (`Duration`) est calculée**, jamais stockée : la saisir déplace la
-fin. Un sous-titre dont la fin précède le
-début affiche une durée négative plutôt que zéro : c'est une anomalie du
-fichier, et la masquer la rendrait introuvable.
+**The duration (`Duration`) is computed**, never stored: typing it moves the
+end. A subtitle whose end precedes its
+start displays a negative duration rather than zero: it is an anomaly of the
+file, and hiding it would make it impossible to find.
 
-**Le début, la fin, la durée, le texte et la traduction s'éditent en place** ; le
-numéro non. Voir [Éditer une cellule](edition.md).
+**The start, the end, the duration, the text and the translation are edited in place**; the
+number is not. See [Editing a cell](editing.md).
 
-**La sélection désigne ce sur quoi une opération porte** — voir
-[Les opérations](operations.md).
+**The selection designates what an operation acts on** — see
+[The operations](operations.md).
 
-**La hauteur d'une ligne suit le sous-titre qu'elle porte** : un sous-titre de
-deux lignes en occupe deux, un de trois en occupe trois. Le texte est montré en
-entier, tel qu'il sera écrit.
+**The height of a line follows the subtitle it carries**: a subtitle of
+two lines takes two, one of three takes three. The text is shown in
+full, as it will be written.
 
-**Ce qui reste coupé est une ligne trop longue pour sa colonne**, et elle se
-termine alors par une ellipse. Élargir la colonne `Text`, ou la fenêtre, la
-montre en entier ; ouvrir la cellule aussi. Les lignes du texte ne sont jamais
-repliées : seul un vrai saut de ligne fait une ligne, si bien que la hauteur
-d'une ligne de la table ne change pas quand on tire le bord d'une colonne.
+**What remains cut is a line too long for its column**, and it then
+ends with an ellipsis. Widening the `Text` column, or the window, shows it
+in full; so does opening the cell. The lines of the text are never
+wrapped: only a real line break makes a line, so that the height
+of a table row does not change when you drag the edge of a column.
 
-## Les positions en images
+## Positions in frames
 
-**`View ▸ Positions in Frames`** — une entrée à cocher, un seul réglage pour la fenêtre — montre les colonnes
-`Start` et `End` **en numéros d'image** au lieu de timestamps, et **accepte un numéro d'image à la saisie**. Les
-en-têtes le disent : `Start (frames)` et `End (frames)`.
+**`View ▸ Positions in Frames`** — a checkable entry, a single setting for the window — shows the
+`Start` and `End` columns **as frame numbers** instead of timestamps, and **accepts a frame number as input**. The
+headers say so: `Start (frames)` and `End (frames)`.
 
-| Ce qui change | Ce qui ne change pas |
-| :------------ | :------------------- |
-| ce que `Start` et `End` écrivent, et ce qu'ils acceptent | la colonne `Duration`, qui reste un temps |
-| les en-têtes de ces deux colonnes | le document : rien n'est modifié, l'historique n'a pas de nouvelle entrée, et **ce que le fichier écrit est ce qu'il écrivait** |
+| What changes | What does not change |
+| :----------- | :------------------- |
+| what `Start` and `End` write, and what they accept | the `Duration` column, which stays a time |
+| the headers of those two columns | the document: nothing is modified, the history has no new entry, and **what the file writes is what it wrote** |
 
-**La fréquence qui compte les images** est, dans cet ordre :
+**The frame rate that counts the frames** is, in this order:
 
-1. **celle du fichier**, quand il est compté en images — MicroDVD, qui porte des numéros et pas de
-   fréquence : **la fenêtre montre alors les chiffres de son fichier**, quelle que soit la vidéo ;
-2. **celle que la vidéo associée déclare** ;
-3. **la grille que les positions dessinent**, quand elles en dessinent une.
+1. **that of the file**, when it is counted in frames — MicroDVD, which carries numbers and no
+   frame rate: **the window then shows the figures of its file**, whatever the video;
+2. **the one the associated video declares**;
+3. **the grid the positions draw**, when they draw one.
 
-L'infobulle de l'entrée dit laquelle a été retenue : *Positions are frame numbers, counted at 25 fps, the rate the
-video declares*. **Sans aucune des trois, l'entrée est éteinte, et son infobulle dit pourquoi** : le fichier n'est
-pas compté en images, la vidéo ne déclare pas de fréquence, et les positions ne tombent sur aucune grille.
+The entry's tooltip says which one was retained: *Positions are frame numbers, counted at 25 fps, the rate the
+video declares*. **With none of the three, the entry is disabled, and its tooltip says why**: the file is
+not counted in frames, the video declares no frame rate, and the positions fall on no grid.
 
-- **Un numéro est le numéro de l'image où tombe la position**, arrondi à l'image la plus proche. **Saisi, il
-  donne l'instant où cette image commence**, arrondi **une seule fois** depuis le rapport exact
-  ([ADR 0013](../../adr/0013-mise-a-l-echelle-exacte-des-positions.md)) : l'image 37 à 23,976 images par seconde
-  commence à 1 543,04 ms, soit `00:00:01,543`.
-- **Seuls les nombres entiers sont acceptés** — avec le signe moins, un début pouvant précéder le film. Un
-  timestamp saisi en mode images, ou un nombre qui n'en est pas un, laisse la cellule comme elle était.
-- **La barre de lecture suit le même réglage** : la position et la durée de part et d'autre du curseur
-  s'écrivent en numéros d'image comme `Start` et `End`, au même instant — voir
-  [La barre de lecture](lecteur.md#la-barre-de-lecture). Le chrono dessiné en haut de l'image reste un
+- **A number is the number of the frame the position falls in**, rounded to the nearest frame. **Typed, it
+  gives the instant that frame starts**, rounded **only once** from the exact ratio
+  ([ADR 0013](../../adr/0013-mise-a-l-echelle-exacte-des-positions.md)): frame 37 at 23.976 frames per second
+  starts at 1,543.04 ms, that is `00:00:01,543`.
+- **Only whole numbers are accepted** — with the minus sign, since a start can precede the film. A
+  timestamp typed in frame mode, or a number that is not one, leaves the cell as it was.
+- **The playback bar follows the same setting**: the position and the duration on either side of the slider
+  are written as frame numbers like `Start` and `End`, at the same instant — see
+  [The playback bar](player.md#the-playback-bar). The clock drawn at the top of the picture stays a
   timestamp.
-- **Ce réglage n'est pas retenu** d'une session à l'autre : c'est un réglage de la fenêtre, non d'un
-  document, et il se rallume d'un geste.
+- **This setting is not remembered** from one session to the next: it is a setting of the window, not of a
+  document, and it is turned back on in one gesture.
 
-## Les anomalies
+## The anomalies
 
-Un sous-titre dont les positions ne tiennent pas debout est **teinté sur ses
-colonnes de temps**, et le survoler dit ce qui ne va pas.
+A subtitle whose positions do not hold together is **tinted on its
+time columns**, and hovering over it says what is wrong.
 
-| Teinte | Ce qu'elle signale | Ce qu'il faut faire |
-| :----- | :----------------- | :------------------ |
-| rouge | `ends before it starts` | corriger sa fin, ou son début |
-| bleue | `starts before the previous one starts` | le remettre à sa place dans l'ordre |
-| ambre | `starts before the previous one ends` | ajuster son calage |
+| Tint | What it reports | What to do |
+| :--- | :-------------- | :--------- |
+| red | `ends before it starts` | correct its end, or its start |
+| blue | `starts before the previous one starts` | put it back in its place in the order |
+| amber | `starts before the previous one ends` | adjust its timing |
 
-![Trois sous-titres en anomalie, palette claire : le troisième finit avant de
-commencer, le cinquième chevauche le précédent, le sixième commence avant
-lui.](captures/anomalies.png)
+![Three subtitles in anomaly, light palette: the third ends before it
+starts, the fifth overlaps the previous one, the sixth starts before
+it.](captures/anomalies.png)
 
-![Les mêmes anomalies sous la palette sombre : les trois teintes y restent
-distinctes du fond, et le texte lisible par-dessus.](captures/anomalies-sombre.png)
+![The same anomalies under the dark palette: the three tints stay
+distinct from the background, and the text readable over them.](captures/anomalies-sombre.png)
 
-Seules les colonnes `Start`, `End` et `Duration` sont teintées : une anomalie ne
-parle que de temps, et teinter le texte laisserait croire qu'il y est pour
-quelque chose.
+Only the `Start`, `End` and `Duration` columns are tinted: an anomaly
+speaks only of time, and tinting the text would suggest it had something
+to do with it.
 
-**Un sous-titre peut en porter plusieurs**, et l'infobulle les nomme toutes. La
-teinte est celle de la première à réparer : un sous-titre cassé en lui-même
-l'est quoi que fassent ses voisins ; un sous-titre mal placé se remet en place,
-et son chevauchement s'en va avec lui.
+**A subtitle can carry several**, and the tooltip names them all. The
+tint is that of the first one to repair: a subtitle broken in itself
+is broken whatever its neighbours do; a misplaced subtitle is put back in place,
+and its overlap goes away with it.
 
-> Ce n'est pas un hasard si le désordre l'emporte presque toujours sur le
-> chevauchement : commencer avant que le précédent ne commence, c'est commencer
-> avant qu'il ne finisse — sauf si le précédent est lui-même cassé.
+> It is no accident that disorder almost always wins over
+> overlap: starting before the previous one starts is starting
+> before it ends — unless the previous one is itself broken.
 
-**Le marquage se recalcule après chaque changement de position**, qu'il vienne
-d'une cellule éditée, d'une opération ou d'une annulation. Il dit ce que le
-fichier est maintenant, pas ce qu'il était à l'ouverture.
+**The marking is recomputed after every change of position**, whether it comes
+from an edited cell, an operation or an undo. It says what the
+file is now, not what it was on opening.
 
-Il ne s'appuie sur aucune grille d'images : dès qu'une position est corrigée à
-la main, elle en sort, et un marquage fondé dessus signalerait le travail de
-l'utilisateur.
+It relies on no frame grid: as soon as a position is corrected by
+hand, it leaves it, and a marking based on it would report the
+user's work.
 
-## La colonne de traduction
+## The translation column
 
-Un sous-titre porte **deux textes et une seule paire de positions** : la
-traduction n'a pas de calage à elle, elle est rattachée à celui du sous-titre.
-La table la montre dans une sixième colonne, `Translation`, à droite de `Text`.
+A subtitle carries **two texts and a single pair of positions**: the
+translation has no timing of its own, it is attached to that of the subtitle.
+The table shows it in a sixth column, `Translation`, to the right of `Text`.
 
-![La table d'un projet qui porte une traduction, palette claire : la colonne
-`Translation` à droite de `Text`, et les deux textes qui se partagent la
-place.](captures/table-traduction.png)
+![The table of a project that carries a translation, light palette: the
+`Translation` column to the right of `Text`, and the two texts sharing the
+space.](captures/table-traduction.png)
 
-![La même table sous la palette sombre.](captures/table-traduction-sombre.png)
+![The same table under the dark palette.](captures/table-traduction-sombre.png)
 
-**La colonne n'est là que si le projet a une traduction.** Sans elle, la table
-garde ses cinq colonnes, et la fenêtre se comporte comme si la traduction
-n'existait pas — rien n'est grisé ni ajouté. `File ▸ Open Translation…` en ouvre
-une : voir [Ouvrir une traduction](fichiers.md#ouvrir-une-traduction).
+**The column is there only if the project has a translation.** Without one, the table
+keeps its five columns, and the window behaves as if the translation
+did not exist — nothing is greyed out or added. `File ▸ Open Translation…` opens
+one: see [Opening a translation](files.md#opening-a-translation).
 
-**Une entrée du menu `View` la montre ou la retire** :
+**An entry of the `View` menu shows or removes it**:
 
-| Entrée | Ce qu'elle fait |
-| :----- | :-------------- |
-| `View ▸ Columns ▸ Translation` | coche : la colonne est montrée ; décoche : elle est retirée |
+| Entry | What it does |
+| :---- | :----------- |
+| `View ▸ Columns ▸ Translation` | checked: the column is shown; unchecked: it is removed |
 
-L'entrée est **éteinte quand le projet n'a pas de traduction** — il n'y a rien à
-montrer — et cochée au démarrage. **Le choix de la retirer est celui de
-l'utilisateur** : il tient d'un fichier à l'autre, jusqu'à ce qu'on la coche de
-nouveau. Retirer la colonne ne retire pas la traduction : elle reste dans le
-projet, et revient avec l'entrée. Ouvrir un fichier qui n'en porte pas retire la
-colonne.
+The entry is **disabled when the project has no translation** — there is nothing to
+show — and checked at start-up. **The choice to remove it is the
+user's**: it holds from one file to the next, until it is checked
+again. Removing the column does not remove the translation: it stays in the
+project, and comes back with the entry. Opening a file that carries none removes the
+column.
 
-**Les cellules de la traduction se saisissent comme celles du texte** — voir
-[Éditer une cellule](edition.md).
+**The translation's cells are typed into like those of the text** — see
+[Editing a cell](editing.md).
 
-### Le texte que les opérations visent
+### The text the operations target
 
-Avec deux textes dans une ligne, les opérations de texte doivent savoir lequel
-elles réécrivent. **C'est celui de la colonne de la cellule courante** : la
-traduction si la cellule courante est dans la colonne `Translation`, le texte
-principal partout ailleurs — dans une colonne de temps comme dans `Text`.
+With two texts in a line, text operations must know which one
+they rewrite. **It is that of the column of the current cell**: the
+translation if the current cell is in the `Translation` column, the main
+text everywhere else — in a time column as in `Text`.
 
-| Opération | Ce qu'elle vise |
+| Operation | What it targets |
 | :-------- | :-------------- |
-| `Italic`, `Case`, `Dialogue`, `Remove Hearing-Impaired Mentions…` | le texte de la colonne courante |
-| `Cut Texts`, `Copy Texts`, `Paste Texts` | le texte de la colonne courante |
-| `Find and Replace…` | le texte de la colonne courante — voir [Rechercher et remplacer](recherche.md#dans-quel-texte) |
-| les opérations de position, l'insertion, la suppression, la fusion, la scission | **les deux textes** : un sous-titre est un tout |
+| `Italic`, `Case`, `Dialogue`, `Remove Hearing-Impaired Mentions…` | the text of the current column |
+| `Cut Texts`, `Copy Texts`, `Paste Texts` | the text of the current column |
+| `Find and Replace…` | the text of the current column — see [Find and replace](find-and-replace.md#in-which-text) |
+| the position operations, insertion, removal, merging, splitting | **both texts**: a subtitle is a whole |
 
-**La barre d'état le dit quand il y a deux textes**, à gauche des autres
-indications :
+**The status bar says so when there are two texts**, to the left of the other
+indications:
 
 ```text
 Text: Translation
 ```
 
-ou `Text: Main` pour le texte principal. Elle se tait quand la colonne n'est pas
-montrée : il n'y a alors qu'un texte, et ce n'est pas la peine de le dire.
+or `Text: Main` for the main text. It stays silent when the column is not
+shown: there is then only one text, and there is no point saying so.
 
-![La fenêtre, la cellule courante dans la colonne `Translation` : la barre d'état
-dit `Text: Translation`.](captures/fenetre-traduction.png)
+![The window, the current cell in the `Translation` column: the status bar
+says `Text: Translation`.](captures/fenetre-traduction.png)
 
-![La même fenêtre sous la palette sombre.](captures/fenetre-traduction-sombre.png)
+![The same window under the dark palette.](captures/fenetre-traduction-sombre.png)
 
-**La réplique dessinée sur l'image suit la même règle** : c'est celle du texte de la
-colonne courante. Voir [Le lecteur](lecteur.md#la-réplique-dessinée).
+**The line drawn on the picture follows the same rule**: it is the text of the
+current column. See [The player](player.md#the-drawn-line).
 
-**Rien n'est grisé.** Les opérations de texte restent disponibles quelle que soit
-la colonne courante, et sans colonne de traduction elles visent le texte
-principal, comme avant.
+**Nothing is greyed out.** Text operations stay available whatever
+the current column, and with no translation column they target the main
+text, as before.
 
-## Ajouter et retirer des lignes
+## Adding and removing lines
 
-`Edit ▸ Insert Subtitles…` et `Edit ▸ Remove Subtitles` posent et retirent des
-lignes, `Edit ▸ Merge Subtitles` et `Edit ▸ Split Subtitle` en fusionnent et en
-scindent ; la table se renumérote toute seule. Voir
-[Insérer, supprimer, fusionner et scinder des lignes](lignes.md).
+`Edit ▸ Insert Subtitles…` and `Edit ▸ Remove Subtitles` add and remove
+lines, `Edit ▸ Merge Subtitles` and `Edit ▸ Split Subtitle` merge and
+split them; the table renumbers itself. See
+[Inserting, removing, merging and splitting lines](lines.md).
 
-## Ce que la table ne fait pas
+## What the table does not do
 
-**Le tri par colonne n'existe pas.** L'ordre affiché est celui du fichier, et
-c'est le seul qui ait un sens pour des sous-titres : le rang d'une ligne *est*
-sa place dans le temps.
+**Sorting by column does not exist.** The order displayed is that of the file, and
+it is the only one that makes sense for subtitles: the rank of a line *is*
+its place in time.

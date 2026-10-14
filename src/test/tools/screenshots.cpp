@@ -18,6 +18,15 @@
 // image on two machines, and the font is the only one it cannot manufacture: it
 // refuses rather than photograph under a stand-in. See ADR 0024.
 //
+// **One set per language** (#672): the shots carry the window's words, so a
+// manual in another language shows its own. `--language <name>` builds every
+// screen under that language's shipped catalogue, the one the build tree lays
+// down beside `bin/` as an installation does, and photographs the manual window
+// on that language's tree, `docs/i18n/<name>/manual/`. Without it, the window
+// is English, the source language. A language whose catalogue, or Qt's own,
+// is not found is refused, as a missing font is: a shot of a half-translated
+// window would be promoted by whoever came next.
+//
 // **It lives here and not in src/exe** for the reason the other programs of
 // this directory do: nothing that is delivered contains it, and no install rule
 // names it.
@@ -48,6 +57,7 @@
 #include <subedit/gui/duration_adjust_dialog.hpp>
 #include <subedit/gui/grid_analysis_dialog.hpp>
 #include <subedit/gui/insert_dialog.hpp>
+#include <subedit/gui/interface_language.hpp>
 #include <subedit/gui/join_split_page.hpp>
 #include <subedit/gui/main_window.hpp>
 #include <subedit/gui/manual_window.hpp>
@@ -67,6 +77,7 @@
 #include <subedit/gui/transform_dialog.hpp>
 #include <subedit/gui/unsaved_documents_dialog.hpp>
 #include <subedit/gui/video_surface.hpp>
+#include <subedit/platform/locations.hpp>
 
 #include <QAbstractItemView>
 #include <QApplication>
@@ -79,6 +90,7 @@
 #include <QHeaderView>
 #include <QImage>
 #include <QItemSelectionModel>
+#include <QLibraryInfo>
 #include <QLineEdit>
 #include <QMessageLogContext>
 #include <QModelIndex>
@@ -100,7 +112,9 @@
 #include <filesystem>
 #include <iostream>
 #include <memory>
+#include <optional>
 #include <string>
+#include <string_view>
 #include <utility>
 
 namespace {
@@ -214,9 +228,13 @@ constexpr int kManualHeight = 480;
 ///
 /// **The real manual and not one made for the picture.** The installed copy is
 /// this one page for page — `cmake/Installation.cmake` lays down the whole of
-/// `docs/manual/` — so the shot shows what a reader will see.
-[[nodiscard]] std::filesystem::path manualDirectory() {
-    return std::filesystem::path{SUBEDIT_MANUAL_DIR};
+/// `docs/manual/` — so the shot shows what a reader will see. A language other
+/// than the source's shows its own tree, `docs/i18n/<language>/manual/`.
+[[nodiscard]] std::filesystem::path manualDirectory(const std::optional<std::string>& language) {
+    std::filesystem::path source{SUBEDIT_MANUAL_DIR};
+    if (!language)
+        return source;
+    return (source / ".." / "i18n" / *language / "manual").lexically_normal();
 }
 
 /// The one sentence the screenless platform repeats at every window shown.
@@ -368,11 +386,14 @@ void waitForThePicture(const subedit::gui::MainWindow& window) {
 } // namespace
 
 int main(int argc, char** argv) {
-    if (argc != 3 || std::string{argv[1]} != "--output-dir") {
-        std::cerr << "usage: subedit_screenshots --output-dir <directory>\n";
+    const bool withLanguage = argc == 5 && std::string_view{argv[3]} == "--language";
+    if ((argc != 3 && !withLanguage) || std::string_view{argv[1]} != "--output-dir") {
+        std::cerr << "usage: subedit_screenshots --output-dir <directory> [--language <name>]\n";
         return 2;
     }
     const std::filesystem::path directory{argv[2]};
+    const std::optional<std::string> requested =
+        withLanguage ? std::optional<std::string>{argv[4]} : std::nullopt;
 
     // Screenless, as the harness of the window tests is: a shot asks for no
     // display server, and the CI has none.
@@ -399,6 +420,28 @@ int main(int argc, char** argv) {
                   << "  the shots are authoritative under that font alone; install it\n"
                   << "  (Debian, Ubuntu: fonts-dejavu-core)\n";
         return 1;
+    }
+
+    // The language, once, before anything is built, as `main` of the window lays
+    // it down — but asked by name, never read from the environment: the shots
+    // of a language do not depend on the locale of whoever takes them.
+    std::optional<subedit::gui::InterfaceLanguage> language;
+    if (requested) {
+        language.emplace(
+            requested,
+            [](std::string_view) -> std::optional<std::string> { return std::nullopt; },
+            subedit::platform::installedLocalePath(),
+            QLibraryInfo::path(QLibraryInfo::TranslationsPath));
+        if (language->language() != requested || !language->hasQtCatalogue()) {
+            std::cerr << "subedit_screenshots: the language \"" << *requested
+                      << "\" has no catalogue of ours under "
+                      << subedit::platform::installedLocalePath().string()
+                      << ", or Qt has none of its own\n"
+                      << "  the shots of a language are authoritative fully translated alone;\n"
+                      << "  build the catalogues (the subedit_locale target) and install Qt's\n"
+                      << "  (Debian, Ubuntu: qt6-translations-l10n)\n";
+            return 1;
+        }
     }
 
     std::error_code failed;
@@ -898,13 +941,13 @@ int main(int argc, char** argv) {
     // `docs/`.
     {
         subedit::gui::applyTheme(subedit::core::Theme::Light);
-        subedit::gui::ManualWindow manual{files, manualDirectory()};
+        subedit::gui::ManualWindow manual{files, manualDirectory(requested)};
         manual.resize(kManualWidth, kManualHeight);
         written = capture(manual, manual, directory, "manuel") && written;
     }
     {
         subedit::gui::applyTheme(subedit::core::Theme::Dark);
-        subedit::gui::ManualWindow manual{files, manualDirectory()};
+        subedit::gui::ManualWindow manual{files, manualDirectory(requested)};
         manual.resize(kManualWidth, kManualHeight);
         written = capture(manual, manual, directory, "manuel-sombre") && written;
     }

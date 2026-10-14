@@ -15,7 +15,7 @@ leurs valeurs, et [`adjust`](adjust.md) et [`correct`](correct.md) les lisent pa
 **Ce qu'elle ne fait pas :** elle ne lit ni n'écrit jamais une **préférence d'affichage** (la
 géométrie de la fenêtre, les colonnes, le thème, les options de recherche, l'orthographe, la
 vidéo…). Celles-là restent l'affaire de la fenêtre, se règlent dans la fenêtre et sont décrites
-dans [son manuel](../../../../manual/subedit-gui/preferences.md#le-fichier).
+dans [son manuel](../subedit-gui/preferences.md#le-fichier).
 Elle ne touche pas non plus à un fichier de sous-titres.
 
 <!-- exemple: subedit-cli config --help -->

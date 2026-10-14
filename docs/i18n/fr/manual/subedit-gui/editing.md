@@ -1,0 +1,156 @@
+# Éditer une cellule
+
+Quatre colonnes s'éditent en place : `Start`, `End`, `Duration` et `Text` — cinq
+avec la colonne `Translation`, quand le projet a une traduction. `#` ne s'édite
+pas — le numéro est le rang de la ligne, pas une donnée du fichier.
+
+**Ouvrir l'éditeur d'une cellule :** double-cliquer dessus, ou la sélectionner
+et appuyer sur `F2`.
+
+![Le texte du troisième sous-titre ouvert en édition, palette claire : le champ
+est multiligne et montre les deux lignes telles qu'elles seront
+écrites.](captures/edition.png)
+
+![La même cellule ouverte sous la palette sombre.](captures/edition-sombre.png)
+
+## Le texte
+
+**La traduction s'édite comme le texte**, avec le même champ multiligne et les
+mêmes règles ; seule la cellule change, et le texte principal reste tel qu'il
+était. Une validation qui ne change rien ne fait rien pour l'une comme pour
+l'autre — voir [plus bas](#une-validation-qui-ne-change-rien-ne-fait-rien).
+
+L'éditeur est un champ **multiligne**, et il s'ouvre à la hauteur du sous-titre :
+un sous-titre de deux lignes s'y saisit tel qu'il sera écrit, ses deux lignes
+lisibles et sans ascenseur. Un `Shift+Enter` qui en ajoute une agrandit
+l'éditeur ; la ligne de la table s'ajuste à la validation.
+
+| Touche | Effet |
+| :----- | :---- |
+| `Enter` | valide et referme l'éditeur |
+| `Shift+Enter` | insère un saut de ligne dans le texte |
+| `Esc` | referme l'éditeur ; la cellule garde ce qu'elle avait |
+| `Tab` | valide et passe à la cellule suivante |
+
+Cliquer ailleurs valide aussi : la perte du focus vaut `Enter`.
+
+**Onze gestes sans dialogue valident de même** avant de calculer leur cible :
+`Italic`, `Casse ▸ …`, `Dialogue`, `Merge Subtitles`, `Split Subtitle`,
+`Cut Texts`, `Paste Texts`, `Copy Texts`, `Remove Subtitles`, `Undo` et `Redo`.
+Lancés depuis le menu, la barre d'outils ou un raccourci de la fenêtre, ils
+reprennent le texte tel que l'éditeur vient de le valider, comme après un clic
+ailleurs. `Ctrl+X`, `Ctrl+C` et `Ctrl+V` restent pourtant à l'éditeur tant
+qu'il est ouvert — voir [Couper, copier et coller](clipboard.md) : c'est le
+menu qui lance alors `Cut Texts`, `Copy Texts` et `Paste Texts`.
+
+`Undo` et `Redo` lisent l'historique et non le document : voir
+[Annuler et rétablir](undo.md). Un geste qui ouvre un dialogue n'a pas
+besoin de cette règle, puisque le dialogue prend le focus en s'ouvrant, ce qui
+valide déjà la saisie.
+
+### Les balises sont celles du fichier
+
+Le texte montré et saisi est **celui du fichier, balises comprises** : un
+`<i>…</i>` d'un SubRip s'écrit ainsi, et un `{\i1}…{\i0}` d'un Advanced SSA
+aussi. Rien n'est traduit à l'affichage — le tableau de
+[`Italic`](operations.md#italic) dit ce que chaque format écrit.
+
+Pour l'italique, il n'y a donc rien à connaître : `Ctrl+I` pose la bonne balise
+pour le document ouvert, et un format qui n'en porte aucune — TMPlayer, LRC —
+éteint l'entrée plutôt que de laisser chercher. Le gras et le souligné se
+tapent, comme dans Gaupol.
+
+**Et les balises ne suivent pas les opérations de texte** : mettre un sous-titre
+en minuscules ne transforme pas son `<I>` en `<i>`, et un tiret de dialogue se
+pose devant le texte et non devant une balise ouvrante. Voir
+[`Case` et `Dialogue`](operations.md#case-et-dialogue).
+
+## La longueur des lignes
+
+![L'éditeur d'une cellule de deux lignes, palette claire : une marge à droite
+montre la longueur de chaque ligne, alignée sur elle.](captures/longueurs-edition.png)
+
+![Le même éditeur sous la palette sombre.](captures/longueurs-edition-sombre.png)
+
+**L'éditeur du texte montre, dans une marge à droite, la longueur de chaque
+ligne**, alignée sur la première rangée de cette ligne. La marge est aussi large
+que le plus grand nombre, se met à jour **à la frappe**, et suit le défilement.
+Un texte vide ne montre rien. Les longueurs sont celles de la table — sans les
+balises, arrondies vers le bas, dans l'unité réglée — et se retirent avec la case
+`Show line lengths in the editor` de `Édition ▸ Préférences…`. Voir
+[Les longueurs de lignes](preferences.md#les-longueurs-de-lignes).
+
+## Le début et la fin
+
+L'éditeur est un champ d'une ligne, **contraint à la forme d'un horodatage** :
+il refuse à la frappe ce qui ne pourrait jamais en être un.
+
+Les formes acceptées sont celles que la lecture d'un fichier accepte déjà :
+
+| Élément | Ce qui passe |
+| :------ | :----------- |
+| champs | `MM:SS` ou `HH:MM:SS`, un ou deux chiffres chacun |
+| décimales | une à trois, après une virgule ou un point, ou aucune |
+| signe | un `-` en tête, pour une position avant le début de la vidéo |
+| bornes | minutes et secondes inférieures à 60 |
+
+`00:01:02,500`, `1:02.5` et `-0:01,000` sont donc trois saisies valides.
+
+**Une saisie que la lecture refuse laisse la cellule inchangée.** C'est le cas
+de `00:70:00,000`, dont la forme est bonne mais dont les minutes sortent des
+bornes : l'éditeur se referme et rien n'a bougé. Aucune position n'est inventée
+— se tromper de position est silencieux, rien à l'écran ne distingue un
+sous-titre mal calé d'un sous-titre bien calé.
+
+Modifier un début ou une fin met la `Duration` à jour aussitôt.
+
+## La durée
+
+**Saisir une durée déplace la fin, et jamais le début** : la fin devient
+`Start + Duration`. Déplacer le début déplacerait le sous-titre entier, ce qui
+est le travail de [`Shift Positions…`](operations.md), et la colonne `Start` se
+saisit déjà.
+
+La durée se tape **sous la forme d'un horodatage**, celle que la colonne
+affiche, et les formes de la table ci-dessus valent — à une différence près :
+
+| Élément | Début, fin | Durée |
+| :------ | :--------- | :---- |
+| forme | celle d'un horodatage | la même |
+| signe `-` en tête | accepté | **refusé à la frappe** |
+
+`0:02.5` et `00:00:02,500` sont donc deux saisies valides d'une durée de deux
+secondes et demie ; `-0:01,000` ne se tape pas. Une durée nulle est acceptée :
+le sous-titre disparaît alors à l'instant où il apparaît.
+
+**Une fin qui passe par-dessus le sous-titre suivant est permise.** Le
+chevauchement est teinté dans la table, avec son infobulle — voir
+[La table](table.md#les-anomalies) — un avis, pas un refus : c'est peut-être ce
+qu'on voulait. La [liste des diagnostics](files.md#les-diagnostics-dune-lecture)
+le porte aussi, et le retire quand on a corrigé.
+
+**Une fin saisie au-delà de la fin du film n'est pas signalée**, à la différence
+d'une opération du menu `Tools` qui l'y pousserait — voir
+[Les opérations](operations.md#au-delà-de-la-fin-du-film). Une cellule montre
+déjà la valeur qu'on vient de taper.
+
+Une saisie illisible laisse la cellule inchangée, comme pour une position, et
+une durée identique à celle affichée n'entre pas dans l'historique.
+
+## Une validation qui ne change rien ne fait rien
+
+Ouvrir une cellule, ne rien taper, appuyer sur `Enter` : il ne se passe rien.
+Aucune modification n'est enregistrée, et le fichier reste réputé identique à
+celui du disque.
+
+La comparaison porte sur la **position**, pas sur la chaîne : saisir `0:01.0`
+dans une cellule qui affiche `00:00:01,000` désigne le même instant, et ne
+change donc rien non plus.
+
+## Ce qu'une cellule éditée devient
+
+Elle **s'annule** — une cellule, une entrée. Voir
+[Annuler et rétablir](undo.md).
+
+Elle **s'enregistre**, et fermer la fenêtre sans l'avoir fait demande
+confirmation. Voir [Ouvrir et enregistrer](files.md).

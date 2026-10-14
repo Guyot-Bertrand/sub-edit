@@ -140,7 +140,7 @@ $XDG_CONFIG_HOME/subedit/settings.conf
 ```
 
 or `~/.config/subedit/settings.conf` when `XDG_CONFIG_HOME` is unset, empty or not an absolute
-path — the window's file, described in [its manual](../subedit-gui/preferences.md#le-fichier).
+path — the window's file, described in [its manual](../subedit-gui/preferences.md#the-file).
 
 **Priority, strongest first: the option on the command line, then the file, then the built-in
 default.** An option always wins: `--speed off` switches off a speed the file sets. Only the
@@ -262,7 +262,7 @@ what was done is not a silence.
 <!-- exemple: subedit-cli --version -->
 ```console
 $ subedit-cli --version
-subedit 0.15.25
+subedit 0.15.26
 ```
 
 ## Subcommands

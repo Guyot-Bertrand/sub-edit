@@ -175,3 +175,27 @@ motivée.
 **Un changement d'interface se voit dans le diff du dépôt.** C'est le bénéfice
 principal, et il vaut d'être dit à l'endroit : une capture promue est une
 relecture demandée à celui qui pousse, pas seulement une image mise à jour.
+
+## Addendum — one set per language ([#672](https://github.com/Guyot-Bertrand/sub-edit/issues/672))
+
+Decided by the maintainer on 2026-10-13, superseding the shared set spec 15 had planned: **a
+screenshot carries the window's words, so every manual tree has its own set**, with the same
+file names. A translated page showing the English window would contradict its own text.
+
+- **Layout.** English, the source, stays in `docs/manual/subedit-gui/captures/`; every other
+  language lives in `docs/i18n/<lang>/manual/subedit-gui/captures/`, next to the pages that show
+  it. A page shows the images of its own tree only: `check-screenshots.py` refuses a borrowed one
+  (`FOREIGN`), a missing one (`BROKEN`) and one nothing produces (`FROZEN`), tree by tree, and
+  `check-manual-links.py` refuses an image that does not exist.
+- **Generation.** `make manual` shoots English, then every language of `src/po/LINGUAS`, with
+  `subedit_screenshots --language <lang>`: the window is built under that language's shipped
+  catalogue and Qt's, asked by name rather than read from the environment, and the manual window
+  shows that language's tree. A language whose catalogue, ours or Qt's, is missing is refused,
+  as a missing font is. A language added to `LINGUAS` gets its set from the same command, with no
+  code to change; the French set is the first.
+- **The program still never writes a reference.** It writes `<name>.new.png` in the directory of
+  the tree, and `compare-screenshots.py` promotes or deletes, one tree at a time.
+- **Fonts.** The four settings above still hold, `DejaVu Sans` included. It covers the Latin and
+  Cyrillic languages; Hebrew only partly, and Chinese not at all. `he` and `zh_CN` will need a
+  font that covers them (e.g. Noto Sans CJK) before their sets can be authoritative — not solved
+  here, and to be settled by the issue that installs those languages.

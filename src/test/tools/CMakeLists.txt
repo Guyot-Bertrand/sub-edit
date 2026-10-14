@@ -1,25 +1,25 @@
-# Les programmes que les tests lancent, et que le projet possède.
+# The programs the tests run, and that the project owns.
 #
-# Ce ne sont pas des tests : ce sont les tiers qu'un test a besoin de faire
-# exister. Ils vivent ici plutôt que dans src/exe/ parce que rien de ce qui est
-# livré ne les contient — aucune cible d'installation ne les nomme.
+# They are not tests: they are the third parties a test needs to bring into
+# existence. They live here rather than in src/exe/ because nothing that is
+# delivered contains them — no install target names them.
 
 add_executable(subedit_fake_player fake_player.cpp)
 subedit_set_warnings(subedit_fake_player)
 
-# Les captures d'écran du manuel — #199.
+# The screenshots of the manual — #199.
 #
-# Elle est ici pour la même raison que le lecteur de pacotille : rien de ce qui
-# est livré ne la contient. Elle est bâtie par `make manual`, jamais par la
-# porte, et elle n'est enregistrée dans aucun test.
+# It is here for the same reason as the fake player: nothing that is delivered
+# contains it. It is built by `make manual`, never by the gate, and no test
+# registers it.
 set(CMAKE_AUTOMOC ON)
 
 add_executable(subedit_screenshots screenshots.cpp)
 
-target_link_libraries(subedit_screenshots PRIVATE subedit::gui subedit::core Qt6::Widgets)
+target_link_libraries(subedit_screenshots PRIVATE subedit::gui subedit::platform subedit::core Qt6::Widgets)
 
-# Le corpus versionné, et le manuel du dépôt : la fenêtre du manuel se
-# photographie sur le vrai, dont l'installé est la copie page pour page.
+# The versioned corpus, and the repository's manual: the manual window is
+# photographed on the real one, of which the installed copy is page for page.
 target_compile_definitions(
     subedit_screenshots
     PRIVATE SUBEDIT_TEST_DATA_DIR="${CMAKE_SOURCE_DIR}/src/test/data"
@@ -27,42 +27,47 @@ target_compile_definitions(
 
 subedit_set_warnings(subedit_screenshots)
 
-# Les raccourcis de la fenêtre, écrits un par ligne — #612. Ni un test ni un livrable : ce que
-# `check-gui-manual.py` confronte au manuel, du côté de la fenêtre.
+# The window's shortcuts, written one per line — #612. Neither a test nor a deliverable: what
+# `check-gui-manual.py` confronts the manual with, on the window's side.
 add_executable(subedit_list_shortcuts list_shortcuts.cpp)
 
-target_link_libraries(subedit_list_shortcuts PRIVATE subedit::gui subedit::core Qt6::Widgets)
+target_link_libraries(subedit_list_shortcuts PRIVATE subedit::gui subedit::platform subedit::core Qt6::Widgets)
+
+# Both programs take `--language <name>` (#672) and read the catalogue the build tree lays down:
+# building one of them alone builds the catalogues too.
+add_dependencies(subedit_screenshots subedit_locale)
+add_dependencies(subedit_list_shortcuts subedit_locale)
 
 subedit_set_warnings(subedit_list_shortcuts)
 
-# La détection d'encodage, sur la ligne de commande — #296.
+# The encoding detection, on the command line — #296.
 #
-# Ni un test ni un livrable : ce qui permet à `score-encoding-detection.py` de
-# passer notre détection au même corpus que les autres candidates, sans que le
-# script sache rien d'elle.
+# Neither a test nor a deliverable: what lets `score-encoding-detection.py` put
+# our detection to the same corpus as the other candidates, without the script
+# knowing anything of it.
 add_executable(subedit_detect_encoding detect_encoding.cpp)
 
 target_link_libraries(subedit_detect_encoding PRIVATE subedit::core)
 
 subedit_set_warnings(subedit_detect_encoding)
 
-# La détection de format, sur la ligne de commande — #340.
+# The format detection, on the command line — #340.
 #
-# Le pendant de la précédente sur l'autre inconnue de la phase 9 : avec neuf
-# candidates, `.sub` et `.txt` désignent chacune deux formats, et une détection
-# qui se trompe se mesure au lieu de se croire.
+# The counterpart of the previous one on the other unknown of phase 9: with nine
+# candidates, `.sub` and `.txt` each name two formats, and a detection that is
+# wrong is measured instead of believed.
 add_executable(subedit_detect_format detect_format.cpp)
 
 target_link_libraries(subedit_detect_format PRIVATE subedit::core)
 
 subedit_set_warnings(subedit_detect_format)
 
-# Le catalogue de motifs, tel que la ligne de commande le lira — #566.
+# The pattern catalogue, as the command line will read it — #566.
 #
-# Rien de ce qui est livré ne lit encore le catalogue : cette sonde résout les
-# deux répertoires **comme la ligne de commande le fera** (depuis son exécutable
-# et l'environnement, par `subedit::platform`, sans Qt) et les lit. C'est
-# l'option de mise au point que l'issue autorise, hors du binaire livré.
+# Nothing delivered reads the catalogue yet: this probe resolves the two
+# directories **as the command line will** (from its executable and the
+# environment, through `subedit::platform`, without Qt) and reads them. It is
+# the debugging option the issue allows, outside the delivered binary.
 add_executable(subedit_pattern_catalogue pattern_catalogue.cpp)
 
 target_link_libraries(subedit_pattern_catalogue PRIVATE subedit::platform subedit::core)

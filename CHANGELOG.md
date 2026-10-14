@@ -11,9 +11,25 @@ ne pas l'éditer à la main.
 
 ### Documentation
 
+- **doc** — Move the French window manual to docs/i18n/fr
+- **doc** — Give the window manual's pages English file names
+- **doc** — Write the window manual in English
+- **doc** — Point the manuals at the renamed window pages
+- **doc** — Record the per-language window manual in spec 15
+
+### Tests
+
+- **test** — Take the window screenshots in every installed language
+- **scripts** — Check each window manual against its own language
+
+## 0.15.25 — 2026-10-13
+
+### Documentation
+
 - **doc** — Move the French command-line manual to docs/i18n/fr
 - **doc** — Write the command-line manual in English
 - **doc** — Check every translated manual, whatever its language
+- **doc** — Regenerate the changelog
 
 ## 0.15.24 — 2026-10-13
 

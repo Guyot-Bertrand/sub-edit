@@ -16,7 +16,7 @@ subedit-cli correct --tasks LIST --code CODE
 ```
 
 Corrige les textes avec les **motifs de Gaupol**, comme l'assistant
-[`Correct Texts…`](../../../../manual/subedit-gui/correct-texts.md) de la fenêtre — mêmes motifs,
+[`Correct Texts…`](../subedit-gui/correct-texts.md) de la fenêtre — mêmes motifs,
 même moteur, mêmes comptes. Six tâches existent ici : les **mentions pour
 malentendants**, la **jonction** et la **scission de mots**, les **erreurs courantes**, les
 **majuscules** et le **découpage de lignes**.

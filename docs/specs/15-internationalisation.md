@@ -120,12 +120,17 @@ or unreadable value leaving it to the environment.
 - **English** is the source and always present.
 - **French** is the first shipped locale: the seed from Gaupol, then the new strings, translated by Claude and **reviewed
   by the maintainer** (decision of 2026-10-09).
-- **The other 19 Gaupol locales are imported as seeds and not installed.** A language ships when it is complete — no
-  untranslated and no fuzzy entry — and has been reviewed by someone who reads it. Nobody can review them today; they wait
-  in `src/po/` and are reported by the gate of D10 without failing it.
+- **The other 19 Gaupol locales are imported as seeds (#667), then every one of them ships** (decision of 2026-10-13,
+  which replaces "installed once reviewed"): one issue per language, [#720](https://github.com/Guyot-Bertrand/sub-edit/issues/720)
+  to [#738](https://github.com/Guyot-Bertrand/sub-edit/issues/738) — `ca` `cs` `de` `es` `fi` `gl` `he` `hu` `ie` `is`
+  `it_IT` `nl` `pl` `pt` `pt_BR` `ru` `sr` `tr` `zh_CN` — completes the catalogue and the manuals, then adds the language
+  to `src/po/LINGUAS`. Each is machine-translated and marked **"not reviewed by a reader of the language"** until someone
+  who reads it signs it off. Until its issue lands, a seed waits in `src/po/` and is reported by the gate of D10 without
+  failing it.
 - Qt's own strings (standard buttons, file dialog) come from Qt's catalogues (`qtbase_<lang>.qm`) when installed.
 
-The phase therefore ships **two languages**, with the machinery for twenty.
+The phase therefore ships **every supported language — twenty-one with English** —, French reviewed by the maintainer
+and the nineteen others machine-translated and marked as not reviewed.
 
 **Delivered by #667.** `src/scripts/seed-catalogues.py` writes the **19 seeds** — every Gaupol locale but `fr`, which
 is installed and therefore never overwritten (#668 seeds it by hand into the reviewed catalogue). A seed is our
@@ -228,8 +233,10 @@ macros are read, and any other string literal is data.
 - **Order.** The rule and the guards first (#657, #660, #656); the manuals next, because they feed the help and the `man`
   pages; the top-level documents; then ADRs, specs, scripts and build files, in independent batches that can interleave
   with the code issues.
-- **Screenshots.** The captures are taken from the English interface and shared by all manual trees until a language's
-  catalogue is installed. One set per language is deferred (open point 3).
+- **Screenshots.** One set per language (decision of 2026-10-13, which replaces the shared English set first planned):
+  a capture carries the window's words, and a translated page showing the English window would contradict its text.
+  Every tree has its own `subedit-gui/captures/`, with the same file names, taken under that language's catalogue
+  ([ADR 0024](../adr/0024-captures-engendrees-et-ou-elles-font-foi.md), addendum).
 - **Translator.** Claude translates; the maintainer reads the English. Identifiers (requirement IDs, ADR numbers, anchors,
   option and key names) never change.
 
@@ -248,10 +255,33 @@ French page. Nothing in the layout or the checks names French: a manual in langu
 
 Inline code and code blocks are the same bytes in every tree, so the placeholders of the synopses and messages are
 English everywhere (`<path>`, `FILE`, `DIR`), like the metavariables the program prints. A page of `docs/manual/` that
-is not yet in English — the window manual, until [#672](https://github.com/Guyot-Bertrand/sub-edit/issues/672) —
+is not yet in English — the window manual was one until [#672](https://github.com/Guyot-Bertrand/sub-edit/issues/672) —
 declares its language with `<!-- language: fr -->` under its title: the vocabulary checks read it in that language,
 the structure check names it and does not require its translation, and a French table read as English is refused
 (`PAGE LANGUAGE IN DOUBT`) rather than silently skipped.
+
+**Delivered by [#672](https://github.com/Guyot-Bertrand/sub-edit/issues/672) — the window manual.** The French pages
+of `docs/manual/subedit-gui/` moved to `docs/i18n/fr/manual/subedit-gui/` and took English file names — `help`, `undo`,
+`timing`, `editing`, `files`, `frame-grid`, `player`, `lines`, `clipboard`, `find-and-replace`, `check-spelling`; the
+other seven kept theirs —, and the eighteen English pages took their place as the source. No page of `docs/manual/`
+declares another language any more. The other changes, none of which names French:
+
+- **Per-language captures.** `subedit_screenshots --language <lang>` builds every screen under that language's shipped
+  catalogue and Qt's, and photographs the manual window on that language's tree; `make manual` shoots English and then
+  every language of `src/po/LINGUAS`, comparing each tree with its own references. The French set is the first.
+  `check-screenshots.py` reads every tree on its own, and `check-manual-links.py` refuses an image that does not exist.
+- **The window in the page's language.** `subedit_list_shortcuts --language <lang>` lists the actions with that
+  language's labels, and `check-gui-manual.py` compares every tree with the window in its own language: the English
+  source with the English window, `docs/i18n/<lang>/manual/subedit-gui` with `<lang>`. A tree in a language the window
+  cannot be built in is refused (`WINDOW LANGUAGE UNAVAILABLE`). The labels of the shortcut tables are therefore plain
+  text in every tree, and the French tables quote the French menus.
+- **Menu paths are translated.** A code span holding `▸` (`Video ▸ Play / Pause`) quotes the window, so
+  `check-translation-structure.py` compares it by its number of entries rather than byte for byte; every other inline
+  code stays identical. A bare label quoted in prose (`Undo`) is still inline code, and still English in every tree.
+
+**What a new language needs** for its window manual: its catalogue in `src/po/LINGUAS`, its vocabulary table in
+`doc_vocabulary.py`, and its tree `docs/i18n/<lang>/manual/`; its captures then come from `make manual`, and its
+tables are checked against the window in that language with no code to change.
 
 **Starting the manual of a new language** is: copy `docs/manual/` to `docs/i18n/<lang>/manual/`, add the language's
 table to `doc_vocabulary.py` (the words of its shortcut, option and subcommand headers), and translate the prose. From
@@ -489,16 +519,15 @@ value is a usage error, an unwritable file is the I/O error.
 - every requirement below is cited by a test;
 - the window and the command line run under French and English end to end, and `--format json` is identical in both;
 - the scanner and the allowlist are at zero at the closure;
+- every language of D5 is in `src/po/LINGUAS` at the closure, complete, with its manuals and captures (#720 to #738);
 - the start-up cost of loading a catalogue is measured and recorded in the benchmark journal ([#684](https://github.com/Guyot-Bertrand/sub-edit/issues/684));
 - a value set in the window or by `config set` is the one `adjust` and `correct` use, unless an option overrides it, and
   the end-to-end tests of #699 hold it.
 
 ## What the phase does not deliver
 
-- Languages other than English and French **installed**; they are seeded (D5).
 - Re-translating a running window (D4).
-- Right-to-left layout (Gaupol ships Hebrew; no layout work is planned, and the seed is not installed).
-- Per-language screenshots (open point 3).
+- Right-to-left layout (Gaupol ships Hebrew; no layout work is planned: Hebrew ships with a left-to-right window).
 - Translating the commit history, or the issues already written in French.
 - Display preferences on the command line; it reads the operation part of the settings only (S3).
 
@@ -530,10 +559,10 @@ lists, and by the existing `GUI-CONFIG-*` requirements for the reading rules of 
 
 ## Split
 
-**Seven slices**; the tooling issues of the initialisation ([#656](https://github.com/Guyot-Bertrand/sub-edit/issues/656),
+**Eight slices**; the tooling issues of the initialisation ([#656](https://github.com/Guyot-Bertrand/sub-edit/issues/656),
 [#657](https://github.com/Guyot-Bertrand/sub-edit/issues/657)) come first and nothing below waits for anything else but
-what its column says. Issues #658 to #684 are open in milestone 15, written in English; #699, folded in later, joins them
-there.
+what its column says. Issues #658 to #684 are open in milestone 15, written in English; #699, folded in later, and #720 to #738, one
+per language (decision of 2026-10-13), join them there.
 
 | Slice | Issue | What it delivers | Depends on | Size |
 | :---- | :---- | :--------------- | :--------- | :--- |
@@ -558,7 +587,8 @@ there.
 | 5 — help and man | [#682](https://github.com/Guyot-Bertrand/sub-edit/issues/682) | the manual in the interface language | #668, #669, #671, #672 | M |
 | | [#683](https://github.com/Guyot-Bertrand/sub-edit/issues/683) | the `man` pages | #671, #672 | L |
 | 6 — shared settings | [#699](https://github.com/Guyot-Bertrand/sub-edit/issues/699) | the settings file shared by the window and the command line, the `config` commands; ADR 0045 | — | L |
-| 7 — closure | [#684](https://github.com/Guyot-Bertrand/sub-edit/issues/684) | review of the phase, then 0.16.0 | all | M |
+| 7 — every language | [#720](https://github.com/Guyot-Bertrand/sub-edit/issues/720)–[#738](https://github.com/Guyot-Bertrand/sub-edit/issues/738) | one per language: `ca` `cs` `de` `es` `fi` `gl` `he` `hu` `ie` `is` `it_IT` `nl` `pl` `pt` `pt_BR` `ru` `sr` `tr` `zh_CN` — catalogue and manuals completed, machine-translated and marked "not reviewed by a reader of the language", then installed (D5) | #667, #670, #671, #672 | M each |
+| 8 — closure | [#684](https://github.com/Guyot-Bertrand/sub-edit/issues/684) | review of the phase, then 0.16.0 — requires every language of slice 7 | all | M |
 
 The documentation slice does not depend on the code slices and can interleave with them; the batches of ADRs, specs and
 scripts are independent of one another.
@@ -569,7 +599,8 @@ scripts are independent of one another.
    translated.
 2. **A catalogue per binary or one shared** — `subedit.mo` serves both executables in D1; if the command line's start-up
    cost shows the shared catalogue too large, split it (#684 measures).
-3. **Per-language screenshots** — the manual's captures are English; a French set needs the French catalogue installed
-   and the capture program run under it. Deferred until a second language is installed.
-4. **Reviewing the other 19 locales** — nobody can today; each ships when someone who reads it has reviewed it.
+3. **Per-language screenshots** — settled by #672: one set per language, from `make manual`. Open for `he` and `zh_CN`:
+   `DejaVu Sans` covers Hebrew partly and Chinese not at all, so their sets need another font first (ADR 0024).
+4. **Reviewing the other 19 locales** — they ship machine-translated and marked "not reviewed by a reader of the
+   language" (D5); the mark goes when a reader of the language signs the catalogue and the manuals off.
 5. **Contributor-facing documentation** (`CONTRIBUTING`, issue templates) does not exist yet; if it is written, it is in English.

@@ -9,14 +9,24 @@
 // nothing after the tab for an action with none. **Those without one are listed too**: the
 // manual says « none » for them, and that is a claim like any other.
 //
+// **In any language the window ships** (#672): `--language <name>` builds the actions under that
+// language's catalogue, the one the build tree lays down beside `bin/` as an installation does,
+// and the labels are then the ones that language's menus show — what a translated manual quotes.
+// Without it, the window is English, the source language. A language with no catalogue of ours
+// is refused (exit 1): a listing silently in English would compare a translated manual with the
+// wrong window. Only our catalogue is asked for, not Qt's: every label listed is ours.
+//
 // **It lives here and not in src/exe** for the reason the other programs of this directory do:
 // nothing that is delivered contains it, and no install rule names it.
 
+#include <subedit/gui/interface_language.hpp>
 #include <subedit/gui/window_actions.hpp>
+#include <subedit/platform/locations.hpp>
 
 #include <QAction>
 #include <QApplication>
 #include <QKeySequence>
+#include <QLibraryInfo>
 #include <QList>
 #include <QObject>
 #include <QString>
@@ -25,15 +35,44 @@
 #include <qglobal.h>
 
 #include <iostream>
+#include <optional>
 #include <set>
 #include <string>
+#include <string_view>
 
 int main(int argc, char** argv) {
+    const bool withLanguage = argc == 3 && std::string_view{argv[1]} == "--language";
+    if (argc != 1 && !withLanguage) {
+        std::cerr << "usage: subedit_list_shortcuts [--language <name>]\n";
+        return 2;
+    }
+    const std::optional<std::string> requested =
+        withLanguage ? std::optional<std::string>{argv[2]} : std::nullopt;
+
     // Screenless, as the harness of the window tests is.
     if (!qEnvironmentVariableIsSet("QT_QPA_PLATFORM"))
         qputenv("QT_QPA_PLATFORM", "offscreen");
 
     const QApplication application{argc, argv};
+
+    // The language, before the actions are built, asked by name and never read from the
+    // environment: the listing of a language does not depend on the locale of whoever runs it.
+    std::optional<subedit::gui::InterfaceLanguage> language;
+    if (requested) {
+        language.emplace(
+            requested,
+            [](std::string_view) -> std::optional<std::string> { return std::nullopt; },
+            subedit::platform::installedLocalePath(),
+            QLibraryInfo::path(QLibraryInfo::TranslationsPath));
+        if (language->language() != requested) {
+            std::cerr << "subedit_list_shortcuts: the language \"" << *requested
+                      << "\" has no catalogue under "
+                      << subedit::platform::installedLocalePath().string() << "\n"
+                      << "  build the catalogues (the subedit_locale target), or add the language\n"
+                      << "  to src/po/LINGUAS\n";
+            return 1;
+        }
+    }
 
     QObject owner;
     const subedit::gui::WindowActions actions{&owner};

@@ -1,16 +1,14 @@
 # Correct Texts…
 
-<!-- language: fr -->
+`Tools ▸ Correct Texts…` opens a multi-page assistant, on the model of
+Gaupol's: a page of target and tasks, one page per checked task,
+a progress page, and a confirmation page that proposes the
+changes without ever imposing them.
 
-`Tools ▸ Correct Texts…` ouvre un assistant à plusieurs pages, sur le modèle de
-celui de Gaupol : une page de cible et de tâches, une page par tâche cochée,
-une page de progression, et une page de confirmation qui propose les
-changements sans jamais les imposer.
+**Disabled on an empty document**: there is nothing to correct.
 
-**Éteinte sur un document vide** : il n'y a rien à corriger.
-
-**La ligne de commande fait la même chose** pour toutes les tâches : [`subedit-cli correct`](../subedit-cli/correct.md), avec les
-mêmes motifs et les mêmes comptes — et en caractères là où la fenêtre mesure en ems.
+**The command line does the same thing** for all the tasks: [`subedit-cli correct`](../subedit-cli/correct.md), with the
+same patterns and the same counts — and in characters where the window measures in ems.
 **It reads four of this assistant's remembered settings** by default — the two classes of
 common errors (`Human`, `OCR`), `Remove all blank subtitles` and the maximum number of lines of
 `Line Break` — and takes everything else (the tasks, their code, the line length, the language,
@@ -18,285 +16,285 @@ the pattern boxes) from its own line. See
 [Two blocks, one shared with the command line](preferences.md#two-blocks-one-shared-with-the-command-line)
 and [`subedit-cli config`](../subedit-cli/config.md).
 
-## Tasks and Target — la première page
+## Tasks and Target — the first page
 
-| Groupe | Choix | Par défaut |
-| :----- | :---- | :--------- |
+| Group | Choices | Default |
+| :---- | :------ | :------ |
 | `Target` | `Selection`, `Current Project`, `All Open Projects` | `Current Project` |
 | `Document` | `Text`, `Translation` | `Text` |
-| `Tasks` | `Mentions`, `Join or Split Words`, `Common Errors`, `Capitalization`, `Line Break` — à cocher, un ou plusieurs | `Common Errors` et `Capitalization` cochées, les trois autres non |
+| `Tasks` | `Mentions`, `Join or Split Words`, `Common Errors`, `Capitalization`, `Line Break` — to check, one or more | `Common Errors` and `Capitalization` checked, the three others not |
 
-`Selection` est éteinte sans ligne choisie dans l'onglet montré ; `Translation`
-est éteinte tant qu'aucun projet ouvert ne porte de traduction.
+`Selection` is disabled with no line chosen in the tab shown; `Translation`
+is disabled as long as no open project carries a translation.
 
-**La cible et le document ne se retiennent pas** : l'assistant rouvre toujours
-sur `Current Project` et `Text`. Les tâches cochées, elles, se retiennent.
+**The target and the document are not remembered**: the assistant always reopens
+on `Current Project` and `Text`. The checked tasks, for their part, are remembered.
 
-**Ce que chaque cible désigne** :
+**What each target designates**:
 
-| Cible | Porte sur |
-| :---- | :-------- |
-| `Selection` | les lignes choisies dans l'onglet montré |
-| `Current Project` | tout le fichier de l'onglet montré |
-| `All Open Projects` | tout le fichier de chaque onglet ouvert |
+| Target | Acts on |
+| :----- | :------ |
+| `Selection` | the lines chosen in the tab shown |
+| `Current Project` | the whole file of the tab shown |
+| `All Open Projects` | the whole file of each open tab |
 
-**`All Open Projects` sur `Translation` saute les projets sans traduction** :
-un projet qui n'en porte pas n'a rien à proposer dans une colonne vide, et
-l'assistant ne le compte pas.
+**`All Open Projects` on `Translation` skips the projects without a translation**:
+a project that carries none has nothing to propose in an empty column, and
+the assistant does not count it.
 
-**Les pages de tâche suivent, dans l'ordre de Gaupol — `Mentions`, `Join or
-Split Words`, `Common Errors`, `Capitalization`, `Line Break` — jamais celui dans lequel les cases
-ont été cochées.** Une tâche non cochée n'a pas de page ; ses réglages
-retenus ne changent pas pour autant. **Aucune page de tâche ne porte sa propre
-case « active »** : c'est celle de cette première page, et elle seule, qui
-décide si la tâche s'exécute.
+**The task pages follow, in Gaupol's order — `Mentions`,
+`Join or Split Words`, `Common Errors`, `Capitalization`, `Line Break` — never the one in which the boxes
+were checked.** An unchecked task has no page; its remembered
+settings do not change for all that. **No task page carries its own
+“active” box**: it is the one of this first page, and it alone, that
+decides whether the task runs.
 
-## Les pages de tâche
+## The task pages
 
-Chacune des quatre pages de motifs — toutes sauf `Join or Split Words`, qui n'en a pas — porte la même base : trois menus déroulants en
-cascade — écriture, langue, pays — pour choisir le code des motifs à
-appliquer, puis la liste des motifs de ce code, un à cocher par nom. **Les
-trois menus ne proposent que ce que le catalogue de motifs porte
-effectivement** — ceux livrés avec le programme et ceux qu'un utilisateur y a
-déposés (voir [Les motifs déposés](#les-motifs-déposés)) — jamais une liste
-de langues ou de pays lue ailleurs. `Zyyy` (« toute écriture ») est le code de
-départ de `Common Errors`, ce qui donne les motifs valables partout. **Les trois
-autres types n'ont de motifs que sous une écriture** : leur page s'ouvre sur la
-première que le catalogue propose, `Latn` avec les motifs livrés, et non sur `Zyyy`.
+Each of the four pattern pages — all except `Join or Split Words`, which has none — carries the same base: three cascading
+drop-down menus — script, language, country — to choose the code of the patterns to
+apply, then the list of the patterns of that code, one to check per name. **The
+three menus offer only what the pattern catalogue actually
+carries** — those shipped with the program and those a user has
+dropped there (see [Dropped patterns](#dropped-patterns)) — never a list
+of languages or countries read elsewhere. `Zyyy` (“any script”) is the starting
+code of `Common Errors`, which gives the patterns valid everywhere. **The three
+other types have patterns only under a script**: their page opens on the
+first one the catalogue offers, `Latn` with the shipped patterns, and not on `Zyyy`.
 
 **Each pattern's description is the tool tip of its box.** Names and descriptions follow the
 language of the window for the patterns shipped with the program; a pattern of your own is shown as
 its file writes it ([Language](invocation.md#language)).
 
-**Un motif décoché reste décoché tant qu'on ne le recoche pas**, y compris en
-changeant de code puis en y revenant, et ce choix est retenu d'une ouverture
-de l'assistant à l'autre. Recoché, il retrouve simplement son réglage
-d'origine, et le choix retenu disparaît.
+**An unchecked pattern stays unchecked until it is checked again**, including when
+changing code then coming back to it, and that choice is remembered from one opening
+of the assistant to the next. Checked again, it simply finds its original
+setting, and the remembered choice disappears.
 
-| Page | Ce qu'elle ajoute à la base |
-| :--- | :-------------------------- |
-| `Mentions` | deux cases, `Sound in brackets` et `Sound in parentheses`, non cochées par défaut |
-| `Common Errors` | deux cases, `Human` et `OCR`, cochées par défaut |
-| `Capitalization` | rien de plus |
-| `Line Break` | une longueur maximale (`24`, par défaut), un nombre de lignes maximal (`3`), une unité — `Characters` ou `Ems`, `Ems` par défaut —, et deux conditions de saut, décrites plus bas |
+| Page | What it adds to the base |
+| :--- | :----------------------- |
+| `Mentions` | two check boxes, `Sound in brackets` and `Sound in parentheses`, unchecked by default |
+| `Common Errors` | two check boxes, `Human` and `OCR`, checked by default |
+| `Capitalization` | nothing more |
+| `Line Break` | a maximum length (`24`, by default), a maximum number of lines (`3`), a unit — `Characters` or `Ems`, `Ems` by default —, and two skip conditions, described below |
 
-**Les deux cases de `Mentions` ne nomment aucun motif compilé** : elles
-commandent un balayage du texte au noyau, celui que
+**The two boxes of `Mentions` name no compiled pattern**: they
+drive a scan of the text in the core, the one
 [`Remove Hearing-Impaired Mentions…`](operations.md#remove-hearing-impaired-mentions)
-fait déjà d'un geste direct. L'une **ou** l'autre cochée suffit à le lancer. **La liste des motifs de la page ne les répète pas** : ces deux noms n'y figurent qu'une fois, sous forme de case.
+already does in a direct gesture. One **or** the other checked is enough to launch it. **The page's list of patterns does not repeat them**: those two names appear there only once, as check boxes.
 
-**`Common Errors` filtre par classe** : un motif qui porte les deux classes
-s'applique dès que l'une des deux cases est cochée ; les trois autres pages ne
-connaissent pas cette distinction.
+**`Common Errors` filters by class**: a pattern that carries both classes
+applies as soon as one of the two boxes is checked; the three other pages do not
+know this distinction.
 
-### Line Break — l'unité et le saut
+### Line Break — the unit and the skip
 
-![La page Line Break : longueur, nombre de lignes, unité et conditions de
-saut, sur leurs valeurs par défaut.](captures/correction-decoupage.png)
+![The Line Break page: length, number of lines, unit and skip
+conditions, on their default values.](captures/correction-decoupage.png)
 
-![La même page sous la palette sombre.](captures/correction-decoupage-sombre.png)
+![The same page under the dark palette.](captures/correction-decoupage-sombre.png)
 
-| Réglage | Ce qu'il fait | Défaut |
-| :------ | :------------ | :----- |
-| `Maximum length` | la longueur d'une ligne, dans l'unité choisie ; de `1` à `1000` | `24` |
-| `Maximum lines` | le nombre de lignes visé ; de `1` à `100` | `3` |
-| `Unit` | `Characters` compte les caractères ; `Ems` mesure la largeur avec la police de la fenêtre, où une lettre minuscule moyenne vaut `0,55` — l'unité de Gaupol | `Ems` |
-| `Skip subtitles with maximum line length of` | laisse tel quel un sous-titre dont la ligne la plus longue tient dans cette longueur, dans l'unité choisie | cochée, `24` |
-| `Skip subtitles with maximum line amount of` | laisse tel quel un sous-titre dont le nombre de lignes tient dans ce nombre | cochée, `3` |
+| Setting | What it does | Default |
+| :------ | :----------- | :------ |
+| `Maximum length` | the length of a line, in the chosen unit; from `1` to `1000` | `24` |
+| `Maximum lines` | the number of lines aimed at; from `1` to `100` | `3` |
+| `Unit` | `Characters` counts characters; `Ems` measures the width with the window's font, where an average lower-case letter is worth `0.55` — Gaupol's unit | `Ems` |
+| `Skip subtitles with maximum line length of` | leaves as it is a subtitle whose longest line fits within this length, in the chosen unit | checked, `24` |
+| `Skip subtitles with maximum line amount of` | leaves as it is a subtitle whose number of lines fits within this number | checked, `3` |
 
-**Le saut a ses propres seuils**, distincts des limites visées : c'est la
-règle de Gaupol. Un sous-titre est laissé tel quel s'il tient dans **tous les
-seuils dont la case est cochée** ; sinon il est découpé, et le découpage n'est
-gardé que s'il rapproche le sous-titre d'un seuil qu'il dépassait — moins de
-longueur, ou moins de lignes. Aucune case cochée : tout sous-titre est découpé,
-qu'il tienne déjà ou non.
+**The skip has its own thresholds**, distinct from the limits aimed at: that is
+Gaupol's rule. A subtitle is left as it is if it fits within **all the
+thresholds whose box is checked**; otherwise it is broken, and the breaking is
+kept only if it brings the subtitle closer to a threshold it exceeded — less
+length, or fewer lines. No box checked: every subtitle is broken,
+whether it already fits or not.
 
-**Changer l'unité change ce qui est proposé** : la longueur de chaque ligne est
-mesurée à chaque calcul, dans l'unité de la page à ce moment-là, et rien ne
-subsiste d'une mesure précédente. Un texte de vingt-neuf caractères, dont
-la moitié en lettres étroites, dépasse `24` en `Characters` et le tient largement
-en `Ems`.
+**Changing the unit changes what is proposed**: the length of each line is
+measured at each computation, in the page's unit at that moment, and nothing
+remains of a previous measurement. A text of twenty-nine characters, half
+of them narrow letters, exceeds `24` in `Characters` and fits it easily
+in `Ems`.
 
-**Les sept réglages se retiennent** d'une session à l'autre, unité comprise.
+**The seven settings are remembered** from one session to the next, unit included.
 
-### Join or Split Words — recoller et scinder d'après le correcteur
+### Join or Split Words — rejoining and splitting by the spell checker
 
-![La page Join or Split Words, sans dictionnaire pour la langue : les cases
-sont grisées et la page dit pourquoi.](captures/correction-jonction.png)
+![The Join or Split Words page, with no dictionary for the language: the boxes
+are greyed out and the page says why.](captures/correction-jonction.png)
 
-![La même page sous la palette sombre.](captures/correction-jonction-sombre.png)
+![The same page under the dark palette.](captures/correction-jonction-sombre.png)
 
-Une page à part, entre `Mentions` et `Common Errors`, pour réparer ce que les
-logiciels de reconnaissance de texte font aux espaces. Elle n'a pas de liste de
-motifs : elle s'appuie sur les dictionnaires du système, par Enchant.
+A separate page, between `Mentions` and `Common Errors`, to repair what
+text recognition software does to spaces. It has no list of
+patterns: it relies on the system's dictionaries, through Enchant.
 
-| Réglage | Ce qu'il fait | Défaut |
-| :------ | :------------ | :----- |
-| `Language` | la langue du dictionnaire ; les codes que le système propose, et celui déjà choisi | la langue du système, si elle y est |
-| `Join words` | recolle un mot mal orthographié au mot voisin | cochée |
-| `Split words` | coupe un mot mal orthographié en deux | non cochée |
+| Setting | What it does | Default |
+| :------ | :----------- | :------ |
+| `Language` | the dictionary's language; the codes the system offers, and the one already chosen | the system's language, if it is among them |
+| `Join words` | joins a misspelt word to the neighbouring word | checked |
+| `Split words` | cuts a misspelt word in two | unchecked |
 
-**Recoller** : un mot mal orthographié est joint au mot qui le précède ou qui
-le suit **si, et seulement si, une seule des deux directions donne un mot bien
-orthographié**. Quand les deux le donnent, ou qu'aucune, rien n'est fait.
-`bon jour` devient `bonjour` ; deux espaces d'affilée sont d'abord ramenés à
-un, mais un texte où rien n'est recollé est rendu tel qu'il était, espaces
-comprises.
+**Joining**: a misspelt word is joined to the word before it or the one
+after it **if, and only if, only one of the two directions gives a correctly
+spelt word**. When both give one, or neither, nothing is done.
+`bon jour` becomes `bonjour`; two spaces in a row are first brought down to
+one, but a text where nothing is joined is given back as it was, spaces
+included.
 
-**Scinder** : un mot mal orthographié est coupé si, parmi les suggestions du
-correcteur, **une seule** est ce mot avec une espace dedans — les mêmes
-lettres, dans le même ordre. Deux suggestions de cette sorte, ou aucune : rien
-n'est fait. Un mot dont seule l'initiale est en capitale (`Bonjourtous`) n'est
-jamais scindé : c'est souvent un nom, et les dictionnaires n'en ont pas.
+**Splitting**: a misspelt word is cut if, among the spell checker's
+suggestions, **only one** is that word with a space in it — the same
+letters, in the same order. Two suggestions of that sort, or none: nothing
+is done. A word whose initial alone is a capital (`Bonjourtous`) is
+never split: it is often a name, and dictionaries do not have those.
 
-**La liste de remplacements de l'utilisateur** (`spell-check/<langue>.repl`,
-dans le répertoire de configuration du programme) compte parmi les suggestions
-du correcteur ; l'assistant la lit et ne l'écrit pas.
+**The user's list of replacements** (`spell-check/<language>.repl`,
+in the program's configuration directory) counts among the spell checker's
+suggestions; the assistant reads it and does not write it.
 
-**Sans dictionnaire pour la langue choisie, la page reste et se grise** : les
-deux cases sont éteintes et la page dit `no dictionary for` suivi du code de
-la langue. La langue reste modifiable — un dictionnaire d'une autre peut être
-là — et la tâche, cochée ou non sur la première page, ne fait alors rien et ne
-signale aucune erreur.
+**With no dictionary for the chosen language, the page stays and is greyed out**: the
+two boxes are disabled and the page says `no dictionary for` followed by the code of
+the language. The language stays editable — a dictionary for another one may be
+there — and the task, checked or not on the first page, then does nothing and
+reports no error.
 
-**La langue, les deux cases et la case de la première page se retiennent** d'une
-ouverture de l'assistant à l'autre.
+**The language, the two boxes and the box of the first page are remembered** from one
+opening of the assistant to the next.
 
-### Les motifs déposés
+### Dropped patterns
 
-Un motif qu'un utilisateur a déposé dans son propre répertoire de motifs
-s'ajoute à ceux livrés avec le programme, dans le même catalogue et sous les
-mêmes menus — rien ne les distingue une fois chargés.
+A pattern a user has dropped into their own pattern directory
+is added to those shipped with the program, in the same catalogue and under the
+same menus — nothing tells them apart once loaded.
 
-| Motifs | Où |
-| :----- | :-- |
-| livrés | `<préfixe>/share/subedit/patterns`, à côté de `<préfixe>/bin` |
-| de l'utilisateur | `$XDG_DATA_HOME/subedit/patterns`, ou `~/.local/share/subedit/patterns` si la variable n'est pas posée ou n'est pas un chemin absolu |
+| Patterns | Where |
+| :------- | :---- |
+| shipped | `<prefix>/share/subedit/patterns`, beside `<prefix>/bin` |
+| the user's | `$XDG_DATA_HOME/subedit/patterns`, or `~/.local/share/subedit/patterns` if the variable is not set or is not an absolute path |
 
-**Le format est celui de Gaupol, lu tel quel** : un fichier `<Code>.<type>` par écriture,
-langue et pays — `Latn-en.common-error` —, son `.conf` d'activation à côté. Les types
-sont `common-error`, `capitalization`, `hearing-impaired` et `line-break`. Les fichiers
-livrés servent de modèle. **Les motifs se lisent une fois, au lancement** : un fichier
-déposé pendant que la fenêtre est ouverte n'est vu qu'au lancement suivant.
+**The format is Gaupol's, read as is**: one `<Code>.<type>` file per script,
+language and country — `Latn-en.common-error` —, its activation `.conf` beside it. The types
+are `common-error`, `capitalization`, `hearing-impaired` and `line-break`. The shipped
+files serve as a model. **Patterns are read once, at launch**: a file
+dropped while the window is open is seen only at the next launch.
 
 ## Progress
 
-Une fois `Next` pressé depuis la dernière page de tâche cochée (ou depuis la
-première page si aucune tâche ne l'est), l'assistant calcule les corrections
-proposées sur un fil d'arrière-plan, une barre de progression indéterminée à
-l'écran. Le calcul fini, la page de confirmation s'ouvre d'elle-même.
+Once `Next` is pressed from the last checked task page (or from the
+first page if no task is checked), the assistant computes the proposed
+corrections on a background thread, an indeterminate progress bar on
+screen. Once the computation is finished, the confirmation page opens by itself.
 
-**`Cancel` à cette étape abandonne le calcul sans l'interrompre** : rien
-n'est appliqué, mais l'assistant attend, pour se fermer, que le calcul en
-cours se termine — une attente bornée par la limite de temps que le moteur
-de motifs impose à chaque recherche.
+**`Cancel` at this step abandons the computation without interrupting it**: nothing
+is applied, but the assistant waits, before closing, for the computation in
+progress to finish — a wait bounded by the time limit the pattern
+engine imposes on each search.
 
-**`Back` à cette étape revient à la page précédente sans attendre** : le calcul
-se termine en arrière-plan et son résultat est écarté — l'assistant ne saute
-pas de lui-même à la confirmation. `Next` relance un calcul neuf.
+**`Back` at this step goes back to the previous page without waiting**: the computation
+finishes in the background and its result is discarded — the assistant does not jump
+by itself to the confirmation. `Next` starts a new computation.
 
-## Confirmation — la dernière page
+## Confirmation — the last page
 
-![La page de confirmation : trois lignes, une acceptée, une supprimée, une
-refusée.](captures/correction.png)
+![The confirmation page: three lines, one accepted, one removed, one
+refused.](captures/correction.png)
 
-![La même page sous la palette sombre.](captures/correction-sombre.png)
+![The same page under the dark palette.](captures/correction-sombre.png)
 
-Une ligne par texte que l'assistant changerait — jamais une ligne pour un
-texte qu'une tâche a laissé tel quel.
+One line per text the assistant would change — never a line for a
+text a task left as it is.
 
-| Colonne | Ce qu'elle montre |
-| :------ | :----------------- |
-| `Accept` | une case, cochée par défaut : la correction sera appliquée ou non |
-| `Original` | le texte tel qu'il est, sa partie qui changerait **en gras** |
-| `Corrected Text` | le texte proposé, sa partie changée en gras, **éditable** — le retoucher change ce qui sera écrit, sans changer la case `Accept` |
+| Column | What it shows |
+| :----- | :------------ |
+| `Accept` | a check box, checked by default: the correction will be applied or not |
+| `Original` | the text as it is, the part that would change **in bold** |
+| `Corrected Text` | the proposed text, the changed part in bold, **editable** — touching it up changes what will be written, without changing the `Accept` box |
 
-**Le changement est marqué en gras, jamais en couleur** : la même diff se lit
-dans les deux palettes sans dépendre d'aucune teinte.
+**The change is marked in bold, never in colour**: the same diff reads
+in both palettes without depending on any tint.
 
-**Une ligne dont la proposition est une suppression** — le sous-titre n'aurait
-plus de texte — montre la colonne `Corrected Text` vide, et son `Original` entier en
-gras.
+**A line whose proposal is a removal** — the subtitle would have no
+text left — shows the `Corrected Text` column empty, and its whole `Original` in
+bold.
 
-| Bouton | Ce qu'il fait |
-| :----- | :------------- |
-| `Mark All` | coche `Accept` sur toutes les lignes |
-| `Unmark All` | décoche `Accept` sur toutes les lignes |
-| `Preview` | place le lecteur intégré sur le sous-titre de la ligne choisie, si le projet a un film — rien s'il n'en a pas |
-| `Finish` | applique les lignes cochées et ferme l'assistant |
+| Button | What it does |
+| :----- | :----------- |
+| `Mark All` | checks `Accept` on all lines |
+| `Unmark All` | unchecks `Accept` on all lines |
+| `Preview` | puts the built-in player on the subtitle of the chosen line, if the project has a film — nothing if it has none |
+| `Finish` | applies the checked lines and closes the assistant |
 
-`Remove all blank subtitles`, cochée par défaut, retire les sous-titres
-qu'une correction laisserait sans aucun texte plutôt que de les garder vides.
+`Remove all blank subtitles`, checked by default, removes the subtitles
+a correction would leave with no text at all rather than keeping them empty.
 
-**Un motif que le calcul n'a pas pu appliquer est nommé sous la table**, avec
-la raison :
+**A pattern the computation could not apply is named under the table**, with
+the reason:
 
 ```text
 Not applied: some pattern (will not compile)
 ```
 
-Un motif nommé ainsi l'est **une fois par raison**, quel que soit le nombre de
-textes ou de projets sur lesquels il a échoué : l'écran ne dit pas lequel.
+A pattern named this way is named **once per reason**, whatever the number of
+texts or projects it failed on: the screen does not say which.
 
-| Raison | Ce qui la déclenche |
-| :----- | :------------------ |
-| `cannot be translated` | l'expression emploie ce que la traduction de la syntaxe de Python refuse |
-| `will not compile` | le moteur refuse l'expression |
-| `has an invalid replacement` | le remplacement ne se lit pas comme Python le lit |
-| `timed out` | une recherche a dépassé le temps que le moteur lui accorde sur un texte |
-| `never settled` | `Repeat` changeait encore le texte après cent passes |
-| `grew the text too long` | le texte a dépassé 16 384 octets pendant que le motif y travaillait |
+| Reason | What triggers it |
+| :----- | :--------------- |
+| `cannot be translated` | the expression uses what the translation of Python's syntax refuses |
+| `will not compile` | the engine refuses the expression |
+| `has an invalid replacement` | the replacement does not read as Python reads it |
+| `timed out` | a search exceeded the time the engine grants it on a text |
+| `never settled` | `Repeat` was still changing the text after a hundred passes |
+| `grew the text too long` | the text exceeded 16,384 bytes while the pattern was working on it |
 
-**Un motif qui échoue sur un texte le laisse tel qu'il était avant lui** : un remplacement
-à moitié fait vaut moins que pas de remplacement. Les autres motifs s'appliquent.
+**A pattern that fails on a text leaves it as it was before it**: a replacement
+half done is worth less than no replacement. The other patterns apply.
 
-**Une ligne d'un fichier de motifs qui ne se lit pas est nommée au même
-endroit**, par son fichier, sa ligne et la raison — à chaque ouverture de
-l'assistant, puisque les motifs ne sont lus qu'une fois, au lancement :
+**A line of a pattern file that cannot be read is named in the same
+place**, by its file, its line and the reason — at each opening of the
+assistant, since the patterns are read only once, at launch:
 
 ```text
 Could not be read: Zyyy.common-error, line 8 (malformed line)
 ```
 
-| Raison | Ce qui la déclenche |
-| :----- | :------------------ |
-| `directory cannot be read` | le répertoire des motifs livrés n'a pas pu être parcouru |
-| `file cannot be read` | un fichier de motifs n'a pas pu être lu |
-| `malformed line` | une ligne qui n'est ni un en-tête, ni un commentaire, ni `Clé=Valeur` |
-| `field outside any pattern` | un `Clé=Valeur` avant le premier en-tête de motif |
-| `unknown field` | une clé dont ce type de motif n'a pas l'usage — le motif est gardé |
-| `missing field` | une clé sans laquelle ce type de motif ne peut rien — le motif est écarté |
-| `invalid value` | une valeur que la clé n'accepte pas — le motif est écarté |
-| `malformed activation` | un élément `<pattern>` d'un `.conf` qui ne nomme rien |
+| Reason | What triggers it |
+| :----- | :--------------- |
+| `directory cannot be read` | the directory of the shipped patterns could not be walked through |
+| `file cannot be read` | a pattern file could not be read |
+| `malformed line` | a line that is neither a header, nor a comment, nor `Key=Value` |
+| `field outside any pattern` | a `Key=Value` before the first pattern header |
+| `unknown field` | a key this type of pattern has no use for — the pattern is kept |
+| `missing field` | a key without which this type of pattern can do nothing — the pattern is discarded |
+| `invalid value` | a value the key does not accept — the pattern is discarded |
+| `malformed activation` | a `<pattern>` element of a `.conf` that names nothing |
 
-Les autres motifs, ceux qui se sont bien lus et bien appliqués, ne sont pas
-concernés.
+The other patterns, those that were read and applied correctly, are not
+concerned.
 
-## Ce qu'annuler dit, et ce qu'`Cancel` ne fait jamais
+## What undo says, and what `Cancel` never does
 
-**`Finish` fait une entrée d'historique par projet touché**, jamais une par
-correction : `Undo` défait d'un coup toutes les corrections acceptées sur ce
-projet, chacune avec le texte qu'elle avait. Le menu la nomme
+**`Finish` makes one history entry per project touched**, never one per
+correction: `Undo` undoes at once all the corrections accepted on that
+project, each with the text it had. The menu names it
 `Undo: correcting texts`.
 
-La barre d'état dit le compte, les textes changés d'abord, les sous-titres
-retirés ensuite :
+The status bar gives the count, the texts changed first, the subtitles
+removed next:
 
 ```text
 Edited 3 and removed 1 subtitles
 ```
 
-**`Cancel`, à n'importe quelle page, n'applique rien et ne retient rien** — ni
-les réglages choisis pendant cette ouverture, ni la moindre correction. La
-prochaine ouverture de l'assistant repart des réglages d'avant.
+**`Cancel`, on any page, applies nothing and remembers nothing** — neither
+the settings chosen during this opening, nor the slightest correction. The
+next opening of the assistant starts again from the settings of before.
 
-## Un exemple
+## An example
 
-Un fichier ouvert porte deux espaces entre deux mots d'une réplique et une
-mention entre crochets sans autre texte. `Tools ▸ Correct Texts…`, `Common
-Errors` déjà coché, `Next` jusqu'à la confirmation : la ligne des deux espaces
-montre `Bonjour  Marie` à gauche, `Bonjour Marie` à droite, la correction en
-gras et déjà acceptée. `Finish` l'applique, et la barre d'état dit :
+An open file carries two spaces between two words of a line and a
+mention in brackets with no other text. `Tools ▸ Correct Texts…`,
+`Common Errors` already checked, `Next` up to the confirmation: the line with the two spaces
+shows `Bonjour  Marie` on the left, `Bonjour Marie` on the right, the correction in
+bold and already accepted. `Finish` applies it, and the status bar says:
 
 ```text
 Edited 1 and removed 0 subtitles

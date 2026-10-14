@@ -10,7 +10,7 @@ subedit-cli italics (--on | --off) [--range N-M|N-]
 ```
 
 Met les textes **en italique**, ou **retire leur italique**, dans les balises du format du fichier.
-C'est `Italic` de la [fenêtre](../../../../manual/subedit-gui/operations.md).
+C'est `Italic` de la [fenêtre](../subedit-gui/operations.md).
 
 **Deux mots et non une bascule** : le bouton de la fenêtre demande au noyau dans quel sens il
 joue ; ici on le dit. `--on` et `--off` s'excluent, et il en faut un — l'omettre, ou donner les deux,

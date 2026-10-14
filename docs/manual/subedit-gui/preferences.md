@@ -1,80 +1,78 @@
-# Les préférences
+# The preferences
 
-<!-- language: fr -->
+The window remembers what you set with the mouse — **where it was**, **whether
+it was maximised**, **the width of its columns**, **the position of the
+handle** between the film and the table — and **where you work**, so that
+`Open…` opens in the right place. None of this is set through a dialog:
+you move, you drag, and it is remembered.
 
-La fenêtre se souvient de ce qu'on a posé à la souris — **où elle était**, **si
-elle était agrandie**, **la largeur de ses colonnes**, **la position de la
-poignée** entre le film et la table — et de **là où l'on travaille**, pour que
-`Open…` s'ouvre au bon endroit. Rien de tout cela ne se règle par un dialogue :
-on déplace, on tire, et c'est retenu.
-
-**Six préférences ont un dialogue à elles**, `Edit ▸ Preferences…`, et c'est le
-critère : une préférence qui a déjà un geste n'a pas besoin d'un champ. Le
-thème n'en a aucun, ni l'unité des longueurs de lignes, ni les deux cases qui
-les montrent, ni le saut et l'avance du lecteur. Voir [Le thème](#le-thème),
-[Les longueurs de lignes](#les-longueurs-de-lignes) et [Le lecteur](#le-lecteur).
+**Six preferences have a dialog of their own**, `Edit ▸ Preferences…`, and that is the
+criterion: a preference that already has a gesture does not need a field. The
+theme has none, nor has the unit of line lengths, nor the two check boxes that
+show them, nor the player's jump and lead. See [The theme](#the-theme),
+[Line lengths](#line-lengths) and [The player](#the-player).
 
 **The interface language is in the same dialog, and it is the one that waits**: it applies at the
 next launch, not at once. See [The interface language](#the-interface-language).
 
-**Le volume n'en a pas** : la barre sous l'image et deux gestes le règlent, et il est retenu.
+**The volume has none**: the bar under the picture and two gestures set it, and it is remembered.
 
-**Une autre se règle là où elle sert** : le côté où `Insert Subtitles…` pose ses
-lignes est un champ de ce dialogue-là, et le dernier choix est retenu. Voir
-[Insérer, supprimer, fusionner et scinder des lignes](lignes.md#le-côté-est-retenu).
+**Another one is set where it is used**: the side where `Insert Subtitles…` puts its
+lines is a field of that dialog, and the last choice is remembered. See
+[Inserting, removing, merging and splitting lines](lines.md#the-side-is-remembered).
 
-**Les deux options de la recherche aussi** : `Regular expression` et
-`Ignore case` restent cochées ou décochées d'une ouverture du dialogue à la
-suivante, et d'une session à la suivante. Voir
-[Rechercher et remplacer](recherche.md#les-deux-options).
+**So are the two search options**: `Regular expression` and
+`Ignore case` stay checked or unchecked from one opening of the dialog to the
+next, and from one session to the next. See
+[Find and replace](find-and-replace.md#the-two-options).
 
-**Les réglages d'`Adjust Durations…` aussi** : la vitesse de lecture, ses deux
-sens, et les trois durées avec leurs cases — chacune garde sa valeur, cochée ou
-non. Voir [`Adjust Durations…`](operations.md#adjust-durations).
+**So are the settings of `Adjust Durations…`**: the reading speed, its two
+directions, and the three durations with their check boxes — each keeps its value, checked
+or not. See [`Adjust Durations…`](operations.md#adjust-durations).
 
-**Et le dernier encodage choisi dans `Save As…`**, avec sa marque d'ordre des
-octets. Voir [le fichier](#le-fichier).
+**And the last encoding chosen in `Save As…`**, with its byte order
+mark. See [the file](#the-file).
 
-**Et ce que l'assistant `Correct Texts…` et `Spell-Check Settings…` règlent** : les
-tâches cochées et leur code, les cases de motifs, les réglages du découpage, la langue,
-la cible de la vérification et le soulignement à la frappe. Voir [Correct Texts…](correct-texts.md) et
-[Check Spelling…](verifier-orthographe.md#spell-check-settings). **La cible et le
-document de `Correct Texts…` ne sont pas retenus.**
+**And what the `Correct Texts…` assistant and `Spell-Check Settings…` set**: the
+checked tasks and their code, the pattern check boxes, the line-breaking settings, the language,
+the target of the check and the underlining while typing. See [Correct Texts…](correct-texts.md) and
+[Check Spelling…](check-spelling.md#spell-check-settings). **The target and the
+document of `Correct Texts…` are not remembered.**
 
-**Ce qui n'est pas retenu :** le dernier fichier ouvert — voir
-[Le répertoire retenu](#le-répertoire-retenu).
+**What is not remembered:** the last file opened — see
+[The remembered directory](#the-remembered-directory).
 
-## Le lecteur
+## The player
 
-Quatre champs. **Seek length** et **Context length** sont ceux de Gaupol et ont ses valeurs ; **Frame step** et **Decode on the graphics card** sont propres à subedit :
+Four fields. **Seek length** and **Context length** are Gaupol's and have its values; **Frame step** and **Decode on the graphics card** are subedit's own:
 
-| Champ | Ce qu'il règle | Par défaut | Bornes |
-| :---- | :------------- | ---------: | :----- |
-| `Seek length` | le saut de `Seek Backward` et `Seek Forward` | 30 s | de 1 s à une heure |
-| `Context length` | l'avance avant la sélection, pour `Seek Selection Start`, `Seek Selection End` et `Play Selection` | 1 s | de 0 à 60 s, au dixième |
-| `Frame step` | le pas, **en images**, de `Step Backward` et `Step Forward`, et du décalage d'un bord | 1 image | de 1 à 1000 images |
-| `Decode on the graphics card` | laisse la carte graphique décoder le film quand la machine en a une ; sans carte, rien ne change | coché | coché ou non |
+| Field | What it sets | Default | Bounds |
+| :---- | :----------- | ------: | :----- |
+| `Seek length` | the jump of `Seek Backward` and `Seek Forward` | 30 s | from 1 s to one hour |
+| `Context length` | the lead before the selection, for `Seek Selection Start`, `Seek Selection End` and `Play Selection` | 1 s | from 0 to 60 s, to the tenth |
+| `Frame step` | the step, **in frames**, of `Step Backward` and `Step Forward`, and of nudging an edge | 1 frame | from 1 to 1000 frames |
+| `Decode on the graphics card` | lets the graphics card decode the film when the machine has one; without a card, nothing changes | checked | checked or not |
 
-Ils s'appliquent **à l'instant**, sans attendre un redémarrage, et sont retenus d'une session à l'autre
-sous `video.seek-length` (en secondes), `video.context-length-ms` (en millisecondes) `video.step-frames` (en images) et `video.hardware-decoding` (`true` ou `false`).
-**Une valeur hors des bornes, ou qui n'est pas un nombre**, n'empêche pas la fenêtre de s'ouvrir : elle
-est ignorée, le défaut reste, et la fenêtre le dit à l'ouverture. **Le pas d'image n'est jamais en millisecondes** : un pas de N images est toujours N images, quelle que soit la fréquence du film — voir [Caler depuis la vidéo](calage.md#image-par-image). Le volume est retenu à `video.volume`,
-de 0 à 100, avec la même tolérance.
+They apply **at once**, without waiting for a restart, and are remembered from one session to the next
+under `video.seek-length` (in seconds), `video.context-length-ms` (in milliseconds) `video.step-frames` (in frames) and `video.hardware-decoding` (`true` or `false`).
+**A value out of bounds, or that is not a number**, does not prevent the window from opening: it
+is ignored, the default remains, and the window says so on opening. **The frame step is never in milliseconds**: a step of N frames is always N frames, whatever the film's frame rate — see [Timing from the video](timing.md#frame-by-frame). The volume is remembered in `video.volume`,
+from 0 to 100, with the same tolerance.
 
-## Le fichier
+## The file
 
 ```
 ~/.config/subedit/settings.conf
 ```
 
-Plus exactement `$XDG_CONFIG_HOME/subedit/settings.conf` lorsque cette variable
-est posée. Il est écrit **à la fermeture de la fenêtre**, et lu à son ouverture.
-Un programme interrompu — tué, ou arrêté par une panne — n'écrit rien, et la
-session suivante retrouve ce que la précédente avait laissé.
+More exactly `$XDG_CONFIG_HOME/subedit/settings.conf` when that variable
+is set. It is written **when the window closes**, and read when it opens.
+An interrupted program — killed, or stopped by a crash — writes nothing, and the
+next session finds what the previous one had left.
 
-Le fichier est du texte, et il se modifie à la main. C'est une propriété et non
-un effet de bord : c'est ce qui rend un réglage corrigeable quand l'interface
-qui le pose est justement celle qui ne va pas.
+The file is text, and it can be edited by hand. That is a property and not
+a side effect: it is what makes a setting correctable when the interface
+that sets it is precisely the one that is broken.
 
 ### Two blocks, one shared with the command line
 
@@ -99,117 +97,117 @@ file. See
 The reader takes the keys in any order, with or without the banners: a file written before the
 two blocks existed is read unchanged, and rewritten in two blocks at the next closing.
 
-| Option | Ce qu'elle vaut | Défaut |
-| :----- | :-------------- | :----- |
-| `window.geometry` | `x,y,largeur,hauteur`, en pixels ; largeur et hauteur non nulles | la fenêtre se dimensionne elle-même |
-| `window.maximised` | `true` ou `false` | `false` |
-| `table.columns` | quatre largeurs en pixels, séparées par des virgules — `#`, `Start`, `End`, `Duration`, même masquées | la table se dimensionne elle-même |
-| `table.order` | les six colonnes, **chacune une fois**, dans l'ordre où la table les montre : `number`, `start`, `end`, `duration`, `text`, `translation` | `number,start,end,duration,text,translation` |
-| `table.hidden` | les colonnes retirées, parmi `number`, `start`, `end` et `duration` ; vide, aucune | aucune |
-| `window.table-share` | la part de la hauteur donnée à la table, en pour cent, de 1 à 99 | la fenêtre partage comme elle l'a toujours fait |
-| `file.directory` | un chemin **absolu** de répertoire | aucun : `Open…` s'ouvre là où le programme a été lancé |
-| `general.theme` | `system`, `light` ou `dark` | `system` |
+| Option | What it holds | Default |
+| :----- | :------------ | :------ |
+| `window.geometry` | `x,y,width,height`, in pixels; width and height non-zero | the window sizes itself |
+| `window.maximised` | `true` or `false` | `false` |
+| `table.columns` | four widths in pixels, separated by commas — `#`, `Start`, `End`, `Duration`, even hidden | the table sizes itself |
+| `table.order` | the six columns, **each one once**, in the order the table shows them: `number`, `start`, `end`, `duration`, `text`, `translation` | `number,start,end,duration,text,translation` |
+| `table.hidden` | the removed columns, among `number`, `start`, `end` and `duration`; empty, none | none |
+| `window.table-share` | the share of the height given to the table, in per cent, from 1 to 99 | the window shares as it always has |
+| `file.directory` | an **absolute** directory path | none: `Open…` opens where the program was launched |
+| `general.theme` | `system`, `light` or `dark` | `system` |
 | `interface.language` | `system`, or a language's name as its catalogue is named: two or three lower-case letters, then optionally `_` and two capitals — `fr`, `pt_BR`; `en` for English | `system` |
-| `edit.insert-placement` | `above` ou `below` | `below` |
-| `file.write-encoding` | le nom d'un encodage qu'ICU sait écrire, et dont le convertisseur n'écrit pas sa propre marque | aucun |
-| `file.write-bom` | `true` ou `false` | `false` |
-| `search.regex` | `true` ou `false` — le motif est une expression régulière | `false` |
-| `search.ignore-case` | `true` ou `false` — la casse est ignorée | `true` |
-| `duration-adjust.speed` | la vitesse de lecture, en caractères par seconde, strictement positive ; un nombre décimal s'écrit au plus court (`15`, `12.5`) | `15` |
-| `duration-adjust.lengthen` | `true` ou `false` — allonger ce qui est trop court pour être lu | `true` |
-| `duration-adjust.shorten` | `true` ou `false` — raccourcir ce qui reste affiché plus que nécessaire | `false` |
-| `duration-adjust.minimum-enabled` | `true` ou `false` — la durée minimale est demandée | `true` |
-| `duration-adjust.minimum-ms` | la durée minimale, en millisecondes, entière et non négative | `1500` |
-| `duration-adjust.maximum-enabled` | `true` ou `false` — la durée maximale est demandée | `false` |
-| `duration-adjust.maximum-ms` | la durée maximale, en millisecondes, entière et non négative | `6000` |
-| `duration-adjust.gap-enabled` | `true` ou `false` — l'écart au sous-titre suivant est demandé | `true` |
-| `duration-adjust.gap-ms` | l'écart, en millisecondes, entier et non négatif | `0` |
-| `correction.mentions.enabled`, `correction.common-errors.enabled`, `correction.capitalization.enabled`, `correction.line-break.enabled` | `true` ou `false` — la tâche est cochée sur la première page de `Correct Texts…` | `false`, `true`, `true`, `false` |
-| `correction.mentions.code`, `correction.common-errors.code`, `correction.capitalization.code`, `correction.line-break.code` | le code des motifs de la tâche : `Zyyy`, ou `Écriture[-langue[-PAYS]]` — `Latn-en-US` ; non vide | `Zyyy` |
-| `correction.human`, `correction.ocr` | `true` ou `false` — les classes des erreurs courantes | `true`, `true` |
-| `correction.sound-in-brackets`, `correction.sound-in-parentheses` | `true` ou `false` — les deux cases de la page `Mentions` | `false`, `false` |
-| `correction.line-break.max-length` | la longueur maximale d'une ligne, décimale ; le dialogue la borne de 1 à 1000 | `24` |
-| `correction.line-break.max-lines` | le nombre de lignes maximal, entier ; le dialogue le borne de 1 à 100 | `3` |
-| `correction.line-break.in-ems` | `true` : la longueur se mesure en *ems* ; `false` : en caractères | `true` |
-| `correction.line-break.skip-on-length`, `correction.line-break.skip-on-lines` | `true` ou `false` — les deux conditions de saut sont demandées | `true`, `true` |
-| `correction.line-break.skip-max-length`, `correction.line-break.skip-max-lines` | les deux seuils du saut, dans l'unité choisie | `24`, `3` |
-| `correction.join-split.enabled` | `true` ou `false` — la tâche `Join or Split Words` est cochée | `false` |
-| `correction.join-split.join`, `correction.join-split.split` | `true` ou `false` — recoller, scinder | `true`, `false` |
-| `correction.join-split.language` | un code de locale — `fr`, `en_US`, `sr@Latn` — ; vide : la langue du système | vide |
-| `correction.remove-blank` | `true` ou `false` — `Remove all blank subtitles` | `true` |
-| `correction.activations` | les cases de motifs que l'utilisateur a changées, `<type>:<code>:<nom>:<0\|1>`, séparées par des virgules ; **une virgule ou une barre oblique inverse dans un nom s'écrit précédée d'une barre oblique inverse** (`\,` et `\\`), et une entrée illisible ne fait perdre que son propre réglage — elle est signalée, les autres sont gardées | vide |
-| `spell-check.language` | un code de locale, tel que `fr_FR` ; vide : la langue du système | vide |
-| `spell-check.target` | `selection`, `current-project` ou `all-projects` | `current-project` |
-| `spell-check.document` | `main` ou `translation` | `main` |
-| `spell-check.inline` | `true` ou `false` — souligner les mots inconnus pendant qu'on tape dans l'éditeur d'une cellule | `false` |
-| `editor.length-unit` | `em` ou `characters` — l'unité des longueurs de lignes montrées par la table et l'éditeur | `em` |
-| `editor.show-lengths-cell` | `true` ou `false` — chaque ligne d'une cellule de texte est suivie de sa longueur | `true` |
-| `editor.show-lengths-edit` | `true` ou `false` — l'éditeur d'une cellule montre la longueur de chaque ligne dans une marge | `true` |
+| `edit.insert-placement` | `above` or `below` | `below` |
+| `file.write-encoding` | the name of an encoding ICU can write, and whose converter does not write its own mark | none |
+| `file.write-bom` | `true` or `false` | `false` |
+| `search.regex` | `true` or `false` — the pattern is a regular expression | `false` |
+| `search.ignore-case` | `true` or `false` — case is ignored | `true` |
+| `duration-adjust.speed` | the reading speed, in characters per second, strictly positive; a decimal number is written as short as possible (`15`, `12.5`) | `15` |
+| `duration-adjust.lengthen` | `true` or `false` — lengthen what is too short to be read | `true` |
+| `duration-adjust.shorten` | `true` or `false` — shorten what stays displayed longer than needed | `false` |
+| `duration-adjust.minimum-enabled` | `true` or `false` — the minimum duration is asked for | `true` |
+| `duration-adjust.minimum-ms` | the minimum duration, in milliseconds, whole and non-negative | `1500` |
+| `duration-adjust.maximum-enabled` | `true` or `false` — the maximum duration is asked for | `false` |
+| `duration-adjust.maximum-ms` | the maximum duration, in milliseconds, whole and non-negative | `6000` |
+| `duration-adjust.gap-enabled` | `true` or `false` — the gap to the next subtitle is asked for | `true` |
+| `duration-adjust.gap-ms` | the gap, in milliseconds, whole and non-negative | `0` |
+| `correction.mentions.enabled`, `correction.common-errors.enabled`, `correction.capitalization.enabled`, `correction.line-break.enabled` | `true` or `false` — the task is checked on the first page of `Correct Texts…` | `false`, `true`, `true`, `false` |
+| `correction.mentions.code`, `correction.common-errors.code`, `correction.capitalization.code`, `correction.line-break.code` | the code of the task's patterns: `Zyyy`, or `Script[-language[-COUNTRY]]` — `Latn-en-US`; not empty | `Zyyy` |
+| `correction.human`, `correction.ocr` | `true` or `false` — the classes of common errors | `true`, `true` |
+| `correction.sound-in-brackets`, `correction.sound-in-parentheses` | `true` or `false` — the two check boxes of the `Mentions` page | `false`, `false` |
+| `correction.line-break.max-length` | the maximum length of a line, decimal; the dialog bounds it from 1 to 1000 | `24` |
+| `correction.line-break.max-lines` | the maximum number of lines, whole; the dialog bounds it from 1 to 100 | `3` |
+| `correction.line-break.in-ems` | `true`: the length is measured in *ems*; `false`: in characters | `true` |
+| `correction.line-break.skip-on-length`, `correction.line-break.skip-on-lines` | `true` or `false` — the two skip conditions are asked for | `true`, `true` |
+| `correction.line-break.skip-max-length`, `correction.line-break.skip-max-lines` | the two skip thresholds, in the chosen unit | `24`, `3` |
+| `correction.join-split.enabled` | `true` or `false` — the `Join or Split Words` task is checked | `false` |
+| `correction.join-split.join`, `correction.join-split.split` | `true` or `false` — join, split | `true`, `false` |
+| `correction.join-split.language` | a locale code — `fr`, `en_US`, `sr@Latn` —; empty: the system's language | empty |
+| `correction.remove-blank` | `true` or `false` — `Remove all blank subtitles` | `true` |
+| `correction.activations` | the pattern check boxes the user changed, `<type>:<code>:<name>:<0\|1>`, separated by commas; **a comma or a backslash in a name is written preceded by a backslash** (`\,` and `\\`), and an unreadable entry loses only its own setting — it is reported, the others are kept | empty |
+| `spell-check.language` | a locale code, such as `fr_FR`; empty: the system's language | empty |
+| `spell-check.target` | `selection`, `current-project` or `all-projects` | `current-project` |
+| `spell-check.document` | `main` or `translation` | `main` |
+| `spell-check.inline` | `true` or `false` — underline unknown words while typing in a cell's editor | `false` |
+| `editor.length-unit` | `em` or `characters` — the unit of the line lengths shown by the table and the editor | `em` |
+| `editor.show-lengths-cell` | `true` or `false` — each line of a text cell is followed by its length | `true` |
+| `editor.show-lengths-edit` | `true` or `false` — a cell's editor shows the length of each line in a margin | `true` |
 
-**Le fichier accepte plus large que le dialogue.** Le lecteur prend toute vitesse
-strictement positive et toute durée non négative ; le dialogue d'`Adjust
-Durations…`, lui, borne la vitesse de 1 à 99 caractères par seconde et chaque
-durée de 0 à 99 s. Une valeur du fichier hors de ces bornes est ramenée à la
-borne quand le dialogue s'ouvre, et le fichier la garde ainsi une fois le
-dialogue validé et la fenêtre fermée. Un dialogue annulé ne change rien à ce
-qui est retenu.
+**The file accepts more than the dialog.** The reader takes any strictly
+positive speed and any non-negative duration; the `Adjust
+Durations…` dialog, for its part, bounds the speed from 1 to 99 characters per second and each
+duration from 0 to 99 s. A value of the file outside those bounds is brought back to the
+bound when the dialog opens, and the file keeps it that way once the
+dialog is accepted and the window closed. A cancelled dialog changes nothing in what
+is remembered.
 
-**`file.write-encoding` retient le dernier encodage choisi dans `Save As…`, et
-ne s'impose jamais à un fichier.** Un document ouvert porte son propre encodage,
-et c'est celui-là que la boîte propose : le réécrire dans un autre parce qu'un
-réglage vieux de trois semaines le dit serait perdre ce que la lecture a gardé.
-Ce dont ce réglage se souvient sert au document qui n'a pas de fichier — celui
-qu'on vient de créer.
+**`file.write-encoding` remembers the last encoding chosen in `Save As…`, and
+never imposes itself on a file.** An open document carries its own encoding,
+and that is the one the box proposes: rewriting it in another because a
+setting three weeks old says so would lose what reading kept.
+What this setting remembers serves the document that has no file — the one
+just created.
 
-**C'est un « non » assumé et non un oubli.** Quelqu'un qui livre toujours dans
-le même encodage et ouvre des fichiers hérités dans un autre le rechoisit à
-chaque fichier ; la boîte le lui propose, et la garantie d'aller-retour vaut
-pour tout le monde.
+**It is a deliberate “no” and not an oversight.** Someone who always delivers in
+the same encoding and opens inherited files in another chooses it again for
+each file; the box proposes it to them, and the round-trip guarantee holds
+for everyone.
 
-**`file.write-bom` porte la marque du même encodage**, et il en faut bien deux
-lignes : le nom d'un encodage ne dit pas s'il est précédé de sa marque, pas plus
-que `--encoding` ne dit ce que `--bom` dit. Les deux se lisent ensemble, dans
-l'ordre qu'on veut, et un `file.write-bom` sans encodage retenu ne pose rien.
+**`file.write-bom` carries the mark of the same encoding**, and two
+lines are indeed needed: the name of an encoding does not say whether it is preceded by its mark, any more
+than `--encoding` says what `--bom` says. Both are read together, in
+any order, and a `file.write-bom` with no remembered encoding sets nothing.
 
-**Une part et non des hauteurs pour la poignée**, et c'est ce qui la rend
-utile : trois hauteurs en pixels ne veulent plus rien dire dès que la fenêtre
-s'ouvre à une autre taille, et une fenêtre s'ouvre souvent à une autre taille.
-La part se rejoue partout. Elle est **ramenée à ce que la fenêtre accepte** si
-elle est trop petite — la bande du film a une hauteur minimale.
+**A share and not heights for the handle**, and that is what makes it
+useful: three heights in pixels no longer mean anything as soon as the window
+opens at another size, and a window often opens at another size.
+The share replays anywhere. It is **brought back to what the window accepts** if
+it is too small — the film's strip has a minimum height.
 
-**Quatre largeurs pour six colonnes**, et ce n'est pas un oubli : ce sont celles
-de `#`, `Start`, `End` et `Duration`, dans cet ordre quel que soit celui de la
-table, et **une colonne masquée garde la sienne** — elle la retrouve quand on la
-remontre. La dernière colonne montrée prend ce que les autres laissent, et lui
-donner une largeur ne ferait rien ; celles du texte et de la traduction ne se
-retiennent donc pas.
+**Four widths for six columns**, and that is not an oversight: they are those
+of `#`, `Start`, `End` and `Duration`, in that order whatever the
+table's, and **a hidden column keeps its own** — it finds it again when it is
+shown again. The last column shown takes what the others leave, and giving it
+a width would do nothing; those of the text and the translation are therefore
+not remembered.
 
-## Ce qui arrive quand le fichier ne dit pas ce qu'on attend
+## What happens when the file does not say what is expected
 
-Une configuration est un confort. **Sa défaillance coûte le confort et rien
-d'autre** : la fenêtre s'ouvre dans tous les cas.
+A configuration is a comfort. **Its failure costs the comfort and nothing
+else**: the window opens in every case.
 
-| Cas | Ce qui se passe |
-| :-- | :-------------- |
-| le fichier n'existe pas | tous les défauts, et rien n'est dit — c'est le premier lancement |
-| le fichier existe et ne se lit pas | tous les défauts, et la raison est écrite sur la sortie d'erreur |
-| une option est absente | son défaut |
-| une clé est inconnue | ignorée, sans un mot, et absente du fichier réécrit |
-| une valeur ne se lit pas | son défaut est gardé, et l'option est nommée sur la sortie d'erreur |
+| Case | What happens |
+| :--- | :----------- |
+| the file does not exist | all the defaults, and nothing is said — it is the first launch |
+| the file exists and cannot be read | all the defaults, and the reason is written on the error stream |
+| an option is absent | its default |
+| a key is unknown | ignored, without a word, and absent from the rewritten file |
+| a value cannot be read | its default is kept, and the option is named on the error stream |
 
 ```console
 $ subedit-gui film.srt
 subedit-gui: /home/vous/.config/subedit/settings.conf: window.geometry: "plus tard" cannot be read, keeping the default
 ```
 
-**Le message va sur la sortie d'erreur et nulle part ailleurs.** Une fenêtre
-modale au démarrage pour une préférence illisible arrêterait l'utilisateur pour
-un défaut qui ne l'empêche de rien, et avant qu'il ait rien demandé.
+**The message goes on the error stream and nowhere else.** A modal
+window at start-up for an unreadable preference would stop the user for
+a fault that prevents them from nothing, and before they have asked for anything.
 
-## Les options commentées
+## The commented options
 
-Le fichier réécrit contient **toutes** les options connues, et celles restées à
-leur défaut sont écrites en commentaire :
+The rewritten file contains **all** the known options, and those left at
+their default are written as comments:
 
 ```
 #window.geometry = 0,0,1280,800
@@ -219,58 +217,58 @@ leur défaut sont écrites en commentaire :
 #table.hidden = start,end
 ```
 
-Ce n'est pas une coquetterie. Sans cela, une option jamais touchée resterait
-figée à la valeur du jour où elle a été écrite, et **un défaut qu'on améliore
-n'atteindrait jamais personne**. Avec cela, changer un défaut change le
-comportement de tous ceux qui ne l'ont pas surchargé — ce qui est très
-exactement ce qu'un défaut doit faire.
+It is not an affectation. Without it, an option never touched would stay
+frozen at the value of the day it was written, and **an improved default
+would never reach anyone**. With it, changing a default changes the
+behaviour of everyone who has not overridden it — which is exactly
+what a default must do.
 
-Pour surcharger une option : retirer le `#` et changer la valeur. Pour revenir
-au défaut : effacer la ligne, ou la remettre en commentaire.
+To override an option: remove the `#` and change the value. To go back
+to the default: delete the line, or comment it out again.
 
-La géométrie, les largeurs et les colonnes retirées montrent une **forme** et
-non une valeur en vigueur : le défaut de la géométrie et celui des largeurs sont
-« ce que la fenêtre choisit », qui ne s'écrit pas en nombres, et celui de
-`table.hidden` est « aucune », qui ne se lit pas. L'en-tête du fichier le dit
-aussi. `table.order`, lui, montre bien l'ordre par défaut.
+The geometry, the widths and the removed columns show a **shape** and
+not a value in force: the default of the geometry and that of the widths are
+“what the window chooses”, which is not written in numbers, and that of
+`table.hidden` is “none”, which cannot be read. The file's header says so
+too. `table.order`, for its part, does show the default order.
 
-## Le répertoire retenu
+## The remembered directory
 
-`Open…` s'ouvre sur le répertoire du **dernier fichier ouvert ou enregistré**,
-et non sur celui d'une boîte qu'on a annulée : ce qui compte est là où l'on
-travaille, pas là où l'on a regardé.
+`Open…` opens on the directory of the **last file opened or saved**,
+and not on that of a box you cancelled: what counts is where you
+work, not where you looked.
 
-**Le dernier fichier, lui, n'est pas retenu.** S'en souvenir voudrait dire
-rouvrir au lancement un document que personne n'a demandé. Retenir un répertoire
-*pointe* une boîte de dialogue ; retenir un fichier en ouvrirait un.
+**The last file, for its part, is not remembered.** Remembering it would mean
+reopening at launch a document nobody asked for. Remembering a directory
+*points* a dialog box; remembering a file would open one.
 
-## Le thème
+## The theme
 
-`Edit ▸ Preferences…` ouvre le thème, préférence sans geste, au-dessus des
-[longueurs de lignes](#les-longueurs-de-lignes).
+`Edit ▸ Preferences…` opens with the theme, a preference with no gesture, above the
+[line lengths](#line-lengths).
 
-| Valeur | Ce qu'elle fait |
-| :----- | :-------------- |
-| `System` | **rien** — les couleurs restent celles du bureau |
-| `Light` | pose une palette claire |
-| `Dark` | pose une palette sombre |
+| Value | What it does |
+| :---- | :----------- |
+| `System` | **nothing** — the colours stay those of the desktop |
+| `Light` | sets a light palette |
+| `Dark` | sets a dark palette |
 
-Le thème choisi s'applique **immédiatement**, sans redémarrer.
+The chosen theme applies **immediately**, without restarting.
 
-**« System » ne fait rien, et ce n'est pas un manque.** La version de Qt sur
-laquelle subedit est bâti n'a aucun moyen de demander au bureau s'il se veut
-clair ou sombre, ni d'être prévenue quand il change d'avis. Plutôt que
-d'inventer une lecture qu'on ne sait pas faire, l'outil livre les deux thèmes
-qu'on peut demander et laisse la boîte à outils décider pour le troisième —
-ce que fait Gaupol sous les mêmes conditions.
+**“System” does nothing, and that is not a lack.** The version of Qt on
+which subedit is built has no way to ask the desktop whether it wants to be
+light or dark, nor to be notified when it changes its mind. Rather than
+inventing a reading we do not know how to do, the tool ships the two themes
+that can be asked for and lets the toolkit decide for the third —
+which is what Gaupol does under the same conditions.
 
-Sous un bureau dont le thème est déjà sombre, `System` donne donc une fenêtre
-sombre ; sous un bureau clair, une fenêtre claire. `Light` et `Dark` passent
-outre, quel que soit le bureau.
+Under a desktop whose theme is already dark, `System` therefore gives a dark
+window; under a light desktop, a light window. `Light` and `Dark` override
+it, whatever the desktop.
 
-**Les teintes d'anomalie restent lisibles dans les deux palettes** — voir
-[La table](table.md#les-anomalies). Ce n'est pas une supposition : le contraste
-du texte sur chacune des teintes est vérifié par un test, sur les deux fonds.
+**The anomaly tints stay readable in both palettes** — see
+[The table](table.md#the-anomalies). It is not an assumption: the contrast
+of the text on each of the tints is checked by a test, on both backgrounds.
 
 ## The interface language
 
@@ -309,52 +307,52 @@ subedit-gui: /home/vous/.config/subedit/settings.conf: interface.language: "Fren
 **The command line never reads it**: `subedit-cli` chooses its language from the environment
 alone, and `subedit-cli config set interface.language fr` is refused as a display preference.
 
-## Les longueurs de lignes
+## Line lengths
 
-![Le dialogue des préférences, palette claire : le thème, l'unité des longueurs et
-les deux cases qui les montrent.](captures/preferences.png)
+![The preferences dialog, light palette: the theme, the unit of lengths and
+the two check boxes that show them.](captures/preferences.png)
 
-![Le même dialogue sous la palette sombre.](captures/preferences-sombre.png)
+![The same dialog under the dark palette.](captures/preferences-sombre.png)
 
-`Edit ▸ Preferences…` règle aussi **ce que la table et l'éditeur montrent de la
-longueur des lignes** — la règle et la marge de Gaupol.
+`Edit ▸ Preferences…` also sets **what the table and the editor show of the
+length of lines** — Gaupol's ruler and margin.
 
-| Champ | Ce qu'il fait | Défaut |
-| :---- | :------------ | :----- |
-| `Length unit` | l'unité des longueurs : `Ems` ou `Characters` | `Ems` |
-| `Show line lengths in cells` | chaque ligne d'une cellule de texte est suivie de sa longueur | coché |
-| `Show line lengths in the editor` | l'éditeur d'une cellule montre la longueur de chaque ligne dans une marge à droite | coché |
+| Field | What it does | Default |
+| :---- | :----------- | :------ |
+| `Length unit` | the unit of lengths: `Ems` or `Characters` | `Ems` |
+| `Show line lengths in cells` | each line of a text cell is followed by its length | checked |
+| `Show line lengths in the editor` | a cell's editor shows the length of each line in a margin on the right | checked |
 
-**`Length unit` est grisé quand aucune des deux cases n'est cochée** : sans
-longueur à montrer, l'unité ne règle rien. Le choix s'applique **aussitôt** à la
-table, et les éditeurs qui s'ouvrent ensuite le suivent. Les trois valeurs sont
-retenues d'une session à l'autre : `editor.length-unit`, `editor.show-lengths-cell`
-et `editor.show-lengths-edit`, dans le tableau [du fichier](#le-fichier). Voir
-[La longueur des lignes](table.md#la-longueur-des-lignes) et
-[dans l'éditeur](edition.md#la-longueur-des-lignes).
+**`Length unit` is greyed out when neither check box is checked**: with no
+length to show, the unit sets nothing. The choice applies **at once** to the
+table, and the editors that open afterwards follow it. The three values are
+remembered from one session to the next: `editor.length-unit`, `editor.show-lengths-cell`
+and `editor.show-lengths-edit`, in the table [of the file](#the-file). See
+[The length of lines](table.md#the-length-of-lines) and
+[in the editor](editing.md#the-length-of-lines).
 
-**Ce n'est pas la limite de l'assistant.** L'unité de `Correct Texts…` — la
-longueur à laquelle il coupe les lignes — est un réglage à part, dans son
-assistant : on peut lire des ems dans la table et couper en caractères.
+**It is not the assistant's limit.** The unit of `Correct Texts…` — the
+length at which it breaks lines — is a separate setting, in its
+assistant: you can read ems in the table and break in characters.
 
-## Ce qui ne se règle pas
+## What cannot be set
 
-**Neuf réglages retenus se choisissent dans un dialogue** — sans compter ceux de
-l'assistant de correction et de la vérification orthographique, qui ont chacun le
-leur —, et chacun dans celui où il sert : le thème et les trois réglages des longueurs de lignes, ici ; le côté d'une insertion, dans le dialogue d'insertion ;
-les deux options de la recherche, dans le dialogue de recherche ; l'encodage et
-la marque d'ordre des octets, dans `Save As…` ; la vitesse de lecture, les durées
-et l'écart de l'ajustement des durées, dans son propre dialogue. Il n'y en a pas
-d'autre : rien ne se règle pour les diagnostics, le volume du lecteur,
-ni le format d'enregistrement par défaut — celui-ci vient du fichier ouvert.
+**Nine remembered settings are chosen in a dialog** — not counting those of
+the correction assistant and of the spell check, which each have
+their own —, and each in the one where it is used: the theme and the three line-length settings, here; the side of an insertion, in the insertion dialog;
+the two search options, in the search dialog; the encoding and
+the byte order mark, in `Save As…`; the reading speed, the durations
+and the gap of the duration adjustment, in its own dialog. There is no
+other: nothing can be set for the diagnostics, the player's volume,
+nor the default save format — that one comes from the open file.
 
-Et **aucun nombre qui appartient à un document n'est gardé d'une session à
-l'autre** : une durée de décalage, deux repères de transformation sont vrais d'un
-fichier et faux du suivant. Les dialogues les redemandent à chaque lancement,
-délibérément. Les réglages d'`Adjust Durations…` font exception au même titre que
-les deux options de la recherche : une vitesse de lecture, une durée minimale ou
-un écart sont des choix de méthode plutôt que des mesures d'un fichier, et
-persistent d'une session à l'autre pour cette raison.
+And **no number that belongs to a document is kept from one session to
+the next**: a shift amount, two transformation markers are true of one
+file and false of the next. The dialogs ask for them again at each launch,
+deliberately. The settings of `Adjust Durations…` are an exception in the same way as
+the two search options: a reading speed, a minimum duration or
+a gap are choices of method rather than measurements of a file, and
+persist from one session to the next for that reason.
 
-Ce manuel décrit ce qui existe : ce qui viendra est dans la
-[feuille de route](../../feuille-de-route.md).
+This manual describes what exists: what will come is in the
+[roadmap](../../feuille-de-route.md).

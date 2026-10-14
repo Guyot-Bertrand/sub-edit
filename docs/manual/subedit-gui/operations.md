@@ -1,655 +1,653 @@
-# Les opérations
+# The operations
 
-<!-- language: fr -->
+The **Tools** menu carries sixteen operations, an analysis and two spelling entries. Each of the
+sixteen is undone with a `Ctrl+Z`; the analysis modifies nothing. `Check Spelling…` is undone too, and `Spell-Check Settings…` touches no text.
 
-Le menu **Tools** porte seize opérations, une analyse et deux entrées d'orthographe. Chacune des
-seize s'annule d'un `Ctrl+Z` ; l'analyse ne modifie rien. `Check Spelling…` s'annule aussi, et `Spell-Check Settings…` ne touche à aucun texte.
+| Entry | Dialog | What it does |
+| :---- | :----- | :----------- |
+| `Shift Positions…` | yes | shifts the target by a duration |
+| `Transform Positions…` | yes | corrects the target from two markers |
+| `Convert Frame Rate…` | yes | re-times the target from one frame rate to another |
+| `Adjust Durations…` | yes | moves the ends to hold a reading speed, durations and a gap |
+| `Append File…` | a file chooser | appends a file at the end of the project |
+| `Split Project…` | yes | cuts the project in two, the rest goes into a new tab |
+| `Italic` | **no** | puts the target in italics, or takes it out |
+| `Dialogue` | **no** | puts a dialogue dash at the head of each line, or removes it |
+| `Case ▸ Title Case` | **no** | each word takes a capital |
+| `Case ▸ Sentence case` | **no** | the first letter of the text, and it alone |
+| `Case ▸ UPPER CASE` | **no** | everything in capitals |
+| `Case ▸ lower case` | **no** | everything in lower case |
+| `Remove Hearing-Impaired Mentions…` | yes, without settings | removes hearing-impaired mentions |
+| `Correct Texts…` | yes, a multi-page assistant | proposes corrections — mentions, joining and splitting words, common errors, capitals, line breaking — and applies them once accepted, see [Correct Texts…](correct-texts.md) |
+| `Check Spelling…` | yes, a word-by-word walk | goes through the words unknown to the dictionary and applies what was corrected, see [Check Spelling…](check-spelling.md) |
+| `Spell-Check Settings…` | yes | chooses the language, the target and the document of the check, and the underlining while typing, see [Check Spelling…](check-spelling.md#spell-check-settings) |
+| `Snap to Frame Rate…` | yes | puts each timestamp back on the nearest frame |
+| `Shift Whole File onto Grid (…)` | **no** | brings the whole file back onto its grid |
+| `Frame Rate Analysis…` | yes, without settings | **modifies nothing** — see [The frame grid](frame-grid.md) |
 
-| Entrée | Dialogue | Ce qu'elle fait |
-| :----- | :------- | :-------------- |
-| `Shift Positions…` | oui | décale la cible d'une durée |
-| `Transform Positions…` | oui | corrige la cible à partir de deux repères |
-| `Convert Frame Rate…` | oui | re-cale la cible d'une cadence vers une autre |
-| `Adjust Durations…` | oui | déplace les fins pour tenir une vitesse de lecture, des durées et un écart |
-| `Append File…` | un sélecteur de fichier | ajoute un fichier à la fin du projet |
-| `Split Project…` | oui | coupe le projet en deux, la suite passe dans un nouvel onglet |
-| `Italic` | **non** | met la cible en italique, ou l'en retire |
-| `Dialogue` | **non** | pose un tiret de dialogue en tête de chaque ligne, ou le retire |
-| `Case ▸ Title Case` | **non** | chaque mot prend une capitale |
-| `Case ▸ Sentence case` | **non** | la première lettre du texte, et elle seule |
-| `Case ▸ UPPER CASE` | **non** | tout en capitales |
-| `Case ▸ lower case` | **non** | tout en minuscules |
-| `Remove Hearing-Impaired Mentions…` | oui, sans réglage | retire les mentions pour malentendants |
-| `Correct Texts…` | oui, un assistant à plusieurs pages | propose des corrections — mentions, jonction et scission de mots, erreurs courantes, majuscules, découpage — et les applique une fois acceptées, voir [Correct Texts…](correct-texts.md) |
-| `Check Spelling…` | oui, un parcours mot à mot | parcourt les mots inconnus du dictionnaire et applique ce qu'on a corrigé, voir [Check Spelling…](verifier-orthographe.md) |
-| `Spell-Check Settings…` | oui | choisit la langue, la cible et le document de la vérification, et le soulignement à la frappe, voir [Check Spelling…](verifier-orthographe.md#spell-check-settings) |
-| `Snap to Frame Rate…` | oui | repose chaque horodatage sur l'image la plus proche |
-| `Shift Whole File onto Grid (…)` | **non** | ramène tout le fichier sur sa grille |
-| `Frame Rate Analysis…` | oui, sans réglage | **ne modifie rien** — voir [La grille d'images](grille.md) |
+**What an operation did is said in an information box that must be
+closed, except for `Italic`, `Case` and `Dialogue`**: those three open no
+dialog, and their report — “nothing to change” included — is displayed
+in the status bar, with nothing to close. `Split Project…` also gives its own
+in the status bar: its result is already in front of you, in the new tab. The messages are quoted in the
+section of each operation.
 
-**Ce qu'une opération a fait se dit dans une boîte d'information qu'il faut
-fermer, sauf pour `Italic`, `Case` et `Dialogue`** : ces trois-là n'ouvrent pas
-de dialogue, et leur compte rendu — « nothing to change » compris — s'affiche
-dans la barre d'état, sans rien à fermer. `Split Project…` aussi dit le sien
-dans la barre d'état : son résultat est déjà sous les yeux, dans l'onglet neuf. Les messages sont cités dans la
-section de chaque opération.
+Inserting, removing, merging and splitting lines are not here but in the
+`Edit` menu, because they change the number of lines. See
+[Inserting, removing, merging and splitting lines](lines.md).
 
-Insérer, supprimer, fusionner et scinder des lignes ne sont pas ici mais dans le
-menu `Edit`, parce qu'elles changent le nombre de lignes. Voir
-[Insérer, supprimer, fusionner et scinder des lignes](lignes.md).
+## What they act on
 
-## Sur quoi elles portent
-
-**Les lignes sélectionnées, ou tout le fichier si rien ne l'est.** C'est la même
-règle pour toutes, et les dialogues, quand il y en a un, le rappellent en toutes
-lettres :
+**The selected lines, or the whole file if none is.** It is the same
+rule for all, and the dialogs, when there is one, recall it in plain
+words:
 
 ```
 Applies to: 4 subtitles
 ```
 
-Sélectionner toutes les lignes revient au même que n'en sélectionner aucune.
+Selecting all the lines amounts to the same as selecting none.
 
-**Quand une partie seulement des lignes est sélectionnée, le dialogue demande
-sur quoi porter.** Deux choix s'affichent, avec leur compte, et **la sélection
-est celui qui est coché** :
+**When only part of the lines is selected, the dialog asks
+what to act on.** Two choices are displayed, with their count, and **the selection
+is the one checked**:
 
 ```
 (•) Selected: 2 subtitles
 ( ) Whole project: 4 subtitles
 ```
 
-Cocher `Whole project` élargit l'opération à tout le fichier sans qu'il faille
-d'abord changer la sélection. Quand il n'y a rien à choisir — rien de
-sélectionné, ou tout —, la ligne `Applies to:` ci-dessus reste seule.
+Checking `Whole project` widens the operation to the whole file without first
+having to change the selection. When there is nothing to choose — nothing
+selected, or everything —, the `Applies to:` line above stays alone.
 
-Les dialogues de `Shift Positions…`, `Transform Positions…`, `Convert Frame
-Rate…`, `Adjust Durations…`, `Snap to Frame Rate…` et `Remove Hearing-Impaired
-Mentions…` offrent ce choix.
+The dialogs of `Shift Positions…`, `Transform Positions…`,
+`Convert Frame Rate…`, `Adjust Durations…`, `Snap to Frame Rate…` and
+`Remove Hearing-Impaired Mentions…` offer this choice.
 
-### Voir avant d'appliquer
+### Seeing before applying
 
-`Shift Positions…`, `Transform Positions…`, `Convert Frame Rate…`, `Adjust
-Durations…` et `Snap to Frame Rate…` portent un bouton **`Preview changes…`**.
-Il ouvre une petite fenêtre qui dit combien de sous-titres l'opération
-changerait **avec ce qui est saisi à ce moment-là, sur la cible cochée**, et en
-liste les douze premiers : leur numéro, leur position avant, leur position
-après, et la première ligne de leur texte. **Rien n'est appliqué** : fermer la
-fenêtre ramène au dialogue, où l'on peut changer une valeur et regarder de
-nouveau.
+`Shift Positions…`, `Transform Positions…`, `Convert Frame Rate…`,
+`Adjust Durations…` and `Snap to Frame Rate…` carry a **`Preview changes…`** button.
+It opens a small window that says how many subtitles the operation
+would change **with what is typed at that moment, on the checked target**, and
+lists the first twelve: their number, their position before, their position
+after, and the first line of their text. **Nothing is applied**: closing the
+window goes back to the dialog, where you can change a value and look
+again.
 
-![La fenêtre d'aperçu, palette claire : numéro, position avant, position après
-et début du texte de chaque sous-titre changé.](captures/apercu.png)
+![The preview window, light palette: number, position before, position after
+and start of the text of each changed subtitle.](captures/apercu.png)
 
-![La même fenêtre sous la palette sombre.](captures/apercu-sombre.png)
+![The same window under the dark palette.](captures/apercu-sombre.png)
 
-Elle s'ouvre assez grande pour montrer toutes les colonnes, et se redimensionne
-à la main.
+It opens large enough to show all the columns, and can be resized
+by hand.
 
-Si l'opération ne changerait rien, la fenêtre le dit (`Nothing would change.`).
-Tant que ce qui est saisi ne définit pas d'opération — une durée illisible, deux
-repères sur le même sous-titre —, l'aperçu est vide pour la même raison que le
-bouton `OK` est grisé. `Remove Hearing-Impaired Mentions…` n'a pas d'aperçu : ce
-qu'elle change est du texte, et le compte rendu qu'elle donne après coup le
-dit.
+If the operation would change nothing, the window says so (`Nothing would change.`).
+As long as what is typed does not define an operation — an unreadable duration, two
+markers on the same subtitle —, the preview is empty for the same reason the
+`OK` button is greyed out. `Remove Hearing-Impaired Mentions…` has no preview: what
+it changes is text, and the report it gives afterwards
+says so.
 
-**Avec une traduction, quel texte ?** Les opérations de position et de structure
-portent sur le sous-titre entier — ses deux textes suivent. Celles qui
-réécrivent un texte — `Italic`, `Case`, `Dialogue`, `Remove Hearing-Impaired
-Mentions…` — visent **le texte de la colonne de la cellule courante** : la
-traduction dans sa colonne, le texte principal ailleurs. L'autre reste intact, et
-la barre d'état dit lequel est visé. Voir [La table](table.md#le-texte-que-les-opérations-visent).
+**With a translation, which text?** Position and structure operations
+act on the whole subtitle — its two texts follow. Those that
+rewrite a text — `Italic`, `Case`, `Dialogue`,
+`Remove Hearing-Impaired Mentions…` — target **the text of the column of the current cell**: the
+translation in its column, the main text elsewhere. The other stays intact, and
+the status bar says which one is targeted. See [The table](table.md#the-text-the-operations-target).
 
-**Une exception, et son intitulé la porte** : `Shift Whole File onto Grid`
-ignore la sélection. Une grille est une propriété du document, et une moitié de
-document n'a pas de grille à elle ; l'entrée le dit donc dans son nom plutôt que
-dans ce manuel seul.
+**One exception, and its label carries it**: `Shift Whole File onto Grid`
+ignores the selection. A grid is a property of the document, and half a
+document has no grid of its own; the entry therefore says so in its name rather than
+in this manual alone.
 
-**`Append File…` ignore aussi la sélection**, pour une autre raison : ce n'est
-pas une cible qu'elle réécrit, c'est une fin qu'elle recule. Voir sa
-[propre section](#append-file). **`Split Project…` de même** : elle coupe où on le
-lui dit. Voir [la sienne](#split-project).
+**`Append File…` ignores the selection too**, for another reason: it is
+not a target it rewrites, it is an end it pushes back. See its
+[own section](#append-file). **So does `Split Project…`**: it cuts where it is
+told to. See [its own](#split-project).
 
-**`Correct Texts…` choisit sa cible sur sa propre page**, plutôt que de suivre
-la sélection en cours : la sélection, le projet courant ou tous les projets
-ouverts. Voir [Correct Texts…](correct-texts.md). **`Check Spelling…` la choisit dans
-`Spell-Check Settings…`**, et la retient : voir [Check Spelling…](verifier-orthographe.md).
+**`Correct Texts…` chooses its target on its own page**, rather than following
+the current selection: the selection, the current project or all open
+projects. See [Correct Texts…](correct-texts.md). **`Check Spelling…` chooses it in
+`Spell-Check Settings…`**, and remembers it: see [Check Spelling…](check-spelling.md).
 
-**Les deux opérations de grille ne parlent pas de la même chose que la grille.**
-Une opération porte sur la sélection ; l'analyse et la barre d'état parlent du
-**document entier**. Aligner cinq lignes sur cent soixante-seize change bien ces
-cinq-là — la table le montre — sans que ni l'une ni l'autre ne bouge, ce qui se
-lit comme un rafraîchissement manqué. C'en n'est pas un : elles n'ont rien à
-dire. Voir [`Snap to Frame Rate…`](#snap-to-frame-rate) et
-[La grille d'images](grille.md).
+**The two grid operations do not speak of the same thing as the grid.**
+An operation acts on the selection; the analysis and the status bar speak of the
+**whole document**. Aligning five lines out of a hundred and seventy-six does change those
+five — the table shows it — without either of them moving, which
+reads like a missed refresh. It is not one: they have nothing to
+say. See [`Snap to Frame Rate…`](#snap-to-frame-rate) and
+[The frame grid](frame-grid.md).
 
-### Ce que « rien de sélectionné » veut dire, entrée par entrée
+### What “nothing selected” means, entry by entry
 
-La règle vaut pour le menu `Tools` et pour la recherche. Les entrées du menu
-`Edit` qui touchent aux lignes ou les vident la lisent autrement — sans quoi un
-`Del` ou un `Ctrl+X` malheureux viderait le document.
+The rule applies to the `Tools` menu and to the search. The entries of the
+`Edit` menu that touch the lines or empty them read it differently — otherwise an
+unlucky `Del` or `Ctrl+X` would empty the document.
 
-| Entrée | Sans sélection | Ce qu'elle exige |
-| :----- | :------------- | :--------------- |
-| les opérations du menu `Tools` | tout le fichier | un document non vide |
-| `Shift Whole File onto Grid` | tout le fichier, **toujours** | une grille trouvée |
-| `Find and Replace…` | tout le fichier | un document non vide |
-| `Cut Texts`, `Copy Texts`, `Paste Texts` | **éteintes** | au moins une ligne sélectionnée |
-| `Remove Subtitles` | **éteinte** | au moins une ligne sélectionnée |
-| `Merge Subtitles` | **éteinte** | un bloc d'au moins deux lignes voisines |
-| `Split Subtitle` | **éteinte** | exactement une ligne |
-| `Insert Subtitles…` | éteinte, sauf sur un document vide | une ligne où se situer |
+| Entry | Without a selection | What it requires |
+| :---- | :------------------ | :--------------- |
+| the operations of the `Tools` menu | the whole file | a non-empty document |
+| `Shift Whole File onto Grid` | the whole file, **always** | a grid found |
+| `Find and Replace…` | the whole file | a non-empty document |
+| `Cut Texts`, `Copy Texts`, `Paste Texts` | **disabled** | at least one line selected |
+| `Remove Subtitles` | **disabled** | at least one line selected |
+| `Merge Subtitles` | **disabled** | a block of at least two neighbouring lines |
+| `Split Subtitle` | **disabled** | exactly one line |
+| `Insert Subtitles…` | disabled, except on an empty document | a line to place them against |
 
-Chaque page en donne la raison : [le presse-papiers](presse-papiers.md#sur-quoi-elles-portent),
-[les lignes](lignes.md), [la recherche](recherche.md#sur-quoi-porte-la-recherche).
+Each page gives the reason: [the clipboard](clipboard.md#what-they-act-on),
+[the lines](lines.md), [the search](find-and-replace.md#what-the-search-covers).
 
-Les entrées sont **inactives sur un fichier vide** : il n'y aurait rien à
-décaler. `Italic` a une seconde condition, que sa section décrit : le format
-ouvert doit savoir écrire un style. La casse et les tirets n'en ont pas — un
-texte est un texte dans les neuf formats.
+The entries are **disabled on an empty file**: there would be nothing to
+shift. `Italic` has a second condition, which its section describes: the open
+format must be able to write a style. Case and dashes have none — a
+text is a text in all nine formats.
 
 ## `Shift Positions…`
 
-Déplace la cible d'une durée, vers l'avant ou vers l'arrière. Les deux bornes de
-chaque sous-titre bougent d'autant : aucun ne reste à l'écran plus ou moins
-longtemps qu'avant.
+Moves the target by a duration, forwards or backwards. Both bounds of
+each subtitle move by the same amount: none stays on screen longer or shorter
+than before.
 
-La durée s'écrit **comme un horodatage, signe compris** — `00:00:02,500` avance,
-`-0:01,250` recule. Les formes acceptées sont celles d'une cellule de position.
+The duration is written **like a timestamp, sign included** — `00:00:02,500` moves forward,
+`-0:01,250` moves back. The accepted forms are those of a position cell.
 
-![Le dialogue de décalage, palette claire, avec trois lignes sélectionnées sur
-neuf cent quatre-vingts : la durée à appliquer, le choix de la cible, et le
-bouton d'aperçu.](captures/decalage.png)
+![The shift dialog, light palette, with three lines selected out of
+nine hundred and eighty: the duration to apply, the choice of target, and the
+preview button.](captures/decalage.png)
 
-![Le même dialogue sous la palette sombre.](captures/decalage-sombre.png)
+![The same dialog under the dark palette.](captures/decalage-sombre.png)
 
-| Refus | Pourquoi |
-| :---- | :------- |
-| une durée illisible | le bouton reste inactif ; rien n'est décalé au hasard |
-| un décalage de zéro | il n'y a pas d'opération à enregistrer |
-| un sous-titre passerait avant le début de la vidéo | **aucun fichier ne peut porter une telle position** |
+| Refusal | Why |
+| :------ | :-- |
+| an unreadable duration | the button stays disabled; nothing is shifted at random |
+| a shift of zero | there is no operation to record |
+| a subtitle would go before the start of the video | **no file can carry such a position** |
 
-Le troisième cas nomme le fautif — « subtitle 1 would start before the origin » —
-et c'est celui qu'il faut regarder pour voir de combien on s'est trompé. Rien
-n'est appliqué.
+The third case names the culprit — “subtitle 1 would start before the origin” —
+and it is the one to look at to see by how much you were wrong. Nothing
+is applied.
 
 ## `Transform Positions…`
 
-La correction d'un fichier calé sur un autre montage. On dit où **deux**
-sous-titres commencent réellement, et tout le reste suit, proportionnellement.
+The correction of a file timed against another cut. You say where **two**
+subtitles really start, and everything else follows, proportionally.
 
-Le dialogue demande deux fois la même chose : un numéro de sous-titre, et la
-position où son début appartient. Pour chaque repère, il montre **ce que ce
-numéro désigne** — son texte (`Text`) et l'heure à laquelle il commence
-**maintenant** (`Now starts`), en simples étiquettes — et ils suivent le numéro
-à mesure qu'on le change. **Un seul champ est à saisir par repère : `Should
-start`**, l'heure où ce sous-titre doit commencer. Il n'y a pas à chercher dans le tableau quelle ligne est la `980`.
+The dialog asks twice for the same thing: a subtitle number, and the
+position where its start belongs. For each marker, it shows **what that
+number designates** — its text (`Text`) and the time at which it starts
+**now** (`Now starts`), as plain labels — and they follow the number
+as you change it. **A single field is to be typed per marker:
+`Should start`**, the time at which this subtitle must start. There is no need to search the table for which line is `980`.
 
-`Should start` est **proposé à la valeur actuelle** : tant qu'on n'y
-touche pas, le repère dit « ce sous-titre est déjà où il doit être ». On ne
-change que ce qu'on veut changer. Le second repère est pré-rempli sur le dernier
-sous-titre du fichier — deux repères éloignés donnent une correction plus sûre
-que deux repères voisins.
+`Should start` is **proposed at the current value**: as long as you do not
+touch it, the marker says “this subtitle is already where it must be”. You only
+change what you want to change. The second marker is pre-filled on the last
+subtitle of the file — two distant markers give a safer correction
+than two neighbouring ones.
 
-![Le dialogue de transformation, palette claire : pour chaque repère, le
-numéro, le texte, l'heure actuelle et l'heure à saisir du
-sous-titre.](captures/transformation.png)
+![The transformation dialog, light palette: for each marker, the
+number, the text, the current time and the time to type of the
+subtitle.](captures/transformation.png)
 
-![Le même dialogue sous la palette sombre.](captures/transformation-sombre.png)
+![The same dialog under the dark palette.](captures/transformation-sombre.png)
 
-**Les deux repères atterrissent exactement où on les a demandés.** Ce n'est pas
-une approximation : le calcul est fait pour que ce soit vrai.
+**Both markers land exactly where they were asked.** It is not
+an approximation: the computation is made so that it is true.
 
-| Refus | Pourquoi |
-| :---- | :------- |
-| deux repères sur le même sous-titre | ils ne définissent aucune correction |
-| une position illisible | même raison que pour le décalage |
+| Refusal | Why |
+| :------ | :-- |
+| two markers on the same subtitle | they define no correction |
+| an unreadable position | same reason as for the shift |
 
-Un numéro hors du fichier ne peut pas être saisi : le champ est borné par le
-nombre de sous-titres.
+A number outside the file cannot be typed: the field is bounded by the
+number of subtitles.
 
 ## `Convert Frame Rate…`
 
-Re-cale la cible quand les positions ont été calculées contre une fréquence
-d'images et doivent l'être contre une autre.
+Re-times the target when the positions were computed against one frame
+rate and must be against another.
 
-Les deux listes offrent les huit fréquences normalisées.
+Both lists offer the eight standard frame rates.
 
-> **Se tromper de fréquence d'entrée décale tout le fichier sans rien
-> signaler.** C'est le pire mode d'échec de cette opération, et c'est pourquoi
-> le dialogue dit d'où viennent les valeurs qu'il propose plutôt que de les
-> poser en silence.
+> **Getting the input frame rate wrong shifts the whole file without reporting
+> anything.** It is the worst failure mode of this operation, and that is why
+> the dialog says where the values it proposes come from rather than
+> setting them silently.
 
-### Les deux sources, et ce qu'elles répondent
+### The two sources, and what they answer
 
-Le dialogue porte jusqu'à deux lignes de plus, chacune apparaissant quand elle a
-quelque chose à dire :
+The dialog carries up to two more lines, each appearing when it has
+something to say:
 
-| Ligne | Ce qu'elle dit | Ce qu'elle pré-remplit |
-| :---- | :------------- | :--------------------- |
-| `The positions say` | la [grille d'images](grille.md) déduite des positions du fichier | `Timed against` |
-| `The video declares` | la fréquence que le conteneur annonce, par exemple `24000/1001` | `Should play at` |
-| `The file was read at` | la fréquence à laquelle un fichier **compté en images** a été lu | `Timed against` |
+| Line | What it says | What it pre-fills |
+| :--- | :----------- | :---------------- |
+| `The positions say` | the [frame grid](frame-grid.md) deduced from the file's positions | `Timed against` |
+| `The video declares` | the frame rate the container announces, for example `24000/1001` | `Should play at` |
+| `The file was read at` | the frame rate at which a file **counted in frames** was read | `Timed against` |
 
-**Chaque proposition va au champ auquel elle répond.** La grille dit sur quoi le
-fichier a été *écrit* — c'est la liste du haut. Ce que le conteneur annonce est
-la cadence à laquelle le film *tourne*, donc celle à laquelle les sous-titres
-doivent arriver — c'est la liste du bas.
+**Each proposal goes to the field it answers.** The grid says what the
+file was *written* against — that is the top list. What the container announces is
+the frame rate at which the film *runs*, and so the one at which the subtitles
+must arrive — that is the bottom list.
 
-**Seule une grille nette pré-remplit l'entrée.** Une grille partielle est un
-indice que la déduction elle-même qualifie de partiel, et ce champ décide d'une
-opération sur le fichier entier. La [barre d'état](grille.md) et l'analyse
-portent ce cas-là ; celui-ci non.
+**Only a clean grid pre-fills the input.** A partial grid is a
+clue the deduction itself qualifies as partial, and this field decides an
+operation on the whole file. The [status bar](frame-grid.md) and the analysis
+carry that case; this one does not.
 
-**Un fichier compté en images remplace la grille plutôt que de s'y ajouter.**
-MicroDVD porte des numéros d'image, et les positions du document en ont été
-calculées à la fréquence de lecture : une grille déduite de ces positions-là ne
-peut que retrouver ce nombre. `The positions say` disparaît donc, et
-`The file was read at` prend sa place — c'est le même choix que fait
-[la barre d'état](grille.md#un-document-compté-en-images-na-pas-de-grille-il-a-une-fréquence).
+**A file counted in frames replaces the grid rather than adding to it.**
+MicroDVD carries frame numbers, and the document's positions were
+computed from them at the reading frame rate: a grid deduced from those positions
+can only find that number again. `The positions say` therefore disappears, and
+`The file was read at` takes its place — it is the same choice
+[the status bar](frame-grid.md#a-document-counted-in-frames-has-no-grid-it-has-a-frame-rate) makes.
 
-**C'est ainsi qu'on change la fréquence d'un MicroDVD.** Poser la fréquence lue
-en entrée et la vraie en sortie recalcule chaque position à partir des images du
-fichier — sans relire quoi que ce soit, et l'opération s'annule comme les
-autres.
+**That is how you change the frame rate of a MicroDVD.** Setting the frame rate read
+as input and the true one as output recomputes each position from the file's
+frames — without reading anything again, and the operation is undone like the
+others.
 
-### Un désaccord n'est pas une contradiction
+### A disagreement is not a contradiction
 
-Les deux lignes peuvent s'afficher ensemble et annoncer des nombres différents.
-**Ce n'est pas une erreur à arbitrer** : le film tourne à une cadence, le
-fichier a été écrit sur une autre grille. Un fichier à 24 pour un film à 25 est
-exactement le cas que l'alignement — `snap` en ligne de commande — existe pour
-traiter.
+Both lines can be displayed together and announce different numbers.
+**It is not an error to arbitrate**: the film runs at one frame rate, the
+file was written on another grid. A file at 24 for a film at 25 is
+exactly the case alignment — `snap` on the command line — exists to
+handle.
 
-Rien n'est donc choisi à la place de l'utilisateur : les deux listes restent
-modifiables, et c'est délibéré. Une source qui s'impose interdit de croiser.
+Nothing is therefore chosen in the user's place: both lists stay
+editable, and that is deliberate. A source that imposes itself forbids cross-checking.
 
-Les lignes n'apparaissent pas quand il n'y a rien à dire : aucune vidéo
-associée, pas de `ffprobe`, ou aucune grille nette. Le dialogue est alors celui
-décrit plus haut, et **aucune opération ne se refuse pour autant** — la
-fréquence vient de l'utilisateur. Voir
-[La vidéo associée](video.md#ffmpeg-nest-pas-requis).
+The lines do not appear when there is nothing to say: no video
+associated, no `ffprobe`, or no clean grid. The dialog is then the one
+described above, and **no operation refuses for all that** — the
+frame rate comes from the user. See
+[The associated video](video.md#ffmpeg-is-not-required).
 
-Une fréquence que le film annonce mais qui n'est pas l'une des huit normalisées
-est **affichée sans être choisie** : savoir que le film tourne à une cadence
-inhabituelle est l'information, et il n'y a rien à quoi la convertir ici.
+A frame rate the film announces but that is not one of the eight standard ones
+is **displayed without being chosen**: knowing the film runs at an
+unusual frame rate is the information, and there is nothing to convert it to here.
 
-Convertir une fréquence en elle-même ne change rien : le bouton reste inactif.
+Converting a frame rate into itself changes nothing: the button stays disabled.
 
 ## `Adjust Durations…`
 
-Allonge ou raccourcit la durée des sous-titres de la cible **en déplaçant leur
-fin, jamais leur début**. Déplacer le début déplacerait le sous-titre, ce qui est
-le travail de [`Shift Positions…`](#shift-positions).
+Lengthens or shortens the duration of the target's subtitles **by moving their
+end, never their start**. Moving the start would move the subtitle, which is
+the job of [`Shift Positions…`](#shift-positions).
 
-![Le dialogue d'ajustement des durées, sur ses valeurs par défaut.](captures/ajustement.png)
+![The duration adjustment dialog, on its default values.](captures/ajustement.png)
 
-![Le même dialogue sous la palette sombre.](captures/ajustement-sombre.png)
+![The same dialog under the dark palette.](captures/ajustement-sombre.png)
 
-### Les quatre contraintes
+### The four constraints
 
-| Champ | Ce qu'il demande | Valeurs | Défaut |
-| :---- | :--------------- | :------ | :----- |
-| `Reading speed` | le temps qu'il faut pour lire le texte | de 1 à 99 caractères par seconde, au dixième | 15 car/s |
-| `Lengthen durations to match it` | allonger ce qui est trop court pour être lu | coché ou non | coché |
-| `Shorten durations to match it` | raccourcir ce qui reste affiché plus que nécessaire | coché ou non | non coché |
-| `Minimum duration` | une durée plancher | de 0 à 99 s, à la milliseconde | coché, 1,5 s |
-| `Maximum duration` | une durée plafond | de 0 à 99 s, à la milliseconde | non coché, 6 s |
-| `Gap between subtitles` | l'écart à laisser avant le sous-titre suivant | de 0 à 99 s, à la milliseconde | coché, 0 s |
+| Field | What it asks for | Values | Default |
+| :---- | :--------------- | :----- | :------ |
+| `Reading speed` | the time needed to read the text | from 1 to 99 characters per second, to the tenth | 15 char/s |
+| `Lengthen durations to match it` | lengthen what is too short to be read | checked or not | checked |
+| `Shorten durations to match it` | shorten what stays displayed longer than needed | checked or not | unchecked |
+| `Minimum duration` | a floor duration | from 0 to 99 s, to the millisecond | checked, 1.5 s |
+| `Maximum duration` | a ceiling duration | from 0 to 99 s, to the millisecond | unchecked, 6 s |
+| `Gap between subtitles` | the gap to leave before the next subtitle | from 0 to 99 s, to the millisecond | checked, 0 s |
 
-Ce sont les valeurs par défaut de Gaupol.
+These are Gaupol's default values.
 
-**Une contrainte décochée est absente** : son champ se grise et n'est pas lu.
-Une contrainte cochée à zéro vaut zéro — un écart de 0 s interdit à un
-sous-titre de chevaucher le suivant. La vitesse de lecture n'est lue que si
-`Lengthen` ou `Shorten` est coché.
+**An unchecked constraint is absent**: its field is greyed out and not read.
+A constraint checked at zero is worth zero — a gap of 0 s forbids a
+subtitle from overlapping the next one. The reading speed is read only if
+`Lengthen` or `Shorten` is checked.
 
-**Quand tout est décoché, `OK` est éteint** : il n'y a rien à demander.
+**When everything is unchecked, `OK` is disabled**: there is nothing to ask for.
 
-Le dialogue rouvre sur les valeurs du dernier ajustement, **et les garde d'une
-session à l'autre** — comme les deux options de la recherche. **Une case décochée
-garde sa valeur** : décocher `Minimum duration` après avoir posé 2 s ne remet pas
-1,5 s, et la recocher retrouve 2 s. Les neuf réglages sont dans le
-[fichier de préférences](preferences.md#le-fichier), sous `duration-adjust.`.
+The dialog reopens on the values of the last adjustment, **and keeps them from one
+session to the next** — like the two search options. **An unchecked box
+keeps its value**: unchecking `Minimum duration` after setting 2 s does not bring back
+1.5 s, and checking it again finds 2 s. The nine settings are in the
+[preferences file](preferences.md#the-file), under `duration-adjust.`.
 
 **The command line shares them.** [`subedit-cli adjust`](../subedit-cli/adjust.md) reads the
 same nine settings by default, so a speed set here is the speed it uses, unless its own options
 say otherwise; [`subedit-cli config`](../subedit-cli/config.md) shows and changes them. See
 [Two blocks, one shared with the command line](preferences.md#two-blocks-one-shared-with-the-command-line).
 
-### Dans quel ordre, et laquelle gagne
+### In what order, and which one wins
 
-Chaque sous-titre de la cible passe les quatre contraintes **dans cet ordre**, et
-chacune pose la fin à son tour :
+Each subtitle of the target goes through the four constraints **in this order**, and
+each sets the end in turn:
 
-| Rang | Contrainte | Ce qu'elle pose |
-| ---: | :--------- | :-------------- |
-| 1 | vitesse de lecture | `fin = début + longueur ÷ vitesse`, si le sous-titre est trop court (`Lengthen`) ou trop long (`Shorten`) |
-| 2 | durée minimale | `fin = début + minimum`, si la durée est plus courte |
-| 3 | durée maximale | `fin = début + maximum`, si la durée est plus longue |
-| 4 | écart | `fin = début du suivant − écart`, si la fin en est trop près — jamais avant le début |
+| Rank | Constraint | What it sets |
+| ---: | :--------- | :----------- |
+| 1 | reading speed | `end = start + length ÷ speed`, if the subtitle is too short (`Lengthen`) or too long (`Shorten`) |
+| 2 | minimum duration | `end = start + minimum`, if the duration is shorter |
+| 3 | maximum duration | `end = start + maximum`, if the duration is longer |
+| 4 | gap | `end = next start − gap`, if the end is too close to it — never before the start |
 
-**La dernière appliquée gagne.** L'écart vient en dernier et peut ramener une
-durée sous le minimum qu'on venait de poser : deux sous-titres à l'écran en même
-temps sont un défaut que le spectateur voit, un sous-titre un peu court ne l'est
-pas.
+**The last one applied wins.** The gap comes last and can bring a
+duration back below the minimum just set: two subtitles on screen at the same
+time are a fault the viewer sees, a slightly short subtitle is
+not.
 
-**La longueur du texte se compte hors balises**, en caractères, sauts de ligne
-compris : `<i>été</i>` compte trois caractères. La vitesse de lecture parle de
-ce que le spectateur lit.
+**The length of the text is counted without tags**, in characters, line breaks
+included: `<i>été</i>` counts three characters. The reading speed speaks of
+what the viewer reads.
 
-**Le suivant est le sous-titre suivant du fichier**, qu'il soit dans la cible ou
-non. **Le dernier sous-titre du fichier n'a pas de suivant** : l'écart ne le
-contraint pas.
+**The next one is the next subtitle of the file**, whether it is in the target or
+not. **The last subtitle of the file has no next one**: the gap does not
+constrain it.
 
-### Ce qu'aucune fin ne peut satisfaire est dit
+### What no end can satisfy is said
 
-Une fois l'ajustement fait, la fenêtre dit combien de fins ont bougé, et **ce
-qui n'a pas pu être tenu** — une contrainte n'apparaît que si elle a été
-sacrifiée pour au moins un sous-titre :
+Once the adjustment is done, the window says how many ends moved, and **what
+could not be held** — a constraint appears only if it was
+sacrificed for at least one subtitle:
 
 ```text
 adjusted the durations of 12 subtitles; could not satisfy the reading speed in 9 subtitles, the minimum duration in 4 subtitles
 ```
 
-Les trois mentions possibles sont `the reading speed`, `the minimum duration` et
-`the gap`. **La durée maximale est toujours tenue** : elle vient après la vitesse
-et le minimum, et seul l'écart la suit, qui ne peut que raccourcir. Un minimum
-plus grand que le maximum lui cède, et c'est le minimum qui est compté. L'écart
-ne se sacrifie que lorsque le suivant commence avant le début du sous-titre
-lui-même.
+The three possible mentions are `the reading speed`, `the minimum duration` and
+`the gap`. **The maximum duration is always held**: it comes after the speed
+and the minimum, and only the gap follows it, which can only shorten. A minimum
+larger than the maximum yields to it, and it is the minimum that is counted. The gap
+is sacrificed only when the next one starts before the start of the subtitle
+itself.
 
-Le compte porte sur toute la cible, **y compris les sous-titres dont la fin n'a
-pas bougé** : un sous-titre déjà calé contre son suivant et trop court pour le
-minimum est compté. Quand aucune fin ne bouge, la fenêtre le dit —
-`no duration to adjust` — et rien n'entre dans l'historique.
+The count covers the whole target, **including the subtitles whose end did
+not move**: a subtitle already set against its next one and too short for the
+minimum is counted. When no end moves, the window says so —
+`no duration to adjust` — and nothing enters the history.
 
 ## `Append File…`
 
-Ajoute un fichier à la fin du projet ouvert. **Rien n'est inséré entre les
-deux** : le fichier choisi est décalé de la fin du dernier sous-titre du
-projet, exactement comme Gaupol le fait.
+Appends a file at the end of the open project. **Nothing is inserted between the
+two**: the chosen file is shifted by the end of the last subtitle of the
+project, exactly as Gaupol does.
 
-**Éteinte sur un document vide** : il n'y aurait pas de fin dont décaler. Un
-sélecteur de fichier s'ouvre, sans encodage à choisir — comme `Open…`.
+**Disabled on an empty document**: there would be no end to shift from. A
+file chooser opens, with no encoding to choose — like `Open…`.
 
-**Le fichier ajouté traverse la conversion**, dans les mots de `Save As…` et du
-[collage d'un autre format](presse-papiers.md#les-balises-dun-autre-format-sont-traduites) :
-ses balises sont traduites dans le format du projet, et ce que ce format ne
-sait pas écrire est dit :
+**The appended file goes through conversion**, in the words of `Save As…` and of
+[pasting from another format](clipboard.md#tags-of-another-format-are-translated):
+its tags are translated into the project's format, and what that format cannot
+write is said:
 
 ```text
 appended 12 subtitles; Advanced SSA into SubRip: 1 tag dropped
 ```
 
-**Ce que le fichier ajouté portait ne survit pas tout entier.** Ses positions
-suivent, tags compris ; son en-tête, ses champs propres au format — nom de
-style, marges — et ce qu'un tag ne peut pas devenir dans le format du projet ne
-suivent pas, et le disent. **Il n'a pas de traduction** : une traduction reste
-propre au document qui l'a reçue, et le fichier ajouté arrive seul.
+**What the appended file carried does not survive whole.** Its positions
+follow, tags included; its header, its format-specific fields — style
+name, margins — and what a tag cannot become in the project's format do
+not follow, and say so. **It has no translation**: a translation stays
+specific to the document that received it, and the appended file arrives alone.
 
-**Sélectionné après coup**, comme les lignes qu'un collage a écrites au-delà de
-la fin. Quand rien n'est perdu, le compte s'affiche dans la barre d'état plutôt
-que dans une boîte à fermer — la même règle que
-[l'ouverture d'une traduction](fichiers.md#ouvrir-une-traduction).
+**Selected afterwards**, like the lines a paste wrote beyond
+the end. When nothing is lost, the count is displayed in the status bar rather
+than in a box to close — the same rule as
+[opening a translation](files.md#opening-a-translation).
 
-**Une seule entrée d'historique**, quel que soit le nombre de sous-titres
-ajoutés : `Ctrl+Z` les retire tous d'un coup.
+**A single history entry**, whatever the number of subtitles
+appended: `Ctrl+Z` removes them all at once.
 
-**Un fichier déjà ouvert peut s'ajouter à lui-même** : rien ne l'interdit, comme
-chez Gaupol.
+**A file already open can be appended to itself**: nothing forbids it, as
+in Gaupol.
 
-**En ligne de commande**, [`append`](../subedit-cli/append.md) fait la même chose pour plusieurs fichiers à
-la fois, dans un seul résultat.
+**On the command line**, [`append`](../subedit-cli/append.md) does the same thing for several files at
+once, in a single result.
 
 ## `Split Project…`
 
-Coupe le projet en deux : **l'inverse exact de `Append File…`**. Une boîte
-demande à partir de quel sous-titre couper — du deuxième au dernier, numérotés
-comme dans la table — et s'ouvre sur la ligne courante.
+Cuts the project in two: **the exact inverse of `Append File…`**. A box
+asks from which subtitle to cut — from the second to the last, numbered
+as in the table — and opens on the current line.
 
-**La table montre où l'on coupe avant qu'on coupe** : chaque numéro que prend
-la boîte sélectionne sa ligne. `Cancel` rend la sélection d'avant.
+**The table shows where you cut before you cut**: each number the
+box takes selects its line. `Cancel` gives back the previous selection.
 
-![La boîte de `Split Project…`, palette claire.](captures/scinder.png)
+![The `Split Project…` box, light palette.](captures/scinder.png)
 
-![La même boîte sous la palette sombre.](captures/scinder-sombre.png)
+![The same box under the dark palette.](captures/scinder-sombre.png)
 
-**Éteinte sous deux sous-titres** : une coupure veut un sous-titre de chaque
-côté.
+**Disabled under two subtitles**: a cut wants a subtitle on each
+side.
 
-**La suite est copiée dans un projet neuf, ouvert dans un nouvel onglet, et
-retirée du projet d'origine.** Le projet neuf est **décalé de moins la fin du
-dernier sous-titre resté** : scinder puis ajouter rend le projet de départ.
-Ses deux textes, principal et traduction, suivent leurs sous-titres, et il
-garde le format et l'encodage de l'origine — **sans chemin** : aucun fichier ne
-le tient encore. Son onglet s'écrit donc `untitled*` dès sa naissance, et le
-fermer sans l'enregistrer pose la question qu'on pose pour tout ce qui n'est
-pas écrit.
+**The rest is copied into a new project, opened in a new tab, and
+removed from the original project.** The new project is **shifted by minus the end of the
+last subtitle that stayed**: splitting then appending gives back the starting project.
+Its two texts, main and translation, follow their subtitles, and it
+keeps the format and encoding of the original — **without a path**: no file
+holds it yet. Its tab is therefore written `untitled*` from its birth, and
+closing it without saving asks the question asked for everything that is not
+written.
 
-**La barre d'état dit combien de sous-titres sont partis**, sans boîte à
-fermer — l'onglet neuf montre déjà le résultat :
+**The status bar says how many subtitles left**, with no box to
+close — the new tab already shows the result:
 
 ```text
 split 12 subtitles into a new project
 ```
 
-**Une seule entrée d'historique**, dans le projet d'origine :
-`Undo: splitting the project` lui rend sa suite. Le projet neuf a un historique
-à lui, vide ; l'annulation n'y touche pas, et il reste ouvert.
+**A single history entry**, in the original project:
+`Undo: splitting the project` gives it back its rest. The new project has a history
+of its own, empty; undoing does not touch it, and it stays open.
 
-**Refusée quand aucun fichier ne saurait écrire le résultat.** Si les deux
-moitiés se chevauchent à la coupure, le décalage porterait un sous-titre avant
-le début de la vidéo — une position négative, qu'aucun format n'écrit. La boîte
-qui refuse **nomme le sous-titre** et propose de couper ailleurs :
+**Refused when no file could write the result.** If the two
+halves overlap at the cut, the shift would bring a subtitle before
+the start of the video — a negative position, which no format writes. The box
+that refuses **names the subtitle** and suggests cutting elsewhere:
 
 ```text
 Cannot split at subtitle 3: subtitle 3 would fall before the start of the video. Cut somewhere else.
 ```
 
-Arriver exactement au début est permis : zéro est une position.
+Arriving exactly at the start is allowed: zero is a position.
 
-**En ligne de commande**, [`split-file`](../subedit-cli/split-file.md) coupe un fichier de la même façon, en deux
-fichiers nommés.
+**On the command line**, [`split-file`](../subedit-cli/split-file.md) cuts a file the same way, into two
+named files.
 
 ## `Snap to Frame Rate…`
 
-Pose **chaque horodatage** — début et fin — sur l'image la plus proche de la
-cadence choisie. Une seule liste, et c'est toute la différence avec la
-conversion : une conversion a besoin de deux cadences parce qu'elle met le
-fichier à l'échelle de l'une vers l'autre ; un alignement n'a besoin que de la
-grille sur laquelle atterrir.
+Puts **each timestamp** — start and end — on the nearest frame of the
+chosen frame rate. A single list, and that is the whole difference with
+conversion: a conversion needs two frame rates because it scales the
+file from one to the other; an alignment only needs the
+grid to land on.
 
 | | `Convert Frame Rate…` | `Snap to Frame Rate…` |
 | :--- | :-------------------- | :-------------------- |
-| déplacement | proportionnel au temps — **plusieurs secondes** sur un long métrage | une demi-image au plus, **partout** |
-| pour quel fichier | un fichier dont le **minutage est faux** | un fichier dont le minutage est **juste** et dont la grille est fausse |
+| movement | proportional to time — **several seconds** over a feature film | half a frame at most, **everywhere** |
+| for which file | a file whose **timing is wrong** | a file whose timing is **right** and whose grid is wrong |
 
-**Le cas d'usage**, en toutes lettres : un film à 25 images par seconde, des
-sous-titres écrits sur une grille à 24, des répliques déjà à peu près à leur
-place à quelques millisecondes près. Il n'y a rien à re-miner — seulement à
-reposer les horodatages sur les bonnes images.
+**The use case**, spelled out: a film at 25 frames per second,
+subtitles written on a grid at 24, lines already roughly in their
+place to within a few milliseconds. There is nothing to re-time — only to
+put the timestamps back on the right frames.
 
-La liste **s'ouvre sur ce que la vidéo déclare**, et non sur ce que les
-positions disent : l'intention est de rejoindre la grille du film, et la
-déduction nomme celle qu'on quitte. Sans vidéo ou sans `ffprobe`, elle s'ouvre
-sur la cadence du projet.
+The list **opens on what the video declares**, and not on what the
+positions say: the intent is to join the film's grid, and the
+deduction names the one being left. Without a video or without `ffprobe`, it opens
+on the project's frame rate.
 
-Aligner un fichier sur la grille qu'il occupe déjà ne le change pas, et ce n'est
-pas une erreur : l'opération s'applique, ne déplace rien, et s'annule comme
-n'importe quelle autre.
+Aligning a file on the grid it already occupies does not change it, and it is not
+an error: the operation applies, moves nothing, and is undone like
+any other.
 
-**Aligner une partie du fichier le dit, une fois fait.** Une notice s'affiche
-quand la sélection ne couvre pas tout et que le document reste lu sur une autre
-grille :
+**Aligning part of the file says so, once done.** A notice is displayed
+when the selection does not cover everything and the document is still read on another
+grid:
 
 ```
 5 of 176 subtitles aligned to 25 fps; the document is still read on a 24 fps grid
 ```
 
-Elle relie le geste à son effet, et elle explique pourquoi la barre d'état et
-l'analyse n'ont pas bougé : elles parlent du document, l'opération portait sur
-cinq lignes. Rien n'est empêché — aligner une partie d'un fichier peut se
-vouloir.
+It links the gesture to its effect, and it explains why the status bar and
+the analysis did not move: they speak of the document, the operation acted on
+five lines. Nothing is prevented — aligning part of a file can be
+intended.
 
-**C'est presque toujours involontaire, et c'est mesuré.** Sur les huit fichiers
-de grille du dépôt, aligner tout le fichier porte la cadence déduite sur la
-cible et sa concentration à 100 % ; aligner cinq lignes ne déplace jamais la
-cadence déduite et **abaisse** la concentration dans sept cas sur huit — les
-lignes alignées ont quitté la grille où le reste du fichier vit. Le huitième est
-50 vers 25, où la grille visée divise celle du fichier et où les positions y
-étaient déjà.
+**It is almost always unintended, and that is measured.** Over the eight grid
+files of the repository, aligning the whole file brings the deduced frame rate to the
+target and its concentration to 100 %; aligning five lines never moves the
+deduced frame rate and **lowers** the concentration in seven cases out of eight — the
+aligned lines have left the grid the rest of the file lives on. The eighth is
+50 to 25, where the target grid divides the file's and where the positions were
+already on it.
 
-La notice ne s'affiche pas quand la sélection couvre tout le fichier, quand
-aucune grille n'est déduite, ou quand le document se lit désormais sur la
-cadence demandée — c'est alors que l'alignement a fait ce qu'on lui demandait.
+The notice is not displayed when the selection covers the whole file, when
+no grid is deduced, or when the document is now read on the
+requested frame rate — that is when the alignment did what it was asked.
 
 ## `Shift Whole File onto Grid`
 
-Décale **tout le fichier** de la quantité qui remet ses positions sur la grille
-qu'elles ont quittée. Un fichier dont les positions sont sur une grille à une
-constante près a été décalé, et cette constante se mesure.
+Shifts **the whole file** by the amount that puts its positions back on the grid
+they left. A file whose positions are on a grid up to a
+constant has been shifted, and that constant can be measured.
 
-**L'entrée de menu porte le montant et la portée** —
-`Shift Whole File onto Grid (+0.001 s)`. Il n'y a pas de dialogue :
-l'opération ne prend aucune option, et une entrée qui va déplacer un fichier
-entier doit dire de combien, et qu'elle le fera en entier, avant d'être choisie.
-C'est la seule opération du menu qui ignore la sélection.
+**The menu entry carries the amount and the scope** —
+`Shift Whole File onto Grid (+0.001 s)`. There is no dialog:
+the operation takes no option, and an entry that is going to move a whole
+file must say by how much, and that it will do so in full, before being chosen.
+It is the only operation of the menu that ignores the selection.
 
-**Elle s'éteint quand aucune grille n'a été trouvée.** Il n'y a alors rien à
-rejoindre, et une phase mesurée sur du bruit déplacerait le fichier au hasard.
-« Rien à rejoindre » et « rejoindre de zéro » ne disent pas la même chose : le
-second reste proposé, parce qu'un fichier déjà sur sa grille en est un cas
-normal.
+**It is disabled when no grid has been found.** There is then nothing to
+join, and a phase measured on noise would move the file at random.
+“Nothing to join” and “join by zero” do not say the same thing: the
+second stays offered, because a file already on its grid is a
+normal case of it.
 
-**Ce n'est pas `Snap to Frame Rate…`.** Cette entrée-ci décale tout d'une même quantité
-et préserve **exactement** le minutage relatif ; l'alignement déplace chaque
-position indépendamment et absorbe au passage celles qui avaient été corrigées à
-la main. Sur un fichier propre les deux donnent le même résultat ; sur un
-fichier partiel, non — et le [détail de l'analyse](grille.md) dit lequel des
-deux on a sous les yeux.
+**This is not `Snap to Frame Rate…`.** This entry shifts everything by the same amount
+and preserves the relative timing **exactly**; alignment moves each
+position independently and absorbs in passing those that had been corrected by
+hand. On a clean file both give the same result; on a
+partial file, not — and the [detail of the analysis](frame-grid.md) says which of the
+two you have in front of you.
 
 ## `Italic`
 
-Met la cible en italique en écrivant les balises du **format ouvert**, ou les
-retire si elle y est déjà. Pas de dialogue : l'opération n'a pas de réglage, et
-elle s'annule d'un `Ctrl+Z` comme les autres.
+Puts the target in italics by writing the tags of the **open format**, or
+removes them if it is already in italics. No dialog: the operation has no setting, and
+it is undone with a `Ctrl+Z` like the others.
 
-| Action | Raccourci | Où |
-| :----- | :-------- | :--- |
-| `Italic` | `Ctrl+I` | menu **Tools**, barre d'outils |
+| Action | Shortcut | Where |
+| :----- | :------- | :---- |
+| Italic | `Ctrl+I` | **Tools** menu, toolbar |
 
-C'est la seule opération du menu `Tools` qui ait un bouton dans la
-[barre d'outils](index.md#la-barre-doutils).
+It is the only operation of the `Tools` menu that has a button in the
+[toolbar](index.md#the-toolbar).
 
-### Ce qu'elle écrit, format par format
+### What it writes, format by format
 
-Le texte d'un sous-titre est celui de son fichier, balises comprises — voir
-[Éditer une cellule](edition.md). Chaque format a les siennes, et c'est ce que
-cette entrée dispense de connaître :
+The text of a subtitle is that of its file, tags included — see
+[Editing a cell](editing.md). Each format has its own, and that is what
+this entry spares you from knowing:
 
-| Format | Ce qui est écrit |
-| :----- | :--------------- |
-| SubRip, WebVTT, SubViewer 2 | `<i>texte</i>` |
-| Sub Station Alpha, Advanced SSA | `{\i1}texte{\i0}` |
-| MicroDVD | `{Y:i}texte` — la balise court jusqu'à la fin du sous-titre, il n'y a rien à refermer |
-| MPL2 | `/` en tête de **chaque** ligne, le marqueur ne portant que sur la sienne |
-| TMPlayer, LRC | rien : ces deux formats n'écrivent aucun style |
+| Format | What is written |
+| :----- | :-------------- |
+| SubRip, WebVTT, SubViewer 2 | `<i>text</i>` |
+| Sub Station Alpha, Advanced SSA | `{\i1}text{\i0}` |
+| MicroDVD | `{Y:i}text` — the tag runs to the end of the subtitle, there is nothing to close |
+| MPL2 | `/` at the head of **each** line, the marker applying only to its own |
+| TMPlayer, LRC | nothing: these two formats write no style |
 
-**L'entrée est éteinte pour un TMPlayer et un LRC, et non cachée.** Une entrée
-absente n'apprend rien ; une entrée grise répond à « pourquoi ne puis-je
-pas ? ».
+**The entry is disabled for a TMPlayer and an LRC, not hidden.** An absent
+entry teaches nothing; a greyed-out entry answers “why can't
+I?”.
 
-**Le format lu est celui du texte visé.** Avec une traduction, le texte principal
-peut être en SubRip et la traduction en Advanced SSA : `Italic` écrit `<i>` dans
-la première et `{\i1}` dans la seconde. L'entrée s'éteint de même quand le
-texte visé est dans un format qui n'écrit aucun style, même si l'autre en écrit.
+**The format read is that of the targeted text.** With a translation, the main text
+can be in SubRip and the translation in Advanced SSA: `Italic` writes `<i>` in
+the first and `{\i1}` in the second. The entry is likewise disabled when the
+targeted text is in a format that writes no style, even if the other one does.
 
-### Dans quel sens elle va
+### Which way it goes
 
-Une seule entrée pour les deux sens, et c'est la cible qui décide :
+A single entry for both directions, and it is the target that decides:
 
-- **un seul sous-titre hors italique suffit** pour que toute la cible y passe ;
-- la cible n'en sort que lorsqu'elle y est **entièrement**.
+- **a single subtitle out of italics is enough** for the whole target to go into italics;
+- the target comes out of them only when it is **entirely** in them.
 
-C'est la règle de Gaupol, et c'est la seule qui rende un bouton unique
-utilisable : une sélection panachée part d'un bloc plutôt que de s'inverser
-ligne par ligne, et appuyer deux fois la rend telle qu'elle était.
+That is Gaupol's rule, and it is the only one that makes a single button
+usable: a mixed selection goes as one block rather than being inverted
+line by line, and pressing twice gives it back as it was.
 
-Le compte rendu dit ce qui a été fait, dans le sens où cela a été fait :
+The report says what was done, in the direction it was done:
 
 ```
 2 subtitles put in italics
 2 subtitles taken out of italics
 ```
 
-**Une ligne vide ne gagne jamais de balises** — un `<i></i>` autour de rien se
-verrait dans la table. Une cible qui n'en contient que ne change donc rien, et
-le dit : « nothing to change ». Aucune entrée n'entre alors dans l'historique.
+**An empty line never gains tags** — an `<i></i>` around nothing would
+show in the table. A target that contains only such lines therefore changes nothing, and
+says so: “nothing to change”. No entry then enters the history.
 
-### Ce qu'elle ne touche pas
+### What it does not touch
 
-**Les autres balises restent exactement où elles sont** : une couleur, une
-police, un `{\pos(x,y)}` d'Advanced SSA traversent l'opération sans bouger.
-Seules les balises d'italique sont posées et retirées.
+**The other tags stay exactly where they are**: a colour, a
+font, an Advanced SSA `{\pos(x,y)}` go through the operation without moving.
+Only italic tags are set and removed.
 
-Une balise qui dit plusieurs choses à la fois n'est pas emportée en entier :
-`{\b1\i1}` devient `{\b1}`, et `{Y:bi}` devient `{Y:b}`. Le gras reste, et le
-texte sort réellement de l'italique.
+A tag that says several things at once is not taken away whole:
+`{\b1\i1}` becomes `{\b1}`, and `{Y:bi}` becomes `{Y:b}`. The bold stays, and the
+text really comes out of italics.
 
-## `Case` et `Dialogue`
+## `Case` and `Dialogue`
 
-Deux transformations du **texte visible**, et les balises n'y touchent pas : un
-sous-titre mis en minuscules garde son `<I>` tel quel, et un tiret se pose
-devant le texte, pas devant une balise ouvrante. **Aucune balise ne change de
-place** : `<i>bon</i>jour` en capitales donne `<i>BON</i>JOUR`, là où
-[un remplacement](recherche.md#le-texte-cherché-est-le-texte-visible) aurait
-étendu l'italique au mot entier.
+Two transformations of the **visible text**, and the tags are not touched: a
+subtitle put in lower case keeps its `<I>` as it is, and a dash is set
+before the text, not before an opening tag. **No tag changes
+place**: `<i>bon</i>jour` in capitals gives `<i>BON</i>JOUR`, where
+[a replacement](find-and-replace.md#the-text-searched-is-the-visible-text) would have
+extended the italics to the whole word.
 
-| Entrée | Raccourci | Ce qu'elle fait |
-| :----- | :-------- | :--- |
-| `Case ▸ Title Case` | — | `bonjour marie` devient `Bonjour Marie` |
-| `Case ▸ Sentence case` | — | `BONJOUR MARIE` devient `Bonjour marie` |
-| `Case ▸ UPPER CASE` | — | tout en capitales |
-| `Case ▸ lower case` | — | tout en minuscules |
-| `Dialogue` | — | pose ou retire les tirets |
+| Entry | Shortcut | What it does |
+| :---- | :------- | :----------- |
+| Case ▸ Title Case | — | `bonjour marie` becomes `Bonjour Marie` |
+| Case ▸ Sentence case | — | `BONJOUR MARIE` becomes `Bonjour marie` |
+| Case ▸ UPPER CASE | — | everything in capitals |
+| Case ▸ lower case | — | everything in lower case |
+| Dialogue | — | adds or removes the dashes |
 
-### Ce que la casse ne touche pas
+### What case does not touch
 
-**Ce qui précède la première lettre ou le premier chiffre est laissé tel quel.**
-Un tiret de dialogue, un guillemet ouvrant, une parenthèse survivent :
-`- bonjour` mis en casse de phrase donne `- Bonjour`, et non `- bonjour` avec un
-tiret capitalisé, ce qui n'aurait aucun sens.
+**What precedes the first letter or the first digit is left as it is.**
+A dialogue dash, an opening quotation mark, a parenthesis survive:
+`- bonjour` put in sentence case gives `- Bonjour`, and not `- bonjour` with a
+capitalised dash, which would make no sense.
 
-**La casse de phrase remet le reste en minuscules.** `BONJOUR MARIE` devient
-`Bonjour marie` : c'est ce que fait Gaupol, et c'est ce qui permet de décrier un
-sous-titre saisi en capitales.
+**Sentence case puts the rest back in lower case.** `BONJOUR MARIE` becomes
+`Bonjour marie`: that is what Gaupol does, and it is what lets you tone down a
+subtitle typed in capitals.
 
-**Les accents et les alphabets non latins sont traités comme il faut.** `éléonore`
-donne `ÉLÉONORE`, et une apostrophe ne coupe pas un mot : `l'été` mis en casse de
-titre donne `L'été` et non `L'Été`. Une lettre qui change de longueur garde ses
-balises autour d'elle : `ﬁ <i>x</i>` en capitales donne `FI <i>X</i>`.
+**Accents and non-Latin alphabets are handled properly.** `éléonore`
+gives `ÉLÉONORE`, and an apostrophe does not cut a word: `l'été` put in title
+case gives `L'été` and not `L'Été`. A letter that changes length keeps its
+tags around it: `ﬁ <i>x</i>` in capitals gives `FI <i>X</i>`.
 
-**La casse ne dépend pas de la langue du système.** Elle suit les règles communes
-à toutes les langues : `istanbul` en capitales donne `ISTANBUL`, que la machine
-soit réglée en français ou en turc.
+**Case does not depend on the system's language.** It follows the rules common
+to all languages: `istanbul` in capitals gives `ISTANBUL`, whether the machine
+is set to French or to Turkish.
 
-### Dans quel sens va `Dialogue`
+### Which way `Dialogue` goes
 
-Une seule entrée pour les deux sens, et c'est la cible qui décide :
+A single entry for both directions, and it is the target that decides:
 
-- **une seule ligne sans tiret suffit** pour que toute la cible en gagne un ;
-- la cible n'en perd que lorsque **toutes** ses lignes en ont un.
+- **a single line without a dash is enough** for the whole target to gain one;
+- the target loses them only when **all** its lines have one.
 
-Appuyer deux fois rend la cible telle qu'elle était. C'est la règle de
-[`Italic`](#italic), et la seule qui rende un bouton unique utilisable.
+Pressing twice gives the target back as it was. It is the rule of
+[`Italic`](#italic), and the only one that makes a single button usable.
 
-**Trois tirets sont reconnus** — le trait d'union du clavier et les deux
-cadratins du typographe, `–` et `—` — et c'est le trait d'union qui est écrit.
-Les espaces de trop après le tiret disparaissent. Une ligne vide n'en gagne
-aucun.
+**Three dashes are recognised** — the keyboard's hyphen and the typographer's two
+dashes, `–` and `—` — and it is the hyphen that is written.
+Extra spaces after the dash disappear. An empty line gains
+none.
 
-### Ce qu'elles disent
+### What they say
 
 ```
 2 subtitles recased
@@ -657,110 +655,110 @@ aucun.
 2 subtitles undashed
 ```
 
-Et quand rien ne change — une cible déjà dans la casse demandée — « nothing to
-change », sans rien poser dans l'historique.
+And when nothing changes — a target already in the requested case — “nothing to
+change”, without putting anything in the history.
 
 ## `Remove Hearing-Impaired Mentions…`
 
-Retire les mentions destinées aux spectateurs sourds ou malentendants — les
-descriptions de sons entre crochets. **Les parenthèses restent** : elles servent aussi à des
-répliques chuchotées, et c'est `Correct Texts…` qui les retire, par sa case `Sound in parentheses`.
-**Rien d'autre** : les paroles
-de chanson entre dièses et le nom du locuteur avant deux-points ne se retirent que par
-[`Correct Texts…`](correct-texts.md), page `Mentions`.
+Removes the mentions intended for deaf or hard-of-hearing viewers — the
+descriptions of sounds in brackets. **Parentheses stay**: they also serve for
+whispered lines, and it is `Correct Texts…` that removes them, through its `Sound in parentheses` check box.
+**Nothing else**: song lyrics
+between hash signs and the speaker's name before a colon are removed only through
+[`Correct Texts…`](correct-texts.md), `Mentions` page.
 
-Le dialogue ne demande rien : l'opération n'a pas de réglage, et il ne sert qu'à
-confirmer et à rappeler sur quoi elle porte.
+The dialog asks nothing: the operation has no setting, and the dialog only serves to
+confirm and to recall what it acts on.
 
-**C'est la seule du menu `Tools` qui fasse disparaître des lignes**, et la seule
-de tout le programme qui en fasse disparaître sans qu'on le demande. Un
-sous-titre qui n'était *que* mention n'a plus de texte une fois nettoyé, et un
-sous-titre sans texte n'a pas lieu d'être : il est retiré du fichier. Les autres
-sont réécrits sans leur mention.
+**It is the only one of the `Tools` menu that makes lines disappear**, and the only one
+in the whole program that makes them disappear without being asked to. A
+subtitle that was *only* a mention has no text left once cleaned, and a
+subtitle with no text has no reason to be: it is removed from the file. The others
+are rewritten without their mention.
 
-**Les balises du format ne comptent pas pour du texte** : `<i>[SOUPIR]</i>` d'un
-SubRip et `{\i1}[SOUPIR]{\i0}` d'un Advanced SSA sont retirés l'un comme l'autre.
-Un `<i>` dans un TMPlayer ou un LRC, qui n'écrivent aucune balise, est du texte.
+**The format's tags do not count as text**: `<i>[SOUPIR]</i>` of a
+SubRip and `{\i1}[SOUPIR]{\i0}` of an Advanced SSA are removed alike.
+An `<i>` in a TMPlayer or an LRC, which write no tag, is text.
 
-**Visée sur la traduction, elle ne retire aucune ligne.** Une traduction que la
-règle vide — un texte qui n'était que mention — est **vidée** et le sous-titre
-reste : il a un texte principal, que l'opération ne visait pas, et le retirer le
-détruirait. Le compte rendu la compte comme nettoyée :
+**Targeted at the translation, it removes no line.** A translation the
+rule empties — a text that was only a mention — is **emptied** and the subtitle
+stays: it has a main text, which the operation did not target, and removing it would
+destroy it. The report counts it as cleaned:
 
 ```text
 1 subtitle cleaned, 0 removed
 ```
 
-Les balises lues sont celles du format de la traduction, qui peut n'être pas celui
-du fichier principal.
+The tags read are those of the translation's format, which may not be that
+of the main file.
 
-Le compte rendu dit les deux :
+The report says both:
 
 ```
 1 subtitle cleaned, 1 removed
 ```
 
-**Quand rien ne mord, rien ne se passe** — et le dialogue le dit : « no mention
-to remove ». Aucune entrée n'entre dans l'historique, car une opération qui ne
-change rien n'est pas une opération à annuler.
+**When nothing bites, nothing happens** — and the dialog says so: “no mention
+to remove”. No entry enters the history, because an operation that
+changes nothing is not an operation to undo.
 
-**Annuler remet tout en place**, les sous-titres retirés comme les textes
-réécrits, chacun avec le texte qu'il avait. Un sous-titre que la règle a vidé
-n'est jamais réécrit avant d'être retiré, précisément pour qu'il revienne
-entier.
+**Undoing puts everything back**, the removed subtitles as well as the rewritten
+texts, each with the text it had. A subtitle the rule emptied
+is never rewritten before being removed, precisely so that it comes back
+whole.
 
-> **La sélection est perdue à cette occasion** : retirer des lignes change la
-> structure de la table, qui se reconstruit. Toutes les autres opérations du menu
-> `Tools` la conservent, `Italic`, `Case` et `Dialogue` comprises. Les quatre
-> entrées de structure du menu `Edit` — insérer, supprimer, fusionner, scinder —
-> changent la structure elles aussi, et rendent une sélection à la place de celle
-> qu'elles ont emportée — voir
-> [Insérer, supprimer, fusionner et scinder des lignes](lignes.md).
+> **The selection is lost on this occasion**: removing lines changes the
+> structure of the table, which is rebuilt. All the other operations of the
+> `Tools` menu keep it, `Italic`, `Case` and `Dialogue` included. The four
+> structure entries of the `Edit` menu — insert, remove, merge, split —
+> change the structure too, and give back a selection in place of the one
+> they took away — see
+> [Inserting, removing, merging and splitting lines](lines.md).
 
-Une référence purement numérique — « Voir [1] la note » — n'est pas une mention
-et reste telle quelle.
+A purely numeric reference — “See [1] the note” — is not a mention
+and stays as it is.
 
-## Au-delà de la fin du film
+## Beyond the end of the film
 
-Quand une vidéo est ouverte, une opération qui **pousse des sous-titres après la
-fin du film** le signale, une fois faite :
+When a video is open, an operation that **pushes subtitles past the
+end of the film** reports it, once done:
 
 ```
 shifting leaves 3 subtitles past the end of the video, by 4.200 s at most
 ```
 
-La phrase nomme l'opération — `shifting`, `transforming`,
+The sentence names the operation — `shifting`, `transforming`,
 `converting the frame rate`, `adjusting durations`,
-`aligning on the frame rate` —, combien de sous-titres dépassent, et de combien
-va le plus lointain. `Shift Whole File onto Grid` est un décalage, et se nomme
+`aligning on the frame rate` —, how many subtitles go past, and by how much
+the furthest one goes. `Shift Whole File onto Grid` is a shift, and is named
 `shifting`.
 
-| Ce qui est compté | Ce qui ne l'est pas |
-| :---------------- | :------------------ |
-| ce que l'opération vient de toucher, c'est-à-dire la cible | un sous-titre que personne n'a déplacé |
-| un sous-titre qui finit **après** la fin | un sous-titre qui finit exactement avec elle |
+| What is counted | What is not |
+| :-------------- | :---------- |
+| what the operation has just touched, that is, the target | a subtitle nobody moved |
+| a subtitle that ends **after** the end | a subtitle that ends exactly with it |
 
-**C'est un avertissement, et rien d'autre.** Rien n'est refusé, rien n'est
-corrigé : un sous-titre qui tombe après le générique de fin est peut-être
-exactement ce qu'on voulait, et un refus qui se trompe coûte plus cher qu'un
-avertissement qu'on ignore. L'opération est dans l'historique, et `Undo` la
-défait comme n'importe quelle autre.
+**It is a warning, and nothing else.** Nothing is refused, nothing is
+corrected: a subtitle that falls after the end credits may be
+exactly what you wanted, and a refusal that is wrong costs more than a
+warning you ignore. The operation is in the history, and `Undo`
+undoes it like any other.
 
-**Une seule boîte par opération.** `Adjust Durations…` et `Align` ont déjà
-quelque chose à dire — ce qu'un ajustement n'a pas pu tenir, ce qu'un alignement
-partiel a laissé de côté. Quand elles poussent aussi un sous-titre après la fin,
-la boîte porte les deux phrases, l'une sous l'autre, celle de l'opération
-d'abord :
+**A single box per operation.** `Adjust Durations…` and `Align` already have
+something to say — what an adjustment could not hold, what a partial
+alignment left aside. When they also push a subtitle past the end,
+the box carries both sentences, one under the other, that of the operation
+first:
 
 ```
 adjusted the durations of 2 subtitles
 adjusting durations leaves 1 subtitle past the end of the video, by 1.000 s at most
 ```
 
-Le message n'apparaît pas si aucune vidéo n'est ouverte : la durée vient du
-lecteur, et sans film il n'y a pas de fin à dépasser. Seules les cinq opérations
-nommées plus haut sont concernées — `Adjust Durations…` comprise, qui peut
-allonger une fin au-delà du film. Toutes les autres ne le sont pas : celles du
-menu `Tools` qui réécrivent un texte, et dans le menu `Edit` l'insertion, la
-fusion, la scission, le collage, le remplacement et les cellules éditées — une
-fin tapée à la main au-delà du film n'est pas signalée.
+The message does not appear if no video is open: the duration comes from the
+player, and without a film there is no end to go past. Only the five operations
+named above are concerned — `Adjust Durations…` included, which can
+lengthen an end beyond the film. All the others are not: those of the
+`Tools` menu that rewrite a text, and in the `Edit` menu insertion,
+merging, splitting, pasting, replacing and edited cells — an
+end typed by hand beyond the film is not reported.
