@@ -38,14 +38,6 @@ cmake/ToolchainSanity.cmake
 cmake/Translations.cmake
 cmake/Warnings.cmake
 docs/mesures/performances.md
-docs/specs/00-fondations.md
-docs/specs/01-noyau.md
-docs/specs/02-operations-d-edition.md
-docs/specs/03-cli.md
-docs/specs/04-mentions-pour-malentendants.md
-docs/specs/05-interface-tabulaire.md
-docs/specs/06-lecteur-integre.md
-docs/specs/07-finitions-et-premiere-livraison.md
 docs/specs/08-encodages.md
 docs/specs/09-formats.md
 docs/specs/10-operations.md

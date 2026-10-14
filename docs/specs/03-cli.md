@@ -1,195 +1,192 @@
 # Phase 3 — CLI
 
-**État :** conception validée, prête à découper
-**Milestone :** `3 — CLI : harnais`
+**State:** design approved, ready to be split
+**Milestone:** `3 — CLI : harnais`
 
-## Objectif
+## Goal
 
-Donner au noyau une **surface invocable**, de sorte que ce qu'il sait faire
-puisse être exercé de bout en bout sur des fichiers réels, et mesuré.
+Give the core an **invocable surface**, so that what it can do can be exercised
+end to end on real files, and measured.
 
-La ligne de commande n'apparaît pas dans les besoins de l'utilisateur. Elle
-n'est pas une fin : c'est le harnais qui permet de dire que le noyau marche
-avant qu'une fenêtre existe. Les sous-commandes destinées à un usage réel
-relèvent de la phase 13.
+The command line does not appear in the user's needs. It is not an end: it is
+the harness that lets us say the core works before a window exists. The
+subcommands intended for real use belong to phase 13.
 
-## Portée
+## Scope
 
-**Inclus** — cinq sous-commandes : `inspect`, `convert`, `shift`, `transform`,
-`framerate`. L'analyse d'arguments, l'aide, les codes de retour, le traitement
-d'un lot de fichiers et le comportement en cas d'échec partiel.
+**Included** — five subcommands: `inspect`, `convert`, `shift`, `transform`,
+`framerate`. Argument parsing, help, exit codes, processing a batch of files and
+the behaviour on partial failure.
 
-**Élargie par rapport à la feuille de route**, qui annonçait *inspection,
-conversion, décalage*. La raison est écrite plus bas.
+**Wider than the roadmap**, which announced *inspection, conversion, shifting*.
+The reason is written below.
 
-**Exclu, par phase** — suppression des mentions pour malentendants (phase 4) ;
-toute interface graphique (phase 5) ; les formats SubViewer, SSA et ASS
-(phase 9) ; les encodages autres qu'UTF-8 (phase 9) ; les sous-commandes
-d'usage réel et la sortie lisible par une machine (phase 13).
+**Excluded, by phase** — removal of hearing impaired annotations (phase 4); any
+graphical interface (phase 5); the SubViewer, SSA and ASS formats (phase 9);
+encodings other than UTF-8 (phase 9); the subcommands for real use and
+machine-readable output (phase 13).
 
-## Décisions applicables
+## Applicable decisions
 
-| ADR | Décision |
+| ADR | Decision |
 | :-- | :------- |
-| [0006](../adr/0006-positions-en-millisecondes.md) | positions en millisecondes entières, types forts |
-| [0008](../adr/0008-lecture-au-mieux-avec-diagnostics.md) | lecture au mieux, diagnostics remontés |
-| [0013](../adr/0013-mise-a-l-echelle-exacte-des-positions.md) | mise à l'échelle par un rationnel exact |
-| [0014](../adr/0014-registre-d-exigences.md) | registre d'exigences confronté aux tests |
-| [0016](../adr/0016-cli11-pour-l-analyse-d-arguments.md) | CLI11 pour l'analyse d'arguments |
+| [0006](../adr/0006-positions-en-millisecondes.md) | positions in whole milliseconds, strong types |
+| [0008](../adr/0008-lecture-au-mieux-avec-diagnostics.md) | best-effort reading, diagnostics reported |
+| [0013](../adr/0013-mise-a-l-echelle-exacte-des-positions.md) | scaling by an exact rational |
+| [0014](../adr/0014-registre-d-exigences.md) | requirement registry checked against the tests |
+| [0016](../adr/0016-cli11-pour-l-analyse-d-arguments.md) | CLI11 for argument parsing |
 
-## Pourquoi cinq sous-commandes et non trois
+## Why five subcommands and not three
 
-La feuille de route restreignait la phase à l'inspection, à la conversion et au
-décalage. Deux constats faits au cadrage ont élargi ce contour.
+The roadmap restricted the phase to inspection, conversion and shifting. Two
+findings made while framing it widened that outline.
 
-**Le noyau sait déjà davantage.** `transform` et `convert_frame_rate` sont
-livrés depuis la phase 2, testés unitairement et mesurés par les benchmarks.
+**The core already knows more.** `transform` and `convert_frame_rate` have been
+delivered since phase 2, unit tested and measured by the benchmarks.
 
-**Un harnais qui n'expose pas une opération ne la valide pas.** C'est la raison
-d'être de cette phase : confronter le noyau à des fichiers entiers plutôt qu'à
-des cas construits. Laisser deux opérations hors de la CLI, c'est garder du code
-qu'aucun test de bout en bout ne traverse jusqu'à la phase 13 — et découvrir
-alors, très tard, ce qu'un fichier réel leur fait.
+**A harness that does not expose an operation does not validate it.** That is
+this phase's reason for being: confronting the core with whole files rather
+than with constructed cases. Leaving two operations out of the CLI means keeping
+code that no end-to-end test goes through until phase 13 — and discovering
+then, very late, what a real file does to them.
 
-Le surcoût est faible : les deux opérations existent, il ne reste qu'à les
-appeler. Le coût de leur absence, lui, ne se paierait qu'au moment où il serait
-le plus cher.
+The extra cost is small: both operations exist, all that remains is to call
+them. The cost of their absence would only be paid at the moment it would be
+highest.
 
-## La langue de la ligne de commande
+## The language of the command line
 
-**La CLI parle anglais** : noms de sous-commandes, noms d'options, texte
-d'aide, diagnostics, messages d'erreur, en-têtes de rapport.
+**The CLI speaks English**: subcommand names, option names, help text,
+diagnostics, error messages, report headers.
 
-Ce n'est pas une exception à la règle de langue du projet, c'est son
-application. La frontière est celle du compilateur C++, et ces chaînes sont des
-littéraux C++.
+This is not an exception to the project's language rule, it is its application.
+The boundary is that of the C++ compiler, and these strings are C++ literals.
 
-Le manuel reste en français et **cite la sortie anglaise telle quelle**. Depuis
-que `make manual` régénère les blocs d'exemple, ces citations ne peuvent plus
-mentir : elles sont produites par le binaire.
+The manual stays in French and **quotes the English output verbatim**. Since
+`make manual` regenerates the example blocks, these quotations can no longer
+lie: they are produced by the binary.
 
-## Grammaire commune
+## Common grammar
 
-### Les options globales
+### The global options
 
-Acceptées par toutes les sous-commandes, et par l'invocation nue :
+Accepted by every subcommand, and by the bare invocation:
 
-| Option | Effet |
-| :----- | :---- |
-| `-q`, `--quiet` | niveau 0 — plus aucune narration |
-| `-v`, `-vv`, `-vvv` | niveaux 1 à 3, le niveau 1 étant le défaut |
-| `-h`, `--help` | l'aide, celle de la sous-commande si l'on en nomme une |
+| Option | Effect |
+| :----- | :----- |
+| `-q`, `--quiet` | level 0 — no narration at all |
+| `-v`, `-vv`, `-vvv` | levels 1 to 3, level 1 being the default |
+| `-h`, `--help` | the help, that of the subcommand if one is named |
 | `--version` | `subedit <version>` |
 
-Elles se placent **avant ou après** le nom de la sous-commande, indifféremment :
-`subedit-cli -vv shift …` et `subedit-cli shift -vv …` sont la même invocation.
-Exiger une position serait un piège sans contrepartie.
+They go **before or after** the subcommand name, either way:
+`subedit-cli -vv shift …` and `subedit-cli shift -vv …` are the same
+invocation. Requiring a position would be a trap with nothing in return.
 
-### Le temps
+### Time
 
-Deux formes acceptées partout où une position ou une durée est attendue :
+Two forms accepted wherever a position or a duration is expected:
 
-| Forme | Exemple | Sens |
-| :---- | :------ | :--- |
-| secondes | `-7.001`, `2.999`, `30` | signe optionnel, décimales optionnelles, à la milliseconde |
-| horodatage | `01:39:37.040`, `-00:00:07.001` | `[±]HH:MM:SS.mmm` |
+| Form | Example | Meaning |
+| :--- | :------ | :------ |
+| seconds | `-7.001`, `2.999`, `30` | optional sign, optional decimals, to the millisecond |
+| timestamp | `01:39:37.040`, `-00:00:07.001` | `[±]HH:MM:SS.mmm` |
 
-Le séparateur décimal est le **point**, la CLI parlant anglais. La virgule est
-refusée avec un message qui le dit, plutôt qu'interprétée au jugé.
+The decimal separator is the **point**, since the CLI speaks English. The comma
+is refused with a message that says so, rather than interpreted by guesswork.
 
-La résolution est la milliseconde, comme le modèle (ADR 0006). Une valeur plus
-fine est refusée : l'arrondir en silence donnerait un résultat qui ne
-correspond à rien de ce qui a été demandé.
+The resolution is the millisecond, as in the model (ADR 0006). A finer value is
+refused: rounding it silently would give a result that matches nothing of what
+was asked.
 
-### L'indice d'un sous-titre
+### The index of a subtitle
 
-**Compté à partir de 1**, comme il s'affiche. Un indice hors bornes est refusé
-en nommant la borne.
+**Counted from 1**, as it is displayed. An out-of-bounds index is refused,
+naming the bound.
 
-### La destination
+### The destination
 
-Aucune écriture n'a lieu sans destination explicite. Trois façons de la donner,
-mutuellement exclusives :
+No write takes place without an explicit destination. Three ways to give it,
+mutually exclusive:
 
 | Option | Condition |
 | :----- | :-------- |
-| `--output FILE` | exactement un fichier d'entrée |
-| `--output-dir DIR` | quel que soit le nombre d'entrées ; le nom de base est conservé |
-| `--in-place` | écrase les entrées, par écriture atomique |
+| `--output FILE` | exactly one input file |
+| `--output-dir DIR` | whatever the number of inputs; the base name is kept |
+| `--in-place` | overwrites the inputs, by atomic write |
 
-Un harnais qui écrase son entrée sans qu'on l'ait demandé est un harnais qu'on
-cesse d'utiliser au bout de la deuxième fois. `--output-dir` est **obligatoire**
-dès qu'il y a plusieurs entrées : `--output` n'aurait alors aucun sens, et le
-refuser vaut mieux que d'écrire le dernier fichier sur les précédents.
+A harness that overwrites its input without being asked to is a harness one
+stops using after the second time. `--output-dir` is **mandatory** as soon as
+there are several inputs: `--output` would then make no sense, and refusing it
+is better than writing the last file over the previous ones.
 
-`inspect` n'écrit aucun fichier et n'accepte donc aucune de ces options.
+`inspect` writes no file and therefore accepts none of these options.
 
-### Le format du fichier écrit
+### The format of the written file
 
-`shift`, `transform` et `framerate` **conservent le format du fichier lu**.
-Changer de format est le travail de `convert`, et une sous-commande qui ferait
-les deux rendrait indistinguables les erreurs de l'une et de l'autre.
+`shift`, `transform` and `framerate` **keep the format of the file read**.
+Changing format is the job of `convert`, and a subcommand that did both would
+make the errors of one indistinguishable from those of the other.
 
-## Ce qui s'écrit, et où
+## What is written, and where
 
-Le code de retour dit **si** ça a marché ; il ne dit pas **ce qui s'est passé**.
-Un harnais dont toute la sortie tient dans un chiffre oblige à rouvrir les
-fichiers pour comprendre — c'est précisément le travail qu'il existe pour
-éviter.
+The exit code says **whether** it worked; it does not say **what happened**. A
+harness whose whole output fits in one number forces one to reopen the files to
+understand — which is precisely the work it exists to avoid.
 
-### Deux sorties, deux rôles
+### Two outputs, two roles
 
-| Sortie | Ce qu'elle porte |
-| :----- | :--------------- |
-| standard | **le résultat, et lui seul** — le rapport d'`inspect`. Les sous-commandes qui écrivent des fichiers n'y écrivent rien : leur résultat *est* le fichier. |
-| erreur | **tout le reste** — la narration du traitement, les avertissements, les erreurs. |
+| Output | What it carries |
+| :----- | :-------------- |
+| standard | **the result, and only the result** — the report of `inspect`. The subcommands that write files write nothing there: their result *is* the file. |
+| error | **everything else** — the narration of the processing, warnings, errors. |
 
-Ce partage n'est pas une convention décorative. Il rend
-`subedit-cli inspect a.srt | grep …` utilisable sans que le récit vienne polluer
-le tube, et il permet à `--quiet` de taire la narration **sans jamais taire le
-résultat** — ce qu'un `--quiet` qui écrase la sortie standard rendrait
+This split is not a decorative convention. It makes
+`subedit-cli inspect a.srt | grep …` usable without the narration polluting the
+pipe, and it lets `--quiet` silence the narration **without ever silencing the
+result** — which a `--quiet` that crushed standard output would make
 impossible.
 
-### Quatre niveaux
+### Four levels
 
-| Niveau | Comment | Ce que la sortie d'erreur porte |
-| :----- | :------ | :------------------------------ |
-| 0 | `--quiet`, `-q` | rien, **sauf les erreurs** |
-| 1 | par défaut, ou `-v` | une ligne par fichier traité, et un bilan dès qu'il y en a plusieurs |
-| 2 | `-vv` | et ce qui a été décidé pour chacun : format reconnu, encodage, BOM, fins de ligne conservées ou imposées, nombre de sous-titres touchés, chemin écrit |
-| 3 | `-vvv` | et la trace de mise au point : octets lus et écrits, et **chaque diagnostic de lecture, nommé** |
+| Level | How | What the error output carries |
+| :---- | :-- | :---------------------------- |
+| 0 | `--quiet`, `-q` | nothing, **except errors** |
+| 1 | by default, or `-v` | one line per processed file, and a summary as soon as there are several |
+| 2 | `-vv` | and what was decided for each: format recognised, encoding, BOM, line endings kept or imposed, number of subtitles touched, path written |
+| 3 | `-vvv` | and the debugging trace: bytes read and written, and **each reading diagnostic, named** |
 
-**Le niveau 3 a été corrigé après coup**, à l'issue #78. Il annonçait « arguments
-analysés, chemins résolus, diagnostics de lecture au détail » et ne livrait que
-les octets lus et un *compte* de diagnostics. Deux des trois promesses sont
-retirées plutôt qu'honorées : CLI11 signale déjà un argument fautif, et le
-niveau 1 imprime déjà le chemin écrit — les livrer aurait ajouté du bruit sans
-rien apprendre. La troisième, elle, manquait vraiment : les diagnostics sont
-désormais nommés un par un, et par les cinq sous-commandes et non par la seule
-qui n'écrit rien.
+**Level 3 was corrected after the fact**, in issue #78. It announced "arguments
+parsed, paths resolved, reading diagnostics in detail" and delivered only the
+bytes read and a *count* of diagnostics. Two of the three promises are withdrawn
+rather than honoured: CLI11 already reports a faulty argument, and level 1
+already prints the path written — delivering them would have added noise without
+teaching anything. The third one, however, was really missing: diagnostics are
+now named one by one, and by all five subcommands, not only by the one that
+writes nothing.
 
-Chaque niveau **contient le précédent** : monter d'un cran ajoute, ne remplace
-jamais. Un utilisateur qui relance en `-vv` pour comprendre un incident retrouve
-mot pour mot ce qu'il avait déjà lu, plus le reste.
+Each level **contains the previous one**: going up a notch adds, never replaces.
+A user who reruns with `-vv` to understand an incident finds, word for word,
+what they had already read, plus the rest.
 
-**Les erreurs ne sont jamais tues, `--quiet` compris.** Une commande qui échoue
-en silence ne laisse que son code de retour, et transforme chaque incident en
-enquête. « Rien » désigne ce qui raconte, pas ce qui alarme.
+**Errors are never silenced, `--quiet` included.** A command that fails silently
+leaves only its exit code, and turns every incident into an investigation.
+"Nothing" refers to what narrates, not to what alerts.
 
-Le bilan n'apparaît qu'à partir de deux fichiers : sur une entrée unique,
-« 1 fichier traité » répète la ligne qui précède.
+The summary only appears from two files onwards: on a single input, "1 file
+processed" repeats the line before it.
 
-`--quiet` et `-v` dans la même invocation sont une **erreur d'usage**. Deux
-intentions opposées ne s'arbitrent pas au profit de la dernière écrite : les
-refuser dit à l'appelant qu'il s'est trompé, là où un arbitrage silencieux le
-laisserait croire qu'il a été compris.
+`--quiet` and `-v` in the same invocation are a **usage error**. Two opposite
+intentions are not arbitrated in favour of the last one written: refusing them
+tells the caller they made a mistake, where a silent arbitration would let them
+believe they had been understood.
 
-### À quoi cela ressemble
+### What it looks like
 
-Illustratif — **le manuel porte les sorties réelles**, engendrées par
-`make manual`, et fait foi.
+Illustrative — **the manual carries the real outputs**, generated by
+`make manual`, and it is authoritative.
 
-Au niveau par défaut, un lot dont un fichier échoue :
+At the default level, a batch in which one file fails:
 
 ```
 a.vtt: 1356 subtitles shifted by -7.001 s -> out/a.vtt
@@ -197,8 +194,8 @@ b.vtt: read failed: line 42: timing line expected
 1 of 2 files processed, 1 failed
 ```
 
-Code de retour `3`. En `-vv`, chaque fichier dit en plus ce qui a été reconnu et
-ce qui a été écrit :
+Exit code `3`. With `-vv`, each file also says what was recognised and what was
+written:
 
 ```
 a.vtt: WebVTT, UTF-8, no BOM, LF line endings, 1356 subtitles
@@ -206,10 +203,10 @@ a.vtt: 1356 subtitles shifted by -7.001 s -> out/a.vtt
 a.vtt: written as WebVTT, UTF-8, no BOM, LF line endings
 ```
 
-## Les sous-commandes
+## The subcommands
 
-Chaque sous-commande précise ci-dessous ce qu'elle porte sur la **sortie
-standard** ; sa narration sur la sortie d'erreur suit la table des niveaux.
+Each subcommand states below what it carries on **standard output**; its
+narration on error output follows the table of levels.
 
 ### `inspect`
 
@@ -217,18 +214,18 @@ standard** ; sa narration sur la sortie d'erreur suit la table des niveaux.
 subedit-cli inspect [--order-report breaks|late] <file>...
 ```
 
-Ne modifie rien et n'écrit aucun fichier.
+Modifies nothing and writes no file.
 
-**Sortie standard** — le rapport, par fichier : le format reconnu, l'encodage,
-la présence d'un BOM, les fins de ligne — et leur mélange, avec la ligne où le
-second type apparaît —, le nombre de sous-titres, l'étendue temporelle, et les
-ruptures d'ordre. C'est le résultat de la commande : il est écrit à tous les
-niveaux, `--quiet` compris.
+**Standard output** — the report, per file: the recognised format, the
+encoding, the presence of a BOM, the line endings — and their mixture, with the
+line where the second kind appears —, the number of subtitles, the time span,
+and the order breaks. This is the result of the command: it is written at every
+level, `--quiet` included.
 
-Les diagnostics de lecture (ADR 0008) sont rapportés tels quels : un fichier qui
-s'ouvre en signalant quelque chose n'est pas un fichier qui a échoué. Ils vont
-sur la **sortie d'erreur**, avec le reste des avertissements — sans quoi un
-rapport passé dans un tube contiendrait deux natures de lignes mêlées.
+Reading diagnostics (ADR 0008) are reported as they are: a file that opens while
+reporting something is not a file that failed. They go to **error output**, with
+the rest of the warnings — otherwise a report passed through a pipe would
+contain two kinds of lines mixed together.
 
 ### `convert`
 
@@ -238,15 +235,14 @@ subedit-cli convert --to srt|vtt
                     (--output FILE | --output-dir DIR | --in-place) <file>...
 ```
 
-`--to` est requis. `--line-endings` et le BOM valent, **par défaut, ce que
-portait le fichier lu** — le modèle de la phase 1 retient déjà les deux, et les
-imposer ferait perdre à chaque conversion une information que le noyau avait
-pris soin de garder.
+`--to` is required. `--line-endings` and the BOM default to **what the file
+read carried** — the phase 1 model already retains both, and imposing them
+would make every conversion lose information the core had taken care to keep.
 
-`mac` désigne le retour chariot seul (`\r`), la fin de ligne du Mac OS
-classique.
+`mac` denotes the carriage return alone (`\r`), the line ending of classic
+Mac OS.
 
-**Sortie standard** — rien : le résultat est le fichier écrit.
+**Standard output** — nothing: the result is the written file.
 
 ### `shift`
 
@@ -254,11 +250,10 @@ classique.
 subedit-cli shift --by <time> (--output … ) <file>...
 ```
 
-Décale toutes les positions de `<time>`, dans un sens ou dans l'autre. Un
-décalage qui rendrait une position négative est refusé, en nommant le
-sous-titre en cause.
+Shifts every position by `<time>`, in either direction. A shift that would make
+a position negative is refused, naming the subtitle at fault.
 
-**Sortie standard** — rien : le résultat est le fichier écrit.
+**Standard output** — nothing: the result is the written file.
 
 ### `transform`
 
@@ -267,15 +262,14 @@ subedit-cli transform --first <index>=<time> --last <index>=<time>
                       (--output … ) <file>...
 ```
 
-Deux points de repère : le sous-titre `<index>` doit désormais commencer à
-`<time>`. Toutes les autres positions suivent, par la mise à l'échelle exacte de
-l'ADR 0013.
+Two reference points: subtitle `<index>` must now start at `<time>`. All the
+other positions follow, by the exact scaling of ADR 0013.
 
-Les deux indices doivent différer — deux repères confondus ne définissent aucune
-transformation, et le refuser vaut mieux que de rendre une division par zéro
-déguisée en résultat.
+The two indices must differ — two coinciding reference points define no
+transformation, and refusing it is better than returning a division by zero
+disguised as a result.
 
-**Sortie standard** — rien : le résultat est le fichier écrit.
+**Standard output** — nothing: the result is the written file.
 
 ### `framerate`
 
@@ -283,244 +277,239 @@ déguisée en résultat.
 subedit-cli framerate --from <fps> --to <fps> (--output … ) <file>...
 ```
 
-Les fréquences s'écrivent en images par seconde, décimales comprises : `25`,
-`24`, `23.976`. Une fréquence nulle ou négative est refusée.
+Frame rates are written in frames per second, decimals included: `25`, `24`,
+`23.976`. A zero or negative frame rate is refused.
 
-**Sortie standard** — rien : le résultat est le fichier écrit.
+**Standard output** — nothing: the result is the written file.
 
-## Codes de retour
+## Exit codes
 
-| Code | Signification |
-| :--- | :------------ |
-| `0` | tout a réussi |
-| `1` | erreur d'usage — option inconnue, valeur invalide, combinaison interdite |
-| `2` | aucun fichier n'a pu être traité |
-| `3` | certains fichiers ont été traités, d'autres non |
+| Code | Meaning |
+| :--- | :------ |
+| `0` | everything succeeded |
+| `1` | usage error — unknown option, invalid value, forbidden combination |
+| `2` | no file could be processed |
+| `3` | some files were processed, others were not |
 
-Distinguer `2` de `3` est ce qui permet à un script d'agir sans relire la
-sortie : « rien n'a marché » et « il en manque un » n'appellent pas la même
-réaction.
+Distinguishing `2` from `3` is what lets a script act without rereading the
+output: "nothing worked" and "one is missing" do not call for the same reaction.
 
-Une erreur d'usage est détectée **avant tout traitement** : elle ne laisse
-jamais un lot à moitié écrit.
+A usage error is detected **before any processing**: it never leaves a batch
+half written.
 
-## Un lot, et ce qu'on en fait
+## A batch, and what is done with it
 
-Toutes les sous-commandes acceptent plusieurs fichiers. Chacun est traité
-indépendamment ; l'échec de l'un n'interrompt pas les autres, et les échecs sont
-rapportés en nommant le fichier et la raison.
+Every subcommand accepts several files. Each one is processed independently; the
+failure of one does not interrupt the others, and failures are reported naming
+the file and the reason.
 
-S'arrêter au premier échec obligerait à relancer autant de fois qu'il y a de
-fichiers fautifs pour en connaître la liste. Le harnais existe pour donner cette
-liste en une fois.
+Stopping at the first failure would force one to rerun as many times as there
+are faulty files to learn their list. The harness exists to give that list in
+one go.
 
-## Le désordre : deux lectures, et une option pour les départager
+## Disorder: two readings, and an option to decide between them
 
-`Project::outOfOrder()` compare aujourd'hui chaque sous-titre à son
-**prédécesseur immédiat**. L'autre lecture compare au **plus grand début
-rencontré**. Sur les départs `0, 4000, 2000, 3000`, la première rend `{2}`, la
-seconde `{2, 3}`.
+`Project::outOfOrder()` currently compares each subtitle with its **immediate
+predecessor**. The other reading compares with the **greatest start seen so
+far**. On the starts `0, 4000, 2000, 3000`, the first returns `{2}`, the second
+`{2, 3}`.
 
-Les deux s'accordent toujours sur l'existence d'un désordre et ne diffèrent que
-sur la liste. Jusqu'ici, aucun appelant ne consommait cette liste : la question
-pouvait rester ouverte.
+Both always agree on whether there is disorder and differ only on the list. Up to
+now, no caller consumed that list: the question could stay open.
 
-`inspect` est le premier à devoir la trancher. **Il ne la tranche pas : il
-expose les deux.**
+`inspect` is the first that has to settle it. **It does not settle it: it
+exposes both.**
 
-| Valeur | Ce qu'elle rend |
-| :----- | :-------------- |
-| `breaks` (défaut) | les lignes qui rompent l'ordre par rapport à la précédente |
-| `late` | toutes les lignes qui démarrent avant quelque chose de déjà vu |
+| Value | What it returns |
+| :---- | :-------------- |
+| `breaks` (default) | the lines that break the order relative to the previous one |
+| `late` | every line that starts before something already seen |
 
-C'est un usage assumé de ce qu'est cette phase. Un harnais sert à découvrir, et
-comparer les deux sorties sur des fichiers réels tranchera mieux qu'un
-raisonnement mené sans données. **La phase 5 hérite de ce choix**, et l'option
-disparaîtra alors au profit de la lecture retenue — c'est écrit dans les points
-ouverts pour que la disparition ait un déclencheur, et non une intention.
+This is a deliberate use of what this phase is. A harness serves to discover,
+and comparing the two outputs on real files will settle the matter better than
+reasoning conducted without data. **Phase 5 inherits this choice**, and the
+option will then disappear in favour of the reading retained — it is written in
+the open points so that the disappearance has a trigger, and not an intention.
 
-La seconde lecture demande une addition au noyau de la phase 2 : la règle
-devient un paramètre nommé plutôt qu'un comportement figé.
+The second reading requires an addition to the phase 2 core: the rule becomes a
+named parameter rather than a fixed behaviour.
 
-## Ce que l'invocation nue devient
+## What the bare invocation becomes
 
-Trois exigences de la phase 1 décrivent un binaire qui n'analyse rien :
-l'invocation sans argument écrit la version, et **tout argument est ignoré**.
-Cette phase leur retire leur objet.
+Three phase 1 requirements describe a binary that parses nothing: the invocation
+with no argument writes the version, and **every argument is ignored**. This
+phase removes their purpose.
 
-| Avant | Après |
-| :---- | :---- |
-| sans argument → la version | sans argument → l'aide, code `0` |
-| tout argument ignoré, code `0` | argument inconnu → erreur d'usage, code `1` |
+| Before | After |
+| :----- | :---- |
+| no argument → the version | no argument → the help, code `0` |
+| every argument ignored, code `0` | unknown argument → usage error, code `1` |
 | — | `--version` → `subedit <version>` |
 
-**Les trois passeront à l'état `remplacée`**, chacune avec l'identifiant qui
-prend sa place — `CLI-VERSION-02` comprise. Sa formulation, « rien n'est écrit
-sur la sortie d'erreur », décrivait un binaire qui n'a aucune erreur à signaler ;
-elle devient fausse dès qu'il en a. La garder en la relisant comme « rien sur la
-sortie d'erreur *quand tout va bien* » serait réécrire une exigence sans le
-dire, ce que l'ADR 0014 interdit précisément.
+**All three will move to the `replaced` state**, each with the identifier that
+takes its place — `CLI-VERSION-02` included. Its wording, "nothing is written
+on error output", described a binary that has no error to report; it becomes
+false as soon as it has one. Keeping it by rereading it as "nothing on error
+output *when all goes well*" would be rewriting a requirement without saying so,
+which ADR 0014 precisely forbids.
 
-**Pas au cadrage : dans l'issue d'ossature**, en même temps que les tests qui les
-citent. L'état `remplacée` exige qu'aucun test ne désigne l'identifiant ; les
-basculer avant de réécrire ces tests ferait échouer `check-requirements.sh` sur
-une contradiction que le registre existe justement pour empêcher. Elles restent
-donc `implémentée` dans le diff de ce cadrage, ce qui est exact : le binaire les
-honore encore.
+**Not in the framing: in the skeleton issue**, together with the tests that cite
+them. The `replaced` state requires that no test designate the identifier;
+switching them before rewriting those tests would make `check-requirements.sh`
+fail on a contradiction that the registry exists precisely to prevent. They
+therefore stay `implemented` in the diff of this framing, which is accurate: the
+binary still honours them.
 
-La section « Arguments » du manuel, qui explique aujourd'hui que rien n'est
-analysé, est réécrite en conséquence.
+The "Arguments" section of the manual, which currently explains that nothing is
+parsed, is rewritten accordingly.
 
-## Ce qui est écarté, avec sa raison
+## What is set aside, with its reason
 
-| Écarté | Raison |
-| :----- | :----- |
-| sortie lisible par une machine (`--format json`) | rien ne la consommerait aujourd'hui ; sa forme doit être dictée par un appelant réel, donc par la phase 13 |
-| lecture de SubViewer, SSA, ASS | le noyau ne les lit pas ; c'est la phase 9 |
-| encodages autres qu'UTF-8 | le noyau refuse tout le reste, délibérément (phase 9) |
-| une sous-commande qui convertit *et* transforme | rendrait indistinguables les erreurs de l'une et de l'autre |
-| annuler depuis la CLI | l'historique existe, mais un processus qui se termine n'a rien à annuler |
-| la couleur dans la sortie | il faudrait `--color`, la détection d'un terminal, et une sortie qui cesse d'être stable octet pour octet — or les tests de bout en bout la comparent, et `make manual` la recopie dans le manuel |
-| une barre de progression | même raison, et les fichiers se traitent en quelques dizaines de millisecondes |
+| Set aside | Reason |
+| :-------- | :----- |
+| machine-readable output (`--format json`) | nothing would consume it today; its shape must be dictated by a real caller, hence by phase 13 |
+| reading SubViewer, SSA, ASS | the core does not read them; that is phase 9 |
+| encodings other than UTF-8 | the core refuses everything else, deliberately (phase 9) |
+| a subcommand that converts *and* transforms | would make the errors of one indistinguishable from those of the other |
+| undo from the CLI | the history exists, but a process that terminates has nothing to undo |
+| colour in the output | it would take `--color`, terminal detection, and an output that stops being stable byte for byte — yet the end-to-end tests compare it, and `make manual` copies it into the manual |
+| a progress bar | same reason, and files are processed in a few tens of milliseconds |
 
 ## Tests
 
-**De bout en bout, par le binaire réel**, sur le harnais de la phase 3 : chaque
-sous-commande, chaque code de retour, chaque refus d'usage.
+**End to end, through the real binary**, on the phase 3 harness: every
+subcommand, every exit code, every usage refusal.
 
-**Les deux sorties se vérifient séparément.** Le harnais les sépare déjà —
-`CliRun::output` et `CliRun::errors` — donc rien n'est à construire ; ce qui est
-exigé ici, c'est que les tests s'en servent. Les confondre rendrait invisible la
-faute la plus probable de cette phase : une ligne de narration qui se glisse sur
-la sortie standard, indétectable tant qu'on lit un terminal où les deux
-arrivent mêlées.
+**The two outputs are checked separately.** The harness already separates them —
+`CliRun::output` and `CliRun::errors` — so nothing needs building; what is
+required here is that the tests use them. Conflating them would make invisible
+the most likely fault of this phase: a narration line slipping onto standard
+output, undetectable as long as one reads a terminal where both arrive mixed.
 
-**L'emboîtement des niveaux se prouve par comparaison**, et non en réécrivant
-l'attendu à chaque cran : **chaque ligne du niveau *n* se retrouve, identique,
-dans le niveau *n+1***, les lignes ajoutées pouvant s'intercaler. Écrire trois
-fois le même attendu à la main laisserait les trois diverger sans que rien le
-signale.
+**The nesting of the levels is proven by comparison**, and not by rewriting the
+expected output at each notch: **every line of level *n* is found, identical, in
+level *n+1***, the added lines being allowed to interleave. Writing the same
+expected output three times by hand would let the three diverge without anything
+noticing.
 
-**Les fixtures sont fabriquées**, et couvrent délibérément ce qui casse : un
-fichier par fin de ligne, avec et sans BOM, un fichier aux fins de ligne
-mélangées, un fichier vide, un fichier dont l'ordre est rompu de chacune des
-deux façons, des décalages à la milliseconde, une conversion `25 → 23.976` dont
-le facteur n'est pas exact en décimal.
+**The fixtures are fabricated**, and deliberately cover what breaks: one file
+per line ending, with and without a BOM, a file with mixed line endings, an
+empty file, a file whose order is broken in each of the two ways, shifts to the
+millisecond, a `25 → 23.976` conversion whose factor is not exact in decimal.
 
-**Aucun test ne compare deux implémentations.** Ce qui est attendu est écrit
-dans le test, pas produit par un autre programme.
+**No test compares two implementations.** What is expected is written in the
+test, not produced by another program.
 
-## Exigences
+## Requirements
 
-Les exigences de la phase, telles que le registre les porte aujourd'hui. Elles
-entrent à l'état `prévue` et n'en sortent qu'une fois citées par un test.
+The phase's requirements, as the registry carries them today. They enter in the
+`planned` state and only leave it once cited by a test.
 
-**Quatre lignes ne datent pas du cadrage**, et la relecture de la phase 7 les a
-ramenées ici parce que rien ne les y ramenait : les trois `CLI-VERSION`
-d'origine, écrites pour l'ossature avant que la phase soit cadrée et remplacées
-depuis, et `CLI-OUTPUT-06`, née en cours de phase avec le troisième niveau de
-verbosité. `CLI-INSPECT-03` est barrée du même geste — elle l'était au registre
-et pas ici.
+**Four rows do not date from the framing**, and the phase 7 review brought them
+back here because nothing did: the three original `CLI-VERSION` ones, written
+for the skeleton before the phase was framed and replaced since, and
+`CLI-OUTPUT-06`, born during the phase with the third verbosity level.
+`CLI-INSPECT-03` is struck out in the same move — it was in the registry and not
+here.
 
-| ID | Exigence |
-| :- | :------- |
-| ~~`CLI-VERSION-01`~~ | l'invocation sans argument écrit `subedit <version>` sur la sortie standard — remplacée par `CLI-USAGE-01` |
-| ~~`CLI-VERSION-02`~~ | rien n'est écrit sur la sortie d'erreur — remplacée par `CLI-VERSION-05` |
-| ~~`CLI-VERSION-03`~~ | tout argument est ignoré, code de retour `0` — remplacée par `CLI-USAGE-02` |
-| `CLI-VERSION-04` | `--version` écrit `subedit <version>` sur la sortie standard, code `0` |
-| `CLI-VERSION-05` | une invocation qui réussit n'écrit rien sur la sortie d'erreur |
-| `CLI-USAGE-01` | sans argument, l'aide est écrite sur la sortie standard, code `0` |
-| `CLI-USAGE-02` | une option inconnue ou une valeur invalide donne le code `1`, sans rien écrire sur la sortie standard |
-| `CLI-USAGE-03` | une erreur d'usage est détectée avant tout traitement |
-| `CLI-USAGE-04` | `--quiet` et `-v` ensemble donnent une erreur d'usage |
-| `CLI-OUTPUT-01` | seul le résultat va sur la sortie standard, la narration sur la sortie d'erreur |
-| `CLI-OUTPUT-02` | `--quiet` supprime toute narration, et laisse passer les erreurs |
-| `CLI-OUTPUT-03` | chaque niveau contient le précédent, mot pour mot |
-| `CLI-OUTPUT-04` | le niveau par défaut écrit une ligne par fichier traité |
-| `CLI-OUTPUT-05` | le bilan n'apparaît qu'à partir de deux fichiers d'entrée |
-| `CLI-OUTPUT-06` | le niveau 3 nomme chaque diagnostic de lecture, sur toutes les sous-commandes |
-| `CLI-BATCH-01` | plusieurs fichiers sont traités indépendamment, les échecs nommés |
-| `CLI-BATCH-02` | tous en échec donne le code `2`, un échec partiel le code `3` |
-| `CLI-INSPECT-01` | format, encodage, BOM, fins de ligne, nombre et étendue sont rapportés |
-| `CLI-INSPECT-02` | des fins de ligne mélangées sont signalées avec leur ligne |
-| ~~`CLI-INSPECT-03`~~ | `--order-report` rend les deux lectures du désordre — abandonnée : le corpus n'a pas départagé les deux lectures |
-| `CLI-CONVERT-01` | `--to` produit le format demandé |
-| `CLI-CONVERT-02` | fins de ligne et BOM sont conservés par défaut, réglables sinon |
-| `CLI-CONVERT-03` | sans destination explicite, rien n'est écrit et le code est `1` |
-| `CLI-SHIFT-01` | `--by` décale toutes les positions, dans les deux sens |
-| `CLI-SHIFT-02` | un décalage rendant une position négative est refusé en nommant le sous-titre |
-| `CLI-TRANSFORM-01` | deux repères transforment les positions, les autres suivent |
-| `CLI-TRANSFORM-02` | deux indices confondus sont refusés |
-| `CLI-FRAMERATE-01` | `--from`/`--to` convertit les positions |
-| `CLI-FRAMERATE-02` | une fréquence nulle ou négative est refusée |
+| ID | Requirement |
+| :- | :---------- |
+| ~~`CLI-VERSION-01`~~ | the invocation with no argument writes `subedit <version>` on standard output — replaced by `CLI-USAGE-01` |
+| ~~`CLI-VERSION-02`~~ | nothing is written on error output — replaced by `CLI-VERSION-05` |
+| ~~`CLI-VERSION-03`~~ | every argument is ignored, exit code `0` — replaced by `CLI-USAGE-02` |
+| `CLI-VERSION-04` | `--version` writes `subedit <version>` on standard output, code `0` |
+| `CLI-VERSION-05` | an invocation that succeeds writes nothing on error output |
+| `CLI-USAGE-01` | with no argument, the help is written on standard output, code `0` |
+| `CLI-USAGE-02` | an unknown option or an invalid value gives code `1`, without writing anything on standard output |
+| `CLI-USAGE-03` | a usage error is detected before any processing |
+| `CLI-USAGE-04` | `--quiet` and `-v` together give a usage error |
+| `CLI-OUTPUT-01` | only the result goes on standard output, the narration on error output |
+| `CLI-OUTPUT-02` | `--quiet` suppresses all narration, and lets errors through |
+| `CLI-OUTPUT-03` | each level contains the previous one, word for word |
+| `CLI-OUTPUT-04` | the default level writes one line per processed file |
+| `CLI-OUTPUT-05` | the summary only appears from two input files onwards |
+| `CLI-OUTPUT-06` | level 3 names each reading diagnostic, on every subcommand |
+| `CLI-BATCH-01` | several files are processed independently, failures named |
+| `CLI-BATCH-02` | all failing gives code `2`, a partial failure code `3` |
+| `CLI-INSPECT-01` | format, encoding, BOM, line endings, count and span are reported |
+| `CLI-INSPECT-02` | mixed line endings are reported with their line |
+| ~~`CLI-INSPECT-03`~~ | `--order-report` returns both readings of disorder — abandoned: the corpus did not decide between the two readings |
+| `CLI-CONVERT-01` | `--to` produces the requested format |
+| `CLI-CONVERT-02` | line endings and BOM are kept by default, adjustable otherwise |
+| `CLI-CONVERT-03` | without an explicit destination, nothing is written and the code is `1` |
+| `CLI-SHIFT-01` | `--by` shifts every position, in both directions |
+| `CLI-SHIFT-02` | a shift making a position negative is refused, naming the subtitle |
+| `CLI-TRANSFORM-01` | two reference points transform the positions, the others follow |
+| `CLI-TRANSFORM-02` | two coinciding indices are refused |
+| `CLI-FRAMERATE-01` | `--from`/`--to` converts the positions |
+| `CLI-FRAMERATE-02` | a zero or negative frame rate is refused |
 
-## Découpage en issues
+## Split into issues
 
-L'ADR 0016 n'y figure pas : elle est écrite **au cadrage**, avec cette spec. Une
-décision de dépendance prise en même temps que le code qui la consomme n'est
-plus une décision, c'est une justification après coup.
+ADR 0016 does not appear here: it is written **at framing time**, with this
+spec. A dependency decision taken at the same time as the code that consumes it
+is no longer a decision, it is a justification after the fact.
 
-| Issue | Sujet | Dépend de |
-| :---- | :---- | :-------- |
-| Issue | Sujet | Dépend de |
-| :---- | :---- | :-------- |
-| [#61](https://github.com/Guyot-Bertrand/sub-edit/issues/61) | ossature — aiguillage, `--version`, `--help`, codes de retour, lot, verbosité, partage des deux sorties — **et `inspect`** | — |
-| [#62](https://github.com/Guyot-Bertrand/sub-edit/issues/62) | la seconde lecture du désordre dans le noyau | — |
-| [#63](https://github.com/Guyot-Bertrand/sub-edit/issues/63) | `--order-report` sur `inspect` | #61, #62 |
-| [#64](https://github.com/Guyot-Bertrand/sub-edit/issues/64) | `convert`, fins de ligne et BOM, **et la destination** | #61 |
-| [#65](https://github.com/Guyot-Bertrand/sub-edit/issues/65) | `shift`, **et la grammaire du temps** | #61 |
-| [#66](https://github.com/Guyot-Bertrand/sub-edit/issues/66) | `transform`, **et la grammaire des indices** | #61 |
+| Issue | Subject | Depends on |
+| :---- | :------ | :--------- |
+| Issue | Subject | Depends on |
+| :---- | :------ | :--------- |
+| [#61](https://github.com/Guyot-Bertrand/sub-edit/issues/61) | skeleton — dispatch, `--version`, `--help`, exit codes, batch, verbosity, split of the two outputs — **and `inspect`** | — |
+| [#62](https://github.com/Guyot-Bertrand/sub-edit/issues/62) | the second reading of disorder in the core | — |
+| [#63](https://github.com/Guyot-Bertrand/sub-edit/issues/63) | `--order-report` on `inspect` | #61, #62 |
+| [#64](https://github.com/Guyot-Bertrand/sub-edit/issues/64) | `convert`, line endings and BOM, **and the destination** | #61 |
+| [#65](https://github.com/Guyot-Bertrand/sub-edit/issues/65) | `shift`, **and the time grammar** | #61 |
+| [#66](https://github.com/Guyot-Bertrand/sub-edit/issues/66) | `transform`, **and the index grammar** | #61 |
 | [#67](https://github.com/Guyot-Bertrand/sub-edit/issues/67) | `framerate` | #61 |
-| [#68](https://github.com/Guyot-Bertrand/sub-edit/issues/68) | relecture de fin de phase | tout |
+| [#68](https://github.com/Guyot-Bertrand/sub-edit/issues/68) | end-of-phase review | all |
 
-**`inspect` est dans l'ossature, et la grammaire commune n'y est pas.** Ce
-n'était pas le découpage initial ; il a été corrigé en l'attaquant, pour une
-raison qui vaut d'être écrite.
+**`inspect` is in the skeleton, and the common grammar is not.** That was not
+the initial split; it was corrected when tackling it, for a reason worth writing
+down.
 
-Une ossature sans sous-commande n'a **rien d'atteignable** : pas de liste de
-fichiers, donc pas de lot ; pas de traitement, donc rien à raconter aux niveaux
-1 à 3 ; et les codes `2` et `3` ne peuvent pas se produire. La première issue
-aurait promis quatre codes de retour et quatre niveaux en n'en prouvant que deux
-et un. `inspect` est le plus simple des exerciseurs — il n'écrit aucun fichier —
-et il rend le reste atteignable.
+A skeleton without a subcommand has **nothing reachable**: no file list, hence
+no batch; no processing, hence nothing to narrate at levels 1 to 3; and codes
+`2` and `3` cannot occur. The first issue would have promised four exit codes
+and four levels while proving only two and one. `inspect` is the simplest of the
+exercisers — it writes no file — and it makes the rest reachable.
 
-Symétriquement, la grammaire du temps, des indices et de la destination
-descend dans les issues qui en ont l'usage. L'écrire dans l'ossature la
-laisserait sans appelant, donc sans preuve — le même défaut, dans l'autre sens.
+Symmetrically, the grammar of time, indices and destination goes down into the
+issues that use it. Writing it in the skeleton would leave it without a caller,
+hence without proof — the same defect, the other way round.
 
-`#62` ne touche pas à la CLI et peut se faire en parallèle de `#61`. Les quatre
-sous-commandes qui écrivent — `#64` à `#67` — sont indépendantes entre elles une
-fois l'ossature posée.
+`#62` does not touch the CLI and can be done in parallel with `#61`. The four
+subcommands that write — `#64` to `#67` — are independent of one another once
+the skeleton is in place.
 
-## Points ouverts
+## Open points
 
-| Point | Déclencheur |
-| :---- | :---------- |
-| laquelle des deux lectures du désordre garder | la phase 5, qui affichera le même ensemble ; l'option `--order-report` disparaît alors |
-| forme d'une sortie lisible par une machine | phase 13, quand un appelant réel en aura besoin |
-| valider les opérations contre la durée de la vidéo | la phase 6, qui associe une vidéo au projet — le détail est écrit là-bas, dans la feuille de route |
+| Point | Trigger |
+| :---- | :------ |
+| which of the two readings of disorder to keep | phase 5, which will display the same set; the `--order-report` option then disappears |
+| shape of a machine-readable output | phase 13, when a real caller needs it |
+| validating operations against the video's duration | phase 6, which associates a video with the project — the detail is written there, in the roadmap |
 
-Sur ce dernier point, ce que cette phase peut et ne peut pas faire mérite d'être
-dit ici, puisque c'est en l'écrivant qu'on l'a vu : **on ne sait vérifier qu'une
-seule borne, celle de zéro.** Un décalage négatif trop grand rend une position
-négative, et le refus est possible. La borne haute — ne pas pousser des
-sous-titres après la fin du film — n'existe pas pour le noyau, qui ignore où le
-film s'arrête.
+On this last point, what this phase can and cannot do deserves to be said here,
+since it was while writing it that we saw it: **only one bound can be checked,
+that of zero.** A negative shift that is too large makes a position negative,
+and refusing it is possible. The upper bound — not pushing subtitles past the
+end of the film — does not exist for the core, which does not know where the
+film ends.
 
-**Corrigé à la relecture :** cette phrase ne parlait que de `shift`. `transform`
-est concernée de la même façon — un sous-titre placé avant le premier repère
-peut être repoussé sous zéro — et porte le même refus, avec le même message.
-`framerate` ne l'est pas : le facteur est strictement positif, donc une position
-positive le reste. Les deux autres bornes, elles, restent hors d'atteinte.
+**Corrected at review:** this sentence only spoke of `shift`. `transform` is
+concerned in the same way — a subtitle placed before the first reference point
+can be pushed below zero — and carries the same refusal, with the same message.
+`framerate` is not: the factor is strictly positive, so a positive position
+stays positive. The two other bounds, for their part, remain out of reach.
 
-## Critères de fin
+## Completion criteria
 
-- [ ] Les cinq sous-commandes existent et sont documentées au manuel
-- [ ] Chaque exigence du tableau ci-dessus est `implémentée` et citée par un test
-- [ ] Les quatre codes de retour sont prouvés
-- [ ] Les quatre niveaux de verbosité sont prouvés, y compris l'emboîtement
-- [ ] Aucune narration ne se glisse sur la sortie standard
-- [ ] Les exigences remplacées portent leur nouvel identifiant
-- [ ] L'ADR CLI11 est écrite
-- [ ] Les benchmarks sont rejoués et les mesures relevées
-- [ ] La relecture de fin de phase est faite
+- [ ] The five subcommands exist and are documented in the manual
+- [ ] Every requirement of the table above is `implemented` and cited by a test
+- [ ] The four exit codes are proven
+- [ ] The four verbosity levels are proven, nesting included
+- [ ] No narration slips onto standard output
+- [ ] The replaced requirements carry their new identifier
+- [ ] The CLI11 ADR is written
+- [ ] The benchmarks are rerun and the measurements recorded
+- [ ] The end-of-phase review is done

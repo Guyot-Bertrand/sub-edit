@@ -197,7 +197,7 @@ find and replace, clipboard.
   cell? How is the **grouping** of actions into a single undo entry done? —
   *closed, without a mechanism: a delegate commits once, so an edited cell
   produces one command. See
-  [the phase 2 spec](specs/02-operations-d-edition.md#le-groupement-dactions--question-close).*
+  [the phase 2 spec](specs/02-operations-d-edition.md#grouping-actions--a-closed-question).*
 - **Target** model: selection, range, whole project. Gaupol handles it with a
   `target` parameter repeated in every signature — we can do better.
 - Where is the boundary between a core operation and interface logic?

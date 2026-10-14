@@ -11,10 +11,24 @@ ne pas l'éditer à la main.
 
 ### Documentation
 
+- **doc** — Translate spec 00 into English
+- **doc** — Translate spec 01 into English
+- **doc** — Translate spec 02 into English
+- **doc** — Translate spec 03 into English
+- **doc** — Translate spec 04 into English
+- **doc** — Translate spec 05 into English
+- **doc** — Translate spec 06 into English
+- **doc** — Translate spec 07 into English
+
+## 0.15.29 — 2026-10-14
+
+### Documentation
+
 - **doc** — Translate ADRs 0022 to 0029 into English
 - **doc** — Translate ADRs 0030 to 0035 into English
 - **doc** — Translate ADRs 0036 to 0041 into English
 - **doc** — Translate the ADR index into English
+- **doc** — Regenerate the changelog
 
 ## 0.15.28 — 2026-10-14
 

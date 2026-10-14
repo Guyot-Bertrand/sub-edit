@@ -1,137 +1,134 @@
-# Phase 1 — Noyau : modèle de données et formats
+# Phase 1 — Core: data model and formats
 
-**État :** conception validée, prête à découper
-**Milestone :** `1 — Noyau : modèle et formats`
-**Issue de cadrage :** #1
+**State:** design approved, ready to be split
+**Milestone:** `1 — Noyau : modèle et formats`
+**Framing issue:** #1
 
-## Objectif
+## Goal
 
-Poser le modèle de données de `subedit_core` et la lecture-écriture des deux
-formats prioritaires, avec l'architecture de commandes réversibles qui portera
-toutes les opérations des phases suivantes.
+Lay down the data model of `subedit_core` and the reading and writing of the two
+priority formats, together with the reversible-command architecture that will
+carry every operation of the following phases.
 
-À l'issue de cette phase, la bibliothèque sait ouvrir un `.srt` ou un `.vtt`,
-en restituer le contenu fidèlement, et le réécrire — sans interface, sans
-opération d'édition, qui relèvent de la phase 2.
+At the end of this phase, the library can open a `.srt` or a `.vtt`, render its
+content faithfully, and write it back — with no interface and no editing
+operation, which belong to phase 2.
 
-## Portée
+## Scope
 
-**Inclus** — types de position, sous-titre, projet, données spécifiques aux
-formats, lecture et écriture SubRip et WebVTT, détection de format, décodage
-UTF-8, diagnostics, historique de commandes, corpus de fichiers de test.
+**Included** — position types, subtitle, project, format-specific data, SubRip
+and WebVTT reading and writing, format detection, UTF-8 decoding, diagnostics,
+command history, corpus of test files.
 
-**Exclu, par phase** — détection automatique d'encodage et jeux d'encodages
-(phase 8) ; autres formats et modèle de balises riche (phase 9) ; opérations
-d'édition (phase 2) ; parseur conscient des balises (phase 4, où il devient
-nécessaire).
+**Excluded, by phase** — automatic encoding detection and encoding sets
+(phase 8); other formats and a rich markup model (phase 9); editing operations
+(phase 2); a markup-aware parser (phase 4, where it becomes necessary).
 
-Le contour vient des priorités de l'utilisateur, rappelées dans
-[`../feuille-de-route.md`](../feuille-de-route.md) : ouvrir et enregistrer en
-SubRip et WebVTT, en UTF-8, avec des fins de ligne Unix.
+The outline comes from the user's priorities, recalled in
+[`../feuille-de-route.md`](../feuille-de-route.md): open and save SubRip and
+WebVTT, in UTF-8, with Unix line endings.
 
-## Décisions applicables
+## Applicable decisions
 
-| ADR | Décision |
+| ADR | Decision |
 | :-- | :------- |
-| [0006](../adr/0006-positions-en-millisecondes.md) | positions en millisecondes entières, types forts, fréquence rationnelle |
-| [0011](../adr/0011-numero-d-image-en-type-fort.md) | numéro d'image en type fort `Frame` |
-| [0007](../adr/0007-cpp23-et-std-expected.md) | C++23 et `std::expected` |
-| [0008](../adr/0008-lecture-au-mieux-avec-diagnostics.md) | ouvrir au mieux, rapporter des diagnostics |
-| [0009](../adr/0009-texte-en-chaine-brute.md) | texte stocké en chaîne brute |
-| [0010](../adr/0010-annulation-par-commandes.md) | commandes portant leur propre inverse |
+| [0006](../adr/0006-positions-en-millisecondes.md) | positions in whole milliseconds, strong types, rational frame rate |
+| [0011](../adr/0011-numero-d-image-en-type-fort.md) | frame number as the strong type `Frame` |
+| [0007](../adr/0007-cpp23-et-std-expected.md) | C++23 and `std::expected` |
+| [0008](../adr/0008-lecture-au-mieux-avec-diagnostics.md) | open as best one can, report diagnostics |
+| [0009](../adr/0009-texte-en-chaine-brute.md) | text stored as a raw string |
+| [0010](../adr/0010-annulation-par-commandes.md) | commands carrying their own inverse |
 
-## Organisation des modules
+## Module layout
 
 ```
 src/lib/subedit/core/
-├── time/        Timestamp, Duration, Frame, FrameRate, conversions, formatage
-├── model/       Subtitle, Project, extras spécifiques aux formats
-├── format/      lecture et écriture, détection, diagnostics
+├── time/        Timestamp, Duration, Frame, FrameRate, conversions, formatting
+├── model/       Subtitle, Project, format-specific extras
+├── format/      reading and writing, detection, diagnostics
 └── command/     Command, CompositeCommand, History
 ```
 
-Chaque module est testable seul. `time` ne dépend de rien, `model` de `time`,
-`format` de `model`, `command` de `model`.
+Each module can be tested on its own. `time` depends on nothing, `model` on
+`time`, `format` on `model`, `command` on `model`.
 
-## Types de position
+## Position types
 
 ```cpp
-class Duration;   // millisecondes signées
-class Timestamp;  // millisecondes signées, position absolue
-class Frame;      // numéro d'image signé
-class FrameRate;  // rationnel exact
+class Duration;   // signed milliseconds
+class Timestamp;  // signed milliseconds, absolute position
+class Frame;      // signed frame number
+class FrameRate;  // exact rational
 ```
 
-Non convertibles implicitement entre eux ni vers un entier. Arithmétique
-autorisée :
+Not implicitly convertible to one another nor to an integer. Allowed
+arithmetic:
 
 ```
 Timestamp − Timestamp → Duration
 Timestamp ± Duration  → Timestamp
 Duration  ± Duration  → Duration
-Duration  × entier    → Duration
+Duration  × integer   → Duration
 Frame     ± Frame     → Frame
-Timestamp + Timestamp → ne compile pas
-Timestamp − Frame     → ne compile pas
+Timestamp + Timestamp → does not compile
+Timestamp − Frame     → does not compile
 ```
 
-Aucune de ces classes n'a de constructeur public : on passe par des fabriques
-nommées — `Timestamp::fromMilliseconds`, `Frame::fromNumber`,
-`FrameRate::create` — pour que l'unité soit écrite au site d'appel.
+None of these classes has a public constructor: one goes through named
+factories — `Timestamp::fromMilliseconds`, `Frame::fromNumber`,
+`FrameRate::create` — so that the unit is written at the call site.
 
-`Frame` est le type de la « vue en images » que
-[0006](../adr/0006-positions-en-millisecondes.md) nomme sans la typer ;
-[0011](../adr/0011-numero-d-image-en-type-fort.md) le décide et dit pourquoi.
-L'image n'ayant pas de sous-unité, un seul type sert de position et de compte,
-d'où `Frame + Frame` alors que `Timestamp + Timestamp` est refusé.
+`Frame` is the type of the "frame view" that
+[0006](../adr/0006-positions-en-millisecondes.md) names without typing it;
+[0011](../adr/0011-numero-d-image-en-type-fort.md) decides it and says why.
+Since a frame has no sub-unit, a single type serves as position and as count,
+hence `Frame + Frame` while `Timestamp + Timestamp` is refused.
 
-`FrameRate` est un rationnel `numérateur / dénominateur`. Les huit valeurs de
-Gaupol sont exactes : `24000/1001`, `24/1`, `25/1`, `30000/1001`, `30/1`,
-`50/1`, `60000/1001`, `60/1`. Les fréquences personnalisées restent
-représentables.
+`FrameRate` is a `numerator / denominator` rational. Gaupol's eight values are
+exact: `24000/1001`, `24/1`, `25/1`, `30000/1001`, `30/1`, `50/1`,
+`60000/1001`, `60/1`. Custom frame rates remain representable.
 
-### Conversions et arrondi
+### Conversions and rounding
 
-Arrondi **à l'entier le plus proche, la moitié s'éloignant de zéro** — symétrique
-autour de l'origine, contrairement à l'arrondi au pair le plus proche dont
-Gaupol hérite de Python.
+Rounding **to the nearest integer, half away from zero** — symmetric around the
+origin, unlike the round-half-to-even that Gaupol inherits from Python.
 
-Deux garanties, à couvrir par des tests :
+Two guarantees, to be covered by tests:
 
-- **`image → millisecondes → image` est l'identité**, pour toute fréquence
-  jusqu'à 60 images par seconde. À 60 im/s une image dure 16,67 ms : la grille
-  des millisecondes est plus fine que celle des images. C'est ce qui rend sûr
-  d'unifier la représentation interne sur les millisecondes, y compris pour les
-  formats nativement en images de la phase 9.
-- **`millisecondes → image → millisecondes` ne l'est pas.** La précision
-  infra-image est perdue. Comportement attendu, testé comme tel.
+- **`frame → milliseconds → frame` is the identity**, for any rate up to 60
+  frames per second. At 60 fps a frame lasts 16.67 ms: the millisecond grid is
+  finer than the frame grid. This is what makes it safe to unify the internal
+  representation on milliseconds, including for the natively frame-based
+  formats of phase 9.
+- **`milliseconds → frame → milliseconds` is not.** Sub-frame precision is
+  lost. Expected behaviour, tested as such.
 
-Les calculs intermédiaires se font en `std::int64_t` : la valeur maximale
-plausible est de l'ordre de `10⁷ images × 1000 × 1001`, soit ~10¹³, largement
-dans les bornes.
+Intermediate calculations are done in `std::int64_t`: the largest plausible
+value is of the order of `10⁷ frames × 1000 × 1001`, i.e. ~10¹³, well within
+bounds.
 
-### Formatage
+### Formatting
 
-`HH:MM:SS,mmm` pour SubRip, `HH:MM:SS.mmm` ou `MM:SS.mmm` pour WebVTT. Les
-positions négatives portent un signe en tête. **Saturation à `99:59:59,999`** à
-l'écriture, comme Gaupol — contrainte de format, pas de représentation.
+`HH:MM:SS,mmm` for SubRip, `HH:MM:SS.mmm` or `MM:SS.mmm` for WebVTT. Negative
+positions carry a leading sign. **Saturation at `99:59:59,999`** on writing, as
+in Gaupol — a format constraint, not a representation one.
 
-L'analyse d'un horodatage est délibérément permissive, à l'image de Gaupol :
-champs de 1 ou 2 chiffres, millisecondes de 1 à 3 chiffres — ou absentes —,
-heures facultatives en WebVTT, virgule ou point comme séparateur décimal, signe
-négatif accepté, blancs alentour ignorés.
+Parsing a timestamp is deliberately permissive, like Gaupol: fields of 1 or 2
+digits, milliseconds of 1 to 3 digits — or absent —, optional hours in WebVTT,
+comma or dot as decimal separator, negative sign accepted, surrounding blanks
+ignored.
 
-Deux limites à cette permissivité, décidées à l'écriture :
+Two limits to this permissiveness, decided while writing it:
 
-- **des minutes ou des secondes hors de leur plage sont refusées.** `00:60:00`
-  n'est pas un horodatage de 60 minutes, c'est un fichier abîmé ; le refus
-  permet au lecteur d'émettre un diagnostic sur la ligne plutôt que d'inventer
-  une position. L'analyse rend `std::optional<Timestamp>` — une seule cause
-  d'échec, aucune information qu'un `expected` porterait en plus.
-- **les heures reviennent quand la position atteint une heure**, même si
-  l'appelant les avait demandées omises : `61:01.500` ne se relit pas.
+- **minutes or seconds out of their range are refused.** `00:60:00` is not a
+  60-minute timestamp, it is a damaged file; refusing lets the reader emit a
+  diagnostic on the line rather than invent a position. Parsing returns
+  `std::optional<Timestamp>` — a single cause of failure, no information that
+  an `expected` would carry in addition.
+- **hours come back when the position reaches one hour**, even if the caller
+  asked for them to be omitted: `61:01.500` cannot be read back.
 
-## Modèle
+## Model
 
 ```cpp
 enum class Document { Main, Translation };
@@ -139,31 +136,30 @@ enum class Document { Main, Translation };
 struct Subtitle {
     Timestamp start;
     Timestamp end;
-    std::string mainText;         // brut, balises du format comprises
+    std::string mainText;         // raw, format markup included
     std::string translationText;
     FormatExtras extras;
 };
 ```
 
-`duration()` est dérivée : `end - start`. Elle n'est pas stockée. `text(Document)`
-donne accès à l'un ou l'autre texte, en lecture et en écriture, pour que les
-opérations de la phase 2 nomment leur cible au lieu de la coder en dur.
+`duration()` is derived: `end - start`. It is not stored. `text(Document)`
+gives access to either text, for reading and writing, so that the operations of
+phase 2 name their target instead of hard-coding it.
 
-**Un sous-titre porte les deux textes et une seule paire de positions.** C'est le
-modèle de Gaupol, et il exprime directement le fait que la traduction n'a pas de
-temps propres. Le besoin d'un document de traduction n'étant pas confirmé, le
-modèle l'accueille sans que rien d'autre ne le construise.
+**A subtitle carries both texts and a single pair of positions.** It is
+Gaupol's model, and it directly expresses the fact that the translation has no
+timing of its own. Since the need for a translation document is not confirmed,
+the model accommodates it without anything else building it.
 
-**`end ≥ start` n'est pas un invariant.** Exception assumée aux principes de
-conception, justifiée dans [0008](../adr/0008-lecture-au-mieux-avec-diagnostics.md) :
-un fichier réel peut contenir un sous-titre incohérent, et l'utilisateur doit
-pouvoir le voir pour le corriger. L'anomalie produit un diagnostic.
+**`end ≥ start` is not an invariant.** An accepted exception to the design
+principles, justified in [0008](../adr/0008-lecture-au-mieux-avec-diagnostics.md):
+a real file may contain an inconsistent subtitle, and the user must be able to
+see it to fix it. The anomaly produces a diagnostic.
 
-### Données spécifiques aux formats
+### Format-specific data
 
-Les deux formats du MVP portent des données qui doivent survivre à
-l'aller-retour — perdre les `settings` d'une cue WebVTT, c'est perdre son
-positionnement à l'écran.
+The two MVP formats carry data that must survive the round trip — losing the
+`settings` of a WebVTT cue means losing its on-screen positioning.
 
 ```cpp
 struct Rectangle     { int x1, x2, y1, y2; };
@@ -173,22 +169,21 @@ struct WebVttExtras  { std::string id, settings, style, comment; };
 using FormatExtras = std::variant<std::monostate, SubRipExtras, WebVttExtras>;
 ```
 
-Un `variant` plutôt que le sac d'attributs dynamiques de Gaupol : le compilateur
-sait quels champs existent, et l'exhaustivité des traitements est vérifiable.
-`std::monostate` couvre les formats sans données propres.
+A `variant` rather than Gaupol's bag of dynamic attributes: the compiler knows
+which fields exist, and the exhaustiveness of the handling can be checked.
+`std::monostate` covers the formats without data of their own.
 
-Les coordonnées sont une **option**, et non quatre entiers nuls : Gaupol ne les
-écrit que si elles ne sont pas toutes à zéro, donc « absentes » et « toutes à
-zéro » sont deux états distincts qui doivent tous deux survivre à
-l'aller-retour.
+The coordinates are an **option**, not four zero integers: Gaupol writes them
+only if they are not all zero, so "absent" and "all zero" are two distinct
+states that must both survive the round trip.
 
-### Projet
+### Project
 
 ```cpp
 enum class Newline { Lf, CrLf, Cr };
 
 struct SourceFile {
-    std::optional<std::filesystem::path> path;   // absent si jamais ouvert ni enregistré
+    std::optional<std::filesystem::path> path;   // absent if never opened nor saved
     Newline     newline;
     bool        hadUtf8Bom;
     std::string header;                          // WebVTT
@@ -196,52 +191,51 @@ struct SourceFile {
 
 class Project {
     std::vector<Subtitle> m_subtitles;
-    FrameRate  m_frameRate;         // par défaut 24000/1001, comme Gaupol
+    FrameRate  m_frameRate;         // 24000/1001 by default, as in Gaupol
     SourceFile m_sourceFile;
 };
 ```
 
-Les sous-titres se joignent par `subtitleAt(SubtitleIndex)`, en lecture comme
-en écriture — c'est ce dont une commande a besoin pour modifier un sous-titre
-sans reconstruire le vecteur entier. Un indice hors bornes lève
-`std::out_of_range` : c'est une erreur de programmation, et échouer bruyamment
-vaut mieux que lire ce qui suit le vecteur.
+Subtitles are reached through `subtitleAt(SubtitleIndex)`, for reading as for
+writing — that is what a command needs to modify a subtitle without rebuilding
+the whole vector. An out-of-bounds index throws `std::out_of_range`: it is a
+programming error, and failing loudly is better than reading what follows the
+vector.
 
-**`SubtitleIndex` est un type fort**, comme l'annoncent les principes de
-conception. Deux numérotations coexistent — la position à partir de zéro, côté
-code, et le numéro à partir de un, celui que l'utilisateur lit et que SubRip
-écrit. Les confondre est le décalage d'un classique d'un éditeur de
-sous-titres ; la conversion est écrite une fois, dans le type.
+**`SubtitleIndex` is a strong type**, as the design principles announce. Two
+numberings coexist — the zero-based position, on the code side, and the
+one-based number, the one the user reads and SubRip writes. Mixing them up is
+the classic off-by-one of a subtitle editor; the conversion is written once, in
+the type.
 
-`std::vector` plutôt qu'une structure plus savante : les accès sont
-essentiellement séquentiels et par indice, les insertions et suppressions
-groupées. Une structure différente devra être justifiée par une mesure.
+`std::vector` rather than a cleverer structure: accesses are essentially
+sequential and by index, insertions and removals grouped. A different structure
+would have to be justified by a measurement.
 
-`SourceFile` n'est pas de la décoration : réécrire sans BOM ni CRLF un fichier
-qui en portait réécrirait chacune de ses lignes, et l'utilisateur trouverait un
-diff là où il attendait un sous-titre corrigé. Le chemin y est une **valeur**,
-pas une poignée — l'accès au disque passe par l'abstraction injectée de
-l'issue #5.
+`SourceFile` is not decoration: rewriting without BOM or CRLF a file that had
+them would rewrite every one of its lines, and the user would find a diff where
+they expected a corrected subtitle. The path is a **value** there, not a
+handle — disk access goes through the injected abstraction of issue #5.
 
-`Project` ne décide de rien : il détient l'état et le rend. Les modifications
-passent par les commandes réversibles, qui arrivent avec les opérations. Le
-format du fichier n'y figure pas encore : il apparaîtra avec la détection, à
-l'issue #8, plutôt que d'être introduit ici sans utilisateur.
+`Project` decides nothing: it holds the state and gives it back. Modifications
+go through the reversible commands, which arrive with the operations. The file
+format is not in it yet: it will appear with detection, in issue #8, rather
+than be introduced here with no user.
 
-## Lecture et écriture
+## Reading and writing
 
 ```cpp
 struct Diagnostic {
     Severity     severity;   // Warning | Recovered
-    int          line;       // 1-fondé
-    DiagnosticKind kind;     // énumération, traduisible, testable sans comparer du texte
-    std::string  detail;     // contexte facultatif
+    int          line;       // 1-based
+    DiagnosticKind kind;     // enumeration, translatable, testable without comparing text
+    std::string  detail;     // optional context
 };
 
 struct ReadResult {
     std::vector<Subtitle>   subtitles;
     std::string             header;       // WebVTT
-    Newline                 newline;      // détectée, conservée
+    Newline                 newline;      // detected, preserved
     bool                    hadUtf8Bom;
     std::vector<Diagnostic> diagnostics;
 };
@@ -254,32 +248,33 @@ public:
 };
 ```
 
-**Le lecteur reçoit du contenu déjà décodé, pas un chemin.** L'accès au système
-de fichiers passe par une abstraction injectée : un test lit une chaîne, sans
-disque ni fichier temporaire.
+**The reader receives already decoded content, not a path.** File system access
+goes through an injected abstraction: a test reads a string, with no disk and
+no temporary file.
 
-Distinction stricte, posée par [0008](../adr/0008-lecture-au-mieux-avec-diagnostics.md) :
+A strict distinction, laid down by
+[0008](../adr/0008-lecture-au-mieux-avec-diagnostics.md):
 
-| Cas | Traitement |
-| :-- | :--------- |
-| Fichier inaccessible, octets invalides en UTF-8, aucun sous-titre reconnaissable | `std::unexpected` |
-| Ligne ignorée, horodatage incohérent, fin avant début, chevauchement, bloc inconnu | diagnostic, lecture poursuivie |
+| Case | Handling |
+| :--- | :------- |
+| Inaccessible file, bytes invalid in UTF-8, no recognisable subtitle | `std::unexpected` |
+| Skipped line, inconsistent timestamp, end before start, overlap, unknown block | diagnostic, reading continues |
 
-`DiagnosticKind` énumère les anomalies que le corpus doit couvrir : ligne
-ignorée, horodatage illisible, champs courts, fin avant début, chevauchement,
-numérotation absente ou incohérente, texte avant tout horodatage, balise non
-fermée, bloc inconnu, fins de ligne mélangées. `Severity` distingue ce que le
-lecteur a **laissé tel quel** faute de pouvoir décider — `Warning` — de ce sur
-quoi il a **tranché**, comme une numérotation régénérée : `Recovered`.
+`DiagnosticKind` enumerates the anomalies the corpus must cover: skipped line,
+unreadable timestamp, short fields, end before start, overlap, missing or
+inconsistent numbering, text before any timestamp, unclosed tag, unknown block,
+mixed line endings. `Severity` distinguishes what the reader **left as is** for
+lack of a way to decide — `Warning` — from what it **settled**, such as a
+regenerated numbering: `Recovered`.
 
-Le numéro de ligne reste un `int`. C'est une exception délibérée à la règle des
-types forts : il n'est jamais qu'affiché, jamais mêlé à un calcul avec un indice
-de sous-titre, et un type de plus n'achèterait rien ici.
+The line number stays an `int`. It is a deliberate exception to the strong
+types rule: it is only ever displayed, never mixed into a calculation with a
+subtitle index, and one more type would buy nothing here.
 
-### Système de fichiers
+### File system
 
 ```cpp
-class FileSystem {                       // uniquement des primitives
+class FileSystem {                       // primitives only
     virtual bool exists(path) const = 0;
     virtual expected<string, FileError> readFile(path) const = 0;
     virtual expected<void, FileError>   writeFile(path, string_view) = 0;
@@ -290,67 +285,65 @@ class FileSystem {                       // uniquement des primitives
 expected<void, FileError> writeAtomically(FileSystem&, path, string_view);
 ```
 
-L'interface est **délibérément primitive**. Écrire sans risque est une
-*politique*, pas une primitive : `writeAtomically` la construit au-dessus de ces
-opérations, de sorte qu'elle s'écrive une fois et se teste, au lieu d'être
-réimplémentée — et éventuellement simulée — par chaque implémentation. Le même
-raisonnement sort `fileErrorKindOf` de l'ombre : la correspondance
-`std::error_code` → `FileErrorKind` est partagée, donc testable contre les codes
-eux-mêmes plutôt que contre un périphérique qu'il faudrait faire échouer.
+The interface is **deliberately primitive**. Writing safely is a *policy*, not
+a primitive: `writeAtomically` builds it on top of these operations, so that it
+is written once and tested, instead of being reimplemented — and possibly
+faked — by each implementation. The same reasoning brings `fileErrorKindOf` out
+of the shadows: the `std::error_code` → `FileErrorKind` mapping is shared, hence
+testable against the codes themselves rather than against a device one would
+have to make fail.
 
-Trois valeurs seulement dans `FileErrorKind` — `NotFound`, `PermissionDenied`,
-`Io` — parce que trois sont ce sur quoi un appelant peut agir : recommencer
-ailleurs, demander des droits, ou renoncer.
+Only three values in `FileErrorKind` — `NotFound`, `PermissionDenied`, `Io` —
+because three is what a caller can act on: try again elsewhere, ask for
+permissions, or give up.
 
-Deux implémentations. `RealFileSystem` ouvre en binaire, un flux qui
-traduirait les fins de ligne ruinant la détection. `InMemoryFileSystem` **vit
-dans la bibliothèque**, et non dans les tests : tout module touchant aux
-fichiers en a besoin, et sa capacité à échouer sur commande est la seule façon
-honnête de tester une sauvegarde interrompue — attendre un vrai disque plein
-n'est pas un test.
+Two implementations. `RealFileSystem` opens in binary mode, since a stream that
+translated line endings would ruin detection. `InMemoryFileSystem` **lives in the
+library**, not in the tests: every module that touches files needs it, and its
+ability to fail on demand is the only honest way to test an interrupted save —
+waiting for a real full disk is not a test.
 
-L'écriture est **atomique** — écriture dans un temporaire voisin puis renommage,
-comme Gaupol. Une sauvegarde interrompue ne détruit pas le fichier existant, et
-le temporaire est retiré si le renommage échoue, pour ne rien laisser traîner à
-côté du fichier.
+Writing is **atomic** — write to a neighbouring temporary file then rename, as
+in Gaupol. An interrupted save does not destroy the existing file, and the
+temporary file is removed if the rename fails, so as to leave nothing lying
+around next to the file.
 
-**Limite à connaître :** l'atomicité porte sur le *remplacement*, un renommage
-dans un répertoire étant atomique. Elle ne garantit pas la *durabilité* face à
-une coupure de courant, qui demanderait de vider le fichier et son répertoire
-sur le périphérique. Gaupol ne le fait pas davantage, et la panne dont il s'agit
-de protéger l'utilisateur est la fréquente : une sauvegarde qui échoue en cours
-de route.
+**A limit to be aware of:** atomicity applies to the *replacement*, a rename
+within a directory being atomic. It does not guarantee *durability* against a
+power cut, which would require flushing the file and its directory to the
+device. Gaupol does not do so either, and the failure the user needs protecting
+from is the frequent one: a save that fails midway.
 
-Deux lignes de `RealFileSystem` restent non couvertes — les vérifications qui
-suivent une lecture et une fermeture de flux. Les atteindre demanderait un
-périphérique défaillant en cours d'opération ; elles sont conservées comme
-gardes, et signalées ici plutôt que retirées pour faire un chiffre.
+Two lines of `RealFileSystem` remain uncovered — the checks that follow a read
+and the closing of a stream. Reaching them would require a device that fails
+mid-operation; they are kept as guards, and reported here rather than removed
+to make a figure.
 
-### Découpage en lignes
+### Splitting into lines
 
 ```cpp
 std::vector<std::string_view> splitLines(std::string_view content);
 ```
 
-Partagé par les formats, qui sont tous en lignes. Les trois fins de ligne sont
-reconnues, aucune n'entre dans le texte, et une fin de ligne finale n'invente
-pas de ligne vide. Les vues pointent dans le contenu : un fichier de plusieurs
-milliers de sous-titres se découpe sans copier une seule ligne.
+Shared by the formats, which are all line-based. The three line endings are
+recognised, none enters the text, and a final line ending does not invent an
+empty line. The views point into the content: a file of several thousand
+subtitles is split without copying a single line.
 
-`trimmedBlanks` et `isBlank` l'accompagnent : chaque lecteur a besoin de la même
-réponse à « cette ligne est-elle vide ? », et trois copies en seraient trois
-occasions de diverger. Côté écriture, `appendWithEnding` joue le même rôle — un
-texte se garde avec des sauts de ligne, la fin de ligne est une propriété du
-fichier, décidée au moment de l'écrire.
+`trimmedBlanks` and `isBlank` go with it: every reader needs the same answer to
+"is this line empty?", and three copies would be three opportunities to
+diverge. On the writing side, `appendWithEnding` plays the same role — a text is
+kept with line feeds, the line ending is a property of the file, decided at the
+moment of writing it.
 
-### Écriture
+### Writing
 
 ```cpp
 struct WriteRequest {
     std::span<const Subtitle> subtitles;
-    Document         document;   // lequel des deux textes part dans le fichier
-    Newline          newline;    // LF par défaut
-    std::string_view header;     // WebVTT ; vide pour les formats sans en-tête
+    Document         document;   // which of the two texts goes into the file
+    Newline          newline;    // LF by default
+    std::string_view header;     // WebVTT; empty for formats without a header
 };
 
 class SubtitleWriter {
@@ -358,95 +351,92 @@ class SubtitleWriter {
 };
 ```
 
-**Un écrivain rend une chaîne, il ne touche pas au disque.** L'y porter est
-l'affaire de `writeAtomically`, qui sait ne pas détruire la version
-précédente — une préoccupation qu'aucun format n'a à répéter.
+**A writer returns a string, it does not touch the disk.** Taking it there is
+the business of `writeAtomically`, which knows how not to destroy the previous
+version — a concern no format has to repeat.
 
-La fin de ligne est celle qu'on lui donne, LF par défaut, comme le demande la
-feuille de route. Celle du fichier d'origine n'est pas perdue pour autant : elle
-est conservée dans `SourceFile`, et c'est l'appelant qui décide de la remettre,
-plutôt que l'écrivain qui le ferait dans son dos.
+The line ending is the one it is given, LF by default, as the roadmap asks. The
+original file's ending is not lost for all that: it is kept in `SourceFile`,
+and it is the caller who decides to put it back, rather than the writer doing
+so behind its back.
 
 ### SubRip
 
-Numérotation régénérée à l'écriture. Séparateur décimal virgule. Coordonnées
-étendues `X1/X2/Y1/Y2` écrites seulement si présentes et non nulles.
+Numbering regenerated on writing. Comma as decimal separator. Extended
+coordinates `X1/X2/Y1/Y2` written only if present and non-zero.
 
-**Ce qui ouvre un sous-titre est la ligne d'horodatage** — ni le numéro
-au-dessus, ni la ligne vide avant. Les fichiers réels ont des numéros absents,
-des numéros qui ne se suivent pas, et séparent leurs blocs comme ils veulent ;
-seul l'horodatage est fiable. Le numéro est donc repris *a posteriori* parmi les
-lignes en attente, puisqu'il appartient au sous-titre qui commence et non à
-celui qui finit.
+**What opens a subtitle is the timestamp line** — neither the number above it
+nor the empty line before it. Real files have missing numbers, numbers that do
+not follow one another, and separate their blocks as they please; only the
+timestamp is reliable. The number is therefore taken back *a posteriori* from
+the pending lines, since it belongs to the subtitle that begins and not to the
+one that ends.
 
-Piège relevé chez Gaupol : sa lecture concatène toute ligne non horodatée au
-sous-titre précédent, ce qui produit une exception non documentée quand le
-premier bloc n'est pas un horodatage — une note de traducteur en tête de fichier
-suffit. Notre lecteur émet un diagnostic par ligne et cherche le bloc suivant.
+A trap found in Gaupol: its reading concatenates any non-timestamp line to the
+previous subtitle, which produces an undocumented exception when the first
+block is not a timestamp — a translator's note at the head of the file is
+enough. Our reader emits one diagnostic per line and looks for the next block.
 
-Deux règles de prudence, décidées à l'écriture du lecteur :
+Two rules of caution, decided while writing the reader:
 
-- **une ligne qui voulait être un horodatage sans y parvenir est signalée puis
-  conservée comme texte.** Détruire une ligne qu'on n'a pas comprise serait pire
-  que de la montrer telle quelle ;
-- **des coordonnées à moitié écrites disqualifient la ligne entière.** Garder
-  les horodatages et jeter le reste serait une décision qu'on n'a aucun titre à
-  prendre.
+- **a line that meant to be a timestamp without managing it is reported then
+  kept as text.** Destroying a line one did not understand would be worse than
+  showing it as is;
+- **half-written coordinates disqualify the whole line.** Keeping the
+  timestamps and throwing away the rest would be a decision we have no
+  standing to make.
 
-À l'écriture, la disposition est celle de Gaupol, ligne vide close comprise, y
-compris après le dernier bloc. D'où la forme exacte de la garantie
-d'aller-retour :
+On writing, the layout is Gaupol's, closing empty line included, also after the
+last block. Hence the exact form of the round-trip guarantee:
 
-- **fidèle octet pour octet** sur un fichier déjà dans cette disposition ;
-- **idempotent** sinon — le premier enregistrement normalise, aucun ensuite ne
-  touche plus rien.
+- **faithful byte for byte** on a file already in this layout;
+- **idempotent** otherwise — the first save normalises, no later one touches
+  anything any more.
 
-La numérotation est la seule chose qui ne revient pas à l'identique, et c'est
-voulu : c'est ce qui fait qu'un fichier dont les numéros ne se suivent pas se
-soigne en étant ouvert puis enregistré.
+The numbering is the only thing that does not come back identical, and that is
+intended: it is what makes a file whose numbers do not follow one another heal
+by being opened then saved.
 
 ### WebVTT
 
-Analyse par blocs séparés par des lignes vides, avec les états `en-tête`,
-`style`, `commentaire`, `identifiant`, `horodatage`, `texte`. Les blocs `STYLE`
-et `NOTE` sont rattachés au sous-titre **qui suit** — c'est ce que dit le
-format, et c'est ce qui les fait survivre à l'aller-retour.
+Parsing by blocks separated by empty lines, with the states `header`, `style`,
+`comment`, `identifier`, `timestamp`, `text`. `STYLE` and `NOTE` blocks are
+attached to the subtitle **that follows** — that is what the format says, and
+that is what makes them survive the round trip.
 
-**La signature est exigée.** Un fichier qui ne commence pas par `WEBVTT` est
-refusé — `ReadErrorKind::UnknownFormat` — plutôt que lu au jugé. La détection de
-l'issue #8 a besoin de lecteurs qui savent dire non, faute de quoi elle
-supposerait un format au lieu de le reconnaître.
+**The signature is required.** A file that does not start with `WEBVTT` is
+refused — `ReadErrorKind::UnknownFormat` — rather than read by guesswork. The
+detection of issue #8 needs readers that can say no, failing which it would
+assume a format instead of recognising it.
 
-Une ligne isolée qui n'est suivie d'aucun horodatage n'était pas un identifiant
-de cue mais un bloc d'un genre que nous ne traitons pas — `REGION`, ou ce
-qu'ajoutera une révision ultérieure du format. Elle produit un diagnostic
-`UnknownBlock`.
+An isolated line followed by no timestamp was not a cue identifier but a block
+of a kind we do not handle — `REGION`, or whatever a later revision of the
+format will add. It produces an `UnknownBlock` diagnostic.
 
-Un horodatage illisible est signalé puis conservé comme texte, exactement comme
-en SubRip et pour la même raison. Deux lecteurs du même socle qui traiteraient
-différemment la même anomalie seraient un piège à eux seuls.
+An unreadable timestamp is reported then kept as text, exactly as in SubRip and
+for the same reason. Two readers on the same foundation that handled the same
+anomaly differently would be a trap in themselves.
 
-Les balises que le format autorise dans le texte — `<v Locuteur>`, `<c.classe>`,
-`<ruby>` — ne sont **pas** interprétées, conformément à
-[0009](../adr/0009-texte-en-chaine-brute.md). Un lecteur qui les normaliserait
-ferait revenir le fichier modifié.
+The tags the format allows in the text — `<v Locuteur>`, `<c.classe>`,
+`<ruby>` — are **not** interpreted, in accordance with
+[0009](../adr/0009-texte-en-chaine-brute.md). A reader that normalised them
+would make the file come back modified.
 
-À l'écriture : en-tête `WEBVTT`, identifiant de cue s'il existe, réglages
-accolés à la ligne d'horodatage, blocs `STYLE` et `NOTE` restitués. Un fichier
-sans aucune cue reste un fichier WebVTT : la signature seule est valide, alors
-que ne rien écrire produirait ce qu'aucun lecteur n'accepte.
+On writing: `WEBVTT` header, cue identifier if it exists, settings attached to
+the timestamp line, `STYLE` and `NOTE` blocks restored. A file without any cue
+remains a WebVTT file: the signature alone is valid, whereas writing nothing
+would produce what no reader accepts.
 
-Les heures sont omises si aucune cue n'atteint une heure, comme Gaupol — à une
-correction près : **la décision regarde toutes les cues, et non la dernière.**
-Le raccourci de Gaupol suppose le fichier trié ; un fichier qui ne l'est pas en
-sortirait avec des minutes au-delà de cinquante-neuf, que nul lecteur n'accepte.
-Tous les horodatages d'un fichier sont écrits de la même façon : mélanger les
-deux formes serait licite et illisible.
+Hours are omitted if no cue reaches one hour, as in Gaupol — with one
+correction: **the decision looks at all the cues, not the last one.** Gaupol's
+shortcut assumes the file is sorted; a file that is not would come out with
+minutes beyond fifty-nine, which no reader accepts. All the timestamps of a file
+are written the same way: mixing both forms would be legal and unreadable.
 
-C'est la seule normalisation du format — un fichier écrit avec ses heures alors
-que rien n'atteint une heure revient sans elles.
+This is the format's only normalisation — a file written with its hours while
+nothing reaches one hour comes back without them.
 
-### Détection de format
+### Format detection
 
 ```cpp
 enum class SubtitleFormat { SubRip, WebVtt };
@@ -454,50 +444,48 @@ enum class SubtitleFormat { SubRip, WebVtt };
 std::optional<SubtitleFormat> detectFormat(std::string_view content);
 ```
 
-Par motif sur le contenu, à l'image de Gaupol. En cas d'ambiguïté, le format le
-plus spécifique l'emporte ; en cas d'échec, une erreur de lecture explicite,
-jamais un format supposé.
+By pattern on the content, like Gaupol. In case of ambiguity, the most specific
+format wins; in case of failure, an explicit reading error, never an assumed
+format.
 
-| Format | Ce qui le reconnaît |
-| :----- | :------------------ |
-| WebVTT | la signature `WEBVTT` en tête, lignes vides mises à part |
-| SubRip | une ligne d'horodatage **à virgule** |
+| Format | What recognises it |
+| :----- | :----------------- |
+| WebVTT | the `WEBVTT` signature at the head, empty lines aside |
+| SubRip | a timestamp line **with a comma** |
 
-La signature tranche quelle que soit la suite : un fichier WebVTT dont les
-horodatages ont été écrits avec des virgules est un WebVTT malformé, pas un
-SubRip.
+The signature decides whatever follows: a WebVTT file whose timestamps were
+written with commas is a malformed WebVTT, not a SubRip.
 
-**La virgule est ce qui départage.** Un fichier dont les horodatages emploient
-le point et qui ne porte pas de signature n'est revendiqué par personne — ni
-WebVTT faute de signature, ni SubRip faute de virgule — et le refuser vaut mieux
-que d'en choisir un au hasard.
+**The comma is the tie-breaker.** A file whose timestamps use the dot and that
+carries no signature is claimed by nobody — not WebVTT for lack of a signature,
+not SubRip for lack of a comma — and refusing it is better than picking one at
+random.
 
-**Les règles épousent ce que les lecteurs acceptent, délibérément.** Une
-détection qui promettrait un format que son lecteur refuse ensuite serait pire
-que pas de détection du tout. C'est pourquoi la signature est exigée en
-majuscules comme le veut le format, alors que Gaupol l'accepte dans n'importe
-quelle casse : reconnaître `webvtt` produirait un fichier qu'aucun navigateur
-n'accepte.
+**The rules match what the readers accept, deliberately.** A detection that
+promised a format its reader then refuses would be worse than no detection at
+all. That is why the signature is required in upper case as the format wants,
+whereas Gaupol accepts it in any case: recognising `webvtt` would produce a
+file that no browser accepts.
 
-### Encodage
+### Encoding
 
-UTF-8 seul dans cette phase, et **vérifié** plutôt que supposé. Lire du Latin-1
-comme de l'UTF-8 n'échoue pas : cela remplace les accents par du charabia, et
-l'utilisateur ne s'en aperçoit qu'une fois le fichier réenregistré par-dessus.
-Les encodages trop longs et les demi-surrogates sont refusés aussi — ce ne sont
-pas des curiosités, c'est ainsi qu'on contourne une vérification de longueur.
+UTF-8 only in this phase, and **checked** rather than assumed. Reading Latin-1
+as UTF-8 does not fail: it replaces accents with gibberish, and the user only
+notices once the file has been saved over. Overlong encodings and lone
+surrogates are refused too — they are not curiosities, they are how a length
+check is bypassed.
 
-Le **BOM UTF-8 est détecté**, retiré à la lecture et restitué à l'écriture s'il
-était présent — il se rencontre couramment, même si les autres encodages
-relèvent de la phase 8. Un BOM resté dans le texte apparaîtrait comme un
-caractère invisible en tête du premier sous-titre.
+The **UTF-8 BOM is detected**, removed on reading and restored on writing if it
+was present — it is commonly met, even though the other encodings belong to
+phase 8. A BOM left in the text would appear as an invisible character at the
+head of the first subtitle.
 
-Le type de fin de ligne est détecté et conservé. La fin la plus fréquente
-l'emporte ; un fichier qui en mélange plusieurs — assemblé à partir de deux
-autres, ce qui arrive plus souvent qu'il ne faudrait — produit un diagnostic
-`MixedNewlines` plutôt qu'une normalisation silencieuse. L'écriture utilise LF.
+The line ending type is detected and preserved. The most frequent ending wins;
+a file that mixes several — assembled from two others, which happens more often
+than it should — produces a `MixedNewlines` diagnostic rather than a silent
+normalisation. Writing uses LF.
 
-### Ouvrir et enregistrer
+### Opening and saving
 
 ```cpp
 enum class Utf8Bom { Absent, Present };
@@ -506,21 +494,20 @@ std::expected<ReadResult, ReadError> readSubtitles(std::string_view content);
 std::string writeSubtitles(SubtitleFormat, const WriteRequest&, Utf8Bom);
 ```
 
-Ce qui relie l'encodage, la détection et les lecteurs. `readSubtitles` vérifie
-les octets, retire le BOM, regarde les fins de ligne, reconnaît le format et
-appelle son lecteur — dans cet ordre, parce que tout ce qui suit lit du texte et
-que des octets invalides ne sont pas du texte. `ReadResult` porte le format
-retenu, chaque lecteur renseignant le sien.
+What links the encoding, detection and readers together. `readSubtitles`
+checks the bytes, removes the BOM, looks at the line endings, recognises the
+format and calls its reader — in that order, because everything after it reads
+text and invalid bytes are not text. `ReadResult` carries the chosen format,
+each reader filling in its own.
 
-`Utf8Bom` est une énumération et non un booléen : `writeSubtitles(format,
-request, true)` ne dit rien, au point d'appel, de ce qui est vrai.
+`Utf8Bom` is an enumeration and not a boolean: `writeSubtitles(format,
+request, true)` says nothing, at the call site, about what is true.
 
-Deux échecs distincts, et les distinguer est ce qui permet de dire quelque chose
-d'utile à l'utilisateur : un fichier dont aucun format ne veut rend
-`UnknownFormat` ; un fichier reconnu mais vide de sous-titres rend
-`NoSubtitleFound`.
+Two distinct failures, and telling them apart is what makes it possible to say
+something useful to the user: a file no format wants returns `UnknownFormat`; a
+file that is recognised but contains no subtitles returns `NoSubtitleFound`.
 
-## Commandes réversibles
+## Reversible commands
 
 ```cpp
 class Command {
@@ -540,109 +527,108 @@ struct Change {
 bool affects(ChangeKind, Document);
 ```
 
-`describe()` rend **une liste** et non un `Change` unique : une commande
-composite rapporte ce que rapportent toutes celles qu'elle contient, et l'union
-se fait sans que le socle ait à fusionner des indices.
+`describe()` returns **a list** and not a single `Change`: a composite command
+reports what all the commands it contains report, and the union is made without
+the foundation having to merge indices.
 
-`Change` porte les indices affectés et la nature du changement. L'interface de
-la phase 5 s'en servira pour ne rafraîchir que ce qui bouge. Le noyau ne connaît
-aucun mécanisme de signal : il retourne l'information, l'appelant en fait ce
-qu'il veut.
+`Change` carries the affected indices and the nature of the change. The
+interface of phase 5 will use it to refresh only what moves. The core knows no
+signal mechanism: it returns the information, the caller does what it wants
+with it.
 
-Les documents concernés se **déduisent** de la nature du changement, plutôt
-qu'être portés en double : un sous-titre n'a qu'une paire de positions pour ses
-deux textes, donc un déplacement périme les deux documents, comme une insertion
-ou une suppression. Seul un changement de texte ne concerne qu'un document.
+The documents concerned are **deduced** from the nature of the change, rather
+than carried twice: a subtitle has only one pair of positions for its two texts,
+so a shift makes both documents stale, as does an insertion or a removal. Only
+a text change concerns a single document.
 
-`History` tient deux piles de `std::unique_ptr<Command>`, un compteur de
-modification par document, et sait regrouper. Une commande composite contient une
-suite de commandes, ne compte que pour une entrée, et **s'annule dans l'ordre
-inverse** — défaire « insérer puis décaler » en commençant par l'insertion
-décalerait des sous-titres qui n'existent plus.
+`History` holds two stacks of `std::unique_ptr<Command>`, one modification
+counter per document, and can group. A composite command contains a sequence of
+commands, counts as a single entry, and **is undone in reverse order** — undoing
+"insert then shift" starting with the insertion would shift subtitles that no
+longer exist.
 
-Le **compteur de modification** vaut zéro quand le document correspond au fichier
-sur disque, augmente à chaque action, diminue à chaque annulation. Annuler
-jusqu'au point de sauvegarde y ramène, ce qu'un booléen ne saurait pas faire. Il
-devient négatif si l'on annule au-delà d'une sauvegarde, ce qui est un écart
-comme un autre.
+The **modification counter** is zero when the document matches the file on
+disk, rises with each action, falls with each undo. Undoing back to the save
+point brings it back there, which a boolean could not do. It becomes negative
+if one undoes past a save, which is a difference like any other.
 
-**`History` n'est pas un membre de `Project`.** L'ADR 0010 dit que l'historique
-appartient au projet ; il faut l'entendre comme « il relève du noyau, pas de
-l'interface », ce que la comparaison avec `QUndoStack` établit. Deux raisons
-concrètes s'opposent à l'inclusion : `model` ne dépendrait plus seulement de
-`time` mais aussi de `command`, à rebours de l'organisation des modules ; et
-surtout un `Project` cesserait d'être copiable, puisqu'une pile de
-`unique_ptr` ne se copie pas. L'appelant tient les deux ensemble.
+**`History` is not a member of `Project`.** ADR 0010 says the history belongs
+to the project; this is to be understood as "it belongs to the core, not to the
+interface", which the comparison with `QUndoStack` establishes. Two concrete
+reasons stand against including it: `model` would no longer depend only on
+`time` but also on `command`, against the module layout; and above all a
+`Project` would stop being copyable, since a stack of `unique_ptr` cannot be
+copied. The caller holds the two together.
 
-La **taille de l'historique est bornée**, à 1000 entrées par défaut. Le chiffre
-est **provisoire** : l'ADR 0010 promet de mesurer l'empreinte réelle avant de le
-fixer, et aucune commande concrète n'existe encore pour être mesurée. La borne
-est là pour que la mémoire le soit ; le nombre se décidera en phase 2.
+The **size of the history is bounded**, to 1000 entries by default. The figure
+is **provisional**: ADR 0010 promises to measure the real footprint before
+fixing it, and no concrete command exists yet to be measured. The bound is
+there so that memory is bounded; the number will be decided in phase 2.
 
-Cette phase ne fournit **aucune commande concrète** — elles arrivent avec les
-opérations, en phase 2. Elle fournit le socle et des tests le prouvant sur des
-commandes factices : l'une qui modifie réellement un projet, l'autre qui note
-l'ordre dans lequel on l'a appelée.
+This phase provides **no concrete command** — they come with the operations, in
+phase 2. It provides the foundation and tests proving it on dummy commands: one
+that actually modifies a project, the other that records the order in which it
+was called.
 
 ## Tests
 
-Le corpus vit dans `src/test/data/`, organisé en `valides/` et `malformes/`.
+The corpus lives in `src/test/data/`, organised into `valides/` and
+`malformes/`.
 
-Cas malformés à couvrir au minimum : fichier vide ; BOM UTF-8 ; fins de ligne
-mélangées ; horodatage à champs courts ; fin antérieure au début ; sous-titres
-qui se chevauchent ; numérotation absente ou incohérente en SubRip ; ligne de
-texte avant tout horodatage ; balise non fermée ; bloc WebVTT inconnu ; octets
-invalides en UTF-8.
+Malformed cases to cover at a minimum: empty file; UTF-8 BOM; mixed line
+endings; timestamp with short fields; end earlier than start; overlapping
+subtitles; missing or inconsistent numbering in SubRip; text line before any
+timestamp; unclosed tag; unknown WebVTT block; bytes invalid in UTF-8.
 
-Des fichiers issus d'un usage réel valent mieux que des fichiers fabriqués.
-Un second corpus, propre à chaque poste, vit donc hors dépôt dans `src/data/` :
-un test le lit s'il est présent et se déclare ignoré sinon, ce qui est le cas en
-intégration continue. Le corpus versionné couvre les formes auxquelles nous
-avons pensé, le local rencontre les autres.
+Files from real use are worth more than made-up files. A second corpus,
+specific to each workstation, therefore lives outside the repository in
+`src/data/`: a test reads it if it is present and declares itself skipped
+otherwise, which is the case in continuous integration. The versioned corpus
+covers the forms we thought of, the local one meets the others.
 
-Benchmarks posés dès cette phase, car ils servent de référence. Le document est
-**engendré** plutôt que lu : un benchmark qui dépendrait d'un fichier mesurerait
-le disque autant que le code.
+Benchmarks set up from this phase, because they serve as a reference. The
+document is **generated** rather than read: a benchmark that depended on a file
+would measure the disk as much as the code.
 
-| Mesure, sur 4000 sous-titres | Référence |
-| :--------------------------- | --------: |
-| lecture d'un `.srt` | ~3,0 ms |
-| écriture du même | ~0,64 ms |
-| conversion de fréquence d'image | ~0,33 ms |
+| Measurement, on 4000 subtitles | Reference |
+| :----------------------------- | --------: |
+| reading a `.srt` | ~3.0 ms |
+| writing the same | ~0.64 ms |
+| frame rate conversion | ~0.33 ms |
 
-Points de comparaison entre deux états du code, pas des promesses.
+Points of comparison between two states of the code, not promises.
 
-## Découpage en issues
+## Split into issues
 
-Dans l'ordre de traitement. Les numéros sont ceux des issues GitHub.
+In order of processing. The numbers are those of the GitHub issues.
 
-| Issue | Travail | Nature |
-| :---- | :------ | :----- |
-| #2 | Types `Timestamp`, `Duration`, `FrameRate`, conversions, formatage, analyse d'horodatage | **point de contrôle** |
-| #3 | `Subtitle`, `Project`, extras typés | structurante |
-| #4 | `Command`, `CompositeCommand`, `History`, compteur de modification | structurante |
-| #5 | Diagnostics, abstraction du système de fichiers, écriture atomique | structurante |
-| #6 | Lecture et écriture SubRip | mécanique |
-| #7 | Lecture et écriture WebVTT | mécanique |
-| #8 | Détection de format, BOM UTF-8, fins de ligne | mécanique |
-| #9 | Corpus de test et benchmarks de référence | mécanique |
+| Issue | Work | Nature |
+| :---- | :--- | :----- |
+| #2 | `Timestamp`, `Duration`, `FrameRate` types, conversions, formatting, timestamp parsing | **checkpoint** |
+| #3 | `Subtitle`, `Project`, typed extras | structuring |
+| #4 | `Command`, `CompositeCommand`, `History`, modification counter | structuring |
+| #5 | Diagnostics, file system abstraction, atomic writing | structuring |
+| #6 | SubRip reading and writing | mechanical |
+| #7 | WebVTT reading and writing | mechanical |
+| #8 | Format detection, UTF-8 BOM, line endings | mechanical |
+| #9 | Test corpus and reference benchmarks | mechanical |
 
-L'issue #1 est celle du cadrage, close par la présente spec.
+Issue #1 is the framing one, closed by this spec.
 
-**L'issue #2 est le point de contrôle convenu** : elle porte les décisions les
-plus coûteuses à défaire, et sera relue avant que le reste s'appuie dessus. Les
-issues 2 à 4 restent structurantes ; les suivantes sont à boucle courte, validées
-par le corpus.
+**Issue #2 is the agreed checkpoint**: it carries the decisions that are
+costliest to undo, and will be reviewed before the rest builds on it. Issues 2
+to 4 remain structuring; the following ones are short-loop, validated by the
+corpus.
 
-## Critères de fin
+## Completion criteria
 
-- [ ] Un `.srt` et un `.vtt` réels s'ouvrent, se relisent et se réécrivent à
-      l'identique octet pour octet, hors renumérotation
-- [ ] Les fichiers malformés du corpus produisent les diagnostics attendus, sans
-      exception ni perte silencieuse
-- [ ] `image → ms → image` est vérifié exact pour les huit fréquences
-- [ ] L'historique annule et rétablit une commande factice, groupée et isolée,
-      et le compteur de modification revient à zéro au point de sauvegarde
-- [ ] `make check` passe, cliquet de couverture des modules tenu
-- [ ] Benchmarks de lecture, d'écriture et de conversion de fréquence en place
-- [ ] Section de manuel et entrée de CHANGELOG à jour
+- [ ] A real `.srt` and `.vtt` open, are read back and are rewritten identical
+      byte for byte, renumbering aside
+- [ ] The malformed files of the corpus produce the expected diagnostics,
+      without exception or silent loss
+- [ ] `frame → ms → frame` is checked exact for the eight frame rates
+- [ ] The history undoes and redoes a dummy command, grouped and isolated, and
+      the modification counter comes back to zero at the save point
+- [ ] `make check` passes, module coverage ratchet held
+- [ ] Reading, writing and frame rate conversion benchmarks in place
+- [ ] Manual section and CHANGELOG entry up to date
