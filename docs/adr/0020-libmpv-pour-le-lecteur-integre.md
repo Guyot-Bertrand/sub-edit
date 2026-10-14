@@ -1,128 +1,126 @@
-# 0020 — libmpv pour le lecteur intégré
+# 0020 — libmpv for the built-in player
 
-**Date :** 2026-08-22
-**Statut :** acceptée — **complétée par [0041](0041-afficher-la-video-par-le-rendu-logiciel.md)** pour la façon dont l'image arrive dans la fenêtre : la fenêtre native adoptée par `wid`, que cette décision retenait, a cédé la place au rendu logiciel de libmpv, peint par un widget Qt.
+**Date:** 2026-08-22
+**Status:** accepted — **complemented by [0041](0041-afficher-la-video-par-le-rendu-logiciel.md)** for the way the picture reaches the window: the native window adopted through `wid`, which this decision retained, has given way to libmpv's software rendering, painted by a Qt widget.
 
-## Contexte
+## Context
 
-La phase 6 était cadrée autour d'une **prévisualisation par lecteur externe** :
-écrire un fichier temporaire, lancer mpv, MPlayer ou VLC positionné au
-sous-titre courant, comme le fait `aeidon/agents/preview.py`. Le lecteur intégré
-était en phase 14, où la feuille de route l'avait rangé comme « la partie la plus
-coûteuse du projet ».
+Phase 6 was scoped around an **external player preview**: write a temporary
+file, launch mpv, MPlayer or VLC positioned at the current subtitle, as
+`aeidon/agents/preview.py` does. The built-in player was in phase 14, where the
+roadmap had filed it as "the most expensive part of the project".
 
-Ce cadrage a été repris en cours de route : **il faut un lecteur dans la
-fenêtre**. L'iso-fonctionnalité le demandait d'ailleurs — Gaupol a les deux, et
-`gaupol/player.py` est un lecteur GStreamer embarqué, distinct de la
-prévisualisation externe. La feuille de route avait retenu le second et oublié
-le premier.
+That scoping was revisited along the way: **a player is needed in the
+window**. Feature parity in fact required it — Gaupol has both, and
+`gaupol/player.py` is an embedded GStreamer player, distinct from the external
+preview. The roadmap had kept the second and forgotten the first.
 
-Le choix du backend était identifié depuis le début comme une ADR à venir —
-l'index le portait en toutes lettres : « Backend vidéo — libmpv ou
-QtMultimedia. Phase 14. » Il est dû maintenant.
+The choice of backend had been identified from the start as an upcoming ADR —
+the index carried it in so many words: "Video backend — libmpv or
+QtMultimedia. Phase 14." It is due now.
 
-## Décision
+## Decision
 
-**libmpv**, le paquet `libmpv-dev`, version 0.37 dans Ubuntu 24.04.
+**libmpv**, the `libmpv-dev` package, version 0.37 in Ubuntu 24.04.
 
-Le critère qui tranche n'est pas la phase 6, que les deux savent servir : c'est
-**ce qui reste après elle**. La phase 14 ne garde plus que le calage fin —
-l'avance image par image, la pose d'un repère depuis la position courante. Or
-c'est précisément ce qu'un backend sait faire ou ne sait pas faire, et cela ne
-se rattrape pas par du code au-dessus.
+The deciding criterion is not phase 6, which both can serve: it is **what
+remains after it**. Phase 14 now keeps only fine timing — frame-by-frame
+stepping, setting a mark from the current position. Yet that is precisely what
+a backend can or cannot do, and it cannot be made up for by code on top.
 
-| Ce que la phase 14 demandera | libmpv | Qt Multimedia |
-| :--------------------------- | :----- | :------------ |
-| chercher à une position exacte | `seek <t> absolute+exact` | approximatif, dépend du backend |
-| avancer et reculer d'une image | `frame-step`, `frame-back-step` | pas d'API |
-| la fréquence du conteneur | propriété `container-fps` | non exposée |
+| What phase 14 will require | libmpv | Qt Multimedia |
+| :------------------------- | :----- | :------------ |
+| seeking to an exact position | `seek <t> absolute+exact` | approximate, backend-dependent |
+| stepping one frame forward and back | `frame-step`, `frame-back-step` | no API |
+| the container's frame rate | `container-fps` property | not exposed |
 
-**Choisir Qt Multimedia serait choisir de refaire ce travail** le jour où la
-phase 14 arrive, ou d'y adjoindre un second backend — donc d'avoir deux moteurs
-vidéo dans un projet qui n'en voulait qu'un.
+**Choosing Qt Multimedia would mean choosing to redo this work** the day phase
+14 arrives, or to add a second backend to it — hence having two video engines
+in a project that wanted only one.
 
-Deux arguments de moindre poids vont dans le même sens : mpv est le lecteur que
-Gaupol recommande en premier, donc le comportement que l'utilisateur connaît
-déjà ; et mpv existe sur Windows et macOS, si bien que l'ADR 0003 — « à qualité
-comparable, on retient systématiquement l'option portable » — n'y perd rien.
+Two lighter arguments point the same way: mpv is the player Gaupol recommends
+first, hence the behaviour the user already knows; and mpv exists on Windows
+and macOS, so ADR 0003 — "at comparable quality, the portable option is
+systematically chosen" — loses nothing.
 
-## Alternatives écartées
+## Alternatives dismissed
 
-- **Qt Multimedia.** Déjà installé depuis #117, et `QVideoWidget` s'insère dans
-  la fenêtre sans colle : c'est un vrai avantage, et il ne pèse pas assez.
-  Écarté sur le calage fin, comme dit plus haut. Ubuntu 24.04 fournit Qt 6.4.2
-  avec les deux greffons, `libffmpegmediaplugin` et `libgstreamermediaplugin` —
-  ce n'est donc pas le moteur de décodage qui manque, c'est l'API.
+- **Qt Multimedia.** Already installed since #117, and `QVideoWidget` fits into
+  the window without glue: that is a real advantage, and it does not weigh
+  enough. Dismissed on fine timing, as said above. Ubuntu 24.04 provides Qt
+  6.4.2 with both plugins, `libffmpegmediaplugin` and
+  `libgstreamermediaplugin` — so it is not the decoding engine that is
+  missing, it is the API.
 
-- **GStreamer directement**, comme Gaupol. Écarté : c'est descendre d'un cran
-  sous ce que Qt Multimedia offre déjà, pour hériter des mêmes limites d'API
-  sur le calage, et écrire soi-même le pipeline.
+- **GStreamer directly**, like Gaupol. Dismissed: it means going one level
+  below what Qt Multimedia already offers, to inherit the same API limits on
+  timing, and writing the pipeline oneself.
 
-- **Garder le lecteur externe et attendre**, en livrant la phase 6 telle qu'elle
-  était cadrée. Écarté par la demande, et à raison : le lecteur externe n'était
-  qu'un substitut posé quand l'intégré semblait trop cher. Le garder en plus
-  coûterait deux surfaces, deux sections de manuel et deux jeux de tests pour un
-  geste que le lecteur intégré rend mieux.
+- **Keeping the external player and waiting**, delivering phase 6 as it was
+  scoped. Dismissed by the request, and rightly so: the external player was
+  only a substitute put in place when the built-in one seemed too expensive.
+  Keeping it as well would cost two surfaces, two manual sections and two test
+  suites for a gesture the built-in player renders better.
 
-## Conséquences
+## Consequences
 
-**Une dépendance système de plus**, `libmpv-dev`, à faire entrer dans
-`setup-toolchain.sh` et donc dans le cache de paquets de la CI. Le piège est
-connu et déjà payé deux fois — Qt en #117, `ffmpeg` en #162.
+**One more system dependency**, `libmpv-dev`, to bring into
+`setup-toolchain.sh` and hence into the CI package cache. The trap is known and
+already paid twice — Qt in #117, `ffmpeg` in #162.
 
-**Une couture à écrire à la main.** libmpv expose une API C : un handle qu'on
-crée, qu'on interroge par propriétés et qu'on pilote par commandes, et qu'il
-faut détruire. C'est un propriétaire de ressource au sens du principe 2 du
-projet, et il vaudra sa classe, comme `SpawnActions` a valu la sienne.
+**A seam to write by hand.** libmpv exposes a C API: a handle that one creates,
+queries through properties and drives through commands, and that must be
+destroyed. It is a resource owner in the sense of the project's principle 2,
+and it will deserve its class, as `SpawnActions` deserved its own.
 
-**Une question d'affichage tranchée à l'implémentation, et son prix.** Le choix
-était entre rendre dans une fenêtre native que libmpv adopte (propriété `wid`)
-et rendre dans un contexte OpenGL que Qt fournit. #173 a retenu la première,
-comme la plus courte. Ce paragraphe annonçait que la décision ne serait « pas
-coûteuse à défaire » ; elle s'est révélée coûteuse à **tenir**, et le constat
-est inscrit ici parce qu'il change ce qu'on sait, non ce qu'on a décidé.
+**A display question settled at implementation, and its price.** The choice
+was between rendering in a native window that libmpv adopts (`wid` property)
+and rendering in an OpenGL context that Qt provides. #173 retained the first,
+as the shortest. This paragraph announced that the decision would "not be
+expensive to undo"; it turned out to be expensive to **keep**, and the finding
+is recorded here because it changes what is known, not what was decided.
 
-Ce que #176 a mesuré en la posant :
+What #176 measured while putting it in place:
 
-- **adopter une fenêtre native est un mécanisme X11.** L'en-tête de libmpv le
-  dit — « This works on X11, win32, and OSX only » — et recommande l'API de
-  rendu. `subedit-gui` demande donc `xcb` quand la session laisse le choix
-  ouvert, et **refuse de construire un lecteur** sur toute autre plateforme Qt ;
-- **le contexte doit être nommé.** Laissé sonder sur une machine où
-  `WAYLAND_DISPLAY` est posé, mpv choisit Wayland, où `wid` ne veut rien dire,
-  et ouvre une fenêtre à côté de la nôtre ;
-- **la fenêtre doit être à l'écran avant d'être adoptée**, sans quoi mpv ne
-  mappe jamais la sienne.
+- **adopting a native window is an X11 mechanism.** libmpv's header says so —
+  "This works on X11, win32, and OSX only" — and recommends the render API.
+  `subedit-gui` therefore asks for `xcb` when the session leaves the choice
+  open, and **refuses to build a player** on any other Qt platform;
+- **the context must be named.** Left to probe on a machine where
+  `WAYLAND_DISPLAY` is set, mpv chooses Wayland, where `wid` means nothing, and
+  opens a window next to ours;
+- **the window must be on screen before being adopted**, otherwise mpv never
+  maps its own.
 
-Trois lignes de code, et trois défauts que seul l'usage a montrés.
+Three lines of code, and three defects that only use revealed.
 
-**Ce que cela laisse ouvert, et pour quand.** L'API de rendu marche sous
-Wayland, et c'est celle que libmpv recommande. La phase 14 rouvre ce code de
-toute façon — avance image par image, incrustation du timecode — et c'est là que
-le changement coûterait le moins. La décision n'est pas prise ici : elle demande
-de peser un contexte OpenGL maintenu à la main contre une dépendance à XWayland,
-et cela se fait au cadrage de la phase 14.
+**What this leaves open, and for when.** The render API works under Wayland,
+and it is the one libmpv recommends. Phase 14 reopens this code anyway —
+frame-by-frame stepping, timecode overlay — and that is where the change would
+cost least. The decision is not taken here: it requires weighing a
+hand-maintained OpenGL context against a dependency on XWayland, and that is
+done when scoping phase 14.
 
-**Le déclencheur qui la forcerait**, lui, est net : une session sans serveur X du
-tout. `subedit-gui` n'y jouerait aucun film, et le dit.
+**The trigger that would force it**, on the other hand, is clear: a session
+with no X server at all. `subedit-gui` would play no film there, and says so.
 
-**Le sous-titre affiché ne vient pas d'un fichier.** libmpv sait charger un
-fichier de sous-titres externe, et ce serait le mauvais choix pour un éditeur :
-il faudrait le réécrire à chaque frappe. La réplique courante est dessinée
-depuis le modèle, qui est déjà ce que la table de la phase 5 affiche. Le fichier
-temporaire de l'ancien cadrage disparaît avec le lecteur externe.
+**The displayed subtitle does not come from a file.** libmpv can load an
+external subtitle file, and that would be the wrong choice for an editor: it
+would have to be rewritten at every keystroke. The current line is drawn from
+the model, which is already what the phase 5 table displays. The temporary file
+of the old scoping disappears with the external player.
 
-**`ffprobe` reste**, et pour une seule raison : il rend la fréquence d'image
-comme **un rationnel exact** — `24000/1001` — là où `container-fps` de libmpv
-est un flottant. `FrameRate` est un rationnel depuis la phase 1, et l'y convertir
-par approximation serait perdre ce que ce choix protégeait. La durée, elle, vient
-du lecteur, qui l'a déjà : deux sources pour la même donnée sans nécessité
-seraient une de trop.
+**`ffprobe` stays**, and for a single reason: it returns the frame rate as
+**an exact rational** — `24000/1001` — whereas libmpv's `container-fps` is a
+float. `FrameRate` has been a rational since phase 1, and converting to it by
+approximation would lose what that choice protected. The duration, on the
+other hand, comes from the player, which already has it: two sources for the
+same data without necessity would be one too many.
 
-Le déclencheur qui rouvrirait cette décision : libmpv absent d'une distribution
-visée, ou une API Qt Multimedia qui gagnerait le pas à l'image. Aucun des deux
-n'est en vue.
+The trigger that would reopen this decision: libmpv missing from a targeted
+distribution, or a Qt Multimedia API that would gain frame-level stepping.
+Neither is in sight.
 
-Défaire cette décision coûte ce que coûte un backend : la couture est derrière
-une interface au sens du principe 3 — « lecteur vidéo » y est nommé comme point
-de variation depuis les fondations, précisément pour ce cas.
+Undoing this decision costs what a backend costs: the seam is behind an
+interface in the sense of principle 3 — "video player" has been named there as
+a point of variation since the foundations, precisely for this case.

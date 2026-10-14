@@ -1,238 +1,237 @@
-# 0015 — Compter les lignes non couvertes, et garder mémoire des performances
+# 0015 — Count uncovered lines, and keep a memory of performance
 
-**Date :** 2026-08-11
-**Statut :** acceptée
+**Date:** 2026-08-11
+**Status:** accepted
 
-## Contexte
+## Context
 
-Deux mesures, un même défaut : elles ne survivent pas à leur exécution.
+Two measurements, one shared defect: they do not survive their execution.
 
-**La couverture.** `COVERAGE_MIN` valait 80 quand le taux réel était de 99,4 % :
-une régression de dix-neuf points franchissait la porte sans un mot. L'issue #49
-l'a relevé à 99,2, mais ce nombre n'a pas été choisi — il a été **subi**. gcovr
-arrondit le taux à une décimale *avant* de le comparer au seuil, si bien qu'un
-seuil entier de 99 ne peut jamais être franchi par un taux à 98,95 % ou plus. Il
-a fallu se glisser entre le 99,4 mesuré et le 99,0 qu'affiche le défaut injecté
-par `verify-gates.sh`. Un seuil calé à quatre dixièmes près est un seuil dont
-personne ne peut plus raisonner : on ne sait plus s'il protège ou s'il est sur
-le point de crier au loup.
+**Coverage.** `COVERAGE_MIN` was 80 when the actual rate was 99.4%: a
+nineteen-point regression would pass the gate without a word. Issue #49 raised
+it to 99.2, but that number was not chosen — it was **endured**. gcovr rounds
+the rate to one decimal *before* comparing it to the threshold, so an integer
+threshold of 99 can never be crossed by a rate of 98.95% or more. It had to be
+slipped in between the measured 99.4 and the 99.0 displayed by the defect
+injected by `verify-gates.sh`. A threshold set to within four tenths is a
+threshold nobody can reason about any more: one no longer knows whether it
+protects or is about to cry wolf.
 
-**Les performances.** « Mesurer, pas supposer » est un principe du projet, et
-aucune mesure ne survit à son exécution. Le benchmark de conversion de fréquence
-a mesuré la mauvaise opération pendant une phase entière ; rien n'aurait pu le
-montrer, faute d'historique.
+**Performance.** "Measure, don't assume" is a project principle, and no
+measurement survives its execution. The frame-rate conversion benchmark
+measured the wrong operation for an entire phase; nothing could have shown it,
+for lack of history.
 
-Ce qu'on sait au moment de décider :
+What is known at the time of deciding:
 
-- `gcovr --json-summary` expose les **compteurs bruts**, `line_covered` et
-  `line_total`, et pas seulement le pourcentage arrondi. Un script qui compare
-  lui-même échappe donc entièrement au piège d'arrondi ;
-- le **rapporteur XML de Catch2** sort les benchmarks en entier — moyenne,
-  bornes de confiance, écart-type, points aberrants. Son rapporteur JSON, lui,
-  a un `benchmarkEnded` au corps vide : il ne produit rien.
+- `gcovr --json-summary` exposes the **raw counters**, `line_covered` and
+  `line_total`, and not only the rounded percentage. A script that does the
+  comparison itself therefore escapes the rounding trap entirely;
+- Catch2's **XML reporter** outputs benchmarks in full — mean, confidence
+  bounds, standard deviation, outliers. Its JSON reporter, on the other hand,
+  has a `benchmarkEnded` with an empty body: it produces nothing.
 
-Ce qu'on ignore : la **variance naturelle** des mesures. Le même tri a varié de
-230 à 870 µs entre deux exécutions sur la machine de développement.
+What is not known: the **natural variance** of the measurements. The same sort
+varied from 230 to 870 µs between two runs on the development machine.
 
-## Décision
+## Decision
 
-### La couverture se compte en lignes non couvertes
+### Coverage is counted in uncovered lines
 
-Le cliquet porte sur le **nombre de lignes de `src/lib/` que les tests
-n'exercent pas** — 8 aujourd'hui, sur 1353 — et non sur un pourcentage. Il vit
-dans `docs/mesures/couverture.md`, avec son mode d'emploi.
+The ratchet bears on the **number of lines of `src/lib/` that the tests do not
+exercise** — 8 today, out of 1353 — and not on a percentage. It lives in
+`docs/mesures/couverture.md`, with its instructions.
 
-`--fail-under-line` disparaît : le script lit le `--json-summary`, calcule
-`line_total - line_covered`, et confronte au fichier.
+`--fail-under-line` goes away: the script reads the `--json-summary`, computes
+`line_total - line_covered`, and compares with the file.
 
-| Situation | Réaction |
+| Situation | Reaction |
 | :-------- | :------- |
-| plus de lignes non couvertes qu'au relevé | échec, en nommant le fichier qui en a gagné |
-| autant | passe, en silence |
-| moins | passe, et invite : `make ratchet` enregistre la nouvelle valeur |
+| more uncovered lines than recorded | failure, naming the file that gained some |
+| as many | passes, silently |
+| fewer | passes, and prompts: `make ratchet` records the new value |
 
-**La porte échoue à la baisse, elle n'écrit jamais d'elle-même.** Un fichier
-versionné ne bouge que si quelqu'un le demande ; mais personne n'a à calculer
-le chiffre.
+**The gate fails on a downturn, it never writes by itself.** A tracked file
+moves only if someone asks for it; but nobody has to compute the figure.
 
-### Les performances tiennent un journal
+### Performance keeps a journal
 
-`docs/mesures/performances.md`, alimenté par `make bench` depuis la sortie XML
-de Catch2.
+`docs/mesures/performances.md`, fed by `make bench` from Catch2's XML output.
 
-- **Une section par version**, remplacée si l'on rejoue au même numéro. Le patch
-  bougeant une fois par pull request, l'historique devient une mesure par
-  version livrée — la granularité qui rend deux chiffres comparables.
-- **Moyenne et écart-type** par mesure. L'écart-type n'est pas décoratif : c'est
-  lui qui portera le seuil d'alerte, quand la variance sera connue.
-- **Le mode de compilation** est enregistré, bien qu'il vaille toujours
-  `Release` aujourd'hui.
-- **Élagage à un mois**, doublé d'une **table d'extrêmes permanente** : par
-  mesure, le minimum et le maximum jamais atteints, avec leur version et leur
+- **One section per version**, replaced if re-run at the same number. With the
+  patch moving once per pull request, the history becomes one measurement per
+  shipped version — the granularity that makes two figures comparable.
+- **Mean and standard deviation** per measurement. The standard deviation is
+  not decorative: it will carry the alert threshold, once the variance is
+  known.
+- **The build mode** is recorded, although it is always `Release` today.
+- **Pruning at one month**, backed by a **permanent table of extremes**: per
+  measurement, the minimum and maximum ever reached, with their version and
   date.
-- **Aucun seuil d'alerte**, et le fichier dit pourquoi.
+- **No alert threshold**, and the file says why.
 
-## Alternatives écartées
+## Alternatives dismissed
 
-- **Un seuil en pourcentage**, fût-il exact plutôt qu'arrondi. Écarté pour une
-  raison qui n'a rien à voir avec l'arrondi : le pourcentage porte un **effet
-  pervers**. Ajouter du code bien testé le fait monter, donc le cliquet monte,
-  donc le travail suivant est contraint plus dur sans que personne l'ait décidé.
-  Le compte de lignes non couvertes ne bouge pas quand on ajoute du code
-  couvert, et ne réagit qu'à ce qu'on veut réellement surveiller.
+- **A percentage threshold**, even an exact one rather than a rounded one.
+  Dismissed for a reason that has nothing to do with rounding: the percentage
+  carries a **perverse effect**. Adding well-tested code raises it, so the
+  ratchet rises, so the next piece of work is constrained harder without anyone
+  having decided it. The count of uncovered lines does not move when covered
+  code is added, and reacts only to what one actually wants to watch.
 
-- **Le couple `couvertes / total`.** Plus riche en information, mais il faut
-  définir ce qui constitue une régression quand les deux nombres bougent
-  ensemble — une règle de plus à écrire, à justifier et à défendre.
+- **The `covered / total` pair.** Richer in information, but one must define
+  what constitutes a regression when both numbers move together — one more
+  rule to write, justify and defend.
 
-- **Relever le cliquet automatiquement** dès que la couverture monte. Écarté :
-  un fichier versionné changerait sans qu'on l'ait demandé, et il faudrait
-  ensuite le commiter — le geste revient donc, déguisé en surprise plutôt qu'en
-  instruction.
+- **Raising the ratchet automatically** as soon as coverage rises. Dismissed: a
+  tracked file would change without being asked to, and it would then have to
+  be committed — so the gesture comes back, disguised as a surprise rather than
+  an instruction.
 
-- **Tout laisser à la main**, la porte se taisant à la hausse. Écarté : le
-  cliquet décrocherait du réel, et un seuil qui traîne loin sous la vérité est
-  exactement le défaut que ce ticket corrige.
+- **Leaving everything manual**, the gate staying silent on an upturn.
+  Dismissed: the ratchet would drift away from reality, and a threshold lagging
+  far below the truth is exactly the defect this ticket fixes.
 
-- **Garder `--fail-under-line` en filet grossier**, sous le cliquet fin. Écarté :
-  deux seuils que personne ne sait réconcilier, dont un qu'on sait émoussé par
-  l'arrondi.
+- **Keeping `--fail-under-line` as a coarse net**, under the fine ratchet.
+  Dismissed: two thresholds nobody knows how to reconcile, one of which is known
+  to be blunted by rounding.
 
-- **Enregistrer chaque exécution de `make bench`.** Séduisant parce que la
-  variance apparaîtrait gratuitement. Écarté : trois essais dans la journée
-  feraient trois relevés versionnés, dont deux que personne n'a choisi de
-  garder. La table d'extrêmes donne l'enveloppe sans le bruit.
+- **Recording every run of `make bench`.** Attractive because the variance
+  would show up for free. Dismissed: three tries in a day would make three
+  tracked records, two of which nobody chose to keep. The table of extremes
+  gives the envelope without the noise.
 
-- **Écrire hors du dépôt et verser sur demande.** Cohérent avec le choix fait
-  pour le cliquet, mais le ticket demande expressément que `make bench` conserve
-  ses chiffres, et un geste de plus est un geste qu'on oublie.
+- **Writing outside the repository and committing on request.** Consistent with
+  the choice made for the ratchet, but the ticket expressly asks that
+  `make bench` keep its figures, and one more gesture is a gesture that gets
+  forgotten.
 
-- **Épingler les sections anciennes qui détiennent un record**, plutôt qu'une
-  table d'extrêmes séparée. Écarté par arithmétique : seize mesures ayant
-  chacune deux extrêmes, jusqu'à trente-deux sections seraient épinglées, et
-  l'élagage cesserait de vouloir dire quelque chose.
+- **Pinning old sections that hold a record**, rather than a separate table of
+  extremes. Dismissed by arithmetic: sixteen measurements each having two
+  extremes, up to thirty-two sections would be pinned, and pruning would stop
+  meaning anything.
 
-- **Analyser la sortie console des benchmarks.** Écarté pour la raison qui a
-  déjà écarté le `grep` sur `TEST_CASE` en [0014](0014-registre-d-exigences.md) :
-  Catch2 replie ses lignes à 70 colonnes et concatène les orthographes d'un même
-  tag. On demande à l'outil ce qu'il sait, on ne devine pas sa mise en page.
+- **Parsing the benchmarks' console output.** Dismissed for the reason that
+  already dismissed the `grep` on `TEST_CASE` in
+  [0014](0014-registre-d-exigences.md): Catch2 wraps its lines at 70 columns
+  and concatenates the spellings of the same tag. We ask the tool what it
+  knows, we do not guess its layout.
 
-- **Le rapporteur JSON de Catch2**, qui serait le support le plus commode. Il
-  n'émet rien pour les benchmarks : `benchmarkEnded` a un corps vide. Ce n'est
-  pas un choix, c'est un fait vérifié dans ses sources.
+- **Catch2's JSON reporter**, which would be the most convenient medium. It
+  emits nothing for benchmarks: `benchmarkEnded` has an empty body. That is not
+  a choice, it is a fact checked in its sources.
 
-## Conséquences
+## Consequences
 
-**La preuve de la porte de couverture devient robuste.** Aujourd'hui elle ne se
-referme que parce que 99,2 a été calé à quatre dixièmes du taux réel ; avec un
-compte de lignes, la fonction non couverte injectée par `verify-gates.sh` fait
-échouer la porte quelle que soit la taille du projet.
+**The proof of the coverage gate becomes robust.** Today it only closes because
+99.2 was set four tenths from the actual rate; with a line count, the uncovered
+function injected by `verify-gates.sh` makes the gate fail whatever the size of
+the project.
 
-**`make check` change**, et il faut le dire : son étape de couverture n'utilise
-plus `--fail-under-line`. Ce n'est pas une étape de plus — l'étape existe depuis
-la phase 0, seule la façon dont elle décide change. La CI n'exécute rien de
-nouveau.
+**`make check` changes**, and that must be said: its coverage step no longer
+uses `--fail-under-line`. It is not an extra step — the step has existed since
+phase 0, only the way it decides changes. CI runs nothing new.
 
-**`make check-local` enchaîne déjà `bench`**, donc le lancer avant d'ouvrir une
-pull request vérifie et enregistre d'un même geste. Le fichier modifié se
-commite avec le reste, ce qui correspond à la règle du projet : les benchmarks
-se rejouent à chaque issue.
+**`make check-local` already chains `bench`**, so running it before opening a
+pull request checks and records in a single gesture. The modified file is
+committed with the rest, which matches the project rule: benchmarks are re-run
+for every issue.
 
-**Une condition rend « une mesure par version livrée » vraie plutôt qu'assumée :**
-ce `make check-local` doit suivre le bump du patch, pas le précéder.
-`CMakeLists.txt` est ce que `record-bench.sh` lit pour nommer la section
-qu'il écrit ; rejoué avant le bump, il nomme sa section d'après la version
-*précédente*, et la section suivante — la vraie mesure de cette version-là —
-n'est jamais écrite : la version courante reste sans relevé pendant qu'une
-version déjà livrée en gagne un second, faux.
+**One condition makes "one measurement per shipped version" true rather than
+assumed:** that `make check-local` must follow the patch bump, not precede it.
+`CMakeLists.txt` is what `record-bench.sh` reads to name the section it writes;
+re-run before the bump, it names its section after the *previous* version, and
+the next section — the real measurement of this version — is never written:
+the current version stays without a record while an already shipped version
+gains a second, false one.
 
-**Une seconde condition s'y ajoute, et elle a coûté deux phases à trouver :**
-ce `make check-local` doit venir **avant** `make check`, pas après. C'est la
-décision de la relecture de fin de phase 8, et la mesure qui la porte est le
-taux de relevés perdus :
+**A second condition adds to it, and it took two phases to find:** that
+`make check-local` must come **before** `make check`, not after. That is the
+decision of the end-of-phase-8 review, and the measurement behind it is the
+rate of lost records:
 
-| Phase | Relevés versés | Refusés pour charge |
-| :---- | -------------: | ------------------: |
-| 7 | 7 sur 13 | 6 |
-| 8 | 3 sur 6 | 3 — charges 1,59 · 2,08 · 10,64 |
+| Phase | Records committed | Refused for load |
+| :---- | ----------------: | ---------------: |
+| 7 | 7 of 13 | 6 |
+| 8 | 3 of 6 | 3 — loads 1.59 · 2.08 · 10.64 |
 
-**Presque un sur deux, deux phases de suite, et #270 avait déjà nommé la
-cause :** ce qui charge la machine n'est pas ce que `check-local` fait avant le
-banc — `e2e` et `install-check` culminent à 1,78 et repassent sous le seuil en
-vingt secondes — mais le quart d'heure de `make check` que le déroulé prescrivait
-juste avant. Elle avait aussi mesuré le contre-exemple : `check-local` seul, sur
-une machine au repos, relève 1,38 et s'inscrit.
+**Almost one in two, two phases in a row, and #270 had already named the
+cause:** what loads the machine is not what `check-local` does before the
+bench — `e2e` and `install-check` peak at 1.78 and drop back below the
+threshold within twenty seconds — but the quarter of an hour of `make check`
+that the procedure prescribed just before. It had also measured the
+counter-example: `check-local` alone, on an idle machine, reads 1.38 and gets
+recorded.
 
-**Trois pistes étaient sur la table, et elles partageaient une prémisse fausse :**
-que la place du banc dans le déroulé fût donnée. Attendre plus longtemps ne
-peut rien — la traîne d'un quart d'heure de compilation dure des minutes, ce que
-#270 a mesuré ; sortir le banc du déroulé rend au hasard une mesure que la
-définition de « terminé » exige ; accepter un relevé sur deux, c'est accepter
-une cause structurelle connue.
+**Three options were on the table, and they shared a false premise:** that the
+bench's place in the procedure was a given. Waiting longer can do nothing — the
+tail of a quarter of an hour of compilation lasts minutes, which #270 measured;
+taking the bench out of the procedure leaves to chance a measurement that the
+definition of "done" requires; accepting one record in two means accepting a
+known structural cause.
 
-**Première décision : l'échange des deux cibles**, `make check-local` puis
-`make check`. Le banc trouve alors une machine que rien n'a chauffée, et le
-déroulé y gagne par ailleurs — l'exécution diagnostique de `make bench` d'avant
-la porte disparaît, puisque le relevé qui reste lui est désormais antérieur.
-**Le principe l'imposait déjà** : `gate.sh` ordonne ses étapes du moins cher au
-plus cher, `check` dure un quart d'heure et `check-local` quelques minutes ; le
-déroulé prescrivait l'ordre inverse de son propre principe.
+**First decision: swapping the two targets**, `make check-local` then
+`make check`. The bench then finds a machine nothing has warmed up, and the
+procedure gains elsewhere too — the diagnostic run of `make bench` before the
+gate disappears, since the record that stays now precedes it. **The principle
+already required it**: `gate.sh` orders its steps from cheapest to most
+expensive, `check` lasts a quarter of an hour and `check-local` a few minutes;
+the procedure prescribed the reverse of its own principle.
 
-**Elle ne suffit pas, et c'est sa première exécution qui l'a dit.** Sur une
-machine partie de 0,63, dans le nouvel ordre, le banc a lu **2,21** et n'a rien
-inscrit. La cause n'était donc pas — pas seulement — la traîne de `make check`.
+**It is not enough, and its first run said so.** On a machine starting from
+0.63, in the new order, the bench read **2.21** and recorded nothing. The cause
+was therefore not — not only — the tail of `make check`.
 
-**Deuxième décision, et c'est elle qui porte le sujet : la charge se lit avant
-la construction.** `bench.sh` compilait l'arbre Release, puis demandait à
-`await-quiet.sh` si la machine était libre. Deux exécutions à une minute
-d'intervalle, le même jour et sur la même machine, isolent ce que ça coûte :
+**Second decision, and it is the one that carries the subject: the load is
+read before the build.** `bench.sh` compiled the Release tree, then asked
+`await-quiet.sh` whether the machine was free. Two runs a minute apart, on the
+same day and on the same machine, isolate what that costs:
 
-| Exécution | Charge lue | Sort |
-| :-------- | ---------: | :--- |
-| `check-local` complet, avec reconstruction Release | 2,21 | refusé |
-| `make bench` seul, arbre Release déjà à jour | **1,32** | **inscrit** |
+| Run | Load read | Outcome |
+| :-- | --------: | :------ |
+| full `check-local`, with Release rebuild | 2.21 | refused |
+| `make bench` alone, Release tree already up to date | **1.32** | **recorded** |
 
-**La seconde partait d'une machine plus chargée que la première, et s'est
-inscrite.** Ce qui les sépare est la construction que l'étape lance elle-même.
+**The second started from a more loaded machine than the first, and was
+recorded.** What separates them is the build the step launches itself.
 
-**Le garde était mal instrumenté, et c'est le vrai sujet.** `/proc/loadavg`
-donne une moyenne d'**une minute** — c'est-à-dire le passé. Lue juste après une
-compilation en Release, elle répond sur cette compilation, pas sur la machine.
-Le seuil n'a jamais eu tort, ni le délai : on lui posait la question au seul
-moment où il ne pouvait pas répondre.
+**The guard was badly instrumented, and that is the real subject.**
+`/proc/loadavg` gives a **one-minute** average — that is, the past. Read just
+after a Release compilation, it answers about that compilation, not about the
+machine. The threshold was never wrong, nor the delay: the question was put to
+it at the only moment it could not answer.
 
-La lecture passe donc avant la construction. Ce que le garde répond désormais est
-« la machine était-elle à nous quand on a commencé », et c'est la bonne
-question : ce qu'il faut écarter est une charge concurrente — un navigateur, un
-environnement de développement, la session de bureau à 10,64 — et celle-là est
-là avant comme pendant. Ce qu'il cesse de voir est une charge qui démarrerait
-pendant la construction ; le critère de dispersion la voit après coup, et c'est
-précisément pour ça qu'il existe.
+The reading therefore comes before the build. What the guard now answers is
+"was the machine ours when we started", and that is the right question: what
+must be ruled out is a competing load — a browser, a development environment,
+the desktop session at 10.64 — and that one is there before as well as during.
+What it stops seeing is a load that would start during the build; the
+dispersion criterion sees it afterwards, and that is precisely why it exists.
 
-**Ni le seuil ni le délai ne bougent.** Aucune mesure ne les met en cause.
+**Neither the threshold nor the delay moves.** No measurement calls them into
+question.
 
-**La table d'extrêmes est ce que lira le futur seuil d'alerte.** C'est la
-seconde étape que le ticket annonce sans la traiter, et elle a besoin de
-connaître la variance avant de pouvoir poser un chiffre.
+**The table of extremes is what the future alert threshold will read.** That is
+the second step the ticket announces without handling it, and it needs to know
+the variance before it can set a figure.
 
-*Premier chiffre, en août 2026, sur trente-huit relevés :* une mesure sur huit
-dépasse une fois et demie la médiane de ses voisines dans le temps, et le seuil
-de charge en écarte neuf sur dix. C'est ce que
-[`analyse-bench-journal.py`](../../src/scripts/analyse-bench-journal.py) calcule
-depuis le journal, et la préface de
-[`performances.md`](../mesures/performances.md) en tire la conséquence : le
-critère d'admission a été remis en cause, mesuré, et gardé.
+*First figure, in August 2026, over thirty-eight records:* one measurement in
+eight exceeds one and a half times the median of its neighbours in time, and
+the load threshold rules out nine in ten. That is what
+[`analyse-bench-journal.py`](../../src/scripts/analyse-bench-journal.py)
+computes from the journal, and the preface of
+[`performances.md`](../mesures/performances.md) draws the consequence: the
+admission criterion was called into question, measured, and kept.
 
-**Le coût, écrit plutôt que tu :** un compte de lignes ne dit pas *où*. Le
-script doit nommer le fichier qui a gagné des lignes non couvertes, sinon le
-message d'échec envoie chercher une aiguille dans mille trois cents lignes.
+**The cost, written rather than kept quiet:** a line count does not say
+*where*. The script must name the file that gained uncovered lines, otherwise
+the failure message sends one looking for a needle in thirteen hundred lines.
 
-Le déclencheur d'un réexamen est identifiable : le jour où une ligne
-légitimement inatteignable — une branche défensive, un `default:` impossible —
-devra être tolérée durablement, le cliquet obligera à le relever, ce qui
-autorise silencieusement une ligne non couverte de plus ailleurs. Si le cas se
-répète, un cliquet par fichier ou des marqueurs d'exclusion deviendront le
-sujet.
+The trigger for a review is identifiable: the day a legitimately unreachable
+line — a defensive branch, an impossible `default:` — has to be tolerated
+durably, the ratchet will force raising it, which silently allows one more
+uncovered line elsewhere. If the case repeats, a per-file ratchet or exclusion
+markers will become the subject.
 
-Défaire cette décision coûte peu : rétablir `--fail-under-line` et supprimer
-les deux fichiers.
+Undoing this decision costs little: restore `--fail-under-line` and delete the
+two files.

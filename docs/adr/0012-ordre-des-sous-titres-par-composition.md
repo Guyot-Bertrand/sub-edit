@@ -1,87 +1,86 @@
-# 0012 — Ne pas trier de soi-même, et faire du mode strict une composition
+# 0012 — Never sort unprompted, and make strict mode a composition
 
-**Date :** 2026-08-08
-**Statut :** acceptée
+**Date:** 2026-08-08
+**Status:** accepted
 
-## Contexte
+## Context
 
-Un sous-titre dont on corrige le début peut se retrouver placé avant celui qui
-le précède. La question se pose avant d'écrire la première opération d'édition :
-« trié par début » est-il un invariant du projet ?
+A subtitle whose start is corrected can end up placed before the one that
+precedes it. The question arises before writing the first editing operation:
+is "sorted by start" an invariant of the project?
 
-Gaupol répond oui, et le tient à deux endroits. À l'ouverture, il trie, compte
-les sous-titres déplacés et ouvre une boîte de dialogue — *« Ouvrir le fichier
-non trié ? L'ordre de N sous-titres doit être changé »* — que l'utilisateur peut
-refuser. À l'édition, `set_start` appelle `_move_if_needed`, qui déplace la ligne.
+Gaupol answers yes, and holds it in two places. On opening, it sorts, counts
+the subtitles moved and opens a dialog — *"Open unsorted file? The order of N
+subtitles needs to be changed"* — which the user may decline. On editing,
+`set_start` calls `_move_if_needed`, which moves the row.
 
-**Cet invariant n'en est pas un.** `replace_positions`, par où passent le
-décalage, la transformation et la conversion de fréquence, ne trie pas : décaler
-une partie d'une sélection peut désordonner le fichier sans que rien ne le
-remarque. Et le comptage à l'ouverture compte en images ce que le tri compare en
-secondes ; deux sous-titres inversés de moins d'une image sont donc réordonnés
-sans un mot, précisément dans le cas le plus difficile à repérer à l'œil.
+**This invariant is not one.** `replace_positions`, through which shifting,
+transforming and frame-rate conversion go, does not sort: shifting part of a
+selection can put the file out of order without anything noticing. And the
+count on opening counts in frames what the sort compares in seconds; two
+subtitles inverted by less than a frame are therefore reordered without a
+word, precisely in the case hardest to spot by eye.
 
-Notre lecteur, lui, ne trie pas et garantit un aller-retour fidèle octet pour
-octet.
+Our reader, for its part, does not sort and guarantees a byte-for-byte faithful
+round trip.
 
-## Décision
+## Decision
 
-**Le noyau ne trie jamais de lui-même.** L'ordre est celui du fichier, une
-édition ne déplace aucune ligne, et le désordre produit un diagnostic à la
-lecture — `OutOfOrder` — comme toute autre anomalie.
+**The core never sorts on its own.** The order is the file's, an edit moves no
+row, and disorder produces a diagnostic on reading — `OutOfOrder` — like any
+other anomaly.
 
-Deux modes sont offerts à l'utilisateur, portés par la session :
+Two modes are offered to the user, carried by the session:
 
-- **souple**, par défaut — rien ne bouge sans qu'on le demande ;
-- **strict** — après une opération susceptible de rompre l'ordre, la session
-  enchaîne une **commande de tri dans la même composite**.
+- **lenient**, by default — nothing moves unless asked;
+- **strict** — after an operation that may break the order, the session chains
+  a **sort command into the same composite**.
 
-Le mode strict est donc une **politique de composition**, et non un invariant du
-modèle. Le tri reste une commande ordinaire, annulable, comptant pour une seule
-entrée d'historique avec l'opération qui l'a déclenchée.
+Strict mode is thus a **composition policy**, not an invariant of the model.
+Sorting remains an ordinary, undoable command, counting as a single history
+entry together with the operation that triggered it.
 
-## Alternatives écartées
+## Alternatives dismissed
 
-- **Invariant tenu par `Project`**, à la manière de Gaupol. Écarté sur le coût :
-  les indices bougeraient sous les pieds de l'appelant, `Change` devrait exprimer
-  un déplacement et l'annulation restituer un *ordre* plutôt qu'une valeur.
-  Chaque commande paierait ce prix, définitivement, pour un cas rare.
-- **Deux invariants selon le mode.** Ce ne serait pas un réglage mais deux
-  modèles de données : chaque commande devrait demander dans lequel elle
-  s'exécute, et le code écrit sous l'un se tromperait sous l'autre.
-- **Trier à l'ouverture, en avertissant.** C'est la réponse de Gaupol. Écartée
-  pour deux raisons : elle casserait l'aller-retour octet pour octet, seule
-  promesse forte de la bibliothèque aujourd'hui ; et un dialogue est un
-  *événement*, qui ne survit pas à sa fermeture, là où un diagnostic est un
-  *état* qui persiste dans le résultat de lecture.
-- **Refuser d'ouvrir un fichier trop désordonné**, ce que Gaupol propose.
-  Écarté : le seuil serait arbitraire, et l'ADR 0008 pose que le noyau ouvre au
-  mieux et rapporte.
+- **An invariant held by `Project`**, the Gaupol way. Dismissed on cost:
+  indices would move under the caller's feet, `Change` would have to express a
+  move and undo restore an *order* rather than a value. Every command would pay
+  that price, permanently, for a rare case.
+- **Two invariants depending on the mode.** That would not be a setting but two
+  data models: every command would have to ask which one it runs under, and
+  code written under one would be wrong under the other.
+- **Sort on opening, with a warning.** That is Gaupol's answer. Dismissed for
+  two reasons: it would break the byte-for-byte round trip, the library's only
+  strong promise today; and a dialog is an *event*, which does not survive its
+  closing, whereas a diagnostic is a *state* that persists in the reading
+  result.
+- **Refuse to open a file that is too disordered**, which Gaupol offers.
+  Dismissed: the threshold would be arbitrary, and ADR 0008 states that the
+  core opens as best it can and reports.
 
-## Conséquences
+## Consequences
 
-**Les indices restent stables à l'intérieur d'une commande.** C'est la propriété
-porteuse : `Change` transporte des `SubtitleIndex`, l'historique rejoue des
-commandes, l'interface rafraîchira par indice. Aucune opération n'a à se
-demander si elle a déplacé quelque chose.
+**Indices remain stable within a command.** That is the load-bearing property:
+`Change` carries `SubtitleIndex` values, the history replays commands, the
+interface will refresh by index. No operation has to wonder whether it moved
+something.
 
-**Le tri devient annulable**, ce qu'il n'est pas chez Gaupol, où il précède
-l'existence de l'historique.
+**Sorting becomes undoable**, which it is not in Gaupol, where it precedes the
+existence of the history.
 
-**Le compteur de modification dit la vérité.** Ouvrir un fichier désordonné en
-mode strict marque le document modifié — ce qu'il est, puisqu'il diffère du
-disque. Gaupol modifie en mémoire sans que rien ne l'indique jusqu'à
-l'enregistrement.
+**The modification counter tells the truth.** Opening a disordered file in
+strict mode marks the document modified — which it is, since it differs from
+the disk. Gaupol modifies in memory with nothing showing it until saving.
 
-En contrepartie, un sous-titre peut se retrouver affiché hors ordre en mode
-souple. L'interface doit le rendre visible, et `Project::outOfOrder()` lui en
-donne les moyens sans que la règle vive dans l'interface.
+In return, a subtitle may end up displayed out of order in lenient mode. The
+interface must make that visible, and `Project::outOfOrder()` gives it the
+means without the rule living in the interface.
 
-Quand le tri se déclenche, la composite déplace des lignes et son `Change` doit
-l'exprimer. La différence avec un invariant est que ce cas vient d'**une
-commande identifiée**, traitée une fois, au lieu de peser sur toutes.
+When the sort triggers, the composite moves rows and its `Change` must express
+that. The difference from an invariant is that this case comes from **one
+identified command**, handled once, instead of weighing on all of them.
 
-Défaire cette décision reviendrait à rendre l'ordre invariant, donc à reprendre
-chaque commande. Le déclencheur serait un usage montrant que les utilisateurs
-attendent le déplacement automatique — auquel cas le mode strict, déjà là,
-deviendrait le défaut avant qu'on envisage l'invariant.
+Undoing this decision would mean making the order invariant, hence reworking
+every command. The trigger would be a use showing that users expect automatic
+moving — in which case strict mode, already there, would become the default
+before an invariant is considered.

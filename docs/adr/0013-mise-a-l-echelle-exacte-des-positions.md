@@ -1,92 +1,92 @@
-# 0013 — Mettre les positions à l'échelle par un rationnel exact, arrondi une fois
+# 0013 — Scale positions by an exact rational, rounded once
 
-**Date :** 2026-08-08
-**Statut :** acceptée
+**Date:** 2026-08-08
+**Status:** accepted
 
-## Contexte
+## Context
 
-Deux des trois opérations de positions du MVP multiplient une position par un
-facteur : la transformation affine par deux repères, et la conversion de
-fréquence d'image. Aucune n'est exprimable avec les types de la phase 1, qui
-n'offrent que l'addition d'une durée et la conversion vers une image.
+Two of the MVP's three position operations multiply a position by a factor:
+the affine transformation through two anchor points, and frame-rate
+conversion. Neither can be expressed with the phase 1 types, which only offer
+adding a duration and converting to a frame.
 
-La conversion de fréquence semble pourtant se ramener à ce qui existe :
-`fromFrame(toFrame(t, entrée), sortie)`. C'est faux, et la spec de la phase 1
-le dit déjà sans qu'on en tire la conséquence — `ms → image → ms` n'est **pas**
-l'identité. Ce chemin quantifie chaque position sur la grille d'images
-d'entrée. Mesuré de 25 vers 24000/1001 :
+Frame-rate conversion nevertheless seems to reduce to what exists:
+`fromFrame(toFrame(t, input), output)`. That is wrong, and the phase 1 spec
+already says so without the consequence being drawn — `ms → frame → ms` is
+**not** the identity. That path quantises every position onto the input frame
+grid. Measured from 25 to 24000/1001:
 
-| position | par les images | exact | écart |
-| -------: | -------------: | ----: | ----: |
+| position | via frames | exact | gap |
+| -------: | ---------: | ----: | --: |
 | 1010 ms | 1043 | 1053 | 10 ms |
 | 1020 ms | 1084 | 1064 | 20 ms |
 | 3600017 ms | 3753750 | 3753768 | 18 ms |
 
-Écart maximal relevé sur 200 000 positions : **21 ms**, soit une demi-image.
-Gaupol ne commet pas cette erreur : il calcule en secondes et n'arrondit qu'une
-fois. Le benchmark de conversion livré à l'issue #9 la commet, lui, et mesure
-donc une opération qui ne sera pas implémentée.
+Largest gap found over 200,000 positions: **21 ms**, that is half a frame.
+Gaupol does not make this mistake: it computes in seconds and rounds only
+once. The conversion benchmark delivered by issue #9 does make it, and so
+measures an operation that will not be implemented.
 
-## Décision
+## Decision
 
-Les positions se mettent à l'échelle par un **rationnel exact**, `Ratio`, avec
-**un seul arrondi**, celui de la phase 1 : à l'entier le plus proche, la moitié
-s'éloignant de zéro.
+Positions are scaled by an **exact rational**, `Ratio`, with **a single
+rounding**, the phase 1 one: to the nearest integer, halves away from zero.
 
 ```cpp
 Timestamp Timestamp::scaledBy(Ratio) const;
 Duration  Duration::scaledBy(Ratio) const;
 ```
 
-Une méthode nommée et non un opérateur : mettre une position à l'échelle est une
-décision d'arrondi, et [0006](0006-positions-en-millisecondes.md) veut qu'aucune
-ne se prenne implicitement.
+A named method and not an operator: scaling a position is a rounding decision,
+and [0006](0006-positions-en-millisecondes.md) wants none of them to be taken
+implicitly.
 
-La conversion de fréquence s'écrit `t × (entrée / sortie)`, sans passer par les
-images.
+Frame-rate conversion is written `t × (input / output)`, without going through
+frames.
 
-La transformation s'écrit **`(t − x₁) × r + y₁`** et non `r × t + constante`,
-qui est la forme de Gaupol. Outre l'arrondi unique, cette écriture fait tomber
-les deux repères **exactement** sur les positions demandées : `(x₂ − x₁) × r`
-vaut `y₂ − y₁` exactement, par construction de `r`. La forme de Gaupol ne le
-garantit pas.
+The transformation is written **`(t − x₁) × r + y₁`** and not
+`r × t + constant`, which is Gaupol's form. Besides the single rounding, this
+form makes the two anchor points land **exactly** on the requested positions:
+`(x₂ − x₁) × r` equals `y₂ − y₁` exactly, by construction of `r`. Gaupol's
+form does not guarantee it.
 
-## Alternatives écartées
+## Alternatives dismissed
 
-- **L'aller-retour par les images.** Séduisant parce qu'il réutilise l'existant,
-  et faux pour la raison mesurée ci-dessus. C'est l'alternative qu'il fallait
-  nommer : elle se serait glissée dans le code sans qu'on la remarque.
-- **Un facteur en virgule flottante**, ce que fait Gaupol. Écarté pour la raison
-  qui a déjà écarté la fréquence en `double` en [0006](0006-positions-en-millisecondes.md) :
-  `25 / (24000/1001)` n'est pas représentable exactement, et l'erreur se propage
-  à chaque position. Un rationnel supprime la question.
-- **Arrondir séparément le coefficient et la constante**, forme la plus directe
-  de la transformation. Écarté : deux arrondis là où un suffit, et les repères
-  ne tombent plus sur leur cible.
+- **The round trip through frames.** Attractive because it reuses what exists,
+  and wrong for the reason measured above. This is the alternative that had to
+  be named: it would have slipped into the code unnoticed.
+- **A floating-point factor**, which is what Gaupol does. Dismissed for the
+  reason that already dismissed a `double` frame rate in
+  [0006](0006-positions-en-millisecondes.md): `25 / (24000/1001)` is not
+  exactly representable, and the error propagates to every position. A
+  rational removes the question.
+- **Rounding the coefficient and the constant separately**, the most direct
+  form of the transformation. Dismissed: two roundings where one suffices, and
+  the anchor points no longer land on their target.
 
-## Conséquences
+## Consequences
 
-Toute position calculée l'est à la milliseconde près du résultat exact, et non à
-la demi-image près.
+Every computed position is within a millisecond of the exact result, not
+within half a frame.
 
-Les calculs intermédiaires tiennent dans un `std::int64_t` : une position
-plausible ne dépasse pas `3,6 × 10⁸` ms, et un rationnel réduit garde un
-numérateur du même ordre — le produit reste loin des bornes.
+Intermediate computations fit in a `std::int64_t`: a plausible position does
+not exceed `3.6 × 10⁸` ms, and a reduced rational keeps a numerator of the same
+order — the product stays far from the bounds.
 
-`Ratio` s'ajoute aux types du module `time`. C'est un cinquième type là où
-[0006](0006-positions-en-millisecondes.md) en nommait trois et
-[0011](0011-numero-d-image-en-type-fort.md) un quatrième ; il ne représente pas
-une grandeur mais un **facteur**, ce qui justifie qu'il ne soit ni une position
-ni une durée.
+`Ratio` joins the types of the `time` module. It is a fifth type where
+[0006](0006-positions-en-millisecondes.md) named three and
+[0011](0011-numero-d-image-en-type-fort.md) a fourth; it does not represent a
+quantity but a **factor**, which justifies it being neither a position nor a
+duration.
 
-Les opérations qui arrondissent ne peuvent pas s'inverser par un second calcul :
-transformation et conversion doivent retenir les positions antérieures, là où le
-décalage se contente d'un `Duration`. C'est ce que
-[0010](0010-annulation-par-commandes.md) appelle capturer le strict nécessaire —
-qui n'est pas la même chose selon l'opération.
+Operations that round cannot be inverted by a second computation:
+transformation and conversion must keep the previous positions, whereas
+shifting makes do with a `Duration`. That is what
+[0010](0010-annulation-par-commandes.md) calls capturing the bare minimum —
+which is not the same thing for every operation.
 
-Défaire cette décision changerait silencieusement toutes les positions
-calculées : aucun test ne verrait la différence sans être réécrit, et les
-fichiers déjà enregistrés seraient incohérents avec les nouveaux. Le déclencheur
-d'un réexamen serait une mesure montrant que le coût du rationnel pèse sur un
-fichier réel — les benchmarks de la phase 2 sont là pour le dire.
+Undoing this decision would silently change every computed position: no test
+would see the difference without being rewritten, and files already saved
+would be inconsistent with new ones. The trigger for a review would be a
+measurement showing that the cost of the rational weighs on a real file — the
+phase 2 benchmarks are there to tell.

@@ -1,120 +1,116 @@
-# 0019 — Lire à travers le modèle du noyau, qui rend ses changements
+# 0019 — Read through the core's model, which reports its changes
 
-**Date :** 2026-08-17
-**Statut :** acceptée
+**Date:** 2026-08-17
+**Status:** accepted
 
-## Contexte
+## Context
 
-La phase 5 pose un `QAbstractTableModel` au-dessus de `Project`. Deux formes
-s'offrent : un **adaptateur mince**, dont `data()` va chercher la donnée dans le
-projet à chaque appel, ou un **modèle propre** qui détient sa copie et se
-resynchronise sur des signaux.
+Phase 5 puts a `QAbstractTableModel` on top of `Project`. Two shapes are on
+offer: a **thin adapter**, whose `data()` fetches the data from the project on
+every call, or a **model of its own** that holds its copy and resynchronises on
+signals.
 
-Gaupol a pris la seconde, et son code en montre le prix. `gaupol/page.py` recopie
-chaque sous-titre dans un `Gtk.ListStore` et le tient à jour par huit
-gestionnaires de signaux. On y lit :
+Gaupol took the second, and its code shows the price. `gaupol/page.py` copies
+every subtitle into a `Gtk.ListStore` and keeps it up to date through eight
+signal handlers. One reads there:
 
-- `reload_view_all()`, qui vide et repeuple la totalité à chaque ouverture ;
-- dans `_on_project_subtitles_removed`, `if len(rows) > 50:` **débranche le
-  modèle de la vue**, avec ce commentaire : « une grande série de mises à jour
-  vives faites directement à la vue est lente » ;
-- un `gaupol.util.iterate_main()` après chaque rafraîchissement, pour rendre la
-  main à la boucle d'événements.
+- `reload_view_all()`, which empties and repopulates everything on every
+  opening;
+- in `_on_project_subtitles_removed`, `if len(rows) > 50:` **unplugs the model
+  from the view**, with this comment: "a large series of live updates made
+  directly to the view is slow";
+- a `gaupol.util.iterate_main()` after each refresh, to hand control back to
+  the event loop.
 
-Ce ne sont pas des maladresses : c'est ce que coûte la duplication, payé par la
-référence, écrit dans son code.
+These are not blunders: it is what duplication costs, paid by the reference,
+written in its code.
 
-Le noyau, lui, **ne connaît aucun mécanisme de signal**, et c'est délibéré —
-`Change` le dit dans son propre commentaire : « le cœur rend l'information et
-l'appelant en fait ce qu'il veut ». Mais `Session::apply`, `undo` et `redo`
-rendent `void`. Une fenêtre branchée dessus n'a aucun moyen de savoir quelles
-lignes rafraîchir, et n'aurait que le choix de tout redessiner.
+The core, for its part, **knows no signal mechanism**, and that is deliberate —
+`Change` says so in its own comment: "the core returns the information and the
+caller does what it wants with it". But `Session::apply`, `undo` and `redo`
+return `void`. A window plugged into them has no way of knowing which rows to
+refresh, and would only have the choice of redrawing everything.
 
-Enfin, Qt propose `QUndoStack`. Le noyau a la sienne, et c'est elle qui fait
-autorité : la ligne de commande de la phase 3 en dépend aussi.
+Finally, Qt offers `QUndoStack`. The core has its own, and it is the one that
+is authoritative: the phase 3 command line depends on it too.
 
-## Décision
+## Decision
 
-**La table est un adaptateur mince.** `data()` lit `project.subtitleAt(index)`
-et formate à la volée ; aucun sous-titre n'est recopié. La colonne du numéro
-n'est pas une donnée mais `row + 1`.
+**The table is a thin adapter.** `data()` reads `project.subtitleAt(index)` and
+formats on the fly; no subtitle is copied. The number column is not data but
+`row + 1`.
 
-**`Session::apply`, `undo` et `redo` rendent ce qu'ils ont changé** — un
-`std::vector<Change>`, celui que `describe()` produit déjà. L'annulation le rend
-**inversé** : défaire une insertion est une suppression, et une fonction libre
-`invert(ChangeKind)` suffit, les indices étant les mêmes dans les deux sens.
-Aucun observateur, aucun signal n'entre dans le noyau.
+**`Session::apply`, `undo` and `redo` return what they changed** — a
+`std::vector<Change>`, the one `describe()` already produces. Undo returns it
+**inverted**: undoing an insertion is a removal, and a free function
+`invert(ChangeKind)` suffices, the indices being the same in both directions.
+No observer, no signal enters the core.
 
-**L'historique du noyau est le seul.** `canUndo()` et `canRedo()` pilotent les
-deux actions de la fenêtre ; il n'y a pas de `QUndoStack`.
+**The core's history is the only one.** `canUndo()` and `canRedo()` drive the
+window's two actions; there is no `QUndoStack`.
 
-**Un changement de structure passe par une réinitialisation du modèle.** Qt
-exige d'encadrer une insertion ou une suppression de lignes *avant* qu'elle ait
-lieu — `beginRemoveRows` — alors que `Session` ne rend son compte rendu
-qu'après. Donc :
+**A structural change goes through a model reset.** Qt requires an insertion or
+removal of rows to be bracketed *before* it takes place — `beginRemoveRows` —
+whereas `Session` only returns its report afterwards. Hence:
 
-| Ce qui change | Ce que le modèle émet |
-| :------------ | :-------------------- |
-| texte, positions, réordonnancement | `dataChanged` sur les plages concernées |
-| lignes ajoutées ou retirées | `beginResetModel` / `endResetModel` |
+| What changes | What the model emits |
+| :----------- | :------------------- |
+| text, positions, reordering | `dataChanged` on the affected ranges |
+| rows added or removed | `beginResetModel` / `endResetModel` |
 
-## Alternatives écartées
+## Alternatives dismissed
 
-- **Un modèle propre synchronisé,** comme Gaupol. Il duplique chaque sous-titre
-  et fait de la resynchronisation le lieu où vivent les défauts. Écarté sur
-  pièces, et non par goût : les trois cicatrices citées plus haut sont dans
-  `page.py`.
+- **A synchronised model of its own,** like Gaupol. It duplicates every
+  subtitle and makes resynchronisation the place where defects live. Dismissed
+  on evidence, not on taste: the three scars quoted above are in `page.py`.
 
-- **`QUndoStack`.** Une seconde pile d'annulation, qu'il faudrait tenir en
-  accord avec la première. Deux sources de vérité pour la même question, dont
-  une seule est visible depuis la ligne de commande.
+- **`QUndoStack`.** A second undo stack, which would have to be kept in
+  agreement with the first. Two sources of truth for the same question, only
+  one of which is visible from the command line.
 
-- **Un observateur dans le noyau** — `Session::setObserver`. Il résoudrait
-  l'encadrement des changements de structure en prévenant avant et après. Il
-  ajoute au cœur un mécanisme dont la CLI n'a aucun usage, et fait entrer
-  l'ordre des notifications dans son contrat. À reconsidérer si l'encadrement
-  devient réellement gênant, pas avant.
+- **An observer in the core** — `Session::setObserver`. It would solve the
+  bracketing of structural changes by notifying before and after. It adds to
+  the core a mechanism the CLI has no use for, and brings the order of
+  notifications into its contract. To be reconsidered if the bracketing becomes
+  genuinely bothersome, not before.
 
-- **Décrire la commande avant de l'appliquer,** pour connaître d'avance la
-  structure touchée. Impossible en général : `removeHearingImpaired` ne sait
-  quels sous-titres la règle vide qu'une fois la règle appliquée. Une solution
-  qui marche pour certaines commandes et pas pour d'autres n'en est pas une.
+- **Describing the command before applying it,** to know in advance the
+  structure touched. Impossible in general: `removeHearingImpaired` only knows
+  which subtitles the rule empties once the rule has been applied. A solution
+  that works for some commands and not for others is not one.
 
-## Conséquences
+## Consequences
 
-**Rendu facile.** Rafraîchir ce qui bouge et rien d'autre, sur plusieurs
-milliers de lignes. Une seule autorité pour l'annulation, partagée avec la ligne
-de commande. Un cœur qui reste libre de Qt, ce que `check-architecture.sh`
-vérifie déjà.
+**Made easy.** Refreshing what moves and nothing else, over several thousand
+rows. A single authority for undo, shared with the command line. A core that
+stays free of Qt, which `check-architecture.sh` already checks.
 
-**Rendu difficile.** Un changement de structure coûte une reconstruction de la
-vue et perd la sélection. C'est tenable tant que son seul producteur est le
-retrait des mentions pour malentendants — global, rare, et suivi d'un
-rafraîchissement de toute façon.
+**Made hard.** A structural change costs a rebuild of the view and loses the
+selection. That is tenable as long as its only producer is the removal of
+hearing-impaired mentions — global, rare, and followed by a refresh anyway.
 
-**Ce que ça coûte de défaire.** L'adaptateur mince, presque rien : le modèle est
-mince par définition. Le compte rendu rendu par `Session`, davantage — trois
-signatures publiques que la CLI compile aussi.
+**What it costs to undo.** The thin adapter, almost nothing: the model is thin
+by definition. The report returned by `Session`, more — three public
+signatures that the CLI compiles too.
 
-**Déclencheur de réexamen.** La phase 7 apporte l'insertion et la suppression de
-sous-titres depuis la fenêtre. Une réinitialisation complète à chaque ligne
-ajoutée serait alors ridicule, et c'est là que `Session` devra annoncer un
-changement de structure avant de le faire. Le mesurer avant de le construire.
+**Trigger for a review.** Phase 7 brings inserting and removing subtitles from
+the window. A full reset for every row added would then be ridiculous, and that
+is where `Session` will have to announce a structural change before making it.
+Measure it before building it.
 
-> **Le déclencheur s'est déclenché, et la réponse est non — 2026-08-30,
-> [#264](https://github.com/Guyot-Bertrand/sub-edit/issues/264).** La phase 7 a
-> livré l'insertion et la suppression, la décision D8 de sa spec a instruit la
-> question, et la relecture de fin de phase l'a refermée.
+> **The trigger has fired, and the answer is no — 2026-08-30,
+> [#264](https://github.com/Guyot-Bertrand/sub-edit/issues/264).** Phase 7
+> delivered insertion and removal, decision D8 of its spec examined the
+> question, and the end-of-phase review closed it.
 >
-> « Le mesurer avant de le construire » a été suivi à la lettre, et c'est la
-> mesure qui a conclu : la réinitialisation du modèle après une ligne retirée
-> est de l'ordre de **10 µs sur quatre mille sous-titres**, contre un geste
-> humain. La part de la vue, elle, n'est pas mesurable au banc — il n'a pas de
-> `QApplication`. **Construire une optimisation dont le bénéfice n'est pas
-> mesurable est exactement ce que cette ADR demandait d'éviter**, donc on ne la
-> construit pas, et l'adaptateur reste mince.
+> "Measure it before building it" was followed to the letter, and the
+> measurement concluded: resetting the model after a removed row is of the
+> order of **10 µs on four thousand subtitles**, against a human gesture. The
+> view's share is not measurable on the bench — it has no `QApplication`.
+> **Building an optimisation whose benefit is not measurable is exactly what
+> this ADR asked to avoid**, so it is not built, and the adapter stays thin.
 >
-> Ce qui rouvrirait la question n'est plus une mesure mais un besoin : un
-> producteur qui change la structure plus vite qu'un humain ne clique — une
-> correction en lot, un import. Il n'en existe aucun ; le jour où il en existe
-> un, il portera la question avec lui.
+> What would reopen the question is no longer a measurement but a need: a
+> producer that changes the structure faster than a human clicks — a batch
+> correction, an import. None exists; the day one exists, it will carry the
+> question with it.
