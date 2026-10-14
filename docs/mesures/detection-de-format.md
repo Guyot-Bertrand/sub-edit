@@ -1,37 +1,37 @@
-# Détection de format
+# Format detection
 
-Ce que le projet répond quand on lui demande de quel format est un fichier, et
-**où il cesse de savoir**.
+What the project answers when asked which format a file is in, and **where it
+stops knowing**.
 
-**Un taux, et non « la détection marche ».** C'est l'énoncé de #290 pour
-l'encodage, transposé par #340 à l'autre inconnue de la phase 9 : une détection
-est un classifieur, elle a un taux de succès, pas un résultat juste ou faux.
+**A rate, not "detection works".** This is the statement of #290 for the
+encoding, carried over by #340 to the other unknown of phase 9: a detection is
+a classifier, it has a success rate, not a result that is right or wrong.
 
-**Avec deux formats, la question était fermée d'avance.** Un fichier porte la
-signature `WEBVTT` ou une flèche à virgule, et rien d'autre ne s'en approche.
-Avec neuf, c'est une classification, et les collisions sont réelles :
+**With two formats, the question was closed in advance.** A file carries the
+`WEBVTT` signature or an arrow with a comma, and nothing else comes close.
+With nine, it is a classification, and the collisions are real:
 
-| Ce qui se ressemble | Ce que ça vaut |
-| :------------------ | :------------- |
-| `.sub` | MicroDVD **et** SubViewer 2 |
-| `.txt` | TMPlayer, MPL2, et tout le reste du monde |
-| `{0}{25}` et `[0][25]` | la même grammaire, à la forme des crochets près |
-| SSA et ASS | le même en-tête, à une version et un nom de section près |
+| What looks alike | What it stands for |
+| :--------------- | :----------------- |
+| `.sub` | MicroDVD **and** SubViewer 2 |
+| `.txt` | TMPlayer, MPL2, and everything else in the world |
+| `{0}{25}` and `[0][25]` | the same grammar, but for the shape of the brackets |
+| SSA and ASS | the same header, but for a version and a section name |
 
-## Comment le rejouer
+## How to replay it
 
 ```console
 $ make score-format
 ```
 
-C'est une étape de `check-local` : la mesure se rejoue à chaque pull request, et
-une divergence d'avec le relevé se voit. Un taux qui baisse échoue, un taux qui
-monte invite à `make score-format-record`, un taux inchangé se tait. Ce n'est
-pas un seuil : le nombre comparé est celui de la dernière mesure.
+It is a step of `check-local`: the measurement is replayed on every pull
+request, and a departure from the record shows. A rate that falls fails, a rate
+that rises invites `make score-format-record`, an unchanged rate stays silent.
+It is not a threshold: the number compared is the one of the last measurement.
 
-**Le détecteur est un argument**, comme pour l'encodage — le cadrage (#337) aura
-des voies à départager, et le choix entre elles est un choix de taux. Le mesurer
-après avoir choisi, c'est choisir sans mesurer.
+**The detector is an argument**, as for the encoding — the framing (#337) will
+have routes to choose between, and the choice between them is a choice of rate.
+Measuring it after choosing is choosing without measuring.
 
 ```console
 $ cmake --build build/dev --target subedit_detect_format
@@ -39,112 +39,111 @@ $ ./src/scripts/score-format-detection.py \
       --detector './build/dev/bin/subedit_detect_format {}' --prive
 ```
 
-`--prive` ajoute le corpus privé, absent de toute machine qui ne l'a pas. Aucune
-porte ne le lit.
+`--prive` adds the private corpus, absent from any machine that does not have
+it. No gate reads it.
 
-## Trois issues, et deux d'entre elles ne se valent pas
+## Three outcomes, and two of them are not equal
 
-Une réponse **juste**. Une réponse **fausse**, qui fait ouvrir un fichier comme
-ce qu'il n'est pas. Un **refus**, qui dit ne pas savoir.
+A **right** answer. A **wrong** answer, which opens a file as what it is not. A
+**refusal**, which says it does not know.
 
-**Le refus est la règle du projet appliquée** — rien plutôt qu'une supposition.
-**La confusion est ce qu'on ne veut à aucun prix**, et elle échoue à elle seule,
-quel que soit le taux : un taux qui monte pendant qu'une confusion apparaît ne
-doit pas la racheter.
+**The refusal is the project's rule applied** — nothing rather than a guess.
+**Confusion is what must be avoided at any price**, and it fails on its own,
+whatever the rate: a rate that rises while a confusion appears must not buy it
+back.
 
-## Le nom du fichier ne fait pas partie de la question
+## The file name is not part of the question
 
-Les fixtures s'appellent `scene.microdvd.sub` : leur nom **porte la réponse**,
-puisqu'il faut bien étiqueter un corpus. Il est retiré avant que le détecteur
-les voie — chaque fichier lui est passé sous un nom neutre, **en gardant son
-extension réelle**, si bien que `.sub` reste aussi ambigu qu'il l'est dans la
-nature.
+The fixtures are called `scene.microdvd.sub`: their name **carries the
+answer**, since a corpus has to be labelled. It is removed before the detector
+sees them — each file is handed to it under a neutral name, **keeping its real
+extension**, so that `.sub` stays as ambiguous as it is in the wild.
 
-Le jour où le cadrage décidera que l'extension est une preuve recevable, c'est
-là qu'il faudra le dire, et délibérément.
+The day the framing decides that the extension is admissible evidence, that is
+where it will have to be said, and deliberately.
 
-## Corpus étiqueté
+## Labelled corpus
 
-`src/test/data/formats/`, la même scène dans les neuf formats — l'étiquette vient
-avec le fichier, par construction — et `src/test/data/valides/`, dix fichiers que
-leur extension suffit à nommer.
+`src/test/data/formats/`, the same scene in the nine formats — the label comes
+with the file, by construction — and `src/test/data/valides/`, ten files that
+their extension is enough to name.
 
-<!-- relevé engendré : ne pas modifier à la main -->
+<!-- generated record: do not edit by hand -->
 
-    formats reconnus : 19/19
+    recognised formats: 19/19
 
-Relevé sur la version 0.9.21, le 2026-09-09.
+Recorded on version 0.9.21, on 2026-09-09.
 
-| | Fichiers |
+| | Files |
 | :--- | -------: |
-| reconnus | 19 |
-| refusés, faute d un lecteur | 0 |
-| **confondus** | **0** |
+| recognised | 19 |
+| refused, for want of a reader | 0 |
+| **confused** | **0** |
 
-**Aucune confusion** : la détection refuse, elle ne se trompe pas.
+**No confusion**: the detection refuses, it does not get it wrong.
 
-<!-- fin du relevé -->
+<!-- end of record -->
 
-**Ni refus ni confusion.** Le chiffre est monté d'un rendu à chaque format
-livré, et il a été le seul du dépôt qui mesurait l'avancement de la phase 9
-plutôt qu'une propriété du code. Il ne mesure plus cela : les neuf formats sont
-là, le corpus étiqueté est reconnu en entier, et ce que la mesure garde est ce
-qu'elle avait de plus important dès le premier jour — **une confusion échoue à
-elle seule.** Un plein ne se relâche pas ; il se surveille.
+**Neither refusal nor confusion.** The figure rose by one rendering with each
+format delivered, and it was the only one in the repository that measured the
+progress of phase 9 rather than a property of the code. It no longer measures
+that: the nine formats are there, the labelled corpus is recognised in full,
+and what the measurement keeps is what it had that mattered most from the first
+day — **a confusion fails on its own.** A full score is not relaxed; it is
+watched.
 
-## Corpus privé — sans étiquettes
+## Private corpus — without labels
 
-`src/data/`, soixante-dix-huit fichiers réels. **Il ne donne aucun taux** : il
-n'y a pas de vérité à lui confronter, et s'en inventer une serait pire que de
-n'en pas avoir. Ce qu'il donne est la distribution des réponses.
+`src/data/`, seventy-eight real files. **It gives no rate**: there is no truth
+to hold it against, and inventing one would be worse than having none. What it
+gives is the distribution of the answers.
 
-| Réponse | Fichiers |
-| :------ | -------: |
+| Answer | Files |
+| :----- | ----: |
 | WebVTT | 54 |
 | SubRip | 17 |
 | MicroDVD | 1 |
 | Advanced SSA | 1 |
-| refusé | 5 |
+| refused | 5 |
 
-**Les deux derniers refus sur un vrai sous-titre ont été des reconnaissances**,
-un MicroDVD et un Advanced SSA, tous deux réels, tous deux nommés par les
-lecteurs de la phase.
-C'est la confirmation de ce que l'initialisation de la phase (#336) avait fini
-par trouver après s'être trompée : le corpus privé porte autre chose que du
-`.srt` et du `.vtt`, et le relevé qui disait le contraire filtrait son parcours
-sur ces deux extensions.
+**The last two refusals on a real subtitle became recognitions**, a MicroDVD
+and an Advanced SSA, both real, both named by the readers of the phase.
+It confirms what the initialisation of the phase (#336) had ended up finding
+after getting it wrong: the private corpus carries something other than `.srt`
+and `.vtt`, and the record that said otherwise filtered its walk on those two
+extensions.
 
-**Les cinq refus sont mérités, et ils sont entrés au relevé à la relecture de la
-phase.** Ce sont des notes et un extrait de texte, portant l'extension `.txt` ;
-la détection dit qu'elle ne sait pas, ce qui est la bonne réponse. Un refus
-n'est pas une confusion, et c'est la confusion seule qui fait échouer.
+**The five refusals are deserved, and they entered the record at the review of
+the phase.** They are notes and a text excerpt, carrying the `.txt` extension;
+the detection says it does not know, which is the right answer. A refusal is
+not a confusion, and only confusion makes it fail.
 
-**Ils n'y étaient pas, et leur absence était un filtre.** La sonde ne parcourait
-pas les `.txt`, au motif que les seuls du corpus étaient ces notes-là. L'argument
-valait sur les fichiers d'un jour ; ce qu'il coûtait était plus grand — `.txt`
-nomme **MPL2 et TMPlayer**, donc la sonde ne pouvait pas voir un fichier de ces
-deux formats, et la phrase ci-dessous était garantie par le filtre plutôt que
-mesurée. C'est la forme exacte du défaut de #268 et de #273 : vérifier avec
-l'outil qui ne compte pas. Dans le seul relevé dont toute la valeur tient à ce
-que **l'extension n'entre nulle part dans la décision**, un filtre par extension
-n'avait pas sa place.
+**They were not there, and their absence was a filter.** The probe did not walk
+the `.txt` files, on the grounds that the only ones in the corpus were those
+notes. The argument held on the files of one day; what it cost was greater —
+`.txt` names **MPL2 and TMPlayer**, so the probe could not see a file of those
+two formats, and the sentence below was guaranteed by the filter rather than
+measured. It is the exact shape of the defect of #268 and #273: checking with
+the tool that does not count. In the only record whose whole value rests on
+**the extension playing no part in the decision**, a filter by extension had no
+place.
 
-**Le corpus privé ne dit rien de TMPlayer ni de LRC** : il n'en porte aucun —
-et c'est mesuré depuis que la sonde regarde les `.txt`. Ce que ces deux
-formats-là ont pour eux est la scène de #338, et rien de réel.
+**The private corpus says nothing of TMPlayer or LRC**: it carries none — and
+this has been measured since the probe looks at the `.txt` files. What those
+two formats have going for them is the scene of #338, and nothing real.
 
-## Ce que la première version de la sonde a appris
+## What the first version of the probe taught
 
-**Elle passait les octets bruts à `detectFormat`**, et le corpus privé a répondu
-neuf refus au lieu de deux : sept fichiers WebVTT parfaitement valides étaient
-comptés comme des échecs de détection.
+**It handed the raw bytes to `detectFormat`**, and the private corpus answered
+nine refusals instead of two: seven perfectly valid WebVTT files were counted
+as detection failures.
 
-La cause n'était pas la détection mais l'ordre. **`detectFormat` travaille sur du
-texte décodé**, après que l'encodage a été tranché et la marque retirée ; un
-fichier en UTF-16 ne commence pas par les octets de `WEBVTT`. La sonde ouvre
-donc le fichier comme le produit l'ouvre, plutôt que d'appeler le classifieur à
-côté du chemin qui le nourrit.
+The cause was not the detection but the order. **`detectFormat` works on
+decoded text**, after the encoding has been settled and the mark removed; a
+UTF-16 file does not begin with the bytes of `WEBVTT`. The probe therefore opens
+the file as the product opens it, rather than calling the classifier beside the
+path that feeds it.
 
-C'est le défaut de #268 sous une autre forme — **vérifier avec l'outil qui ne
-compte pas la même chose** — et c'est le corpus privé qui l'a attrapé, sur des
-fichiers qu'aucune fixture ne remplaçait.
+It is the defect of #268 in another form — **checking with the tool that does
+not count the same thing** — and it is the private corpus that caught it, on
+files that no fixture replaced.

@@ -83,7 +83,6 @@ docs/adr/README.md
 docs/mesures/conversion.md
 docs/mesures/couverture.md
 docs/mesures/detection-d-encodage.md
-docs/mesures/detection-de-format.md
 docs/mesures/performances.md
 docs/specs/00-fondations.md
 docs/specs/01-noyau.md

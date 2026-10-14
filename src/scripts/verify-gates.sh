@@ -1322,7 +1322,7 @@ expect_conversion_loss_gates
 # branche de trois lignes.
 expect_format_score_gates() {
     local recorded
-    recorded="$(sed -n 's/^ *formats reconnus *: *\([0-9]*\)\/\([0-9]*\) *$/\1 \2/p' \
+    recorded="$(sed -n 's/^ *recognised formats *: *\([0-9]*\)\/\([0-9]*\) *$/\1 \2/p' \
         "${FORMAT_JOURNAL}")"
     local right="${recorded% *}"
     local total="${recorded#* }"
@@ -1342,7 +1342,7 @@ expect_format_score_gates() {
 
     proof_header '%s▸ un score de détection de format au dessus de son relevé%s\n' "${BOLD}" "${RESET}"
 
-    sed -i "s|^ *formats reconnus *:.*$|    formats reconnus : $((right - 1))/${total}|" \
+    sed -i "s|^ *recognised formats *:.*$|    recognised formats: $((right - 1))/${total}|" \
         "${FORMAT_JOURNAL}"
 
     if make -C "${REPO_ROOT}" --no-print-directory score-format >/dev/null 2>&1; then
