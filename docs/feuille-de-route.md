@@ -1,1420 +1,1401 @@
-# Feuille de route
+# Roadmap
 
-Vingt-cinq phases, chacune associée à un milestone GitHub. Neuf mènent à un
-**MVP livrable** — les huit premières, plus la [16](#16--fréquences-dimage--déduction-et-correction)
-intercalée avant la 7 ; les suivantes, jusqu'à la 15, complètent
-l'iso-fonctionnalité avec Gaupol ; les huit dernières, de la
-[17](#17--formats-texte-complémentaires) à la [24](#24--workflow-et-intégrations),
-vont [au-delà de Gaupol](#troisième-partie--au-delà-de-gaupol).
+Twenty-five phases, each tied to a GitHub milestone. Nine lead to a
+**shippable MVP** — the first eight, plus [16](#16--frame-rates-inference-and-correction)
+slotted in before 7; the following ones, up to 15, complete feature parity
+with Gaupol; the last eight, from
+[17](#17--additional-text-formats) to [24](#24--workflow-and-integrations),
+go [beyond Gaupol](#part-three--beyond-gaupol).
 
-**Le numéro d'une phase l'identifie, il ne dit pas son rang.** L'ordre est celui
-de ce document, et lui seul. Une phase ajoutée en cours de route prend le
-premier numéro libre plutôt que de décaler les suivantes — c'est déjà la règle
-des identifiants d'exigences, et pour la même raison : un renvoi qui change de
-référent égare plus qu'un numéro dans le désordre. Six ADR, sept fichiers de
-`src/` et neuf milestones citent des numéros de phase ; les décaler les rendrait
-tous silencieusement faux.
+**A phase's number identifies it; it does not give its rank.** The order is the
+order of this document, and that alone. A phase added along the way takes the
+first free number rather than shifting the following ones — this is already the
+rule for requirement identifiers, and for the same reason: a reference that
+changes referent misleads more than a number out of order. Six ADRs, seven files
+in `src/` and nine milestones cite phase numbers; shifting them would make all of
+them silently wrong.
 
-Ce document tient le cadrage amont : ce qu'il faut analyser, ce qu'il faut
-trancher, et ce qui sera difficile. Il est révisé au fil du projet — une phase
-terminée voit son cadrage remplacé par sa spec dans [`specs/`](specs/).
+This document holds the upstream scoping: what has to be analysed, what has to
+be decided, and what will be hard. It is revised as the project goes — a
+finished phase sees its scoping replaced by its spec in [`specs/`](specs/).
 
-## Le contour du MVP
+## The outline of the MVP
 
-Les priorités viennent de l'utilisateur final, transmises le 2026-08-05 :
+The priorities come from the end user, given on 2026-08-05:
 
-- **ouvrir** — surtout SubRip (`.srt`) et WebVTT (`.vtt`) ; plus rarement
-  SubViewer (`.sub`), Sub Station Alpha (`.ssa`), Advanced SSA (`.ass`) ;
-- **enregistrer sous** — surtout `.srt` et `.vtt`, en UTF-8, avec des fins de
-  ligne Unix ;
-- **éditer les sous-titres** dans la table centrale ;
-- **décaler les positions**, **transformer les positions**, **convertir la
-  fréquence d'image** ;
-- **enlever les textes pour malentendants** — sons entre crochets et entre
-  parenthèses.
+- **open** — mostly SubRip (`.srt`) and WebVTT (`.vtt`); more rarely
+  SubViewer (`.sub`), Sub Station Alpha (`.ssa`), Advanced SSA (`.ass`);
+- **save as** — mostly `.srt` and `.vtt`, in UTF-8, with Unix line
+  endings;
+- **edit subtitles** in the central table;
+- **shift positions**, **transform positions**, **convert the frame
+  rate**;
+- **remove texts for the hearing impaired** — sounds in brackets and in
+  parentheses.
 
-Les phases 1 à 7 sont donc **restreintes à ce contour**, interface comprise.
-Elles ne changent ni d'identité ni d'ordre : elles couvrent moins de terrain.
-La [16](#16--fréquences-dimage--déduction-et-correction), elle, l'élargit — la
-seule à le faire, et la seule à dépasser l'iso-fonctionnalité avec Gaupol avant
-la troisième partie.
+Phases 1 to 7 are therefore **restricted to this outline**, interface included.
+They change neither identity nor order: they cover less ground.
+[16](#16--frame-rates-inference-and-correction), for its part, widens it — the
+only one to do so, and the only one to go beyond feature parity with Gaupol
+before part three.
 
-Trois conséquences qui ne se lisent pas directement dans la liste :
+Three consequences that cannot be read directly from the list:
 
-- **Le modèle de balises reste nécessaire dès la phase 1.** SubRip porte `<i>`,
-  `<b>`, `<font>`, WebVTT les siennes. Il doit de plus être conçu pour
-  accueillir ASS en phase 9, sans quoi cette phase imposerait de le reprendre.
-- **L'architecture d'annulation se pose dès la phase 1.** Elle n'est pas dans
-  la liste, mais éditer dans une table l'implique, et c'est précisément ce qu'on
-  ne peut pas ajouter après coup.
-- **Le document de traduction n'est pas tranché.** Le modèle de données est donc
-  conçu pour l'accueillir, sans que l'interface le construise : l'ajouter au
-  modèle plus tard coûterait cher, l'ajouter à l'interface ne coûte rien.
+- **The markup model is needed from phase 1.** SubRip carries `<i>`,
+  `<b>`, `<font>`, WebVTT its own. It must moreover be designed to
+  accommodate ASS in phase 9, otherwise that phase would force it to be redone.
+- **The undo architecture is laid down in phase 1.** It is not in the list,
+  but editing in a table implies it, and it is precisely what cannot be added
+  after the fact.
+- **The translation document is not settled.** The data model is therefore
+  designed to accommodate it, without the interface building it: adding it to
+  the model later would be expensive, adding it to the interface costs nothing.
 
-## Déroulé d'une phase
+## How a phase unfolds
 
-Trois issues encadrent chaque phase — une pour l'équiper, une pour la cadrer,
-une pour la relire — et les issues d'implémentation viennent entre les deux
-dernières.
+Three issues frame each phase — one to equip it, one to scope it, one to review
+it — and the implementation issues come between the last two.
 
-### 1. Initialisation — l'outillage (`type:task`)
+### 1. Initialisation — the tooling (`type:task`)
 
-**Avant le cadrage.** La question qu'elle pose : *qu'est-ce qui, dans cette
-phase, se vérifiera à la main faute d'outil ?* Ce qui se vérifie tout seul n'a
-pas à se vérifier à la main, et l'outil coûte moins cher construit au début de
-la phase qu'à la fin.
+**Before the scoping.** The question it asks: *what, in this phase, will be
+checked by hand for lack of a tool?* What checks itself need not be checked by
+hand, and a tool costs less built at the start of the phase than at the end.
 
-Elle produit une décision par outil : ceux qui sont retenus ont leur issue, ceux
-qui sont écartés ont **leur raison écrite** — un outil écarté sans trace revient
-à chaque phase.
+It produces one decision per tool: those retained have their issue, those
+set aside have **their reason written down** — a tool set aside without a trace
+comes back at every phase.
 
-Les issues d'outillage qu'elle ouvre passent **avant la première issue
-d'implémentation**. C'est une contrainte d'ordre sur la phase et non une tâche
-du ticket d'initialisation : quand celui-ci se termine, rien n'est encore en
-place, par construction. L'écrire comme un critère de fin donnerait une case
-qu'on ne peut jamais cocher.
+The tooling issues it opens come **before the first implementation issue**.
+This is an ordering constraint on the phase and not a task of the
+initialisation ticket: when that ticket ends, nothing is in place yet, by
+construction. Writing it as an exit criterion would give a box that can never
+be ticked.
 
-### 2. Cadrage (`type:task`)
+### 2. Scoping (`type:task`)
 
-1. **Analyse préalable** — lecture ciblée du code de Gaupol correspondant, dans
-   `reference/gaupol`, pour comprendre ce qui est fait et pourquoi.
-2. **Discussion des choix d'architecture** — les questions listées ci-dessous
-   sont le point de départ, pas la liste complète.
-3. **Production de la spec** dans `docs/specs/NN-<sujet>.md`, et des ADR pour
-   les décisions coûteuses à revenir dessus.
-4. **Découpage en issues d'implémentation**, rattachées au milestone.
+1. **Preliminary analysis** — targeted reading of the corresponding Gaupol code,
+   in `reference/gaupol`, to understand what is done and why.
+2. **Discussion of architecture choices** — the questions listed below are the
+   starting point, not the complete list.
+3. **Writing the spec** in `docs/specs/NN-<topic>.md`, and ADRs for decisions
+   that are expensive to go back on.
+4. **Splitting into implementation issues**, attached to the milestone.
 
-### 3. Relecture de fin de phase (`type:task`)
+### 3. End-of-phase review (`type:task`)
 
-**Après la dernière issue d'implémentation, avant de clore.** Elle ne produit
-pas de fonctionnalité : elle vérifie que la phase tient.
+**After the last implementation issue, before closing.** It produces no
+feature: it checks that the phase holds.
 
-- **Confronter la spec au réalisé.** Un écart est soit corrigé, soit inscrit ;
-  un écart non consigné est un écart oublié.
-- **Répercuter les renvois.** Tout « à voir plus tard » doit atterrir sur une
-  phase ou une issue nommée. Sans cela une promesse finit par désigner une phase
-  déjà passée — c'est arrivé en phase 2, où la borne de l'historique promettait
-  d'être mesurée « en phase 2 » et ne l'a pas été.
-- **Relire le manuel d'un bloc.** Il se met à jour ticket par ticket, donc en
-  morceaux, et par des gens qui connaissent déjà la réponse. C'est le seul
-  moment où l'on voit ce que ça donne pour quelqu'un qui découvre : ce qui
-  manque, ce qui a vieilli, ce qui est exact mais rangé là où personne ne le
-  cherchera.
-- **Regard critique sur l'ensemble du code de la phase**, et non fichier par
-  fichier : duplications, abstractions manquantes ou de trop, tests qui
-  promettent plus qu'ils ne prouvent. Ce qui en sort **n'est pas corrigé là** :
-  chaque axe se discute et devient une issue s'il est retenu.
+- **Compare the spec with what was built.** A gap is either fixed or recorded;
+  an unrecorded gap is a forgotten gap.
+- **Carry deferrals forward.** Every "to be seen later" must land on a named
+  phase or issue. Without this a promise ends up pointing at a phase already
+  past — it happened in phase 2, where the history bound promised to be
+  measured "in phase 2" and was not.
+- **Read the manual in one go.** It is updated ticket by ticket, hence in
+  pieces, and by people who already know the answer. It is the only moment
+  where one sees what it gives for someone discovering it: what is missing,
+  what has aged, what is accurate but filed where nobody will look for it.
+- **A critical look at the phase's code as a whole**, and not file by file:
+  duplication, missing or superfluous abstractions, tests that promise more
+  than they prove. What comes out of it **is not fixed there**: each axis is
+  discussed and becomes an issue if retained.
 
-Une phase n'est close que lorsque sa spec, ses tests, ses benchmarks, sa section
-de manuel, son entrée de CHANGELOG et sa relecture existent.
+A phase is closed only when its spec, its tests, its benchmarks, its manual
+section, its CHANGELOG entry and its review exist.
 
-**L'analyse se fait au démarrage de la phase concernée, pas maintenant.** Les
-questions et points difficiles listés ci-dessous sont des repères relevés lors
-de l'exploration initiale de Gaupol : ils servent à ne pas partir d'une page
-blanche et à ne pas découvrir tard un obstacle connu. Ce ne sont ni des
-conclusions, ni une liste close.
+**The analysis is done when the phase concerned starts, not now.** The
+questions and difficult points listed below are landmarks noted during the
+initial exploration of Gaupol: they serve to avoid starting from a blank page
+and to avoid discovering a known obstacle late. They are neither conclusions
+nor a closed list.
 
 ---
 
-# Première partie — vers le MVP
+# Part one — towards the MVP
 
-## 0 — Fondations
+## 0 — Foundations
 
-**Terminée le 2026-08-05.** Voir [`specs/00-fondations.md`](specs/00-fondations.md).
+**Finished on 2026-08-05.** See [`specs/00-fondations.md`](specs/00-fondations.md).
 
-Structure `lib`/`exe`/`test`, CMake et presets, façade `make`, porte `make check`
-en cinq étapes prouvée dans les deux sens par `make verify-gates`, CI qui
-n'exécute rien d'autre que cette porte, hooks git, CHANGELOG généré, cinq ADR,
-et verrouillage du dépôt.
+`lib`/`exe`/`test` structure, CMake and presets, `make` facade, a five-step
+`make check` gate proven both ways by `make verify-gates`, CI that runs nothing
+but this gate, git hooks, generated CHANGELOG, five ADRs, and repository
+lock-down.
 
 ---
 
-## 1 — Noyau : modèle de données et formats
+## 1 — Core: data model and formats
 
-**Terminée le 2026-08-08.** Voir [`specs/01-noyau.md`](specs/01-noyau.md).
+**Finished on 2026-08-08.** See [`specs/01-noyau.md`](specs/01-noyau.md).
 
-Sous-titre, document, projet, positions, SubRip et WebVTT, balises, et
-l'architecture de commandes réversibles.
+Subtitle, document, project, positions, SubRip and WebVTT, markup, and the
+architecture of reversible commands.
 
-**Restreint au contour du MVP :** deux formats sur neuf, UTF-8 seul, fins de
-ligne Unix seules, pas de détection automatique d'encodage.
+**Restricted to the MVP outline:** two formats out of nine, UTF-8 only, Unix
+line endings only, no automatic encoding detection.
 
-**Analyse préalable** — `aeidon/` : `subtitle.py`, `position.py`,
+**Preliminary analysis** — `aeidon/`: `subtitle.py`, `position.py`,
 `calculator.py`, `project.py`, `containers.py`, `revertable.py`, `file.py`,
 `files/{subrip,webvtt}.py`, `markup.py`, `markups/{subrip,webvtt}.py`,
 `parser.py`.
 
-**Questions d'architecture**
+**Architecture questions**
 
-- **Représentation des positions.** Millisecondes entières en interne, frames
-  dérivées de la fréquence d'image ? La conversion de fréquence figure dans les
-  priorités, donc les allers-retours ne doivent pas dériver. Quelle politique
-  d'arrondi, et quelle garantie sur `frames → ms → frames` ?
-- **Gestion d'erreurs.** Exceptions, codes de retour, ou type résultat.
-  `std::expected` est disponible avec le GCC 13 installé, en `-std=c++23` :
-  retenir le type résultat reviendrait à passer le projet en C++23, sans changer
-  de compilateur. Décision par ADR, elle imprègne toute l'API.
-- **Architecture d'annulation.** Gaupol stocke dans chaque action une *fonction
-  inverse* et ses arguments (`RevertableAction.revert_function`). Alternative :
-  des commandes qui capturent l'état antérieur. La première est économe en
-  mémoire mais impose que chaque opération sache s'inverser exactement ; la
-  seconde est robuste mais coûteuse sur un remplacement global. À trancher par
-  mesure.
-- **Modèle de balises.** SubRip et WebVTT suffisent au MVP, mais le modèle doit
-  accueillir ASS en phase 9 — positionnement, styles nommés, effets — sans être
-  repris. Où placer la frontière entre ce qui est commun et ce qui est propre à
-  un format ?
-- **Tolérance au parsing.** Les fichiers réels sont malformés. Échec net, ou
-  récupération avec rapport de diagnostics ? Le choix conditionne la signature
-  de toutes les fonctions de lecture.
+- **Representation of positions.** Integer milliseconds internally, frames
+  derived from the frame rate? Frame rate conversion is among the priorities,
+  so round trips must not drift. Which rounding policy, and which guarantee on
+  `frames → ms → frames`?
+- **Error handling.** Exceptions, return codes, or a result type.
+  `std::expected` is available with the installed GCC 13, in `-std=c++23`:
+  choosing the result type would mean moving the project to C++23, without
+  changing compiler. Decision by ADR; it permeates the whole API.
+- **Undo architecture.** Gaupol stores in each action an *inverse function*
+  and its arguments (`RevertableAction.revert_function`). Alternative:
+  commands that capture the prior state. The first is memory-efficient but
+  requires every operation to know how to invert itself exactly; the second is
+  robust but expensive on a global replacement. To be decided by measurement.
+- **Markup model.** SubRip and WebVTT are enough for the MVP, but the model must
+  accommodate ASS in phase 9 — positioning, named styles, effects — without
+  being redone. Where does the boundary lie between what is common and what is
+  specific to a format?
+- **Parsing tolerance.** Real files are malformed. Clean failure, or recovery
+  with a diagnostics report? The choice determines the signature of every
+  reading function.
 
-**Points difficiles**
+**Difficult points**
 
-- Le modèle *projet* porte **deux documents**, principal et traduction, qui
-  **partagent les positions**. La traduction n'a pas de temps propres. Le modèle
-  doit l'accueillir même si l'interface ne l'expose pas encore.
-- Une interface de format unique doit accommoder : avec ou sans en-tête, temps
-  ou frames, jeux de balises disjoints. Si une implémentation doit lever « non
-  supporté », le découpage est mauvais. Le risque est faible avec deux formats
-  proches, et c'est justement le piège : la conception doit tenir avec neuf.
+- The *project* model carries **two documents**, main and translation, which
+  **share positions**. The translation has no timings of its own. The model
+  must accommodate it even if the interface does not expose it yet.
+- A single format interface must accommodate: with or without a header, times
+  or frames, disjoint markup sets. If an implementation has to raise "not
+  supported", the split is wrong. The risk is low with two similar formats,
+  and that is precisely the trap: the design must hold with nine.
 
 ---
 
-## 2 — Opérations d'édition
+## 2 — Editing operations
 
-**Terminée le 2026-08-09.** Voir
+**Finished on 2026-08-09.** See
 [`specs/02-operations-d-edition.md`](specs/02-operations-d-edition.md).
 
-Ce qu'exige l'édition dans la table, plus les trois opérations de positions
-listées en priorité.
+What editing in the table requires, plus the three position operations listed
+as priorities.
 
-**Restreint au contour du MVP :** modifier un texte, un début, une fin ;
-insérer, supprimer ; décaler, transformer, convertir la fréquence d'image. Sont
-reportés en phase 10 : ajustement des durées, casse, italiques, tirets de
-dialogue, fusion, scission, recherche et remplacement, presse-papiers.
+**Restricted to the MVP outline:** change a text, a start, an end;
+insert, delete; shift, transform, convert the frame rate. Deferred to
+phase 10: duration adjustment, case, italics, dialogue dashes, merge, split,
+find and replace, clipboard.
 
-**Analyse préalable** — `aeidon/agents/` : `set.py`, `edit.py`, `position.py`.
+**Preliminary analysis** — `aeidon/agents/`: `set.py`, `edit.py`, `position.py`.
 
-**Questions d'architecture**
+**Architecture questions**
 
-- Toute opération est-elle une commande annulable de premier ordre, y compris la
-  frappe dans une cellule ? Comment se fait le **regroupement** d'actions en une
-  seule entrée d'annulation ? — *close, sans mécanisme : un délégué valide une
-  fois, donc une cellule éditée produit une commande. Voir
-  [la spec de la phase 2](specs/02-operations-d-edition.md#le-groupement-dactions--question-close).*
-- Modèle de **cible** : sélection, plage, projet entier. Gaupol le traite par un
-  paramètre `target` répété dans chaque signature — on peut faire mieux.
-- Où passe la frontière entre opération du noyau et logique d'interface ?
+- Is every operation a first-class undoable command, including typing in a
+  cell? How is the **grouping** of actions into a single undo entry done? —
+  *closed, without a mechanism: a delegate commits once, so an edited cell
+  produces one command. See
+  [the phase 2 spec](specs/02-operations-d-edition.md#le-groupement-dactions--question-close).*
+- **Target** model: selection, range, whole project. Gaupol handles it with a
+  `target` parameter repeated in every signature — we can do better.
+- Where is the boundary between a core operation and interface logic?
 
-**Points difficiles**
+**Difficult points**
 
-- Transformation affine des positions à partir de deux points de repère, avec
-  les cumuls d'erreur d'arrondi que cela suppose.
-- La conversion de fréquence d'image s'applique à des sous-titres en temps :
-  elle rééchelonne toutes les positions. Vérifier au cadrage ce que
-  l'utilisateur en attend exactement — resynchroniser un fichier calé sur
-  23,976 vers 25 images par seconde est le cas courant.
+- Affine transformation of positions from two reference points, with the
+  accumulated rounding errors that implies.
+- Frame rate conversion applies to time-based subtitles: it rescales every
+  position. Check at scoping what the user expects exactly — resynchronising a
+  file timed for 23.976 to 25 frames per second is the common case.
 
 ---
 
 ## 3 — CLI
 
-**Terminée le 2026-08-14.** Voir [`specs/03-cli.md`](specs/03-cli.md).
+**Finished on 2026-08-14.** See [`specs/03-cli.md`](specs/03-cli.md).
 
-La ligne de commande n'apparaît pas dans les besoins de l'utilisateur : elle
-sert de **harnais de validation et de mesure** du noyau, avant qu'il existe une
-fenêtre. Les sous-commandes destinées à un usage réel relèvent de la phase 13.
+The command line does not appear in the user's needs: it serves as a
+**validation and measurement harness** for the core, before a window exists.
+Subcommands meant for real use belong to phase 13.
 
-**Le périmètre annoncé ici a été élargi au cadrage.** Il disait inspection,
-conversion et décalage ; la spec y ajoute la transformation par deux points de
-repère et la conversion de fréquence d'image. La raison tient en une phrase : le
-noyau les implémente déjà, et un harnais qui ne les expose pas ne les valide
-pas — elles resteraient sans aucun test de bout en bout jusqu'à la phase 13.
+**The scope announced here was widened at scoping.** It said inspection,
+conversion and shifting; the spec adds two-point transformation and frame rate
+conversion. The reason fits in one sentence: the core already implements them,
+and a harness that does not expose them does not validate them — they would
+remain without any end-to-end test until phase 13.
 
-Deux questions ouvertes ici y sont tranchées : CLI11 pour l'analyse d'arguments
-([ADR 0016](adr/0016-cli11-pour-l-analyse-d-arguments.md)), et quatre codes de
-retour distinguant l'échec total de l'échec partiel sur un lot.
+Two questions left open here are settled there: CLI11 for argument parsing
+([ADR 0016](adr/0016-cli11-pour-l-analyse-d-arguments.md)), and four exit
+codes distinguishing total failure from partial failure on a batch.
 
-**Ce que `Project::outOfOrder()` doit rendre reste ouvert, délibérément.** La
-phase 2 compare chaque sous-titre à son prédécesseur immédiat ; l'autre lecture
-compare au plus grand début rencontré. Sur les départs `0, 4000, 2000, 3000`, la
-première rend `{2}`, la seconde `{2, 3}`. Les deux s'accordent toujours sur
-l'existence d'un désordre et ne diffèrent que sur la liste.
+**What `Project::outOfOrder()` must return remains open, deliberately.** Phase
+2 compares each subtitle with its immediate predecessor; the other reading
+compares with the largest start met so far. On the starts `0, 4000, 2000, 3000`,
+the first returns `{2}`, the second `{2, 3}`. The two always agree on whether
+there is disorder and differ only on the list.
 
-L'inspection est le premier appelant à consommer cette liste. Plutôt que de
-trancher sans données, elle **expose les deux** sous une option, le temps de les
-comparer sur des fichiers réels. **La phase 5 hérite du choix et fait
-disparaître l'option** — c'est son déclencheur, inscrit comme tel dans la spec.
+Inspection is the first caller to consume this list. Rather than deciding
+without data, it **exposes both** behind an option, long enough to compare them
+on real files. **Phase 5 inherits the choice and removes the option** — that is
+its trigger, recorded as such in the spec.
 
 ---
 
-## 4 — Suppression des mentions pour malentendants
+## 4 — Removing hearing-impaired texts
 
-**Cadrée.** Voir [`specs/04-mentions-pour-malentendants.md`](specs/04-mentions-pour-malentendants.md).
+**Scoped.** See [`specs/04-mentions-pour-malentendants.md`](specs/04-mentions-pour-malentendants.md).
 
-**Fortement restreinte.** Le moteur de correction complet — motifs par langue,
-découpage de lignes, correcteur orthographique — relève de la phase 12. Ici,
-seuls les deux motifs demandés :
+**Heavily restricted.** The complete correction engine — per-language patterns,
+line breaking, spell checker — belongs to phase 12. Here, only the two requested
+patterns:
 
 ```
-Sound in brackets      \[.*?\]    → chaîne vide
-Sound in parentheses   \(.*?\)    → chaîne vide
+Sound in brackets      \[.*?\]    → empty string
+Sound in parentheses   \(.*?\)    → empty string
 ```
 
-Aucune référence arrière : **l'arbitrage entre PCRE2 et RE2 ne bloque pas cette
-phase**, et peut être différé à la phase 12 où il se posera vraiment.
+No backreferences: **the choice between PCRE2 and RE2 does not block this
+phase**, and can be deferred to phase 12, where it will really arise.
 
-**Analyse préalable** — `aeidon/` : `pattern.py`, `patternman.py`,
-`agents/text.py` (méthode `remove_hearing_impaired`), et
+**Preliminary analysis** — `aeidon/`: `pattern.py`, `patternman.py`,
+`agents/text.py` (method `remove_hearing_impaired`), and
 `data/patterns/Latn.hearing-impaired`.
 
-**Ce que la lecture a donné**, relevé à l'issue #88 pour ne pas la refaire :
+**What the reading yielded**, noted at issue #88 so as not to redo it:
 
-| Constat | Détail |
+| Finding | Detail |
 | :------ | :----- |
-| cinq motifs, pas deux | crochets, parenthèses, paroles entre `#`, paroles sur une ligne, nom du locuteur avant deux-points — les trois derniers relèvent de la phase 12 |
-| sections homonymes | `[Hearing Impaired Pattern]` se répète, ce qu'aucun lecteur INI standard n'accepte |
-| `Flags=DOTALL;MULTILINE;` | le motif traverse le saut de ligne, et c'est nécessaire : dans de vrais fichiers, une mention est souvent coupée par lui |
-| `Replacement=\0` | le `\0` protège la valeur, ici vide ; `-\040` donne un tiret et une espace |
-| `.conf` XML | `enabled="false"` pour tous les motifs — rien n'est actif par défaut |
+| five patterns, not two | brackets, parentheses, lyrics between `#`, lyrics on a line, speaker name before a colon — the last three belong to phase 12 |
+| sections with the same name | `[Hearing Impaired Pattern]` repeats, which no standard INI reader accepts |
+| `Flags=DOTALL;MULTILINE;` | the pattern crosses the line break, and it has to: in real files, a mention is often split by one |
+| `Replacement=\0` | the `\0` protects the value, empty here; `-\040` gives a dash and a space |
+| XML `.conf` | `enabled="false"` for every pattern — nothing is active by default |
 
-**Les données de motifs ne sont pas reprises.** Gaupol est en GPL-3 comme ce
-projet, donc la copie serait licite ; elle n'est pas utile. Les deux motifs de
-la phase tiennent en deux expressions, la spécification écrite dans
-`src/test/data/textes/mentions.cas` en dit déjà bien davantage — références,
-crochets vides, tirets de dialogue, mentions à cheval — et le format des
-fichiers de motifs reste une décision de cadrage. Reprendre une donnée dans un
-format qu'on n'a pas choisi serait s'engager avant d'avoir décidé.
+**The pattern data is not taken over.** Gaupol is GPL-3 like this project, so
+copying would be lawful; it is not useful. The phase's two patterns fit in two
+expressions, the specification written in `src/test/data/textes/mentions.cas`
+already says much more — backreferences, empty brackets, dialogue dashes,
+mentions straddling lines — and the format of pattern files remains a scoping
+decision. Taking over data in a format we did not choose would be committing
+before having decided.
 
-**Les deux questions d'architecture posées ici sont tranchées au cadrage**, et
-la spec les développe.
+**The two architecture questions asked here are settled at scoping**, and the
+spec develops them.
 
-*Reprendre le format INI des motifs, ou définir le nôtre ?* **Ni l'un ni
-l'autre : aucun fichier de motifs dans cette phase.** La transformation est
-décidée, pas configurable ; les fichiers, leur `.conf` et l'activation par nom
-arrivent avec le moteur de la phase 12, qui choisira le format en sachant ce
-qu'il doit porter.
+*Take over the INI format of the patterns, or define our own?* **Neither: no
+pattern file in this phase.** The transformation is decided, not configurable;
+the files, their `.conf` and activation by name come with the phase 12 engine,
+which will choose the format knowing what it must carry.
 
-*Comment le moteur est-il conçu pour que la phase 12 l'étende ?* **Il n'y a pas
-de moteur** — [ADR 0017](adr/0017-analyseur-de-mentions-ecrit-a-la-main.md). La
-règle du projet n'est pas une substitution : elle laisse *exactement un espace
-entre ce qui entourait la mention*, ce qui se décide au site du retrait, quand
-une passe d'expression rationnelle est globale et réécrit du texte qu'on ne lui
-a pas demandé de toucher. Gaupol le paie en sept passes de rattrapage. Un
-balayage écrit à la main tient la règle exactement, et la phase 12 reste libre
-de son moteur.
+*How is the engine designed so that phase 12 extends it?* **There is no
+engine** — [ADR 0017](adr/0017-analyseur-de-mentions-ecrit-a-la-main.md). The
+project's rule is not a substitution: it leaves *exactly one space between what
+surrounded the mention*, which is decided at the removal site, whereas a regular
+expression pass is global and rewrites text it was not asked to touch. Gaupol
+pays for it in seven catch-up passes. A hand-written scan holds the rule
+exactly, and phase 12 remains free in its choice of engine.
 
-**Le point difficile est tranché lui aussi.** Supprimer `[Bruit de pas]` ne
-laisse pas une ligne vide : une ligne que le retrait vide disparaît, et un texte
-entièrement vidé emporte son sous-titre — sans option, là où Gaupol offre
-`remove_blank`. La vacuité ignore les balises de format, parce que neuf
-sous-titres réels du corpus s'écrivent `<i>[PEOPLE SCREAMING]</i>` et
-laisseraient sinon un `<i></i>` à l'écran.
+**The difficult point is settled too.** Removing `[Footsteps]` does not
+leave an empty line: a line emptied by the removal disappears, and a fully
+emptied text takes its subtitle with it — without an option, where Gaupol offers
+`remove_blank`. Emptiness ignores formatting markup, because nine real
+subtitles in the corpus are written `<i>[PEOPLE SCREAMING]</i>` and would
+otherwise leave an `<i></i>` on screen.
 
 ---
 
-## 5 — Interface : édition tabulaire
+## 5 — Interface: table editing
 
-**Cadrée.** Voir [`specs/05-interface-tabulaire.md`](specs/05-interface-tabulaire.md).
+**Scoped.** See [`specs/05-interface-tabulaire.md`](specs/05-interface-tabulaire.md).
 
-Le cœur de l'usage : ouvrir, éditer dans la table, enregistrer sous, annuler.
+The heart of the use: open, edit in the table, save as, undo.
 
-**Restreint au contour du MVP,** et resserré au cadrage : une seule fenêtre, un
-seul projet à la fois, colonnes numéro / début / fin / durée / texte, dialogues
-des opérations des phases 2 et 4. Sont reportés : multi-projets en onglets,
-colonne de traduction, colonnes configurables, coloration des différences —
-et, décidés au cadrage, **l'insertion et la suppression de sous-titres** ainsi
-que **la configuration persistée**, tous deux en phase 7.
+**Restricted to the MVP outline,** and tightened at scoping: a single window, a
+single project at a time, number / start / end / duration / text columns,
+dialogs for the operations of phases 2 and 4. Deferred: multiple projects in
+tabs, translation column, configurable columns, difference highlighting —
+and, decided at scoping, **inserting and deleting subtitles** as well as
+**persisted configuration**, both in phase 7.
 
-**Analyse préalable** — `gaupol/` : `view.py`, `page.py`, `application.py`,
+**Preliminary analysis** — `gaupol/`: `view.py`, `page.py`, `application.py`,
 `renderers/*.py`,
 `dialogs/{open,save,position_shift,position_transform,framerate_convert}.py`.
 
-**Ce que la lecture a donné**, relevé pour ne pas la refaire :
+**What the reading yielded**, noted so as not to redo it:
 
-| Constat | Détail |
+| Finding | Detail |
 | :------ | :----- |
-| la table est intégralement dupliquée | `page.py` recopie chaque sous-titre dans un `Gtk.ListStore` et le resynchronise par huit gestionnaires de signaux |
-| et le prix est écrit dans le code | `reload_view_all()` à chaque ouverture, le modèle **débranché** au-delà de 50 lignes retirées, un `iterate_main()` après chaque rafraîchissement |
-| le numéro n'est pas une donnée | une fonction de cellule le calcule depuis l'indice de ligne |
-| aucune migration de configuration, jamais | une clé inconnue est effacée à l'écriture, une valeur illisible laisse le défaut, une option au défaut est réécrite **commentée** ; `general.version` est écrit et jamais relu |
-| la fréquence d'entrée vient d'une préférence | `conf.editor.framerate`, 23,976 par défaut — aucune heuristique de nom, aucune lecture de vidéo, en vingt ans |
-| l'édition multiligne coûte un widget | une `Gtk.TextView` implémentant `Gtk.CellEditable`, `Entrée` et `Échap` à la main, un contournement à la perte de focus |
+| the table is fully duplicated | `page.py` copies every subtitle into a `Gtk.ListStore` and resynchronises it through eight signal handlers |
+| and the price is written in the code | `reload_view_all()` on every open, the model **disconnected** beyond 50 removed rows, an `iterate_main()` after every refresh |
+| the number is not data | a cell function computes it from the row index |
+| no configuration migration, ever | an unknown key is erased on write, an unreadable value leaves the default, an option at its default is rewritten **commented out**; `general.version` is written and never read back |
+| the input rate comes from a preference | `conf.editor.framerate`, 23.976 by default — no file-name heuristic, no reading of the video, in twenty years |
+| multi-line editing costs a widget | a `Gtk.TextView` implementing `Gtk.CellEditable`, `Enter` and `Escape` by hand, a workaround for focus loss |
 
-**Les questions d'architecture posées ici sont tranchées au cadrage**, et la
-spec les développe.
+**The architecture questions asked here are settled at scoping**, and the spec
+develops them.
 
-*Adaptateur mince ou modèle propre synchronisé ?* **Adaptateur mince** —
-[ADR 0019](adr/0019-table-en-adaptateur-mince.md). Le choix ne se discute pas
-par goût : les trois cicatrices ci-dessus sont ce que coûte la duplication, et
-elles sont dans le code de la référence.
+*Thin adapter or synchronised model of its own?* **Thin adapter** —
+[ADR 0019](adr/0019-table-en-adaptateur-mince.md). The choice is not a matter
+of taste: the three scars above are what duplication costs, and they are in the
+reference's code.
 
-*Comment l'interface se branche-t-elle sur l'historique du noyau sans en tenir
-un second ?* `Session::apply`, `undo` et `redo` **rendent ce qu'ils ont
-changé**, au lieu de `void`. Aucun signal n'entre dans le cœur. Pas de
-`QUndoStack`. Et la question de groupement laissée ouverte en phase 2 se referme
-sans mécanisme : un délégué valide une fois, donc une cellule éditée produit une
-commande.
+*How does the interface plug into the core's history without keeping a second
+one?* `Session::apply`, `undo` and `redo` **return what they changed**, instead
+of `void`. No signal enters the core. No `QUndoStack`. And the grouping question
+left open in phase 2 closes without a mechanism: a delegate commits once, so an
+edited cell produces one command.
 
-*Configuration typée et persistée ?* **Pas ici.** La phase 7 la porte déjà, et
-rien de persistant n'est requis pour que la table fonctionne.
+*Typed and persisted configuration?* **Not here.** Phase 7 already carries it,
+and nothing persistent is required for the table to work.
 
-*Un `ChangeKind` pour la fréquence d'image ?* **Toujours non.** La phase 2 avait
-posé la condition — « si la fenêtre affiche la fréquence courante ». Elle ne
-l'affiche pas, donc l'énumérateur n'aurait toujours aucun lecteur.
+*A `ChangeKind` for the frame rate?* **Still no.** Phase 2 had set the
+condition — "if the window displays the current rate". It does not display it,
+so the enumerator would still have no reader.
 
-*D'où vient la fréquence d'entrée d'une conversion ?* **De l'utilisateur, et
-sans heuristique.** Le dialogue la demande, pré-remplie par celle du projet.
-L'heuristique de nom est écartée faute de données : les fichiers de `src/data/`
-ont été renommés à la main, aucun fichier aux noms intacts n'est disponible, et
-se tromper de fréquence décale tout le fichier sans rien signaler. Gaupol ne
-fait pas mieux.
+*Where does the input rate of a conversion come from?* **From the user, and
+without a heuristic.** The dialog asks for it, pre-filled with the project's.
+The file-name heuristic is set aside for lack of data: the files in `src/data/`
+were renamed by hand, no file with intact names is available, and getting the
+rate wrong shifts the whole file without reporting anything. Gaupol does no
+better.
 
-**La question a toutefois trouvé sa réponse pendant ce cadrage, et elle a fait
-naître une phase.** Convertir une fréquence suppose que les positions étaient
-calées sur une grille d'images ; quand c'est le cas, la grille se mesure — huit
-des quinze fichiers du corpus privé la donnent sans ambiguïté, contre un bruit
-de fond de quelques pour cent sur les fréquences qu'ils n'ont pas.
-Le fichier ne *déclare* pas sa fréquence, mais il la *trahit*. C'est une
-donnée et non une corrélation, et c'est l'objet de la
-[phase 16](#16--fréquences-dimage--déduction-et-correction), programmée juste
-après la 6. La phase 5 n'en dépend pas : son dialogue demande la fréquence, et
-recevra la proposition mesurée quand elle existera.
+**The question did however find its answer during this scoping, and it gave
+birth to a phase.** Converting a rate assumes the positions were aligned on a
+frame grid; when that is the case, the grid can be measured — eight of the
+fifteen files of the private corpus give it unambiguously, against a background
+noise of a few percent on the rates they do not have.
+The file does not *declare* its rate, but it *betrays* it. This is data and not
+a correlation, and it is the subject of
+[phase 16](#16--frame-rates-inference-and-correction), scheduled right after
+6. Phase 5 does not depend on it: its dialog asks for the rate, and will
+receive the measured proposal when it exists.
 
-**Le cadrage a par ailleurs ouvert le noyau,** ce qui n'était pas prévu :
+**The scoping also opened up the core,** which was not planned:
 
-- **le vocabulaire des formats rejoint le modèle** — [ADR 0018](adr/0018-vocabulaire-des-formats-dans-le-modele.md).
-  `SourceFile` ne retenait pas le format du fichier, et une fenêtre qui ouvre
-  puis enregistre en a besoin. `format/` ne garde que des opérations, `io/` et
-  `text/` accueillent ce qui ignore jusqu'au mot « sous-titre » ;
-- **les diagnostics se scindent** — ce qu'une lecture a rencontré se repère par
-  une ligne, ce qu'un document est se repère par un indice. Une ligne n'existe
-  qu'au moment de la lecture ; un indice survit à l'édition, et **une table
-  surligne des rangs**. `inspect` désignera donc un numéro de sous-titre là où
-  il donnait un numéro de ligne ;
-- **la lecture du désordre est tranchée : `Breaks`**, et `--order-report`
-  disparaît. Le corpus ne l'a pas départagée — aucun de ses quinze fichiers
-  n'est en désordre, les deux lectures s'y accordent trivialement. La décision
-  est prise par raisonnement, et la spec le dit plutôt que de laisser croire à
-  une mesure.
+- **the format vocabulary joins the model** — [ADR 0018](adr/0018-vocabulaire-des-formats-dans-le-modele.md).
+  `SourceFile` did not keep the file's format, and a window that opens and then
+  saves needs it. `format/` keeps only operations; `io/` and `text/` take in what
+  does not even know the word "subtitle";
+- **diagnostics split** — what a read encountered is located by a line, what a
+  document is is located by an index. A line exists only at reading time; an
+  index survives editing, and **a table highlights rows**. `inspect` will
+  therefore point to a subtitle number where it gave a line number;
+- **the disorder reading is settled: `Breaks`**, and `--order-report`
+  disappears. The corpus did not decide between them — none of its fifteen
+  files is out of order, and the two readings agree trivially on it. The
+  decision is made by reasoning, and the spec says so rather than letting one
+  believe in a measurement.
 
-**Le point difficile est tranché lui aussi.** Rester fluide sur plusieurs
-milliers de lignes tient à ce que le modèle ne matérialise jamais ce qui n'est
-pas visible — l'adaptateur mince l'assure par construction — et à des signaux
-fins plutôt que globaux, ce que `Change` porte déjà. Une réserve subsiste et
-elle est écrite : **un changement de structure passe par une réinitialisation du
-modèle**, parce que Qt exige d'encadrer avant et que `Session` ne rapporte
-qu'après. Tenable tant que son seul producteur est le retrait des mentions ; à
-reprendre en phase 7, qui apporte l'insertion et la suppression.
+**The difficult point is settled too.** Staying smooth over several thousand
+rows depends on the model never materialising what is not visible — the thin
+adapter ensures it by construction — and on fine-grained rather than global
+signals, which `Change` already carries. One reservation remains and it is
+written down: **a structural change goes through a model reset**, because Qt
+requires bracketing before and `Session` reports only after. Tenable as long as
+its only producer is the removal of mentions; to be revisited in phase 7, which
+brings insertion and deletion.
 
-[#45](https://github.com/Guyot-Bertrand/sub-edit/issues/45) passe **avant** la
-table, et non après : le modèle traduit un `Change` en `dataChanged(topLeft,
-bottomRight)`, donc Qt veut des plages et non des indices. La représentation
-compacte doit exposer des intervalles utilisables tels quels.
+[#45](https://github.com/Guyot-Bertrand/sub-edit/issues/45) comes **before** the
+table, not after: the model translates a `Change` into `dataChanged(topLeft,
+bottomRight)`, so Qt wants ranges and not indices. The compact representation
+must expose intervals usable as they are.
 
 ---
 
-## 6 — Le lecteur intégré
+## 6 — The built-in player
 
-**Cadrée.** Voir [`specs/06-lecteur-integre.md`](specs/06-lecteur-integre.md).
+**Scoped.** See [`specs/06-lecteur-integre.md`](specs/06-lecteur-integre.md).
 
-**Re-cadrée deux fois, et la seconde annule la première.** Elle était d'abord
-tout le lecteur vidéo ; puis restreinte à une prévisualisation par lecteur
-externe, l'intégré passant en phase 14 comme « la partie la plus coûteuse du
-projet » ; puis rendue au lecteur intégré au cadrage.
+**Re-scoped twice, and the second cancels the first.** It was first the whole
+video player; then restricted to a preview through an external player, the
+built-in one moving to phase 14 as "the most expensive part of the project";
+then given back to the built-in player at scoping.
 
-Ce que la première restriction avait manqué : **Gaupol a les deux.**
-`gaupol/player.py` est un lecteur GStreamer embarqué, distinct de
-`aeidon/agents/preview.py`. La feuille de route avait retenu le second et oublié
-le premier. Le lecteur externe disparaît ; la vidéo se regarde dans la fenêtre,
-avec la réplique courante dessinée par-dessus, et le backend est libmpv — voir
-[l'ADR 0020](adr/0020-libmpv-pour-le-lecteur-integre.md).
+What the first restriction had missed: **Gaupol has both.**
+`gaupol/player.py` is an embedded GStreamer player, distinct from
+`aeidon/agents/preview.py`. The roadmap had kept the second and forgotten the
+first. The external player disappears; the video is watched in the window,
+with the current line drawn on top, and the backend is libmpv — see
+[ADR 0020](adr/0020-libmpv-pour-le-lecteur-integre.md).
 
-Ce qui suit décrit le cadrage abandonné, gardé parce qu'il montre d'où l'on
-partait.
+What follows describes the abandoned scoping, kept because it shows where we
+started from.
 
-**Analyse préalable** — `aeidon/agents/preview.py`, `aeidon/enums.py` (les
-commandes des trois lecteurs), `gaupol/agents/preview.py`.
+**Preliminary analysis** — `aeidon/agents/preview.py`, `aeidon/enums.py` (the
+commands of the three players), `gaupol/agents/preview.py`.
 
-**Questions d'architecture — toutes tranchées au cadrage**, et la spec porte les
-réponses. Ce qui suit reste écrit tel qu'il l'était avant, parce que la valeur
-de ces lignes est de montrer d'où l'on partait.
+**Architecture questions — all settled at scoping**, and the spec carries the
+answers. What follows stays written as it was before, because the value of
+these lines is to show where we started from.
 
-- Détection du lecteur disponible, et commande personnalisable.
-- Association d'un fichier vidéo à un projet : par convention de nom, comme
-  Gaupol (`find_video`), ou choix explicite ?
-- **Lire la fréquence d'image dans la vidéo associée ?** La conversion de
-  fréquence de la phase 2 a besoin d'une fréquence d'entrée que le fichier de
-  sous-titres ne *déclare* pas. Le conteneur vidéo, lui, l'annonce, et une vidéo
-  est déjà associée au projet ici, avant le lecteur intégré de la phase 14.
+- Detection of the available player, and customisable command.
+- Associating a video file with a project: by naming convention, like
+  Gaupol (`find_video`), or explicit choice?
+- **Read the frame rate from the associated video?** Phase 2's rate conversion
+  needs an input rate that the subtitle file does not *declare*. The video
+  container, for its part, announces it, and a video is already associated with
+  the project here, before the built-in player of phase 14.
 
-  **C'est la seconde source de la même donnée.** La
-  [phase 16](#16--fréquences-dimage--déduction-et-correction) la déduit des
-  positions elles-mêmes, sans vidéo. Deux mesures indépendantes valent une
-  vérification croisée — et un désaccord entre elles est une information, à
-  condition de savoir la présenter.
+  **This is the second source of the same data.**
+  [Phase 16](#16--frame-rates-inference-and-correction) infers it from the
+  positions themselves, without a video. Two independent measurements make a
+  cross-check — and a disagreement between them is information, provided one
+  knows how to present it.
 
-  À vérifier au cadrage : ce que coûte cette lecture. La prévisualisation lance
-  un lecteur externe et n'a donc aucune bibliothèque vidéo en mémoire ; lire des
-  métadonnées demanderait `ffprobe` — un exécutable de plus à détecter — ou une
-  dépendance. Le gain est réel, le prix reste à mesurer.
-- **Valider les opérations contre la durée de la vidéo.** Même mécanisme que la
-  question précédente, et donc même prix : la durée est une métadonnée du
-  conteneur, lue en même temps que la fréquence ou pas du tout.
+  To check at scoping: what this reading costs. The preview launches an
+  external player and therefore has no video library in memory; reading
+  metadata would require `ffprobe` — one more executable to detect — or a
+  dependency. The gain is real, the price remains to be measured.
+- **Validate operations against the video's duration.** Same mechanism as the
+  previous question, and therefore same price: the duration is container
+  metadata, read at the same time as the rate or not at all.
 
-  Ce qu'elle permettrait : refuser, ou du moins signaler, une opération qui
-  pousse des sous-titres au-delà de la fin du film. Aujourd'hui le noyau ne peut
-  vérifier qu'une borne, celle de zéro — un décalage négatif trop grand rend une
-  position négative, et c'est tout ce qu'il sait dire. La borne haute n'existe
-  pas pour lui, faute de savoir où le film s'arrête.
+  What it would allow: refusing, or at least reporting, an operation that
+  pushes subtitles beyond the end of the film. Today the core can check only one
+  bound, zero — a too large negative shift makes a position negative, and that
+  is all it can say. The upper bound does not exist for it, for lack of knowing
+  where the film stops.
 
-  Le décalage est le cas le plus net. Les autres opérations sont concernées
-  **sous d'autres formes** : une transformation dont le second repère tombe
-  après la fin, une conversion de fréquence qui étire l'ensemble au-delà. Chacune
-  demande sa propre formulation, et aucune ne se déduit de celle du décalage.
+  Shifting is the clearest case. The other operations are concerned **in other
+  forms**: a transformation whose second reference point falls after the end, a
+  rate conversion that stretches everything beyond it. Each needs its own
+  formulation, and none follows from the shift's.
 
-  Relevé au cadrage de la phase 3, où rien ne pouvait en être fait : la CLI n'a
-  aucune notion de vidéo, et lui en donner une avant que le projet en ait une
-  serait bâtir la vérification avant la donnée.
-- Fichier temporaire : durée de vie, encodage forcé en UTF-8.
-
----
-
-## 16 — Fréquences d'image : déduction et correction
-
-**Cadrée.** Voir [`specs/16-frequences-d-image.md`](specs/16-frequences-d-image.md)
-et l'[ADR 0021](adr/0021-analyse-du-document-a-l-ouverture.md).
-
-**Dans le MVP, programmée entre la [6](#6--le-lecteur-intégré) et la
-[7](#7--finitions-et-première-livraison).** Son numéro est le premier libre au
-moment où elle a été ajoutée ; il l'identifie et ne dit pas son rang.
-
-**Elle dépasse l'iso-fonctionnalité, et c'est délibéré** — la première à le
-faire. Gaupol ne déduit aucune fréquence d'image : son dialogue de conversion
-pré-remplit ses deux listes avec `conf.editor.framerate`, une préférence globale
-à 23,976, et n'a jamais fait mieux en vingt ans. Ce qui suit n'a donc pas de
-contrepartie à lire dans `reference/gaupol`.
-
-### D'où elle vient
-
-Le cadrage de la phase 5 butait sur une question que la feuille de route porte
-depuis le début : **d'où vient la fréquence d'entrée d'une conversion ?** Le
-fichier ne la déclare pas — SubRip n'a pas d'en-tête, celui de WebVTT est du
-texte libre — et une heuristique tirée du nom de fichier avait été écartée comme
-une corrélation, non une donnée.
-
-L'observation qui ouvre cette phase est ailleurs : **convertir une fréquence
-suppose que les positions étaient calées sur une grille d'images.** Quand c'est
-vrai, chaque position vaut `round(n × 1000 / R)`, et cette grille se mesure.
-
-### Ce que la mesure a déjà donné
-
-Relevé au cadrage de la phase 5, puis **refait** après que les jeux d'exemples ont
-montré que la première méthode était la mauvaise.
-
-**Aucun de ces chiffres n'est reproductible ailleurs.** `src/data/` est ignoré
-par git — corpus privé de chaque machine, comme `reference/gaupol` est un clone
-privé. Les relevés qui suivent sont donc des observations consignées, pas des
-mesures qu'un tiers peut rejouer, et **aucun test de cette phase ne pourra lire
-ces fichiers.** Il lui faudra des fixtures versionnées ; il n'en existe pas.
-
-#### La méthode : chercher une grille *et sa phase*
-
-Pour chacune des huit fréquences normalisées, on calcule la phase de chaque
-début sur la grille d'images correspondante, et on mesure **la concentration de
-ces phases** — la longueur du vecteur résultant. Cent pour cent : une grille
-parfaite, quelle que soit sa phase. Près de zéro : aucune structure.
-
-Elle n'a **aucun paramètre de tolérance**, et elle est insensible à un décalage.
-
-**C'est un jeu d'exemples qui l'a imposée.** Une première version cherchait une
-grille de phase nulle, et notait à zéro un fichier qui est un 24 images par
-seconde parfait, décalé d'un millième de seconde et demi. Ses onze cent dix-sept
-débuts tombent dans exactement **trois** classes de résidu — ce que produit une
-grille à 24 images écrite en millisecondes entières — et le décalage appliqué par
-Gaupol translate les trois de la même quantité.
-
-#### Ce que les opérations de Gaupol font à la grille
-
-Vérité terrain : les jeux d'exemples 004, 005 et 006 du corpus privé sont des
-fichiers produits par Gaupol, l'opération appliquée étant consignée à côté.
-
-| Opération | Ce qu'elle fait à la grille |
-| :-------- | :-------------------------- |
-| conversion de fréquence, 25 → 24 et 25 → 23,976 | **la transpose** — chaque sortie annonce sa nouvelle fréquence à 100, et l'ancienne retombe au bruit |
-| décalage, de −7,001 s et de +2,999 s | **la préserve**, seule la phase change — 100 avant comme après, dans les deux sens |
-| transformation par deux repères | **la détruit** — 100 avant, 3 après |
-
-La conversion et le décalage sont donc réversibles du point de vue de la
-déduction ; la transformation, non. C'est une propriété utile : elle dit ce
-qu'on peut espérer retrouver d'un fichier et ce qui est perdu.
-
-#### Sur les quinze fichiers du corpus privé
-
-| Verdict | Fichiers | Fréquences trouvées |
-| :------ | -------: | :------------------ |
-| grille nette — concentration ≥ 90 | **8** | cinq à 23,976, un à 24, un à 25, un à 29,97 |
-| indice partiel — de 50 à 90 | 4 | trois à 29,97, un à 23,976 |
-| muet — moins de 50 | 3 | — |
-
-**L'échec est bruyant.** Un fichier écrit en millisecondes sans grille reste sous
-quelques pour cent sur les huit candidates : c'est un « je ne sais pas » sans
-équivoque, et non une mauvaise réponse. C'est la propriété qui autorise à s'en
-servir, là où une heuristique de nom de fichier ne l'aurait jamais offerte.
-
-**L'ambiguïté harmonique est réelle et apparaît dès le premier fichier.** Une
-grille à 25 est incluse dans une grille à 50 : deux fichiers sortent à 100 sur
-les deux. Dans l'ensemble normalisé, les seules paires ambiguës sont celles dont
-l'une est le multiple entier de l'autre — **25 et 50, 29,97 et 59,94, 30 et 60**.
-Aucune autre : 24 et 60 sont dans un rapport de deux et demi, donc une image sur
-deux seulement coïncide.
-
-**Les débuts sont le signal, les fins corroborent.** Partout où une grille
-existe, les débuts sont à 100 sans exception ; les fins vont de 55 à 100. Le
-*cue-in* est posé sur une image, le *cue-out* est souvent calculé par une règle
-de vitesse de lecture.
-
-### Questions d'architecture
-
-- **Que rend la déduction ?** Un classement de candidates avec leur
-  concentration, ou une réponse et une confiance ? Le second est plus simple à
-  consommer, le premier ne cache rien — et un fichier partiel n'est ni l'un ni
-  l'autre.
-- **L'ensemble des candidates doit être clos et petit** — les huit fréquences
-  normalisées. Résoudre pour un `R` quelconque est un tout autre problème, et
-  sans objet : personne ne masterise à 26,3 images par seconde.
-- **La phase est une information, pas un déchet.** Un fichier dont les positions
-  sont sur la grille à une constante près a été décalé, et cette constante se
-  mesure. Faut-il la rendre ? La corriger ?
-- **Où vit la fonction ?** Elle est pure et ne dépend que des positions :
-  `core/time/`, ou un `core/analysis/` qui accueillerait aussi les anomalies
-  d'un document.
-- **Que recouvre « corriger » ?** Trois mécanismes distincts, à trier : ramener
-  la phase à zéro ; refuser ou signaler une conversion dont la fréquence
-  d'entrée contredit la mesure ; retrouver la paire d'une conversion faite avec
-  la mauvaise fréquence, en cherchant le rationnel qui remet le fichier sur une
-  grille normalisée. Le troisième est le plus utile et le moins sûr.
-- **Surface exposée.** Une sous-commande de la ligne de commande, ou une lecture
-  de plus dans `inspect` ? Et dans la fenêtre : le dialogue de conversion
-  pré-remplit sa fréquence d'entrée **en montrant sa mesure**, jamais en
-  l'appliquant en silence.
-- **Articulation avec la [phase 6](#6--le-lecteur-intégré),** qui pose la même
-  question par l'autre bout : la vidéo associée *déclare* sa fréquence. Deux
-  sources indépendantes pour la même donnée, donc une vérification croisée
-  gratuite — et un désaccord à savoir présenter.
-
-### Points difficiles
-
-- ~~**Les fichiers de test n'existent pas.**~~ **Réglé.** Les deux corpus qui
-  ont servi à tout ce qui précède sont ignorés par git, et la plus fournie des
-  fixtures versionnées portait six horodatages sur quinze secondes. C'était la
-  première question du ticket d'initialisation, et c'est le seul outil qu'il a
-  retenu : `src/scripts/subtitle-fixtures.py` engendre quinze fichiers sur des
-  grilles connues — les huit fréquences normalisées, une fréquence absurde, une
-  grille décalée, une étendue insuffisante, les deux visages du fichier
-  partiel, des fins calculées par une règle de vitesse de lecture, et un fichier
-  écrit en millisecondes sans aucune grille. Les deux derniers manquaient à la
-  phase 16 et ont été écrits en phase 10, issue #373.
-  `src/test/data/grilles/LISEZMOI.md` porte ce que chacun est et ce que chacun
-  donne.
-- **L'édition manuelle sort de la grille.** Dès qu'un utilisateur corrige une
-  position dans la table, elle cesse d'être alignée. Un détecteur naïf
-  signalerait le travail de l'utilisateur comme une anomalie. C'est la raison
-  pour laquelle la phase 5 s'interdit d'utiliser la grille pour marquer quoi que
-  ce soit.
-- **Distinguer 23,976 de 24 demande de l'étendue.** Elles divergent de 3,6 s par
-  heure : écrasant sur un film de deux heures, invisible sur un extrait de trente
-  secondes. La déduction doit rendre l'étendue qu'elle a eue sous les yeux, et
-  pas seulement sa concentration.
-- **Les fichiers partiels sont le cas intéressant et le plus dur.** Ni grille ni
-  bruit — quatre des quinze du corpus privé, entre 50 et 83. Dire « les deux
-  tiers de vos débuts sont sur une grille 29,97 » est vrai et n'aide personne ;
-  dire *lesquels* et *où ils se groupent* aide, et demande de décider ce qui
-  compte comme un bloc. L'observation faite au cadrage : les écarts isolés
-  ressemblent à des anomalies ponctuelles, les écarts groupés à une section
-  retimée ou à un fichier assemblé.
+  Noted at the scoping of phase 3, where nothing could be done about it: the CLI
+  has no notion of video, and giving it one before the project has one would be
+  building the check before the data.
+- Temporary file: lifetime, encoding forced to UTF-8.
 
 ---
 
-## 7 — Finitions et première livraison
+## 16 — Frame rates: inference and correction
 
-**Livrée en `v0.8.0`.** Voir
+**Scoped.** See [`specs/16-frequences-d-image.md`](specs/16-frequences-d-image.md)
+and [ADR 0021](adr/0021-analyse-du-document-a-l-ouverture.md).
+
+**In the MVP, scheduled between [6](#6--the-built-in-player) and
+[7](#7--finishing-touches-and-first-release).** Its number is the first that
+was free when it was added; it identifies it and does not give its rank.
+
+**It goes beyond feature parity, deliberately** — the first one to do so.
+Gaupol infers no frame rate: its conversion dialog pre-fills its two lists with
+`conf.editor.framerate`, a global preference at 23.976, and has never done
+better in twenty years. What follows therefore has no counterpart to read in
+`reference/gaupol`.
+
+### Where it comes from
+
+The scoping of phase 5 stumbled on a question the roadmap has carried since the
+start: **where does the input rate of a conversion come from?** The file does
+not declare it — SubRip has no header, WebVTT's is free text — and a heuristic
+drawn from the file name had been set aside as a correlation, not data.
+
+The observation that opens this phase lies elsewhere: **converting a rate
+assumes the positions were aligned on a frame grid.** When that is true, every
+position is `round(n × 1000 / R)`, and this grid can be measured.
+
+### What the measurement has already yielded
+
+Noted at the scoping of phase 5, then **redone** after the example sets showed
+that the first method was the wrong one.
+
+**None of these figures can be reproduced elsewhere.** `src/data/` is ignored
+by git — each machine's private corpus, just as `reference/gaupol` is a private
+clone. The readings that follow are therefore recorded observations, not
+measurements a third party can replay, and **no test of this phase will be able
+to read these files.** It will need versioned fixtures; none exist.
+
+#### The method: look for a grid *and its phase*
+
+For each of the eight standard rates, we compute the phase of each start on the
+corresponding frame grid, and measure **the concentration of these phases** —
+the length of the resultant vector. One hundred percent: a perfect grid,
+whatever its phase. Near zero: no structure.
+
+It has **no tolerance parameter**, and it is insensitive to a shift.
+
+**An example set is what imposed it.** A first version looked for a grid of
+zero phase, and scored at zero a file that is a perfect 24 frames per second,
+shifted by one and a half thousandths of a second. Its one thousand one hundred
+and seventeen starts fall into exactly **three** residue classes — what a
+24-frame grid written in whole milliseconds produces — and the shift applied by
+Gaupol translates all three by the same amount.
+
+#### What Gaupol's operations do to the grid
+
+Ground truth: example sets 004, 005 and 006 of the private corpus are files
+produced by Gaupol, the operation applied being recorded alongside.
+
+| Operation | What it does to the grid |
+| :-------- | :----------------------- |
+| rate conversion, 25 → 24 and 25 → 23.976 | **transposes it** — each output announces its new rate at 100, and the old one falls back to noise |
+| shift, by −7.001 s and by +2.999 s | **preserves it**, only the phase changes — 100 before as after, both ways |
+| two-point transformation | **destroys it** — 100 before, 3 after |
+
+Conversion and shifting are therefore reversible from the inference's point of
+view; transformation is not. It is a useful property: it says what one can hope
+to recover from a file and what is lost.
+
+#### On the fifteen files of the private corpus
+
+| Verdict | Files | Rates found |
+| :------ | ----: | :---------- |
+| clear grid — concentration ≥ 90 | **8** | five at 23.976, one at 24, one at 25, one at 29.97 |
+| partial hint — from 50 to 90 | 4 | three at 29.97, one at 23.976 |
+| silent — under 50 | 3 | — |
+
+**Failure is loud.** A file written in milliseconds without a grid stays under
+a few percent on all eight candidates: it is an unequivocal "I don't know", and
+not a wrong answer. That is the property that makes it usable, where a
+file-name heuristic would never have offered it.
+
+**Harmonic ambiguity is real and appears from the first file.** A 25 grid is
+included in a 50 grid: two files come out at 100 on both. In the standard set,
+the only ambiguous pairs are those where one is an integer multiple of the
+other — **25 and 50, 29.97 and 59.94, 30 and 60**. No others: 24 and 60 are in a
+ratio of two and a half, so only one frame in two coincides.
+
+**Starts are the signal, ends corroborate.** Wherever a grid exists, starts are
+at 100 without exception; ends range from 55 to 100. The *cue-in* is set on a
+frame, the *cue-out* is often computed by a reading-speed rule.
+
+### Architecture questions
+
+- **What does the inference return?** A ranking of candidates with their
+  concentration, or an answer and a confidence? The second is simpler to
+  consume, the first hides nothing — and a partial file is neither one nor the
+  other.
+- **The set of candidates must be closed and small** — the eight standard
+  rates. Solving for an arbitrary `R` is a completely different problem, and
+  pointless: nobody masters at 26.3 frames per second.
+- **The phase is information, not waste.** A file whose positions are on the
+  grid up to a constant has been shifted, and this constant can be measured.
+  Should it be returned? Corrected?
+- **Where does the function live?** It is pure and depends only on positions:
+  `core/time/`, or a `core/analysis/` that would also take in a document's
+  anomalies.
+- **What does "correct" cover?** Three distinct mechanisms, to be sorted out:
+  bringing the phase back to zero; refusing or reporting a conversion whose
+  input rate contradicts the measurement; recovering the pair of a conversion
+  made with the wrong rate, by looking for the rational that puts the file back
+  on a standard grid. The third is the most useful and the least certain.
+- **Exposed surface.** A command-line subcommand, or one more reading in
+  `inspect`? And in the window: the conversion dialog pre-fills its input rate
+  **by showing its measurement**, never by applying it silently.
+- **Fit with [phase 6](#6--the-built-in-player),** which asks the same question
+  from the other end: the associated video *declares* its rate. Two independent
+  sources for the same data, hence a free cross-check — and a disagreement one
+  must know how to present.
+
+### Difficult points
+
+- ~~**The test files do not exist.**~~ **Resolved.** The two corpora that
+  served for everything above are ignored by git, and the richest of the
+  versioned fixtures carried six timestamps over fifteen seconds. It was the
+  first question of the initialisation ticket, and it is the only tool it
+  retained: `src/scripts/subtitle-fixtures.py` generates fifteen files on known
+  grids — the eight standard rates, an absurd rate, a shifted grid, an
+  insufficient span, the two faces of the partial file, ends computed by a
+  reading-speed rule, and a file written in milliseconds without any grid. The
+  last two were missing from phase 16 and were written in phase 10, issue #373.
+  `src/test/data/grilles/LISEZMOI.md` records what each one is and what each one
+  yields.
+- **Manual editing leaves the grid.** As soon as a user corrects a position in
+  the table, it stops being aligned. A naive detector would report the user's
+  work as an anomaly. That is why phase 5 forbids itself from using the grid to
+  mark anything.
+- **Telling 23.976 from 24 requires span.** They diverge by 3.6 s per hour:
+  overwhelming on a two-hour film, invisible on a thirty-second excerpt. The
+  inference must return the span it had in view, and not only its
+  concentration.
+- **Partial files are the interesting case and the hardest.** Neither grid nor
+  noise — four of the fifteen in the private corpus, between 50 and 83. Saying
+  "two thirds of your starts are on a 29.97 grid" is true and helps nobody;
+  saying *which ones* and *where they cluster* helps, and requires deciding what
+  counts as a block. The observation made at scoping: isolated deviations look
+  like one-off anomalies, clustered deviations like a retimed section or an
+  assembled file.
+
+---
+
+## 7 — Finishing touches and first release
+
+**Shipped in `v0.8.0`.** See
 [`specs/07-finitions-et-premiere-livraison.md`](specs/07-finitions-et-premiere-livraison.md),
-l'[ADR 0022](adr/0022-configuration-au-noyau-et-tolerance-par-option.md) et
-l'[ADR 0023](adr/0023-deb-et-rpm-pour-la-premiere-livraison.md).
+[ADR 0022](adr/0022-configuration-au-noyau-et-tolerance-par-option.md) and
+[ADR 0023](adr/0023-deb-et-rpm-pour-la-premiere-livraison.md).
 
-Ce qui manque pour qu'un tiers installe et utilise l'outil.
+What is missing for a third party to install and use the tool.
 
-Préférences persistées, thème clair et sombre suivant le système, manuel
-utilisateur complet pour le contour livré, empaquetage Linux.
+Persisted preferences, light and dark theme following the system, complete user
+manual for the shipped outline, Linux packaging.
 
-**Le thème ne suit pas le système, et c'est D3 qui le dit.** Qt 6.4 n'a aucune
-API de schéma de couleurs — `QStyleHints::colorScheme` est arrivée en 6.5 —
-donc « système » laisse la palette au thème de plate-forme au lieu de la lire.
-C'est ce que fait Gaupol sous GTK antérieur à 4.20, et c'est ce qui rend les
-deux autres valeurs éprouvables.
+**The theme does not follow the system, and D3 says so.** Qt 6.4 has no
+colour scheme API — `QStyleHints::colorScheme` arrived in 6.5 —
+so "system" leaves the palette to the platform theme instead of reading it.
+That is what Gaupol does under GTK earlier than 4.20, and it is what makes the
+other two values testable.
 
-**Un renvoi de la phase 16 y attend son contenu :** l'entrée `Help ▸ Manual` de
-la fenêtre existe et est éteinte depuis #211. Le manuel qu'elle ouvrira et
-l'endroit où il sera installé se décident avec l'empaquetage, pas avant.
+**A deferral from phase 16 awaits its content here:** the window's
+`Help ▸ Manual` entry exists and has been disabled since #211. The manual it
+will open and the place where it will be installed are decided with packaging,
+not before.
 
-**Trois renvois du cadrage de la phase 5 atterrissent ici**, et le premier n'y
-était pas prévu :
+**Three deferrals from the scoping of phase 5 land here**, and the first was not
+planned:
 
-- **insérer et supprimer des sous-titres depuis la fenêtre.** Les commandes
-  existent au noyau depuis la phase 2 et ne sont exposées nulle part — ni par la
-  ligne de commande, ni par la table. La phase 7 est leur première surface, et
-  le premier moment où elles auront une preuve de bout en bout ;
-- **la configuration persistée elle-même**, que la phase 5 a laissée entière :
-  elle n'a besoin de rien de persistant pour que sa table fonctionne. Ce qu'elle
-  aurait voulu retenir arrive donc ici — géométrie de la fenêtre, largeur des
-  colonnes. **La fréquence d'image par défaut, elle, n'est pas venue et ne
-  viendra pas** : rien ne la lirait, et une préférence dont personne ne se sert
-  est une case qui ment. Instruite puis écartée en
-  [#267](https://github.com/Guyot-Bertrand/sub-edit/issues/267) ;
-- **un `Session` qui annonce un changement de structure avant de le faire**, si
-  la mesure le demande. La phase 5 réinitialise le modèle pour toute insertion ou
-  suppression de lignes ; son seul producteur y est global et rare, ce qui ne
-  sera plus vrai dès qu'un menu ajoutera une ligne à la fois.
-  [ADR 0019](adr/0019-table-en-adaptateur-mince.md) porte le déclencheur.
+- **inserting and deleting subtitles from the window.** The commands have
+  existed in the core since phase 2 and are exposed nowhere — neither by the
+  command line nor by the table. Phase 7 is their first surface, and the first
+  moment they will have end-to-end proof;
+- **persisted configuration itself**, which phase 5 left whole: it needs nothing
+  persistent for its table to work. What it would have wanted to remember
+  therefore arrives here — window geometry, column widths. **The default frame
+  rate, however, did not come and will not come**: nothing would read it, and a
+  preference nobody uses is a box that lies. Investigated then set aside in
+  [#267](https://github.com/Guyot-Bertrand/sub-edit/issues/267);
+- **a `Session` that announces a structural change before making it**, if
+  measurement calls for it. Phase 5 resets the model for any insertion or
+  deletion of rows; its only producer there is global and rare, which will no
+  longer be true as soon as a menu adds one row at a time.
+  [ADR 0019](adr/0019-table-en-adaptateur-mince.md) carries the trigger.
 
-**Ce que la lecture de `gaupol/config.py` a donné**, relevé au cadrage de la
-phase 5 pour ne pas la refaire : **il n'y a aucune migration, et c'est un
-dispositif.** Le fichier est lu option par option ; une clé inconnue est acceptée
-puis effacée à l'écriture si elle n'est plus dans les défauts ; une valeur
-illisible imprime sur la sortie d'erreur et laisse le défaut en place ; toute
-option restée à sa valeur par défaut est réécrite **commentée**, si bien qu'un
-changement de défaut prend effet chez qui ne l'a jamais surchargé.
-`general.version` est écrit et n'est jamais relu : une trace, pas un
-déclencheur. La question « format de fichier et migration » ci-dessous se pose
-donc avec une réponse possible déjà sur la table — la tolérance par option,
-plutôt qu'une migration versionnée.
+**What reading `gaupol/config.py` yielded**, noted at the scoping of phase 5 so
+as not to redo it: **there is no migration, and it is a design.** The file is
+read option by option; an unknown key is accepted then erased on write if it is
+no longer among the defaults; an unreadable value prints to standard error and
+leaves the default in place; any option left at its default value is rewritten
+**commented out**, so that a change of default takes effect for whoever never
+overrode it. `general.version` is written and never read back: a trace, not a
+trigger. The "file format and migration" question below therefore arises with a
+possible answer already on the table — per-option tolerance, rather than a
+versioned migration.
 
-**Analyse préalable** — `gaupol/config.py`, `gaupol/style.py`, `data/`,
+**Preliminary analysis** — `gaupol/config.py`, `gaupol/style.py`, `data/`,
 `PACKAGING.md`, `flatpak/`.
 
-**Ce que la phase a laissé, et où chaque chose atterrit.** La relecture de fin
-de phase a donné un endroit à quatre renvois qui n'en avaient pas, et sept axes
-sont sortis de son regard critique :
+**What the phase left behind, and where each thing lands.** The end-of-phase
+review gave a place to four deferrals that had none, and seven axes came out of
+its critical look:
 
-**Trois d'entre eux ont été instruits et refermés aussitôt**, et c'est un
-résultat plutôt qu'un échec : un « non » écrit ne se repropose pas.
+**Three of them were investigated and closed right away**, and that is a result
+rather than a failure: a written "no" does not get proposed again.
 
-| Ce qui a été tranché | La décision |
-| :------------------- | :---------- |
-| le déclencheur de l'ADR 0019 | **abandonné** — [#264](https://github.com/Guyot-Bertrand/sub-edit/issues/264) : D8 se suffit, et la mesure qui manquait ne changerait rien |
-| Flatpak et AppImage | **écartés** — [#265](https://github.com/Guyot-Bertrand/sub-edit/issues/265) : `.deb` et `.rpm`, et ailleurs on construit depuis les sources |
-| la fréquence d'image par défaut | **écartée** — [#267](https://github.com/Guyot-Bertrand/sub-edit/issues/267) : aucun lecteur n'en avait besoin |
+| What was settled | The decision |
+| :--------------- | :----------- |
+| the trigger of ADR 0019 | **abandoned** — [#264](https://github.com/Guyot-Bertrand/sub-edit/issues/264): D8 is enough, and the missing measurement would change nothing |
+| Flatpak and AppImage | **set aside** — [#265](https://github.com/Guyot-Bertrand/sub-edit/issues/265): `.deb` and `.rpm`, and elsewhere one builds from source |
+| the default frame rate | **set aside** — [#267](https://github.com/Guyot-Bertrand/sub-edit/issues/267): no reader needed it |
 
-| Ce qui reste | Où |
-| :----------- | :- |
-| un conteneur Fedora pour éprouver le `.rpm` | [#266](https://github.com/Guyot-Bertrand/sub-edit/issues/266) |
-| vérifier avec l'outil qui compte — le manuel, la page de manuel | [#268](https://github.com/Guyot-Bertrand/sub-edit/issues/268) |
-| le `Makefile` force l'analyse complète pour un commentaire | [#269](https://github.com/Guyot-Bertrand/sub-edit/issues/269) |
-| le seuil de charge du journal des mesures | [#270](https://github.com/Guyot-Bertrand/sub-edit/issues/270) |
-| `check-installation.sh` a triplé | [#271](https://github.com/Guyot-Bertrand/sub-edit/issues/271) |
-| `subedit-gui` sans page de manuel | [#272](https://github.com/Guyot-Bertrand/sub-edit/issues/272) |
-| la langue des commentaires et des intitulés de tests | [#273](https://github.com/Guyot-Bertrand/sub-edit/issues/273) |
-| deux raccourcis que Qt ne pose pas sous X11 | [#274](https://github.com/Guyot-Bertrand/sub-edit/issues/274) |
+| What remains | Where |
+| :----------- | :---- |
+| a Fedora container to test the `.rpm` | [#266](https://github.com/Guyot-Bertrand/sub-edit/issues/266) |
+| check with the tool that matters — the manual, the man page | [#268](https://github.com/Guyot-Bertrand/sub-edit/issues/268) |
+| the `Makefile` forces the full analysis for a comment | [#269](https://github.com/Guyot-Bertrand/sub-edit/issues/269) |
+| the load threshold of the measurement journal | [#270](https://github.com/Guyot-Bertrand/sub-edit/issues/270) |
+| `check-installation.sh` has tripled | [#271](https://github.com/Guyot-Bertrand/sub-edit/issues/271) |
+| `subedit-gui` without a man page | [#272](https://github.com/Guyot-Bertrand/sub-edit/issues/272) |
+| the language of comments and test titles | [#273](https://github.com/Guyot-Bertrand/sub-edit/issues/273) |
+| two shortcuts Qt does not set under X11 | [#274](https://github.com/Guyot-Bertrand/sub-edit/issues/274) |
 
-**Questions d'architecture**
+**Architecture questions**
 
-- Format de fichier de configuration et migration entre versions.
-- Empaquetage : Flatpak, `.deb`, AppImage — lequel pour une première livraison ?
-  **Répondu : `.deb` et `.rpm`**, les deux autres écartés — ADR 0023 et #265.
-- **Règles `install()` dans CMake, et cibles `install` / `uninstall`.** Le
-  projet n'en a aucune : l'outil se lance depuis l'arbre de construction, et
-  `docs/manual/subedit-cli/installation.md` le dit. Relevé au cadrage de la
-  phase 3 et laissé ici volontairement — une cible écrite avant que le format
-  d'empaquetage soit tranché préjugerait de la réponse.
+- Configuration file format and migration between versions.
+- Packaging: Flatpak, `.deb`, AppImage — which one for a first release?
+  **Answered: `.deb` and `.rpm`**, the other two set aside — ADR 0023 and #265.
+- **`install()` rules in CMake, and `install` / `uninstall` targets.** The
+  project has none: the tool runs from the build tree, and
+  `docs/manual/subedit-cli/installation.md` says so. Noted at the scoping of
+  phase 3 and left here on purpose — a target written before the packaging
+  format is settled would prejudge the answer.
 
-  Deux conséquences à traiter en même temps : les exemples du manuel montrent
-  `$ subedit-cli` comme si l'outil était dans le `PATH`, ce qui ne deviendra
-  vrai qu'ici ; et `make manual` l'exécute depuis `build/dev/bin`, ce qui restera
-  le bon choix pour la génération même une fois l'installation possible.
+  Two consequences to handle at the same time: the manual's examples show
+  `$ subedit-cli` as if the tool were on the `PATH`, which will only become
+  true here; and `make manual` runs it from `build/dev/bin`, which will remain
+  the right choice for generation even once installation is possible.
 
-**À l'issue de cette phase, le MVP est livrable.**
+**At the end of this phase, the MVP is shippable.**
 
 ---
 
-# Seconde partie — couverture complète
+# Part two — full coverage
 
-Ces phases sont transverses : chacune touche la bibliothèque, la ligne de
-commande et l'interface. Leur ordre est indicatif et sera revu avec l'utilisateur
-une fois le MVP en service — c'est l'usage réel qui doit le déterminer, pas une
-prévision faite maintenant.
+These phases are cross-cutting: each one touches the library, the command line
+and the interface. Their order is indicative and will be reviewed with the user
+once the MVP is in service — it is real use that must determine it, not a
+forecast made now.
 
-## 8 — Encodages et fins de ligne
+## 8 — Encodings and line endings
 
-Détection automatique de l'encodage, jeu complet d'encodages, fins de ligne
-Windows et Mac, forçage à l'enregistrement.
+Automatic encoding detection, full set of encodings, Windows and Mac line
+endings, forcing on save.
 
-**Cadrée** — [`docs/specs/08-encodages.md`](specs/08-encodages.md), issue #288.
+**Scoped** — [`docs/specs/08-encodages.md`](specs/08-encodages.md), issue #288.
 
-**La question ouverte est tranchée, et par la mesure.** Elle demandait un
-équivalent C++ à `charset-normalizer`, entre ICU, `uchardet` et
-`compact_enc_det`. Les trois voies ont été passées au même corpus étiqueté avant
-qu'aucune soit choisie — ICU 9/9, `uchardet` 9/9, un prototype de tables écrites
-6/9 — et **ce qui a décidé n'est pas la détection mais la conversion** : ICU est
-le seul des trois à convertir, et l'iso-fonctionnalité demande les
-quatre-vingt-dix-sept encodages de Gaupol, qui ne s'écrivent pas à la main.
+**The open question is settled, and by measurement.** It asked for a C++
+equivalent of `charset-normalizer`, among ICU, `uchardet` and
+`compact_enc_det`. The three routes were run on the same labelled corpus before
+any was chosen — ICU 9/9, `uchardet` 9/9, a prototype with hand-written tables
+6/9 — and **what decided was not detection but conversion**: ICU is the only one
+of the three that converts, and feature parity calls for Gaupol's ninety-seven
+encodings, which are not written by hand.
 [ADR 0027](adr/0027-icu-pour-les-encodages.md).
 
-**Deux choses que le cadrage a trouvées et que ce paragraphe promettait mal :**
+**Two things the scoping found and that this paragraph promised badly:**
 
-- **les fins de ligne sont déjà livrées.** `Newline` porte `Lf`, `CrLf` et `Cr`
-  depuis la phase 1, `--line-endings unix|windows|mac` existe depuis la phase 3,
-  et un fichier lu est réécrit avec les siennes. La moitié du titre était faite ;
-- **la fenêtre n'offre rien de tout cela.** `Save As…` choisit un chemin et un
-  format ; ni encodage, ni fin de ligne, ni BOM. La ligne de commande sait faire
-  ce que la fenêtre ne propose pas, et cet écart entre dans le périmètre.
+- **line endings are already shipped.** `Newline` has carried `Lf`, `CrLf` and
+  `Cr` since phase 1, `--line-endings unix|windows|mac` has existed since phase
+  3, and a file that was read is rewritten with its own. Half of the title was
+  done;
+- **the window offers none of this.** `Save As…` chooses a path and a format;
+  no encoding, no line ending, no BOM. The command line can do what the window
+  does not offer, and this gap enters the scope.
 
-**Livrée**, en six issues d'implémentation — #294 à #299 — et close par
-`v0.9.0`. Ce qui a été fait : l'encodage entre dans le modèle et le BOM devient
-sa variante, la lecture dans un encodage donné, la détection, l'écriture,
-`--encoding` et `--to-encoding` en ligne de commande, et `Save As…` qui choisit
-l'encodage, la fin de ligne et la marque. Dix exigences, dix au registre.
+**Shipped**, in six implementation issues — #294 to #299 — and closed by
+`v0.9.0`. What was done: the encoding enters the model and the BOM becomes its
+variant, reading in a given encoding, detection, writing, `--encoding` and
+`--to-encoding` on the command line, and `Save As…` choosing the encoding, the
+line ending and the mark. Ten requirements, ten in the registry.
 
-**Quatre écarts entre la spec et le réalisé**, tous inscrits dans
-[la spec](specs/08-encodages.md) plutôt que corrigés dans le code — le réalisé
-avait raison les quatre fois :
+**Four gaps between the spec and what was built**, all recorded in
+[the spec](specs/08-encodages.md) rather than fixed in the code — what was built
+was right all four times:
 
-| La spec disait | Le réalisé |
-| :------------- | :--------- |
-| D6 : « `--encoding` à la lecture **et à l'écriture** » | deux options, parce qu'une seule invocation fait les deux |
-| « la phase ne livre pas la conversion en lot » | `--to-encoding` avec `--output-dir` réencode un répertoire |
-| D4 : « **l'encodage retenu** entre dans les diagnostics » | seulement s'il a été deviné et n'est pas de l'UTF-8 |
-| « UTF-32 : ICU le lira si on le lui demande » | **il ne le lira pas** — mesuré : sa marque est prise pour celle de l'UTF-16LE |
+| The spec said | What was built |
+| :------------ | :------------- |
+| D6: "`--encoding` on read **and on write**" | two options, because a single invocation does both |
+| "the phase does not ship batch conversion" | `--to-encoding` with `--output-dir` re-encodes a directory |
+| D4: "**the chosen encoding** enters the diagnostics" | only if it was guessed and is not UTF-8 |
+| "UTF-32: ICU will read it if asked to" | **it will not** — measured: its mark is taken for UTF-16LE's |
 
-**Ce que la relecture a tranché.** Le seuil de charge du banc, laissé ouvert par
-#270, l'est : **ce n'est ni le seuil ni le délai**, mais l'endroit et le moment
-où la charge est lue. Deux changements, le second trouvé parce que le premier a
-échoué à sa première exécution — `make check-local` passe avant `make check`, et
-`bench.sh` lit la charge **avant** de compiler l'arbre Release au lieu d'après,
-c'est-à-dire avant d'avoir occupé lui-même la machine sur laquelle il
-s'interroge. [ADR 0015](adr/0015-memoire-des-mesures.md).
+**What the review settled.** The bench load threshold, left open by #270, is
+settled: **it is neither the threshold nor the delay**, but where and when the
+load is read. Two changes, the second found because the first failed on its
+first run — `make check-local` comes before `make check`, and `bench.sh` reads
+the load **before** building the Release tree instead of after, that is, before
+having itself occupied the machine it is asking about.
+[ADR 0015](adr/0015-memoire-des-mesures.md).
 
-**Ce que la phase laisse, et où chaque chose atterrit.** Quatre renvois avaient
-un « plus tard » sans référent ; six axes sortent du regard critique.
+**What the phase leaves behind, and where each thing lands.** Four deferrals had
+a "later" without a referent; six axes come out of the critical look.
 
-| Ce qui était renvoyé | Où |
-| :------------------- | :- |
-| une lecture décode le fichier deux fois | [#314](https://github.com/Guyot-Bertrand/sub-edit/issues/314) |
-| `Encoding::name()` invente `UTF-16LE-sig` | [#315](https://github.com/Guyot-Bertrand/sub-edit/issues/315) |
-| quatorze encodages au menu contre quatre-vingt-dix-sept | [#316](https://github.com/Guyot-Bertrand/sub-edit/issues/316) |
-| `file.write-encoding` ne sert qu'au document sans fichier | [#317](https://github.com/Guyot-Bertrand/sub-edit/issues/317) |
+| What was deferred | Where |
+| :---------------- | :---- |
+| a read decodes the file twice | [#314](https://github.com/Guyot-Bertrand/sub-edit/issues/314) |
+| `Encoding::name()` invents `UTF-16LE-sig` | [#315](https://github.com/Guyot-Bertrand/sub-edit/issues/315) |
+| fourteen encodings in the menu against ninety-seven | [#316](https://github.com/Guyot-Bertrand/sub-edit/issues/316) |
+| `file.write-encoding` only serves the document without a file | [#317](https://github.com/Guyot-Bertrand/sub-edit/issues/317) |
 
-| Ce que le regard critique a sorti | Où |
-| :-------------------------------- | :- |
-| un encodage dont le nom ne fixe pas l'ordre écrit sa marque, et `--no-bom` est désobéi | [#308](https://github.com/Guyot-Bertrand/sub-edit/issues/308) |
-| un `Save As…` qui échoue déplace quand même le document | [#309](https://github.com/Guyot-Bertrand/sub-edit/issues/309) |
-| la détection se trompe d'écriture sur un texte court | [#310](https://github.com/Guyot-Bertrand/sub-edit/issues/310) |
-| personne ne rejoue le score de détection | [#311](https://github.com/Guyot-Bertrand/sub-edit/issues/311) |
-| la langue des commentaires repose sur une mesure fausse | [#312](https://github.com/Guyot-Bertrand/sub-edit/issues/312) — **tranchée** : le C++ en anglais, un cliquet le tient, la traduction est [#325](https://github.com/Guyot-Bertrand/sub-edit/issues/325) |
-| la fenêtre ne dit l'encodage que quand il a été deviné | [#313](https://github.com/Guyot-Bertrand/sub-edit/issues/313) |
-| écrire en UTF-8 passe par une conversion qui ne fait rien — un tiers de plus, invisible pendant deux versions | [#318](https://github.com/Guyot-Bertrand/sub-edit/issues/318) |
+| What the critical look brought out | Where |
+| :--------------------------------- | :---- |
+| an encoding whose name does not fix the byte order writes its mark, and `--no-bom` is disobeyed | [#308](https://github.com/Guyot-Bertrand/sub-edit/issues/308) |
+| a failing `Save As…` moves the document anyway | [#309](https://github.com/Guyot-Bertrand/sub-edit/issues/309) |
+| detection gets the script wrong on a short text | [#310](https://github.com/Guyot-Bertrand/sub-edit/issues/310) |
+| nobody replays the detection score | [#311](https://github.com/Guyot-Bertrand/sub-edit/issues/311) |
+| the language of comments rests on a wrong measurement | [#312](https://github.com/Guyot-Bertrand/sub-edit/issues/312) — **settled**: C++ in English, a ratchet holds it, the translation is [#325](https://github.com/Guyot-Bertrand/sub-edit/issues/325) |
+| the window states the encoding only when it was guessed | [#313](https://github.com/Guyot-Bertrand/sub-edit/issues/313) |
+| writing UTF-8 goes through a conversion that does nothing — a third more, invisible for two versions | [#318](https://github.com/Guyot-Bertrand/sub-edit/issues/318) |
 
-**Le plus lourd est #312, et il corrige une issue de la relecture
-précédente.** #273 avait retourné la règle de langue des commentaires en
-concluant que « les commentaires de ce dépôt sont français partout, sans
-exception ». Sa mesure cherchait les fichiers portant *au moins un* caractère
-accentué, donc elle ne pouvait rendre que « il y a du français partout » — c'est
-le défaut de #268, vérifier avec l'outil qui ne compte pas, commis une issue
-après avoir été inscrit.
+**The heaviest is #312, and it corrects an issue from the previous
+review.** #273 had reversed the comment language rule by concluding that "the
+comments of this repository are French everywhere, without exception". Its
+measurement looked for files carrying *at least one* accented character, so it
+could only return "there is French everywhere" — that is the flaw of #268,
+checking with the tool that does not matter, committed one issue after being
+recorded.
 
-**Compté ligne à ligne, la frontière est celle du fichier** : 6 460 lignes de
-commentaire anglaises contre 1 161 sur le C++, et l'inverse exact ailleurs —
-1 971 françaises contre 6 sur les scripts, 386 contre 4 sur le système de
-construction. La part de français dans les commentaires C++, par semaine
-d'écriture, donne à la dérive une date nette : 0,0 %, 0,3 %, 2,7 %, puis 30,2 %
-et 32,8 % — trois semaines d'anglais, puis les phases d'interface.
+**Counted line by line, the boundary is the file's**: 6,460 English comment
+lines against 1,161 in the C++, and the exact reverse elsewhere — 1,971 French
+against 6 in the scripts, 386 against 4 in the build system. The share of French
+in C++ comments, by week of writing, gives the drift a clear date: 0.0 %,
+0.3 %, 2.7 %, then 30.2 % and 32.8 % — three weeks of English, then the
+interface phases.
 
-**Le C++ se commente donc en anglais**, un cliquet le tient
-(`check-comment-language.py`, appelé par la porte), et les 1 161 lignes qui
-restent sont l'issue [#325](https://github.com/Guyot-Bertrand/sub-edit/issues/325).
+**C++ is therefore commented in English**, a ratchet holds it
+(`check-comment-language.py`, called by the gate), and the 1,161 remaining lines
+are issue [#325](https://github.com/Guyot-Bertrand/sub-edit/issues/325).
 
-> **Tenu, relu en fin de phase 12.** #325 a été fermée le 2026-09-06 et le cliquet n'a pas bougé depuis : le
-> C++ ne porte plus **aucune** ligne de commentaire française. Les 1 161 lignes ci-dessus sont celles du jour
-> de la relecture, non un reste à traduire.
+> **Held, reviewed at the end of phase 12.** #325 was closed on 2026-09-06 and the ratchet has not moved since: the
+> C++ no longer carries **any** French comment line. The 1,161 lines above are those of the day of the
+> review, not something left to translate.
 
-## 9 — Formats complémentaires et balises riches
+## 9 — Additional formats and rich markup
 
-SubViewer 2, Sub Station Alpha, Advanced SSA — les trois formats cités comme
-secondaires — puis MicroDVD, MPL2, TMPlayer et LRC.
+SubViewer 2, Sub Station Alpha, Advanced SSA — the three formats cited as
+secondary — then MicroDVD, MPL2, TMPlayer and LRC.
 
-**Cadrée, et sa spec est dans [`specs/09-formats.md`](specs/09-formats.md)** —
-issue #337. Trois ADR en sortent : les fins déduites pour les deux formats qui
-n'en portent pas ([0029](adr/0029-fins-deduites-et-annoncees.md)), la fréquence
-retenue par le document pour MicroDVD
-([0030](adr/0030-ce-qu-un-document-retient-de-son-fichier.md)), et le pivot de
-balises que l'ADR 0009 promettait depuis la phase 1
+**Scoped, and its spec is in [`specs/09-formats.md`](specs/09-formats.md)** —
+issue #337. Three ADRs come out of it: the inferred ends for the two formats
+that carry none ([0029](adr/0029-fins-deduites-et-annoncees.md)), the frame rate
+kept by the document for MicroDVD
+([0030](adr/0030-ce-qu-un-document-retient-de-son-fichier.md)), and the markup
+pivot that ADR 0009 had promised since phase 1
 ([0031](adr/0031-pivot-de-balises-a-la-conversion.md)).
 
-**Le renvoi du cadrage de la phase 5 — le mode d'édition en images — repart vers
-la phase 14**, mieux posé qu'il n'est arrivé. La phase 5 l'avait renvoyé faute
-de format à images ; celui-ci arrive. Ce qui reste vrai est que MicroDVD porte
-des numéros d'image **et pas de fréquence** : la bascule montrerait les chiffres
-du fichier pour un MicroDVD, et une conversion contre une fréquence choisie pour
-les huit autres.
+**The deferral from the scoping of phase 5 — the frame editing mode — goes back
+to phase 14**, better framed than it arrived. Phase 5 had deferred it for lack of
+a frame-based format; one arrives here. What remains true is that MicroDVD
+carries frame numbers **and no frame rate**: the toggle would show the file's
+figures for a MicroDVD, and a conversion against a chosen rate for the other
+eight.
 
-**Point difficile** — ASS n'est pas un format de timing mais un format structuré
-avec sections, styles nommés et événements typés. La conversion vers SubRip est
-**structurellement à perte** : quelle politique de dégradation, et la
-signale-t-on à l'utilisateur ? C'est ici que se vérifie la solidité du modèle de
-balises conçu en phase 1.
+**Difficult point** — ASS is not a timing format but a structured format with
+sections, named styles and typed events. Conversion to SubRip is
+**structurally lossy**: which degradation policy, and is the user told? This is
+where the soundness of the markup model designed in phase 1 is tested.
 
-## 10 — Opérations complémentaires
+## 10 — Additional operations
 
-**Cadrée.** Voir [`specs/10-operations.md`](specs/10-operations.md), qui porte
-les huit décisions et le découpage — et qui corrige deux affirmations de ce
-cadrage-ci : le presse-papiers de Gaupol ne transporte que des textes, et son
-menu n'offre qu'un seul basculement de style, l'italique.
+**Scoped.** See [`specs/10-operations.md`](specs/10-operations.md), which carries
+the eight decisions and the split — and which corrects two claims of this
+scoping: Gaupol's clipboard carries only texts, and its menu offers only one
+style toggle, italics.
 
-Ajustement des durées, casse, italiques, tirets de dialogue, fusion, scission,
-recherche et remplacement, presse-papiers.
+Duration adjustment, case, italics, dialogue dashes, merge, split, find and
+replace, clipboard.
 
-**Un renvoi du cadrage de la phase 5 a atterri ici : l'édition de la durée dans
-la table.** La colonne `Duration` s'affichait sans se saisir, faute d'une
-`SetDurationCommand` au noyau. Elle est née en #381, et **elle déplace la fin** —
-décision D3 de la spec.
+**A deferral from the scoping of phase 5 landed here: editing the duration in
+the table.** The `Duration` column was displayed without being editable, for lack
+of a `SetDurationCommand` in the core. It was born in #381, and **it moves the
+end** — decision D3 of the spec.
 
-**Deux renvois de la phase 16 y étaient posés, et un seul y a été tenu.**
+**Two deferrals from phase 16 were placed here, and only one was kept.**
 
-- **Deux fixtures de grille qui manquaient**, écrites par l'issue #373 : des
-  fins calculées par une règle de vitesse de lecture plutôt que posées sur une
-  image, et un fichier écrit en millisecondes **sans aucune grille** —
-  `grille-absurde.srt` étant régulier, le cas du bruit pur n'en avait aucune.
-- **Retrouver la paire d'une conversion faite avec la mauvaise fréquence** a été
-  **renvoyé à la phase 14**, par le cadrage de celle-ci — issue
-  [#386](https://github.com/Guyot-Bertrand/sub-edit/issues/386). Rien de ce que
-  la phase 10 apporte ne rend ce mécanisme plus sûr.
+- **Two missing grid fixtures**, written by issue #373: ends computed by a
+  reading-speed rule rather than set on a frame, and a file written in
+  milliseconds **without any grid** — `grille-absurde.srt` being regular, the
+  pure-noise case had none.
+- **Recovering the pair of a conversion made with the wrong rate** was
+  **deferred to phase 14**, by that phase's scoping — issue
+  [#386](https://github.com/Guyot-Bertrand/sub-edit/issues/386). Nothing phase
+  10 brings makes this mechanism more reliable.
 
-**Points difficiles**
+**Difficult points**
 
-- **Ajustement des durées** : contraintes simultanées de durée minimale,
-  maximale, écart minimal entre sous-titres et vitesse de lecture en
-  caractères par seconde. Elles sont **potentiellement contradictoires** ;
-  l'ordre de résolution doit être spécifié.
-- **Recherche dans du texte balisé** : chercher dans le texte visible tout en
-  remplaçant dans le texte source, sans casser les balises qui chevauchent la
-  correspondance.
+- **Duration adjustment**: simultaneous constraints of minimum and maximum
+  duration, minimum gap between subtitles and reading speed in characters per
+  second. They are **potentially contradictory**; the resolution order must be
+  specified.
+- **Searching marked-up text**: searching in the visible text while replacing
+  in the source text, without breaking markup that overlaps the match.
 
-## 11 — Traduction et multi-projets
+## 11 — Translation and multiple projects
 
-Second document en regard du principal, alignement du fichier de traduction par
-numéro ou par position, onglets, sauvegarde et fermeture groupées, scission d'un
-projet, ajout d'un fichier à la suite d'un autre.
+Second document alongside the main one, alignment of the translation file by
+number or by position, tabs, grouped save and close, splitting a project,
+appending one file after another.
 
-**Cadrée.** Voir [`specs/11-traduction.md`](specs/11-traduction.md), qui porte neuf
-décisions, deux ADR ([0032](adr/0032-un-document-un-fichier.md), acceptée, et
-[0033](adr/0033-un-projet-est-une-page.md), **acceptée**) et le découpage en **trois
-tranches** — la traduction, l'ajout d'un fichier, le multi-projets. **La réserve
-ci-dessous est levée** : la porte [#435](https://github.com/Guyot-Bertrand/sub-edit/issues/435)
-a tranché pour le multi-projets le 2026-09-22, et la troisième tranche se livre.
+**Scoped.** See [`specs/11-traduction.md`](specs/11-traduction.md), which carries
+nine decisions, two ADRs ([0032](adr/0032-un-document-un-fichier.md), accepted,
+and [0033](adr/0033-un-projet-est-une-page.md), **accepted**) and the split into
+**three slices** — translation, appending a file, multiple projects. **The
+reservation below is lifted**: the gate
+[#435](https://github.com/Guyot-Bertrand/sub-edit/issues/435) decided in favour
+of multiple projects on 2026-09-22, and the third slice is being shipped.
 
-**Un renvoi de la phase 6 atterrit ici : le lecteur pour un document de
-traduction.** La réplique dessinée sur l'image vient du document principal, et
-`Subtitle` porte les deux textes pour une seule paire de positions depuis la
-phase 1 — il faudra donc dire lequel des deux s'affiche, et si le choix est un
-réglage ou suit l'onglet actif. La relecture de fin de phase 6 a constaté que ce
-renvoi ne tombait nulle part ; il tombe ici.
+**A deferral from phase 6 lands here: the player for a translation document.**
+The line drawn on the picture comes from the main document, and `Subtitle` has
+carried both texts for a single pair of positions since phase 1 — so it will be
+necessary to say which of the two is displayed, and whether the choice is a
+setting or follows the active tab. The end-of-phase 6 review found that this
+deferral landed nowhere; it lands here.
 
-**Un renvoi de la phase 10 atterrit ici : la recherche au-delà du document
-courant.** Gaupol cherche dans « tous les projets ouverts » et dans le texte de
-traduction ; la phase 10 a réduit la portée à la cible habituelle — la sélection
-ou le document — et au seul texte principal, faute d'un second projet et d'une
-colonne de traduction à l'écran. Il faudra dire si la portée s'élargit avec les
-onglets, et si le champ cherché suit la colonne visible.
+**A deferral from phase 10 lands here: searching beyond the current document.**
+Gaupol searches in "all open projects" and in the translation text; phase 10
+reduced the scope to the usual target — the selection or the document — and to
+the main text only, for lack of a second project and of a translation column on
+screen. It will be necessary to say whether the scope widens with tabs, and
+whether the searched field follows the visible column.
 
-**Réserve levée par #435, le 2026-09-22.** Le modèle de données de la phase 1
-accueillait déjà le multi-projets sans l'engager ; la décision l'engage.
+**Reservation lifted by #435, on 2026-09-22.** The phase 1 data model already
+accommodated multiple projects without committing to them; the decision commits
+to them.
 
-**Livrée, relue par [#441](https://github.com/Guyot-Bertrand/sub-edit/issues/441).** Les trois tranches,
-et deux issues de plus : les colonnes masquables et réordonnables
-([#442](https://github.com/Guyot-Bertrand/sub-edit/issues/442)), qu'aucune phase ne portait, et le
-glisser-déposer ([#453](https://github.com/Guyot-Bertrand/sub-edit/issues/453)), que #437 avait laissé.
-**Les deux renvois ci-dessus sont tombés** : la réplique suit la colonne courante, sans réglage, et la
-recherche porte au choix sur tous les projets ouverts, dans le texte de la colonne courante — D8 de la
-spec. Ceux que la phase émet ont chacun leur destinataire : la ligne de commande de la traduction en
-phase 13, la détection d'une traduction décalée en phase 14. **La relecture a ouvert quatre issues, #460
-à #463**, qui tiennent la phase ouverte jusqu'à la clôture en 0.12.0.
+**Shipped, reviewed by [#441](https://github.com/Guyot-Bertrand/sub-edit/issues/441).** The three slices,
+and two more issues: hideable and reorderable columns
+([#442](https://github.com/Guyot-Bertrand/sub-edit/issues/442)), which no phase carried, and
+drag and drop ([#453](https://github.com/Guyot-Bertrand/sub-edit/issues/453)), which #437 had left.
+**The two deferrals above have landed**: the line follows the current column, without a setting, and
+search covers, at the user's choice, all open projects, in the text of the current column — D8 of the
+spec. Those the phase emits each have their recipient: the command line for translation in
+phase 13, detection of a shifted translation in phase 14. **The review opened four issues, #460
+to #463**, which keep the phase open until closing in 0.12.0.
 
-**Close en 0.12.0, le 2026-09-26.** Après la relecture, deux vagues de plus, toutes deux fermées avant la
-clôture :
+**Closed in 0.12.0, on 2026-09-26.** After the review, two more waves, both closed before the
+closing:
 
-- **les retours d'un usage sur un vrai bureau** — [#468](https://github.com/Guyot-Bertrand/sub-edit/issues/468)
-  à [#474](https://github.com/Guyot-Bertrand/sub-edit/issues/474) et
-  [#477](https://github.com/Guyot-Bertrand/sub-edit/issues/477) : un second film qui ne se chargeait pas,
-  une image à zéro pixel, des erreurs X11 en quittant, la position de lecture par onglet, la croix et le
-  « + » des onglets, la barre d'outils, le projet vierge remplacé à l'ouverture ;
-- **l'allègement de `MainWindow`**, demandé à la fusion de #460 et analysé avant la clôture :
-  [#483](https://github.com/Guyot-Bertrand/sub-edit/issues/483) à
-  [#486](https://github.com/Guyot-Bertrand/sub-edit/issues/486) sortent les actions et les menus
-  (`WindowActions`), la vidéo (`VideoPane`), la barre d'état (`StatusLine`) et les opérations de `Tools`
+- **feedback from use on a real desktop** — [#468](https://github.com/Guyot-Bertrand/sub-edit/issues/468)
+  to [#474](https://github.com/Guyot-Bertrand/sub-edit/issues/474) and
+  [#477](https://github.com/Guyot-Bertrand/sub-edit/issues/477): a second film that would not load,
+  a zero-pixel picture, X11 errors on quitting, the playback position per tab, the tabs' close button and
+  "+", the toolbar, the blank project replaced on opening;
+- **slimming down `MainWindow`**, requested at the merge of #460 and analysed before closing:
+  [#483](https://github.com/Guyot-Bertrand/sub-edit/issues/483) to
+  [#486](https://github.com/Guyot-Bertrand/sub-edit/issues/486) move out the actions and menus
+  (`WindowActions`), the video (`VideoPane`), the status bar (`StatusLine`) and the `Tools` operations
   (`ProjectOperations`, [ADR 0035](adr/0035-les-operations-sortent-de-la-fenetre.md)). `main_window.cpp`
-  passe de 2 531 à 1 506 lignes, sans qu'un test de la fenêtre soit réécrit.
+  goes from 2,531 to 1,506 lines, without a single window test being rewritten.
 
-**Le banc de la phase** reste maigre : **cinq relevés pour trente-deux versions** — 0.11.1, 0.11.7,
-0.11.21, 0.11.25 et 0.11.30 —, la machine ayant trouvé le seuil de charge dépassé toutes les autres fois.
-Le relevé de 0.12.0 est dû à la clôture — issue [#270](https://github.com/Guyot-Bertrand/sub-edit/issues/270).
+**The phase's bench** remains thin: **five readings for thirty-two versions** — 0.11.1, 0.11.7,
+0.11.21, 0.11.25 and 0.11.30 —, the machine having found the load threshold exceeded every other time.
+The 0.12.0 reading is due at closing — issue [#270](https://github.com/Guyot-Bertrand/sub-edit/issues/270).
 
-## 12 — Moteur de correction complet
+## 12 — Complete correction engine
 
-Motifs déclaratifs par script, langue et pays — erreurs courantes classées
-Humain et OCR, remise en majuscule, mentions pour malentendants restantes —
-découpage de lignes et correcteur orthographique, avec la jonction et la
-scission de mots qu'il permet — renvoi de la phase 10.
+Declarative patterns by script, language and country — common errors classed
+Human and OCR, capitalisation, remaining hearing-impaired mentions —
+line breaking and spell checker, with the word joining and splitting it
+enables — deferral from phase 10.
 
-**Cadrée.** Voir [`specs/12-correction.md`](specs/12-correction.md), qui porte dix
-décisions, deux ADR — [0036](adr/0036-icu-pour-les-motifs-de-correction.md), **ICU**
-pour appliquer les motifs, et [0037](adr/0037-lire-les-motifs-de-gaupol-tels-quels.md),
-les fichiers de Gaupol **lus tels quels** — et le découpage en **quatre tranches** : le
-moteur, le découpage, l'assistant, le correcteur ([#498](https://github.com/Guyot-Bertrand/sub-edit/issues/498) à [#509](https://github.com/Guyot-Bertrand/sub-edit/issues/509)).
-**Pas de porte** : aucune réserve n'est écrite sur le besoin, et le correcteur, le seul
-morceau qui ajoute une dépendance, vient en dernier.
+**Scoped.** See [`specs/12-correction.md`](specs/12-correction.md), which carries
+ten decisions, two ADRs — [0036](adr/0036-icu-pour-les-motifs-de-correction.md),
+**ICU** to apply the patterns, and [0037](adr/0037-lire-les-motifs-de-gaupol-tels-quels.md),
+Gaupol's files **read as they are** — and the split into **four slices**: the
+engine, line breaking, the assistant, the spell checker ([#498](https://github.com/Guyot-Bertrand/sub-edit/issues/498) to [#509](https://github.com/Guyot-Bertrand/sub-edit/issues/509)).
+**No gate**: no reservation is written about the need, and the spell checker,
+the only piece that adds a dependency, comes last.
 
-**La question du moteur, ci-dessous, est tranchée, et pas comme elle était posée.**
-Le candidat retenu n'est ni PCRE2 ni RE2 mais ICU, déjà au noyau et déjà moteur de la
-recherche. La mesure l'a mis à 0,13 s par film contre 0,05 s pour PCRE2 compilé à la
-volée — une différence que personne ne verra —, et elle a trouvé plus important que le
-temps : **ni l'un ni l'autre ne lit `\w` comme Python** dès qu'une lettre est
-décomposée, PCRE2 depuis sa 10.43. La réécriture de `\w` est due quel que soit le
-moteur, et l'argument de la compatibilité tombe avec elle. Le correcteur est **Enchant**,
-et non hunspell : la liste de mots personnelle d'un utilisateur de Gaupol est la même.
+**The engine question, below, is settled, and not as it was asked.**
+The candidate retained is neither PCRE2 nor RE2 but ICU, already in the core and
+already the search engine. Measurement put it at 0.13 s per film against 0.05 s
+for PCRE2 compiled on the fly — a difference nobody will see —, and it found
+something more important than time: **neither of them reads `\w` like Python**
+as soon as a letter is decomposed, PCRE2 since its 10.43. Rewriting `\w` is due
+whatever the engine, and the compatibility argument falls with it. The spell
+checker is **Enchant**, and not hunspell: a Gaupol user's personal word list is
+the same.
 
-**La phase 10 a laissé ici un parseur conscient des balises** —
-`core/text/markup_parser` — que la casse, les tirets, la recherche et
-l'ajustement des durées empruntent. Les motifs de correction s'appliqueront au
-texte source et y rencontreront le défaut que l'ADR 0009 décrit ; le parseur est
-la pièce faite pour l'éviter, et le retrait des mentions de la phase 4 ne passe
-pas encore par lui.
+**Phase 10 left a markup-aware parser here** —
+`core/text/markup_parser` — which case, dashes, search and duration adjustment
+borrow. The correction patterns will apply to the source text and will meet
+there the flaw that ADR 0009 describes; the parser is the piece made to avoid
+it, and the phase 4 mention removal does not go through it yet.
 
-**Questions d'architecture**
+**Architecture questions**
 
-- **Moteur d'expressions régulières.** C'est ici que l'arbitrage se pose. Les
-  motifs sont écrits en syntaxe Python et utilisent abondamment les **références
-  arrière** (`\1 \2`), que RE2 ne gère pas ; PCRE2 est compatible mais peut
-  exploser en temps sur certains motifs. Mesurer avant de trancher.
+- **Regular expression engine.** This is where the choice arises. The
+  patterns are written in Python syntax and make heavy use of
+  **backreferences** (`\1 \2`), which RE2 does not handle; PCRE2 is compatible
+  but can blow up in time on some patterns. Measure before deciding.
 
-  **La phase 4 s'en est passée, et son [ADR 0017](adr/0017-analyseur-de-mentions-ecrit-a-la-main.md)
-  est à lire avant de trancher ici.** Elle explique pourquoi un moteur n'aurait
-  pas suffi pour ses deux motifs — la règle de couture est locale au site du
-  retrait, une substitution est globale — et pose son propre déclencheur de
-  réouverture : « le troisième motif demandé, quel qu'il soit ». Ce troisième
-  motif, c'est cette phase-ci qui le demande.
-- **Mesure de longueur de texte.** Point d'attention majeur : Gaupol mesure les
-  lignes en *ems*, et le fait en demandant à **un widget GTK de mesurer le rendu
-  du texte** (`gaupol/ruler.py`). L'algorithme de découpage dépend donc du
-  toolkit. Chez nous, ce doit être une abstraction injectée : implémentation
-  triviale par caractères pour la CLI et les tests, implémentation Qt pour
-  l'interface.
-- Correcteur orthographique : hunspell, nuspell, ou service système. **Tranché par la spec : Enchant**,
-  dont la liste de mots personnelle est celle de Gaupol — D6.
+  **Phase 4 did without one, and its [ADR 0017](adr/0017-analyseur-de-mentions-ecrit-a-la-main.md)
+  is to be read before deciding here.** It explains why an engine would not
+  have been enough for its two patterns — the stitching rule is local to the
+  removal site, a substitution is global — and sets its own reopening trigger:
+  "the third pattern requested, whatever it is". That third pattern is
+  requested by this phase.
+- **Measuring text length.** Major point of attention: Gaupol measures lines in
+  *ems*, and does so by asking **a GTK widget to measure the rendered text**
+  (`gaupol/ruler.py`). The line-breaking algorithm therefore depends on the
+  toolkit. Here, it must be an injected abstraction: a trivial per-character
+  implementation for the CLI and tests, a Qt implementation for the interface.
+- Spell checker: hunspell, nuspell, or a system service. **Settled by the spec:
+  Enchant**, whose personal word list is Gaupol's — D6.
 
-**Point difficile** — le découpage de lignes est une variante de Knuth–Plass
-avec boîtes, pénalités et démérites, où les pénalités viennent des motifs
-`line-break` par langue. Coûteux, subjectif, et central dans la qualité perçue.
-Appliquer des dizaines de motifs à des milliers de sous-titres est **le**
-benchmark de référence du projet.
+**Difficult point** — line breaking is a variant of Knuth–Plass with boxes,
+penalties and demerits, where the penalties come from the per-language
+`line-break` patterns. Expensive, subjective, and central to perceived quality.
+Applying dozens of patterns to thousands of subtitles is **the** reference
+benchmark of the project.
 
-**Livrée, relue par [#523](https://github.com/Guyot-Bertrand/sub-edit/issues/523).** Douze issues, #498 à
-#509, en quinze versions : les motifs de Gaupol lus tels quels et appliqués par ICU, les erreurs courantes, la
-remise en majuscule, les mentions restantes, le découpage de lignes en caractères et en *ems*, l'assistant
-`Correct Texts…` et sa confirmation, la jonction et la scission de mots, et `Check Spelling…`. **Les quatre
-renvois qu'elle recevait sont tombés** : les trois motifs de mentions et le choix du moteur, de la phase 4 ;
-PCRE2 ou RE2 et hunspell, de la phase 0 ; la jonction, la scission et les erreurs courantes, de la phase 10 ;
-le parseur conscient des balises, que la phase 10 avait écrit pour cela. **Douze exigences, toutes
-`implémentées` et citées** — quatorze à la clôture, avec `GUI-SPELL-04` et `GUI-EDIT-04` ; **vingt et un écarts avec Gaupol**, dont dix que le tableau de la spec ne portait
-pas. Ceux que la phase émet ont chacun leur destinataire : la ligne de commande de la correction en
-phase 13, la traduction des noms de motifs en phase 15. **Deux renvois restaient sans phase** ; la relecture les a soumis à décision, et ils sont livrés dans la phase : la vérification orthographique au fil de la frappe par [#525](https://github.com/Guyot-Bertrand/sub-edit/issues/525) (`GUI-SPELL-04`, treizième exigence), la longueur des lignes affichée dans les cellules par [#526](https://github.com/Guyot-Bertrand/sub-edit/issues/526). La spec en tient le compte, à la fin.
+**Shipped, reviewed by [#523](https://github.com/Guyot-Bertrand/sub-edit/issues/523).** Twelve issues, #498 to
+#509, in fifteen versions: Gaupol's patterns read as they are and applied by ICU, common errors,
+capitalisation, the remaining mentions, line breaking in characters and in *ems*, the
+`Correct Texts…` assistant and its confirmation, word joining and splitting, and `Check Spelling…`. **The four
+deferrals it received have landed**: the three mention patterns and the choice of engine, from phase 4;
+PCRE2 or RE2 and hunspell, from phase 0; joining, splitting and common errors, from phase 10;
+the markup-aware parser, which phase 10 had written for that purpose. **Twelve requirements, all
+`implemented` and cited** — fourteen at closing, with `GUI-SPELL-04` and `GUI-EDIT-04`; **twenty-one differences from Gaupol**, ten of which the spec's table did not
+carry. Those the phase emits each have their recipient: the command line for correction in
+phase 13, translation of pattern names in phase 15. **Two deferrals were left without a phase**; the review submitted them for decision, and they are shipped within the phase: spell checking as you type by [#525](https://github.com/Guyot-Bertrand/sub-edit/issues/525) (`GUI-SPELL-04`, thirteenth requirement), the length of lines shown in the cells by [#526](https://github.com/Guyot-Bertrand/sub-edit/issues/526). The spec keeps count of them, at the end.
 
-**Close en 0.13.0, le 2026-10-01.** La relecture a ouvert sept issues, toutes fermées avant la clôture :
+**Closed in 0.13.0, on 2026-10-01.** The review opened seven issues, all closed before closing:
 
-- **les deux fonctions de Gaupol qu'elle avait renvoyées** — [#525](https://github.com/Guyot-Bertrand/sub-edit/issues/525),
-  l'orthographe au fil de la frappe dans l'éditeur de cellule, et
-  [#526](https://github.com/Guyot-Bertrand/sub-edit/issues/526), la longueur de chaque ligne dans les cellules et
-  dans un liseré de l'éditeur (trois réglages `editor.*`, dans `Preferences…`) ;
-- **les défauts qu'elle avait vus dans le code** — [#527](https://github.com/Guyot-Bertrand/sub-edit/issues/527),
-  le cache de longueurs enfin posé devant l'assistant ;
-  [#528](https://github.com/Guyot-Bertrand/sub-edit/issues/528), deux cases de la liste des motifs qui ne faisaient
-  rien ; [#529](https://github.com/Guyot-Bertrand/sub-edit/issues/529), un nom de motif à virgule qui faisait perdre
-  toutes les dérogations ; [#530](https://github.com/Guyot-Bertrand/sub-edit/issues/530), deux des quatre constats
-  de robustesse de #509, les deux autres écartés avec leur raison ;
-- **un défaut de GitHub, non du dépôt** — [#531](https://github.com/Guyot-Bertrand/sub-edit/issues/531) : des
-  pull requests du 30 septembre n'ont pas lié leur `Closes #N`, puis cela a cessé sans qu'aucune différence de
-  forme ait été trouvée. Fermée sans contrôle ajouté.
+- **the two Gaupol features it had deferred** — [#525](https://github.com/Guyot-Bertrand/sub-edit/issues/525),
+  spell checking as you type in the cell editor, and
+  [#526](https://github.com/Guyot-Bertrand/sub-edit/issues/526), the length of each line in the cells and
+  in a margin of the editor (three `editor.*` settings, in `Preferences…`);
+- **the flaws it had seen in the code** — [#527](https://github.com/Guyot-Bertrand/sub-edit/issues/527),
+  the length cache finally placed in front of the assistant;
+  [#528](https://github.com/Guyot-Bertrand/sub-edit/issues/528), two checkboxes in the pattern list that did
+  nothing; [#529](https://github.com/Guyot-Bertrand/sub-edit/issues/529), a pattern name with a comma that lost
+  all the overrides; [#530](https://github.com/Guyot-Bertrand/sub-edit/issues/530), two of the four robustness
+  findings of #509, the other two set aside with their reason;
+- **a GitHub flaw, not the repository's** — [#531](https://github.com/Guyot-Bertrand/sub-edit/issues/531):
+  pull requests of 30 September did not link their `Closes #N`, then it stopped without any difference in
+  form being found. Closed without an added check.
 
-**Le banc de la phase**, comme celui de la précédente, est resté maigre : la machine a trouvé le seuil de
-charge dépassé presque chaque fois. Le relevé de 0.13.0, pris au calme à la clôture, est versé au journal.
+**The phase's bench**, like that of the previous one, remained thin: the machine found the load threshold
+exceeded almost every time. The 0.13.0 reading, taken in calm conditions at closing, is added to the journal.
 
-## 13 — CLI complète
+## 13 — Complete CLI
 
-Sous-commandes destinées à un usage réel : conversion, décalage, transformation,
-alignement sur une grille, ajustement des durées, correction, inspection.
-Traitement par lot, sortie lisible par un humain et sortie exploitable par un
-script.
+Subcommands meant for real use: conversion, shifting, transformation,
+alignment on a grid, duration adjustment, correction, inspection.
+Batch processing, human-readable output and script-consumable output.
 
-Gaupol n'a pas d'équivalent : c'est une conception neuve, et un gain
-fonctionnel réel.
+Gaupol has no equivalent: it is a new design, and a real functional gain.
 
-**Un renvoi de la phase 10 atterrit ici : recouper l'ajustement des durées avec
-ce que le script de mesure en prédisait.**
+**A deferral from phase 10 lands here: cross-checking duration adjustment
+against what the measurement script predicted for it.**
 [`measure-duration-constraints.py`](../src/scripts/measure-duration-constraints.py)
-(issue [#371](https://github.com/Guyot-Bertrand/sub-edit/issues/371)) recense,
-avant tout ajustement, les sous-titres pour lesquels aucune fin ne satisfait deux
-des contraintes de durée ; `adjustDurations` déclare, lui, ce qu'il a sacrifié.
-Le second mode qu'annonçait #371 — appliquer l'ajustement, puis compter — n'a
-pas été écrit : un script Python ne peut pas appeler le noyau, la ligne de
-commande n'expose pas l'ajustement avant cette phase, et un outil lié au noyau
-ne servirait qu'à ce seul recoupement. **Une fois l'ajustement exposé**, on
-relèvera par la ligne de commande les deux comptes sur les mêmes fichiers et les
-mêmes réglages ; s'ils diffèrent, l'un des deux a tort. Le script compte, par
-paire de contraintes, les sous-titres sans fin satisfaisante ; `adjustDurations`
-compte, par contrainte, ceux où elle reste violée : dire quels comptes se
-comparent fait partie du travail. Issue
+(issue [#371](https://github.com/Guyot-Bertrand/sub-edit/issues/371)) lists,
+before any adjustment, the subtitles for which no end satisfies two of the
+duration constraints; `adjustDurations`, for its part, declares what it
+sacrificed. The second mode announced by #371 — apply the adjustment, then
+count — was not written: a Python script cannot call the core, the command line
+does not expose adjustment before this phase, and a tool linked to the core
+would serve only this one cross-check. **Once adjustment is exposed**, the two
+counts will be taken through the command line on the same files and the same
+settings; if they differ, one of the two is wrong. The script counts, per pair
+of constraints, the subtitles without a satisfying end; `adjustDurations`
+counts, per constraint, those where it remains violated: saying which counts
+compare with which is part of the work. Issue
 [#407](https://github.com/Guyot-Bertrand/sub-edit/issues/407).
 
-**Ce renvoi est tenu** ([#560](https://github.com/Guyot-Bertrand/sub-edit/issues/560)). Les
-comptes se comparent comme la spec D7 le dit désormais : `sacrificed.minimum` à « minimum contre
-écart », `sacrificed.speed` à **l'union** de « vitesse contre écart » et de « vitesse contre
-maximum », `sacrificed.gap` aux places négatives. La relecture a trouvé **deux erreurs du côté du
-script, aucune du côté du noyau** : il comparait le besoin de lecture en flottants là où le noyau
-l'arrondit à la milliseconde, et la place négative n'avait aucune colonne (le cadrage supposait à
-tort qu'elle était « hors sujet »). La preuve est une fixture versionnée (`src/test/data/durees/`,
-neuf fichiers) dont les comptes sont écrits à la main, et à laquelle le noyau (cas de bout en bout)
-et le script (`--check-fixtures`, dans `make check-local`) sont confrontés. **Observation sur le
-corpus privé**, rejouée avec `--crosscheck` : **les deux comptes s'accordent sur les soixante et onze
-fichiers SubRip et WebVTT, sous quatre réglages différents** (les défauts de Gaupol avec un maximum
-de 6 s, puis trois variantes de l'écart, du minimum, de la vitesse et du maximum). Rien n'a divergé,
-donc le point ouvert 9 de la spec — savoir *quels* sous-titres sont sacrifiés — reste fermé.
+**This deferral is kept** ([#560](https://github.com/Guyot-Bertrand/sub-edit/issues/560)). The
+counts compare as spec D7 now says: `sacrificed.minimum` with "minimum against
+gap", `sacrificed.speed` with **the union** of "speed against gap" and "speed against
+maximum", `sacrificed.gap` with negative room. The review found **two errors on the
+script's side, none on the core's side**: it compared the reading need in floating point where the core
+rounds it to the millisecond, and negative room had no column (the scoping wrongly assumed
+it was "off topic"). The proof is a versioned fixture (`src/test/data/durees/`,
+nine files) whose counts are written by hand, and against which the core (end-to-end case)
+and the script (`--check-fixtures`, in `make check-local`) are checked. **Observation on the
+private corpus**, replayed with `--crosscheck`: **the two counts agree on the seventy-one
+SubRip and WebVTT files, under four different settings** (Gaupol's defaults with a maximum
+of 6 s, then three variants of the gap, the minimum, the speed and the maximum). Nothing diverged,
+so open point 9 of the spec — knowing *which* subtitles are sacrificed — stays closed.
 
-**Un renvoi de la phase 11 atterrit ici : la traduction en ligne de commande.**
-`-t/--translation-file` existe chez Gaupol, et la spec de la phase 4 avait renvoyé
-à la phase 11 « nettoyer le document de traduction depuis la ligne de commande ».
-Le cadrage de la phase 11 ([`specs/11-traduction.md`](specs/11-traduction.md), D9)
-les donne à celle-ci : **rien de ce que la phase 11 écrit n'est propre à la
-fenêtre** — l'ouverture d'une traduction, son alignement et la phrase du compte
-rendu vivent au noyau et dans `core/wording/` —, et il ne reste ici qu'une
-grammaire à écrire.
+**A deferral from phase 11 lands here: translation on the command line.**
+`-t/--translation-file` exists in Gaupol, and the phase 4 spec had deferred
+"cleaning the translation document from the command line" to phase 11.
+The scoping of phase 11 ([`specs/11-traduction.md`](specs/11-traduction.md), D9)
+hands them to this one: **nothing phase 11 writes is specific to the
+window** — opening a translation, its alignment and the report sentence live in
+the core and in `core/wording/` —, and all that remains here is a grammar to
+write.
 
-**Un renvoi de la phase 12 atterrit ici : la correction en ligne de commande.** Le calcul des changements, les
-motifs, le correcteur et les phrases du compte rendu vivent au noyau ([`specs/12-correction.md`](specs/12-correction.md),
-D8) ; il ne reste qu'une grammaire — `correct`, avec ses tâches, sa langue et ses réglages de découpage **en
-caractères**, la mesure en *ems* étant celle de la fenêtre. La jonction et la scission de mots s'y joignent, le
-correcteur étant au noyau et la dépendance à Enchant déjà tirée par `subedit-cli`. **La confirmation n'a pas
-d'équivalent** : la spec laisse à cette phase de dire si un mode qui écrit les changements proposés sans les
-appliquer la remplace.
+**A deferral from phase 12 lands here: correction on the command line.** The computation of changes, the
+patterns, the spell checker and the report sentences live in the core ([`specs/12-correction.md`](specs/12-correction.md),
+D8); all that remains is a grammar — `correct`, with its tasks, its language and its line-breaking settings **in
+characters**, measurement in *ems* being the window's. Word joining and splitting join it, the
+spell checker being in the core and the dependency on Enchant already pulled in by `subedit-cli`. **Confirmation has no
+equivalent**: the spec leaves it to this phase to say whether a mode that writes the proposed changes without
+applying them replaces it.
 
-**Cadrée par [#542](https://github.com/Guyot-Bertrand/sub-edit/issues/542)** — la spec est
-[`specs/13-cli.md`](specs/13-cli.md), et trois ADR en portent les décisions coûteuses à défaire :
-[0038](adr/0038-sortie-json-lines-versionnee.md) (la sortie lisible par un script),
-[0039](adr/0039-le-lot-collisions-dossiers-et-arborescence.md) (le lot) et
-[0040](adr/0040-correct-ecrit-directement-dry-run-propose.md) (écrire directement, proposer par
-`--dry-run`). Ce que le cadrage a tranché, et que la spec développe :
+**Scoped by [#542](https://github.com/Guyot-Bertrand/sub-edit/issues/542)** — the spec is
+[`specs/13-cli.md`](specs/13-cli.md), and three ADRs carry its decisions that are expensive to undo:
+[0038](adr/0038-sortie-json-lines-versionnee.md) (script-readable output),
+[0039](adr/0039-le-lot-collisions-dossiers-et-arborescence.md) (batches) and
+[0040](adr/0040-correct-ecrit-directement-dry-run-propose.md) (write directly, propose with
+`--dry-run`). What the scoping settled, and the spec develops:
 
-- **Une sortie lisible par un script : `--format json`**, opt-in, option globale. Sur la sortie standard,
-  **un objet JSON par fichier d'entrée** (JSON Lines), échec compris, versionné par un champ `schema` ; le
-  texte reste le défaut, la narration reste sur la sortie d'erreur. Elle se prouve par des **attendus
-  versionnés**, écrits à la main, que `MatchesFile` (#543) compare octet pour octet. Aucun nombre à
-  virgule : millisecondes entières, cadences en chaînes.
-- **Un lot sûr.** Deux entrées de même destination, ou une destination qui est une entrée, sont **refusées
-  avant tout écrit** (code `1`) ; le dossier de sortie est **créé** ; une destination existante reste
-  **écrasée** — et le manuel le dit ; **`--recursive`** prend des répertoires et **conserve l'arborescence**
-  sous `--output-dir`. Le libellé « cannot be read » d'une écriture qui échoue est corrigé.
-- **`correct` écrit directement ; `--dry-run` propose.** Il n'écrit rien et imprime le texte avant et après,
-  par sous-titre ; il est accepté par **toute** sous-commande qui écrit. C'est le « mode qui propose sans
-  appliquer » que la phase 12 laissait ici : il **remplace** la page de confirmation.
-- **Sept sous-commandes de plus** : `adjust`, `correct` (tâches nommées, découpage **en caractères**, jonction
-  et scission de mots), `replace`, `case`, `italics`, `dialogue-dashes`, `sort` ; plus `--list-encodings` et
-  la traduction comme options (`-t`, `--document`, `--align-method`). **Trois autres — `append`,
-  `split-file`, `pair` — sont derrière une porte**, comme le multi-projets l'était en phase 11 : l'usage est
-  réel, aucun appelant n'est connu. **Écartés, avec leur raison** : la fusion et la scission d'un
-  sous-titre, le presse-papiers, l'édition à la main, la vérification orthographique interactive.
-- **Une invocation se suffit** : aucun réglage n'est lu, ni la langue du système ; la langue, le code des
-  motifs et la longueur des lignes **se nomment**. Seuls se lisent les motifs livrés, ceux de l'utilisateur
-  et le dictionnaire d'Enchant.
-- **Le renvoi de #407** est précisé : `sacrificed.minimum` se compare à « minimum contre écart »,
-  `sacrificed.speed` à **l'union** de « vitesse contre écart » et de « vitesse contre maximum »,
-  `sacrificed.gap` aux places négatives ; `adjust --format json --dry-run` expose les comptes et les
-  contraintes employées pour que la comparaison se fasse, sur des fixtures versionnées d'abord.
+- **Script-readable output: `--format json`**, opt-in, a global option. On standard output,
+  **one JSON object per input file** (JSON Lines), failure included, versioned by a `schema` field; text
+  remains the default, narration stays on standard error. It is proven by **versioned expected
+  outputs**, written by hand, which `MatchesFile` (#543) compares byte for byte. No floating-point
+  number: whole milliseconds, frame rates as strings.
+- **A safe batch.** Two inputs with the same destination, or a destination that is an input, are **refused
+  before anything is written** (code `1`); the output directory is **created**; an existing destination is
+  **overwritten** — and the manual says so; **`--recursive`** takes directories and **preserves the tree**
+  under `--output-dir`. The "cannot be read" wording of a write that fails is corrected.
+- **`correct` writes directly; `--dry-run` proposes.** It writes nothing and prints the text before and after,
+  per subtitle; it is accepted by **every** subcommand that writes. It is the "mode that proposes without
+  applying" that phase 12 left here: it **replaces** the confirmation page.
+- **Seven more subcommands**: `adjust`, `correct` (named tasks, line breaking **in characters**, word joining
+  and splitting), `replace`, `case`, `italics`, `dialogue-dashes`, `sort`; plus `--list-encodings` and
+  translation as options (`-t`, `--document`, `--align-method`). **Three others — `append`,
+  `split-file`, `pair` — are behind a gate**, as multiple projects were in phase 11: the use is
+  real, no caller is known. **Set aside, with their reason**: merging and splitting a
+  subtitle, the clipboard, editing by hand, interactive spell checking.
+- **An invocation is self-sufficient**: no setting is read, nor the system language; the language, the
+  pattern code and the line length **are named**. Only the shipped patterns, the user's
+  and Enchant's dictionary are read.
+- **The deferral of #407** is made precise: `sacrificed.minimum` compares with "minimum against gap",
+  `sacrificed.speed` with **the union** of "speed against gap" and "speed against maximum",
+  `sacrificed.gap` with negative room; `adjust --format json --dry-run` exposes the counts and the
+  constraints used so that the comparison can be made, on versioned fixtures first.
 
-**Vingt et une issues, en cinq tranches** — les fondations (le lot, le format, `--dry-run`, `--range`), les
-sous-commandes dont le noyau est prêt, la traduction, la correction, la porte —, la relecture de fin de
-phase comprise. **Un constat de l'analyse** : la résolution des emplacements des motifs, que l'ADR 0037
-disait hors de `gui`, y est restée et appelle Qt ; la correction en ligne de commande commence par la
-réécrire sans lui.
+**Twenty-one issues, in five slices** — the foundations (batch, format, `--dry-run`, `--range`), the
+subcommands for which the core is ready, translation, correction, the gate —, the end-of-phase
+review included. **A finding of the analysis**: resolving the locations of patterns, which ADR 0037
+said was outside `gui`, stayed there and calls Qt; correction on the command line starts by
+rewriting it without Qt.
 
-**Livrée, relue par [#573](https://github.com/Guyot-Bertrand/sub-edit/issues/573).** Vingt issues, #553 à #572, en
-vingt-huit versions, de 0.13.1 à 0.13.28 : **dix-sept sous-commandes** — les sept de départ, plus `adjust`,
-`replace`, `case`, `italics`, `dialogue-dashes`, `sort`, `correct` et, derrière la porte, `append`, `split-file`
-et `pair` —, le lot sûr et `--recursive`, `--format json`, `--dry-run` sur toute sous-commande qui écrit,
-`--range`, `-t`, `--document`, `--align-method` et `--list-encodings`. **Soixante-six exigences `CLI-*`, toutes
-`implémentées` et citées par un test**, aucune `abandonnée` ; trois ADR ([0038](adr/0038-sortie-json-lines-versionnee.md),
+**Shipped, reviewed by [#573](https://github.com/Guyot-Bertrand/sub-edit/issues/573).** Twenty issues, #553 to #572, in
+twenty-eight versions, from 0.13.1 to 0.13.28: **seventeen subcommands** — the original seven, plus `adjust`,
+`replace`, `case`, `italics`, `dialogue-dashes`, `sort`, `correct` and, behind the gate, `append`, `split-file`
+and `pair` —, the safe batch and `--recursive`, `--format json`, `--dry-run` on every subcommand that writes,
+`--range`, `-t`, `--document`, `--align-method` and `--list-encodings`. **Sixty-six `CLI-*` requirements, all
+`implemented` and cited by a test**, none `abandoned`; three ADRs ([0038](adr/0038-sortie-json-lines-versionnee.md),
 [0039](adr/0039-le-lot-collisions-dossiers-et-arborescence.md),
-[0040](adr/0040-correct-ecrit-directement-dry-run-propose.md)) ; **onze écarts avec Gaupol**, dont deux de plus qu'au
-cadrage (`--list-encodings`, et les trois gestes de la fenêtre devenus sous-commandes). **La porte de D12 s'est ouverte
-le 5 octobre 2026, pour les trois** : l'utilisateur les a voulues, une issue chacune, et chacune avec la grammaire que son
-arité demande — N entrées une sortie, une entrée deux sorties, deux entrées une sortie. **Les onze points ouverts de la
-spec sont tous tranchés**, trois d'entre eux à cette relecture (l'appariement dans un lot, `--range` sur les sept
-d'origine, `--include`), chacun avec son déclencheur. **Le renvoi de #407 est tenu** (#560) : les deux comptes
-s'accordent.
+[0040](adr/0040-correct-ecrit-directement-dry-run-propose.md)); **eleven differences from Gaupol**, two more than at
+scoping (`--list-encodings`, and the window's three gestures turned into subcommands). **The D12 gate opened
+on 5 October 2026, for all three**: the user wanted them, one issue each, and each with the grammar its
+arity calls for — N inputs one output, one input two outputs, two inputs one output. **The eleven open points of the
+spec are all settled**, three of them at this review (pairing within a batch, `--range` on the original
+seven, `--include`), each with its trigger. **The deferral of #407 is kept** (#560): the two counts
+agree.
 
-**La relecture n'a pas trouvé de défaut de fond, et a corrigé le manuel.** Le tableau de ce que la ligne de commande
-ne fait pas disait « non » à cinq lignes de choses qu'elle fait ; `invocation.md` donnait trois valeurs pour le nombre des
-sous-commandes qui écrivent et ne disait ni les `counts` d'`append`, de `split-file` et de `pair`, ni que ces trois
-écrivent **un objet par lancement** et non par entrée ; six pages n'avaient pas de section JSON ; `lots.md` et la page
-des plusieurs fichiers disaient « toutes ». **Le regard critique sur le code** a ouvert trois issues, dans le
-milestone, rien n'ayant été corrigé dans la relecture :
-[#598](https://github.com/Guyot-Bertrand/sub-edit/issues/598), une seule préparation des options pour dix-sept
-sous-commandes (la validation y est écrite dix-sept fois, l'ouverture d'un fichier cinq fois, la garde « destination =
-entrée » en deux libellés) ;
-[#599](https://github.com/Guyot-Bertrand/sub-edit/issues/599), de la logique de décision restée dans `src/exe/cli`
-(`pairingOf`, la préparation de `correct`, la liste des formats de `convert` qui double le noyau) ;
-[#600](https://github.com/Guyot-Bertrand/sub-edit/issues/600), des tests qui promettent plus qu'ils ne prouvent
-(`--dry-run` n'est éprouvé avec une destination à créer que pour six sous-commandes sur dix-sept). **`application.cpp` est
-resté mince.** **La parité des phrases tient** : aucune phrase de `core/wording/` n'est recopiée dans `cli/`, et la phrase
-de refus d'une coupure, que la fenêtre écrivait en dur, y est passée (#571).
+**The review found no fundamental flaw, and corrected the manual.** The table of what the command line
+does not do said "no" on five rows of things it does; `invocation.md` gave three values for the number of
+subcommands that write and stated neither the `counts` of `append`, `split-file` and `pair`, nor that these three
+write **one object per run** and not per input; six pages had no JSON section; `lots.md` and the page
+on multiple files said "all". **The critical look at the code** opened three issues, in the
+milestone, nothing having been fixed in the review:
+[#598](https://github.com/Guyot-Bertrand/sub-edit/issues/598), a single preparation of options for seventeen
+subcommands (validation is written there seventeen times, opening a file five times, the "destination =
+input" guard in two wordings);
+[#599](https://github.com/Guyot-Bertrand/sub-edit/issues/599), decision logic left in `src/exe/cli`
+(`pairingOf`, the preparation of `correct`, the list of formats of `convert` that duplicates the core);
+[#600](https://github.com/Guyot-Bertrand/sub-edit/issues/600), tests that promise more than they prove
+(`--dry-run` is tested with a destination to create for only six subcommands out of seventeen). **`application.cpp`
+stayed thin.** **Sentence parity holds**: no sentence of `core/wording/` is copied into `cli/`, and the sentence
+refusing a split, which the window wrote inline, moved there (#571).
 
-**Le banc de la phase** est resté maigre, comme celui des deux précédentes : des relevés en 0.13.0, 0.13.10, 0.13.13,
-0.13.14, 0.13.21, 0.13.25 et 0.13.27, et **aucun pour 0.13.28 ni pour la relecture** — la machine a trouvé le seuil de
-charge dépassé. **Ce qui manque** : un banc propre à `append`, `split-file` et `pair`, qui n'en ont pas — ils reposent
-sur des opérations du noyau déjà mesurées, et `make bench` ne mesure que le lot (parcours de deux cents fichiers,
-décalage d'un fichier de quatre mille sous-titres). Rejouer `make bench` au calme reste dû.
+**The phase's bench** remained thin, like that of the two previous ones: readings at 0.13.0, 0.13.10, 0.13.13,
+0.13.14, 0.13.21, 0.13.25 and 0.13.27, and **none for 0.13.28 nor for the review** — the machine found the load
+threshold exceeded. **What is missing**: a bench specific to `append`, `split-file` and `pair`, which have none — they rest
+on core operations already measured, and `make bench` measures only the batch (walking two hundred files,
+shifting a file of four thousand subtitles). Replaying `make bench` in calm conditions remains due.
 
-**Close en 0.14.0, le 2026-10-06.** Les trois issues de la relecture ont été livrées, une de plus avec elles, et le
-milestone — trente-deux issues, de #541 à #605 — se ferme sans rien d'ouvert :
+**Closed in 0.14.0, on 2026-10-06.** The three issues of the review were shipped, one more along with them, and the
+milestone — thirty-two issues, from #541 to #605 — closes with nothing open:
 
-- **#598** (0.13.30) : une seule préparation des options, `prepare` et `prepareWriting` ; l'ouverture d'un fichier,
-  la narration d'un fichier réécrit et la garde « destination = entrée » ne sont plus écrites cinq, quatre et deux
-  fois ; **un seul libellé** pour la destination qui est une entrée, qui ne renvoie plus à une option que `append`
-  et `split-file` n'ont pas ;
-- **#599** (0.13.31) : ce que `src/exe/cli` décidait seul — les options partagées et la règle de `-t`, la préparation
-  de `correct`, la forme d'une conversion, le montant d'un décalage, la liste des formats de `--to`, dérivée du noyau
-  — vit dans `subedit/cli`, où des tests unitaires l'atteignent ;
-- **#600** (0.13.32) : `--dry-run` éprouvé pour les seize sous-commandes qui écrivent et non six, et les tests qui
-  promettaient « rien n'est écrit » l'observent ;
-- **#605** (0.13.33), **ouverte par un retour d'usage** et non par la relecture : le panneau des diagnostics de
-  lecture, qui prenait une rangée de la fenêtre pour une information rare, devient un bouton de la barre d'état et
-  une liste flottante. En retirant la rangée, un test a montré un défaut ancien — la part de la table, lue et posée
-  en arrondissant vers le bas, redescendait d'un point à chaque relecture —, corrigé et prouvé sur huit hauteurs.
+- **#598** (0.13.30): a single preparation of options, `prepare` and `prepareWriting`; opening a file,
+  narrating a rewritten file and the "destination = input" guard are no longer written five, four and two
+  times; **a single wording** for the destination that is an input, which no longer points to an option that `append`
+  and `split-file` do not have;
+- **#599** (0.13.31): what `src/exe/cli` decided alone — the shared options and the `-t` rule, the preparation
+  of `correct`, the shape of a conversion, the amount of a shift, the list of formats of `--to`, derived from the core
+  — lives in `subedit/cli`, where unit tests reach it;
+- **#600** (0.13.32): `--dry-run` tested for the sixteen subcommands that write and not six, and the tests that
+  promised "nothing is written" observe it;
+- **#605** (0.13.33), **opened by usage feedback** and not by the review: the read diagnostics
+  panel, which took a row of the window for rare information, becomes a status bar button and
+  a floating list. While removing the row, a test revealed an old flaw — the table's share, read and set
+  by rounding down, dropped by one point at each re-read —, fixed and proven on eight heights.
 
-**Le banc de la phase** n'a pas de relevé pour 0.14.0 : la machine a trouvé le seuil de charge dépassé, et la
-mesure de la clôture n'a pas été reprise. Le dernier relevé versé est celui de 0.13.33. **Ce qui reste dû** est
-dit plus haut : un banc propre à `append`, `split-file` et `pair`, et un `make bench` au calme.
+**The phase's bench** has no reading for 0.14.0: the machine found the load threshold exceeded, and the
+closing measurement was not retaken. The last reading added is that of 0.13.33. **What remains due** is
+stated above: a bench specific to `append`, `split-file` and `pair`, and a `make bench` in calm conditions.
 
-## 14 — Calage fin
+## 14 — Fine timing
 
-**Réduite, mais pas vidée.** Le lecteur lui-même est passé en phase 6, qui l'a
-repris au cadrage : associer un film, l'ouvrir dans la fenêtre, jouer, s'arrêter,
-chercher, dessiner la réplique sur l'image. Ce qui reste ici est ce que la
-phase 6 ne fait pas — et cela va au-delà du calage proprement dit, parce que
-**la phase 6 ne livre du pilotage que jouer et s'arrêter.**
+**Reduced, but not emptied.** The player itself moved to phase 6, which took it
+back at scoping: associate a film, open it in the window, play, stop,
+seek, draw the line on the picture. What remains here is what phase 6 does not
+do — and that goes beyond timing proper, because **phase 6 ships only play and
+stop as playback control.**
 
-Le contour a été recompté contre le menu **Video** de Gaupol et sa barre de
-lecteur, poste par poste, après une relecture qui a montré que la moitié
-manquait au cadrage. Trois familles, et rien d'autre.
+The outline was recounted against Gaupol's **Video** menu and its player bar,
+item by item, after a review showed that half of it was missing from the
+scoping. Three families, and nothing else.
 
-**Le pilotage de la lecture.** Ce qu'une barre de lecteur porte, et ce que la
-phase 6 laisse à qui n'a que `Ctrl+P` :
+**Playback control.** What a player bar carries, and what phase 6 leaves to
+whoever has only `Ctrl+P`:
 
-| Commande | Ce qu'elle fait | Chez Gaupol |
-| :------- | :-------------- | :---------- |
-| position | une barre qu'on lit et qu'on déplace | `Gtk.Scale` de la barre de lecteur |
-| saut avant, saut arrière | d'un pas réglable | `Seek Forward`, `Seek Backward` |
-| sous-titre précédent, suivant | se placer à son début | `Seek Previous`, `Seek Next` |
-| début, fin de la sélection | s'y placer, avec un peu d'avance | `Seek Selection Start`, `Seek Selection End` |
-| jouer la sélection | et s'arrêter au bout | `Play Selection` |
-| volume | monter, baisser, un réglage | `Volume Up`, `Volume Down`, `Gtk.VolumeButton` |
+| Command | What it does | In Gaupol |
+| :------ | :----------- | :-------- |
+| position | a bar one reads and drags | `Gtk.Scale` of the player bar |
+| seek forward, seek backward | by an adjustable step | `Seek Forward`, `Seek Backward` |
+| previous, next subtitle | go to its start | `Seek Previous`, `Seek Next` |
+| start, end of the selection | go there, slightly ahead | `Seek Selection Start`, `Seek Selection End` |
+| play the selection | and stop at its end | `Play Selection` |
+| volume | up, down, a setting | `Volume Up`, `Volume Down`, `Gtk.VolumeButton` |
 
-**Le calage lui-même**, qui est le cœur du travail de *timing* :
+**Timing itself**, which is the heart of *timing* work:
 
-| Commande | Ce qu'elle fait |
-| :------- | :-------------- |
-| début, fin depuis la position vidéo | poser un repère sur ce qu'on regarde |
-| insérer un sous-titre à la position vidéo | idem, pour une réplique qui n'existe pas encore |
-| avancer, reculer image par image | ce pour quoi l'ADR 0020 a choisi libmpv |
-| décaler début ou fin par petits incréments | le réglage fin, au clavier |
+| Command | What it does |
+| :------ | :----------- |
+| start, end from the video position | set a mark on what one is watching |
+| insert a subtitle at the video position | likewise, for a line that does not exist yet |
+| step forward, backward frame by frame | what ADR 0020 chose libmpv for |
+| shift start or end by small increments | fine adjustment, from the keyboard |
 
-**Ce qui s'affiche** : incrustation du timecode, sélection de piste audio, et
-**la réplique dessinée sans ses balises brutes** — renvoi de la relecture de fin
-de phase 10, issue [#408](https://github.com/Guyot-Bertrand/sub-edit/issues/408).
-Le manuel du lecteur le promettait « avec les formats riches », une phase déjà
-passée ; le parseur et le pivot existent désormais, et rien du noyau ne manque.
+**What is displayed**: timecode overlay, audio track selection, and
+**the line drawn without its raw markup** — deferral from the end-of-phase 10
+review, issue [#408](https://github.com/Guyot-Bertrand/sub-edit/issues/408).
+The player's manual promised it "with the rich formats", a phase already
+past; the parser and the pivot now exist, and nothing is missing from the core.
 
-**Ce que la phase 6 a déjà livré, et qui n'est donc pas ici** : associer un
-film, l'ouvrir dans la fenêtre, jouer et s'arrêter, la réplique dessinée depuis
-le modèle, la ligne courante qui suit la lecture, la recherche exacte au
-sous-titre sélectionné.
+**What phase 6 has already shipped, and which is therefore not here**: associate a
+film, open it in the window, play and stop, the line drawn from
+the model, the current row that follows playback, exact seeking to the
+selected subtitle.
 
-**Le backend est décidé** — libmpv, voir
-[l'ADR 0020](adr/0020-libmpv-pour-le-lecteur-integre.md). Et c'est cette phase
-qui l'a décidé : les deux candidats savaient servir la phase 6, seul libmpv sait
-avancer d'une image.
+**The backend is decided** — libmpv, see
+[ADR 0020](adr/0020-libmpv-pour-le-lecteur-integre.md). And it is this phase
+that decided it: both candidates could serve phase 6, only libmpv can
+step one frame.
 
-**Un renvoi du cadrage de la phase 9 atterrit ici : le mode d'édition en
-images.** Il vient de la phase 5, qui l'avait renvoyé faute de format à images,
-et la phase 9 le repasse en l'ayant mieux posé — MicroDVD porte des numéros
-d'image et pas de fréquence, donc la bascule montrerait les chiffres du fichier
-pour lui, et une conversion contre une fréquence choisie pour les huit autres.
-C'est une question d'édition fine, et cette phase porte déjà « avancer, reculer
-image par image ».
+**A deferral from the scoping of phase 9 lands here: the frame editing
+mode.** It comes from phase 5, which had deferred it for lack of a frame-based
+format, and phase 9 passes it on having framed it better — MicroDVD carries frame
+numbers and no frame rate, so the toggle would show the file's figures
+for it, and a conversion against a chosen rate for the other eight.
+It is a question of fine editing, and this phase already carries "step forward,
+backward frame by frame".
 
-**Un renvoi de la phase 10, venu de la phase 16, atterrit ici : retrouver la
-paire d'une conversion faite à la mauvaise fréquence** — issue
-[#386](https://github.com/Guyot-Bertrand/sub-edit/issues/386). Quand la grille
-déduite n'est aucune des huit, c'est parfois qu'une conversion a été faite avec
-une fréquence d'entrée fausse, et le rationnel qui remettrait le fichier sur une
-grille normalisée se cherche. La spec de la phase 16 l'a nommé « le plus utile
-et le moins sûr » des trois mécanismes de correction ; ni jusqu'où chercher, ni
-comment dire sa confiance n'ont encore de réponse.
+**A deferral from phase 10, coming from phase 16, lands here: recovering the
+pair of a conversion made at the wrong rate** — issue
+[#386](https://github.com/Guyot-Bertrand/sub-edit/issues/386). When the inferred
+grid is none of the eight, it is sometimes because a conversion was made with
+a wrong input rate, and the rational that would put the file back on a
+standard grid can be searched for. The phase 16 spec called it "the most useful
+and the least certain" of the three correction mechanisms; neither how far to
+search nor how to state its confidence has an answer yet.
 
-**Un renvoi de la phase 11 atterrit ici : reconnaître une traduction décalée.**
-Une traduction calée deux secondes trop tard s'aligne sur les mauvais sous-titres
-sans que rien la distingue d'un rattachement juste — le cas `positions-decalees`
-de `src/test/data/paires/` le montre. Gaupol ne le détecte pas non plus. La phase
-11 rend le décalage **visible**, par le compte de l'ouverture (trois lignes sur
-quatre y font naître un sous-titre), pas **corrigeable** : c'est une question de
-synchronisation, et elle se pose ici.
+**A deferral from phase 11 lands here: recognising a shifted translation.**
+A translation timed two seconds too late aligns with the wrong subtitles
+without anything distinguishing it from a correct attachment — the
+`positions-decalees` case of `src/test/data/paires/` shows it. Gaupol does not
+detect it either. Phase 11 makes the shift **visible**, through the opening
+count (three lines out of four give birth to a subtitle there), not
+**correctable**: it is a synchronisation question, and it arises here.
 
-**Précisé par l'utilisateur, le 2026-09-30 : la table suit la lecture, mais ne
-se centre pas.** Le sous-titre courant est mis en évidence pendant la lecture, et
-la table défile bien jusqu'à lui — une première observation disait le contraire,
-corrigée depuis. Ce qui reste : **la table ne se centre pas sur le sous-titre
-courant**, elle le ramène seulement dans la zone visible. La phase 14 le centre.
-Le point à trancher au cadrage est le geste de l'utilisateur — un défilement à la
-main pendant la lecture ne doit pas être défait à chaque image, et il faut dire
-quand le suivi reprend.
+**Clarified by the user, on 2026-09-30: the table follows playback, but does not
+centre.** The current subtitle is highlighted during playback, and
+the table does scroll to it — a first observation said the opposite,
+corrected since. What remains: **the table does not centre on the current
+subtitle**, it only brings it back into the visible area. Phase 14 centres it.
+The point to settle at scoping is the user's gesture — scrolling by
+hand during playback must not be undone at every frame, and one must say
+when following resumes.
 
-**Point difficile** — **précision de positionnement.** Caler un sous-titre exige
-un `seek` exact à l'image près ; la plupart des backends ne le garantissent qu'au
-mot-clé le plus proche. C'est la fonctionnalité la plus exigeante de tout le
-projet, et celle qui décide de la qualité de l'outil pour le travail de timing.
-La phase 6 pose déjà la recherche exacte, ce qui la rend éprouvable avant
-d'arriver ici.
+**Difficult point** — **positioning accuracy.** Timing a subtitle requires
+a frame-exact `seek`; most backends guarantee it only to the nearest
+keyframe. It is the most demanding feature of the whole
+project, and the one that decides the tool's quality for timing work.
+Phase 6 already lays down exact seeking, which makes it testable before
+arriving here.
 
-**Cadrée par [#609](https://github.com/Guyot-Bertrand/sub-edit/issues/609)** — la spec est
-[`specs/14-calage-fin.md`](specs/14-calage-fin.md), et l'[ADR 0041](adr/0041-afficher-la-video-par-le-rendu-logiciel.md)
-porte la décision coûteuse à défaire. Ce que le cadrage a tranché, et que la spec développe :
+**Scoped by [#609](https://github.com/Guyot-Bertrand/sub-edit/issues/609)** — the spec is
+[`specs/14-calage-fin.md`](specs/14-calage-fin.md), and [ADR 0041](adr/0041-afficher-la-video-par-le-rendu-logiciel.md)
+carries the decision that is expensive to undo. What the scoping settled, and the spec develops:
 
-- **L'image est rendue par l'API logicielle de libmpv, dans la fenêtre Qt** — décidé par l'utilisateur le 2026-10-06,
-  et ce qui ferme [#190](https://github.com/Guyot-Bertrand/sub-edit/issues/190). Mesuré : 2 à 3,4 ms par image pour du
-  H.264 1080p, sans image perdue ; Wayland et X11 sans distinction, **l'image devient photographiable et lisible sans
-  écran**. Le décodage matériel sans copie n'existe plus, et l'ADR dit son déclencheur.
-- **L'exactitude du `seek` est mesurée, et dite** : mpv place le saut sur **l'image la plus proche** d'une position, et
-  `position()` est **le début de l'image affichée** — un repère posé depuis la vidéo sur une image y revient. La finesse
-  de la milliseconde n'est pas en cause : les 24 images essayées à 23,976 démarrent juste.
-- **L'interface du lecteur gagne cinq ordres** (pas d'image, volume, pistes, `playUntil`), **pas de notification** : le
-  suivi reste une sonde de 100 ms, que les tests pilotent à la main.
-- **Le calage rejoue les cinq gestes de repère de Gaupol sur des commandes qui existent**, et ajoute ce que Gaupol n'a
-  pas : l'image par image et le décalage d'un bord d'une image, dont la durée vient de la vidéo, puis du document, puis
-  de la grille — et sans aucune, le geste refuse.
-- **La table se centre et se suspend à un défilement à la main** ; elle reprend sur un geste du lecteur, **sans minuterie**.
-- **Deux détections, proposées et jamais appliquées**, toutes deux dans la phase — décidé par l'utilisateur : une
-  traduction décalée d'une valeur constante, **jugée par ce que le rattachement dirait après**, et la paire d'une conversion
-  à la mauvaise fréquence, **dans l'ensemble fermé des cinquante-six paires** et jugée par la déduction de la phase 16.
-  Elles se taisent quand deux candidats se valent, quand l'écart n'est pas constant, ou quand le fichier est propre.
+- **The picture is rendered by libmpv's software API, in the Qt window** — decided by the user on 2026-10-06,
+  and what closes [#190](https://github.com/Guyot-Bertrand/sub-edit/issues/190). Measured: 2 to 3.4 ms per frame for
+  1080p H.264, without a dropped frame; Wayland and X11 alike, **the picture becomes capturable and readable without
+  a screen**. Zero-copy hardware decoding no longer exists, and the ADR states its trigger.
+- **The accuracy of `seek` is measured, and stated**: mpv places the seek on **the nearest frame** to a position, and
+  `position()` is **the start of the displayed frame** — a mark set from the video on a frame returns to it. Millisecond
+  granularity is not at issue: the 24 frames tried at 23.976 start exactly.
+- **The player interface gains five commands** (frame step, volume, tracks, `playUntil`), **no notification**: following
+  remains a 100 ms probe, which tests drive by hand.
+- **Timing replays Gaupol's five mark gestures on commands that exist**, and adds what Gaupol does not
+  have: frame by frame and shifting an edge by one frame, whose duration comes from the video, then from the document, then
+  from the grid — and with none, the gesture refuses.
+- **The table centres and pauses on a manual scroll**; it resumes on a player gesture, **without a timer**.
+- **Two detections, proposed and never applied**, both within the phase — decided by the user: a
+  translation shifted by a constant amount, **judged by what the attachment would say afterwards**, and the pair of a conversion
+  at the wrong rate, **within the closed set of fifty-six pairs** and judged by the phase 16 inference.
+  They stay silent when two candidates are equal, when the gap is not constant, or when the file is clean.
 
-**Quatorze issues** — trois d'outillage (#610 à #612), dix d'implémentation (#613 à #622), la relecture de fin de phase
-(#623) —, avec #386 et #408, plus anciennes. **Vingt-huit exigences `GUI-*`**, toutes `prévues`. **Un constat de
-l'analyse** : `VideoPlayer` ne dit nulle part que `seek` rend l'image la plus proche ; l'en-tête disait « l'image à son
-propre début ».
+**Fourteen issues** — three for tooling (#610 to #612), ten for implementation (#613 to #622), the end-of-phase review
+(#623) —, with #386 and #408, which are older. **Twenty-eight `GUI-*` requirements**, all `planned`. **A finding of
+the analysis**: `VideoPlayer` says nowhere that `seek` returns the nearest frame; the header said "the frame at its
+own start".
 
-**Livrée, relue par [#623](https://github.com/Guyot-Bertrand/sub-edit/issues/623).** Quinze issues, #610 à #622 avec
-#386 et #408, en dix-huit versions, de 0.14.1 à 0.14.18 : le rendu logiciel de libmpv dans la fenêtre
-([ADR 0041](adr/0041-afficher-la-video-par-le-rendu-logiciel.md), ce qui ferme #190), l'interface du lecteur et sa barre
-de lecture, la piste audio, les repères, l'image par image et le décalage d'un bord d'une image, la table qui suit la
-lecture, la réplique sans balises brutes, les positions en images — dans la table et sur la barre —, et les deux
-détections. **Vingt-huit exigences `GUI-*`, toutes `implémentées` et citées par un test**, aucune `abandonnée` ; **les
-neuf points ouverts de la spec sont tous tranchés**, quatre d'entre eux à cette relecture (la reprise du suivi, la dérive,
-le 4K et le décodage matériel) ; **dix écarts avec Gaupol**, dont deux de plus qu'au cadrage, nés de demandes de l'utilisateur
-(un bouton `Follow`, les positions en images sur la barre).
+**Shipped, reviewed by [#623](https://github.com/Guyot-Bertrand/sub-edit/issues/623).** Fifteen issues, #610 to #622 with
+#386 and #408, in eighteen versions, from 0.14.1 to 0.14.18: libmpv software rendering in the window
+([ADR 0041](adr/0041-afficher-la-video-par-le-rendu-logiciel.md), which closes #190), the player interface and its playback
+bar, the audio track, the marks, frame by frame and shifting an edge by one frame, the table that follows
+playback, the line without raw markup, positions in frames — in the table and on the bar —, and the two
+detections. **Twenty-eight `GUI-*` requirements, all `implemented` and cited by a test**, none `abandoned`; **the
+spec's nine open points are all settled**, four of them at this review (resuming following, drift,
+4K and hardware decoding); **ten differences from Gaupol**, two more than at scoping, born of user requests
+(a `Follow` button, positions in frames on the bar).
 
-**Deux choses que la spec n'avait pas prévues.** La conversion qui remet un fichier sur une grille (#622, #386) n'a
-presque jamais une réparation unique : sur les 320 combinaisons d'une grille et d'un rapport faux, 28 seulement, et
-l'égalité — dite avec ses deux paires, sans rien proposer — est le cas ordinaire. Et **le banc ne respectait pas la limite
-de deux cœurs de la porte** : `gate/bench.sh` lançait `subedit_bench` nu, et les fils de libmpv la dépassaient.
-`limit-cores.sh` le borne désormais, et `check-parallelism.sh` refuse un lancement nu, avec deux preuves de plus. **Les
-relevés du banc ne se comparent donc plus tout à fait à ceux d'avant 0.14.19** : les entrées du lecteur y sont de 1,2 à
-1,9 fois plus lentes. **La cause probable est l'affinité**, mais elle n'est pas vérifiée : la même mesure sans limite n'a pas
-été rejouée, et la dire une régression de code ou pas serait la deviner.
+**Two things the spec had not foreseen.** The conversion that puts a file back on a grid (#622, #386) almost
+never has a unique repair: out of the 320 combinations of a grid and a wrong ratio, only 28 do, and
+a tie — stated with its two pairs, without proposing anything — is the ordinary case. And **the bench did not respect the
+gate's two-core limit**: `gate/bench.sh` launched `subedit_bench` bare, and libmpv's threads exceeded it.
+`limit-cores.sh` now bounds it, and `check-parallelism.sh` refuses a bare launch, with two more proofs. **The
+bench readings are therefore no longer quite comparable with those before 0.14.19**: the player entries are 1.2 to
+1.9 times slower there. **The probable cause is affinity**, but it is not verified: the same measurement without a limit has not
+been replayed, and calling it a code regression or not would be guessing.
 
-**La relecture a corrigé le manuel et ouvert quatre issues.** `lecteur.md` disait encore que l'image par image et les
-repères n'existent pas ; l'ordre des pages plaçait le calage avant le lecteur qu'il suppose ; l'« état actuel » ignorait
-la barre de lecture, la piste audio et les deux détections. **Le regard critique sur le code**, rien n'étant corrigé dans
-la relecture : [#644](https://github.com/Guyot-Bertrand/sub-edit/issues/644), des règles de position qui vivent dans
-`video_pane.cpp` et `mpv_player.cpp` et ne se testent pas sans fenêtre, dont une seconde arithmétique d'images à virgule
-flottante à côté de la rationnelle ; [#645](https://github.com/Guyot-Bertrand/sub-edit/issues/645), la séquence « reprendre
-le suivi, déplacer, suivre » écrite cinq fois, et le test « every gesture » qui omet `nudge` et `seekToSelection` ;
-[#646](https://github.com/Guyot-Bertrand/sub-edit/issues/646), des attentes par horloge et cinq écritures de la même
-attente. **Le lecteur sur un vrai film** est mesuré, sous la limite de deux cœurs : le H.264 1080p tient le temps réel à
-2,5 fois, **un 4K HEVC lourd ne le tient pas** (0,62 fois en 8 bits, 0,92 en 10 bits) et son pas d'une image coûte de 0,4 à
-5 s ; le décodage matériel de la machine le ramène à 2,1 fois, d'où
-[#647](https://github.com/Guyot-Bertrand/sub-edit/issues/647), **livré** : `hwdec=auto-copy` et un réglage pour le couper,
-pour un gain de 1,1 à 3,2 fois à travers libmpv (ADR 0041, addendum). Le HDR, AV1 et la lecture suivie avec comptage d'images
-perdues restent non mesurés.
+**The review corrected the manual and opened four issues.** `lecteur.md` still said that frame by frame and
+marks do not exist; the page order placed timing before the player it assumes; the "current state" ignored
+the playback bar, the audio track and the two detections. **The critical look at the code**, nothing being fixed in
+the review: [#644](https://github.com/Guyot-Bertrand/sub-edit/issues/644), position rules that live in
+`video_pane.cpp` and `mpv_player.cpp` and cannot be tested without a window, including a second floating-point frame
+arithmetic next to the rational one; [#645](https://github.com/Guyot-Bertrand/sub-edit/issues/645), the sequence "resume
+following, move, follow" written five times, and the "every gesture" test that omits `nudge` and `seekToSelection`;
+[#646](https://github.com/Guyot-Bertrand/sub-edit/issues/646), clock-based waits and five writings of the same
+wait. **The player on a real film** is measured, under the two-core limit: 1080p H.264 keeps real time at
+2.5 times, **a heavy 4K HEVC does not** (0.62 times in 8 bits, 0.92 in 10 bits) and its one-frame step costs 0.4 to
+5 s; the machine's hardware decoding brings it to 2.1 times, hence
+[#647](https://github.com/Guyot-Bertrand/sub-edit/issues/647), **shipped**: `hwdec=auto-copy` and a setting to turn it off,
+for a gain of 1.1 to 3.2 times through libmpv (ADR 0041, addendum). HDR, AV1 and continuous playback with dropped-frame
+counting remain unmeasured.
 
-**Le banc** a un relevé pour 0.14.19 (charge 1,35), le premier depuis 0.14.7 ; trois mesures neuves — centrer une ligne,
-la recherche de conversion (environ 2,4 ms pour 4000 sous-titres) et la traduction d'une réplique balisée — entreront
-au premier relevé calme suivant. Le banc `seeking and stepping on a real film` s'abstient sans `SUBEDIT_BENCH_REAL_FILM`.
+**The bench** has a reading for 0.14.19 (load 1.35), the first since 0.14.7; three new measurements — centring a row,
+the conversion search (about 2.4 ms for 4000 subtitles) and translating a marked-up line — will enter
+at the next calm reading. The `seeking and stepping on a real film` bench abstains without `SUBEDIT_BENCH_REAL_FILM`.
 
-**Close en 0.15.0, le 2026-10-09.** Les quatre issues de la relecture ont été livrées, et le milestone — vingt-cinq
-issues, de #190 à #647 — se ferme sans rien d'ouvert :
+**Closed in 0.15.0, on 2026-10-09.** The four issues of the review were shipped, and the milestone — twenty-five
+issues, from #190 to #647 — closes with nothing open:
 
-- **#644** (0.14.20) : les règles de position du lecteur — voisin, saut, entrée en matière, pas d'image, fréquence
-  proche — vivent dans `core/video/seeking`, en arithmétique rationnelle, et se testent sans fenêtre ;
-- **#645** (0.14.21) : un seul chemin, `goTo`, pour les gestes du lecteur, et un test de tous les gestes qui n'en omet
-  plus ;
-- **#646** (0.14.22) : les tests du lecteur n'attendent plus d'horloge — `waitUntil` et le projecteur sont partagés ;
-- **#647** (0.14.23) : `hwdec=auto-copy` et son réglage ; de 1,1 à 3,2 fois plus vite à travers libmpv selon le film,
-  moins que les 2,1 fois de ffmpeg seul, et un 4K lourd loin de l'image-clé reste lent.
+- **#644** (0.14.20): the player's position rules — neighbour, seek, lead-in, frame step, nearest
+  rate — live in `core/video/seeking`, in rational arithmetic, and are tested without a window;
+- **#645** (0.14.21): a single path, `goTo`, for the player's gestures, and a test of all gestures that no longer omits
+  any;
+- **#646** (0.14.22): the player tests no longer wait on a clock — `waitUntil` and the projector are shared;
+- **#647** (0.14.23): `hwdec=auto-copy` and its setting; from 1.1 to 3.2 times faster through libmpv depending on the film,
+  less than the 2.1 times of ffmpeg alone, and a heavy 4K far from the keyframe remains slow.
 
-**Le banc de la phase** a son relevé pour 0.15.0 (charge 1,26), qui reçoit les trois mesures neuves : centrer une ligne,
-la recherche de conversion (364 µs pour 4000 sous-titres) et l'alignement d'une traduction. Le banc sur vrai film reste
-une mesure à la main. **Ce qui reste non mesuré** : le HDR, AV1, la lecture suivie avec comptage d'images perdues, une
-machine sans carte graphique.
+**The phase's bench** has its reading for 0.15.0 (load 1.26), which receives the three new measurements: centring a row,
+the conversion search (364 µs for 4000 subtitles) and aligning a translation. The bench on a real film remains
+a manual measurement. **What remains unmeasured**: HDR, AV1, continuous playback with dropped-frame counting, a
+machine without a graphics card.
 
 ## 15 — Internationalisation
 
-Les 20 locales de Gaupol sont sous GPL, donc réutilisables.
+Gaupol's 20 locales are under the GPL, hence reusable.
 
-**Question ouverte** — Qt Linguist ou gettext ? La conversion `.po` vers `.ts`
-n'est fidèle que si les chaînes correspondent, ce qui ne sera pas le cas
-partout. Évaluer le gain réel avant de s'engager.
+**Open question** — Qt Linguist or gettext? Converting `.po` to `.ts`
+is faithful only if the strings match, which will not be the case
+everywhere. Assess the real gain before committing.
 
-**Un renvoi de la phase 12 atterrit ici : les noms et les descriptions des motifs de correction.** Gaupol les
-traduit par gettext ; les fichiers de motifs sont lus tels quels
-([ADR 0037](adr/0037-lire-les-motifs-de-gaupol-tels-quels.md)) et leurs intitulés restent en anglais tant que
-l'interface l'est. Ils passent avec le reste de l'interface, et la question de la conversion `.po` vers `.ts`
-s'y pose pour eux aussi.
+**A deferral from phase 12 lands here: the names and descriptions of correction patterns.** Gaupol
+translates them through gettext; the pattern files are read as they are
+([ADR 0037](adr/0037-lire-les-motifs-de-gaupol-tels-quels.md)) and their labels stay in English as long as
+the interface does. They go along with the rest of the interface, and the question of converting `.po` to `.ts`
+arises for them too.
 
-**Précisé par l'utilisateur, le 2026-09-30 : la documentation embarquée passe ici,
-internationalisée.** Deux livrables, tous deux dans les langues de l'interface :
+**Clarified by the user, on 2026-09-30: the embedded documentation comes here,
+internationalised.** Two deliverables, both in the interface's languages:
 
-- **La page d'aide de la fenêtre.** Le manuel que `Help` ouvre aujourd'hui
-  (`docs/manual/`, en français) devient une aide **internationalisée** : elle
-  explique les diverses fonctions que le programme offre, et suit la langue
-  choisie comme le reste de l'interface. Ce que le manuel dit déjà en est la
-  matière ; ce que la phase change est qu'il se traduit avec l'interface, et non
-  après elle.
-- **Des pages de manuel (`man`) pour la ligne de commande**, elles aussi
-  internationalisées : une page pour `subedit-cli` et une pour chaque
-  sous-commande dont l'usage l'exige, installées avec les paquets (`.deb`,
-  `.rpm`) là où `man` les cherche.
+- **The window's help page.** The manual that `Help` opens today
+  (`docs/manual/`, in French) becomes **internationalised** help: it
+  explains the various features the program offers, and follows the chosen
+  language like the rest of the interface. What the manual already says is its
+  material; what the phase changes is that it is translated with the interface,
+  and not after it.
+- **Manual pages (`man`) for the command line**, internationalised as well:
+  one page for `subedit-cli` and one for each subcommand whose use calls for
+  it, installed with the packages (`.deb`, `.rpm`) where `man` looks for them.
 
-Au cadrage : d'où viennent les pages (une source unique, le manuel actuel, dont
-on tire l'aide de la fenêtre et les pages `man`, ou deux sources), comment leur
-traduction se tient à jour quand le manuel bouge, et si les captures du manuel se
-prennent par langue. **Une seule source** est la voie qui évite que deux textes
-divergent ; c'est aussi la plus coûteuse à outiller.
+At scoping: where the pages come from (a single source, the current manual, from
+which the window's help and the `man` pages are drawn, or two sources), how their
+translation stays up to date when the manual moves, and whether the manual's
+screenshots are taken per language. **A single source** is the route that keeps
+two texts from diverging; it is also the most expensive to tool.
 
-**Cadrée le 2026-10-09** ([#655](https://github.com/Guyot-Bertrand/sub-edit/issues/655), spec
-[15-internationalisation.md](specs/15-internationalisation.md), ADR 0042 à 0044) : gettext, lu par un lecteur de `.mo` à nous
-dans le noyau (le noyau n'a pas Qt, et les catalogues de Gaupol sont du `.po`) ; **l'anglais devient la langue du dépôt entier** et
-le français une langue parmi d'autres ; **tout le dépôt est traduit** (environ 220 000 mots), à la main de Claude et relu par
-le mainteneur ; une source unique pour le manuel, l'aide de la fenêtre et les pages `man`. La phase livre deux langues,
-l'anglais et le français, et l'outillage pour les vingt de Gaupol, dont les autres restent des graines non installées. Vingt-sept
-issues, [#658](https://github.com/Guyot-Bertrand/sub-edit/issues/658) à
-[#684](https://github.com/Guyot-Bertrand/sub-edit/issues/684), rédigées en anglais ; clôture en 0.16.0.
+**Scoped on 2026-10-09** ([#655](https://github.com/Guyot-Bertrand/sub-edit/issues/655), spec
+[15-internationalisation.md](specs/15-internationalisation.md), ADRs 0042 to 0044): gettext, read by our own `.mo` reader
+in the core (the core has no Qt, and Gaupol's catalogues are `.po`); **English becomes the language of the whole repository** and
+French one language among others; **the whole repository is translated** (about 220,000 words), by Claude's hand and reviewed by
+the maintainer; a single source for the manual, the window's help and the `man` pages. The phase ships two languages,
+English and French, and the tooling for Gaupol's twenty, the others of which remain uninstalled seeds. Twenty-seven
+issues, [#658](https://github.com/Guyot-Bertrand/sub-edit/issues/658) to
+[#684](https://github.com/Guyot-Bertrand/sub-edit/issues/684), written in English; closing in 0.16.0.
 
 **Folded in on 2026-10-12: the settings shared by the window and the command line**
 ([#699](https://github.com/Guyot-Bertrand/sub-edit/issues/699), [ADR 0045](adr/0045-one-settings-file-two-parts.md)).
@@ -1423,21 +1404,21 @@ The settings file gets an operation part, which the command line reads by defaul
 display part, which stays the window's; `subedit-cli config list|show|set|unset` documents, shows and changes the
 operation part. Its decisions are S1 to S8 of the [phase spec](specs/15-internationalisation.md).
 
-# Troisième partie — au-delà de Gaupol
+# Part three — beyond Gaupol
 
-Ces phases ne sont plus de l'iso-fonctionnalité : elles ajoutent ce que Gaupol
-ne fait pas. Elles sont nées d'un échange de cadrage, le 2026-10-06, et **leur
-ordre est celui que l'utilisateur a choisi** ; il ne tient pas à une prévision
-d'effort.
+These phases are no longer feature parity: they add what Gaupol
+does not do. They were born of a scoping exchange, on 2026-10-06, and **their
+order is the one the user chose**; it does not rest on an effort
+forecast.
 
-**Public visé : des amateurs de séries et de films qui cherchent à automatiser
-leur workflow.** La ligne de commande est donc de rang égal à l'interface, et
-« je lance une commande et le sous-titre tombe juste » est le critère à tenir.
+**Intended audience: series and film enthusiasts looking to automate
+their workflow.** The command line therefore ranks equal to the interface, and
+"I run a command and the subtitle lands right" is the criterion to hold.
 
-**Ces phases sont des brouillons.** Chacune sera affinée à son cadrage — c'est
-là que se tranchent le périmètre exact, les exigences et le découpage en
-issues. Ce qui suit fixe l'ordre, l'intention et les décisions à prévoir, rien
-de plus.
+**These phases are drafts.** Each will be refined at its scoping — that is
+where the exact scope, the requirements and the split into issues are settled.
+What follows fixes the order, the intent and the decisions to anticipate, nothing
+more.
 
 ```
 17 ─► 18 ─► 19 ─► 20 ─► 21
@@ -1445,144 +1426,145 @@ de plus.
                    └────────► 22 ─► 23 ─► 24
 ```
 
-**Ce que les phases se transmettent.** La 19 pose le mécanisme de sous-processus
-et de détection d'un outil externe, que 21, 22 et 24 réutilisent. La 20 pose
-l'OCR, que la 21 branche sur les conteneurs. La 22 pose le moteur audio, que la
-23 réutilise pour aligner.
+**What the phases hand on to each other.** 19 lays down the subprocess
+mechanism and the detection of an external tool, which 21, 22 and 24 reuse. 20
+lays down OCR, which 21 plugs into containers. 22 lays down the audio engine,
+which 23 reuses for alignment.
 
-**Une règle pour tous les outils externes** (`mkvmerge`, `ffmpeg`, Tesseract,
-whisper.cpp), dans le prolongement de la tolérance à l'absence de `ffprobe` :
-**leur absence ne casse rien.** La fonction qui en dépend se désactive avec un
-message clair, ou l'utilisateur fournit la donnée lui-même. Aucun de ces outils
-n'est livré avec les paquets.
+**One rule for all external tools** (`mkvmerge`, `ffmpeg`, Tesseract,
+whisper.cpp), extending the tolerance to the absence of `ffprobe`:
+**their absence breaks nothing.** The feature that depends on them disables
+itself with a clear message, or the user provides the data themselves. None of
+these tools is shipped with the packages.
 
-## 17 — Formats texte complémentaires
+## 17 — Additional text formats
 
-Les formats de sous-titres texte que ni Gaupol ni les phases 1 et 9 ne
-couvrent. La liste est à établir au cadrage, selon l'usage réel du public visé.
+The text subtitle formats that neither Gaupol nor phases 1 and 9
+cover. The list is to be drawn up at scoping, according to the real use of the
+intended audience.
 
-Chaque format déplace les trois mesures habituelles de la phase 9 : une ligne de
-la table de promesses, le score de détection, la matrice de conversion.
+Each format moves the three usual measurements of phase 9: a row of the
+promise table, the detection score, the conversion matrix.
 
-## 18 — Formats texte avancés
+## 18 — Advanced text formats
 
-Styles nommés, positionnement, karaoké : lecture, écriture et conversion entre
-les formats qui les portent (ASS, TTML, WebVTT…).
+Named styles, positioning, karaoke: reading, writing and conversion between
+the formats that carry them (ASS, TTML, WebVTT…).
 
-**C'est la phase qui touche le plus de code existant.** Le modèle d'entrée est
-aujourd'hui du texte balisé ; il doit accueillir des styles, une position par
-entrée et des segments minutés. Cela traverse le noyau et chaque format déjà
-écrit, et appelle un ADR.
+**This is the phase that touches the most existing code.** The entry model is
+marked-up text today; it must accommodate styles, a position per
+entry and timed segments. That runs through the core and every format already
+written, and calls for an ADR.
 
-**À trancher au cadrage :**
+**To be settled at scoping:**
 
-- la forme du modèle de style et de position, et sa place dans le noyau ;
-- ce que devient une information que le format cible ne porte pas : perte
-  signalée, refus, ou repli — dans le prolongement de la matrice de conversion ;
-- ce que l'interface en montre et en permet d'éditer, ou si cette phase se
-  limite d'abord à la bibliothèque et à la ligne de commande.
+- the shape of the style and position model, and its place in the core;
+- what becomes of information the target format does not carry: reported
+  loss, refusal, or fallback — extending the conversion matrix;
+- what the interface shows of it and allows editing, or whether this phase
+  first limits itself to the library and the command line.
 
-**Phase lourde, à scinder au cadrage** si la mesure le demande.
+**A heavy phase, to be split at scoping** if measurement calls for it.
 
-## 19 — Pistes texte embarquées
+## 19 — Embedded text tracks
 
-Lister, extraire et injecter des pistes de sous-titres texte dans les
-conteneurs MKV et MP4, avec leurs métadonnées : langue, drapeaux « forcé » et
-« malentendants », piste par défaut.
+List, extract and inject text subtitle tracks in MKV and MP4 containers, with
+their metadata: language, "forced" and "hearing impaired" flags, default
+track.
 
-**À trancher au cadrage — et la décision vaut pour les phases 21, 22 et 24 :**
-lier une bibliothèque (libavformat) ou appeler `mkvmerge` / `ffmpeg` en
-sous-processus. **Le sous-processus est la pente attendue** : il garde les
-exécutables minimaux et laisse l'utilisateur maître de ses outils. Il suppose
-la détection de la présence de l'outil, et sa tolérance à l'absence.
+**To be settled at scoping — and the decision holds for phases 21, 22 and 24:**
+link a library (libavformat) or call `mkvmerge` / `ffmpeg` as a
+subprocess. **The subprocess is the expected direction**: it keeps the
+executables minimal and leaves the user in control of their tools. It assumes
+detecting the tool's presence, and tolerance to its absence.
 
-Autres questions : ouvrir directement un conteneur depuis la fenêtre et la
-ligne de commande, ou seulement extraire ; réécrire le conteneur (remux) ou
-exporter à côté.
+Other questions: open a container directly from the window and the
+command line, or only extract; rewrite the container (remux) or
+export alongside.
 
-## 20 — Formats image et OCR
+## 20 — Image formats and OCR
 
-Lire les sous-titres image — **VobSub** (`.idx` / `.sub`), **PGS** (`.sup`,
-Blu-ray) et **DVB-sub** (flux TV, `.ts` enregistrés) —, les passer à
-l'OCR, et produire des sous-titres texte.
+Read image subtitles — **VobSub** (`.idx` / `.sub`), **PGS** (`.sup`,
+Blu-ray) and **DVB-sub** (TV streams, recorded `.ts`) —, run them through
+OCR, and produce text subtitles.
 
-**Deux parties, qui ne vont pas du même pas :** la lecture des formats image,
-qui est de l'analyse binaire et se teste sur fixtures, et l'OCR proprement dit.
+**Two parts, which do not move at the same pace:** reading image formats,
+which is binary parsing and is tested on fixtures, and OCR proper.
 
-**À trancher au cadrage :**
+**To be settled at scoping:**
 
-- le moteur d'OCR — Tesseract en bibliothèque ou en exécutable — et la
-  provenance de ses données de langue, que l'utilisateur télécharge ;
-- **l'interface de correction humaine**, qui n'est pas un détail : un OCR se
-  relit. Elle s'appuie sur les motifs « OCR » du moteur de correction de la
-  [phase 12](#12--moteur-de-correction-complet) ;
-- la version en ligne de commande : OCR sans relecture, avec un compte rendu
-  des entrées douteuses.
+- the OCR engine — Tesseract as a library or as an executable — and the
+  origin of its language data, which the user downloads;
+- **the human correction interface**, which is not a detail: OCR output gets
+  proofread. It relies on the "OCR" patterns of the correction engine of
+  [phase 12](#12--complete-correction-engine);
+- the command-line version: OCR without proofreading, with a report
+  of doubtful entries.
 
-**Phase lourde, à scinder au cadrage** : lecture des formats d'un côté, OCR et
-interface de relecture de l'autre.
+**A heavy phase, to be split at scoping**: reading formats on one side, OCR and
+the proofreading interface on the other.
 
-## 21 — Pistes image embarquées
+## 21 — Embedded image tracks
 
-Extraire les pistes image des conteneurs et les chaîner à l'OCR de la phase 20,
-de bout en bout : du fichier vidéo aux sous-titres texte.
+Extract image tracks from containers and chain them to the OCR of phase 20,
+end to end: from the video file to text subtitles.
 
-Elle n'ajoute presque rien de neuf — c'est la jonction de la 19 et de la 20 —, et
-c'est précisément ce qui la rend courte.
+It adds almost nothing new — it is the junction of 19 and 20 —, and
+that is precisely what makes it short.
 
-## 22 — Transcription audio
+## 22 — Audio transcription
 
-Produire des sous-titres, avec leurs positions, à partir de l'audio d'une vidéo.
+Produce subtitles, with their positions, from a video's audio.
 
-**Moteur pressenti : whisper.cpp**, qui s'exécute sur un processeur ordinaire,
-sans carte graphique ; celle-ci n'accélère que le traitement. Les modèles pèsent
-de quelques centaines de Mo à plusieurs Go : **ils ne sont pas livrés**, et
-l'utilisateur les récupère, par une commande dédiée ou un chemin à renseigner.
+**Expected engine: whisper.cpp**, which runs on an ordinary processor,
+without a graphics card; a graphics card only speeds up processing. The models
+weigh from a few hundred MB to several GB: **they are not shipped**, and
+the user fetches them, through a dedicated command or a path to fill in.
 
-**À trancher au cadrage :**
+**To be settled at scoping:**
 
-- exécutable en sous-processus ou bibliothèque — même pente que pour la
-  phase 19 : l'exécutable, qui laisse le choix de la variante matérielle ;
-- le build livré dans les paquets : processeur seul par défaut ;
-- la sortie : phrases minutées, ou mots minutés, que la phase 23 réutilise ;
-- la détection de la langue de l'audio.
+- executable as a subprocess or library — same direction as for
+  phase 19: the executable, which leaves the choice of hardware variant;
+- the build shipped in the packages: CPU only by default;
+- the output: timed sentences, or timed words, which phase 23 reuses;
+- detecting the language of the audio.
 
-## 23 — Alignement automatique
+## 23 — Automatic alignment
 
-Recaler un sous-titre existant sur l'audio : à partir du texte et de la voix,
-retrouver où chaque phrase est réellement prononcée. C'est le cas du `.srt`
-récupéré en ligne, décalé au début et en fin, que la correction par deux points
-ne rattrape pas.
+Re-time an existing subtitle on the audio: from the text and the voice,
+find where each sentence is actually spoken. This is the case of the `.srt`
+fetched online, shifted at the start and at the end, which two-point correction
+does not catch.
 
-**Elle dépend de la phase 22**, dont elle réutilise le moteur et les mots
-minutés, et reste optionnelle comme elle. Elle est livrée en ligne de commande
-et dans l'interface.
+**It depends on phase 22**, whose engine and timed words it reuses, and remains
+optional like it. It is shipped on the command line
+and in the interface.
 
-**À trancher au cadrage :** le comportement quand l'alignement est douteux
-(entrées non retrouvées, dérive progressive) et la façon de le rendre à
-l'utilisateur.
+**To be settled at scoping:** the behaviour when alignment is doubtful
+(entries not found, progressive drift) and how to report it to
+the user.
 
-## 24 — Workflow et intégrations
+## 24 — Workflow and integrations
 
-Ce qui permet d'enchaîner les phases précédentes sans les rejouer à la main :
-traitement par lots, dossier surveillé, chaînage de commandes, sortie JSON
-stable pour les scripts.
+What makes it possible to chain the previous phases without replaying them by hand:
+batch processing, watched folder, command chaining, stable JSON output
+for scripts.
 
-**Phase à cadrer en dernier**, parce qu'elle automatise ce que les autres
-livrent : son périmètre exact dépend de ce que l'usage aura montré pendant les
-phases 17 à 23. Le `--recursive` de la [phase 13](#13--cli-complète) en est le
-point de départ.
+**A phase to scope last**, because it automates what the others
+ship: its exact scope depends on what use will have shown during
+phases 17 to 23. The `--recursive` of [phase 13](#13--complete-cli) is its
+starting point.
 
-## Pour une v3
+## For a v3
 
-Retenu mais écarté pour l'instant, le 2026-10-06 :
+Kept but set aside for now, on 2026-10-06:
 
-- **le mode serveur** (`subedit serve`) ;
-- **la forme d'onde interactive** — le dessin du son sous la vidéo, avec des
-  blocs de sous-titres qu'on tire à la souris pour les caler. L'alignement
-  automatique de la phase 23 couvre l'essentiel du besoin sans elle ;
-- **les sous-titres incrustés dans l'image** (« hardsubs »), par OCR sur la
-  vidéo ;
-- **la traduction automatique** et la **qualité** : conformité aux normes de
-  diffuseurs, mémoire de traduction, fusion de versions ;
-- **la détection de coupures de plan.**
+- **server mode** (`subedit serve`);
+- **the interactive waveform** — the drawing of the sound under the video, with
+  subtitle blocks dragged with the mouse to time them. The automatic
+  alignment of phase 23 covers most of the need without it;
+- **subtitles burned into the picture** ("hardsubs"), by OCR on the
+  video;
+- **machine translation** and **quality**: compliance with broadcaster
+  standards, translation memory, merging versions;
+- **shot change detection.**
