@@ -11,8 +11,18 @@ ne pas l'éditer à la main.
 
 ### Documentation
 
+- **doc** — Translate ADRs 0022 to 0029 into English
+- **doc** — Translate ADRs 0030 to 0035 into English
+- **doc** — Translate ADRs 0036 to 0041 into English
+- **doc** — Translate the ADR index into English
+
+## 0.15.28 — 2026-10-14
+
+### Documentation
+
 - **doc** — Translate ADRs 0000 to 0010 into English
 - **doc** — Translate ADRs 0011 to 0021 into English
+- **doc** — Regenerate the changelog
 
 ## 0.15.27 — 2026-10-14
 
