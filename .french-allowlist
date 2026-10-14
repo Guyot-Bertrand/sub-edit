@@ -38,7 +38,6 @@ cmake/ToolchainSanity.cmake
 cmake/Translations.cmake
 cmake/Warnings.cmake
 docs/mesures/performances.md
-docs/specs/00-fondations.md
 docs/specs/01-noyau.md
 docs/specs/02-operations-d-edition.md
 docs/specs/03-cli.md
