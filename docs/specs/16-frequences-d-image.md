@@ -1,551 +1,551 @@
-# Phase 16 — Fréquences d'image : déduction et correction
+# Phase 16 — Frame rates: deduction and correction
 
-**Milestone :** 16 — Fréquences d'image : déduction et correction
-**Programmée entre la [6](06-lecteur-integre.md) et la 7.** Son numéro est le
-premier libre au moment où elle a été ajoutée ; il l'identifie et ne dit pas son
-rang.
+**Milestone:** `16 — Fréquences d'image : déduction et correction`
+**Scheduled between [6](06-lecteur-integre.md) and 7.** Its number is the
+first one free when it was added; it identifies it and does not say its
+rank.
 
-## Objectif
+## Goal
 
-Un fichier de sous-titres ne déclare pas la fréquence d'image contre laquelle
-ses positions ont été calculées — SubRip n'a pas d'en-tête, celui de WebVTT est
-du texte libre. Cette phase la **déduit des positions elles-mêmes**, et apporte
-les deux opérations qui gravitent autour : ramener un fichier sur sa grille, et
-l'aligner sur une autre.
+A subtitle file does not declare the frame rate against which its positions
+were computed — SubRip has no header, WebVTT's is free
+text. This phase **deduces it from the positions themselves**, and brings
+the two operations that revolve around it: putting a file back on its grid, and
+snapping it to another one.
 
-## Ce qui la distingue
+## What sets it apart
 
-**Elle dépasse l'iso-fonctionnalité, et c'est la première.** Gaupol ne déduit
-aucune fréquence, et la chaîne tient en trois sauts : `framerate_convert.py`
-pré-remplit ses **deux** listes avec `page.project.framerate` ; `page.py` donne
-cette valeur au projet depuis `conf.editor.framerate` à l'ouverture ; et
-`config.py` fixe ce défaut à `FPS_23_976`. **Rien, nulle part, ne regarde le
-fichier** — c'est une préférence globale, et elle n'a pas bougé en vingt ans.
+**It goes beyond iso-functionality, and it is the first to do so.** Gaupol deduces
+no frame rate, and the chain takes three hops: `framerate_convert.py`
+prefills its **two** lists with `page.project.framerate`; `page.py` gives
+that value to the project from `conf.editor.framerate` on opening; and
+`config.py` sets that default to `FPS_23_976`. **Nothing, anywhere, looks at the
+file** — it is a global preference, and it has not moved in twenty years.
 
-**Il n'y a donc rien à lire dans `reference/gaupol`**, et l'étape d'analyse
-préalable du déroulé d'une phase est vide, pour la première fois. Ce qui la
-remplace : les fixtures de #198 et ce qu'elles donnent.
+**There is therefore nothing to read in `reference/gaupol`**, and the preliminary
+analysis step of a phase's course is empty, for the first time. What
+replaces it: the fixtures of #198 and what they yield.
 
-**Elle éprouve un jugement, non un comportement.** Les phases précédentes
-éprouvaient ce que le logiciel *fait* — lire, écrire, décaler. Celle-ci éprouve
-ce qu'il *conclut* : « ce fichier est calé sur une grille à 23,976, avec une
-concentration de 99,9 ». Un jugement se compare à une attente, et l'attente est
-désormais versionnée : `src/test/data/grilles/` et son `LISEZMOI.md`.
+**It tests a judgement, not a behaviour.** The previous phases
+tested what the software *does* — read, write, shift. This one tests
+what it *concludes*: "this file is timed on a grid at 23.976, with a
+concentration of 99.9". A judgement is compared with an expectation, and the expectation is
+now versioned: `src/test/data/grilles/` and its `LISEZMOI.md`.
 
-## D'où vient la méthode
+## Where the method comes from
 
-**Convertir une fréquence suppose que les positions étaient calées sur une
-grille d'images.** Quand c'est vrai, chaque position vaut `round(n × 1000 / R)`,
-et cette grille se mesure.
+**Converting a frame rate assumes that the positions were timed on a
+frame grid.** When that is true, each position is `round(n × 1000 / R)`,
+and that grid can be measured.
 
-Pour chacune des huit fréquences normalisées, on calcule la phase de chaque
-début sur la grille correspondante, et on mesure **la concentration de ces
-phases** — la longueur du vecteur résultant, de 0 à 100. Cent : une grille
-parfaite, quelle que soit sa phase. Près de zéro : aucune structure.
+For each of the eight standard frame rates, the phase of each
+start on the corresponding grid is computed, and **the concentration of those
+phases** is measured — the length of the resultant vector, from 0 to 100. A hundred: a
+perfect grid, whatever its phase. Near zero: no structure.
 
-Elle n'a **aucun paramètre de tolérance**, et elle est **insensible à un
-décalage**. Ce second point a été payé : une première version cherchait une
-grille de phase nulle et notait à zéro un fichier qui est un 24 images par
-seconde parfait, translaté d'une milliseconde et demie.
+It has **no tolerance parameter**, and it is **insensitive to a
+shift**. That second point was paid for: a first version looked for a
+grid of zero phase and scored zero a file that is a perfect 24 frames per
+second, translated by a millisecond and a half.
 
-## Portée
+## Scope
 
-**Dans la phase :**
+**In the phase:**
 
-- la déduction, et ce qu'elle rend ;
-- deux opérations — ramener un fichier sur sa grille, l'aligner sur une
-  fréquence choisie ;
-- la lecture croisée avec la fréquence que le conteneur vidéo déclare ;
-- les surfaces : `inspect`, deux sous-commandes, la barre d'état, une modale
-  d'analyse, et le pré-remplissage du dialogue de conversion.
+- the deduction, and what it returns;
+- two operations — putting a file back on its grid, snapping it to a
+  chosen frame rate;
+- the cross-reading with the frame rate the video container declares;
+- the surfaces: `inspect`, two subcommands, the status bar, an analysis
+  dialog, and the prefilling of the conversion dialog.
 
-**Hors de la phase :**
+**Outside the phase:**
 
-| Ce qui est renvoyé | Où |
-| :----------------- | :- |
-| retrouver la paire d'une conversion faite avec la mauvaise fréquence | phase 10, avec les opérations complémentaires — « le plus utile et le moins sûr » |
-| marquer dans la table les positions qui sortent de la grille | nulle part : **D12** l'interdit, et dit pourquoi |
-| le traitement par lot et la sortie exploitable par un script | phase 13 |
-| l'édition en mode images | phase 9 |
+| What is deferred | Where |
+| :--------------- | :---- |
+| finding the pair of a conversion made with the wrong frame rate | phase 10, with the complementary operations — "the most useful and the least certain" |
+| marking in the table the positions that fall off the grid | nowhere: **D12** forbids it, and says why |
+| batch processing and script-readable output | phase 13 |
+| editing in frame mode | phase 9 |
 
-## Décisions applicables
+## Applicable decisions
 
-**D1 — la méthode est la concentration de phase, sans tolérance.** Aucun seuil
-n'entre dans le calcul ; les seuils n'apparaissent qu'au moment de rendre un
-verdict, et une seule fois (**D4**).
+**D1 — the method is phase concentration, without tolerance.** No threshold
+enters the computation; thresholds only appear when a
+verdict is returned, and only once (**D4**).
 
-**D2 — l'ensemble des candidates est clos et petit : les huit de
-`StandardFrameRate`.** Résoudre pour un `R` quelconque est un tout autre
-problème, et sans objet — personne ne masterise à 26,3 images par seconde.
-`src/test/data/grilles/grille-absurde.srt` est exactement ce fichier-là, et la
-bonne réponse à son sujet est « je ne sais pas ».
+**D2 — the set of candidates is closed and small: the eight of
+`StandardFrameRate`.** Solving for an arbitrary `R` is an entirely different
+problem, and pointless — nobody masters at 26.3 frames per second.
+`src/test/data/grilles/grille-absurde.srt` is exactly that file, and the
+right answer about it is "I don't know".
 
-**D3 — les débuts sont le signal ; les fins ne sont pas mesurées.** Partout où
-une grille existe, les débuts y sont sans exception ; les fins vont de 55 à 100,
-parce qu'un *cue-out* est souvent calculé par une règle de vitesse de lecture et
-non posé sur une image. Les mélanger ferait baisser un signal net avec du bruit
-connu.
+**D3 — the starts are the signal; the ends are not measured.** Wherever
+a grid exists, the starts are on it without exception; the ends range from 55 to 100,
+because a *cue-out* is often computed by a reading-speed rule and
+not placed on a frame. Mixing them would lower a clear signal with known
+noise.
 
-**D4 — la déduction rend le classement complet des huit, et un verdict calculé
-une seule fois.** Le classement ne cache rien ; le verdict — `nette`,
-`partielle`, `muette` — évite que `inspect`, la modale d'analyse, la barre
-d'état et le croisement avec `ffprobe` réimplémentent chacun les seuils et
-finissent par ne plus dire la même chose.
+**D4 — the deduction returns the complete ranking of the eight, and a verdict computed
+only once.** The ranking hides nothing; the verdict — `clean`,
+`partial`, `silent` — keeps `inspect`, the analysis dialog, the status
+bar and the cross-check with `ffprobe` from each reimplementing the thresholds and
+ending up no longer saying the same thing.
 
-**D5 — entre deux candidates harmoniques, la plus basse.** Une grille à 25 est
-**incluse** dans une grille à 50 : un fichier calé sur 25 sort à 100 sur les
-deux, et l'inverse est faux — `grille-50.srt` ne donne que 15,8 sur 25.
-L'implication ne va que dans un sens, donc la plus basse est l'explication
-parcimonieuse.
+**D5 — between two harmonic candidates, the lower one.** A grid at 25 is
+**included** in a grid at 50: a file timed on 25 comes out at 100 on
+both, and the converse is false — `grille-50.srt` gives only 15.8 on 25.
+The implication runs only one way, so the lower one is the
+parsimonious explanation.
 
-Ce n'est pas une précaution théorique. Prendre le maximum se trompe, et les
-fixtures le montrent :
+This is not a theoretical precaution. Taking the maximum gets it wrong, and the
+fixtures show it:
 
-| Fixture | Calée sur | Ce que le maximum donne |
-| :------ | :-------- | :---------------------- |
-| `grille-25.srt` | 25 | 25 à 100,0 — **et 50 à 100,0** : pile ou face |
-| `grille-30.srt` | 30 | 30 à 99,9, 60 à 99,5 — juste par chance |
-| `melange-groupe.srt` | 29,97 | **59,94 à 66,4 contre 65,1 — faux** |
+| Fixture | Timed on | What the maximum gives |
+| :------ | :------- | :--------------------- |
+| `grille-25.srt` | 25 | 25 at 100.0 — **and 50 at 100.0**: heads or tails |
+| `grille-30.srt` | 30 | 30 at 99.9, 60 at 99.5 — right by luck |
+| `melange-groupe.srt` | 29.97 | **59.94 at 66.4 against 65.1 — wrong** |
 
-Les seules paires ambiguës de l'ensemble normalisé sont celles dont l'une est le
-multiple entier de l'autre : 25 et 50, 29,97 et 59,94, 30 et 60. Aucune autre —
-24 et 60 sont dans un rapport de deux et demi, donc une image sur deux seulement
-coïncide. **L'ambiguïté est dite, jamais cachée** : la déduction nomme la
-candidate écartée.
+The only ambiguous pairs of the standard set are those where one is an
+integer multiple of the other: 25 and 50, 29.97 and 59.94, 30 and 60. No others —
+24 and 60 are in a ratio of two and a half, so only one frame in two
+coincides. **The ambiguity is stated, never hidden**: the deduction names the
+candidate set aside.
 
-**Quand la paire compte-t-elle comme ambiguë ?** Précisé par #203, qui a dû
-l'écrire : on compare les **bandes**, pas un écart. Un fichier réellement calé
-sur la fréquence haute fait s'effondrer la basse vers le bruit, donc les deux
-tombent dans des bandes différentes ; un fichier calé sur la basse les met dans
-la même, quoi que l'arrondi ait fait de leur ordre. La règle ne demande alors
-aucun seuil neuf — elle réutilise ceux du verdict — et elle tient sur les huit
-cas que les fixtures offrent :
+**When does the pair count as ambiguous?** Clarified by #203, which had to
+write it: the **bands** are compared, not a gap. A file truly timed
+on the higher frame rate makes the lower one collapse towards noise, so the two
+fall into different bands; a file timed on the lower one puts them in
+the same band, whatever rounding did to their order. The rule then requires
+no new threshold — it reuses those of the verdict — and it holds on the eight
+cases the fixtures offer:
 
-| Fixture | La basse | La haute | Même bande ? | Retenue |
-| :------ | -------: | -------: | :----------- | :------ |
-| `grille-25.srt` | 100,0 | 100,0 | oui | 25 |
-| `grille-30.srt` | 99,9 | 99,5 | oui | 30 |
-| `grille-29-97.srt` | 99,8 | 99,4 | oui | 29,97 |
-| `grille-50.srt` | 15,8 | 100,0 | non | 50 |
-| `grille-60.srt` | 1,3 | 99,5 | non | 60 |
-| `grille-59-94.srt` | 4,8 | 99,4 | non | 59,94 |
-| `melange-groupe.srt` | 65,1 | 66,4 | oui | 29,97 |
-| `melange-disperse.srt` | 75,4 | 84,9 | oui | 25 |
+| Fixture | The lower | The higher | Same band? | Retained |
+| :------ | --------: | ---------: | :--------- | :------- |
+| `grille-25.srt` | 100.0 | 100.0 | yes | 25 |
+| `grille-30.srt` | 99.9 | 99.5 | yes | 30 |
+| `grille-29-97.srt` | 99.8 | 99.4 | yes | 29.97 |
+| `grille-50.srt` | 15.8 | 100.0 | no | 50 |
+| `grille-60.srt` | 1.3 | 99.5 | no | 60 |
+| `grille-59-94.srt` | 4.8 | 99.4 | no | 59.94 |
+| `melange-groupe.srt` | 65.1 | 66.4 | yes | 29.97 |
+| `melange-disperse.srt` | 75.4 | 84.9 | yes | 25 |
 
-Un écart chiffré n'aurait pas tenu : les deux dernières lignes sont séparées de
-1,3 et de 9,5 points, et la quatrième de 84. Aucune marge ne passe entre 9,5
-et 84 sans être choisie après coup pour ça.
+A numeric gap would not have held: the last two rows are separated by
+1.3 and 9.5 points, and the fourth by 84. No margin fits between 9.5
+and 84 without being chosen after the fact for that purpose.
 
-**D6 — l'étendue est rendue, et les candidates qu'elle ne sépare pas sont
-nommées.** 23,976 et 24 dérivent d'une milliseconde par seconde de film, et une
-image en dure 41,7 : la phase sur la mauvaise candidate fait un tour complet
-toutes les quarante-deux secondes. Sur un long métrage, elles se séparent sans
-appel ; sur dix secondes, non — `grille-24-courte.srt` donne 24 à 99,9 et 23,976
-à 92,7. Rendre « 24, confiance 99,9 » serait mentir par omission.
+**D6 — the span is returned, and the candidates it does not separate are
+named.** 23.976 and 24 drift apart by one millisecond per second of film, and a
+frame lasts 41.7 ms: the phase on the wrong candidate makes a full turn
+every forty-two seconds. Over a feature film, they separate without
+question; over ten seconds, they do not — `grille-24-courte.srt` gives 24 at 99.9 and 23.976
+at 92.7. Returning "24, confidence 99.9" would be lying by omission.
 
-**D7 — un fichier partiel rend quels débuts sont hors grille.** Dire « les deux
-tiers de vos débuts sont sur une grille à 29,97 » est vrai et n'aide personne.
-La déduction rend donc, pour la candidate retenue, les indices des débuts qui
-s'en écartent de plus d'une milliseconde, et la présentation en tire la forme.
-Le nombre de suites consécutives suffit à distinguer les deux causes, et il ne
-coûte qu'une passe :
+**D7 — a partial file returns which starts are off the grid.** Saying "two
+thirds of your starts are on a grid at 29.97" is true and helps nobody.
+The deduction therefore returns, for the retained candidate, the indices of the starts that
+deviate from it by more than one millisecond, and the presentation derives the shape from them.
+The number of consecutive runs is enough to tell the two causes apart, and it
+costs only one pass:
 
-| Fixture | Hors grille | Suites | Plus longue |
-| :------ | ----------: | -----: | ----------: |
-| `melange-disperse.srt` — édition à la main | 31 / 171 | **31** | **1** |
-| `melange-groupe.srt` — section recalée | 52 / 168 | **5** | **27** |
+| Fixture | Off grid | Runs | Longest |
+| :------ | -------: | ---: | ------: |
+| `melange-disperse.srt` — editing by hand | 31 / 171 | **31** | **1** |
+| `melange-groupe.srt` — a retimed section | 52 / 168 | **5** | **27** |
 
-**D8 — la phase est rendue, en millisecondes, et n'est jamais corrigée en
-silence.** Un fichier dont les positions sont sur la grille à une constante près
-a été décalé, et cette constante se mesure. La corriger est une opération que
-l'utilisateur demande (**D10**), pas un effet de bord de la lecture.
+**D8 — the phase is returned, in milliseconds, and is never corrected
+silently.** A file whose positions are on the grid up to a constant
+has been shifted, and that constant can be measured. Correcting it is an operation
+the user asks for (**D10**), not a side effect of reading.
 
-**D9 — la déduction tourne à l'ouverture du fichier.** C'est ce qui permet à la
-barre d'état, au dialogue de conversion et à `inspect` de la montrer sans que
-l'utilisateur la réclame. Elle est donc **sur le chemin de lecture**, qui coûte
-2,5 ms pour 4000 sous-titres : son budget est **un cinquième de la lecture**,
-vérifié au benchmark et non espéré. Au-delà, elle devient paresseuse.
+**D9 — the deduction runs when the file is opened.** That is what lets the
+status bar, the conversion dialog and `inspect` show it without
+the user asking for it. It is therefore **on the reading path**, which costs
+2.5 ms for 4000 subtitles: its budget is **a fifth of reading**,
+checked by the benchmark and not hoped for. Beyond that, it becomes lazy.
 
-**Mesuré par #203 : 374 µs** au relevé de la version 0.6.3, contre 2,32 ms pour
-la lecture du même relevé — **16 %, le budget est tenu.**
+**Measured by #203: 374 µs** in the record of version 0.6.3, against 2.32 ms for
+reading in the same record — **16 %, the budget is held.**
 
-**La fenêtre va au-delà de « à l'ouverture », et c'est voulu.** Elle recalcule à
-chaque changement du document, parce qu'un alignement change la grille et que la
-barre d'état ne doit pas continuer à annoncer l'ancienne. C'est ce que
-l'[ADR 0021](../adr/0021-analyse-du-document-a-l-ouverture.md) rend possible en
-refusant de garder une valeur dérivée : il n'y a aucune invalidation à tenir, et
-le coût reste celui d'une fraction de milliseconde.
+**The window goes beyond "on opening", and that is intended.** It recomputes on
+every change of the document, because a snap changes the grid and the
+status bar must not keep announcing the old one. That is what
+[ADR 0021](../adr/0021-analyse-du-document-a-l-ouverture.md) makes possible by
+refusing to keep a derived value: there is no invalidation to maintain, and
+the cost remains that of a fraction of a millisecond.
 
-Il ne l'était pas au premier jet. Le gain vient d'une propriété et non d'une
-astuce : une position est un nombre entier de millisecondes, donc sur une
-fréquence entière la phase ne prend que mille valeurs, et cinq des huit
-candidates se répondent alors par une table **exacte**, pas approchée. Mesuré
-dos à dos, elle divise le coût par deux.
+It was not so at the first attempt. The gain comes from a property and not from a
+trick: a position is a whole number of milliseconds, so on an integer
+frame rate the phase takes only a thousand values, and five of the eight
+candidates are then answered by an **exact** table, not an approximate one. Measured
+back to back, it halves the cost.
 
-**D10 — deux opérations, et elles ne font pas la même chose.**
+**D10 — two operations, and they do not do the same thing.**
 
-| Opération | Ce qu'elle fait | Ce qu'elle préserve |
-| :-------- | :-------------- | :------------------ |
-| **ramener sur la grille** | décale tout le fichier de la phase mesurée | le minutage relatif, **exactement** |
-| **aligner sur une fréquence** | porte chaque horodatage — début *et* fin — sur l'image la plus proche de la fréquence choisie | la position de chaque réplique, à une demi-image près |
+| Operation | What it does | What it preserves |
+| :-------- | :----------- | :---------------- |
+| **put back on the grid** | shifts the whole file by the measured phase | the relative timing, **exactly** |
+| **snap to a frame rate** | moves each timestamp — start *and* end — to the nearest frame of the chosen frame rate | the position of each line, to within half a frame |
 
-Sur un fichier parfaitement calé, les deux donnent le même résultat : si la
-phase est inférieure à une demi-image, porter chaque horodatage sur l'image la
-plus proche revient à décaler l'ensemble de la même quantité. **Elles divergent
-sur un fichier partiel**, et c'est là qu'est leur raison d'être : la première
-laisse les écarts où ils sont, la seconde les absorbe. `melange-disperse.srt`
-est le fichier qui montre la différence.
+On a perfectly timed file, both give the same result: if the
+phase is less than half a frame, moving each timestamp to the nearest
+frame amounts to shifting the whole by the same amount. **They diverge
+on a partial file**, and that is where their reason for being lies: the first
+leaves the deviations where they are, the second absorbs them. `melange-disperse.srt`
+is the file that shows the difference.
 
-**D11 — aligner n'est pas convertir, et c'est le piège de cette phase.**
+**D11 — snapping is not converting, and that is the trap of this phase.**
 
-| | Convertir | Aligner |
-| :--- | :-------- | :------ |
-| formule | `t' = t × R_entrée / R_sortie` | `t' = round(t × R / 1000) × 1000 / R` |
-| déplacement | proportionnel au temps — **plusieurs secondes** sur un long métrage | une demi-image au plus, **partout** |
-| pour quel fichier | un fichier dont le minutage est **faux** | un fichier dont le minutage est **juste** et dont la grille est fausse |
+| | Convert | Snap |
+| :--- | :------ | :--- |
+| formula | `t' = t × R_in / R_out` | `t' = round(t × R / 1000) × 1000 / R` |
+| displacement | proportional to time — **several seconds** over a feature film | half a frame at most, **everywhere** |
+| for which file | a file whose timing is **wrong** | a file whose timing is **right** and whose grid is wrong |
 
-Le cas d'usage de l'alignement, en toutes lettres : une vidéo à 25 images par
-seconde, un fichier de sous-titres écrit sur une grille à 24, des répliques déjà
-à peu près à leur place à quelques millisecondes près. Il n'y a rien à
-re-minuter — seulement à reposer les horodatages sur la bonne grille.
+The use case of snapping, spelled out: a video at 25 frames per
+second, a subtitle file written on a grid at 24, lines already
+roughly in place to within a few milliseconds. There is nothing to
+retime — only to set the timestamps back on the right grid.
 
-Se tromper de l'une pour l'autre est le pire mode d'échec de la phase : les deux
-acceptent les mêmes arguments et l'une décale le fichier entier sans rien
-signaler. **Le manuel et l'aide en ligne les opposent explicitement**, l'un dans
-la section de l'autre.
+Mistaking one for the other is the worst failure mode of the phase: both
+accept the same arguments and one shifts the whole file without
+saying anything. **The manual and the online help contrast them explicitly**, each in
+the other's section.
 
-**D12 — la déduction ne marque jamais une ligne.** La phase 5 s'interdit
-d'utiliser la grille pour marquer quoi que ce soit dans la table, et cette
-interdiction tient. Dès qu'un utilisateur corrige une position à la main, elle
-cesse d'être alignée : un détecteur naïf signalerait son travail comme une
-anomalie.
+**D12 — the deduction never marks a row.** Phase 5 forbids itself
+from using the grid to mark anything in the table, and that
+prohibition holds. As soon as a user corrects a position by hand, it
+stops being aligned: a naive detector would flag their work as an
+anomaly.
 
-**Une teinte de ligne existe pourtant depuis #211**, et elle ne vient pas
-d'ici : c'est la réplique que le film montre à l'instant. Elle est transitoire,
-elle suit une lecture et non une mesure, et une anomalie l'emporte sur elle. D12
-interdit à la *déduction* de marquer une ligne, et cela reste vrai. `melange-disperse.srt` est précisément ce fichier, et accuser ses
-trente-et-une lignes serait accuser l'utilisateur. **La déduction parle du
-document, jamais d'une ligne** — sauf dans la modale d'analyse, que
-l'utilisateur ouvre pour cela.
+**A row tint has existed since #211**, however, and it does not come
+from here: it is the line the film shows at that instant. It is transient,
+it follows playback and not a measurement, and an anomaly overrides it. D12
+forbids the *deduction* from marking a row, and that remains true. `melange-disperse.srt` is precisely that file, and accusing its
+thirty-one rows would be accusing the user. **The deduction speaks of the
+document, never of a row** — except in the analysis dialog, which
+the user opens for that purpose.
 
-**D13 — un désaccord entre les deux sources est montré, et rien n'est choisi.**
-Le conteneur *déclare* une fréquence (phase 6, `ffprobe`), les positions en
-*trahissent* une autre. Ce ne sont pas la même donnée : la première dit à quelle
-cadence le film tourne, la seconde sur quelle grille le fichier a été écrit. Un
-fichier à 24 sur un film à 25 n'est pas une contradiction, c'est le cas d'usage
-de l'alignement. La phase 6 avait posé la règle par avance — « une source qui
-s'impose interdit de croiser » (D6 de sa spec) — et elle s'applique ici à la
-troisième source.
+**D13 — a disagreement between the two sources is shown, and nothing is chosen.**
+The container *declares* a frame rate (phase 6, `ffprobe`), the positions
+*betray* another. They are not the same datum: the first says at what
+rate the film runs, the second on which grid the file was written. A
+file at 24 on a film at 25 is not a contradiction, it is the use case
+of snapping. Phase 6 had laid down the rule in advance — "a source that
+takes precedence forbids cross-checking" (D6 of its spec) — and it applies here to the
+third source.
 
-**D14 — la déduction vit dans `core/analysis/`.** Ce n'est pas une primitive de
-temps comme `FrameRate`, `Timestamp` ou `Ratio` : c'est une observation sur un
-document. Le répertoire est neuf et accueillera plus tard les anomalies de
-`core/model/anomaly.hpp`, qui sont la même famille — ce déplacement n'est pas de
-cette phase. *(Fait depuis, hors phase, par la #227.)*
+**D14 — the deduction lives in `core/analysis/`.** It is not a time
+primitive like `FrameRate`, `Timestamp` or `Ratio`: it is an observation about a
+document. The directory is new and will later host the anomalies of
+`core/model/anomaly.hpp`, which are the same family — that move is not part of
+this phase. *(Done since, outside the phase, by #227.)*
 
-## Le noyau
+## The core
 
 ### `core/analysis/frame_rate_deduction.hpp`
 
-Une fonction pure sur les positions, sans état. Elle ne dépend que de
-`core/time/` — `Duration`, `FrameRate` — et de `SubtitleIndex`, qui est un type
-de valeur du modèle et non une opération. **Elle ne connaît ni `Project`, ni
-`Session`, ni l'historique** : elle reçoit des positions et rend un jugement, ce
-qui est exactement ce qui la rend éprouvable sur quinze fichiers et une table de
-constantes.
+A pure function on the positions, without state. It depends only on
+`core/time/` — `Duration`, `FrameRate` — and on `SubtitleIndex`, which is a value
+type of the model and not an operation. **It knows neither `Project`, nor
+`Session`, nor the history**: it receives positions and returns a judgement, which
+is exactly what makes it testable on fifteen files and a table of
+constants.
 
 ```cpp
-struct GridFit {          // une candidate, et ce qu'elle vaut
+struct GridFit {          // a candidate, and what it is worth
     FrameRate rate;
-    double concentration; // 0 à 100
-    Duration phase;       // le décalage constant, en millisecondes
+    double concentration; // 0 to 100
+    Duration phase;       // the constant shift, in milliseconds
 };
 
 enum class GridVerdict { Clean, Partial, Silent };
 
 struct FrameRateDeduction {
-    std::array<GridFit, 8> ranked;         // décroissant, D4
-    GridFit retained;                      // la réponse, après D5
+    std::array<GridFit, 8> ranked;         // descending, D4
+    GridFit retained;                      // the answer, after D5
     GridVerdict verdict;                   // D4
-    std::optional<FrameRate> harmonic;     // la candidate écartée par D5
-    std::vector<FrameRate> notSeparated;   // ce que l'étendue ne sépare pas, D6
-    Duration span;                         // l'étendue vue, D6
-    std::size_t starts;                    // combien de débuts l'ont donnée
-    std::vector<SubtitleIndex> strays;     // les débuts hors grille, D7
+    std::optional<FrameRate> harmonic;     // the candidate set aside by D5
+    std::vector<FrameRate> notSeparated;   // what the span does not separate, D6
+    Duration span;                         // the span seen, D6
+    std::size_t starts;                    // how many starts produced it
+    std::vector<SubtitleIndex> strays;     // the starts off the grid, D7
 };
 ```
 
-**`retained` n'est pas `ranked.front()`, et les deux sont exposés.** C'est ce que
-D5 impose : le classement reste l'ordre honnête des concentrations, la réponse
-est celle que la règle harmonique désigne. Les confondre obligerait soit à
-mentir sur l'ordre, soit à refaire la règle chez chaque appelant.
+**`retained` is not `ranked.front()`, and both are exposed.** That is what
+D5 imposes: the ranking stays the honest order of the concentrations, the answer
+is the one the harmonic rule designates. Conflating them would force either
+lying about the order or redoing the rule in every caller.
 
-Les seuils — 90 pour `Clean`, 50 pour `Partial` — sont écrits **une seule fois**,
-ici, et nulle part ailleurs. C'est la conclusion de #197 : le score d'un couple
-fichier × fréquence est une constante de test, pas un matcher.
+The thresholds — 90 for `Clean`, 50 for `Partial` — are written **only once**,
+here, and nowhere else. That is the conclusion of #197: the score of a
+file × frame rate pair is a test constant, not a matcher.
 
-### Les deux opérations
+### The two operations
 
-Elles entrent dans l'historique comme les autres, par `Session::apply`, et sont
-annulables.
+They enter the history like the others, through `Session::apply`, and are
+undoable.
 
-**Ramener sur la grille** est un `ShiftCommand` dont le montant vient de la
-mesure plutôt que de l'utilisateur. Aucune commande neuve : c'est un décalage,
-et l'écrire autrement dupliquerait un comportement déjà éprouvé — y compris
-l'avertissement de dépassement de la fin du film (phase 6, D4 de sa spec). Elle
-**n'est pas disponible quand le verdict est `Silent`** : il n'y a pas de grille
-à rejoindre.
+**Putting back on the grid** is a `ShiftCommand` whose amount comes from the
+measurement rather than from the user. No new command: it is a shift,
+and writing it otherwise would duplicate a behaviour already tested — including
+the warning about going past the end of the film (phase 6, D4 of its spec). It
+**is not available when the verdict is `Silent`**: there is no grid
+to rejoin.
 
-**Aligner sur une fréquence** est une commande neuve, `SnapCommand`. Elle porte
-chaque horodatage — début et fin — sur l'image la plus proche de la fréquence
-donnée. La fréquence est choisie par l'utilisateur et **pré-remplie par celle
-que la vidéo déclare**, non par celle que la déduction trouve : l'intention est
-de rejoindre la grille du film, et la déduction dit celle qu'on quitte.
+**Snapping to a frame rate** is a new command, `SnapCommand`. It moves
+each timestamp — start and end — to the nearest frame of the given
+frame rate. The frame rate is chosen by the user and **prefilled with the one
+the video declares**, not with the one the deduction finds: the intent is
+to rejoin the film's grid, and the deduction says the one being left.
 
-Deux propriétés à tenir, et à éprouver :
+Two properties to hold, and to test:
 
-- **idempotence** — appliquer deux fois la même fréquence ne change rien la
-  seconde fois ;
-- **l'ordre est préservé** — la quantification est monotone, donc deux débuts
-  distants d'au moins une image le restent. Deux débuts plus proches qu'une
-  image peuvent se confondre, et c'est une anomalie que le noyau sait déjà
-  nommer.
+- **idempotence** — applying the same frame rate twice changes nothing the
+  second time;
+- **order is preserved** — quantisation is monotonic, so two starts
+  at least one frame apart stay so. Two starts closer than one
+  frame may merge, and that is an anomaly the core already knows how to
+  name.
 
-## La ligne de commande
+## The command line
 
-`inspect` gagne une section, et deux sous-commandes apparaissent.
+`inspect` gains a section, and two subcommands appear.
 
-| Surface | Ce qu'elle porte |
-| :------ | :--------------- |
-| `inspect` | la candidate retenue, sa concentration, l'étendue, la phase, le verdict, et l'ambiguïté harmonique s'il y en a une |
-| `shift --to-grid` | ramener sur la grille ; le montant vient de la mesure, et il est écrit avant d'être appliqué |
-| `snap --rate <R>` | aligner sur une fréquence ; écrit combien de positions ont bougé et de combien au plus |
+| Surface | What it carries |
+| :------ | :-------------- |
+| `inspect` | the retained candidate, its concentration, the span, the phase, the verdict, and the harmonic ambiguity if there is one |
+| `shift --to-grid` | put back on the grid; the amount comes from the measurement, and it is written before being applied |
+| `snap --rate <R>` | snap to a frame rate; writes how many positions moved and by how much at most |
 
-`--rate` accepte les six formes déjà acceptées par `framerate` (phase 2), et
-**n'importe quelle cadence valide**, pas seulement les huit normalisées.
+`--rate` accepts the six forms already accepted by `framerate` (phase 2), and
+**any valid rate**, not only the eight standard ones.
 
-> **Correction, par #207.** Cette ligne disait l'inverse — « `snap` refuse une
-> fréquence hors des huit normalisées, comme `framerate` » — et se trompait deux
-> fois. `framerate` ne les refuse pas ; et l'ensemble clos des huit appartient à
-> la **déduction**, qui doit choisir parmi des candidates, non à une opération
-> dont l'utilisateur nomme lui-même la cible. Restreindre `snap` aurait ajouté
-> une règle sans bénéfice et incohérente avec l'opération qu'elle jouxte.
+> **Correction, by #207.** This line said the opposite — "`snap` refuses a
+> frame rate outside the eight standard ones, like `framerate`" — and was wrong twice.
+> `framerate` does not refuse them; and the closed set of eight belongs to
+> the **deduction**, which must choose among candidates, not to an operation
+> whose target the user names themselves. Restricting `snap` would have added
+> a rule with no benefit and inconsistent with the operation next to it.
 >
-> L'exigence `CLI-SNAP-03` qui en découlait est donc **retirée** avant d'avoir
-> été écrite, plutôt que rendue vraie de force.
+> The requirement `CLI-SNAP-03` that followed from it is therefore **withdrawn** before having
+> been written, rather than made true by force.
 
-Un fichier muet fait dire à `inspect` qu'il n'a trouvé aucune grille, **et non
-une fréquence à faible confiance** : c'est le sens de D2, et c'est la propriété
-qui autorise à se servir de la déduction.
+A silent file makes `inspect` say that it found no grid, **and not
+a low-confidence frame rate**: that is the meaning of D2, and it is the property
+that makes it legitimate to use the deduction.
 
-## La fenêtre
+## The window
 
-| Surface | Ce qu'elle porte |
-| :------ | :--------------- |
-| barre d'état | le verdict, à côté de `Video: film.mkv` — par exemple `Grid: 23.976 fps` ou `No grid` |
-| `Frame Rate Analysis…` | la modale d'analyse : le classement des huit, l'étendue, la phase, les débuts hors grille et leur forme |
-| `Convert Frame Rate…` | **l'entrée est désormais pré-remplie par la mesure**, et sa provenance est dite |
-| `Shift Whole File onto Grid` | l'opération de D10, montant **et portée** affichés avant d'être appliqués |
-| `Snap to Frame Rate…` | l'opération de D10, fréquence pré-remplie par celle que la vidéo déclare |
+| Surface | What it carries |
+| :------ | :-------------- |
+| status bar | the verdict, next to `Video: film.mkv` — for example `Grid: 23.976 fps` or `No grid` |
+| `Frame Rate Analysis…` | the analysis dialog: the ranking of the eight, the span, the phase, the starts off the grid and their shape |
+| `Convert Frame Rate…` | **the input is now prefilled with the measurement**, and its origin is stated |
+| `Shift Whole File onto Grid` | the operation of D10, amount **and scope** shown before being applied |
+| `Snap to Frame Rate…` | the operation of D10, frame rate prefilled with the one the video declares |
 
-### Une opération porte sur la sélection, la grille parle du document — issue #324
+### An operation works on the selection, the grid speaks of the document — issue #324
 
-**Deux règles de cette fenêtre sont bonnes chacune de son côté, et elles ne
-portent pas sur la même chose.** Une opération prend la sélection ; la grille
-parle du document. Vues côte à côte, elles se lisent comme un rafraîchissement
-manqué : aligner cinq lignes sur cent soixante-seize fait bouger les
-horodatages dans la table pendant que la barre d'état et l'analyse ne disent
-rien. Elles n'ont rien à dire — le document est toujours lu sur la grille que
-les cent soixante et onze autres tiennent.
+**Two rules of this window are each right on their own side, and they do not
+apply to the same thing.** An operation takes the selection; the grid
+speaks of the document. Seen side by side, they read like a missed
+refresh: snapping five rows out of a hundred and seventy-six makes the
+timestamps move in the table while the status bar and the analysis say
+nothing. They have nothing to say — the document is still read on the grid that
+the other hundred and seventy-one hold.
 
-**Le geste n'est pas anodin pour autant, et c'est mesuré.** Sur les huit
-fixtures de grille, aligner tout le fichier porte la cadence déduite sur la
-cible et sa concentration à 100 % ; aligner cinq lignes ne déplace jamais la
-cadence déduite et **abaisse** la concentration dans sept cas sur huit — 99,9 à
-96,6 au pire. Le huitième est 50 vers 25, où la grille visée divise celle du
-fichier. Aligner une partie d'un fichier sur une cadence que le reste ne partage
-pas est presque toujours involontaire.
+**The gesture is not harmless for all that, and it is measured.** On the eight
+grid fixtures, snapping the whole file brings the deduced rate to the
+target and its concentration to 100 %; snapping five rows never moves the
+deduced rate and **lowers** the concentration in seven cases out of eight — 99.9 to
+96.6 at worst. The eighth is 50 to 25, where the target grid divides that of the
+file. Snapping part of a file to a rate the rest does not share
+is almost always unintended.
 
-**Une notice le dit, une fois l'opération faite** — `noticeOf(PartialAlignment)`
-et `partialAlignment`, la même forme que ce que D4 donne au dépassement de fin
-de film : une analyse rend ce qu'il y a à dire ou rien, et le libellé est
-ailleurs. Elle porte la portée et l'écart, parce qu'aucun des deux seul ne
-suffit — la portée relie le geste à son effet, l'écart est la nouvelle.
+**A notice says so, once the operation is done** — `noticeOf(PartialAlignment)`
+and `partialAlignment`, the same form as what D4 gives to going past the end
+of the film: an analysis returns what there is to say or nothing, and the wording is
+elsewhere. It carries the scope and the deviation, because neither alone
+is enough — the scope links the gesture to its effect, the deviation is the news.
 
-Elle se tait quand la sélection couvre tout, quand aucune grille n'est déduite,
-et quand le document se lit désormais sur la cadence demandée.
+It stays silent when the selection covers everything, when no grid is deduced,
+and when the document is now read on the requested rate.
 
-**Écarté : une modale de confirmation avant d'appliquer.** Elle arrêterait le
-geste involontaire et barrerait le geste délibéré, alors qu'aligner une partie
-d'un fichier peut se vouloir. La règle du projet est de dire plutôt que de
-taire, non d'empêcher — ADR 0008.
+**Set aside: a confirmation dialog before applying.** It would stop the
+unintended gesture and block the deliberate one, whereas snapping part
+of a file can be intended. The project's rule is to say rather than to
+stay silent, not to prevent — ADR 0008.
 
-**Écarté : préciser en permanence dans la barre d'état ce que la grille
-regarde.** Elle encombrerait une ligne lue à chaque instant pour un cas qui ne
-se présente qu'après une opération.
+**Set aside: stating permanently in the status bar what the grid
+looks at.** It would clutter a line read at every instant for a case that only
+arises after an operation.
 
-**Et `Shift onto Grid` devient `Shift Whole File onto Grid`.** C'est la seule
-opération du menu qui ignore la sélection — une grille est une propriété du
-document, et une moitié de document n'a pas de grille à elle. Le manuel le
-disait, la fenêtre non, si bien que la seule entrée qui se comporte autrement
-ressemblait à toutes les autres. Elle portait déjà son montant dans son
-intitulé ; elle y porte maintenant sa portée.
+**And `Shift onto Grid` becomes `Shift Whole File onto Grid`.** It is the only
+operation of the menu that ignores the selection — a grid is a property of the
+document, and half a document has no grid of its own. The manual
+said so, the window did not, so the only entry that behaves differently
+looked like all the others. It already carried its amount in its
+label; it now carries its scope there too.
 
-Le dialogue de conversion change de nature, et le manuel d'interface l'annonce
-déjà : il écrit aujourd'hui que le dialogue pré-remplit « la sortie, jamais
-l'entrée », parce que « le fichier a été calé contre une fréquence que lui seul
-connaît ». C'est exactement ce que cette phase apporte. **La ligne devient donc
-une mesure, pas une préférence** — et elle reste modifiable, par D13.
+The conversion dialog changes in nature, and the interface manual already
+announces it: it writes today that the dialog prefills "the output, never
+the input", because "the file was timed against a frame rate that only it
+knows". That is exactly what this phase brings. **The line therefore becomes
+a measurement, not a preference** — and it stays editable, by D13.
 
-Quand la mesure et ce que la vidéo déclare divergent, **les deux s'affichent** :
-l'entrée porte la mesure, la sortie porte ce que le film annonce, et rien n'est
-choisi à la place de l'utilisateur.
+When the measurement and what the video declares diverge, **both are displayed**:
+the input carries the measurement, the output carries what the film announces, and nothing is
+chosen in the user's place.
 
-**Des corrections cosmétiques de la fenêtre seront intégrées à cette phase**,
-listées avant la clôture. Elles n'ont pas de rapport avec la déduction et sont
-regroupées ici parce que la phase touche déjà l'interface.
+**Cosmetic fixes to the window will be included in this phase**,
+listed before the closing. They have nothing to do with the deduction and are
+grouped here because the phase already touches the interface.
 
 ## Tests
 
-Les fixtures existent : `src/test/data/grilles/`, quinze fichiers, et leur
-`LISEZMOI.md` porte les deux tables — ce que chacune est, et ce que chacune
-donne sur les huit candidates.
+The fixtures exist: `src/test/data/grilles/`, fifteen files, and their
+`LISEZMOI.md` carries the two tables — what each one is, and what each one
+gives on the eight candidates.
 
-| Ce qui est éprouvé | Sur quoi |
-| :----------------- | :------- |
-| la bonne candidate sort | les huit `grille-<R>.srt` |
-| l'échec est bruyant | `grille-absurde.srt` — sous 16 partout |
-| la phase n'est pas un déchet | `grille-24-decalee.srt` — 99,9 malgré 2 999 ms |
-| l'ambiguïté harmonique et D5 | `grille-25.srt`, `grille-30.srt`, `melange-groupe.srt` |
-| l'étendue et D6 | `grille-24-courte.srt` — 23,976 à 92,7 contre 99,9 |
-| le partiel, ses deux causes et D7 | `melange-groupe.srt`, `melange-disperse.srt` |
-| l'idempotence de l'alignement | toutes, appliquées deux fois |
-| aligner n'est pas convertir | `grille-24.srt` aligné sur 25 bouge de moins d'une demi-image ; converti, de plusieurs secondes |
-| les débuts suffisent | `grille-24-fins-calculees.srt` — 99,9 aux débuts, 52,4 aux fins |
-| aucune grille du tout | `sans-grille.srt` — 12,5 au mieux, verdict muet |
+| What is tested | On what |
+| :------------- | :------ |
+| the right candidate comes out | the eight `grille-<R>.srt` |
+| failure is loud | `grille-absurde.srt` — under 16 everywhere |
+| the phase is not waste | `grille-24-decalee.srt` — 99.9 despite 2 999 ms |
+| the harmonic ambiguity and D5 | `grille-25.srt`, `grille-30.srt`, `melange-groupe.srt` |
+| the span and D6 | `grille-24-courte.srt` — 23.976 at 92.7 against 99.9 |
+| the partial file, its two causes and D7 | `melange-groupe.srt`, `melange-disperse.srt` |
+| idempotence of snapping | all of them, applied twice |
+| snapping is not converting | `grille-24.srt` snapped to 25 moves by less than half a frame; converted, by several seconds |
+| the starts are enough | `grille-24-fins-calculees.srt` — 99.9 on the starts, 52.4 on the ends |
+| no grid at all | `sans-grille.srt` — 12.5 at best, silent verdict |
 
-Les concentrations attendues sont des **constantes dans le code de test**,
-reprises du `LISEZMOI.md`. Aucun matcher : neuf fixtures et huit candidates font
-une table de nombres, et une table se lit mieux qu'un verbe.
+The expected concentrations are **constants in the test code**,
+taken from `LISEZMOI.md`. No matcher: nine fixtures and eight candidates make
+a table of numbers, and a table reads better than a verb.
 
-Les deux dernières lignes ont été **ajoutées en phase 10**, issue #373 : cette
-spec les nommait comme ce qui manquait « si un test le demande », et un test les
-a demandées. `grille-24-fins-calculees.srt` garde la déduction honnête le jour
-où quelqu'un la ferait lire les fins ; `sans-grille.srt` transforme « l'échec est
-bruyant » d'observation sur le corpus privé en propriété versionnée.
+The last two rows were **added in phase 10**, issue #373: this
+spec named them as what was missing "if a test asks for it", and a test
+asked for them. `grille-24-fins-calculees.srt` keeps the deduction honest the day
+someone makes it read the ends; `sans-grille.srt` turns "failure is
+loud" from an observation on the private corpus into a versioned property.
 
-## Mesures
+## Measurements
 
-| Mesure | Pourquoi |
-| :----- | :------- |
-| la déduction sur 4000 sous-titres | le budget de D9, un cinquième de la lecture |
-| l'alignement sur 4000 sous-titres | une opération de plus, à comparer aux quatre existantes |
+| Measurement | Why |
+| :---------- | :-- |
+| the deduction on 4000 subtitles | the budget of D9, a fifth of reading |
+| snapping on 4000 subtitles | one more operation, to compare with the four existing ones |
 
-`lecture de 4000 sous-titres` porte déjà le chemin sur lequel D9 pose la
-déduction : c'est ce relevé-là qui dira si le budget est tenu.
+`lecture de 4000 sous-titres` already carries the path on which D9 places the
+deduction: that is the record that will say whether the budget is held.
 
-## Exigences
+## Requirements
 
-| Identifiant | Ce qu'il promet |
-| :---------- | :-------------- |
-| `CLI-INSPECT-05` | `inspect` écrit la grille déduite, sa concentration, l'étendue et le verdict |
-| `CLI-INSPECT-06` | un fichier sans grille le dit, et ne nomme aucune fréquence |
-| `CLI-INSPECT-07` | une ambiguïté harmonique est nommée, et la plus basse est retenue |
-| `CLI-SHIFT-03` | `shift --to-grid` décale du montant mesuré, et l'écrit |
-| `CLI-SHIFT-04` | `shift --to-grid` sur un fichier sans grille refuse et dit pourquoi |
-| `CLI-SNAP-01` | `snap --rate R` porte chaque position sur l'image la plus proche de R |
-| `CLI-SNAP-02` | `snap` écrit combien de positions ont bougé, et de combien au plus |
-| `GUI-GRID-01` | la barre d'état porte le verdict de la déduction |
-| `GUI-GRID-02` | la modale d'analyse montre les huit candidates, l'étendue et les écarts |
-| `GUI-FRAMERATE-03` | le dialogue de conversion pré-remplit l'entrée avec la mesure, et le dit |
-| `GUI-FRAMERATE-04` | un désaccord entre la mesure et ce que la vidéo déclare est montré sans être arbitré |
-| `GUI-SNAP-01` | `Snap to Frame Rate…` aligne le document, et l'opération s'annule |
-| `GUI-GRID-03` | ramener sur la grille affiche son montant, et s'éteint sans grille |
+| ID | Requirement |
+| :- | :---------- |
+| `CLI-INSPECT-05` | `inspect` writes the deduced grid, its concentration, the span and the verdict |
+| `CLI-INSPECT-06` | a file without a grid says so, and names no frame rate |
+| `CLI-INSPECT-07` | a harmonic ambiguity is named, and the lower one is retained |
+| `CLI-SHIFT-03` | `shift --to-grid` shifts by the measured amount, and writes it |
+| `CLI-SHIFT-04` | `shift --to-grid` on a file without a grid refuses and says why |
+| `CLI-SNAP-01` | `snap --rate R` moves each position to the nearest frame of R |
+| `CLI-SNAP-02` | `snap` writes how many positions moved, and by how much at most |
+| `GUI-GRID-01` | the status bar carries the verdict of the deduction |
+| `GUI-GRID-02` | the analysis dialog shows the eight candidates, the span and the deviations |
+| `GUI-FRAMERATE-03` | the conversion dialog prefills the input with the measurement, and says so |
+| `GUI-FRAMERATE-04` | a disagreement between the measurement and what the video declares is shown without being arbitrated |
+| `GUI-SNAP-01` | `Snap to Frame Rate…` snaps the document, and the operation can be undone |
+| `GUI-GRID-03` | putting back on the grid shows its amount, and is disabled without a grid |
 
-**Douze, et non treize.** `CLI-SNAP-03` a été retirée par #207 avant d'être
-écrite — la raison est plus haut — et `GUI-GRID-03` est née en #210, quand
-l'entrée de menu a dû dire son montant avant de l'appliquer. Les deux écarts
-sont inscrits ici plutôt que corrigés en silence, et la relecture de fin de
-phase (#222) a confronté cette table au registre ligne à ligne.
+**Twelve, not thirteen.** `CLI-SNAP-03` was withdrawn by #207 before being
+written — the reason is above — and `GUI-GRID-03` was born in #210, when
+the menu entry had to state its amount before applying it. Both deviations
+are recorded here rather than silently corrected, and the end-of-phase
+review (#222) confronted this table with the registry row by row.
 
-**Elles entrent au registre en début d'issue, à l'état `prévue`.** Le cadrage de
-la phase 6 renvoyait ici la question : la règle le dit, la pratique ne l'a
-jamais suivie sur une phase entière, et il fallait trancher. **La règle est
-gardée**, parce que cette phase est la première où elle sert vraiment : les
-treize lignes ci-dessus sont écrites *avant* le code et décident ce qui sera
-fait, là où les sept de la phase 6, entrées à la fin, ne faisaient que décrire.
-Si elle n'est pas tenue cette fois non plus, c'est la règle qu'il faudra retirer
-et non la pratique qu'il faudra excuser.
+**They enter the registry at the start of the issue, in the `planned` state.** The framing of
+phase 6 deferred the question here: the rule says so, practice has
+never followed it over a whole phase, and it had to be settled. **The rule is
+kept**, because this phase is the first where it really serves: the
+thirteen rows above are written *before* the code and decide what will be
+done, whereas the seven of phase 6, entered at the end, only described.
+If it is not held this time either, it is the rule that will have to be withdrawn
+and not the practice that will have to be excused.
 
-## Manuel
+## Manual
 
-| Section | Ce qui change |
-| :------ | :------------ |
-| `subedit-cli/inspect.md` | la section de déduction, avec un exemple réel |
+| Section | What changes |
+| :------ | :----------- |
+| `subedit-cli/inspect.md` | the deduction section, with a real example |
 | `subedit-cli/shift.md` | `--to-grid` |
-| `subedit-cli/snap.md` | la sous-commande, **et son opposition explicite à `framerate`** (D11) |
-| `subedit-cli/framerate.md` | le renvoi symétrique vers `snap` |
-| `subedit-gui/operations.md` | les deux opérations, et le dialogue de conversion qui change de nature |
-| `subedit-gui/table.md` ou une section neuve | la modale d'analyse et la barre d'état |
+| `subedit-cli/snap.md` | the subcommand, **and its explicit contrast with `framerate`** (D11) |
+| `subedit-cli/framerate.md` | the symmetrical pointer to `snap` |
+| `subedit-gui/operations.md` | the two operations, and the conversion dialog that changes in nature |
+| `subedit-gui/table.md` or a new section | the analysis dialog and the status bar |
 
-**Une question de manuel reste ouverte, renvoyée par #198 :** un exemple de
-`inspect` a besoin d'un fichier calé sur une grille, et les exemples s'exécutent
-dans un répertoire temporaire vide où l'entrée vient d'un `printf`. Deux
-répliques y tiennent, mille non. Deux voies — une boucle de shell dans
-l'exemple, auto-suffisante mais qui montre un générateur avant de montrer une
-commande, ou une fixture versionnée, qui montre une commande sur un fichier que
-le lecteur n'a pas. **À trancher dans l'issue qui écrit la section**, avec la
-section sous les yeux.
+**One manual question remains open, deferred by #198:** an example of
+`inspect` needs a file timed on a grid, and the examples run
+in an empty temporary directory where the input comes from a `printf`. Two
+lines fit there, a thousand do not. Two ways — a shell loop in the
+example, self-sufficient but showing a generator before showing a
+command, or a versioned fixture, which shows a command on a file that
+the reader does not have. **To be settled in the issue that writes the section**, with the
+section in front of one's eyes.
 
-## Découpage en issues
+## Split into issues
 
-| Ordre | Issue | Ce qu'elle porte |
-| ----: | :---- | :--------------- |
-| 1 | #203 — Noyau : la déduction, son classement et son verdict | D1 à D8 et D14, `core/analysis/`, les seuils écrits une fois |
-| 2 | #204 — Noyau : aligner les positions sur une fréquence | `SnapCommand`, D10 et D11, idempotence et ordre préservé |
-| 3 | #205 — Noyau : ramener un fichier sur sa grille | le décalage dont le montant vient de la mesure |
-| 4 | #206 — CLI : `inspect` dit la grille du fichier | D2, D5, D6, et le fichier muet qui le dit |
-| 5 | #207 — CLI : aligner, ramener sur la grille | les deux sous-commandes, et l'opposition à `framerate` |
-| 6 | #208 — Interface : le verdict et la modale d'analyse | la barre d'état, D7 sous forme lisible, D12 |
-| 7 | #209 — Interface : la mesure dans le dialogue de conversion | D13, et le désaccord montré |
-| 8 | #210 — Interface : aligner, ramener sur la grille | les entrées de menu, l'annulation |
-| 9 | #211 — Interface : corrections cosmétiques | à lister avant la clôture |
+| Order | Issue | What it carries |
+| ----: | :---- | :-------------- |
+| 1 | #203 — Core: the deduction, its ranking and its verdict | D1 to D8 and D14, `core/analysis/`, the thresholds written once |
+| 2 | #204 — Core: snapping the positions to a frame rate | `SnapCommand`, D10 and D11, idempotence and preserved order |
+| 3 | #205 — Core: putting a file back on its grid | the shift whose amount comes from the measurement |
+| 4 | #206 — CLI: `inspect` states the file's grid | D2, D5, D6, and the silent file that says so |
+| 5 | #207 — CLI: snap, put back on the grid | the two subcommands, and the contrast with `framerate` |
+| 6 | #208 — Interface: the verdict and the analysis dialog | the status bar, D7 in readable form, D12 |
+| 7 | #209 — Interface: the measurement in the conversion dialog | D13, and the disagreement shown |
+| 8 | #210 — Interface: snap, put back on the grid | the menu entries, undo |
+| 9 | #211 — Interface: cosmetic fixes | to be listed before the closing |
 
-#203 précède toutes les autres. #204 et #205 ne dépendent que d'elle et peuvent
-aller en parallèle ; #206 et #207 dépendent des trois ; #208, #209 et #210
-dépendent de tout ce qui précède. **#208 est celle qui rend la phase visible** —
-avant elle, la déduction n'existe que pour qui lit une sortie de terminal. #211
-ne dépend de rien et se remplit en chemin.
+#203 precedes all the others. #204 and #205 depend only on it and can
+go in parallel; #206 and #207 depend on the three; #208, #209 and #210
+depend on everything before. **#208 is the one that makes the phase visible** —
+before it, the deduction exists only for whoever reads terminal output. #211
+depends on nothing and fills up along the way.
 
-## Renvois
+## Deferrals
 
-**Répercutés par la relecture de fin de phase (#222)**, qui a vérifié que chacun
-désigne quelque chose de réel — une section de la feuille de route ou une issue
-ouverte — plutôt qu'une intention.
+**Carried over by the end-of-phase review (#222)**, which checked that each one
+designates something real — a section of the roadmap or an open
+issue — rather than an intention.
 
-| Ce qui est renvoyé | Où |
-| :----------------- | :- |
-| retrouver la paire d'une conversion faite avec la mauvaise fréquence | phase 10, dont la section le nomme désormais |
-| des fixtures aux fins réalistes, et un fichier sans aucune grille | phase 10, même section |
-| déplacer les anomalies de `core/model/` vers `core/analysis/` | #227 — une condition, pas une date : le jour où une seconde analyse existe |
-| le traitement par lot de `snap` et la sortie exploitable | phase 13, dont la liste nomme désormais l'alignement |
-| l'entrée `Help ▸ Manual`, présente et éteinte | phase 7, avec l'empaquetage qui décide où le manuel vit |
-| la géométrie de la fenêtre, retenue d'une session à l'autre | phase 7, avec la configuration persistée |
+| What is deferred | Where |
+| :--------------- | :---- |
+| finding the pair of a conversion made with the wrong frame rate | phase 10, whose section now names it |
+| fixtures with realistic ends, and a file with no grid at all | phase 10, same section |
+| moving the anomalies from `core/model/` to `core/analysis/` | #227 — a condition, not a date: the day a second analysis exists |
+| batch processing for `snap` and script-readable output | phase 13, whose list now names snapping |
+| the `Help ▸ Manual` entry, present and disabled | phase 7, with the packaging that decides where the manual lives |
+| the window geometry, remembered from one session to the next | phase 7, with the persisted configuration |
 
-**Et quatre axes sortis du regard critique**, qui ne sont pas des renvois de
-cadrage mais des dettes constatées :
+**And four lines of work that came out of the critical review**, which are not framing
+deferrals but observed debts:
 
-| Ce qui a été vu | Issue |
-| :-------------- | :---- |
-| trois appelants rassemblent les débuts avant de déduire | #223 |
-| la liste des huit fréquences est écrite deux fois | #224 |
-| les seuils ne sont pas éprouvés à leur frontière | #225 |
-| la porte ne voit pas les fichiers que les tests laissent derrière eux | #226 |
+| What was seen | Issue |
+| :------------ | :---- |
+| three callers gather the starts before deducing | #223 |
+| the list of the eight frame rates is written twice | #224 |
+| the thresholds are not tested at their boundary | #225 |
+| the gate does not see the files the tests leave behind | #226 |
 
-## Critères de fin
+## Completion criteria
 
-- [ ] Les neuf issues sont fermées
-- [ ] Les exigences du registre sont `implémentées` et citées par un test
-- [ ] Les sections de manuel existent et décrivent ce qui existe
-- [ ] Les benchmarks sont rejoués, et le budget de D9 est tenu ou renégocié
-- [ ] La relecture de fin de phase est faite
+- [ ] The nine issues are closed
+- [ ] The registry's requirements are `implemented` and cited by a test
+- [ ] The manual sections exist and describe what exists
+- [ ] The benchmarks are rerun, and the budget of D9 is held or renegotiated
+- [ ] The end-of-phase review is done

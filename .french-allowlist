@@ -38,7 +38,6 @@ cmake/ToolchainSanity.cmake
 cmake/Translations.cmake
 cmake/Warnings.cmake
 docs/mesures/performances.md
-docs/specs/16-frequences-d-image.md
 docs/specs/gaupol-reference.md
 docs/superpowers/plans/2026-09-17-lot-2-commandes-et-fenetre.md
 docs/superpowers/plans/2026-09-30-check-spelling-509.md
