@@ -63,7 +63,6 @@ src/scripts/check-architecture.sh
 src/scripts/check-installation.sh
 src/scripts/check-parallelism.sh
 src/scripts/check-requirements.sh
-src/scripts/check-rpm.sh
 src/scripts/clean-stale-coverage.sh
 src/scripts/compare-screenshots.py
 src/scripts/encoding-fixtures.py
