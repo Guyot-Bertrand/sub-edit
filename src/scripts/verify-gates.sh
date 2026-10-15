@@ -1777,7 +1777,7 @@ expect_cli_manual_gate() {
             --man-page "${root}/subedit-cli.1.in" 2>&1)"; then
             printf '  %s✗ le contrôle a laissé passer : %s%s\n' "${RED}" "${label}" "${RESET}"
             failures=$((failures + 1))
-        elif [[ "${output}" == *"${expected}"* && "${output}" == *"1 écart(s)"* ]]; then
+        elif [[ "${output}" == *"${expected}"* && "${output}" == *"1 mismatch(es)"* ]]; then
             printf '  %s✓ « check-cli-manual.py » a refusé, et nommé seul cet écart : %s%s\n' \
                 "${GREEN}" "${label}" "${RESET}"
         else
@@ -1795,23 +1795,23 @@ expect_cli_manual_gate() {
     proof_header '%s▸ une sous-commande sans page de manuel%s\n' "${BOLD}" "${RESET}"
     fresh_copy
     rm "${root}/manual/shift.md"
-    expect_cli_manual_refused "shift sans page" "PAGE ABSENTE"
+    expect_cli_manual_refused "shift sans page" "MISSING PAGE"
 
     proof_header '%s▸ une option de l aide qu aucun tableau ne porte%s\n' "${BOLD}" "${RESET}"
     fresh_copy
     sed -i 's/| `--by` |/| (retirée) |/' "${root}/manual/shift.md"
-    expect_cli_manual_refused "--by retirée des tableaux" "OPTION NON DOCUMENTÉE"
+    expect_cli_manual_refused "--by retirée des tableaux" "UNDOCUMENTED OPTION"
 
     proof_header '%s▸ une option d un tableau que l aide ne connaît pas%s\n' "${BOLD}" "${RESET}"
     fresh_copy
     printf '\n| Option | Requis |\n| :----- | :----- |\n| `--inventee` | non |\n' \
         >> "${root}/manual/shift.md"
-    expect_cli_manual_refused "--inventee" "OPTION INCONNUE"
+    expect_cli_manual_refused "--inventee" "UNKNOWN OPTION"
 
     proof_header '%s▸ une option globale que la page de manuel oublie%s\n' "${BOLD}" "${RESET}"
     fresh_copy
     sed -i 's/\\-\\-encoding/\\-\\-oubliee/' "${root}/subedit-cli.1.in"
-    expect_cli_manual_refused "--encoding absente de la page de manuel" "OPTION GLOBALE ABSENTE"
+    expect_cli_manual_refused "--encoding absente de la page de manuel" "MISSING GLOBAL OPTION"
 
     rm -rf "${root}"
 }

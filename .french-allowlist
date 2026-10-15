@@ -60,11 +60,8 @@ src/scripts/analyse-bench-journal.py
 src/scripts/await-quiet.sh
 src/scripts/build-rpm.sh
 src/scripts/check-architecture.sh
-src/scripts/check-cli-manual.py
 src/scripts/check-coverage.sh
-src/scripts/check-icon.py
 src/scripts/check-installation.sh
-src/scripts/check-json-fixtures.py
 src/scripts/check-parallelism.sh
 src/scripts/check-requirements.sh
 src/scripts/check-rpm.sh
