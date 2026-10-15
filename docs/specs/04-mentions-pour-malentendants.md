@@ -111,9 +111,9 @@ around it.
 | `[Bruit de pas] Bonjour` | `Bonjour` |
 | `Bonjour [il tousse]` | `Bonjour` |
 
-**A tag does not border an annotation.** Fifty-three subtitles of the corpus are
-written `<i>(Guild navigator) We have`: by the letter of the rule, the tag is
-what surrounded the annotation, and the removal would leave `<i> The Bene` — a
+**A tag does not border an annotation.** Many subtitles of the private corpus are
+written `<i>(Narrator) We have`: by the letter of the rule, the tag is
+what surrounded the annotation, and the removal would leave `<i> We have` — a
 space at the start of the line on screen, which "nothing at a line edge"
 precisely forbids. The tag therefore does not count, neither to judge an edge
 nor to judge emptiness. It is the same rule on both sides, and it is written in
@@ -135,8 +135,8 @@ the space: the two lines stay two lines.
 **A line that the removal has emptied disappears.** Emptied means: only blanks,
 format tags, or a lone dialogue dash remain in it.
 
-Tags are in the rule because the corpus put them there: nine real subtitles are
-written `<i>[PEOPLE SCREAMING]</i>`, and without this clarification `<i></i>`
+Tags are in the rule because the corpus put them there: real subtitles are
+written `<i>[CROWD SCREAMING]</i>`, and without this clarification `<i></i>`
 would remain — an empty subtitle on screen, which no rule would have removed.
 ADR 0009 keeps the text raw, tags included; it is therefore up to the emptiness
 test to ignore them, not up to the text to lose them.
