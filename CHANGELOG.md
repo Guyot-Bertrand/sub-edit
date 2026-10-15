@@ -11,10 +11,26 @@ ne pas l'éditer à la main.
 
 ### Documentation
 
+- **build** — Translate the shell check scripts into English
+- **build** — Translate the Python check scripts into English
+- **build** — Translate check-coverage.sh into English
+- **build** — Translate check-rpm.sh into English
+- **build** — Translate check-architecture.sh into English
+- **build** — Translate check-requirements.sh into English
+- **build** — Translate check-parallelism.sh into English
+- **build** — Translate check-installation.sh into English
+- **build** — Translate the first half of verify-gates.sh
+- **build** — Translate the second half of verify-gates.sh
+
+## 0.15.32 — 2026-10-15
+
+### Documentation
+
 - **doc** — Translate spec 13 into English
 - **doc** — Translate spec 14 into English
 - **doc** — Translate spec 16 into English
 - **doc** — Translate the Gaupol reference into English
+- **doc** — Regenerate the changelog
 
 ## 0.15.31 — 2026-10-15
 
