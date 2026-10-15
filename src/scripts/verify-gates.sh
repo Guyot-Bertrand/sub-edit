@@ -1,110 +1,106 @@
 #!/usr/bin/env bash
-# Prouve que les portes de qualité se referment.
+# Proves that the quality gates close.
 #
-# Une porte qu'on n'a jamais vue échouer n'est pas une porte : c'est une
-# croyance. Ce script injecte délibérément un défaut de chaque type, vérifie que
-# la cible correspondante échoue, puis rétablit les sources.
+# A gate that has never been seen failing is not a gate: it is a belief. This
+# script deliberately injects one defect of each kind, checks that the matching
+# target fails, then restores the sources.
 #
-# Les six premières injections visent des étapes de `make check`, que la CI
-# exécute. Les cinq suivantes visent `make check-local` — quatre fois
-# `requirements`, une fois `parallelism` — qui ne gate donc que le poste de
-# développement : raison de plus pour que ce script prouve que chacune se
-# referme, puisque rien d'autre ne les exercera.
+# The first six injections aim at steps of `make check`, which CI runs. The
+# next five aim at `make check-local` — four times `requirements`, once
+# `parallelism` — which therefore gates only the development machine: all the
+# more reason for this script to prove that each one closes, since nothing else
+# will exercise them.
 #
-# **Les quatre de `requirements` sont ses quatre défauts** : une
-# exigence implémentée que rien ne cite, un tag qui ne désigne aucune exigence,
-# une exigence du registre absente de la table de sa spec, et une exigence
-# qu'une spec promet et que le registre ignore. Les deux dernières sont nées à
-# la relecture de la phase 7, après deux phases où l'écart est passé.
+# **The four of `requirements` are its four defects**: an implemented
+# requirement that nothing cites, a tag that names no requirement, a registry
+# requirement missing from its spec's table, and a requirement that a spec
+# promises and the registry ignores. The last two were born at the review of
+# phase 7, after two phases in which the gap went through.
 #
-# Les trois suivantes ne visent ni l'une ni l'autre : ce sont les contrôles de
-# pull request, qui n'ont de sens que sur GitHub — un corps de pull request
-# n'existe pas en local. Rien ne les exercerait donc jamais avant qu'une vraie
-# pull request en dépende. Ils sont invoqués un par un, contrôle par contrôle,
-# pour qu'une injection soit seule à pouvoir faire échouer son exécution.
+# The next three aim at neither: they are the pull request checks, which only
+# make sense on GitHub — a pull request body does not exist locally. Nothing
+# would ever exercise them before a real pull request depended on them. They are
+# invoked one at a time, check by check, so that an injection is the only thing
+# that can make its run fail.
 #
-# Les quatre suivantes visent `make manual-check`, une par mode d'arrêt du
-# générateur d'exemples du manuel.
+# The next four aim at `make manual-check`, one per way the manual's example
+# generator can stop.
 #
-# Deux autres, nées de #232, ne visent pas davantage une porte :
-# `prune-releases.sh` choisit les releases qu il supprime, et
-# `check-release-tag.sh` décide si un tag mérite d être publié. Trois de plus,
-# nées de #399, éprouvent ce que le premier fait de son choix, contre un `gh` de
-# fortune : un refus qui fait sortir en erreur sans dispenser des suppressions
-# suivantes, un brouillon qui n est pas une version, et une reconstruction à la
-# demande qui n élague pas.
+# Two more, born of #232, do not aim at a gate either: `prune-releases.sh`
+# chooses the releases it deletes, and `check-release-tag.sh` decides whether a
+# tag deserves to be published. Three more, born of #399, test what the first
+# does with its choice, against a makeshift `gh`: a refusal that exits in error
+# without skipping the deletions that follow, a draft that is not a version, and
+# an on-demand rebuild that does not prune.
 #
-# La dernière ne vise aucune porte : clean-stale-coverage.sh répare au lieu de
-# refuser, et ce qui peut être faux chez lui va dans les deux sens — garder un
-# arbre incohérent, ou écarter un arbre sain.
+# The last one aims at no gate: clean-stale-coverage.sh repairs instead of
+# refusing, and what can go wrong with it goes both ways — keeping an
+# inconsistent tree, or discarding a sound one.
 #
-# Les six suivantes visent `make parallelism` : deux familles de fichiers qui
-# échappaient au balayage, trois formes qu'il ne reconnaissait pas, et **une
-# preuve d'un genre différent** — que du code légitime n'est pas signalé. Un
-# critère de non-signalement ne se démontre par aucune injection qui échoue,
-# d'où `expect_gate_stays_open`.
+# The next six aim at `make parallelism`: two families of files that escaped
+# the scan, three forms it did not recognise, and **a proof of a different
+# kind** — that legitimate code is not reported. A non-reporting criterion
+# cannot be shown by any injection that fails, hence `expect_gate_stays_open`.
 #
-# Les deux suivantes visent `make arch` : un nom de cas de test qui commence par
-# un tiret, et un test qui lirait le dépôt de référence. Elle est ici parce que ce défaut ne se voit qu'à travers CTest, jamais
-# en lançant le binaire de test à la main — donc uniquement dans la porte.
+# The next two aim at `make arch`: a test case name that starts with a dash, and
+# a test that would read the reference repository. It is here because that
+# defect shows only through CTest, never when the test binary is run by hand —
+# so only in the gate.
 #
-# Les deux suivantes visent `make score`, le relevé de détection d encodage :
-# un relevé qu on remonte, que la porte doit refuser, et — du genre
-# d`expect_gate_stays_open` — un relevé qu on abaisse, qu elle doit laisser
-# passer. Un contrôle qui refuserait une détection meilleure que son relevé
-# serait pire qu absent.
+# The next two aim at `make score`, the encoding detection record: a record
+# that is raised, which the gate must refuse, and — of the
+# `expect_gate_stays_open` kind — a record that is lowered, which it must let
+# through. A check that refused a detection better than its record would be
+# worse than none.
 #
-# Les deux suivantes visent `make fixtures` : une fixture vidéo refabriquée avec
-# la mauvaise fréquence d'image, et une position de fixture de grille déplacée
-# d'une milliseconde. C'est la seule injection du script qui ne soit pas
-# du texte — un conteneur est illisible dans un diff, et c'est précisément ce
-# qui fait que rien d'autre n'attraperait le défaut. Elle est aussi la seule à
-# passer par ffmpeg plutôt que par un extrait ajouté en fin de fichier :
-# ajouter du texte à la fin d'un MP4 ne le change pas, ffprobe l'ayant déjà lu.
+# The next two aim at `make fixtures`: a video fixture rebuilt with the wrong
+# frame rate, and a grid fixture position moved by one millisecond. It is the
+# only injection of the script that is not text — a container is unreadable in
+# a diff, and that is precisely why nothing else would catch the defect. It is
+# also the only one to go through ffmpeg rather than through a snippet appended
+# to the file: appending text to an MP4 does not change it, ffprobe having
+# already read it.
 #
-# Les deux suivantes visent `make untracked`, la porte qui refuse ce qu'une
-# exécution laisse derrière elle : un fichier apparu pendant les tests, et — de
-# l'autre genre, celui d'`expect_gate_stays_open` — un fichier non suivi qui
-# était déjà là et qu'il ne faut surtout pas signaler.
+# The next two aim at `make untracked`, the gate that refuses what a run leaves
+# behind: a file that appeared during the tests, and — of the other kind, that
+# of `expect_gate_stays_open` — an untracked file that was already there and
+# must above all not be reported.
 #
-# La suivante vise `make install-check` — #239 : des règles `install()` qui
-# oublient un fichier de données. C'est le seul contrôle du dépôt qui regarde une
-# installation propre, et le défaut qu'il attrape est invisible partout ailleurs
-# — dans l'arbre de construction, le fichier est là parce que le dépôt le
-# contient, pas parce qu'une règle l'a copié.
+# The next one aims at `make install-check` — #239: `install()` rules that
+# forget a data file. It is the only check of the repository that looks at a
+# clean installation, and the defect it catches is invisible everywhere else —
+# in the build tree, the file is there because the repository contains it, not
+# because a rule copied it.
 #
-# Les deux suivantes visent les captures d'écran du manuel — #199 : une
-# référence qui ne correspond plus à la fenêtre, que `make screenshots-check`
-# doit refuser, et une image que le manuel montre sans que rien ne l'engendre,
-# que `check-screenshots.py` doit attraper. Le second défaut est le plus
-# coûteux des deux, et le seul que le comparateur ne peut pas voir : une image
-# périmée s'affiche aussi proprement qu'une image juste. Quatre autres, nées de
-# #400, éprouvent la paire claire et sombre de chaque écran : elle manque au
-# programme, elle manque au manuel, elle est exemptée, elle est complète.
+# The next two aim at the manual's screenshots — #199: a reference that no
+# longer matches the window, which `make screenshots-check` must refuse, and an
+# image the manual shows without anything generating it, which
+# `check-screenshots.py` must catch. The second defect is the costlier of the
+# two, and the only one the comparator cannot see: a stale image displays as
+# cleanly as a correct one. Four more, born of #400, test the light and dark
+# pair of each screen: it is missing from the program, it is missing from the
+# manual, it is exempted, it is complete.
 #
-# Les deux suivantes visent `make config-home`, le pendant de la précédente de
-# l'autre côté de la frontière du dépôt : une configuration écrite pendant les
-# tests, et — du genre d'`expect_gate_stays_open` — une configuration déjà là que
-# rien n'a touchée. Elles s'exercent sous un `XDG_CONFIG_HOME` de fortune, si
-# bien que la preuve d'une porte qui refuse qu'on écrive dans le répertoire
-# personnel n'y écrit elle-même jamais.
+# The next two aim at `make config-home`, the counterpart of the previous one on
+# the other side of the repository's border: a configuration written during the
+# tests, and — of the `expect_gate_stays_open` kind — a configuration already
+# there that nothing touched. They run under a makeshift `XDG_CONFIG_HOME`, so
+# that the proof of a gate that refuses writes to the home directory never
+# writes there itself.
 #
-# Les deux dernières ne visent aucune porte : `src/scripts/record-bench.sh`, qui
-# ne refuse rien mais choisit ce qu'il inscrit dans une table qu'on n'élague
-# jamais — un extrême posé par du bruit est définitif — et
-# `src/scripts/prune-runs.sh`, qui ne refuse rien mais choisit ce qu'il
-# supprime. Elle est ici faute d'un meilleur
-# endroit — ce script est le seul harnais du projet pour ce qui s'écrit en
-# shell, et une sélection irréversible qu'aucune exécution ne vérifie serait
-# elle aussi une croyance.
+# The last two aim at no gate: `src/scripts/record-bench.sh`, which refuses
+# nothing but chooses what it writes into a table that is never pruned — an
+# extreme set by noise is final — and `src/scripts/prune-runs.sh`, which refuses
+# nothing but chooses what it deletes. They are here for lack of a better place
+# — this script is the project's only harness for what is written in shell, and
+# an irreversible selection that no run checks would be a belief as well.
 #
-# À rejouer après toute modification de .clang-format, .clang-tidy, des options
-# de compilation, du cliquet de couverture, du registre d'exigences ou de
-# cliff.toml.
+# To be replayed after any change to .clang-format, .clang-tidy, the compiler
+# options, the coverage ratchet, the requirements registry or cliff.toml.
 #
-# Exige git-cliff, que le contrôle du journal appelle par `make changelog`, et
-# ffmpeg pour la fixture vidéo : ./src/scripts/setup-toolchain.sh installe les
-# deux.
+# Requires git-cliff, which the changelog check calls through `make changelog`,
+# and ffmpeg for the video fixture: ./src/scripts/setup-toolchain.sh installs
+# both.
 
 set -euo pipefail
 
@@ -120,8 +116,8 @@ readonly MANUAL_SOURCE="${REPO_ROOT}/docs/manual/subedit-cli/invocation.md"
 readonly HOOK_SOURCE="${REPO_ROOT}/src/scripts/hooks/pre-commit"
 readonly PLAIN_SCRIPT_SOURCE="${REPO_ROOT}/src/scripts/install-hooks.sh"
 readonly NESTED_CMAKE_SOURCE="${REPO_ROOT}/src/lib/CMakeLists.txt"
-# Un en-tête à peu de dépendants : la preuve de l'analyse des en-têtes ne doit pas
-# réanalyser la moitié de l'arbre pour établir qu'un diagnostic d'en-tête remonte.
+# A header with few dependents: the proof of header analysis must not reanalyse
+# half the tree to establish that a diagnostic in a header comes up.
 readonly LEAF_HEADER="${REPO_ROOT}/src/lib/subedit/core/format/lrc_writer.hpp"
 readonly MODEL_SOURCE="${REPO_ROOT}/src/lib/subedit/core/model/subtitle_index.hpp"
 readonly PR_CHECK="${REPO_ROOT}/src/scripts/check-pull-request.sh"
@@ -141,22 +137,21 @@ readonly TRANSLATIONS_SOURCE="${REPO_ROOT}/cmake/Translations.cmake"
 readonly DESKTOP_SOURCE="${REPO_ROOT}/packaging/io.github.guyot_bertrand.subedit.desktop"
 readonly ICON_SOURCE="${REPO_ROOT}/packaging/io.github.guyot_bertrand.subedit.svg"
 readonly PACKAGING_SOURCE="${REPO_ROOT}/cmake/Packaging.cmake"
-# La spec dont la table d exigences est confrontée au registre. La phase 3 est
-# choisie parce qu elle porte le plus de lignes : une injection y est perdue
-# dans la foule, ce qui est bien le cas qu on veut prouver.
+# The spec whose requirements table is confronted with the registry. Phase 3 is
+# chosen because it carries the most rows: an injection is lost in the crowd
+# there, which is exactly the case to prove.
 readonly SPEC_SOURCE="${REPO_ROOT}/docs/specs/03-cli.md"
-# La configuration de clang-tidy, dont la preuve 3 durcit une règle.
+# The clang-tidy configuration, in which proof 3 hardens a rule.
 readonly TIDY_CONFIG="${REPO_ROOT}/.clang-tidy"
 readonly OTHER_CAPTURE="${REPO_ROOT}/docs/manual/subedit-gui/captures/decalage.png"
-# Le fichier témoin de la preuve des fichiers laissés derrière. Il ne sauvegarde
-# rien : il est créé par la preuve et doit disparaître avec elle, y compris si
-# le script meurt — sans quoi cette preuve-là laisserait justement un fichier
-# derrière elle.
-readonly STRAY_FILE="${REPO_ROOT}/laisse-par-un-test.srt"
-# Le fichier illisible que la preuve de détection de format glisse dans le corpus
-# étiqueté. Même discipline que le précédent : créé par la preuve, retiré par
-# `restore`, y compris si le script meurt.
-readonly FORMAT_STRAY="${REPO_ROOT}/src/test/data/formats/illisible-par-une-preuve.srt"
+# The witness file of the proof of files left behind. It backs nothing up: it is
+# created by the proof and must disappear with it, even if the script dies —
+# otherwise that very proof would leave a file behind.
+readonly STRAY_FILE="${REPO_ROOT}/left-by-a-test.srt"
+# The unreadable file that the format detection proof slips into the labelled
+# corpus. Same discipline as the previous one: created by the proof, removed by
+# `restore`, even if the script dies.
+readonly FORMAT_STRAY="${REPO_ROOT}/src/test/data/formats/unreadable-by-a-proof.srt"
 
 readonly RED=$'\033[31m'
 readonly GREEN=$'\033[32m'
@@ -166,10 +161,11 @@ readonly RESET=$'\033[0m'
 backup_dir="$(mktemp -d)"
 failures=0
 
-# **Le temps de chaque preuve** — #686. `verify-gates` dépassait l'heure sans qu'on sache où : chaque
-# en-tête de preuve passe par `proof_header`, qui ferme la mesure de la précédente, et le compte
-# rendu final classe les plus longues. Rien n'est écrit dans le dépôt : la durée est un constat de
-# l'exécution, à reporter dans la pull request qui la change, pas un fichier à tenir.
+# **The time of each proof** — #686. `verify-gates` went past the hour without anyone knowing
+# where: every proof header goes through `proof_header`, which closes the measurement of the
+# previous one, and the final report ranks the longest. Nothing is written to the repository: the
+# duration is an observation of the run, to be reported in the pull request that changes it, not a
+# file to keep up.
 proof_names=()
 proof_seconds=()
 current_proof=""
@@ -201,7 +197,7 @@ report_durations() {
     for index in "${!proof_seconds[@]}"; do
         total=$((total + proof_seconds[index]))
     done
-    printf '\n%sdurée des preuves : %d s en tout, les plus longues d abord%s\n' "${BOLD}" "${total}" "${RESET}"
+    printf '\n%sproof durations: %d s in all, longest first%s\n' "${BOLD}" "${total}" "${RESET}"
     for index in "${!proof_seconds[@]}"; do
         printf '%6d s  %s\n' "${proof_seconds[index]}" "${proof_names[index]}"
     done | sort -rn | head -"${VERIFY_GATES_TOP:-15}"
@@ -275,52 +271,51 @@ cp "${SPEC_SOURCE}" "${backup_dir}/03-cli.md"
 cp "${TIDY_CONFIG}" "${backup_dir}/clang-tidy"
 trap cleanup EXIT
 
-# Injecte un défaut, exécute la cible make attendue en échec, rétablit.
+# Injects a defect, runs the make target expected to fail, restores.
 #
-# **Le fragment injecté est écrit entre apostrophes simples**, donc il ne peut
-# pas en contenir : une apostrophe française dans un commentaire C++ referme la
-# chaîne et le script meurt sur une erreur de syntaxe, loin de la ligne fautive.
-# Écrire les commentaires du fragment sans apostrophe.
+# **The injected snippet is written between single quotes**, so it cannot
+# contain one: an apostrophe in a C++ comment closes the string and the script
+# dies on a syntax error, far from the faulty line. Write the snippet's comments
+# without apostrophes.
 expect_gate_closes() {
     local label="$1"
     local target="$2"
     local file="$3"
     local snippet="$4"
-    # Facultatif : un texte que la sortie de la porte doit contenir. Une porte qui échoue pour une
-    # autre raison que le défaut injecté ne le prouve pas ; ce paramètre le dit pour les preuves
-    # qui ne jouent qu'un test (#686), où l'échec le plus probable d'une faute est de n'en jouer aucun.
+    # Optional: a text the gate's output must contain. A gate that fails for a reason other than
+    # the injected defect does not prove it; this parameter says so for the proofs that run a
+    # single test (#686), where the likeliest failure of a mistake is to run none.
     local expected="${5:-}"
     local output status=0
 
     proof_header '%s▸ %s%s\n' "${BOLD}" "${label}" "${RESET}"
-    # Un extrait vide veut dire que l'injection a déjà été faite par l'appelant,
-    # parce qu'elle ne consiste pas à ajouter du texte en fin de fichier —
-    # modifier un bloc existant, par exemple.
+    # An empty snippet means the injection has already been done by the caller,
+    # because it does not consist in appending text at the end of a file —
+    # modifying an existing block, for instance.
     [[ -z "${snippet}" ]] || printf '%s\n' "${snippet}" >> "${file}"
 
     output="$(make -C "${REPO_ROOT}" --no-print-directory "${target}" 2>&1)" || status=$?
 
     if ((status == 0)); then
-        printf '  %s✗ la porte « %s » a laissé passer le défaut%s\n' "${RED}" "${target}" "${RESET}"
+        printf '  %s✗ the « %s » gate let the defect through%s\n' "${RED}" "${target}" "${RESET}"
         failures=$((failures + 1))
     elif [[ -n "${expected}" && "${output}" != *"${expected}"* ]]; then
-        printf '  %s✗ « make %s » a échoué, mais sans citer « %s »%s\n' "${RED}" "${target}" "${expected}" "${RESET}"
+        printf '  %s✗ « make %s » failed, but without citing « %s »%s\n' "${RED}" "${target}" "${expected}" "${RESET}"
         failures=$((failures + 1))
     else
-        printf '  %s✓ « make %s » a échoué, comme attendu%s\n' "${GREEN}" "${target}" "${RESET}"
+        printf '  %s✓ « make %s » failed, as expected%s\n' "${GREEN}" "${target}" "${RESET}"
     fi
 
     restore
 }
 
-# Même chose pour un contrôle de pull request. Deux différences avec la porte de
-# qualité : le contrôle n'est pas une cible make, et son défaut peut vivre dans
-# l'environnement — un corps de pull request n'est pas un fichier du dépôt.
+# The same for a pull request check. Two differences with the quality gate: the
+# check is not a make target, and its defect can live in the environment — a
+# pull request body is not a file of the repository.
 #
-# Le contrôle est nommé explicitement plutôt que de lancer les trois : une
-# exécution complète échouerait de toute façon sur les deux autres, et
-# l'injection ne prouverait plus rien. Les arguments qui suivent sont des
-# affectations passées à `env`.
+# The check is named explicitly rather than running all three: a full run would
+# fail on the other two anyway, and the injection would no longer prove
+# anything. The arguments that follow are assignments passed to `env`.
 expect_pr_check_closes() {
     local label="$1"
     local control="$2"
@@ -329,22 +324,22 @@ expect_pr_check_closes() {
     proof_header '%s▸ %s%s\n' "${BOLD}" "${label}" "${RESET}"
 
     if env "$@" "${PR_CHECK}" "${control}" >/dev/null 2>&1; then
-        printf '  %s✗ le contrôle « %s » a laissé passer le défaut%s\n' "${RED}" "${control}" "${RESET}"
+        printf '  %s✗ the « %s » check let the defect through%s\n' "${RED}" "${control}" "${RESET}"
         failures=$((failures + 1))
     else
-        printf '  %s✓ le contrôle « %s » a refusé, comme attendu%s\n' "${GREEN}" "${control}" "${RESET}"
+        printf '  %s✓ the « %s » check refused, as expected%s\n' "${GREEN}" "${control}" "${RESET}"
     fi
 
     restore
 }
 
-# L'inverse d'expect_gate_closes : injecte du code légitime que le contrôle
-# pourrait confondre avec un défaut, et vérifie qu'il ne le signale pas.
+# The reverse of expect_gate_closes: injects legitimate code that the check
+# could mistake for a defect, and checks that it does not report it.
 #
-# Un critère de la forme « ceci n'est pas signalé » ne se démontre par aucune
-# injection qui échoue. Sans une preuve de ce genre, il resterait une croyance
-# — et c'est le mode d'échec qui compte le plus : un contrôle qui crie au loup
-# finit désactivé, et ne protège alors plus rien.
+# A criterion of the form "this is not reported" cannot be shown by any
+# injection that fails. Without a proof of this kind, it would remain a belief
+# — and it is the failure mode that matters most: a check that cries wolf ends
+# up disabled, and then protects nothing.
 expect_gate_stays_open() {
     local label="$1"
     local target="$2"
@@ -355,26 +350,26 @@ expect_gate_stays_open() {
     printf '%s\n' "${snippet}" >> "${file}"
 
     if make -C "${REPO_ROOT}" --no-print-directory "${target}" >/dev/null 2>&1; then
-        printf '  %s✓ « make %s » a laissé passer, comme attendu%s\n' "${GREEN}" "${target}" "${RESET}"
+        printf '  %s✓ « make %s » let it through, as expected%s\n' "${GREEN}" "${target}" "${RESET}"
     else
-        printf '  %s✗ « make %s » a signalé du code légitime%s\n' "${RED}" "${target}" "${RESET}"
+        printf '  %s✗ « make %s » reported legitimate code%s\n' "${RED}" "${target}" "${RESET}"
         failures=$((failures + 1))
     fi
 
     restore
 }
 
-printf '%svérification des portes de qualité%s\n\n' "${BOLD}" "${RESET}"
+printf '%sverifying the quality gates%s\n\n' "${BOLD}" "${RESET}"
 
 expect_gate_closes \
-    "défaut de format" \
+    "format defect" \
     "format-check" \
     "${LIB_SOURCE}" \
     'int   badly_Formatted ( int a ,int b ) {return a+b ;}'
 
-# -Wunused-parameter vient de -Wextra, et -Werror en fait une erreur.
+# -Wunused-parameter comes from -Wextra, and -Werror makes it an error.
 expect_gate_closes \
-    "warning de compilation" \
+    "compiler warning" \
     "build" \
     "${LIB_SOURCE}" \
     'namespace subedit::core {
@@ -383,9 +378,9 @@ int injectedWarning(int used, int unused) {
 }
 } // namespace subedit::core'
 
-# cppcoreguidelines-owning-memory : un pointeur propriétaire nu.
+# cppcoreguidelines-owning-memory: a naked owning pointer.
 expect_gate_closes \
-    "motif rejeté par clang-tidy" \
+    "pattern rejected by clang-tidy" \
     "tidy" \
     "${LIB_SOURCE}" \
     'namespace subedit::core {
@@ -394,11 +389,11 @@ int* injectedOwningPointer() {
 }
 } // namespace subedit::core'
 
-# Usage après libération : invisible pour l'analyse statique, détecté par ASan.
-# **Un seul test est joué** (`GATE_PROOF_TESTS`, voir gate/asan.sh) et la sortie doit nommer
-# l'erreur : l'échec vient donc du défaut injecté, pas d'ailleurs — #686.
+# Use after free: invisible to static analysis, detected by ASan.
+# **A single test is run** (`GATE_PROOF_TESTS`, see gate/asan.sh) and the output must name the
+# error: the failure therefore comes from the injected defect, not from elsewhere — #686.
 GATE_PROOF_TESTS="injected use after free" expect_gate_closes \
-    "erreur mémoire à l'exécution" \
+    "memory error at run time" \
     "asan" \
     "${TEST_SOURCE}" \
     '#include <memory>
@@ -411,33 +406,32 @@ TEST_CASE("injected use after free", "[injected]") {
 }' \
     "AddressSanitizer"
 
-# Débordement d'entier signé : invisible pour l'analyse statique et pour ASan,
-# détecté par UBSan. Sa propre preuve, distincte de celle d'ASan, parce que les
-# deux sanitizers s'arrêtent pour des raisons différentes — ASan tue le
-# processus de lui-même, UBSan ne le fait que depuis
-# -fno-sanitize-recover=undefined. Sans cette option il signalait le défaut et
-# laissait le test passer, ce qu'un vrai débordement de la grammaire du temps a
-# démontré à la relecture de la phase 3.
+# Signed integer overflow: invisible to static analysis and to ASan, detected by
+# UBSan. Its own proof, separate from ASan's, because the two sanitizers stop for
+# different reasons — ASan kills the process by itself, UBSan does so only since
+# -fno-sanitize-recover=undefined. Without that option it reported the defect and
+# let the test pass, which a real overflow in the time grammar demonstrated at
+# the review of phase 3.
 GATE_PROOF_TESTS="injected signed overflow" expect_gate_closes \
-    "comportement indéfini à l'exécution" \
+    "undefined behaviour at run time" \
     "asan" \
     "${TEST_SOURCE}" \
     '#include <cstdint>
 #include <limits>
 
 TEST_CASE("injected signed overflow", "[injected]") {
-    // Lu à travers une référence : à -O0 le compilateur ne peut pas replier le
-    // calcul, et le débordement a donc bien lieu pendant le test.
+    // Read through a reference: at -O0 the compiler cannot fold the
+    // computation, so the overflow does happen during the test.
     std::int64_t largest = std::numeric_limits<std::int64_t>::max();
     const std::int64_t& read = largest;
     CHECK(read + 1 > 0);
 }' \
     "signed integer overflow"
 
-# Code non exercé par les tests : fait grimper le nombre de lignes non
-# couvertes au-delà du cliquet.
+# Code the tests do not exercise: raises the number of uncovered lines beyond
+# the ratchet.
 expect_gate_closes \
-    "chute de la couverture" \
+    "coverage drop" \
     "coverage" \
     "${LIB_SOURCE}" \
     'namespace subedit::core {
@@ -452,180 +446,180 @@ int injectedUncovered(int value) {
 }
 } // namespace subedit::core'
 
-# expect_gate_closes ne restaure que les sources : le résumé JSON et le rapport
-# HTML que « make coverage » vient de produire à partir du défaut injecté lui
-# survivent dans build/coverage-report/. Laissé en place, ce résidu affirme
-# encore des lignes non couvertes attribuées à une fonction qui n'existe plus
-# dans aucune source — un « make ratchet » lancé juste après l'enregistrerait
-# tel quel et desserrerait le cliquet contre un défaut qui n'a jamais existé.
+# expect_gate_closes restores only the sources: the JSON summary and the HTML
+# report that "make coverage" has just produced from the injected defect survive
+# it in build/coverage-report/. Left in place, that residue still claims
+# uncovered lines attributed to a function that no longer exists in any source —
+# a "make ratchet" run right after would record it as is and loosen the ratchet
+# against a defect that never existed.
 rm -rf "${REPO_ROOT}/build/coverage-report"
 
-# Exigence déclarée implémentée que rien ne cite. L'injection se fait en
-# ajoutant une ligne en fin de fichier, ce qui exige que la table du registre
-# soit la dernière chose de docs/exigences.md — c'est écrit dans ce fichier.
+# A requirement declared implemented that nothing cites. The injection appends
+# a line at the end of the file, which requires the registry table to be the last
+# thing in docs/exigences.md — that file says so.
 #
-# **La même ligne est ajoutée à la spec de la phase**, et l'appelant fait donc
-# l'injection lui-même. Sans cela, le contrôle du cadrage échouerait lui aussi —
-# une exigence au registre et absente de sa spec — et la preuve ne dirait plus
-# rien du contrôle qu'elle vise : elle passerait même si la confrontation aux
-# tests était cassée. Une preuve qui a deux causes n'en prouve aucune.
-printf '%s\n' '| `CLI-FANTOME-01` | exigence injectée que rien ne démontre | 3 | implemented |' \
+# **The same line is added to the phase's spec**, so the caller does the
+# injection itself. Without it, the framing check would fail too — a requirement
+# in the registry and missing from its spec — and the proof would no longer say
+# anything about the check it aims at: it would pass even if the confrontation
+# with the tests were broken. A proof with two causes proves neither.
+printf '%s\n' '| `CLI-PHANTOM-01` | injected requirement that nothing demonstrates | 3 | implemented |' \
     >> "${REGISTRY}"
-printf '%s\n' '| `CLI-FANTOME-01` | exigence injectée que rien ne démontre |' >> "${SPEC_SOURCE}"
+printf '%s\n' '| `CLI-PHANTOM-01` | injected requirement that nothing demonstrates |' >> "${SPEC_SOURCE}"
 expect_gate_closes \
-    "exigence implémentée sans test" \
+    "implemented requirement without a test" \
     "requirements" \
     "${REGISTRY}" \
     ''
 
-# Exigence du registre que la table de sa spec ne porte pas. Elle est `prévue`
-# et non `implémentée`, pour la raison symétrique de celle ci-dessus : une
-# exigence prévue n'a besoin d'aucun test, donc la confrontation aux tests se
-# tait et seul le cadrage parle.
+# A registry requirement that its spec's table does not carry. It is `planned`
+# and not `implemented`, for the reason symmetric to the one above: a planned
+# requirement needs no test, so the confrontation with the tests stays silent
+# and only the framing speaks.
 expect_gate_closes \
-    "exigence du registre absente de la table de sa spec" \
+    "registry requirement missing from its spec's table" \
     "requirements" \
     "${REGISTRY}" \
-    '| `CLI-FANTOME-02` | exigence injectée que sa spec ignore | 3 | planned |'
+    '| `CLI-PHANTOM-02` | injected requirement that its spec ignores | 3 | planned |'
 
-# Le sens inverse : une exigence qu'une spec promet et que le registre ne porte
-# pas. C'est le défaut exact que la phase 7 a trouvé chez elle — `GUI-THEME-02`
-# fondue dans `GUI-THEME-01` sans que la spec le dise — et que rien ne voyait.
+# The other direction: a requirement that a spec promises and the registry does
+# not carry. It is the exact defect that phase 7 found in itself — `GUI-THEME-02`
+# merged into `GUI-THEME-01` without the spec saying so — and that nothing saw.
 expect_gate_closes \
-    "exigence promise par une spec et absente du registre" \
+    "requirement promised by a spec and missing from the registry" \
     "requirements" \
     "${SPEC_SOURCE}" \
-    '| `CLI-FANTOME-03` | exigence promise par la spec et inconnue du registre |'
+    '| `CLI-PHANTOM-03` | requirement promised by the spec and unknown to the registry |'
 
-# Tag en forme d'identifiant qui ne désigne aucune exigence du registre.
+# A tag shaped like an identifier that names no requirement of the registry.
 expect_gate_closes \
-    "tag sans exigence correspondante" \
+    "tag without a matching requirement" \
     "requirements" \
     "${E2E_SOURCE}" \
-    'TEST_CASE("injected unknown requirement", "[e2e][CLI-INEXISTANT-99]") {
+    'TEST_CASE("injected unknown requirement", "[e2e][CLI-NONEXISTENT-99]") {
     CHECK(true);
 }'
 
-# Recette Makefile qui code un parallélisme en dur au lieu de passer par
-# $(JOBS) — exactement ce que check-parallelism.sh existe pour repérer. La
-# cible injectée n'est référencée par personne : ni `make parallelism` ni
-# aucune autre cible ne l'exécute, donc l'échec attendu ne peut venir que du
-# balayage du Makefile par le script, pas d'une tentative de construction.
+# A Makefile recipe that hard-codes a parallelism instead of going through
+# $(JOBS) — exactly what check-parallelism.sh exists to spot. Nobody refers to
+# the injected target: neither `make parallelism` nor any other target runs it,
+# so the expected failure can only come from the script's scan of the Makefile,
+# not from a build attempt.
 expect_gate_closes \
-    "parallélisme codé en dur dans le Makefile" \
+    "parallelism hard-coded in the Makefile" \
     "parallelism" \
     "${MAKEFILE_SOURCE}" \
-    'cible-injectee-parallelisme:
+    'injected-parallelism-target:
 	@cmake --build --preset dev -j 8'
 
-# Corps de pull request qui décrit le travail sans porter la ligne que GitHub
-# lit. C'est le défaut mesuré de la phase 2 : cinq issues restées ouvertes après
-# la fusion de leur pull request, parce que « Ferme #22 » n'est pas un mot-clé.
-# Nom de cas de test qui commence par un tiret. CTest le passe en argument au
-# binaire, Catch2 y lit une de ses options, et le cas échoue — mais seulement à
-# travers CTest, jamais quand on lance le binaire à la main. L'injection porte
-# sur un fichier de test, et l'échec attendu vient du balayage de
-# check-architecture.sh, pas d'une compilation.
-# En-tête du modèle qui inclut une opération. La frontière posée par l'ADR 0018
-# s'était déjà effacée une fois, quand les types propres aux formats se sont
-# retrouvés sous model/ sans que rien ne le signale : d'où une porte plutôt
-# qu'une vigilance. L'injection porte sur un en-tête, et l'échec attendu vient
-# du balayage de check-architecture.sh — l'inclusion en fin de fichier ne
-# compile rien.
+# A pull request body that describes the work without carrying the line GitHub
+# reads. It is the measured defect of phase 2: five issues left open after their
+# pull request was merged, because a French "closes" is not a keyword.
+# A test case name that starts with a dash. CTest passes it as an argument to
+# the binary, Catch2 reads one of its options in it, and the case fails — but
+# only through CTest, never when the binary is run by hand. The injection is in
+# a test file, and the expected failure comes from the scan of
+# check-architecture.sh, not from a compilation.
+# A model header that includes an operation. The boundary set by ADR 0018 had
+# already faded once, when the format-specific types ended up under model/
+# without anything reporting it: hence a gate rather than vigilance. The
+# injection is in a header, and the expected failure comes from the scan of
+# check-architecture.sh — the include at the end of the file compiles nothing.
 expect_gate_closes \
-    "modèle qui dépend d'une opération" \
+    "model that depends on an operation" \
     "arch" \
     "${MODEL_SOURCE}" \
     '#include <subedit/core/format/read_result.hpp>'
 
 expect_gate_closes \
-    "nom de cas de test qui passe pour une option" \
+    "test case name that looks like an option" \
     "arch" \
     "${TEST_SOURCE}" \
     'TEST_CASE("-v looks like an option to Catch2", "[injected]") {
     CHECK(true);
 }'
 
-# Commentaire francais ajoute a un fichier C++. Le cliquet de langue est le seul
-# controle de ce depot dont le defaut ne peut pas etre une faute de frappe : il
-# compte, et une ligne de plus le fait deborder. Sans preuve, un cliquet pose au
-# compte exact du jour ne se distingue pas dun cliquet pose trop haut, qui
-# laisserait passer la derive quil est cense arreter.
+# A French comment added to a C++ file. The language ratchet is the only check
+# of this repository whose defect cannot be a typo: it counts, and one more line
+# makes it overflow. Without a proof, a ratchet set at the exact count of the day
+# cannot be told apart from a ratchet set too high, which would let through the
+# drift it is meant to stop.
 #
-# Le fragment est ecrit sans apostrophe ni accent, comme tous ceux dici : il
-# passe par une chaine entre apostrophes simples.
+# The snippet is written without apostrophes or accents, like all of them here:
+# it goes through a string between single quotes. Its French is the defect.
 expect_gate_closes \
-    "commentaire francais ajoute a du C++" \
+    "French comment added to C++" \
     "arch" \
     "${LIB_SOURCE}" \
     '// Une ligne de commentaire dans la langue qui nest pas celle des fichiers
 // que ce controle surveille, pour que la porte le dise.'
 
 expect_pr_check_closes \
-    "corps de pull request sans « Closes #N »" \
+    "pull request body without « Closes #N »" \
     "closes" \
-    "PR_BODY=Ce corps décrit le travail, mais aucune ligne n'y ferme l'issue."
+    "PR_BODY=This body describes the work, but no line in it closes the issue."
 
-# Version de la branche recopiée depuis celle de HEAD, qui sert de base : les
-# deux annoncent alors le même numéro. La recopie est nécessaire — se contenter
-# de désigner HEAD comme base supposerait que la copie de travail ne l'a pas
-# déjà dépassé, ce qu'un bump non encore commité démentirait, et l'injection ne
-# prouverait plus rien.
+# The branch version copied from that of HEAD, which serves as the base: both
+# then announce the same number. The copy is needed — merely naming HEAD as the
+# base would assume that the working copy has not already gone past it, which an
+# uncommitted bump would contradict, and the injection would no longer prove
+# anything.
 head_version="$(git -C "${REPO_ROOT}" show HEAD:CMakeLists.txt \
     | sed -n 's/^[[:space:]]*VERSION[[:space:]]\+\([0-9][0-9.]*\)[[:space:]]*$/\1/p' | head -1)"
 sed -i "s/^\([[:space:]]*VERSION[[:space:]]\+\)[0-9][0-9.]*[[:space:]]*$/\1${head_version}/" \
     "${CMAKE_SOURCE}"
 expect_pr_check_closes \
-    "version identique à celle de la base" \
+    "version identical to the base's" \
     "version" \
     "BASE_SHA=$(git -C "${REPO_ROOT}" rev-parse HEAD)"
 
-# Journal modifié à la main, donc différent de ce que git-cliff produit à partir
-# de l'historique. C'est exactement la forme que prend un journal non régénéré :
-# un contenu que la commande ne redonnerait pas.
-printf "ligne injectée qu'aucune régénération ne redonnerait\n" >> "${CHANGELOG_SOURCE}"
+# A changelog edited by hand, hence different from what git-cliff produces from
+# the history. It is exactly the shape a changelog that was not regenerated
+# takes: a content that the command would not give back.
+printf "injected line that no regeneration would give back\n" >> "${CHANGELOG_SOURCE}"
 expect_pr_check_closes \
-    "CHANGELOG.md non régénéré" \
+    "CHANGELOG.md not regenerated" \
     "changelog"
 
-# Les quatre suivantes visent « make manual-check », une par mode d'arrêt du
-# générateur d'exemples. Le pire résultat que ce générateur puisse produire est
-# un manuel silencieusement vidé de ses exemples ; c'est pourquoi chacun de ses
-# refus se prouve, et non seulement celui du manuel périmé.
+# The next four aim at "make manual-check", one per way the example generator
+# can stop. The worst result this generator could produce is a manual silently
+# emptied of its examples; that is why each of its refusals is proven, and not
+# only that of the stale manual.
 
-# Bloc dont la sortie ne correspond plus à ce que la commande produit. La
-# modification porte sur un bloc existant, pas sur une ligne ajoutée en fin de
-# fichier : d'où l'extrait vide passé à l'injecteur.
+# A block whose output no longer matches what the command produces. The change
+# is in an existing block, not in a line appended at the end of the file: hence
+# the empty snippet passed to the injector.
 sed -i 's/^subedit [0-9][0-9.]*$/subedit 0.9.9/' "${MANUAL_SOURCE}"
 expect_gate_closes \
-    "exemple du manuel périmé" \
+    "stale manual example" \
     "manual-check" \
     "${MANUAL_SOURCE}" \
     ''
 
+# The marker keeps the spelling `<!-- exemple: … -->` that generate-manual.sh reads.
 expect_gate_closes \
-    "exemple dont la commande échoue" \
+    "example whose command fails" \
     "manual-check" \
     "${MANUAL_SOURCE}" \
     '
-<!-- exemple: echo bonjour; exit 3 -->
+<!-- exemple: echo hello; exit 3 -->
 ```console
-$ echo bonjour; exit 3
-bonjour
+$ echo hello; exit 3
+hello
 ```'
 
 expect_gate_closes \
-    "marqueur non suivi d'un bloc console" \
+    "marker not followed by a console block" \
     "manual-check" \
     "${MANUAL_SOURCE}" \
     '
 <!-- exemple: subedit-cli -->
-Ce paragraphe ne commence pas un bloc console.'
+This paragraph does not start a console block.'
 
-# Commande muette : c'est le cas qui produirait un bloc vide si le générateur
-# le laissait passer.
+# A silent command: it is the case that would produce an empty block if the
+# generator let it through.
 expect_gate_closes \
-    "exemple dont la commande ne produit rien" \
+    "example whose command produces nothing" \
     "manual-check" \
     "${MANUAL_SOURCE}" \
     '
@@ -634,62 +628,61 @@ expect_gate_closes \
 $ true
 ```'
 
-# Les cinq suivantes visent l'élargissement de `make parallelism` : deux
-# familles de fichiers qui échappaient au balayage, trois formes de
-# parallélisme qu'il ne reconnaissait pas.
+# The next five aim at the widening of `make parallelism`: two families of files
+# that escaped the scan, three forms of parallelism it did not recognise.
 
-# Hook git : dans un sous-répertoire et sans extension .sh, donc doublement
-# manqué par l'ancien balayage — qui ne descendait pas et filtrait sur *.sh.
+# A git hook: in a subdirectory and without a .sh extension, so doubly missed by
+# the old scan — which did not descend and filtered on *.sh.
 expect_gate_closes \
-    "parallélisme codé en dur dans un hook git" \
+    "parallelism hard-coded in a git hook" \
     "parallelism" \
     "${HOOK_SOURCE}" \
     'cmake --build . -j 8'
 
-# CMakeLists imbriqué : l'ancien balayage ne lisait que cmake/*.cmake et le
-# CMakeLists de la racine, en laissant les huit de src/ — ceux-là mêmes qui
-# déclarent les cibles de test et de benchmark.
+# A nested CMakeLists: the old scan read only cmake/*.cmake and the root
+# CMakeLists, leaving out the eight of src/ — the very ones that declare the test
+# and benchmark targets.
 expect_gate_closes \
-    "-flto= codé en dur dans un CMakeLists de src/" \
+    "-flto= hard-coded in a CMakeLists of src/" \
     "parallelism" \
     "${NESTED_CMAKE_SOURCE}" \
     'target_compile_options(subedit_core PRIVATE -flto=8)'
 
-# `-j` sans valeur prend autant de processus que la machine a de cœurs : c'est
-# pire qu'un nombre en dur, et ça passait.
+# `-j` without a value takes as many processes as the machine has cores: it is
+# worse than a hard-coded number, and it went through.
 expect_gate_closes \
-    "make -j sans valeur" \
+    "make -j without a value" \
     "parallelism" \
     "${PLAIN_SCRIPT_SOURCE}" \
     'make -j'
 
 expect_gate_closes \
-    "cmake --build --parallel avec un nombre" \
+    "cmake --build --parallel with a number" \
     "parallelism" \
     "${PLAIN_SCRIPT_SOURCE}" \
     'cmake --build . --parallel 8'
 
 expect_gate_closes \
-    "parallélisme passé par MAKEFLAGS" \
+    "parallelism passed through MAKEFLAGS" \
     "parallelism" \
     "${PLAIN_SCRIPT_SOURCE}" \
     'MAKEFLAGS=-j8 make all'
 
-# Un test qui lit le dépôt de référence. Il passerait ici, où le clone existe,
-# et échouerait partout ailleurs — ou se déclarerait ignoré, ce qui est pire :
-# vert sans rien prouver.
+# A test that reads the reference repository. It would pass here, where the
+# clone exists, and fail everywhere else — or declare itself skipped, which is
+# worse: green without proving anything.
 expect_gate_closes \
-    "lecture du dépôt de référence" \
+    "reading the reference repository" \
     "arch" \
     "${TEST_SOURCE}" \
     '// reference/gaupol/aeidon/data/patterns'
 
-# Une fixture vidéo refabriquée avec la mauvaise fréquence. C est le seul défaut
-# que la table de video-fixtures.sh existe pour attraper, et le seul que
-# personne ne verrait autrement : un conteneur est illisible dans un diff.
+# A video fixture rebuilt with the wrong frame rate. It is the only defect that
+# the table of video-fixtures.sh exists to catch, and the only one nobody would
+# otherwise see: a container is unreadable in a diff.
 #
-# L injection est faite ici plutôt que passée en extrait, parce qu ajouter du
-# texte a la fin d un MP4 ne le change pas — ffprobe lit le fichier avant.
+# The injection is done here rather than passed as a snippet, because appending
+# text at the end of an MP4 does not change it — ffprobe reads the file before.
 ffmpeg -v error -y \
     -f lavfi -i 'color=c=black:s=16x16:r=30:d=2' \
     -c:v mpeg4 -qscale:v 31 -pix_fmt yuv420p \
@@ -697,96 +690,98 @@ ffmpeg -v error -y \
     "${VIDEO_FIXTURE}"
 
 expect_gate_closes \
-    "fixture vidéo à la mauvaise fréquence" \
+    "video fixture at the wrong frame rate" \
     "fixtures" \
     "${VIDEO_FIXTURE}" \
     ''
 
-# Une position de fixture de grille déplacée d une milliseconde. C est le plus
-# petit défaut que subtitle-fixtures.py existe pour attraper, et le plus
-# instructif : une milliseconde ne se voit pas dans un fichier de cent soixante-
-# dix répliques, et elle suffit à sortir une position de la grille.
+# A grid fixture position moved by one millisecond. It is the smallest defect
+# that subtitle-fixtures.py exists to catch, and the most instructive: one
+# millisecond does not show in a file of a hundred and seventy cues, and it is
+# enough to push a position off the grid.
 #
-# L injection est faite ici plutôt que passée en extrait, parce qu ajouter du
-# texte en fin de fichier serait un défaut grossier. Ce qui est prouvé, c est
-# que la porte lit les positions, et non la taille du fichier.
+# The injection is done here rather than passed as a snippet, because appending
+# text at the end of the file would be a gross defect. What is proven is that
+# the gate reads the positions, not the size of the file.
 sed -i '0,/00:00:01,000/s//00:00:01,001/' "${GRID_FIXTURE}"
 
 expect_gate_closes \
-    "position de grille déplacée d une milliseconde" \
+    "grid position moved by one millisecond" \
     "fixtures" \
     "${GRID_FIXTURE}" \
     ''
 
-# Un attendu des motifs de correction faussé d une espace — issue #494. C est le
-# défaut que pattern-oracle.py existe pour attraper : un attendu retouché à la
-# main plutôt que réécrit par l oracle, et qui ne dirait plus ce que Gaupol fait.
-# Une espace, parce que c est le défaut qu un œil laisse passer.
+# An expected result of the correction patterns skewed by one space — issue #494.
+# It is the defect that pattern-oracle.py exists to catch: an expected result
+# retouched by hand rather than rewritten by the oracle, and which would no
+# longer say what Gaupol does. One space, because it is the defect an eye lets
+# through.
 sed -i '0,/| "Hello, world"$/s//| "Hello,  world"/' "${PATTERN_EXPECTED}"
 
 expect_gate_closes \
-    "attendu des motifs faussé d une espace" \
+    "pattern expected result skewed by one space" \
     "fixtures" \
     "${PATTERN_EXPECTED}" \
     ''
 
 
-# La seule preuve de non-signalement du fichier, et la plus importante des six
-# ajoutées ici : le contrôle lisait ses lignes sans retirer les commentaires de
-# fin, donc un exemple cité dans un commentaire passait pour un contournement.
-# Aucune injection qui échoue ne peut démontrer qu'un faux positif a disparu.
+# The file's only non-reporting proof, and the most important of the six added
+# here: the check read its lines without removing trailing comments, so an
+# example quoted in a comment passed for a workaround. No failing injection can
+# show that a false positive has gone.
 expect_gate_stays_open \
-    "commentaire de fin de ligne citant -j 4" \
+    "end-of-line comment quoting -j 4" \
     "parallelism" \
     "${PLAIN_SCRIPT_SOURCE}" \
-    'cmake --build . # exemple : -j 4 pour aller plus vite'
+    'cmake --build . # example: -j 4 to go faster'
 
-# Les deux preuves de la borne des fils — issue #630. `JOBS` borne les processus, pas les fils que
-# libmpv et ffmpeg créent : un `ctest` lancé nu, c'est la porte qui dépasse ses deux cœurs sans
-# que rien ne le dise. La seconde est la preuve de non-signalement : la même commande, passée par
-# `limit-cores.sh`, ne doit pas être refusée.
+# The two proofs of the thread bound — issue #630. `JOBS` bounds the processes, not the threads
+# that libmpv and ffmpeg create: a bare `ctest` is the gate going past its two cores without
+# anything saying so. The second is the non-reporting proof: the same command, passed through
+# `limit-cores.sh`, must not be refused.
 expect_gate_closes \
-    "ctest lancé sans limit-cores.sh" \
+    "ctest run without limit-cores.sh" \
     "parallelism" \
     "${PLAIN_SCRIPT_SOURCE}" \
     'ctest --preset dev'
 
 expect_gate_stays_open \
-    "ctest lancé par limit-cores.sh" \
+    "ctest run through limit-cores.sh" \
     "parallelism" \
     "${PLAIN_SCRIPT_SOURCE}" \
     './src/scripts/limit-cores.sh ctest --preset dev'
 
-# **Le banc, qui ouvre des lecteurs, est dans le même cas que `ctest`** — relecture de la phase 14 :
-# `gate/bench.sh` lançait `subedit_bench` nu, et ses fils libmpv dépassaient les deux cœurs de la
-# porte. La seconde preuve est celle de non-signalement.
+# **The bench, which opens players, is in the same case as `ctest`** — review of phase 14:
+# `gate/bench.sh` ran `subedit_bench` bare, and its libmpv threads went past the gate's two
+# cores. The second proof is the non-reporting one.
 expect_gate_closes \
-    "le banc lancé sans limit-cores.sh" \
+    "the bench run without limit-cores.sh" \
     "parallelism" \
     "${PLAIN_SCRIPT_SOURCE}" \
     '"${REPO_ROOT}/build/release/bin/subedit_bench" --reporter console'
 
 expect_gate_stays_open \
-    "le banc lancé par limit-cores.sh" \
+    "the bench run through limit-cores.sh" \
     "parallelism" \
     "${PLAIN_SCRIPT_SOURCE}" \
     '"${REPO_ROOT}/src/scripts/limit-cores.sh" "${REPO_ROOT}/build/release/bin/subedit_bench" --reporter console'
 
-# Les trois preuves de l analyse statique — issue #269.
+# The three proofs of static analysis — issue #269.
 #
-# **Elles ont changé de nature avec le mécanisme.** Il y en avait une, et elle
-# attrapait un défaut réel de tidy-scope.sh : il calculait son périmètre avec
-# `git diff base...HEAD`, qui ne voit que ce qui est commité, donc rendait zéro
-# fichier sur une branche sans commit — une porte verte qui n avait rien
-# analysé. Ce script-là n existe plus : clang-tidy est accroché à la règle de
-# compilation de chaque source, et git n entre plus dans le calcul.
+# **They changed nature with the mechanism.** There was one, and it caught a
+# real defect of tidy-scope.sh: it computed its scope with `git diff
+# base...HEAD`, which sees only what is committed, so it returned zero files on
+# a branch without a commit — a green gate that had analysed nothing. That
+# script no longer exists: clang-tidy is hooked to the compile rule of each
+# source, and git no longer enters the computation.
 #
-# Restent deux choses à prouver ici, plus une conditionnelle, une par entrée que le système de construction
-# doit voir : la source, ses en-têtes, et la clé qui porte le reste.
+# Two things remain to prove here, plus a conditional one, one per input that
+# the build system must see: the source, its headers, and the key that carries
+# the rest.
 #
-# La première invocation construit l arbre `build/tidy` en entier, ce qui coûte
-# une dizaine de minutes ; les deux suivantes sont incrémentales, et c est
-# précisément la propriété qu on éprouve.
+# The first invocation builds the `build/tidy` tree in full, which costs about
+# ten minutes; the next ones are incremental, and that is precisely the property
+# under test.
 expect_tidy_closes() {
     local label="$1"
     local file="$2"
@@ -796,45 +791,44 @@ expect_tidy_closes() {
     printf '%s\n' "${snippet}" >> "${file}"
 
     if make -C "${REPO_ROOT}" --no-print-directory tidy >/dev/null 2>&1; then
-        printf '  %s✗ la porte « tidy » a laissé passer le défaut%s\n' "${RED}" "${RESET}"
+        printf '  %s✗ the « tidy » gate let the defect through%s\n' "${RED}" "${RESET}"
         failures=$((failures + 1))
     else
-        printf '  %s✓ « make tidy » a échoué, comme attendu%s\n' "${GREEN}" "${RESET}"
+        printf '  %s✓ « make tidy » failed, as expected%s\n' "${GREEN}" "${RESET}"
     fi
 
     restore
 }
 
-# 1 — un défaut dans une source non commitée : c'est déjà la preuve « motif rejeté par
-# clang-tidy », plus haut — même injection dans une source non commitée, même cible `tidy`, et
-# rien dans le mécanisme ne consulte git. La rejouer ici coûtait une analyse de plus (#686).
+# 1 — a defect in an uncommitted source: it is already the proof "pattern rejected by
+# clang-tidy", above — same injection in an uncommitted source, same `tidy` target, and nothing
+# in the mechanism consults git. Replaying it here cost one more analysis (#686).
 
-# 2 — **un défaut dans un en-tête**, et c est la preuve qui n existait pas.
+# 2 — **a defect in a header**, and it is the proof that did not exist.
 #
-# L ancienne fermeture d en-têtes se faisait par `grep` du nom de fichier dans
-# les sources : elle attrapait un en-tête cité dans un commentaire et pouvait
-# manquer une inclusion indirecte. Ici c est le fichier de dépendances que le
-# compilateur a écrit qui décide, donc les unités qui incluent celui-ci sont
-# réanalysées, et elles seules.
+# The old closure over headers was done by a `grep` of the file name in the
+# sources: it caught a header quoted in a comment and could miss an indirect
+# include. Here it is the dependency file the compiler wrote that decides, so
+# the units that include this one are reanalysed, and they alone.
 expect_tidy_closes \
-    "défaut dans un en-tête, remonté par ses dépendants" \
+    "defect in a header, brought up by its dependents" \
     "${LEAF_HEADER}" \
     'namespace subedit::core { inline int probeForTheProof() { int value = 1; return value; } }'
 
-# 3 — **la configuration change, et l analyse le voit.**
+# 3 — **the configuration changes, and the analysis sees it.**
 #
-# C est le trou que le mécanisme aurait laissé sans la clé de `cmake/Tidy.cmake`
-# — voir ce fichier : le contenu de `.clang-tidy` n est pas sur la ligne de
-# commande, donc Ninja ne le regarde pas. On y ajoute une règle de nommage que
-# tout le projet viole ; sans la clé, l arbre resterait vert sur une réponse
-# périmée, ce qui est le pire mode d échec possible.
+# It is the hole the mechanism would have left without the key of
+# `cmake/Tidy.cmake` — see that file: the content of `.clang-tidy` is not on the
+# command line, so Ninja does not look at it. A naming rule that the whole
+# project violates is added to it; without the key, the tree would stay green on
+# a stale answer, which is the worst failure mode possible.
 #
-# L injection se fait en fin de fichier, ce qui exige que la liste CheckOptions
-# soit la dernière chose de `.clang-tidy` — c est écrit dans ce fichier.
-# **Pas à chaque exécution** (#686) : elle éprouve `cmake/Tidy.cmake`, qui ne bouge presque jamais, et
-# elle coûte une réanalyse complète de l'arbre — deux fois, puisque la clé repasse à sa valeur
-# d'origine à la restauration. Elle tourne quand `.clang-tidy` ou `cmake/Tidy.cmake` diffèrent de
-# `main`, ou sur demande : `VERIFY_GATES_FULL=1`.
+# The injection is made at the end of the file, which requires the CheckOptions
+# list to be the last thing in `.clang-tidy` — that file says so.
+# **Not on every run** (#686): it tests `cmake/Tidy.cmake`, which almost never moves, and it
+# costs a full reanalysis of the tree — twice, since the key goes back to its original value on
+# restore. It runs when `.clang-tidy` or `cmake/Tidy.cmake` differ from `main`, or on request:
+# `VERIFY_GATES_FULL=1`.
 tidy_config_changed() {
     [[ -n "${VERIFY_GATES_FULL:-}" ]] && return 0
     local base
@@ -844,33 +838,33 @@ tidy_config_changed() {
 
 if tidy_config_changed; then
     expect_tidy_closes \
-        "configuration durcie, analyse rejouée" \
+        "hardened configuration, analysis replayed" \
         "${TIDY_CONFIG}" \
         '  - key: readability-identifier-naming.ParameterCase
         value: UPPER_CASE'
 else
-    printf '%s▸ configuration durcie, analyse rejouée%s — ignorée, .clang-tidy et cmake/Tidy.cmake inchangés (VERIFY_GATES_FULL=1 la joue)\n' "${BOLD}" "${RESET}"
+    printf '%s▸ hardened configuration, analysis replayed%s — skipped, .clang-tidy and cmake/Tidy.cmake unchanged (VERIFY_GATES_FULL=1 runs it)\n' "${BOLD}" "${RESET}"
 fi
 
-# Un fichier engendré déposé sous src/. Il passerait les quatre portes qui
-# filtrent sur src/ — format, analyse statique, couverture, périmètre — parce
-# qu aucune ne sait distinguer une ligne écrite d une ligne produite.
+# A generated file dropped under src/. It would pass the four gates that filter
+# on src/ — format, static analysis, coverage, scope — because none of them can
+# tell a written line from a produced one.
 #
-# L injection porte le marqueur qu écrivent moc, uic et rcc, assemblé ici pour
-# la même raison que dans le contrôle : écrit en clair, il ferait de ce script
-# un fichier engendré aux yeux du contrôle.
+# The injection carries the marker that moc, uic and rcc write, assembled here
+# for the same reason as in the check: written in full, it would make this
+# script a generated file in the eyes of the check.
 expect_generated_source_closes() {
     local marker="All changes made in this file"
     local victim="${REPO_ROOT}/src/lib/subedit/core/moc_probe.cpp"
 
-    proof_header '%s▸ %s%s\n' "${BOLD}" "fichier engendré déposé sous src/" "${RESET}"
+    proof_header '%s▸ %s%s\n' "${BOLD}" "generated file dropped under src/" "${RESET}"
     printf '/**** %s will be lost! ****/\n' "${marker}" > "${victim}"
 
     if make -C "${REPO_ROOT}" --no-print-directory arch >/dev/null 2>&1; then
-        printf '  %s✗ la porte « arch » a laissé passer le défaut%s\n' "${RED}" "${RESET}"
+        printf '  %s✗ the « arch » gate let the defect through%s\n' "${RED}" "${RESET}"
         failures=$((failures + 1))
     else
-        printf '  %s✓ « make arch » a échoué, comme attendu%s\n' "${GREEN}" "${RESET}"
+        printf '  %s✓ « make arch » failed, as expected%s\n' "${GREEN}" "${RESET}"
     fi
 
     rm -f "${victim}"
@@ -879,47 +873,46 @@ expect_generated_source_closes() {
 
 expect_generated_source_closes
 
-# Un intitulé de cas de test en français — issue #273.
+# A test case title in French — issue #273.
 #
-# **La preuve porte sur un filet, et non sur une certitude.** Reconnaître une
-# langue est une heuristique : le contrôle cherche un caractère hors ASCII ou
-# l un des mots outils qui n existent qu en français. Ce qui se démontre est
-# donc qu il attrape ce pour quoi il a été écrit — les cent intitulés qu une
-# seule phase avait laissés en français — et non qu aucun français ne lui
-# échappe jamais.
+# **The proof is about a net, not a certainty.** Recognising a language is a
+# heuristic: the check looks for a non-ASCII character or one of the function
+# words that exist only in French. What is shown is therefore that it catches
+# what it was written for — the hundred titles that a single phase had left in
+# French — and not that no French ever escapes it.
 #
-# L injection en porte les deux moitiés : un intitulé accentué, puis un intitulé
-# français sans le moindre accent. Le second est celui qui compte, parce que
-# c est celui qu un contrôle naïf laisserait passer, et parce que deux des cent
-# étaient exactement de cette forme.
+# The injection carries both halves: an accented title, then a French title
+# without a single accent. The second is the one that matters, because it is the
+# one a naive check would let through, and because two of the hundred were
+# exactly of that form. Both titles are French on purpose: they are the defect.
 expect_french_test_title_closes() {
     local one two
 
     for one in "un décalage négatif remonte les positions" \
                "un fichier absent ne fait dire mot"; do
-        proof_header '%s▸ %s%s\n' "${BOLD}" "un intitulé de test en français : « ${one} »" "${RESET}"
+        proof_header '%s▸ %s%s\n' "${BOLD}" "a test title in French: « ${one} »" "${RESET}"
 
         printf '\nTEST_CASE("%s", "[version]") {\n    CHECK(true);\n}\n' "${one}" \
             >> "${TEST_SOURCE}"
 
         if make -C "${REPO_ROOT}" --no-print-directory arch >/dev/null 2>&1; then
-            printf '  %s✗ la porte « arch » a laissé passer l intitulé%s\n' "${RED}" "${RESET}"
+            printf '  %s✗ the « arch » gate let the title through%s\n' "${RED}" "${RESET}"
             failures=$((failures + 1))
         else
-            printf '  %s✓ « make arch » a échoué, comme attendu%s\n' "${GREEN}" "${RESET}"
+            printf '  %s✓ « make arch » failed, as expected%s\n' "${GREEN}" "${RESET}"
         fi
 
         restore
     done
 
-    # Et le pendant : un intitulé anglais qui cite une donnée française ne doit
-    # pas être signalé. C est la seule exemption du contrôle, et une exemption
-    # qu on ne vérifie pas est une exemption qui se périme.
-    proof_header '%s▸ %s%s\n' "${BOLD}" "un intitulé anglais citant une donnée française" "${RESET}"
+    # And the counterpart: an English title that quotes a French datum must not
+    # be reported. It is the check's only exemption, and an exemption nobody
+    # verifies is an exemption that goes stale.
+    proof_header '%s▸ %s%s\n' "${BOLD}" "an English title quoting a French datum" "${RESET}"
     if make -C "${REPO_ROOT}" --no-print-directory arch >/dev/null 2>&1; then
-        printf '  %s✓ « make arch » a laissé passer, comme attendu%s\n' "${GREEN}" "${RESET}"
+        printf '  %s✓ « make arch » let it through, as expected%s\n' "${GREEN}" "${RESET}"
     else
-        printf '  %s✗ la porte « arch » a signalé l intitulé exempté%s\n' "${RED}" "${RESET}"
+        printf '  %s✗ the « arch » gate reported the exempted title%s\n' "${RED}" "${RESET}"
         failures=$((failures + 1))
     fi
 }
@@ -1116,64 +1109,64 @@ expect_stale_translation_gate() {
 
 expect_stale_translation_gate
 
-# La porte refuse ce qu une exécution a laissé derrière elle — #226.
+# The gate refuses what a run has left behind — #226.
 #
-# **Deux preuves et non une**, parce que le contrôle a deux modes d échec et
-# qu ils ne coûtent pas la même chose. Laisser passer un fichier oublié est ce
-# qui est arrivé une fois, à la #207, et personne ne l a su avant un git status.
-# Signaler un fichier non suivi qui était déjà là — une source neuve avant son
-# git add — serait pire : le contrôle crierait au loup à chaque journée de
-# travail, et un contrôle qui crie au loup finit désactivé.
+# **Two proofs and not one**, because the check has two failure modes and they
+# do not cost the same. Letting a forgotten file through is what happened once,
+# at #207, and nobody knew before a git status. Reporting an untracked file that
+# was already there — a new source before its git add — would be worse: the
+# check would cry wolf every working day, and a check that cries wolf ends up
+# disabled.
 #
-# Elle ne passe pas par expect_gate_closes : le défaut ne s injecte pas en
-# ajoutant du texte à un fichier du dépôt, il consiste à en faire apparaître un.
+# It does not go through expect_gate_closes: the defect is not injected by
+# appending text to a file of the repository, it consists in making one appear.
 expect_untracked_gate() {
     local script="${REPO_ROOT}/src/scripts/check-untracked.sh"
 
-    proof_header '%s▸ un test qui laisse un fichier derrière lui%s\n' "${BOLD}" "${RESET}"
+    proof_header '%s▸ a test that leaves a file behind%s\n' "${BOLD}" "${RESET}"
     "${script}" --record >/dev/null
     : > "${STRAY_FILE}"
     if make -C "${REPO_ROOT}" --no-print-directory untracked >/dev/null 2>&1; then
-        printf '  %s✗ la porte « untracked » a laissé passer le fichier%s\n' "${RED}" "${RESET}"
+        printf '  %s✗ the « untracked » gate let the file through%s\n' "${RED}" "${RESET}"
         failures=$((failures + 1))
     else
-        printf '  %s✓ « make untracked » a échoué, comme attendu%s\n' "${GREEN}" "${RESET}"
+        printf '  %s✓ « make untracked » failed, as expected%s\n' "${GREEN}" "${RESET}"
     fi
     rm -f "${STRAY_FILE}"
 
-    proof_header '%s▸ un fichier non suivi déjà là avant le relevé%s\n' "${BOLD}" "${RESET}"
+    proof_header '%s▸ an untracked file already there before the record%s\n' "${BOLD}" "${RESET}"
     : > "${STRAY_FILE}"
     "${script}" --record >/dev/null
     if make -C "${REPO_ROOT}" --no-print-directory untracked >/dev/null 2>&1; then
-        printf '  %s✓ « make untracked » a laissé passer, comme attendu%s\n' "${GREEN}" "${RESET}"
+        printf '  %s✓ « make untracked » let it through, as expected%s\n' "${GREEN}" "${RESET}"
     else
-        printf '  %s✗ la porte « untracked » a signalé un fichier antérieur%s\n' "${RED}" "${RESET}"
+        printf '  %s✗ the « untracked » gate reported an earlier file%s\n' "${RED}" "${RESET}"
         failures=$((failures + 1))
     fi
     rm -f "${STRAY_FILE}"
 
-    # Le relevé est refait sans le témoin, pour que les preuves suivantes ne
-    # partent pas d un état que celle-ci a écrit.
+    # The record is made again without the witness, so that the next proofs do
+    # not start from a state that this one wrote.
     "${script}" --record >/dev/null
 }
 
 expect_untracked_gate
 
-# Une fixture d encodage qui n est plus ce que sa table annonce — issue #289.
+# An encoding fixture that is no longer what its table announces — issue #289.
 #
-# **C est la seule famille de fixtures dont l altération soit invisible.** Une
-# grille se relit, une vidéo se réinterroge à ffprobe ; un fichier en CP1252 ne
-# dit même pas ce qu il est, et un octet changé y ressemble en tout point à un
-# octet juste. `--check` le reconstruit depuis la table et compare octet par
-# octet — c est tout ce qui sépare une fixture d une croyance.
+# **It is the only family of fixtures whose alteration is invisible.** A grid
+# can be reread, a video can be asked again with ffprobe; a CP1252 file does not
+# even say what it is, and a changed byte looks in every way like a right byte.
+# `--check` rebuilds it from the table and compares byte by byte — that is all
+# that separates a fixture from a belief.
 #
-# L injection change **un seul octet**, celui qui distingue justement CP1252 de
-# Latin-1 : la plage 0x80-0x9f. C est le cas que le contrôle doit voir, et celui
-# qu une comparaison de texte manquerait — les deux se décodent sans erreur.
+# The injection changes **a single byte**, precisely the one that tells CP1252
+# from Latin-1: the 0x80-0x9f range. It is the case the check must see, and the
+# one a text comparison would miss — both decode without error.
 expect_encoding_fixture_gate() {
     local victim="${REPO_ROOT}/src/test/data/encodages/cp1252.srt"
 
-    proof_header '%s▸ une fixture d encodage altérée d un octet%s\n' "${BOLD}" "${RESET}"
+    proof_header '%s▸ an encoding fixture altered by one byte%s\n' "${BOLD}" "${RESET}"
 
     cp "${victim}" "${backup_dir}/cp1252.srt"
     python3 - "${victim}" <<'PYTHON'
@@ -1182,17 +1175,17 @@ path = sys.argv[1]
 data = bytearray(open(path, "rb").read())
 for index, byte in enumerate(data):
     if 0x80 <= byte <= 0x9F:
-        data[index] = 0x2E  # un point, parfaitement licite en Latin-1
+        data[index] = 0x2E  # a full stop, perfectly lawful in Latin-1
         break
 open(path, "wb").write(bytes(data))
 PYTHON
 
     if make -C "${REPO_ROOT}" --no-print-directory fixtures >/dev/null 2>&1; then
-        printf '  %s✗ la porte « fixtures » a laissé passer l octet changé%s\n' \
+        printf '  %s✗ the « fixtures » gate let the changed byte through%s\n' \
             "${RED}" "${RESET}"
         failures=$((failures + 1))
     else
-        printf '  %s✓ « make fixtures » a échoué, comme attendu%s\n' "${GREEN}" "${RESET}"
+        printf '  %s✓ « make fixtures » failed, as expected%s\n' "${GREEN}" "${RESET}"
     fi
 
     cp "${backup_dir}/cp1252.srt" "${victim}"
@@ -1200,20 +1193,20 @@ PYTHON
 
 expect_encoding_fixture_gate
 
-# Le score de détection, confronté à son relevé — issue #311.
+# The detection score, confronted with its record — issue #311.
 #
-# **Deux preuves, parce que le contrôle a trois issues et qu une seule est un
-# refus.** Un score qui baisse est une régression et doit échouer ; un score qui
-# monte est une bonne nouvelle et ne doit surtout pas échouer, sans quoi la
-# première pull request qui améliore la détection se heurterait à sa propre
-# amélioration. Le troisième cas, l égalité, est celui que toutes les autres
-# exécutions de ce script traversent déjà.
+# **Two proofs, because the check has three outcomes and only one is a
+# refusal.** A score that drops is a regression and must fail; a score that
+# rises is good news and must above all not fail, otherwise the first pull
+# request that improves detection would run into its own improvement. The third
+# case, equality, is the one every other run of this script already goes
+# through.
 #
-# **L injection porte sur le relevé et non sur la détection**, et c est ce qui
-# la rend exacte : ce que le contrôle compare est un chiffre du journal à un
-# chiffre mesuré, donc bouger le premier éprouve la comparaison elle-même,
-# quelle que soit la valeur du second. Une détection dégradée à la main
-# prouverait la même chose en moins sûr, et il faudrait la recompiler.
+# **The injection is in the record and not in the detection**, and that is what
+# makes it exact: what the check compares is a figure of the journal with a
+# measured figure, so moving the first tests the comparison itself, whatever the
+# value of the second. A detection degraded by hand would prove the same thing
+# less surely, and it would have to be recompiled.
 expect_detection_score_gates() {
     local recorded
     recorded="$(sed -n 's/^ *labelled corpus *: *\([0-9]*\)\/\([0-9]*\) *$/\1 \2/p' \
@@ -1221,29 +1214,29 @@ expect_detection_score_gates() {
     local right="${recorded% *}"
     local total="${recorded#* }"
 
-    proof_header '%s▸ un score de détection en dessous de son relevé%s\n' "${BOLD}" "${RESET}"
+    proof_header '%s▸ a detection score below its record%s\n' "${BOLD}" "${RESET}"
 
     sed -i "s|^ *labelled corpus *:.*$|    labelled corpus: ${total}/${total}|" \
         "${DETECTION_JOURNAL}"
 
     if make -C "${REPO_ROOT}" --no-print-directory score >/dev/null 2>&1; then
-        printf '  %s✗ la porte « score » a laissé passer le recul%s\n' "${RED}" "${RESET}"
+        printf '  %s✗ the « score » gate let the drop through%s\n' "${RED}" "${RESET}"
         failures=$((failures + 1))
     else
-        printf '  %s✓ « make score » a échoué, comme attendu%s\n' "${GREEN}" "${RESET}"
+        printf '  %s✓ « make score » failed, as expected%s\n' "${GREEN}" "${RESET}"
     fi
 
     restore
 
-    proof_header '%s▸ un score de détection au dessus de son relevé%s\n' "${BOLD}" "${RESET}"
+    proof_header '%s▸ a detection score above its record%s\n' "${BOLD}" "${RESET}"
 
     sed -i "s|^ *labelled corpus *:.*$|    labelled corpus: $((right - 1))/${total}|" \
         "${DETECTION_JOURNAL}"
 
     if make -C "${REPO_ROOT}" --no-print-directory score >/dev/null 2>&1; then
-        printf '  %s✓ « make score » a laissé passer, comme attendu%s\n' "${GREEN}" "${RESET}"
+        printf '  %s✓ « make score » let it through, as expected%s\n' "${GREEN}" "${RESET}"
     else
-        printf '  %s✗ la porte « score » a refusé une détection meilleure%s\n' "${RED}" "${RESET}"
+        printf '  %s✗ the « score » gate refused a better detection%s\n' "${RED}" "${RESET}"
         failures=$((failures + 1))
     fi
 
@@ -1252,18 +1245,18 @@ expect_detection_score_gates() {
 
 expect_detection_score_gates
 
-# La perte de conversion, et son relevé — issue #339.
+# The conversion loss, and its record — issue #339.
 #
-# **Les deux mêmes preuves que pour le score, et pour la même raison** : le
-# contrôle a trois issues et une seule est un refus. Une perte qui s aggrave est
-# une régression et doit échouer ; une perte qui se réduit est une bonne
-# nouvelle et ne doit surtout pas échouer, sans quoi la première pull request qui
-# améliore une conversion se heurterait à son propre progrès.
+# **The same two proofs as for the score, and for the same reason**: the check
+# has three outcomes and only one is a refusal. A loss that worsens is a
+# regression and must fail; a loss that shrinks is good news and must above all
+# not fail, otherwise the first pull request that improves a conversion would run
+# into its own progress.
 #
-# **L injection porte sur le relevé et non sur la conversion.** Bouger le chiffre
-# du journal éprouve la comparaison elle-même, quelle que soit la valeur
-# mesurée ; dégrader une conversion à la main prouverait la même chose en moins
-# sûr, et il faudrait la recompiler.
+# **The injection is in the record and not in the conversion.** Moving the
+# journal's figure tests the comparison itself, whatever the measured value;
+# degrading a conversion by hand would prove the same thing less surely, and it
+# would have to be recompiled.
 expect_conversion_loss_gates() {
     local recorded
     recorded="$(sed -n 's/^ *intact round trips *: *\([0-9]*\)\/\([0-9]*\) *$/\1 \2/p' \
@@ -1271,29 +1264,29 @@ expect_conversion_loss_gates() {
     local kept="${recorded% *}"
     local total="${recorded#* }"
 
-    proof_header '%s▸ une perte de conversion plus grande que son relevé%s\n' "${BOLD}" "${RESET}"
+    proof_header '%s▸ a conversion loss greater than its record%s\n' "${BOLD}" "${RESET}"
 
     sed -i "s|^ *intact round trips *:.*$|    intact round trips: ${total}/${total}|" \
         "${CONVERSION_JOURNAL}"
 
     if make -C "${REPO_ROOT}" --no-print-directory conversion >/dev/null 2>&1; then
-        printf '  %s✗ la porte « conversion » a laissé passer la perte%s\n' "${RED}" "${RESET}"
+        printf '  %s✗ the « conversion » gate let the loss through%s\n' "${RED}" "${RESET}"
         failures=$((failures + 1))
     else
-        printf '  %s✓ « make conversion » a échoué, comme attendu%s\n' "${GREEN}" "${RESET}"
+        printf '  %s✓ « make conversion » failed, as expected%s\n' "${GREEN}" "${RESET}"
     fi
 
     restore
 
-    proof_header '%s▸ une perte de conversion plus petite que son relevé%s\n' "${BOLD}" "${RESET}"
+    proof_header '%s▸ a conversion loss smaller than its record%s\n' "${BOLD}" "${RESET}"
 
     sed -i "s|^ *intact round trips *:.*$|    intact round trips: $((kept - 1))/${total}|" \
         "${CONVERSION_JOURNAL}"
 
     if make -C "${REPO_ROOT}" --no-print-directory conversion >/dev/null 2>&1; then
-        printf '  %s✓ « make conversion » a laissé passer, comme attendu%s\n' "${GREEN}" "${RESET}"
+        printf '  %s✓ « make conversion » let it through, as expected%s\n' "${GREEN}" "${RESET}"
     else
-        printf '  %s✗ la porte « conversion » a refusé une conversion meilleure%s\n' \
+        printf '  %s✗ the « conversion » gate refused a better conversion%s\n' \
             "${RED}" "${RESET}"
         failures=$((failures + 1))
     fi
@@ -1303,23 +1296,22 @@ expect_conversion_loss_gates() {
 
 expect_conversion_loss_gates
 
-# Le score de la détection de format, et son relevé — issue #340.
+# The format detection score, and its record — issue #340.
 #
-# **Les deux mêmes preuves que pour les deux autres relevés**, et pour la même
-# raison : le contrôle a trois issues et une seule est un refus.
+# **The same two proofs as for the other two records**, and for the same
+# reason: the check has three outcomes and only one is a refusal.
 #
-# **Le recul s injecte dans le corpus, pas dans le relevé** — et c est une
-# correction. La première version remontait le relevé à `total/total` : juste
-# tant que la détection manquait des fichiers, muette depuis que le relevé est
-# à 19/19. Remonter un score parfait à lui-même ne change rien, la porte
-# laissait passer à bon droit, et la preuve échouait sans qu aucune porte ne
-# soit en cause. Un fichier étiqueté SubRip que le détecteur refuse fait
-# reculer le taux quel que soit le relevé, ce qui est la situation à prouver.
+# **The drop is injected into the corpus, not into the record** — and it is a
+# correction. The first version raised the record to `total/total`: right as
+# long as detection missed files, silent since the record reached 19/19.
+# Raising a perfect score to itself changes nothing, the gate rightly let it
+# through, and the proof failed without any gate being at fault. A file
+# labelled SubRip that the detector refuses makes the rate drop whatever the
+# record, which is the situation to prove.
 #
-# **La troisième issue du contrôle n est pas éprouvée ici**, et c est délibéré :
-# une confusion échoue à elle seule, quel que soit le taux, et l injecter
-# demanderait un détecteur dégradé — donc une recompilation, pour prouver une
-# branche de trois lignes.
+# **The check's third outcome is not tested here**, and that is deliberate: a
+# confusion fails on its own, whatever the rate, and injecting one would require
+# a degraded detector — hence a recompilation, to prove a three-line branch.
 expect_format_score_gates() {
     local recorded
     recorded="$(sed -n 's/^ *recognised formats *: *\([0-9]*\)\/\([0-9]*\) *$/\1 \2/p' \
@@ -1327,28 +1319,28 @@ expect_format_score_gates() {
     local right="${recorded% *}"
     local total="${recorded#* }"
 
-    proof_header '%s▸ un score de détection de format en dessous de son relevé%s\n' "${BOLD}" "${RESET}"
+    proof_header '%s▸ a format detection score below its record%s\n' "${BOLD}" "${RESET}"
 
-    printf 'pas un sous-titre\n' > "${FORMAT_STRAY}"
+    printf 'not a subtitle\n' > "${FORMAT_STRAY}"
 
     if make -C "${REPO_ROOT}" --no-print-directory score-format >/dev/null 2>&1; then
-        printf '  %s✗ la porte « score-format » a laissé passer le recul%s\n' "${RED}" "${RESET}"
+        printf '  %s✗ the « score-format » gate let the drop through%s\n' "${RED}" "${RESET}"
         failures=$((failures + 1))
     else
-        printf '  %s✓ « make score-format » a échoué, comme attendu%s\n' "${GREEN}" "${RESET}"
+        printf '  %s✓ « make score-format » failed, as expected%s\n' "${GREEN}" "${RESET}"
     fi
 
     restore
 
-    proof_header '%s▸ un score de détection de format au dessus de son relevé%s\n' "${BOLD}" "${RESET}"
+    proof_header '%s▸ a format detection score above its record%s\n' "${BOLD}" "${RESET}"
 
     sed -i "s|^ *recognised formats *:.*$|    recognised formats: $((right - 1))/${total}|" \
         "${FORMAT_JOURNAL}"
 
     if make -C "${REPO_ROOT}" --no-print-directory score-format >/dev/null 2>&1; then
-        printf '  %s✓ « make score-format » a laissé passer, comme attendu%s\n' "${GREEN}" "${RESET}"
+        printf '  %s✓ « make score-format » let it through, as expected%s\n' "${GREEN}" "${RESET}"
     else
-        printf '  %s✗ la porte « score-format » a refusé une détection meilleure%s\n' \
+        printf '  %s✗ the « score-format » gate refused a better detection%s\n' \
             "${RED}" "${RESET}"
         failures=$((failures + 1))
     fi
@@ -1358,43 +1350,41 @@ expect_format_score_gates() {
 
 expect_format_score_gates
 
-# Le scorimètre ne peut pas nommer un fichier — issue #290.
+# The scorer cannot name a file — issue #290.
 #
-# **Ce qui peut être faux ici n est pas un vert de trop, c est une fuite.** Le
-# corpus privé ne se cite jamais : ni titre, ni nom de fichier, ni chiffre
-# attribué à l un d eux. Un outil qui le parcourt et qui *peut* le nommer finit
-# par le nommer.
+# **What can go wrong here is not one green too many, it is a leak.** The
+# private corpus is never cited: no title, no file name, no figure attributed to
+# one of them. A tool that walks it and *can* name it ends up naming it.
 #
-# Il l a fait. La première version passait la commande de détection au shell
-# avec le chemin substitué en clair ; les noms du corpus portent des espaces et
-# des crochets, donc `file` a reçu des arguments éclatés, s est plaint de
-# chacun, et ses plaintes — qui citaient les noms — ont été lues comme des
-# encodages puis imprimées.
+# It did. The first version passed the detection command to the shell with the
+# path substituted in plain text; the corpus names carry spaces and brackets, so
+# `file` received split arguments, complained about each one, and its
+# complaints — which quoted the names — were read as encodings and then printed.
 #
-# Deux gardes en sont sorties, et cette preuve les exerce toutes les deux : le
-# chemin est un élément d argv, et ce que le détecteur rend est refusé s il n a
-# pas la forme d un nom d encodage. Le détecteur de cette preuve fait exactement
-# ce que `file` faisait — il écrit un chemin.
+# Two guards came out of it, and this proof exercises both: the path is one
+# element of argv, and what the detector returns is refused unless it has the
+# shape of an encoding name. The detector of this proof does exactly what `file`
+# did — it writes a path.
 expect_scorer_never_names_a_file() {
     local work chatty output
     work="$(mktemp -d)"
-    chatty="${work}/bavard.sh"
+    chatty="${work}/chatty.sh"
 
-    proof_header '%s▸ un détecteur qui recrache un chemin%s\n' "${BOLD}" "${RESET}"
+    proof_header '%s▸ a detector that spits out a path%s\n' "${BOLD}" "${RESET}"
 
     printf '#!/bin/sh\necho "cannot open %s"\n' \
-        "/aucun/fichier/reel/ne porte ce nom.srt" > "${chatty}"
+        "/no/real/file/bears this name.srt" > "${chatty}"
     chmod +x "${chatty}"
 
     output="$("${REPO_ROOT}/src/scripts/score-encoding-detection.py" \
         --detector "${chatty} {}" 2>&1 || true)"
 
-    if grep -q "ne porte ce nom" <<< "${output}"; then
-        printf '  %s✗ le scorimètre a imprimé ce que le détecteur lui a donné%s\n' \
+    if grep -q "bears this name" <<< "${output}"; then
+        printf '  %s✗ the scorer printed what the detector gave it%s\n' \
             "${RED}" "${RESET}"
         failures=$((failures + 1))
     else
-        printf '  %s✓ la réponse a été refusée, comme attendu%s\n' "${GREEN}" "${RESET}"
+        printf '  %s✓ the answer was refused, as expected%s\n' "${GREEN}" "${RESET}"
     fi
 
     rm -rf "${work}"
@@ -1402,87 +1392,88 @@ expect_scorer_never_names_a_file() {
 
 expect_scorer_never_names_a_file
 
-# La porte refuse qu une exécution touche la configuration de l utilisateur.
+# The gate refuses that a run touches the user's configuration.
 #
-# **Deux preuves et non une**, pour la raison qui en demande deux à la
-# précédente. Laisser passer une configuration écrite est le défaut que la porte
-# existe pour attraper. Signaler une configuration que rien n a touchée serait
-# pire : qui développe subedit finit par lancer subedit, et un contrôle qui
-# crierait au loup à chaque porte finirait désactivé.
+# **Two proofs and not one**, for the reason that asks for two from the
+# previous one. Letting a written configuration through is the defect the gate
+# exists to catch. Reporting a configuration that nothing touched would be
+# worse: whoever develops subedit ends up running subedit, and a check that
+# cried wolf at every gate would end up disabled.
 #
-# **Elle s exerce sous un XDG_CONFIG_HOME de fortune.** Prouver qu une porte
-# refuse qu on écrive dans le répertoire personnel en y écrivant serait commettre
-# le défaut pour montrer qu il est refusé. La variable est celle dont tout
-# emplacement standard dérive, et c est précisément celle que le harnais des
-# tests déplace : la preuve emprunte le mécanisme qu elle démontre.
+# **It runs under a makeshift XDG_CONFIG_HOME.** Proving that a gate refuses
+# writes to the home directory by writing there would be committing the defect
+# to show that it is refused. The variable is the one every standard location
+# derives from, and it is precisely the one the test harness moves: the proof
+# borrows the mechanism it demonstrates.
 expect_config_home_gate() {
     local script="${REPO_ROOT}/src/scripts/check-config-home.sh"
     local fake
     fake="$(mktemp -d)"
 
-    proof_header '%s▸ un test qui écrit dans la configuration de l utilisateur%s\n' "${BOLD}" "${RESET}"
+    proof_header '%s▸ a test that writes into the user configuration%s\n' "${BOLD}" "${RESET}"
     XDG_CONFIG_HOME="${fake}" "${script}" --record >/dev/null
     mkdir -p "${fake}/subedit"
     printf 'theme = dark\n' > "${fake}/subedit/settings.conf"
     if XDG_CONFIG_HOME="${fake}" make -C "${REPO_ROOT}" --no-print-directory config-home \
         >/dev/null 2>&1; then
-        printf '  %s✗ la porte « config-home » a laissé passer l écriture%s\n' "${RED}" "${RESET}"
+        printf '  %s✗ the « config-home » gate let the write through%s\n' "${RED}" "${RESET}"
         failures=$((failures + 1))
     else
-        printf '  %s✓ « make config-home » a échoué, comme attendu%s\n' "${GREEN}" "${RESET}"
+        printf '  %s✓ « make config-home » failed, as expected%s\n' "${GREEN}" "${RESET}"
     fi
 
-    proof_header '%s▸ une configuration déjà là que rien n a touchée%s\n' "${BOLD}" "${RESET}"
+    proof_header '%s▸ a configuration already there that nothing touched%s\n' "${BOLD}" "${RESET}"
     XDG_CONFIG_HOME="${fake}" "${script}" --record >/dev/null
     if XDG_CONFIG_HOME="${fake}" make -C "${REPO_ROOT}" --no-print-directory config-home \
         >/dev/null 2>&1; then
-        printf '  %s✓ « make config-home » a laissé passer, comme attendu%s\n' "${GREEN}" "${RESET}"
+        printf '  %s✓ « make config-home » let it through, as expected%s\n' "${GREEN}" "${RESET}"
     else
-        printf '  %s✗ la porte « config-home » a signalé une configuration intacte%s\n' \
+        printf '  %s✗ the « config-home » gate reported an untouched configuration%s\n' \
             "${RED}" "${RESET}"
         failures=$((failures + 1))
     fi
 
     rm -rf "${fake}"
 
-    # Le relevé est refait sous le vrai répertoire, pour que ce qui suit ne parte
-    # pas de l empreinte d un XDG_CONFIG_HOME qui n existe plus.
+    # The record is made again under the real directory, so that what follows
+    # does not start from the fingerprint of an XDG_CONFIG_HOME that no longer
+    # exists.
     "${script}" --record >/dev/null
 }
 
 expect_config_home_gate
 
-# Les captures du manuel — #199.
+# The manual's screenshots — #199.
 #
-# **Deux preuves, pour les deux pièces qui ne voient pas la même chose.** Le
-# comparateur ne voit que les captures qu une exécution vient de produire : il
-# sait dire « cette image a bougé », et rien d autre. Le garde-fou voit les trois
-# listes — ce que le programme engendre, ce que le manuel montre, ce qui existe
-# sur le disque — et c est la seule pièce qui puisse attraper une image que plus
-# rien ne réengendre.
+# **Two proofs, for the two pieces that do not see the same thing.** The
+# comparator sees only the screenshots a run has just produced: it can say "this
+# image has moved", and nothing else. The guard sees the three lists — what the
+# program generates, what the manual shows, what exists on disk — and it is the
+# only piece that can catch an image that nothing generates any more.
 expect_screenshot_gates() {
-    proof_header '%s▸ une capture qui ne correspond plus à la fenêtre%s\n' "${BOLD}" "${RESET}"
-    # Une autre capture du même dépôt, aux dimensions différentes : le défaut
-    # est injecté sans fabriquer d image, et sans qu il faille en décrire une.
+    proof_header '%s▸ a screenshot that no longer matches the window%s\n' "${BOLD}" "${RESET}"
+    # Another screenshot of the same repository, with different dimensions: the
+    # defect is injected without making an image, and without having to describe
+    # one.
     cp "${OTHER_CAPTURE}" "${CAPTURE_REFERENCE}"
     if make -C "${REPO_ROOT}" --no-print-directory screenshots-check >/dev/null 2>&1; then
-        printf '  %s✗ la porte « screenshots-check » a laissé passer l image%s\n' \
+        printf '  %s✗ the « screenshots-check » gate let the image through%s\n' \
             "${RED}" "${RESET}"
         failures=$((failures + 1))
     else
-        printf '  %s✓ « make screenshots-check » a échoué, comme attendu%s\n' \
+        printf '  %s✓ « make screenshots-check » failed, as expected%s\n' \
             "${GREEN}" "${RESET}"
     fi
     restore
 
-    proof_header '%s▸ une image que le manuel montre et que rien n engendre%s\n' "${BOLD}" "${RESET}"
-    printf '\n![Une image que personne n engendre.](captures/inexistante.png)\n' \
+    proof_header '%s▸ an image the manual shows and nothing generates%s\n' "${BOLD}" "${RESET}"
+    printf '\n![An image nobody generates.](captures/missing.png)\n' \
         >> "${GUI_MANUAL_SOURCE}"
     if "${REPO_ROOT}/src/scripts/check-screenshots.py" >/dev/null 2>&1; then
-        printf '  %s✗ le garde-fou a laissé passer l image absente%s\n' "${RED}" "${RESET}"
+        printf '  %s✗ the guard let the missing image through%s\n' "${RED}" "${RESET}"
         failures=$((failures + 1))
     else
-        printf '  %s✓ « check-screenshots.py » a refusé, comme attendu%s\n' "${GREEN}" "${RESET}"
+        printf '  %s✓ « check-screenshots.py » refused, as expected%s\n' "${GREEN}" "${RESET}"
     fi
     restore
 }
