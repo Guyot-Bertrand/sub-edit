@@ -1,28 +1,27 @@
 #!/usr/bin/env bash
-# Confronte le registre d'exigences à ce qui l'entoure : les tests qui le citent,
-# et les specs de phase qui le promettent.
+# Compares the requirement registry with what surrounds it: the tests that cite
+# it, and the phase specs that promise it.
 #
-# Trois sens, tous nécessaires — voir docs/adr/0014-registre-d-exigences.md :
+# Three directions, all needed — see docs/adr/0014-registre-d-exigences.md:
 #
-#   couverture — une exigence `implemented` est citée par au moins un test, et
-#                une exigence qui ne l'est pas ne l'est par aucun ;
-#   référence  — tout tag en forme d'identifiant désigne une exigence du
-#                registre ;
-#   cadrage    — la table d'exigences d'une spec de phase et les lignes du
-#                registre portant cette phase se disent l'une l'autre.
+#   coverage  — an `implemented` requirement is cited by at least one test, and
+#               a requirement that is not implemented is cited by none;
+#   reference — every tag shaped like an identifier designates a requirement
+#               of the registry;
+#   scoping   — the requirement table of a phase spec and the registry rows
+#               carrying that phase say the same thing.
 #
-# Les tags viennent du binaire lui-même, jamais d'une analyse du C++. Catch2 les
-# connaît exactement ; un grep sur TEST_CASE les devinerait — il raterait un tag
-# produit par une macro et inventerait ceux d'un fichier commenté.
+# The tags come from the binary itself, never from an analysis of the C++.
+# Catch2 knows them exactly; a grep on TEST_CASE would guess them — it would
+# miss a tag produced by a macro and invent those of a commented-out file.
 #
-# **Le troisième sens est né de la relecture de la phase 7, après deux phases où
-# le même défaut est passé.** La phase 16 avait retiré `CLI-SNAP-03` du code sans
-# que sa spec suive et laissé naître `GUI-GRID-03` sans l'y inscrire ; la phase 7
-# a fondu `GUI-THEME-02` dans `GUI-THEME-01` de la même façon. Deux fois de
-# suite, la spec promettait un nombre d'exigences que le registre ne portait
-# plus — et la seule chose qui l'a vu est un humain qui relisait les deux
-# colonnes côte à côte. Ce que deux relectures ont trouvé, un contrôle le trouve
-# à chaque fois.
+# **The third direction was born of the review of phase 7, after two phases
+# through which the same defect slipped.** Phase 16 had removed `CLI-SNAP-03`
+# from the code without its spec following, and let `GUI-GRID-03` appear without
+# writing it in; phase 7 merged `GUI-THEME-02` into `GUI-THEME-01` the same way.
+# Twice in a row, the spec promised a number of requirements the registry no
+# longer carried — and the only thing that saw it was a human reading the two
+# columns side by side. What two reviews found, a check finds every time.
 
 set -euo pipefail
 
@@ -30,35 +29,34 @@ readonly REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 
 registry="${REPO_ROOT}/docs/exigences.md"
 
-# **Plusieurs binaires, et non un seul.** Une exigence de ligne de commande se
-# prouve en lançant le binaire et en lisant ce qu'il écrit ; une exigence
-# d'interface se prouve en construisant la fenêtre dans le processus du test et
-# en la pilotant. Les deux sont « ce que le binaire montre » au sens du registre,
-# mais elles ne peuvent pas vivre dans le même exécutable : le harnais de bout en
-# bout ne lie aucune bibliothèque de ce qu'il éprouve, et c'est ce qui fait sa
-# valeur.
+# **Several binaries, not one.** A command-line requirement is proven by
+# running the binary and reading what it writes; an interface requirement is
+# proven by building the window in the test's process and driving it. Both are
+# "what the binary shows" in the registry's sense, but they cannot live in the
+# same executable: the end-to-end harness links no library of what it tests,
+# and that is what gives it its value.
 #
-# Le contrôle réunit donc les tags de tous les binaires qu'on lui nomme.
+# The check therefore gathers the tags of every binary it is given.
 binaries=()
 
 readonly RED=$'\033[31m'
 readonly GREEN=$'\033[32m'
 readonly RESET=$'\033[0m'
 
-# Forme d'un identifiant : capitales, segments séparés par un tiret, numéro sur
-# deux chiffres en dernier. C'est elle qui distingue `CLI-VERSION-01` d'un tag
-# ordinaire comme `e2e` ou `framerate`, sans tenir de liste.
+# Shape of an identifier: capitals, segments separated by a dash, a two-digit
+# number last. It is what tells `CLI-VERSION-01` from an ordinary tag such as
+# `e2e` or `framerate`, without keeping a list.
 readonly ID_PATTERN='^[A-Z][A-Z0-9]*(-[A-Z0-9]+)*-[0-9][0-9]$'
 
 failures=0
 
 usage() {
     cat >&2 <<USAGE
-usage: check-requirements.sh [--registry <fichier>] [--binary <exécutable>]
+usage: check-requirements.sh [--registry <file>] [--binary <executable>]
 
-  --registry  registre à lire      (défaut : docs/exigences.md)
-  --binary    binaire à interroger, répétable
-              (défaut : les harnais de bout en bout et d'interface)
+  --registry  registry to read     (default: docs/exigences.md)
+  --binary    binary to query, repeatable
+              (default: the end-to-end and interface harnesses)
 USAGE
     exit 2
 }
@@ -68,13 +66,12 @@ while (( $# > 0 )); do
         --registry) [[ $# -ge 2 ]] || usage; registry="$2"; shift 2 ;;
         --binary)   [[ $# -ge 2 ]] || usage; binaries+=("$2"); shift 2 ;;
         -h|--help)  usage ;;
-        *)          printf 'argument inconnu : %s\n' "$1" >&2; usage ;;
+        *)          printf 'unknown argument: %s\n' "$1" >&2; usage ;;
     esac
 done
 
-# Le défaut ne peut être posé qu'ici : une valeur mise avant l'analyse des
-# arguments s'ajouterait à celles que l'appelant donne au lieu de leur céder la
-# place.
+# The default can only be set here: a value set before parsing the arguments
+# would be added to those the caller gives instead of giving way to them.
 if (( ${#binaries[@]} == 0 )); then
     binaries=("${REPO_ROOT}/build/dev/bin/subedit_e2e_test"
               "${REPO_ROOT}/build/dev/bin/subedit_gui_test")
@@ -89,17 +86,17 @@ report_success() {
     printf '%s✓%s %s\n' "${GREEN}" "${RESET}" "$*"
 }
 
-[[ -f "${registry}" ]] || { printf 'registre introuvable : %s\n' "${registry}" >&2; exit 1; }
+[[ -f "${registry}" ]] || { printf 'registry not found: %s\n' "${registry}" >&2; exit 1; }
 for binary in "${binaries[@]}"; do
     [[ -x "${binary}" ]] || {
-        printf 'binaire de test introuvable : %s\n' "${binary}" >&2
-        printf '  le construire avec : make build\n' >&2
+        printf 'test binary not found: %s\n' "${binary}" >&2
+        printf '  build it with: make build\n' >&2
         exit 1
     }
 done
 
-# Lit la table du registre et sort « identifiant état phase barré », un par
-# ligne. Les quatre champs sont sans espace, donc lisibles par un `read` nu.
+# Reads the registry table and prints "identifier state phase struck", one per
+# line. The four fields have no space, so a bare `read` reads them.
 #
 # States are compared with index() rather than a regular expression: the
 # column may carry a reason after the state word, and a substring search
@@ -123,18 +120,18 @@ read_registry() {
             else if (index(state, "replaced"))    label = "replaced"
             else                                  label = "unknown"
 
-            print id, label, phase, (index(raw, "~~") ? "barré" : "nu")
+            print id, label, phase, (index(raw, "~~") ? "struck" : "plain")
         }
     ' "${registry}"
 }
 
-# Lit une spec de phase et sort « identifiant barré », un par ligne.
+# Reads a phase spec and prints "identifier struck", one per line.
 #
-# **Toutes les lignes de tableau du fichier, et non la seule section
-# « Exigences ».** Deux raisons. Un identifiant n'apparaît en première cellule
-# nulle part ailleurs — c'est vérifié sur les neuf specs —, donc l'ancrage sur un
-# titre n'apporte rien ; et un titre renommé ferait taire le contrôle au lieu de
-# le faire échouer, ce qui est le pire des deux comportements.
+# **Every table row of the file, not only the requirements section.** Two
+# reasons. An identifier appears in a first cell nowhere else — checked on the
+# nine specs —, so anchoring on a heading brings nothing; and a renamed heading
+# would silence the check instead of making it fail, which is the worse of the
+# two behaviours.
 read_spec_ids() {
     awk -F'|' -v pattern="${ID_PATTERN}" '
         /^\|/ {
@@ -142,7 +139,7 @@ read_spec_ids() {
             id = raw
             gsub(/[`~ \t]/, "", id)
             if (id !~ pattern) next
-            print id, (index(raw, "~~") ? "barré" : "nu")
+            print id, (index(raw, "~~") ? "struck" : "plain")
         }
     ' "$1"
 }
@@ -163,30 +160,28 @@ while read -r id state phase struck; do
 done < <(read_registry)
 
 if (( ${#state_of[@]} == 0 )); then
-    report_failure "aucune exigence lue dans ${registry#"${REPO_ROOT}"/}
-    la table est-elle bien formée ?"
-    printf '\n%s1 écart entre le registre, les specs et les tests%s\n' "${RED}" "${RESET}" >&2
+    report_failure "no requirement read in ${registry#"${REPO_ROOT}"/}
+    is the table well formed?"
+    printf '\n%s1 mismatch between the registry, the specs and the tests%s\n' "${RED}" "${RESET}" >&2
     exit 1
 fi
 
 declare -A cited=()
 
-# Interroge le binaire et capture sa sortie et son code de retour à part,
-# avant tout traitement par grep/tr/sort.
+# Queries the binary and captures its output and its exit code separately,
+# before any processing by grep/tr/sort.
 #
-# Un pipeline placé dans une substitution de processus (`< <(cmd | grep …)`)
-# n'est pas vu par `set -e` : un échec du binaire — plantage, option
-# --list-tags disparue, sortie Catch2 qui change de forme — serait sinon
-# avalé en silence, et `cited` resterait vide sans qu'aucune ligne ne le
-# signale. Un contrôleur qui répond « tout va bien » quand il n'a rien pu
-# lire est pire qu'aucun contrôleur.
+# A pipeline placed in a process substitution (`< <(cmd | grep …)`) is not seen
+# by `set -e`: a failure of the binary — a crash, a --list-tags option gone, a
+# Catch2 output that changes shape — would otherwise be swallowed silently, and
+# `cited` would stay empty without a single line saying so. A checker that
+# answers "all is well" when it could read nothing is worse than no checker.
 #
-# stdout et stderr sont capturés à part, dans un fichier temporaire pour ce
-# dernier : les fondre avec `2>&1` ferait extraire des tags depuis les
-# diagnostics du binaire — un `[IDENTIFIANT]` mentionné dans un message
-# d'erreur serait alors pris pour une citation réelle, dans un sens comme
-# dans l'autre. stderr reste néanmoins lu et affiché en cas d'échec, pour
-# que le diagnostic d'un plantage reste visible.
+# stdout and stderr are captured separately, the latter in a temporary file:
+# merging them with `2>&1` would extract tags from the binary's diagnostics —
+# an `[IDENTIFIER]` mentioned in an error message would then be taken for a
+# real citation, in either direction. stderr is still read and shown on
+# failure, so that the diagnosis of a crash stays visible.
 list_tags_stderr="$(mktemp)"
 trap 'rm -f "${list_tags_stderr}"' EXIT
 
@@ -195,9 +190,9 @@ list_tags_status=0
 for binary in "${binaries[@]}"; do
     one=""
     one="$("${binary}" --list-tags 2>"${list_tags_stderr}")" || {
-        report_failure "le binaire de test a échoué sur --list-tags :
+        report_failure "the test binary failed on --list-tags:
 $(sed 's/^/    /' "${list_tags_stderr}")
-    vérifier que ${binary} répond à --list-tags, et que Catch2 n'a pas changé sa sortie."
+    check that ${binary} answers --list-tags, and that Catch2 has not changed its output."
         list_tags_status=1
         continue
     }
@@ -207,38 +202,37 @@ done
 if (( list_tags_status != 0 )); then
     :
 else
-    # On extrait tous les groupes entre crochets de la sortie standard
-    # entière plutôt que d'ancrer sur « N espaces crochet » : Catch2 met sur
-    # une même ligne toutes les orthographes d'un tag, et replie la ligne à
-    # 70 colonnes quand elle dépasse. Ni l'en-tête ni le pied de la sortie ne
-    # contiennent de crochets. Le « || true » évite qu'un grep sans
-    # correspondance — sortie sans le moindre tag — ne fasse échouer
-    # silencieusement la substitution de processus : c'est au garde qui suit
-    # de le dire, pas à `set -e` de l'avaler.
+    # Every bracketed group of the whole standard output is extracted, rather
+    # than anchoring on "N spaces, bracket": Catch2 puts every spelling of a
+    # tag on one line, and wraps the line at 70 columns when it is longer.
+    # Neither the header nor the footer of the output contains brackets. The
+    # "|| true" keeps a grep without a match — an output without a single tag —
+    # from silently failing the process substitution: it is for the guard that
+    # follows to say so, not for `set -e` to swallow it.
     while read -r tag; do
         [[ -n "${tag}" ]] && cited["${tag}"]=1
     done < <(printf '%s' "${list_tags_stdout}" | grep -o '\[[^][]*\]' | tr -d '[]' | sort -u || true)
 
-    # Symétrique au garde sur ${#state_of[@]} plus haut : zéro tag n'est
-    # jamais légitime ici, le binaire de test porte toujours au moins [e2e].
+    # Symmetric to the guard on ${#state_of[@]} above: zero tags is never
+    # legitimate here, the test binary always carries at least [e2e].
     if (( ${#cited[@]} == 0 )); then
-        report_failure "aucun tag lu dans la sortie standard des binaires interrogés
-    la forme de la sortie de Catch2 a-t-elle changé ? le binaire de test porte
-    toujours au moins le tag [e2e] ; son absence signale un défaut, jamais un
-    état normal."
+        report_failure "no tag read in the standard output of the queried binaries
+    has the shape of Catch2's output changed? the test binary always carries
+    at least the [e2e] tag; its absence signals a defect, never a normal
+    state."
     fi
 fi
 
-# 1 — un identifiant n'est jamais réutilisé, donc jamais écrit deux fois.
+# 1 — an identifier is never reused, hence never written twice.
 if (( ${#duplicates[@]} > 0 )); then
-    report_failure "identifiants présents plusieurs fois dans le registre :
+    report_failure "identifiers present more than once in the registry:
 $(printf '    %s\n' "${duplicates[@]}")
-    un identifiant n'est jamais réutilisé."
+    an identifier is never reused."
 else
-    report_success "${#state_of[@]} identifiants, tous distincts"
+    report_success "${#state_of[@]} identifiers, all distinct"
 fi
 
-# 2 — chaque état affirme quelque chose de vérifiable sur la présence d'un test.
+# 2 — every state asserts something checkable about the presence of a test.
 uncovered=()
 unexpected=()
 unknown_state=()
@@ -258,29 +252,29 @@ for id in "${!state_of[@]}"; do
 done
 
 if (( ${#unknown_state[@]} > 0 )); then
-    report_failure "états non reconnus :
+    report_failure "unrecognised states:
 $(printf '    %s\n' "${unknown_state[@]}")
-    les quatre états sont : planned, implemented, abandoned, replaced."
+    the four states are: planned, implemented, abandoned, replaced."
 fi
 
 if (( ${#uncovered[@]} > 0 )); then
-    report_failure "exigences déclarées implémentées qu'aucun test ne cite :
+    report_failure "requirements declared implemented that no test cites:
 $(printf '    %s\n' "${uncovered[@]}")
-    ajouter le tag à un test de bout en bout, ou corriger l'état."
+    add the tag to an end-to-end test, or correct the state."
 else
-    report_success "toute exigence implémentée est citée par au moins un test"
+    report_success "every implemented requirement is cited by at least one test"
 fi
 
 if (( ${#unexpected[@]} > 0 )); then
-    report_failure "exigences non implémentées qu'un test cite pourtant :
+    report_failure "requirements not implemented that a test cites nevertheless:
 $(printf '    %s\n' "${unexpected[@]}")
-    un test qui cite une exigence prouve qu'elle est implémentée ;
-    tourner l'état, ou retirer le test resté derrière."
+    a test that cites a requirement proves it is implemented;
+    change the state, or remove the test left behind."
 else
-    report_success "aucune exigence non implémentée n'est citée"
+    report_success "no requirement that is not implemented is cited"
 fi
 
-# 3 — tout tag qui a la forme d'un identifiant en désigne un.
+# 3 — every tag shaped like an identifier designates one.
 dangling=()
 for tag in "${!cited[@]}"; do
     [[ "${tag}" =~ ${ID_PATTERN} ]] || continue
@@ -288,26 +282,26 @@ for tag in "${!cited[@]}"; do
 done
 
 if (( ${#dangling[@]} > 0 )); then
-    report_failure "tags en forme d'identifiant qui ne désignent aucune exigence :
+    report_failure "tags shaped like an identifier that designate no requirement:
 $(printf '    %s\n' "${dangling[@]}")
-    inscrire l'exigence au registre, ou corriger le tag."
+    add the requirement to the registry, or correct the tag."
 else
-    report_success "tout tag en forme d'identifiant désigne une exigence"
+    report_success "every tag shaped like an identifier designates a requirement"
 fi
 
-# 4 — la table d'exigences d'une spec de phase dit ce que le registre porte pour
-#     cette phase, et rien d'autre.
+# 4 — the requirement table of a phase spec says what the registry carries for
+#     that phase, and nothing else.
 #
-# **Le sens qui manquait, et qui a laissé passer deux phases.** Le registre est
-# vivant — une exigence y naît, se barre, change d'état ; la spec, elle, est
-# écrite une fois au cadrage et personne ne la rouvre. Sans confrontation, elle
-# reste sur ce que la phase croyait promettre et non sur ce qu'elle promet.
+# **The missing direction, which let two phases through.** The registry is
+# alive — a requirement is born there, gets struck, changes state; the spec is
+# written once at scoping and nobody reopens it. Without a comparison, it stays
+# on what the phase believed it promised and not on what it promises.
 #
-# La phase se lit dans le nom du fichier — `07-finitions….md` porte la phase 7 —
-# et non dans son contenu : c'est le seul endroit où elle ne peut pas se
-# tromper. Une spec sans le moindre identifiant est passée : les phases 0 à 2
-# n'ont pas d'exigences, et le registre n'en porte aucune pour elles, ce que le
-# sens inverse vérifie de toute façon.
+# The phase is read from the file name — `07-finitions….md` carries phase 7 —
+# and not from its content: it is the one place where it cannot be wrong. A
+# spec without a single identifier is skipped: phases 0 to 2 have no
+# requirements, and the registry carries none for them, which the reverse
+# direction checks anyway.
 specs_dir="${REPO_ROOT}/docs/specs"
 spec_absent=()
 spec_extra=()
@@ -316,23 +310,23 @@ spec_wrong_strike=()
 registry_wrong_strike=()
 spec_count=0
 
-# Le barré du registre et son état disent la même chose, et il faut que ce soit
-# vrai avant de s'en servir pour juger les specs : c'est l'état qui fait foi
-# ci-dessous, et un registre qui barrerait au hasard ferait accuser la spec.
+# The registry's strike-through and its state say the same thing, and that has
+# to be true before using it to judge the specs: the state is authoritative
+# below, and a registry that struck at random would get the spec blamed.
 for id in "${!state_of[@]}"; do
-    expected="nu"
+    expected="plain"
     case "${state_of[${id}]}" in
-        abandoned|replaced) expected="barré" ;;
+        abandoned|replaced) expected="struck" ;;
         *) ;;
     esac
     [[ "${struck_in_registry[${id}]}" == "${expected}" ]] \
-        || registry_wrong_strike+=("${id} (${state_of[${id}]}, écrit ${struck_in_registry[${id}]})")
+        || registry_wrong_strike+=("${id} (${state_of[${id}]}, written ${struck_in_registry[${id}]})")
 done
 
 if (( ${#registry_wrong_strike[@]} > 0 )); then
-    report_failure "au registre, le barré et l'état se contredisent :
+    report_failure "in the registry, the strike-through and the state contradict each other:
 $(printf '    %s\n' "${registry_wrong_strike[@]}")
-    une exigence abandonnée ou remplacée est barrée, les deux autres états ne le sont pas."
+    an abandoned or replaced requirement is struck through, the other two states are not."
 fi
 
 if [[ -d "${specs_dir}" ]]; then
@@ -341,8 +335,8 @@ if [[ -d "${specs_dir}" ]]; then
     for spec in "${specs_dir}"/[0-9][0-9]-*.md; do
         [[ -e "${spec}" ]] || continue
         base="$(basename "${spec}")"
-        # 10# force la base dix : « 07 » sans lui serait lu en octal, et « 08 »
-        # ne serait pas lu du tout.
+        # 10# forces base ten: without it "07" would be read as octal, and "08"
+        # would not be read at all.
         phase="$(( 10#${base%%-*} ))"
         spec_of_phase["${phase}"]="${base}"
 
@@ -357,16 +351,16 @@ if [[ -d "${specs_dir}" ]]; then
                 continue
             fi
             if [[ "${phase_of[${id}]}" != "${phase}" ]]; then
-                spec_wrong_phase+=("${id} (${base}, registre : phase ${phase_of[${id}]})")
+                spec_wrong_phase+=("${id} (${base}, registry: phase ${phase_of[${id}]})")
                 continue
             fi
-            expected="nu"
+            expected="plain"
             case "${state_of[${id}]}" in
-                abandoned|replaced) expected="barré" ;;
+                abandoned|replaced) expected="struck" ;;
                 *) ;;
             esac
             [[ "${struck}" == "${expected}" ]] \
-                || spec_wrong_strike+=("${id} (${base}, ${state_of[${id}]}, écrit ${struck})")
+                || spec_wrong_strike+=("${id} (${base}, ${state_of[${id}]}, written ${struck})")
         done < <(read_spec_ids "${spec}")
 
         for id in "${!state_of[@]}"; do
@@ -377,9 +371,9 @@ if [[ -d "${specs_dir}" ]]; then
         unset in_spec
     done
 
-    # Une phase que le registre nomme et qu'aucune spec ne porte : soit la phase
-    # est écrite à l'envers, soit la colonne porte une coquille. Les deux se
-    # voient ici et nulle part ailleurs.
+    # A phase the registry names and no spec carries: either the phase is
+    # written the wrong way round, or the column carries a typo. Both show here
+    # and nowhere else.
     orphan_phases=()
     for id in "${!state_of[@]}"; do
         phase="${phase_of[${id}]}"
@@ -387,41 +381,41 @@ if [[ -d "${specs_dir}" ]]; then
     done
 
     if (( ${#orphan_phases[@]} > 0 )); then
-        report_failure "exigences dont la phase ne correspond à aucune spec :
+        report_failure "requirements whose phase matches no spec:
 $(printf '    %s\n' "${orphan_phases[@]}")
-    corriger la colonne « Phase », ou écrire la spec de la phase."
+    correct the \"Phase\" column, or write the phase's spec."
     fi
 fi
 
 if (( ${#spec_extra[@]} > 0 )); then
-    report_failure "exigences promises par une spec et absentes du registre :
+    report_failure "requirements promised by a spec and missing from the registry:
 $(printf '    %s\n' "${spec_extra[@]}")
-    inscrire l'exigence au registre, ou la retirer de la spec."
+    add the requirement to the registry, or remove it from the spec."
 fi
 
 if (( ${#spec_absent[@]} > 0 )); then
-    report_failure "exigences du registre absentes de la table de leur spec :
+    report_failure "registry requirements missing from the table of their spec:
 $(printf '    %s\n' "${spec_absent[@]}")
-    ajouter la ligne à la spec de la phase — c'est elle qui promet."
+    add the row to the phase's spec — the spec is what promises."
 fi
 
 if (( ${#spec_wrong_phase[@]} > 0 )); then
-    report_failure "exigences dont la spec et le registre ne disent pas la même phase :
+    report_failure "requirements whose spec and registry do not state the same phase:
 $(printf '    %s\n' "${spec_wrong_phase[@]}")"
 fi
 
 if (( ${#spec_wrong_strike[@]} > 0 )); then
-    report_failure "exigences dont le barré de la spec contredit l'état du registre :
+    report_failure "requirements whose strike-through in the spec contradicts the registry's state:
 $(printf '    %s\n' "${spec_wrong_strike[@]}")
-    une exigence abandonnée ou remplacée est barrée des deux côtés."
+    an abandoned or replaced requirement is struck through on both sides."
 fi
 
 if (( ${#spec_extra[@]} + ${#spec_absent[@]} + ${#spec_wrong_phase[@]} + ${#spec_wrong_strike[@]} == 0 )); then
-    report_success "${spec_count} exigences de spec, toutes accordées au registre"
+    report_success "${spec_count} spec requirements, all in agreement with the registry"
 fi
 
 if (( failures > 0 )); then
-    printf '\n%s%d écart(s) entre le registre, les specs et les tests%s\n' \
+    printf '\n%s%d mismatch(es) between the registry, the specs and the tests%s\n' \
         "${RED}" "${failures}" "${RESET}" >&2
     exit 1
 fi
