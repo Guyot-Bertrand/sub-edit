@@ -38,11 +38,6 @@ cmake/ToolchainSanity.cmake
 cmake/Translations.cmake
 cmake/Warnings.cmake
 docs/mesures/performances.md
-docs/specs/08-encodages.md
-docs/specs/09-formats.md
-docs/specs/10-operations.md
-docs/specs/11-traduction.md
-docs/specs/12-correction.md
 docs/specs/13-cli.md
 docs/specs/14-calage-fin.md
 docs/specs/16-frequences-d-image.md

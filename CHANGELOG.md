@@ -11,6 +11,17 @@ ne pas l'éditer à la main.
 
 ### Documentation
 
+- **doc** — Make the spec 04 subtitle examples generic
+- **doc** — Translate spec 08 into English
+- **doc** — Translate spec 09 into English
+- **doc** — Translate spec 10 into English
+- **doc** — Translate spec 11 into English
+- **doc** — Translate spec 12 into English
+
+## 0.15.30 — 2026-10-14
+
+### Documentation
+
 - **doc** — Translate spec 00 into English
 - **doc** — Translate spec 01 into English
 - **doc** — Translate spec 02 into English
@@ -19,6 +30,7 @@ ne pas l'éditer à la main.
 - **doc** — Translate spec 05 into English
 - **doc** — Translate spec 06 into English
 - **doc** — Translate spec 07 into English
+- **doc** — Regenerate the changelog
 
 ## 0.15.29 — 2026-10-14
 

@@ -1,1014 +1,1000 @@
-# Phase 12 — Moteur de correction complet
+# Phase 12 — Complete correction engine
 
-Cadrage de l'issue [#493](https://github.com/Guyot-Bertrand/sub-edit/issues/493),
-après l'initialisation [#492](https://github.com/Guyot-Bertrand/sub-edit/issues/492).
+Framing of issue [#493](https://github.com/Guyot-Bertrand/sub-edit/issues/493),
+after the initialisation [#492](https://github.com/Guyot-Bertrand/sub-edit/issues/492).
 
-## Ce que la feuille de route promet, et ce qui est déjà là
+## What the roadmap promises, and what is already there
 
-Motifs déclaratifs par écriture, langue et pays — erreurs courantes classées
-Humain et OCR, remise en majuscule, mentions pour malentendants restantes —,
-découpage de lignes, et correcteur orthographique avec la jonction et la
-scission de mots qu'il permet. Plus quatre renvois : les trois motifs de
-mentions et le choix du moteur, venus de la phase 4 ; PCRE2 ou RE2 et hunspell,
-de la phase 0 ; la jonction, la scission et les erreurs courantes, de la
-phase 10 ; et le parseur conscient des balises, que la phase 10 a écrit pour
-qu'on l'emprunte ici.
+Declarative patterns per script, language and country — common errors classed
+Human and OCR, capitalization, remaining hearing-impaired mentions —, line
+breaking, and a spell checker with the joining and splitting of words it makes
+possible. Plus four deferrals: the three mention patterns and the choice of
+engine, from phase 4; PCRE2 or RE2 and hunspell, from phase 0; joining,
+splitting and common errors, from phase 10; and the markup-aware parser, which
+phase 10 wrote so that it could be borrowed here.
 
-**C'est la première phase dont le cadrage trouve ses attendus déjà écrits.**
-L'initialisation a produit deux outils, et ils changent la nature des décisions :
-on ne choisit plus un moteur sur sa réputation, on le confronte à ce que Gaupol
-fait.
+**This is the first phase whose framing finds its expected results already
+written.** The initialisation produced two tools, and they change the nature of
+the decisions: an engine is no longer chosen on its reputation, it is confronted
+with what Gaupol does.
 
-| Ce qui est déjà là | Où |
-| :----------------- | :- |
-| les **24 fichiers de motifs de Gaupol**, versionnés tels quels, avec leur attribution | [#494](https://github.com/Guyot-Bertrand/sub-edit/issues/494), `src/test/data/motifs/gaupol/` |
-| **184 cas** écrits à la main aux bords des 72 enregistrements de correction, et **ce que Gaupol en fait**, écrit par un oracle Python qui reproduit son `Finder` | #494, `entrees/`, `attendus/`, `src/scripts/pattern-oracle.py` |
-| **26 découpages** attendus, le `Liner` de Gaupol porté dans le même oracle, en unité caractère | [#495](https://github.com/Guyot-Bertrand/sub-edit/issues/495), `line-break.cas` |
-| un **moteur d'expressions en service**, ICU, celui de la recherche | phase 10, `core/edit/search.cpp` |
-| le **parseur conscient des balises**, `replace` et `transform` | phase 10, `core/text/markup_parser` |
-| le **retrait des mentions** entre crochets et parenthèses, par un balayage écrit à la main | phase 4, [ADR 0017](../adr/0017-analyseur-de-mentions-ecrit-a-la-main.md) |
-| un **compte des textes changés**, et non des correspondances | `rewrittenCount`, phase 10 |
-| le **multi-projets**, qui donne son sens à la cible « tous les projets ouverts » | phase 11 |
+| What is already there | Where |
+| :-------------------- | :---- |
+| the **24 pattern files of Gaupol**, versioned as they are, with their attribution | [#494](https://github.com/Guyot-Bertrand/sub-edit/issues/494), `src/test/data/motifs/gaupol/` |
+| **184 cases** written by hand at the edges of the 72 correction records, and **what Gaupol makes of them**, written by a Python oracle that reproduces its `Finder` | #494, `entrees/`, `attendus/`, `src/scripts/pattern-oracle.py` |
+| **26 expected line breaks**, Gaupol's `Liner` ported into the same oracle, in character units | [#495](https://github.com/Guyot-Bertrand/sub-edit/issues/495), `line-break.cas` |
+| a **regular expression engine in service**, ICU, the one of search | phase 10, `core/edit/search.cpp` |
+| the **markup-aware parser**, `replace` and `transform` | phase 10, `core/text/markup_parser` |
+| the **removal of mentions** between brackets and parentheses, by a hand-written scan | phase 4, [ADR 0017](../adr/0017-analyseur-de-mentions-ecrit-a-la-main.md) |
+| a **count of changed texts**, not of matches | `rewrittenCount`, phase 10 |
+| **multiple projects**, which gives its meaning to the "all open projects" target | phase 11 |
 
-**Ce qui n'y est pas.** Aucun lecteur de fichiers de motifs, aucune traduction
-de la syntaxe de Python, aucune expansion des remplacements à la manière de
-Python, aucune mesure de longueur autre que `size()`, aucun correcteur, aucun
-assistant.
+**What is not there.** No reader of pattern files, no translation of Python's
+syntax, no expansion of replacements the way Python does it, no length measure
+other than `size()`, no spell checker, no assistant.
 
-## Analyse préalable — ce que Gaupol fait
+## Preliminary analysis — what Gaupol does
 
-Lue dans `aeidon/patternman.py`, `pattern.py`, `agents/text.py`, `parser.py`,
+Read in `aeidon/patternman.py`, `pattern.py`, `agents/text.py`, `parser.py`,
 `finder.py`, `liner.py`, `spell.py`, `gaupol/ruler.py`, `gaupol/assistants.py`,
-`gaupol/dialogs/spell_check.py` et `gaupol/config.py` ; **exécutée** par #494 et
-#495, dont les oracles ont été confrontés au vrai `aeidon` (360 cas puis 26, sans
-désaccord). Le corps de #493 en donne le tableau ; ce qui suit est ce qui
-gouverne une décision.
+`gaupol/dialogs/spell_check.py` and `gaupol/config.py`; **executed** by #494 and
+#495, whose oracles were confronted with the real `aeidon` (360 cases then 26,
+without disagreement). The body of #493 gives the table; what follows is what
+governs a decision.
 
-**Le chargement.** `Zyyy`, puis l'écriture, la langue, le pays, concaténés dans
-cet ordre ; un nom répété se range après le précédent, sauf `Policy=Replace` qui
-le remplace ; `SkipIn` exclut un enregistrement d'un code. Les fichiers livrés
-sont lus, puis ceux de l'utilisateur (`~/.local/share/gaupol/patterns`) ; les
-`.conf` livrés, puis ceux de l'utilisateur. **Le `.conf` de `Latn` pour les
-mentions nomme deux motifs qui n'existent pas** — « Song lyrics between
-asterisks » et sa variante d'une ligne : l'activation d'un nom inconnu est
-ignorée sans un mot.
+**Loading.** `Zyyy`, then the script, the language, the country, concatenated in
+that order; a repeated name is placed after the previous one, except with
+`Policy=Replace`, which replaces it; `SkipIn` excludes a record from a code. The
+shipped files are read, then those of the user (`~/.local/share/gaupol/patterns`);
+the shipped `.conf` files, then those of the user. **The `.conf` of `Latn` for
+mentions names two patterns that do not exist** — "Song lyrics between
+asterisks" and its one-line variant: activating an unknown name is ignored
+without a word.
 
-**L'application.** Les motifs dans l'ordre, chacun par un `Finder` qui cherche
-dans le texte déjà modifié. `Repeat=True` reboucle **tant qu'une passe a trouvé
-quelque chose**, et non tant qu'elle a changé quelque chose : un motif dont le
-remplacement correspond encore à lui-même ne s'arrête jamais. Aucun motif livré
-ne le fait ; un motif de l'utilisateur le peut.
+**Application.** The patterns in order, each through a `Finder` that searches
+the already modified text. `Repeat=True` loops again **as long as a pass found
+something**, not as long as it changed something: a pattern whose replacement
+still matches itself never stops. No shipped pattern does so; a user pattern
+can.
 
-**Le filtre Humain/OCR n'est qu'un filtre d'affichage.** `CommonErrorPage._filter_patterns`
-(`gaupol/assistants.py`, lignes 445-450) masque les motifs de la classe
-décochée ; `correct_texts` (ligne 430) les applique **tous**, masqués compris.
-Vérifié par #492 en lisant, et non plus sur la foi d'une lecture déléguée.
+**The Human/OCR filter is only a display filter.** `CommonErrorPage._filter_patterns`
+(`gaupol/assistants.py`, lines 445-450) hides the patterns of the unchecked
+class; `correct_texts` (line 430) applies **all** of them, hidden ones included.
+Checked by #492 by reading, and no longer on the strength of a delegated
+reading.
 
-**La majuscule a un état qui traverse les sous-titres** : un `.` en fin de
-sous-titre met en majuscule le début du suivant, et le premier sous-titre du
-document l'est toujours. La traversée s'arrête aux trous de la sélection.
+**Capitalization has a state that crosses subtitles**: a `.` at the end of a
+subtitle capitalizes the start of the next one, and the first subtitle of the
+document always is. The crossing stops at the gaps in the selection.
 
-**Le retrait des mentions est suivi de sept nettoyages globaux**
-(`_remove_leftover_hi`), et d'une suppression des sous-titres vidés.
+**The removal of mentions is followed by seven global clean-ups**
+(`_remove_leftover_hi`), and by a removal of the emptied subtitles.
 
-**Le découpage** mesure chaque candidat par `length_func`, et **les motifs n'y
-sont appliqués qu'une fois par texte**, pour placer leurs pénalités. Le point
-chaud est la mesure : en *ems*, c'est la largeur naturelle d'un `Gtk.Label` de
-la police par défaut, rapportée à une em calibrée pour que l'alphabet
-minuscule vaille 0,55 em par lettre.
+**Line breaking** measures each candidate through `length_func`, and **the
+patterns are applied only once per text**, to place their penalties. The hot
+spot is the measure: in *ems*, it is the natural width of a `Gtk.Label` in the
+default font, relative to an em calibrated so that the lowercase alphabet is
+worth 0.55 em per letter.
 
-**Le correcteur** passe par libspelling, donc par Enchant, qui choisit le
-dictionnaire et tient la liste de mots personnelle. Par-dessus : une liste de
-remplacements `mot|remplacement` par langue, dans la configuration de Gaupol ;
-des heuristiques **pour l'anglais seulement** (`-in'` pour `-ing`, suffixes
-`'s 'll 're 've 'd`, ordinaux) ; deux suggestions ajoutées en tête pour l'OCR
-(`I` → `l`, chiffre collé à une unité). Un découpage en mots qui s'avoue
-« unlikely to work well for all languages ».
+**The spell checker** goes through libspelling, hence through Enchant, which
+chooses the dictionary and keeps the personal word list. On top of it: a list of
+`word|replacement` replacements per language, in Gaupol's configuration;
+heuristics **for English only** (`-in'` for `-ing`, suffixes
+`'s 'll 're 've 'd`, ordinals); two suggestions added at the head for OCR
+(`I` → `l`, a digit stuck to a unit). A word splitting that admits it is
+"unlikely to work well for all languages".
 
-**L'assistant** enchaîne ses pages — tâches et cible, mentions, jonction et
-scission (absente sans correcteur), erreurs courantes, majuscules, découpage et
-ses réglages, progression, **confirmation** —, calcule tout sur une copie de
-chaque projet, présente chaque texte changé avec son original, se coche, se
-décoche, se modifie, et n'applique que ce qui est accepté : **une entrée
-d'historique par projet**, puis « Edited N and removed M subtitles ».
+**The assistant** chains its pages — tasks and target, mentions, joining and
+splitting (absent without a spell checker), common errors, capitalization, line
+breaking and its settings, progress, **confirmation** —, computes everything on a
+copy of each project, presents each changed text with its original, is checked,
+unchecked, edited, and applies only what is accepted: **one history entry per
+project**, then "Edited N and removed M subtitles".
 
-## D1 — Le moteur : ICU
+## D1 — The engine: ICU
 
-**Tranché par l'[ADR 0036](../adr/0036-icu-pour-les-motifs-de-correction.md)**,
-sur une mesure jetable dont elle porte les chiffres : PCRE2 compilé à la volée
-est 2,6 fois plus rapide, pour une différence de 0,13 s à 0,05 s par film
-qu'aucun utilisateur ne verra ; ICU est déjà au noyau, déjà le moteur de la
-recherche, et ne change pas de comportement d'une distribution à l'autre.
+**Decided by [ADR 0036](../adr/0036-icu-pour-les-motifs-de-correction.md)**, on
+a throwaway measurement whose figures it carries: PCRE2 compiled on the fly is
+2.6 times faster, for a difference of 0.13 s to 0.05 s per film that no user
+will see; ICU is already in the core, already the search engine, and does not
+change behaviour from one distribution to another.
 
-**La fidélité ne départage pas non plus, et c'est la découverte du cadrage.**
-Ni ICU ni PCRE2 ne lisent `\w` comme Python dès qu'une lettre est écrite en
-forme décomposée — ICU jamais, PCRE2 à partir de sa version 10.43. Réécrire
-`\w`, `\W`, `\b` et `\B` au chargement ramène ICU à zéro écart avec Python, sur
-les quatre types de motifs et les 18 563 sous-titres du corpus privé.
+**Fidelity does not settle it either, and that is the discovery of the
+framing.** Neither ICU nor PCRE2 reads `\w` as Python does as soon as a letter is
+written in decomposed form — ICU never, PCRE2 from its version 10.43 on.
+Rewriting `\w`, `\W`, `\b` and `\B` at load time brings ICU down to zero
+deviation from Python, on the four pattern types and the 18,563 subtitles of the
+private corpus.
 
-**Le moteur se cache derrière une interface du noyau**, `PatternEngine` ou son
-équivalent, avec une seule implémentation. C'est l'exception que les principes
-de conception admettent : la variation est identifiée — l'ADR dit dans quel cas
-PCRE2 reviendrait —, et c'est l'interface qui rendrait ce retour local.
+**The engine hides behind a core interface**, `PatternEngine` or its
+equivalent, with a single implementation. This is the exception the design
+principles allow: the variation is identified — the ADR says in which case PCRE2
+would come back —, and the interface is what would keep that return local.
 
-**Un motif ne tourne jamais sans borne.** `RegexMatcher::setTimeLimit` arrête un
-retour arrière catastrophique ; la correction de ce texte par ce motif est
-abandonnée, et dite.
+**A pattern never runs without a bound.** `RegexMatcher::setTimeLimit` stops a
+catastrophic backtracking; the correction of that text by that pattern is
+abandoned, and said.
 
-## D2 — Le format : celui de Gaupol, lu tel quel
+## D2 — The format: Gaupol's, read as it is
 
-**Tranché par l'[ADR 0037](../adr/0037-lire-les-motifs-de-gaupol-tels-quels.md).**
-Les fichiers livrés sont ceux de Gaupol, sans retouche, et passent de
-`src/test/data/motifs/gaupol/` à **`packaging/patterns/`** : une seule copie, que
-le paquet installe, que l'oracle lit, et que les tests lisent. Ils s'installent
-dans `share/subedit/patterns`, trouvé **à partir de l'exécutable** comme le
-manuel. Les motifs de l'utilisateur se lisent dans
-`$XDG_DATA_HOME/subedit/patterns`, après les livrés, comme chez Gaupol.
+**Decided by [ADR 0037](../adr/0037-lire-les-motifs-de-gaupol-tels-quels.md).**
+The shipped files are Gaupol's, untouched, and move from
+`src/test/data/motifs/gaupol/` to **`packaging/patterns/`**: a single copy, which
+the package installs, the oracle reads and the tests read. They are installed in
+`share/subedit/patterns`, found **from the executable** like the manual. The
+user's patterns are read from `$XDG_DATA_HOME/subedit/patterns`, after the
+shipped ones, as in Gaupol.
 
-**L'activation se garde dans nos réglages**, par type, code et nom ; les `.conf`
-livrés en sont les valeurs par défaut. Un réglage qui nomme un motif disparu
-est ignoré, comme Gaupol ignore un `.conf` périmé — et comme l'ADR 0022 le fait
-option par option.
+**Activation is kept in our settings**, by type, code and name; the shipped
+`.conf` files are its default values. A setting that names a pattern that has
+disappeared is ignored, as Gaupol ignores an outdated `.conf` — and as ADR 0022
+does option by option.
 
-**Le modèle est typé.** Un enregistrement est un `CorrectionPattern` : un type
-énuméré (`CommonError`, `Capitalization`, `HearingImpaired`, `LineBreak`), des
-classes énumérées, des drapeaux énumérés, et les champs propres à chaque type
-— `Repeat` pour les erreurs courantes, `Capitalize` pour les majuscules,
-`Group` et `Penalty` pour le découpage. Pas de dictionnaire de chaînes : c'est
-le contre-exemple que les principes de conception citent, et c'est précisément
-celui de Gaupol.
+**The model is typed.** A record is a `CorrectionPattern`: an enumerated type
+(`CommonError`, `Capitalization`, `HearingImpaired`, `LineBreak`), enumerated
+classes, enumerated flags, and the fields specific to each type — `Repeat` for
+common errors, `Capitalize` for capitalization, `Group` and `Penalty` for line
+breaking. No dictionary of strings: that is the counter-example the design
+principles cite, and it is precisely Gaupol's.
 
-## D3 — Les remplacements : convertis au chargement, appliqués à la manière de Gaupol
+## D3 — Replacements: converted at load time, applied the way Gaupol does
 
-**Le gabarit de Python est converti une fois**, au chargement, en une suite de
-morceaux — texte littéral ou numéro de groupe. Tout ce que Python y lit s'y
-traduit : `\1` à `\99`, `\g<n>`, `\g<nom>`, les octaux (`\040` est une espace,
-`\060` un zéro), les échappements `\n` et `\t` ; le `\0` isolé a déjà disparu à
-la lecture, comme chez Gaupol. Le gabarit converti ne dépend d'aucun moteur :
-ce n'est ni le `$1` d'ICU ni le `\1` de Python, c'est une structure.
+**Python's template is converted once**, at load time, into a sequence of
+pieces — literal text or group number. Everything Python reads in it is
+translated: `\1` to `\99`, `\g<n>`, `\g<name>`, octals (`\040` is a space,
+`\060` a zero), the escapes `\n` and `\t`; a lone `\0` has already disappeared at
+reading, as in Gaupol. The converted template depends on no engine: it is neither
+ICU's `$1` nor Python's `\1`, it is a structure.
 
-**L'application est celle du `Finder`, et pas un « remplacer tout ».** #494 l'a
-mesuré : la différence ne se voit que dans le nettoyage qui suit le retrait des
-mentions, et deux cas la montrent — mais un moteur qui l'ignorerait les
-échouerait. La boucle est écrite au noyau, une fois, sur l'interface de D1 :
-chercher à partir de la fin du dernier remplacement dans le texte modifié,
-avancer d'un caractère après une correspondance vide répétée.
+**Application is that of the `Finder`, not a "replace all".** #494 measured it:
+the difference shows only in the clean-up that follows the removal of mentions,
+and two cases show it — but an engine that ignored it would fail them. The loop
+is written in the core, once, on the interface of D1: search from the end of the
+last replacement in the modified text, move forward one character after a
+repeated empty match.
 
-**`Repeat` s'arrête quand le texte ne change plus**, et non quand une passe ne
-trouve plus rien. **Partout où Gaupol termine, le résultat est identique** : une
-passe qui trouve sans rien changer rendrait la suivante identique, et Gaupol ne
-terminerait pas. Là où Gaupol boucle sans fin, `subedit` s'arrête. Une borne
-tient en plus le cas d'un motif qui oscille entre deux textes : **cent passes**,
-au-delà desquelles le motif est abandonné pour ce texte, et dit.
+**`Repeat` stops when the text no longer changes**, not when a pass no longer
+finds anything. **Wherever Gaupol terminates, the result is identical**: a pass
+that finds without changing anything would make the next one identical, and
+Gaupol would not terminate. Where Gaupol loops forever, `subedit` stops. A bound
+also covers the case of a pattern that oscillates between two texts: **a hundred
+passes**, beyond which the pattern is abandoned for that text, and said.
 
-> **Précisé par [#499](https://github.com/Guyot-Bertrand/sub-edit/issues/499).** Deux bornes
-> s'ajoutent aux cent passes, parce qu'un motif dont le remplacement double ce qu'il trouve, sous
-> `Repeat`, remplirait la mémoire avant la centième : **un texte ne dépasse pas 16 384 octets**
-> pendant qu'un motif y travaille, et **chaque recherche est bornée par le temps du moteur**
-> (`kSearchLimit`, quelques dixièmes de seconde sur un motif catastrophique). Un motif qui
-> dépasse l'une des trois laisse le texte **tel qu'il était avant lui** — un remplacement à
-> moitié fait vaut moins que pas de remplacement —, et le dit, en nommant le texte. Le moteur
-> lit en outre `\n` seul comme fin de ligne (`UREGEX_UNIX_LINES`), ce que `.`, `^` et `$` savent
-> de la ligne dans `re`.
+> **Clarified by [#499](https://github.com/Guyot-Bertrand/sub-edit/issues/499).** Two bounds
+> are added to the hundred passes, because a pattern whose replacement doubles what it finds, under
+> `Repeat`, would fill memory before the hundredth: **a text does not exceed 16,384 bytes**
+> while a pattern works on it, and **each search is bounded by the engine's time**
+> (`kSearchLimit`, a few tenths of a second on a catastrophic pattern). A pattern that
+> exceeds any of the three leaves the text **as it was before it** — a half-done replacement
+> is worth less than no replacement —, and says so, naming the text. The engine also
+> reads `\n` alone as the end of a line (`UREGEX_UNIX_LINES`), which is what `.`, `^` and `$` know
+> of the line in `re`.
 
-> **Précisé en relecture de fin de phase.** « Et le dit, en nommant le texte » est tenu **au noyau
-> seulement** : `PatternFailure::text` porte l'indice du texte abandonné. La page de confirmation, elle,
-> nomme le motif et la raison **une seule fois**, quel que soit le nombre de textes où il a échoué
-> (`correction_confirmation_page.cpp`) — le manuel le dit. Le texte fautif ne se lit donc nulle part à
-> l'écran ; la ligne de commande de la phase 13, qui n'a pas cette page, pourra le nommer.
+> **Clarified at the end-of-phase review.** "And says so, naming the text" holds **in the core
+> only**: `PatternFailure::text` carries the index of the abandoned text. The confirmation page
+> names the pattern and the reason **only once**, however many texts it failed on
+> (`correction_confirmation_page.cpp`) — the manual says so. The faulty text is therefore read nowhere
+> on screen; the command line of phase 13, which does not have this page, will be able to name it.
 
-## D4 — Humain et OCR : un vrai filtre
+## D4 — Human and OCR: a real filter
 
-**Décocher une classe retire ses motifs de l'application**, et pas seulement de
-la liste. Le comportement de Gaupol — des motifs masqués qui s'appliquent quand
-même — n'est défendable par aucune lecture de son interface : une case
-« OCR » décochée dit « ne corrige pas les erreurs d'OCR ». C'est un écart
-voulu, inscrit plus bas.
+**Unchecking a class removes its patterns from the application**, and not only
+from the list. Gaupol's behaviour — hidden patterns that are applied all the
+same — cannot be defended by any reading of its interface: an unchecked "OCR"
+box says "do not correct OCR errors". This is an intended deviation, recorded
+below.
 
-Un enregistrement qui porte les deux classes s'applique si l'une des deux est
-cochée — la règle de Gaupol pour l'affichage, qui devient celle de
-l'application.
+A record that carries both classes is applied if either of them is checked —
+Gaupol's rule for display, which becomes the rule for application.
 
-## D5 — La mesure : injectée, et en cache
+## D5 — The measure: injected, and cached
 
-**Une interface du noyau, `LineMeasure`, deux implémentations.**
+**A core interface, `LineMeasure`, two implementations.**
 
-| Implémentation | Où | Pour qui |
-| :------------- | :- | :------- |
-| en caractères : points de code, balises retirées, saut de ligne compté comme une espace | noyau | les tests, la ligne de commande de la phase 13, et l'unité « caractères » de la fenêtre |
-| en *ems* : la largeur de la police de l'application, par `QFontMetricsF`, rapportée à une em calibrée comme Gaupol — l'alphabet minuscule vaut 0,55 em par lettre | `gui` | l'unité « ems » de la fenêtre |
+| Implementation | Where | For whom |
+| :------------- | :---- | :------- |
+| in characters: code points, markup removed, line break counted as a space | core | the tests, the command line of phase 13, and the "characters" unit of the window |
+| in *ems*: the width in the application's font, through `QFontMetricsF`, relative to an em calibrated as Gaupol does — the lowercase alphabet is worth 0.55 em per letter | `gui` | the "ems" unit of the window |
 
-**Le calibrage de Gaupol se reprend tel quel**, avec sa bizarrerie : l'em n'est
-pas celle de la typographie, c'est une unité où une lettre moyenne vaut 0,55.
-Les défauts de Gaupol — **24 de long, 3 lignes, en ems** — n'ont de sens que
-dans cette unité-là, et les garder demande de garder l'unité.
+**Gaupol's calibration is taken over as it is**, with its oddity: the em is not
+the typographic one, it is a unit where an average letter is worth 0.55.
+Gaupol's defaults — **24 long, 3 lines, in ems** — only make sense in that unit,
+and keeping them requires keeping the unit.
 
-> **Précisé par [#502](https://github.com/Guyot-Bertrand/sub-edit/issues/502).**
-> `LineMeasure` (le noyau) et `CharacterLineMeasure` (`get_char_length` :
-> points de code, `\n` compté comme n'importe quel caractère puisqu'un compte
-> de points de code ne voit pas la différence). `CachedLineMeasure` enveloppe
-> n'importe quel `LineMeasure` d'une table chaîne → longueur — **injectée**,
-> l'appelant décide de l'envelopper ou non, comme il choisit le moteur des
-> motifs. Le découpeur (`Liner` de Gaupol, porté ligne à ligne depuis l'oracle
-> déjà confronté au vrai Gaupol par #495) ne connaît que l'interface : les 26
-> cas de `line-break.cas` passent sans écart, `essai` compris. **Le cache ne
-> se voit pas au banc pour la mesure en caractères** — compter des points de
-> code est déjà trop bon marché pour qu'une table de hachage rembourse sa
-> propre lecture ; les deux chiffres sont dans la PR, et
-> `line_breaking_bench.cpp` explique pourquoi ils se ressemblent. C'est la
-> mesure en *ems* de #503, derrière `QFontMetricsF`, qui a une vraie raison
-> d'être mise en cache — la même interface la portera sans rien changer au
-> découpeur.
+> **Clarified by [#502](https://github.com/Guyot-Bertrand/sub-edit/issues/502).**
+> `LineMeasure` (the core) and `CharacterLineMeasure` (`get_char_length`:
+> code points, `\n` counted like any other character since a count of code
+> points does not see the difference). `CachedLineMeasure` wraps any
+> `LineMeasure` in a string → length table — **injected**: the caller decides
+> whether to wrap it or not, as it chooses the pattern engine. The line breaker
+> (Gaupol's `Liner`, ported line by line from the oracle already confronted with
+> the real Gaupol by #495) knows only the interface: the 26 cases of
+> `line-break.cas` pass without deviation, `essai` included. **The cache does
+> not show on the benchmark for the character measure** — counting code points
+> is already too cheap for a hash table to pay back its own lookup; both figures
+> are in the PR, and `line_breaking_bench.cpp` explains why they look alike. It
+> is the *ems* measure of #503, behind `QFontMetricsF`, that has a real reason to
+> be cached — the same interface will carry it without changing anything in the
+> line breaker.
 
-**Ce qui se met en cache : la longueur d'une chaîne, le temps d'un découpage.**
-Le découpeur mesure chaque ligne de chaque candidat, et les mêmes lignes
-reviennent d'un candidat à l'autre. Une table chaîne → longueur, vivant le temps
-d'une opération sur un document, suffit ; elle ne survit pas à l'opération, pour
-qu'un changement de police ne rende jamais une longueur périmée. Gaupol
-mémorise par identité d'objet — #495 l'a appris à ses dépens —, ce qu'une table
-par valeur n'a pas à reproduire.
+**What is cached: the length of a string, for the time of a line breaking.**
+The line breaker measures each line of each candidate, and the same lines come
+back from one candidate to the next. A string → length table, living for the
+time of one operation on a document, is enough; it does not survive the
+operation, so that a font change never makes a length outdated. Gaupol memoizes
+by object identity — #495 learned that the hard way —, which a table by value
+does not have to reproduce.
 
-**Les tests de la mesure en ems** ne font foi que sous les réglages de
-l'[ADR 0024](../adr/0024-captures-engendrees-et-ou-elles-font-foi.md) :
-plateforme sans écran, `DejaVu Sans`. Ailleurs, ils éprouvent le découpeur avec
-une mesure de test à largeurs fixes, qui dit ce que le calcul fait d'une
-longueur sans dépendre d'une police.
+**The tests of the ems measure** are authoritative only under the settings of
+[ADR 0024](../adr/0024-captures-engendrees-et-ou-elles-font-foi.md): headless
+platform, `DejaVu Sans`. Elsewhere, they exercise the line breaker with a test
+measure of fixed widths, which says what the computation does with a length
+without depending on a font.
 
-> **Précisé par [#503](https://github.com/Guyot-Bertrand/sub-edit/issues/503).**
-> `EmsLineMeasure`, dans `gui`, reçoit sa police au constructeur — jamais
-> `QApplication::font()` d'elle-même, la même règle que `CachedLineMeasure` :
-> l'appelant passe la police de l'application quand c'est ce qu'il veut dire,
-> un test passe `DejaVu Sans`. Le calibrage mesure l'alphabet minuscule une
-> fois, `QFontMetricsF::horizontalAdvance`, rapporté à 0,55 × 26. Les tests
-> refusent de conclure sous une police de remplacement, comme
-> `subedit_screenshots` refuse de photographier — `iiii` et `MMMM` diffèrent
-> en ems, un `breakLines` sur les deux le montre.
+> **Clarified by [#503](https://github.com/Guyot-Bertrand/sub-edit/issues/503).**
+> `EmsLineMeasure`, in `gui`, receives its font in its constructor — never
+> `QApplication::font()` on its own, the same rule as `CachedLineMeasure`: the
+> caller passes the application's font when that is what it means, a test passes
+> `DejaVu Sans`. The calibration measures the lowercase alphabet once,
+> `QFontMetricsF::horizontalAdvance`, relative to 0.55 × 26. The tests refuse to
+> conclude under a fallback font, as `subedit_screenshots` refuses to take
+> pictures — `iiii` and `MMMM` differ in ems, a `breakLines` on both shows it.
 >
-> **Le banc a exigé une `QApplication` que `subedit_bench` n'avait pas** :
-> `QFontMetricsF` ne répond pas sans base de polices. Le binaire porte
-> désormais son propre `main`, sous `offscreen`, exactement le motif déjà
-> écrit pour `subedit_gui_test` — un seul binaire, comme le veut
-> `record-bench.sh`, et les deux bancs `gui/` déjà là, qui s'en passaient, y
-> gagnent sans rien perdre. Le cache s'y voit, cette fois : c'est ce que #502
-> avait annoncé.
+> **The benchmark required a `QApplication` that `subedit_bench` did not have**:
+> `QFontMetricsF` does not answer without a font database. The binary now carries
+> its own `main`, under `offscreen`, exactly the pattern already written for
+> `subedit_gui_test` — a single binary, as `record-bench.sh` wants, and the two
+> `gui/` benchmarks already there, which did without, gain from it without losing
+> anything. The cache shows this time: that is what #502 had announced.
 
-> **Écrit en relecture de fin de phase.** **Le cache n'est pas branché dans la fenêtre.**
-> `CachedLineMeasure` existe au noyau, éprouvée par ses tests et par les deux bancs, mais l'assistant
-> construit un `EmsLineMeasure` nu (`correction_controller.cpp`) : ce que D5 appelait « une table chaîne →
-> longueur, vivant le temps d'une opération » n'est jamais posé devant `QFontMetricsF` dans le programme
-> livré. Le banc mesure le découpage de 4 000 sous-titres en *ems* **avec** cache seulement — la version
-> sans n'a pas de relevé —, si bien que le gain à attendre n'est pas chiffré. Axe soumis à la décision de
-> la relecture, voir la fin de ce document.
+> **Written at the end-of-phase review.** **The cache is not wired into the window.**
+> `CachedLineMeasure` exists in the core, exercised by its tests and by both benchmarks, but the assistant
+> builds a bare `EmsLineMeasure` (`correction_controller.cpp`): what D5 called "a string → length table,
+> living for the time of one operation" is never placed in front of `QFontMetricsF` in the shipped
+> program. The benchmark measures the line breaking of 4,000 subtitles in *ems* **with** a cache only — the
+> version without has no record —, so the gain to be expected is not quantified. Axis submitted to the
+> decision of the review, see the end of this document.
 
-> **Précisé par [#526](https://github.com/Guyot-Bertrand/sub-edit/issues/526).**
-> **La longueur des lignes dans la table** — la règle de `gaupol/ruler.py` et la marge de
-> `gaupol/view.py`, `GUI-EDIT-04`. **Ce que Gaupol fait, et que #526 reprend à l'identique :** trois réglages
-> (`editor.length_unit`, `editor.show_lengths_cell`, `editor.show_lengths_edit`) ; dans une **cellule de texte**,
-> chaque ligne suivie de sa longueur, `[N]`, en plus petit ; dans l'**éditeur** de la cellule, un liseré à
-> droite qui montre la longueur de chaque ligne, alignée sur elle et large comme le plus grand nombre. La
-> longueur est celle de la ligne **sans ses balises**, **arrondie vers le bas**, en *ems* (défaut) ou en
-> caractères ; en *ems*, c'est la mesure de #503, inchangée. **Une ligne vide n'a pas de longueur dans la
-> cellule** (Gaupol n'écrit pas `[0]` après rien), et **un texte vide n'en a pas dans le liseré**.
+> **Clarified by [#526](https://github.com/Guyot-Bertrand/sub-edit/issues/526).**
+> **The length of lines in the table** — the ruler of `gaupol/ruler.py` and the margin of
+> `gaupol/view.py`, `GUI-EDIT-04`. **What Gaupol does, and what #526 takes over identically:** three settings
+> (`editor.length_unit`, `editor.show_lengths_cell`, `editor.show_lengths_edit`); in a **text cell**,
+> each line followed by its length, `[N]`, in smaller type; in the cell's **editor**, a strip on the
+> right that shows the length of each line, aligned with it and as wide as the largest number. The
+> length is that of the line **without its markup**, **rounded down**, in *ems* (default) or in
+> characters; in *ems*, it is the measure of #503, unchanged. **An empty line has no length in the
+> cell** (Gaupol does not write `[0]` after nothing), and **an empty text has none in the strip**.
 >
-> **Ce que #526 décide.** Les réglages sont `editor.length-unit` (`em` ou `characters`, défaut `em`),
-> `editor.show-lengths-cell` et `editor.show-lengths-edit` (vrais par défaut), dans `EditorSettings`, lus et
-> écrits comme leurs voisins (défaut commenté, valeur illisible : défaut et diagnostic). Ils se règlent dans
-> `Edit ▸ Preferences…`, où Gaupol les range aussi ; **l'unité est grisée quand aucune des deux cases n'est
-> cochée**, et la fenêtre applique le choix en direct sur la table. **Ce n'est pas la limite de l'assistant** :
-> `editor.length-unit` et `correction.line-break.in-ems` sont deux réglages, comme `editor.length_unit` et
-> `text_assistant.length_unit` chez Gaupol.
+> **What #526 decides.** The settings are `editor.length-unit` (`em` or `characters`, default `em`),
+> `editor.show-lengths-cell` and `editor.show-lengths-edit` (true by default), in `EditorSettings`, read and
+> written like their neighbours (commented default, unreadable value: default and diagnostic). They are set
+> in `Edit ▸ Preferences…`, where Gaupol puts them too; **the unit is greyed out when neither box is
+> checked**, and the window applies the choice live to the table. **This is not the assistant's limit**:
+> `editor.length-unit` and `correction.line-break.in-ems` are two settings, like `editor.length_unit` and
+> `text_assistant.length_unit` in Gaupol.
 >
-> **Quatre pièces.** Au noyau, `lineLengths(mesure, texte, vocabulaire)` (`line_lengths.hpp`, sans Qt) rend la
-> longueur de chaque ligne : les balises sortent par `decodeAs` puis `plainTextOf`, **le lecteur que toute
-> l'application partage** et non un motif de plus, dans le vocabulaire du format du document dont la colonne
-> est le texte ; l'arrondi vers le bas est ici. Dans `gui`, `LengthMeasures` fabrique la mesure et son cache,
-> **bornés à la vie de la police et de l'unité** — changer l'une ou l'autre en construit une neuve, et une
-> mesure déjà remise à un délégué reste valable tant qu'il la tient — : c'est le cache de D5 enfin posé devant
-> `QFontMetricsF` dans le programme livré pour la table, les cellules étant repeintes en permanence.
-> `TextDelegate` reçoit deux sources (`LineLengthSource`, comme `SpellCheckerSource`), une pour les cellules
-> et une pour l'éditeur, **et ne résout rien lui-même** : la fenêtre répond « rien » quand le réglage est
-> faux, et le délégué peint alors comme avant. Enfin `SubtitleEditor`, sorti de `cell_delegates.cpp` pour
-> qu'un test le voie, porte le liseré (`showLengths`), redessiné à la frappe et au défilement.
+> **Four pieces.** In the core, `lineLengths(measure, text, vocabulary)` (`line_lengths.hpp`, without Qt) returns
+> the length of each line: markup is removed through `decodeAs` then `plainTextOf`, **the reader the whole
+> application shares** and not one more pattern, in the vocabulary of the format of the document whose column
+> is the text; rounding down happens here. In `gui`, `LengthMeasures` builds the measure and its cache,
+> **bounded by the lifetime of the font and the unit** — changing either builds a new one, and a measure
+> already handed to a delegate stays valid as long as it holds it —: this is the cache of D5 at last placed in
+> front of `QFontMetricsF` in the shipped program for the table, the cells being repainted constantly.
+> `TextDelegate` receives two sources (`LineLengthSource`, like `SpellCheckerSource`), one for the cells
+> and one for the editor, **and resolves nothing itself**: the window answers "nothing" when the setting is
+> false, and the delegate then paints as before. Finally `SubtitleEditor`, moved out of `cell_delegates.cpp` so
+> that a test can see it, carries the strip (`showLengths`), redrawn on typing and on scrolling.
 
-> **Précisé par [#527](https://github.com/Guyot-Bertrand/sub-edit/issues/527).** **Le cache est aussi posé
-> devant l'assistant.** `assistantLineMeasure(inEms, police)` fabrique la mesure du découpage : en *ems*, un
-> `CachedEmsLineMeasure`, qui possède ensemble l'`EmsLineMeasure` et sa table ; en caractères, le
-> `CharacterLineMeasure` nu, dont compter des points de code coûte moins qu'une table (le banc de #502).
-> **Une par calcul, jamais partagée** : la table d'un `CachedLineMeasure` ne se demande pas de deux fils, et
-> celle du calcul de l'assistant n'est interrogée que par le fil qui le porte — la table de la fenêtre
-> (`LengthMeasures`) est un autre objet, sur le fil de l'interface. `cachedCount()` dit combien de textes la
-> table retient, et c'est ce que le test lit pour distinguer cette mesure d'un `EmsLineMeasure` nu. Le banc
-> du découpage en *ems* construit désormais la mesure par cette même fonction : **il mesure le chemin que
-> le programme prend**. La version sans cache n'a toujours pas de relevé, et n'en aura pas : elle n'existe
-> plus dans le programme.
+> **Clarified by [#527](https://github.com/Guyot-Bertrand/sub-edit/issues/527).** **The cache is also placed
+> in front of the assistant.** `assistantLineMeasure(inEms, font)` builds the measure for line breaking: in *ems*, a
+> `CachedEmsLineMeasure`, which owns both the `EmsLineMeasure` and its table; in characters, the bare
+> `CharacterLineMeasure`, since counting code points costs less than a table (the benchmark of #502).
+> **One per computation, never shared**: the table of a `CachedLineMeasure` is not queried from two threads, and
+> that of the assistant's computation is queried only by the thread that carries it — the window's table
+> (`LengthMeasures`) is another object, on the interface thread. `cachedCount()` says how many texts the
+> table holds, and that is what the test reads to tell this measure from a bare `EmsLineMeasure`. The
+> benchmark of line breaking in *ems* now builds the measure through this same function: **it measures the path
+> the program takes**. The version without a cache still has no record, and will have none: it no longer
+> exists in the program.
 >
-> **La cellule est peinte par le délégué** quand les longueurs sont montrées : le style peint le fond, la
-> teinte d'anomalie, la sélection et le focus, puis le délégué écrit chaque ligne et sa longueur, une police
-> plus petite (0,8) et atténuée sur la même ligne de base. Une ligne trop longue pour la colonne est élidée
-> **avant** le nombre, qui reste toujours visible. Le `sizeHint` s'élargit de la place des nombres et ne
-> grandit jamais en hauteur.
+> **The cell is painted by the delegate** when lengths are shown: the style paints the background, the
+> anomaly tint, the selection and the focus, then the delegate writes each line and its length, in a smaller
+> (0.8) and dimmed font on the same baseline. A line too long for the column is elided
+> **before** the number, which always stays visible. The `sizeHint` widens by the room the numbers take and never
+> grows in height.
 >
-> **Écarts :** le critère de l'issue disait « une ligne trop longue est marquée dans la cellule ». **Gaupol ne
-> marque rien** : il montre le nombre, et c'est à l'œil de le comparer à la limite ; #526 suit Gaupol, et
-> aucun marquage n'est ajouté. **La police de la mesure en *ems* est celle de la table**, la
-> même que celle des cellules et de l'éditeur ; Gaupol mesure avec celle d'un `Gtk.Label` à part.
-> **Le cache d'une mesure** grossit d'une entrée par ligne distincte jusqu'au prochain changement de police ou
-> d'unité — ce qui vaut aussi pour chaque frappe dans un éditeur ; il n'est pas borné en nombre.
+> **Deviations:** the issue's criterion said "a line that is too long is marked in the cell". **Gaupol marks
+> nothing**: it shows the number, and it is up to the eye to compare it with the limit; #526 follows Gaupol, and
+> no marking is added. **The font of the *ems* measure is that of the table**, the
+> same as that of the cells and the editor; Gaupol measures with that of a separate `Gtk.Label`.
+> **The cache of a measure** grows by one entry per distinct line until the next change of font or
+> unit — which also applies to each keystroke in an editor; it is not bounded in size.
 
-## D6 — Le correcteur : Enchant, et une fonction qui s'éteint sans dictionnaire
+## D6 — The spell checker: Enchant, and a feature that switches off without a dictionary
 
-**Enchant 2**, la bibliothèque que Gaupol emploie à travers libspelling. Trois
-raisons, dont la première tranche :
+**Enchant 2**, the library Gaupol uses through libspelling. Three reasons, the
+first of which settles it:
 
-- **la liste de mots personnelle est celle de Gaupol.** Enchant la tient dans
-  son propre répertoire, commun à toutes les applications qui s'en servent :
-  les mots qu'un utilisateur a ajoutés dans Gaupol sont reconnus par `subedit`
-  dès le premier jour, sans importation. C'est l'iso-fonctionnalité au sens le
-  plus littéral — et c'est un utilisateur de Gaupol qui a demandé ce programme.
-  **Lu dans le code, pas encore observé** : libspelling ajoute un mot par le
-  dictionnaire d'Enchant, et l'issue du correcteur le vérifie sur une machine
-  où Gaupol a ajouté un mot, avant que la décision ne soit bâtie dessus ;
-- **les dictionnaires sont ceux du système**, quel qu'en soit le moteur —
-  hunspell, nuspell, aspell, voikko pour le finnois —, sans qu'on écrive leur
-  découverte ;
-- une API C stable, empaquetée partout, Windows compris.
+- **the personal word list is Gaupol's.** Enchant keeps it in its own
+  directory, shared by all the applications that use it: the words a user has
+  added in Gaupol are recognised by `subedit` from day one, without importing.
+  This is iso-functionality in the most literal sense — and it is a Gaupol user
+  who asked for this program. **Read in the code, not yet observed**:
+  libspelling adds a word through Enchant's dictionary, and the spell checker
+  issue checks it on a machine where Gaupol has added a word, before the
+  decision is built on it;
+- **the dictionaries are the system's**, whatever their engine — hunspell,
+  nuspell, aspell, voikko for Finnish —, without our writing their discovery;
+- a stable C API, packaged everywhere, Windows included.
 
-**hunspell directement**, que la phase 0 nommait, est écarté : il faudrait
-écrire la recherche des dictionnaires, tenir une liste personnelle à nous — que
-les mots de Gaupol n'atteindraient pas — et renoncer aux langues qu'il sert mal.
-**nuspell** : même dictionnaires, même manques, empaquetage plus rare. **Un
-service système** : il n'y en a pas de portable.
+**hunspell directly**, which phase 0 named, is ruled out: we would have to write
+the dictionary lookup, keep a personal list of our own — which Gaupol's words
+would not reach — and give up the languages it serves poorly. **nuspell**: same
+dictionaries, same gaps, rarer packaging. **A system service**: there is no
+portable one.
 
-**Derrière une interface du noyau, `SpellChecker`**, et un double pour les tests,
-dont #492 avait renvoyé la forme ici : un dictionnaire écrit dans le test, une
-liste de mots et leurs suggestions. Aucun test ne dépend des dictionnaires
-installés sur la machine qui le lance, par la règle qui interdit déjà de lire
+**Behind a core interface, `SpellChecker`**, and a double for the tests, whose
+form #492 had deferred to here: a dictionary written in the test, a list of
+words and their suggestions. No test depends on the dictionaries installed on
+the machine that runs it, by the rule that already forbids reading
 `reference/`.
 
-**Sans dictionnaire, le programme fonctionne et la fonction s'éteint**, comme on
-a fait sans `ffprobe` : l'entrée `Check Spelling…` et la page de jonction et de
-scission restent visibles, **grisées**, et disent pourquoi — « no dictionary for
-fr » —, là où Gaupol retire la page sans un mot. Enchant absent au lancement ne
-se produit pas : c'est une dépendance du paquet.
+**Without a dictionary, the program works and the feature switches off**, as was
+done without `ffprobe`: the `Check Spelling…` entry and the joining and splitting
+page stay visible, **greyed out**, and say why — "no dictionary for fr" —, where
+Gaupol removes the page without a word. Enchant missing at startup does not
+happen: it is a dependency of the package.
 
-**Ce qu'on reprend du correcteur de Gaupol, à l'identique** : les heuristiques
-anglaises, les deux suggestions d'OCR, la liste de remplacements par langue —
-dans notre répertoire de configuration, `spell-check/<langue>.repl`, sans lire
-celle de Gaupol —, et son découpage en mots. Celui-ci s'avoue imparfait ; il
-reste celui de Gaupol tant qu'un cas ne le prend pas en défaut, parce que la
-jonction et la scission en dépendent directement.
+**What we take over from Gaupol's spell checker, identically**: the English
+heuristics, the two OCR suggestions, the replacement list per language — in our
+configuration directory, `spell-check/<language>.repl`, without reading Gaupol's
+—, and its word splitting. The latter admits it is imperfect; it remains
+Gaupol's as long as no case catches it out, because joining and splitting depend
+on it directly.
 
-**La dépendance est la seule de la phase**, et elle se paie trois fois :
-`find_package` au CMake, `Depends` du `.deb` et `Requires` du `.rpm`, et
-l'installation dans la CI et dans `fedora.yml`. `subedit-cli` la tire, puisque le
-correcteur est au noyau et que la phase 13 joindra et scindera des mots en
-ligne de commande.
+**The dependency is the only one of the phase**, and it is paid three times:
+`find_package` in CMake, `Depends` of the `.deb` and `Requires` of the `.rpm`,
+and the installation in the CI and in `fedora.yml`. `subedit-cli` pulls it in,
+since the spell checker is in the core and phase 13 will join and split words on
+the command line.
 
-> **Précisé par [#507](https://github.com/Guyot-Bertrand/sub-edit/issues/507).**
-> **Observé, non plus seulement lu** : sur cette machine, le `SpellChecker` de
-> Gaupol (1.11, par Gspell) écrit un mot ajouté dans `fr_FR.dic`, dans la
-> configuration d'Enchant, et `enchant-2` le tient aussitôt pour correct — pas
-> un seul répertoire de Gaupol, pas d'importation. Le dépôt amont passe par
-> libspelling, qui aboutit à `enchant_dict_add` de la même façon ; les deux
-> moteurs de Gaupol atteignent la même liste. L'observation a eu lieu dans un
-> répertoire de configuration temporaire, jamais dans celui de l'utilisateur.
+> **Clarified by [#507](https://github.com/Guyot-Bertrand/sub-edit/issues/507).**
+> **Observed, no longer only read**: on this machine, Gaupol's `SpellChecker`
+> (1.11, through Gspell) writes an added word into `fr_FR.dic`, in Enchant's
+> configuration, and `enchant-2` immediately holds it correct — not a single
+> Gaupol directory, no importing. The upstream repository goes through
+> libspelling, which ends at `enchant_dict_add` in the same way; both of Gaupol's
+> engines reach the same list. The observation took place in a temporary
+> configuration directory, never in the user's.
 >
-> **Deux interfaces, et `SpellChecker` n'en est pas une.** `SpellDictionary`
-> (vérifier, suggérer, ajouter à la liste personnelle) et `SpellProvider`
-> (les langues, ouvrir un dictionnaire) sont abstraites ; `SpellChecker` est
-> une classe, ce que Gaupol pose par-dessus un dictionnaire — les heuristiques
-> anglaises, les deux suggestions d'OCR, la liste de remplacements, les mots
-> ignorés le temps de la session. Ce dessus est identique pour tout
-> dictionnaire et c'est lui que les tests visent : le double
-> (`WordListSpellProvider`, au noyau comme `InMemoryFileSystem`) est un
-> dictionnaire écrit dans le test, et `EnchantSpellProvider` l'implémentation
-> réelle, qui seule inclut `enchant.h`.
+> **Two interfaces, and `SpellChecker` is not one of them.** `SpellDictionary`
+> (check, suggest, add to the personal list) and `SpellProvider`
+> (the languages, opening a dictionary) are abstract; `SpellChecker` is a
+> class, what Gaupol puts on top of a dictionary — the English heuristics, the
+> two OCR suggestions, the replacement list, the words ignored for the session.
+> That upper layer is identical for any dictionary and it is what the tests
+> target: the double (`WordListSpellProvider`, in the core like
+> `InMemoryFileSystem`) is a dictionary written in the test, and
+> `EnchantSpellProvider` the real implementation, the only one that includes
+> `enchant.h`.
 >
-> **La réponse « pas de dictionnaire » est un `std::unexpected`** —
-> `NoDictionary{langue}` — et sa phrase, `noDictionaryFor`, vit dans
-> `core/wording/counts.hpp` : « no dictionary for fr », que la fenêtre montrera.
+> **The "no dictionary" answer is a `std::unexpected`** —
+> `NoDictionary{language}` — and its sentence, `noDictionaryFor`, lives in
+> `core/wording/counts.hpp`: "no dictionary for fr", which the window will show.
 >
-> **Écarts de Gaupol, et ils sont dits** : une ligne d'un `.repl` sans barre
-> verticale est ignorée, là où Gaupol la lit comme un couple à un seul
-> élément qui échoue à la première suggestion ; les blancs d'une ligne sont
-> retirés à l'ASCII, non à Unicode. **Conservé tel quel, défaut compris** : la
-> classe `[0,4-9]` des ordinaux anglais contient une virgule que Gaupol n'a
-> sans doute pas voulue — le découpage en mots n'en livre jamais une, elle ne
-> compte que pour un appel direct. Le découpage en mots suit `\w` de Python par
-> `u_isalnum` et le tiret bas d'ICU ; les positions rendues sont des octets
-> UTF-8, non des points de code.
+> **Deviations from Gaupol, and they are stated**: a line of a `.repl` without a
+> vertical bar is ignored, where Gaupol reads it as a one-element pair that
+> fails at the first suggestion; the whitespace of a line is stripped as ASCII,
+> not as Unicode. **Kept as it is, defect included**: the class `[0,4-9]` of the
+> English ordinals contains a comma that Gaupol probably did not intend — the
+> word splitting never yields one, it only counts for a direct call. The word
+> splitting follows Python's `\w` through `u_isalnum` and ICU's underscore; the
+> positions returned are UTF-8 bytes, not code points.
 >
-> **Le répertoire de configuration est un argument**, jamais résolu au noyau :
-> `spellReplacementFile(répertoire, langue)` rend
-> `spell-check/<langue>.repl`, et c'est l'appelant — la fenêtre, une issue plus
-> tard — qui sait où il est. Le seul test qui touche le vrai Enchant déplace
-> `ENCHANT_CONFIG_DIR` dans un répertoire à lui, et `check-config-home.sh`
-> surveille désormais `~/.config/enchant` avec `~/.config/subedit`.
+> **The configuration directory is an argument**, never resolved in the core:
+> `spellReplacementFile(directory, language)` returns
+> `spell-check/<language>.repl`, and it is the caller — the window, one issue
+> later — that knows where it is. The only test that touches the real Enchant
+> moves `ENCHANT_CONFIG_DIR` into a directory of its own, and
+> `check-config-home.sh` now watches `~/.config/enchant` along with
+> `~/.config/subedit`.
 >
-> **La dépendance** : `pkg_check_modules(enchant)` au CMake, `libenchant-2-2`
-> au `.deb`, `enchant2` au `.rpm`, `libenchant-2-dev` dans la liste de
-> `setup-toolchain.sh` — que la CI et `fedora.yml` lisent, sans seconde liste —
-> et `check-installation.sh` vérifie que chacun des deux paquets la nomme.
+> **The dependency**: `pkg_check_modules(enchant)` in CMake, `libenchant-2-2`
+> in the `.deb`, `enchant2` in the `.rpm`, `libenchant-2-dev` in the list of
+> `setup-toolchain.sh` — which the CI and `fedora.yml` read, without a second
+> list — and `check-installation.sh` checks that each of the two packages names
+> it.
 
-> **Précisé par [#509](https://github.com/Guyot-Bertrand/sub-edit/issues/509).**
-> **Deux fenêtres, comme Gaupol** : `Tools ▸ Check Spelling…`, le parcours des
-> mots inconnus, et `Tools ▸ Spell-Check Settings…`, la langue, la cible et le
-> document — le `LanguageDialog` de Gaupol. **La seconde est toujours active**
-> dès qu'un projet est ouvert : c'est elle qui sort d'une langue sans
-> dictionnaire, sans quoi la première, grisée, serait une impasse. Sans
-> dictionnaire, `Check Spelling…` est éteinte et sa bulle comme sa ligne d'état
-> disent `no dictionary for` suivi du code (GUI-SPELL-02, citée une seconde fois
-> ici). Les trois réglages se retiennent sous `spell-check.language`,
-> `spell-check.target` et `spell-check.document` (Gaupol : `language`,
-> `target`, `field`) ; une valeur inconnue rend le défaut et un diagnostic, comme
-> pour `correction.*`. La taille de la fenêtre n'est pas retenue.
+> **Clarified by [#509](https://github.com/Guyot-Bertrand/sub-edit/issues/509).**
+> **Two windows, as in Gaupol**: `Tools ▸ Check Spelling…`, the walk through the
+> unknown words, and `Tools ▸ Spell-Check Settings…`, the language, the target
+> and the document — Gaupol's `LanguageDialog`. **The second is always enabled**
+> as soon as a project is open: it is the one that gets out of a language without
+> a dictionary, without which the first, greyed out, would be a dead end. Without
+> a dictionary, `Check Spelling…` is switched off and its tooltip and its status
+> line say `no dictionary for` followed by the code (GUI-SPELL-02, cited a second
+> time here). The three settings are kept under `spell-check.language`,
+> `spell-check.target` and `spell-check.document` (Gaupol: `language`,
+> `target`, `field`); an unknown value gives the default and a diagnostic, as
+> for `correction.*`. The size of the window is not kept.
 >
-> **Fermer au milieu applique ce qui a été fait — et c'est un écart de
-> Gaupol.** Sont gardés les textes déjà quittés **et** les gestes (remplacer,
-> tout remplacer, joindre) déjà posés sur le texte courant ; Gaupol, lui, perd
-> le texte courant. Ne comptent pas les retouches tapées dans la zone de texte
-> et non validées par `Save and Resume`, ni le reste du parcours, jamais
-> atteint. Le parcours (`SpellCheckWalk`, sans Qt) ne touche aucun projet : il
-> rend des `ProposedCorrection`, et le contrôleur les fait passer par
-> `applyCorrections`, donc **une entrée d'historique par projet**, sans nouvelle
-> commande. La liste de remplacements est écrite à la fermeture, sous le
-> répertoire reçu de la fenêtre (ADR 0022) ; un échec d'écriture est dit, il
-> n'annule pas les corrections. Chaque mot inconnu ramène l'onglet du projet et
-> sélectionne la ligne.
+> **Closing midway applies what has been done — and that is a deviation from
+> Gaupol.** Kept are the texts already left **and** the gestures (replace,
+> replace all, join) already made on the current text; Gaupol, for its part,
+> loses the current text. What does not count: edits typed in the text area and
+> not validated by `Save and Resume`, and the rest of the walk, never reached.
+> The walk (`SpellCheckWalk`, without Qt) touches no project: it returns
+> `ProposedCorrection` values, and the controller passes them through
+> `applyCorrections`, hence **one history entry per project**, without a new
+> command. The replacement list is written on closing, under the directory
+> received from the window (ADR 0022); a write failure is stated, it does not
+> cancel the corrections. Each unknown word brings back the project's tab and
+> selects the row.
 >
-> **Corrigé en relecture de fin de phase.** « **Toujours active** dès qu'un projet est ouvert » était
-> plus large que le code : `Spell-Check Settings…` s'éteint sur un document **sans sous-titre**, comme
-> `Correct Texts…` et `Check Spelling…` (`main_window.cpp`, `refreshTabActions`). Ce qu'elle a de propre est
-> de **ne pas dépendre du dictionnaire** — c'est elle qui permet de quitter une langue qui n'en a pas —, et
-> non de rester active sur un projet vide, où il n'y a rien à vérifier.
+> **Corrected at the end-of-phase review.** "**Always enabled** as soon as a project is open" was
+> broader than the code: `Spell-Check Settings…` switches off on a document **without subtitles**, like
+> `Correct Texts…` and `Check Spelling…` (`main_window.cpp`, `refreshTabActions`). What is specific to it is
+> that it **does not depend on the dictionary** — it is what allows leaving a language that has none —, and
+> not that it stays enabled on an empty project, where there is nothing to check.
 
-> **Le libellé `Chec&k Spelling…`** : `C` est déjà l'accélérateur de `&Correct
-> Texts…`, et deux entrées d'un même menu ne peuvent pas le partager ; `k`
-> est libre dans `Tools`. **GUI-SPELL-01 est implémentée** : ignorer, tout
-> ignorer, ajouter, remplacer, tout remplacer et joindre sont tenus sur le
-> double `WordListSpellProvider`, jamais sur les dictionnaires de la machine.
+> **The label `Chec&k Spelling…`**: `C` is already the accelerator of `&Correct
+> Texts…`, and two entries of the same menu cannot share it; `k` is free in
+> `Tools`. **GUI-SPELL-01 is implemented**: ignore, ignore all, add, replace,
+> replace all and join are held on the `WordListSpellProvider` double, never on
+> the machine's dictionaries.
 
-> **Précisé par [#525](https://github.com/Guyot-Bertrand/sub-edit/issues/525).**
-> **L'orthographe au fil de la frappe** — le `spell_check.inline` de Gaupol. **Le
-> réglage** est `spell-check.inline` (`SpellCheckSettings::inlineCheck`), **faux
-> par défaut, comme Gaupol**, lu et écrit comme ses trois voisins ; une valeur
-> illisible rend le défaut et un diagnostic. **La case** `Check spelling while
-> editing` est dans `Spell-Check Settings…` — Gaupol la range dans ses
-> préférences, mais la langue qu'elle utilise est celle de cette fenêtre, et
-> `subedit` n'a pas de fenêtre de préférences (voir le tableau des écarts).
-> **Quand elle est cochée et qu'un dictionnaire existe** pour la langue
-> réglée, un mot inconnu est **souligné en ondulé rouge pendant qu'on tape**, dans
-> l'éditeur des deux colonnes de texte, `Text` et `Translation` ; **sans
-> dictionnaire, ou sans fournisseur, l'éditeur se tait**, sans échec.
+> **Clarified by [#525](https://github.com/Guyot-Bertrand/sub-edit/issues/525).**
+> **Spelling as you type** — Gaupol's `spell_check.inline`. **The setting** is
+> `spell-check.inline` (`SpellCheckSettings::inlineCheck`), **false by default,
+> as in Gaupol**, read and written like its three neighbours; an unreadable value
+> gives the default and a diagnostic. **The box** `Check spelling while
+> editing` is in `Spell-Check Settings…` — Gaupol puts it in its preferences, but
+> the language it uses is that of this window, and `subedit` has no preferences
+> window (see the table of deviations). **When it is checked and a dictionary
+> exists** for the configured language, an unknown word is **underlined with a red
+> wave while typing**, in the editor of both text columns, `Text` and
+> `Translation`; **without a dictionary, or without a provider, the editor stays
+> silent**, without failure.
 >
-> **Trois pièces.** Au noyau, `misspelledSpellRanges` (`spell_ranges.hpp`, sans
-> Qt) rend les intervalles, en octets d'UTF-8, des mots que `SpellChecker::check`
-> refuse avec leur caractère précédent et suivant : **la règle de
-> `SpellCheckNavigator::next`**, pour que le soulignement et le parcours de
-> `Check Spelling…` s'accordent — un test le vérifie en les faisant marcher sur le
-> même texte. Dans l'interface, `SpellHighlighter` (un `QSyntaxHighlighter`)
-> convertit ces octets en unités UTF-16 et pose `SpellCheckUnderline` ; il reprend
-> chaque bloc qui change, donc le soulignement suit la frappe. **Le délégué ne
-> résout ni chemin ni langue** (ADR 0022) : `TextDelegate` reçoit de la fenêtre
-> une source de correcteur (`SpellCheckerSource`), qu'il interroge à chaque
-> éditeur ouvert. **La fenêtre** ouvre le correcteur de la langue réglée
-> (`resolvedLanguage`, `openSpellChecker`, la liste de remplacements en lecture),
-> le renouvelle quand le fournisseur ou les réglages changent, et le rend
-> partagé : un éditeur déjà ouvert garde le sien jusqu'à sa fermeture.
+> **Three pieces.** In the core, `misspelledSpellRanges` (`spell_ranges.hpp`,
+> without Qt) returns the ranges, in UTF-8 bytes, of the words that
+> `SpellChecker::check` rejects given their previous and next character: **the
+> rule of `SpellCheckNavigator::next`**, so that the underlining and the walk of
+> `Check Spelling…` agree — a test checks it by running both on the same text. In
+> the interface, `SpellHighlighter` (a `QSyntaxHighlighter`) converts these bytes
+> into UTF-16 units and applies `SpellCheckUnderline`; it redoes each block that
+> changes, so the underlining follows the typing. **The delegate resolves neither
+> path nor language** (ADR 0022): `TextDelegate` receives from the window a
+> spell checker source (`SpellCheckerSource`), which it queries for each editor
+> opened. **The window** opens the spell checker of the configured language
+> (`resolvedLanguage`, `openSpellChecker`, the replacement list read only),
+> renews it when the provider or the settings change, and hands it out shared: an
+> editor already open keeps its own until it closes.
 >
-> **Ce que la case ne fait pas** : elle ne s'applique qu'aux éditeurs ouverts
-> après elle, et le menu contextuel de l'éditeur ne propose pas de suggestions.
-> **GUI-SPELL-04 est implémentée** : noyau, réglages, fenêtre de réglages, éditeur
-> et fenêtre de bout en bout, sur le double `WordListSpellProvider`.
+> **What the box does not do**: it applies only to editors opened after it, and
+> the editor's context menu offers no suggestions. **GUI-SPELL-04 is
+> implemented**: core, settings, settings window, editor and window end to end,
+> on the `WordListSpellProvider` double.
 
-> **Précisé par [#530](https://github.com/Guyot-Bertrand/sub-edit/issues/530).** **Quatre constats de la relecture
-> de #509, deux corrigés et deux écartés.** *Corrigé* : **la liste de remplacements ne grossit plus à chaque
-> application silencieuse** d'un « Replace All » — `addReplacement` ramène une paire déjà connue en fin de
-> liste au lieu de la répéter, ce que le fichier faisait déjà à l'écriture ; **un dossier de configuration vide
-> ne donne plus un chemin relatif** — `spellReplacementFile` rend alors un chemin vide, qui ne se lit ni ne
-> s'écrit, là où `spell-check/<langue>.repl` serait tombé dans le répertoire courant. *Écarté* : **`Save and
-> Resume` relit depuis le début du texte**, et un mot simplement ignoré se signale de nouveau — c'est ce que
-> fait Gaupol, dont `reset(texte)` remet la position à zéro et dont `ignore` n'est pas retenu (seul
-> `ignore_all` l'est, et il survit) ; le manuel le dit déjà (« reprend le parcours à son début »). *Écarté* :
-> **les `Project*` du parcours que rien ne protège** — le dialogue est modal, aucun geste de l'utilisateur ne
-> peut fermer un projet pendant qu'il tourne, et le programme n'en ferme aucun de lui-même ; une garde de plus
-> protégerait un état qu'aucun chemin n'atteint, et la fermeture **après** le dialogue, elle, est déjà tenue
-> (`pageOwning`, et son test).
+> **Clarified by [#530](https://github.com/Guyot-Bertrand/sub-edit/issues/530).** **Four findings of the review
+> of #509, two fixed and two dismissed.** *Fixed*: **the replacement list no longer grows on each silent
+> application** of a "Replace All" — `addReplacement` moves an already known pair to the end of the list
+> instead of repeating it, which the file already did on writing; **an empty configuration directory no
+> longer gives a relative path** — `spellReplacementFile` then returns an empty path, which is neither read nor
+> written, where `spell-check/<language>.repl` would have landed in the current directory. *Dismissed*: **`Save and
+> Resume` rereads from the start of the text**, and a word simply ignored is reported again — that is what
+> Gaupol does, whose `reset(text)` sets the position back to zero and whose `ignore` is not kept (only
+> `ignore_all` is, and it survives); the manual already says so ("restarts the walk from its beginning").
+> *Dismissed*: **the walk's `Project*` pointers that nothing protects** — the dialog is modal, no user gesture
+> can close a project while it runs, and the program closes none on its own; one more guard would protect a
+> state no path reaches, and closing **after** the dialog is already covered (`pageOwning`, and its test).
 
-## D7 — Les mentions de la phase 4 : le balayage reste, le moteur prend le reste
+## D7 — The mentions of phase 4: the scan stays, the engine takes the rest
 
-**Le balayage écrit à la main garde les crochets et les parenthèses.** L'ADR
-0017 avait posé son déclencheur, et il a joué ; mais sa raison tient toujours :
-la couture est **locale au site du retrait**, et une passe d'expression la
-rendrait globale. Les trente-neuf cas de `mentions.cas` décrivent une règle
-meilleure que les sept nettoyages de Gaupol, et le programme la tient depuis la
-phase 4.
+**The hand-written scan keeps brackets and parentheses.** ADR 0017 had set its
+trigger, and it fired; but its reason still holds: the seam is **local to the
+removal site**, and an expression pass would make it global. The thirty-nine
+cases of `mentions.cas` describe a better rule than Gaupol's seven clean-ups,
+and the program has kept it since phase 4.
 
-**Les quatre autres enregistrements passent par le moteur** — paroles entre
-dièses, sur plusieurs lignes et sur une, nom du locuteur avant deux-points, en
-capitales ou non —, **suivis des nettoyages de Gaupol**, parce que c'est ce que
-les attendus de #494 décrivent et que ces motifs-là n'ont pas de règle à nous.
+**The four other records go through the engine** — lyrics between hash signs,
+over several lines and over one, speaker's name before a colon, in capitals or
+not —, **followed by Gaupol's clean-ups**, because that is what the expected
+results of #494 describe and those patterns have no rule of our own.
 
-**Dans l'assistant, la page des mentions montre les six noms de Gaupol.**
-« Sound in brackets » et « Sound in parentheses » y commandent le balayage ; les
-quatre autres, le moteur. Un motif de mentions déposé par l'utilisateur passe
-par le moteur. Les six sont **décochés par défaut**, comme chez Gaupol.
+**In the assistant, the mentions page shows Gaupol's six names.**
+"Sound in brackets" and "Sound in parentheses" control the scan there; the
+other four, the engine. A mentions pattern dropped in by the user goes through
+the engine. All six are **unchecked by default**, as in Gaupol.
 
-**L'entrée `Remove Hearing-Impaired Mentions…` de la phase 4 ne change pas**, ni
-la sous-commande `hearing-impaired` : elles retirent crochets et parenthèses,
-comme avant. L'assistant est l'endroit des six motifs ; l'entrée directe est le
-geste court qu'elle était.
+**The `Remove Hearing-Impaired Mentions…` entry of phase 4 does not change**,
+nor does the `hearing-impaired` subcommand: they remove brackets and
+parentheses, as before. The assistant is the place for the six patterns; the
+direct entry is the short gesture it used to be.
 
-**Ce que la phase 4 a déjà dit et qui reste vrai** : la règle vit derrière une
-fonction libre, `withoutHearingImpaired`, qu'aucune de ces décisions ne touche.
+**What phase 4 already said and remains true**: the rule lives behind a free
+function, `withoutHearingImpaired`, which none of these decisions touches.
 
-> **Précisé par [#500](https://github.com/Guyot-Bertrand/sub-edit/issues/500).**
-> L'ordre retenu au noyau, `correctHearingImpaired` : le balayage d'abord, puis
-> les quatre motifs du moteur dans l'ordre de la cascade, chacun une seule fois
-> — `HearingImpairedFields` ne porte pas de `Repeat` —, puis les sept
-> nettoyages de Gaupol **si et seulement si un motif du moteur a changé le
-> texte** ; le balayage n'en a pas besoin, sa propre couture étant déjà locale.
-> **Deux cas de `hearing-impaired.cas` restent hors accord, sciemment** : une
-> ligne réduite à un guillemet seul, à côté d'une mention retirée par le
-> balayage. Les sept nettoyages de Gaupol la videraient (`^\W*$` puis la ligne
-> vide) ; le balayage, fidèle à sa couture locale, la laisse. C'est l'écart que
-> l'ADR 0017 avait annoncé, mesuré ici pour la première fois — `mentions.cas`
-> ne le montrait pas, faute d'un cas où la ligne touchée ne portait qu'une
-> ponctuation déjà sans rapport avec la mention.
+> **Clarified by [#500](https://github.com/Guyot-Bertrand/sub-edit/issues/500).**
+> The order kept in the core, `correctHearingImpaired`: the scan first, then the
+> four engine patterns in the order of the cascade, each only once
+> — `HearingImpairedFields` carries no `Repeat` —, then Gaupol's seven
+> clean-ups **if and only if an engine pattern changed the text**; the scan does
+> not need them, its own seam being already local.
+> **Two cases of `hearing-impaired.cas` remain out of agreement, knowingly**: a
+> line reduced to a lone quotation mark, next to a mention removed by the scan.
+> Gaupol's seven clean-ups would empty it (`^\W*$` then the empty line); the
+> scan, true to its local seam, leaves it. This is the deviation ADR 0017 had
+> announced, measured here for the first time — `mentions.cas` did not show it,
+> for lack of a case where the affected line carried only punctuation already
+> unrelated to the mention.
 
-> **Précisé par [#528](https://github.com/Guyot-Bertrand/sub-edit/issues/528).** **Les deux cases sans effet
-> n'existent plus.** La relecture de fin de phase l'avait lu dans le code, un test rouge l'a confirmé : la
-> liste des motifs de `Latn` sur la page `Mentions` offrait, avec les autres, une case `Sound in brackets` et
-> une case `Sound in parentheses` — les deux enregistrements du fichier de Gaupol, que le moteur écarte par leur
-> nom puisque le balayage les joue seul. On pouvait les cocher sans rien changer, à côté des deux vraies cases
-> de la page. `isScanOnlyPattern` (noyau, `hearing_impaired_correction.hpp`) est désormais **l'unique
-> définition** de ces deux enregistrements, lue par le moteur et par la liste, qui ne les propose plus. Un
-> motif d'une autre sorte qui porterait le même nom reste une case ordinaire. La distinction crochets /
-> parenthèses, deux cases pour un seul balayage, n'est pas reprise : aucune issue ne la demande.
+> **Clarified by [#528](https://github.com/Guyot-Bertrand/sub-edit/issues/528).** **The two boxes without effect
+> no longer exist.** The end-of-phase review had read it in the code, a red test confirmed it: the
+> list of `Latn` patterns on the `Mentions` page offered, among the others, a `Sound in brackets` box and
+> a `Sound in parentheses` box — the two records of Gaupol's file, which the engine sets aside by their
+> name since the scan plays them alone. They could be checked without changing anything, next to the two real
+> boxes of the page. `isScanOnlyPattern` (core, `hearing_impaired_correction.hpp`) is now **the only
+> definition** of these two records, read by the engine and by the list, which no longer offers them. A
+> pattern of another kind that carried the same name remains an ordinary box. The distinction between brackets
+> and parentheses, two boxes for a single scan, is not taken over: no issue asks for it.
 
-> **Précisé par [#529](https://github.com/Guyot-Bertrand/sub-edit/issues/529).** **Un nom de motif à virgule ne
-> fait plus perdre les autres réglages.** Le format des motifs de Gaupol permet une virgule dans un nom, et
-> `correction.activations` est une liste séparée par des virgules, lue en tout ou rien : un seul nom pareil
-> faisait tout refuser, avec un diagnostic, et toutes les dérogations s'en allaient. La virgule et la barre
-> oblique inverse s'écrivent désormais précédées d'une barre oblique inverse dans une entrée ; une barre
-> suivie d'autre chose reste une barre, si bien qu'un fichier écrit avant ne se relit pas autrement. **Et la
-> règle du tout ou rien tombe pour cette option seule** : les entrées sont des dérogations indépendantes, chacune
-> nommant son motif, et une entrée illisible ne coûte que la sienne — le diagnostic en porte le texte. Elle
-> reste celle des ordres de colonnes, qui sont une permutation et non une liste de choix.
+> **Clarified by [#529](https://github.com/Guyot-Bertrand/sub-edit/issues/529).** **A pattern name with a comma
+> no longer makes the other settings get lost.** Gaupol's pattern format allows a comma in a name, and
+> `correction.activations` is a comma-separated list, read all or nothing: a single such name
+> made everything rejected, with a diagnostic, and all the overrides went away. The comma and the
+> backslash are now written preceded by a backslash in an entry; a backslash
+> followed by anything else stays a backslash, so that a file written before is not read differently. **And the
+> all-or-nothing rule falls for this option alone**: the entries are independent overrides, each
+> naming its pattern, and an unreadable entry costs only its own — the diagnostic carries its text. It
+> remains the rule for column orders, which are a permutation and not a list of choices.
 
-## D8 — L'assistant, et ce que la ligne de commande en attend
+## D8 — The assistant, and what the command line expects of it
 
-**Un assistant comme celui de Gaupol**, `Tools ▸ Correct Texts…`, dans le même
-ordre de pages, et d'abord **la page de confirmation** : c'est elle qui fait de
-la correction automatique une proposition plutôt qu'un fait accompli. Chaque
-texte changé s'y montre avec son original, la différence marquée ; il
-s'accepte, se refuse ou se retouche ; `Mark All` et `Unmark All` cochent tout
-ou rien ; « Remove all blank subtitles » est une case, cochée par défaut.
-`Preview`, qui lance chez Gaupol un lecteur externe au sous-titre choisi, place
-ici le lecteur intégré sur ce sous-titre quand le projet a une vidéo — la
-réponse que la phase 11 a déjà donnée à la barre d'outils.
+**An assistant like Gaupol's**, `Tools ▸ Correct Texts…`, with the same order of
+pages, and first of all **the confirmation page**: it is what makes automatic
+correction a proposal rather than a fait accompli. Each changed text is shown
+there with its original, the difference marked; it is accepted, rejected or
+edited; `Mark All` and `Unmark All` check everything or nothing; "Remove all
+blank subtitles" is a box, checked by default. `Preview`, which in Gaupol
+launches an external player at the chosen subtitle, here places the built-in
+player on that subtitle when the project has a video — the answer phase 11
+already gave for the toolbar.
 
-**Le calcul et l'application sont au noyau**, la fenêtre ne fait que montrer :
-une fonction prend les tâches, leurs réglages, les projets et la cible, et rend
-la liste des changements — projet, sous-titre, texte d'origine, texte proposé —
-**sans toucher à aucun projet** ; une autre applique une liste acceptée, **une
-commande composée par projet**, donc une entrée d'historique par projet. C'est
-ce qui rend l'assistant testable sans fenêtre, et la phase 13 écrivable sans
-lui. Gaupol copie chaque projet pour y faire ses calculs ; on n'a pas à le
-faire, puisque les corrections sont des fonctions de textes.
+**Computation and application are in the core**, the window only shows: one
+function takes the tasks, their settings, the projects and the target, and
+returns the list of changes — project, subtitle, original text, proposed text —
+**without touching any project**; another applies an accepted list, **one
+composite command per project**, hence one history entry per project. This is
+what makes the assistant testable without a window, and phase 13 writable
+without it. Gaupol copies each project to do its computations on it; we do not
+have to, since corrections are functions of texts.
 
-**La cible est celle de Gaupol** — la sélection, le projet courant, tous les
-projets ouverts — **et le document se choisit** sur la première page, texte ou
-traduction, la traduction n'étant offerte que si un projet en porte une. Le
-choix de la phase 11 — le document de la colonne courante — ne s'applique pas
-ici : un assistant de plusieurs pages ne se lance pas « depuis une colonne ».
+**The target is Gaupol's** — the selection, the current project, all open
+projects — **and the document is chosen** on the first page, text or
+translation, the translation being offered only if a project carries one. The
+choice of phase 11 — the document of the current column — does not apply here:
+a multi-page assistant is not launched "from a column".
 
-**Le compte rendu compte des textes changés**, jamais des correspondances : #492
-l'a montré, `'[Il][Il]\b` → `'ll` correspond à un texte juste et le rend tel
-quel. La phrase vit dans `core/wording/counts.hpp`, puisque la phase 13 dira la même.
+**The report counts changed texts**, never matches: #492 showed it,
+`'[Il][Il]\b` → `'ll` matches a correct text and returns it as it is. The
+sentence lives in `core/wording/counts.hpp`, since phase 13 will say the same.
 
-**Ce que l'assistant retient** : les tâches cochées, la cible, le document,
-l'écriture, la langue et le pays de chaque type, les classes, les réglages du
-découpage, la case des sous-titres vides — dans les réglages de l'ADR 0022.
+**What the assistant keeps**: the checked tasks, the target, the document, the
+script, the language and the country of each type, the classes, the line
+breaking settings, the blank subtitles box — in the settings of ADR 0022.
 
-**La ligne de commande attend la phase 13**, comme la traduction l'attendait à
-la phase 11. Rien de ce que la phase écrit n'est propre à la fenêtre, sauf la
-mesure en ems et les pages elles-mêmes : la phase 13 trouvera le calcul, les
-motifs, le correcteur et les phrases au noyau, et n'aura qu'une grammaire à
-écrire — `correct`, avec ses tâches, sa langue, ses réglages de découpage en
-caractères. La confirmation, elle, n'a pas d'équivalent en ligne de commande ;
-la phase 13 dira si un mode qui écrit les changements proposés sans les
-appliquer la remplace.
+**The command line waits for phase 13**, as translation waited for it in
+phase 11. Nothing the phase writes is specific to the window, except the ems
+measure and the pages themselves: phase 13 will find the computation, the
+patterns, the spell checker and the sentences in the core, and will only have a
+grammar to write — `correct`, with its tasks, its language, its line breaking
+settings in characters. Confirmation, for its part, has no command-line
+equivalent; phase 13 will say whether a mode that writes the proposed changes
+without applying them replaces it.
 
-> **Précisé par [#504](https://github.com/Guyot-Bertrand/sub-edit/issues/504).**
-> Quatre tâches, pas cinq : `CorrectionTask` — mentions, erreurs courantes,
-> majuscules, découpage — sans jonction ni scission, absentes du noyau tant
-> qu'aucun correcteur n'existe pour les nourrir (D6, #508). L'ordre est celui
-> de Gaupol, et un sous-titre qu'une mention vide ne joue aucun rôle dans les
-> tâches qui suivent — les tâches qui suivent ne le voient jamais.
+> **Clarified by [#504](https://github.com/Guyot-Bertrand/sub-edit/issues/504).**
+> Four tasks, not five: `CorrectionTask` — mentions, common errors,
+> capitalization, line breaking — without joining or splitting, absent from the
+> core as long as no spell checker exists to feed them (D6, #508). The order is
+> Gaupol's, and a subtitle that a mention empties plays no part in the
+> following tasks — the following tasks never see it.
 >
-> **`proposeCorrections` ne résout pas la cible.** Elle prend une liste de
-> `CorrectionTarget{project, selection, document}`, déjà décidée — la
-> sélection, le projet courant ou tous les projets ouverts devenus une liste
-> concrète est le travail de qui appelle, une fenêtre plus tard (#505). Une
-> deuxième fonction, `applyCorrections`, prend un sous-ensemble accepté et
-> rend un `CompositeCommand` par projet, appliqué mais pas encore inscrit à
-> un historique — inscrire l'entrée reste au même appelant, qui tient les
-> historiques.
+> **`proposeCorrections` does not resolve the target.** It takes a list of
+> `CorrectionTarget{project, selection, document}`, already decided — the
+> selection, the current project or all open projects turned into a concrete
+> list is the work of whoever calls, a window later (#505). A second function,
+> `applyCorrections`, takes an accepted subset and returns a `CompositeCommand`
+> per project, applied but not yet recorded in a history — recording the entry
+> is left to the same caller, which holds the histories.
 >
-> **La règle de #431 sur les traductions traverse jusqu'ici** : une mention
-> qui viderait une traduction l'écrit vide plutôt que de retirer le
-> sous-titre — `removeHearingImpaired` (phase 4) le faisait déjà pour son
-> geste direct, `correctHearingImpaired` (l'assistant) ne le savait pas
-> encore, puisqu'elle ignore tout de `Document`. C'est `proposeCorrections`
-> qui porte cette règle désormais, une fois pour les deux commandes.
+> **The rule of #431 on translations reaches all the way here**: a mention that
+> would empty a translation writes it empty rather than removing the subtitle —
+> `removeHearingImpaired` (phase 4) already did so for its direct gesture,
+> `correctHearingImpaired` (the assistant) did not know it yet, since it knows
+> nothing of `Document`. It is `proposeCorrections` that carries this rule from
+> now on, once for both commands.
 >
-> **D4, mesuré et non supposé** : un enregistrement d'erreurs courantes
-> s'applique si l'une de ses classes est cochée, aucun des trois autres types
-> n'en porte. Les deux motifs de crochets et de parenthèses (D7) ne sont
-> commandés que par une seule case au noyau — l'une **ou** l'autre coche
-> suffit à lancer le balayage — plutôt que par deux, `withoutHearingImpaired`
-> ne sachant traiter les deux styles qu'ensemble ; les distinguer vraiment
-> resterait à faire si une issue le demandait.
+> **D4, measured and not assumed**: a common-error record is applied if one of
+> its classes is checked; none of the three other types carries any. The two
+> bracket and parenthesis patterns (D7) are controlled by a single box in the
+> core — either **one** or the other being checked is enough to launch the scan —
+> rather than by two, `withoutHearingImpaired` only knowing how to handle both
+> styles together; really distinguishing them would remain to be done if an issue
+> asked for it.
 >
-> **Les réglages** (`CorrectionSettings`, dans les réglages de l'ADR 0022,
-> seizième bloc après celui du découpage de durées) : une tâche cochée et son
-> code par type, les deux classes, les deux cases du balayage, une liste
-> ouverte de dérogations d'activation — `<type>:<code>:<nom>:<0|1>`, dans une
-> seule clé à liste — les deux réglages du découpage et la case des
-> sous-titres vides. Une dérogation qui ne nomme plus rien n'est jamais lue,
-> ce qui suffit à l'ignorer sans code dédié — la table des motifs ne connaît
-> qu'elle-même.
+> **The settings** (`CorrectionSettings`, in the settings of ADR 0022, the
+> sixteenth block after the one for duration splitting): a checked task and its
+> code per type, the two classes, the two scan boxes, an open list of activation
+> overrides — `<type>:<code>:<name>:<0|1>`, in a single list key — the two line
+> breaking settings and the blank subtitles box. An override that no longer
+> names anything is never read, which is enough to ignore it without dedicated
+> code — the pattern table knows only itself.
 >
-> **`CommandKind::CorrectTexts`** rejoint l'énumération ; `noticeOfCorrection`
-> rejoint `core/wording/counts.hpp`, le patron même de Gaupol — « Edited N and
-> removed M subtitles » — et compte les textes, jamais les correspondances,
-> par construction : une correspondance qui rend un texte inchangé ne franchit
-> jamais `proposeCorrections`.
+> **`CommandKind::CorrectTexts`** joins the enumeration; `noticeOfCorrection`
+> joins `core/wording/counts.hpp`, Gaupol's very template — "Edited N and
+> removed M subtitles" — and counts texts, never matches, by construction: a
+> match that returns an unchanged text never gets past `proposeCorrections`.
 
-> **Précisé par [#505](https://github.com/Guyot-Bertrand/sub-edit/issues/505).**
-> Les trois menus d'une page de tâche — écriture, langue, pays — se peuplent de
-> ce que le catalogue de motifs porte réellement pour ce type, jamais d'un
-> registre de langues externe : `PatternCodeSelector` cascade sur `catalogue`,
-> pas sur une liste ISO.
+> **Clarified by [#505](https://github.com/Guyot-Bertrand/sub-edit/issues/505).**
+> The three menus of a task page — script, language, country — are populated
+> with what the pattern catalogue actually carries for that type, never from an
+> external language registry: `PatternCodeSelector` cascades on `catalogue`,
+> not on an ISO list.
 >
-> **La partie changée d'une diff se marque en gras, jamais en couleur** —
-> `correctionDiffHtml` pose `<b>` autour de chaque `DiffSpan` marqué changé.
-> Une teinte se serait mal comportée sous les deux palettes, et de toute façon
-> `QStyledItemDelegate` peint le `Qt::DisplayRole` d'une cellule, pas ses
-> couleurs de police par plage.
+> **The changed part of a diff is marked in bold, never in colour** —
+> `correctionDiffHtml` puts `<b>` around each `DiffSpan` marked as changed. A
+> tint would have behaved badly under both palettes, and in any case
+> `QStyledItemDelegate` paints a cell's `Qt::DisplayRole`, not its font colours
+> per range.
 >
-> **`applyCorrections` compose sans appliquer**, plutôt que d'ajouter à
-> `Session`/`History` une méthode qui enregistrerait une commande déjà
-> appliquée : elle rend un `CompositeCommand` par projet, et c'est l'appelant
-> — le contrôleur de la fenêtre — qui le fait passer par `Session::apply`,
-> comme toute autre opération. La raison tient en une règle : `Session::project()`
-> rend une référence `const`, et une commande appliquée hors de `Session::apply`
-> l'aurait contournée.
+> **`applyCorrections` composes without applying**, rather than adding to
+> `Session`/`History` a method that would record an already applied command: it
+> returns a `CompositeCommand` per project, and it is the caller — the window's
+> controller — that passes it through `Session::apply`, like any other
+> operation. The reason fits in one rule: `Session::project()` returns a `const`
+> reference, and a command applied outside `Session::apply` would have bypassed
+> it.
 >
-> **« Abandonner » est le bouton `Cancel` du wizard, sans mécanisme
-> d'interruption propre** : un calcul déjà lancé sur son fil d'arrière-plan
-> n'est jamais coupé, seulement jamais lu — **mais la page de progression
-> attend sa fin avant d'être détruite**. Ce que le calcul référence — le
-> moteur, le catalogue, les projets de ses cibles — n'a donc qu'à survivre à
-> la page, jamais au fil : l'annulation bloque, au plus le temps que le moteur
-> accorde à une recherche. `Back` pendant le calcul le laisse finir sans
-> l'attendre, et son résultat est écarté ; `Next` en relance un.
+> **"Abandoning" is the wizard's `Cancel` button, without an interruption
+> mechanism of its own**: a computation already launched on its background
+> thread is never cut, only never read — **but the progress page waits for it to
+> finish before being destroyed**. What the computation references — the engine,
+> the catalogue, the projects of its targets — therefore only has to outlive the
+> page, never the thread: cancelling blocks, at most for the time the engine
+> grants a search. `Back` during the computation lets it finish without waiting
+> for it, and its result is discarded; `Next` launches a new one.
 >
-> **La cible et le document ne se retiennent pas** d'une session à l'autre —
-> D8 le disait, le périmètre l'a resserré : la première page rouvre toujours
-> sur `Current Project` et `Text`. **L'unité du découpage, elle, ne se
-> retenait pas non plus, et #506 l'a ajoutée** — voir plus bas. Ne se retient
-> que ce que `CorrectionSettings` porte — les tâches cochées et leurs codes,
-> les classes, les dérogations d'activation, les réglages du découpage, la
-> case des sous-titres vides.
+> **The target and the document are not kept** from one session to the next —
+> D8 said they would be, the scope narrowed it: the first page always reopens on
+> `Current Project` and `Text`. **The line breaking unit was not kept either,
+> and #506 added it** — see below. Only what `CorrectionSettings` carries is
+> kept — the checked tasks and their codes, the classes, the activation
+> overrides, the line breaking settings, the blank subtitles box.
 >
-> **Une dérogation d'activation disparaît quand sa case revient au défaut**,
-> au lieu de rester écrite : pour chaque motif qu'une page montre, la
-> dérogation retenue est effacée avant que celles qui s'écartent encore du
-> défaut ne soient réécrites (`foldActivations`). Changer de code sur une page
-> y replie d'abord l'état des cases du code quitté.
+> **An activation override disappears when its box returns to the default**,
+> instead of remaining written: for each pattern a page shows, the stored
+> override is erased before those that still differ from the default are
+> written again (`foldActivations`). Changing code on a page first folds in the
+> state of the boxes of the code being left.
 >
-> **GUI-CORRECT-06 couvre les trois cas** : un motif qui ne se traduit ou ne compile pas, ou
-> ne termine pas (`PatternFailure`), et une ligne de fichier qui ne se lit pas
-> (`PatternCatalogue::diagnostics()`), nommés sous la même table.
+> **GUI-CORRECT-06 covers the three cases**: a pattern that does not translate or compile, or
+> does not terminate (`PatternFailure`), and a file line that cannot be read
+> (`PatternCatalogue::diagnostics()`), named under the same table.
 >
-> **Une page de tâche ne porte pas de case « active » qui lui soit propre** :
-> c'est celle de la première page, par tâche, qui décide seule si la tâche
-> tourne. Une seconde case ici aurait pu la contredire.
+> **A task page carries no "enabled" box of its own**: it is the one on the first
+> page, per task, that alone decides whether the task runs. A second box here
+> could have contradicted it.
 
-> **Précisé par [#506](https://github.com/Guyot-Bertrand/sub-edit/issues/506).**
-> **Le saut de Gaupol a ses propres seuils**, et #502 les avait confondus avec
-> les limites visées : `max_skip_length` et `max_skip_lines` sont deux
-> réglages, chacun avec sa case (`use_skip_max_length`, `use_skip_max_lines`),
-> tous deux à `24` et `3` par défaut — d'où la confusion, invisible tant que
-> personne ne les change. `breakLines` prend désormais `std::optional<SkipLimits>` :
-> absent, aucun saut ; présent, une case décochée est un seuil infini, comme le
-> `32768` de Gaupol. `CorrectionSettings` porte les quatre réglages du saut, et
-> **`proposeCorrections` les branche** — un sous-titre de moins de `24`
-> laissé tel quel est désormais le comportement par défaut de l'assistant, ce
-> qu'il n'était pas avant cette issue.
+> **Clarified by [#506](https://github.com/Guyot-Bertrand/sub-edit/issues/506).**
+> **Gaupol's skip has its own thresholds**, and #502 had confused them with the
+> target limits: `max_skip_length` and `max_skip_lines` are two settings, each
+> with its box (`use_skip_max_length`, `use_skip_max_lines`), both at `24` and
+> `3` by default — hence the confusion, invisible as long as nobody changes
+> them. `breakLines` now takes `std::optional<SkipLimits>`: absent, no skip;
+> present, an unchecked box is an infinite threshold, like Gaupol's `32768`.
+> `CorrectionSettings` carries the four skip settings, and
+> **`proposeCorrections` wires them in** — a subtitle under `24` left as it is
+> is now the assistant's default behaviour, which it was not before this issue.
 >
-> **L'unité se retient**, contrairement à ce que #505 avait resserré :
-> `lineBreakInEms`, `true` par défaut, l'unité de Gaupol — les défauts `24` et
-> `3` n'ont de sens qu'en ems (D5). Le noyau ne porte que le choix, jamais la
-> mesure : la fenêtre construit `EmsLineMeasure` ou `CharacterLineMeasure` à
-> chaque calcul, si bien qu'aucune longueur d'une mesure précédente ne survit
-> à un changement d'unité. Le seuil de saut en longueur suit l'unité, comme
-> chez Gaupol (`skip_unit_combo` et `unit_combo` lisent la même valeur). Les
-> réglages passent de seize à vingt et un.
+> **The unit is kept**, contrary to what #505 had narrowed: `lineBreakInEms`,
+> `true` by default, Gaupol's unit — the defaults `24` and `3` only make sense
+> in ems (D5). The core carries only the choice, never the measure: the window
+> builds `EmsLineMeasure` or `CharacterLineMeasure` at each computation, so that
+> no length from a previous measure survives a change of unit. The length skip
+> threshold follows the unit, as in Gaupol (`skip_unit_combo` and `unit_combo`
+> read the same value). The settings go from sixteen to twenty-one.
 
-> **Précisé par [#508](https://github.com/Guyot-Bertrand/sub-edit/issues/508).**
-> **`joinWords` et `splitWords` sont au noyau**, deux fonctions de textes comme
-> les autres — un texte en sortie pour chaque texte en entrée, rendu tel quel
-> quand rien ne s'applique —, sur un `SpellChecker` et le navigateur de Gaupol
-> (`SpellCheckNavigator`), porté ligne à ligne. Les textes se prennent **bruts,
-> balises comprises**, comme chez Gaupol : le `font` d'une balise est un mot
-> pour le découpage.
+> **Clarified by [#508](https://github.com/Guyot-Bertrand/sub-edit/issues/508).**
+> **`joinWords` and `splitWords` are in the core**, two functions of texts like
+> the others — one text out for each text in, returned as it is when nothing
+> applies —, on a `SpellChecker` and Gaupol's navigator
+> (`SpellCheckNavigator`), ported line by line. Texts are taken **raw, markup
+> included**, as in Gaupol: the `font` of a tag is a word for the splitting.
 >
-> **Un écart, et il est voulu.** Gaupol compare le texte final à celui que le
-> navigateur avait **au dernier mot mal orthographié atteint** (`text =
-> navigator.text` dans la boucle) : une jonction suivie d'un mot mal
-> orthographié qu'on laisse en l'état n'est jamais enregistrée. Le nôtre
-> compare au texte de départ, espaces réduites ; le cas est un test. Pour le
-> reste, `istitle` de Python est reproduit par les propriétés de casse d'ICU
-> (`Don't` n'est pas un titre, `McDonald` non plus), et `\W+` du découpage des
-> voisins par le même `u_isalnum` et le tiret bas que le découpage en mots.
+> **One deviation, and it is intended.** Gaupol compares the final text with the
+> one the navigator had **at the last misspelled word reached** (`text =
+> navigator.text` in the loop): a join followed by a misspelled word left as it
+> is is never recorded. Ours compares with the starting text, spaces collapsed;
+> the case is a test. For the rest, Python's `istitle` is reproduced by ICU's case
+> properties (`Don't` is not a title, nor is `McDonald`), and the `\W+` of the
+> neighbour splitting by the same `u_isalnum` and underscore as the word
+> splitting.
 >
-> **L'ordre est celui de Gaupol, plus un** : mentions, **jonction et scission**,
-> erreurs courantes, majuscules, découpage — jonction avant scission, chacune
-> sur le texte que l'autre a laissé. `CorrectionTask::JoinSplitWords` rejoint
-> l'énumération ; `proposeCorrections` prend un `const SpellChecker*` qui vaut
-> `nullptr` par défaut, et **la tâche ne fait rien sans lui** — un défaut de
-> dictionnaire n'est pas un échec de motif, la fenêtre dit pourquoi. Le
-> correcteur est ouvert par l'appelant, sur son fil, avec la liste de
-> remplacements de la langue (lue, jamais écrite : `replace` chez Gaupol y
-> ajoute, sans effet sur un mot déjà traité), et le calcul en devient le
-> propriétaire.
+> **The order is Gaupol's, plus one**: mentions, **joining and splitting**,
+> common errors, capitalization, line breaking — joining before splitting, each
+> on the text the other left. `CorrectionTask::JoinSplitWords` joins the
+> enumeration; `proposeCorrections` takes a `const SpellChecker*` that defaults
+> to `nullptr`, and **the task does nothing without it** — a missing dictionary
+> is not a pattern failure, the window says why. The spell checker is opened by
+> the caller, on its thread, with the replacement list of the language (read,
+> never written: `replace` in Gaupol adds to it, with no effect on a word already
+> processed), and the computation becomes its owner.
 >
-> **Les réglages** passent de vingt et un à vingt-cinq : la tâche cochée
-> (`correction.join-split.enabled`), la jonction (`join`, cochée), la scission
-> (`split`, non cochée) et la langue (`language`, un code de locale, vide
-> jusqu'à ce qu'on en choisisse une). Vide, la langue est celle du système —
-> code exact, puis langue seule parmi celles qu'Enchant propose, sinon le code
-> du système lui-même, que la page dira alors ne pas avoir de dictionnaire.
+> **The settings** go from twenty-one to twenty-five: the checked task
+> (`correction.join-split.enabled`), joining (`join`, checked), splitting
+> (`split`, unchecked) and the language (`language`, a locale code, empty until
+> one is chosen). Empty, the language is the system's — exact code, then
+> language alone among those Enchant offers, otherwise the system's code
+> itself, which the page will then say has no dictionary.
 >
-> **La page reste et se grise sans dictionnaire** (GUI-SPELL-02) : les deux
-> cases éteintes, la phrase `noDictionaryFor` dessous, la langue toujours
-> modifiable puisqu'un dictionnaire d'une autre peut être là. Le fournisseur
-> de dictionnaires et le répertoire de configuration des listes de
-> remplacements sont **reçus par la fenêtre**, comme les motifs — `setSpellChecking`
-> — et jamais résolus par le contrôleur ; `configureFromEnvironment` construit
-> le vrai `EnchantSpellProvider`, un test donne un double ou rien. **L'entrée
-> `Check Spelling…` reste à #509** : GUI-SPELL-02 y sera citée de nouveau.
+> **The page stays and is greyed out without a dictionary** (GUI-SPELL-02): the
+> two boxes switched off, the `noDictionaryFor` sentence beneath, the language
+> still editable since a dictionary for another one may be there. The
+> dictionary provider and the configuration directory of the replacement lists
+> are **received by the window**, like the patterns — `setSpellChecking` — and
+> never resolved by the controller; `configureFromEnvironment` builds the real
+> `EnchantSpellProvider`, a test gives a double or nothing.
+> **The `Check Spelling…` entry is left to #509**: GUI-SPELL-02 will be cited there again.
 
-## D9 — Les balises : le parseur de la phase 10, par `transform`
+## D9 — Markup: the parser of phase 10, through `transform`
 
-La question du cadrage — le parseur tient-il les décalages que les motifs
-demandent ? — a une réponse en deux temps.
+The question of the framing — does the parser hold the offsets the patterns
+demand? — has a two-part answer.
 
-**Oui pour le mécanisme.** Une correction passe par `MarkupParser::transform`,
-et non par `replace` : `replace` est la moitié faite pour ce qu'un utilisateur
-tape, qui prend le style de tout ce qu'il touche ; une correction est une
-transformation, qui ne crée ni n'étend aucun style. `transform` sait déjà
-remplacer un morceau par un autre de longueur différente et décaler ce qui suit.
+**Yes for the mechanism.** A correction goes through `MarkupParser::transform`,
+and not through `replace`: `replace` is the half made for what a user types,
+which takes the style of everything it touches; a correction is a
+transformation, which neither creates nor extends any style. `transform` already
+knows how to replace one piece with another of a different length and shift what
+follows.
 
-**Non pour la fidélité, tant qu'un cas ne l'a pas montré.** Le parseur de Gaupol
-place autrement une balise **à l'intérieur** d'une correspondance : il la
-ramène au début du morceau retiré, et devine si une balise au bord est ouvrante
-ou fermante à l'espace qui la suit. Le nôtre la garde « aussi loin que le
-nouveau texte va », et supprime un style que la correction a vidé, là où Gaupol
-laisse les balises vides. Aucun des 184 cas de #494 ne porte de balise :
-**l'écart n'est pas mesuré**.
+**No for fidelity, as long as a case has not shown it.** Gaupol's parser places
+a tag **inside** a match differently: it brings it back to the start of the
+removed piece, and guesses whether a tag at the edge is opening or closing from
+the space that follows it. Ours keeps it "as far as the new text goes", and
+deletes a style that the correction has emptied, where Gaupol leaves the empty
+tags. None of the 184 cases of #494 carries a tag: **the deviation is not
+measured**.
 
-**Donc : une issue de la première tranche porte l'oracle aux balises** — le
-parseur de Gaupol porté dans `pattern-oracle.py` pour les balises de SubRip,
-des cas balisés écrits à la main là où une correction touche une balise — et
-**décide cas par cas** : un désaccord est corrigé dans `transform`, ou inscrit
-comme écart avec sa raison. Le seul écart déjà voulu est celui d'une balise
-vidée : un `<i></i>` laissé dans un fichier n'est un progrès pour personne.
+**Therefore: an issue of the first slice brings the oracle to markup** —
+Gaupol's parser ported into `pattern-oracle.py` for SubRip tags, marked-up cases
+written by hand where a correction touches a tag — and **decides case by case**:
+a disagreement is fixed in `transform`, or recorded as a deviation with its
+reason. The only deviation already intended is that of an emptied tag: an
+`<i></i>` left in a file is progress for nobody.
 
-> **Précisé par [#501](https://github.com/Guyot-Bertrand/sub-edit/issues/501).**
-> Six cas balisés, dans `common-error.entrees`, `capitalization.entrees` et
-> `hearing-impaired.entrees` : une balise juste après ce qu'une correction
-> retire, une balise à l'intérieur d'une correspondance, une correction qui la
-> vide, une balise autour de chaque ligne d'un texte à plusieurs lignes — une
-> marge, au sens du parseur de Gaupol —, et un mot capitalisé que la balise
-> touche. Trois désaccords, aucun corrigé dans `transform` :
+> **Clarified by [#501](https://github.com/Guyot-Bertrand/sub-edit/issues/501).**
+> Six marked-up cases, in `common-error.entrees`, `capitalization.entrees` and
+> `hearing-impaired.entrees`: a tag right after what a correction removes, a tag
+> inside a match, a correction that empties it, a tag around each line of a
+> multi-line text — a margin, in the sense of Gaupol's parser —, and a
+> capitalized word the tag touches. Three disagreements, none fixed in
+> `transform`:
 >
-> - **la balise à l'intérieur d'une correspondance** confirme l'écart que ce
->   paragraphe annonçait déjà : Gaupol la ramène au début du morceau retiré,
->   puis son nettoyage de balises retire la paire devenue vide ; `transform` la
->   garde étirée sur tout le texte qui la remplace, la règle que la phase 10
->   lui a donnée et que `recherche.cas` tient. Revenir dessus referait une
->   règle éprouvée ailleurs pour un seul appelant ;
-> - **le nom du locuteur balisé**, dans les mentions, est le même écart : la
->   balise `<b>` qui entourait le nom retiré survit, étirée sur le tiret de
->   dialogue qui le remplace, là où Gaupol ne laisse rien ;
-> - **le mot capitalisé balisé** est un écart différent, pas celui annoncé plus
->   haut : `SubRip.clean` déplace un espace collé à une balise avant de la
->   rendre, un nettoyage cosmétique que rien dans `MarkupParser` ne porte. Une
->   capitalisation ne déplace jamais une balise — elle ne réécrit qu'un point de
->   code, jamais à l'intérieur d'une balise —, donc l'écart ne vient que de ce
->   nettoyage absent, volontairement : retoucher l'espacement autour des
->   balises n'est le travail d'aucune des trois corrections de cette tranche.
+> - **the tag inside a match** confirms the deviation this paragraph already
+>   announced: Gaupol brings it back to the start of the removed piece, then its
+>   tag clean-up removes the pair that has become empty; `transform` keeps it
+>   stretched over the whole text that replaces it, the rule phase 10 gave it and
+>   that `recherche.cas` holds. Going back on it would redo a rule proven
+>   elsewhere for a single caller;
+> - **the marked-up speaker's name**, in the mentions, is the same deviation:
+>   the `<b>` tag that surrounded the removed name survives, stretched over the
+>   dialogue dash that replaces it, where Gaupol leaves nothing;
+> - **the marked-up capitalized word** is a different deviation, not the one
+>   announced above: `SubRip.clean` moves a space stuck to a tag before rendering
+>   it, a cosmetic clean-up that nothing in `MarkupParser` carries. A
+>   capitalization never moves a tag — it rewrites only one code point, never
+>   inside a tag —, so the deviation comes only from this missing clean-up,
+>   deliberately: touching up the spacing around tags is the work of none of the
+>   three corrections of this slice.
 >
-> Les trois sont nommés dans les tests qui les jouent
+> All three are named in the tests that play them
 > (`common_errors_test.cpp`, `capitalization_test.cpp`,
-> `hearing_impaired_correction_test.cpp`), pas seulement ici. La marge
-> (`<i>` autour de chaque ligne) et les deux autres cas ne montrent, eux,
-> aucun désaccord : la mécanique par balise de `transform` suffit à reproduire
-> ce que Gaupol range dans un cas spécial.
+> `hearing_impaired_correction_test.cpp`), not only here. The margin
+> (`<i>` around each line) and the two other cases show no disagreement: the
+> per-tag mechanics of `transform` are enough to reproduce what Gaupol puts in a
+> special case.
 
-## D10 — Pas de porte
+## D10 — No gate
 
-L'issue demandait une porte, **comme #435 pour le multi-projets**, si une partie
-de la phase se révélait trop lourde. Aucune ne l'est au point d'en demander une.
-#435 portait une réserve que la feuille de route avait écrite — « le besoin
-n'est pas confirmé » ; ici, chaque morceau est une fonction de Gaupol que
-l'utilisateur de départ emploie, sans réserve écrite.
+The issue asked for a gate, **like #435 for multiple projects**, if part of the
+phase turned out to be too heavy. None is heavy enough to call for one. #435
+carried a reservation the roadmap had written — "the need is not confirmed";
+here, each piece is a Gaupol feature that the original user uses, with no
+written reservation.
 
-**Ce qui aurait pu en justifier une, et pourquoi non** : le correcteur, pour sa
-dépendance et son dialogue. La dépendance est un paquet présent sur toute
-distribution qui porte Gaupol ; le dialogue est le plus petit de la phase. Il
-vient **en dernier**, ce qui suffit : si la phase devait s'arrêter plus tôt, ce
-qui serait livré tiendrait seul.
+**What could have justified one, and why not**: the spell checker, for its
+dependency and its dialog. The dependency is a package present on every
+distribution that carries Gaupol; the dialog is the smallest of the phase. It
+comes **last**, which is enough: if the phase had to stop earlier, what would be
+delivered would stand on its own.
 
-## Ce que la phase ne livre pas
+## What the phase does not deliver
 
-Chacun avec une phase ou une issue, parce qu'un renvoi sans destinataire finit
-par désigner une phase déjà passée.
+Each with a phase or an issue, because a deferral without a recipient ends up
+designating a phase already past.
 
-- **La ligne de commande de la correction** — `correct`, la jonction et la
-  scission en ligne de commande : phase 13, D8.
-- **La traduction des noms et descriptions des motifs** — gettext chez Gaupol :
-  phase 15, avec le reste de l'interface.
-- **La vérification orthographique au fil de la frappe** — Gaupol l'offre dans
-  sa cellule d'édition (`spell_check.inline`). Elle demande un surlignage dans
-  le délégué de la table, que rien n'avait : **renvoyée à la relecture de fin
-  de phase**, qui l'a retenue — **livrée par
-  [#525](https://github.com/Guyot-Bertrand/sub-edit/issues/525)**, voir D6.
-- **Un éditeur de motifs** — Gaupol n'en a pas ; on dépose un fichier.
-- **La longueur des lignes affichée dans les cellules** — la règle de Gaupol
-  (`gaupol/ruler.py`, sa marge) ; elle emprunterait la mesure de D5, mais c'est
-  une fonction d'édition, pas de correction : **renvoyée à la relecture**, comme
-  la précédente.
+- **The command line for correction** — `correct`, joining and splitting on the
+  command line: phase 13, D8.
+- **The translation of the names and descriptions of the patterns** — gettext in
+  Gaupol: phase 15, with the rest of the interface.
+- **Spell checking as you type** — Gaupol offers it in its editing cell
+  (`spell_check.inline`). It requires highlighting in the table's delegate,
+  which nothing had: **deferred to the end-of-phase review**, which retained
+  it — **delivered by
+  [#525](https://github.com/Guyot-Bertrand/sub-edit/issues/525)**, see D6.
+- **A pattern editor** — Gaupol has none; a file is dropped in.
+- **The length of lines displayed in the cells** — Gaupol's ruler
+  (`gaupol/ruler.py`, its margin); it would borrow the measure of D5, but it is
+  an editing feature, not a correction one: **deferred to the review**, like the
+  previous one.
 
-> **Écrit en relecture de fin de phase.** **Ces deux renvois n'ont toujours pas de destinataire.** La
-> feuille de route ne les place dans aucune phase : `spell_check.inline` n'y figure pas, et `ruler.py` n'y
-> est cité que pour la mesure de D5, non pour l'affichage dans les cellules. L'inventaire de Gaupol
-> ([`gaupol-reference.md`](gaupol-reference.md), §6) les compte pourtant, l'un comme « soulignement à la
-> volée », l'autre comme « affichage de la longueur des lignes ». La relecture les soumet à décision — une
-> issue avec sa phase, ou un écart écrit avec sa raison — et la réponse s'inscrit ici.
+> **Written at the end-of-phase review.** **These two deferrals still have no recipient.** The
+> roadmap places them in no phase: `spell_check.inline` does not appear in it, and `ruler.py` is
+> cited there only for the measure of D5, not for the display in the cells. The Gaupol inventory
+> ([`gaupol-reference.md`](gaupol-reference.md), §6) counts them nonetheless, one as "underlining on
+> the fly", the other as "display of line lengths". The review submits them to decision — an
+> issue with its phase, or a written deviation with its reason — and the answer is recorded here.
 >
-> **Deux renvois de plus étaient restés sans nom**, tous deux dans les encadrés ci-dessus :
-> **distinguer les crochets des parenthèses** dans l'assistant (#504 : « resterait à faire si une issue le
-> demandait », alors que les deux cases de la page `Mentions` sont bien deux cases pour Gaupol), et
-> **brancher le cache de longueurs** dans la fenêtre (D5, ci-dessus).
+> **Two more deferrals had remained without a name**, both in the boxes above:
+> **distinguishing brackets from parentheses** in the assistant (#504: "would remain to be done if an issue
+> asked for it", whereas the two boxes of the `Mentions` page really are two boxes for Gaupol), and
+> **wiring the length cache** into the window (D5, above).
 
-## Écarts avec Gaupol
+## Deviations from Gaupol
 
-> **Complété en relecture de fin de phase.** **Le tableau en portait onze, et onze sont tenus** : chacun se
-> retrouve dans le code et dans un test (le moteur réécrit `\w`, `Repeat` s'arrête à cent passes, la classe
-> décochée ne s'applique pas, la page de jonction se grise, les balises se placent comme #501 l'a décidé…).
-> **Dix autres s'étaient glissés**, chacun dit dans l'encadré de son issue mais aucun ici — le corps de
-> l'issue n'en comptait que deux de plus. **Vingt et un écarts, donc**, et un seul se lit comme une lacune
-> plutôt que comme un choix : la taille de la fenêtre de vérification, non retenue sans raison écrite. Les
-> dix sont ajoutés sous le trait.
+> **Completed at the end-of-phase review.** **The table carried eleven, and all eleven hold**: each one is
+> found in the code and in a test (the engine rewrites `\w`, `Repeat` stops at a hundred passes, the
+> unchecked class is not applied, the joining page is greyed out, tags are placed as #501 decided…).
+> **Ten others had slipped in**, each stated in the box of its issue but none here — the body of the
+> issue counted only two more. **Twenty-one deviations, then**, and only one reads as a gap
+> rather than as a choice: the size of the checking window, not kept for no written reason. The
+> ten are added below the line.
 
-| Ce que fait Gaupol | Ce que fait `subedit` | Pourquoi |
-| :----------------- | :-------------------- | :------- |
-| `\w` et `\b` à la manière de Python | **à l'identique**, par réécriture | sans elle, ni ICU ni un PCRE2 récent ne rendent les mêmes textes — D1 |
-| `Repeat` boucle tant qu'une passe trouve quelque chose, **sans fin possible** | tant que le texte change, **cent passes au plus**, et dit | identique partout où Gaupol termine — D3 |
-| un motif qui retourne en arrière sans fin **gèle le programme** | **arrêté**, abandonné pour ce texte, et dit | D1 |
-| une classe décochée **s'applique quand même** | décochée, elle **ne s'applique pas** | la case dit ce qu'elle dit — D4 |
-| l'activation s'écrit en `.conf` XML | dans **nos réglages** | l'ADR 0022, [0037](../adr/0037-lire-les-motifs-de-gaupol-tels-quels.md) |
-| crochets et parenthèses retirés par motif, puis **sept nettoyages globaux** | par le **balayage de la phase 4**, à couture locale | l'ADR 0017, maintenue — D7 |
-| la page de jonction et de scission **disparaît** sans correcteur | **grisée**, et dit pourquoi | dire plutôt que taire, l'ADR 0008 — D6 |
-| la liste de remplacements dans la configuration **de Gaupol** | dans **la nôtre** | un programme n'écrit pas chez un autre — D6 |
-| une balise vidée par une correction **reste** | **retirée** | D9 ; les autres placements se décident cas par cas |
-| une balise à l'intérieur d'une correspondance **se ramène au début du morceau retiré** | **reste étirée sur tout le texte qui le remplace** | D9, décidé par #501 : la règle que `transform` tient depuis la phase 10, sur laquelle `recherche.cas` fait foi |
-| `SubRip.clean` **retouche l'espacement autour des balises** après coup | **rien ne le fait** | D9, décidé par #501 : aucune des trois corrections ne déplace une balise, ce nettoyage cosmétique n'est le travail d'aucune |
-| *ajoutés en relecture de fin de phase* | | |
-| aucune borne : un motif qui double ce qu'il trouve, sous `Repeat`, **remplit la mémoire** | **16 384 octets** par texte et une **limite de temps** par recherche ; le texte reste **tel qu'avant le motif**, et le motif est nommé | D3, #499 : un remplacement à moitié fait vaut moins que pas de remplacement |
-| une ligne réduite à un guillemet seul, à côté d'une mention retirée, **est vidée** par les sept nettoyages | **laissée** par le balayage | D7, #500 : la couture locale de l'ADR 0017 ; deux cas de `hearing-impaired.cas` restent hors accord, sciemment |
-| `Sound in brackets` et `Sound in parentheses` sont **deux motifs qu'on coche séparément** | **un seul balayage** : l'une ou l'autre case le lance, et il retire les deux | D8, #504 : `withoutHearingImpaired` ne sait traiter les deux styles qu'ensemble |
-| `Preview` lance **un lecteur externe** au sous-titre choisi | le **lecteur intégré**, quand le projet a une vidéo ; rien sinon | D8 : la réponse que la phase 11 avait déjà donnée à la barre d'outils |
-| l'assistant retient **la cible et le champ** (`text_assistant.target`, `.field`) | il **rouvre toujours** sur `Current Project` et `Text` | D8 le prévoyait (« ce que l'assistant retient : … la cible, le document ») ; #505 a resserré le périmètre, sans autre raison écrite |
-| une ligne de `.repl` **sans barre verticale** se lit comme un couple à un élément, qui échoue à la première suggestion | **ignorée** | #507 : la lecture de Gaupol échoue à la première suggestion |
-| les blancs d'une ligne de `.repl` se retirent **à l'Unicode** | **à l'ASCII** | #507 |
-| la jonction et la scission comparent le texte final à celui du **dernier mot mal orthographié atteint** : une jonction suivie d'un mot laissé en l'état n'est **jamais enregistrée** | comparent au **texte de départ**, espaces réduites ; le cas est un test | D8, #508 : écart voulu |
-| fermer `Check Spelling…` au milieu **perd le texte courant** | **applique** les textes quittés **et** les gestes déjà posés sur le texte courant | D6, #509 |
-| la taille de la fenêtre de vérification est **retenue** (`spell_check.size`) | **elle ne l'est pas** | #509 le dit, sans raison ; inscrit ici faute de l'avoir écrite |
-| *ajoutés par #525* | | |
-| la case du soulignement à la frappe est dans les **préférences** | dans **`Spell-Check Settings…`**, à côté de la langue | `subedit` n'a pas de fenêtre de préférences ; la langue du soulignement est celle de cette fenêtre |
-| le soulignement passe par le vérificateur d'Enchant **seul** : ni les cas de l'anglais familier, ni la liste de remplacements | il passe par **`SpellChecker::check`**, les cas de l'anglais compris | le soulignement et `Check Spelling…` s'accordent sur les mêmes mots — D6, #525 |
-| le menu contextuel de l'éditeur **propose des suggestions** | **il n'en propose pas** | lacune, non un choix : #525 livre le soulignement, non ses gestes |
-| *ajoutés par #526* | | |
-| une ligne trop longue est **marquée** dans la cellule (critère de l'issue) | **rien n'est marqué** : le nombre s'affiche, comme chez Gaupol | Gaupol montre `[N]` sans le comparer à une limite ; le critère de l'issue prêtait à Gaupol un marquage qu'il n'a pas |
-| les réglages `editor.*` sont dans les préférences, sous `Editor` | dans `Edit ▸ Preferences…`, **sous le thème**, sans onglet | `subedit` a une fenêtre de préférences d'une page ; l'unité y est grisée si aucune case n'est cochée |
+| What Gaupol does | What `subedit` does | Why |
+| :--------------- | :------------------ | :-- |
+| `\w` and `\b` the way Python reads them | **identically**, by rewriting | without it, neither ICU nor a recent PCRE2 returns the same texts — D1 |
+| `Repeat` loops as long as a pass finds something, **possibly forever** | as long as the text changes, **a hundred passes at most**, and says so | identical wherever Gaupol terminates — D3 |
+| a pattern that backtracks endlessly **freezes the program** | **stopped**, abandoned for that text, and said | D1 |
+| an unchecked class **is applied all the same** | unchecked, it **is not applied** | the box says what it says — D4 |
+| activation is written in XML `.conf` files | in **our settings** | ADR 0022, [0037](../adr/0037-lire-les-motifs-de-gaupol-tels-quels.md) |
+| brackets and parentheses removed by pattern, then **seven global clean-ups** | by the **scan of phase 4**, with a local seam | ADR 0017, maintained — D7 |
+| the joining and splitting page **disappears** without a spell checker | **greyed out**, and says why | saying rather than keeping silent, ADR 0008 — D6 |
+| the replacement list in **Gaupol's** configuration | in **ours** | a program does not write into another's — D6 |
+| a tag emptied by a correction **stays** | **removed** | D9; the other placements are decided case by case |
+| a tag inside a match **is brought back to the start of the removed piece** | **stays stretched over the whole text that replaces it** | D9, decided by #501: the rule `transform` has held since phase 10, for which `recherche.cas` is authoritative |
+| `SubRip.clean` **touches up the spacing around tags** afterwards | **nothing does** | D9, decided by #501: none of the three corrections moves a tag, this cosmetic clean-up is the work of none of them |
+| *added at the end-of-phase review* | | |
+| no bound: a pattern that doubles what it finds, under `Repeat`, **fills memory** | **16,384 bytes** per text and a **time limit** per search; the text stays **as it was before the pattern**, and the pattern is named | D3, #499: a half-done replacement is worth less than no replacement |
+| a line reduced to a lone quotation mark, next to a removed mention, **is emptied** by the seven clean-ups | **left** by the scan | D7, #500: the local seam of ADR 0017; two cases of `hearing-impaired.cas` remain out of agreement, knowingly |
+| `Sound in brackets` and `Sound in parentheses` are **two patterns checked separately** | **a single scan**: either box launches it, and it removes both | D8, #504: `withoutHearingImpaired` only knows how to handle both styles together |
+| `Preview` launches **an external player** at the chosen subtitle | the **built-in player**, when the project has a video; nothing otherwise | D8: the answer phase 11 had already given for the toolbar |
+| the assistant keeps **the target and the field** (`text_assistant.target`, `.field`) | it **always reopens** on `Current Project` and `Text` | D8 planned it ("what the assistant keeps: … the target, the document"); #505 narrowed the scope, with no other written reason |
+| a `.repl` line **without a vertical bar** is read as a one-element pair, which fails at the first suggestion | **ignored** | #507: Gaupol's reading fails at the first suggestion |
+| the whitespace of a `.repl` line is stripped **as Unicode** | **as ASCII** | #507 |
+| joining and splitting compare the final text with that of the **last misspelled word reached**: a join followed by a word left as it is is **never recorded** | they compare with the **starting text**, spaces collapsed; the case is a test | D8, #508: intended deviation |
+| closing `Check Spelling…` midway **loses the current text** | **applies** the texts left **and** the gestures already made on the current text | D6, #509 |
+| the size of the checking window is **kept** (`spell_check.size`) | **it is not** | #509 says so, without a reason; recorded here for not having written it |
+| *added by #525* | | |
+| the box for underlining while typing is in the **preferences** | in **`Spell-Check Settings…`**, next to the language | `subedit` has no preferences window; the language of the underlining is that of this window |
+| underlining goes through Enchant's checker **alone**: neither the colloquial English cases nor the replacement list | it goes through **`SpellChecker::check`**, the English cases included | the underlining and `Check Spelling…` agree on the same words — D6, #525 |
+| the editor's context menu **offers suggestions** | **it offers none** | a gap, not a choice: #525 delivers the underlining, not its gestures |
+| *added by #526* | | |
+| a line that is too long is **marked** in the cell (the issue's criterion) | **nothing is marked**: the number is displayed, as in Gaupol | Gaupol shows `[N]` without comparing it with a limit; the issue's criterion lent Gaupol a marking it does not have |
+| the `editor.*` settings are in the preferences, under `Editor` | in `Edit ▸ Preferences…`, **under the theme**, without a tab | `subedit` has a one-page preferences window; the unit is greyed out there if no box is checked |
 
-## Exigences
+## Requirements
 
-**Quatorze** — douze au cadrage, toutes `prévues`, `GUI-SPELL-04`, née de [#525](https://github.com/Guyot-Bertrand/sub-edit/issues/525), et `GUI-EDIT-04`, née de [#526](https://github.com/Guyot-Bertrand/sub-edit/issues/526) ; le registre s'alimente en début d'issue.
+**Fourteen** — twelve at the framing, all `planned`, `GUI-SPELL-04`, born of [#525](https://github.com/Guyot-Bertrand/sub-edit/issues/525), and `GUI-EDIT-04`, born of [#526](https://github.com/Guyot-Bertrand/sub-edit/issues/526); the registry is fed at the start of each issue.
 
-> **Corrigé en relecture de fin de phase.** **Douze, toutes `implémentées`, et chacune citée par au moins un
-> test** — un tag Catch2, que `check-requirements.sh` confronte au registre : `GUI-CORRECT-01` par deux cas,
-> `-02`, `-03`, `-04`, `-05` et `-07` par un chacun, `-06` par deux, `GUI-HEARING-03` par un, `GUI-BREAK-01`
-> par quatre, `GUI-SPELL-01` par treize, `-02` par huit, `-03` par trois. Aucune n'est née en cours de route,
-> aucune n'a été abandonnée : le tableau ci-dessous est celui du cadrage, à l'état près.
+> **Corrected at the end-of-phase review.** **Twelve, all `implemented`, and each cited by at least one
+> test** — a Catch2 tag, which `check-requirements.sh` confronts with the registry: `GUI-CORRECT-01` by two cases,
+> `-02`, `-03`, `-04`, `-05` and `-07` by one each, `-06` by two, `GUI-HEARING-03` by one, `GUI-BREAK-01`
+> by four, `GUI-SPELL-01` by thirteen, `-02` by eight, `-03` by three. None was born along the way,
+> none was abandoned: the table below is that of the framing, apart from the state.
 
-| Identifiant | Ce qu'il promet |
-| :---------- | :-------------- |
-| `GUI-CORRECT-01` | l'assistant applique les tâches cochées à la cible choisie — sélection, projet, tous les projets — et au document choisi |
-| `GUI-CORRECT-02` | chaque texte changé se montre avec son original avant d'être appliqué, et s'accepte, se refuse ou se retouche |
-| `GUI-CORRECT-03` | appliquer fait une entrée d'historique par projet, et la barre d'état dit combien de sous-titres ont été modifiés et supprimés |
-| `GUI-CORRECT-04` | les motifs se cochent par nom, pour une écriture, une langue et un pays, et le choix est retenu |
-| `GUI-CORRECT-05` | décocher Humain ou OCR retire ces motifs de l'application |
-| `GUI-CORRECT-06` | un motif qui ne se lit pas, ne se traduit pas ou ne termine pas est nommé, et les autres s'appliquent |
-| `GUI-CORRECT-07` | les motifs déposés par l'utilisateur s'ajoutent aux motifs livrés |
-| `GUI-HEARING-03` | l'assistant retire les paroles entre dièses et le nom du locuteur, en plus des crochets et des parenthèses |
-| `GUI-BREAK-01` | le découpage tient la longueur et le nombre de lignes demandés, en caractères ou en ems, et saute les sous-titres qui les tiennent déjà |
-| `GUI-SPELL-01` | la vérification parcourt les mots inconnus : ignorer, tout ignorer, ajouter au dictionnaire, remplacer, tout remplacer, joindre au précédent ou au suivant |
-| `GUI-SPELL-02` | sans dictionnaire pour la langue choisie, les fonctions du correcteur sont grisées et disent pourquoi |
-| `GUI-SPELL-03` | l'assistant joint et scinde des mots selon le correcteur |
-| `GUI-SPELL-04` | un mot inconnu est souligné pendant qu'on le tape dans l'éditeur d'une cellule de texte, quand le réglage est vrai et qu'un dictionnaire existe ; sans dictionnaire, rien n'est souligné et rien n'échoue |
-| `GUI-EDIT-04` | chaque ligne d'une cellule de texte et de son éditeur montre sa longueur, balises non comptées, en ems ou en caractères selon le réglage, et les réglages la retirent |
+| ID | Requirement |
+| :- | :---------- |
+| `GUI-CORRECT-01` | the assistant applies the checked tasks to the chosen target — selection, project, all projects — and to the chosen document |
+| `GUI-CORRECT-02` | each changed text is shown with its original before being applied, and is accepted, rejected or edited |
+| `GUI-CORRECT-03` | applying makes one history entry per project, and the status bar says how many subtitles were modified and removed |
+| `GUI-CORRECT-04` | patterns are checked by name, for a script, a language and a country, and the choice is kept |
+| `GUI-CORRECT-05` | unchecking Human or OCR removes those patterns from the application |
+| `GUI-CORRECT-06` | a pattern that cannot be read, cannot be translated or does not terminate is named, and the others are applied |
+| `GUI-CORRECT-07` | the patterns dropped in by the user are added to the shipped patterns |
+| `GUI-HEARING-03` | the assistant removes lyrics between hash signs and the speaker's name, in addition to brackets and parentheses |
+| `GUI-BREAK-01` | line breaking holds the requested length and number of lines, in characters or in ems, and skips the subtitles that already hold them |
+| `GUI-SPELL-01` | checking walks through the unknown words: ignore, ignore all, add to the dictionary, replace, replace all, join to the previous or the next |
+| `GUI-SPELL-02` | without a dictionary for the chosen language, the spell checker features are greyed out and say why |
+| `GUI-SPELL-03` | the assistant joins and splits words according to the spell checker |
+| `GUI-SPELL-04` | an unknown word is underlined while it is typed in the editor of a text cell, when the setting is true and a dictionary exists; without a dictionary, nothing is underlined and nothing fails |
+| `GUI-EDIT-04` | each line of a text cell and of its editor shows its length, markup not counted, in ems or in characters according to the setting, and the settings remove it |
 
-> **Ajouté par #525.** `GUI-SPELL-04` porte le total à **treize** ; elle est `implémentée`, citée par
-> dix cas : le noyau (trois), la fenêtre de réglages (un), l'éditeur de la cellule (quatre) et la fenêtre (cinq).
+> **Added by #525.** `GUI-SPELL-04` brings the total to **thirteen**; it is `implemented`, cited by
+> ten cases: the core (three), the settings window (one), the cell editor (four) and the window (five).
 >
-> **Ajouté par #526.** `GUI-EDIT-04` porte le total à **quatorze** ; elle est `implémentée`, citée par
-> quinze cas : le délégué et la mesure (six), l'éditeur de la cellule (trois), les préférences (deux) et la
-> fenêtre (quatre). Le noyau (`lineLengths` et les réglages) n'a pas d'exigence propre : ses tests le tiennent.
+> **Added by #526.** `GUI-EDIT-04` brings the total to **fourteen**; it is `implemented`, cited by
+> fifteen cases: the delegate and the measure (six), the cell editor (three), the preferences (two) and the
+> window (four). The core (`lineLengths` and the settings) has no requirement of its own: its tests hold it.
 
-**Le noyau n'a pas d'exigence**, par la règle du registre : les cas de #494 et
-#495 le tiennent, et ce sont eux que ses tests liront.
+**The core has no requirement**, by the registry's rule: the cases of #494 and
+#495 hold it, and they are what its tests will read.
 
-## Découpage
+## Split into issues
 
-**Quatre tranches**, du noyau vers la fenêtre, et le correcteur en dernier —
+**Four slices**, from the core to the window, and the spell checker last —
 D10.
 
-| Tranche | Issue | Ce qu'elle fait | Ce dont elle dépend |
-| :------ | :---- | :-------------- | :------------------ |
-| 1 — le moteur | [#498](https://github.com/Guyot-Bertrand/sub-edit/issues/498) | les motifs livrés passent dans `packaging/patterns/` et s'installent ; leur lecteur, la cascade des codes, l'activation par défaut, les motifs de l'utilisateur | — |
-| | [#499](https://github.com/Guyot-Bertrand/sub-edit/issues/499) | la traduction de syntaxe, le gabarit, la boucle du `Finder`, les erreurs courantes ; **les 184 cas passent** ; le banc permanent | [#498](https://github.com/Guyot-Bertrand/sub-edit/issues/498) |
-| | [#500](https://github.com/Guyot-Bertrand/sub-edit/issues/500) | la majuscule qui traverse les sous-titres, les quatre motifs de mentions et leurs nettoyages | [#499](https://github.com/Guyot-Bertrand/sub-edit/issues/499) |
-| | [#501](https://github.com/Guyot-Bertrand/sub-edit/issues/501) | les textes balisés : l'oracle porte le parseur de Gaupol, des cas balisés, et `transform` décide cas par cas | [#499](https://github.com/Guyot-Bertrand/sub-edit/issues/499) |
-| 2 — le découpage | [#502](https://github.com/Guyot-Bertrand/sub-edit/issues/502) | la mesure injectée, en caractères ; le découpeur de Gaupol porté ; **les 26 découpages passent** | [#498](https://github.com/Guyot-Bertrand/sub-edit/issues/498) |
-| | [#503](https://github.com/Guyot-Bertrand/sub-edit/issues/503) | la mesure en ems, par la police de l'application, et son cache | [#502](https://github.com/Guyot-Bertrand/sub-edit/issues/502) |
-| 3 — l'assistant | [#504](https://github.com/Guyot-Bertrand/sub-edit/issues/504) | au noyau : calculer les changements de plusieurs tâches sur plusieurs projets sans les toucher, appliquer une liste acceptée, le compte rendu ; les réglages | [#500](https://github.com/Guyot-Bertrand/sub-edit/issues/500), [#502](https://github.com/Guyot-Bertrand/sub-edit/issues/502) |
-| | [#505](https://github.com/Guyot-Bertrand/sub-edit/issues/505) | la fenêtre : `Correct Texts…`, ses pages de tâches, de mentions, d'erreurs courantes, de majuscules, et la confirmation | [#504](https://github.com/Guyot-Bertrand/sub-edit/issues/504), [#501](https://github.com/Guyot-Bertrand/sub-edit/issues/501) |
-| | [#506](https://github.com/Guyot-Bertrand/sub-edit/issues/506) | les pages du découpage et de ses réglages | [#505](https://github.com/Guyot-Bertrand/sub-edit/issues/505), [#503](https://github.com/Guyot-Bertrand/sub-edit/issues/503) |
-| 4 — le correcteur | [#507](https://github.com/Guyot-Bertrand/sub-edit/issues/507) | Enchant au noyau, derrière `SpellChecker`, et son double ; les heuristiques et la liste de remplacements ; l'absence de dictionnaire ; la dépendance empaquetée | — |
-| | [#508](https://github.com/Guyot-Bertrand/sub-edit/issues/508) | joindre et scinder des mots, au noyau et dans l'assistant | [#507](https://github.com/Guyot-Bertrand/sub-edit/issues/507), [#505](https://github.com/Guyot-Bertrand/sub-edit/issues/505) |
-| | [#509](https://github.com/Guyot-Bertrand/sub-edit/issues/509) | `Check Spelling…`, le dialogue | [#507](https://github.com/Guyot-Bertrand/sub-edit/issues/507) |
+| Slice | Issue | What it does | What it depends on |
+| :---- | :---- | :----------- | :----------------- |
+| 1 — the engine | [#498](https://github.com/Guyot-Bertrand/sub-edit/issues/498) | the shipped patterns move to `packaging/patterns/` and are installed; their reader, the cascade of codes, default activation, the user's patterns | — |
+| | [#499](https://github.com/Guyot-Bertrand/sub-edit/issues/499) | the syntax translation, the template, the `Finder` loop, common errors; **the 184 cases pass**; the permanent benchmark | [#498](https://github.com/Guyot-Bertrand/sub-edit/issues/498) |
+| | [#500](https://github.com/Guyot-Bertrand/sub-edit/issues/500) | capitalization that crosses subtitles, the four mention patterns and their clean-ups | [#499](https://github.com/Guyot-Bertrand/sub-edit/issues/499) |
+| | [#501](https://github.com/Guyot-Bertrand/sub-edit/issues/501) | marked-up texts: the oracle carries Gaupol's parser, marked-up cases, and `transform` decides case by case | [#499](https://github.com/Guyot-Bertrand/sub-edit/issues/499) |
+| 2 — line breaking | [#502](https://github.com/Guyot-Bertrand/sub-edit/issues/502) | the injected measure, in characters; Gaupol's line breaker ported; **the 26 line breaks pass** | [#498](https://github.com/Guyot-Bertrand/sub-edit/issues/498) |
+| | [#503](https://github.com/Guyot-Bertrand/sub-edit/issues/503) | the ems measure, through the application's font, and its cache | [#502](https://github.com/Guyot-Bertrand/sub-edit/issues/502) |
+| 3 — the assistant | [#504](https://github.com/Guyot-Bertrand/sub-edit/issues/504) | in the core: computing the changes of several tasks on several projects without touching them, applying an accepted list, the report; the settings | [#500](https://github.com/Guyot-Bertrand/sub-edit/issues/500), [#502](https://github.com/Guyot-Bertrand/sub-edit/issues/502) |
+| | [#505](https://github.com/Guyot-Bertrand/sub-edit/issues/505) | the window: `Correct Texts…`, its pages for tasks, mentions, common errors, capitalization, and the confirmation | [#504](https://github.com/Guyot-Bertrand/sub-edit/issues/504), [#501](https://github.com/Guyot-Bertrand/sub-edit/issues/501) |
+| | [#506](https://github.com/Guyot-Bertrand/sub-edit/issues/506) | the pages for line breaking and its settings | [#505](https://github.com/Guyot-Bertrand/sub-edit/issues/505), [#503](https://github.com/Guyot-Bertrand/sub-edit/issues/503) |
+| 4 — the spell checker | [#507](https://github.com/Guyot-Bertrand/sub-edit/issues/507) | Enchant in the core, behind `SpellChecker`, and its double; the heuristics and the replacement list; the absence of a dictionary; the packaged dependency | — |
+| | [#508](https://github.com/Guyot-Bertrand/sub-edit/issues/508) | joining and splitting words, in the core and in the assistant | [#507](https://github.com/Guyot-Bertrand/sub-edit/issues/507), [#505](https://github.com/Guyot-Bertrand/sub-edit/issues/505) |
+| | [#509](https://github.com/Guyot-Bertrand/sub-edit/issues/509) | `Check Spelling…`, the dialog | [#507](https://github.com/Guyot-Bertrand/sub-edit/issues/507) |
 
-La phase se clôt sur la relecture de fin, ouverte après la dernière issue.
+The phase closes on the end-of-phase review, opened after the last issue.
 
-**[#499](https://github.com/Guyot-Bertrand/sub-edit/issues/499) est la pierre d'angle**, et la plus grosse de la phase : c'est elle qui
-confronte le moteur aux attendus, et un désaccord qu'elle trouverait remettrait
-en cause l'ADR 0036 avant que rien ne soit bâti dessus. **[#507](https://github.com/Guyot-Bertrand/sub-edit/issues/507) ne dépend de
-rien** et peut se faire à tout moment ; elle est placée en tête de sa tranche
-parce que la dépendance qu'elle ajoute touche l'empaquetage, qu'il vaut mieux
-éprouver tôt que tard. **[#505](https://github.com/Guyot-Bertrand/sub-edit/issues/505) est la plus grosse de la fenêtre** : un assistant
-de plusieurs pages, dont la confirmation est une table éditable à deux textes.
+**[#499](https://github.com/Guyot-Bertrand/sub-edit/issues/499) is the cornerstone**, and the biggest of the phase: it is the one that
+confronts the engine with the expected results, and a disagreement it found would
+call ADR 0036 into question before anything is built on it. **[#507](https://github.com/Guyot-Bertrand/sub-edit/issues/507) depends on
+nothing** and can be done at any time; it is placed at the head of its slice
+because the dependency it adds touches packaging, which is better tested early
+than late. **[#505](https://github.com/Guyot-Bertrand/sub-edit/issues/505) is the biggest of the window**: a multi-page
+assistant, whose confirmation is an editable table with two texts.
 
-> **Écrit en relecture de fin de phase.** Quinze versions, de `0.12.1` à `0.12.15`. Les douze issues du
-> tableau ont été livrées dans l'ordre où il les range, #498 à #509, une pull request chacune ; les deux
-> issues d'outillage, [#494](https://github.com/Guyot-Bertrand/sub-edit/issues/494) et
-> [#495](https://github.com/Guyot-Bertrand/sub-edit/issues/495), l'ont précédé, et le cadrage
-> ([#493](https://github.com/Guyot-Bertrand/sub-edit/issues/493)) est venu après elles.
+> **Written at the end-of-phase review.** Fifteen versions, from `0.12.1` to `0.12.15`. The twelve issues of
+> the table were delivered in the order in which it lists them, #498 to #509, one pull request each; the two
+> tooling issues, [#494](https://github.com/Guyot-Bertrand/sub-edit/issues/494) and
+> [#495](https://github.com/Guyot-Bertrand/sub-edit/issues/495), preceded it, and the framing
+> ([#493](https://github.com/Guyot-Bertrand/sub-edit/issues/493)) came after them.
 
-## Les issues ouvertes par la relecture
+## The issues opened by the review
 
-Relecture de fin de phase, [#523](https://github.com/Guyot-Bertrand/sub-edit/issues/523), le 2026-09-30.
-**Deux sortes d'axes** : ceux qui demandent une décision — les renvois —, et ceux que le regard porté sur
-l'ensemble du code a trouvés. Aucun n'est corrigé par la relecture ; chacun devient une issue de la milestone
-s'il est retenu, et l'issue s'inscrit dans la colonne de droite.
+End-of-phase review, [#523](https://github.com/Guyot-Bertrand/sub-edit/issues/523), on 2026-09-30.
+**Two kinds of axes**: those that call for a decision — the deferrals —, and those that looking at
+the code as a whole found. None is fixed by the review; each becomes an issue of the milestone
+if it is retained, and the issue is recorded in the right-hand column.
 
-| Axe | Ce que la relecture a vu | Issue |
-| :-- | :----------------------- | :---- |
-| la vérification au fil de la frappe | renvoi de la spec sans destinataire : il demande un surlignage dans le délégué de la table, que rien n'a | [#525](https://github.com/Guyot-Bertrand/sub-edit/issues/525), **livrée** (D6) |
-| la longueur des lignes dans les cellules | renvoi de la spec sans destinataire : une fonction d'édition qui emprunterait la mesure de D5 | [#526](https://github.com/Guyot-Bertrand/sub-edit/issues/526), **livrée** (D5) : `GUI-EDIT-04`, trois réglages `editor.*`, la longueur après chaque ligne d'une cellule et un liseré dans l'éditeur ; la mesure passe par `CachedLineMeasure`, bornée à la police |
-| crochets et parenthèses, deux cases pour un balayage | l'assistant les présente comme deux motifs de Gaupol ; au noyau, l'une ou l'autre lance le balayage qui retire les deux. **Et la page `Mentions` liste en plus, avec les autres motifs de `Latn`, deux cases du même nom** — `hearing_impaired_correction.cpp` (`isScanOnly`) les écarte par leur nom, si bien qu'on les coche sans effet (lu, puis **reproduit** par un test rouge) | [#528](https://github.com/Guyot-Bertrand/sub-edit/issues/528), **livrée** (D7) : la liste ne les offre plus ; la distinction crochets / parenthèses reste écartée : aucune issue ne la demande |
-| le cache de longueurs | `CachedLineMeasure` n'est branché nulle part dans le programme livré (`correction_controller.cpp`) ; le banc n'a pas la version sans cache en *ems* | [#527](https://github.com/Guyot-Bertrand/sub-edit/issues/527), **livrée** (D5) : `assistantLineMeasure`, une table par calcul, et le banc qui la mesure |
-| les constats mineurs de #509 | les `Project*` du parcours, que rien ne protège si un projet se fermait pendant le dialogue ; `Save and Resume`, qui relit depuis le début du texte (`SpellCheckWalk::resumeWithText`) ; la liste de remplacements en mémoire, qui grossit à chaque application (`spell_checker.cpp`) ; un dossier de configuration vide, qui donnerait un chemin relatif (`spellReplacementFile`) | [#530](https://github.com/Guyot-Bertrand/sub-edit/issues/530), **livrée** : deux corrigés, deux écartés avec leur raison, voir l'encart de D6 |
-| un nom de motif à virgule | `correction.activations` se lit en tout ou rien, la virgule étant son séparateur : un seul nom pareil fait perdre toutes les dérogations (`settings.cpp`) | [#529](https://github.com/Guyot-Bertrand/sub-edit/issues/529), **livrée** : la virgule et la barre oblique inverse s'échappent, une entrée illisible ne coûte que son réglage |
-| `Closes #N` sans lien | la PR #522 portait la ligne et `closingIssuesReferences` est resté vide ; cause inconnue, puis disparue : d'autres PR, de même forme, ont lié leur issue ensuite — un défaut passager de GitHub | [#531](https://github.com/Guyot-Bertrand/sub-edit/issues/531), fermée sans contrôle ajouté |
+| Axis | What the review saw | Issue |
+| :--- | :------------------ | :---- |
+| checking as you type | a deferral of the spec without a recipient: it requires highlighting in the table's delegate, which nothing has | [#525](https://github.com/Guyot-Bertrand/sub-edit/issues/525), **delivered** (D6) |
+| the length of lines in the cells | a deferral of the spec without a recipient: an editing feature that would borrow the measure of D5 | [#526](https://github.com/Guyot-Bertrand/sub-edit/issues/526), **delivered** (D5): `GUI-EDIT-04`, three `editor.*` settings, the length after each line of a cell and a strip in the editor; the measure goes through `CachedLineMeasure`, bounded by the font |
+| brackets and parentheses, two boxes for one scan | the assistant presents them as two Gaupol patterns; in the core, either one launches the scan that removes both. **And the `Mentions` page also lists, with the other `Latn` patterns, two boxes of the same name** — `hearing_impaired_correction.cpp` (`isScanOnly`) sets them aside by their name, so that they are checked without effect (read, then **reproduced** by a red test) | [#528](https://github.com/Guyot-Bertrand/sub-edit/issues/528), **delivered** (D7): the list no longer offers them; the bracket / parenthesis distinction stays set aside: no issue asks for it |
+| the length cache | `CachedLineMeasure` is wired nowhere in the shipped program (`correction_controller.cpp`); the benchmark does not have the version without a cache in *ems* | [#527](https://github.com/Guyot-Bertrand/sub-edit/issues/527), **delivered** (D5): `assistantLineMeasure`, one table per computation, and the benchmark that measures it |
+| the minor findings of #509 | the walk's `Project*` pointers, which nothing protects if a project closed during the dialog; `Save and Resume`, which rereads from the start of the text (`SpellCheckWalk::resumeWithText`); the in-memory replacement list, which grows on each application (`spell_checker.cpp`); an empty configuration directory, which would give a relative path (`spellReplacementFile`) | [#530](https://github.com/Guyot-Bertrand/sub-edit/issues/530), **delivered**: two fixed, two dismissed with their reason, see the box of D6 |
+| a pattern name with a comma | `correction.activations` is read all or nothing, the comma being its separator: a single such name makes all the overrides get lost (`settings.cpp`) | [#529](https://github.com/Guyot-Bertrand/sub-edit/issues/529), **delivered**: the comma and the backslash are escaped, an unreadable entry costs only its own setting |
+| `Closes #N` without a link | PR #522 carried the line and `closingIssuesReferences` stayed empty; cause unknown, then gone: other PRs, of the same form, linked their issue afterwards — a transient GitHub defect | [#531](https://github.com/Guyot-Bertrand/sub-edit/issues/531), closed without an added check |
 
-**Écartés, avec leur raison.**
+**Set aside, with their reason.**
 
-- **`MainWindow`** : 1 478 lignes à la clôture de la phase 11, **1 578** aujourd'hui (l'en-tête, de 692 à 747).
-  `CorrectionSide`, qui répond aux deux contrôleurs, en pèse soixante-quatre : la logique est dans
-  `CorrectionController` et `SpellCheckController`, la fenêtre n'a gardé que le câblage. Une extraction de
-  plus ne déplacerait que ces soixante-quatre lignes.
-- **Le cliquet de langue** a tenu : **plus une ligne de commentaire française dans le C++**, et
-  [#325](https://github.com/Guyot-Bertrand/sub-edit/issues/325) est fermée depuis le 2026-09-06. Les chiffres
-  de 1 161 lignes que `CLAUDE.md` et la feuille de route citent encore sont ceux de la relecture de la phase 8.
-- **La dépendance Enchant** est tirée par les paquets réels de `0.12.15` : `libenchant-2-2` au `.deb`,
-  `enchant2` et `libenchant-2.so.2` au `.rpm`. Que `dnf` la résolve est éprouvé par `fedora.yml`, chaque semaine.
-- **Le banc** : quatre relevés pour quinze versions — `0.12.7`, `0.12.8`, `0.12.9` et `0.12.12` —, plus celui
-  de `0.12.0` qui clôt la phase 11, la machine ayant été trouvée chargée le reste du temps ; le relevé de `0.13.0` est dû à la clôture
+- **`MainWindow`**: 1,478 lines at the close of phase 11, **1,578** today (the header, from 692 to 747).
+  `CorrectionSide`, which answers both controllers, weighs sixty-four of them: the logic is in
+  `CorrectionController` and `SpellCheckController`, the window has kept only the wiring. One more
+  extraction would only move those sixty-four lines.
+- **The language ratchet** held: **not one line of French comment left in the C++**, and
+  [#325](https://github.com/Guyot-Bertrand/sub-edit/issues/325) has been closed since 2026-09-06. The figures
+  of 1,161 lines that `CLAUDE.md` and the roadmap still cite are those of the phase 8 review.
+- **The Enchant dependency** is pulled in by the real packages of `0.12.15`: `libenchant-2-2` in the `.deb`,
+  `enchant2` and `libenchant-2.so.2` in the `.rpm`. That `dnf` resolves it is tested by `fedora.yml`, every week.
+- **The benchmark**: four records for fifteen versions — `0.12.7`, `0.12.8`, `0.12.9` and `0.12.12` —, plus that
+  of `0.12.0` which closes phase 11, the machine having been found loaded the rest of the time; the record of `0.13.0` is due at the close
   ([#270](https://github.com/Guyot-Bertrand/sub-edit/issues/270)).

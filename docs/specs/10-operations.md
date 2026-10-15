@@ -1,433 +1,432 @@
-# Phase 10 — Opérations complémentaires
+# Phase 10 — Additional operations
 
-Cadrage de l'issue [#370](https://github.com/Guyot-Bertrand/sub-edit/issues/370),
-après l'initialisation [#369](https://github.com/Guyot-Bertrand/sub-edit/issues/369).
+Framing of issue [#370](https://github.com/Guyot-Bertrand/sub-edit/issues/370),
+after the initialisation [#369](https://github.com/Guyot-Bertrand/sub-edit/issues/369).
 
-## Ce que la feuille de route promet, et ce qui est déjà là
+## What the roadmap promises, and what is already there
 
-Ajustement des durées, casse, italiques, tirets de dialogue, fusion, scission,
-recherche et remplacement, presse-papiers.
+Duration adjustment, case, italics, dialogue dashes, merging, splitting,
+search and replace, clipboard.
 
-**C'est la première phase où le sujet n'est pas une propriété du fichier.** Les
-phases 8 et 9 répondaient à des questions qui ont une bonne réponse : dans quel
-encodage ce fichier est-il, ce format porte-t-il une fin. Ici, la plupart des
-opérations n'ont pas de bonne réponse unique — elles ont un résultat qu'un
-utilisateur trouve acceptable ou non. Le cadrage doit donc dire **qui décide**,
-et pas seulement quoi calculer.
+**This is the first phase whose subject is not a property of the file.**
+Phases 8 and 9 answered questions that have a right answer: what encoding is
+this file in, does this format carry an end. Here, most operations have no
+single right answer — they have a result a user finds acceptable or not. The
+framing must therefore say **who decides**, and not only what to compute.
 
-Quatre choses sont déjà faites quand ce cadrage s'écrit, et elles changent son
-contenu :
+Four things are already done when this framing is written, and they change its
+content:
 
-| Issue | Ce qu'elle a livré |
-| :---- | :----------------- |
-| [#365](https://github.com/Guyot-Bertrand/sub-edit/issues/365) | l'italique — **une entrée, pas trois** |
-| [#371](https://github.com/Guyot-Bertrand/sub-edit/issues/371) | le recensement des contradictions de durée |
-| [#372](https://github.com/Guyot-Bertrand/sub-edit/issues/372) | les cas de la recherche balisée, et la règle qu'ils fixent |
-| [#373](https://github.com/Guyot-Bertrand/sub-edit/issues/373) | les deux fixtures de grille que la phase 16 avait laissées |
+| Issue | What it delivered |
+| :---- | :---------------- |
+| [#365](https://github.com/Guyot-Bertrand/sub-edit/issues/365) | italics — **one entry, not three** |
+| [#371](https://github.com/Guyot-Bertrand/sub-edit/issues/371) | the census of duration contradictions |
+| [#372](https://github.com/Guyot-Bertrand/sub-edit/issues/372) | the cases of markup-aware search, and the rule they set |
+| [#373](https://github.com/Guyot-Bertrand/sub-edit/issues/373) | the two grid fixtures that phase 16 had left |
 
-## Analyse préalable — ce que Gaupol fait
+## Preliminary analysis — what Gaupol does
 
-Lue dans `aeidon/agents/position.py`, `format.py`, `edit.py`, `clipboard.py`,
-`parser.py` et `finder.py`, et **exécutée** là où la lecture ne suffisait pas.
-L'inventaire porte le détail ; trois constats gouvernent ce qui suit.
+Read in `aeidon/agents/position.py`, `format.py`, `edit.py`, `clipboard.py`,
+`parser.py` and `finder.py`, and **executed** where reading was not enough.
+The inventory carries the detail; three findings govern what follows.
 
-**Un parseur conscient des balises est au centre.** `aeidon/parser.py` retire
-les balises, retient leurs positions, laisse transformer le texte nu, puis les
-remet. La casse et les tirets passent par lui. Ce
-n'est pas le pivot de l'ADR 0031, qui traduit un vocabulaire en un autre et
-retire ce qu'il ne sait pas porter ; l'ADR le dit elle-même — « ce sont deux
-pièces différentes ».
+**A markup-aware parser is at the centre.** `aeidon/parser.py` removes the
+tags, remembers their positions, lets the bare text be transformed, then puts
+them back. Case and dashes go through it. This
+is not the pivot of ADR 0031, which translates one vocabulary into another and
+removes what it cannot carry; the ADR says so itself — "they are two different
+pieces".
 
-**`adjust_durations` n'a pas de priorités, il a un ordre de lignes.** Vitesse,
-minimum, maximum, écart ; seule la fin bouge ; la dernière contrainte appliquée
-gagne et défait la précédente, sans le dire.
+**`adjust_durations` has no priorities, it has an order of lines.** Reading
+speed, minimum, maximum, gap; only the end moves; the last constraint applied
+wins and undoes the previous one, without saying so.
 
-**Le presse-papiers ne transporte que des textes.** `aeidon/clipboard.py` est
-une liste de chaînes, une par sous-titre. Ni positions, ni format, ni sous-titre
-entier — ce que l'issue de cadrage croyait, et que la lecture a démenti.
+**The clipboard carries only texts.** `aeidon/clipboard.py` is a list of
+strings, one per subtitle. No positions, no format, no whole subtitle — which
+is what the framing issue believed, and what reading disproved.
 
-## D1 — Le parseur conscient des balises, et ce qu'il décide
+## D1 — The markup-aware parser, and what it decides
 
-**La pièce que l'ADR 0009 annonce depuis la phase 1 est écrite ici.** Trois
-opérations l'attendent, et aucune ne peut s'en passer : appliquer une expression
-au texte source casse les balises, et l'ADR en donne l'exemple — `\[.*?\]` qui
-avale une ouvrante et laisse sa fermante orpheline.
+**The piece that ADR 0009 has announced since phase 1 is written here.** Three
+operations are waiting for it, and none can do without it: applying an
+expression to the source text breaks the tags, and the ADR gives the example —
+`\[.*?\]` swallowing an opening tag and leaving its closing tag orphaned.
 
-**Sa règle est écrite cas par cas, et le corpus est la spécification.**
-`src/test/data/textes/recherche.cas` en porte trente et un dans le vocabulaire
-HTML, `recherche-accolades.cas` huit en Sub Station Alpha, et la règle est en
-tête du premier, en six points. Les deux qui décident :
+**Its rule is written case by case, and the corpus is the specification.**
+`src/test/data/textes/recherche.cas` carries thirty-one of them in the HTML
+vocabulary, `recherche-accolades.cas` eight in Sub Station Alpha, and the rule
+is at the head of the first, in six points. The two that decide:
 
-1. **Une frontière de balise qui coupe un mot est poussée au bord du mot**,
-   vers l'extérieur, avant qu'on cherche quoi que ce soit. `<i>bon</i>jour` vaut
+1. **A tag boundary that cuts a word is pushed to the edge of the word**,
+   outwards, before anything is searched. `<i>bon</i>jour` is worth
    `<i>bonjour</i>`.
-2. **Tout style qui touche la correspondance couvre le remplacement entier.**
+2. **Any style that touches the match covers the whole replacement.**
 
-> **Tranché en #402 : ces deux règles sont celles du remplacement, et de lui
-> seul.** Le parseur les appliquait dès sa construction, donc à toute opération
-> qui passait par lui : la casse déplaçait une balise qui coupait un mot, un
-> remplacement réécrivait des balises qu'il ne touchait pas, deux `<font>` de
-> deux couleurs fusionnaient sur leur nom, et une espace insécable ou un
-> guillemet comptaient pour des lettres. Désormais :
+> **Settled in #402: these two rules are those of replacement, and of
+> replacement alone.** The parser applied them from its construction, hence to
+> every operation that went through it: case moved a tag that cut a word, a
+> replacement rewrote tags it did not touch, two `<font>` of two colours merged
+> on their name, and a non-breaking space or a quotation mark counted as
+> letters. From now on:
 >
-> | Opération | Ce que deviennent les balises |
-> | :-------- | :---------------------------- |
-> | remplacement | celles que la correspondance atteint sont poussées au bord du mot, puis couvrent le remplacement ; les autres ne bougent pas |
-> | transformation — casse, tirets | **aucune ne bouge** : `<i>Bon</i>jour` en capitales donne `<i>BON</i>JOUR` |
+> | Operation | What becomes of the tags |
+> | :-------- | :----------------------- |
+> | replacement | those the match reaches are pushed to the edge of the word, then cover the replacement; the others do not move |
+> | transformation — case, dashes | **none moves**: `<i>Bon</i>jour` in capitals gives `<i>BON</i>JOUR` |
 >
-> Deux plages ne fusionnent que si **la balise entière** est la même, attributs
-> compris, et un mot est fait de **lettres et de chiffres**, lus par point de
-> code.
+> Two ranges merge only if **the whole tag** is the same, attributes
+> included, and a word is made of **letters and digits**, read code point by
+> code point.
 
-> **Un seul lecteur de balises, depuis #403.** Le pivot, le parseur, l'italique
-> et l'analyseur de mentions lisaient chacun les leurs, et se contredisaient.
-> `core/text/markup_reader` décide désormais pour tous :
+> **A single markup reader, since #403.** The pivot, the parser, italics and
+> the hearing-impaired mentions analyser each read their own, and contradicted
+> one another. `core/text/markup_reader` now decides for all of them:
 >
-> | Règle | Ce qu'elle tranche |
-> | :---- | :----------------- |
-> | une balise se ferme sur sa ligne, avant tout second ouvrant | un `<` seul est du texte, et n'avale pas la balise qui suit |
-> | un repère MPL2 n'en est un qu'en tête de ligne | `{y:b}/Bonjour` porte un `/` visible |
-> | le nom d'une balise HTML s'arrête à une espace ou une tabulation | `<i >` et `<b class="x">` sont de l'italique et du gras pour tous |
-> | une balise auto-fermante ne nomme rien | `<i/>` n'ouvre aucun italique |
-> | l'analyseur de mentions lit les balises du format | `{\i1}[SOUPIR]{\i0}` est vidé ; le `(320,50)` d'un `\pos` n'est pas une mention |
+> | Rule | What it settles |
+> | :--- | :-------------- |
+> | a tag closes on its own line, before any second opening bracket | a lone `<` is text, and does not swallow the tag that follows |
+> | an MPL2 marker is only one at the start of a line | `{y:b}/Bonjour` carries a visible `/` |
+> | the name of an HTML tag stops at a space or a tab | `<i >` and `<b class="x">` are italic and bold for everyone |
+> | a self-closing tag names nothing | `<i/>` opens no italic |
+> | the mentions analyser reads the format's tags | `{\i1}[SOUPIR]{\i0}` is emptied; the `(320,50)` of a `\pos` is not a mention |
 
-> **Écrit en relecture de fin de phase.** Le corpus a bougé une fois après le
-> cadrage : #378 a corrigé une réponse attendue de `recherche.cas` — deux styles
-> voisins sur un même mot, `<i>Bon</i><b>jour</b>` — et ajouté en tête du
-> fichier une règle d'ordre que les six points ne portaient pas. La réponse
-> écrite avant le code se contredisait elle-même ; c'est le corpus qui a été
-> corrigé, et il reste la spécification.
+> **Written at the end-of-phase review.** The corpus moved once after the
+> framing: #378 corrected an expected answer of `recherche.cas` — two
+> neighbouring styles on the same word, `<i>Bon</i><b>jour</b>` — and added at
+> the head of the file an ordering rule that the six points did not carry. The
+> answer written before the code contradicted itself; it is the corpus that was
+> corrected, and it remains the specification.
 
-**Ce que cela écarte, et pourquoi.** Gaupol n'a pas de règle sur le premier
-point, seulement une arithmétique de décalage, et la frontière retombe à une
-place sans rapport avec le texte neuf — `<i>Bon</i>jour` remplacé par
-`Bonjour tout le monde` lui rend `<i>Bonjour tout le m</i>onde`. Mesuré en
-exécutant son parseur. C'est le seul endroit où cette phase s'écarte de lui
-délibérément, et l'inventaire le porte.
+**What this rules out, and why.** Gaupol has no rule on the first point, only
+an offset arithmetic, and the boundary falls back to a place unrelated to the
+new text — `<i>Bon</i>jour` replaced by `Bonjour tout le monde` gives it
+`<i>Bonjour tout le m</i>onde`. Measured by running its parser. This is the
+only place where this phase deliberately departs from it, and the inventory
+records it.
 
-> **Corrigé en relecture de fin de phase : l'écart est plus large.** La
-> recherche de Gaupol **ne passe pas par son parseur** : `SearchAgent` cherche
-> dans le texte stocké, balises comprises, avec un `Finder` nu. Chez lui `<i>` se
-> trouve, et `Bonjour` ne trouve pas `<i>Bon</i>jour`. L'exemple ci-dessus décrit
-> ce que son parseur ferait, pas ce que son dialogue fait. Chercher dans le texte
-> visible est donc un choix de cette phase, pas une reprise corrigée — c'est
-> celui du point difficile que la feuille de route posait. Et la cible des
-> écarts délibérés compte d'autres lignes, que D4, D5 et D7 portent désormais.
+> **Corrected at the end-of-phase review: the gap is wider.** Gaupol's search
+> **does not go through its parser**: `SearchAgent` searches the stored text,
+> tags included, with a bare `Finder`. In Gaupol `<i>` can be found, and
+> `Bonjour` does not find `<i>Bon</i>jour`. The example above describes what
+> its parser would do, not what its dialog does. Searching the visible text is
+> therefore a choice of this phase, not a corrected takeover — it is the choice
+> of the hard point the roadmap raised. And the list of deliberate gaps has
+> other lines, which D4, D5 and D7 now carry.
 
-La règle « le remplacement prend le style de son premier caractère » a été
-écartée pour une raison qui se voit : elle n'est pas symétrique. Elle répond
-`<i>Salut Sophie</i>` ou `Salut Sophie` pour la même forme, selon laquelle des
-deux moitiés portait l'italique.
+The rule "the replacement takes the style of its first character" was ruled
+out for a reason that can be seen: it is not symmetric. It answers
+`<i>Salut Sophie</i>` or `Salut Sophie` for the same shape, depending on which
+of the two halves carried the italic.
 
-**Conséquence d'implémentation, et elle est ferme :** le parseur ne peut pas
-être bâti sur `decodeAs`/`encodeAs`. Une balise laissée ouverte doit le rester —
-un décodage suivi d'un ré-encodage la refermerait et changerait des octets que
-personne n'a demandé de changer. Et une balise de mise en page, `{\pos(x,y)}`,
-doit traverser intacte, là où le pivot la compte comme perdue.
+**Implementation consequence, and it is firm:** the parser cannot be built on
+`decodeAs`/`encodeAs`. A tag left open must stay open — a decoding followed by
+a re-encoding would close it and change bytes nobody asked to change. And a
+layout tag, `{\pos(x,y)}`, must go through intact, where the pivot counts it as
+lost.
 
-## D2 — L'ordre des quatre contraintes de durée, et ce qui est sacrifié
+## D2 — The order of the four duration constraints, and what is sacrificed
 
-**L'ordre est celui de Gaupol** — vitesse de lecture, durée minimale, durée
-maximale, écart au suivant — et **seule la fin bouge**. Le début n'est jamais
-touché ; le déplacer serait déplacer le sous-titre, ce qui est le travail de
+**The order is Gaupol's** — reading speed, minimum duration, maximum duration,
+gap to the next — and **only the end moves**. The start is never touched;
+moving it would be moving the subtitle, which is the job of
 `Shift Positions…`.
 
-**L'écart gagne, et les trois autres sont des vœux.** Il est appliqué en dernier
-et peut ramener la durée sous le minimum qu'on venait de poser. Ce n'est pas un
-défaut hérité : c'est la seule hiérarchie défendable. Deux sous-titres à l'écran
-en même temps sont un défaut que le spectateur voit ; un sous-titre un peu court
-ne l'est pas.
+**The gap wins, and the other three are wishes.** It is applied last and can
+bring the duration back under the minimum that had just been set. This is not
+an inherited defect: it is the only defensible hierarchy. Two subtitles on
+screen at the same time are a defect the viewer sees; a slightly short
+subtitle is not.
 
-**Ce qui est sacrifié est dit**, dans l'esprit de l'[ADR 0008](../adr/0008-lecture-au-mieux-avec-diagnostics.md) —
-rapporter plutôt que taire.
-C'est le seul point où nous ajoutons quelque chose à Gaupol, qui viole en
-silence, et c'est le même geste que l'ADR 0031 pour la conversion.
+**What is sacrificed is stated**, in the spirit of [ADR 0008](../adr/0008-lecture-au-mieux-avec-diagnostics.md) —
+report rather than keep quiet.
+This is the only point where we add something to Gaupol, which violates in
+silence, and it is the same move as ADR 0031 for conversion.
 
-**La contradiction n'est pas un cas de bord, et c'est mesuré.** Sur le corpus
-privé, avec les défauts de Gaupol — minimum 1,5 s, maximum 6 s, écart 0 s,
-vitesse 15 car/s :
+**The contradiction is not an edge case, and that is measured.** On the private
+corpus, with Gaupol's defaults — minimum 1.5 s, maximum 6 s, gap 0 s,
+speed 15 char/s:
 
-| Ce qu'aucune fin ne peut satisfaire ensemble | Part des sous-titres |
-| :------------------------------------------- | -------------------: |
-| minimum contre écart | 4,5 % |
-| vitesse contre écart | 9,2 % |
-| vitesse contre maximum | 0,0 % |
-| **au moins l'une des trois** | **12,9 %** |
+| What no end can satisfy together | Share of subtitles |
+| :------------------------------- | -----------------: |
+| minimum against gap | 4.5 % |
+| speed against gap | 9.2 % |
+| speed against maximum | 0.0 % |
+| **at least one of the three** | **12.9 %** |
 
-Rejouable par `./src/scripts/measure-duration-constraints.py`, issue #371. Un
-sous-titre sur huit : refuser l'opération sur ces cas-là la rendrait inutile, et
-les violer en silence rendrait son résultat incompréhensible.
+Replayable with `./src/scripts/measure-duration-constraints.py`, issue #371.
+One subtitle in eight: refusing the operation on those cases would make it
+useless, and violating them in silence would make its result incomprehensible.
 
-**Une contrainte inactive est absente, pas nulle.** Chez Gaupol, un minimum de
-zéro désactive le minimum par accident — `minimum and …` est faux pour zéro, et
-l'écart, testé par `gap is not None`, n'a pas ce défaut. Trois paramètres, deux
-conventions. Ici elles s'expriment en `std::optional`, et zéro vaut zéro.
+**An inactive constraint is absent, not zero.** In Gaupol, a minimum of zero
+disables the minimum by accident — `minimum and …` is false for zero, and the
+gap, tested by `gap is not None`, does not have this defect. Three parameters,
+two conventions. Here they are expressed as `std::optional`, and zero means
+zero.
 
-**Le dernier sous-titre n'a pas de suivant, et n'a pas de borne pour autant.**
-Gaupol lui donne 360 000 s, soit cent heures ; un nombre en dur qui vaut « pas
-de contrainte » s'écrit comme tel.
+**The last subtitle has no next one, and has no bound for all that.** Gaupol
+gives it 360 000 s, that is a hundred hours; a hard-coded number that means
+"no constraint" is written as such.
 
-**La longueur du texte se compte hors balises**, comme `get_text_length` : la
-vitesse de lecture parle de ce que le spectateur lit.
+**The length of the text is counted without the tags**, like
+`get_text_length`: reading speed is about what the viewer reads.
 
-## D3 — Une durée saisie déplace la fin
+## D3 — An entered duration moves the end
 
-**Renvoi du cadrage de la phase 5.** La colonne `Duration` s'affiche et ne se
-saisit pas, faute d'une commande dans le noyau ; elle naît ici.
+**Deferral from the phase 5 framing.** The `Duration` column is displayed and
+cannot be edited, for lack of a command in the core; that command is born here.
 
-> **Corrigé en relecture de fin de phase.** Le cadrage ajoutait « dont D2 a
-> besoin de toute façon » : c'est faux, l'ajustement pose la fin par la commande
-> de position qui existait déjà, et `SetDurationCommand` n'a que la cellule pour
-> appelant.
+> **Corrected at the end-of-phase review.** The framing added "which D2 needs
+> anyway": that is wrong, the adjustment sets the end through the position
+> command that already existed, and `SetDurationCommand` has only the cell as
+> its caller.
 
-**La fin, et jamais le début.** C'est la borne que l'ajustement déplace, la
-colonne `Start` se saisit déjà, et déplacer le début déplacerait le sous-titre.
+**The end, and never the start.** It is the bound the adjustment moves, the
+`Start` column can already be edited, and moving the start would move the
+subtitle.
 
-**Un chevauchement créé par le geste est permis, et il est déjà dit.**
-`scanAnomalies` relève `OverlappingSubtitles` depuis la phase 1 et la table le
-teinte. Le cadrage écrivait « le panneau de diagnostics l'affiche » : ce panneau
-ne parle que de la lecture du fichier et n'est alimenté qu'à l'ouverture —
-corrigé en relecture de fin de phase. Refuser une saisie dont la conséquence est visible serait
-refuser ce que l'utilisateur peut vouloir — c'est la décision D4 de la phase 5,
-un avis et jamais un refus.
+**An overlap created by the gesture is allowed, and it is already reported.**
+`scanAnomalies` has flagged `OverlappingSubtitles` since phase 1 and the table
+tints it. The framing wrote "the diagnostics panel shows it": that panel speaks
+only of reading the file and is fed only on opening —
+corrected at the end-of-phase review. Refusing an entry whose consequence is
+visible would be refusing what the user may want — this is decision D4 of
+phase 5, a warning and never a refusal.
 
-## D4 — La casse et les tirets passent par le parseur, et la casse passe par ICU
+## D4 — Case and dashes go through the parser, and case goes through ICU
 
-**Par le parseur, comme chez Gaupol.** Mettre un sous-titre en minuscules ne
-doit pas transformer `<I>` en `<i>`, et un tiret de dialogue se pose devant le
-texte, pas devant une balise ouvrante. **Et aucune balise ne change de place** —
-tranché en #402 : la règle du bord du mot, en D1, est celle du remplacement.
+**Through the parser, as in Gaupol.** Putting a subtitle in lower case must not
+turn `<I>` into `<i>`, and a dialogue dash goes in front of the text, not in
+front of an opening tag. **And no tag changes place** — settled in #402: the
+word-edge rule, in D1, is that of replacement.
 
-**ICU porte les quatre casses.** `std::toupper` travaille octet par octet et
-couperait une lettre accentuée en deux ; ICU est une dépendance du projet depuis
-l'[ADR 0027](../adr/0027-icu-pour-les-encodages.md) et sait faire les quatre, la
-casse de titre comprise. Aucune dépendance nouvelle, et la seule alternative
-sérieuse — une table écrite à la main — serait fausse pour toutes les langues
-qu'on n'aurait pas prévues.
+**ICU carries the four cases.** `std::toupper` works byte by byte and would cut
+an accented letter in two; ICU has been a project dependency since
+[ADR 0027](../adr/0027-icu-pour-les-encodages.md) and can do all four, title
+case included. No new dependency, and the only serious alternative — a
+hand-written table — would be wrong for every language that had not been
+foreseen.
 
-> **Précisé en #401 : dans la locale racine, et en suivant ce qu'ICU réécrit.**
-> Appelé sans locale, ICU casait selon celle du processus — `istanbul` en
-> capitales rendait `İSTANBUL` sous `LANG=tr_TR`. Et une casse change la longueur
-> d'une lettre — `ﬁ` devient `FI`, `İ` deux points de code — si bien que remettre
-> les balises à leur décalage en octets en écrivait une au milieu d'un caractère,
-> ou en perdait une. Les balises suivent désormais les éditions qu'ICU
-> enregistre. Casser selon la langue du document est une question de la
-> phase 15.
+> **Clarified in #401: in the root locale, and following what ICU rewrites.**
+> Called without a locale, ICU cased according to the process's — `istanbul` in
+> capitals gave `İSTANBUL` under `LANG=tr_TR`. And a case change alters the
+> length of a letter — `ﬁ` becomes `FI`, `İ` two code points — so that putting
+> the tags back at their byte offset wrote one in the middle of a character, or
+> lost one. The tags now follow the edits ICU records. Casing according to the
+> document's language is a question for phase 15.
 
-**La casse ne touche pas ce qui précède la première lettre.** Gaupol cherche le
-premier caractère alphanumérique et n'applique la transformation qu'à partir de
-là : un tiret de dialogue, un guillemet ouvrant, une parenthèse survivent.
+**Case does not touch what precedes the first letter.** Gaupol looks for the
+first alphanumeric character and applies the transformation only from there:
+a dialogue dash, an opening quotation mark, a parenthesis survive.
 
-**Le tiret est un basculement qui regarde toute la cible** : si une seule ligne
-n'en a pas, toutes en gagnent un ; sinon toutes le perdent. C'est la règle que
-l'italique de #365 a déjà posée — une entrée, deux sens, et appuyer deux fois
-rend la cible telle qu'elle était.
+**The dash is a toggle that looks at the whole target**: if a single line has
+none, all of them gain one; otherwise all of them lose it. This is the rule
+that the italics of #365 already set — one entry, two directions, and pressing
+twice gives the target back as it was.
 
-> **Précisé en relecture de fin de phase : pour une cible homogène.** Le geste
-> normalise ce qu'il touche. Une cible panachée part d'un bloc et ne revient pas
-> panachée, et un cadratin `—` revient trait d'union. C'est le prix d'un bouton
-> unique ; l'historique, lui, rend l'état exact.
+> **Clarified at the end-of-phase review: for a homogeneous target.** The
+> gesture normalises what it touches. A mixed target leaves as a block and does
+> not come back mixed, and an em dash `—` comes back as a hyphen. That is the
+> price of a single button; the history, for its part, restores the exact state.
 
-> **Deux écarts à Gaupol, inscrits en relecture de fin de phase.** Sa règle des
-> tirets ne reconnaît que le trait d'union, et une ligne vide y compte comme une
-> ligne sans tiret — il en pose donc sur les lignes vides. Ici les trois tirets
-> sont reconnus et les lignes vides ignorées : une cible toute en cadratins gagne
-> des tirets chez lui et les perd ici. Et sa casse de titre est `str.title`, qui
-> rend `L'Été` ; celle d'ICU rend `L'été`.
+> **Two gaps from Gaupol, recorded at the end-of-phase review.** Its dash rule
+> recognises only the hyphen, and an empty line counts there as a line without
+> a dash — so it puts dashes on empty lines. Here the three dashes are
+> recognised and empty lines ignored: a target entirely in em dashes gains
+> dashes in Gaupol and loses them here. And its title case is `str.title`, which
+> gives `L'Été`; ICU's gives `L'été`.
 
-## D5 — La fusion recolle, la scission coupe au milieu de la durée
+## D5 — Merging joins, splitting cuts in the middle of the duration
 
-**Fusionner** prend le début du premier, la fin du dernier, et recolle les
-textes non vides par un saut de ligne.
+**Merging** takes the start of the first, the end of the last, and joins the
+non-empty texts with a line break.
 
-**Scinder** coupe au milieu de la durée : le premier garde tout le texte, le
-second naît vide. C'est `split_subtitle`, retenu tel quel — **à une différence
-près, relevée en relecture de fin de phase** : Gaupol remet aux défauts les
-champs propres au format des deux moitiés, et la première les garde ici, comme
-la ligne fusionnée.
+**Splitting** cuts in the middle of the duration: the first keeps all the text,
+the second is born empty. This is `split_subtitle`, kept as is — **with one
+difference, found at the end-of-phase review**: Gaupol resets the
+format-specific fields of both halves to their defaults, and here the first
+keeps them, like the merged line.
 
-> **Couper le texte à son saut de ligne a été écarté.** C'est tentant — un
-> sous-titre de deux lignes en ferait deux d'une ligne — et c'est faux dès qu'il
-> en a une ou trois. Une règle qui marche sur le cas fréquent et invente sur les
-> autres est pire qu'une règle prévisible.
+> **Cutting the text at its line break was ruled out.** It is tempting — a
+> two-line subtitle would make two one-line ones — and it is wrong as soon as it
+> has one or three. A rule that works on the frequent case and makes things up
+> on the others is worse than a predictable rule.
 
-**Une commande par geste, chacune annulable d'un coup.** La phase 2 a posé que
-l'historique est un compte fidèle de ce qui a été fait : fusionner cinq
-sous-titres est une entrée, pas cinq.
+**One command per gesture, each undoable in one go.** Phase 2 laid down that
+the history is a faithful account of what was done: merging five subtitles is
+one entry, not five.
 
-**Trois choix faits par #380, inscrits en relecture de fin de phase :**
+**Three choices made by #380, recorded at the end-of-phase review:**
 
-- **la fusion ne prend qu'un bloc de lignes voisines** — le noyau reçoit un
-  intervalle, pas une `Selection` : fusionner 1 et 3 sans 2 recouvrirait la 2 ;
-- **le style, la couche et les coordonnées de la première sont gardés**, là où
-  Gaupol les perd ;
-- **pas de raccourcis `M` et `S`** : une lettre seule serait prise à la table
-  avant d'atteindre une cellule en cours d'édition.
+- **merging takes only a block of neighbouring lines** — the core receives an
+  interval, not a `Selection`: merging 1 and 3 without 2 would cover line 2;
+- **the style, the layer and the coordinates of the first are kept**, where
+  Gaupol loses them;
+- **no `M` and `S` shortcuts**: a single letter would be taken by the table
+  before reaching a cell being edited.
 
-## D6 — Le presse-papiers porte des textes, et traduit ce qu'il dépose
+## D6 — The clipboard carries texts, and translates what it drops
 
-**Des textes, et rien d'autre.** C'est ce que Gaupol transporte, et il n'y a pas
-de raison d'en transporter plus : coller des positions écraserait un calage que
-personne n'a demandé de toucher.
+**Texts, and nothing else.** That is what Gaupol carries, and there is no
+reason to carry more: pasting positions would overwrite a timing nobody asked
+to touch.
 
-**Coller ne déplace aucune position et crée des lignes s'il en manque.** C'est
-`paste_texts`, qui insère des sous-titres vides à la fin pour recevoir ce qui
-dépasse, et dit combien.
+**Pasting moves no position and creates lines if some are missing.** This is
+`paste_texts`, which inserts empty subtitles at the end to receive what
+overflows, and says how many.
 
-**Un texte vide, copié, est un trou** — tranché par #417. Le texte brut que le
-presse-papiers du système reçoit ne distingue pas un trou d'un texte vide : les
-deux s'y écrivent comme un morceau vide entre deux lignes vides. Une copie qui les
-gardait distincts se collait donc de deux façons selon la route — depuis la
-même fenêtre, le texte vide écrasait la ligne cible ; relue depuis le système, il
-la laissait telle quelle. Gaupol ne connaît qu'une route : `_paste_texts` lit
-toujours le presse-papiers du système d'abord, et `set_string` y relit tout `""`
-comme `None`, c'est-à-dire un trou. `subedit` fait de même, une fois, à la copie :
-une ligne sélectionnée sans texte s'enregistre comme une ligne laissée hors de la
-sélection, et la ligne cible garde son texte.
+**An empty text, when copied, is a hole** — settled by #417. The plain text the
+system clipboard receives does not distinguish a hole from an empty text: both
+are written there as an empty chunk between two empty lines. A copy that kept
+them distinct was therefore pasted in two ways depending on the route — from
+the same window, the empty text overwrote the target line; read back from the
+system, it left it as it was. Gaupol knows only one route: `_paste_texts`
+always reads the system clipboard first, and `set_string` reads back any `""`
+there as `None`, that is, a hole. `subedit` does the same, once, on copying:
+a selected line without text is recorded as a line left out of the
+selection, and the target line keeps its text.
 
-**Un seul écart avec Gaupol, et il est voulu** : une copie qui ne porte qu'un
-texte vide. Chez Gaupol, `if text:` est faux pour `""`, la copie interne prend le
-relais et écrase la cible ; ici, elle ne colle rien. Cet écart tient à cette
-condition, que rien ne donne pour une règle — les tests de collage de Gaupol ne
-fixent que la réversibilité et le nombre de lignes, jamais ce qu'un texte vide
-écrase — et le garder aurait fait dépendre le résultat du nombre de lignes
-copiées.
+**A single gap from Gaupol, and it is intended**: a copy that carries only an
+empty text. In Gaupol, `if text:` is false for `""`, the internal copy takes
+over and overwrites the target; here, it pastes nothing. That gap comes down to
+this condition, which nothing presents as a rule — Gaupol's paste tests only
+pin down reversibility and the number of lines, never what an empty text
+overwrites — and keeping it would have made the result depend on the number of
+lines copied.
 
-**Un texte collé depuis un document d'un autre format voit ses balises traduites,
-et la perte est dite.** Gaupol ne le fait pas et dépose du `{\i1}` dans un
-SubRip — la salissure que l'ADR 0031 a été écrite pour finir et que #364 a
-fermée à l'écriture. Le presse-papiers en est la porte d'à côté.
+**A text pasted from a document in another format has its tags translated,
+and the loss is stated.** Gaupol does not do this and drops `{\i1}` into a
+SubRip — the smear that ADR 0031 was written to end and that #364 closed on
+writing. The clipboard is the door next to it.
 
-Concrètement : le presse-papiers interne retient de quel format viennent ses
-textes, un collage vers un autre passe par `convertMarkup`, et la perte s'annonce
-dans les mots que `Save As…` emploie déjà. **Un texte venu de l'extérieur de
-`subedit` n'a pas de format**, et se colle tel quel : il n'y a rien à traduire
-depuis nulle part.
+In concrete terms: the internal clipboard remembers which format its texts come
+from, a paste into another goes through `convertMarkup`, and the loss is
+announced in the words `Save As…` already uses. **A text from outside
+`subedit` has no format**, and is pasted as is: there is nothing to translate
+from nowhere.
 
-**La perte est dite après le collage, pas demandée avant**, à la différence de
-`Save As…` — question ouverte par #370, tranchée par #382 : un collage s'annule
-d'un `Ctrl+Z`, un fichier écrasé non. **Et les trois entrées exigent une
-sélection** : couper sans sélection viderait tous les textes du document.
+**The loss is stated after pasting, not asked before**, unlike
+`Save As…` — a question opened by #370, settled by #382: a paste is undone
+with `Ctrl+Z`, an overwritten file is not. **And the three entries require a
+selection**: cutting without a selection would empty every text of the
+document.
 
-## D7 — La recherche porte sur la cible, avec deux options
+## D7 — Search works on the target, with two options
 
-**Deux options, celles de Gaupol** : expression régulière ou texte simple,
-sensible ou non à la casse. Ses défauts sont retenus — texte simple, insensible
-à la casse.
+**Two options, Gaupol's**: regular expression or plain text, case-sensitive or
+not. Its defaults are kept — plain text, case-insensitive.
 
-**La portée est la cible habituelle** : la sélection, ou tout le document si
-rien n'est sélectionné. C'est la règle du menu `Tools` depuis la phase 5, et
-elle remplace les portées de Gaupol.
+**The scope is the usual target**: the selection, or the whole document if
+nothing is selected. This has been the rule of the `Tools` menu since phase 5,
+and it replaces Gaupol's scopes.
 
-> **Corrigé en relecture de fin de phase.** Le cadrage écrivait « les trois
-> cibles de Gaupol ». Son dialogue a **deux portées** — le projet courant ou tous
-> les projets ouverts — et **deux champs** — texte principal et traduction — et il
-> **ne regarde jamais la sélection**, qui ne lui donne que la ligne de départ.
-> Restreindre à la sélection est donc un ajout de cette phase.
+> **Corrected at the end-of-phase review.** The framing wrote "Gaupol's three
+> targets". Its dialog has **two scopes** — the current project or all open
+> projects — and **two fields** — main text and translation — and it **never
+> looks at the selection**, which only gives it the starting line.
+> Restricting to the selection is therefore an addition of this phase.
 
-**`Replace All` est une entrée d'historique, pas cent.**
+**`Replace All` is one history entry, not a hundred.**
 
-**Un écart à Gaupol, inscrit en relecture de fin de phase : la syntaxe du
-remplacement.** Les expressions sont lues par ICU, et un groupe s'écrit `$1` ;
-Gaupol lit les siennes en Python, où il s'écrit `\1`. Taper `\1` ici met un `1`.
-Le manuel le dit.
+**A gap from Gaupol, recorded at the end-of-phase review: the replacement
+syntax.** Expressions are read by ICU, and a group is written `$1`; Gaupol
+reads its own in Python, where it is written `\1`. Typing `\1` here inserts a
+`1`. The manual says so.
 
-## D8 — Les deux surfaces, et une seule est livrée
+## D8 — The two surfaces, and only one is delivered
 
-**La phase livre le noyau et la fenêtre.** La ligne de commande est la phase 13,
-« CLI complète », et aucune des huit opérations n'y apparaît ici.
+**The phase delivers the core and the window.** The command line is phase 13,
+"Complete CLI", and none of the eight operations appears there here.
 
-Ce n'est pas un oubli mais une conséquence : ces opérations sont des gestes
-d'édition interactifs — on met en italique ce qu'on regarde, on cherche ce qu'on
-vient de lire. Les quatre opérations que la ligne de commande porte déjà —
-décaler, transformer, convertir, retirer les mentions — ont en commun de
-s'appliquer à un fichier entier sans qu'on le regarde, ce qui est exactement ce
-qu'un traitement par lot demande.
+This is not an oversight but a consequence: these operations are interactive
+editing gestures — one italicises what one is looking at, one searches for
+what one has just read. The four operations the command line already carries —
+shift, transform, convert, remove hearing-impaired mentions — have in common
+that they apply to a whole file without anyone looking at it, which is exactly
+what batch processing calls for.
 
-**Les commandes du noyau sont écrites pour les deux surfaces malgré tout**, comme
-`removeHearingImpaired` l'a été : une `Selection` reçue plutôt que déduite, et
-un compte lu sur la commande plutôt que recompté. La phase 13 n'aura que du
-câblage à faire.
+**The core commands are written for both surfaces nonetheless**, as
+`removeHearingImpaired` was: a `Selection` received rather than deduced, and a
+count read from the command rather than recounted. Phase 13 will only have
+wiring to do.
 
-> **Tenu dans l'esprit, pas à la lettre — relecture de fin de phase.** Aucune
-> commande ne déduit sa cible de l'état de la fenêtre. Mais la fusion reçoit un
-> intervalle, la scission et le collage un index, parce qu'une `Selection`
-> discontinue n'y a pas de sens ; et le presse-papiers, l'ajustement et
-> `Replace All` rendent leur compte **avec** la commande, dans une structure
-> calculée à sa construction, plutôt que de le faire lire sur elle.
+> **Held in spirit, not to the letter — end-of-phase review.** No command
+> deduces its target from the state of the window. But merging receives an
+> interval, splitting and pasting an index, because a discontinuous
+> `Selection` makes no sense there; and the clipboard, the adjustment and
+> `Replace All` return their count **with** the command, in a structure
+> computed at its construction, rather than having it read from it.
 
-## Ce que la phase ne livre pas
+## What the phase does not deliver
 
-Chacun avec une phase ou une issue, parce qu'un renvoi sans destinataire finit
-par désigner une phase déjà passée.
+Each with a phase or an issue, because a deferral without a recipient ends up
+designating a phase that has already passed.
 
-- **Le correcteur orthographique**, et la jonction ou scission de mots qu'il
-  permet — phase 12.
-- **La correction d'erreurs courantes par motifs** — phase 12, dont c'est le
-  cœur.
-- **Le multi-projets**, donc la portée « tous les projets ouverts » d'une
-  recherche et le texte de traduction comme champ cherchable — phase 11.
-- **Retrouver la paire d'une conversion faite à la mauvaise fréquence** —
-  [#386](https://github.com/Guyot-Bertrand/sub-edit/issues/386), phase 14. Rien
-  de ce que cette phase apporte ne rend ce mécanisme plus sûr : c'est une
-  recherche sur les rationnels, et ni jusqu'où chercher ni comment dire sa
-  confiance n'ont de réponse aujourd'hui.
-- **La prévisualisation dans un lecteur externe** — **écartée, et pas
-  renvoyée.** Gaupol écrit un fichier temporaire et lance MPlayer ou VLC parce
-  qu'il n'a pas eu de lecteur intégré pendant quinze ans. `subedit` en a un
-  depuis la phase 6, et la phase 14 lui ajoute le pilotage. Reconstruire le
-  détour serait livrer une régression.
+- **The spell checker**, and the joining or splitting of words it allows —
+  phase 12.
+- **Correcting common errors by patterns** — phase 12, whose heart it is.
+- **Multiple projects**, hence the "all open projects" scope of a search and
+  the translation text as a searchable field — phase 11.
+- **Finding the pair of a conversion made at the wrong frame rate** —
+  [#386](https://github.com/Guyot-Bertrand/sub-edit/issues/386), phase 14.
+  Nothing this phase brings makes that mechanism safer: it is a search over
+  rationals, and neither how far to search nor how to state its confidence has
+  an answer today.
+- **Preview in an external player** — **ruled out, and not deferred.** Gaupol
+  writes a temporary file and launches MPlayer or VLC because it had no
+  built-in player for fifteen years. `subedit` has had one since phase 6, and
+  phase 14 adds control to it. Rebuilding the detour would be shipping a
+  regression.
 
-## Exigences
+## Requirements
 
-| Identifiant | Ce qu'il promet |
-| :---------- | :-------------- |
-| `GUI-ITALIC-01` | une entrée met la sélection en italique et l'en retire, dans les balises du format ouvert |
-| `GUI-ITALIC-02` | un format qui ne porte aucun style éteint l'entrée sans la cacher |
-| `GUI-CASE-01` | les quatre casses s'appliquent à la cible sans toucher aux balises |
-| `GUI-DASH-01` | les tirets de dialogue se posent et se retirent d'un même geste |
-| `GUI-SPLIT-01` | fusionner et scinder, et l'annulation rend le document tel qu'il était |
-| `GUI-DURATION-01` | la colonne `Duration` se saisit, et déplace la fin |
-| `GUI-ADJUST-01` | l'ajustement applique les quatre contraintes dans l'ordre spécifié |
-| `GUI-ADJUST-02` | ce qu'aucune fin ne peut satisfaire est dit, et compté |
-| `GUI-SEARCH-01` | chercher dans le texte visible, remplacer dans le source, sans casser les balises |
-| `GUI-SEARCH-02` | la recherche porte sur la sélection, ou sur tout le document |
-| `GUI-CLIP-01` | copier, couper, coller des textes, et des lignes naissent s'il en manque |
-| `GUI-CLIP-02` | coller depuis un document d'un autre format traduit les balises et dit la perte |
+| ID | Requirement |
+| :- | :---------- |
+| `GUI-ITALIC-01` | one entry puts the selection in italics and takes it out, in the tags of the open format |
+| `GUI-ITALIC-02` | a format that carries no style disables the entry without hiding it |
+| `GUI-CASE-01` | the four cases apply to the target without touching the tags |
+| `GUI-DASH-01` | dialogue dashes are added and removed with the same gesture |
+| `GUI-SPLIT-01` | merging and splitting, and undo gives the document back as it was |
+| `GUI-DURATION-01` | the `Duration` column can be edited, and moves the end |
+| `GUI-ADJUST-01` | the adjustment applies the four constraints in the specified order |
+| `GUI-ADJUST-02` | what no end can satisfy is stated, and counted |
+| `GUI-SEARCH-01` | searching in the visible text, replacing in the source, without breaking the tags |
+| `GUI-SEARCH-02` | search works on the selection, or on the whole document |
+| `GUI-CLIP-01` | copying, cutting, pasting texts, and lines are born if some are missing |
+| `GUI-CLIP-02` | pasting from a document in another format translates the tags and states the loss |
 
-**Le parseur de D1 n'a pas d'exigence, et c'est la règle du registre** : une
-exigence est ce que le binaire montre. Une garantie interne du noyau est tenue
-par ses tests unitaires et par la couverture — et ici, par trente-deux cas
-écrits avant lui.
+**The parser of D1 has no requirement, and that is the registry's rule**: a
+requirement is what the binary shows. An internal guarantee of the core is held
+by its unit tests and by coverage — and here, by thirty-two cases written before
+it.
 
-## Découpage
+## Split into issues
 
-L'ordre va du fondateur au coûteux, et **le parseur passe avant tout le reste** :
-trois des sept issues l'attendent.
+The order goes from the foundational to the costly, and **the parser comes
+before everything else**: three of the seven issues are waiting for it.
 
-| Issue | Ce qu'elle fait | Ce dont elle dépend |
-| :---- | :-------------- | :------------------ |
-| [#378](https://github.com/Guyot-Bertrand/sub-edit/issues/378) | le parseur conscient des balises | — |
-| [#379](https://github.com/Guyot-Bertrand/sub-edit/issues/379) | la casse et les tirets de dialogue | #378, ICU |
-| [#380](https://github.com/Guyot-Bertrand/sub-edit/issues/380) | fusionner et scinder | — |
-| [#381](https://github.com/Guyot-Bertrand/sub-edit/issues/381) | la durée se saisit | — |
-| [#382](https://github.com/Guyot-Bertrand/sub-edit/issues/382) | le presse-papiers | `convertMarkup` |
-| [#383](https://github.com/Guyot-Bertrand/sub-edit/issues/383) | l'ajustement des durées | #378 — la longueur se compte hors balises |
-| [#384](https://github.com/Guyot-Bertrand/sub-edit/issues/384) | rechercher et remplacer | #378 |
+| Issue | What it does | What it depends on |
+| :---- | :----------- | :----------------- |
+| [#378](https://github.com/Guyot-Bertrand/sub-edit/issues/378) | the markup-aware parser | — |
+| [#379](https://github.com/Guyot-Bertrand/sub-edit/issues/379) | case and dialogue dashes | #378, ICU |
+| [#380](https://github.com/Guyot-Bertrand/sub-edit/issues/380) | merging and splitting | — |
+| [#381](https://github.com/Guyot-Bertrand/sub-edit/issues/381) | the duration can be edited | — |
+| [#382](https://github.com/Guyot-Bertrand/sub-edit/issues/382) | the clipboard | `convertMarkup` |
+| [#383](https://github.com/Guyot-Bertrand/sub-edit/issues/383) | adjusting durations | #378 — the length is counted without the tags |
+| [#384](https://github.com/Guyot-Bertrand/sub-edit/issues/384) | search and replace | #378 |
 
-La phase se clôt sur [#385](https://github.com/Guyot-Bertrand/sub-edit/issues/385),
-la relecture de fin — la troisième des trois issues qui l'encadrent.
+The phase closes on [#385](https://github.com/Guyot-Bertrand/sub-edit/issues/385),
+the end-of-phase review — the third of the three issues that frame it.
 
-**#380 et #381 peuvent se faire à tout moment**, et elles sont placées tôt parce
-qu'elles sont petites : passé le parseur, deux issues courtes éprouvent
-l'outillage avant d'attaquer les deux grosses. C'est l'ordre qui a été suivi :
-#378, #379, #380, #381, puis le reste.
+**#380 and #381 can be done at any time**, and they are placed early because
+they are small: once the parser is done, two short issues test the tooling
+before tackling the two big ones. That is the order that was followed:
+#378, #379, #380, #381, then the rest.
 
-> **Corrigé en relecture de fin de phase.** Le cadrage donnait #381 pour
-> dépendance à #383 ; l'ajustement ne s'en sert pas, et c'est du parseur qu'il
-> dépend.
+> **Corrected at the end-of-phase review.** The framing gave #381 as a
+> dependency of #383; the adjustment does not use it, and it is on the parser
+> that it depends.
 
-**#383 et #384 sont les deux grosses**, et pour des raisons opposées. La
-première porte un dialogue de quatre contraintes et un compte rendu de ce
-qu'elle a sacrifié ; la seconde porte quatre gestes, deux options retenues d'une
-session à l'autre, et une table qui se déplace toute seule.
+**#383 and #384 are the two big ones**, for opposite reasons. The first carries
+a dialog of four constraints and a report of what it sacrificed; the second
+carries four gestures, two options remembered from one session to the next,
+and a table that moves by itself.

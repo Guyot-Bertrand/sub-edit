@@ -1,245 +1,244 @@
-# Phase 8 — Encodages et fins de ligne
+# Phase 8 — Encodings and line endings
 
-Cadrage, issue #288. Ce document dit ce que la phase livre, ce qu'elle ne livre
-pas, et pourquoi.
+Framing, issue #288. This document says what the phase delivers, what it does
+not deliver, and why.
 
-## Ce que la feuille de route promet, et ce qui reste à faire
+## What the roadmap promises, and what remains to be done
 
-> Détection automatique de l'encodage, jeu complet d'encodages, fins de ligne
-> Windows et Mac, forçage à l'enregistrement.
+> Automatic encoding detection, full set of encodings, Windows and Mac line
+> endings, forcing on save.
 
-**La moitié « fins de ligne » est déjà livrée**, et le dire est le premier
-travail de ce cadrage : `Newline` porte `Lf`, `CrLf` et `Cr` depuis la phase 1,
-`--line-endings unix|windows|mac` existe depuis la phase 3, `scanNewlines`
-rapporte la fin de ligne majoritaire, le mélange et la ligne où il commence, et
-un fichier lu est réécrit avec les siennes.
+**The "line endings" half is already delivered**, and saying so is the first
+task of this framing: `Newline` has carried `Lf`, `CrLf` and `Cr` since phase 1,
+`--line-endings unix|windows|mac` has existed since phase 3, `scanNewlines`
+reports the majority line ending, the mixture and the line where it starts, and
+a file that is read is rewritten with its own.
 
-**Ce qui reste de la promesse est l'encodage.** Et une chose que la feuille de
-route ne dit pas : **la fenêtre n'offre rien de tout cela.** `Save As…` choisit
-un chemin et un format ; ni encodage, ni fin de ligne, ni BOM. La ligne de
-commande sait faire ce que la fenêtre ne propose pas, et cet écart-là est du
-périmètre de cette phase.
+**What remains of the promise is the encoding.** And one thing the roadmap does
+not say: **the window offers none of this.** `Save As…` chooses a path and a
+format; no encoding, no line ending, no BOM. The command line can do what the
+window does not offer, and that gap is within the scope of this phase.
 
-## Analyse préalable — ce que Gaupol fait
+## Preliminary analysis — what Gaupol does
 
 `aeidon/encodings.py`, `aeidon/agents/open.py`, `aeidon/file.py`.
 
-- **Quatre-vingt-dix-sept encodages**, chacun avec son code Python, son nom IANA
-  et une description reprise de gedit.
-- **La détection en deux temps** : le BOM d'abord — UTF-32 BE/LE, UTF-8,
-  UTF-16 BE/LE —, `charset-normalizer` ensuite, et `None` si rien ne sort.
-- **Le BOM l'emporte sur l'encodage demandé** : `open_main` recommence la
-  lecture avec l'encodage du BOM s'il diffère de celui qu'on lui a passé.
-- **La locale en dernier recours**, sans le dire à l'utilisateur.
+- **Ninety-seven encodings**, each with its Python code, its IANA name and a
+  description taken from gedit.
+- **Detection in two steps**: the BOM first — UTF-32 BE/LE, UTF-8,
+  UTF-16 BE/LE —, `charset-normalizer` next, and `None` if nothing comes out.
+- **The BOM wins over the requested encoding**: `open_main` starts the read
+  again with the BOM's encoding if it differs from the one it was given.
+- **The locale as a last resort**, without telling the user.
 
-Ce dernier point est le seul que ce cadrage écarte franchement : la règle du
-projet est de dire plutôt que de taire — ADR 0008, lecture au mieux avec
+This last point is the only one this framing rules out outright: the project's
+rule is to say rather than keep quiet — ADR 0008, best-effort reading with
 diagnostics.
 
-## D1 — ICU, pour convertir et pour détecter
+## D1 — ICU, to convert and to detect
 
-Tranchée par la mesure, et elle a son ADR : [0027](../adr/0027-icu-pour-les-encodages.md).
+Settled by measurement, and it has its ADR: [0027](../adr/0027-icu-pour-les-encodages.md).
 
-Les trois voies ont été passées au même corpus avant qu'aucune soit choisie —
-ICU 9/9, `uchardet` 9/9, un prototype de tables écrites 6/9. Ce qui décide n'est
-pas la détection mais la **conversion** : ICU est le seul des trois à convertir,
-et l'iso-fonctionnalité demande quatre-vingt-dix-sept encodages, qui ne s'écrivent
-pas à la main.
+The three routes were run over the same corpus before any was chosen —
+ICU 9/9, `uchardet` 9/9, a prototype of hand-written tables 6/9. What decides is
+not detection but **conversion**: ICU is the only one of the three that
+converts, and iso-functionality calls for ninety-seven encodings, which are not
+written by hand.
 
-Le prix est écrit dans l'ADR : `subedit-cli` y gagne sa première dépendance
-externe.
+The price is written in the ADR: `subedit-cli` gains its first external
+dependency there.
 
-**Complétée après coup par l'[ADR 0028](../adr/0028-peser-les-lignes-qui-discriminent.md).**
-Le banc ci-dessus ne portait que des fichiers monolingues, et c'est en mesurant
-où la détection cesse de savoir — issue #310 — qu'un fichier bilingue s'est
-révélé perdre son second alphabet en entier : ICU n'y voit que la masse d'ASCII.
-ICU reste le détecteur ; ce qui change est ce qu'on lui soumet.
+**Completed afterwards by [ADR 0028](../adr/0028-peser-les-lignes-qui-discriminent.md).**
+The bench above carried only monolingual files, and it is while measuring where
+detection stops knowing — issue #310 — that a bilingual file turned out to lose
+its second alphabet entirely: ICU sees only the mass of ASCII in it. ICU remains
+the detector; what changes is what we submit to it.
 
-## D2 — Le jeu d'encodages est celui d'ICU, pas une liste à nous
+## D2 — The set of encodings is ICU's, not a list of our own
 
-**Aucune table d'encodages n'est écrite dans ce dépôt.** ICU en connaît plus que
-Gaupol ; en tenir une liste réduite reviendrait à écrire une seconde vérité à
-maintenir, et à refuser un fichier qu'on sait lire.
+**No encoding table is written in this repository.** ICU knows more of them
+than Gaupol; keeping a reduced list would amount to writing a second truth to
+maintain, and to refusing a file we know how to read.
 
-Ce qui est écrit, en revanche, est **ce que l'interface propose** : une liste
-courte, ordonnée, des encodages qu'un fichier de sous-titres porte en pratique,
-plus « autre… » pour le reste. Un menu de quatre-vingt-dix-sept entrées n'est pas
-une aide.
+What is written, on the other hand, is **what the interface offers**: a short,
+ordered list of the encodings a subtitle file carries in practice, plus
+"other…" for the rest. A menu of ninety-seven entries is not a help.
 
-### Le quinzième encodage, et ce qu'il coûte — issue #316
+### The fifteenth encoding, and what it costs — issue #316
 
-**Cette décision et l'iso-fonctionnalité ne disaient pas la même chose, et rien
-ne les avait confrontées.** L'inventaire dit quatre-vingt-dix-sept, ce que
-`aeidon/encodings.py` liste ; le menu en offre quatorze. La relecture de fin de
-phase a posé la question, et la réponse est celle-ci.
+**This decision and iso-functionality did not say the same thing, and nothing
+had confronted them.** The inventory says ninety-seven, which is what
+`aeidon/encodings.py` lists; the menu offers fourteen. The end-of-phase review
+raised the question, and this is the answer.
 
-**Le jeu accessible n'a jamais été la différence.** Il est celui d'ICU, donc plus
-grand que celui de Gaupol : deux cent vingt et un encodages, aucun fichier
-refusé. Ce qui différait est le **coût du quinzième** — le champ « Other… »
-prend n'importe quel nom, à condition de le connaître, là où un menu ne demande
-que de le reconnaître.
+**The accessible set was never the difference.** It is ICU's, hence larger than
+Gaupol's: two hundred and twenty-one encodings, no file refused. What differed
+is the **cost of the fifteenth** — the "Other…" field takes any name, provided
+one knows it, where a menu only asks one to recognise it.
 
-**Ce champ complète donc sur ce qu'ICU connaît.** La liste n'est écrite nulle
-part : `availableEncodings()` demande à ICU ce qu'elle convertit et passe chaque
-réponse par `Encoding::create`, si bien qu'elle ne peut pas diverger du type
-qu'elle décrit. La complétion porte sur ce que le nom **contient** et non sur ce
-par quoi il commence — le nom canonique est `windows-1252`, et `cp1252` est
-celui qu'on a en tête.
+**That field therefore completes on what ICU knows.** The list is written
+nowhere: `availableEncodings()` asks ICU what it converts and passes each
+answer through `Encoding::create`, so that it cannot diverge from the type it
+describes. Completion works on what the name **contains** and not on what it
+starts with — the canonical name is `windows-1252`, and `cp1252` is the one
+people have in mind.
 
-**Le menu reste à quatorze**, et les deux moitiés de D2 tiennent : aucune table
-n'est écrite, et aucun menu de deux cents entrées n'est proposé. Le quinzième
-encodage coûte trois lettres.
+**The menu stays at fourteen**, and both halves of D2 hold: no table is
+written, and no menu of two hundred entries is offered. The fifteenth encoding
+costs three letters.
 
-**Écarté : énumérer les convertisseurs dans le menu.** Deux cent trente-deux
-entrées, sans les descriptions que gedit donne et que Gaupol a reprises, et un
-menu que la première moitié de D2 refuse pour ce qu'il est — long.
+**Ruled out: enumerating the converters in the menu.** Two hundred and
+thirty-two entries, without the descriptions that gedit gives and Gaupol took
+over, and a menu that the first half of D2 refuses for what it is — long.
 
-## D3 — Ce que le modèle enregistre
+## D3 — What the model records
 
-`SourceFile` porte aujourd'hui le format, la fin de ligne et `hadUtf8Bom`, **un
-booléen propre à l'UTF-8**. Il ne suffit plus : un BOM UTF-16 ne dit pas la même
-chose, il porte aussi l'ordre des octets.
+`SourceFile` carries today the format, the line ending and `hadUtf8Bom`, **a
+boolean specific to UTF-8**. It is no longer enough: a UTF-16 BOM does not say
+the same thing, it also carries the byte order.
 
-`hadUtf8Bom` devient donc un encodage, et le BOM cesse d'être une propriété
-séparée : il est **une variante de l'encodage** — `utf-8` et `utf-8-sig` sont
-deux réponses différentes, comme Python les nomme. Un type fort plutôt qu'une
-chaîne, comme `FrameRate` l'est déjà (ADR 0011) : un encodage inconnu doit être
-irreprésentable, pas signalé à l'usage.
+`hadUtf8Bom` therefore becomes an encoding, and the BOM stops being a separate
+property: it is **a variant of the encoding** — `utf-8` and `utf-8-sig` are two
+different answers, as Python names them. A strong type rather than a string, as
+`FrameRate` already is (ADR 0011): an unknown encoding must be
+unrepresentable, not reported on use.
 
-## D4 — Une détection est une proposition, jamais une certitude
+## D4 — A detection is a proposal, never a certainty
 
-**Latin-1 et CP1252 sont indistinguables** sur un texte qui n'use pas de la plage
-`0x80–0x9f`. Les octets ne portent pas la réponse ; un détecteur qui tranche
-devine. Le corpus étiqueté le montre — les trois voies répondent sur
-`latin1.srt`, et aucune ne peut le prouver.
+**Latin-1 and CP1252 are indistinguishable** on a text that does not use the
+`0x80–0x9f` range. The bytes do not carry the answer; a detector that decides
+is guessing. The labelled corpus shows it — the three routes answer on
+`latin1.srt`, and none of them can prove it.
 
-Conséquence, et elle suit l'ADR 0008 :
+Consequence, and it follows ADR 0008:
 
-- **un encodage deviné qui n'est pas de l'UTF-8 entre dans les diagnostics de
-  lecture**, ceux que la fenêtre affiche sous la table et que `-vvv` écrit. Ce
-  cadrage écrivait « l'encodage retenu », sans réserve, et le réalisé est plus
-  étroit de deux façons : une marque d'ordre des octets ne déclenche rien —
-  rien n'a été deviné —, et un fichier deviné UTF-8 non plus, parce que c'est
-  ce que tout fichier a été lu comme jusqu'à cette phase. Le dire à chaque
-  ouverture mettrait un panneau sous la table de tous les documents ordinaires.
-  **Ce que la fenêtre y perd est inscrit** : elle n'a alors rien à dire d'un
-  fichier qui déclare son encodage, là où `inspect` écrit `UTF-16LE, from its
-  byte order mark`. Écart relevé à la relecture de fin de phase, tranché en
-  faveur du réalisé, et ce qui manque à la fenêtre est l'issue #313 ;
-- **il se contredit** : `--encoding` à la lecture impose et ne propose pas ;
-- **le BOM l'emporte sur tout**, y compris sur `--encoding`, parce qu'il est la
-  seule marque explicite qu'un fichier porte. Un BOM contredit par une option
-  est dit, pas arbitré en silence.
+- **a guessed encoding that is not UTF-8 enters the reading diagnostics**,
+  those the window shows under the table and that `-vvv` writes. This framing
+  wrote "the encoding retained", without reservation, and what was built is
+  narrower in two ways: a byte order mark triggers nothing — nothing was
+  guessed —, and neither does a file guessed as UTF-8, because that is what
+  every file was read as until this phase. Saying it on every opening would put
+  a panel under the table of every ordinary document.
+  **What the window loses by this is recorded**: it then has nothing to say
+  about a file that declares its encoding, where `inspect` writes `UTF-16LE, from its
+  byte order mark`. A gap found at the end-of-phase review, settled in favour
+  of what was built, and what the window lacks is issue #313;
+- **it can be contradicted**: `--encoding` on reading imposes and does not
+  propose;
+- **the BOM wins over everything**, including `--encoding`, because it is the
+  only explicit mark a file carries. A BOM contradicted by an option is
+  reported, not arbitrated in silence.
 
-## D5 — La lecture ne refuse plus, elle signale
+## D5 — Reading no longer refuses, it reports
 
-`ReadErrorKind::InvalidUtf8` rend « is not valid UTF-8 ». Avec plusieurs
-encodages, ce message change de sens : ce n'est plus « ce fichier est cassé »
-mais « je ne sais pas le lire dans l'encodage que j'ai choisi ». Les mots vivent
-dans `core/wording/formats.hpp`, seul endroit où ils s'écrivent.
+`ReadErrorKind::InvalidUtf8` renders "is not valid UTF-8". With several
+encodings, this message changes meaning: it is no longer "this file is broken"
+but "I cannot read it in the encoding I chose". The words live in
+`core/wording/formats.hpp`, the only place they are written.
 
-Un fichier qu'aucun encodage ne décode reste une erreur ; un fichier décodé sous
-un encodage deviné est une réussite avec un diagnostic.
+A file that no encoding decodes remains an error; a file decoded under a
+guessed encoding is a success with a diagnostic.
 
-## D6 — Les deux surfaces, et la fenêtre rattrape son retard
+## D6 — The two surfaces, and the window catches up
 
-**Ligne de commande** — `--encoding` impose l'encodage **de lecture**, pour les
-sept sous-commandes ; `--to-encoding` choisit celui **de l'écriture**, sur
-`convert` seule, dans la forme que `--line-endings` a déjà. À l'écriture,
-l'encodage du fichier lu par défaut, comme le BOM et les fins de ligne : un
-fichier réécrit sans consigne rend les mêmes octets.
+**Command line** — `--encoding` imposes the **reading** encoding, for the seven
+subcommands; `--to-encoding` chooses the **writing** one, on `convert` alone, in
+the form `--line-endings` already has. On writing, the encoding of the file
+that was read is the default, like the BOM and the line endings: a file
+rewritten without instructions gives back the same bytes.
 
-> **Deux options, là où ce cadrage en écrivait une.** Il disait « `--encoding` à
-> la lecture **et** à l'écriture », et cette phrase ne pouvait pas tenir : la
-> même invocation fait les deux — `convert --encoding cp1252 --to-encoding
-> utf-8` réencode un fichier — donc un seul nom aurait eu deux valeurs à porter
-> dans une seule ligne de commande. Écart relevé à la relecture de fin de phase,
-> et tranché en faveur du réalisé.
+> **Two options, where this framing wrote one.** It said "`--encoding` on
+> reading **and** on writing", and that sentence could not hold: the same
+> invocation does both — `convert --encoding cp1252 --to-encoding
+> utf-8` re-encodes a file — so a single name would have had two values to carry
+> in a single command line. A gap found at the end-of-phase review, and settled
+> in favour of what was built.
 
-**Fenêtre** — `Save As…` gagne l'encodage, la fin de ligne et le BOM. Lui donner
-l'encodage sans les deux autres la laisserait à moitié, et les deux autres
-existent depuis la phase 3 sans que la fenêtre les propose.
+**Window** — `Save As…` gains the encoding, the line ending and the BOM. Giving
+it the encoding without the other two would leave it half done, and the other
+two have existed since phase 3 without the window offering them.
 
-## D7 — L'aller-retour d'octets est la propriété qui tient tout
+## D7 — The byte round trip is the property that holds everything
 
-Un fichier lu et réécrit sans consigne rend **les mêmes octets**. C'est déjà vrai
-du BOM et des fins de ligne ; l'encodage le prolonge, et il ne se vérifie pas sur
-le texte — deux encodages différents portent le même texte.
+A file read and rewritten without instructions gives back **the same bytes**.
+That is already true of the BOM and of line endings; the encoding extends it,
+and it is not verified on the text — two different encodings carry the same
+text.
 
-Le harnais existe : `corpus_test.cpp` énumère `valides/` depuis #289 et compare
-au fichier d'origine. La phase y verse ses fixtures d'encodage à mesure qu'elle
-sait les lire.
+The harness exists: `corpus_test.cpp` has enumerated `valides/` since #289 and
+compares with the original file. The phase adds its encoding fixtures to it as
+it learns to read them.
 
-## Ce que la phase ne livre pas
+## What the phase does not deliver
 
-- **UTF-32.** Gaupol le détecte par BOM et ne le liste pas dans ses encodages
-  proposés. Aucun fichier de sous-titres n'en porte, et rien ne le propose.
+- **UTF-32.** Gaupol detects it by BOM and does not list it among its offered
+  encodings. No subtitle file carries it, and nothing offers it.
 
-  Ce cadrage ajoutait « ICU le lira si on le lui demande » : **c'est faux, et la
-  relecture de fin de phase l'a mesuré.** Un fichier UTF-32LE commence par
-  `ff fe 00 00`, dont les deux premiers octets sont exactement la marque de
-  l'UTF-16LE ; la marque l'emportant sur l'option, `--encoding UTF-32` ne
-  parvient jamais au convertisseur, et le fichier revient `is in no format this
-  tool knows`. `--to-encoding UTF-32` en écrit pourtant un, qu'aucune lecture ne
-  reprend. L'écart est l'issue #308.
-- ~~**Une conversion d'encodage en lot depuis la ligne de commande.**~~ **La
-  phrase est devenue fausse le jour où l'option a existé**, et la relecture de
-  fin de phase l'inscrit plutôt que de la maintenir : `convert --to-encoding
-  utf-8 --output-dir sortie *.srt` réencode un répertoire, parce que
-  `--to-encoding` s'ajoute à une sous-commande qui prend déjà plusieurs entrées
-  et une destination de lot. Il n'y avait rien à retirer pour tenir la promesse,
-  et rien à ajouter pour la rompre.
-- **La détection de la langue.** ICU la propose avec l'encodage ; rien ici n'en
-  a l'usage.
+  This framing added "ICU will read it if asked to": **that is wrong, and the
+  end-of-phase review measured it.** A UTF-32LE file starts with
+  `ff fe 00 00`, whose first two bytes are exactly the UTF-16LE mark; since the
+  mark wins over the option, `--encoding UTF-32` never reaches the converter,
+  and the file comes back `is in no format this
+  tool knows`. `--to-encoding UTF-32` does write one, though, which no reading
+  takes back. The gap is issue #308.
+- ~~**A batch encoding conversion from the command line.**~~ **The sentence
+  became false the day the option existed**, and the end-of-phase review
+  records it rather than maintaining it: `convert --to-encoding
+  utf-8 --output-dir sortie *.srt` re-encodes a directory, because
+  `--to-encoding` is added to a subcommand that already takes several inputs
+  and a batch destination. There was nothing to remove to keep the promise, and
+  nothing to add to break it.
+- **Language detection.** ICU offers it along with the encoding; nothing here
+  has a use for it.
 
-## Exigences
+## Requirements
 
-| Identifiant | Ce qu'il promet |
-| :---------- | :-------------- |
-| `CLI-ENC-01` | un fichier non-UTF-8 s'ouvre, et l'encodage retenu est dit |
-| `CLI-ENC-02` | `--encoding` impose l'encodage de lecture et l'emporte sur la détection |
-| `CLI-ENC-03` | un BOM l'emporte sur `--encoding`, et l'écart est dit |
-| `CLI-ENC-04` | `--to-encoding` choisit l'encodage produit à l'écriture |
-| `CLI-ENC-05` | un fichier réécrit sans consigne rend les mêmes octets, encodage compris |
-| `CLI-ENC-06` | un fichier qu'aucun encodage ne décode est refusé, et la raison le dit |
-| `CLI-ENC-07` | `inspect` rapporte l'encodage lu et s'il a été deviné |
-| `GUI-ENC-01` | la fenêtre ouvre un fichier non-UTF-8 et affiche l'encodage retenu |
-| `GUI-ENC-02` | `Save As…` choisit l'encodage, la fin de ligne et le BOM |
-| `GUI-ENC-03` | les réglages retiennent le dernier encodage d'écriture choisi |
+| ID | Requirement |
+| :- | :---------- |
+| `CLI-ENC-01` | a non-UTF-8 file opens, and the encoding retained is stated |
+| `CLI-ENC-02` | `--encoding` imposes the reading encoding and wins over detection |
+| `CLI-ENC-03` | a BOM wins over `--encoding`, and the gap is stated |
+| `CLI-ENC-04` | `--to-encoding` chooses the encoding produced on writing |
+| `CLI-ENC-05` | a file rewritten without instructions gives back the same bytes, encoding included |
+| `CLI-ENC-06` | a file that no encoding decodes is refused, and the reason says so |
+| `CLI-ENC-07` | `inspect` reports the encoding read and whether it was guessed |
+| `GUI-ENC-01` | the window opens a non-UTF-8 file and shows the encoding retained |
+| `GUI-ENC-02` | `Save As…` chooses the encoding, the line ending and the BOM |
+| `GUI-ENC-03` | the settings remember the last writing encoding chosen |
 
-### Ce que `GUI-ENC-03` ne promet pas — issue #317
+### What `GUI-ENC-03` does not promise — issue #317
 
-**Le réglage ne l'emporte jamais sur l'encodage d'un fichier lu**, et c'est un
-« non » délibéré plutôt qu'une omission. Un document ouvert propose l'encodage
-de son fichier ; `file.write-encoding` ne sert qu'au document qui n'a jamais été
-sur disque — celui qu'on obtient en lançant `subedit-gui` sans argument.
+**The setting never wins over the encoding of a file that was read**, and this
+is a deliberate "no" rather than an omission. An open document offers the
+encoding of its file; `file.write-encoding` only serves the document that has
+never been on disk — the one obtained by launching `subedit-gui` without an
+argument.
 
-La raison est D7 : réécrire dans un autre encodage un document qu'on vient
-d'ouvrir, parce qu'un réglage vieux de trois semaines le dit, serait perdre ce
-que la lecture a gardé, et l'aller-retour d'octets est exactement la propriété
-que cette phase tient.
+The reason is D7: rewriting in another encoding a document that has just been
+opened, because a three-week-old setting says so, would lose what reading kept,
+and the byte round trip is exactly the property this phase holds.
 
-**L'autre lecture a été instruite et écartée.** Préremplir toujours répondrait à
-un usage réel — quelqu'un qui livre systématiquement en UTF-8 et ouvre des
-fichiers hérités en CP1252 — au prix d'une garantie qui vaut pour tout le monde.
-Ce qui reste à qui veut ce flux est de choisir l'encodage dans le dialogue, où
-il est proposé.
+**The other reading was investigated and ruled out.** Always prefilling would
+answer a real use — someone who systematically delivers in UTF-8 and opens
+legacy files in CP1252 — at the price of a guarantee that holds for everyone.
+What remains for whoever wants that flow is to choose the encoding in the
+dialog, where it is offered.
 
-**Ce qui a changé, en revanche, est la marque.** Elle est retenue dans la
-session et se perdait entre deux : `file.write-encoding` porte le nom,
-`file.write-bom` porte la marque — la même coupure que `--encoding` et `--bom`,
-et la seule possible depuis que `-sig` a cessé d'être un nom (#315).
+**What did change, on the other hand, is the mark.** It was remembered within
+the session and lost between two: `file.write-encoding` carries the name,
+`file.write-bom` carries the mark — the same split as `--encoding` and `--bom`,
+and the only one possible since `-sig` stopped being a name (#315).
 
-## Découpage
+## Split into issues
 
-L'ordre n'est pas négociable sur les deux premières : le modèle porte
-l'encodage avant que quiconque le lise, et la lecture précède l'écriture.
+The order is not negotiable for the first two: the model carries the encoding
+before anyone reads it, and reading comes before writing.
 
-| Ordre | Ce qu'elle fait |
-| :---- | :-------------- |
-| 1 | l'encodage entre dans le modèle, et le BOM devient sa variante |
-| 2 | lire dans un encodage donné, et le refuser proprement |
-| 3 | détecter, et dire ce qu'on a deviné |
-| 4 | écrire dans un encodage donné, et l'aller-retour |
-| 5 | la surface de la ligne de commande |
-| 6 | la surface de la fenêtre |
+| Order | What it does |
+| :---- | :----------- |
+| 1 | the encoding enters the model, and the BOM becomes its variant |
+| 2 | reading in a given encoding, and refusing it cleanly |
+| 3 | detecting, and saying what was guessed |
+| 4 | writing in a given encoding, and the round trip |
+| 5 | the command-line surface |
+| 6 | the window surface |
