@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
-# Vérifie les invariants du projet que la relecture ne tiendrait pas.
+# Checks the project invariants that review alone would not hold.
 #
-# Ils sont énoncés dans docs/specs/00-fondations.md. Les inscrire dans une
-# vérification automatique plutôt que dans une relecture est ce qui les rend
-# vrais dans six mois.
+# They are stated in docs/specs/00-fondations.md. Writing them into an
+# automatic check rather than a review is what keeps them true six months from
+# now.
 
 set -euo pipefail
 
@@ -25,7 +25,7 @@ report_success() {
     printf '%s✓%s %s\n' "${GREEN}" "${RESET}" "$*"
 }
 
-# Invariant 1 — subedit_core ne connaît ni Qt ni aucune interface graphique.
+# Invariant 1 — subedit_core knows neither Qt nor any graphical interface.
 check_core_has_no_ui() {
     local core="${REPO_ROOT}/src/lib/subedit/core"
     [[ -d "${core}" ]] || return 0
@@ -35,15 +35,15 @@ check_core_has_no_ui() {
         "${core}" 2>/dev/null || true)"
 
     if [[ -n "${offenders}" ]]; then
-        report_failure "subedit_core inclut une dépendance d'interface graphique :
+        report_failure "subedit_core includes a graphical interface dependency:
 $(printf '    %s\n' ${offenders})
-    le cœur doit rester utilisable par la CLI et les tests, sans toolkit."
+    the core must stay usable by the CLI and the tests, without a toolkit."
     else
-        report_success "subedit_core est libre de toute dépendance d'interface"
+        report_success "subedit_core is free of any interface dependency"
     fi
 }
 
-# Invariant 2 — un main ne contient que du câblage.
+# Invariant 2 — a main contains wiring only.
 check_executables_are_thin() {
     local main_file
     while IFS= read -r -d '' main_file; do
@@ -52,52 +52,40 @@ check_executables_are_thin() {
         local lines
         lines="$(grep -cve '^[[:space:]]*$' -e '^[[:space:]]*//' "${main_file}" || true)"
         if (( lines > MAIN_MAX_LINES )); then
-            report_failure "${relative} fait ${lines} lignes utiles, maximum ${MAIN_MAX_LINES}
-    déplacer la logique dans une bibliothèque de src/lib."
+            report_failure "${relative} has ${lines} meaningful lines, at most ${MAIN_MAX_LINES}
+    move the logic into a library of src/lib."
             continue
         fi
 
         if grep -qE '^[[:space:]]*(class|struct)[[:space:]]+[A-Z]' "${main_file}"; then
-            report_failure "${relative} définit un type
-    un exécutable câble, il ne modélise pas."
+            report_failure "${relative} defines a type
+    an executable wires, it does not model."
             continue
         fi
 
-        report_success "${relative} reste du câblage (${lines} lignes utiles)"
+        report_success "${relative} stays wiring (${lines} meaningful lines)"
     done < <(find "${REPO_ROOT}/src/exe" -name 'main.cpp' -print0 2>/dev/null)
 }
 
-# Invariant 3 — les scripts sont exécutables dans l'index git.
+# Invariant 3 — the scripts are executable in the git index.
 #
-# Un script commité en 100644 s'exécute sans problème en local, où le bit
-# d'exécution existe sur le disque, et échoue en CI sur un « Permission
-# denied » après un clone frais. Le mode enregistré dans git est donc la seule
-# source de vérité qui compte.
+# A script committed as 100644 runs fine locally, where the execute bit exists
+# on disk, and fails in CI with "Permission denied" after a fresh clone. The
+# mode recorded in git is therefore the only source of truth that counts.
 check_scripts_are_executable() {
     local offenders
     offenders="$(git -C "${REPO_ROOT}" ls-files -s src/scripts \
         | awk '$1 != "100755" { print $4 }')"
 
     if [[ -n "${offenders}" ]]; then
-        report_failure "scripts non exécutables dans l'index git :
+        report_failure "scripts not executable in the git index:
 $(printf '    %s\n' ${offenders})
-    corriger avec : git update-index --chmod=+x <fichier>"
+    fix with: git update-index --chmod=+x <file>"
     else
-        report_success "les scripts de src/scripts sont exécutables"
+        report_success "the scripts of src/scripts are executable"
     fi
 }
 
-# Invariant 5 — aucun nom de cas de test ne commence par un tiret.
-#
-# CTest passe le nom du cas en argument au binaire de test, et Catch2 lit alors
-# un nom commençant par un tiret comme une de ses propres options :
-# « -v alone is the default » devient une demande de verbosité, et le cas
-# échoue sans que son intitulé ait rien d'anormal.
-#
-# Ce qui rend le défaut coûteux, c'est qu'il ne se voit **que** à travers CTest,
-# donc dans la porte et dans la CI. Lancer le binaire à la main exécute tous
-# les cas d'un coup, sans jamais nommer aucun d'eux : le test passe. Il a été
-# payé deux fois pendant l'écriture de la CLI avant d'être inscrit ici.
 # Invariant — no test case title is in French.
 #
 # A test title is what `--list-tests` and every failure print, so it is written
@@ -151,6 +139,17 @@ $(printf '%s\n' "${found}" | sed 's/^/    /')
     fi
 }
 
+# Invariant 5 — no test case name starts with a dash.
+#
+# CTest passes the case name as an argument to the test binary, and Catch2 then
+# reads a name starting with a dash as one of its own options: "-v alone is the
+# default" becomes a request for verbosity, and the case fails although nothing
+# about its title looks wrong.
+#
+# What makes the defect costly is that it shows **only** through CTest, hence in
+# the gate and in CI. Running the binary by hand runs every case at once,
+# without ever naming one of them: the test passes. It was paid for twice while
+# the CLI was being written before being recorded here.
 check_test_names_are_not_options() {
     local tests="${REPO_ROOT}/src/test"
     [[ -d "${tests}" ]] || return 0
@@ -159,58 +158,51 @@ check_test_names_are_not_options() {
     offenders="$(grep -rn 'TEST_CASE("-' "${tests}" 2>/dev/null || true)"
 
     if [[ -n "${offenders}" ]]; then
-        report_failure "un nom de cas de test commence par un tiret :
+        report_failure "a test case name starts with a dash:
 $(printf '    %s\n' "${offenders}")
-    CTest le passe en argument, et Catch2 y lit une option ; le renommer."
+    CTest passes it as an argument, and Catch2 reads an option in it; rename it."
     else
-        report_success "aucun nom de cas de test ne peut passer pour une option"
+        report_success "no test case name can pass for an option"
     fi
 }
 
-# Les attendus de `--format json` sont du JSON, portent l'enveloppe et n'ont aucun
-# nombre à virgule — ADR 0038, issue #556.
+# The expected outputs of `--format json` are JSON, carry the envelope and have
+# no decimal number — ADR 0038, issue #556.
 #
-# **Un second regard, indépendant de l'écrivain** : le C++ n'a pas de lecteur
-# JSON, et ses tests comparent la sortie à ces fichiers. Si l'écrivain et un
-# attendu s'accordaient sur une erreur, seul un parseur qui n'est pas le nôtre
-# la verrait. Le script vit à part (`check-json-fixtures.py`) ; `verify-gates.sh`
-# prouve qu'il refuse un attendu volontairement faux.
+# **A second look, independent of the writer**: the C++ has no JSON reader, and
+# its tests compare the output with these files. If the writer and an expected
+# file agreed on a mistake, only a parser that is not ours would see it. The
+# script lives apart (`check-json-fixtures.py`); `verify-gates.sh` proves that
+# it refuses a deliberately wrong expected file.
 check_json_fixtures_are_valid() {
     local output
     if output="$("${REPO_ROOT}/src/scripts/check-json-fixtures.py" 2>&1)"; then
-        report_success "les attendus JSON sont valides, sans nombre à virgule"
+        report_success "the JSON expected outputs are valid, with no decimal number"
     else
-        report_failure "les attendus JSON ne sont pas valides :
+        report_failure "the JSON expected outputs are not valid:
 $(printf '%s\n' "${output}" | sed 's/^/    /')"
     fi
 }
 
-# Invariant 4 — un tag de version sur HEAD correspond à la version déclarée.
+# Invariant 6 — nothing under src/ reads the reference repository.
 #
-# Le tag et project(VERSION) sont deux écritures du même numéro, et rien ne les
-# tenait ensemble : un tag posé sans bumper le CMake donne un binaire qui
-# annonce une version périmée. La vérification est inerte tant qu'aucun tag ne
-# pointe sur HEAD, donc elle ne gêne pas le travail courant.
-# Invariant 6 — rien sous src/ ne lit le dépôt de référence.
+# reference/gaupol is a clone of Gaupol, present to be read by a human. It is
+# not tracked by git, is not part of the project, and its tree is kept
+# read-only. It is absent from CI, absent from any freshly cloned machine, and
+# absent from an archive of the repository.
 #
-# reference/gaupol est un clone de Gaupol, présent pour être lu par un humain.
-# Il n'est pas suivi par git, ne fait pas partie du projet, et son arborescence
-# est maintenue non inscriptible. Il est absent de la CI, absent de toute
-# machine fraîchement clonée, et absent d'une archive du dépôt.
+# A test that reads it therefore passes for whoever has it and fails for
+# everyone else — or, worse, declares itself skipped and proves nothing while
+# staying green. The temptation is real: phase 4 may take over Gaupol's pattern
+# format, and its files are right there, a relative path away.
 #
-# Un test qui le lit passe donc chez qui l'a et échoue chez tous les autres —
-# ou, pire, se déclare ignoré et ne prouve plus rien tout en restant vert. La
-# tentation est concrète : la phase 4 reprend peut-être le format de motifs de
-# Gaupol, et ses fichiers sont là, à portée de chemin relatif.
+# Tracked test data lives in src/test/data/. src/data/ is not an option: git
+# ignores it, it is each machine's private corpus.
 #
-# La donnée de test versionnée vit dans src/test/data/. src/data/ n'est pas une
-# option : il est ignoré par git, c'est le corpus privé de chaque machine.
-#
-# Le contrôle porte sur le code et les tests, pas sur src/scripts : ce sont eux
-# qui pilotent le verrou du clone et interdisent de le commiter, et les nommer
-# est leur travail. Une liste d'exceptions par fichier aurait grandi à chaque
-# script ajouté ; viser les trois répertoires qui n'ont rien à y faire ne
-# grandit jamais.
+# The check covers the code and the tests, not src/scripts: the scripts drive
+# the clone's lock and forbid committing it, and naming it is their job. A
+# per-file exception list would have grown with every added script; targeting
+# the three directories that have no business there never grows.
 check_nothing_reads_the_reference() {
     local offenders=""
     local directory
@@ -220,35 +212,34 @@ check_nothing_reads_the_reference() {
     done
 
     if [[ -n "${offenders}" ]]; then
-        report_failure "du code de src/ désigne le dépôt de référence :
+        report_failure "code under src/ points at the reference repository:
 $(printf '    %s\n' "${offenders}")
-    Il est absent de la CI et de toute machine qui ne l'a pas cloné.
-    La donnée de test versionnée vit dans src/test/data/."
+    It is absent from CI and from any machine that has not cloned it.
+    Tracked test data lives in src/test/data/."
     else
-        report_success "rien sous src/ ne lit le dépôt de référence"
+        report_success "nothing under src/ reads the reference repository"
     fi
 }
 
-# Invariant 7 — rien sous src/ n'est engendré par un outil.
+# Invariant 7 — nothing under src/ is generated by a tool.
 #
-# Quatre portes filtrent sur `src/` : le format, l'analyse statique, le cliquet
-# de couverture et le calcul du périmètre de clang-tidy. Aucune ne sait
-# distinguer une ligne écrite d'une ligne produite ; toutes sont pourtant
-# correctes, et **pour une seule raison** : Qt engendre dans `build/`, et `src/`
-# ne contient que ce qu'un humain a tapé.
+# Four gates filter on `src/`: the format, static analysis, the coverage
+# ratchet and the computation of clang-tidy's scope. None can tell a written
+# line from a produced one; all of them are nevertheless correct, and **for one
+# reason only**: Qt generates into `build/`, and `src/` contains only what a
+# human typed.
 #
-# Cette raison n'était écrite nulle part, donc rien ne la tenait. Un `.ui`
-# compilé au mauvais endroit, un fichier recopié depuis un répertoire de
-# construction, et les quatre portes se mettent à lire du code que personne n'a
-# écrit — sans rien signaler.
+# That reason was written nowhere, so nothing held it. A `.ui` compiled in the
+# wrong place, a file copied over from a build directory, and the four gates
+# start reading code that nobody wrote — without reporting anything.
 #
-# **Le cliquet de couverture est le plus insidieux des quatre.** Un format qui
-# se plaint se voit ; un compte de lignes faussé ne se voit pas, il se croit.
+# **The coverage ratchet is the most insidious of the four.** A format check
+# that complains is seen; a skewed line count is not seen, it is believed.
 #
-# Ce que le contrôle cherche : les noms que moc, uic et rcc donnent à leur
-# production, et l avertissement qu ils écrivent en tête de chaque fichier. Si
-# un jour un fichier engendré doit vraiment vivre sous src/, ce contrôle le
-# nommera — et c est là qu il faudra rouvrir la question, pas après coup.
+# What the check looks for: the names moc, uic and rcc give to what they
+# produce, and the warning they write at the top of every file. If one day a
+# generated file really must live under src/, this check will name it — and
+# that is when the question has to be reopened, not afterwards.
 check_sources_are_handwritten() {
     local by_name by_marker offenders
 
@@ -256,12 +247,12 @@ check_sources_are_handwritten() {
         \( -name 'moc_*.cpp' -o -name 'ui_*.h' -o -name 'qrc_*.cpp' -o -name '*.moc' \
         -o -name 'mocs_compilation*.cpp' \) -printf '%P\n' 2>/dev/null || true)"
 
-    # L avertissement que les trois outils de Qt écrivent en tête de ce qu ils
-    # produisent, et qu aucun fichier écrit à la main ne porte.
+    # The warning the three Qt tools write at the top of what they produce, and
+    # that no hand-written file carries.
     #
-    # **Il est assemblé plutôt qu écrit en clair**, sans quoi ce script se
-    # dénoncerait lui-même : il vit sous src/, et le motif qu il cherche y
-    # figurerait. Le défaut a été constaté à la première exécution.
+    # **It is assembled rather than written out**, otherwise this script would
+    # report itself: it lives under src/, and the pattern it looks for would
+    # appear in it. The defect was seen on the first run.
     local marker="All changes made in this file"
     by_marker="$(grep -rl "${marker} will be lost" \
         "${REPO_ROOT}/src" 2>/dev/null | sed "s|^${REPO_ROOT}/src/||" || true)"
@@ -269,53 +260,59 @@ check_sources_are_handwritten() {
     offenders="$(printf '%s\n%s\n' "${by_name}" "${by_marker}" | sed '/^$/d' | sort -u)"
 
     if [[ -n "${offenders}" ]]; then
-        report_failure "du code engendré vit sous src/ :
+        report_failure "generated code lives under src/:
 $(printf '    %s\n' ${offenders})
-    Le format, l analyse statique, la couverture et le périmètre de clang-tidy
-    filtrent tous sur src/ en supposant qu il est écrit à la main."
+    The format, static analysis, coverage and clang-tidy's scope all filter
+    on src/, assuming it is written by hand."
     else
-        report_success "rien sous src/ n est engendré par un outil"
+        report_success "nothing under src/ is generated by a tool"
     fi
 }
 
+# Invariant 4 — a version tag on HEAD matches the declared version.
+#
+# The tag and project(VERSION) are two writings of the same number, and nothing
+# held them together: a tag set without bumping CMake gives a binary that
+# announces a stale version. The check is inert as long as no tag points at
+# HEAD, so it does not get in the way of ongoing work.
 check_version_matches_tag() {
     local tag
-    # « || true » n'est pas décoratif : sans tag sur HEAD, grep sort en 1, et
-    # set -o pipefail joint à set -e interromprait le script au lieu de le
-    # laisser conclure qu'il n'y a rien à confronter. C'est le cas ordinaire en
-    # intégration continue, où le clone ne récupère pas les tags.
+    # "|| true" is not decorative: without a tag on HEAD, grep exits with 1, and
+    # set -o pipefail together with set -e would stop the script instead of
+    # letting it conclude that there is nothing to compare. That is the usual
+    # case in continuous integration, where the clone does not fetch tags.
     tag="$(git -C "${REPO_ROOT}" tag --points-at HEAD 2>/dev/null \
         | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | head -1 || true)"
 
     if [[ -z "${tag}" ]]; then
-        report_success "aucun tag de version sur HEAD, rien à confronter"
+        report_success "no version tag on HEAD, nothing to compare"
         return 0
     fi
 
-    # Lue dans le commit, et non dans l'arbre de travail. Un tag désigne un
-    # commit ; le confronter à des fichiers modifiés depuis compare deux choses
-    # différentes. Le cas se présente au début de chaque phase : la branche part
-    # du commit fusionné, qui porte le tag de la phase précédente, et le premier
-    # bump de la nouvelle phase déclencherait une fausse alerte.
+    # Read from the commit, not from the working tree. A tag designates a
+    # commit; comparing it with files modified since compares two different
+    # things. The case arises at the start of every phase: the branch starts
+    # from the merge commit, which carries the previous phase's tag, and the
+    # first bump of the new phase would raise a false alarm.
     local declared
     declared="$(git -C "${REPO_ROOT}" show HEAD:CMakeLists.txt 2>/dev/null \
         | sed -n 's/^[[:space:]]*VERSION[[:space:]]\+\([0-9][0-9.]*\)[[:space:]]*$/\1/p' | head -1)"
 
     if [[ "v${declared}" != "${tag}" ]]; then
-        report_failure "le tag ${tag} et CMakeLists.txt (${declared:-absent}) ne s'accordent pas
-    bumper project(VERSION) avant de poser le tag, sinon le binaire ment."
+        report_failure "the tag ${tag} and CMakeLists.txt (${declared:-absent}) do not agree
+    bump project(VERSION) before setting the tag, otherwise the binary lies."
     else
-        report_success "le tag ${tag} correspond à la version déclarée"
+        report_success "the tag ${tag} matches the declared version"
     fi
 }
 
-# Invariant 8 — le modèle ne dépend d'aucune opération.
+# Invariant 8 — the model depends on no operation.
 #
-# ADR 0018 tranche le sens : `format/` traduit des octets en modèle, donc il a
-# besoin de lui ; le modèle n'a jamais besoin d'un lecteur. Ce qui rend la règle
-# tenable, c'est qu'elle est mécanique — la frontière s'est effacée une fois
-# déjà, quand les types propres aux formats ont été rangés sous `model/` sans
-# que rien ne le signale.
+# ADR 0018 settles the direction: `format/` translates bytes into the model, so
+# it needs the model; the model never needs a reader. What makes the rule
+# tenable is that it is mechanical — the boundary has already faded once, when
+# the types specific to formats were put under `model/` without anything
+# reporting it.
 check_model_depends_on_no_operation() {
     local model="${REPO_ROOT}/src/lib/subedit/core/model"
     [[ -d "${model}" ]] || return 0
@@ -325,11 +322,11 @@ check_model_depends_on_no_operation() {
         "${model}" 2>/dev/null || true)"
 
     if [[ -n "${offenders}" ]]; then
-        report_failure "le modèle dépend d une opération :
+        report_failure "the model depends on an operation:
 $(printf '    %s\n' ${offenders})
-    format/, io/, edit/ et command/ dépendent du modèle ; l inverse ferme un cycle."
+    format/, io/, edit/ and command/ depend on the model; the reverse closes a cycle."
     else
-        report_success "le modèle ne dépend d aucune opération"
+        report_success "the model depends on no operation"
     fi
 }
 
@@ -365,6 +362,6 @@ check_model_depends_on_no_operation
 check_json_fixtures_are_valid
 
 if (( failures > 0 )); then
-    printf '\n%s%d invariant(s) d architecture violé(s)%s\n' "${RED}" "${failures}" "${RESET}" >&2
+    printf '\n%s%d architecture invariant(s) violated%s\n' "${RED}" "${failures}" "${RESET}" >&2
     exit 1
 fi
