@@ -59,7 +59,6 @@ src/lib/subedit/platform/CMakeLists.txt
 src/scripts/analyse-bench-journal.py
 src/scripts/await-quiet.sh
 src/scripts/build-rpm.sh
-src/scripts/check-installation.sh
 src/scripts/clean-stale-coverage.sh
 src/scripts/compare-screenshots.py
 src/scripts/encoding-fixtures.py
