@@ -1,57 +1,56 @@
 #!/usr/bin/env bash
-# Refuse qu'une exécution des tests touche la configuration de qui les lance.
+# Refuses that a run of the tests touches the configuration of whoever runs them.
 #
-# **Le pendant de check-untracked.sh, de l'autre côté de la frontière.** Celui-là
-# relève les fichiers non suivis par `git ls-files`, donc il ne voit que l'arbre
-# de travail : un fichier écrit dans le répertoire personnel lui est invisible,
-# alors que c'est exactement le même défaut — un test qui écrit là où il n'a rien
-# à écrire. La phase 7 apporte des préférences persistées, et avec elles la
-# première occasion de le commettre.
+# **The counterpart of check-untracked.sh, on the other side of the border.**
+# That one records the files `git ls-files` does not track, so it only sees the
+# working tree: a file written in the home directory is invisible to it, though
+# it is exactly the same defect — a test that writes where it has no business
+# writing. Phase 7 brings persisted preferences, and with them the first chance
+# to commit it.
 #
-# **Deux dégâts, et le second est le plus vicieux.** Le test détruit les réglages
-# de son auteur, ce qui se voit. Et il devient dépendant de ce que cet auteur
-# avait déjà : un test qui passe chez qui n'a jamais lancé le binaire échoue chez
-# qui l'a lancé une fois, ou l'inverse.
+# **Two kinds of damage, and the second is the more insidious.** The test
+# destroys its author's settings, which shows. And it comes to depend on what
+# that author already had: a test that passes for someone who never ran the
+# binary fails for someone who ran it once, or the other way round.
 #
-# **Ce qui est surveillé est nommément le nôtre**, et non le répertoire de
-# configuration entier. Une porte tourne quinze minutes, pendant lesquelles le
-# navigateur, l'éditeur et le gestionnaire de fenêtres de la machine écrivent
-# dans `~/.config` sans rien nous devoir. Un contrôle qui les signalerait
-# crierait au loup à chaque exécution, et un contrôle qui crie au loup finit
-# désactivé.
+# **What is watched is, by name, ours**, and not the whole configuration
+# directory. A gate runs for fifteen minutes, during which the machine's
+# browser, editor and window manager write into `~/.config` without owing us
+# anything. A check that reported them would cry wolf at every run, and a check
+# that cries wolf ends up disabled.
 #
-# **Ce qui est refusé est une modification, pas une présence.** Qui développe
-# subedit finit par lancer subedit, et sa configuration existe. Le contrôle
-# compare donc deux empreintes, avant et après, et ne parle que de la
-# différence — apparition, disparition ou changement.
+# **What is refused is a change, not a presence.** Whoever develops subedit ends
+# up running subedit, and their configuration exists. The check therefore
+# compares two fingerprints, before and after, and speaks only of the
+# difference — appearance, disappearance or change.
 #
-# Il honore `XDG_CONFIG_HOME` pour la même raison que les tests le déplacent :
-# c'est la variable dont tout emplacement standard dérive. C'est aussi ce qui
-# permet à verify-gates.sh de prouver que la porte se referme sans écrire une
-# seule fois dans le vrai répertoire personnel.
+# It honours `XDG_CONFIG_HOME` for the same reason the tests move it: it is the
+# variable every standard location derives from. It is also what lets
+# verify-gates.sh prove that the gate closes without writing once into the real
+# home directory.
 
 set -euo pipefail
 
 readonly REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 
 readonly CONFIG_HOME="${XDG_CONFIG_HOME:-${HOME}/.config}"
-# **Deux répertoires, et le second est celui d'un autre programme.** Enchant
-# tient la liste de mots personnelle dans `enchant/`, commune à tout ce qui s'en
-# sert — celle de Gaupol comprise, D6 de docs/specs/12-correction.md. Un test qui
-# ajouterait un mot au dictionnaire d'un correcteur réel écrirait chez
-# l'utilisateur, et chez d'autres logiciels que le nôtre : ils sont surveillés
-# ensemble, et les tests qui touchent Enchant déplacent `ENCHANT_CONFIG_DIR`.
+# **Two directories, and the second belongs to another program.** Enchant keeps
+# the personal word list in `enchant/`, shared by everything that uses it —
+# Gaupol's included, D6 of docs/specs/12-correction.md. A test that added a word
+# to a real spell checker's dictionary would write into the user's home, and
+# into other software than ours: they are watched together, and the tests that
+# touch Enchant move `ENCHANT_CONFIG_DIR`.
 #
-# **Un troisième, depuis #566 : `$XDG_DATA_HOME/subedit`**, où l'utilisateur dépose
-# ses motifs de correction (ADR 0037). La ligne de commande les *lit* — ce que le
-# contrôle ne voit pas — et un test qui y écrirait un motif de test le ferait
-# lire à toute exécution suivante, la sienne comprise.
+# **A third, since #566: `$XDG_DATA_HOME/subedit`**, where the user puts their
+# correction patterns (ADR 0037). The command line *reads* them — which the
+# check does not see — and a test that wrote a test pattern there would have it
+# read by every later run, its own included.
 readonly DATA_HOME="${XDG_DATA_HOME:-${HOME}/.local/share}"
 readonly WATCHED_DIRECTORIES=("${CONFIG_HOME}/subedit" "${CONFIG_HOME}/enchant" "${DATA_HOME}/subedit")
 
-# Sous `build/`, qui est ignoré par git — comme le relevé de check-untracked.sh,
-# et pour la même raison : un relevé versionné serait un fichier de plus à ne
-# pas commiter.
+# Under `build/`, which git ignores — like the snapshot of check-untracked.sh,
+# and for the same reason: a tracked snapshot would be one more file not to
+# commit.
 readonly SNAPSHOT="${REPO_ROOT}/build/configuration-utilisateur.txt"
 
 readonly RED=$'\033[31m'
@@ -62,19 +61,19 @@ usage() {
     cat >&2 <<'USAGE'
 usage: check-config-home.sh --record | --compare
 
-  --record   relève l'état de la configuration de l'utilisateur, avant les tests
-  --compare  échoue si les tests l'ont touchée
+  --record   records the state of the user's configuration, before the tests
+  --compare  fails if the tests touched it
 USAGE
     exit 2
 }
 
-# Chemin, taille et date de modification de chaque fichier, ou le mot « absent ».
+# Path, size and modification time of each file, or the word "absent".
 #
-# La date autant que la taille : une valeur remplacée par une autre de même
-# longueur — un thème « dark » devenu « none » — ne changerait rien à la
-# seconde. Et le mot « absent » plutôt qu'un relevé vide, pour que le cas le
-# plus courant, celui du répertoire qui n'existe pas, se distingue d'un
-# répertoire présent et vide.
+# The time as well as the size: a value replaced by another of the same length —
+# a "dark" theme turned "none" — would change nothing to the latter. And the
+# word "absent" rather than an empty snapshot, so that the most common case, a
+# directory that does not exist, is told apart from a directory that is present
+# and empty.
 fingerprint() {
     local directory
     for directory in "${WATCHED_DIRECTORIES[@]}"; do
@@ -93,11 +92,11 @@ record() {
 }
 
 compare() {
-    # Un relevé manquant n'est pas une configuration intacte : c'est un contrôle
-    # qui n'a pas eu lieu. Le dire, plutôt que de passer au vert sans rien avoir
-    # comparé.
+    # A missing snapshot is not an untouched configuration: it is a check that
+    # did not take place. Say so, rather than going green without having
+    # compared anything.
     if [[ ! -f "${SNAPSHOT}" ]]; then
-        printf '%s✗ aucun relevé préalable : lancer --record avant --compare%s\n' \
+        printf '%s✗ no prior snapshot: run --record before --compare%s\n' \
             "${RED}" "${RESET}" >&2
         exit 1
     fi
@@ -106,16 +105,16 @@ compare() {
     difference="$(diff "${SNAPSHOT}" <(fingerprint) || true)"
 
     if [[ -n "${difference}" ]]; then
-        printf '%s✗ les tests ont touché la configuration de l'\''utilisateur :%s\n' \
+        printf '%s✗ the tests touched the user'\''s configuration:%s\n' \
             "${RED}" "${RESET}" >&2
         printf '    %s\n' "${WATCHED_DIRECTORIES[@]}" >&2
         printf '%s\n' "${difference}" >&2
-        printf '  un test ne résout jamais un emplacement de configuration : il en\n' >&2
-        printf '  reçoit un, ou passe par le harnais qui déplace XDG_CONFIG_HOME\n' >&2
+        printf '  a test never resolves a configuration location: it receives\n' >&2
+        printf '  one, or goes through the harness that moves XDG_CONFIG_HOME\n' >&2
         exit 1
     fi
 
-    printf '%s✓%s la configuration de l'\''utilisateur est intacte\n' "${GREEN}" "${RESET}"
+    printf '%s✓%s the user'\''s configuration is untouched\n' "${GREEN}" "${RESET}"
 }
 
 case "${1:-}" in

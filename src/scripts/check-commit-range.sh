@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
-# Valide la grammaire des messages de commit d'une plage.
+# Validates the grammar of the commit messages of a range.
 #
-# Appelé par la CI, où la plage à vérifier dépend de l'événement GitHub. Isolé
-# ici plutôt qu'écrit dans le YAML : un script se teste en local, pas une étape
-# de workflow.
+# Called by the CI, where the range to check depends on the GitHub event. Kept
+# here rather than written in the YAML: a script can be tested locally, a
+# workflow step cannot.
 
 set -euo pipefail
 
@@ -20,17 +20,17 @@ AFTER_SHA="${AFTER_SHA:-HEAD}"
 narrowed=0
 range=""
 
-# Affecte les variables globales plutôt que d'écrire sur la sortie : appelée
-# par substitution de commande, la fonction s'exécuterait dans un sous-shell et
-# l'indicateur de réduction serait perdu.
+# Sets the global variables rather than writing to the output: called through
+# command substitution, the function would run in a subshell and the narrowing
+# flag would be lost.
 resolve_range() {
     if [[ "${EVENT}" == "pull_request" && -n "${BASE_SHA}" && -n "${HEAD_SHA}" ]]; then
         range="${BASE_SHA}..${HEAD_SHA}"
         return
     fi
-    # Première poussée d'une branche : GitHub ne fournit pas de base, on se
-    # rabat sur la tête seule. C'est une réduction réelle de la couverture de
-    # la vérification — elle est signalée plutôt que subie en silence.
+    # First push of a branch: GitHub gives no base, so we fall back on the
+    # head alone. That is a real narrowing of what the check covers — it is
+    # reported rather than suffered in silence.
     if [[ -z "${BEFORE_SHA}" || "${BEFORE_SHA}" == "${EMPTY_SHA}" ]]; then
         narrowed=1
         range="${AFTER_SHA}~1..${AFTER_SHA}"
@@ -40,9 +40,9 @@ resolve_range() {
 }
 
 resolve_range
-printf 'plage vérifiée : %s\n' "${range}"
+printf 'range checked: %s\n' "${range}"
 (( narrowed == 0 )) || printf \
-    'attention : première poussée de cette branche, seul le dernier commit est vérifié\n'
+    'warning: first push of this branch, only the last commit is checked\n'
 printf '\n'
 
 failures=0
