@@ -38,7 +38,6 @@ cmake/ToolchainSanity.cmake
 cmake/Translations.cmake
 cmake/Warnings.cmake
 docs/mesures/performances.md
-docs/specs/11-traduction.md
 docs/specs/12-correction.md
 docs/specs/13-cli.md
 docs/specs/14-calage-fin.md
