@@ -11,12 +11,22 @@ ne pas l'éditer à la main.
 
 ### Documentation
 
+- **doc** — Translate spec 13 into English
+- **doc** — Translate spec 14 into English
+- **doc** — Translate spec 16 into English
+- **doc** — Translate the Gaupol reference into English
+
+## 0.15.31 — 2026-10-15
+
+### Documentation
+
 - **doc** — Make the spec 04 subtitle examples generic
 - **doc** — Translate spec 08 into English
 - **doc** — Translate spec 09 into English
 - **doc** — Translate spec 10 into English
 - **doc** — Translate spec 11 into English
 - **doc** — Translate spec 12 into English
+- **doc** — Regenerate the changelog
 
 ## 0.15.30 — 2026-10-14
 

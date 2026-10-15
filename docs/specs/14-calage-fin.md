@@ -1,475 +1,475 @@
-# Phase 14 — Calage fin
+# Phase 14 — Fine timing
 
-Cadrage de l'issue [#609](https://github.com/Guyot-Bertrand/sub-edit/issues/609),
-après l'initialisation [#608](https://github.com/Guyot-Bertrand/sub-edit/issues/608).
+Framing of issue [#609](https://github.com/Guyot-Bertrand/sub-edit/issues/609),
+after the initialisation [#608](https://github.com/Guyot-Bertrand/sub-edit/issues/608).
 
-## Ce que la feuille de route promet, et ce qui est déjà là
+## What the roadmap promises, and what is already there
 
-Trois familles. **Le pilotage de la lecture** — position, sauts, sous-titre précédent
-et suivant, début et fin de la sélection, jouer la sélection, volume. **Le calage lui-même**
-— poser le début ou la fin depuis la position vidéo, insérer à cette position, avancer et
-reculer image par image, décaler par petits incréments. **Ce qui s'affiche** — le timecode,
-la piste audio, la réplique sans ses balises brutes. Plus cinq renvois : le mode d'édition
-en images, la traduction décalée, la paire d'une conversion à la mauvaise fréquence, le suivi
-centré de la table, et la voie d'affichage de #190.
+Three families. **Driving playback** — position, jumps, previous and next subtitle,
+start and end of the selection, playing the selection, volume. **Timing itself**
+— setting the start or the end from the video position, inserting at that position, stepping
+forward and back frame by frame, nudging by small increments. **What is displayed** — the timecode,
+the audio track, the line without its raw markup. Plus five deferrals: the frame editing mode,
+the shifted translation, the pair of a conversion at the wrong frame rate, the centred following
+of the table, and the display path of #190.
 
-**Le point difficile est la précision de positionnement** : un `seek` exact à l'image près.
-**Elle n'est plus une inconnue** : l'initialisation l'a mesurée (voir « Ce que l'initialisation
-a mesuré »), et ce qui reste est de la **dire** — ce que « exact » désigne — et de la **prouver**
-avec un oracle qui ne repose pas sur le lecteur.
+**The hard point is positioning accuracy**: a `seek` exact to the frame.
+**It is no longer an unknown**: the initialisation measured it (see "What the initialisation
+measured"), and what remains is to **say** it — what "exact" means — and to **prove** it
+with an oracle that does not rely on the player.
 
-**Gaupol a une partie de ce contour, et pas l'autre.** Ses actions `Video` et `Edit` portent le
-pilotage et les cinq gestes de repère ; **elle n'a ni l'image par image, ni le décalage d'une image,
-ni la détection d'un décalage**. La phase est donc moitié iso-fonctionnelle, moitié gain.
+**Gaupol has part of this outline, and not the other.** Its `Video` and `Edit` actions carry
+the driving and the five marking gestures; **it has neither frame-by-frame stepping, nor the one-frame nudge,
+nor the detection of a shift**. The phase is therefore half iso-functional, half gain.
 
-| Ce qui est déjà là | Où |
-| :----------------- | :- |
-| **le lecteur intégré** : libmpv, `VideoPlayer` (`open`, `duration`, `position`, `seek` exact, `play`, `pause`, `showSubtitle`, `isPlaying`), le double `FakeVideoPlayer`, `VideoPane` (le lecteur partagé, l'image, le suiveur de 100 ms) | phase 6, [ADR 0020](../adr/0020-libmpv-pour-le-lecteur-integre.md) |
-| associer un film, l'ouvrir, jouer et s'arrêter (`Ctrl+P`), la réplique dessinée depuis le modèle, la ligne courante qui suit, **l'avertissement quand une opération dépasse la fin du film** | phase 6 |
-| la fréquence que la vidéo déclare, et la **déduction d'une grille** depuis les positions, avec son verdict `Clean`, `Partial`, `Silent` | phases 6 et 16 |
-| les commandes que les gestes de calage rejouent : `SetPositionCommand` (un bord d'un sous-titre), `InsertCommand`, `ShiftCommand`, `ConvertFrameRateCommand` | phases 2 et 10 |
-| l'ouverture d'une traduction, **son rattachement par position ou par numéro** et son compte (rattachées, nées, sans sous-titre, hors d'ordre) | phase 11 |
-| le pivot de balises, qui traduit un texte d'un format vers un autre | [ADR 0031](../adr/0031-pivot-de-balises-a-la-conversion.md) |
-| le type fort `Frame`, et les positions en millisecondes entières | ADR [0011](../adr/0011-numero-d-image-en-type-fort.md), [0006](../adr/0006-positions-en-millisecondes.md) |
-| **les réglages** de la fenêtre, tolérants option par option | [ADR 0022](../adr/0022-configuration-au-noyau-et-tolerance-par-option.md) |
+| What is already there | Where |
+| :-------------------- | :---- |
+| **the built-in player**: libmpv, `VideoPlayer` (`open`, `duration`, `position`, exact `seek`, `play`, `pause`, `showSubtitle`, `isPlaying`), the `FakeVideoPlayer` double, `VideoPane` (the shared player, the picture, the 100 ms follower) | phase 6, [ADR 0020](../adr/0020-libmpv-pour-le-lecteur-integre.md) |
+| associating a film, opening it, playing and stopping (`Ctrl+P`), the line drawn from the model, the current row that follows, **the warning when an operation goes past the end of the film** | phase 6 |
+| the frame rate the video declares, and the **deduction of a grid** from the positions, with its verdict `Clean`, `Partial`, `Silent` | phases 6 and 16 |
+| the commands the timing gestures replay: `SetPositionCommand` (one edge of a subtitle), `InsertCommand`, `ShiftCommand`, `ConvertFrameRateCommand` | phases 2 and 10 |
+| opening a translation, **attaching it by position or by number** and its count (attached, born, without a subtitle, out of order) | phase 11 |
+| the markup pivot, which translates a text from one format to another | [ADR 0031](../adr/0031-pivot-de-balises-a-la-conversion.md) |
+| the strong type `Frame`, and positions in whole milliseconds | ADR [0011](../adr/0011-numero-d-image-en-type-fort.md), [0006](../adr/0006-positions-en-millisecondes.md) |
+| **the window's settings**, tolerant option by option | [ADR 0022](../adr/0022-configuration-au-noyau-et-tolerance-par-option.md) |
 
-**Ce qui n'y est pas.** Aucun pilotage au-delà de lecture et pause ; aucun geste de repère ;
-aucune image par image ; **aucune image dans la fenêtre Qt** (voir D2) ; aucune notion de ce que
-« la position » désigne à l'intérieur d'une image.
+**What is not there.** No driving beyond play and pause; no marking gesture;
+no frame-by-frame stepping; **no picture in the Qt window** (see D2); no notion of what
+"the position" means inside a frame.
 
-## Ce que l'initialisation a mesuré
+## What the initialisation measured
 
-Mesures de [#608](https://github.com/Guyot-Bertrand/sub-edit/issues/608), libmpv sans écran, sur une
-machine de développement. **Des observations, pas un banc** : #610 et #611 les rendent rejouables.
+Measurements of [#608](https://github.com/Guyot-Bertrand/sub-edit/issues/608), libmpv without a display, on a
+development machine. **Observations, not a benchmark**: #610 and #611 make them replayable.
 
-- **La recherche exacte est exacte.** Sur une vidéo dont chaque image porte son numéro et dont l'image-clé
-  est unique, sept positions de 0 à 249 rendent l'image demandée, y compris à 720p. L'oracle est
-  `screenshot-raw`, qui rend la vraie image sans écran.
-- **mpv place le `seek` sur l'image la plus proche de la position**, non sur l'image affichée à cet instant.
-  À l'intérieur de l'intervalle d'une image, la première moitié rend cette image, la seconde **la suivante**
-  (à 23,976 : l'image 10 occupe 417,08 à 458,79 ms, et 437 ms rend l'image 11).
-- **Après un `seek`, `time-pos` est le début de l'image affichée**, non la position demandée : 437 ms demandées,
-  458,8 ms rendues. **`position()` est donc toujours un début d'image**, à l'arrondi à la milliseconde près.
-- **En millisecondes entières, toutes les images démarrent juste.** Les 24 images essayées à 23,976 rendent la
-  bonne image, que la milliseconde soit arrondie vers le haut ou vers le bas : la finesse du `Timestamp` n'est
-  pas le défaut.
-- **Le coût du saut croît avec la distance à l'image-clé** (≈ 7 ms à 0, ≈ 100 ms à 249 images, 720p), **et le pas
-  arrière ne coûte pas plus que le pas avant** (≈ 40 ms l'un et l'autre) : l'hypothèse « reculer est beaucoup plus
-  cher » ne se vérifie pas pour ce codec. #611 le rejoue sur une vidéo à la taille d'un film — voir plus bas.
-- **`frame-step` n'émet aucun événement** : on ne sait pas quand l'image est affichée. #614 en tire que **le pas est
-  un `seek` d'un nombre entier d'images**, qui attend comme tous les autres ordres ; c'est ce que le banc de #611
-  mesure, et il vérifie l'image obtenue par l'oracle de #610.
-- **Le rendu logiciel de libmpv tient le temps réel** : 2,2 à 3,4 ms par image pour du H.264 1080p, dans un
-  tampon de 640×360 à 1920×1080 ([ADR 0041](../adr/0041-afficher-la-video-par-le-rendu-logiciel.md)).
-- **L'encodeur `mpeg4` ignore `-g`** quand le contenu change à chaque image : une image-clé toutes les 32 images
-  sans `-keyint_min 250 -sc_threshold 1000000000 -bf 0`.
-- **Le suivi de la table sonde le lecteur toutes les 100 ms** (`kFollowIntervalMs`) ; les tests pilotent le suiveur
-  à la main, et un seul cas paie l'horloge.
-- **Le corpus privé ne contient aucune vidéo** : aucune mesure sur un vrai film n'est faite ici, et c'est celle que
-  l'utilisateur fait avec le sien.
+- **Exact seeking is exact.** On a video in which every frame carries its number and whose keyframe
+  is unique, seven positions from 0 to 249 render the requested frame, 720p included. The oracle is
+  `screenshot-raw`, which renders the real frame without a display.
+- **mpv places the `seek` on the frame nearest to the position**, not on the frame displayed at that instant.
+  Inside the interval of a frame, the first half renders that frame, the second **the next one**
+  (at 23.976: frame 10 occupies 417.08 to 458.79 ms, and 437 ms renders frame 11).
+- **After a `seek`, `time-pos` is the start of the displayed frame**, not the requested position: 437 ms requested,
+  458.8 ms returned. **`position()` is therefore always the start of a frame**, to within rounding to the millisecond.
+- **In whole milliseconds, every frame starts right.** The 24 frames tried at 23.976 render the
+  right frame, whether the millisecond is rounded up or down: the resolution of `Timestamp` is
+  not the defect.
+- **The cost of a jump grows with the distance to the keyframe** (≈ 7 ms at 0, ≈ 100 ms at 249 frames, 720p), **and the step
+  back costs no more than the step forward** (≈ 40 ms each): the hypothesis "going back is much more
+  expensive" does not hold for this codec. #611 replays it on a film-sized video — see below.
+- **`frame-step` emits no event**: there is no knowing when the frame is displayed. #614 concludes that **the step is
+  a `seek` of a whole number of frames**, which waits like every other command; that is what the benchmark of #611
+  measures, and it checks the frame obtained with the oracle of #610.
+- **libmpv's software rendering keeps up with real time**: 2.2 to 3.4 ms per frame for 1080p H.264, into a
+  buffer from 640×360 to 1920×1080 ([ADR 0041](../adr/0041-afficher-la-video-par-le-rendu-logiciel.md)).
+- **The `mpeg4` encoder ignores `-g`** when the content changes on every frame: a keyframe every 32 frames
+  without `-keyint_min 250 -sc_threshold 1000000000 -bf 0`.
+- **Following the table polls the player every 100 ms** (`kFollowIntervalMs`); the tests drive the follower
+  by hand, and only one case pays for the clock.
+- **The private corpus contains no video**: no measurement on a real film is made here, and that one is
+  for the user to make with their own.
 
-### Ce que #611 a mesuré
+### What #611 measured
 
-`make bench` fabrique, dans l'arbre de construction, **une vidéo de 1280×720, 250 images, une seule image-clé**
-(`video-fixtures.sh --film`) et la donne au banc ; sans ffmpeg, le banc le dit et s'abstient. Chaque geste est vérifié
-contre le numéro que porte l'image avant d'être chronométré. Observations d'une machine de développement, `mpeg4`,
-au calme relatif — **le relevé au journal est celui qui fait foi** :
+`make bench` builds, in the build tree, **a 1280×720 video, 250 frames, a single keyframe**
+(`video-fixtures.sh --film`) and hands it to the benchmark; without ffmpeg, the benchmark says so and abstains. Each gesture is checked
+against the number the frame carries before it is timed. Observations from a development machine, `mpeg4`,
+relatively quiet — **the record in the log is the one that counts**:
 
-| Geste | Image visée | Coût moyen |
-| :---- | ----------: | ---------: |
-| `seek` | 0 (l'image-clé) | ≈ 8 ms |
+| Gesture | Target frame | Mean cost |
+| :------ | -----------: | --------: |
+| `seek` | 0 (the keyframe) | ≈ 8 ms |
 | `seek` | 100 | ≈ 45 ms |
 | `seek` | 249 | ≈ 107 ms |
-| pas avant | 100 | ≈ 51 ms |
-| pas avant | 249 | ≈ 106 ms |
-| pas arrière | 99 | ≈ 46 ms |
-| pas arrière | 248 | ≈ 95 ms |
-
-- **Le pas arrière ne coûte pas plus que le pas avant**, à la même distance de l'image-clé : l'hypothèse « reculer est
-  beaucoup plus cher » est écartée pour ce codec, et **le coût ne dépend que de la distance à l'image-clé**, du geste
-  non. Un film réel (H.264, HEVC, 1080p) peut dire autre chose ; la mesure sur le sien est celle de l'utilisateur.
-- **Ce que cela change au geste (D6)** : à 25 images par seconde, une image dure 40 ms, et une touche maintenue répète
-  plus vite que 100 ms. **Loin de l'image-clé, le pas ne suit donc pas la répétition** : celle-ci ne doit pas
-  s'empiler — c'est déjà la règle du geste, « un pas à la fois » — et #618 le tient, en ne gardant que le dernier pas
-  demandé pendant qu'un pas s'exécute. Le coût de la dernière image d'une vidéo à une seule image-clé est le pire cas.
-- **Le banc a trouvé un défaut de #613** : avec `vo=libmpv`, la sortie attend que chaque image soit rendue, jusqu'à
-  200 ms, et un `seek` qui attendait sur le fil de la fenêtre calait 400 ms quelle que soit la distance. Le lecteur
-  prend désormais lui-même les images pendant qu'il attend ; un cas de `mpv_player_test.cpp` le tient.
-
-## D1 — Le périmètre : ce que Gaupol fait, ce qu'il ne fait pas, et ce qui a un sens ici
-
-Recompté **poste par poste** contre `gaupol/actions/video.py`, `audio.py` et `edit.py`.
-
-| Poste | Gaupol | Ici | Décision |
-| :---- | :----- | :-- | :------- |
-| position (curseur) | `Gtk.Scale` de la barre de lecteur | **retenu** | D5 |
-| reculer, avancer d'un pas | `Seek Backward`, `Seek Forward` — `video_player.seek_length`, **30 s** | **retenu**, pas réglable | D5, D12 |
-| sous-titre précédent, suivant | `Seek Previous`, `Seek Next` | **retenu** | D5 |
-| début, fin de la sélection | `Seek Selection Start`, `Seek Selection End` — `context_length`, **1 s** d'avance | **retenu** | D5, D12 |
-| jouer la sélection | `Play Selection` | **retenu**, jusqu'à sa fin | D5 |
-| volume | `Volume Up`, `Volume Down` | **retenu**, retenu d'une session à l'autre | D5, D12 |
-| piste audio | `Set Audio Language` (un choix radio) | **retenu** | D5 |
-| poser début, fin depuis la position vidéo | `Set Start / End from Video Position` | **retenu** | D6 |
-| insérer à la position vidéo | `Insert Subtitle at Video Position` | **retenu** | D6 |
-| sélectionner le voisin depuis la position | `Select Previous / Next from Video Position` | **retenu** | D6 |
-| **image par image** | **aucun** | **retenu** — la raison du choix de libmpv | D3, D6 |
-| **décaler un bord d'une image** | **aucun** | **retenu** | D6 |
-| incrustation du timecode | `time_alpha`, `time_background` | **retenu**, dessinée par Qt | D9 |
-| la réplique sans balises brutes | rendue par GStreamer | **retenu** ([#408](https://github.com/Guyot-Bertrand/sub-edit/issues/408)) | D9 |
-| positions en images | mode `Frames` | **retenu** | D8 |
-| **reconnaître une traduction décalée** | **aucun** | **retenu** | D10 |
-| **retrouver la paire d'une conversion fausse** | **aucun** | **retenu** ([#386](https://github.com/Guyot-Bertrand/sub-edit/issues/386)) | D11 |
-| lecture automatique à l'ouverture (`autoplay`) | réglage | **écarté** | rien ne le demande ; déclencheur : une demande |
-| style de la réplique (police, couleur, position, fond, transparence) | sept réglages `subtitle_*` | **écarté** | la réplique garde le style que la phase 6 a posé ; déclencheur : une demande, et le rendu logiciel permettrait de les honorer |
-| aucune sous-commande | — | **écarté** | le lecteur est de la fenêtre ; une invocation n'a ni image ni position |
-
-**Quatre gains sur Gaupol**, dans la colonne de droite : l'image par image, le décalage d'une image, et les
-deux détections.
-
-## D2 — La voie d'affichage : le rendu logiciel de libmpv
-
-**Décidé par l'utilisateur le 2026-10-06 ; l'[ADR 0041](../adr/0041-afficher-la-video-par-le-rendu-logiciel.md) le
-porte.** L'image est dessinée par l'API de rendu **logicielle** de libmpv dans un tampon que `VideoSurface` — un
-widget Qt — peint. La fenêtre native adoptée par `wid` disparaît, avec la garde de plateforme et ses sept lignes
-de couverture. **#190 est tranchée par cette décision**, et la phase la met en œuvre.
-
-**Ce que cela change pour le reste de la phase** : l'image est photographiable et lisible sans écran, donc **le manuel
-du calage montre l'image**, et un test compare l'image affichée à l'image numérotée de #610 ; le timecode se dessine
-**par Qt**, sur la surface, sans demander au lecteur de le faire. Ce que cela ne change pas : `VideoPlayer` ne connaît
-toujours ni libmpv ni Qt.
-
-## D3 — L'interface du lecteur gagne cinq ordres, et pas de notification
-
-`VideoPlayer` gagne :
-
-- **`stepFrames(int)`**, positif en avant, négatif en arrière ;
-- **`volume()` et `setVolume(int)`**, de 0 à 100 ;
-- **`audioTracks()` et `selectAudioTrack(id)`** : l'identifiant, la langue, le titre ;
-- **`playUntil(Timestamp)`** : jouer et s'arrêter à une position, à l'image près. `Play Selection` en a besoin, et
-  un suiveur de 100 ms qui arrête la lecture la laisserait dépasser jusqu'à trois images.
-
-**Pas de notification de position.** L'interface dit « un seul fil » et « attend », parce que le noyau n'a pas de
-boucle d'événements ; une notification en demanderait une. Le **suivi reste une sonde**, celle de `VideoPane`, que les
-tests pilotent à la main : c'est ce qui les garde hors d'une horloge, et un seul cas paie le minuteur. **Une marque ou
-un pas se montre tout de suite**, sans attendre le tick suivant — comme `VideoPane` le fait déjà pour une sélection.
-
-Le double suit, sans horloge : il garde sa position à la main, et gagne les mêmes ordres.
-
-## D4 — « La position », « l'image », « exact »
-
-**Dit, parce que c'était faux dans un commentaire** (`seek` : « l'image à son propre début »).
-
-- **`seek(t)` place la lecture sur l'image la plus proche de `t`.** À l'intérieur d'une image, la première moitié rend
-  cette image, la seconde la suivante. C'est ce que mpv fait, et ce que l'on promet ; l'écrire dans l'en-tête est
-  une issue ([#614](https://github.com/Guyot-Bertrand/sub-edit/issues/614)).
-- **`position()` est le début de l'image affichée**, arrondi à la milliseconde. Après `seek(437)`, c'est 459 : le
-  début de l'image 11. **Un repère posé depuis la position est donc toujours le début d'une image**, et y revenir
-  rend la même image — un aller-retour qui se prouve.
-- **Un sous-titre qui débute au milieu d'une image montre, à son début, l'image la plus proche**, parfois la suivante.
-  Ce n'est pas une erreur du lecteur : une image n'a pas de milieu qu'un sous-titre puisse viser, et le calage au
-  repère, lui, ne s'y trompe pas.
-- **La finesse du `Timestamp` n'est pas en cause** : toutes les images de 23,976 démarrent juste en millisecondes
-  entières. Aucune représentation fractionnaire n'est introduite.
-- **La preuve est #610**, avec un oracle qui lit l'image affichée et non les compteurs du lecteur.
-
-## D5 — Le pilotage
-
-Au menu `Video`, **les gestes de Gaupol** — les mêmes noms, et leurs raccourcis tant qu'ils ne se heurtent pas à un
-raccourci que la fenêtre a déjà (le contrôle d'unicité tranche) :
-
-- **reculer et avancer** d'un pas (30 s par défaut), **sous-titre précédent et suivant** (la lecture se place à leur début),
-  **début et fin de la sélection** (avec l'avance, 1 s par défaut, avant le début), **jouer la sélection** — qui
-  s'arrête à la fin du dernier sous-titre sélectionné, par `playUntil` ;
-- **le volume**, par deux gestes et un curseur ;
-- **un sous-menu `Audio`**, qui liste les pistes et marque celle qui joue.
-
-**Une barre de lecture sous l'image** : le curseur de position, la position et la durée, lecture/pause **encadrée de deux boutons de pas** (reculer, avancer d'une image — #618), le volume.
-**Le curseur ne rend pas la main à chaque pixel** : la recherche est limitée en fréquence, et **la dernière position
-demandée est toujours celle qu'on atteint**.
-
-**Les pistes audio ne sont pas retenues** d'une vidéo à l'autre : un numéro de piste est propre à son fichier.
-**Les gestes sont éteints sans vidéo**, comme l'est la lecture aujourd'hui.
-
-## D6 — Le calage
-
-**Les cinq gestes de repère de Gaupol, rejoués sur des commandes qui existent.** Poser le début ou la fin du
-sous-titre sélectionné depuis la position vidéo : `SetPositionCommand`. Insérer à la position : `InsertCommand`.
-Sélectionner le voisin : un déplacement de sélection. **Les mêmes règles et les mêmes messages que la saisie dans une
-cellule** — l'ordre strict, une fin avant son début — parce qu'un geste qui aurait ses propres règles dirait autre chose
-que la cellule pour la même valeur. **Une entrée d'historique par geste.**
-
-**Les boutons de pas de la barre déclenchent les actions du menu** : même pas, même extinction sans film, même infobulle (avec le raccourci), et un bouton tenu enchaîne les pas, un à la fois.
-
-**Les raccourcis** (#617, #618) : `Alt+Gauche` et `Alt+Droite` pour le pas ; `Alt+Q`, `Alt+W` pour le début plus tôt, plus tard, `Alt+Maj+Q`, `Alt+Maj+W` pour la fin — le `E` de Gaupol est la lettre de `Edit` ; pour les repères, `Alt+U` le début, `Alt+K` la fin, `Alt+J` l'insertion — les `U`, `K` et `J` de Gaupol, que la fenêtre prendrait avant une cellule en cours d'édition — et `Alt+Haut`, `Alt+Bas` pour le voisin. Le `Ctrl+Y` de Gaupol est un *rétablir* sur certains systèmes.
-
-**Le gain sur Gaupol : l'image par image.**
-
-- **Avancer et reculer d'un pas**, deux gestes qui s'enchaînent sous une touche maintenue. **Le pas est un nombre
-  d'images, et son minimum est une image** : c'est l'image par image, ce qui permet de placer un sous-titre à l'image
-  près. Le pas se règle **vers le haut**, en nombre entier d'images, pour des sauts plus importants (5, 10, 24…) ; il ne
-  descend pas sous un, et il n'est jamais en millisecondes. Un pas à la fois : la répétition ne s'empile pas.
-- **Décaler le début ou la fin du sous-titre sélectionné d'un pas**, pour régler fin au clavier : une commande
-  annulable, qui dit le chevauchement et l'ordre comme la saisie. **Le même pas** que celui du lecteur, donc une
-  image par défaut.
-- **La durée d'une image** vient, dans cet ordre, de **la fréquence que la vidéo déclare**, de **celle du document
-  quand il est compté en images**, de **la grille déduite** (phase 16) — **et sans aucune, le geste refuse en le disant**,
-  comme `shift --to-grid` : choisir une fréquence au hasard déplacerait tout le fichier.
-
-**Le pas est compté en images, jamais en millisecondes** : une image est ce que le lecteur sait montrer, et un millième
-de seconde ne se voit pas. **Ce qu'il vaut en temps est la durée d'une image de cette vidéo** — 40 ms à 25 images par
-seconde, 41,7 ms à 23,976 —, de sorte qu'un pas de N images est toujours N images, quelle que soit la fréquence. C'est ce
-qui garde le geste juste pour le calage fin, où l'on pose un bord sur une image et non sur un instant. Un réglage en
-millisecondes est un déclencheur, non une promesse.
-
-## D7 — Le suivi de la table
-
-Précisé par l'utilisateur le 2026-09-30 : **la table se centre sur le sous-titre courant**, ce qu'elle ne fait pas
-— elle le ramène dans la zone visible.
-
-- **Elle se centre quand la ligne change**, non à chaque tick : une ligne dure en moyenne des secondes, un
-  recentrage à chaque tick de 100 ms serait un défilement sans objet.
-- **Un défilement à la main suspend le suivi** — la molette, la barre de défilement, un clic dans la table.
-- **Le suivi reprend sur un geste du lecteur** : la lecture lancée, un saut, une marque, un pas — **ou à la demande**.
-  **Pas de minuterie** : ce qui reprend le suivi est un geste, donc un test le pilote sans horloge.
-- **Un bouton de la bande vidéo**, coché quand la table suit, dit l'état et le rétablit.
-- **Livré (#619)** : le bouton `Follow` est à droite de la barre de lecture. Le recentrage coûte 1,3 µs sur une table de 4 000 lignes (`make bench`, `centrer une ligne sur 4000 sous-titres`, hors peinture) : il est payé à chaque changement de ligne, jamais à chaque tick.
-
-## D8 — Les positions en images
-
-**Le mode d'édition en images** — renvoyé de la phase 5, repassé par la phase 9. **Un réglage de `View`**, un seul pour
-la fenêtre, qui montre `Start` et `End` en numéros d'image et accepte des numéros à la saisie. **La fréquence qui
-compte** est celle du document quand il est compté en images (MicroDVD porte des numéros et pas de fréquence), sinon
-celle de la vidéo, sinon la grille déduite ; **sans aucune, le réglage est éteint et dit pourquoi**. La bascule redessine
-des colonnes : **elle ne touche pas au modèle**, et ce que le fichier écrit ne change pas. Un numéro saisi est converti
-par la mise à l'échelle exacte ([ADR 0013](../adr/0013-mise-a-l-echelle-exacte-des-positions.md)), arrondi une fois.
-
-**Livré (#620)** : `View ▸ Positions in Frames`, une entrée à cocher dont l'infobulle dit la fréquence retenue et sa source, ou pourquoi elle est éteinte. Seules `Start` et `End` changent, `Duration` reste un temps ; le réglage n'est pas retenu (D12). Le modèle de la table reçoit la fréquence et le projet n'est pas touché. **La barre de lecture la reçoit aussi** : sa position et sa durée suivent le même réglage ; le chrono dessiné sur l'image reste un timestamp.
-
-## D9 — La réplique et le timecode
-
-- **La réplique sans balises brutes** ([#408](https://github.com/Guyot-Bertrand/sub-edit/issues/408)) : `showSubtitle`
-  reçoit le texte avec les balises de son format. Le **pivot de balises** (ADR 0031) le traduit en balises ASS — italique,
-  gras, souligné, couleur —, **et une balise qui n'a pas d'équivalent à l'écran est retirée, jamais dessinée telle
-  quelle**. Aucun second analyseur : celui de la conversion sert.
-- **Le timecode** est dessiné par Qt sur la surface, **à partir de `position()`** ; il ne demande rien au lecteur. Son
-  style est celui de la fenêtre.
-
-## D10 — Reconnaître une traduction décalée
-
-**Décidé par l'utilisateur le 2026-10-06 : elle est de cette phase.** Une traduction calée deux secondes trop tard
-s'aligne sur les mauvais sous-titres sans que rien la distingue d'un rattachement juste : la phase 11 la rend
-**visible** (le compte), pas **corrigeable**.
-
-- **Le noyau cherche un décalage constant.** Les écarts entre le début de chaque ligne et celui du sous-titre le plus
-  proche donnent des candidats, regroupés à la dizaine de millisecondes.
-- **Chaque candidat est jugé par ce que le rattachement dirait après lui** — lignes rattachées, nées, sans sous-titre,
-  hors d'ordre —, **par le même algorithme que l'ouverture**. La confiance est donc **ce que l'ouverture rapporterait
-  déjà**, jamais un nombre inventé : « décalée de +2,000 s, quatre lignes sur quatre se rattacheraient, contre une ».
-- **Rien n'est proposé** quand le rattachement ne s'améliore pas nettement, **quand deux candidats se valent**, ou
-  quand l'écart n'est pas constant (une dérive, un décalage partiel) — **et la phrase ne dit pas alors qu'il y en a un**.
-- **La fenêtre** : quand l'ouverture n'est pas propre et qu'un décalage la rendrait propre, **la phrase le dit** et
-  **propose de rouvrir décalée** (annuler l'ouverture, puis rouvrir avec le décalage) : une seule entrée d'historique, et
-  l'annulation suffit à revenir.
-- **Pas de ligne de commande** : ni sous-commande ni option. Si `inspect -t` doit le dire un jour, la clé est additive.
-- **Les huit paires de `src/test/data/paires/`** servent de garde : aucune ne se voit proposer un décalage qu'elle n'a
-  pas. L'éprouver demande un **générateur de paires avec leur vérité**, écrit avec la détection.
-
-**Livré (#621).** Les candidats sont les écarts au sous-titre qui commence juste avant la ligne et à celui qui commence
-juste après : le plus proche seul se trompe quand deux sous-titres sont également proches. Un écart que deux lignes au
-moins ne montrent pas est du bruit, et huit candidats au plus sont jugés. Le décalage rendu est la **médiane** des écarts
-de son groupe, donc exact au millième quand il est constant. La fenêtre le cherche **avant** d'appliquer l'ouverture —
-après, le projet porte les sous-titres nés des lignes. Le générateur est `src/scripts/shifted-pairs.py`
-(`src/test/data/decalages/`, six cas : aucun décalage, trois constants, une dérive, un décalage partiel), tenu par la
-porte comme les autres fixtures engendrées.
-
-## D11 — Retrouver la paire d'une conversion à la mauvaise fréquence
-
-**Décidé par l'utilisateur le 2026-10-06 : elle est de cette phase** ([#386](https://github.com/Guyot-Bertrand/sub-edit/issues/386)),
-la spec de la phase 16 l'ayant nommée « le plus utile et le moins sûr » et renvoyée ici, parce que la phase 14 dispose
-d'un lecteur capable de **montrer le résultat à l'image près**. Les trois questions que la phase 10 avait laissées :
-
-- **Jusqu'où chercher : un ensemble fermé** — les **cinquante-six paires ordonnées** des huit fréquences normalisées.
-  Un rationnel quelconque donnerait toujours une grille à qui cherche assez longtemps ; huit fréquences en donnent
-  cinquante-six, qu'on énumère et qu'on départage.
-- **La confiance : celle de la déduction.** Chaque rapport est appliqué aux positions, **la déduction de la phase 16
-  juge le résultat** (`Clean`, `Partial`, `Silent`), et ce qu'on rend est **la meilleure paire avec l'écart qui la
-  sépare de la deuxième et de « ne rien faire »**. **Quand deux paires se valent, aucune n'est proposée**, et la phrase
-  le dit. Le déclenchement : la déduction rend `Silent` ou `Partial`.
-- **Ce que l'interface montre avant d'appliquer** : la modale d'analyse (`GUI-GRID-02`) montre la proposition ;
-  **`Convert Frame Rate…` s'ouvre préremplie** ; **rien n'est appliqué sans geste**, l'annulation suffit à revenir, et
-  la vidéo permet de juger à l'image.
-
-**Livré (#622, qui reprend #386).** Les cinquante-six paires font **quarante rapports distincts** : 30 vers 25 et
-60 vers 50 déplacent chaque position pareillement et ne sont qu'une conversion, dont on garde la paire dont la sortie
-est la grille où les positions tombent. Le juge est la déduction : une conversion convient quand elle rend `Clean`, et
-**deux qui conviennent sont une égalité** — sans seuil de plus, puisque la déduction n'en a qu'un. Ce que l'énumération
-des trois cent vingt combinaisons (grille × rapport faux) a montré, et que la spec n'avait pas prévu : **une seule
-réparation est l'exception**. Une grille à 28,8 images par seconde se remet sur 24 et sur 30, et un fichier aux temps
-doublés reste sur la grille de 25 ; seule la conversion d'un fichier déjà à la fréquence visée, le geste le plus
-courant, a une réparation unique. L'égalité est donc dite avec ses deux paires, et le bouton n'est offert qu'à une
-conversion seule. Le générateur est `src/scripts/wrong-rate-pairs.py` (`src/test/data/conversions-fausses/`, dix cas) ;
-le coût du pire chemin, quarante déductions sur quatre mille sous-titres, est de l'ordre de deux millisecondes.
-
-## D12 — Les réglages
-
-Quatre réglages, dans `Preferences…`, sous [ADR 0022](../adr/0022-configuration-au-noyau-et-tolerance-par-option.md)
-— tolérants option par option, une valeur absurde ne casse pas l'ouverture : **le pas des sauts** (30 s, comme
-Gaupol), **le pas d'image** (1 image, de 1 à une borne raisonnable ; D6), **l'avance avant une sélection** (1 s, comme
-Gaupol) et **le volume**. **Rien d'autre ne se retient** : ni la
-piste audio, ni le suivi, ni le mode en images (un réglage de fenêtre, non d'un document — il suit `View`).
-
-
-## D13 — Le manuel et les captures
-
-Une page du calage et du lecteur, **la table des raccourcis tenue par [#612](https://github.com/Guyot-Bertrand/sub-edit/issues/612)**,
-et des captures **de la barre de lecture et de l'image** : l'ADR 0041 les rend possibles, l'image étant dans la
-fenêtre. `make manual` les photographie **sous le vrai lecteur, avec une fixture vidéo versionnée** — celle de #610 ou une
-image choisie pour le manuel — plutôt que sous le double, qui ne peint rien ; la relecture de fin de phase relira le
-manuel d'un bloc.
-
-## Comment la phase se prouve
-
-- **L'exactitude du positionnement a un oracle indépendant du lecteur** ([#610](https://github.com/Guyot-Bertrand/sub-edit/issues/610)) :
-  des vidéos de 13 ko dont chaque image porte son numéro, et une lecture de l'image affichée. **Une seule image-clé**,
-  parce que c'est le cas difficile. Après la surface (D2), le test lit l'image **dans la fenêtre**.
-- **Le coût du saut et du pas se mesure** ([#611](https://github.com/Guyot-Bertrand/sub-edit/issues/611)) sur une vidéo à
-  la taille d'un film, versé au journal comme les autres relevés ; **un banc du rendu** s'y ajoute avec l'ADR 0041.
-- **Les raccourcis sont confrontés au manuel** ([#612](https://github.com/Guyot-Bertrand/sub-edit/issues/612)) : une quinzaine
-  de gestes au clavier ne se tiennent pas à l'œil.
-- **Les gestes de repère se prouvent par l'aller-retour** : poser un repère, y revenir, et lire la même image.
-- **Les détections se prouvent par une vérité posée** : un décalage ou une conversion fausse qu'on a introduits, et
-  qu'on retrouve ; et **par le silence** — une dérive, deux candidats égaux, un fichier propre ne proposent rien.
-- **Le suivi se prouve sans horloge** : le suiveur est piloté à la main, un seul cas paie le minuteur.
-- **Un cas sur un vrai film** est celui de la relecture de fin de phase, sur ce que l'utilisateur regarde : le corpus
-  privé n'a aucune vidéo, et aucun chiffre ne lui est attribué. Le banc `seeking and stepping on a real film` prend le
-  film par `SUBEDIT_BENCH_REAL_FILM` et s'abstient sans ; il tourne sous `limit-cores.sh` comme tout le banc.
-
-## Ce que la phase ne livre pas
-
-Chacun avec un destinataire.
-
-- **Le décodage matériel sans copie** — **écarté par l'ADR 0041**, avec son déclencheur : un utilisateur dont la lecture
-  perd des images à une taille et un codec ordinaires. La réponse serait l'API OpenGL **derrière la même surface**.
-- **Le 4K, le HDR, un codec lourd** : **mesurés en partie à la relecture** — le 4K HEVC lourd ne tient pas le temps réel sur deux cœurs, le décodage matériel est la réponse ([#647](https://github.com/Guyot-Bertrand/sub-edit/issues/647)) ; le HDR et AV1 restent non mesurés.
-- **Le style de la réplique et du timecode** (police, couleur, position, fond) — **écarté**, déclencheur : une demande.
-- **La lecture automatique à l'ouverture** — **écartée**, même déclencheur.
-- **Une ligne de commande du lecteur ou des détections** — **écartée** : D10 et D1.
-- **Des incréments en millisecondes** — **écartés**, D6 ; déclencheur : un appelant qui règle au millième.
-- **Une proposition de décalage pour une dérive ou un décalage partiel** — **écartée** : D10 ne dit rien plutôt que
-  mal. Une dérive linéaire est une conversion de fréquence, et D11 la traite.
-- **Des notifications de position** par le lecteur — **écartées**, D3 ; déclencheur : un besoin que la sonde de 100 ms
-  ne sert pas.
-- **Un son** : la transcription audio, l'alignement automatique — phases 22 et 23.
-
-## Écarts avec Gaupol
-
-| Ce que fait Gaupol | Ce que fait `subedit` | Pourquoi |
-| :----------------- | :-------------------- | :------- |
-| l'image est rendue par GStreamer dans un widget GTK | **par libmpv, en logiciel, dans un widget Qt** | ADR 0041 |
-| `Seek Backward / Forward` de 30 s, sans réglage de l'interface | **le pas est un réglage de `Preferences…`**, 30 s par défaut | D12 |
-| aucun pas d'une image | **avancer et reculer d'une image**, et décaler un bord d'une image | la raison du choix de libmpv |
-| le sous-titre dessiné a sept réglages de style | **le style de la phase 6, sans réglage** | D1 |
-| `autoplay` | **aucune lecture automatique** | D1 |
-| aucune détection de décalage | **deux détections, proposées et jamais appliquées** | D10, D11 |
-| le suivi de la lecture ramène la ligne à l'écran | **la table se centre, et se suspend à un défilement à la main** | D7, demande de l'utilisateur |
-| `Set Audio Language` : un choix de langue | **un sous-menu des pistes**, par langue, titre ou numéro | une piste n'a pas toujours de langue |
-| aucun moyen de suspendre ou de reprendre le suivi à la main | **un bouton `Follow`**, qui montre l'état du suivi et le reprend | demande de l'utilisateur, #619 |
-| les positions de la table peuvent se montrer en images ; la barre de lecture, non | **la barre montre aussi ses deux positions en images**, par le même réglage | demande de l'utilisateur, #620 |
-
-## Exigences
-
-**Vingt-huit**, toutes `implémentées` et citées par un test à la relecture de fin de phase — aucune `abandonnée` —, **inscrites au registre avec cette spec** : `check-requirements.sh` confronte la
-table d'une spec de phase au registre dans les deux sens. Chaque issue en **relit** les siennes avant son code — l'état
-passe à `implémentée` quand un test les cite, jamais avant. **Douze sujets neufs**, dont aucun identifiant n'était pris :
-`SURFACE`, `STEP`, `NUDGE`, `SEEK`, `VOLUME`, `TIMECODE`, `AUDIO`, `MARK`, `FOLLOW`, `REPLICA`, `DRIFT`, `REPAIR` ; `FRAMES`
-continue de `GUI-FRAMES-01`.
-
-| Identifiant | Ce qu'il promet |
-| :---------- | :-------------- |
-| `GUI-SURFACE-01` | l'image de la vidéo est dessinée dans la fenêtre, redimensionnable, son rapport d'aspect conservé |
-| `GUI-SURFACE-02` | après un saut, l'image affichée est celle de la position demandée, la plus proche |
-| `GUI-SURFACE-03` | la fenêtre n'adopte aucune fenêtre native et n'exige pas X11 |
-| `GUI-STEP-01` | avancer d'une image affiche l'image suivante |
-| `GUI-STEP-02` | reculer d'une image affiche l'image précédente |
-| `GUI-STEP-03` | la durée d'une image vient de la vidéo, à défaut du document, à défaut de la grille ; sans aucune, le geste refuse en le disant |
-| `GUI-STEP-04` | le pas se règle en nombre d'images, au minimum une ; une valeur absurde ne casse pas l'ouverture |
-| `GUI-NUDGE-01` | décaler le début ou la fin d'un sous-titre d'une image est annulable en une entrée |
-| `GUI-SEEK-01` | le curseur de position se lit et se déplace |
-| `GUI-SEEK-02` | reculer et avancer d'un pas réglable |
-| `GUI-SEEK-03` | le sous-titre précédent et le suivant placent la lecture à leur début |
-| `GUI-SEEK-04` | le début et la fin de la sélection placent la lecture, avec l'avance réglée |
-| `GUI-SEEK-05` | jouer la sélection s'arrête à sa fin |
-| `GUI-VOLUME-01` | le volume se règle et se retient d'une session à l'autre |
-| `GUI-TIMECODE-01` | le timecode est incrusté sur l'image |
-| `GUI-AUDIO-01` | la piste audio se choisit parmi celles de la vidéo |
-| `GUI-MARK-01` | poser le début d'un sous-titre depuis la position de la vidéo, en une entrée d'historique |
-| `GUI-MARK-02` | poser sa fin depuis la position de la vidéo |
-| `GUI-MARK-03` | insérer un sous-titre à la position de la vidéo |
-| `GUI-MARK-04` | sélectionner le sous-titre précédent ou suivant depuis la position de la vidéo |
-| `GUI-FOLLOW-01` | la table centre le sous-titre courant pendant la lecture |
-| `GUI-FOLLOW-02` | un défilement à la main suspend le suivi |
-| `GUI-FOLLOW-03` | le suivi reprend sur un geste du lecteur ou à la demande |
-| `GUI-REPLICA-01` | la réplique dessinée sur l'image n'a plus de balises brutes |
-| `GUI-FRAMES-02` | les positions s'affichent et se saisissent en numéros d'image, la fréquence dite |
-| `GUI-DRIFT-01` | l'ouverture d'une traduction dit qu'un décalage constant la rattacherait mieux, sans le dire d'une dérive |
-| `GUI-DRIFT-02` | rouvrir décalée rattache selon le décalage proposé, en une entrée d'historique |
-| `GUI-REPAIR-01` | la modale d'analyse propose la conversion de fréquence qui remet le fichier sur une grille, ou rien quand deux se valent |
-| `GUI-REPAIR-02` | `Convert Frame Rate…` s'ouvre préremplie par cette proposition |
-
-## Découpage
-
-**Cinq tranches**, le fond d'abord — la surface et l'interface du lecteur, dont tout dépend —, puis ce que
-l'utilisateur touche, puis les deux détections, qui ne dépendent du lecteur que pour juger à l'image. **Les issues
-d'outillage de l'initialisation (#610 à #612) passent avant ; #610 avant toute issue d'implémentation.**
-
-**Les issues sont ouvertes**, dans le milestone 14 : [#610](https://github.com/Guyot-Bertrand/sub-edit/issues/610)
-à [#623](https://github.com/Guyot-Bertrand/sub-edit/issues/623), avec [#386](https://github.com/Guyot-Bertrand/sub-edit/issues/386)
-et [#408](https://github.com/Guyot-Bertrand/sub-edit/issues/408), plus anciennes, qui y trouvent leur place.
-
-| Tranche | Issue | Ce qu'elle livre | Dépend de | Taille |
-| :------ | :---- | :--------------- | :-------- | :----- |
-| 0 — l'outillage | [#610](https://github.com/Guyot-Bertrand/sub-edit/issues/610) | **des vidéos qui portent le numéro de leurs images**, et un oracle | — | M |
-| | [#611](https://github.com/Guyot-Bertrand/sub-edit/issues/611) | **le banc du saut et du pas**, selon la distance à l'image-clé | #610 | S |
-| | [#612](https://github.com/Guyot-Bertrand/sub-edit/issues/612) | **le manuel dit les raccourcis** de la fenêtre | — | S |
-| 1 — le fond | [#613](https://github.com/Guyot-Bertrand/sub-edit/issues/613) | **la surface** : le rendu logiciel de libmpv, dans la fenêtre Qt (ADR 0041, #190) | #610 | L |
-| | [#614](https://github.com/Guyot-Bertrand/sub-edit/issues/614) | **l'interface du lecteur** : pas d'image, volume, pistes, `playUntil`, et ce que « la position » désigne | #610 | M |
-| 2 — le pilotage | [#615](https://github.com/Guyot-Bertrand/sub-edit/issues/615) | **la barre de lecture** : curseur, sauts, voisins, sélection, volume, timecode, trois réglages | #613, #614 | L |
-| | [#616](https://github.com/Guyot-Bertrand/sub-edit/issues/616) | **la piste audio** | #614 | S |
-| 3 — le calage | [#617](https://github.com/Guyot-Bertrand/sub-edit/issues/617) | **les repères** : début, fin, insertion, voisin, depuis la position | #614 | M |
-| | [#618](https://github.com/Guyot-Bertrand/sub-edit/issues/618) | **l'image par image**, et le décalage d'un bord d'une image | #614, #617 | M |
-| | [#619](https://github.com/Guyot-Bertrand/sub-edit/issues/619) | **le suivi de la table** : centré, suspendu à la main, repris sur un geste | — | M |
-| 4 — l'affichage | [#408](https://github.com/Guyot-Bertrand/sub-edit/issues/408) | **la réplique sans balises brutes**, par le pivot de balises | — | S |
-| | [#620](https://github.com/Guyot-Bertrand/sub-edit/issues/620) | **les positions en images** : un réglage de `View` | — | M |
-| 5 — les détections | [#621](https://github.com/Guyot-Bertrand/sub-edit/issues/621) | **reconnaître une traduction décalée**, et la rouvrir décalée | — | L |
-| | [#622](https://github.com/Guyot-Bertrand/sub-edit/issues/622) | **proposer la conversion qui remet un fichier sur une grille** (#386) | #613, #615 | L |
-| | [#623](https://github.com/Guyot-Bertrand/sub-edit/issues/623) | **relecture de fin de phase** | tout | M |
-
-**La relecture de fin de phase ([#623](https://github.com/Guyot-Bertrand/sub-edit/issues/623)) a ouvert quatre issues**,
-rien n'étant corrigé dans la relecture : [#644](https://github.com/Guyot-Bertrand/sub-edit/issues/644) (les règles de
-position du lecteur, hors du noyau), [#645](https://github.com/Guyot-Bertrand/sub-edit/issues/645) (un seul chemin pour
-les gestes du lecteur, et le test qui le tient), [#646](https://github.com/Guyot-Bertrand/sub-edit/issues/646) (les tests
-du lecteur sans horloge) et [#647](https://github.com/Guyot-Bertrand/sub-edit/issues/647) (le décodage matériel avec copie).
-
-**#613 est la pierre d'angle de la phase, et la plus risquée** : elle change la façon dont l'image arrive, donc
-ce que chaque issue du lecteur touche, et c'est elle qui engage l'ADR 0041. **#614 est la plus étroite et la plus
-bloquante** : tout ce que l'on pose ou pilote passe par `VideoPlayer`.
-
-**Ce qui peut avancer en parallèle** : #619, #620, #621 et #408 ne dépendent d'aucune issue du lecteur ; #611 et #612
-dès #610 et à tout moment.
-
-## Points ouverts
-
-**Deux sont tranchés par l'utilisateur le 2026-10-06** (1 et 2). Les autres sont ce que le cadrage ne peut pas trancher
-seul, **chacun avec ce qui est supposé en attendant**.
-
-| N° | Point | Supposé | Qui, quand |
-| :- | :---- | :------ | :--------- |
-| 1 | **la voie d'affichage** : fenêtre native, rendu OpenGL, rendu logiciel | le rendu logiciel (ADR 0041) | **tranché le 2026-10-06** : la supposition est retenue |
-| 2 | **les deux détections** : dans la phase, ou renvoyées | les deux dans la phase (D10, D11) | **tranché le 2026-10-06** : dans la phase, contre la supposition du cadrage, qui renvoyait #386 |
-| 3 | **ce qu'une image « est »** : la plus proche d'une position, ou celle qui est affichée à cet instant | la plus proche, ce que mpv fait (D4) | **tranché en #614 : la supposition est retenue**, et prouvée sur des vidéos qui portent le numéro de leurs images (23,976 et 25 images par seconde) ; une décision contraire demanderait de corriger la position demandée avant le `seek` |
-| 4 | **le pas des sauts** : 30 s, comme Gaupol | 30 s | **tranché en #615 : 30 s, et un réglage de `Preferences…`** (`video.seek-length`) |
-| 5 | **la reprise du suivi** : un geste du lecteur, ou aussi un délai | un geste seulement, pas de minuterie (D7) | **tranché à la relecture : la supposition est retenue** — le suivi reprend sur un geste du lecteur ou sur le bouton `Follow`, jamais sur un délai, et aucun usage n'a demandé le contraire. Déclencheur : un utilisateur qui perd le suivi sans savoir pourquoi |
-| 6 | **un décalage de traduction proposé pour une dérive** | non (D10) | **tranché à la relecture : non** — une dérive linéaire est une conversion de fréquence, et D11 la traite ; les fixtures `derive` et `partiel` prouvent que rien n'est proposé. Déclencheur : une demande réelle |
-| 7 | **la forme de « rouvrir décalée »** : un bouton de la boîte de l'ouverture, ou une action de menu | un bouton de la boîte, qui existe déjà quand l'ouverture n'est pas propre | **tranché en #621 : la boîte du compte devient une question `Yes` / `No`** quand un décalage répare l'ouverture — le compte, puis la phrase du décalage, `No` par défaut ; sans décalage, elle reste la boîte à fermer |
-| 8 | **le 4K, le HDR, HEVC** sous le rendu logiciel | non mesurés ; l'ADR dit son déclencheur | **mesuré à la relecture de fin de phase** (ADR 0041, addendum) : le 1080p H.264 tient le temps réel à 2,5 ×, un 4K HEVC lourd ne le tient pas sur deux cœurs (0,62 × en 8 bits, 0,92 × en 10 bits). Le HDR, AV1 et la lecture suivie avec comptage d'images perdues restent non mesurés |
-| 9 | **le décodage matériel** : `hwdec-copy` sous le rendu logiciel | non | **livré : oui, `hwdec=auto-copy` et un réglage pour le couper** — le gain à travers libmpv est de 1,1 × à 3,2 × selon le film, moins que les 2,1 × de ffmpeg seul (ADR 0041, addendum). [#647](https://github.com/Guyot-Bertrand/sub-edit/issues/647) |
+| step forward | 100 | ≈ 51 ms |
+| step forward | 249 | ≈ 106 ms |
+| step back | 99 | ≈ 46 ms |
+| step back | 248 | ≈ 95 ms |
+
+- **The step back costs no more than the step forward**, at the same distance from the keyframe: the hypothesis "going back is
+  much more expensive" is ruled out for this codec, and **the cost depends only on the distance to the keyframe**, not on
+  the gesture. A real film (H.264, HEVC, 1080p) may say otherwise; the measurement on their own is the user's.
+- **What this changes for the gesture (D6)**: at 25 frames per second, a frame lasts 40 ms, and a held key repeats
+  faster than 100 ms. **Far from the keyframe, the step therefore does not keep up with the repetition**: the repetition must not
+  pile up — that is already the rule of the gesture, "one step at a time" — and #618 holds it, by keeping only the last step
+  requested while a step is running. The cost of the last frame of a video with a single keyframe is the worst case.
+- **The benchmark found a defect of #613**: with `vo=libmpv`, the output waits for each frame to be rendered, up to
+  200 ms, and a `seek` that waited on the window's thread stalled for 400 ms whatever the distance. The player
+  now takes the frames itself while it waits; a case of `mpv_player_test.cpp` holds it.
+
+## D1 — The scope: what Gaupol does, what it does not, and what makes sense here
+
+Recounted **item by item** against `gaupol/actions/video.py`, `audio.py` and `edit.py`.
+
+| Item | Gaupol | Here | Decision |
+| :--- | :----- | :--- | :------- |
+| position (slider) | `Gtk.Scale` of the player bar | **kept** | D5 |
+| step back, step forward | `Seek Backward`, `Seek Forward` — `video_player.seek_length`, **30 s** | **kept**, adjustable step | D5, D12 |
+| previous, next subtitle | `Seek Previous`, `Seek Next` | **kept** | D5 |
+| start, end of the selection | `Seek Selection Start`, `Seek Selection End` — `context_length`, **1 s** of lead | **kept** | D5, D12 |
+| play the selection | `Play Selection` | **kept**, up to its end | D5 |
+| volume | `Volume Up`, `Volume Down` | **kept**, remembered from one session to the next | D5, D12 |
+| audio track | `Set Audio Language` (a radio choice) | **kept** | D5 |
+| set start, end from the video position | `Set Start / End from Video Position` | **kept** | D6 |
+| insert at the video position | `Insert Subtitle at Video Position` | **kept** | D6 |
+| select the neighbour from the position | `Select Previous / Next from Video Position` | **kept** | D6 |
+| **frame by frame** | **none** | **kept** — the reason libmpv was chosen | D3, D6 |
+| **nudge an edge by one frame** | **none** | **kept** | D6 |
+| timecode overlay | `time_alpha`, `time_background` | **kept**, drawn by Qt | D9 |
+| the line without raw markup | rendered by GStreamer | **kept** ([#408](https://github.com/Guyot-Bertrand/sub-edit/issues/408)) | D9 |
+| positions in frames | `Frames` mode | **kept** | D8 |
+| **recognise a shifted translation** | **none** | **kept** | D10 |
+| **find the pair of a wrong conversion** | **none** | **kept** ([#386](https://github.com/Guyot-Bertrand/sub-edit/issues/386)) | D11 |
+| automatic playback on opening (`autoplay`) | setting | **set aside** | nothing asks for it; trigger: a request |
+| style of the line (font, colour, position, background, transparency) | seven `subtitle_*` settings | **set aside** | the line keeps the style phase 6 laid down; trigger: a request, and software rendering would make it possible to honour them |
+| no subcommand | — | **set aside** | the player belongs to the window; an invocation has neither picture nor position |
+
+**Four gains over Gaupol**, in the right-hand column: frame-by-frame stepping, the one-frame nudge, and the
+two detections.
+
+## D2 — The display path: libmpv's software rendering
+
+**Decided by the user on 2026-10-06; [ADR 0041](../adr/0041-afficher-la-video-par-le-rendu-logiciel.md)
+carries it.** The picture is drawn by libmpv's **software** rendering API into a buffer that `VideoSurface` — a
+Qt widget — paints. The native window adopted through `wid` disappears, along with the platform guard and its seven lines
+of coverage. **#190 is settled by this decision**, and the phase implements it.
+
+**What this changes for the rest of the phase**: the picture can be screenshotted and read without a display, so **the manual
+of timing shows the picture**, and a test compares the displayed picture with the numbered frame of #610; the timecode is drawn
+**by Qt**, on the surface, without asking the player to do it. What this does not change: `VideoPlayer` still knows
+neither libmpv nor Qt.
+
+## D3 — The player interface gains five commands, and no notification
+
+`VideoPlayer` gains:
+
+- **`stepFrames(int)`**, positive forward, negative backward;
+- **`volume()` and `setVolume(int)`**, from 0 to 100;
+- **`audioTracks()` and `selectAudioTrack(id)`**: the identifier, the language, the title;
+- **`playUntil(Timestamp)`**: play and stop at a position, to the frame. `Play Selection` needs it, and
+  a 100 ms follower that stopped playback would let it overrun by up to three frames.
+
+**No position notification.** The interface says "a single thread" and "waits", because the core has no
+event loop; a notification would require one. **Following remains a poll**, that of `VideoPane`, which the
+tests drive by hand: that is what keeps them away from a clock, and only one case pays for the timer. **A mark or
+a step shows at once**, without waiting for the next tick — as `VideoPane` already does for a selection.
+
+The double follows, without a clock: it keeps its position by hand, and gains the same commands.
+
+## D4 — "The position", "the frame", "exact"
+
+**Stated, because it was wrong in a comment** (`seek`: "the frame at its own start").
+
+- **`seek(t)` places playback on the frame nearest to `t`.** Inside a frame, the first half renders
+  that frame, the second the next one. That is what mpv does, and what is promised; writing it in the header is
+  an issue ([#614](https://github.com/Guyot-Bertrand/sub-edit/issues/614)).
+- **`position()` is the start of the displayed frame**, rounded to the millisecond. After `seek(437)`, it is 459: the
+  start of frame 11. **A mark set from the position is therefore always the start of a frame**, and going back to it
+  renders the same frame — a round trip that can be proved.
+- **A subtitle that starts in the middle of a frame shows, at its start, the nearest frame**, sometimes the next one.
+  This is not an error of the player: a frame has no middle a subtitle could aim at, and timing to the
+  mark, for its part, is not fooled by it.
+- **The resolution of `Timestamp` is not at fault**: every frame at 23.976 starts right in whole
+  milliseconds. No fractional representation is introduced.
+- **The proof is #610**, with an oracle that reads the displayed frame and not the player's counters.
+
+## D5 — Driving
+
+In the `Video` menu, **Gaupol's gestures** — the same names, and their shortcuts as long as they do not clash with a
+shortcut the window already has (the uniqueness check decides):
+
+- **step back and forward** (30 s by default), **previous and next subtitle** (playback goes to their start),
+  **start and end of the selection** (with the lead, 1 s by default, before the start), **play the selection** — which
+  stops at the end of the last selected subtitle, through `playUntil`;
+- **the volume**, through two gestures and a slider;
+- **an `Audio` submenu**, which lists the tracks and marks the one playing.
+
+**A playback bar under the picture**: the position slider, the position and the duration, play/pause **flanked by two step buttons** (step back, step forward by one frame — #618), the volume.
+**The slider does not hand back control at every pixel**: seeking is rate-limited, and **the last position
+requested is always the one reached**.
+
+**Audio tracks are not remembered** from one video to the next: a track number belongs to its file.
+**The gestures are disabled without a video**, as playback is today.
+
+## D6 — Timing
+
+**Gaupol's five marking gestures, replayed on commands that exist.** Setting the start or the end of the
+selected subtitle from the video position: `SetPositionCommand`. Inserting at the position: `InsertCommand`.
+Selecting the neighbour: a selection move. **The same rules and the same messages as typing into a
+cell** — strict order, an end before its start — because a gesture with its own rules would say something different
+from the cell for the same value. **One history entry per gesture.**
+
+**The step buttons of the bar trigger the menu actions**: same step, same disabling without a film, same tooltip (with the shortcut), and a held button chains the steps, one at a time.
+
+**The shortcuts** (#617, #618): `Alt+Left` and `Alt+Right` for the step; `Alt+Q`, `Alt+W` for the start earlier, later, `Alt+Shift+Q`, `Alt+Shift+W` for the end — Gaupol's `E` is the letter of `Edit`; for the marks, `Alt+U` the start, `Alt+K` the end, `Alt+J` the insertion — Gaupol's `U`, `K` and `J`, which the window would take before a cell being edited — and `Alt+Up`, `Alt+Down` for the neighbour. Gaupol's `Ctrl+Y` is a *redo* on some systems.
+
+**The gain over Gaupol: frame-by-frame stepping.**
+
+- **Stepping forward and back**, two gestures that chain under a held key. **The step is a number
+  of frames, and its minimum is one frame**: that is frame-by-frame stepping, which makes it possible to place a subtitle to the
+  frame. The step is adjusted **upwards**, in a whole number of frames, for larger jumps (5, 10, 24…); it never
+  goes below one, and it is never in milliseconds. One step at a time: repetition does not pile up.
+- **Nudging the start or the end of the selected subtitle by one step**, for fine adjustment from the keyboard: an
+  undoable command, which reports overlap and order as typing does. **The same step** as the player's, hence one
+  frame by default.
+- **The duration of a frame** comes, in this order, from **the frame rate the video declares**, from **that of the document
+  when it is counted in frames**, from **the deduced grid** (phase 16) — **and without any of them, the gesture refuses and says so**,
+  like `shift --to-grid`: picking a frame rate at random would move the whole file.
+
+**The step is counted in frames, never in milliseconds**: a frame is what the player can show, and a thousandth
+of a second cannot be seen. **What it is worth in time is the duration of one frame of this video** — 40 ms at 25 frames per
+second, 41.7 ms at 23.976 —, so that a step of N frames is always N frames, whatever the frame rate. That is what
+keeps the gesture right for fine timing, where an edge is placed on a frame and not on an instant. A setting in
+milliseconds is a trigger, not a promise.
+
+## D7 — Following in the table
+
+Clarified by the user on 2026-09-30: **the table centres on the current subtitle**, which it does not do
+— it brings it back into the visible area.
+
+- **It centres when the row changes**, not at every tick: a row lasts seconds on average, a
+  recentring at every 100 ms tick would be pointless scrolling.
+- **Scrolling by hand suspends following** — the wheel, the scroll bar, a click in the table.
+- **Following resumes on a player gesture**: playback started, a jump, a mark, a step — **or on demand**.
+  **No timer**: what resumes following is a gesture, so a test drives it without a clock.
+- **A button of the video strip**, checked when the table follows, shows the state and restores it.
+- **Delivered (#619)**: the `Follow` button is at the right of the playback bar. Recentring costs 1.3 µs on a table of 4,000 rows (`make bench`, `centrer une ligne sur 4000 sous-titres`, painting excluded): it is paid at each row change, never at each tick.
+
+## D8 — Positions in frames
+
+**The frame editing mode** — deferred from phase 5, passed on again by phase 9. **A `View` setting**, a single one for
+the window, which shows `Start` and `End` as frame numbers and accepts numbers on input. **The frame rate that
+counts** is that of the document when it is counted in frames (MicroDVD carries numbers and no frame rate), otherwise
+that of the video, otherwise the deduced grid; **without any of them, the setting is disabled and says why**. Toggling it redraws
+columns: **it does not touch the model**, and what the file writes does not change. An entered number is converted
+by exact scaling ([ADR 0013](../adr/0013-mise-a-l-echelle-exacte-des-positions.md)), rounded once.
+
+**Delivered (#620)**: `View ▸ Positions in Frames`, a checkable entry whose tooltip states the frame rate retained and its source, or why it is disabled. Only `Start` and `End` change, `Duration` stays a time; the setting is not remembered (D12). The table model receives the frame rate and the project is not touched. **The playback bar receives it too**: its position and its duration follow the same setting; the clock drawn on the picture stays a timestamp.
+
+## D9 — The line and the timecode
+
+- **The line without raw markup** ([#408](https://github.com/Guyot-Bertrand/sub-edit/issues/408)): `showSubtitle`
+  receives the text with the markup of its format. The **markup pivot** (ADR 0031) translates it into ASS tags — italic,
+  bold, underline, colour —, **and a tag with no on-screen equivalent is removed, never drawn as
+  is**. No second parser: the conversion's one serves.
+- **The timecode** is drawn by Qt on the surface, **from `position()`**; it asks nothing of the player. Its
+  style is the window's.
+
+## D10 — Recognising a shifted translation
+
+**Decided by the user on 2026-10-06: it belongs to this phase.** A translation timed two seconds too late
+aligns with the wrong subtitles without anything distinguishing it from a correct attachment: phase 11 makes it
+**visible** (the count), not **correctable**.
+
+- **The core looks for a constant shift.** The gaps between the start of each line and that of the nearest
+  subtitle give candidates, grouped to the ten milliseconds.
+- **Each candidate is judged by what the attachment would say after it** — lines attached, born, without a subtitle,
+  out of order —, **by the same algorithm as the opening**. The confidence is therefore **what the opening would already
+  report**, never an invented number: "shifted by +2.000 s, four lines out of four would attach, against one".
+- **Nothing is proposed** when the attachment does not clearly improve, **when two candidates are equal**, or
+  when the gap is not constant (a drift, a partial shift) — **and the sentence then does not say there is one**.
+- **The window**: when the opening is not clean and a shift would make it clean, **the sentence says so** and
+  **offers to reopen shifted** (undo the opening, then reopen with the shift): a single history entry, and
+  undo is enough to go back.
+- **No command line**: neither subcommand nor option. If `inspect -t` must say it one day, the key is additive.
+- **The eight pairs of `src/test/data/paires/`** serve as a guard: none is offered a shift it does not
+  have. Putting it to the test requires a **generator of pairs with their ground truth**, written with the detection.
+
+**Delivered (#621).** The candidates are the gaps to the subtitle that starts just before the line and to the one that starts
+just after: the nearest alone is wrong when two subtitles are equally near. A gap that at least two lines
+do not show is noise, and at most eight candidates are judged. The shift returned is the **median** of the gaps
+of its group, hence exact to the thousandth when it is constant. The window looks for it **before** applying the opening —
+afterwards, the project carries the subtitles born from the lines. The generator is `src/scripts/shifted-pairs.py`
+(`src/test/data/decalages/`, six cases: no shift, three constant, a drift, a partial shift), held by the
+gate like the other generated fixtures.
+
+## D11 — Finding the pair of a conversion at the wrong frame rate
+
+**Decided by the user on 2026-10-06: it belongs to this phase** ([#386](https://github.com/Guyot-Bertrand/sub-edit/issues/386)),
+the spec of phase 16 having called it "the most useful and the least certain" and deferred it here, because phase 14 has
+a player able to **show the result to the frame**. The three questions phase 10 had left:
+
+- **How far to search: a closed set** — the **fifty-six ordered pairs** of the eight standard frame rates.
+  An arbitrary rational would always yield a grid to whoever searches long enough; eight frame rates yield
+  fifty-six, which are enumerated and told apart.
+- **The confidence: that of the deduction.** Each ratio is applied to the positions, **the deduction of phase 16
+  judges the result** (`Clean`, `Partial`, `Silent`), and what is returned is **the best pair with the gap that
+  separates it from the second and from "do nothing"**. **When two pairs are equal, neither is proposed**, and the sentence
+  says so. The trigger: the deduction returns `Silent` or `Partial`.
+- **What the interface shows before applying**: the analysis dialog (`GUI-GRID-02`) shows the proposal;
+  **`Convert Frame Rate…` opens prefilled**; **nothing is applied without a gesture**, undo is enough to go back, and
+  the video makes it possible to judge to the frame.
+
+**Delivered (#622, which takes over #386).** The fifty-six pairs make **forty distinct ratios**: 30 to 25 and
+60 to 50 move every position alike and are only one conversion, of which the pair whose output
+is the grid the positions fall on is kept. The judge is the deduction: a conversion fits when it returns `Clean`, and
+**two that fit are a tie** — with no further threshold, since the deduction has only one. What the enumeration
+of the three hundred and twenty combinations (grid × wrong ratio) showed, and what the spec had not foreseen: **a single
+repair is the exception**. A grid at 28.8 frames per second goes back onto 24 and onto 30, and a file with
+doubled times stays on the grid of 25; only the conversion of a file already at the target frame rate, the most
+common gesture, has a unique repair. The tie is therefore stated with its two pairs, and the button is only offered for a
+single conversion. The generator is `src/scripts/wrong-rate-pairs.py` (`src/test/data/conversions-fausses/`, ten cases);
+the cost of the worst path, forty deductions on four thousand subtitles, is on the order of two milliseconds.
+
+## D12 — The settings
+
+Four settings, in `Preferences…`, under [ADR 0022](../adr/0022-configuration-au-noyau-et-tolerance-par-option.md)
+— tolerant option by option, an absurd value does not break opening: **the jump step** (30 s, like
+Gaupol), **the frame step** (1 frame, from 1 to a reasonable bound; D6), **the lead before a selection** (1 s, like
+Gaupol) and **the volume**. **Nothing else is remembered**: neither the
+audio track, nor following, nor the frame mode (a window setting, not a document's — it follows `View`).
+
+
+## D13 — The manual and the screenshots
+
+A page on timing and the player, **the shortcut table held by [#612](https://github.com/Guyot-Bertrand/sub-edit/issues/612)**,
+and screenshots **of the playback bar and of the picture**: ADR 0041 makes them possible, the picture being in the
+window. `make manual` photographs them **under the real player, with a versioned video fixture** — that of #610 or a
+picture chosen for the manual — rather than under the double, which paints nothing; the end-of-phase review will reread the
+manual in one go.
+
+## How the phase is proved
+
+- **Positioning accuracy has an oracle independent of the player** ([#610](https://github.com/Guyot-Bertrand/sub-edit/issues/610)):
+  13 kB videos in which every frame carries its number, and a reading of the displayed frame. **A single keyframe**,
+  because that is the hard case. After the surface (D2), the test reads the picture **in the window**.
+- **The cost of the jump and of the step is measured** ([#611](https://github.com/Guyot-Bertrand/sub-edit/issues/611)) on a
+  film-sized video, entered in the log like the other records; **a rendering benchmark** is added with ADR 0041.
+- **The shortcuts are confronted with the manual** ([#612](https://github.com/Guyot-Bertrand/sub-edit/issues/612)): some fifteen
+  keyboard gestures cannot be kept by eye.
+- **The marking gestures are proved by the round trip**: set a mark, go back to it, and read the same frame.
+- **The detections are proved by a planted truth**: a shift or a wrong conversion that was introduced, and
+  that is found again; and **by silence** — a drift, two equal candidates, a clean file propose nothing.
+- **Following is proved without a clock**: the follower is driven by hand, only one case pays for the timer.
+- **A case on a real film** is that of the end-of-phase review, on what the user watches: the private
+  corpus has no video, and no figure is attributed to it. The benchmark `seeking and stepping on a real film` takes the
+  film through `SUBEDIT_BENCH_REAL_FILM` and abstains without it; it runs under `limit-cores.sh` like the whole benchmark.
+
+## What the phase does not deliver
+
+Each with a recipient.
+
+- **Zero-copy hardware decoding** — **set aside by ADR 0041**, with its trigger: a user whose playback
+  drops frames at an ordinary size and codec. The answer would be the OpenGL API **behind the same surface**.
+- **4K, HDR, a heavy codec**: **partly measured at the review** — heavy 4K HEVC does not keep up with real time on two cores, hardware decoding is the answer ([#647](https://github.com/Guyot-Bertrand/sub-edit/issues/647)); HDR and AV1 remain unmeasured.
+- **The style of the line and of the timecode** (font, colour, position, background) — **set aside**, trigger: a request.
+- **Automatic playback on opening** — **set aside**, same trigger.
+- **A command line for the player or the detections** — **set aside**: D10 and D1.
+- **Increments in milliseconds** — **set aside**, D6; trigger: a caller who adjusts to the thousandth.
+- **A shift proposal for a drift or a partial shift** — **set aside**: D10 says nothing rather than
+  something wrong. A linear drift is a frame rate conversion, and D11 handles it.
+- **Position notifications** from the player — **set aside**, D3; trigger: a need the 100 ms poll
+  does not serve.
+- **Sound**: audio transcription, automatic alignment — phases 22 and 23.
+
+## Deviations from Gaupol
+
+| What Gaupol does | What `subedit` does | Why |
+| :--------------- | :------------------ | :-- |
+| the picture is rendered by GStreamer into a GTK widget | **by libmpv, in software, into a Qt widget** | ADR 0041 |
+| `Seek Backward / Forward` by 30 s, with no setting in the interface | **the step is a `Preferences…` setting**, 30 s by default | D12 |
+| no one-frame step | **step forward and back by one frame**, and nudge an edge by one frame | the reason libmpv was chosen |
+| the drawn subtitle has seven style settings | **the style of phase 6, without settings** | D1 |
+| `autoplay` | **no automatic playback** | D1 |
+| no shift detection | **two detections, proposed and never applied** | D10, D11 |
+| following playback brings the row back on screen | **the table centres, and is suspended by scrolling by hand** | D7, user request |
+| `Set Audio Language`: a choice of language | **a submenu of the tracks**, by language, title or number | a track does not always have a language |
+| no way to suspend or resume following by hand | **a `Follow` button**, which shows the state of following and resumes it | user request, #619 |
+| the table's positions can be shown in frames; the playback bar's cannot | **the bar also shows its two positions in frames**, through the same setting | user request, #620 |
+
+## Requirements
+
+**Twenty-eight**, all `implemented` and cited by a test at the end-of-phase review — none `abandoned` —, **entered in the registry with this spec**: `check-requirements.sh` confronts the
+table of a phase spec with the registry in both directions. Each issue **rereads** its own before its code — the state
+moves to `implemented` when a test cites them, never before. **Twelve new subjects**, none of whose identifiers was taken:
+`SURFACE`, `STEP`, `NUDGE`, `SEEK`, `VOLUME`, `TIMECODE`, `AUDIO`, `MARK`, `FOLLOW`, `REPLICA`, `DRIFT`, `REPAIR`; `FRAMES`
+continues from `GUI-FRAMES-01`.
+
+| ID | Requirement |
+| :- | :---------- |
+| `GUI-SURFACE-01` | the video picture is drawn in the window, resizable, its aspect ratio preserved |
+| `GUI-SURFACE-02` | after a jump, the displayed frame is that of the requested position, the nearest |
+| `GUI-SURFACE-03` | the window adopts no native window and does not require X11 |
+| `GUI-STEP-01` | stepping forward one frame displays the next frame |
+| `GUI-STEP-02` | stepping back one frame displays the previous frame |
+| `GUI-STEP-03` | the duration of a frame comes from the video, failing that from the document, failing that from the grid; without any of them, the gesture refuses and says so |
+| `GUI-STEP-04` | the step is set in a number of frames, at least one; an absurd value does not break opening |
+| `GUI-NUDGE-01` | nudging the start or the end of a subtitle by one frame is undoable in one entry |
+| `GUI-SEEK-01` | the position slider can be read and moved |
+| `GUI-SEEK-02` | step back and forward by an adjustable step |
+| `GUI-SEEK-03` | the previous and the next subtitle place playback at their start |
+| `GUI-SEEK-04` | the start and the end of the selection place playback, with the configured lead |
+| `GUI-SEEK-05` | playing the selection stops at its end |
+| `GUI-VOLUME-01` | the volume is adjusted and remembered from one session to the next |
+| `GUI-TIMECODE-01` | the timecode is overlaid on the picture |
+| `GUI-AUDIO-01` | the audio track is chosen among those of the video |
+| `GUI-MARK-01` | set the start of a subtitle from the video position, in one history entry |
+| `GUI-MARK-02` | set its end from the video position |
+| `GUI-MARK-03` | insert a subtitle at the video position |
+| `GUI-MARK-04` | select the previous or next subtitle from the video position |
+| `GUI-FOLLOW-01` | the table centres the current subtitle during playback |
+| `GUI-FOLLOW-02` | scrolling by hand suspends following |
+| `GUI-FOLLOW-03` | following resumes on a player gesture or on demand |
+| `GUI-REPLICA-01` | the line drawn on the picture no longer has raw markup |
+| `GUI-FRAMES-02` | positions are displayed and entered as frame numbers, the frame rate stated |
+| `GUI-DRIFT-01` | opening a translation says that a constant shift would attach it better, without saying so of a drift |
+| `GUI-DRIFT-02` | reopening shifted attaches according to the proposed shift, in one history entry |
+| `GUI-REPAIR-01` | the analysis dialog proposes the frame rate conversion that puts the file back on a grid, or nothing when two are equal |
+| `GUI-REPAIR-02` | `Convert Frame Rate…` opens prefilled with that proposal |
+
+## Split into issues
+
+**Five slices**, the foundations first — the surface and the player interface, on which everything depends —, then what
+the user touches, then the two detections, which depend on the player only to judge to the frame. **The tooling
+issues of the initialisation (#610 to #612) come first; #610 before any implementation issue.**
+
+**The issues are open**, in milestone 14: [#610](https://github.com/Guyot-Bertrand/sub-edit/issues/610)
+to [#623](https://github.com/Guyot-Bertrand/sub-edit/issues/623), with [#386](https://github.com/Guyot-Bertrand/sub-edit/issues/386)
+and [#408](https://github.com/Guyot-Bertrand/sub-edit/issues/408), older ones, which find their place there.
+
+| Slice | Issue | What it delivers | Depends on | Size |
+| :---- | :---- | :--------------- | :--------- | :--- |
+| 0 — the tooling | [#610](https://github.com/Guyot-Bertrand/sub-edit/issues/610) | **videos that carry the number of their frames**, and an oracle | — | M |
+| | [#611](https://github.com/Guyot-Bertrand/sub-edit/issues/611) | **the benchmark of the jump and of the step**, according to the distance to the keyframe | #610 | S |
+| | [#612](https://github.com/Guyot-Bertrand/sub-edit/issues/612) | **the manual states the shortcuts** of the window | — | S |
+| 1 — the foundations | [#613](https://github.com/Guyot-Bertrand/sub-edit/issues/613) | **the surface**: libmpv's software rendering, in the Qt window (ADR 0041, #190) | #610 | L |
+| | [#614](https://github.com/Guyot-Bertrand/sub-edit/issues/614) | **the player interface**: frame step, volume, tracks, `playUntil`, and what "the position" means | #610 | M |
+| 2 — driving | [#615](https://github.com/Guyot-Bertrand/sub-edit/issues/615) | **the playback bar**: slider, jumps, neighbours, selection, volume, timecode, three settings | #613, #614 | L |
+| | [#616](https://github.com/Guyot-Bertrand/sub-edit/issues/616) | **the audio track** | #614 | S |
+| 3 — timing | [#617](https://github.com/Guyot-Bertrand/sub-edit/issues/617) | **the marks**: start, end, insertion, neighbour, from the position | #614 | M |
+| | [#618](https://github.com/Guyot-Bertrand/sub-edit/issues/618) | **frame-by-frame stepping**, and nudging an edge by one frame | #614, #617 | M |
+| | [#619](https://github.com/Guyot-Bertrand/sub-edit/issues/619) | **following in the table**: centred, suspended by hand, resumed on a gesture | — | M |
+| 4 — the display | [#408](https://github.com/Guyot-Bertrand/sub-edit/issues/408) | **the line without raw markup**, through the markup pivot | — | S |
+| | [#620](https://github.com/Guyot-Bertrand/sub-edit/issues/620) | **positions in frames**: a `View` setting | — | M |
+| 5 — the detections | [#621](https://github.com/Guyot-Bertrand/sub-edit/issues/621) | **recognise a shifted translation**, and reopen it shifted | — | L |
+| | [#622](https://github.com/Guyot-Bertrand/sub-edit/issues/622) | **propose the conversion that puts a file back on a grid** (#386) | #613, #615 | L |
+| | [#623](https://github.com/Guyot-Bertrand/sub-edit/issues/623) | **end-of-phase review** | everything | M |
+
+**The end-of-phase review ([#623](https://github.com/Guyot-Bertrand/sub-edit/issues/623)) opened four issues**,
+nothing being fixed in the review: [#644](https://github.com/Guyot-Bertrand/sub-edit/issues/644) (the player's
+position rules, outside the core), [#645](https://github.com/Guyot-Bertrand/sub-edit/issues/645) (a single path for
+the player's gestures, and the test that holds it), [#646](https://github.com/Guyot-Bertrand/sub-edit/issues/646) (the player's
+tests without a clock) and [#647](https://github.com/Guyot-Bertrand/sub-edit/issues/647) (hardware decoding with copy).
+
+**#613 is the cornerstone of the phase, and the riskiest**: it changes the way the picture arrives, hence
+what each player issue touches, and it is the one that commits to ADR 0041. **#614 is the narrowest and the most
+blocking**: everything that is set or driven goes through `VideoPlayer`.
+
+**What can move forward in parallel**: #619, #620, #621 and #408 depend on no player issue; #611 and #612
+as soon as #610, and at any time.
+
+## Open points
+
+**Two were settled by the user on 2026-10-06** (1 and 2). The others are what the framing cannot settle
+alone, **each with what is assumed in the meantime**.
+
+| No. | Point | Assumed | Who, when |
+| :-- | :---- | :------ | :-------- |
+| 1 | **the display path**: native window, OpenGL rendering, software rendering | software rendering (ADR 0041) | **settled on 2026-10-06**: the assumption is kept |
+| 2 | **the two detections**: in the phase, or deferred | both in the phase (D10, D11) | **settled on 2026-10-06**: in the phase, against the assumption of the framing, which deferred #386 |
+| 3 | **what a frame "is"**: the nearest to a position, or the one displayed at that instant | the nearest, which is what mpv does (D4) | **settled in #614: the assumption is kept**, and proved on videos that carry the number of their frames (23.976 and 25 frames per second); a contrary decision would require correcting the requested position before the `seek` |
+| 4 | **the jump step**: 30 s, like Gaupol | 30 s | **settled in #615: 30 s, and a `Preferences…` setting** (`video.seek-length`) |
+| 5 | **resuming following**: a player gesture, or also a delay | a gesture only, no timer (D7) | **settled at the review: the assumption is kept** — following resumes on a player gesture or on the `Follow` button, never on a delay, and no use has asked for the opposite. Trigger: a user who loses following without knowing why |
+| 6 | **a translation shift proposed for a drift** | no (D10) | **settled at the review: no** — a linear drift is a frame rate conversion, and D11 handles it; the `derive` and `partiel` fixtures prove that nothing is proposed. Trigger: a real request |
+| 7 | **the form of "reopen shifted"**: a button of the opening's box, or a menu action | a button of the box, which already exists when the opening is not clean | **settled in #621: the count box becomes a `Yes` / `No` question** when a shift repairs the opening — the count, then the shift sentence, `No` by default; without a shift, it stays the box to close |
+| 8 | **4K, HDR, HEVC** under software rendering | unmeasured; the ADR states its trigger | **measured at the end-of-phase review** (ADR 0041, addendum): 1080p H.264 keeps up with real time at 2.5 ×, a heavy 4K HEVC does not on two cores (0.62 × in 8 bits, 0.92 × in 10 bits). HDR, AV1 and sustained playback with dropped-frame counting remain unmeasured |
+| 9 | **hardware decoding**: `hwdec-copy` under software rendering | no | **delivered: yes, `hwdec=auto-copy` and a setting to turn it off** — the gain through libmpv is 1.1 × to 3.2 × depending on the film, less than the 2.1 × of ffmpeg alone (ADR 0041, addendum). [#647](https://github.com/Guyot-Bertrand/sub-edit/issues/647) |
