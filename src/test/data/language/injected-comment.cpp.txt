@@ -1,0 +1,2 @@
+// Une ligne de commentaire dans la langue qui nest pas celle des fichiers
+// que ce controle surveille, pour que la porte le dise.

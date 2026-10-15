@@ -124,6 +124,9 @@ readonly PR_CHECK="${REPO_ROOT}/src/scripts/check-pull-request.sh"
 readonly PRUNE_SCRIPT="${REPO_ROOT}/src/scripts/prune-runs.sh"
 readonly RELEASE_PRUNE_SCRIPT="${REPO_ROOT}/src/scripts/prune-releases.sh"
 readonly RELEASE_TAG_CHECK="${REPO_ROOT}/src/scripts/check-release-tag.sh"
+# The French text some proofs inject on purpose lives here, as data, so that this script stays
+# in English and off `.french-allowlist`.
+readonly LANGUAGE_FIXTURES="${REPO_ROOT}/src/test/data/language"
 readonly VIDEO_FIXTURE="${REPO_ROOT}/src/test/data/videos/cadence-25.mp4"
 readonly GRID_FIXTURE="${REPO_ROOT}/src/test/data/grilles/grille-25.srt"
 readonly PATTERN_EXPECTED="${REPO_ROOT}/src/test/data/motifs/attendus/common-error.cas"
@@ -545,14 +548,14 @@ expect_gate_closes \
 # cannot be told apart from a ratchet set too high, which would let through the
 # drift it is meant to stop.
 #
-# The snippet is written without apostrophes or accents, like all of them here:
-# it goes through a string between single quotes. Its French is the defect.
+# Its French is the defect, so the snippet is read from a versioned sample,
+# `src/test/data/language/injected-comment.cpp.txt`, rather than written here:
+# test data is outside the language rule, this script is not.
 expect_gate_closes \
     "French comment added to C++" \
     "arch" \
     "${LIB_SOURCE}" \
-    '// Une ligne de commentaire dans la langue qui nest pas celle des fichiers
-// que ce controle surveille, pour que la porte le dise.'
+    "$(<"${LANGUAGE_FIXTURES}/injected-comment.cpp.txt")"
 
 expect_pr_check_closes \
     "pull request body without « Closes #N »" \
@@ -884,12 +887,20 @@ expect_generated_source_closes
 # The injection carries both halves: an accented title, then a French title
 # without a single accent. The second is the one that matters, because it is the
 # one a naive check would let through, and because two of the hundred were
-# exactly of that form. Both titles are French on purpose: they are the defect.
+# exactly of that form. Both titles are French on purpose: they are the defect,
+# and they are read from `src/test/data/language/injected-titles.txt`, one per
+# line, for the reason given at the French comment proof above.
 expect_french_test_title_closes() {
-    local one two
+    local one
+    local -a titles
+    mapfile -t titles < "${LANGUAGE_FIXTURES}/injected-titles.txt"
+    if (( ${#titles[@]} != 2 )); then
+        printf '  %s✗ injected-titles.txt must hold two titles, it holds %d%s\n' \
+            "${RED}" "${#titles[@]}" "${RESET}"
+        failures=$((failures + 1))
+    fi
 
-    for one in "un décalage négatif remonte les positions" \
-               "un fichier absent ne fait dire mot"; do
+    for one in "${titles[@]}"; do
         proof_header '%s▸ %s%s\n' "${BOLD}" "a test title in French: « ${one} »" "${RESET}"
 
         printf '\nTEST_CASE("%s", "[version]") {\n    CHECK(true);\n}\n' "${one}" \
@@ -1480,29 +1491,28 @@ expect_screenshot_gates() {
 
 expect_screenshot_gates
 
-# Chaque capture claire a sa sombre — #400.
+# Every light screenshot has its dark one — #400.
 #
-# **Quatre preuves, sur un jeu écrit à la main.** Le manuel promettait deux fois
-# que chaque écran se montre sous les deux palettes, et deux écrans de la phase
-# 10 sont entrés avec la seule claire : le contrôle vérifiait qu une image
-# montrée est engendrée, pas qu elle a sa paire. Le défaut se prouve sur un
-# petit dépôt de fortune — un programme de capture de trois lignes, une page, des
-# fichiers vides — plutôt qu en retirant une vraie image : la preuve ne touche
-# pas aux captures du manuel, et elle ne dépend pas de ce qu elles montrent un
-# jour.
+# **Four proofs, on a hand-written set.** The manual promised twice that every
+# screen is shown under both palettes, and two screens of phase 10 came in with
+# the light one only: the check verified that a shown image is produced, not
+# that it has its pair. The defect is proven on a small makeshift repository — a
+# three-line capture program, a page, empty files — rather than by removing a
+# real image: the proof does not touch the manual's captures, and it does not
+# depend on what they show one day.
 #
-# **Quatre, parce que la garde a deux façons de refuser et deux de laisser
-# passer.** Elle refuse une paire que le programme n engendre pas, et nomme
-# l image, sans quoi le message ne dirait pas où chercher ; elle refuse une
-# paire que le programme engendre mais que le manuel ne montre pas, parce que la
-# promesse est faite au lecteur et non au programme de capture ; elle laisse
-# passer une exemption motivée, sans quoi un écran qui n a vraiment qu une
-# palette serait condamné à la fausse paire ; et elle laisse passer le jeu
-# complet, sans quoi elle crierait au loup à chaque exécution.
+# **Four, because the guard has two ways to refuse and two to let through.** It
+# refuses a pair the program does not produce, and names the image, without
+# which the message would not say where to look; it refuses a pair the program
+# produces but the manual does not show, because the promise is made to the
+# reader and not to the capture program; it lets a justified exemption through,
+# without which a screen that truly has one palette only would be condemned to a
+# fake pair; and it lets the complete set through, without which it would cry
+# wolf on every run.
 #
-# L exemption est une liste du script, vide aujourd hui : la preuve la remplit en
-# chargeant le script comme un module, plutôt que de lui donner une option qui
-# permettrait de s exempter depuis la ligne de commande.
+# The exemption is a list of the script, empty today: the proof fills it by
+# loading the script as a module, rather than giving it an option that would
+# allow exempting oneself from the command line.
 expect_screenshot_pairs() {
     local script="${REPO_ROOT}/src/scripts/check-screenshots.py"
     local root output
@@ -1513,30 +1523,31 @@ expect_screenshot_pairs() {
     local page="${root}/docs/manual/subedit-gui/page.md"
     local captures="${root}/docs/manual/subedit-gui/captures"
 
-    # Un écran complet, et un second qui n a que sa claire.
+    # One complete screen, and a second one that has its light shot only. The
+    # `-sombre` suffix is the one `check-screenshots.py` reads as dark.
     printf '%s\n' \
-        'capture(w, w, d, "ecran");' \
-        'capture(w, w, d, "ecran-sombre");' \
-        'capture(w, w, d, "seul");' > "${tool}"
+        'capture(w, w, d, "screen");' \
+        'capture(w, w, d, "screen-sombre");' \
+        'capture(w, w, d, "single");' > "${tool}"
     printf '%s\n' \
-        '![Clair.](captures/ecran.png)' \
-        '![Sombre.](captures/ecran-sombre.png)' \
-        '![Seul.](captures/seul.png)' > "${page}"
-    touch "${captures}/ecran.png" "${captures}/ecran-sombre.png" "${captures}/seul.png"
+        '![Light.](captures/screen.png)' \
+        '![Dark.](captures/screen-sombre.png)' \
+        '![Single.](captures/single.png)' > "${page}"
+    touch "${captures}/screen.png" "${captures}/screen-sombre.png" "${captures}/single.png"
 
-    proof_header '%s▸ une capture claire dont la sombre manque%s\n' "${BOLD}" "${RESET}"
+    proof_header '%s▸ a light screenshot whose dark one is missing%s\n' "${BOLD}" "${RESET}"
     if output="$("${script}" --root "${root}" 2>&1)"; then
-        printf '  %s✗ le garde-fou a laissé passer la paire manquante%s\n' "${RED}" "${RESET}"
+        printf '  %s✗ the guard let the missing pair through%s\n' "${RED}" "${RESET}"
         failures=$((failures + 1))
-    elif [[ "${output}" != *"seul.png"* || "${output}" == *"ecran.png"* ]]; then
-        printf '  %s✗ le garde-fou a refusé sans nommer la bonne image%s\n' "${RED}" "${RESET}"
+    elif [[ "${output}" != *"single.png"* || "${output}" == *"screen.png"* ]]; then
+        printf '  %s✗ the guard refused without naming the right image%s\n' "${RED}" "${RESET}"
         failures=$((failures + 1))
     else
-        printf '  %s✓ « check-screenshots.py » a refusé et nommé seul.png, comme attendu%s\n' \
+        printf '  %s✓ « check-screenshots.py » refused and named single.png, as expected%s\n' \
             "${GREEN}" "${RESET}"
     fi
 
-    proof_header '%s▸ un écran exempté, avec sa raison%s\n' "${BOLD}" "${RESET}"
+    proof_header '%s▸ an exempted screen, with its reason%s\n' "${BOLD}" "${RESET}"
     if python3 - "${script}" "${root}" >/dev/null 2>&1 <<'PY'
 import importlib.util
 import sys
@@ -1544,45 +1555,45 @@ import sys
 spec = importlib.util.spec_from_file_location("check_screenshots", sys.argv[1])
 module = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(module)
-module.SINGLE_PALETTE["seul"] = "un écran de preuve, qui n a qu une palette"
+module.SINGLE_PALETTE["single"] = "a proof screen, which has one palette only"
 sys.exit(module.main(["--root", sys.argv[2]]))
 PY
     then
-        printf '  %s✓ l exemption a levé la garde, comme attendu%s\n' "${GREEN}" "${RESET}"
+        printf '  %s✓ the exemption lifted the guard, as expected%s\n' "${GREEN}" "${RESET}"
     else
-        printf '  %s✗ l exemption motivée n a pas levé la garde%s\n' "${RED}" "${RESET}"
+        printf '  %s✗ the justified exemption did not lift the guard%s\n' "${RED}" "${RESET}"
         failures=$((failures + 1))
     fi
 
-    proof_header '%s▸ un jeu où chaque capture a sa paire%s\n' "${BOLD}" "${RESET}"
-    printf '%s\n' 'capture(w, w, d, "seul-sombre");' >> "${tool}"
-    printf '%s\n' '![Seul, sombre.](captures/seul-sombre.png)' >> "${page}"
-    touch "${captures}/seul-sombre.png"
+    proof_header '%s▸ a set where every screenshot has its pair%s\n' "${BOLD}" "${RESET}"
+    printf '%s\n' 'capture(w, w, d, "single-sombre");' >> "${tool}"
+    printf '%s\n' '![Single, dark.](captures/single-sombre.png)' >> "${page}"
+    touch "${captures}/single-sombre.png"
     if "${script}" --root "${root}" >/dev/null 2>&1; then
-        printf '  %s✓ « check-screenshots.py » a laissé passer le jeu complet, comme attendu%s\n' \
+        printf '  %s✓ « check-screenshots.py » let the complete set through, as expected%s\n' \
             "${GREEN}" "${RESET}"
     else
-        printf '  %s✗ le garde-fou a refusé un jeu où chaque capture a sa paire%s\n' \
+        printf '  %s✗ the guard refused a set where every screenshot has its pair%s\n' \
             "${RED}" "${RESET}"
         failures=$((failures + 1))
     fi
 
-    # Le jeu complet, dont la page ne montre plus la sombre de `seul` : le
-    # programme l engendre et le fichier existe, mais le lecteur ne la voit pas.
-    proof_header '%s▸ une sombre engendrée que le manuel ne montre pas%s\n' "${BOLD}" "${RESET}"
+    # The complete set, whose page no longer shows the dark one of `single`: the
+    # program produces it and the file exists, but the reader does not see it.
+    proof_header '%s▸ a produced dark screenshot the manual does not show%s\n' "${BOLD}" "${RESET}"
     printf '%s\n' \
-        '![Clair.](captures/ecran.png)' \
-        '![Sombre.](captures/ecran-sombre.png)' \
-        '![Seul.](captures/seul.png)' > "${page}"
+        '![Light.](captures/screen.png)' \
+        '![Dark.](captures/screen-sombre.png)' \
+        '![Single.](captures/single.png)' > "${page}"
     if output="$("${script}" --root "${root}" 2>&1)"; then
-        printf '  %s✗ le garde-fou a laissé passer la sombre absente du manuel%s\n' \
+        printf '  %s✗ the guard let the dark one missing from the manual through%s\n' \
             "${RED}" "${RESET}"
         failures=$((failures + 1))
-    elif [[ "${output}" != *"PAIR"*"seul.png"* || "${output}" == *"ecran.png"* ]]; then
-        printf '  %s✗ le garde-fou a refusé sans nommer la bonne image%s\n' "${RED}" "${RESET}"
+    elif [[ "${output}" != *"PAIR"*"single.png"* || "${output}" == *"screen.png"* ]]; then
+        printf '  %s✗ the guard refused without naming the right image%s\n' "${RED}" "${RESET}"
         failures=$((failures + 1))
     else
-        printf '  %s✓ « check-screenshots.py » a refusé et nommé seul.png, comme attendu%s\n' \
+        printf '  %s✓ « check-screenshots.py » refused and named single.png, as expected%s\n' \
             "${GREEN}" "${RESET}"
     fi
 
@@ -1671,21 +1682,21 @@ expect_screenshot_trees() {
 
 expect_screenshot_trees
 
-# Les renvois du manuel — #243.
+# The cross-references of the manual — #243.
 #
-# Le troisième filet du manuel, après les blocs engendrés et les captures. Une
-# seule preuve : le contrôle n a pas de mode d échec par excès qui se démontre
-# — il ne compare pas deux relevés, il résout des chemins et des ancres, et le
-# vert du dépôt intact est déjà la preuve qu il ne crie pas au loup.
+# The third net of the manual, after the generated blocks and the screenshots.
+# A single proof: the check has no failure mode by excess that can be shown — it
+# does not compare two readings, it resolves paths and anchors, and the green of
+# the intact repository is already the proof that it does not cry wolf.
 expect_manual_link_gate() {
-    proof_header '%s▸ un renvoi du manuel qui ne mène nulle part%s\n' "${BOLD}" "${RESET}"
-    printf '\n[Un renvoi vers rien](table.md#une-section-qui-nexiste-pas)\n' \
+    proof_header '%s▸ a manual cross-reference that leads nowhere%s\n' "${BOLD}" "${RESET}"
+    printf '\n[A link to nothing](table.md#a-section-that-does-not-exist)\n' \
         >> "${GUI_MANUAL_SOURCE}"
     if "${REPO_ROOT}/src/scripts/check-manual-links.py" >/dev/null 2>&1; then
-        printf '  %s✗ le contrôle a laissé passer l ancre absente%s\n' "${RED}" "${RESET}"
+        printf '  %s✗ the check let the missing anchor through%s\n' "${RED}" "${RESET}"
         failures=$((failures + 1))
     else
-        printf '  %s✓ « check-manual-links.py » a refusé, comme attendu%s\n' \
+        printf '  %s✓ « check-manual-links.py » refused, as expected%s\n' \
             "${GREEN}" "${RESET}"
     fi
     restore
@@ -1735,15 +1746,15 @@ expect_translation_structure_gate() {
 
 expect_translation_structure_gate
 
-# Le manuel de `subedit-cli` et son `--help` — #546.
+# The manual of `subedit-cli` and its `--help` — #546.
 #
-# **Quatre preuves, une par défaut que le contrôle promet de voir**, et une pour
-# le vert : une sous-commande sans page, une option de l'aide qu'aucun tableau ne
-# porte, une option d'un tableau que l'aide ne connaît pas, et une option
-# globale que la page `subedit-cli(1)` oublie. Chaque injection porte sur **une
-# copie** du manuel, dans un répertoire jetable : le contrôle accepte le manuel
-# et la page de manuel en arguments, si bien que rien du dépôt n'est touché et
-# que `restore` n'a rien à rétablir.
+# **Four proofs, one per defect the check promises to see**, and one for green:
+# a subcommand without a page, an option of the help that no table carries, an
+# option of a table that the help does not know, and a global option that the
+# `subedit-cli(1)` man page forgets. Every injection is made in **a copy** of
+# the manual, in a scratch directory: the check takes the manual and the man
+# page as arguments, so nothing of the repository is touched and `restore` has
+# nothing to put back.
 expect_cli_manual_gate() {
     local script="${REPO_ROOT}/src/scripts/check-cli-manual.py"
     local binary="${REPO_ROOT}/build/dev/bin/subedit-cli"
@@ -1752,12 +1763,12 @@ expect_cli_manual_gate() {
     local root
     root="$(mktemp -d)"
 
-    proof_header '%s▸ le manuel de subedit-cli, tel qu il est%s\n' "${BOLD}" "${RESET}"
+    proof_header '%s▸ the manual of subedit-cli, as it is%s\n' "${BOLD}" "${RESET}"
     if "${script}" --binary "${binary}" >/dev/null 2>&1; then
-        printf '  %s✓ « check-cli-manual.py » a laissé passer le manuel intact, comme attendu%s\n' \
+        printf '  %s✓ « check-cli-manual.py » let the intact manual through, as expected%s\n' \
             "${GREEN}" "${RESET}"
     else
-        printf '  %s✗ le contrôle refuse le manuel intact%s\n' "${RED}" "${RESET}"
+        printf '  %s✗ the check refuses the intact manual%s\n' "${RED}" "${RESET}"
         failures=$((failures + 1))
     fi
 
@@ -1766,13 +1777,13 @@ expect_cli_manual_gate() {
         local output
         if output="$("${script}" --binary "${binary}" --manual "${root}/manual" \
             --man-page "${root}/subedit-cli.1.in" 2>&1)"; then
-            printf '  %s✗ le contrôle a laissé passer : %s%s\n' "${RED}" "${label}" "${RESET}"
+            printf '  %s✗ the check let it through: %s%s\n' "${RED}" "${label}" "${RESET}"
             failures=$((failures + 1))
         elif [[ "${output}" == *"${expected}"* && "${output}" == *"1 mismatch(es)"* ]]; then
-            printf '  %s✓ « check-cli-manual.py » a refusé, et nommé seul cet écart : %s%s\n' \
+            printf '  %s✓ « check-cli-manual.py » refused, and named this mismatch alone: %s%s\n' \
                 "${GREEN}" "${label}" "${RESET}"
         else
-            printf '  %s✗ le contrôle a refusé, mais pas pour la bonne raison : %s%s\n' \
+            printf '  %s✗ the check refused, but not for the right reason: %s%s\n' \
                 "${RED}" "${label}" "${RESET}"
             failures=$((failures + 1))
         fi
@@ -1783,26 +1794,26 @@ expect_cli_manual_gate() {
         cp "${real_man_page}" "${root}/subedit-cli.1.in"
     }
 
-    proof_header '%s▸ une sous-commande sans page de manuel%s\n' "${BOLD}" "${RESET}"
+    proof_header '%s▸ a subcommand without a manual page%s\n' "${BOLD}" "${RESET}"
     fresh_copy
     rm "${root}/manual/shift.md"
-    expect_cli_manual_refused "shift sans page" "MISSING PAGE"
+    expect_cli_manual_refused "shift without a page" "MISSING PAGE"
 
-    proof_header '%s▸ une option de l aide qu aucun tableau ne porte%s\n' "${BOLD}" "${RESET}"
+    proof_header '%s▸ an option of the help that no table carries%s\n' "${BOLD}" "${RESET}"
     fresh_copy
-    sed -i 's/| `--by` |/| (retirée) |/' "${root}/manual/shift.md"
-    expect_cli_manual_refused "--by retirée des tableaux" "UNDOCUMENTED OPTION"
+    sed -i 's/| `--by` |/| (removed) |/' "${root}/manual/shift.md"
+    expect_cli_manual_refused "--by removed from the tables" "UNDOCUMENTED OPTION"
 
-    proof_header '%s▸ une option d un tableau que l aide ne connaît pas%s\n' "${BOLD}" "${RESET}"
+    proof_header '%s▸ an option of a table that the help does not know%s\n' "${BOLD}" "${RESET}"
     fresh_copy
-    printf '\n| Option | Requis |\n| :----- | :----- |\n| `--inventee` | non |\n' \
+    printf '\n| Option | Required |\n| :----- | :----- |\n| `--invented` | no |\n' \
         >> "${root}/manual/shift.md"
-    expect_cli_manual_refused "--inventee" "UNKNOWN OPTION"
+    expect_cli_manual_refused "--invented" "UNKNOWN OPTION"
 
-    proof_header '%s▸ une option globale que la page de manuel oublie%s\n' "${BOLD}" "${RESET}"
+    proof_header '%s▸ a global option that the man page forgets%s\n' "${BOLD}" "${RESET}"
     fresh_copy
-    sed -i 's/\\-\\-encoding/\\-\\-oubliee/' "${root}/subedit-cli.1.in"
-    expect_cli_manual_refused "--encoding absente de la page de manuel" "MISSING GLOBAL OPTION"
+    sed -i 's/\\-\\-encoding/\\-\\-forgotten/' "${root}/subedit-cli.1.in"
+    expect_cli_manual_refused "--encoding missing from the man page" "MISSING GLOBAL OPTION"
 
     rm -rf "${root}"
 }
@@ -1936,16 +1947,16 @@ FAKE
 
 expect_gui_manual_gate
 
-# Les contrôles du manuel lisent le vocabulaire de la langue de la page — #657.
+# The manual checks read the vocabulary of the page's language — #657.
 #
-# **Deux preuves par contrôle, et la même page pour les deux** : une page espagnole de quelques
-# lignes, sous `docs/i18n/es/manual/`, est acceptée quand une table espagnole est fournie, et
-# **refusée, en le disant, quand elle ne l'est pas**. Le défaut est le silence : un contrôle qui
-# cherche « Shortcut » sur une page qui écrit « Atajo » ne trouve aucun tableau, et se tait.
+# **Two proofs per check, and the same page for both**: a Spanish page of a few lines, under
+# `docs/i18n/es/manual/`, is accepted when a Spanish table is supplied, and **refused, saying so,
+# when it is not**. The defect is silence: a check that looks for "Shortcut" on a page that
+# writes "Atajo" finds no table, and says nothing.
 # The fixture is in a language with no shipped table on purpose: English and French have theirs
 # since #671, and the proof is about any language that does not, whichever it is.
-# Les deux programmes sont de faux binaires qui déclarent juste de quoi faire concorder la page,
-# pour qu'aucun autre écart ne se mêle au seul qu'on cherche.
+# Both programs are fake binaries that declare just enough to make the page agree, so that no
+# other mismatch mixes with the only one looked for.
 expect_vocabulary_gate() {
     local fixture="${REPO_ROOT}/src/test/data/vocabulaire"
     local root
@@ -1973,7 +1984,7 @@ FAKE
         binary="${root}/fake-${name}"
         extra=()
         counted="1 difference(s)"
-        [[ "${name}" == cli ]] && extra=(--man-page "${root}/absent.1.in") && counted="1 écart(s)"
+        [[ "${name}" == cli ]] && extra=(--man-page "${root}/absent.1.in") && counted="1 mismatch(es)"
 
         proof_header '%s▸ a Spanish page, with its vocabulary table (%s)%s\n' "${BOLD}" "${name}" "${RESET}"
         if "${script}" --binary "${binary}" --manual "${manual}" "${extra[@]}" --vocabulary "${table}" >/dev/null 2>&1; then
@@ -1983,15 +1994,15 @@ FAKE
             failures=$((failures + 1))
         fi
 
-        proof_header '%s▸ la même page, sans table de vocabulaire (%s)%s\n' "${BOLD}" "${name}" "${RESET}"
+        proof_header '%s▸ the same page, without a vocabulary table (%s)%s\n' "${BOLD}" "${name}" "${RESET}"
         if output="$("${script}" --binary "${binary}" --manual "${manual}" "${extra[@]}" 2>&1)"; then
-            printf '  %s✗ le contrôle a laissé passer une page dont il ne connaît pas la langue%s\n' "${RED}" "${RESET}"
+            printf '  %s✗ the check let through a page whose language it does not know%s\n' "${RED}" "${RESET}"
             failures=$((failures + 1))
         elif [[ "${output}" == *"LANGUAGE WITHOUT VOCABULARY"* && "${output}" == *"${counted}"* ]]; then
-            printf '  %s✓ « check-%s-manual.py » a refusé, et nommé seul cet écart : la langue sans table%s\n' \
+            printf '  %s✓ « check-%s-manual.py » refused, and named this mismatch alone: the language without a table%s\n' \
                 "${GREEN}" "${name}" "${RESET}"
         else
-            printf '  %s✗ le contrôle a refusé, mais pas pour la bonne raison%s\n' "${RED}" "${RESET}"
+            printf '  %s✗ the check refused, but not for the right reason%s\n' "${RED}" "${RESET}"
             failures=$((failures + 1))
         fi
     done
@@ -2001,19 +2012,19 @@ FAKE
 
 expect_vocabulary_gate
 
-# Les règles d installation oublient un fichier de données — #239.
+# The installation rules forget a data file — #239.
 #
-# **L injection réduit les règles aux seuls binaires**, plutôt que d ajouter du
-# texte à la fin du fichier : le défaut consiste ici à ne pas copier quelque
-# chose, et rien de ce qu on ajoute en fin de fichier ne défait un `install()`
-# écrit plus haut.
+# **The injection reduces the rules to the binaries alone**, rather than
+# appending text at the end of the file: the defect here is not copying
+# something, and nothing appended at the end of the file undoes an `install()`
+# written higher up.
 #
-# Une seule preuve et non deux, contrairement aux portes voisines : ce contrôle
-# n a pas de mode d échec par excès. Il ne compare pas deux relevés et ne
-# signale rien qui préexiste — il installe dans un préfixe neuf à chaque
-# exécution, donc il ne peut pas crier au loup sur l état de la machine.
+# A single proof and not two, unlike the neighbouring gates: this check has no
+# failure mode by excess. It does not compare two readings and reports nothing
+# that pre-exists — it installs into a fresh prefix on every run, so it cannot
+# cry wolf about the state of the machine.
 expect_installation_gate() {
-    proof_header '%s▸ des règles install() qui oublient le manuel%s\n' "${BOLD}" "${RESET}"
+    proof_header '%s▸ install() rules that forget the manual%s\n' "${BOLD}" "${RESET}"
 
     cat > "${INSTALLATION_SOURCE}" <<'BROKEN'
 include(GNUInstallDirs)
@@ -2021,11 +2032,11 @@ install(TARGETS subedit-cli subedit-gui RUNTIME DESTINATION "${CMAKE_INSTALL_BIN
 BROKEN
 
     if make -C "${REPO_ROOT}" --no-print-directory install-check >/dev/null 2>&1; then
-        printf '  %s✗ la porte « install-check » a laissé passer le manuel absent%s\n' \
+        printf '  %s✗ the « install-check » gate let the missing manual through%s\n' \
             "${RED}" "${RESET}"
         failures=$((failures + 1))
     else
-        printf '  %s✓ « make install-check » a échoué, comme attendu%s\n' "${GREEN}" "${RESET}"
+        printf '  %s✓ « make install-check » failed, as expected%s\n' "${GREEN}" "${RESET}"
     fi
 
     restore
@@ -2033,14 +2044,14 @@ BROKEN
 
 expect_installation_gate
 
-# Les règles d installation oublient les motifs de correction — #498.
+# The installation rules forget the correction patterns — #498.
 #
-# **Le manuel, lui, est installé** : c est ce qui distingue cette preuve de la
-# précédente, qui retire tout sauf les binaires et ne dirait donc rien du
-# contrôle des motifs — la porte échouerait déjà sur le manuel. Ici, le manuel
-# passe, et seul ce contrôle peut refuser.
+# **The manual, for its part, is installed**: that is what sets this proof apart
+# from the previous one, which removes everything but the binaries and would
+# therefore say nothing of the patterns check — the gate would already fail on
+# the manual. Here the manual passes, and only this check can refuse.
 expect_installation_gate_without_patterns() {
-    proof_header '%s▸ des règles install() qui oublient les motifs de correction%s\n' "${BOLD}" "${RESET}"
+    proof_header '%s▸ install() rules that forget the correction patterns%s\n' "${BOLD}" "${RESET}"
 
     cat > "${INSTALLATION_SOURCE}" <<'BROKEN'
 include(GNUInstallDirs)
@@ -2051,11 +2062,11 @@ install(
 BROKEN
 
     if make -C "${REPO_ROOT}" --no-print-directory install-check >/dev/null 2>&1; then
-        printf '  %s✗ la porte « install-check » a laissé passer les motifs absents%s\n' \
+        printf '  %s✗ the « install-check » gate let the missing patterns through%s\n' \
             "${RED}" "${RESET}"
         failures=$((failures + 1))
     else
-        printf '  %s✓ « make install-check » a échoué, comme attendu%s\n' "${GREEN}" "${RESET}"
+        printf '  %s✓ « make install-check » failed, as expected%s\n' "${GREEN}" "${RESET}"
     fi
 
     restore
@@ -2063,30 +2074,30 @@ BROKEN
 
 expect_installation_gate_without_patterns
 
-# Les catalogues de langue qu'aucune règle n'installe — #659.
+# The language catalogues that no rule installs — #659.
 #
-# **Ils vivent dans `cmake/Translations.cmake` et non dans `Installation.cmake`**, si bien que
-# les preuves précédentes, qui réécrivent ce dernier, ne les touchent pas — et qu'aucune ne dit
-# rien d'un catalogue. Ici l'installation reste intacte (manuel, motifs), et seul le contrôle des
-# catalogues peut refuser. Le défaut retire la règle `install()` du `.mo`, ce que ferait une
-# langue ajoutée à `LINGUAS` par quelqu'un qui compile sans installer.
+# **They live in `cmake/Translations.cmake` and not in `Installation.cmake`**, so the previous
+# proofs, which rewrite the latter, do not touch them — and none of them says anything of a
+# catalogue. Here the installation stays intact (manual, patterns), and only the catalogues check
+# can refuse. The defect removes the `install()` rule of the `.mo`, as a language added to
+# `LINGUAS` by someone who builds without installing would.
 expect_installation_gate_without_catalogues() {
-    proof_header '%s▸ des règles install() qui oublient les catalogues de langue%s\n' "${BOLD}" "${RESET}"
+    proof_header '%s▸ install() rules that forget the language catalogues%s\n' "${BOLD}" "${RESET}"
 
     sed -i '/^    install(FILES "\${mo}"/,+1d' "${TRANSLATIONS_SOURCE}"
     if cmp -s "${TRANSLATIONS_SOURCE}" "${backup_dir}/Translations.cmake"; then
-        printf '  %s✗ l injection n a rien retiré : la règle install() a changé de forme%s\n' "${RED}" "${RESET}"
+        printf '  %s✗ the injection removed nothing: the install() rule has changed shape%s\n' "${RED}" "${RESET}"
         failures=$((failures + 1))
         restore
         return
     fi
 
     if make -C "${REPO_ROOT}" --no-print-directory install-check >/dev/null 2>&1; then
-        printf '  %s✗ la porte « install-check » a laissé passer les catalogues absents%s\n' \
+        printf '  %s✗ the « install-check » gate let the missing catalogues through%s\n' \
             "${RED}" "${RESET}"
         failures=$((failures + 1))
     else
-        printf '  %s✓ « make install-check » a échoué, comme attendu%s\n' "${GREEN}" "${RESET}"
+        printf '  %s✓ « make install-check » failed, as expected%s\n' "${GREEN}" "${RESET}"
     fi
 
     restore
@@ -2094,36 +2105,37 @@ expect_installation_gate_without_catalogues() {
 
 expect_installation_gate_without_catalogues
 
-# Un gabarit des messages qui n'est plus ce que le code produit — #659. Un littéral neuf passé à
-# `translate` et un gabarit qu'on n'a pas réécrit : c'est la ligne que le traducteur ne verrait jamais.
+# A message template that is no longer what the code produces — #659. A new literal passed to
+# `translate` and a template nobody rewrote: that is the line the translator would never see.
+# The expected text is what `update-pot.sh --check` prints.
 expect_gate_closes \
-    "gabarit des messages périmé" \
+    "stale message template" \
     "pot-check" \
     "${LIB_SOURCE}" \
     'namespace subedit::core { const char* probeForTheProof() { return translate("injected message").data(); } }' \
-    "périmé"
+    "is stale"
 
-# Un fichier de bureau que sa validation refuse — #244.
+# A desktop file that its validation refuses — #244.
 #
-# **Une preuve distincte de la précédente, et pas une redite.** Celle-ci prouve
-# qu un fichier absent est vu ; celle-là prouve que la validation en est une. Un
-# `.desktop` présent, installé, et invalide passerait la première sans être vu :
-# le contrôle compterait un fichier là où il faut en lire un.
+# **A proof distinct from the previous one, and not a repeat.** That one proves
+# that a missing file is seen; this one proves that the validation is one. A
+# `.desktop` that is present, installed and invalid would pass the first without
+# being seen: the check would count a file where it has to read one.
 #
-# Le défaut injecté est le plus discret que le format connaisse : un
-# `Categories=` dont une valeur n existe pas. Le fichier reste lisible, le
-# bureau l affiche, et `desktop-file-validate` est la seule chose qui le dise.
+# The injected defect is the most discreet the format knows: a `Categories=`
+# with a value that does not exist. The file stays readable, the desktop shows
+# it, and `desktop-file-validate` is the only thing that says so.
 expect_desktop_validation_gate() {
-    proof_header '%s▸ un fichier .desktop que sa validation refuse%s\n' "${BOLD}" "${RESET}"
+    proof_header '%s▸ a .desktop file that its validation refuses%s\n' "${BOLD}" "${RESET}"
 
-    printf 'Categories=UneCategorieQuiNExistePas;\n' >> "${DESKTOP_SOURCE}"
+    printf 'Categories=ACategoryThatDoesNotExist;\n' >> "${DESKTOP_SOURCE}"
 
     if make -C "${REPO_ROOT}" --no-print-directory install-check >/dev/null 2>&1; then
-        printf '  %s✗ la porte « install-check » a laissé passer le .desktop invalide%s\n' \
+        printf '  %s✗ the « install-check » gate let the invalid .desktop through%s\n' \
             "${RED}" "${RESET}"
         failures=$((failures + 1))
     else
-        printf '  %s✓ « make install-check » a échoué, comme attendu%s\n' "${GREEN}" "${RESET}"
+        printf '  %s✓ « make install-check » failed, as expected%s\n' "${GREEN}" "${RESET}"
     fi
 
     restore
@@ -2131,21 +2143,21 @@ expect_desktop_validation_gate() {
 
 expect_desktop_validation_gate
 
-# Une icône que le bureau ne saurait pas lire — #260.
+# An icon the desktop could not read — #260.
 #
-# **Le défaut injecté est celui qui a été livré**, à la lettre : un commentaire
-# avant la balise racine, qui repousse « <svg » au-delà des 256 octets où
-# gdk-pixbuf cherche la signature d un SVG. Le fichier reste un XML valide,
-# Inkscape et Qt l ouvrent sans un mot, et le bureau affiche une tuile vide.
+# **The injected defect is the one that was shipped**, to the letter: a comment
+# before the root element, which pushes « <svg » beyond the 256 bytes where
+# gdk-pixbuf looks for the signature of an SVG. The file stays valid XML,
+# Inkscape and Qt open it without a word, and the desktop shows an empty tile.
 #
-# **Deux preuves**, pour les deux moitiés du défaut d origine : le fichier
-# qu aucun bureau ne reconnaît, et l image parfaitement valide qui ne se voit
-# pas sur un fond sombre. La seconde est celle qu on oublie, parce qu elle ne
-# ressemble pas à une panne.
+# **Two proofs**, for the two halves of the original defect: the file no desktop
+# recognises, and the perfectly valid image that cannot be seen on a dark
+# background. The second is the one people forget, because it does not look
+# like a failure.
 expect_icon_gates() {
-    proof_header '%s▸ une icône que gdk-pixbuf ne reconnaît pas%s\n' "${BOLD}" "${RESET}"
+    proof_header '%s▸ an icon that gdk-pixbuf does not recognise%s\n' "${BOLD}" "${RESET}"
 
-    # Trois cents caractères devant la racine : au-delà de la fenêtre de 256.
+    # Three hundred characters before the root: beyond the 256-byte window.
     {
         printf '<?xml version="1.0" encoding="UTF-8"?>\n<!-- '
         printf 'x%.0s' {1..300}
@@ -2154,16 +2166,16 @@ expect_icon_gates() {
     } > "${ICON_SOURCE}"
 
     if make -C "${REPO_ROOT}" --no-print-directory install-check >/dev/null 2>&1; then
-        printf '  %s✗ la porte « install-check » a laissé passer l icône illisible%s\n' \
+        printf '  %s✗ the « install-check » gate let the unreadable icon through%s\n' \
             "${RED}" "${RESET}"
         failures=$((failures + 1))
     else
-        printf '  %s✓ « make install-check » a échoué, comme attendu%s\n' "${GREEN}" "${RESET}"
+        printf '  %s✓ « make install-check » failed, as expected%s\n' "${GREEN}" "${RESET}"
     fi
 
     restore
 
-    proof_header '%s▸ une icône qui ne se voit pas sur un fond sombre%s\n' "${BOLD}" "${RESET}"
+    proof_header '%s▸ an icon that cannot be seen on a dark background%s\n' "${BOLD}" "${RESET}"
 
     cat > "${ICON_SOURCE}" <<'INVISIBLE'
 <?xml version="1.0" encoding="UTF-8"?>
@@ -2174,11 +2186,11 @@ expect_icon_gates() {
 INVISIBLE
 
     if make -C "${REPO_ROOT}" --no-print-directory install-check >/dev/null 2>&1; then
-        printf '  %s✗ la porte « install-check » a laissé passer l icône invisible%s\n' \
+        printf '  %s✗ the « install-check » gate let the invisible icon through%s\n' \
             "${RED}" "${RESET}"
         failures=$((failures + 1))
     else
-        printf '  %s✓ « make install-check » a échoué, comme attendu%s\n' "${GREEN}" "${RESET}"
+        printf '  %s✓ « make install-check » failed, as expected%s\n' "${GREEN}" "${RESET}"
     fi
 
     restore
@@ -2186,29 +2198,29 @@ INVISIBLE
 
 expect_icon_gates
 
-# Un `.rpm` qui revendique les répertoires de la distribution — #266.
+# An `.rpm` that claims the distribution's directories — #266.
 #
-# **L injection reproduit le défaut historique à l identique** : la liste
-# d exclusions écrite en chemins relatifs, `share/applications` au lieu de
-# `/usr/share/applications`. CPack compare des chemins de paquet, donc absolus,
-# et ne trouve alors aucune correspondance — l exclusion existe, elle est
-# lisible, et elle n exclut rien.
+# **The injection reproduces the historical defect identically**: the exclusion
+# list written as relative paths, `share/applications` instead of
+# `/usr/share/applications`. CPack compares package paths, hence absolute ones,
+# and then finds no match — the exclusion exists, it is readable, and it
+# excludes nothing.
 #
-# C est ce qui rend cette preuve nécessaire plutôt que décorative. Le défaut
-# ne se voyait ni dans le diff, ni dans `rpm -qlp`, ni nulle part avant qu une
-# vraie Fedora refuse la transaction — pendant tout ce temps, la ligne était
-# là, et la seule chose qu on aurait pu vérifier est ce que ce contrôle vérifie.
+# That is what makes this proof necessary rather than decorative. The defect
+# showed neither in the diff, nor in `rpm -qlp`, nor anywhere before a real
+# Fedora refused the transaction — all that time the line was there, and the
+# only thing one could have verified is what this check verifies.
 expect_rpm_directory_gate() {
-    proof_header '%s▸ un .rpm qui revendique les répertoires de la distribution%s\n' "${BOLD}" "${RESET}"
+    proof_header '%s▸ an .rpm that claims the distribution directories%s\n' "${BOLD}" "${RESET}"
 
     sed -i 's|"${CPACK_PACKAGING_INSTALL_PREFIX}/|"|g' "${PACKAGING_SOURCE}"
 
     if make -C "${REPO_ROOT}" --no-print-directory install-check >/dev/null 2>&1; then
-        printf '  %s✗ la porte « install-check » a laissé passer les répertoires partagés%s\n' \
+        printf '  %s✗ the « install-check » gate let the shared directories through%s\n' \
             "${RED}" "${RESET}"
         failures=$((failures + 1))
     else
-        printf '  %s✓ « make install-check » a échoué, comme attendu%s\n' "${GREEN}" "${RESET}"
+        printf '  %s✓ « make install-check » failed, as expected%s\n' "${GREEN}" "${RESET}"
     fi
 
     restore
@@ -2216,38 +2228,38 @@ expect_rpm_directory_gate() {
 
 expect_rpm_directory_gate
 
-# Une preuve d un troisième genre. prune-runs.sh n est pas une porte : il ne
-# refuse rien, il choisit. Ce qui peut être faux chez lui n est donc pas de
-# laisser passer un défaut, mais de supprimer une exécution qu il fallait garder
-# — et cette erreur-là est irréversible, GitHub ne rend pas un run supprimé.
+# A proof of a third kind. prune-runs.sh is not a gate: it refuses nothing, it
+# chooses. What can be wrong with it is therefore not letting a defect through,
+# but deleting a run that had to be kept — and that error is irreversible,
+# GitHub does not give a deleted run back.
 #
-# Elle ne peut pas s exercer contre GitHub. Un jeton personnel reçoit 403 sur
-# les Actions, et faire dépendre une preuve du réseau la rendrait rouge un jour
-# de panne, pour une raison étrangère au dépôt. D où --input, qui donne au
-# script sa liste au lieu de la lui faire chercher : la sélection est une
-# fonction de la liste, donc elle se démontre sur une liste écrite à la main.
+# It cannot be exercised against GitHub. A personal token gets 403 on Actions,
+# and making a proof depend on the network would turn it red on a day of outage,
+# for a reason foreign to the repository. Hence --input, which gives the script
+# its list instead of having it fetch one: the selection is a function of the
+# list, so it can be shown on a hand-written list.
 #
-# Le jeu couvre les cinq cas qui décident du fichier :
+# The set covers the five cases that decide the outcome:
 #
-#   ids 1 à 35    « ci », terminées      les 30 plus récentes restent, les 5
-#                                        plus vieilles partent
-#   id 99         « ci », main, la plus  part : « la plus récente sur main », au
-#                 vieille de toutes      singulier, n épargne pas les autres
-#   id 100        « ci », main, vieille  reste : c est la plus récente sur main
-#   id 101        « ci », en cours       reste : GitHub refuse de supprimer une
-#                                        exécution non terminée
-#   ids 200 à 202 « pull request »       rien ne part : moins de 30
+#   ids 1 to 35   "ci", completed        the 30 most recent stay, the 5
+#                                        oldest go
+#   id 99         "ci", main, the        goes: "the most recent on main",
+#                 oldest of all          singular, does not spare the others
+#   id 100        "ci", main, old        stays: it is the most recent on main
+#   id 101        "ci", in progress      stays: GitHub refuses to delete an
+#                                        unfinished run
+#   ids 200 to 202 "pull request"        nothing goes: fewer than 30
 #
-# Le cas 99 est celui qui compte le plus. Sans lui, « garder le plus récent sur
-# main » se lirait « garder tous ceux sur main » — et ressusciterait les
-# quarante-sept exécutions du déclencheur push supprimé à la #106, que cet
-# élagage existe précisément pour effacer.
+# Case 99 is the one that matters most. Without it, "keep the most recent on
+# main" would read "keep all those on main" — and would bring back the
+# forty-seven runs of the push trigger removed in #106, which this pruning
+# exists precisely to erase.
 expect_prune_selection_holds() {
     local fixture
     local expected="1 2 3 4 5 99"
     local actual
 
-    proof_header '%s▸ %s%s\n' "${BOLD}" "choix des exécutions à supprimer" "${RESET}"
+    proof_header '%s▸ %s%s\n' "${BOLD}" "choice of the runs to delete" "${RESET}"
 
     fixture="$(mktemp)"
     local index
@@ -2264,9 +2276,9 @@ expect_prune_selection_holds() {
         '{"id":202,"workflow_id":2,"name":"pull request","head_branch":"feat/z","status":"completed","created_at":"2026-01-01T01:02:00Z"}' \
         >> "${fixture}"
 
-    # Le statut est recueilli plutôt que subi : sous `set -e`, un script absent
-    # ou qui meurt arrêterait le harnais au lieu de compter une preuve en
-    # échec, et les preuves suivantes ne seraient jamais exécutées.
+    # The status is collected rather than endured: under `set -e`, a missing
+    # script or one that dies would stop the harness instead of counting a
+    # failed proof, and the following proofs would never run.
     local status=0
     actual="$("${PRUNE_SCRIPT}" --dry-run --input "${fixture}" | sort -n | tr '\n' ' ')" \
         || status=$?
@@ -2274,12 +2286,12 @@ expect_prune_selection_holds() {
     rm -f "${fixture}"
 
     if (( status != 0 )); then
-        printf '  %s✗ la sélection est morte, code %d%s\n' "${RED}" "${status}" "${RESET}"
+        printf '  %s✗ the selection died, status %d%s\n' "${RED}" "${status}" "${RESET}"
         failures=$((failures + 1))
     elif [[ "${actual}" == "${expected}" ]]; then
-        printf '  %s✓ la sélection donne « %s », comme attendu%s\n' "${GREEN}" "${actual}" "${RESET}"
+        printf '  %s✓ the selection gives « %s », as expected%s\n' "${GREEN}" "${actual}" "${RESET}"
     else
-        printf '  %s✗ la sélection donne « %s », attendu « %s »%s\n' \
+        printf '  %s✗ the selection gives « %s », expected « %s »%s\n' \
             "${RED}" "${actual}" "${expected}" "${RESET}"
         failures=$((failures + 1))
     fi
@@ -2287,21 +2299,21 @@ expect_prune_selection_holds() {
 
 expect_prune_selection_holds
 
-# Du même genre que la précédente, pour les releases — issue #232. Supprimer
-# une release emporte ses paquets, et GitHub ne les rend pas.
+# Of the same kind as the previous one, for releases — issue #232. Deleting a
+# release takes its packages with it, and GitHub does not give them back.
 #
-# Le jeu couvre ce qui décide du fichier :
+# The set covers what decides the outcome:
 #
-#   v0.9.0, v0.10.0   mineures        restent toujours
-#   v0.9.3, v0.9.12   patchs passés   partent — et 0.9.12 compté comme nombre
-#   v0.10.2, v0.10.9  patchs en cours restent : la milestone en cours est 0.10,
-#                                     que « 0.9 » précéderait comme texte
-#   v1.0.0-rc, notes  hors forme      ni comptés ni touchés
+#   v0.9.0, v0.10.0   minors           always stay
+#   v0.9.3, v0.9.12   past patches     go — and 0.9.12 compared as a number
+#   v0.10.2, v0.10.9  current patches  stay: the current milestone is 0.10,
+#                                      which "0.9" would precede as text
+#   v1.0.0-rc, notes  malformed        neither counted nor touched
 #
-# Le second passage pousse une mineure plus haute, v0.11.0 : c'est l'événement
-# qui fait basculer les patchs de 0.10 dans le passé.
+# The second pass pushes a higher minor, v0.11.0: that is the event that tips
+# the 0.10 patches into the past.
 expect_release_prune_selection_holds() {
-    proof_header '%s▸ %s%s\n' "${BOLD}" "choix des releases à supprimer" "${RESET}"
+    proof_header '%s▸ %s%s\n' "${BOLD}" "choice of the releases to delete" "${RESET}"
 
     local fixture
     fixture="$(mktemp)"
@@ -2311,13 +2323,13 @@ expect_release_prune_selection_holds() {
     printf '%s\n' v0.9.0 v0.9.3 v0.9.12 v0.10.0 v0.10.2 v0.10.9 v1.0.0-rc notes > "${fixture}"
     actual="$("${RELEASE_PRUNE_SCRIPT}" --dry-run --input "${fixture}" 2>/dev/null \
         | sort | tr '\n' ' ')" || status=$?
-    check_release_selection "milestone 0.10 en cours" "${status}" "${actual% }" "v0.9.12 v0.9.3"
+    check_release_selection "milestone 0.10 in progress" "${status}" "${actual% }" "v0.9.12 v0.9.3"
 
     status=0
     printf '%s\n' v0.11.0 >> "${fixture}"
     actual="$("${RELEASE_PRUNE_SCRIPT}" --dry-run --input "${fixture}" 2>/dev/null \
         | sort | tr '\n' ' ')" || status=$?
-    check_release_selection "v0.11.0 publiée" "${status}" "${actual% }" \
+    check_release_selection "v0.11.0 published" "${status}" "${actual% }" \
         "v0.10.2 v0.10.9 v0.9.12 v0.9.3"
 
     rm -f "${fixture}"
@@ -2327,12 +2339,12 @@ check_release_selection() {
     local label="$1" status="$2" actual="$3" expected="$4"
 
     if (( status != 0 )); then
-        printf '  %s✗ %s : la sélection est morte, code %d%s\n' "${RED}" "${label}" "${status}" "${RESET}"
+        printf '  %s✗ %s: the selection died, status %d%s\n' "${RED}" "${label}" "${status}" "${RESET}"
         failures=$((failures + 1))
     elif [[ "${actual}" == "${expected}" ]]; then
-        printf '  %s✓ %s : « %s », comme attendu%s\n' "${GREEN}" "${label}" "${actual}" "${RESET}"
+        printf '  %s✓ %s: « %s », as expected%s\n' "${GREEN}" "${label}" "${actual}" "${RESET}"
     else
-        printf '  %s✗ %s : « %s », attendu « %s »%s\n' \
+        printf '  %s✗ %s: « %s », expected « %s »%s\n' \
             "${RED}" "${label}" "${actual}" "${expected}" "${RESET}"
         failures=$((failures + 1))
     fi
@@ -2340,24 +2352,22 @@ check_release_selection() {
 
 expect_release_prune_selection_holds
 
-# Trois preuves de plus sur le même script — issue #399. La précédente éprouve
-# ce que le script choisit ; celles-ci éprouvent ce qu'il fait de son choix, et
-# cela demande de laisser le script supprimer pour de bon, contre un `gh` qui
-# n'est pas le vrai.
+# Three more proofs on the same script — issue #399. The previous one tests what
+# the script chooses; these test what it does with its choice, and that requires
+# letting the script delete for real, against a `gh` that is not the real one.
 #
-# **Le `gh` de fortune est le point délicat, et il ne touche à rien.** Il est
-# posé en tête du `PATH` d'un répertoire à usage unique, il répond à
-# `gh api …/releases` par un fichier écrit à la main — et applique le vrai
-# filtre `--jq` du script, avec `jq`, pour que les brouillons soient écartés
-# par le code qu'on éprouve et non par la fixture — et à `gh release delete` en
-# écrivant l'appel dans un journal, en refusant ceux qu'on lui désigne. Toute
-# autre commande est notée « INATTENDU » et échoue. Le harnais refuse de lancer
-# quoi que ce soit si `gh` ne se résout pas vers lui : aucune de ces preuves ne
-# peut donc atteindre le dépôt distant, et le jeton passé est un faux.
+# **The makeshift `gh` is the delicate part, and it touches nothing.** It is put
+# at the head of the `PATH` from a single-use directory; it answers
+# `gh api …/releases` with a hand-written file — and applies the script's real
+# `--jq` filter, with `jq`, so that drafts are discarded by the code under test
+# and not by the fixture — and `gh release delete` by writing the call to a log,
+# refusing the ones it is told to. Any other command is logged as "UNEXPECTED"
+# and fails. The harness refuses to launch anything if `gh` does not resolve to
+# it: none of these proofs can therefore reach the remote repository, and the
+# token passed is a fake.
 #
-# Les trois s'exécutent sous `GITHUB_EVENT_NAME=push`, l'événement réel de la
-# publication : une garde de `workflow_dispatch` qui se déclencherait à tort
-# ferait échouer les deux premières.
+# All three run under `GITHUB_EVENT_NAME=push`, the real event of a release: a
+# `workflow_dispatch` guard that fired wrongly would make the first two fail.
 make_fake_gh() {
     local sandbox="$1"
 
@@ -2365,7 +2375,7 @@ make_fake_gh() {
     : > "${sandbox}/calls.log"
     cat > "${sandbox}/bin/gh" <<'FIN'
 #!/usr/bin/env bash
-# Un gh de fortune : il lit un fichier, il écrit un journal, il ne va nulle part.
+# A makeshift gh: it reads a file, it writes a log, it goes nowhere.
 set -u
 log="${FAKE_GH_DIR}/calls.log"
 case "${1:-} ${2:-}" in
@@ -2384,13 +2394,13 @@ case "${1:-} ${2:-}" in
         printf 'release delete %s\n' "${*:3}" >> "${log}"
         for refused in ${FAKE_GH_REFUSE:-}; do
             if [[ "$3" == "${refused}" ]]; then
-                printf 'HTTP 403 : suppression refusée\n' >&2
+                printf 'HTTP 403: deletion refused\n' >&2
                 exit 1
             fi
         done
         ;;
     *)
-        printf 'INATTENDU %s\n' "$*" >> "${log}"
+        printf 'UNEXPECTED %s\n' "$*" >> "${log}"
         exit 99
         ;;
 esac
@@ -2398,8 +2408,8 @@ FIN
     chmod +x "${sandbox}/bin/gh"
 }
 
-# Écrit la liste des releases de l'API : `tag` pour une release publiée,
-# `tag:draft` pour un brouillon.
+# Writes the API's list of releases: `tag` for a published release,
+# `tag:draft` for a draft.
 write_fake_releases() {
     local sandbox="$1"
     shift
@@ -2409,16 +2419,16 @@ write_fake_releases() {
         --args "$@" > "${sandbox}/releases.json"
 }
 
-# Lance le vrai script contre le gh de fortune. Le code de sortie va dans
-# `prune_status`, les sorties dans `${sandbox}/out` et `${sandbox}/err`. Les
-# arguments après le répertoire sont des affectations d'environnement.
+# Runs the real script against the makeshift gh. The exit status goes to
+# `prune_status`, the outputs to `${sandbox}/out` and `${sandbox}/err`. The
+# arguments after the directory are environment assignments.
 prune_status=0
 run_release_pruner() {
     local sandbox="$1"
     shift
 
     if [[ "$(PATH="${sandbox}/bin:${PATH}" command -v gh)" != "${sandbox}/bin/gh" ]]; then
-        printf '  %s✗ gh ne se résout pas vers le gh de fortune : rien n est lancé%s\n' \
+        printf '  %s✗ gh does not resolve to the makeshift gh: nothing is run%s\n' \
             "${RED}" "${RESET}"
         prune_status=99
         return
@@ -2427,40 +2437,40 @@ run_release_pruner() {
     prune_status=0
     env -u GITHUB_STEP_SUMMARY \
         PATH="${sandbox}/bin:${PATH}" \
-        GH_TOKEN=jeton-de-fortune \
-        GITHUB_REPOSITORY=exemple/subedit \
+        GH_TOKEN=makeshift-token \
+        GITHUB_REPOSITORY=example/subedit \
         FAKE_GH_DIR="${sandbox}" \
         "$@" \
         "${RELEASE_PRUNE_SCRIPT}" >"${sandbox}/out" 2>"${sandbox}/err" || prune_status=$?
 }
 
-# Les tags dont la suppression a été tentée, dans l'ordre, séparés par un espace.
+# The tags whose deletion was attempted, in order, separated by a space.
 attempted_deletions() {
     awk '$1 == "release" && $2 == "delete" { print $3 }' "$1/calls.log" | tr '\n' ' '
 }
 
-# Écrit le verdict d'un cas : `problems` est vide s'il est tenu.
+# Writes the verdict of a case: `problems` is empty when it holds.
 report_release_prune_case() {
     local label="$1" problems="$2"
 
     if [[ -z "${problems}" ]]; then
-        printf '  %s✓ %s, comme attendu%s\n' "${GREEN}" "${label}" "${RESET}"
+        printf '  %s✓ %s, as expected%s\n' "${GREEN}" "${label}" "${RESET}"
     else
-        printf '  %s✗ %s : %s%s\n' "${RED}" "${label}" "${problems}" "${RESET}"
+        printf '  %s✗ %s: %s%s\n' "${RED}" "${label}" "${problems}" "${RESET}"
         failures=$((failures + 1))
     fi
 }
 
-# Un refus est rouge, et il ne dispense pas des suppressions suivantes.
+# A refusal is red, and it does not excuse the following deletions.
 #
-# Deux des trois patchs passés sont refusés, le second des trois ne l'est pas :
-# un script qui s'arrêterait au premier refus n'aurait tenté ni le deuxième ni
-# le troisième, et un script qui sortirait en 0 rendrait vert un élagage qui
-# n'en est pas un. Le même jeu tient les deux gardes de #232 : la `v0.9.0` est
-# une mineure et ne doit jamais être tentée, et aucun appel ne porte
-# `--cleanup-tag`, qui emporterait le tag avec la release.
+# Two of the three past patches are refused, the second of the three is not: a
+# script that stopped at the first refusal would have attempted neither the
+# second nor the third, and a script that exited with 0 would turn green a
+# pruning that is not one. The same set holds the two guards of #232: `v0.9.0`
+# is a minor and must never be attempted, and no call carries `--cleanup-tag`,
+# which would take the tag away with the release.
 expect_release_prune_fails_on_refusal() {
-    proof_header '%s▸ %s%s\n' "${BOLD}" "élagage de releases dont une suppression est refusée" "${RESET}"
+    proof_header '%s▸ %s%s\n' "${BOLD}" "release pruning where one deletion is refused" "${RESET}"
 
     local sandbox problems=""
     sandbox="$(mktemp -d)"
@@ -2471,27 +2481,27 @@ expect_release_prune_fails_on_refusal() {
     local attempted
     attempted="$(attempted_deletions "${sandbox}")"
     [[ "${attempted}" == "v0.9.3 v0.9.5 v0.9.7 " ]] \
-        || problems+="suppressions tentées « ${attempted% } », attendu « v0.9.3 v0.9.5 v0.9.7 » ; "
-    (( prune_status != 0 )) || problems+="sorti en 0 malgré deux refus ; "
-    grep -q 'v0.9.3' "${sandbox}/err" || problems+="le refus de v0.9.3 n est pas nommé ; "
-    grep -q 'v0.9.7' "${sandbox}/err" || problems+="le refus de v0.9.7 n est pas nommé ; "
-    ! grep -q 'v0.9.5' "${sandbox}/err" || problems+="v0.9.5, supprimée, est nommée comme refusée ; "
+        || problems+="deletions attempted « ${attempted% } », expected « v0.9.3 v0.9.5 v0.9.7 »; "
+    (( prune_status != 0 )) || problems+="exited with 0 despite two refusals; "
+    grep -q 'v0.9.3' "${sandbox}/err" || problems+="the refusal of v0.9.3 is not named; "
+    grep -q 'v0.9.7' "${sandbox}/err" || problems+="the refusal of v0.9.7 is not named; "
+    ! grep -q 'v0.9.5' "${sandbox}/err" || problems+="v0.9.5, deleted, is named as refused; "
     ! grep -q -e '--cleanup-tag' "${sandbox}/calls.log" \
-        || problems+="un appel porte --cleanup-tag, qui supprimerait le tag ; "
+        || problems+="a call carries --cleanup-tag, which would delete the tag; "
 
-    report_release_prune_case "un refus fait sortir en erreur, les autres suppressions ont lieu" "${problems}"
+    report_release_prune_case "a refusal makes it exit with an error, the other deletions happen" "${problems}"
     rm -rf "${sandbox}"
 }
 
 expect_release_prune_fails_on_refusal
 
-# Un brouillon n'est pas une version. `gh api …/releases` les rend avec les
-# autres ; un brouillon `v0.11.0` créé à la main ferait de 0.11 la milestone en
-# cours, et le `v0.10.2` de la vraie milestone en cours partirait avec son
-# paquet. Le brouillon `v0.9.5`, lui, est un patch passé : il ne doit pas être
-# supprimé non plus, puisqu'il n'est pas une release.
+# A draft is not a version. `gh api …/releases` returns drafts with the others;
+# a `v0.11.0` draft created by hand would make 0.11 the current milestone, and
+# the `v0.10.2` of the real current milestone would go with its package. The
+# `v0.9.5` draft, for its part, is a past patch: it must not be deleted either,
+# since it is not a release.
 expect_release_prune_ignores_drafts() {
-    proof_header '%s▸ %s%s\n' "${BOLD}" "élagage de releases en présence de brouillons" "${RESET}"
+    proof_header '%s▸ %s%s\n' "${BOLD}" "release pruning with drafts present" "${RESET}"
 
     local sandbox problems=""
     sandbox="$(mktemp -d)"
@@ -2503,21 +2513,21 @@ expect_release_prune_ignores_drafts() {
     local attempted
     attempted="$(attempted_deletions "${sandbox}")"
     [[ "${attempted}" == "v0.9.3 " ]] \
-        || problems+="suppressions tentées « ${attempted% } », attendu « v0.9.3 » ; "
-    (( prune_status == 0 )) || problems+="code de sortie ${prune_status}, attendu 0 ; "
+        || problems+="deletions attempted « ${attempted% } », expected « v0.9.3 »; "
+    (( prune_status == 0 )) || problems+="exit status ${prune_status}, expected 0; "
 
-    report_release_prune_case "un brouillon n'est ni une milestone ni une release à supprimer" "${problems}"
+    report_release_prune_case "a draft is neither a milestone nor a release to delete" "${problems}"
     rm -rf "${sandbox}"
 }
 
 expect_release_prune_ignores_drafts
 
-# Une reconstruction à la main n'élague pas. `release.yml` offre
-# `workflow_dispatch` pour un paquet à refaire ; sur un patch d'une milestone
-# close, la publication recrée la release et l'élagage la supprimerait dans le
-# même travail. Le jeu est celui du premier cas, où trois patchs partiraient.
+# A rebuild by hand does not prune. `release.yml` offers `workflow_dispatch`
+# for a package to redo; on a patch of a closed milestone, the publication
+# recreates the release and the pruning would delete it in the same job. The
+# set is that of the first case, where three patches would go.
 expect_release_prune_skips_manual_rebuild() {
-    proof_header '%s▸ %s%s\n' "${BOLD}" "élagage de releases lors d'une reconstruction à la demande" "${RESET}"
+    proof_header '%s▸ %s%s\n' "${BOLD}" "release pruning during an on-demand rebuild" "${RESET}"
 
     local sandbox problems=""
     sandbox="$(mktemp -d)"
@@ -2527,90 +2537,90 @@ expect_release_prune_skips_manual_rebuild() {
 
     local attempted
     attempted="$(attempted_deletions "${sandbox}")"
-    [[ -z "${attempted}" ]] || problems+="suppressions tentées « ${attempted% } », attendu aucune ; "
-    (( prune_status == 0 )) || problems+="code de sortie ${prune_status}, attendu 0 ; "
+    [[ -z "${attempted}" ]] || problems+="deletions attempted « ${attempted% } », expected none; "
+    (( prune_status == 0 )) || problems+="exit status ${prune_status}, expected 0; "
     grep -q 'workflow_dispatch' "${sandbox}/out" \
-        || problems+="la sortie ne dit pas qu elle n élague pas à la demande ; "
+        || problems+="the output does not say that it does not prune on demand; "
 
-    report_release_prune_case "une reconstruction à la demande ne supprime rien et le dit" "${problems}"
+    report_release_prune_case "an on-demand rebuild deletes nothing and says so" "${problems}"
     rm -rf "${sandbox}"
 }
 
 expect_release_prune_skips_manual_rebuild
 
-# Le garde du workflow de release, sur ses deux refus qui ne demandent aucun tag
-# à poser : un nom qui n est pas une version, et une version qui ne désigne
-# aucun commit. Le troisième — une version en désaccord avec son CMakeLists —
-# exigerait de poser un tag dans le dépôt, ce qu une preuve n a pas à faire.
+# The guard of the release workflow, on its two refusals that need no tag to be
+# set: a name that is not a version, and a version that designates no commit.
+# The third — a version that disagrees with its CMakeLists — would require
+# setting a tag in the repository, which a proof has no business doing.
 expect_release_tag_check_refuses() {
-    proof_header '%s▸ %s%s\n' "${BOLD}" "tag de release refusé" "${RESET}"
+    proof_header '%s▸ %s%s\n' "${BOLD}" "release tag refused" "${RESET}"
 
     local tag
     for tag in 0.10.9 v0.10 v999.999.999; do
         if "${RELEASE_TAG_CHECK}" "${tag}" >/dev/null 2>&1; then
-            printf '  %s✗ check-release-tag.sh a accepté « %s »%s\n' "${RED}" "${tag}" "${RESET}"
+            printf '  %s✗ check-release-tag.sh accepted « %s »%s\n' "${RED}" "${tag}" "${RESET}"
             failures=$((failures + 1))
         else
-            printf '  %s✓ « %s » refusé, comme attendu%s\n' "${GREEN}" "${tag}" "${RESET}"
+            printf '  %s✓ « %s » refused, as expected%s\n' "${GREEN}" "${tag}" "${RESET}"
         fi
     done
 }
 
 expect_release_tag_check_refuses
 
-# Une preuve d un quatrième genre, et du même esprit que la précédente.
-# clean-stale-coverage.sh ne refuse rien non plus : il répare. Ce qui peut être
-# faux chez lui est donc de laisser passer un arbre incohérent — un .gcno qu un
-# déplacement de source a orphelin, et qui fait échouer gcovr sur un message qui
-# ne nomme ni le fichier fautif ni le remède.
+# A proof of a fourth kind, in the same spirit as the previous one.
+# clean-stale-coverage.sh refuses nothing either: it repairs. What can be wrong
+# with it is therefore letting an inconsistent tree through — a .gcno that a
+# moved source has orphaned, and that makes gcovr fail with a message naming
+# neither the faulty file nor the remedy.
 #
-# Et l erreur symétrique compte autant : écarter un arbre sain coûterait une
-# reconstruction complète à chaque mesure, ce que personne ne remarquerait
-# autrement que par une lenteur inexpliquée. Les deux sens sont donc éprouvés.
+# And the symmetrical error matters as much: discarding a sound tree would cost
+# a full rebuild on every measure, which nobody would notice except as an
+# unexplained slowness. Both directions are therefore tested.
 #
-# Sur un arbre de mensonge plutôt que sur le vrai : la mécanique est une
-# comparaison de listes, elle se démontre sur des listes écrites à la main, et
-# rien ici ne doit dépendre d une compilation de vingt minutes.
+# On a make-believe tree rather than the real one: the mechanism is a comparison
+# of lists, it can be shown on hand-written lists, and nothing here may depend
+# on a twenty-minute build.
 expect_stale_coverage_is_cleared() {
     local build
     local script="${REPO_ROOT}/src/scripts/clean-stale-coverage.sh"
 
-    proof_header '%s▸ %s%s\n' "${BOLD}" "arbre de couverture périmé par un déplacement" "${RESET}"
+    proof_header '%s▸ %s%s\n' "${BOLD}" "coverage tree made stale by a move" "${RESET}"
 
     build="$(mktemp -d)"
-    touch "${build}/temoin.gcno"
+    touch "${build}/witness.gcno"
 
-    # Premier passage : pas de relevé, donc rien à comparer et rien à écarter.
+    # First pass: no record, hence nothing to compare and nothing to discard.
     local status=0
     "${script}" --build-dir "${build}" >/dev/null || status=$?
 
-    if (( status != 0 )) || [[ ! -f "${build}/temoin.gcno" ]]; then
-        printf '  %s✗ le premier passage a écarté un arbre qu il ne pouvait pas juger%s\n' \
+    if (( status != 0 )) || [[ ! -f "${build}/witness.gcno" ]]; then
+        printf '  %s✗ the first pass discarded a tree it could not judge%s\n' \
             "${RED}" "${RESET}"
         failures=$((failures + 1))
         rm -rf "${build}"
         return
     fi
 
-    # Deuxième passage : rien n a bougé depuis le relevé, l arbre doit survivre.
+    # Second pass: nothing has moved since the record, the tree must survive.
     "${script}" --build-dir "${build}" >/dev/null || status=$?
-    if [[ ! -f "${build}/temoin.gcno" ]]; then
-        printf '  %s✗ un arbre sain a été écarté%s\n' "${RED}" "${RESET}"
+    if [[ ! -f "${build}/witness.gcno" ]]; then
+        printf '  %s✗ a sound tree was discarded%s\n' "${RED}" "${RESET}"
         failures=$((failures + 1))
         rm -rf "${build}"
         return
     fi
 
-    # Troisième passage : une source du relevé a disparu, comme après un
-    # déplacement. L arbre entier doit partir, témoin compris.
-    printf 'src/lib/subedit/core/deplacee.cpp\n' >> "${build}/.sources"
+    # Third pass: a source of the record has disappeared, as after a move. The
+    # whole tree must go, witness included.
+    printf 'src/lib/subedit/core/moved.cpp\n' >> "${build}/.sources"
     "${script}" --build-dir "${build}" >/dev/null || status=$?
 
-    if [[ -f "${build}/temoin.gcno" ]]; then
-        printf '  %s✗ un arbre orphelin a été gardé%s\n' "${RED}" "${RESET}"
+    if [[ -f "${build}/witness.gcno" ]]; then
+        printf '  %s✗ an orphaned tree was kept%s\n' "${RED}" "${RESET}"
         failures=$((failures + 1))
     else
-        printf '  %s✓ sain gardé, orphelin écarté%s\n' "${GREEN}" "${RESET}"
+        printf '  %s✓ sound kept, orphaned discarded%s\n' "${GREEN}" "${RESET}"
     fi
 
     rm -rf "${build}"
@@ -2618,19 +2628,18 @@ expect_stale_coverage_is_cleared() {
 
 expect_stale_coverage_is_cleared
 
-# Une preuve du même esprit que les deux précédentes : record-bench.sh ne refuse
-# rien non plus, il choisit ce qu il inscrit dans la table des extrêmes. Et ce
-# qu il y inscrit est **définitif** — la table n est jamais élaguée — donc une
-# valeur posée par du bruit rend la mesure aveugle à toute régression plus
-# petite que ce bruit.
+# A proof in the same spirit as the previous two: record-bench.sh refuses
+# nothing either, it chooses what it writes into the table of extremes. And what
+# it writes there is **final** — the table is never pruned — so a value set by
+# noise makes the measure blind to any regression smaller than that noise.
 #
-# Le défaut qu elle ferme a été trouvé à l usage, en phase 6 : une mesure neuve
-# posait ses deux extrêmes au premier relevé qui la portait, **même sale**.
-# Faute d avoir quelque chose à comparer, la règle du seuil de charge n avait
-# rien à refuser, et ne s appliquait donc jamais à ce qui venait de naître.
+# The defect it closes was found in use, in phase 6: a new measure set its two
+# extremes at the first record that carried it, **even a dirty one**. Having
+# nothing to compare against, the load threshold rule had nothing to refuse, and
+# therefore never applied to what had just been born.
 #
-# Sur un journal jetable plutôt que sur celui du dépôt : ce que le script décide
-# est une fonction du journal qu il lit, d où --journal, comme prune-runs.sh a
+# On a disposable journal rather than the repository's: what the script decides
+# is a function of the journal it reads, hence --journal, as prune-runs.sh has
 # --input.
 expect_bench_extremes_hold() {
     local script="${REPO_ROOT}/src/scripts/record-bench.sh"
@@ -2638,7 +2647,7 @@ expect_bench_extremes_hold() {
     local journal
     local status=0
 
-    proof_header '%s▸ %s%s\n' "${BOLD}" "choix des extrêmes du journal des mesures" "${RESET}"
+    proof_header '%s▸ %s%s\n' "${BOLD}" "choice of the extremes of the measurement journal" "${RESET}"
 
     work="$(mktemp -d)"
     journal="${work}/performances.md"
@@ -2673,72 +2682,72 @@ expect_bench_extremes_hold() {
         '# Journal' '' '<!-- extremes -->' '' \
         '| Measure | Minimum | Recorded on | Maximum | Recorded on |' \
         '| :----- | ------: | :-------- | ------: | :-------- |' \
-        '| ancienne | 100 ns | 0.0.1 — 2020-01-01 | 300 ns | 0.0.1 — 2020-01-01 |' '' \
-        '<!-- ancienne min=100.0 max=300.0 -->' '' \
+        '| older | 100 ns | 0.0.1 — 2020-01-01 | 300 ns | 0.0.1 — 2020-01-01 |' '' \
+        '<!-- older min=100.0 max=300.0 -->' '' \
         '## Records' '' '<!-- records -->' '' > "${journal}"
 
-    # Premier passage, machine occupée : la mesure neuve entre au relevé et
-    # **pas** dans la table.
-    write_bench_xml "neuve" 1000
+    # First pass, busy machine: the new measure goes into the record and
+    # **not** into the table.
+    write_bench_xml "fresh" 1000
     "${script}" --xml "${work}/run.xml" --mode Release --load 9 --below 1.5 \
         --journal "${journal}" >/dev/null 2>&1 || status=$?
-    # Le commentaire brut, et non la ligne du tableau : le relevé courant
-    # porte lui aussi une ligne « | neuve | … », et la chercher là reviendrait
-    # à vérifier que la mesure est absente du journal — ce qu'elle ne doit pas
-    # être. Les commentaires bruts n'existent que dans la table des extrêmes.
-    if (( status != 0 )) || grep -q '<!-- neuve min=' "${journal}"; then
-        printf '  %s✗ une mesure neuve a posé ses extrêmes sur un relevé sale%s\n' \
+    # The raw comment, and not the table row: the current record also carries
+    # a « | fresh | … » row, and looking for it there would amount to checking
+    # that the measure is absent from the journal — which it must not be. The
+    # raw comments exist only in the table of extremes.
+    if (( status != 0 )) || grep -q '<!-- fresh min=' "${journal}"; then
+        printf '  %s✗ a new measure set its extremes on a dirty record%s\n' \
             "${RED}" "${RESET}"
         failures=$((failures + 1))
         rm -rf "${work}"
         return
     fi
 
-    # Deuxième passage, machine calme : elle y entre.
-    write_bench_xml "neuve" 800
+    # Second pass, quiet machine: it goes in.
+    write_bench_xml "fresh" 800
     "${script}" --xml "${work}/run.xml" --mode Release --load 0.5 --below 1.5 \
         --journal "${journal}" >/dev/null 2>&1 || status=$?
-    if ! grep -q '<!-- neuve min=800.0 max=800.0 -->' "${journal}"; then
-        printf '  %s✗ un relevé calme n a pas posé les extrêmes d une mesure neuve%s\n' \
+    if ! grep -q '<!-- fresh min=800.0 max=800.0 -->' "${journal}"; then
+        printf '  %s✗ a quiet record did not set the extremes of a new measure%s\n' \
             "${RED}" "${RESET}"
         failures=$((failures + 1))
         rm -rf "${work}"
         return
     fi
 
-    # Troisième passage, même version, calme, **pire** : l extrême que ce relevé
-    # remplace n a plus de source, donc il est repris — sans quoi la table
-    # citerait, pour une version présente au journal, un chiffre qu elle n y
-    # montre plus.
-    write_bench_xml "neuve" 950
+    # Third pass, same version, quiet, **worse**: the extreme this record
+    # replaces no longer has a source, so it is taken back — otherwise the table
+    # would quote, for a version present in the journal, a figure the journal no
+    # longer shows.
+    write_bench_xml "fresh" 950
     "${script}" --xml "${work}/run.xml" --mode Release --load 0.5 --below 1.5 \
         --journal "${journal}" >/dev/null 2>&1 || status=$?
-    if ! grep -q '<!-- neuve min=950.0 max=950.0 -->' "${journal}"; then
-        printf '  %s✗ un extrême posé par le relevé remplacé n a pas été repris%s\n' \
+    if ! grep -q '<!-- fresh min=950.0 max=950.0 -->' "${journal}"; then
+        printf '  %s✗ an extreme set by the replaced record was not taken back%s\n' \
             "${RED}" "${RESET}"
         failures=$((failures + 1))
         rm -rf "${work}"
         return
     fi
 
-    # Et l enveloppe d une autre version ne bouge pas pour autant.
-    if ! grep -q '<!-- ancienne min=100.0 max=300.0 -->' "${journal}"; then
-        printf '  %s✗ l enveloppe d une autre version a été touchée%s\n' \
+    # And the envelope of another version does not move for all that.
+    if ! grep -q '<!-- older min=100.0 max=300.0 -->' "${journal}"; then
+        printf '  %s✗ the envelope of another version was touched%s\n' \
             "${RED}" "${RESET}"
         failures=$((failures + 1))
         rm -rf "${work}"
         return
     fi
 
-    # **Le second critère : la dispersion** — issue #202. La charge lit la
-    # machine, pas la mesure. Un relevé pris à charge 1,44 — donc admis — a posé
-    # un maximum définitif sur un ticket qui ne changeait aucun `.cpp`, avec un
-    # écart-type valant 26 % de sa moyenne là où cette mesure-là se tient entre
-    # 3 et 8 %.
+    # **The second criterion: dispersion** — issue #202. The load reads the
+    # machine, not the measure. A record taken at load 1.44 — hence admitted —
+    # set a final maximum on a ticket that changed no `.cpp`, with a standard
+    # deviation worth 26 % of its mean where that measure stays between 3 and
+    # 8 %.
     #
-    # L historique du journal jetable est écrit à 5 % de dispersion sur six
-    # relevés, ce qui donne un seuil de 6,25 % : le relevé ci-dessous est calme
-    # et six fois plus dispersé que d habitude.
+    # The history of the disposable journal is written at 5 % dispersion over six
+    # records, which gives a threshold of 6.25 %: the record below is quiet and
+    # six times more dispersed than usual.
     printf '%s\n' \
         '# Journal' '' '<!-- extremes -->' '' \
         '| Measure | Minimum | Recorded on | Maximum | Recorded on |' \
@@ -2746,10 +2755,10 @@ expect_bench_extremes_hold() {
         '| stable | 1000 ns | 0.0.1 — 2020-01-01 | 1000 ns | 0.0.1 — 2020-01-01 |' '' \
         '<!-- stable min=1000.0 max=1000.0 -->' '' \
         '## Records' '' '<!-- records -->' '' > "${journal}"
-    local passe
-    for passe in 1 2 3 4 5 6; do
+    local pass
+    for pass in 1 2 3 4 5 6; do
         printf '%s\n' \
-            "### 0.0.${passe} — $(date +%F) — Release — load 0.5 — pace ×1.00" '' \
+            "### 0.0.${pass} — $(date +%F) — Release — load 0.5 — pace ×1.00" '' \
             '| Measure | Mean | Standard deviation |' '| :----- | ------: | ---------: |' \
             '| stable | 1000 ns | 50 ns |' '' >> "${journal}"
     done
@@ -2758,96 +2767,94 @@ expect_bench_extremes_hold() {
     "${script}" --xml "${work}/run.xml" --mode Release --load 0.5 --below 1.5 \
         --journal "${journal}" >/dev/null 2>&1 || status=$?
     if grep -q '<!-- stable min=1000.0 max=2000.0 -->' "${journal}"; then
-        printf '  %s✗ un relevé six fois plus dispersé que d habitude a posé son maximum%s\n' \
+        printf '  %s✗ a record six times more dispersed than usual set its maximum%s\n' \
             "${RED}" "${RESET}"
         failures=$((failures + 1))
         rm -rf "${work}"
         return
     fi
 
-    # Et le pendant : la mesure entre quand même au journal. Ce qui lui est
-    # refusé est l enveloppe, pas l historique.
+    # And the counterpart: the measure still goes into the journal. What it is
+    # refused is the envelope, not the history.
     if ! grep -q '| stable | 2 µs |' "${journal}"; then
-        printf '  %s✗ un relevé dispersé a été écarté du journal, pas seulement de la table%s\n' \
+        printf '  %s✗ a dispersed record was kept out of the journal, not only out of the table%s\n' \
             "${RED}" "${RESET}"
         failures=$((failures + 1))
         rm -rf "${work}"
         return
     fi
 
-    printf '  %s✓ neuve écartée à chaud, posée au calme, reprise quand sa source est remplacée,%s\n' \
+    printf '  %s✓ new measure kept out when busy, set when quiet, taken back when its source is replaced,%s\n' \
         "${GREEN}" "${RESET}"
-    printf '  %s  et une mesure trop dispersée entre au journal sans toucher à l enveloppe%s\n' \
+    printf '  %s  and a measure too dispersed goes into the journal without touching the envelope%s\n' \
         "${GREEN}" "${RESET}"
     rm -rf "${work}"
 }
 
 expect_bench_extremes_hold
 
-# Une preuve du même genre, sur l autre moitié de la règle — issue #270.
+# A proof of the same kind, on the other half of the rule — issue #270.
 #
-# `await-quiet.sh` ne refuse rien non plus : il décide si la machine est assez
-# calme, et c est son code de retour qui fait qu un relevé entre au journal ou
-# n y entre pas. Ce qui peut être faux chez lui va dans les deux sens — déclarer
-# calme une machine qui ne l est pas, ou attendre une accalmie qui ne viendra
-# jamais.
+# `await-quiet.sh` refuses nothing either: it decides whether the machine is
+# quiet enough, and its exit status is what makes a record go into the journal
+# or not. What can be wrong with it goes both ways — declaring quiet a machine
+# that is not, or waiting for a lull that will never come.
 #
-# Les deux se démontrent sans attendre quoi que ce soit, en lui donnant un seuil
-# qui rend la réponse certaine : aucun `sleep` n est joué ici.
+# Both are shown without waiting for anything, by giving it a threshold that
+# makes the answer certain: no `sleep` is played here.
 expect_await_quiet_decides() {
     local script="${REPO_ROOT}/src/scripts/await-quiet.sh"
     local load
     local status
 
-    proof_header '%s▸ %s%s\n' "${BOLD}" "la décision de mesurer ou non" "${RESET}"
+    proof_header '%s▸ %s%s\n' "${BOLD}" "the decision to measure or not" "${RESET}"
 
-    # Le script a une échappatoire pour une machine sans /proc/loadavg — il rend
-    # « unknown » et zéro. Cette preuve-là n a alors rien à démontrer, et le
-    # dire vaut mieux que la faire échouer pour une raison qui ne regarde pas le
-    # dépôt.
+    # The script has a way out for a machine without /proc/loadavg — it returns
+    # « unknown » and zero. This proof then has nothing to show, and saying so
+    # is better than making it fail for a reason that is none of the
+    # repository's business.
     if [[ ! -r /proc/loadavg ]]; then
-        printf '  %s✓ pas de /proc/loadavg : la décision ne s applique pas ici%s\n' \
+        printf '  %s✓ no /proc/loadavg: the decision does not apply here%s\n' \
             "${GREEN}" "${RESET}"
         return
     fi
 
-    # Un seuil qu aucune charge ne peut dépasser : il doit rendre 0 tout de
-    # suite, et écrire un nombre.
+    # A threshold no load can exceed: it must return 0 at once, and write a
+    # number.
     status=0
     load="$("${script}" --below 100000 --timeout 0)" || status=$?
     if (( status != 0 )) || [[ ! "${load}" =~ ^[0-9]+([.,][0-9]+)?$ ]]; then
-        printf '  %s✗ une machine calme n a pas été reconnue (code %s, charge « %s »)%s\n' \
+        printf '  %s✗ a quiet machine was not recognised (status %s, load « %s »)%s\n' \
             "${RED}" "${status}" "${load}" "${RESET}"
         failures=$((failures + 1))
         return
     fi
 
-    # Un seuil qu aucune charge ne peut atteindre : il doit renoncer, rendre 1,
-    # et écrire la charge quand même — c est elle que l appelant affiche.
+    # A threshold no load can reach: it must give up, return 1, and write the
+    # load all the same — that is what the caller shows.
     status=0
     load="$("${script}" --below 0 --timeout 0)" || status=$?
     if (( status == 0 )) || [[ ! "${load}" =~ ^[0-9]+([.,][0-9]+)?$ ]]; then
-        printf '  %s✗ une machine occupée a été déclarée calme (code %s, charge « %s »)%s\n' \
+        printf '  %s✗ a busy machine was declared quiet (status %s, load « %s »)%s\n' \
             "${RED}" "${status}" "${load}" "${RESET}"
         failures=$((failures + 1))
         return
     fi
 
-    printf '  %s✓ calme reconnu, occupation refusée, et la charge écrite dans les deux cas%s\n' \
+    printf '  %s✓ quiet recognised, busy refused, and the load written in both cases%s\n' \
         "${GREEN}" "${RESET}"
 }
 
 expect_await_quiet_decides
 
 printf '\n'
-# Les deux gardes de l orchestrateur — issue #269.
+# The two guards of the orchestrator — issue #269.
 #
-# **Un filtre qui ne retient rien doit refuser, pas rendre zéro.** `gate.sh`
-# sait reprendre une suite au milieu, ce qui ouvre un mode d échec qui
-# n existait pas quand le Makefile enchaînait ses cibles : une faute de frappe
-# dans `--from` jouerait zéro étape et rendrait un code de succès. C est la
-# même famille que le périmètre vide de l analyse statique, et elle se referme
-# de la même façon — bruyamment.
+# **A filter that keeps nothing must refuse, not return zero.** `gate.sh` can
+# resume a suite in the middle, which opens a failure mode that did not exist
+# when the Makefile chained its targets: a typo in `--from` would play zero
+# steps and return a success status. It is the same family as the empty scope of
+# the static analysis, and it closes the same way — loudly.
 expect_orchestrator_refuses() {
     local label="$1"
     shift
@@ -2855,115 +2862,115 @@ expect_orchestrator_refuses() {
     proof_header '%s▸ %s%s\n' "${BOLD}" "${label}" "${RESET}"
 
     if "${REPO_ROOT}/src/scripts/gate.sh" "$@" >/dev/null 2>&1; then
-        printf '  %s✗ gate.sh a accepté « %s »%s\n' "${RED}" "$*" "${RESET}"
+        printf '  %s✗ gate.sh accepted « %s »%s\n' "${RED}" "$*" "${RESET}"
         failures=$((failures + 1))
     else
-        printf '  %s✓ gate.sh a refusé, comme attendu%s\n' "${GREEN}" "${RESET}"
+        printf '  %s✓ gate.sh refused, as expected%s\n' "${GREEN}" "${RESET}"
     fi
 }
 
-expect_orchestrator_refuses "étape inconnue passée à --from" check --from covrage
-expect_orchestrator_refuses "filtres qui ne retiennent aucune étape" check --only tidy --skip tidy
+expect_orchestrator_refuses "unknown step passed to --from" check --from covrage
+expect_orchestrator_refuses "filters that keep no step" check --only tidy --skip tidy
 
-# La même garde, sur le second script qui sait reprendre au milieu — issue #271.
+# The same guard, on the second script that can resume in the middle — issue #271.
 #
-# `check-installation.sh` a reçu `--only` pour la raison qui l a donné à
-# `gate.sh` : rejouer douze contrôles pour en corriger un. Le mode d échec vient
-# avec, et c est le pire de tous — `--only paqets` jouerait zéro contrôle et
-# rendrait zéro, donc **une installation déclarée correcte que personne n a
-# regardée.**
+# `check-installation.sh` was given `--only` for the reason that gave it to
+# `gate.sh`: replaying twelve checks to fix one. The failure mode comes with it,
+# and it is the worst of all — `--only pakages`, a misspelling of `packages`,
+# would play zero checks and return zero, hence **an installation declared
+# correct that nobody looked at.**
 #
-# La preuve ne coûte rien : le refus a lieu avant que le premier contrôle ne
-# tourne, donc rien n est installé, rien n est empaqueté.
+# The proof costs nothing: the refusal happens before the first check runs, so
+# nothing is installed, nothing is packaged.
 expect_installation_refuses_unknown_control() {
-    proof_header '%s▸ %s%s\n' "${BOLD}" "contrôle inconnu passé à --only" "${RESET}"
+    proof_header '%s▸ %s%s\n' "${BOLD}" "unknown check passed to --only" "${RESET}"
 
-    if "${REPO_ROOT}/src/scripts/check-installation.sh" --only paqets >/dev/null 2>&1; then
-        printf '  %s✗ check-installation.sh a accepté « paqets »%s\n' "${RED}" "${RESET}"
+    if "${REPO_ROOT}/src/scripts/check-installation.sh" --only pakages >/dev/null 2>&1; then
+        printf '  %s✗ check-installation.sh accepted « pakages »%s\n' "${RED}" "${RESET}"
         failures=$((failures + 1))
     else
-        printf '  %s✓ check-installation.sh a refusé, comme attendu%s\n' "${GREEN}" "${RESET}"
+        printf '  %s✓ check-installation.sh refused, as expected%s\n' "${GREEN}" "${RESET}"
     fi
 }
 
 expect_installation_refuses_unknown_control
 
-# Les attendus de `--format json` — #556.
+# The expected outputs of `--format json` — #556.
 #
-# **Six preuves, sur un dossier jetable écrit à la main** : un nombre à
-# virgule, une ligne qui n'est pas du JSON, une enveloppe incomplète, un lancement
-# à blanc qui dit une destination, un changement sans « after », et le vert.
-# Le contrôle accepte le dossier en argument, si bien que rien du dépôt n'est
-# touché : un attendu volontairement faux ne peut pas rester derrière.
+# **Six proofs, on a hand-written disposable directory**: a floating-point
+# number, a line that is not JSON, an incomplete envelope, a dry run that states
+# a destination, a change without « after », and green. The check takes the
+# directory as an argument, so nothing of the repository is touched: a
+# deliberately wrong expected output cannot stay behind.
 expect_json_fixture_gate() {
     local script="${REPO_ROOT}/src/scripts/check-json-fixtures.py"
     local root
     root="$(mktemp -d)"
 
-    proof_header '%s▸ un attendu JSON qui contient un nombre à virgule%s\n' "${BOLD}" "${RESET}"
+    proof_header '%s▸ an expected JSON output that contains a floating-point number%s\n' "${BOLD}" "${RESET}"
     printf '{"schema":1,"command":"inspect","file":"a.srt","ok":true,"ratio":1.5,"warnings":[]}\n' \
         > "${root}/bad.jsonl"
     if "${script}" --dir "${root}" >/dev/null 2>&1; then
-        printf '  %s✗ le contrôle a laissé passer 1.5%s\n' "${RED}" "${RESET}"
+        printf '  %s✗ the check let 1.5 through%s\n' "${RED}" "${RESET}"
         failures=$((failures + 1))
     else
-        printf '  %s✓ « check-json-fixtures.py » a refusé, comme attendu%s\n' \
+        printf '  %s✓ « check-json-fixtures.py » refused, as expected%s\n' \
             "${GREEN}" "${RESET}"
     fi
 
-    proof_header '%s▸ une ligne qui n est pas du JSON%s\n' "${BOLD}" "${RESET}"
+    proof_header '%s▸ a line that is not JSON%s\n' "${BOLD}" "${RESET}"
     printf '{"schema":1,"command":\n' > "${root}/bad.jsonl"
     if "${script}" --dir "${root}" >/dev/null 2>&1; then
-        printf '  %s✗ le contrôle a laissé passer une ligne tronquée%s\n' "${RED}" "${RESET}"
+        printf '  %s✗ the check let a truncated line through%s\n' "${RED}" "${RESET}"
         failures=$((failures + 1))
     else
-        printf '  %s✓ « check-json-fixtures.py » a refusé, comme attendu%s\n' \
+        printf '  %s✓ « check-json-fixtures.py » refused, as expected%s\n' \
             "${GREEN}" "${RESET}"
     fi
 
-    proof_header '%s▸ une enveloppe incomplète : pas de « file »%s\n' "${BOLD}" "${RESET}"
+    proof_header '%s▸ an incomplete envelope: no « file »%s\n' "${BOLD}" "${RESET}"
     printf '{"schema":1,"command":"inspect","ok":true,"warnings":[]}\n' > "${root}/bad.jsonl"
     if "${script}" --dir "${root}" >/dev/null 2>&1; then
-        printf '  %s✗ le contrôle a laissé passer l enveloppe sans « file »%s\n' \
+        printf '  %s✗ the check let the envelope without « file » through%s\n' \
             "${RED}" "${RESET}"
         failures=$((failures + 1))
     else
-        printf '  %s✓ « check-json-fixtures.py » a refusé, comme attendu%s\n' \
+        printf '  %s✓ « check-json-fixtures.py » refused, as expected%s\n' \
             "${GREEN}" "${RESET}"
     fi
 
-    proof_header '%s▸ un lancement à blanc qui dit pourtant une destination%s\n' "${BOLD}" "${RESET}"
+    proof_header '%s▸ a dry run that nevertheless states a destination%s\n' "${BOLD}" "${RESET}"
     printf '{"schema":1,"command":"shift","file":"a.srt","ok":true,"dry_run":true,"destination":"o.srt","counts":{},"warnings":[]}\n' \
         > "${root}/bad.jsonl"
     if "${script}" --dir "${root}" >/dev/null 2>&1; then
-        printf '  %s✗ le contrôle a laissé passer une destination à blanc%s\n' \
+        printf '  %s✗ the check let a dry-run destination through%s\n' \
             "${RED}" "${RESET}"
         failures=$((failures + 1))
     else
-        printf '  %s✓ « check-json-fixtures.py » a refusé, comme attendu%s\n' \
+        printf '  %s✓ « check-json-fixtures.py » refused, as expected%s\n' \
             "${GREEN}" "${RESET}"
     fi
 
-    proof_header '%s▸ un changement sans « after »%s\n' "${BOLD}" "${RESET}"
+    proof_header '%s▸ a change without « after »%s\n' "${BOLD}" "${RESET}"
     printf '{"schema":1,"command":"hearing-impaired","file":"a.srt","ok":true,"dry_run":true,"destination":null,"counts":{},"changes":[{"subtitle":1,"document":"main","before":"x"}],"warnings":[]}\n' \
         > "${root}/bad.jsonl"
     if "${script}" --dir "${root}" >/dev/null 2>&1; then
-        printf '  %s✗ le contrôle a laissé passer un changement sans « after »%s\n' \
+        printf '  %s✗ the check let a change without « after » through%s\n' \
             "${RED}" "${RESET}"
         failures=$((failures + 1))
     else
-        printf '  %s✓ « check-json-fixtures.py » a refusé, comme attendu%s\n' \
+        printf '  %s✓ « check-json-fixtures.py » refused, as expected%s\n' \
             "${GREEN}" "${RESET}"
     fi
 
-    proof_header '%s▸ un attendu juste, pour le vert%s\n' "${BOLD}" "${RESET}"
+    proof_header '%s▸ a correct expected output, for green%s\n' "${BOLD}" "${RESET}"
     printf '{"schema":1,"command":"inspect","file":"a.srt","ok":true,"warnings":[]}\n' \
         > "${root}/bad.jsonl"
     if "${script}" --dir "${root}" >/dev/null 2>&1; then
-        printf '  %s✓ « check-json-fixtures.py » a laissé passer un attendu juste%s\n' \
+        printf '  %s✓ « check-json-fixtures.py » let a correct expected output through%s\n' \
             "${GREEN}" "${RESET}"
     else
-        printf '  %s✗ le contrôle a refusé un attendu juste%s\n' "${RED}" "${RESET}"
+        printf '  %s✗ the check refused a correct expected output%s\n' "${RED}" "${RESET}"
         failures=$((failures + 1))
     fi
 
@@ -2975,21 +2982,21 @@ expect_json_fixture_gate
 report_durations
 
 if (( failures > 0 )); then
-    printf '%s%d preuve(s) en échec%s\n' "${RED}" "${failures}" "${RESET}" >&2
+    printf '%s%d failed proof(s)%s\n' "${RED}" "${failures}" "${RESET}" >&2
     exit 1
 fi
-printf '%sles portes se referment%s\n' "${GREEN}" "${RESET}"
-printf '%sle contrôle de parallélisme laisse passer le code légitime%s\n' \
+printf '%sthe gates close%s\n' "${GREEN}" "${RESET}"
+printf '%sthe parallelism check lets legitimate code through%s\n' \
     "${GREEN}" "${RESET}"
-printf '%set l élagueur choisit les exécutions attendues%s\n' \
+printf '%sand the pruner chooses the expected runs%s\n' \
     "${GREEN}" "${RESET}"
-printf '%set les releases élaguées sont les patchs des milestones passées%s\n' \
+printf '%sand the pruned releases are the patches of past milestones%s\n' \
     "${GREEN}" "${RESET}"
-printf '%set l élagage échoue sur un refus, ignore les brouillons, et reste au repos à la demande%s\n' \
+printf '%sand the pruning fails on a refusal, ignores drafts, and stays idle on demand%s\n' \
     "${GREEN}" "${RESET}"
-printf '%set le journal des mesures ne pose un extrême que sur un relevé propre%s\n' \
+printf '%sand the measurement journal sets an extreme only on a clean record%s\n' \
     "${GREEN}" "${RESET}"
-printf '%set un fichier non suivi antérieur aux tests ne fait pas crier au loup%s\n' \
+printf '%sand an untracked file older than the tests raises no false alarm%s\n' \
     "${GREEN}" "${RESET}"
-printf '%sni une configuration d utilisateur que rien n a touchée%s\n' \
+printf '%snor does a user configuration that nothing touched%s\n' \
     "${GREEN}" "${RESET}"
