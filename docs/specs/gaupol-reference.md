@@ -114,7 +114,7 @@ entier. Coller ajoute des lignes s'il en manque pour recevoir les textes.
 lecteur externe (MPlayer, mpv, VLC, ou commande personnalisée) positionné au
 sous-titre courant. **Écartée, et pas renvoyée** : le lecteur intégré de la
 phase 6 en tient lieu — spec 10,
-[« Ce que la phase ne livre pas »](10-operations.md#ce-que-la-phase-ne-livre-pas).
+[« What the phase does not deliver »](10-operations.md#what-the-phase-does-not-deliver).
 
 ### `adjust_durations`, dans l'ordre
 
