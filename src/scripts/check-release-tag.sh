@@ -1,49 +1,48 @@
 #!/usr/bin/env bash
-# Refuse de publier un tag qui ne désigne pas une version de `main` — issue #232.
+# Refuses to publish a tag that does not name a version of `main` — issue #232.
 #
 #   check-release-tag.sh TAG
 #
-# Trois conditions, et une release ne se construit qu'une fois les trois
-# vérifiées :
+# Three conditions, and a release is built only once all three hold:
 #
-#   forme      le tag s'écrit `vX.Y.Z` ;
-#   version    le `project(VERSION)` du commit tagué porte le même numéro —
-#              l'invariant 4 de `check-architecture.sh`, qui ne s'exécute
-#              qu'en local et que rien ne rejouait au moment de publier ;
-#   branche    le commit tagué appartient à `main`. Un tag posé sur une branche
-#              de travail publierait un état que personne n'a fusionné.
+#   form       the tag is written `vX.Y.Z`;
+#   version    the `project(VERSION)` of the tagged commit carries the same
+#              number — invariant 4 of `check-architecture.sh`, which runs
+#              only locally and which nothing replayed at publishing time;
+#   branch     the tagged commit belongs to `main`. A tag set on a working
+#              branch would publish a state that nobody merged.
 #
-# Lue dans le commit et non dans l'arbre de travail, pour la raison de
-# l'invariant 4 : un tag désigne un commit.
+# Read from the commit and not from the working tree, for the reason of
+# invariant 4: a tag names a commit.
 #
-# Il faut l'historique complet et `origin/main` : le checkout du workflow le
-# demande par `fetch-depth: 0`.
+# It needs the full history and `origin/main`: the workflow's checkout asks for
+# them with `fetch-depth: 0`.
 
 set -euo pipefail
 
 readonly REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 
 refuse() {
-    printf 'tag refusé : %s\n' "$1" >&2
+    printf 'tag refused: %s\n' "$1" >&2
     exit 1
 }
 
-[[ $# -eq 1 ]] || { printf 'usage : check-release-tag.sh TAG\n' >&2; exit 2; }
+[[ $# -eq 1 ]] || { printf 'usage: check-release-tag.sh TAG\n' >&2; exit 2; }
 readonly TAG="$1"
 
 [[ "${TAG}" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]] \
-    || refuse "« ${TAG} » ne s'écrit pas vX.Y.Z"
+    || refuse "\"${TAG}\" is not written vX.Y.Z"
 
 commit="$(git -C "${REPO_ROOT}" rev-parse --verify --quiet "${TAG}^{commit}")" \
-    || refuse "${TAG} ne désigne aucun commit"
+    || refuse "${TAG} names no commit"
 
 declared="$(git -C "${REPO_ROOT}" show "${commit}:CMakeLists.txt" 2>/dev/null \
     | sed -n 's/^[[:space:]]*VERSION[[:space:]]\+\([0-9][0-9.]*\)[[:space:]]*$/\1/p' | head -1)"
 
 [[ "v${declared}" == "${TAG}" ]] \
-    || refuse "${TAG} et CMakeLists.txt (${declared:-absent}) ne s'accordent pas"
+    || refuse "${TAG} and CMakeLists.txt (${declared:-absent}) disagree"
 
 git -C "${REPO_ROOT}" merge-base --is-ancestor "${commit}" origin/main 2>/dev/null \
-    || refuse "${TAG} désigne un commit qui n'est pas sur main"
+    || refuse "${TAG} names a commit that is not on main"
 
-printf '%s : version %s, sur main\n' "${TAG}" "${declared}"
+printf '%s: version %s, on main\n' "${TAG}" "${declared}"

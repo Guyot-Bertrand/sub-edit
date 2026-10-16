@@ -1,44 +1,43 @@
 #!/usr/bin/env bash
-# Vérifie qu'aucun parallélisme n'échappe à $(JOBS).
+# Checks that no parallelism escapes $(JOBS).
 #
-# Le Makefile borne le parallélisme local à deux cœurs par défaut — voir le
-# commentaire au-dessus de JOBS dans le Makefile. Cette discipline ne vaut que
-# tant que chaque site de parallélisme la respecte : une recette qui fige
-# `-j 8` en dur, un script qui lance `xargs -P 4` ou se fie à `nproc`, un module
-# CMake qui code `-flto=8`, contournent tous silencieusement le plafond. Rien
-# ne les empêchait avant ce script ; c'est ce qu'il corrige.
+# The Makefile caps local parallelism at two cores by default — see the comment
+# above JOBS in the Makefile. That discipline holds only as long as every site
+# of parallelism respects it: a recipe that hard-codes `-j 8`, a script that
+# runs `xargs -P 4` or relies on `nproc`, a CMake module that writes
+# `-flto=8`, all silently get around the cap. Nothing stopped them before this
+# script; that is what it fixes.
 #
-# Trois familles de fichiers :
+# Three families of files:
 #
-#   - Makefile         : les recettes, c'est-à-dire les lignes commençant par
-#                        une tabulation.
-#   - src/scripts/     : tout fichier, à toute profondeur, retenu sur son
-#                        extension `.sh` ou sur son shebang — les hooks git
-#                        (`hooks/pre-commit`, `hooks/commit-msg`) n'ont ni l'un
-#                        ni l'autre à la racine, et sont de vrais scripts bash.
+#   - Makefile         : the recipes, that is the lines that begin with a tab.
+#   - src/scripts/     : every file, at any depth, picked by its `.sh`
+#                        extension or by its shebang — the git hooks
+#                        (`hooks/pre-commit`, `hooks/commit-msg`) have neither
+#                        at the top level, and are real bash scripts.
 #   - cmake/*.cmake,
-#     CMakeLists.txt   : celui de la racine et les huit de `src/`, qui déclarent
-#                        les cibles de test et de benchmark — précisément là où
-#                        un parallélisme codé en dur aurait le plus de chances
-#                        d'apparaître.
+#     CMakeLists.txt   : the top-level one and the eight under `src/`, which
+#                        declare the test and benchmark targets — precisely
+#                        where hard-coded parallelism would be most likely to
+#                        show up.
 #
-# Les formes reconnues sont décrites au-dessus de `token_violation`, en un seul
-# endroit dont le Makefile et les scripts dépendent tous les deux : une forme
-# apprise une fois l'est partout. C'est ce qui manquait auparavant — `-j` sans
-# valeur échouait dans le Makefile et passait dans un script.
+# The recognised forms are described above `token_violation`, in a single
+# place that the Makefile and the scripts both depend on: a form learnt once
+# is learnt everywhere. That is what was missing before — a bare `-j` failed
+# in the Makefile and passed in a script.
 #
-# Les commentaires et les exemples de documentation ne doivent pas déclencher le
-# contrôle : le commentaire du Makefile montre `make build JOBS=8`, celui de
-# cmake/Lto.cmake montre `-DSUBEDIT_LTO_JOBS=8`. Un contrôle qui crie au loup
-# finit désactivé, et ne protège alors plus rien — d'où le soin mis à retirer
-# les commentaires de fin de ligne *avant* de balayer les jetons, et non après.
+# Comments and documentation examples must not trigger the check: the
+# Makefile's comment shows `make build JOBS=8`, the one in cmake/Lto.cmake
+# shows `-DSUBEDIT_LTO_JOBS=8`. A check that cries wolf ends up disabled, and
+# then protects nothing — hence the care taken to strip trailing comments
+# *before* scanning the tokens, not after.
 
 set -euo pipefail
 
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 
-# --root permet de pointer la vérification sur une copie temporaire, pour la
-# mettre à l'épreuve sans toucher à l'arbre de travail réel.
+# --root points the check at a temporary copy, to put it to the test without
+# touching the real working tree.
 while [[ $# -gt 0 ]]; do
     case "$1" in
         --root)
@@ -46,31 +45,28 @@ while [[ $# -gt 0 ]]; do
             shift 2
             ;;
         *)
-            printf 'argument inconnu : %s\n' "$1" >&2
+            printf 'unknown argument: %s\n' "$1" >&2
             exit 1
             ;;
     esac
 done
 readonly REPO_ROOT
 
-# Deux fichiers échappent au balayage des scripts, chacun pour une raison qui
-# lui est propre :
+# Two files escape the script scan, each for a reason of its own:
 #
-#   - check-parallelism.sh cite `-j`, `-P`, `xargs` et `nproc` en toutes
-#     lettres, comme motifs à reconnaître et non comme commandes à exécuter. Le
-#     confronter à ses propres motifs ne prouverait rien d'autre qu'il se
-#     contient lui-même.
-#   - verify-gates.sh porte les défauts injectés qui prouvent que les portes se
-#     referment, dont une recette Makefile avec `-j 8`. Ce sont des données de
-#     test, pas du code exécuté. Le fichier ne passait jusqu'ici que parce que
-#     le guillemet fermant était collé au chiffre : une reformulation d'un seul
-#     caractère aurait fait échouer `make parallelism` sur les propres données
-#     de test du projet. Mieux vaut une exclusion écrite qu'une syntaxe qui
-#     tient par accident.
+#   - check-parallelism.sh spells out `-j`, `-P`, `xargs` and `nproc`, as
+#     patterns to recognise and not as commands to run. Checking it against
+#     its own patterns would prove nothing but that it contains itself.
+#   - verify-gates.sh carries the injected defects that prove the gates close,
+#     among them a Makefile recipe with `-j 8`. Those are test data, not
+#     executed code. The file used to pass only because the closing quote was
+#     glued to the digit: a one-character rewording would have made
+#     `make parallelism` fail on the project's own test data. A written
+#     exclusion is better than a syntax that holds by accident.
 #
-# Contrepartie de la seconde, à connaître : un vrai parallélisme qui
-# apparaîtrait un jour dans verify-gates.sh ne serait plus vu. Le fichier
-# n'exécute rien d'autre que des cibles make, ce qui rend le risque théorique.
+# The price of the second, worth knowing: real parallelism that showed up one
+# day in verify-gates.sh would no longer be seen. The file runs nothing but
+# make targets, which makes the risk theoretical.
 readonly EXCLUDED_SCRIPTS=(
     check-parallelism.sh
     verify-gates.sh
@@ -91,24 +87,22 @@ report_success() {
     printf '%s✓%s %s\n' "${GREEN}" "${RESET}" "$*"
 }
 
-# Retire un commentaire de fin de ligne, en respectant les guillemets : un `#`
-# à l'intérieur d'une chaîne simple ou double ('run #1', "run #1") ne débute
-# pas un commentaire, seul celui qui apparaît hors guillemet et en tête de mot
-# (début de ligne, ou précédé d'une espace ou d'un métacaractère shell comme
-# `&`, `;`, `|`, `(`) en débute un — `tache &#collé` est un commentaire valide
-# sans espace, `echo "run #1" &` n'en est pas un. Une analyse par caractère,
-# pas un motif : un motif fondé sur " #" se ferait justement piéger par le
-# premier cas.
+# Strips a trailing comment, respecting quotes: a `#` inside a single- or
+# double-quoted string ('run #1', "run #1") does not begin a comment; only one
+# that appears outside quotes and at the start of a word (start of line, or
+# preceded by a space or a shell metacharacter such as `&`, `;`, `|`, `(`)
+# does — `task &#glued` is a valid comment without a space, `echo "run #1" &`
+# is not one. A character-by-character scan, not a pattern: a pattern based on
+# " #" would be caught out by exactly the first case.
 #
-# Les guillemets échappés par `\` à l'intérieur d'une chaîne double sont suivis.
-# Sans cela, `printf "a \" # b" &` voyait le `\"` comme une fermeture, prenait
-# le `#` pour un commentaire, et laissait le `&` final échapper au contrôle.
+# Quotes escaped by `\` inside a double-quoted string are followed. Without
+# that, `printf "a \" # b" &` took the `\"` for a closing quote, took the `#`
+# for a comment, and let the final `&` escape the check.
 #
-# Limite qui reste, écrite ici pour que ce commentaire ne promette pas plus que
-# le code ne tient : l'échappement n'est suivi qu'à un niveau, et les
-# substitutions (`$(...)`, `` ` ``) ne sont pas analysées. Aller plus loin
-# reviendrait à écrire un analyseur shell, disproportionné pour ce que ce
-# contrôle protège.
+# The limit that remains, written here so that this comment promises no more
+# than the code delivers: escaping is followed one level deep only, and
+# substitutions (`$(...)`, `` ` ``) are not parsed. Going further would mean
+# writing a shell parser, out of proportion with what this check protects.
 strip_trailing_comment() {
     local line="$1"
     local -i i len=${#line}
@@ -121,8 +115,8 @@ strip_trailing_comment() {
         if (( in_single )); then
             [[ "${c}" == "'" ]] && in_single=0
         elif (( in_double )); then
-            # Dans une chaîne double, `\` protège le caractère suivant : les
-            # deux sont recopiés d'un bloc, sans que le second soit interprété.
+            # In a double-quoted string, `\` protects the next character: both
+            # are copied as a block, without the second being interpreted.
             if [[ "${c}" == '\' ]] && (( i + 1 < len )); then
                 result+="${c}${line:i+1:1}"
                 prev="${line:i+1:1}"
@@ -149,8 +143,8 @@ strip_trailing_comment() {
     printf '%s' "${result}"
 }
 
-# Une valeur de parallélisme est légitime quand elle délègue à $(JOBS) plutôt
-# que de décider elle-même.
+# A parallelism value is legitimate when it defers to $(JOBS) rather than
+# deciding for itself.
 is_jobs_value() {
     case "$1" in
         '$(JOBS)'|'${JOBS}'|'"${JOBS}"'|'$JOBS'|'"$JOBS"') return 0 ;;
@@ -158,24 +152,24 @@ is_jobs_value() {
     esac
 }
 
-# La ligne invoque-t-elle un outil qui parallélise ? Sert à distinguer un `-j`
-# de construction d'un `-j` qui se trouve être le drapeau d'un autre programme
-# — `jq -j`, par exemple. Sans cette distinction, signaler tout `-j` sans
-# valeur serait précisément le faux positif que ce contrôle doit éviter.
+# Does the line invoke a tool that parallelises? Tells a build `-j` apart from
+# a `-j` that happens to be another program's flag — `jq -j`, for instance.
+# Without that distinction, reporting every bare `-j` would be precisely the
+# false positive this check must avoid.
 invokes_parallel_tool() {
     [[ "$1" =~ (^|[^[:alnum:]_-])(make|cmake|ninja|xargs)([^[:alnum:]_-]|$) ]]
 }
 
-# Rend la raison du contournement, ou rien. Les formes reconnues :
+# Prints the reason for the bypass, or nothing. The recognised forms:
 #
-#   -j 8, -P 4, -j8, -P4          un nombre de processus figé
-#   -j, -P sans nombre            pire encore : autant de processus que de
-#                                 cœurs, sur une ligne qui construit
-#   --parallel 8, --parallel=8    la forme longue de cmake --build
-#   MAKEFLAGS=-j8                 le parallélisme passé par l'environnement
+#   -j 8, -P 4, -j8, -P4          a fixed number of processes
+#   -j, -P without a number       worse still: as many processes as cores, on
+#                                 a line that builds
+#   --parallel 8, --parallel=8    the long form of cmake --build
+#   MAKEFLAGS=-j8                 parallelism passed through the environment
 #
-# La ligne reçue doit déjà être débarrassée de son commentaire de fin : c'est à
-# l'appelant de le faire, parce que lui seul sait si le fichier est un shell.
+# The line received must already be stripped of its trailing comment: that is
+# the caller's job, because only the caller knows whether the file is shell.
 token_violation() {
     local line="$1"
 
@@ -191,40 +185,41 @@ token_violation() {
             -j|-P)
                 is_jobs_value "${next}" && continue
                 if [[ "${next}" =~ ^[0-9]+$ ]]; then
-                    printf 'parallélisme codé en dur (%s %s)' "${token}" "${next}"
+                    printf 'hard-coded parallelism (%s %s)' "${token}" "${next}"
                     return 0
                 fi
                 if invokes_parallel_tool "${line}"; then
                     if [[ -z "${next}" ]]; then
-                        printf 'parallélisme non borné (%s sans valeur)' "${token}"
+                        printf 'unbounded parallelism (%s without a value)' "${token}"
                     else
-                        printf 'parallélisme hors de $(JOBS) (%s %s)' "${token}" "${next}"
+                        printf 'parallelism outside $(JOBS) (%s %s)' "${token}" "${next}"
                     fi
                     return 0
                 fi
                 ;;
             -j[0-9]*|-P[0-9]*)
-                printf 'parallélisme codé en dur (%s)' "${token}"
+                printf 'hard-coded parallelism (%s)' "${token}"
                 return 0
                 ;;
             --parallel)
                 is_jobs_value "${next}" && continue
-                printf 'parallélisme codé en dur (--parallel %s)' "${next:-sans valeur}"
+                printf 'hard-coded parallelism (--parallel %s)' "${next:-without a value}"
                 return 0
                 ;;
             --parallel=*)
                 is_jobs_value "${token#--parallel=}" && continue
-                printf 'parallélisme codé en dur (%s)' "${token}"
+                printf 'hard-coded parallelism (%s)' "${token}"
                 return 0
                 ;;
             *MAKEFLAGS=*)
-                # Le motif est large à dessein : dans une recette Makefile, le
-                # `@` qui tait la ligne est collé au jeton — `@MAKEFLAGS=-j8`.
+                # The pattern is broad on purpose: in a Makefile recipe, the
+                # `@` that silences the line is glued to the token —
+                # `@MAKEFLAGS=-j8`.
                 #
-                # Le `-j` doit être en tête de mot : `--jobserver-auth` en
-                # contient un au sens du texte, pas au sens des options.
+                # The `-j` must start a word: `--jobserver-auth` contains one
+                # as text, not as an option.
                 if [[ "${token#*MAKEFLAGS=}" =~ (^|[^[:alnum:]-])-j ]]; then
-                    printf 'parallélisme passé par MAKEFLAGS (%s)' "${token}"
+                    printf 'parallelism passed through MAKEFLAGS (%s)' "${token}"
                     return 0
                 fi
                 ;;
@@ -234,14 +229,14 @@ token_violation() {
     return 0
 }
 
-# Invariant 1 — chaque recette du Makefile qui parallélise passe par $(JOBS).
+# Invariant 1 — every Makefile recipe that parallelises goes through $(JOBS).
 #
-# Seules les lignes de recette sont lues, c'est-à-dire celles qui commencent par
-# une tabulation. Le reste du fichier — dont les commentaires qui montrent
-# `make build JOBS=8` — n'est pas du code.
+# Only recipe lines are read, that is the ones that begin with a tab. The rest
+# of the file — including the comments that show `make build JOBS=8` — is not
+# code.
 check_makefile() {
     local makefile="${REPO_ROOT}/Makefile"
-    [[ -f "${makefile}" ]] || { report_success "aucun Makefile, rien à vérifier"; return 0; }
+    [[ -f "${makefile}" ]] || { report_success "no Makefile, nothing to check"; return 0; }
 
     local -a offenders=()
     local line reason
@@ -249,20 +244,20 @@ check_makefile() {
         [[ "${line}" == $'\t'* ]] || continue
 
         reason="$(token_violation "${line}")"
-        if [[ -n "${reason}" ]]; then offenders+=("${reason} : ${line#$'\t'}"); fi
+        if [[ -n "${reason}" ]]; then offenders+=("${reason}: ${line#$'\t'}"); fi
     done < "${makefile}"
 
     if (( ${#offenders[@]} > 0 )); then
-        report_failure "Makefile : parallélisme qui contourne \$(JOBS) :
+        report_failure "Makefile: parallelism that bypasses \$(JOBS):
 $(printf '    %s\n' "${offenders[@]}")"
     else
-        report_success "Makefile : tout le parallélisme passe par \$(JOBS)"
+        report_success "Makefile: all parallelism goes through \$(JOBS)"
     fi
 }
 
-# Les fichiers de src/scripts/ qui sont des scripts shell : ceux qui portent
-# l'extension, et ceux qui portent un shebang. Les hooks git n'ont que le
-# second — ils s'installent sous le nom que git leur impose, sans extension.
+# The files under src/scripts/ that are shell scripts: those that carry the
+# extension, and those that carry a shebang. The git hooks have only the
+# latter — they are installed under the name git imposes, with no extension.
 collect_scripts() {
     local file base first excluded
     while IFS= read -r -d '' file; do
@@ -291,11 +286,11 @@ collect_scripts() {
     done < <(find "${REPO_ROOT}/src/scripts" -type f -print0 2>/dev/null | sort -z || true)
 }
 
-# Invariant 2 — les scripts n'introduisent aucun parallélisme à eux.
+# Invariant 2 — the scripts introduce no parallelism of their own.
 #
-# Un ✓ par invariant, pas un ✓ par fichier balayé : la liste des fautifs ne
-# sort que sur échec, sans quoi chaque script ajouté au projet ajouterait une
-# ligne permanente à une sortie censée rester lisible.
+# One ✓ per invariant, not one ✓ per scanned file: the list of offenders is
+# printed only on failure, otherwise every script added to the project would
+# add a permanent line to an output meant to stay readable.
 check_scripts() {
     local -a offenders=()
     local script relative line trimmed without_comment reason
@@ -307,49 +302,49 @@ check_scripts() {
             trimmed="${line#"${line%%[![:space:]]*}"}"
             [[ -z "${trimmed}" || "${trimmed}" == '#'* ]] && continue
 
-            # Le commentaire de fin de ligne part d'abord : sans quoi
-            # `cmake --build . # exemple : -j 4` serait signalé comme un
-            # contournement, alors que la commande n'en contient aucun.
+            # The trailing comment goes first: otherwise
+            # `cmake --build . # example: -j 4` would be reported as a
+            # bypass, although the command contains none.
             without_comment="$(strip_trailing_comment "${line}")"
 
             reason="$(token_violation "${without_comment}")"
 
             if [[ -z "${reason}" ]] \
                 && [[ "${without_comment}" =~ (^|[^[:alnum:]_])nproc([^[:alnum:]_]|$) ]]; then
-                reason="appel à nproc"
+                reason="call to nproc"
             fi
 
             if [[ -z "${reason}" ]]; then
-                # `tâche & # commentaire` reste une tâche mise en arrière-plan :
-                # c'est la fin de la commande qu'il faut tester, pas la fin du
-                # commentaire.
+                # `task & # comment` is still a task sent to the background:
+                # it is the end of the command that must be tested, not the
+                # end of the comment.
                 local trailing="${without_comment%"${without_comment##*[![:space:]]}"}"
                 if [[ "${trailing}" == *'&' && "${trailing}" != *'&&' ]]; then
-                    reason="commande mise en arrière-plan (&)"
+                    reason="command sent to the background (&)"
                 fi
             fi
 
-            [[ -n "${reason}" ]] && offenders+=("${relative} : ${reason} : ${trimmed}")
+            [[ -n "${reason}" ]] && offenders+=("${relative}: ${reason}: ${trimmed}")
         done < "${script}"
     done < <(collect_scripts)
 
     if (( ${#offenders[@]} > 0 )); then
-        report_failure "src/scripts : parallélisme propre à un script :
+        report_failure "src/scripts: script-specific parallelism:
 $(printf '    %s\n' "${offenders[@]}")"
     else
-        report_success "src/scripts : aucun script n'introduit son propre parallélisme"
+        report_success "src/scripts: no script introduces its own parallelism"
     fi
 }
 
-# Les fichiers CMake du projet : les modules, le CMakeLists de la racine, et
-# ceux de src/ — ces derniers déclarent les cibles de test et de benchmark.
-# Les `|| true` ne sont pas de la superstition : sous `pipefail`, un
-# `find répertoire-absent | sort` fait échouer le pipeline, ce qui sous `set -e`
-# interrompt la collecte dès sa première ligne — les balayages suivants ne sont
-# alors jamais atteints, et le contrôle rend un verdict vert sans avoir rien lu.
-# Le défaut ne se voyait pas sur le dépôt, où tous ces répertoires existent ;
-# il apparaissait sous `--root`, c'est-à-dire précisément quand on cherche à
-# mettre le contrôle à l'épreuve.
+# The project's CMake files: the modules, the top-level CMakeLists, and those
+# under src/ — the latter declare the test and benchmark targets.
+# The `|| true` are not superstition: under `pipefail`, a
+# `find missing-directory | sort` makes the pipeline fail, which under
+# `set -e` stops the collection at its first line — the following scans are
+# then never reached, and the check returns a green verdict having read
+# nothing. The defect did not show on the repository, where all these
+# directories exist; it appeared under `--root`, that is precisely when one
+# tries to put the check to the test.
 collect_cmake() {
     find "${REPO_ROOT}/cmake" -maxdepth 1 -name '*.cmake' -print0 2>/dev/null | sort -z || true
     if [[ -f "${REPO_ROOT}/CMakeLists.txt" ]]; then
@@ -358,8 +353,8 @@ collect_cmake() {
     find "${REPO_ROOT}/src" -name 'CMakeLists.txt' -type f -print0 2>/dev/null | sort -z || true
 }
 
-# Invariant 3 — le LTO ne code aucun nombre de processus en dehors de
-# SUBEDIT_LTO_JOBS, et aucun fichier CMake ne parallélise de lui-même.
+# Invariant 3 — LTO hard-codes no number of processes outside
+# SUBEDIT_LTO_JOBS, and no CMake file parallelises on its own.
 check_cmake() {
     local -a offenders=()
     local file relative line trimmed reason
@@ -372,41 +367,40 @@ check_cmake() {
             [[ -z "${trimmed}" || "${trimmed}" == '#'* ]] && continue
 
             if [[ "${line}" == *'-flto='* && "${line}" != *'-flto=${SUBEDIT_LTO_JOBS}'* ]]; then
-                offenders+=("${relative} : -flto= codé en dur : ${trimmed}")
+                offenders+=("${relative}: hard-coded -flto=: ${trimmed}")
                 continue
             fi
 
             reason="$(token_violation "${line}")"
-            [[ -n "${reason}" ]] && offenders+=("${relative} : ${reason} : ${trimmed}")
+            [[ -n "${reason}" ]] && offenders+=("${relative}: ${reason}: ${trimmed}")
         done < "${file}"
     done < <(collect_cmake)
 
     if (( ${#offenders[@]} > 0 )); then
-        report_failure "cmake : parallélisme codé en dur :
+        report_failure "cmake: hard-coded parallelism:
 $(printf '    %s\n' "${offenders[@]}")"
     else
-        # Établi : aucun de ces fichiers ne code -flto= en dehors de
-        # SUBEDIT_LTO_JOBS, ni ne parallélise autrement. Ça ne dit rien de ceux
-        # qui ne mentionnent le sujet nulle part — c'est pourquoi la phrase
-        # reste vraie pour eux aussi.
-        report_success "cmake : aucun parallélisme codé en dur"
+        # Established: none of these files hard-codes -flto= outside
+        # SUBEDIT_LTO_JOBS, nor parallelises otherwise. That says nothing of
+        # the ones that never mention the subject — which is why the sentence
+        # holds true for them too.
+        report_success "cmake: no hard-coded parallelism"
     fi
 }
 
-# Invariant 4 — toute exécution de tests, et du banc, passe par `limit-cores.sh`, issue #630.
+# Invariant 4 — every run of the tests, and of the bench, goes through `limit-cores.sh`, issue #630.
 #
-# **`JOBS` borne les processus, pas les fils**, et libmpv comme ffmpeg en créent de leur
-# propre chef : un cas de test de lecteur de trois dixièmes de seconde occupait plus de cinq
-# cœurs. Les trois invariants précédents lisent ce qu'on écrit ; celui-ci lit ce qu'un
-# processus fait de lui-même, et la seule borne que ses fils héritent est l'affinité que
-# `limit-cores.sh` pose sur la commande qu'il lance.
+# **`JOBS` bounds processes, not threads**, and libmpv as well as ffmpeg create threads of their
+# own accord: a player test case of three tenths of a second kept more than five cores busy. The
+# three previous invariants read what is written; this one reads what a process does by itself,
+# and the only bound its threads inherit is the affinity that `limit-cores.sh` sets on the
+# command it runs.
 #
-# Le contrôle est une forme : une ligne qui lance `ctest` — recette du Makefile ou script —
-# sans nommer `limit-cores.sh`. **Le binaire du banc est dans le même cas**, relevé à la
-# relecture de la phase 14 : `subedit_bench` ouvre des lecteurs, donc des fils libmpv, et
-# `gate/bench.sh` le lançait nu. Il se reconnaît à son chemin, `bin/subedit_bench` : un
-# `--target subedit_bench` le construit, il ne le lance pas. Le contrôle ne dit rien d'un
-# binaire lancé à la main, et ne prétend pas le faire.
+# The check is a form: a line that runs `ctest` — Makefile recipe or script — without naming
+# `limit-cores.sh`. **The bench binary is in the same case**, noted in the review of phase 14:
+# `subedit_bench` opens players, hence libmpv threads, and `gate/bench.sh` ran it bare. It is
+# recognised by its path, `bin/subedit_bench`: a `--target subedit_bench` builds it, it does not
+# run it. The check says nothing about a binary run by hand, and does not claim to.
 invokes_ctest() {
     [[ "$1" =~ (^|[^[:alnum:]_.-])ctest([^[:alnum:]_.-]|$) ]] ||
         [[ "$1" =~ bin/subedit_bench([^[:alnum:]_.-]|$) ]]
@@ -422,7 +416,7 @@ check_tests() {
             [[ "${line}" == $'\t'* ]] || continue
             without_comment="$(strip_trailing_comment "${line}")"
             if invokes_ctest "${without_comment}" && [[ "${without_comment}" != *limit-cores.sh* ]]; then
-                offenders+=("Makefile : tests hors de limit-cores.sh : ${line#$'\t'}")
+                offenders+=("Makefile: tests outside limit-cores.sh: ${line#$'\t'}")
             fi
         done < "${makefile}"
     fi
@@ -434,16 +428,16 @@ check_tests() {
             [[ -z "${trimmed}" || "${trimmed}" == '#'* ]] && continue
             without_comment="$(strip_trailing_comment "${line}")"
             if invokes_ctest "${without_comment}" && [[ "${without_comment}" != *limit-cores.sh* ]]; then
-                offenders+=("${relative} : tests hors de limit-cores.sh : ${trimmed}")
+                offenders+=("${relative}: tests outside limit-cores.sh: ${trimmed}")
             fi
         done < "${script}"
     done < <(collect_scripts)
 
     if (( ${#offenders[@]} > 0 )); then
-        report_failure "tests lancés sans borner leurs fils :
+        report_failure "tests run without bounding their threads:
 $(printf '    %s\n' "${offenders[@]}")"
     else
-        report_success "tests : toute exécution passe par limit-cores.sh"
+        report_success "tests: every run goes through limit-cores.sh"
     fi
 }
 
@@ -453,6 +447,6 @@ check_cmake
 check_tests
 
 if (( failures > 0 )); then
-    printf '\n%s%d contournement(s) de $(JOBS)%s\n' "${RED}" "${failures}" "${RESET}" >&2
+    printf '\n%s%d bypass(es) of $(JOBS)%s\n' "${RED}" "${failures}" "${RESET}" >&2
     exit 1
 fi

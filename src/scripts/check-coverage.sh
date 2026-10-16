@@ -1,16 +1,16 @@
 #!/usr/bin/env bash
-# Confronte le nombre de lignes non couvertes au cliquet, et l'enregistre.
+# Compares the number of uncovered lines with the ratchet, and records it.
 #
-# Le cliquet porte sur un COMPTE DE LIGNES, pas sur un pourcentage : un
-# pourcentage monte dès qu'on ajoute du code bien testé, ce qui resserre le
-# cliquet sans que personne l'ait décidé. Voir docs/adr/0015-memoire-des-mesures.md.
+# The ratchet is on a LINE COUNT, not a percentage: a percentage rises as soon
+# as well-tested code is added, which tightens the ratchet without anyone having
+# decided it. See docs/adr/0015-memoire-des-mesures.md.
 #
-# Le taux `line_percent` du résumé gcovr arrive DÉJÀ ARRONDI à une décimale ;
-# on ne s'en sert jamais pour comparer. Seuls `line_total` et `line_covered`
-# font foi.
+# The `line_percent` rate of the gcovr summary comes ALREADY ROUNDED to one
+# decimal; it is never used for comparing. Only `line_total` and `line_covered`
+# are authoritative.
 #
-# python3 est utilisé pour lire le JSON : c'est une dépendance déjà acquise,
-# gcovr lui-même en est écrit.
+# python3 reads the JSON: it is a dependency we already have, gcovr itself is
+# written in it.
 
 set -euo pipefail
 
@@ -24,18 +24,17 @@ readonly RESET=$'\033[0m'
 summary=""
 record=0
 
-# Nettoyage du fichier temporaire d'écriture atomique du cliquet, quelle que
-# soit la façon dont le script se termine — succès, échec, interruption.
-# tmp_ratchet reste vide tant que write_ratchet n'a rien créé ; une fois le
-# renommage fait, le fichier n'existe plus et le rm -f ci-dessous ne fait
-# rien. Le pendant, côté record-bench.sh, s'appuie sur un try/except Python ;
-# ici, un trap EXIT joue le même rôle avec les moyens du bash.
+# Removes the temporary file of the ratchet's atomic write, however the script
+# ends — success, failure, interruption. tmp_ratchet stays empty until
+# write_ratchet has created something; once the rename is done, the file no
+# longer exists and the rm -f below does nothing. Its counterpart in
+# record-bench.sh relies on a Python try/except; here an EXIT trap plays the
+# same role with what bash has.
 #
-# La fonction se termine toujours par `return 0` : un trap EXIT dont la
-# dernière commande échoue (ici, le test `[[ ]]` quand tmp_ratchet est vide)
-# écrase silencieusement le code de sortie du script avec le sien — un ✓
-# affiché rendrait alors un exit 1, sans rapport avec ce que le script vient
-# de faire.
+# The function always ends with `return 0`: an EXIT trap whose last command
+# fails (here the `[[ ]]` test when tmp_ratchet is empty) silently overwrites
+# the script's exit code with its own — a ✓ on screen would then return
+# exit 1, unrelated to what the script has just done.
 tmp_ratchet=""
 cleanup_tmp_ratchet() {
     [[ -n "${tmp_ratchet}" && -e "${tmp_ratchet}" ]] && rm -f "${tmp_ratchet}"
@@ -45,10 +44,10 @@ trap cleanup_tmp_ratchet EXIT
 
 usage() {
     cat >&2 <<'USAGE'
-usage: check-coverage.sh --summary <resume.json> [--record]
+usage: check-coverage.sh --summary <summary.json> [--record]
 
-  --summary  le résumé JSON produit par gcovr --json-summary
-  --record   réécrit docs/mesures/couverture.md depuis ce résumé
+  --summary  the JSON summary produced by gcovr --json-summary
+  --record   rewrites docs/mesures/couverture.md from that summary
 USAGE
     exit 2
 }
@@ -58,65 +57,64 @@ while (( $# > 0 )); do
         --summary) [[ $# -ge 2 ]] || usage; summary="$2"; shift 2 ;;
         --record)  record=1; shift ;;
         -h|--help) usage ;;
-        *) printf 'argument inconnu : %s\n' "$1" >&2; usage ;;
+        *) printf 'unknown argument: %s\n' "$1" >&2; usage ;;
     esac
 done
 
 [[ -n "${summary}" ]] || usage
 [[ -f "${summary}" ]] || {
-    printf 'résumé de couverture introuvable : %s\n' "${summary}" >&2
-    printf '  le produire avec : make coverage\n' >&2
+    printf 'coverage summary not found: %s\n' "${summary}" >&2
+    printf '  produce it with: make coverage\n' >&2
     exit 1
 }
 [[ -f "${RATCHET}" ]] || {
-    printf 'cliquet introuvable : %s\n' "${RATCHET}" >&2
+    printf 'ratchet not found: %s\n' "${RATCHET}" >&2
     exit 1
 }
 
-# --record lit build/coverage-report/summary.json sans jamais le régénérer
-# (voir la recette « ratchet » du Makefile) : c'est un artefact que ce script
-# ne construit pas et dont il ne possède pas la fraîcheur. Un résumé plus
-# ancien que la plus récente source de src/lib/ est la trace d'un « make
-# ratchet » lancé sans « make coverage » préalable, ou d'un résidu laissé par
-# un autre outil (verify-gates.sh en injectait un jusqu'à ce qu'il nettoie
-# derrière lui) — l'enregistrer serait figer une mesure qui ne correspond plus
-# au code.
+# --record reads build/coverage-report/summary.json without ever regenerating
+# it (see the "ratchet" recipe of the Makefile): it is an artefact this script
+# does not build and whose freshness it does not own. A summary older than the
+# most recent source of src/lib/ is the trace of a "make ratchet" run without a
+# "make coverage" first, or of a leftover from another tool (verify-gates.sh
+# injected one until it cleaned up after itself) — recording it would freeze a
+# measurement that no longer matches the code.
 if (( record == 1 )); then
     stale_source="$(find "${REPO_ROOT}/src/lib" -type f -newer "${summary}" -print -quit)"
     if [[ -n "${stale_source}" ]]; then
-        printf '%s✗%s résumé de couverture périmé : %s est plus récent que %s\n' \
+        printf '%s✗%s stale coverage summary: %s is newer than %s\n' \
             "${RED}" "${RESET}" "${stale_source#"${REPO_ROOT}"/}" "${summary}" >&2
-        printf '  le régénérer avec : make coverage\n' >&2
+        printf '  regenerate it with: make coverage\n' >&2
         exit 1
     fi
 fi
 
-# Le cliquet a deux ancres textuelles : le titre « ## Record » (frontière entre
-# le préambule et la section réécrite) et les lignes « | compte | `fichier` |
-# » de sa table. Une ancre absente ou dupliquée — titre renommé à la main,
-# fusion mal résolue — ne fait planter ni le sed qui la cherche ni le python
-# qui compare : le premier ne coupe rien, le second continue sur une table
-# tronquée. Le vérifier une fois ici, avant toute lecture ou écriture, vaut
-# mieux qu'un ✓ sur un fichier déjà incohérent.
+# The ratchet has two textual anchors: the "## Record" heading (the boundary
+# between the preamble and the rewritten section) and the "| count | `file` |"
+# rows of its table. A missing or duplicated anchor — a heading renamed by
+# hand, a badly resolved merge — crashes neither the sed that looks for it nor
+# the python that compares: the first cuts nothing, the second carries on with
+# a truncated table. Checking it once here, before any read or write, is better
+# than a ✓ on a file that is already inconsistent.
 heading_count="$(grep -c '^## Record$' "${RATCHET}" || true)"
 if [[ "${heading_count}" -ne 1 ]]; then
-    printf '%s✗%s le titre « ## Record » de %s apparaît %s fois, une seule attendue\n' \
+    printf '%s✗%s the "## Record" heading of %s appears %s times, once expected\n' \
         "${RED}" "${RESET}" "${RATCHET#"${REPO_ROOT}"/}" "${heading_count}" >&2
-    printf '  corriger le fichier à la main avant de relancer.\n' >&2
+    printf '  fix the file by hand before running again.\n' >&2
     exit 1
 fi
 if grep -qE '^(<{7} |={7}$|>{7} )' "${RATCHET}"; then
-    printf '%s✗%s marqueur de conflit git détecté dans %s\n' \
+    printf '%s✗%s git conflict marker found in %s\n' \
         "${RED}" "${RESET}" "${RATCHET#"${REPO_ROOT}"/}" >&2
-    printf '  résoudre la fusion à la main avant de relancer.\n' >&2
+    printf '  resolve the merge by hand before running again.\n' >&2
     exit 1
 fi
 
-# Sort « total » puis une ligne « compte<TAB>fichier » par fichier concerné,
-# du plus fourni au moins fourni. Sort en échec (code non nul) si le JSON est
-# illisible, incomplet, ou dégénéré — line_total à zéro ou files vide, ce
-# qu'un --filter erroné ou un build sans .gcda produirait, et qui ne constitue
-# un état légitime pour aucun résumé de ce projet.
+# Prints the total, then one "count<TAB>file" line per file concerned, from the
+# largest count to the smallest. Fails (non-zero code) if the JSON is
+# unreadable, incomplete or degenerate — line_total at zero or files empty,
+# which a wrong --filter or a build without .gcda would produce, and which is a
+# legitimate state for no summary of this project.
 read_summary() {
     python3 - "$1" <<'PY'
 import json, sys
@@ -142,56 +140,56 @@ for count, name in sorted(rows, key=lambda row: (-row[0], row[1])):
 PY
 }
 
-# La substitution de processus (mapfile < <(...)) n'est pas couverte par
-# pipefail : un python3 en échec y serait invisible, et la porte annoncerait
-# un succès sur une lecture tronquée. La substitution de commande, elle, l'est
-# — measured_raw="$(...)" transmet fidèlement le code de sortie de
-# read_summary, capturé ici par le test explicite plutôt que par set -e, pour
-# pouvoir répondre par un ✗ exploitable au lieu d'une pile Python.
+# Process substitution (mapfile < <(...)) is not covered by pipefail: a failing
+# python3 would be invisible there, and the gate would announce a success on a
+# truncated read. Command substitution is — measured_raw="$(...)" faithfully
+# passes on the exit code of read_summary, caught here by the explicit test
+# rather than by set -e, so as to answer with a usable ✗ instead of a Python
+# traceback.
 if ! measured_raw="$(read_summary "${summary}" 2>/dev/null)"; then
-    printf '%s✗%s résumé de couverture illisible ou vide : %s\n' \
+    printf '%s✗%s coverage summary unreadable or empty: %s\n' \
         "${RED}" "${RESET}" "${summary}" >&2
-    printf '  le régénérer avec : make coverage\n' >&2
+    printf '  regenerate it with: make coverage\n' >&2
     exit 1
 fi
 mapfile -t measured <<< "${measured_raw}"
 readonly measured_total="${measured[0]}"
 
-# gcovr 7.0 émet des entiers pour line_total et line_covered, mais le résumé
-# JSON ne le garantit pas : une version future qui les émettrait en flottant
-# ferait échouer `(( ))` plus bas par une erreur de syntaxe arithmétique — une
-# erreur que `if (( ... ))` avale silencieusement (test faux, script non
-# interrompu), au point de retomber dans la branche verte finale avec un total
-# mesuré comme « 53.0 » affiché tel quel. Un compte de lignes n'est légitime
-# que sous forme d'entier ; le vérifier ici transforme un échec silencieux en ✗.
+# gcovr 7.0 emits integers for line_total and line_covered, but the JSON
+# summary does not guarantee it: a future version emitting them as floats would
+# make `(( ))` below fail with an arithmetic syntax error — an error that
+# `if (( ... ))` swallows silently (false test, script not interrupted), to the
+# point of falling into the final green branch with a measured total such as
+# "53.0" printed as is. A line count is legitimate only as an integer; checking
+# it here turns a silent failure into a ✗.
 [[ "${measured_total}" =~ ^[0-9]+$ ]] || {
-    printf '%s✗%s total de couverture non entier : %s\n' \
+    printf '%s✗%s coverage total is not an integer: %s\n' \
         "${RED}" "${RESET}" "${measured_total}" >&2
-    printf '  résumé suspect : %s\n' "${summary}" >&2
+    printf '  suspicious summary: %s\n' "${summary}" >&2
     exit 1
 }
 
-# L'ancre du cliquet : une ligne « total: N » dans un bloc de code.
+# The ratchet's anchor: a "total: N" line in a code block.
 recorded_total="$(sed -n 's/^[[:space:]]\+total[[:space:]]*:[[:space:]]*\([0-9]\+\)[[:space:]]*$/\1/p' \
     "${RATCHET}" | head -1)"
 
 [[ -n "${recorded_total}" ]] || {
-    printf '%s✗%s aucune ligne « total: N » lisible dans %s\n' \
+    printf '%s✗%s no readable "total: N" line in %s\n' \
         "${RED}" "${RESET}" "${RATCHET#"${REPO_ROOT}"/}" >&2
     exit 1
 }
 
-# Le motif ci-dessus ne capture que des chiffres, donc recorded_total est déjà
-# forcément un entier s'il a matché — ce test documente l'invariant et protège
-# symétriquement contre un futur assouplissement du motif.
+# The pattern above captures digits only, so recorded_total is necessarily an
+# integer if it matched — this test documents the invariant and guards,
+# symmetrically, against a future loosening of the pattern.
 [[ "${recorded_total}" =~ ^[0-9]+$ ]] || {
-    printf '%s✗%s total relevé non entier : %s dans %s\n' \
+    printf '%s✗%s recorded total is not an integer: %s in %s\n' \
         "${RED}" "${RESET}" "${recorded_total}" "${RATCHET#"${REPO_ROOT}"/}" >&2
     exit 1
 }
 
-# Les lignes de données de la table actuelle (« | compte | `fichier` | »), en
-# excluant l'en-tête et la ligne de séparation qui ne matchent pas ce motif.
+# The data rows of the current table ("| count | `file` |"), leaving out the
+# header and the separator row, which do not match this pattern.
 mapfile -t recorded_rows < <(sed -n 's/^| *\([0-9][0-9]*\) *| `\([^`]*\)` *|$/\1\t\2/p' "${RATCHET}")
 
 write_ratchet() {
@@ -201,10 +199,10 @@ write_ratchet() {
         new_rows+=("${measured[index]}")
     done
 
-    # Idempotence : si le total et la ventilation n'ont pas bougé, ne rien
-    # réécrire. Sans ce test, write_ratchet reposait la date du jour à chaque
-    # appel même sur une mesure inchangée — un fichier versionné qui bouge
-    # sans qu'on ait rien à y dire.
+    # Idempotence: if neither the total nor the breakdown has moved, rewrite
+    # nothing. Without this test, write_ratchet set today's date on every call,
+    # even on an unchanged measurement — a tracked file that moves with nothing
+    # to say.
     local unchanged=1
     if [[ "${measured_total}" != "${recorded_total}" ]] \
         || [[ "${#new_rows[@]}" -ne "${#recorded_rows[@]}" ]]; then
@@ -219,7 +217,7 @@ write_ratchet() {
     fi
 
     if (( unchanged == 1 )); then
-        printf '%s✓%s cliquet déjà à jour : rien à réenregistrer\n' \
+        printf '%s✓%s ratchet already up to date: nothing to record again\n' \
             "${GREEN}" "${RESET}"
         return 0
     fi
@@ -228,7 +226,7 @@ write_ratchet() {
     version="$(sed -n 's/^[[:space:]]*VERSION[[:space:]]\+\([0-9][0-9.]*\)[[:space:]]*$/\1/p' \
         "${REPO_ROOT}/CMakeLists.txt" | head -1)"
     [[ -n "${version}" ]] || {
-        printf '%s✗%s version illisible dans %s/CMakeLists.txt\n' \
+        printf '%s✗%s unreadable version in %s/CMakeLists.txt\n' \
             "${RED}" "${RESET}" "${REPO_ROOT}" >&2
         exit 1
     }
@@ -236,19 +234,19 @@ write_ratchet() {
     local today
     today="$(date +%Y-%m-%d)"
 
-    # Écriture atomique : un fichier temporaire à côté de la cible, renommé
-    # ensuite — même principe que record-bench.sh. mktemp le crée en 0600 ;
-    # on aligne son mode sur celui du fichier original avant de le publier,
-    # sans quoi le renommage remplacerait un fichier suivi en 644 par un
-    # fichier illisible du groupe et des autres. tmp_ratchet est nettoyé par
-    # le trap EXIT posé en tête de script si l'écriture est interrompue.
+    # Atomic write: a temporary file next to the target, renamed afterwards —
+    # the same principle as record-bench.sh. mktemp creates it as 0600; its
+    # mode is aligned on the original file's before publishing it, otherwise
+    # the rename would replace a tracked 644 file with one the group and others
+    # cannot read. tmp_ratchet is cleaned up by the EXIT trap set at the top of
+    # the script if the write is interrupted.
     local original_mode
     original_mode="$(stat -c '%a' "${RATCHET}")"
     tmp_ratchet="$(mktemp "${RATCHET}.XXXXXX")"
 
     {
-        # Le préambule est conservé tel quel : seule la section « Record » est
-        # réécrite. On coupe au titre de section pour ne pas perdre la prose.
+        # The preamble is kept as is: only the "Record" section is rewritten.
+        # The cut is at the section heading so as not to lose the prose.
         sed '/^## Record$/,$d' "${RATCHET}"
         printf '## Record\n\n    total: %s\n\n' "${measured_total}"
         printf 'Recorded on version %s, on %s.\n\n' "${version}" "${today}"
@@ -261,7 +259,7 @@ write_ratchet() {
     chmod "${original_mode}" "${tmp_ratchet}"
     mv "${tmp_ratchet}" "${RATCHET}"
     tmp_ratchet=""
-    printf '%s✓%s cliquet enregistré : %s ligne(s) non couverte(s)\n' \
+    printf '%s✓%s ratchet recorded: %s uncovered line(s)\n' \
         "${GREEN}" "${RESET}" "${measured_total}"
 }
 
@@ -271,25 +269,25 @@ if (( record == 1 )); then
 fi
 
 if (( measured_total > recorded_total )); then
-    printf '%s✗%s la couverture a reculé : %s ligne(s) non couverte(s), contre %s au relevé\n' \
+    printf '%s✗%s coverage went down: %s uncovered line(s), against %s recorded\n' \
         "${RED}" "${RESET}" "${measured_total}" "${recorded_total}" >&2
-    printf '\n  ventilation actuelle :\n' >&2
+    printf '\n  current breakdown:\n' >&2
     for (( index = 1; index < ${#measured[@]}; index++ )); do
         printf '    %4s  %s\n' \
             "${measured[index]%%$'\t'*}" "${measured[index]#*$'\t'}" >&2
     done
-    printf '\n  comparer à la table de %s pour voir ce qui a bougé.\n' \
+    printf '\n  compare with the table of %s to see what moved.\n' \
         "${RATCHET#"${REPO_ROOT}"/}" >&2
-    printf '  couvrir les lignes ajoutées, ou justifier le relèvement du cliquet.\n' >&2
+    printf '  cover the added lines, or justify raising the ratchet.\n' >&2
     exit 1
 fi
 
 if (( measured_total < recorded_total )); then
-    printf '%s✓%s la couverture progresse : %s ligne(s) non couverte(s), contre %s au relevé\n' \
+    printf '%s✓%s coverage improves: %s uncovered line(s), against %s recorded\n' \
         "${GREEN}" "${RESET}" "${measured_total}" "${recorded_total}"
-    printf '  « make ratchet » enregistre ce progrès.\n'
+    printf '  "make ratchet" records this progress.\n'
     exit 0
 fi
 
-printf '%s✓%s %s ligne(s) non couverte(s), comme au relevé\n' \
+printf '%s✓%s %s uncovered line(s), as recorded\n' \
     "${GREEN}" "${RESET}" "${measured_total}"

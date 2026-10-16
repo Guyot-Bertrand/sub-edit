@@ -1,60 +1,59 @@
 #!/usr/bin/env bash
-# Installe le `.rpm` sur une vraie Fedora, et lance ce qui vient d'en sortir.
+# Installs the `.rpm` on a real Fedora, and runs what comes out of it.
 #
-# **C'est le contrôle que l'ADR 0023 nommait sans pouvoir l'écrire** — « à
-# rouvrir quand quelqu'un installera vraiment le paquet », issue #266. Le
-# développement se fait sur Ubuntu : `rpmbuild` y produit un `.rpm` et `rpm` n'y
-# installe rien. Trois lignes du tableau de l'ADR restaient donc vides, et la
-# plus coûteuse des trois était celle-ci — **que les noms de dépendances
-# existent dans la distribution.** Ils sont écrits à la main dans
-# `cmake/Packaging.cmake`, parce que CPack ne sait rien de Fedora, et un nom
-# erroné produit un paquet parfaitement valide qui refuse de s'installer.
+# **This is the check ADR 0023 named without being able to write it** — "to
+# reopen when someone really installs the package", issue #266. Development
+# happens on Ubuntu: `rpmbuild` produces an `.rpm` there and `rpm` installs
+# nothing. Three rows of the ADR's table were therefore left empty, and the
+# costliest of the three was this one — **that the dependency names exist in
+# the distribution.** They are written by hand in `cmake/Packaging.cmake`,
+# because CPack knows nothing about Fedora, and a wrong name produces a
+# perfectly valid package that refuses to install.
 #
-# ## Ce qu'il a trouvé du premier coup
+# ## What it found on the first try
 #
-# **Le paquet ne s'installait pas**, et pas pour la raison qu'on surveillait.
-# Les dépendances étaient bonnes ; c'étaient les répertoires. Le `.rpm`
-# déclarait posséder `/usr/share/applications`, `/usr/share/icons` et six
-# autres, que `filesystem` et `hicolor-icon-theme` possèdent déjà, et `dnf`
-# refusait la transaction sur six conflits. L'exclusion existait depuis #244 et
-# n'excluait rien — chemins relatifs contre chemins de paquet. Voir
+# **The package did not install**, and not for the reason being watched. The
+# dependencies were right; the directories were not. The `.rpm` claimed to own
+# `/usr/share/applications`, `/usr/share/icons` and six others, which
+# `filesystem` and `hicolor-icon-theme` already own, and `dnf` refused the
+# transaction on six conflicts. The exclusion had existed since #244 and
+# excluded nothing — relative paths against package paths. See
 # `cmake/Packaging.cmake`.
 #
-# **Personne ne pouvait le voir sans jouer la transaction.** `rpm -qlp` lit une
-# liste de fichiers ; un conflit de propriété n'est pas dans le paquet, il est
-# entre le paquet et la distribution.
+# **Nobody could see it without running the transaction.** `rpm -qlp` reads a
+# list of files; an ownership conflict is not in the package, it is between
+# the package and the distribution.
 #
-# ## Ce qu'il vérifie
+# ## What it checks
 #
-#   1. `dnf install` résout les dépendances **et** mène la transaction à son
-#      terme ;
-#   2. chaque chemin que le paquet annonce est là où il l'annonce ;
-#   3. les deux binaires installés se lancent et disent la bonne version ;
-#   4. les deux pages de manuel se trouvent par `man`, qui est l'outil qui les
-#      lit.
+#   1. `dnf install` resolves the dependencies **and** carries the transaction
+#      through;
+#   2. every path the package announces is where it announces it;
+#   3. the two installed binaries start and state the right version;
+#   4. the two manual pages are found by `man`, which is the tool that reads
+#      them.
 #
-# ## Ce qu'il coûte, et pourquoi il n'est dans aucune porte
+# ## What it costs, and why it is in no gate
 #
-# Il télécharge Qt et ses dépendances, soit près de trois cents mégaoctets, et
-# demande le réseau. **Une porte qui dépend du réseau est rouge un jour de
-# panne, pour une raison étrangère au dépôt** — c'est la règle que
-# `verify-gates.sh` s'applique déjà. Il se lance donc à la main, et une fois par
-# semaine sur `main` : `.github/workflows/fedora.yml`. Le quota d'Actions du
-# dépôt a déjà été épuisé une fois (#232, #233), et un conteneur par pull
-# request n'est pas gratuit.
+# It downloads Qt and its dependencies, nearly three hundred megabytes, and
+# needs the network. **A gate that depends on the network is red on an outage
+# day, for a reason foreign to the repository** — the rule `verify-gates.sh`
+# already applies to itself. It is therefore run by hand, and once a week on
+# `main`: `.github/workflows/fedora.yml`. The repository's Actions quota has
+# already run out once (#232, #233), and a container per pull request is not
+# free.
 #
-# **Ce qui garde les pull requests entre-temps est moins cher et plus étroit :**
-# `check-installation.sh` refuse un `.rpm` qui déclare posséder un répertoire
-# qui n'est pas à lui. C'est la cause du défaut ci-dessus, et elle se lit dans
-# le paquet sans Fedora. Les deux contrôles ne voient pas la même chose, et
-# c'est pour cela qu'ils sont deux.
+# **What guards pull requests in the meantime is cheaper and narrower:**
+# `check-installation.sh` refuses an `.rpm` that claims to own a directory that
+# is not its own. That is the cause of the defect above, and it can be read in
+# the package without Fedora. The two checks do not see the same thing, which
+# is why there are two of them.
 #
-# ## Le conteneur n'est pas un bureau Fedora, sur un point
+# ## The container is not a Fedora desktop, on one point
 #
-# Une image Fedora pose `tsflags=nodocs`, qui fait écarter la documentation à
-# l'installation — un bureau ne le fait pas. Le contrôle le défait
-# explicitement, faute de quoi il jugerait la page de manuel absente d'un
-# paquet qui la porte.
+# A Fedora image sets `tsflags=nodocs`, which drops documentation at install
+# time — a desktop does not. The check undoes it explicitly, otherwise it would
+# find the manual page missing from a package that carries it.
 
 set -euo pipefail
 
@@ -64,18 +63,18 @@ readonly RED=$'\033[31m'
 readonly GREEN=$'\033[32m'
 readonly RESET=$'\033[0m'
 
-# **Une version nommée, jamais `latest`.** Une image qui change sous les pieds
-# rendrait un échec impossible à rejouer, et ferait porter à ce dépôt les
-# accidents d'une distribution qui bouge.
+# **A named version, never `latest`.** An image that changes underfoot would
+# make a failure impossible to replay, and would make this repository bear the
+# accidents of a moving distribution.
 image="fedora:42"
 build_dir="${REPO_ROOT}/build/release"
 
 usage() {
     cat >&2 <<'USAGE'
-usage: check-rpm.sh [--build-dir <répertoire>] [--image <image>]
+usage: check-rpm.sh [--build-dir <directory>] [--image <image>]
 
-  --build-dir  l'arbre où trouver le .rpm (défaut : build/release)
-  --image      l'image Fedora à lancer  (défaut : fedora:42)
+  --build-dir  the tree where the .rpm is found (default: build/release)
+  --image      the Fedora image to run          (default: fedora:42)
 USAGE
     exit 2
 }
@@ -85,14 +84,13 @@ while (($# > 0)); do
     --build-dir) [[ $# -ge 2 ]] || usage; build_dir="$2"; shift 2 ;;
     --image) [[ $# -ge 2 ]] || usage; image="$2"; shift 2 ;;
     -h | --help) usage ;;
-    *) printf 'argument inconnu : %s\n' "$1" >&2; usage ;;
+    *) printf 'unknown argument: %s\n' "$1" >&2; usage ;;
     esac
 done
 
-# **Podman d'abord, Docker ensuite.** Podman est ce qu'une Fedora a d'origine,
-# et il tourne sans démon ; Docker est ce qu'une Ubuntu de développement a le
-# plus souvent. Les deux prennent les mêmes arguments pour ce qu'on leur
-# demande ici.
+# **Podman first, Docker next.** Podman is what a Fedora ships with, and it
+# runs without a daemon; Docker is what a development Ubuntu most often has.
+# Both take the same arguments for what is asked of them here.
 engine=""
 for candidate in podman docker; do
     if command -v "${candidate}" >/dev/null 2>&1 && "${candidate}" info >/dev/null 2>&1; then
@@ -102,8 +100,8 @@ for candidate in podman docker; do
 done
 
 if [[ -z "${engine}" ]]; then
-    printf '%s✗ ni podman ni docker n'\''est utilisable%s\n' "${RED}" "${RESET}" >&2
-    printf '  ce contrôle installe le paquet sur une vraie Fedora ; il lui faut un conteneur\n' >&2
+    printf '%s✗ neither podman nor docker is usable%s\n' "${RED}" "${RESET}" >&2
+    printf '  this check installs the package on a real Fedora; it needs a container\n' >&2
     printf '  Ubuntu : sudo apt install podman\n' >&2
     exit 1
 fi
@@ -114,15 +112,15 @@ readonly VERSION="$(sed -n 's/^[[:space:]]*VERSION[[:space:]]\{1,\}\([0-9.]\{1,\
 package="$(find "${build_dir}" -maxdepth 1 -name 'subedit*.rpm' 2>/dev/null | head -1)"
 
 if [[ -z "${package}" ]]; then
-    printf '%s✗ aucun .rpm dans %s%s\n' "${RED}" "${build_dir}" "${RESET}" >&2
-    printf '  le produire avec « make packages »\n' >&2
+    printf '%s✗ no .rpm in %s%s\n' "${RED}" "${build_dir}" "${RESET}" >&2
+    printf '  produce it with "make packages"\n' >&2
     exit 1
 fi
 
-# Le paquet est monté seul, dans un répertoire à lui : le conteneur n'a aucune
-# raison de voir le dépôt, et ce qu'il ne voit pas ne peut pas fausser ce qu'il
-# éprouve. C'est la même raison qui fait lancer les binaires installés depuis
-# ailleurs que l'arbre de construction, dans check-installation.sh.
+# The package is mounted alone, in a directory of its own: the container has
+# no reason to see the repository, and what it does not see cannot distort what
+# it tests. It is the same reason check-installation.sh runs the installed
+# binaries from somewhere other than the build tree.
 staging="$(mktemp -d)"
 cleanup() {
     rm -rf "${staging}"
@@ -131,29 +129,30 @@ trap cleanup EXIT
 
 cp "${package}" "${staging}/"
 
-printf 'paquet : %s\n' "$(basename "${package}")"
-printf 'image   : %s   (%s)\n\n' "${image}" "${engine}"
+printf 'package: %s\n' "$(basename "${package}")"
+printf 'image:   %s   (%s)\n\n' "${image}" "${engine}"
 
-# Le contrôle lui-même, joué dans le conteneur. Écrit ici plutôt que dans un
-# fichier à part : il n'a qu'un appelant, et un fichier de plus se lirait sans
-# celui-ci — or il ne veut rien dire seul.
+# The check itself, run in the container. Written here rather than in a file
+# of its own: it has a single caller, and one more file would be read without
+# this one — yet it means nothing alone.
 #
-# **`-i` et non pas seulement `--rm`** : sans lui, l'entrée standard du
-# conteneur n'est reliée à rien, et le `bash -s` ci-dessous lit un script vide.
-# Il rend alors zéro sans avoir rien fait, ce qui est le pire des verts — et
-# c'est exactement ce qui est arrivé au premier essai.
+# **`-i` and not only `--rm`**: without it, the container's standard input is
+# connected to nothing, and the `bash -s` below reads an empty script. It then
+# returns zero having done nothing, which is the worst kind of green — and that
+# is exactly what happened on the first try.
 #
-# **`Z` sur le montage**, pour SELinux : sans lui, un podman sans privilèges sur
-# Fedora ne lit pas le répertoire monté. Docker l'accepte et l'ignore là où
-# SELinux n'est pas là, donc il ne coûte rien à celui qui n'en a pas besoin.
-# Les langues installées, calculées de src/po/LINGUAS : le conteneur ne voit pas le dépôt, on lui
-# passe la liste (#659).
+# **`Z` on the mount**, for SELinux: without it, an unprivileged podman on
+# Fedora does not read the mounted directory. Docker accepts it and ignores it
+# where SELinux is absent, so it costs nothing to whoever does not need it.
+#
+# The installed languages, computed from src/po/LINGUAS: the container does not
+# see the repository, so it is handed the list (#659).
 languages="$(grep -v '^[[:space:]]*\(#\|$\)' "${REPO_ROOT}/src/po/LINGUAS" | tr '\n' ' ')"
 
 "${engine}" run --rm -i \
     -v "${staging}:/pkg:ro,Z" \
-    -e "ATTENDU=${VERSION}" \
-    -e "LANGUES=${languages}" \
+    -e "EXPECTED=${VERSION}" \
+    -e "LANGUAGES=${languages}" \
     "${image}" \
     /usr/bin/bash -s <<'INNER'
 set -uo pipefail
@@ -175,137 +174,137 @@ report_success() {
 
 printf '  %s\n\n' "$(cat /etc/fedora-release)"
 
-## 1. Le paquet s'installe
+## 1. The package installs
 #
-# **`--setopt=tsflags=` défait le `nodocs` de l'image**, qui n'est pas un
-# réglage de Fedora mais un réglage de conteneur : sans lui, la page de manuel
-# serait écartée à l'installation et le contrôle 4 échouerait sur un paquet
-# irréprochable.
+# **`--setopt=tsflags=` undoes the image's `nodocs`**, which is not a Fedora
+# setting but a container setting: without it, the manual page would be dropped
+# at install time and check 4 would fail on a flawless package.
 #
-# La sortie est gardée et n'est écrite qu'en cas d'échec : elle fait quatre
-# cents lignes de téléchargements, et ce qui compte y tient en six.
+# The output is kept and written only on failure: it is four hundred lines of
+# downloads, and what matters in it fits in six.
 if ! dnf -y --setopt=tsflags= install /pkg/*.rpm > /tmp/dnf.log 2>&1; then
-    report_failure "dnf refuse d'installer le paquet :
+    report_failure "dnf refuses to install the package:
 $(grep -vE '^\[[0-9]+/[0-9]+\]|^ *$' /tmp/dnf.log | tail -20 | sed 's/^/    /')"
-    printf '\n%s%d contrôle(s) en échec%s\n' "${RED}" "${failures}" "${RESET}" >&2
+    printf '\n%s%d check(s) failed%s\n' "${RED}" "${failures}" "${RESET}" >&2
     exit 1
 fi
 
 installed="$(rpm -q --qf '%{VERSION}' subedit)"
-if [[ "${installed}" != "${ATTENDU}" ]]; then
-    report_failure "le paquet installé annonce « ${installed} », attendu « ${ATTENDU} »"
+if [[ "${installed}" != "${EXPECTED}" ]]; then
+    report_failure "the installed package announces \"${installed}\", expected \"${EXPECTED}\""
 else
-    report_success "dnf installe le paquet, et résout $(rpm -qp --requires /pkg/*.rpm 2>/dev/null \
-        | grep -vc '^rpmlib(') dépendance(s)"
+    report_success "dnf installs the package, and resolves $(rpm -qp --requires /pkg/*.rpm 2>/dev/null \
+        | grep -vc '^rpmlib(') dependency(ies)"
 fi
 
-## 2. Chaque chemin annoncé est là où il est annoncé
+## 2. Every announced path is where it is announced
 #
-# **La liste vient du paquet, jamais d'ici.** Une liste écrite dans ce script
-# se périmerait au premier fichier ajouté, et le manque ne se verrait que si
-# quelqu'un pensait à l'y inscrire.
+# **The list comes from the package, never from here.** A list written in this
+# script would go stale with the first added file, and the gap would only show
+# if someone thought of adding it.
 missing=()
 while IFS= read -r path; do
     [[ -e "${path}" ]] || missing+=("${path}")
 done < <(rpm -ql subedit)
 
 if ((${#missing[@]} > 0)); then
-    report_failure "le paquet annonce des chemins qu'il n'a pas déposés :
+    report_failure "the package announces paths it did not lay down:
 $(printf '    %s\n' "${missing[@]}")"
 else
-    report_success "les $(rpm -ql subedit | wc -l) chemins annoncés sont là où le paquet les annonce"
+    report_success "the $(rpm -ql subedit | wc -l) announced paths are where the package announces them"
 fi
 
-## 3. Les deux binaires installés se lancent
+## 3. The two installed binaries start
 #
-# Depuis la racine, et non depuis un répertoire qui contiendrait quelque chose :
-# un binaire qui trouve un fichier « à côté de lui » le trouve encore quand on
-# le lance d'ailleurs. `XDG_CONFIG_HOME` est déplacé comme partout ailleurs
-# dans ce dépôt — un contrôle ne touche pas la configuration de qui le lance.
+# From the root, and not from a directory that might contain something: a
+# binary that finds a file "next to it" must still find it when started from
+# elsewhere. `XDG_CONFIG_HOME` is moved as everywhere else in this repository —
+# a check does not touch the configuration of whoever runs it.
 check_binary() {
     local name="$1"
     local said
 
     said="$(cd / && QT_QPA_PLATFORM=offscreen XDG_CONFIG_HOME=/tmp/config \
         "/usr/bin/${name}" --version 2>&1)" || {
-        report_failure "${name} installé ne se lance pas :
+        report_failure "installed ${name} does not start:
 $(printf '%s\n' "${said}" | sed 's/^/    /')"
         return
     }
 
-    if [[ "${said}" != "subedit ${ATTENDU}" ]]; then
-        report_failure "${name} annonce « ${said} », attendu « subedit ${ATTENDU} »"
+    if [[ "${said}" != "subedit ${EXPECTED}" ]]; then
+        report_failure "${name} announces \"${said}\", expected \"subedit ${EXPECTED}\""
         return
     fi
 
-    report_success "${name} se lance depuis l'installé, et annonce ${ATTENDU}"
+    report_success "${name} starts from the installation, and announces ${EXPECTED}"
 }
 
 check_binary subedit-cli
 check_binary subedit-gui
 
-## 4. La page de manuel se trouve par man
+## 4. The manual page is found by man
 #
-# **Par `man` et non par un `test -f`** : ce qui est en jeu n'est pas qu'un
-# fichier existe, c'est qu'un utilisateur qui tape `man subedit-cli` obtienne
-# quelque chose. Le répertoire peut être juste et hors du `manpath`, et rien
-# d'autre ne le dirait — c'est la leçon de #268, vérifier avec l'outil qui
-# compte.
-# `util-linux` avec `man-db`, et il n'est pas superflu : `man` formate en
-# passant par `col -b`, que l'image minimale n'a pas — `util-linux-core` ne
-# suffit pas, `col` est dans `util-linux`. Sans lui, `man` sort en erreur 127 et
-# ne rend rien, un échec qui ressemble à une page absente et qui n'en est pas un.
+# **By `man` and not by a `test -f`**: what is at stake is not that a file
+# exists, it is that a user who types `man subedit-cli` gets something. The
+# directory may be right and outside the `manpath`, and nothing else would say
+# so — that is the lesson of #268, check with the tool that matters.
+#
+# `util-linux` along with `man-db`, and it is not superfluous: `man` formats
+# through `col -b`, which the minimal image lacks — `util-linux-core` is not
+# enough, `col` is in `util-linux`. Without it, `man` exits with error 127 and
+# renders nothing, a failure that looks like a missing page and is not one.
 if ! dnf -y --setopt=tsflags= install man-db util-linux > /tmp/man.log 2>&1; then
-    report_failure "man-db ne s'installe pas dans le conteneur ; la page de manuel n'est pas éprouvée"
+    report_failure "man-db does not install in the container; the manual page is not tested"
 else
-    # **Les deux binaires, depuis #272.** Une page installée sous le mauvais nom
-    # se trouve par son chemin et jamais par `man` ; c'est précisément ce que
-    # cette boucle éprouve, et un `test -f` ne le dirait pas.
+    # **Both binaries, since #272.** A page installed under the wrong name is
+    # found by its path and never by `man`; that is precisely what this loop
+    # tests, and a `test -f` would not tell.
     pages=0
     for name in subedit-cli subedit-gui; do
         found="$(man -w "${name}" 2>/dev/null || true)"
         if [[ -z "${found}" ]]; then
-            report_failure "man ne trouve pas ${name} ; la page est hors du manpath"
+            report_failure "man does not find ${name}; the page is outside the manpath"
         elif ! man "${name}" 2>/dev/null | grep -q "${name}"; then
-            report_failure "man trouve la page de ${name} mais n'en rend rien"
+            report_failure "man finds the page of ${name} but renders nothing"
         else
             pages=$((pages + 1))
         fi
     done
-    ((pages == 2)) && report_success "man rend les deux pages installées"
+    ((pages == 2)) && report_success "man renders both installed pages"
 fi
 
-## 5. Le manuel complet est lisible
+## 5. The full manual is readable
 #
-# Le chemin est celui que la page de manuel annonce, et non un chemin écrit
-# ici : c'est ce que la fenêtre d'aide ouvrira sur cette machine.
+# The path is the one the manual page announces, not one written here: it is
+# what the help window will open on this machine.
 named="$(man subedit-cli 2>/dev/null | grep -o '/usr/share/subedit/manual' | head -1)"
 if [[ -z "${named}" ]]; then
-    report_failure "la page de manuel ne nomme pas le répertoire du manuel"
+    report_failure "the manual page does not name the manual's directory"
 elif [[ ! -r "${named}/index.md" ]]; then
-    report_failure "le manuel annoncé sous ${named} n'y est pas lisible"
+    report_failure "the manual announced under ${named} is not readable there"
 else
-    report_success "le manuel est lisible sous ${named} ($(find "${named}" -type f | wc -l) fichiers)"
+    report_success "the manual is readable under ${named} ($(find "${named}" -type f | wc -l) files)"
 fi
 
-## 6. Le catalogue de chaque langue installée est déposé
+## 6. The catalogue of every installed language is laid down
 #
-# Le paquet les annonce déjà (contrôle 2) ; celui-ci confronte à la liste du dépôt, parce qu'un
-# paquet sans catalogue s'annonce complet. Le chemin est celui que le lecteur de `core/i18n/` cherche.
-for language in ${LANGUES}; do
+# The package already announces them (check 2); this one compares with the repository's list,
+# because a package without a catalogue announces itself complete. The path is the one the reader
+# of `core/i18n/` looks for.
+for language in ${LANGUAGES}; do
     mo="/usr/share/subedit/locale/${language}/LC_MESSAGES/subedit.mo"
     if [[ ! -s "${mo}" ]]; then
-        report_failure "le catalogue « ${language} » n'est pas déposé : ${mo}"
+        report_failure "the \"${language}\" catalogue is not laid down: ${mo}"
     else
-        report_success "le catalogue « ${language} » est déposé sous ${mo%/LC_MESSAGES/*}"
+        report_success "the \"${language}\" catalogue is laid down under ${mo%/LC_MESSAGES/*}"
     fi
 done
 
 if ((failures > 0)); then
-    printf '\n%s%d contrôle(s) en échec%s\n' "${RED}" "${failures}" "${RESET}" >&2
+    printf '\n%s%d check(s) failed%s\n' "${RED}" "${failures}" "${RESET}" >&2
     exit 1
 fi
 
-printf '\n%s✓%s le paquet s'\''installe sur Fedora, et ce qu'\''il dépose fonctionne\n' \
+printf '\n%s✓%s the package installs on Fedora, and what it lays down works\n' \
     "${GREEN}" "${RESET}"
 INNER

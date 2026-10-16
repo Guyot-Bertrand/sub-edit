@@ -1,0 +1,2 @@
+un décalage négatif remonte les positions
+un fichier absent ne fait dire mot

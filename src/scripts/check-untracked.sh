@@ -1,32 +1,31 @@
 #!/usr/bin/env bash
-# Refuse qu'une exécution de la porte laisse des fichiers derrière elle.
+# Refuses that a run of the gate leaves files behind.
 #
-# **Le défaut a été payé une fois.** Les tests de bout en bout de #207 donnaient
-# un nom nu à `--output`, si bien que le fichier atterrissait là où CTest les
-# lance — la racine du dépôt. Quatre fichiers y sont restés, `make check` est
-# passée au vert, et c'est un `git status` avant de pousser qui les a vus. Le
-# harnais avait pourtant déjà `Scratch`, que tous les autres tests qui écrivent
-# emploient.
+# **The defect has been paid for once.** The end-to-end tests of #207 gave a
+# bare name to `--output`, so the file landed where CTest runs them — the root
+# of the repository. Four files stayed there, `make check` went green, and it
+# was a `git status` before pushing that saw them. The harness already had
+# `Scratch`, which every other test that writes uses.
 #
-# **Ce qui est refusé est une apparition, pas une présence.** Un fichier non
-# suivi est le cas courant du travail en cours : une source neuve avant son
-# `git add`, une note de côté. Refuser leur existence rendrait la porte
-# inutilisable. Le contrôle compare donc deux relevés, avant et après, et ne
-# parle que de la différence.
+# **What is refused is an appearance, not a presence.** An untracked file is the
+# ordinary case of work in progress: a new source before its `git add`, a note
+# on the side. Refusing their existence would make the gate unusable. The check
+# therefore compares two snapshots, before and after, and speaks only of the
+# difference.
 #
-# `git ls-files --others --exclude-standard` plutôt que `git status --porcelain`
-# filtré : il donne exactement la liste voulue, sans code de statut à analyser,
-# et il honore les mêmes exclusions. C'est ce qui met **`src/data/` hors de
-# portée** — le corpus privé de chaque machine est ignoré par git, donc il
-# n'apparaît dans aucun des deux relevés. Vérifié plutôt que supposé, et c'est
-# `.gitignore` qui le dit, avec `build/` et `reference/`.
+# `git ls-files --others --exclude-standard` rather than a filtered
+# `git status --porcelain`: it gives exactly the list wanted, with no status
+# code to parse, and it honours the same exclusions. That is what puts
+# **`src/data/` out of reach** — each machine's private corpus is ignored by
+# git, so it appears in neither snapshot. Checked rather than assumed, and
+# `.gitignore` says so, along with `build/` and `reference/`.
 
 set -euo pipefail
 
 readonly REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 
-# Sous `build/`, qui est ignoré par git : le relevé ne peut donc pas se
-# dénoncer lui-même au relevé suivant.
+# Under `build/`, which git ignores: the snapshot therefore cannot report
+# itself in the next snapshot.
 readonly SNAPSHOT="${REPO_ROOT}/build/fichiers-non-suivis.txt"
 
 readonly RED=$'\033[31m'
@@ -37,8 +36,8 @@ usage() {
     cat >&2 <<'USAGE'
 usage: check-untracked.sh --record | --compare
 
-  --record   relève les fichiers non suivis, avant ce qu'on veut surveiller
-  --compare  échoue sur tout fichier non suivi apparu depuis le relevé
+  --record   records the untracked files, before what is to be watched
+  --compare  fails on any untracked file that appeared since the record
 USAGE
     exit 2
 }
@@ -53,12 +52,12 @@ record() {
 }
 
 compare() {
-    # Un relevé manquant n'est pas un arbre propre : c'est un contrôle qui n'a
-    # pas eu lieu. Le dire, plutôt que de passer au vert sans rien avoir
-    # comparé — un contrôle silencieusement sauté est pire que pas de contrôle,
-    # puisqu'il reste vert sans rien prouver.
+    # A missing snapshot is not a clean tree: it is a check that did not take
+    # place. Say so, rather than going green without having compared anything —
+    # a check silently skipped is worse than no check, since it stays green
+    # without proving anything.
     if [[ ! -f "${SNAPSHOT}" ]]; then
-        printf '%s✗ aucun relevé préalable : lancer --record avant --compare%s\n' \
+        printf '%s✗ no prior snapshot: run --record before --compare%s\n' \
             "${RED}" "${RESET}" >&2
         exit 1
     fi
@@ -67,14 +66,14 @@ compare() {
     appeared="$(comm -13 "${SNAPSHOT}" <(untracked))"
 
     if [[ -n "${appeared}" ]]; then
-        printf '%s✗ des fichiers non suivis sont apparus pendant les tests :%s\n' \
+        printf '%s✗ untracked files appeared during the tests:%s\n' \
             "${RED}" "${RESET}" >&2
         printf '    %s\n' ${appeared} >&2
-        printf '  un test qui écrit passe par le harnais « Scratch », jamais par un nom nu\n' >&2
+        printf '  a test that writes goes through the "Scratch" harness, never through a bare name\n' >&2
         exit 1
     fi
 
-    printf '%s✓%s aucun fichier laissé derrière\n' "${GREEN}" "${RESET}"
+    printf '%s✓%s no file left behind\n' "${GREEN}" "${RESET}"
 }
 
 case "${1:-}" in

@@ -1,116 +1,114 @@
 #!/usr/bin/env bash
-# Installe dans un préfixe temporaire, puis lance ce qui vient d'y être déposé.
+# Installs into a temporary prefix, then runs what was just placed there.
 #
-# **Le contour de la phase 7 est « ce qui manque pour qu'un tiers installe et
-# utilise l'outil », et aucun test unitaire ne dit cela.** Tout ce que le projet
-# éprouve par ailleurs s'exécute depuis l'arbre de construction, où les fichiers
-# sont présents par accident de disposition : ils sont là parce que le dépôt les
-# contient, pas parce qu'une règle les a copiés.
+# **The scope of phase 7 is "what a third party needs to install and use the
+# tool", and no unit test says that.** Everything else the project tests runs
+# from the build tree, where files are present by an accident of layout: they
+# are there because the repository contains them, not because a rule copied
+# them.
 #
-# La faute la plus commune d'un premier empaquetage est justement celle-là — un
-# fichier de données que le binaire cherche à côté de lui et que personne n'a
-# copié. Elle est invisible depuis l'arbre de construction et ne se voit qu'à la
-# première installation propre. C'est celle-ci.
+# The most common mistake of a first packaging is exactly that one — a data
+# file the binary looks for next to itself and that nobody copied. It is
+# invisible from the build tree and only shows at the first clean install.
+# This is that install.
 #
-# ## Ce qu'il vérifie
+# ## What it checks
 #
-#   1. les deux binaires s'installent, se lancent, et disent la bonne version ;
-#   2. **chaque page du manuel du dépôt se retrouve sous le préfixe** — la liste
-#      attendue est calculée depuis `docs/manual`, jamais recopiée : une liste
-#      écrite à la main se périme au premier chapitre ajouté, en silence ;
-#      **les motifs de correction, eux, se retrouvent sous `share/subedit/patterns`**
-#      — même règle, même calcul : sans eux le programme ne corrige plus rien
-#      sans que personne le voie — #498 ;
-#   3. le préfixe temporaire ne laisse rien derrière lui ;
-#   4. **les cinq fichiers de bureau sont là, et trois d'entre eux se
-#      valident** — le `.desktop`, les métadonnées AppStream et l'icône, celle-ci
-#      lue par le chargeur des bureaux GTK plutôt que par n'importe lequel ;
-#   5. **les deux pages de manuel ne mentent pas, et se rendent** — une par
-#      binaire depuis #272 : leur version est celle du binaire, le répertoire de
-#      manuel qu'elles nomment est celui où le manuel a été déposé, chacune porte
-#      le nom du binaire qu'elle décrit, les sous-commandes que celle de la ligne
-#      de commande énumère sont celles que le binaire énumère, et groff les rend
-#      sans un avertissement ;
-#   6. **une installation mise en scène ne touche rien au-dehors** — `DESTDIR`
-#      non vide, préfixe `/usr`, et rien d'écrit hors de la mise en scène ;
-#   7. **les deux paquets natifs se construisent, et disent la même chose** — un
-#      `.deb` et un `.rpm`, dont les listes de fichiers coïncident et dont les
-#      dépendances sont déclarées ;
-#   8. **le `.rpm` ne possède que ses propres répertoires** — ceux de la
-#      distribution ne sont pas à lui, et `dnf` refuse la transaction entière
-#      s'il les revendique.
+#   1. the two binaries install, start, and report the right version;
+#   2. **every page of the repository's manual ends up under the prefix** — the
+#      expected list is computed from `docs/manual`, never copied: a list
+#      written by hand goes stale at the first added chapter, silently;
+#      **the correction patterns end up under `share/subedit/patterns`** — same
+#      rule, same computation: without them the program no longer corrects
+#      anything and nobody notices — #498;
+#   3. the temporary prefix leaves nothing behind;
+#   4. **the five desktop files are there, and three of them validate** — the
+#      `.desktop`, the AppStream metadata and the icon, the latter read by the
+#      loader of GTK desktops rather than by just any loader;
+#   5. **the two manual pages do not lie, and render** — one per binary since
+#      #272: their version is the binary's, the manual directory they name is
+#      the one the manual was installed in, each carries the name of the binary
+#      it describes, the subcommands the command-line page lists are the ones
+#      the binary lists, and groff renders them without a single warning;
+#   6. **a staged install touches nothing outside** — non-empty `DESTDIR`,
+#      prefix `/usr`, and nothing written outside the staging area;
+#   7. **the two native packages build, and say the same thing** — a `.deb`
+#      and an `.rpm`, whose file lists match and whose dependencies are
+#      declared;
+#   8. **the `.rpm` owns only its own directories** — the distribution's are
+#      not its own, and `dnf` refuses the whole transaction if it claims them.
 #
-# `--list` les énumère, `--only` en joue un seul.
+# `--list` lists them, `--only` runs a single one.
 #
-# ## Ce qu'il ne vérifie pas, et où cela se vérifie
+# ## What it does not check, and where that is checked
 #
-# **Que le `.rpm` s'installe.** Un `.rpm` construit sur Ubuntu ne peut pas y être
-# installé : l'éprouver demande une Fedora. Elle existe depuis #266, en
-# conteneur — `src/scripts/check-rpm.sh`, une fois par semaine — et elle n'est
-# pas ici parce qu'elle demande le réseau, ce qu'une porte ne doit pas demander.
+# **That the `.rpm` installs.** An `.rpm` built on Ubuntu cannot be installed
+# there: testing it takes a Fedora. One exists since #266, in a container —
+# `src/scripts/check-rpm.sh`, once a week — and it is not here because it needs
+# the network, which a gate must not need.
 #
-# | Vérifié ici | Vérifié par check-rpm.sh |
-# | :---------- | :----------------------- |
-# | la liste des fichiers, par `rpm -qlp` | que la transaction `dnf` aboutit |
-# | les dépendances déclarées, par `rpm -qp --requires` | que ces noms existent chez Fedora |
-# | l'accord des deux paquets | que les binaires installés se lancent |
-# | que le `.rpm` ne possède aucun répertoire partagé | que `man` trouve la page installée |
+# | Checked here | Checked by check-rpm.sh |
+# | :----------- | :---------------------- |
+# | the file list, through `rpm -qlp` | that the `dnf` transaction succeeds |
+# | the declared dependencies, through `rpm -qp --requires` | that those names exist on Fedora |
+# | the agreement of the two packages | that the installed binaries start |
+# | that the `.rpm` owns no shared directory | that `man` finds the installed page |
 #
-# **La dernière ligne de gauche est la moitié bon marché de la droite.** Le
-# `.rpm` revendiquait huit répertoires de la distribution et `dnf` refusait la
-# transaction entière ; la cause se lit dans le paquet, sans Fedora, et c'est ce
-# que le contrôle local fait désormais à chaque pull request.
+# **The last line on the left is the cheap half of the right.** The `.rpm`
+# claimed eight directories of the distribution and `dnf` refused the whole
+# transaction; the cause can be read in the package, without Fedora, and that
+# is what the local check now does on every pull request.
 #
-# **L'accord des deux listes est le plus utile des trois**, et le seul qui ne
-# demande aucune Fedora : les deux paquets sortent de la même installation, donc
-# un écart entre leurs listes est un défaut des règles `install()`. C'est ce qui
-# met à l'épreuve la moitié de l'ADR 0023 qui dit « l'installation d'abord ».
+# **The agreement of the two lists is the most useful of the three**, and the
+# only one that needs no Fedora: both packages come out of the same install, so
+# a difference between their lists is a defect of the `install()` rules. That
+# is what tests the half of ADR 0023 that says "the install first".
 #
-# **Que le `.deb` s'installe** n'est pas vérifié non plus, et pour une raison
-# différente : `dpkg -i` demande les droits de l'administrateur, qu'une porte de
-# qualité n'a pas et ne doit pas demander. Ce qui est vérifié est ce que le
-# paquet contient et ce qu'il déclare, plus le fait que les mêmes binaires,
-# installés par `cmake --install`, se lancent.
+# **That the `.deb` installs** is not checked either, for a different reason:
+# `dpkg -i` needs administrator rights, which a quality gate does not have and
+# must not ask for. What is checked is what the package contains and what it
+# declares, plus the fact that the same binaries, installed by
+# `cmake --install`, start.
 #
-# ## Une chose ou deux ? — issue #271, tranché par la mesure
+# ## One thing or two? — issue #271, settled by measurement
 #
-# **La question était juste, et sa prémisse était fausse.** Ce script est passé
-# de trois contrôles à douze et de cent quarante lignes à six cents ; il
-# construit deux paquets natifs, et « deux exécutions de CPack » sonnait comme
-# quelque chose qu'on paie. D'où la proposition : sortir les paquets dans une
-# cible à eux, que `check-local` enchaînerait ou non.
+# **The question was fair, and its premise was wrong.** This script went from
+# three checks to twelve and from a hundred and forty lines to six hundred; it
+# builds two native packages, and "two runs of CPack" sounded like something
+# one pays for. Hence the proposal: move the packages to a target of their own,
+# which `check-local` would chain or not.
 #
-# Chronométré, à charge 0,9, trois exécutions concordantes :
+# Timed, at load 0.9, three consistent runs:
 #
-# | Contrôle | Coût |
-# | :------- | ---: |
-# | `cmake --install` dans le préfixe | 20 ms |
-# | les deux binaires se lancent | 130 ms |
-# | le manuel déposé | 5 ms |
-# | les fichiers de bureau, leurs trois validations | 145 ms |
-# | les deux pages de manuel | 19 ms |
-# | leur rendu par groff | 44 ms |
-# | l'installation sous `DESTDIR` | 23 ms |
-# | **les deux paquets natifs, CPack compris** | **650 ms** |
-# | **tout** | **≈ 1,0 s** |
+# | Check | Cost |
+# | :---- | ---: |
+# | `cmake --install` into the prefix | 20 ms |
+# | the two binaries start | 130 ms |
+# | the installed manual | 5 ms |
+# | the desktop files, their three validations | 145 ms |
+# | the two manual pages | 19 ms |
+# | their rendering by groff | 44 ms |
+# | the install under `DESTDIR` | 23 ms |
+# | **the two native packages, CPack included** | **650 ms** |
+# | **everything** | **≈ 1.0 s** |
 #
-# `make install-check`, arbre release chaud, coûte 1,6 s de bout en bout.
-# **Sortir les paquets économiserait six cent cinquante millisecondes sur un
-# `make check-local` qui dure des minutes.** La question du coût est réglée : il
-# n'y en a pas.
+# `make install-check`, with a warm release tree, costs 1.6 s end to end.
+# **Moving the packages out would save six hundred and fifty milliseconds on a
+# `make check-local` that lasts minutes.** The question of cost is settled:
+# there is none.
 #
-# **Reste la question de fond, et la réponse est « une chose ».** Ce que ce
-# script affirme n'est pas « l'installation est correcte » mais « ce qu'un tiers
-# installe fonctionne » — et un paquet natif est *comment* un tiers installe. Le
-# scinder poserait exactement le danger que l'issue nomme : une installation à
-# moitié vérifiée est pire qu'une installation qu'on sait non vérifiée.
+# **The question of substance remains, and the answer is "one thing".** What
+# this script asserts is not "the install is correct" but "what a third party
+# installs works" — and a native package is *how* a third party installs.
+# Splitting it would create exactly the danger the issue names: a half-checked
+# install is worse than an install known to be unchecked.
 #
-# **Ce qui manquait n'était pas une seconde cible, c'était de savoir reprendre
-# au milieu** — le défaut que #269 a réglé pour la porte, et qu'on payait ici en
-# rejouant les douze contrôles pour en corriger un. D'où `--only`, `--list`, et
-# la garde qui va avec : un nom inconnu fait échouer l'invocation plutôt que de
-# n'en jouer aucun. Sans argument, tout est joué ; c'est le point d'entrée de
-# qui ne veut pas choisir.
+# **What was missing was not a second target, it was being able to resume in
+# the middle** — the defect #269 fixed for the gate, and that was paid here by
+# replaying the twelve checks to fix one. Hence `--only`, `--list`, and the
+# guard that comes with them: an unknown name makes the invocation fail rather
+# than run none. Without arguments, everything runs; that is the entry point
+# for whoever does not want to choose.
 
 set -euo pipefail
 
@@ -119,20 +117,20 @@ readonly MANUAL_DIR="${REPO_ROOT}/docs/manual"
 readonly PATTERNS_DIR="${REPO_ROOT}/packaging/patterns"
 readonly LINGUAS="${REPO_ROOT}/src/po/LINGUAS"
 
-# L'identifiant de l'application, celui que portent les trois fichiers de
-# bureau. Écrit ici comme dans `cmake/Installation.cmake` : ce contrôle existe
-# pour confronter ce que les règles déposent à ce qu'on attend, donc il doit le
-# dire de son côté plutôt que de le lire du leur.
+# The application identifier, the one the three desktop files carry. Written
+# here as in `cmake/Installation.cmake`: this check exists to compare what the
+# rules install with what is expected, so it must state it on its side rather
+# than read it from theirs.
 readonly APP_ID="io.github.guyot_bertrand.subedit"
 
-# L'arbre que ce projet crée, et le seul qu'un paquet ait le droit de posséder.
-# Écrit ici comme `APP_ID` l'est, et pour la même raison : ce contrôle confronte
-# ce que les règles déposent à ce qu'on attend.
+# The tree this project creates, and the only one a package may own. Written
+# here as `APP_ID` is, and for the same reason: this check compares what the
+# rules install with what is expected.
 readonly DATA_SUBDIR="share/subedit"
 
-# Les binaires livrés, et leurs pages de manuel — une par binaire depuis #272.
-# Écrits ici comme `APP_ID` l'est : ce contrôle confronte ce que les règles
-# déposent à ce qu'on attend, donc il le dit de son côté.
+# The shipped binaries, and their manual pages — one per binary since #272.
+# Written here as `APP_ID` is: this check compares what the rules install with
+# what is expected, so it states it on its side.
 readonly BINARIES=(subedit-cli subedit-gui)
 
 readonly RED=$'\033[31m'
@@ -141,24 +139,24 @@ readonly RESET=$'\033[0m'
 
 build_dir="${REPO_ROOT}/build/release"
 
-# **L'ordre des contrôles, et le seul endroit où il est écrit.** Chacun se joue
-# seul, sans rien savoir des autres : l'installation dans le préfixe est faite
-# une fois pour tous, avant eux, et aucun ne dépend de ce qu'un autre a laissé.
-# C'est ce qui rend `--only` sûr.
-readonly CONTROLS=(binaires manuel motifs catalogues bureau pages rendu destdir paquets)
+# **The order of the checks, and the only place it is written.** Each one runs
+# alone, knowing nothing of the others: the install into the prefix is done
+# once for all, before them, and none depends on what another left behind.
+# That is what makes `--only` safe.
+readonly CONTROLS=(binaries manual patterns catalogues desktop pages render destdir packages)
 
 usage() {
     cat >&2 <<'USAGE'
-usage: check-installation.sh [--build-dir <répertoire>] [--only <contrôle>]
+usage: check-installation.sh [--build-dir <directory>] [--only <check>]
        check-installation.sh --list
 
-  --build-dir  l'arbre de construction à installer (défaut : build/release)
-  --only       ne joue que ce contrôle, répétable
-  --list       écrit les contrôles, dans l'ordre
+  --build-dir  the build tree to install (default: build/release)
+  --only       runs only this check, repeatable
+  --list       prints the checks, in order
 
-Sans --only, tout est joué : c'est le point d'entrée de qui ne veut pas
-choisir, et une installation à moitié vérifiée est pire qu'une installation
-qu'on sait non vérifiée.
+Without --only, everything runs: that is the entry point for whoever does not
+want to choose, and a half-checked install is worse than an install known to
+be unchecked.
 USAGE
     exit 2
 }
@@ -171,25 +169,25 @@ while (( $# > 0 )); do
         --only)      [[ $# -ge 2 ]] || usage; only+=("$2"); shift 2 ;;
         --list)      printf '%s\n' "${CONTROLS[@]}"; exit 0 ;;
         -h|--help)   usage ;;
-        *)           printf 'argument inconnu : %s\n' "$1" >&2; usage ;;
+        *)           printf 'unknown argument: %s\n' "$1" >&2; usage ;;
     esac
 done
 
-# **Tout nom donné doit désigner un contrôle**, et le contrôle a lieu avant
-# qu'un seul ne tourne. C'est la garde de `gate.sh`, pour la même raison :
-# sans elle, `--only paqets` jouerait zéro contrôle et rendrait zéro — une
-# installation déclarée correcte que personne n'a regardée.
+# **Every name given must designate a check**, and that is checked before a
+# single one runs. It is the guard of `gate.sh`, for the same reason: without
+# it, `--only pakages` would run zero checks and return zero — an install
+# declared correct that nobody looked at.
 for named in ${only+"${only[@]}"}; do
     if ! printf '%s\n' "${CONTROLS[@]}" | grep -qxF "${named}"; then
-        printf '%s✗ « %s » n'"'"'est pas un contrôle de ce script%s\n' \
+        printf '%s✗ "%s" is not a check of this script%s\n' \
             "${RED}" "${named}" "${RESET}" >&2
-        printf '  les contrôles sont :\n' >&2
+        printf '  the checks are:\n' >&2
         printf '    %s\n' "${CONTROLS[@]}" >&2
         exit 2
     fi
 done
 
-# Vrai si ce contrôle doit être joué : tous, ou ceux qu'on a nommés.
+# True if this check must run: all of them, or the ones named.
 wanted() {
     (( ${#only[@]} == 0 )) && return 0
     printf '%s\n' "${only[@]}" | grep -qxF "$1"
@@ -207,14 +205,14 @@ report_success() {
 }
 
 if [[ ! -d "${build_dir}" ]]; then
-    printf '%s✗ arbre de construction absent : %s%s\n' "${RED}" "${build_dir}" "${RESET}" >&2
-    printf '  le construire avec « make release »\n' >&2
+    printf '%s✗ build tree missing: %s%s\n' "${RED}" "${build_dir}" "${RESET}" >&2
+    printf '  build it with "make release"\n' >&2
     exit 1
 fi
 
-# Le préfixe ET le répertoire de configuration des binaires lancés. Le second
-# pour la règle du projet : un binaire qu'un contrôle lance ne touche jamais la
-# configuration de qui le lance — voir check-config-home.sh.
+# The prefix AND the configuration directory of the binaries that are run. The
+# latter for the project's rule: a binary a check runs never touches the
+# configuration of whoever runs it — see check-config-home.sh.
 prefix="$(mktemp -d)"
 cleanup() {
     rm -rf "${prefix}"
@@ -223,11 +221,11 @@ trap cleanup EXIT
 
 cmake --install "${build_dir}" --prefix "${prefix}" >/dev/null
 
-# ## Les binaires installés se lancent, et disent la bonne version
+# ## The installed binaries start, and report the right version
 #
-# Lancés depuis un répertoire qui n'est ni le dépôt ni l'arbre de construction :
-# c'est la moitié du contrôle. Un binaire qui trouve un fichier « à côté de lui »
-# le trouve encore quand on le lance depuis le dépôt.
+# Run from a directory that is neither the repository nor the build tree: that
+# is half of the check. A binary that finds a file "next to itself" still finds
+# it when run from the repository.
 readonly VERSION="$(sed -n 's/^[[:space:]]*VERSION[[:space:]]\{1,\}\([0-9.]\{1,\}\)[[:space:]]*$/\1/p' \
     "${REPO_ROOT}/CMakeLists.txt" | head -1)"
 
@@ -236,7 +234,7 @@ check_binary() {
     local binary="${prefix}/bin/${name}"
 
     if [[ ! -x "${binary}" ]]; then
-        report_failure "${name} n'a pas été installé dans bin/"
+        report_failure "${name} was not installed in bin/"
         return
     fi
 
@@ -245,34 +243,34 @@ check_binary() {
     # machine's locale and whatever catalogue is installed beside it (spec 15, D4).
     said="$(cd "${prefix}" && QT_QPA_PLATFORM=offscreen XDG_CONFIG_HOME="${prefix}/config" LANGUAGE=en \
         "${binary}" --version 2>&1)" || {
-        report_failure "${name} installé ne se lance pas"
+        report_failure "the installed ${name} does not start"
         return
     }
 
     if [[ "${said}" != "subedit ${VERSION}" ]]; then
-        report_failure "${name} annonce « ${said} », attendu « subedit ${VERSION} »"
+        report_failure "${name} reports \"${said}\", expected \"subedit ${VERSION}\""
         return
     fi
 
-    report_success "${name} s'installe, se lance, et annonce ${VERSION}"
+    report_success "${name} installs, starts, and reports ${VERSION}"
 }
 
-if wanted binaires; then
+if wanted binaries; then
     check_binary subedit-cli
     check_binary subedit-gui
 fi
 
-# ## Chaque page du manuel se retrouve sous le préfixe
+# ## Every page of the manual ends up under the prefix
 #
-# **La liste attendue est calculée, jamais recopiée.** Une liste écrite à la
-# main se périme au premier chapitre ajouté, et le manque ne se verrait que si
-# quelqu'un pensait à l'y inscrire — c'est-à-dire jamais. Les captures d'écran
-# comptent autant que les pages : une image absente est une page trouée.
+# **The expected list is computed, never copied.** A list written by hand goes
+# stale at the first added chapter, and the gap would show only if someone
+# thought of adding it — that is, never. The screenshots count as much as the
+# pages: a missing image is a page with a hole in it.
 check_manual() {
     local installed="${prefix}/share/subedit/manual"
 
     if [[ ! -d "${installed}" ]]; then
-        report_failure "le manuel n'a pas été installé dans share/subedit/manual"
+        report_failure "the manual was not installed in share/subedit/manual"
         return
     fi
 
@@ -284,33 +282,33 @@ check_manual() {
     done < <(find "${MANUAL_DIR}" -type f -print0)
 
     if (( ${#missing[@]} > 0 )); then
-        report_failure "le manuel installé est incomplet :
+        report_failure "the installed manual is incomplete:
 $(printf '    %s\n' "${missing[@]}")
-    les règles install() de cmake/Installation.cmake ne copient pas tout"
+    the install() rules of cmake/Installation.cmake do not copy everything"
         return
     fi
 
     local count
     count="$(find "${MANUAL_DIR}" -type f | wc -l)"
-    report_success "les ${count} fichiers du manuel sont installés"
+    report_success "the ${count} files of the manual are installed"
 }
 
-if wanted manuel; then
+if wanted manual; then
     check_manual
 fi
 
-# ## Chaque fichier de motifs se retrouve sous le préfixe
+# ## Every pattern file ends up under the prefix
 #
-# **Même règle que le manuel, et pour la même raison : la liste est calculée.**
-# Un fichier de motifs manquant n'est pas une erreur que le programme dit, c'est
-# une langue dont on ne corrige plus rien — sans que personne le voie. L'emplacement
-# est celui que le programme lit à partir de son exécutable, `share/subedit/patterns`
+# **Same rule as the manual, and for the same reason: the list is computed.**
+# A missing pattern file is not an error the program reports, it is a language
+# for which nothing is corrected any more — and nobody notices. The location is
+# the one the program reads relative to its executable, `share/subedit/patterns`
 # (ADR 0037).
 check_patterns() {
     local installed="${prefix}/share/subedit/patterns"
 
     if [[ ! -d "${installed}" ]]; then
-        report_failure "les motifs de correction n'ont pas été installés dans share/subedit/patterns"
+        report_failure "the correction patterns were not installed in share/subedit/patterns"
         return
     fi
 
@@ -322,28 +320,28 @@ check_patterns() {
     done < <(find "${PATTERNS_DIR}" -type f -print0)
 
     if (( ${#missing[@]} > 0 )); then
-        report_failure "les motifs installés sont incomplets :
+        report_failure "the installed patterns are incomplete:
 $(printf '    %s\n' "${missing[@]}")
-    la règle install() de cmake/Installation.cmake ne copie pas tout"
+    the install() rule of cmake/Installation.cmake does not copy everything"
         return
     fi
 
     local count
     count="$(find "${PATTERNS_DIR}" -type f | wc -l)"
-    report_success "les ${count} fichiers de motifs sont installés"
+    report_success "the ${count} pattern files are installed"
 }
 
-if wanted motifs; then
+if wanted patterns; then
     check_patterns
 fi
 
-# ## Le catalogue de chaque langue installée se retrouve sous le préfixe
+# ## The catalogue of every installed language ends up under the prefix
 #
-# **La liste est calculée, de `src/po/LINGUAS`** et non écrite ici, pour la raison du manuel et des
-# motifs. Un catalogue qui manque n'est pas une erreur que le programme dit : l'interface repasse
-# en anglais sans rien signaler, et personne ne le voit avant qu'un utilisateur ne s'en plaigne.
-# L'emplacement est celui que le lecteur de `core/i18n/` cherche (issue #659) ; le fichier doit en
-# plus être un `.mo` — un fichier vide installé au bon endroit est le défaut qu'une présence ne voit pas.
+# **The list is computed, from `src/po/LINGUAS`** and not written here, for the reason of the
+# manual and the patterns. A missing catalogue is not an error the program reports: the interface
+# falls back to English without a word, and nobody sees it until a user complains. The location
+# is the one the reader of `core/i18n/` looks in (issue #659); the file must also be a `.mo` — an
+# empty file installed in the right place is the defect that a presence check does not see.
 installed_languages() {
     grep -v '^[[:space:]]*\(#\|$\)' "${LINGUAS}" || true
 }
@@ -355,15 +353,15 @@ check_catalogues() {
     while IFS= read -r language; do
         local mo="${root}/${language}/LC_MESSAGES/subedit.mo"
         if [[ ! -f "${mo}" ]]; then
-            report_failure "le catalogue « ${language} » n'a pas été installé : ${mo#"${prefix}/"} manque
-    la règle install() de cmake/Translations.cmake ne le dépose pas"
+            report_failure "the \"${language}\" catalogue was not installed: ${mo#"${prefix}/"} is missing
+    the install() rule of cmake/Translations.cmake does not install it"
             continue
         fi
-        # Le nombre magique d'un `.mo`, dans l'un ou l'autre ordre d'octets.
+        # The magic number of a `.mo`, in either byte order.
         local magic
         magic="$(od -An -tx1 -N4 "${mo}" | tr -d ' \n')"
         if [[ "${magic}" != "de120495" && "${magic}" != "950412de" ]]; then
-            report_failure "${mo#"${prefix}/"} n'est pas un catalogue compilé (nombre magique « ${magic} »)"
+            report_failure "${mo#"${prefix}/"} is not a compiled catalogue (magic number \"${magic}\")"
             continue
         fi
         checked=$((checked + 1))
@@ -382,7 +380,7 @@ check_catalogues() {
     done
 
     if (( checked > 0 )) && (( failures == 0 )); then
-        report_success "les ${checked} catalogue(s) de langue sont installés sous share/subedit/locale"
+        report_success "the ${checked} language catalogue(s) are installed under share/subedit/locale"
     fi
 }
 
@@ -390,11 +388,11 @@ if wanted catalogues; then
     check_catalogues
 fi
 
-# ## Les quatre fichiers de bureau
+# ## The four desktop files
 #
-# **Deux d'entre eux se valident, et les deux autres ne se valident que par leur
-# présence.** Un SVG mal formé se verrait à l'œil et nulle part ailleurs ; une
-# page de manuel se relit plus bas, où elle est confrontée au binaire.
+# **Two of them validate, and the other two are validated only by their
+# presence.** A malformed SVG would show to the eye and nowhere else; a manual
+# page is reread further down, where it is confronted with the binary.
 check_desktop_files() {
     local desktop="${prefix}/share/applications/${APP_ID}.desktop"
     local metainfo="${prefix}/share/metainfo/${APP_ID}.metainfo.xml"
@@ -408,55 +406,54 @@ check_desktop_files() {
 
     local file
     for file in "${expected[@]}"; do
-        [[ -f "${file}" ]] || report_failure "absent de l'installation : ${file#"${prefix}/"}"
+        [[ -f "${file}" ]] || report_failure "missing from the install: ${file#"${prefix}/"}"
     done
 
     if [[ -f "${desktop}" ]]; then
         if desktop-file-validate "${desktop}" >/dev/null 2>&1; then
-            report_success "le fichier .desktop est valide"
+            report_success "the .desktop file is valid"
         else
-            report_failure "desktop-file-validate refuse le fichier installé :
+            report_failure "desktop-file-validate rejects the installed file:
 $(desktop-file-validate "${desktop}" 2>&1 | sed 's/^/    /')"
         fi
     fi
 
     if [[ -f "${metainfo}" ]]; then
         if appstreamcli validate --no-net "${metainfo}" >/dev/null 2>&1; then
-            report_success "les métadonnées AppStream sont valides"
+            report_success "the AppStream metadata is valid"
         else
-            report_failure "appstreamcli refuse les métadonnées installées :
+            report_failure "appstreamcli rejects the installed metadata:
 $(appstreamcli validate --no-net "${metainfo}" 2>&1 | sed 's/^/    /')"
         fi
     fi
 
-    # **L'icône est lue, et par le chargeur des bureaux GTK** — #260. Elle était
-    # le seul fichier livré dont rien ne regardait le contenu, et elle était
-    # cassée : un commentaire avant la balise racine la rendait méconnaissable
-    # pour gdk-pixbuf, qui affichait une tuile vide. Inkscape et Qt l'ouvraient
-    # sans un mot ; c'est pourquoi le contrôle passe par celui-là et pas un
-    # autre.
+    # **The icon is read, and by the loader of GTK desktops** — #260. It was the
+    # only shipped file whose content nothing looked at, and it was broken: a
+    # comment before the root element made it unrecognisable to gdk-pixbuf,
+    # which showed an empty tile. Inkscape and Qt opened it without a word;
+    # that is why the check goes through that loader and not another.
     if [[ -f "${icon}" ]]; then
         if "${REPO_ROOT}/src/scripts/check-icon.py" "${icon}" >/dev/null 2>&1; then
-            report_success "l'icône se charge, et se voit sur les deux fonds"
+            report_success "the icon loads, and shows on both backgrounds"
         else
-            report_failure "l'icône installée ne tient pas :
+            report_failure "the installed icon does not hold:
 $("${REPO_ROOT}/src/scripts/check-icon.py" "${icon}" 2>&1 | sed 's/^/    /')"
         fi
     fi
 }
 
-if wanted bureau; then
+if wanted desktop; then
     check_desktop_files
 fi
 
-# ## Les pages de manuel ne mentent pas
+# ## The manual pages do not lie
 #
-# **Deux pages depuis #272, une par binaire.** Ce qui vaut pour les deux est
-# vérifié pour les deux ; ce qui ne vaut que pour la ligne de commande — la
-# liste des sous-commandes — reste à elle.
+# **Two pages since #272, one per binary.** What holds for both is checked for
+# both; what holds only for the command line — the list of subcommands — stays
+# with it.
 #
-# Chaque affirmation est du genre qu'une page de manuel porte pendant des années
-# sans que personne la relise.
+# Each assertion is of the kind a manual page carries for years without anyone
+# rereading it.
 check_man_pages() {
     local name
     for name in "${BINARIES[@]}"; do
@@ -469,47 +466,46 @@ check_one_man_page() {
     local compressed="${prefix}/share/man/man1/${name}.1.gz"
     [[ -f "${compressed}" ]] || return
 
-    # Lue décompressée, comme `man` la lit. Dans une variable et non dans un
-    # fichier : la fonction sort par plusieurs chemins, et un temporaire de plus
-    # serait un temporaire à effacer sur chacun d'eux.
+    # Read decompressed, as `man` reads it. In a variable and not in a file:
+    # the function exits through several paths, and one more temporary file
+    # would be one more to delete on each of them.
     local page
     page="$(gzip -dc "${compressed}")"
 
     local announced
     announced="$(sed -n 's/^\.TH .* "subedit \([0-9.]*\)".*/\1/p' <<< "${page}")"
     if [[ "${announced}" != "${VERSION}" ]]; then
-        report_failure "${name}.1 annonce « ${announced} », attendu « ${VERSION} »"
+        report_failure "${name}.1 reports \"${announced}\", expected \"${VERSION}\""
         return
     fi
 
-    # Le répertoire qu'elle nomme est celui où le manuel a réellement été
-    # déposé. C'est le défaut qu'a eu le premier `.deb` produit : la page,
-    # engendrée à la configuration, annonçait /usr/local dans un paquet qui
-    # installe sous /usr.
+    # The directory it names is the one the manual was actually installed in.
+    # That is the defect the first `.deb` produced had: the page, generated at
+    # configure time, announced /usr/local in a package that installs under
+    # /usr.
     local named
     named="$(sed -n 's/^\.I \(.*subedit\/manual\)$/\1/p' <<< "${page}")"
     if [[ "${named}" != "${prefix}/share/subedit/manual" ]]; then
-        report_failure "${name}.1 nomme « ${named} », le manuel est sous « ${prefix}/share/subedit/manual »"
+        report_failure "${name}.1 names \"${named}\", the manual is under \"${prefix}/share/subedit/manual\""
         return
     fi
 
-    # **Le nom qu'elle porte est celui du binaire qu'elle décrit.** Deux pages
-    # engendrées par la même boucle depuis deux gabarits : une ligne `.TH`
-    # recopiée d'un gabarit à l'autre donnerait deux pages du même nom, dont une
-    # que `man` ne trouverait jamais.
+    # **The name it carries is the one of the binary it describes.** Two pages
+    # generated by the same loop from two templates: a `.TH` line copied from
+    # one template to the other would give two pages with the same name, one of
+    # which `man` would never find.
     local titled
     titled="$(sed -n 's/^\.TH \([A-Z-]*\) .*/\1/p' <<< "${page}" | tr 'A-Z' 'a-z')"
     if [[ "${titled}" != "${name}" ]]; then
-        report_failure "${name}.1 se titre « ${titled} », attendu « ${name} »"
+        report_failure "${name}.1 is titled \"${titled}\", expected \"${name}\""
         return
     fi
 
-    # **Les sous-commandes qu'elle énumère sont celles du binaire.** Une
-    # sous-commande ajoutée sans être écrite ici donnerait une page qui en
-    # oublie une, et rien d'autre ne le dirait. Seule la page de la ligne de
-    # commande en a — la fenêtre n'en a pas.
+    # **The subcommands it lists are the binary's.** A subcommand added without
+    # being written here would give a page that forgets one, and nothing else
+    # would say so. Only the command-line page has them — the window has none.
     if ! grep -q '^\.SH SUBCOMMANDS' <<< "${page}"; then
-        report_success "${name}.1 dit la bonne version, le bon manuel, et porte son nom"
+        report_success "${name}.1 states the right version, the right manual, and carries its name"
         return
     fi
 
@@ -522,42 +518,43 @@ check_one_man_page() {
         | awk '/^Subcommands:/ { seen = 1; next } seen && NF { print $1 }' | sort -u)"
 
     if [[ "${written}" != "${listed}" ]]; then
-        report_failure "${name}.1 et le binaire ne nomment pas les mêmes sous-commandes :
+        report_failure "${name}.1 and the binary do not name the same subcommands:
 $(diff <(printf '%s\n' "${written}") <(printf '%s\n' "${listed}") | sed 's/^/    /')"
         return
     fi
 
-    report_success "${name}.1 dit la version, le manuel et les $(printf '%s\n' "${listed}" | wc -l) sous-commandes du binaire"
+    report_success "${name}.1 states the version, the manual and the $(printf '%s\n' "${listed}" | wc -l) subcommands of the binary"
 }
 
 if wanted pages; then
     check_man_pages
 fi
 
-# ## Les pages de manuel sont rendues par l'outil qui les rend
+# ## The manual pages are rendered by the tool that renders them
 #
-# **Les contrôles ci-dessus lisent les pages au `sed` ; aucun ne les rend.**
-# C'est exactement le défaut que #260 a payé sur l'icône, et #268 l'a cherché
-# partout ailleurs : une vérification qui passe par un outil qui n'est pas celui
-# qui compte. Une page de manuel se lit avec `man`, c'est-à-dire avec groff, et
-# personne ne la lui avait jamais donnée.
+# **The checks above read the pages with `sed`; none renders them.** That is
+# exactly the defect #260 paid for on the icon, and #268 looked for it
+# everywhere else: a check that goes through a tool that is not the one that
+# matters. A manual page is read with `man`, that is with groff, and nobody had
+# ever handed it over.
 #
-# Elle passait — et avec deux avertissements, sur deux caractères UTF-8 d'une
-# ligne de commentaire. Sans conséquence pour un lecteur ; la question n'était
-# pas là. La question était qu'aucun contrôle ne l'aurait dit.
+# It passed — with two warnings, on two UTF-8 characters of a comment line. Of
+# no consequence for a reader; that was not the question. The question was
+# that no check would have said so.
 #
-# **`-z` et non un rendu** : on veut le diagnostic, pas la page. **`-ww` et non
-# le silence par défaut** : groff se tait sur presque tout, et un contrôle qui
-# ne demande rien n'apprend rien. **Sans `-k`** : preconv rendrait l'UTF-8
-# lisible et masquerait précisément ce qu'on cherche. `man` l'appelle chez nous,
-# ne l'appelle pas partout, et une page qui tient sans lui tient avec.
+# **`-z` and not a rendering**: we want the diagnostics, not the page. **`-ww`
+# and not the default silence**: groff keeps quiet about almost everything, and
+# a check that asks nothing learns nothing. **Without `-k`**: preconv would make
+# the UTF-8 readable and hide precisely what we are looking for. `man` calls it
+# here, does not call it everywhere, and a page that holds without it holds
+# with it.
 #
-# **Le code de sortie ne dit rien** — groff avertit et rend 0. C'est donc la
-# sortie d'erreur qui est lue, et le moindre octet est un échec.
+# **The exit code says nothing** — groff warns and returns 0. So it is the
+# error output that is read, and the slightest byte is a failure.
 check_man_pages_render() {
     if ! command -v groff >/dev/null 2>&1; then
-        report_failure "groff est absent : les pages de manuel ne peuvent pas être rendues
-    l'installer avec « ./src/scripts/setup-toolchain.sh »"
+        report_failure "groff is missing: the manual pages cannot be rendered
+    install it with \"./src/scripts/setup-toolchain.sh\""
         return
     fi
 
@@ -570,35 +567,35 @@ check_man_pages_render() {
         complaints="$(gzip -dc "${compressed}" | groff -ww -z -man - 2>&1 >/dev/null)"
 
         if [[ -n "${complaints}" ]]; then
-            report_failure "groff se plaint de ${name}.1 :
+            report_failure "groff complains about ${name}.1:
 $(sed 's/^/    /' <<< "${complaints}")
-    les pages sont écrites en ASCII de bout en bout, commentaires compris —
-    voir l'en-tête de packaging/${name}.1.in"
+    the pages are written in ASCII from end to end, comments included —
+    see the header of packaging/${name}.1.in"
             return
         fi
 
         rendered=$((rendered + 1))
     done
 
-    report_success "les ${rendered} pages de manuel se rendent sans un avertissement de groff"
+    report_success "the ${rendered} manual pages render without a single groff warning"
 }
 
-if wanted rendu; then
+if wanted render; then
     check_man_pages_render
 fi
 
-# ## Une installation mise en scène ne touche rien au-dehors
+# ## A staged install touches nothing outside
 #
-# **C'est ce qu'un empaqueteur fait**, et c'est la seule façon de découvrir
-# qu'une règle écrit à un chemin absolu : une installation sous `DESTDIR` qui
-# tenterait d'écrire dans `/usr` échouerait ici, faute de droits, plutôt que de
-# réussir chez quelqu'un qui en a.
+# **That is what a packager does**, and it is the only way to discover that a
+# rule writes to an absolute path: an install under `DESTDIR` that tried to
+# write into `/usr` would fail here, for lack of rights, rather than succeed
+# for someone who has them.
 check_staged_install() {
     local staged
     staged="$(mktemp -d)"
 
     if ! DESTDIR="${staged}" cmake --install "${build_dir}" --prefix /usr >/dev/null 2>&1; then
-        report_failure "une installation avec DESTDIR échoue — une règle écrit hors de la mise en scène"
+        report_failure "an install with DESTDIR fails — a rule writes outside the staging area"
         rm -rf "${staged}"
         return
     fi
@@ -606,19 +603,19 @@ check_staged_install() {
     local outside
     outside="$(find "${staged}" -mindepth 1 -maxdepth 1 ! -name usr -printf '%f\n')"
     if [[ -n "${outside}" ]]; then
-        report_failure "une installation avec DESTDIR pose autre chose que le préfixe :
+        report_failure "an install with DESTDIR places something other than the prefix:
 $(printf '    %s\n' ${outside})"
         rm -rf "${staged}"
         return
     fi
 
     if [[ ! -x "${staged}/usr/bin/subedit-cli" ]]; then
-        report_failure "une installation avec DESTDIR ne dépose pas les binaires sous le préfixe"
+        report_failure "an install with DESTDIR does not place the binaries under the prefix"
         rm -rf "${staged}"
         return
     fi
 
-    report_success "une installation avec DESTDIR ne touche rien en dehors"
+    report_success "an install with DESTDIR touches nothing outside"
     rm -rf "${staged}"
 }
 
@@ -626,35 +623,34 @@ if wanted destdir; then
     check_staged_install
 fi
 
-# ## Les deux paquets natifs
+# ## The two native packages
 #
-# **Leurs listes de fichiers doivent coïncider**, et c'est le contrôle qui met à
-# l'épreuve la moitié de l'ADR 0023 : les deux sortent de la même installation,
-# donc un écart entre elles est un défaut des règles `install()` et non du
-# format.
+# **Their file lists must match**, and that is the check that tests the half of
+# ADR 0023: both come out of the same install, so a difference between them is
+# a defect of the `install()` rules and not of the format.
 #
-# **Deux choses seulement sont écartées de la comparaison, et chacune est une
-# propriété du format et non de ce qu'on installe.** Les écarter est ce qui rend
-# le contrôle utilisable ; les écarter *nommément* est ce qui l'empêche de
-# cacher un vrai défaut.
+# **Only two things are left out of the comparison, and each is a property of
+# the format and not of what is installed.** Leaving them out is what makes the
+# check usable; leaving them out *by name* is what keeps it from hiding a real
+# defect.
 #
-# | Écarté | Pourquoi |
-# | :----- | :------- |
-# | les répertoires | un `.deb` n'en possède aucun, un `.rpm` possède ceux que sa distribution ne possède pas déjà |
-# | `/usr/lib/.build-id/…` | `rpmbuild` pose ces liens pour ses propres outils de débogage ; rien ne les installe |
+# | Left out | Why |
+# | :------- | :-- |
+# | directories | a `.deb` owns none, an `.rpm` owns those its distribution does not already own |
+# | `/usr/lib/.build-id/…` | `rpmbuild` places these links for its own debugging tools; nothing installs them |
 #
-# **La compression de la page de manuel n'y est pas**, et c'est délibéré :
-# `rpmbuild` compresse la sienne, la charte Debian l'exige aussi, donc
-# l'installation la compresse elle-même et les deux paquets portent le même
-# `subedit-cli.1.gz`. Un écart qu'on pouvait supprimer valait mieux qu'un écart
-# de plus à excuser ici.
+# **The compression of the manual page is not in it**, and that is deliberate:
+# `rpmbuild` compresses its own, the Debian policy requires it too, so the
+# install compresses it itself and both packages carry the same
+# `subedit-cli.1.gz`. A difference that could be removed was better than one
+# more difference to excuse here.
 check_packages() {
     local built=("${build_dir}"/subedit[-_]*.deb "${build_dir}"/subedit[-_]*.rpm)
     rm -f "${built[@]}" 2>/dev/null || true
 
     if ! (cd "${build_dir}" && cpack -G "DEB;RPM" >/dev/null 2>&1); then
-        report_failure "cpack ne produit pas les deux paquets
-    (cd ${build_dir} && cpack -G 'DEB;RPM') pour voir pourquoi"
+        report_failure "cpack does not produce the two packages
+    (cd ${build_dir} && cpack -G 'DEB;RPM') to see why"
         return
     fi
 
@@ -663,14 +659,14 @@ check_packages() {
     rpm="$(find "${build_dir}" -maxdepth 1 -name 'subedit*.rpm' | head -1)"
 
     if [[ -z "${deb}" || -z "${rpm}" ]]; then
-        report_failure "cpack n'a produit qu'un paquet sur deux (deb : « ${deb} », rpm : « ${rpm} »)"
+        report_failure "cpack produced only one package out of two (deb: \"${deb}\", rpm: \"${rpm}\")"
         return
     fi
 
-    # Le `.deb` marque ses répertoires d'une barre finale ; `rpm -qlp` ne les
-    # distingue pas, mais `--dump` donne le mode de chaque entrée, et un
-    # répertoire s'y reconnaît à son `04…`. On lit donc le type plutôt que de le
-    # deviner sur le nom.
+    # The `.deb` marks its directories with a trailing slash; `rpm -qlp` does
+    # not tell them apart, but `--dump` gives the mode of each entry, and a
+    # directory is recognised there by its `04…`. So the type is read rather
+    # than guessed from the name.
     local in_deb in_rpm
     in_deb="$(dpkg-deb -c "${deb}" \
         | awk '$6 !~ /\/$/ { print substr($6, 2) }' \
@@ -680,96 +676,96 @@ check_packages() {
         | grep -v '^/usr/lib/\.build-id/' | sort)"
 
     if [[ "${in_deb}" != "${in_rpm}" ]]; then
-        report_failure "les deux paquets ne portent pas les mêmes fichiers :
+        report_failure "the two packages do not carry the same files:
 $(diff <(printf '%s\n' "${in_deb}") <(printf '%s\n' "${in_rpm}") | sed 's/^/    /')
-    les deux sortent de la même installation ; un écart est un défaut des règles install()"
+    both come out of the same install; a difference is a defect of the install() rules"
         return
     fi
 
-    report_success "le .deb et le .rpm portent les mêmes $(printf '%s\n' "${in_deb}" | wc -l) fichiers"
+    report_success "the .deb and the .rpm carry the same $(printf '%s\n' "${in_deb}" | wc -l) files"
 
-    # **Les catalogues des langues installées, nommément** (#659) : la comparaison ci-dessus ne
-    # voit qu'un écart entre les deux paquets, et deux paquets sans catalogue coïncident.
+    # **The catalogues of the installed languages, by name** (#659): the comparison above only
+    # sees a difference between the two packages, and two packages without a catalogue match.
     local language
     while IFS= read -r language; do
         local wanted_path="/usr/share/subedit/locale/${language}/LC_MESSAGES/subedit.mo"
         if ! grep -qxF "${wanted_path}" <<<"${in_deb}"; then
-            report_failure "le .deb ne porte pas le catalogue « ${language} » (${wanted_path})"
+            report_failure "the .deb does not carry the \"${language}\" catalogue (${wanted_path})"
         fi
         if ! grep -qxF "${wanted_path}" <<<"${in_rpm}"; then
-            report_failure "le .rpm ne porte pas le catalogue « ${language} » (${wanted_path})"
+            report_failure "the .rpm does not carry the \"${language}\" catalogue (${wanted_path})"
         fi
     done < <(installed_languages)
 
-    # **Les dépendances, elles, ne coïncident pas et ne le doivent pas** : les
-    # mêmes bibliothèques s'appellent autrement chez Debian et chez Fedora. Ce
-    # qui est vérifié est qu'aucune des deux listes n'est vide — un paquet sans
-    # dépendance déclarée s'installe et ne se lance pas.
+    # **The dependencies, for their part, do not match and must not**: the same
+    # libraries have different names on Debian and on Fedora. What is checked
+    # is that neither list is empty — a package with no declared dependency
+    # installs and does not start.
     local deb_deps rpm_deps
     deb_deps="$(dpkg-deb -f "${deb}" Depends)"
     rpm_deps="$(rpm -qp --requires "${rpm}" 2>/dev/null | grep -v '^rpmlib(' || true)"
 
-    [[ -n "${deb_deps}" ]] || report_failure "le .deb ne déclare aucune dépendance"
-    [[ -n "${rpm_deps}" ]] || report_failure "le .rpm ne déclare aucune dépendance"
+    [[ -n "${deb_deps}" ]] || report_failure "the .deb declares no dependency"
+    [[ -n "${rpm_deps}" ]] || report_failure "the .rpm declares no dependency"
 
     if [[ -n "${deb_deps}" && -n "${rpm_deps}" ]]; then
-        report_success "les deux paquets déclarent leurs dépendances, chacun dans les noms de sa famille"
+        report_success "both packages declare their dependencies, each in its family's names"
     fi
 
-    # **Enchant, nommément** — D6 de docs/specs/12-correction.md, #507. Le
-    # contrôle précédent ne voit qu'une liste non vide : il laisserait passer un
-    # paquet qui ne tire pas la bibliothèque du correcteur, et qui s'installerait
-    # sans pouvoir se lancer. Les deux familles ne la nomment pas pareil.
+    # **Enchant, by name** — D6 of docs/specs/12-correction.md, #507. The
+    # previous check only sees a non-empty list: it would let through a package
+    # that does not pull in the spell checker's library, and that would install
+    # without being able to start. The two families do not name it the same.
     if [[ "${deb_deps}" == *libenchant-2-2* ]]; then
-        report_success "le .deb tire Enchant (libenchant-2-2)"
+        report_success "the .deb pulls in Enchant (libenchant-2-2)"
     else
-        report_failure "le .deb ne tire pas Enchant : libenchant-2-2 manque à ses dépendances"
+        report_failure "the .deb does not pull in Enchant: libenchant-2-2 is missing from its dependencies"
     fi
     if grep -q '^enchant2\b' <<<"${rpm_deps}"; then
-        report_success "le .rpm tire Enchant (enchant2)"
+        report_success "the .rpm pulls in Enchant (enchant2)"
     else
-        report_failure "le .rpm ne tire pas Enchant : enchant2 manque à ses dépendances"
+        report_failure "the .rpm does not pull in Enchant: enchant2 is missing from its dependencies"
     fi
 
     check_rpm_directories "${rpm}"
 }
 
-# ## Le `.rpm` ne possède que ses propres répertoires
+# ## The `.rpm` owns only its own directories
 #
-# **Le contrôle le moins cher de ce fichier, et il a attrapé le défaut le plus
-# coûteux** — issue #266. Un `.rpm` qui déclare posséder `/usr/share/icons`
-# entre en conflit avec `hicolor-icon-theme`, qui le possède vraiment, et `dnf`
-# refuse la transaction entière. Le paquet reste parfaitement valide : il
-# s'inspecte, il s'énumère, et il ne s'installe pas.
+# **The cheapest check in this file, and it caught the costliest defect** —
+# issue #266. An `.rpm` that declares it owns `/usr/share/icons` conflicts with
+# `hicolor-icon-theme`, which really owns it, and `dnf` refuses the whole
+# transaction. The package stays perfectly valid: it can be inspected, it can
+# be listed, and it does not install.
 #
-# `cmake/Packaging.cmake` excluait déjà ces répertoires, en chemins relatifs
-# alors que CPack en attend d'absolus — l'exclusion n'a jamais rien exclu, du
-# jour où elle a été écrite jusqu'à ce que `check-rpm.sh` joue une vraie
-# transaction sur Fedora. **Une exclusion qui n'exclut rien ressemble en tout
-# point à une exclusion qui marche**, et c'est pour cela que ce contrôle-ci
-# existe : il regarde le résultat, jamais l'intention.
+# `cmake/Packaging.cmake` already excluded these directories, as relative
+# paths whereas CPack expects absolute ones — the exclusion never excluded
+# anything, from the day it was written until `check-rpm.sh` ran a real
+# transaction on Fedora. **An exclusion that excludes nothing looks in every
+# respect like an exclusion that works**, and that is why this check exists:
+# it looks at the result, never at the intention.
 #
-# **La règle est celle-ci : les seuls répertoires du paquet sont sous
-# `share/subedit`.** C'est le seul arbre que ce projet crée ; tous les autres
-# où il dépose quelque chose — `bin`, `applications`, `icons`, `man`,
-# `metainfo` — appartiennent à la distribution. Le jour où le projet en créera
-# un ailleurs, ce contrôle échouera et la règle sera relue, ce qui est
-# exactement ce qu'on veut d'elle.
+# **The rule is this: the package's only directories are under
+# `share/subedit`.** That is the only tree this project creates; all the others
+# where it places something — `bin`, `applications`, `icons`, `man`,
+# `metainfo` — belong to the distribution. The day the project creates one
+# elsewhere, this check will fail and the rule will be reread, which is exactly
+# what is wanted of it.
 #
-# **Local, et il ne remplace pas la Fedora.** Il voit la cause de ce défaut-là ;
-# il ne verrait pas un nom de dépendance erroné, ni une bibliothèque manquante
-# à l'exécution. C'est `src/scripts/check-rpm.sh` qui les voit, et il demande un
-# conteneur et le réseau — donc une fois par semaine, pas à chaque pull request.
+# **Local, and it does not replace Fedora.** It sees the cause of that
+# particular defect; it would not see a wrong dependency name, nor a library
+# missing at run time. `src/scripts/check-rpm.sh` sees those, and it needs a
+# container and the network — so once a week, not on every pull request.
 check_rpm_directories() {
     local package="$1"
 
-    # `--dump` donne le mode de chaque entrée, et un répertoire s'y reconnaît à
-    # son `04…` : on lit le type plutôt que de le deviner sur le nom.
-    # `/usr/lib/.build-id/…` est écarté ici comme il l'est de la comparaison des
-    # deux listes, et pour la même raison : `rpmbuild` pose ces répertoires pour
-    # ses propres outils de débogage, rien de ce que le projet installe ne les
-    # nomme, et la transaction Fedora les accepte — c'est une propriété du
-    # format, pas de ce qu'on empaquette.
+    # `--dump` gives the mode of each entry, and a directory is recognised there
+    # by its `04…`: the type is read rather than guessed from the name.
+    # `/usr/lib/.build-id/…` is left out here as it is from the comparison of
+    # the two lists, and for the same reason: `rpmbuild` places these
+    # directories for its own debugging tools, nothing the project installs
+    # names them, and the Fedora transaction accepts them — it is a property of
+    # the format, not of what is packaged.
     local owned
     owned="$(rpm -qp --dump "${package}" 2>/dev/null \
         | awk '$5 ~ /^04/ { print $1 }' \
@@ -777,23 +773,23 @@ check_rpm_directories() {
         | grep -v "^/usr/${DATA_SUBDIR}\(/\|$\)" || true)"
 
     if [[ -n "${owned}" ]]; then
-        report_failure "le .rpm déclare posséder des répertoires qui ne sont pas à lui :
+        report_failure "the .rpm declares it owns directories that are not its own:
 $(printf '%s\n' "${owned}" | sed 's/^/    /')
-    la distribution les possède déjà, et dnf refusera la transaction
-    les exclure dans CPACK_RPM_EXCLUDE_FROM_AUTO_FILELIST_ADDITION, en chemins absolus"
+    the distribution already owns them, and dnf will refuse the transaction
+    exclude them in CPACK_RPM_EXCLUDE_FROM_AUTO_FILELIST_ADDITION, as absolute paths"
         return
     fi
 
-    report_success "le .rpm ne possède que ses propres répertoires"
+    report_success "the .rpm owns only its own directories"
 }
 
-if wanted paquets; then
+if wanted packages; then
     check_packages
 fi
 
 if (( failures > 0 )); then
-    printf '%s%d contrôle(s) d'\''installation en échec%s\n' "${RED}" "${failures}" "${RESET}" >&2
+    printf '%s%d installation check(s) failed%s\n' "${RED}" "${failures}" "${RESET}" >&2
     exit 1
 fi
 
-printf '%s✓%s une installation propre s'\''installe et se lance\n' "${GREEN}" "${RESET}"
+printf '%s✓%s a clean install installs and starts\n' "${GREEN}" "${RESET}"
