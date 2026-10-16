@@ -1,88 +1,86 @@
 #!/usr/bin/env bash
-# Les fixtures vidéo de src/test/data/videos/ : les fabriquer, et vérifier
-# qu'elles déclarent bien ce que le projet dit qu'elles déclarent.
+# The video fixtures of src/test/data/videos/: make them, and check that they
+# declare what the project says they declare.
 #
-# Éprouver la lecture de la fréquence d'image et de la durée demande un vrai
-# conteneur, et un conteneur est illisible dans un diff. Personne ne relira ces
-# 3 Ko. Ce script est ce qui les rend **vérifiables plutôt que crus** : la
-# commande qui les fabrique et les valeurs qu'on en attend vivent ici, à un seul
-# endroit, et `--check` confronte l'une à l'autre.
+# Testing the reading of the frame rate and the duration requires a real
+# container, and a container is unreadable in a diff. Nobody will reread these
+# 3 KB. This script is what makes them **checkable rather than believed**: the
+# command that makes them and the values expected from them live here, in a
+# single place, and `--check` holds one against the other.
 #
-#   --check       (défaut) confronte chaque fixture à la table ci-dessous
-#   --generate    refabrique les fixtures depuis la table
-#   --weight      écrit le poids total, en octets
-#   --film CHEMIN fabrique, **hors du dépôt**, la vidéo numérotée à la taille d'un film du
-#                 banc du saut et du pas (#611), et vérifie qu'elle est honnête
+#   --check       (default) hold each fixture against the table below
+#   --generate    remake the fixtures from the table
+#   --weight      print the total weight, in bytes
+#   --film PATH   make, **outside the repository**, the film-sized numbered video of
+#                 the seek and step bench (#611), and check that it is honest
 #
-# **Deux familles.** Les fixtures de cadence ne montrent rien : on n'y lit que
-# la fréquence et la durée. Les fixtures **à images numérotées** (#610) sont
-# l'inverse : chaque image y porte son propre numéro, huit barres de 16 pixels
-# claires ou sombres lues comme des bits, de sorte qu'un test lit **l'image que
-# le lecteur affiche** et la compare à celle qu'il devait afficher — un oracle qui
-# ne repose pas sur ce que le lecteur dit de lui-même. `--check` vérifie qu'elles
-# portent bien leur numéro **sans libmpv**, par ffmpeg : l'oracle d'un test ne vaut
-# que si la fixture qu'il lit est honnête.
+# **Two families.** The cadence fixtures show nothing: only the frame rate and
+# the duration are read from them. The **numbered-frame** fixtures (#610) are the
+# opposite: every frame carries its own number, eight 16-pixel bars, light or
+# dark, read as bits, so that a test reads **the frame the player shows** and
+# compares it with the one it should show — an oracle that does not rest on
+# what the player says of itself. `--check` checks that they carry their number
+# **without libmpv**, through ffmpeg: a test's oracle is only worth something if
+# the fixture it reads is honest.
 #
-# **Ce script exige ffprobe, et le binaire non.** La distinction est celle de
-# tout le reste de la chaîne d'outils : `make check` exige déjà clang-tidy et
-# gcovr d'une machine de développement. `subedit`, lui, tolère l'absence de
-# ffprobe et se passe de ce qu'il apporte — c'est une promesse faite à un
-# utilisateur, pas à qui développe.
+# **This script requires ffprobe, and the binary does not.** The distinction is
+# that of the whole rest of the toolchain: `make check` already requires
+# clang-tidy and gcovr of a development machine. `subedit` tolerates the absence
+# of ffprobe and does without what it brings — that is a promise made to a user,
+# not to whoever develops.
 
 set -euo pipefail
 
 readonly REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 readonly FIXTURE_DIR="${REPO_ROOT}/src/test/data/videos"
 
-# Le format : MP4, et non Matroska. Matroska arrondit ses horodatages à la
-# milliseconde et n'annonce aucune durée de flux — ffprobe y déduit la fréquence
-# des timings, ce qui rend le nombre approché. MP4 porte une échelle de temps
-# explicite et des écarts d'échantillon entiers : la fréquence en ressort comme
-# le rationnel exact qu'on y a mis, et la durée aussi.
+# The format: MP4, not Matroska. Matroska rounds its timestamps to the
+# millisecond and announces no stream duration — ffprobe deduces the frame rate
+# from the timings there, which makes the number approximate. MP4 carries an
+# explicit time scale and integer sample deltas: the frame rate comes out as the
+# exact rational put in, and so does the duration.
 #
-# Le codec : `mpeg4`, celui d'ffmpeg lui-même, et non libx264. Deux raisons, et
-# aucune n'est la qualité d'image, qui n'a ici aucune importance — n'importe
-# quelle construction d'ffmpeg sait le refaire, alors qu'une construction
-# minimale peut être privée de libx264 ; et le fichier ne porte alors aucune
-# chaîne de version d'une bibliothèque tierce. Le nôtre pèse 1,5 Ko là où
-# libx264 en demandait 2,6.
+# The codec: `mpeg4`, ffmpeg's own, not libx264. Two reasons, and neither is
+# picture quality, which does not matter at all here — any build of ffmpeg can
+# redo it, whereas a minimal build may lack libx264; and the file then carries no
+# version string of a third-party library. Ours weighs 1.5 KB where libx264
+# needed 2.6.
 #
-# 16×16 est la plus petite image alignée sur un macrobloc. Deux secondes
-# suffisent : ce qu'on lit dans ces fichiers, c'est une fréquence et une durée,
-# jamais une image.
+# 16×16 is the smallest picture aligned on a macroblock. Two seconds are enough:
+# what is read from these files is a frame rate and a duration, never a picture.
 readonly FIXTURE_WIDTH=16
 readonly FIXTURE_HEIGHT=16
 readonly FIXTURE_SECONDS=2
 
-# nom | fréquence déclarée | durée déclarée | taille maximale admise
+# name | declared frame rate | declared duration | maximum size allowed
 #
-# Les deux fréquences ne sont pas interchangeables : 25 est entière, 24000/1001
-# ne l'est pas, et c'est la seconde qui dit quelque chose. Une fixture à
-# fréquence entière seule laisserait croire à une lecture juste là où le noyau
-# manipule des rationnels exacts depuis la phase 1.
+# The two frame rates are not interchangeable: 25 is an integer, 24000/1001 is
+# not, and it is the second that says something. An integer-rate fixture alone
+# would suggest a right reading where the core has handled exact rationals
+# since phase 1.
 #
-# La taille maximale existe parce qu'une fixture qui grossit sans qu'on le voie
-# est une dette silencieuse : le seuil est large — environ le double du poids
-# actuel — et son rôle est d'attraper un ordre de grandeur, pas un octet.
+# The maximum size exists because a fixture that grows unseen is a silent debt:
+# the threshold is generous — about twice the current weight — and its role is
+# to catch an order of magnitude, not a byte.
 readonly FIXTURES=(
     "cadence-25.mp4|25/1|2.000000|4096"
     "cadence-23-976.mp4|24000/1001|2.002000|4096"
 )
 
-# Les fixtures à images numérotées. 128×64, huit barres de 16 pixels : un octet de
-# numéro d'image, de 0 à 255, et dix secondes à 25 images par seconde en tiennent 250.
+# The numbered-frame fixtures. 128×64, eight 16-pixel bars: one byte of frame number,
+# from 0 to 255, and ten seconds at 25 frames per second hold 250 of them.
 #
-# **Une seule image-clé, au début** : c'est le cas difficile — la position 249 se décode
-# depuis la 0 — et celui qu'un film réel connaît. L'encodeur `mpeg4` n'en donne pas
-# l'unique par défaut : malgré `-g 250` il place une image-clé toutes les 32 images quand
-# le contenu change à chaque image (huit sur 250, mesuré), d'où `-keyint_min`,
-# `-sc_threshold` et `-bf 0` ci-dessous.
+# **A single keyframe, at the start**: it is the hard case — position 249 is decoded
+# from 0 — and the one a real film has. The `mpeg4` encoder does not give a single one by
+# default: despite `-g 250` it places a keyframe every 32 frames when the content changes
+# on every frame (eight out of 250, measured), hence `-keyint_min`, `-sc_threshold` and
+# `-bf 0` below.
 #
-# nom | fréquence déclarée | nombre d'images | images-clés | taille maximale admise
+# name | declared frame rate | frame count | keyframes | maximum size allowed
 #
-# La seconde est à 24000/1001 : le rapport du millième n'est pas celui des images, et un
-# cas à 23,976 le dit — l'image 10 y occupe 417,08 à 458,79 ms, que la milliseconde
-# entière n'écrit pas.
+# The second is at 24000/1001: the thousandth ratio is not the frames', and a case at
+# 23.976 says so — frame 10 there spans 417.08 to 458.79 ms, which a whole millisecond
+# does not write.
 readonly NUMBERED_WIDTH=128
 readonly NUMBERED_HEIGHT=64
 readonly NUMBERED_BAR=16
@@ -92,25 +90,25 @@ readonly NUMBERED=(
     "images-23-976.mp4|24000/1001|240|1|24576"
 )
 
-# Les fixtures **à pistes audio** (#614). Elles montrent un écran noir, comme celles de
-# cadence : ce qu'on y lit, c'est le nombre de pistes sonores, leur langue et leur titre,
-# que le lecteur rend au menu `Audio`. Une seule piste, et deux — le cas où il y a un choix.
-# Une vidéo **sans** piste est `cadence-25.mp4`, qui n'en a jamais eu.
+# The **audio-track** fixtures (#614). They show a black screen, like the cadence ones:
+# what is read from them is the number of sound tracks, their language and their title,
+# which the player hands to the `Audio` menu. One track, and two — the case where there is
+# a choice. A video **without** a track is `cadence-25.mp4`, which never had one.
 #
-# Le son est un la à 440 Hz : le contenu n'importe pas, une piste existe ou non.
+# The sound is an A at 440 Hz: the content does not matter, a track exists or not.
 #
-# **Matroska, et non MP4** — l'inverse du choix des autres : le MP4 n'a pas de titre de piste
-# (ffmpeg y écrit `handler_name`), et c'est précisément ce que ces fixtures doivent porter.
-# Ici les horodatages arrondis ne gênent pas : on n'y lit aucune image.
+# **Matroska, not MP4** — the opposite of the others' choice: MP4 has no track title
+# (ffmpeg writes `handler_name` there), and that is precisely what these fixtures must
+# carry. Rounded timestamps do no harm here: no frame is read from them.
 #
-# nom | pistes (langue:titre, séparées par des virgules) | taille maximale admise
+# name | tracks (language:title, comma-separated) | maximum size allowed
 readonly AUDIO=(
     "audio-1.mkv|fra:Original|12288"
     "audio-2.mkv|fra:Original,eng:Commentary|20480"
 )
 
-# Et **un film sans image** (#614) : du son seul, sans piste vidéo. Il n'a pas de fréquence d'image,
-# donc rien à avancer d'un pas — le cas où `stepFrames` ne sait pas quoi faire et le dit en ne faisant rien.
+# And **a film without pictures** (#614): sound alone, without a video track. It has no frame rate,
+# so nothing to step through — the case where `stepFrames` does not know what to do and says so by doing nothing.
 readonly SOUND_ONLY=("sound-only.mkv|12288")
 
 readonly RED=$'\033[31m'
@@ -134,17 +132,17 @@ die() {
 
 require() {
     command -v "$1" >/dev/null 2>&1 \
-        || die "$1 est absent — ./src/scripts/setup-toolchain.sh l'installe."
+        || die "$1 is missing — ./src/scripts/setup-toolchain.sh installs it."
 }
 
-# La commande de fabrication, écrite une fois. C'est elle que le dépôt versionne
-# vraiment : les fichiers en sont la sortie, refaisable, et non la source.
+# The making command, written once. It is what the repository really tracks: the
+# files are its output, reproducible, not the source.
 #
-# `-fflags +bitexact -flags:v +bitexact -map_metadata -1` retire de la sortie
-# tout ce qui daterait la machine qui l'a produite. Ce qui reste est reproduit à
-# l'octet près par une même version d'ffmpeg — d'une version à l'autre, le
-# fichier peut différer sans que ce qu'il déclare change, et c'est bien ce que
-# `--check` vérifie plutôt que la somme de contrôle.
+# `-fflags +bitexact -flags:v +bitexact -map_metadata -1` removes from the output
+# everything that would date the machine that produced it. What remains is
+# reproduced byte for byte by the same version of ffmpeg — from one version to
+# the next, the file may differ without what it declares changing, and that is
+# what `--check` checks rather than the checksum.
 generate_one() {
     local target="$1" rate="$2"
     ffmpeg -v error -y \
@@ -154,15 +152,15 @@ generate_one() {
         "${target}"
 }
 
-# Chaque image porte son numéro N : la barre X est claire (235) si le bit X de N vaut 1,
-# sombre (16) sinon, la chrominance neutre. Le filtre `geq` calcule cela image par image.
+# Every frame carries its number N: bar X is light (235) if bit X of N is 1, dark (16)
+# otherwise, with neutral chroma. The `geq` filter computes that frame by frame.
 generate_numbered_one() {
     local target="$1" rate="$2"
     generate_numbered "${target}" "${rate}" "${NUMBERED_WIDTH}" "${NUMBERED_HEIGHT}" "${NUMBERED_BAR}" \
         "${NUMBERED_SECONDS}"
 }
 
-# La fabrication, à n'importe quelle taille : la barre est le huitième de la largeur.
+# The making, at any size: the bar is an eighth of the width.
 generate_numbered() {
     local target="$1" rate="$2" width="$3" height="$4" bar="$5" seconds="$6"
     ffmpeg -v error -y \
@@ -172,8 +170,8 @@ generate_numbered() {
         "${target}"
 }
 
-# Une piste par entrée de `tracks`, chacune avec sa langue et son titre. Le même la à 440 Hz
-# partout : ce qui distingue les pistes est leur étiquette, que le lecteur rend telle quelle.
+# One track per entry of `tracks`, each with its language and title. The same A at 440 Hz
+# everywhere: what tells the tracks apart is their label, which the player shows as is.
 generate_sound_only_one() {
     local target="$1"
     ffmpeg -v error -y \
@@ -204,8 +202,8 @@ generate_audio_one() {
         "${target}"
 }
 
-# Le numéro que porte l'image `frame` d'un fichier, lu **par ffmpeg** : l'image décodée en
-# niveaux de gris, puis les huit barres, au milieu de la rangée du milieu.
+# The number carried by frame `frame` of a file, read **by ffmpeg**: the frame decoded in
+# greyscale, then the eight bars, in the middle of the middle row.
 number_of() {
     local file="$1" frame="$2"
     number_in "${file}" "${frame}" "${NUMBERED_WIDTH}" "${NUMBERED_HEIGHT}" "${NUMBERED_BAR}"
@@ -232,29 +230,29 @@ probe() {
 
 generate() {
     require ffmpeg
-    info "fabrication des fixtures vidéo"
+    info "making the video fixtures"
     mkdir -p "${FIXTURE_DIR}"
     local entry name rate
     for entry in "${FIXTURES[@]}"; do
         IFS='|' read -r name rate _ _ <<<"${entry}"
         generate_one "${FIXTURE_DIR}/${name}" "${rate}"
-        ok "${name} — ${rate}, ${FIXTURE_SECONDS} s, $(stat -c %s "${FIXTURE_DIR}/${name}") octets"
+        ok "${name} — ${rate}, ${FIXTURE_SECONDS} s, $(stat -c %s "${FIXTURE_DIR}/${name}") bytes"
     done
     for entry in "${NUMBERED[@]}"; do
         IFS='|' read -r name rate _ _ _ <<<"${entry}"
         generate_numbered_one "${FIXTURE_DIR}/${name}" "${rate}"
-        ok "${name} — ${rate}, images numérotées, $(stat -c %s "${FIXTURE_DIR}/${name}") octets"
+        ok "${name} — ${rate}, numbered frames, $(stat -c %s "${FIXTURE_DIR}/${name}") bytes"
     done
     local tracks
     for entry in "${AUDIO[@]}"; do
         IFS='|' read -r name tracks _ <<<"${entry}"
         generate_audio_one "${FIXTURE_DIR}/${name}" "${tracks}"
-        ok "${name} — pistes ${tracks}, $(stat -c %s "${FIXTURE_DIR}/${name}") octets"
+        ok "${name} — tracks ${tracks}, $(stat -c %s "${FIXTURE_DIR}/${name}") bytes"
     done
     for entry in "${SOUND_ONLY[@]}"; do
         IFS='|' read -r name _ <<<"${entry}"
         generate_sound_only_one "${FIXTURE_DIR}/${name}"
-        ok "${name} — du son seul, $(stat -c %s "${FIXTURE_DIR}/${name}") octets"
+        ok "${name} — sound alone, $(stat -c %s "${FIXTURE_DIR}/${name}") bytes"
     done
 }
 
@@ -266,44 +264,44 @@ check_numbered() {
         before="${failures}"
 
         if [[ ! -f "${path}" ]]; then
-            ko "${name} — absente ; ./src/scripts/video-fixtures.sh --generate"
+            ko "${name} — missing; ./src/scripts/video-fixtures.sh --generate"
             continue
         fi
 
         actual="$(probe "${path}" stream=r_frame_rate || true)"
         [[ "${actual}" == "${rate}" ]] \
-            || ko "${name} — fréquence ${actual:-illisible}, attendue ${rate}"
+            || ko "${name} — frame rate ${actual:-unreadable}, expected ${rate}"
 
         actual="$(probe "${path}" stream=nb_frames || true)"
         [[ "${actual}" == "${frames}" ]] \
-            || ko "${name} — ${actual:-illisible} images, attendues ${frames}"
+            || ko "${name} — ${actual:-unreadable} frames, expected ${frames}"
 
         actual="$(probe "${path}" stream=width,height | tr '\n' 'x' | sed 's/x$//' || true)"
         [[ "${actual}" == "${NUMBERED_WIDTH}x${NUMBERED_HEIGHT}" ]] \
-            || ko "${name} — taille ${actual:-illisible}, attendue ${NUMBERED_WIDTH}x${NUMBERED_HEIGHT}"
+            || ko "${name} — size ${actual:-unreadable}, expected ${NUMBERED_WIDTH}x${NUMBERED_HEIGHT}"
 
-        # Le nombre d'images-clés : **une** — c'est ce qui fait de la dernière image un saut
-        # de toute la durée. Compté sur les paquets, qui portent le drapeau `K`.
+        # The number of keyframes: **one** — that is what makes the last frame a seek across
+        # the whole duration. Counted on the packets, which carry the `K` flag.
         actual="$(ffprobe -v error -select_streams v:0 -show_entries packet=flags \
             -of csv=p=0 "${path}" 2>/dev/null | grep -c K || true)"
         [[ "${actual}" == "${keyframes}" ]] \
-            || ko "${name} — ${actual} image(s)-clé, attendues ${keyframes}"
+            || ko "${name} — ${actual} keyframe(s), expected ${keyframes}"
 
         size="$(stat -c %s "${path}")"
         (( size <= maximum )) \
-            || ko "${name} — ${size} octets, maximum ${maximum}"
+            || ko "${name} — ${size} bytes, maximum ${maximum}"
 
-        # **Honnêtes** : la première, une du milieu et la dernière portent leur numéro, lu
-        # par ffmpeg et non par le lecteur dont un test se sert de ces fichiers.
+        # **Honest**: the first, one in the middle and the last carry their number, read
+        # by ffmpeg and not by the player whose tests use these files.
         last=$(( frames - 1 ))
         for frame in 0 1 $(( frames / 2 )) "${last}"; do
             actual="$(number_of "${path}" "${frame}")"
             [[ "${actual}" == "${frame}" ]] \
-                || ko "${name} — l'image ${frame} porte le numéro ${actual}"
+                || ko "${name} — frame ${frame} carries the number ${actual}"
         done
 
         [[ "${failures}" == "${before}" ]] \
-            && ok "${name} — ${rate}, ${frames} images, ${keyframes} image-clé, ${size} octets"
+            && ok "${name} — ${rate}, ${frames} frames, ${keyframes} keyframe, ${size} bytes"
     done
 }
 
@@ -315,24 +313,24 @@ check_audio() {
         before="${failures}"
 
         if [[ ! -f "${path}" ]]; then
-            ko "${name} — absente ; ./src/scripts/video-fixtures.sh --generate"
+            ko "${name} — missing; ./src/scripts/video-fixtures.sh --generate"
             continue
         fi
 
-        # Langue et titre de chaque piste sonore, dans l'ordre, au format de la table.
+        # Language and title of each sound track, in order, in the table's format.
         actual="$(ffprobe -v error -select_streams a \
             -show_entries stream_tags=language,title -of csv=p=0 "${path}" 2>/dev/null \
             | awk -F, '{ printf "%s%s:%s", (NR > 1 ? "," : ""), $1, $2 }' || true)"
         expected="${tracks}"
         [[ "${actual}" == "${expected}" ]] \
-            || ko "${name} — pistes ${actual:-illisibles}, attendues ${expected}"
+            || ko "${name} — tracks ${actual:-unreadable}, expected ${expected}"
 
         size="$(stat -c %s "${path}")"
         (( size <= maximum )) \
-            || ko "${name} — ${size} octets, maximum ${maximum}"
+            || ko "${name} — ${size} bytes, maximum ${maximum}"
 
         [[ "${failures}" == "${before}" ]] \
-            && ok "${name} — pistes ${tracks}, ${size} octets"
+            && ok "${name} — tracks ${tracks}, ${size} bytes"
     done
 }
 
@@ -344,18 +342,18 @@ check_sound_only() {
         before="${failures}"
 
         if [[ ! -f "${path}" ]]; then
-            ko "${name} — absente ; ./src/scripts/video-fixtures.sh --generate"
+            ko "${name} — missing; ./src/scripts/video-fixtures.sh --generate"
             continue
         fi
 
         video="$(ffprobe -v error -select_streams v -show_entries stream=index \
             -of csv=p=0 "${path}" 2>/dev/null | wc -l || true)"
-        [[ "${video}" == "0" ]] || ko "${name} — ${video} piste(s) vidéo, attendues aucune"
+        [[ "${video}" == "0" ]] || ko "${name} — ${video} video track(s), expected none"
 
         size="$(stat -c %s "${path}")"
-        (( size <= maximum )) || ko "${name} — ${size} octets, maximum ${maximum}"
+        (( size <= maximum )) || ko "${name} — ${size} bytes, maximum ${maximum}"
 
-        [[ "${failures}" == "${before}" ]] && ok "${name} — du son seul, ${size} octets"
+        [[ "${failures}" == "${before}" ]] && ok "${name} — sound alone, ${size} bytes"
     done
 }
 
@@ -368,39 +366,38 @@ check() {
         before="${failures}"
 
         if [[ ! -f "${path}" ]]; then
-            ko "${name} — absente ; ./src/scripts/video-fixtures.sh --generate"
+            ko "${name} — missing; ./src/scripts/video-fixtures.sh --generate"
             continue
         fi
 
-        # `|| true` parce qu'un fichier illisible fait sortir ffprobe en
-        # erreur, et qu'une fixture illisible est un écart à rapporter comme
-        # les autres — pas une raison d'interrompre le contrôle sur une trace
-        # de shell.
+        # `|| true` because an unreadable file makes ffprobe exit in error,
+        # and an unreadable fixture is a difference to report like the
+        # others — not a reason to stop the check on a shell trace.
         actual="$(probe "${path}" stream=r_frame_rate || true)"
         [[ "${actual}" == "${rate}" ]] \
-            || ko "${name} — fréquence ${actual:-illisible}, attendue ${rate}"
+            || ko "${name} — frame rate ${actual:-unreadable}, expected ${rate}"
 
         actual="$(ffprobe -v error -show_entries format=duration \
             -of default=noprint_wrappers=1:nokey=1 "${path}" 2>/dev/null || true)"
         [[ "${actual}" == "${duration}" ]] \
-            || ko "${name} — durée ${actual:-illisible}, attendue ${duration}"
+            || ko "${name} — duration ${actual:-unreadable}, expected ${duration}"
 
         size="$(stat -c %s "${path}")"
         (( size <= maximum )) \
-            || ko "${name} — ${size} octets, maximum ${maximum}"
+            || ko "${name} — ${size} bytes, maximum ${maximum}"
 
-        # Chaque fixture rend son propre verdict : une seconde en écart ne doit
-        # pas faire taire la première, qui va bien.
+        # Each fixture gives its own verdict: a second one that differs must
+        # not silence the first, which is fine.
         [[ "${failures}" == "${before}" ]] \
-            && ok "${name} — ${rate}, ${duration} s, ${size} octets"
+            && ok "${name} — ${rate}, ${duration} s, ${size} bytes"
     done
 
     check_numbered
     check_audio
     check_sound_only
 
-    (( failures == 0 )) || die "${failures} écart(s) entre les fixtures et la table."
-    printf '  poids total : %s octets\n' "$(weight)"
+    (( failures == 0 )) || die "${failures} difference(s) between the fixtures and the table."
+    printf '  total weight: %s bytes\n' "$(weight)"
 }
 
 weight() {
@@ -413,19 +410,19 @@ weight() {
     printf '%s\n' "${total}"
 }
 
-# La vidéo du banc du saut et du pas (#611) : 1280×720, 250 images à 25 par seconde, **une
-# seule image-clé** — celle d'un film, où la dernière image se décode depuis la première.
+# The video of the seek and step bench (#611): 1280×720, 250 frames at 25 per second, **a
+# single keyframe** — a film's, where the last frame is decoded from the first.
 #
-# **Hors du dépôt, et c'est tout le propos** : la fixture versionnée de 13 ko ne donne que des
-# coûts de quelques millisecondes, qu'on ne peut comparer à rien, et une vidéo de la taille d'un
-# film n'a pas sa place dans un dépôt. `make bench` la fabrique dans l'arbre de construction et
-# la donne au banc ; sans ffmpeg, le banc le dit et s'abstient.
+# **Outside the repository, and that is the whole point**: the tracked 13 KB fixture only gives
+# costs of a few milliseconds, which cannot be compared with anything, and a film-sized video
+# has no place in a repository. `make bench` makes it in the build tree and hands it to the
+# bench; without ffmpeg, the bench says so and abstains.
 #
-# 720p, la taille que l'initialisation de la phase avait mesurée (#608) : assez pour que le
-# décodage d'une image coûte des dizaines de millisecondes, et assez peu pour que le banc tienne
-# dans une minute ou deux. `mpeg4`, comme les autres : n'importe quelle construction d'ffmpeg le
-# sait, ce qui n'est pas le cas de libx264. **Un film réel (H.264, HEVC) peut coûter autre chose**, et le dire est
-# l'affaire du journal, non de cette fabrication.
+# 720p, the size the phase's initialisation measured (#608): enough for decoding a frame to
+# cost tens of milliseconds, and little enough for the bench to fit in a minute or two.
+# `mpeg4`, like the others: any build of ffmpeg has it, which is not the case of libx264.
+# **A real film (H.264, HEVC) may cost something else**, and saying so is the journal's
+# business, not this making's.
 readonly FILM_WIDTH=1280
 readonly FILM_HEIGHT=720
 readonly FILM_BAR=160
@@ -436,21 +433,21 @@ readonly FILM_FRAMES=250
 film() {
     require ffmpeg
     require ffprobe
-    local target="${1:?usage : $(basename "$0") --film CHEMIN}"
+    local target="${1:?usage: $(basename "$0") --film PATH}"
 
     mkdir -p "$(dirname "${target}")"
-    # Déjà fabriquée et honnête : on ne la refait pas, `make bench` la demande à chaque fois.
+    # Already made and honest: it is not remade, `make bench` asks for it every time.
     if [[ ! -f "${target}" ]] || ! film_is_honest "${target}"; then
         generate_numbered "${target}" "${FILM_RATE}" "${FILM_WIDTH}" "${FILM_HEIGHT}" "${FILM_BAR}" \
             "${FILM_SECONDS}"
     fi
 
-    film_is_honest "${target}" || die "$(basename "${target}") — la vidéo fabriquée n'est pas celle qu'on attend"
-    ok "$(basename "${target}") — ${FILM_WIDTH}x${FILM_HEIGHT}, ${FILM_FRAMES} images, 1 image-clé, $(stat -c %s "${target}") octets"
+    film_is_honest "${target}" || die "$(basename "${target}") — the video made is not the one expected"
+    ok "$(basename "${target}") — ${FILM_WIDTH}x${FILM_HEIGHT}, ${FILM_FRAMES} frames, 1 keyframe, $(stat -c %s "${target}") bytes"
 }
 
-# Sa taille, sa fréquence, son nombre d'images, **une seule image-clé**, et que la première, une du
-# milieu et la dernière portent leur numéro — lu par ffmpeg, comme pour les fixtures versionnées.
+# Its size, its frame rate, its frame count, **a single keyframe**, and that the first, one in the
+# middle and the last carry their number — read by ffmpeg, as for the tracked fixtures.
 film_is_honest() {
     local file="$1" actual frame keyframes
     actual="$(probe "${file}" stream=width,height | tr '\n' 'x' | sed 's/x$//' || true)"
@@ -471,5 +468,5 @@ case "${1:---check}" in
     --generate) generate ;;
     --weight) weight ;;
     --film) film "${2:-}" ;;
-    *) die "usage : $(basename "$0") [--check|--generate|--weight|--film CHEMIN]" ;;
+    *) die "usage: $(basename "$0") [--check|--generate|--weight|--film PATH]" ;;
 esac
