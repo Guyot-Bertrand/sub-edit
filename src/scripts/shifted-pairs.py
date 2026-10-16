@@ -1,23 +1,23 @@
 #!/usr/bin/env python3
-"""Les paires décalées : un principal, une traduction posée à un décalage connu, et
-la vérité de ce décalage.
+"""The shifted pairs: a main file, a translation laid at a known offset, and the
+truth of that offset.
 
-La détection d'une traduction décalée (phase 14, D10) cherche un décalage constant et
-ne doit jamais en proposer un que le fichier n'a pas. L'éprouver demande de savoir ce
-qu'on a posé : une fixture tirée de ce que la détection trouve ne prouverait que son
-accord avec elle-même. Ce script **pose** le décalage, l'écrit à côté (`verite.txt`),
-et la détection est confrontée à lui.
+The detection of a shifted translation (phase 14, D10) looks for a constant offset
+and must never propose one the file does not have. Testing it requires knowing what
+was laid down: a fixture drawn from what the detection finds would only prove that
+it agrees with itself. This script **lays down** the offset, writes it alongside
+(`verite.txt`), and the detection is held against it.
 
-    --check       (défaut) reconstruit chaque cas et le compare au disque
-    --generate    réécrit les cas depuis la table
+    --check       (default) rebuild each case and compare it with the disk
+    --generate    rewrite the cases from the table
 
-Chaque cas tient trois fichiers : `principal.srt`, `traduction.srt` et `verite.txt`,
-qui porte le décalage posé en millisecondes (positif quand la traduction est en
-retard), ou `aucun` quand les lignes n'ont pas un décalage constant — une dérive, un
-décalage partiel, ou pas de décalage du tout.
+Each case holds three files: `principal.srt`, `traduction.srt` and `verite.txt`,
+which carries the offset laid down in milliseconds (positive when the translation
+is late), or `aucun` ("none") when the lines have no constant offset — a drift, a
+partial offset, or no offset at all.
 
-**Les positions sont de l'arithmétique**, jamais un appel à nos commandes : décaler
-avec `ShiftCommand` prouverait subedit contre subedit.
+**The positions are arithmetic**, never a call to our commands: shifting with
+`ShiftCommand` would prove subedit against subedit.
 """
 
 from __future__ import annotations
@@ -29,9 +29,9 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent
 DIRECTORY = REPO_ROOT / "src" / "test" / "data" / "decalages"
 
-# Début et fin, en millisecondes. Des écarts qui ne se répètent pas : un principal
-# périodique rendrait deux décalages également bons, et la détection devrait alors,
-# à raison, n'en proposer aucun.
+# Start and end, in milliseconds. Gaps that do not repeat: a periodic main file
+# would make two offsets equally good, and the detection would then rightly
+# propose neither.
 MAIN = [
     (1000, 3000), (4200, 5800), (8000, 11000), (12500, 14000),
     (17000, 19500), (20200, 21700), (25000, 28000), (29500, 31000),
@@ -44,16 +44,16 @@ def constant(milliseconds: int) -> Callable[[int, int], int]:
 
 
 def drift(total: int) -> Callable[[int, int], int]:
-    """Un retard qui croît de zéro à `total` sur la longueur du fichier."""
+    """A delay that grows from zero to `total` over the length of the file."""
     return lambda rank, _start: round(total * rank / (len(MAIN) - 1))
 
 
 def partial(milliseconds: int) -> Callable[[int, int], int]:
-    """Le retard ne touche que la seconde moitié du fichier."""
+    """The delay touches only the second half of the file."""
     return lambda rank, _start: milliseconds if rank >= len(MAIN) // 2 else 0
 
 
-# Le nom du cas, ce que le décalage fait à la ligne de rang n, et la vérité.
+# The case's name, what the offset does to the line of rank n, and the truth.
 CASES: list[tuple[str, Callable[[int, int], int], str]] = [
     ("sans-decalage", constant(0), "aucun"),
     ("constant-plus-2000", constant(2000), "2000"),
@@ -109,14 +109,14 @@ def main(argv: list[str]) -> int:
     failures = []
     for path, content in wanted.items():
         if not path.exists():
-            failures.append(f"manque : {path.relative_to(REPO_ROOT)}")
+            failures.append(f"missing: {path.relative_to(REPO_ROOT)}")
         elif path.read_text(encoding="utf-8") != content:
-            failures.append(f"diffère : {path.relative_to(REPO_ROOT)}")
+            failures.append(f"differs: {path.relative_to(REPO_ROOT)}")
     known = {path.parent.name for path in wanted}
     if DIRECTORY.exists():
         for entry in sorted(DIRECTORY.iterdir()):
             if entry.is_dir() and entry.name not in known:
-                failures.append(f"en trop : {entry.relative_to(REPO_ROOT)}")
+                failures.append(f"unexpected: {entry.relative_to(REPO_ROOT)}")
     for failure in failures:
         print(failure, file=sys.stderr)
     return 1 if failures else 0

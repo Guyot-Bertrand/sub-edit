@@ -63,10 +63,8 @@ src/scripts/prune-releases.sh
 src/scripts/prune-runs.sh
 src/scripts/setup-github.sh
 src/scripts/setup-toolchain.sh
-src/scripts/shifted-pairs.py
 src/scripts/subtitle-fixtures.py
 src/scripts/video-fixtures.sh
-src/scripts/wrong-rate-pairs.py
 src/test/.clang-tidy
 src/test/CMakeLists.txt
 src/test/bench/CMakeLists.txt
