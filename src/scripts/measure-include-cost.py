@@ -1,23 +1,23 @@
 #!/usr/bin/env python3
-"""Mesure ce que l'inclusion d'un en-tête coûte aux unités qui l'incluent (#549).
+"""Measure what including a header costs the units that include it (#549).
 
-**Une mesure, pas une porte** : elle ne gate rien, elle se rejoue quand on veut
-savoir si un en-tête fréquemment modifié pèse. Elle répond à deux questions
-distinctes, qu'il ne faut pas confondre :
+**A measurement, not a gate**: it gates nothing, and is replayed when one wants
+to know whether a frequently changed header weighs. It answers two distinct
+questions, which must not be confused:
 
-    le coût d'ANALYSE      combien de temps de frontend chaque unité passe dans
-                           l'en-tête et ce qu'il inclut (borne haute du gain à
-                           l'alléger : une inclusion que l'unité paierait de
-                           toute façon par un autre chemin ne s'économise pas) ;
-    le coût d'INVALIDATION le nombre d'unités qu'une modification de l'en-tête
-                           oblige à recompiler — et à réanalyser sous clang-tidy.
-                           C'est ce qui se paie à chaque commit qui y touche.
+    the PARSING cost       how much frontend time each unit spends in the
+                           header and what it includes (an upper bound on the
+                           gain of slimming it: an inclusion the unit would pay
+                           anyway through another path is not saved);
+    the INVALIDATION cost  the number of units a change to the header forces
+                           to recompile — and to reanalyse under clang-tidy.
+                           That is what every commit touching it pays.
 
-Méthode : `clang++ -c -O0 -ftime-trace` sur chaque unité qui inclut l'en-tête,
-avec les options de `build/dev/compile_commands.json` moins celles de GCC ; le
-temps de l'en-tête est l'**inclusif** des événements « Source » qui le nomment.
-Un seul passage par unité par défaut (`REPS=3` pour un médian) : sur une machine
-chargée, comparer deux relevés pris à des charges différentes ne dit rien.
+Method: `clang++ -c -O0 -ftime-trace` on each unit that includes the header,
+with the options of `build/dev/compile_commands.json` minus GCC's; the header's
+time is the **inclusive** time of the "Source" events that name it. One pass
+per unit by default (`REPS=3` for a median): on a loaded machine, comparing two
+readings taken under different loads says nothing.
 
     src/scripts/measure-include-cost.py subedit/core/wording/translation.hpp
 """
@@ -39,7 +39,7 @@ REPO_ROOT = pathlib.Path(__file__).resolve().parent.parent.parent
 
 
 def units_including(header: str) -> list[pathlib.Path]:
-    """Les `.cpp` du dépôt qui incluent `header` — `src/exe` exclu : sans entrée de compilation propre."""
+    """The repository's `.cpp` files that include `header` — `src/exe` excluded: it has no compile entry of its own."""
     needle = f"#include <{header}>"
     units = []
     for path in sorted((REPO_ROOT / "src").rglob("*.cpp")):
@@ -88,7 +88,7 @@ def measure(unit: pathlib.Path, header: str, entries: dict, scratch: pathlib.Pat
             print(result.stderr[:400], file=sys.stderr)
             return None
     events = json.load(open(obj.with_suffix(".json")))["traceEvents"]
-    # Les « Source » sont des paires b/e imbriquées : on les apparie par pile.
+    # The "Source" events are nested b/e pairs: they are matched with a stack.
     stack: list[tuple[int, str]] = []
     own = 0.0
     for event in sorted((e for e in events if e.get("name") == "Source"), key=lambda e: e["ts"]):
@@ -105,7 +105,7 @@ def measure(unit: pathlib.Path, header: str, entries: dict, scratch: pathlib.Pat
 def main() -> int:
     if len(sys.argv) != 2:
         print(__doc__.split("\n\n")[0], file=sys.stderr)
-        print("usage : measure-include-cost.py <en-tête, relatif à src/lib>", file=sys.stderr)
+        print("usage: measure-include-cost.py <header, relative to src/lib>", file=sys.stderr)
         return 2
     header = sys.argv[1]
     entries = {pathlib.Path(e["file"]).resolve(): e
@@ -121,11 +121,11 @@ def main() -> int:
 
     frontend = sum(r[2] for r in rows)
     in_header = sum(r[3] for r in rows)
-    print(f"{header} : {len(units)} unités l'incluent, {len(rows)} mesurées")
-    print(f"  coût d'invalidation : une modification recompile ces {len(rows)} unités, "
-          f"{frontend:.0f} s de frontend cumulé (hors génération de code et clang-tidy)")
-    print(f"  coût d'analyse      : {in_header:.0f} s dans l'en-tête et ses inclusions, "
-          f"soit {100 * in_header / frontend:.1f} % — borne haute de ce qu'alléger l'en-tête économise")
+    print(f"{header}: {len(units)} units include it, {len(rows)} measured")
+    print(f"  invalidation cost: a change recompiles these {len(rows)} units, "
+          f"{frontend:.0f} s of cumulated frontend (code generation and clang-tidy excluded)")
+    print(f"  parsing cost:      {in_header:.0f} s in the header and its inclusions, "
+          f"that is {100 * in_header / frontend:.1f} % — an upper bound on what slimming the header saves")
     groups: dict[str, list[float]] = collections.defaultdict(lambda: [0, 0.0, 0.0])
     for path, _, fe, wd in rows:
         key = "test" if path.parts[1] == "test" else path.parts[3]
@@ -133,7 +133,7 @@ def main() -> int:
         groups[key][1] += fe
         groups[key][2] += wd
     for key, (count, fe, wd) in sorted(groups.items(), key=lambda kv: -kv[1][1]):
-        print(f"    {key:6s} {int(count):3d} unités  frontend {fe:6.1f} s  en-tête {wd:5.1f} s")
+        print(f"    {key:6s} {int(count):3d} units  frontend {fe:6.1f} s  header {wd:5.1f} s")
     return 0
 
 
