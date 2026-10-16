@@ -24,7 +24,6 @@ CLAUDE.md
 CMakeLists.txt
 CMakePresets.json
 CONTRIBUTING.md
-Makefile
 cliff.toml
 cmake/Ccache.cmake
 cmake/Coverage.cmake
