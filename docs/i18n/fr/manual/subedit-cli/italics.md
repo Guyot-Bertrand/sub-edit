@@ -24,7 +24,7 @@ est une erreur d'usage (code `1`).
 - Le texte est écrit **comme le format du fichier écrit l'italique** : `<i>…</i>` pour SubRip, WebVTT et
   SubViewer 2, `{\i1}…{\i0}` pour les deux Sub Station Alpha, `{Y:i}` pour MicroDVD.
 
-<!-- exemple: subedit-cli italics --help -->
+<!-- example: subedit-cli italics --help -->
 ```console
 $ subedit-cli italics --help
 Put the texts in italics, or take their italics out
@@ -66,7 +66,7 @@ Options:
 **Le texte principal par défaut ; la traduction avec `--document translation -t FILE`.** C'est alors
 la traduction qui est changée et écrite, et elle seule — voir [Une traduction](invocation.md#une-traduction).
 
-<!-- exemple: printf '1\n00:00:01,000 --> 00:00:02,000\n<i>bon</i>jour marie\n\n2\n00:00:03,000 --> 00:00:04,000\nBonjour\nMarie\n\n' > a.srt; subedit-cli italics --on --output i.srt a.srt; cat i.srt -->
+<!-- example: printf '1\n00:00:01,000 --> 00:00:02,000\n<i>bon</i>jour marie\n\n2\n00:00:03,000 --> 00:00:04,000\nBonjour\nMarie\n\n' > a.srt; subedit-cli italics --on --output i.srt a.srt; cat i.srt -->
 ```console
 $ printf '1\n00:00:01,000 --> 00:00:02,000\n<i>bon</i>jour marie\n\n2\n00:00:03,000 --> 00:00:04,000\nBonjour\nMarie\n\n' > a.srt; subedit-cli italics --on --output i.srt a.srt; cat i.srt
 a.srt: 2 subtitles put in italics -> i.srt
@@ -88,7 +88,7 @@ fichier, avec la raison**, et les autres fichiers du lot continuent. Ce qui comp
 format peut porter, non la façon dont il l'écrit : SubRip et WebVTT écrivent l'italique de la même
 manière, et ne disent pas la même chose de la couleur.
 
-<!-- exemple: printf '00:00:01:Hello there\n00:00:03:Bye\n' > a.txt; subedit-cli italics --on --output-dir sortie a.txt; echo "code=$?" -->
+<!-- example: printf '00:00:01:Hello there\n00:00:03:Bye\n' > a.txt; subedit-cli italics --on --output-dir sortie a.txt; echo "code=$?" -->
 ```console
 $ printf '00:00:01:Hello there\n00:00:03:Bye\n' > a.txt; subedit-cli italics --on --output-dir sortie a.txt; echo "code=$?"
 a.txt: TMPlayer writes no style: there are no italics to put on

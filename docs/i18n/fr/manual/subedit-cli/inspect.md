@@ -8,7 +8,7 @@ subedit-cli inspect [--frame-rate RATE] [--recursive] [--detail]
 Rapporte ce que chaque fichier contient. **Ne modifie rien et n'écrit aucun
 fichier.**
 
-<!-- exemple: subedit-cli inspect --help -->
+<!-- example: subedit-cli inspect --help -->
 ```console
 $ subedit-cli inspect --help
 Report what a subtitle file is made of
@@ -51,7 +51,7 @@ erreur.
 
 Une valeur que rien ne nomme est une erreur d'usage, donc le code `1` :
 
-<!-- exemple: subedit-cli inspect --frame-rate douze film.sub; echo $? -->
+<!-- example: subedit-cli inspect --frame-rate douze film.sub; echo $? -->
 ```console
 $ subedit-cli inspect --frame-rate douze film.sub; echo $?
 --frame-rate: "douze" is not a frame rate: expected frames per second, like 25 or 23.976
@@ -72,7 +72,7 @@ Avec `-t`, la traduction est posée sur le fichier **comme la fenêtre le fait �
 [Une traduction](invocation.md#une-traduction) — et le rapport dit **comment ses lignes ont trouvé leur
 sous-titre**. Un script sait ainsi si une traduction est alignée avant de la corriger.
 
-<!-- exemple: printf '1\n00:00:01,000 --> 00:00:02,000\nHello.\n\n2\n00:00:03,000 --> 00:00:04,000\nBye.\n\n' > film.srt; printf '1\n00:00:01,000 --> 00:00:02,000\nBonjour.\n\n' > film.fr.srt; subedit-cli --quiet inspect -t film.fr.srt film.srt | tail -3 -->
+<!-- example: printf '1\n00:00:01,000 --> 00:00:02,000\nHello.\n\n2\n00:00:03,000 --> 00:00:04,000\nBye.\n\n' > film.srt; printf '1\n00:00:01,000 --> 00:00:02,000\nBonjour.\n\n' > film.fr.srt; subedit-cli --quiet inspect -t film.fr.srt film.srt | tail -3 -->
 ```console
 $ printf '1\n00:00:01,000 --> 00:00:02,000\nHello.\n\n2\n00:00:03,000 --> 00:00:04,000\nBye.\n\n' > film.srt; printf '1\n00:00:01,000 --> 00:00:02,000\nBonjour.\n\n' > film.fr.srt; subedit-cli --quiet inspect -t film.fr.srt film.srt | tail -3
   anomalies: none
@@ -105,7 +105,7 @@ Le rapport va sur la **sortie standard** — c'est le résultat de la commande, 
 il est écrit à tous les niveaux, `--quiet` compris. Un bloc par fichier, précédé
 du chemin :
 
-<!-- exemple: printf '1\n00:00:01,000 --> 00:00:03,500\nLe canot dérive.\n\n2\n00:00:04,000 --> 00:00:06,200\nPersonne n a vu la côte.\n' > exemple.srt; subedit-cli --quiet inspect exemple.srt -->
+<!-- example: printf '1\n00:00:01,000 --> 00:00:03,500\nLe canot dérive.\n\n2\n00:00:04,000 --> 00:00:06,200\nPersonne n a vu la côte.\n' > exemple.srt; subedit-cli --quiet inspect exemple.srt -->
 ```console
 $ printf '1\n00:00:01,000 --> 00:00:03,500\nLe canot dérive.\n\n2\n00:00:04,000 --> 00:00:06,200\nPersonne n a vu la côte.\n' > exemple.srt; subedit-cli --quiet inspect exemple.srt
 exemple.srt
@@ -200,7 +200,7 @@ assemblé à partir de deux autres. Le nombre de suites est ce qui les sépare.
 Douze répliques posées sur une grille à 25 images par seconde — donc à des
 positions multiples de 40 millisecondes — étalées sur près de neuf minutes :
 
-<!-- exemple: k=0; while [ $k -lt 12 ]; do s=$((1000 + k*47000 + (k%3)*40)); e=$((s+2000)); k=$((k+1)); printf '%d\n%02d:%02d:%02d,%03d --> %02d:%02d:%02d,%03d\nRéplique %d.\n\n' $k $((s/3600000)) $((s/60000%60)) $((s/1000%60)) $((s%1000)) $((e/3600000)) $((e/60000%60)) $((e/1000%60)) $((e%1000)) $k; done > grille.srt; subedit-cli --quiet inspect grille.srt | tail -3 -->
+<!-- example: k=0; while [ $k -lt 12 ]; do s=$((1000 + k*47000 + (k%3)*40)); e=$((s+2000)); k=$((k+1)); printf '%d\n%02d:%02d:%02d,%03d --> %02d:%02d:%02d,%03d\nRéplique %d.\n\n' $k $((s/3600000)) $((s/60000%60)) $((s/1000%60)) $((s%1000)) $((e/3600000)) $((e/60000%60)) $((e/1000%60)) $((e%1000)) $k; done > grille.srt; subedit-cli --quiet inspect grille.srt | tail -3 -->
 ```console
 $ k=0; while [ $k -lt 12 ]; do s=$((1000 + k*47000 + (k%3)*40)); e=$((s+2000)); k=$((k+1)); printf '%d\n%02d:%02d:%02d,%03d --> %02d:%02d:%02d,%03d\nRéplique %d.\n\n' $k $((s/3600000)) $((s/60000%60)) $((s/1000%60)) $((s%1000)) $((e/3600000)) $((e/60000%60)) $((e/1000%60)) $((e%1000)) $k; done > grille.srt; subedit-cli --quiet inspect grille.srt | tail -3
   frame rate grid: 25 fps, clean (100.0%)
@@ -239,7 +239,7 @@ nécessairement du dehors, et le rapport dit lequel des deux dehors.
 **La fréquence décide de tout le reste du rapport.** `span` la traverse, et deux
 lectures du même fichier à deux fréquences donnent deux étendues :
 
-<!-- exemple: printf '{25}{75}Première.\n{100}{150}Deuxième.\n{200}{260}Troisième.\n' > images.sub; subedit-cli --quiet inspect images.sub | tail -3; subedit-cli --quiet inspect --frame-rate 25 images.sub | tail -3 -->
+<!-- example: printf '{25}{75}Première.\n{100}{150}Deuxième.\n{200}{260}Troisième.\n' > images.sub; subedit-cli --quiet inspect images.sub | tail -3; subedit-cli --quiet inspect --frame-rate 25 images.sub | tail -3 -->
 ```console
 $ printf '{25}{75}Première.\n{100}{150}Deuxième.\n{200}{260}Troisième.\n' > images.sub; subedit-cli --quiet inspect images.sub | tail -3; subedit-cli --quiet inspect --frame-rate 25 images.sub | tail -3
   span: 00:00:01.043 -> 00:00:10.844
@@ -276,7 +276,7 @@ l'est. Sur des débuts à `0`, `4 s`, `2 s`, `3 s` : le troisième rompt l'ordre
 quatrième suit pourtant le troisième et n'est donc pas nommé — il n'y a rien à
 faire de lui.
 
-<!-- exemple: printf '1\n00:00:00,000 --> 00:00:00,500\nA\n\n2\n00:00:04,000 --> 00:00:04,500\nB\n\n3\n00:00:02,000 --> 00:00:02,500\nC\n\n4\n00:00:03,000 --> 00:00:03,500\nD\n' > desordre.srt; subedit-cli --quiet inspect desordre.srt | tail -3 -->
+<!-- example: printf '1\n00:00:00,000 --> 00:00:00,500\nA\n\n2\n00:00:04,000 --> 00:00:04,500\nB\n\n3\n00:00:02,000 --> 00:00:02,500\nC\n\n4\n00:00:03,000 --> 00:00:03,500\nD\n' > desordre.srt; subedit-cli --quiet inspect desordre.srt | tail -3 -->
 ```console
 $ printf '1\n00:00:00,000 --> 00:00:00,500\nA\n\n2\n00:00:04,000 --> 00:00:04,500\nB\n\n3\n00:00:02,000 --> 00:00:02,500\nC\n\n4\n00:00:03,000 --> 00:00:03,500\nD\n' > desordre.srt; subedit-cli --quiet inspect desordre.srt | tail -3
   anomalies:
@@ -286,7 +286,7 @@ $ printf '1\n00:00:00,000 --> 00:00:00,500\nA\n\n2\n00:00:04,000 --> 00:00:04,50
 
 Et avec `--detail`, le sous-titre nommé :
 
-<!-- exemple: printf '1\n00:00:00,000 --> 00:00:00,500\nA\n\n2\n00:00:04,000 --> 00:00:04,500\nB\n\n3\n00:00:02,000 --> 00:00:02,500\nC\n\n4\n00:00:03,000 --> 00:00:03,500\nD\n' > desordre.srt; subedit-cli --quiet inspect --detail desordre.srt | tail -3 -->
+<!-- example: printf '1\n00:00:00,000 --> 00:00:00,500\nA\n\n2\n00:00:04,000 --> 00:00:04,500\nB\n\n3\n00:00:02,000 --> 00:00:02,500\nC\n\n4\n00:00:03,000 --> 00:00:03,500\nD\n' > desordre.srt; subedit-cli --quiet inspect --detail desordre.srt | tail -3 -->
 ```console
 $ printf '1\n00:00:00,000 --> 00:00:00,500\nA\n\n2\n00:00:04,000 --> 00:00:04,500\nB\n\n3\n00:00:02,000 --> 00:00:02,500\nC\n\n4\n00:00:03,000 --> 00:00:03,500\nD\n' > desordre.srt; subedit-cli --quiet inspect --detail desordre.srt | tail -3
   anomalies:
@@ -330,7 +330,7 @@ débuts), `offset_ms`, `also_fits` (la cadence dont celle-ci est un diviseur ent
 `null`), `not_separated` (les cadences qu'une étendue trop courte ne sépare pas), `strays`
 (les débuts hors grille) et `starts`.
 
-<!-- exemple: printf '{25}{50}Un.\n{75}{100}Deux.\n' > f.sub; subedit-cli --format json inspect --frame-rate 25 f.sub 2>/dev/null -->
+<!-- example: printf '{25}{50}Un.\n{75}{100}Deux.\n' > f.sub; subedit-cli --format json inspect --frame-rate 25 f.sub 2>/dev/null -->
 ```console
 $ printf '{25}{50}Un.\n{75}{100}Deux.\n' > f.sub; subedit-cli --format json inspect --frame-rate 25 f.sub 2>/dev/null
 {"schema":1,"command":"inspect","file":"f.sub","ok":true,"format":"microdvd","encoding":{"charset":"UTF-8","origin":"detected","byte_order_mark":false},"line_endings":{"kind":"lf","mixed_from_line":null},"subtitles":2,"span_ms":{"start":1000,"end":4000},"frame_rate":{"rate":"25","origin":"asked"},"grid":null,"anomalies":[],"warnings":[]}
@@ -373,7 +373,7 @@ est écrite une fois, au noyau.
 Un fichier vide ne correspond à aucun format. Il n'est pas rapporté comme vide :
 il est refusé, et nommé.
 
-<!-- exemple: : > vide.srt; subedit-cli inspect vide.srt; echo "code=$?" -->
+<!-- example: : > vide.srt; subedit-cli inspect vide.srt; echo "code=$?" -->
 ```console
 $ : > vide.srt; subedit-cli inspect vide.srt; echo "code=$?"
 vide.srt: is in no format this tool knows

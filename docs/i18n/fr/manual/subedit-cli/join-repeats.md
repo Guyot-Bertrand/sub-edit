@@ -23,7 +23,7 @@ reportée à la plus grande fin de la suite ; les autres disparaissent.
 - **À faire avant le reste** : le tri et le [découpage des chevauchements](disjoint.md) lisent mieux une suite propre.
   [`repair`](repair.md) enchaîne les trois, et [`convert`](convert.md#rendre-les-plages-disjointes) l'accepte en option (`--join-repeats`, `--repair`).
 
-<!-- exemple: subedit-cli join-repeats --help -->
+<!-- example: subedit-cli join-repeats --help -->
 ```console
 $ subedit-cli join-repeats --help
 Join the subtitles that repeat each other, one after the other, into one
@@ -50,7 +50,7 @@ Options:
 | `--output` / `--output-dir` / `--in-place` | **l'une des trois**, sauf avec `--dry-run` | voir [Invocation](invocation.md#la-destination) | — |
 | `--dry-run` | non | un drapeau : calcule et dit, n'écrit rien — voir [Voir avant d'écrire](invocation.md#voir-avant-décrire) | désactivé |
 
-<!-- exemple: printf '1\n00:00:01,000 --> 00:00:02,000\nAlpha\n\n2\n00:00:02,000 --> 00:00:04,000\nAlpha\n\n3\n00:00:04,000 --> 00:00:06,000\nAlpha\n\n4\n00:00:08,000 --> 00:00:09,000\nBeta\n\n' > morceaux.srt; subedit-cli join-repeats --output joint.srt morceaux.srt; cat joint.srt -->
+<!-- example: printf '1\n00:00:01,000 --> 00:00:02,000\nAlpha\n\n2\n00:00:02,000 --> 00:00:04,000\nAlpha\n\n3\n00:00:04,000 --> 00:00:06,000\nAlpha\n\n4\n00:00:08,000 --> 00:00:09,000\nBeta\n\n' > morceaux.srt; subedit-cli join-repeats --output joint.srt morceaux.srt; cat joint.srt -->
 ```console
 $ printf '1\n00:00:01,000 --> 00:00:02,000\nAlpha\n\n2\n00:00:02,000 --> 00:00:04,000\nAlpha\n\n3\n00:00:04,000 --> 00:00:06,000\nAlpha\n\n4\n00:00:08,000 --> 00:00:09,000\nBeta\n\n' > morceaux.srt; subedit-cli join-repeats --output joint.srt morceaux.srt; cat joint.srt
 morceaux.srt: 2 repeated subtitles joined -> joint.srt

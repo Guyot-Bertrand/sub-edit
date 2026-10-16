@@ -1,32 +1,32 @@
 #!/usr/bin/env bash
-# Verse les mesures d'une exécution de benchmarks dans le journal.
+# Pours the measurements of a benchmark run into the journal.
 #
-# La source est la sortie XML de Catch2, jamais sa sortie console : Catch2
-# replie ses lignes à 70 colonnes et concatène les orthographes d'un même tag,
-# donc analyser l'affichage reviendrait à deviner sa mise en page. Son
-# rapporteur JSON serait plus commode mais n'émet rien pour les benchmarks —
-# `benchmarkEnded` y a un corps vide. XML ou rien.
+# The source is Catch2's XML output, never its console output: Catch2 wraps its
+# lines at 70 columns and concatenates the spellings of a same tag, so parsing
+# the display would amount to guessing its layout. Its JSON reporter would be
+# handier but emits nothing for benchmarks — `benchmarkEnded` has an empty body
+# there. XML or nothing.
 #
-# Les valeurs du XML sont en NANOSECONDES, parfois en notation scientifique.
+# The values of the XML are in NANOSECONDS, sometimes in scientific notation.
 #
-# python3 sert à lire le XML : dépendance déjà acquise, gcovr en est écrit.
-# On s'en tient à xml.etree de la bibliothèque standard, et non à defusedxml :
-# le fichier lu est produit par notre propre binaire dans build/, il n'entre
-# jamais depuis l'extérieur, et ajouter une dépendance Python pour relire notre
-# propre sortie irait contre la règle de dépendances du projet (ADR 0004). Si
-# ce script devait un jour lire un XML d'origine tierce, la question se
-# reposerait — et se trancherait dans l'autre sens.
+# python3 reads the XML: a dependency already acquired, gcovr is written in it.
+# We stick to xml.etree from the standard library, and not to defusedxml: the
+# file read is produced by our own binary in build/, it never comes in from
+# outside, and adding a Python dependency to reread our own output would go
+# against the project's dependency rule (ADR 0004). Should this script one day
+# read an XML of third-party origin, the question would come up again — and be
+# settled the other way.
 
 set -euo pipefail
 
 readonly REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 readonly RETENTION_DAYS=31
 
-# Le journal est un paramètre, pour la raison qui a donné `--input` à
-# prune-runs.sh : **ce que ce script décide est une fonction du journal qu'il
-# lit**, donc cela se démontre sur un journal écrit à la main. Sans cela, la
-# seule façon d'éprouver le choix des extrêmes serait de le faire écrire dans
-# le fichier versionné du dépôt, ce qu'aucune preuve ne peut se permettre.
+# The journal is a parameter, for the reason that gave `--input` to
+# prune-runs.sh: **what this script decides is a function of the journal it
+# reads**, so it is demonstrated on a hand-written journal. Without it, the only
+# way to test the choice of extremes would be to make it write into the
+# repository's tracked file, which no proof can afford.
 journal="${REPO_ROOT}/docs/mesures/performances.md"
 
 readonly GREEN=$'\033[32m'
@@ -39,18 +39,18 @@ below=""
 
 usage() {
     cat >&2 <<'USAGE'
-usage: record-bench.sh --xml <sortie.xml> --mode <mode> --load <charge> --below <seuil>
-                       [--journal <fichier>]
+usage: record-bench.sh --xml <output.xml> --mode <mode> --load <load> --below <threshold>
+                       [--journal <file>]
 
-  --xml    la sortie du rapporteur XML de Catch2
-  --mode   le mode de compilation à consigner dans l'en-tête de section
-           (ex. Release) — c'est à l'appelant de le dire, pas au script de
-           le supposer : lui seul sait quel preset CMake a produit le binaire.
-  --load   la charge de la machine au moment de mesurer, ou « unknown »
-  --below  le seuil sous lequel une mesure compte comme propre
-  --journal  le journal à écrire (défaut : docs/mesures/performances.md) —
-             c'est ce qui permet d'éprouver le choix des extrêmes sur un
-             journal jetable plutôt que sur celui du dépôt
+  --xml    the output of Catch2's XML reporter
+  --mode   the build mode to record in the section header (e.g. Release) —
+           the caller says it, the script does not assume it: only the caller
+           knows which CMake preset produced the binary.
+  --load   the machine's load at the time of measuring, or "unknown"
+  --below  the threshold under which a measurement counts as clean
+  --journal  the journal to write (default: docs/mesures/performances.md) —
+             this is what lets the choice of extremes be tested on a
+             disposable journal rather than on the repository's
 USAGE
     exit 2
 }
@@ -63,7 +63,7 @@ while (( $# > 0 )); do
         --below) [[ $# -ge 2 ]] || usage; below="$2"; shift 2 ;;
         --journal) [[ $# -ge 2 ]] || usage; journal="$2"; shift 2 ;;
         -h|--help) usage ;;
-        *) printf 'argument inconnu : %s\n' "$1" >&2; usage ;;
+        *) printf 'unknown argument: %s\n' "$1" >&2; usage ;;
     esac
 done
 
@@ -71,12 +71,12 @@ done
 [[ -n "${mode}" ]] || usage
 [[ -n "${load}" ]] || usage
 [[ -n "${below}" ]] || usage
-[[ -f "${xml}" ]] || { printf 'sortie XML introuvable : %s\n' "${xml}" >&2; exit 1; }
-[[ -f "${journal}" ]] || { printf 'journal introuvable : %s\n' "${journal}" >&2; exit 1; }
+[[ -f "${xml}" ]] || { printf 'XML output not found: %s\n' "${xml}" >&2; exit 1; }
+[[ -f "${journal}" ]] || { printf 'journal not found: %s\n' "${journal}" >&2; exit 1; }
 
 version="$(sed -n 's/^[[:space:]]*VERSION[[:space:]]\+\([0-9][0-9.]*\)[[:space:]]*$/\1/p' \
     "${REPO_ROOT}/CMakeLists.txt" | head -1)"
-[[ -n "${version}" ]] || { printf 'version illisible dans CMakeLists.txt\n' >&2; exit 1; }
+[[ -n "${version}" ]] || { printf 'unreadable version in CMakeLists.txt\n' >&2; exit 1; }
 
 python3 - "${xml}" "${journal}" "${version}" "$(date +%Y-%m-%d)" "${RETENTION_DAYS}" "${mode}" \
     "${load}" "${below}" <<'PY'
@@ -95,11 +95,11 @@ today_date = datetime.date.fromisoformat(today)
 root = ET.parse(xml_path).getroot()
 results = list(root.iter("BenchmarkResults"))
 if not results:
-    sys.exit("aucune mesure dans le XML : le binaire a-t-il des benchmarks ?")
+    sys.exit("no measurement in the XML: does the binary have benchmarks?")
 
 
 def humanise(nanoseconds):
-    """Rend une durée lisible sans perdre trois chiffres significatifs."""
+    """Makes a duration readable without losing three significant digits."""
     for limit, unit, factor in (
         (1e3, "ns", 1.0),
         (1e6, "µs", 1e3),
@@ -112,7 +112,7 @@ def humanise(nanoseconds):
 
 
 def escape_cell(text):
-    """Protège une cellule de table markdown contre un '|' dans le nom."""
+    """Protects a markdown table cell against a '|' in the name."""
     return text.replace("|", "\\|")
 
 
@@ -120,11 +120,11 @@ UNITS = {"ns": 1.0, "µs": 1e3, "ms": 1e6, "s": 1e9}
 
 
 def dehumanise(cell):
-    """Relit une durée écrite par humanise(), en nanosecondes.
+    """Rereads a duration written by humanise(), in nanoseconds.
 
-    Trois chiffres significatifs, donc à un pour mille près. Assez pour juger
-    si un relevé tourne dix pour cent au-dessus des précédents, et c'est le
-    seul usage qui en est fait.
+    Three significant digits, so to within one per thousand. Enough to judge
+    whether a record runs ten per cent above the previous ones, and that is the
+    only use made of it.
     """
     match = re.match(r"^([0-9.eE+-]+)\s*(ns|µs|ms|s)$", cell.strip())
     if match is None:
@@ -144,13 +144,13 @@ for entry in results:
     mean = entry.find("mean")
     deviation = entry.find("standardDeviation")
     if mean is None or deviation is None:
-        # Un benchmark en échec à l'exécution ne porte pas de <mean> — Catch2
-        # y met un <failed/> à la place. Sans ce garde-fou, mean.get("value")
-        # lève une AttributeError brute : une pile Python plutôt que le ✗
-        # attendu du reste de ce script.
+        # A benchmark failing at run time carries no <mean> — Catch2 puts a
+        # <failed/> there instead. Without this guard, mean.get("value") raises
+        # a raw AttributeError: a Python stack rather than the ✗ expected from
+        # the rest of this script.
         sys.exit(
-            f"✗ benchmark en échec à l'exécution : {entry.get('name')!r} — "
-            "corriger le benchmark avant de rejouer make bench."
+            f"✗ benchmark failed at run time: {entry.get('name')!r} — "
+            "fix the benchmark before replaying make bench."
         )
     measures.append(
         {
@@ -163,44 +163,43 @@ for entry in results:
 with open(journal_path, encoding="utf-8") as handle:
     document = handle.read()
 
-# Les deux ancres qui délimitent les trois zones du journal (préambule, table
-# des extrêmes, relevés) doivent apparaître exactement une fois chacune. Une
-# ancre absente — titre renommé, ligne effacée par une fusion mal résolue —
-# ne fait planter ni partition() ni le regex qui suit : le premier rend une
-# moitié vide, le second ne trouve simplement rien à reconduire, et la table
-# des extrêmes se reconstruirait alors depuis le seul run courant (min == max
-# partout), la section « ## Records » se dupliquerait, et tout cela passerait
-# pour un ✓. C'est le bug que le commit 0b3ac03 a déjà corrigé une fois, un
-# cran plus loin dans le pipeline ; le vérifier ici ferme l'autre bout.
+# The two anchors that delimit the three zones of the journal (preamble,
+# table of extremes, records) must appear exactly once each. A missing anchor —
+# renamed title, line erased by a badly resolved merge — crashes neither
+# partition() nor the regex that follows: the first returns an empty half, the
+# second simply finds nothing to carry over, and the table of extremes would
+# then be rebuilt from the current run alone (min == max everywhere), the
+# "## Records" section would be duplicated, and all of it would pass for a ✓.
+# It is the bug commit 0b3ac03 already fixed once, one step further down the
+# pipeline; checking it here closes the other end.
 #
-# Un marqueur de conflit git non résolu (<<<<<<<, =======, >>>>>>>) est le cas
-# concret le plus probable : make bench versionne performances.md à chaque
-# PR, donc une fusion qui touche ce fichier est désormais le cas normal, pas
-# l'exception. Un conflit dans la table des extrêmes laissé par un `git add`
-# hâtif se lirait comme un journal propre et perdrait silencieusement un
-# extrême.
+# An unresolved git conflict marker (<<<<<<<, =======, >>>>>>>) is the most
+# likely concrete case: make bench commits performances.md with every PR, so a
+# merge that touches this file is now the normal case, not the exception. A
+# conflict in the table of extremes left by a hasty `git add` would read as a
+# clean journal and silently lose an extreme.
 anchors = {"<!-- extremes -->": document.count("<!-- extremes -->"), "<!-- records -->": document.count("<!-- records -->")}
 bad_anchors = {name: count for name, count in anchors.items() if count != 1}
 if bad_anchors:
-    details = ", ".join(f"{name!r} : {count} fois" for name, count in bad_anchors.items())
+    details = ", ".join(f"{name!r}: {count} times" for name, count in bad_anchors.items())
     sys.exit(
-        f"journal incohérent, une seule occurrence attendue par ancre ({details}) — "
-        "corriger le journal à la main avant de rejouer make bench."
+        f"inconsistent journal, a single occurrence expected per anchor ({details}) — "
+        "fix the journal by hand before replaying make bench."
     )
 
 conflict_pattern = re.compile(r"^(<{7} |={7}$|>{7} )", re.MULTILINE)
 if conflict_pattern.search(document):
     sys.exit(
-        "journal incohérent : marqueur de conflit git détecté — "
-        "corriger le journal à la main avant de rejouer make bench."
+        "inconsistent journal: git conflict marker detected — "
+        "fix the journal by hand before replaying make bench."
     )
 
-# --- relevés : une section par version, la nouvelle remplaçant l'ancienne ---
+# --- records: one section per version, the new one replacing the old one ---
 #
-# Le motif ne contraint que l'ouverture d'une section (« ### » en tête de
-# ligne) : une section dont l'en-tête ne respecte pas la forme attendue est
-# tout de même capturée, pour ne jamais la perdre. header_pattern décide
-# ensuite si elle est comprise ou non.
+# The pattern constrains only the opening of a section ("###" at the start of a
+# line): a section whose header does not follow the expected form is captured
+# all the same, so that it is never lost. header_pattern then decides whether
+# it is understood or not.
 section_pattern = re.compile(r"^### .*?(?=^### |\Z)", re.MULTILINE | re.DOTALL)
 header_pattern = re.compile(r"^### (?P<version>\S+) — (?P<date>\d{4}-\d{2}-\d{2})")
 
@@ -211,47 +210,46 @@ for match in section_pattern.finditer(records):
     block = match.group(0)
     header = header_pattern.match(block)
     if header is None:
-        # Section illisible : on ne connaît pas sa date, donc on ne peut pas
-        # décider de l'élaguer. La perdre serait pire qu'un journal qui
-        # grossit — on la garde telle quelle et on le signale.
+        # Unreadable section: its date is unknown, so pruning it cannot be
+        # decided. Losing it would be worse than a journal that grows — it is
+        # kept as is and reported.
         print(
-            "avertissement : section de relevé illisible conservée telle "
-            f"quelle : {block.splitlines()[0]!r}",
+            "warning: unreadable record section kept as is: "
+            f"{block.splitlines()[0]!r}",
             file=sys.stderr,
         )
         kept.append(block.rstrip())
         continue
     if header.group("version") == version:
-        continue  # remplacée par le relevé courant
+        continue  # replaced by the current record
     age = (today_date - datetime.date.fromisoformat(header.group("date"))).days
     if age <= retention:
         kept.append(block.rstrip())
 
-# --- l'allure d'un relevé : ce qu'il vaut comparé à ceux d'avant ---
+# --- the pace of a record: what it is worth compared with the previous ones ---
 #
-# Le rapport médian, mesure par mesure, entre ce relevé et la médiane des
-# PACE_WINDOW précédents. Médian, parce qu'une seule mesure qui s'emballe ne
-# dit rien de la machine, alors que la moitié d'entre elles qui glissent
-# ensemble le dit.
+# The median ratio, measure by measure, between this record and the median of
+# the PACE_WINDOW previous ones. Median, because a single measure running away
+# says nothing about the machine, whereas half of them drifting together does.
 #
-# **C'est un diagnostic, pas un critère**, et cette distinction a été payée.
-# L'allure a été essayée à la place de la charge, pour l'issue #168 : elle
-# semblait mesurer la bonne chose — « ce relevé est-il lent ? » plutôt que
-# « la machine était-elle occupée il y a une minute ? ». La mesure a tranché
-# dans l'autre sens. Sur les sept cent quarante-deux mesures comparables du
-# journal, la charge en admet trois cent soixante et une dont quatre pointes
-# au-delà de 1,5 fois leurs voisines ; l'allure en admettrait cinq cent
-# quatre-vingt-quatorze, dont vingt-cinq pointes.
+# **It is a diagnostic, not a criterion**, and that distinction was paid for.
+# The pace was tried instead of the load, for issue #168: it seemed to measure
+# the right thing — "is this record slow?" rather than "was the machine busy a
+# minute ago?". The measurement settled it the other way. Out of the seven
+# hundred and forty-two comparable measures of the journal, the load admits
+# three hundred and sixty-one, with four spikes beyond 1.5 times their
+# neighbours; the pace would admit five hundred and ninety-four, with
+# twenty-five spikes.
 #
-# La raison est nette une fois vue : **une machine occupée ne ralentit pas
-# tous les benchmarks, elle en ralentit quelques-uns.** Le relevé 0.4.18
-# tournait à l'allure 1,04 sous une charge de 6,57, et portait pourtant trois
-# mesures à plus du double de leurs voisines. Un critère qui juge le relevé
-# entier ne peut pas voir cela ; la charge, elle, écarte le relevé.
+# The reason is clear once seen: **a busy machine does not slow down every
+# benchmark, it slows down a few.** Record 0.4.18 ran at pace 1.04 under a load
+# of 6.57, and yet carried three measures at more than twice their neighbours.
+# A criterion that judges the whole record cannot see that; the load, for its
+# part, discards the record.
 #
-# L'allure reste écrite dans l'en-tête parce qu'elle répond à la question
-# qu'on se pose vraiment devant un relevé qui pose dix maxima d'un coup — et
-# que faute d'elle, cette question a été mal tranchée une fois.
+# The pace stays written in the header because it answers the question one
+# really asks in front of a record that sets ten maxima at once — and for lack
+# of it, that question was once settled wrongly.
 PACE_WINDOW = 3
 PACE_MINIMUM_MEASURES = 5
 
@@ -259,10 +257,10 @@ row_pattern = re.compile(r"^\| (?P<name>.+?) \| (?P<mean>[^|]+?) \| (?P<sd>[^|]+
 
 
 def read_means(block):
-    """Relit les moyennes d'un relevé déjà écrit.
+    """Rereads the means of a record already written.
 
-    Seules les moyennes : l'en-tête n'a rien à apprendre ici, et le lire
-    demanderait un motif de plus à tenir en accord avec celui qui l'écrit.
+    Only the means: the header has nothing to teach here, and reading it would
+    need one more pattern to keep in agreement with the one that writes it.
     """
     means = {}
     for row in row_pattern.finditer(block):
@@ -273,10 +271,10 @@ def read_means(block):
 
 
 def read_spreads(block):
-    """La dispersion de chaque mesure d'un relevé : son écart-type sur sa moyenne.
+    """The dispersion of each measure of a record: its standard deviation over its mean.
 
-    Sans unité, donc comparable d'une mesure à l'autre — ce qu'un écart-type
-    nu n'est pas, une nanoseconde et une milliseconde ne se comparant pas.
+    Unitless, so comparable from one measure to another — which a bare standard
+    deviation is not, a nanosecond and a millisecond not being comparable.
     """
     spreads = {}
     for row in row_pattern.finditer(block):
@@ -288,10 +286,10 @@ def read_spreads(block):
 
 
 def pace_of(means, previous):
-    """L'allure de `means` face à `previous`, du plus récent au plus ancien.
+    """The pace of `means` against `previous`, from the most recent to the oldest.
 
-    Rend None quand l'historique est trop court pour trancher — les premiers
-    relevés du journal, et ceux dont les mesures viennent d'être renommées.
+    Returns None when the history is too short to decide — the first records of
+    the journal, and those whose measures have just been renamed.
     """
     ratios = []
     for name, value in means.items():
@@ -306,15 +304,15 @@ def pace_of(means, previous):
     return statistics.median(ratios)
 
 
-# Une charge illisible — pas de /proc — ne vaut pas condamnation : la mesure est
-# consignée telle quelle, sans qualité affirmée, et elle ne fixe pas d'extrême
-# non plus. Affirmer qu'elle est propre serait affirmer ce qu'on n'a pas vu.
+# An unreadable load — no /proc — is no condemnation: the measurement is
+# recorded as is, with no quality claimed, and it sets no extreme either.
+# Claiming it clean would be claiming what was not seen.
 try:
     quiet = float(load) < float(below)
 except ValueError:
     quiet = False
 
-# `kept` est du plus récent au plus ancien : c'est l'ordre qu'attend pace_of.
+# `kept` runs from the most recent to the oldest: the order pace_of expects.
 history = [means for means in (read_means(block) for block in kept) if means]
 
 current_means = {measure["name"]: measure["mean"] for measure in measures}
@@ -330,12 +328,12 @@ current = "\n".join(lines)
 
 new_records = "\n\n".join([current] + kept)
 
-# --- extrêmes : jamais élagués, mis à jour si un record tombe ---
+# --- extremes: never pruned, updated when a record falls ---
 #
-# Les colonnes de date exigent la forme « version — AAAA-MM-JJ » : sans cette
-# contrainte, l'en-tête (« Recorded on ») et la ligne de séparation (« :--- »)
-# du tableau markdown sont elles aussi des lignes « | ... | ... | ... | ... |
-# ... | » valides, et se glisseraient dans `known` comme de fausses mesures.
+# The date columns require the form "version — YYYY-MM-DD": without that
+# constraint, the header ("Recorded on") and the separator line (":---") of the
+# markdown table are valid "| ... | ... | ... | ... | ... |" lines too, and would
+# slip into `known` as false measures.
 extreme_pattern = re.compile(
     r"^\| (?P<name>.+?) \| (?P<min>[^|]+?) \| "
     r"(?P<minsrc>\S+ — \d{4}-\d{2}-\d{2}) \| "
@@ -354,90 +352,89 @@ for match in extreme_pattern.finditer(extremes_block):
         "maxsrc": match.group("maxsrc").strip(),
     }
 
-# Les valeurs affichées sont arrondies ; on garde la valeur brute en commentaire
-# de ligne pour pouvoir comparer sans reparser du texte mis en forme.
+# The displayed values are rounded; the raw value is kept in a line comment so
+# that comparing needs no reparsing of formatted text.
 raw_pattern = re.compile(r"<!-- (?P<name>.+?) min=(?P<min>\S+) max=(?P<max>\S+) -->")
 raw = {
     match.group("name"): (float(match.group("min")), float(match.group("max")))
     for match in raw_pattern.finditer(extremes_block)
 }
 
-# Le tableau visible et les commentaires bruts sont deux écritures du même
-# état ; ils doivent porter exactement les mêmes noms. S'ils divergent — une
-# ligne effacée à la main, un merge qui n'a touché que l'un des deux — les
-# valeurs brutes ne sont plus dignes de confiance : mieux vaut arrêter que
-# réinitialiser en silence des extrêmes historiques.
+# The visible table and the raw comments are two writings of the same state;
+# they must carry exactly the same names. If they diverge — a line erased by
+# hand, a merge that touched only one of the two — the raw values can no longer
+# be trusted: better to stop than to silently reset historical extremes.
 if set(known) != set(raw):
     only_table = sorted(set(known) - set(raw))
     only_comments = sorted(set(raw) - set(known))
     details = []
     if only_table:
-        details.append(f"seulement dans le tableau visible : {only_table}")
+        details.append(f"only in the visible table: {only_table}")
     if only_comments:
-        details.append(f"seulement dans les commentaires bruts : {only_comments}")
+        details.append(f"only in the raw comments: {only_comments}")
     sys.exit(
-        "table des extrêmes incohérente entre le tableau visible et les "
-        "commentaires bruts (" + " ; ".join(details) + ") — "
-        "corriger le journal à la main avant de rejouer make bench."
+        "table of extremes inconsistent between the visible table and the "
+        "raw comments (" + "; ".join(details) + ") — "
+        "fix the journal by hand before replaying make bench."
     )
 
 stamp = f"{version} — {today}"
 
 current_means = {measure["name"]: measure["mean"] for measure in measures}
 
-# La table des extrêmes n'est jamais élaguée : une mesure absente du relevé
-# courant — renommée, filtrée par une étiquette Catch2, retirée — garde son
-# minimum, son maximum et leurs dates tels quels plutôt que de disparaître.
-# L'ordre déjà présent dans le journal est conservé ; les mesures nouvelles
-# sont ajoutées à la suite, dans l'ordre où le XML les rapporte.
+# The table of extremes is never pruned: a measure absent from the current
+# record — renamed, filtered by a Catch2 tag, removed — keeps its minimum, its
+# maximum and their dates as they are rather than disappearing. The order
+# already present in the journal is kept; new measures are appended after it,
+# in the order the XML reports them.
 #
-# **Une mesure neuve n'y entre que sur un relevé propre**, et cette garde a été
-# payée. Sans elle, elle posait ses deux extrêmes au premier relevé qui la
-# portait, **même sale** : faute d'avoir quelque chose à comparer, la règle qui
-# protège l'enveloppe n'avait rien à refuser, et le seuil de charge ne
-# s'appliquait donc jamais à ce qui venait de naître. Les quatre mesures vidéo
-# de la phase 6 sont nées ainsi sous une charge de 5,73, et la table a dû être
-# corrigée à la main. Laissée hors de la table, une mesure neuve y entrera au
-# premier relevé calme — le journal montre son chiffre entre-temps.
-# ## La dispersion, second critère d'admission — issue #202
+# **A new measure enters it only on a clean record**, and that guard was paid
+# for. Without it, a new measure set its two extremes at the first record that
+# carried it, **even a dirty one**: having nothing to compare against, the rule
+# that protects the envelope had nothing to refuse, and the load threshold thus
+# never applied to what had just been born. The four video measures of phase 6
+# were born that way under a load of 5.73, and the table had to be corrected by
+# hand. Kept out of the table, a new measure will enter it at the first quiet
+# record — the journal shows its figure meanwhile.
+# ## Dispersion, the second admission criterion — issue #202
 #
-# **Le seuil de charge lit la machine ; il ne lit pas la mesure.** Un relevé pris
-# à charge 1,44 — donc admis — a posé un maximum définitif sur un ticket qui ne
-# changeait aucun `.cpp`. Sa moyenne était haute de 10 %, et son écart-type valait
-# 26 % de sa moyenne là où cette mesure-là se tient entre 3 et 8 %. La mesure
-# disait elle-même qu'elle ne valait rien, et personne ne l'écoutait.
+# **The load threshold reads the machine; it does not read the measure.** A
+# record taken at load 1.44 — hence admitted — set a final maximum on a ticket
+# that changed no `.cpp`. Its mean was 10 % high, and its standard deviation was
+# worth 26 % of its mean where that measure stays between 3 and 8 %. The measure
+# itself said it was worthless, and nobody listened.
 #
-# **Le critère est relatif à la mesure, et il le fallait.** La dispersion médiane
-# du journal est de 17 %, et elle va de 3,8 % pour la mise à l'échelle d'un
-# rationnel à 43,6 % pour un décalage de quatre mille sous-titres. Un seuil unique
-# à 10 %, tel que l'issue le proposait, refuserait plus d'une mesure sur deux ;
-# pesé sur le journal il fait tomber les maxima posés de 134 à 84 pour n'en
-# épargner que huit de mauvais. Ce qui compte n'est pas qu'une mesure soit
-# dispersée, c'est qu'elle le soit **plus que d'habitude**.
+# **The criterion is relative to the measure, and it had to be.** The median
+# dispersion of the journal is 17 %, and it ranges from 3.8 % for scaling a
+# rational to 43.6 % for shifting four thousand subtitles. A single threshold at
+# 10 %, as the issue proposed, would refuse more than one measure in two;
+# weighed on the journal it brings the maxima set down from 134 to 84 while
+# sparing only eight bad ones. What matters is not that a measure is dispersed,
+# it is that it is **more so than usual**.
 #
-# **Le facteur vaut un quart au-dessus de la médiane**, et c'est là que la courbe
-# tourne — mesuré sur les 87 relevés du journal, en comptant les maxima posés et
-# ceux que les relevés suivants démentent :
+# **The factor is a quarter above the median**, and that is where the curve
+# turns — measured on the 87 records of the journal, counting the maxima set and
+# those the following records contradict:
 #
-#     charge seule                 134 maxima posés, 11 démentis (8,2 %)
-#     charge et dispersion x1,0    119 posés,  4 démentis (3,4 %)
-#     charge et dispersion x1,25   126 posés,  4 démentis (3,2 %)
-#     charge et dispersion x1,5    121 posés,  5 démentis (4,1 %)
-#     charge et dispersion x2,0    131 posés,  6 démentis (4,6 %)
+#     load alone                   134 maxima set, 11 contradicted (8.2 %)
+#     load and dispersion x1.0     119 set,  4 contradicted (3.4 %)
+#     load and dispersion x1.25    126 set,  4 contradicted (3.2 %)
+#     load and dispersion x1.5     121 set,  5 contradicted (4.1 %)
+#     load and dispersion x2.0     131 set,  6 contradicted (4.6 %)
 #
-# `analyse-bench-journal.py` rejoue ce calcul ; le seuil se relève ou se resserre
-# sur des chiffres et non sur une opinion.
+# `analyse-bench-journal.py` replays that computation; the threshold is raised
+# or tightened on figures and not on an opinion.
 #
-# **Il s'ajoute à la charge, il ne la remplace pas.** Les deux n'attrapent pas le
-# même défaut, et la dispersion seule est nettement moins bonne — 24 pointes
-# admises contre 5. La charge se lit de plus **avant** de mesurer, ce qui permet
-# de renoncer ; la dispersion ne se connaît qu'après.
+# **It adds to the load, it does not replace it.** The two do not catch the
+# same defect, and dispersion alone is clearly worse — 24 spikes admitted
+# against 5. The load, moreover, is read **before** measuring, which allows
+# giving up; the dispersion is known only afterwards.
 SPREAD_FACTOR = 1.25
 
-# En deçà de tant de relevés, la médiane d'une mesure ne dit rien et le critère
-# ne s'applique pas — la charge reste seule juge. Une mesure neuve est déjà
-# tenue par la règle de #189, qui la laisse hors de la table jusqu'au premier
-# relevé calme.
+# Below that many records, the median of a measure says nothing and the
+# criterion does not apply — the load remains the only judge. A new measure is
+# already held by the rule of #189, which keeps it out of the table until the
+# first quiet record.
 SPREAD_MINIMUM = 5
 
 history_spreads = {}
@@ -453,7 +450,7 @@ current_spreads = {
 
 
 def steady(name):
-    """Cette mesure-ci est-elle assez peu dispersée pour toucher à l'enveloppe ?"""
+    """Is this measure dispersed little enough to touch the envelope?"""
     seen = history_spreads.get(name, [])
     if len(seen) < SPREAD_MINIMUM or name not in current_spreads:
         return True
@@ -461,7 +458,7 @@ def steady(name):
 
 
 def admits(name):
-    """Les deux critères, et il en faut deux."""
+    """Both criteria, and it takes both."""
     return quiet and steady(name)
 
 
@@ -471,10 +468,10 @@ ordered_names = list(known) + [name for name in newcomers if admits(name)]
 
 
 def posed_by_replaced(source):
-    """Cet extrême vient-il du relevé que celui-ci remplace ?
+    """Does this extreme come from the record this one replaces?
 
-    La comparaison porte sur la version seule : c'est elle qui décide du
-    remplacement d'une section, quelle que soit la date qui l'accompagne.
+    The comparison bears on the version alone: it is what decides the
+    replacement of a section, whatever the date that comes with it.
     """
     return source.split(" — ")[0] == version
 
@@ -485,7 +482,7 @@ withheld = []
 stale = []
 for name in ordered_names:
     if name not in current_means:
-        # Non mesurée cette fois : recopiée sans y toucher.
+        # Not measured this time: copied without touching it.
         low, high = raw[name]
         minsrc, maxsrc = known[name]["minsrc"], known[name]["maxsrc"]
     else:
@@ -494,12 +491,12 @@ for name in ordered_names:
             low, high = raw[name]
             minsrc, maxsrc = known[name]["minsrc"], known[name]["maxsrc"]
 
-            # **Un extrême posé par le relevé qu'on remplace n'a plus de
-            # source.** Sa section disparaît du fichier, remplacée par
-            # celle-ci ; le laisser tel quel ferait citer, pour une version
-            # présente au journal, des chiffres que cette version n'y montre
-            # plus. Repris du relevé courant s'il est propre — meilleur ou
-            # pire, ce qui compte est qu'il soit vérifiable.
+            # **An extreme set by the record being replaced no longer has a
+            # source.** Its section disappears from the file, replaced by this
+            # one; leaving it as is would quote, for a version present in the
+            # journal, figures that this version no longer shows there. Taken
+            # from the current record if it is clean — better or worse, what
+            # matters is that it can be checked.
             if admits(name) and posed_by_replaced(minsrc):
                 low, minsrc = value, stamp
             if admits(name) and posed_by_replaced(maxsrc):
@@ -509,10 +506,10 @@ for name in ordered_names:
         else:
             low = high = value
             minsrc = maxsrc = stamp
-        # Le cœur de la règle : une mesure prise sur une machine occupée entre
-        # dans l'historique mais ne touche pas à l'enveloppe. Un maximum posé
-        # par du bruit est définitif — la table n'est jamais élaguée — et rend
-        # la mesure aveugle à toute régression plus petite que ce bruit.
+        # The heart of the rule: a measurement taken on a busy machine enters
+        # the history but does not touch the envelope. A maximum set by noise
+        # is final — the table is never pruned — and makes the measure blind to
+        # any regression smaller than that noise.
         if admits(name) and value < low:
             low, minsrc = value, stamp
         if admits(name) and value > high:
@@ -534,13 +531,13 @@ new_extremes = "\n".join(
     + [""]
 )
 
-# Écriture atomique : un fichier temporaire à côté de la cible, renommé
-# ensuite. os.replace() est atomique sur un même système de fichiers, donc un
-# processus interrompu en cours d'écriture (Ctrl-C, OOM, disque plein) laisse
-# le journal versionné intact plutôt que tronqué.
+# Atomic write: a temporary file next to the target, renamed afterwards.
+# os.replace() is atomic on a same file system, so a process interrupted while
+# writing (Ctrl-C, OOM, full disk) leaves the tracked journal intact rather than
+# truncated.
 #
-# mkstemp crée son fichier en 0600 : sans correction, le renommage remplacerait
-# un fichier suivi en 644 par un fichier illisible du groupe et des autres.
+# mkstemp creates its file as 0600: without correction, the rename would
+# replace a file tracked as 644 by a file unreadable to the group and others.
 directory = os.path.dirname(journal_path) or "."
 original_mode = os.stat(journal_path).st_mode & 0o777
 descriptor, tmp_path = tempfile.mkstemp(prefix=".performances-", dir=directory)
@@ -562,52 +559,52 @@ except BaseException:
 
 unsteady = sorted(name for name in current_spreads if quiet and not steady(name))
 
-# **Deux en-têtes, un seul jeu de détails.** Les deux critères écartent la même
-# chose — le droit de toucher à l'enveloppe — et ce qui a été écarté se dit une
-# fois, quelle que soit la raison.
+# **Two headers, a single set of details.** Both criteria withhold the same
+# thing — the right to touch the envelope — and what was withheld is said once,
+# whatever the reason.
 if not quiet:
     print(
-        f"avertissement : charge {load}, seuil {below} — ce relevé entre au "
-        "journal mais ne fixe aucun extrême.",
+        f"warning: load {load}, threshold {below} — this record enters the "
+        "journal but sets no extreme.",
         file=sys.stderr,
     )
 elif unsteady:
     print(
-        f"avertissement : {len(unsteady)} mesure(s) plus dispersées que "
-        f"d'habitude — au-delà de {SPREAD_FACTOR:g} fois leur médiane, une "
-        "mesure ne fixe aucun extrême :",
+        f"warning: {len(unsteady)} measure(s) more dispersed than usual — "
+        f"beyond {SPREAD_FACTOR:g} times its median, a measure sets no "
+        "extreme:",
         file=sys.stderr,
     )
     for name in unsteady:
         usual = statistics.median(history_spreads[name])
         print(
-            f"  {current_spreads[name]:.0%} contre {usual:.0%} d'habitude — {name}",
+            f"  {current_spreads[name]:.0%} against {usual:.0%} usually — {name}",
             file=sys.stderr,
         )
 
 if not quiet or unsteady:
     if withheld:
         print(
-            "  il en aurait posé pour : " + ", ".join(sorted(withheld)),
+            "  it would have set some for: " + ", ".join(sorted(withheld)),
             file=sys.stderr,
         )
     if newcomers:
         print(
-            "  mesures neuves laissées hors de la table : "
+            "  new measures kept out of the table: "
             + ", ".join(sorted(newcomers))
-            + " — elles y entreront au premier relevé calme.",
+            + " — they will enter it at the first quiet record.",
             file=sys.stderr,
         )
     if stale:
         print(
-            "  extrêmes laissés sur un relevé que celui-ci remplace : "
+            "  extremes left on a record this one replaces: "
             + ", ".join(sorted(stale))
-            + " — rejouer make bench au calme pour qu'ils redeviennent "
-            "vérifiables.",
+            + " — replay make bench when quiet so that they can be checked "
+            "again.",
             file=sys.stderr,
         )
 
 PY
 
-printf '%s✓%s relevé versé dans %s pour la version %s\n' \
+printf '%s✓%s record added to %s for version %s\n' \
     "${GREEN}" "${RESET}" "${journal#"${REPO_ROOT}"/}" "${version}"

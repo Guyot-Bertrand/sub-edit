@@ -23,7 +23,7 @@ Replaces a text in the subtitles **without breaking a tag**. It is the
 **There is no `find` subcommand**: to see where a pattern is without changing anything,
 it is [`--dry-run`](invocation.md#seeing-before-writing) that lists each subtitle concerned.
 
-<!-- exemple: subedit-cli replace --help -->
+<!-- example: subedit-cli replace --help -->
 ```console
 $ subedit-cli replace --help
 Replace a text in the subtitles, without breaking a tag
@@ -90,7 +90,7 @@ only then:
 
 Mind the shell's quotes: `'$1 EUR'`, and not `"$1 EUR"`, which would let the shell read `$1`.
 
-<!-- exemple: printf '1\n00:00:01,000 --> 00:00:02,000\nPrix: 12 euros, et 7 euros.\n\n' > prix.srt; subedit-cli replace --regex '([0-9]+) euros' '$1 EUR' --output euros.srt prix.srt; cat euros.srt -->
+<!-- example: printf '1\n00:00:01,000 --> 00:00:02,000\nPrix: 12 euros, et 7 euros.\n\n' > prix.srt; subedit-cli replace --regex '([0-9]+) euros' '$1 EUR' --output euros.srt prix.srt; cat euros.srt -->
 ```console
 $ printf '1\n00:00:01,000 --> 00:00:02,000\nPrix: 12 euros, et 7 euros.\n\n' > prix.srt; subedit-cli replace --regex '([0-9]+) euros' '$1 EUR' --output euros.srt prix.srt; cat euros.srt
 prix.srt: replaced 2 matches -> euros.srt
@@ -103,7 +103,7 @@ Prix: 12 EUR, et 7 EUR.
 
 A text where a tag cuts the word looked for:
 
-<!-- exemple: printf '1\n00:00:01,000 --> 00:00:02,000\n<i>Bon</i>jour tout le monde\n\n2\n00:00:03,000 --> 00:00:04,000\nBonjour <i>Marie</i>, ca va\n\n' > balises.srt; subedit-cli replace Bonjour Salut --output salut.srt balises.srt; cat salut.srt -->
+<!-- example: printf '1\n00:00:01,000 --> 00:00:02,000\n<i>Bon</i>jour tout le monde\n\n2\n00:00:03,000 --> 00:00:04,000\nBonjour <i>Marie</i>, ca va\n\n' > balises.srt; subedit-cli replace Bonjour Salut --output salut.srt balises.srt; cat salut.srt -->
 ```console
 $ printf '1\n00:00:01,000 --> 00:00:02,000\n<i>Bon</i>jour tout le monde\n\n2\n00:00:03,000 --> 00:00:04,000\nBonjour <i>Marie</i>, ca va\n\n' > balises.srt; subedit-cli replace Bonjour Salut --output salut.srt balises.srt; cat salut.srt
 balises.srt: replaced 2 matches -> salut.srt
@@ -133,7 +133,7 @@ all the same**, a destination given being a destination written:
 | the pattern is nowhere | `"zzz" not found` |
 | it is there, but each match is replaced by itself | `nothing to change` |
 
-<!-- exemple: printf '1\n00:00:01,000 --> 00:00:02,000\nBonjour\n\n' > a.srt; subedit-cli replace zzz x --output b.srt a.srt; subedit-cli replace Bonjour Bonjour --output c.srt a.srt -->
+<!-- example: printf '1\n00:00:01,000 --> 00:00:02,000\nBonjour\n\n' > a.srt; subedit-cli replace zzz x --output b.srt a.srt; subedit-cli replace Bonjour Bonjour --output c.srt a.srt -->
 ```console
 $ printf '1\n00:00:01,000 --> 00:00:02,000\nBonjour\n\n' > a.srt; subedit-cli replace zzz x --output b.srt a.srt; subedit-cli replace Bonjour Bonjour --output c.srt a.srt
 a.srt: "zzz" not found -> b.srt
@@ -145,7 +145,7 @@ a.srt: nothing to change -> c.srt
 The standard output lists **each subtitle whose text would change**, before and after, as
 they are in the file — tags included:
 
-<!-- exemple: printf '1\n00:00:01,000 --> 00:00:02,000\n<i>Bon</i>jour tout le monde\n\n2\n00:00:03,000 --> 00:00:04,000\nBonjour <i>Marie</i>, ca va\n\n' > balises.srt; subedit-cli replace --dry-run Bonjour Salut balises.srt -->
+<!-- example: printf '1\n00:00:01,000 --> 00:00:02,000\n<i>Bon</i>jour tout le monde\n\n2\n00:00:03,000 --> 00:00:04,000\nBonjour <i>Marie</i>, ca va\n\n' > balises.srt; subedit-cli replace --dry-run Bonjour Salut balises.srt -->
 ```console
 $ printf '1\n00:00:01,000 --> 00:00:02,000\n<i>Bon</i>jour tout le monde\n\n2\n00:00:03,000 --> 00:00:04,000\nBonjour <i>Marie</i>, ca va\n\n' > balises.srt; subedit-cli replace --dry-run Bonjour Salut balises.srt
 balises.srt: replaced 2 matches (dry run, nothing written)

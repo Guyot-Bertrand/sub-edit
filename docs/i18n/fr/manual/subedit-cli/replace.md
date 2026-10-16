@@ -23,7 +23,7 @@ Remplace un texte dans les sous-titres **sans casser une balise**. C'est l'opér
 **Il n'y a pas de sous-commande `find`** : pour voir où un motif se trouve sans rien changer,
 c'est [`--dry-run`](invocation.md#voir-avant-décrire) qui liste chaque sous-titre concerné.
 
-<!-- exemple: subedit-cli replace --help -->
+<!-- example: subedit-cli replace --help -->
 ```console
 $ subedit-cli replace --help
 Replace a text in the subtitles, without breaking a tag
@@ -90,7 +90,7 @@ seulement alors :
 
 Pensez aux guillemets du shell : `'$1 EUR'`, et non `"$1 EUR"` qui laisserait le shell lire `$1`.
 
-<!-- exemple: printf '1\n00:00:01,000 --> 00:00:02,000\nPrix: 12 euros, et 7 euros.\n\n' > prix.srt; subedit-cli replace --regex '([0-9]+) euros' '$1 EUR' --output euros.srt prix.srt; cat euros.srt -->
+<!-- example: printf '1\n00:00:01,000 --> 00:00:02,000\nPrix: 12 euros, et 7 euros.\n\n' > prix.srt; subedit-cli replace --regex '([0-9]+) euros' '$1 EUR' --output euros.srt prix.srt; cat euros.srt -->
 ```console
 $ printf '1\n00:00:01,000 --> 00:00:02,000\nPrix: 12 euros, et 7 euros.\n\n' > prix.srt; subedit-cli replace --regex '([0-9]+) euros' '$1 EUR' --output euros.srt prix.srt; cat euros.srt
 prix.srt: replaced 2 matches -> euros.srt
@@ -103,7 +103,7 @@ Prix: 12 EUR, et 7 EUR.
 
 Un texte dont une balise coupe le mot cherché :
 
-<!-- exemple: printf '1\n00:00:01,000 --> 00:00:02,000\n<i>Bon</i>jour tout le monde\n\n2\n00:00:03,000 --> 00:00:04,000\nBonjour <i>Marie</i>, ca va\n\n' > balises.srt; subedit-cli replace Bonjour Salut --output salut.srt balises.srt; cat salut.srt -->
+<!-- example: printf '1\n00:00:01,000 --> 00:00:02,000\n<i>Bon</i>jour tout le monde\n\n2\n00:00:03,000 --> 00:00:04,000\nBonjour <i>Marie</i>, ca va\n\n' > balises.srt; subedit-cli replace Bonjour Salut --output salut.srt balises.srt; cat salut.srt -->
 ```console
 $ printf '1\n00:00:01,000 --> 00:00:02,000\n<i>Bon</i>jour tout le monde\n\n2\n00:00:03,000 --> 00:00:04,000\nBonjour <i>Marie</i>, ca va\n\n' > balises.srt; subedit-cli replace Bonjour Salut --output salut.srt balises.srt; cat salut.srt
 balises.srt: replaced 2 matches -> salut.srt
@@ -133,7 +133,7 @@ quand même**, une destination donnée étant une destination écrite :
 | le motif n'est nulle part | `"zzz" not found` |
 | il est là, mais chaque correspondance se remplace par elle-même | `nothing to change` |
 
-<!-- exemple: printf '1\n00:00:01,000 --> 00:00:02,000\nBonjour\n\n' > a.srt; subedit-cli replace zzz x --output b.srt a.srt; subedit-cli replace Bonjour Bonjour --output c.srt a.srt -->
+<!-- example: printf '1\n00:00:01,000 --> 00:00:02,000\nBonjour\n\n' > a.srt; subedit-cli replace zzz x --output b.srt a.srt; subedit-cli replace Bonjour Bonjour --output c.srt a.srt -->
 ```console
 $ printf '1\n00:00:01,000 --> 00:00:02,000\nBonjour\n\n' > a.srt; subedit-cli replace zzz x --output b.srt a.srt; subedit-cli replace Bonjour Bonjour --output c.srt a.srt
 a.srt: "zzz" not found -> b.srt
@@ -145,7 +145,7 @@ a.srt: nothing to change -> c.srt
 La sortie standard liste **chaque sous-titre dont le texte changerait**, avant et après, tels
 qu'ils sont dans le fichier — balises comprises :
 
-<!-- exemple: printf '1\n00:00:01,000 --> 00:00:02,000\n<i>Bon</i>jour tout le monde\n\n2\n00:00:03,000 --> 00:00:04,000\nBonjour <i>Marie</i>, ca va\n\n' > balises.srt; subedit-cli replace --dry-run Bonjour Salut balises.srt -->
+<!-- example: printf '1\n00:00:01,000 --> 00:00:02,000\n<i>Bon</i>jour tout le monde\n\n2\n00:00:03,000 --> 00:00:04,000\nBonjour <i>Marie</i>, ca va\n\n' > balises.srt; subedit-cli replace --dry-run Bonjour Salut balises.srt -->
 ```console
 $ printf '1\n00:00:01,000 --> 00:00:02,000\n<i>Bon</i>jour tout le monde\n\n2\n00:00:03,000 --> 00:00:04,000\nBonjour <i>Marie</i>, ca va\n\n' > balises.srt; subedit-cli replace --dry-run Bonjour Salut balises.srt
 balises.srt: replaced 2 matches (dry run, nothing written)

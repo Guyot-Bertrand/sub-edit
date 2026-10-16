@@ -60,7 +60,7 @@ illustrer, et `make manual` réécrit le bloc avec ce que cette commande produit
 réellement.
 
 ````markdown
-<!-- exemple: subedit-cli -->
+<!-- example: subedit-cli -->
 ```console
 … réécrit par make manual …
 ```

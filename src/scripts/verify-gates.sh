@@ -599,13 +599,13 @@ expect_gate_closes \
     "${MANUAL_SOURCE}" \
     ''
 
-# The marker keeps the spelling `<!-- exemple: … -->` that generate-manual.sh reads.
+# The marker keeps the spelling `<!-- example: … -->` that generate-manual.sh reads.
 expect_gate_closes \
     "example whose command fails" \
     "manual-check" \
     "${MANUAL_SOURCE}" \
     '
-<!-- exemple: echo hello; exit 3 -->
+<!-- example: echo hello; exit 3 -->
 ```console
 $ echo hello; exit 3
 hello
@@ -616,7 +616,7 @@ expect_gate_closes \
     "manual-check" \
     "${MANUAL_SOURCE}" \
     '
-<!-- exemple: subedit-cli -->
+<!-- example: subedit-cli -->
 This paragraph does not start a console block.'
 
 # A silent command: it is the case that would produce an empty block if the
@@ -626,7 +626,7 @@ expect_gate_closes \
     "manual-check" \
     "${MANUAL_SOURCE}" \
     '
-<!-- exemple: true -->
+<!-- example: true -->
 ```console
 $ true
 ```'

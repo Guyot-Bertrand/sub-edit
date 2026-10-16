@@ -17,7 +17,7 @@ geometry, columns, theme, search options, spell-check, video…). Those stay the
 business, set in the window and described in [its manual](../subedit-gui/preferences.md#the-file).
 It never touches a subtitle file either.
 
-<!-- exemple: subedit-cli config --help -->
+<!-- example: subedit-cli config --help -->
 ```console
 $ subedit-cli config --help
 List, show and change the operation settings
@@ -68,7 +68,7 @@ $XDG_CONFIG_HOME/subedit/settings.conf
 or `~/.config/subedit/settings.conf` when `XDG_CONFIG_HOME` is unset, empty or not an absolute
 path. It is the file the window reads and writes; `config show` writes its path on its first line:
 
-<!-- exemple: XDG_CONFIG_HOME=/home/vous/.config subedit-cli config show | head -1 -->
+<!-- example: XDG_CONFIG_HOME=/home/vous/.config subedit-cli config show | head -1 -->
 ```console
 $ XDG_CONFIG_HOME=/home/vous/.config subedit-cli config show | head -1
 File: /home/vous/.config/subedit/settings.conf (not found)
@@ -84,7 +84,7 @@ lines — what it is for, `Accepts:` (the closed set, or the form and the bounds
 `Used by:` (the `subedit-cli` commands and the window actions that read it). It reads no file and
 needs none, and works with `--no-config`.
 
-<!-- exemple: subedit-cli config list | head -10 -->
+<!-- example: subedit-cli config list | head -10 -->
 ```console
 $ subedit-cli config list | head -10
 duration-adjust.speed
@@ -101,7 +101,7 @@ duration-adjust.lengthen
 
 It lists **33 keys**:
 
-<!-- exemple: subedit-cli config list | grep -c '^[a-z]' -->
+<!-- example: subedit-cli config list | grep -c '^[a-z]' -->
 ```console
 $ subedit-cli config list | grep -c '^[a-z]'
 33
@@ -134,7 +134,7 @@ a key of the catalogue: `correct` has `--enable` and `--disable`.
 With `--format json`, one object per key — `key`, `description`, `accepts`, `default`, `used_by`,
 and `surface`, `"both"` or `"window-only"`:
 
-<!-- exemple: subedit-cli --format json config list | head -1 -->
+<!-- example: subedit-cli --format json config list | head -1 -->
 ```console
 $ subedit-cli --format json config list | head -1
 {"schema":1,"command":"config","key":"duration-adjust.speed","description":"Reading speed the durations are brought to.","accepts":"a number of characters per second, above 0, decimals allowed","default":"15","used_by":"subedit-cli adjust; Adjust Durations…","surface":"both"}
@@ -147,7 +147,7 @@ $ subedit-cli --format json config list | head -1
 `[file]` and the default when the file sets it, `[default]` when it does not. A key the file
 holds with a value it cannot read shows its default. Display preferences are not listed.
 
-<!-- exemple: subedit-cli --config mine/settings.conf config set duration-adjust.speed 12; subedit-cli --config mine/settings.conf config show | head -4 -->
+<!-- example: subedit-cli --config mine/settings.conf config set duration-adjust.speed 12; subedit-cli --config mine/settings.conf config show | head -4 -->
 ```console
 $ subedit-cli --config mine/settings.conf config set duration-adjust.speed 12; subedit-cli --config mine/settings.conf config show | head -4
 duration-adjust.speed = 12
@@ -162,7 +162,7 @@ file as a `FILE` named by `--config`, which [`adjust`](adjust.md) and [`correct`
 the contrary, refuse (see [The settings file](invocation.md#the-settings-file)). With
 `--no-config`:
 
-<!-- exemple: subedit-cli --no-config config show | head -2 -->
+<!-- example: subedit-cli --no-config config show | head -2 -->
 ```console
 $ subedit-cli --no-config config show | head -2
 File: none (--no-config)
@@ -173,7 +173,7 @@ With `--format json`, a first object `{"file", "exists"}` — `file` is `null` w
 then one object per key: `key`, `value`, `source` (`"file"` or `"default"`), `default`,
 `used_by`, `surface`.
 
-<!-- exemple: subedit-cli --config mine/settings.conf config set duration-adjust.speed 12; subedit-cli --format json --config mine/settings.conf config show | head -2 -->
+<!-- example: subedit-cli --config mine/settings.conf config set duration-adjust.speed 12; subedit-cli --format json --config mine/settings.conf config show | head -2 -->
 ```console
 $ subedit-cli --config mine/settings.conf config set duration-adjust.speed 12; subedit-cli --format json --config mine/settings.conf config show | head -2
 duration-adjust.speed = 12
@@ -198,7 +198,7 @@ its directory are created when missing.
 The confirmation goes to the standard error, at the default level: `KEY = VALUE` for `set`,
 `KEY reset to its default (DEFAULT)` for `unset`.
 
-<!-- exemple: subedit-cli --config mine/settings.conf config set duration-adjust.gap-ms 100; grep -e '^[a-z]' -e '^# [A-Z][a-z]* [a-z]*:' mine/settings.conf; subedit-cli --config mine/settings.conf config unset duration-adjust.gap-ms; grep gap-ms mine/settings.conf -->
+<!-- example: subedit-cli --config mine/settings.conf config set duration-adjust.gap-ms 100; grep -e '^[a-z]' -e '^# [A-Z][a-z]* [a-z]*:' mine/settings.conf; subedit-cli --config mine/settings.conf config unset duration-adjust.gap-ms; grep gap-ms mine/settings.conf -->
 ```console
 $ subedit-cli --config mine/settings.conf config set duration-adjust.gap-ms 100; grep -e '^[a-z]' -e '^# [A-Z][a-z]* [a-z]*:' mine/settings.conf; subedit-cli --config mine/settings.conf config unset duration-adjust.gap-ms; grep gap-ms mine/settings.conf
 duration-adjust.gap-ms = 100
@@ -232,7 +232,7 @@ duration-adjust.gap-ms reset to its default (0)
 | a file that exists and cannot be read, for `set` or `unset` | `<path>: cannot be read; nothing written` |
 | a file that cannot be written | `<path>: cannot be written`, or `<path>: cannot be written: permission denied` |
 
-<!-- exemple: subedit-cli --config mine/settings.conf config set general.theme dark; echo "code=$?"; subedit-cli --config mine/settings.conf config set duration-adjust.speed fast; echo "code=$?"; subedit-cli --no-config config unset duration-adjust.speed; echo "code=$?" -->
+<!-- example: subedit-cli --config mine/settings.conf config set general.theme dark; echo "code=$?"; subedit-cli --config mine/settings.conf config set duration-adjust.speed fast; echo "code=$?"; subedit-cli --no-config config unset duration-adjust.speed; echo "code=$?" -->
 ```console
 $ subedit-cli --config mine/settings.conf config set general.theme dark; echo "code=$?"; subedit-cli --config mine/settings.conf config set duration-adjust.speed fast; echo "code=$?"; subedit-cli --no-config config unset duration-adjust.speed; echo "code=$?"
 general.theme is a display preference; set it in the window

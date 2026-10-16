@@ -30,7 +30,7 @@ par fichier, et un échec qui laisse les autres aller — n'a pas de sens ici. I
   film en trois parties dont une manque n'est pas un film en deux ;
 - **une seule ligne par lancement** pour le résultat, et, en JSON, **un seul objet**.
 
-<!-- exemple: subedit-cli append --help -->
+<!-- example: subedit-cli append --help -->
 ```console
 $ subedit-cli append --help
 Put subtitle files one after another into a single file
@@ -61,7 +61,7 @@ Options:
 en train de lire est refusé avant que rien soit lu, code `1`. `--output` existant et distinct des entrées est
 écrasé, comme partout.
 
-<!-- exemple: printf '1\n00:00:01,000 --> 00:00:02,000\nun\n\n2\n00:00:03,000 --> 00:00:04,000\ndeux\n\n' > partie1.srt; printf '1\n00:00:00,500 --> 00:00:01,500\ntrois\n\n' > partie2.srt; subedit-cli append --output film.srt partie1.srt partie2.srt; cat film.srt -->
+<!-- example: printf '1\n00:00:01,000 --> 00:00:02,000\nun\n\n2\n00:00:03,000 --> 00:00:04,000\ndeux\n\n' > partie1.srt; printf '1\n00:00:00,500 --> 00:00:01,500\ntrois\n\n' > partie2.srt; subedit-cli append --output film.srt partie1.srt partie2.srt; cat film.srt -->
 ```console
 $ printf '1\n00:00:01,000 --> 00:00:02,000\nun\n\n2\n00:00:03,000 --> 00:00:04,000\ndeux\n\n' > partie1.srt; printf '1\n00:00:00,500 --> 00:00:01,500\ntrois\n\n' > partie2.srt; subedit-cli append --output film.srt partie1.srt partie2.srt; cat film.srt
 partie2.srt: appended 1 subtitle

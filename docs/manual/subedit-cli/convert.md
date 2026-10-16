@@ -14,7 +14,7 @@ subedit-cli convert --to <format>
 Writes each file in the format and the shape asked for. **Never changes
 the input**, unless `--in-place` explicitly asks for it.
 
-<!-- exemple: subedit-cli convert --help -->
+<!-- example: subedit-cli convert --help -->
 ```console
 $ subedit-cli convert --help
 Write a subtitle file out in another format or shape
@@ -188,7 +188,7 @@ bold is therefore written with no bold at all, rather than with bold that overfl
 **It says so when it loses, and keeps quiet when it loses nothing.** A report
 that shows up at every call is a report nobody reads.
 
-<!-- exemple: printf '1\n00:00:01,000 --> 00:00:03,500\n<i>sur deux</i>\nlignes\n\n' > a.srt; subedit-cli convert --to lrc --output b.lrc a.srt -->
+<!-- example: printf '1\n00:00:01,000 --> 00:00:03,500\n<i>sur deux</i>\nlignes\n\n' > a.srt; subedit-cli convert --to lrc --output b.lrc a.srt -->
 ```console
 $ printf '1\n00:00:01,000 --> 00:00:03,500\n<i>sur deux</i>\nlignes\n\n' > a.srt; subedit-cli convert --to lrc --output b.lrc a.srt
 a.srt: 1 subtitle written as LRC -> b.lrc
@@ -272,7 +272,7 @@ By default, **the file written takes up what the file read carried**. The model
 keeps both on reading; imposing them by default would lose, at every
 conversion, a piece of information kept on purpose.
 
-<!-- exemple: printf '1\n00:00:01,000 --> 00:00:03,000\nBonjour.\n\n' > a.srt; subedit-cli convert --to vtt --output b.vtt a.srt; cat b.vtt -->
+<!-- example: printf '1\n00:00:01,000 --> 00:00:03,000\nBonjour.\n\n' > a.srt; subedit-cli convert --to vtt --output b.vtt a.srt; cat b.vtt -->
 ```console
 $ printf '1\n00:00:01,000 --> 00:00:03,000\nBonjour.\n\n' > a.srt; subedit-cli convert --to vtt --output b.vtt a.srt; cat b.vtt
 a.srt: 1 subtitle written as WebVTT -> b.vtt

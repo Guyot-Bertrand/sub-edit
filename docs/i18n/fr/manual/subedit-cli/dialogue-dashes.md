@@ -23,7 +23,7 @@ Met un **tiret de dialogue** en tête des lignes, ou les retire. C'est `Dialogue
   `<i>- Bonjour</i>`. Aucune balise ne bouge.
 - **`--remove`** retire les tirets de tête, des trois formes.
 
-<!-- exemple: subedit-cli dialogue-dashes --help -->
+<!-- example: subedit-cli dialogue-dashes --help -->
 ```console
 $ subedit-cli dialogue-dashes --help
 Put dialogue dashes on the lines, or take them off
@@ -65,7 +65,7 @@ Options:
 **Le texte principal par défaut ; la traduction avec `--document translation -t FILE`.** C'est alors
 la traduction qui est changée et écrite, et elle seule — voir [Une traduction](invocation.md#une-traduction).
 
-<!-- exemple: printf '1\n00:00:01,000 --> 00:00:02,000\nBonjour\nMarie\n\n2\n00:00:03,000 --> 00:00:04,000\n<i>Salut</i>\n\n' > a.srt; subedit-cli dialogue-dashes --add --output t.srt a.srt; cat t.srt -->
+<!-- example: printf '1\n00:00:01,000 --> 00:00:02,000\nBonjour\nMarie\n\n2\n00:00:03,000 --> 00:00:04,000\n<i>Salut</i>\n\n' > a.srt; subedit-cli dialogue-dashes --add --output t.srt a.srt; cat t.srt -->
 ```console
 $ printf '1\n00:00:01,000 --> 00:00:02,000\nBonjour\nMarie\n\n2\n00:00:03,000 --> 00:00:04,000\n<i>Salut</i>\n\n' > a.srt; subedit-cli dialogue-dashes --add --output t.srt a.srt; cat t.srt
 a.srt: 2 subtitles dashed -> t.srt
