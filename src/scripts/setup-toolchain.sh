@@ -1,16 +1,16 @@
 #!/usr/bin/env bash
-# Installation de la chaîne d'outils de développement.
+# Installs the development toolchain.
 #
-# Cible Ubuntu 24.04. Le script est idempotent : il n'installe que ce qui
-# manque, et peut être relancé sans effet de bord.
+# Targets Ubuntu 24.04. The script is idempotent: it installs only what is
+# missing, and can be rerun with no side effect.
 #
-# Nécessite sudo pour les paquets APT. git-cliff n'étant pas empaqueté, il est
-# récupéré depuis les releases GitHub vers ~/.local/bin.
+# Requires sudo for the APT packages. git-cliff is not packaged, so it is
+# fetched from the GitHub releases into ~/.local/bin.
 #
-# Deux modes réduits :
+# Two reduced modes:
 #
-#   --git-cliff-only   n'installe que git-cliff, et rien d'autre
-#   --list-packages    écrit les paquets APT, un par ligne, et n'installe rien
+#   --git-cliff-only   installs git-cliff only, and nothing else
+#   --list-packages    writes the APT packages, one per line, installs nothing
 
 set -euo pipefail
 
@@ -21,12 +21,12 @@ readonly GIT_CLIFF_VERSION="2.10.1"
 readonly MODE="${1:-}"
 
 info() { printf '\033[1m%s\033[0m\n' "$*"; }
-skip() { printf '  déjà présent : %s\n' "$*"; }
+skip() { printf '  already present: %s\n' "$*"; }
 
-# Paquets APT : nom de commande -> nom de paquet.
-# clang-tidy 20 plutôt que la version par défaut : libstdc++ garde <expected>
-# derrière __cpp_concepts >= 202002L, valeur que Clang 18 ne déclare pas. Avec
-# lui, std::expected est invisible à l'analyse statique.
+# APT packages: command name -> package name.
+# clang-tidy 20 rather than the default version: libstdc++ keeps <expected>
+# behind __cpp_concepts >= 202002L, a value Clang 18 does not declare. With it,
+# std::expected is invisible to static analysis.
 declare -A APT_TOOLS=(
     [ninja]=ninja-build
     [clang-tidy-20]=clang-tidy-20
@@ -34,97 +34,96 @@ declare -A APT_TOOLS=(
     [gcovr]=gcovr
     [ccache]=ccache
     [gh]=gh
-    # ffprobe est entré avec la phase 6, qui lit la fréquence d'image et la
-    # durée dans le conteneur vidéo. Le paquet est ffmpeg, dont il n'est qu'un
-    # des exécutables — c'est la commande qu'on sonde, jamais le paquet, sans
-    # quoi une installation partielle passerait pour complète.
+    # ffprobe came in with phase 6, which reads the frame rate and the
+    # duration from the video container. The package is ffmpeg, of which it is
+    # only one of the executables — the command is what is probed, never the
+    # package, otherwise a partial installation would pass for a complete one.
     #
-    # **Le projet ne l'exige pas d'un utilisateur** : il l'exige d'une machine
-    # de développement, ce qui n'est pas la même promesse. Le code porte la
-    # branche de son absence, et src/test/unit/core/io/find_executable_test.cpp
-    # la parcourt sans rien désinstaller.
+    # **The project does not require it from a user**: it requires it from a
+    # development machine, which is not the same promise. The code carries the
+    # branch of its absence, and src/test/unit/core/io/find_executable_test.cpp
+    # walks it without uninstalling anything.
     [ffprobe]=ffmpeg
-    # jq est entré avec l'élagueur d'exécutions d'Actions : la preuve de sa
-    # sélection, dans verify-gates.sh, l'exerce sur une liste écrite à la main,
-    # donc en local. Les machines GitHub l'ont d'origine, pas forcément un poste
-    # fraîchement installé — et une preuve qui ne s'exécute pas n'en est pas une.
+    # jq came in with the pruner of Actions runs: the proof of its selection,
+    # in verify-gates.sh, exercises it on a hand-written list, hence locally.
+    # GitHub machines have it out of the box, a freshly installed workstation
+    # not necessarily — and a proof that does not run is no proof.
     [jq]=jq
-    # msgfmt compile les catalogues .po en .mo : les fixtures des tests du lecteur (#658), puis les
-    # traductions livrées (#659). C'est un outil de construction, jamais d'exécution.
+    # msgfmt compiles the .po catalogues into .mo: the fixtures of the reader's tests (#658), then
+    # the shipped translations (#659). It is a build tool, never a runtime one.
     [msgfmt]=gettext
-    # pkg-config est ce par quoi libmpv se trouve : il ne fournit pas de fichier
-    # de configuration CMake, et `find_package(PkgConfig REQUIRED)` échoue sans
-    # lui. Les machines GitHub l'ont d'origine ; une Ubuntu de bureau
-    # fraîchement installée, pas toujours — et c'est celle-là que ce script
-    # promet de rendre constructible.
+    # pkg-config is how libmpv is found: it provides no CMake configuration
+    # file, and `find_package(PkgConfig REQUIRED)` fails without it. GitHub
+    # machines have it out of the box; a freshly installed desktop Ubuntu, not
+    # always — and that is the one this script promises to make buildable.
     [pkg-config]=pkg-config
-    # Les trois de l'empaquetage, entrées avec #244 — et pas avant, ce que
-    # l'ADR 0004 demande : une dépendance installée pour valider des fichiers
-    # qui n'existent pas ne se justifie pas. Ils existent depuis ce ticket.
+    # The three of packaging, which came in with #244 — and not before, as
+    # ADR 0004 asks: a dependency installed to validate files that do not exist
+    # is not justified. They exist since that ticket.
     #
-    # Les deux premiers valident les fichiers de bureau que l'installation
-    # dépose : le `.desktop` et les métadonnées AppStream. Une Ubuntu de bureau
-    # les a d'origine ; une machine de construction nue, pas forcément.
+    # The first two validate the desktop files the installation puts down: the
+    # `.desktop` and the AppStream metadata. A desktop Ubuntu has them out of
+    # the box; a bare build machine, not necessarily.
     [desktop-file-validate]=desktop-file-utils
     [appstreamcli]=appstream
-    # **`rpmbuild` n'est sur aucune Ubuntu**, et sans lui le générateur RPM de
-    # CPack ne produit rien — silencieusement, ce qui est le pire des deux : la
-    # cible réussit et le paquet manque. La commande sondée n'est pas `rpm`, qui
-    # existe parfois seul, mais celle dont CPack a besoin.
+    # **`rpmbuild` is on no Ubuntu**, and without it CPack's RPM generator
+    # produces nothing — silently, which is the worse of the two: the target
+    # succeeds and the package is missing. The probed command is not `rpm`,
+    # which sometimes exists alone, but the one CPack needs.
     [rpmbuild]=rpm
-    # **groff est entré avec #268**, qui a demandé si chaque vérification passe
-    # par l'outil qui compte. La page de manuel était lue au `sed` et n'avait
-    # jamais été rendue ; elle l'est désormais par celui qui la rend vraiment,
-    # c'est-à-dire par celui que `man` appelle. Une Ubuntu de bureau l'a
-    # d'origine, avec `man-db` ; une image de construction nue, pas toujours.
+    # **groff came in with #268**, which asked whether each check goes through
+    # the tool that matters. The man page was read with `sed` and had never
+    # been rendered; it now is, by the one that really renders it, that is the
+    # one `man` calls. A desktop Ubuntu has it out of the box, with `man-db`; a
+    # bare build image, not always.
     [groff]=groff
 )
 
-# Paquets APT sans commande à sonder : un fichier dit leur présence.
+# APT packages with no command to probe: a file tells whether they are present.
 #
-# CLI11 est une bibliothèque d'en-têtes — `command -v` ne la verrait jamais, et
-# la ranger dans la table ci-dessus la ferait réinstaller à chaque exécution.
-# Le chemin sondé est celui que `find_package(CLI11)` finit par lire.
+# CLI11 is a header-only library — `command -v` would never see it, and putting
+# it in the table above would reinstall it on every run. The probed path is the
+# one `find_package(CLI11)` ends up reading.
 #
-# **Qt y est entré à la phase 5, et le mode `--with-qt` a disparu avec.** Il
-# décrivait un monde où Qt était optionnel : ce n'est plus vrai, la porte
-# construit tout, donc quiconque lance `make check` en a besoin. Il n'avait
-# d'ailleurs jamais servi, et son défaut était de mettre les paquets Qt hors de
-# `--list-packages`, donc hors du cache de la CI — qui aurait restauré une
-# chaîne d'outils incomplète sans que rien ne le signale.
+# **Qt came in at phase 5, and the `--with-qt` mode went away with it.** It
+# described a world where Qt was optional: that is no longer true, the gate
+# builds everything, so anyone who runs `make check` needs it. It had never been
+# used anyway, and its flaw was to keep the Qt packages out of
+# `--list-packages`, hence out of the CI cache — which would have restored an
+# incomplete toolchain with nothing to report it.
 #
-# **libmpv est entré à la phase 6**, qui met un lecteur dans la fenêtre — voir
-# docs/adr/0020-libmpv-pour-le-lecteur-integre.md. Le chemin sondé est un
-# fichier `.pc` et non un `Qt6Config.cmake` : libmpv ne fournit pas de fichier
-# de configuration CMake, seulement de quoi être trouvé par `pkg-config`, et
-# c'est donc ce chemin-là que la configuration finit par lire.
+# **libmpv came in at phase 6**, which puts a player in the window — see
+# docs/adr/0020-libmpv-pour-le-lecteur-integre.md. The probed path is a `.pc`
+# file and not a `Qt6Config.cmake`: libmpv provides no CMake configuration file,
+# only what `pkg-config` needs to find it, so that is the path the configuration
+# ends up reading.
 #
-# **BLAS et LAPACK sont là pour libmpv, et c'est moins absurde qu'il n'y paraît.**
-# La chaîne est celle-ci : libmpv tire libavfilter, qui tire le filtre de
-# reconnaissance vocale d'ffmpeg, qui tire `libsphinxbase`, qui a besoin de
-# `libblas.so.3` et de `liblapack.so.3`.
+# **BLAS and LAPACK are there for libmpv, and it is less absurd than it looks.**
+# The chain is this: libmpv pulls libavfilter, which pulls ffmpeg's speech
+# recognition filter, which pulls `libsphinxbase`, which needs `libblas.so.3`
+# and `liblapack.so.3`.
 #
-# Ces deux-là sont des **paquets virtuels** — plusieurs paquets réels les
-# fournissent, `libblas3`, `libopenblas0-pthread`, `libmkl-rt`. C'est exactement
-# ce que la fermeture de dépendances du cache de paquets de la CI ne sait pas
-# résoudre : elle restaure `libsphinxbase3` sans fournisseur, et la chaîne arrive
-# trouée. L'édition de liens s'arrête alors sur des symboles indéfinis, et le
-# chargement de libmpv échouerait de la même façon.
+# Those two are **virtual packages** — several real packages provide them,
+# `libblas3`, `libopenblas0-pthread`, `libmkl-rt`. That is exactly what the
+# dependency closure of the CI package cache cannot resolve: it restores
+# `libsphinxbase3` with no provider, and the chain arrives with a hole in it.
+# Linking then stops on undefined symbols, and loading libmpv would fail the
+# same way.
 #
-# Le chemin sondé est le lien géré par le système d'alternatives : si un
-# fournisseur quelconque est déjà là, rien n'est installé — une machine qui a
-# déjà OpenBLAS n'en gagne pas un second.
+# The probed path is the link managed by the alternatives system: if any
+# provider is already there, nothing is installed — a machine that already has
+# OpenBLAS does not gain a second one.
 #
-# **ICU est entrée à la phase 8** — ADR 0027 —, et c'est la première dépendance
-# externe du noyau, donc de `subedit-cli`, qui n'en avait aucune. Le chemin
-# sondé est l'en-tête du convertisseur : la bibliothèque d'exécution est déjà là
-# sur toute machine qui fait tourner Qt, ce sont les en-têtes qui manquent.
+# **ICU came in at phase 8** — ADR 0027 —, and it is the first external
+# dependency of the core, hence of `subedit-cli`, which had none. The probed
+# path is the converter's header: the runtime library is already there on any
+# machine that runs Qt, it is the headers that are missing.
 #
-# **Les deux derniers sont entrés avec #260**, qui a trouvé une icône que le
-# bureau ne savait pas lire. Le contrôle qui l'attrape passe par gdk-pixbuf —
-# le chargeur des bureaux GTK, et le seul qui refusait le fichier fautif — donc
-# il lui faut le module Python qui l'atteint et le greffon qui sait lire un SVG.
-# Une Ubuntu de bureau les a d'origine ; une machine de construction nue, non.
+# **The last two came in with #260**, which found an icon the desktop could not
+# read. The check that catches it goes through gdk-pixbuf — the loader of GTK
+# desktops, and the only one that refused the faulty file — so it needs the
+# Python module that reaches it and the plugin that can read an SVG. A desktop
+# Ubuntu has them out of the box; a bare build machine does not.
 declare -A APT_LIBS=(
     [/usr/include/CLI/CLI.hpp]=libcli11-dev
     [/usr/include/unicode/ucnv.h]=libicu-dev
@@ -158,22 +157,22 @@ install_apt_tools() {
     done
 
     if (( ${#missing[@]} == 0 )); then
-        info "paquets APT : rien à installer"
+        info "APT packages: nothing to install"
         return
     fi
 
-    info "installation des paquets : ${missing[*]}"
+    info "installing the packages: ${missing[*]}"
     sudo apt-get update -qq
     sudo apt-get install -y "${missing[@]}"
 }
 
-# gh n'est pas dans les dépôts de toutes les versions d'Ubuntu. Le test porte
-# sur la disponibilité du paquet, pas sur le texte de `apt-cache policy`, qui
-# est traduit et donc dépendant de la locale.
+# gh is not in the repositories of every Ubuntu version. The test is on the
+# package's availability, not on the text of `apt-cache policy`, which is
+# translated and therefore depends on the locale.
 ensure_gh_repository() {
     command -v gh >/dev/null 2>&1 && return 0
     apt-cache show gh >/dev/null 2>&1 && return 0
-    info "ajout du dépôt GitHub CLI"
+    info "adding the GitHub CLI repository"
     sudo mkdir -p -m 755 /etc/apt/keyrings
     curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg \
         | sudo tee /etc/apt/keyrings/githubcli-archive-keyring.gpg >/dev/null
@@ -187,16 +186,16 @@ install_git_cliff() {
         skip "git-cliff"
         return
     fi
-    info "installation de git-cliff ${GIT_CLIFF_VERSION} dans ${LOCAL_BIN}"
+    info "installing git-cliff ${GIT_CLIFF_VERSION} into ${LOCAL_BIN}"
     mkdir -p "${LOCAL_BIN}"
     local archive="git-cliff-${GIT_CLIFF_VERSION}-x86_64-unknown-linux-gnu.tar.gz"
     local url="https://github.com/orhun/git-cliff/releases/download/v${GIT_CLIFF_VERSION}/${archive}"
     local tmp
     tmp="$(mktemp -d)"
 
-    # Nettoyage explicite plutôt qu'un `trap RETURN` : un tel piège persiste
-    # au-delà de la fonction qui l'installe et se redéclenche au retour des
-    # suivantes, quand la variable qu'il référence n'existe plus.
+    # Explicit cleanup rather than a `trap RETURN`: such a trap persists beyond
+    # the function that sets it and fires again on the return of the following
+    # ones, when the variable it refers to no longer exists.
     local status=0
     {
         curl -fsSL "${url}" -o "${tmp}/${archive}" &&
@@ -205,47 +204,47 @@ install_git_cliff() {
                 -exec install -m 755 {} "${LOCAL_BIN}/git-cliff" \;
     } || status=$?
     rm -rf "${tmp}"
-    (( status == 0 )) || die "échec de l'installation de git-cliff (code ${status})"
+    (( status == 0 )) || die "installing git-cliff failed (status ${status})"
 
     if ! command -v git-cliff >/dev/null 2>&1; then
-        printf '  ajouter %s au PATH pour utiliser git-cliff\n' "${LOCAL_BIN}"
+        printf '  add %s to the PATH to use git-cliff\n' "${LOCAL_BIN}"
     fi
 }
 
-# Détecte l'alternative « c++ » mal configurée, qui pointe sur gcc au lieu de
-# g++ : le C++ compile alors, mais n'édite pas les liens avec libstdc++.
+# Detects a misconfigured `c++` alternative, which points to gcc instead of
+# g++: C++ then compiles, but does not link against libstdc++.
 check_cxx_alternative() {
     local target
     target="$(readlink -f /usr/bin/c++ 2>/dev/null || true)"
     [[ "${target}" == *gcc* ]] || return 0
 
-    info "anomalie détectée : /usr/bin/c++ pointe sur ${target}"
-    printf '  gcc compile le C++ mais ne lie pas libstdc++ ; toute compilation échouera.\n'
-    printf '  correction : sudo update-alternatives --install /usr/bin/c++ c++ /usr/bin/g++ 100\n'
+    info "anomaly detected: /usr/bin/c++ points to ${target}"
+    printf '  gcc compiles C++ but does not link libstdc++; every build will fail.\n'
+    printf '  fix: sudo update-alternatives --install /usr/bin/c++ c++ /usr/bin/g++ 100\n'
     if [[ -x /usr/bin/g++ ]]; then
         sudo update-alternatives --install /usr/bin/c++ c++ /usr/bin/g++ 100
         sudo update-alternatives --set c++ /usr/bin/g++
-        printf '  corrigé : c++ -> %s\n' "$(readlink -f /usr/bin/c++)"
+        printf '  fixed: c++ -> %s\n' "$(readlink -f /usr/bin/c++)"
     fi
 }
 
 report() {
-    info "état de la chaîne d'outils"
+    info "state of the toolchain"
     local cmd
     local path_warning=0
     for cmd in cmake ninja g++ clang-tidy-20 clang-format gcovr ccache git git-cliff gh jq msgfmt ffprobe pkg-config; do
         if command -v "${cmd}" >/dev/null 2>&1; then
             printf '  \033[32m✓\033[0m %-14s %s\n' "${cmd}" "$("${cmd}" --version 2>/dev/null | head -1)"
         elif [[ -x "${LOCAL_BIN}/${cmd}" ]]; then
-            # Installé, mais hors du PATH de ce terminal. Sur Ubuntu,
-            # ~/.profile n'ajoute ~/.local/bin qu'à l'ouverture de session, et
-            # seulement si le répertoire existait déjà — ce qui n'est pas le
-            # cas quand ce script vient de le créer.
+            # Installed, but outside this terminal's PATH. On Ubuntu,
+            # ~/.profile adds ~/.local/bin only at login, and only if the
+            # directory already existed — which is not the case when this
+            # script has just created it.
             printf '  \033[33m!\033[0m %-14s %s\n' "${cmd}" \
                 "$("${LOCAL_BIN}/${cmd}" --version 2>/dev/null | head -1)"
             path_warning=1
         else
-            printf '  \033[31m✗\033[0m %-14s absent\n' "${cmd}"
+            printf '  \033[31m✗\033[0m %-14s missing\n' "${cmd}"
         fi
     done
 
@@ -254,25 +253,24 @@ report() {
         if [[ -e "${probe}" ]]; then
             printf '  \033[32m✓\033[0m %-14s %s\n' "${APT_LIBS[${probe}]}" "${probe}"
         else
-            printf '  \033[31m✗\033[0m %-14s absent\n' "${APT_LIBS[${probe}]}"
+            printf '  \033[31m✗\033[0m %-14s missing\n' "${APT_LIBS[${probe}]}"
         fi
     done
 
     if (( path_warning )); then
-        printf '\n  \033[33m!\033[0m installé dans %s, absent du PATH de ce terminal.\n' "${LOCAL_BIN}"
-        printf '      effectif à la prochaine ouverture de session, ou tout de suite avec :\n'
+        printf '\n  \033[33m!\033[0m installed in %s, missing from the PATH of this terminal.\n' "${LOCAL_BIN}"
+        printf '      effective at the next login, or right away with:\n'
         printf '        export PATH="%s:$PATH"\n' "${LOCAL_BIN}"
-        printf '      les cibles make fonctionnent sans cela.\n'
+        printf '      the make targets work without it.\n'
     fi
 }
 
-# Écrit la liste des paquets APT, sans rien installer.
+# Writes the list of APT packages, without installing anything.
 #
-# Elle sert au cache de la CI, qui a besoin de nommer ce qu'il restaure. La
-# faire dire par ce script plutôt que par le YAML est ce qui garde **une seule
-# liste** : une seconde, recopiée dans un workflow, divergerait au premier
-# paquet ajouté, et le cache restaurerait alors une chaîne d'outils incomplète
-# sans que rien ne le signale.
+# It serves the CI cache, which needs to name what it restores. Having this
+# script say it rather than the YAML is what keeps **a single list**: a second
+# one, copied into a workflow, would diverge at the first package added, and the
+# cache would then restore an incomplete toolchain with nothing to report it.
 list_packages() {
     printf '%s\n' "${APT_TOOLS[@]}" "${APT_LIBS[@]}" | sort -u
 }
@@ -283,12 +281,11 @@ main() {
         return
     fi
 
-    # Le job « contrôles de pull request » ne construit rien : de toute la
-    # chaîne, il n'a besoin que de git-cliff, pour régénérer le journal et
-    # comparer. Lui installer cmake, clang-tidy et gcovr coûterait plusieurs
-    # minutes à chaque édition d'un corps de pull request. Le mode existe ici
-    # plutôt que dans le YAML pour que le numéro de version de git-cliff reste
-    # écrit à un seul endroit.
+    # The pull request checks job builds nothing: of the whole chain, it needs
+    # only git-cliff, to regenerate the changelog and compare. Installing cmake,
+    # clang-tidy and gcovr for it would cost several minutes on every edit of a
+    # pull request body. The mode lives here rather than in the YAML so that
+    # git-cliff's version number stays written in one place.
     if [[ "${MODE}" == "--git-cliff-only" ]]; then
         install_git_cliff
         return

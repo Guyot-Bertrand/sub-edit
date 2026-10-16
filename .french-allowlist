@@ -56,7 +56,6 @@ src/lib/subedit/core/config/theme.hpp
 src/lib/subedit/gui/.clang-tidy
 src/lib/subedit/gui/CMakeLists.txt
 src/lib/subedit/platform/CMakeLists.txt
-src/scripts/setup-toolchain.sh
 src/test/.clang-tidy
 src/test/CMakeLists.txt
 src/test/bench/CMakeLists.txt
