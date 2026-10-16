@@ -6,7 +6,7 @@ subedit-cli [global options] <subcommand> [options] <file>...
 
 Sans sous-commande, l'outil écrit son aide et s'arrête.
 
-<!-- exemple: subedit-cli -->
+<!-- example: subedit-cli -->
 ```console
 $ subedit-cli
 Read, inspect and retime subtitle files.
@@ -90,7 +90,7 @@ output sets `LANGUAGE=en` (or `LC_ALL=C`) — or reads `--format json`, which ne
 
 Asking for English, whatever the environment:
 
-<!-- exemple: LC_ALL=C LANGUAGE=fr subedit-cli shift --output-dir out a.srt; echo "code=$?" -->
+<!-- example: LC_ALL=C LANGUAGE=fr subedit-cli shift --output-dir out a.srt; echo "code=$?" -->
 ```console
 $ LC_ALL=C LANGUAGE=fr subedit-cli shift --output-dir out a.srt; echo "code=$?"
 shift needs --by, or --to-grid to work the amount out from the positions
@@ -179,7 +179,7 @@ gives the defaults and says so, as the user's file does. [`config show`](config.
 still shows a missing `FILE` as `(not found)`, and [`config set`](config.md#config-set-et-config-unset) still
 creates it.
 
-<!-- exemple: printf '1\n00:00:01,000 --> 00:00:01,200\nUn.\n\n' > a.srt; subedit-cli --config mine.conf adjust --dry-run a.srt; echo "code=$?" -->
+<!-- example: printf '1\n00:00:01,000 --> 00:00:01,200\nUn.\n\n' > a.srt; subedit-cli --config mine.conf adjust --dry-run a.srt; echo "code=$?" -->
 ```console
 $ printf '1\n00:00:01,000 --> 00:00:01,200\nUn.\n\n' > a.srt; subedit-cli --config mine.conf adjust --dry-run a.srt; echo "code=$?"
 settings file not found: mine.conf
@@ -192,7 +192,7 @@ code=1
 puis l'outil s'arrête, avec le code `0`, comme `--version` : c'est la réponse, non une étape. Une
 sous-commande donnée en plus n'est pas exécutée.
 
-<!-- exemple: subedit-cli --list-encodings | grep '^UTF' | head -4 -->
+<!-- example: subedit-cli --list-encodings | grep '^UTF' | head -4 -->
 ```console
 $ subedit-cli --list-encodings | grep '^UTF' | head -4
 UTF-16BE
@@ -259,10 +259,10 @@ C'est ce que fait Gaupol — il recommence la lecture avec l'encodage de la
 marque — mais sans le dire ; ici l'écart entre ce qui a été demandé et ce qui a
 été fait n'est pas un silence.
 
-<!-- exemple: subedit-cli --version -->
+<!-- example: subedit-cli --version -->
 ```console
 $ subedit-cli --version
-subedit 0.15.33
+subedit 0.15.34
 ```
 
 ## Sous-commandes
@@ -402,7 +402,7 @@ fichier n'a pas changé.
 - **La narration le dit.** Là où un vrai lancement écrit `-> <destination>`, un lancement à
   blanc écrit `(dry run, nothing written)`.
 
-<!-- exemple: printf '1\n00:00:10,000 --> 00:00:12,000\nBonjour.\n\n' > a.srt; subedit-cli shift --by 1 --dry-run a.srt; ls -- *.srt -->
+<!-- example: printf '1\n00:00:10,000 --> 00:00:12,000\nBonjour.\n\n' > a.srt; subedit-cli shift --by 1 --dry-run a.srt; ls -- *.srt -->
 ```console
 $ printf '1\n00:00:10,000 --> 00:00:12,000\nBonjour.\n\n' > a.srt; subedit-cli shift --by 1 --dry-run a.srt; ls -- *.srt
 a.srt: 1 subtitle shifted by 1.000 s (dry run, nothing written)
@@ -432,7 +432,7 @@ proposés**. Un bloc par sous-titre changé, dans l'ordre du fichier :
   retrouve les blocs d'un fichier dans un lot ;
 - **aucun bloc** quand rien ne changerait.
 
-<!-- exemple: printf '1\n00:00:01,000 --> 00:00:03,000\n[Bruit de pas]\n\n2\n00:00:04,000 --> 00:00:06,000\nAttends [il tousse] Marie.\n\n3\n00:00:07,000 --> 00:00:09,000\n- [Grincement]\n- Qui est là ?\n\n' > mentions.srt; subedit-cli hearing-impaired --dry-run mentions.srt -->
+<!-- example: printf '1\n00:00:01,000 --> 00:00:03,000\n[Bruit de pas]\n\n2\n00:00:04,000 --> 00:00:06,000\nAttends [il tousse] Marie.\n\n3\n00:00:07,000 --> 00:00:09,000\n- [Grincement]\n- Qui est là ?\n\n' > mentions.srt; subedit-cli hearing-impaired --dry-run mentions.srt -->
 ```console
 $ printf '1\n00:00:01,000 --> 00:00:03,000\n[Bruit de pas]\n\n2\n00:00:04,000 --> 00:00:06,000\nAttends [il tousse] Marie.\n\n3\n00:00:07,000 --> 00:00:09,000\n- [Grincement]\n- Qui est là ?\n\n' > mentions.srt; subedit-cli hearing-impaired --dry-run mentions.srt
 mentions.srt: 2 subtitles cleaned, 1 removed (dry run, nothing written)
@@ -482,7 +482,7 @@ marque, la fin de ligne est `\n`. `text` est le défaut et ne change pas. C'est 
 option globale, qui s'écrit donc avant la sous-commande ; une valeur autre que
 `text` et `json` est une erreur d'usage, code `1`.
 
-<!-- exemple: printf '1\n00:00:10,000 --> 00:00:12,000\nUn.\n\n' > a.srt; subedit-cli --format json shift --by 1 --output-dir sortie a.srt absent.srt; echo "code=$?" -->
+<!-- example: printf '1\n00:00:10,000 --> 00:00:12,000\nUn.\n\n' > a.srt; subedit-cli --format json shift --by 1 --output-dir sortie a.srt absent.srt; echo "code=$?" -->
 ```console
 $ printf '1\n00:00:10,000 --> 00:00:12,000\nUn.\n\n' > a.srt; subedit-cli --format json shift --by 1 --output-dir sortie a.srt absent.srt; echo "code=$?"
 a.srt: 1 subtitle shifted by 1.000 s -> sortie/a.srt
@@ -740,7 +740,7 @@ posée sur son principal**, avec les mêmes règles que la fenêtre.
 - **Écrire la traduction recalée sur le principal** — la seule chose que l'appariement fait et qu'un fichier seul
   ne fait pas — est le travail de [`pair`](pair.md), qui n'a ni `--document` ni `--recursive`.
 
-<!-- exemple: printf '1\n00:00:01,000 --> 00:00:02,000\nHello.\n\n2\n00:00:03,000 --> 00:00:04,000\nBye.\n\n' > film.srt; printf '1\n00:00:01,000 --> 00:00:02,000\n[Un oiseau] Bonjour.\n\n2\n00:00:03,000 --> 00:00:04,000\nAu revoir.\n\n' > film.fr.srt; subedit-cli hearing-impaired film.srt -t film.fr.srt --document translation --output propre.fr.srt; cat propre.fr.srt -->
+<!-- example: printf '1\n00:00:01,000 --> 00:00:02,000\nHello.\n\n2\n00:00:03,000 --> 00:00:04,000\nBye.\n\n' > film.srt; printf '1\n00:00:01,000 --> 00:00:02,000\n[Un oiseau] Bonjour.\n\n2\n00:00:03,000 --> 00:00:04,000\nAu revoir.\n\n' > film.fr.srt; subedit-cli hearing-impaired film.srt -t film.fr.srt --document translation --output propre.fr.srt; cat propre.fr.srt -->
 ```console
 $ printf '1\n00:00:01,000 --> 00:00:02,000\nHello.\n\n2\n00:00:03,000 --> 00:00:04,000\nBye.\n\n' > film.srt; printf '1\n00:00:01,000 --> 00:00:02,000\n[Un oiseau] Bonjour.\n\n2\n00:00:03,000 --> 00:00:04,000\nAu revoir.\n\n' > film.fr.srt; subedit-cli hearing-impaired film.srt -t film.fr.srt --document translation --output propre.fr.srt; cat propre.fr.srt
 film.fr.srt: 1 subtitle cleaned, 0 removed -> propre.fr.srt
@@ -769,7 +769,7 @@ sont rapportés en nommant le fichier et la raison.
 sans cette option, en donner un est une erreur d'usage, code `1`, et rien n'est
 traité — le refuser vaut mieux que de n'en traiter rien et de rendre `0` :
 
-<!-- exemple: mkdir films; printf '1\n00:00:01,000 --> 00:00:02,000\nUn.\n\n' > films/a.srt; subedit-cli inspect films; echo "code=$?" -->
+<!-- example: mkdir films; printf '1\n00:00:01,000 --> 00:00:02,000\nUn.\n\n' > films/a.srt; subedit-cli inspect films; echo "code=$?" -->
 ```console
 $ mkdir films; printf '1\n00:00:01,000 --> 00:00:02,000\nUn.\n\n' > films/a.srt; subedit-cli inspect films; echo "code=$?"
 films: is a directory: use --recursive

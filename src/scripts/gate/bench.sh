@@ -1,32 +1,31 @@
 #!/usr/bin/env bash
-# Les benchmarks, en Release, et le relevé versé au journal.
+# The benchmarks, in Release, and the record added to the journal.
 #
-# **`JOBS` gouverne aussi l'optimisation entre modules.** Sans lui, le LTO part
-# en `-flto=auto`, c'est-à-dire autant de processus que de cœurs, à chaque
-# édition de liens — un parallélisme qui n'apparaît dans aucun `-j` et qui
-# sature une machine sur laquelle on fait autre chose.
+# **`JOBS` also governs link-time optimisation.** Without it, LTO starts with
+# `-flto=auto`, that is as many processes as cores, at every link — a
+# parallelism that shows in no `-j` and saturates a machine on which one is
+# doing something else.
 #
-# La charge est relevée avant de construire et de mesurer : une mesure prise
-# pendant qu'un navigateur compile du JavaScript ne dit rien du code, elle dit
-# l'état de la machine.
+# The load is read before building and measuring: a measurement taken while a
+# browser compiles JavaScript says nothing about the code, it says the state of
+# the machine.
 #
-# **Au-dessus du seuil, rien n'est inscrit** — issue #270. Le relevé entrait au
-# journal, sans droit de fixer d'extrême, et disait sa charge en en-tête. C'était
-# une demi-mesure au sens propre : une section de version que personne ne peut
-# comparer à rien, puisqu'on ne sait pas ce qui, dedans, vient du code. Presque
-# un relevé sur deux de la phase 7 était de ceux-là.
+# **Above the threshold, nothing is written** — issue #270. The record used to
+# enter the journal, without the right to set an extreme, with its load in the
+# heading. It was a half-measure in the literal sense: a version section nobody
+# can compare with anything, since nobody knows what in it comes from the code.
+# Almost one record in two of phase 7 was of that kind.
 #
-# **Une mesure qu'on ne peut pas lire vaut moins qu'une mesure absente**, parce
-# qu'elle occupe la place de celle qui manque : le journal a une section par
-# version, donc la section sale rend invisible le fait qu'il n'y a pas eu de
-# mesure. Ne rien écrire le dit.
+# **A measurement that cannot be read is worth less than a missing one**,
+# because it takes the place of the one that is missing: the journal has one
+# section per version, so the dirty section hides the fact that there was no
+# measurement. Writing nothing says so.
 #
-# Les benchmarks tournent quand même, et leur sortie console reste sous les yeux
-# de qui a lancé la commande : ce qui est refusé est l'inscription, pas le
-# regard.
+# The benchmarks run all the same, and their console output stays in front of
+# whoever ran the command: what is refused is the record, not the look.
 #
-# **Ce n'est pas un échec.** La machine occupée n'est pas un défaut du code, et
-# `make check-local` n'a aucune raison de rougir pour elle.
+# **It is not a failure.** A busy machine is not a defect of the code, and
+# `make check-local` has no reason to turn red over it.
 
 set -euo pipefail
 
@@ -38,61 +37,60 @@ readonly XML="${REPO_ROOT}/build/release/bench.xml"
 
 step "benchmarks (release)"
 
-# **La charge se lit avant la construction, et non après** — relecture de fin de
-# phase 8. `await-quiet.sh` lit la moyenne d'une minute, c'est-à-dire le passé ;
-# la lire après avoir compilé en Release, c'est lui demander si la machine est
-# libre juste après l'avoir occupée soi-même. Le garde répondait alors sur son
-# propre travail.
+# **The load is read before the build, not after** — end-of-phase-8 review.
+# `await-quiet.sh` reads the one-minute average, that is the past; reading it
+# after a Release build means asking whether the machine is free right after
+# occupying it oneself. The guard was then answering about its own work.
 #
-# Mesuré, deux exécutions à une minute d'intervalle sur la même machine :
+# Measured, two runs one minute apart on the same machine:
 #
-#     check-local complet, avec reconstruction Release   2,21   refusé
-#     make bench seul, arbre Release déjà à jour         1,32   inscrit
+#     full check-local, with Release rebuild         2.21   refused
+#     make bench alone, Release tree already fresh   1.32   recorded
 #
-# La seconde partait d'une machine **plus chargée** que la première et s'est
-# inscrite. Ce qui les sépare est la construction que cette étape-ci lance.
+# The second started from a **busier** machine than the first and was recorded.
+# What separates them is the build this step launches.
 #
-# Ce que le garde répond désormais : « la machine était-elle à nous quand on a
-# commencé ». C'est la bonne question — ce qu'il faut écarter est une charge
-# concurrente, un navigateur ou un environnement de développement, et celle-là
-# est là avant comme pendant. Ce qu'il cesse de voir est une charge qui démarre
-# pendant la construction ; le critère de dispersion, lui, la voit après coup.
+# What the guard answers now: « was the machine ours when we started ». It is
+# the right question — what must be ruled out is a competing load, a browser or
+# a development environment, and that one is there before as well as during.
+# What it stops seeing is a load that starts during the build; the dispersion
+# criterion sees that one afterwards.
 #
-# Le code de retour est lu, et non écarté : c'est lui qui décide si le relevé
-# sera inscrit. La charge finale est écrite dans les deux cas.
+# The exit status is read, not discarded: it decides whether the record will be
+# written. The final load is written in both cases.
 quiet=0
 load="$("${REPO_ROOT}/src/scripts/await-quiet.sh" --below "${BENCH_MAX_LOAD}")" || quiet=$?
 
 cmake --preset release -DSUBEDIT_LTO_JOBS="${JOBS}"
 cmake --build --preset release -j "${JOBS}" --target subedit_bench
 
-# **La vidéo du banc du saut et du pas** (#611), fabriquée dans l'arbre de construction et
-# donnée au banc par l'environnement. Sans ffmpeg, ou si la fabrication échoue, elle manque : le
-# banc le dit et s'abstient pour ces mesures-là — ce n'est pas un échec, c'est une machine qui n'a
-# pas de quoi les prendre.
+# **The video of the seek and step bench** (#611), made in the build tree and handed to the bench
+# through the environment. Without ffmpeg, or if making it fails, it is missing: the bench says so
+# and abstains for those measurements — it is not a failure, it is a machine that has nothing to
+# take them with.
 film="${REPO_ROOT}/build/release/bench-film.mp4"
 if command -v ffmpeg >/dev/null 2>&1 && command -v ffprobe >/dev/null 2>&1 \
     && "${REPO_ROOT}/src/scripts/limit-cores.sh" \
         "${REPO_ROOT}/src/scripts/video-fixtures.sh" --film "${film}"; then
     export SUBEDIT_BENCH_FILM="${film}"
 else
-    printf '%s⚠%s pas de vidéo à la taille d'\''un film (ffmpeg manque ?) — le banc du saut et du pas s'\''abstient.\n' \
+    printf '%s⚠%s no film-sized video (ffmpeg missing?) — the seek and step bench abstains.\n' \
         "${YELLOW}" "${RESET}" >&2
 fi
 
-# **Sous `limit-cores.sh`, comme les tests** : libmpv crée ses fils de lui-même, et le banc du lecteur
-# en occupait bien plus que les deux cœurs que la porte se donne — la borne que ces fils héritent est
-# l'affinité, posée sur le processus qui les lance.
+# **Under `limit-cores.sh`, like the tests**: libmpv creates its threads by itself, and the player
+# bench occupied far more than the two cores the gate allows itself — the bound those threads
+# inherit is the affinity, set on the process that launches them.
 "${REPO_ROOT}/src/scripts/limit-cores.sh" "${REPO_ROOT}/build/release/bin/subedit_bench" \
     --reporter console \
     --reporter "xml::out=${XML}"
 
 if ((quiet != 0)); then
-    printf '\n%s⚠%s charge %s, seuil %s — rien n'\''est versé au journal.\n' \
+    printf '\n%s⚠%s load %s, threshold %s — nothing is added to the journal.\n' \
         "${YELLOW}" "${RESET}" "${load}" "${BENCH_MAX_LOAD}" >&2
-    printf '  les chiffres ci-dessus disent l'\''état de la machine autant que celui du code ;\n' >&2
-    printf '  rejouer « make bench » quand elle sera calme, ou noter dans la PR qu'\''il n'\''y a\n' >&2
-    printf '  pas de mesure pour cette version.\n' >&2
+    printf '  the figures above tell the state of the machine as much as that of the code;\n' >&2
+    printf '  replay « make bench » when it is quiet, or note in the PR that there is\n' >&2
+    printf '  no measurement for this version.\n' >&2
     exit 0
 fi
 

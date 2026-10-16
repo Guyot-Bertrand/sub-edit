@@ -21,7 +21,7 @@ tête rend le fichier de départ.
   `--output-dir`, `--in-place` et `--recursive` n'existent pas pour `split-file` et sont refusés comme toute option
   inconnue, code `1` : il n'y a ni dossier où répartir deux fichiers nommés, ni entrée à écraser.
 
-<!-- exemple: subedit-cli split-file --help -->
+<!-- example: subedit-cli split-file --help -->
 ```console
 $ subedit-cli split-file --help
 Cut a subtitle file in two, a head and a tail
@@ -57,7 +57,7 @@ Options:
 **Les deux destinations ne peuvent être ni l'entrée ni un même fichier** : écrire par-dessus ce qu'on est en train
 de lire, ou écrire la queue sur la tête, est refusé avant que rien soit lu, code `1`.
 
-<!-- exemple: printf '1\n00:00:01,000 --> 00:00:02,000\nun\n\n2\n00:00:03,000 --> 00:00:04,000\ndeux\n\n3\n00:00:06,000 --> 00:00:07,000\ntrois\n\n4\n00:00:08,000 --> 00:00:09,000\nquatre\n\n' > film.srt; subedit-cli split-file --at 3 --head tete.srt --tail queue.srt film.srt; cat queue.srt -->
+<!-- example: printf '1\n00:00:01,000 --> 00:00:02,000\nun\n\n2\n00:00:03,000 --> 00:00:04,000\ndeux\n\n3\n00:00:06,000 --> 00:00:07,000\ntrois\n\n4\n00:00:08,000 --> 00:00:09,000\nquatre\n\n' > film.srt; subedit-cli split-file --at 3 --head tete.srt --tail queue.srt film.srt; cat queue.srt -->
 ```console
 $ printf '1\n00:00:01,000 --> 00:00:02,000\nun\n\n2\n00:00:03,000 --> 00:00:04,000\ndeux\n\n3\n00:00:06,000 --> 00:00:07,000\ntrois\n\n4\n00:00:08,000 --> 00:00:09,000\nquatre\n\n' > film.srt; subedit-cli split-file --at 3 --head tete.srt --tail queue.srt film.srt; cat queue.srt
 film.srt: split at subtitle 3: 2 subtitles in the head, 2 subtitles in the tail -> tete.srt, queue.srt

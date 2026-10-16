@@ -1,35 +1,35 @@
 #!/usr/bin/env bash
-# La porte de qualité, et l'ordre de ses étapes — issue #269.
+# The quality gate, and the order of its steps — issue #269.
 #
-# ## Ce qu'il apporte, et pourquoi il existe
+# ## What it brings, and why it exists
 #
-# Les étapes vivaient dans des recettes du `Makefile`, qui les enchaînait par
-# des sous-`make`. Ça marche, et ça a un défaut qu'on paie à chaque échec tardif
-# — **on ne sait pas reprendre au milieu.** Une couverture qui casse à la
-# trente-cinquième minute faisait repayer les trente-quatre premières, format et
-# analyse statique comprises, alors que rien n'y avait bougé.
+# The steps used to live in `Makefile` recipes, chained through sub-`make`
+# calls. That works, and it has a defect paid on every late failure — **there is
+# no way to resume in the middle.** A coverage failure at the thirty-fifth
+# minute meant paying again for the first thirty-four, format and static
+# analysis included, although nothing had moved there.
 #
 #     ./src/scripts/gate.sh --list
 #     ./src/scripts/gate.sh check --from coverage
 #     ./src/scripts/gate.sh check --only tidy
 #     ./src/scripts/gate.sh check-local --skip bench
 #
-# **L'ordre reste ici et nulle part ailleurs.** C'est la seule chose que ce
-# fichier sait et que les étapes ignorent : chacune se lance seule, sans savoir
-# qui la précède. `src/scripts/gate/<étape>.sh` porte ce qu'elle fait ; ce
-# fichier-ci porte quand.
+# **The order lives here and nowhere else.** It is the only thing this file
+# knows and the steps do not: each one runs alone, without knowing what comes
+# before it. `src/scripts/gate/<step>.sh` holds what a step does; this file
+# holds when.
 #
-# ## Ce qu'il ne fait pas
+# ## What it does not do
 #
-# **Il ne remplace pas `make`.** Les cibles restent, réduites à un appel : elles
-# sont l'interface qu'on tape, et `verify-gates.sh` les invoque pour prouver que
-# chaque porte se referme. Ce script est ce qu'elles appellent, et ce qu'on
-# appelle directement quand on veut reprendre au milieu.
+# **It does not replace `make`.** The targets remain, reduced to one call: they
+# are the interface one types, and `verify-gates.sh` invokes them to prove that
+# each gate closes. This script is what they call, and what one calls directly
+# to resume in the middle.
 #
-# **Il ne saute rien en silence.** Un nom d'étape inconnu, à `--from`, `--only`
-# ou `--skip`, fait échouer l'invocation. Une faute de frappe qui ferait
-# n'exécuter aucune étape et rendre zéro serait le pire de tous les défauts :
-# une porte verte qui n'a rien fait.
+# **It skips nothing silently.** An unknown step name, given to `--from`,
+# `--only` or `--skip`, makes the invocation fail. A typo that ran no step and
+# returned zero would be the worst defect of all: a green gate that did
+# nothing.
 
 set -euo pipefail
 
@@ -41,13 +41,13 @@ readonly GREEN=$'\033[32m'
 readonly RED=$'\033[31m'
 readonly RESET=$'\033[0m'
 
-# **L'ordre de `check`, et il n'est pas arbitraire.**
+# **The order of `check`, and it is not arbitrary.**
 #
-# Le relevé des fichiers non suivis encadre tout le reste, et non les seuls
-# tests : ce qui est surveillé est ce que la porte laisse derrière elle, d'où
-# qu'il vienne. Le format passe avant la compilation parce qu'il coûte une
-# seconde et qu'un échec de format doit coûter une seconde. L'analyse statique
-# vient après la compilation parce qu'elle en est une.
+# The record of untracked files frames everything else, not only the tests:
+# what is watched is what the gate leaves behind, wherever it comes from. The
+# format goes before the build because it costs a second, and a format failure
+# should cost a second. Static analysis comes after the build because it is
+# one.
 #
 # The scan of user-visible strings (#661) follows `arch` for the same reason the
 # format comes first: it reads the sources, builds nothing, and costs a second.
@@ -65,14 +65,15 @@ readonly CHECK_STEPS=(
     config-home
 )
 
-# **L'ordre de `check-local`, du moins cher au plus cher**, pour qu'un échec
-# coûte des secondes plutôt que la chaîne entière : parallélisme (un grep, sous
-# la seconde), gabarit des messages (xgettext sur les sources), catalogues against that template
-# (msgmerge into a scratch copy, a second), fixtures (deux appels à ffprobe), score de détection d'encodage puis de
-# format (le noyau et un programme de quarante lignes chacun), perte de conversion (la ligne de commande,
-# puis une vingtaine d'appels), manuel (un binaire de plus, et Qt),
-# exigences (compilation incrémentale), bout en bout (build release),
-# installation — qui partage cet arbre — puis les benchmarks.
+# **The order of `check-local`, cheapest first**, so that a failure costs
+# seconds rather than the whole chain: parallelism (a grep, under a second),
+# message template (xgettext over the sources), catalogues against that
+# template (msgmerge into a scratch copy, a second), fixtures (two calls to
+# ffprobe), encoding then format detection score (the core and a forty-line
+# program each), conversion loss (the command line, then some twenty calls),
+# manual (one more binary, and Qt), requirements (incremental build), end to
+# end (release build), installation — which shares that tree — then the
+# benchmarks.
 readonly LOCAL_STEPS=(
     parallelism
     pot-check
@@ -88,27 +89,27 @@ readonly LOCAL_STEPS=(
     bench
 )
 
-# Ce que chaque nom d'étape lance. Les étapes qui portent de la logique vivent
-# dans `gate/` ; celles qui sont déjà un script à elles sont appelées telles
-# quelles, plutôt que d'être enveloppées pour l'être.
+# What each step name runs. Steps that carry logic live in `gate/`; those
+# that already are a script of their own are called as they are, rather than
+# wrapped for the sake of it.
 run_step() {
     case "$1" in
     untracked-record) "${REPO_ROOT}/src/scripts/check-untracked.sh" --record ;;
     config-home-record) "${REPO_ROOT}/src/scripts/check-config-home.sh" --record ;;
     format-check) "${STEPS_DIR}/format.sh" --check ;;
     format) "${STEPS_DIR}/format.sh" ;;
-    arch) printf '%s▸ invariants d architecture%s\n' "${BOLD}" "${RESET}"
+    arch) printf '%s▸ architecture invariants%s\n' "${BOLD}" "${RESET}"
         "${REPO_ROOT}/src/scripts/check-architecture.sh" ;;
     untranslated) "${STEPS_DIR}/untranslated.sh" ;;
     build) "${STEPS_DIR}/build.sh" ;;
     tidy) "${STEPS_DIR}/tidy.sh" ;;
     asan) "${STEPS_DIR}/asan.sh" ;;
     coverage) "${STEPS_DIR}/coverage.sh" ;;
-    untracked) printf '%s▸ fichiers laissés derrière%s\n' "${BOLD}" "${RESET}"
+    untracked) printf '%s▸ files left behind%s\n' "${BOLD}" "${RESET}"
         "${REPO_ROOT}/src/scripts/check-untracked.sh" --compare ;;
-    config-home) printf '%s▸ configuration de l utilisateur%s\n' "${BOLD}" "${RESET}"
+    config-home) printf '%s▸ user configuration%s\n' "${BOLD}" "${RESET}"
         "${REPO_ROOT}/src/scripts/check-config-home.sh" --compare ;;
-    parallelism) printf '%s▸ parallélisme maîtrisé%s\n' "${BOLD}" "${RESET}"
+    parallelism) printf '%s▸ controlled parallelism%s\n' "${BOLD}" "${RESET}"
         "${REPO_ROOT}/src/scripts/check-parallelism.sh" ;;
     pot-check) "${STEPS_DIR}/pot.sh" ;;
     translations) "${STEPS_DIR}/translations.sh" ;;
@@ -126,7 +127,7 @@ run_step() {
     packages) "${STEPS_DIR}/packages.sh" ;;
     rpm-check) "${STEPS_DIR}/rpm-check.sh" ;;
     *)
-        printf '%sétape inconnue : %s%s\n' "${RED}" "$1" "${RESET}" >&2
+        printf '%sunknown step: %s%s\n' "${RED}" "$1" "${RESET}" >&2
         return 1
         ;;
     esac
@@ -134,16 +135,16 @@ run_step() {
 
 usage() {
     cat >&2 <<'USAGE'
-usage: gate.sh <check|check-local> [--from <étape>] [--only <étape>] [--skip <étape>]
+usage: gate.sh <check|check-local> [--from <step>] [--only <step>] [--skip <step>]
        gate.sh --list
-       gate.sh <étape>
+       gate.sh <step>
 
-  --from   reprend à cette étape, et joue tout ce qui suit
-  --only   ne joue que celle-là, répétable
-  --skip   joue tout sauf celle-là, répétable
-  --list   écrit les étapes de chaque suite, dans l'ordre
+  --from   resumes at this step, and runs everything after it
+  --only   runs only that one, repeatable
+  --skip   runs everything but that one, repeatable
+  --list   writes the steps of each suite, in order
 
-Sans suite nommée, le premier argument est une étape et elle est jouée seule.
+Without a named suite, the first argument is a step and it runs alone.
 USAGE
     exit 2
 }
@@ -155,8 +156,8 @@ list_steps() {
     printf '  %s\n' "${LOCAL_STEPS[@]}"
 }
 
-# Vrai si `$1` est l'un des arguments suivants. Sert aux trois filtres, qui
-# posent la même question sur trois listes différentes.
+# True if `$1` is one of the following arguments. Serves the three filters,
+# which ask the same question of three different lists.
 contains() {
     local needle="$1"
     shift
@@ -177,9 +178,9 @@ fi
 suite="$1"
 shift
 
-# Une porte réduite à quelques tests ne se lance pas par mégarde (voir gate/asan.sh).
+# A gate reduced to a few tests is not run by mistake (see gate/asan.sh).
 if [[ -n "${GATE_PROOF_TESTS:-}" && ( "${suite}" == check || "${suite}" == check-local ) ]]; then
-    printf '%s✗ GATE_PROOF_TESTS est réservée à verify-gates.sh, et réduirait %s à quelques tests%s\n' \
+    printf '%s✗ GATE_PROOF_TESTS is reserved for verify-gates.sh, and would reduce %s to a few tests%s\n' \
         "${RED}" "${suite}" "${RESET}" >&2
     exit 2
 fi
@@ -189,7 +190,7 @@ check) steps=("${CHECK_STEPS[@]}") ;;
 check-local) steps=("${LOCAL_STEPS[@]}") ;;
 -h | --help) usage ;;
 *)
-    # Une étape nommée seule : pas de filtre, pas de suite.
+    # A step named alone: no filter, no suite.
     (($# == 0)) || usage
     run_step "${suite}"
     exit $?
@@ -206,18 +207,18 @@ while (($# > 0)); do
     --only) [[ $# -ge 2 ]] || usage; only+=("$2"); shift 2 ;;
     --skip) [[ $# -ge 2 ]] || usage; skip+=("$2"); shift 2 ;;
     -h | --help) usage ;;
-    *) printf 'argument inconnu : %s\n' "$1" >&2; usage ;;
+    *) printf 'unknown argument: %s\n' "$1" >&2; usage ;;
     esac
 done
 
-# **Tout nom donné doit désigner une étape de la suite**, et le contrôle a lieu
-# avant qu'une seule ne tourne. Sans lui, `--from covrage` jouerait zéro étape
-# et rendrait zéro : une porte verte qui n'a rien fait, ce que ce projet
-# refuse partout ailleurs.
+# **Every name given must designate a step of the suite**, and the check
+# happens before a single one runs. Without it, `--from covrage` would run zero
+# steps and return zero: a green gate that did nothing, which this project
+# refuses everywhere else.
 for named in ${from:+"${from}"} ${only+"${only[@]}"} ${skip+"${skip[@]}"}; do
     if ! contains "${named}" "${steps[@]}"; then
-        printf '%s✗ « %s » n est pas une étape de %s%s\n' "${RED}" "${named}" "${suite}" "${RESET}" >&2
-        printf '  les étapes sont :\n' >&2
+        printf '%s✗ « %s » is not a step of %s%s\n' "${RED}" "${named}" "${suite}" "${RESET}" >&2
+        printf '  the steps are:\n' >&2
         printf '    %s\n' "${steps[@]}" >&2
         exit 2
     fi
@@ -233,23 +234,23 @@ for one in "${steps[@]}"; do
     selected+=("${one}")
 done
 
-# Le même garde que ci-dessus, de l'autre côté : les noms étaient bons et la
-# combinaison ne retient pourtant rien — `--only a --skip a`, par exemple.
+# The same guard as above, from the other side: the names were right and yet
+# the combination keeps nothing — `--only a --skip a`, for instance.
 if ((${#selected[@]} == 0)); then
-    printf '%s✗ aucune étape retenue%s\n' "${RED}" "${RESET}" >&2
+    printf '%s✗ no step selected%s\n' "${RED}" "${RESET}" >&2
     exit 2
 fi
 
-printf '%s%s — %d étape(s)%s\n' "${BOLD}" "${suite}" "${#selected[@]}" "${RESET}"
+printf '%s%s — %d step(s)%s\n' "${BOLD}" "${suite}" "${#selected[@]}" "${RESET}"
 
-# **Le temps de chaque étape**, écrit à la sortie — même sur un échec : la dernière ligne est alors
-# l'étape qui a échoué, avec ce qu'elle a coûté. C'est le chiffre qui manquait pour décider quoi
-# alléger (#686) : sans lui, « la porte est longue » ne désigne rien.
+# **The time of each step**, written on exit — even on a failure: the last line is then the step
+# that failed, with what it cost. It is the figure that was missing to decide what to lighten
+# (#686): without it, « the gate is long » designates nothing.
 durations=()
 report_durations() {
     local status=$?
     ((${#durations[@]} == 0)) || {
-        printf '\n%sdurée des étapes de %s%s\n' "${BOLD}" "${suite}" "${RESET}"
+        printf '\n%sstep durations of %s%s\n' "${BOLD}" "${suite}" "${RESET}"
         local entry
         for entry in "${durations[@]}"; do
             printf '%7d s  %s\n' "${entry%% *}" "${entry#* }"
@@ -267,4 +268,4 @@ for one in "${selected[@]}"; do
     ((status == 0)) || exit "${status}"
 done
 
-printf '%s✓ %s franchie%s\n' "${GREEN}" "${suite}" "${RESET}"
+printf '%s✓ %s passed%s\n' "${GREEN}" "${suite}" "${RESET}"

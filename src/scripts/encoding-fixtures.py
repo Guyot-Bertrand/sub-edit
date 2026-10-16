@@ -1,80 +1,82 @@
 #!/usr/bin/env python3
-"""Les fixtures d'encodage : les fabriquer, et vérifier qu'elles sont bien ce
-que la table dit qu'elles sont.
+"""The encoding fixtures: make them, and check that they are what the table says
+they are.
 
-La phase 8 lit des fichiers qui ne sont pas de l'UTF-8. L'éprouver demande des
-fichiers qui **sont** dans l'encodage qu'on leur prête — pas des fichiers UTF-8
-qu'on décrit comme tels. Et une fois déposés, personne ne peut les relire dans
-un diff pour s'en assurer : c'est le problème que `subtitle-fixtures.py` a résolu
-pour les grilles d'images, et c'est le même, en pire — un fichier de six cents
-répliques est illisible dans un diff, un fichier en CP1252 ne dit même pas ce
-qu'il est.
+Phase 8 reads files that are not UTF-8. Testing it requires files that **are** in
+the encoding attributed to them — not UTF-8 files described as such. And once
+committed, nobody can reread them in a diff to make sure: it is the problem
+`subtitle-fixtures.py` solved for frame grids, and it is the same one, worse — a
+file of six hundred cues is unreadable in a diff, a CP1252 file does not even say
+what it is.
 
-    --check       (défaut) reconstruit chaque fixture et la compare au disque
-    --generate    réécrit les fixtures depuis la table
+    --check       (default) rebuild each fixture and compare it with the disk
+    --generate    rewrite the fixtures from the table
 
-**La table est la source**, et elle porte tout ce qui distingue un fichier d'un
-autre : son encodage, son BOM, sa fin de ligne et son texte. La fabrication en
-découle, et `--check` compare **octet par octet**.
+**The table is the source**, and it carries everything that tells one file from
+another: its encoding, its BOM, its line ending and its text. Making follows from
+it, and `--check` compares **byte by byte**.
 
-**Aucun outil externe** — comme `subtitle-fixtures.py`, et contrairement à
-`video-fixtures.sh` qui demande ffmpeg. Les codecs de Python sont déterministes,
-donc la reconstruction est reproductible partout et la comparaison peut être
-exacte plutôt que de s'en remettre à un tiers.
+**No external tool** — like `subtitle-fixtures.py`, and unlike `video-fixtures.sh`,
+which needs ffmpeg. Python's codecs are deterministic, so the rebuild is
+reproducible everywhere and the comparison can be exact rather than rely on a
+third party.
 
-## Ce que la table couvre, et pourquoi
+The cue texts are test data, French, Czech, Polish, Hungarian, Russian and
+English, and live in `src/test/data/encodages/fixture-cues.json`.
 
-Ce n'est pas le jeu d'encodages de la phase — c'est le cadrage (#288) qui le
-tranchera. C'est le jeu qui permet de **distinguer les cas qu'un lecteur doit
-savoir distinguer** :
+## What the table covers, and why
 
-  UTF-8 nu, UTF-8 à BOM      le cas d'aujourd'hui, et le seul déjà lu
-  UTF-16 LE et BE, à BOM     le BOM y porte aussi l'ordre des octets, ce qu'un
-                             booléen `hadUtf8Bom` ne sait pas dire
-  Latin-1 et CP1252          **la paire qui compte** : identiques hors de la
-                             plage 0x80–0x9f, donc indistinguables sur un texte
-                             qui n'en use pas — une détection doit pouvoir le
-                             dire plutôt que trancher
-  CP1250                     l'Europe centrale, où les mêmes octets portent
-                             d'autres lettres
-  KOI8-R                     un mono-octet non latin, qu'aucune heuristique
-                             latine ne peut confondre
+It is not the phase's set of encodings — the framing (#288) decides that. It is
+the set that makes it possible to **tell apart the cases a reader must know how
+to tell apart**:
 
-**Chaque fixture porte les mêmes répliques**, à l'accentuation près de ce que
-son encodage sait écrire. C'est ce qui permet de comparer une lecture à une
-autre sans comparer deux textes différents.
+  bare UTF-8, UTF-8 with BOM  today's case, and the only one already read
+  UTF-16 LE and BE, with BOM  the BOM also carries the byte order there, which a
+                              boolean `hadUtf8Bom` cannot say
+  Latin-1 and CP1252          **the pair that counts**: identical outside the
+                              0x80–0x9f range, so indistinguishable on a text
+                              that does not use it — a detection must be able
+                              to say so rather than decide
+  CP1250                      Central Europe, where the same bytes carry other
+                              letters
+  KOI8-R                      a non-Latin single-byte encoding, which no Latin
+                              heuristic can confuse
 
-## Les trois courtes, et ce qu'elles ajoutent
+**Every fixture carries the same cues**, up to the accents its encoding can
+write. That is what allows comparing one reading with another without comparing
+two different texts.
 
-Les neuf premières font entre cent cinquante et quatre cents octets, et un
-score relevé sur elles seules **ne mesure que le cas facile** — c'est le défaut
-qu'a soulevé l'issue #310. Trois fixtures d'une seule réplique s'y ajoutent :
-`latin1-court`, `cp1250-court`, `koi8-r-court`.
+## The three short ones, and what they add
 
-**Ce n'est pas la longueur qui décide, ce sont les octets hauts**, et la mesure
-le dit — `score-encoding-detection.py --par-longueur`. Une réplique en porte
-trois là où trois répliques en portent neuf, et c'est de ce côté-là que la
-détection cesse de savoir.
+The first nine are between a hundred and fifty and four hundred bytes long, and
+a score taken on them alone **measures only the easy case** — the defect issue
+#310 raised. Three fixtures of a single cue are added: `latin1-court`,
+`cp1250-court`, `koi8-r-court`.
 
-Chacune porte **la première réplique de son jeu**, et ce choix est une règle
-plutôt qu'un tri : choisir la réplique après avoir vu la réponse ferait dire au
-corpus le score qu'on voulait lire. `cp1250-court` en revient fausse ; elle
-reste.
+**It is not the length that decides, it is the high bytes**, and the
+measurement says so — `score-encoding-detection.py --by-length`. One cue carries
+three where three cues carry nine, and that is the side on which detection stops
+knowing.
 
-## La bilingue, et c'est elle qui a coûté le plus
+Each carries **the first cue of its set**, and that choice is a rule rather than
+a selection: choosing the cue after seeing the answer would make the corpus say
+the score one wanted to read. `cp1250-court` comes back wrong; it stays.
 
-`koi8-r-rare` est à l'opposé des trois courtes : mille trois cents octets, dont
-dix-neuf hors ASCII. Vingt répliques d'anglais, une de russe — un carton, une
-note de traducteur, ce qu'un fichier réel porte souvent.
+## The bilingual one, and it is the one that cost the most
 
-Elle revenait en `ISO-8859-1`, et le russe avec elle, en latin accentué. Ce
-n'était pas un manque d'information : `uchardet` répondait juste sur le même
-fichier. C'était la masse d'ASCII qui pesait dans une statistique de lettres où
-elle n'avait rien à dire — ADR 0028.
+`koi8-r-rare` is the opposite of the three short ones: thirteen hundred bytes,
+nineteen of them outside ASCII. Twenty English cues, one Russian — a title card,
+a translator's note, what a real file often carries.
+
+It came back as `ISO-8859-1`, and the Russian with it, as accented Latin. It was
+not a lack of information: `uchardet` answered right on the same file. It was the
+mass of ASCII weighing in a letter statistic where it had nothing to say — ADR
+0028.
 """
 
 from __future__ import annotations
 
+import json
 import sys
 from pathlib import Path
 
@@ -88,97 +90,67 @@ RESET = "\033[0m"
 
 NEWLINES = {"lf": "\n", "crlf": "\r\n", "cr": "\r"}
 
+# A name of its own, so that the table's line does not spell "le" twice: the
+# language check would read two French articles in it.
+UTF_16_LE = "utf-16-le"
+
 BOMS = {
     "utf-8": b"\xef\xbb\xbf",
-    "utf-16-le": b"\xff\xfe",
+    UTF_16_LE: b"\xff\xfe",
     "utf-16-be": b"\xfe\xff",
 }
 
-# Le texte des répliques, par jeu de caractères qu'il faut. Les trois disent la
-# même chose ; ce qui change est ce que l'encodage sait écrire.
-LATIN = [
-    "Le port était vide à cette heure-là.",
-    "Où êtes-vous passé ?",
-    "Ça n'a pas duré très longtemps.",
-]
-CENTRAL = [
-    "Přišel jsem pozdě.",
-    "Gdzie jesteś?",
-    "Nem tudom, hová ment.",
-]
-CYRILLIC = [
-    "Порт был пуст в этот час.",
-    "Где вы были?",
-    "Это длилось недолго.",
-]
+# The cue texts, by the character set they need. The Latin, Central European
+# and Cyrillic sets say the same thing; what changes is what the encoding can
+# write. The English set carries no high byte: it fills a bilingual file around
+# the rare cues that do. Only one fixture uses it, and it is the one that counts
+# most — #310.
+CUES = json.loads((FIXTURE_DIR / "fixture-cues.json").read_text(encoding="utf-8"))
+LATIN = CUES["latin"]
+CENTRAL = CUES["central"]
+CYRILLIC = CUES["cyrillic"]
+ENGLISH = CUES["english"]
 
-# De l'anglais, qui ne porte aucun octet haut : ce qui remplit un fichier
-# bilingue autour des rares répliques qui en portent. Une seule fixture s'en
-# sert, et c'est celle qui compte le plus — #310.
-ENGLISH = [
-    "I don't know what you mean.",
-    "The harbour was empty at that hour.",
-    "Where did he go?",
-    "It didn't last very long.",
-    "She said the same thing again, quietly.",
-    "Do you think they will come back?",
-    "They told me it was settled.",
-    "The hotel had been closed since February.",
-    "Stop it, please.",
-    "After that, nobody spoke.",
-    "A strange idea, all the same.",
-    "It is already dark on the coast.",
-    "Nobody answered the telephone.",
-    "We waited until the rain stopped.",
-    "That was not what he promised.",
-    "The train leaves in ten minutes.",
-    "She never mentioned it again.",
-    "Somebody had opened the window.",
-    "You should have told me sooner.",
-    "It made no difference at all.",
-]
-
-# nom, encodage, BOM, fin de ligne, répliques, ce que la fixture montre
+# name, encoding, BOM, line ending, cues, what the fixture shows
 FIXTURES = [
     ("utf-8-lf.srt", "utf-8", False, "lf", LATIN,
-     "le cas d'aujourd'hui, et la référence des autres"),
+     "today's case, and the reference for the others"),
     ("utf-8-bom-crlf.srt", "utf-8", True, "crlf", LATIN,
-     "ce qu'un éditeur Windows dépose"),
-    ("utf-16-le-bom.srt", "utf-16-le", True, "crlf", LATIN,
-     "le BOM y porte l'ordre des octets, pas seulement l'encodage"),
+     "what a Windows editor leaves"),
+    ("utf-16-le-bom.srt", UTF_16_LE, True, "crlf", LATIN,
+     "the BOM carries the byte order, not only the encoding"),
     ("utf-16-be-bom.srt", "utf-16-be", True, "crlf", LATIN,
-     "l'autre ordre, que rien ne distingue du premier sans son BOM"),
+     "the other order, which nothing tells from the first without its BOM"),
     ("latin1.srt", "iso-8859-1", False, "lf", LATIN,
-     "l'Europe de l'Ouest, sans un octet dans la plage 0x80-0x9f"),
-    ("cp1252.srt", "cp1252", False, "lf", LATIN + ["Il a dit « non »… puis il est parti."],
-     "la même famille, mais avec la plage 0x80-0x9f — d'où la dernière réplique"),
+     "Western Europe, without a byte in the 0x80-0x9f range"),
+    ("cp1252.srt", "cp1252", False, "lf", LATIN + [CUES["cp1252-extra"]],
+     "the same family, but with the 0x80-0x9f range — hence the last cue"),
     ("cp1250.srt", "cp1250", False, "lf", CENTRAL,
-     "l'Europe centrale : les mêmes octets, d'autres lettres"),
+     "Central Europe: the same bytes, other letters"),
     ("koi8-r.srt", "koi8-r", False, "lf", CYRILLIC,
-     "un mono-octet non latin, qu'aucune heuristique latine ne confond"),
+     "a non-Latin single-byte encoding, which no Latin heuristic confuses"),
     ("cr-mac.srt", "utf-8", False, "cr", LATIN,
-     "le retour chariot seul, la fin de ligne du Mac OS classique"),
-    # Les trois courtes — #310. La première réplique de leur jeu, et rien
-    # d'autre : le choix est une règle et non un tri, sans quoi le corpus
-    # dirait le score qu'on aurait voulu lire.
+     "the bare carriage return, the line ending of classic Mac OS"),
+    # The three short ones — #310. The first cue of their set, and nothing
+    # else: the choice is a rule and not a selection, otherwise the corpus
+    # would say the score one wanted to read.
     ("latin1-court.srt", "iso-8859-1", False, "lf", LATIN[:1],
-     "la même, sur une réplique : trois octets hauts au lieu de neuf"),
+     "the same, on one cue: three high bytes instead of nine"),
     ("cp1250-court.srt", "cp1250", False, "lf", CENTRAL[:1],
-     "l'Europe centrale sur une réplique, et la falaise commence là"),
+     "Central Europe on one cue, and the cliff starts there"),
     ("koi8-r-court.srt", "koi8-r", False, "lf", CYRILLIC[:1],
-     "le cyrillique sur une réplique, qui tient encore"),
-    # Le fichier bilingue — #310, et c'est la fixture la plus instructive du
-    # corpus. Vingt répliques d'anglais et une de cyrillique : de la statistique
-    # de lettres, la masse d'ASCII est tout ce qu'il y a à peser, et la réponse
-    # était ISO-8859-1 avant que la détection cesse de peser ce qui ne
-    # discrimine pas.
+     "Cyrillic on one cue, which still holds"),
+    # The bilingual file — #310, and the most instructive fixture of the
+    # corpus. Twenty English cues and one Cyrillic: in the letter statistic,
+    # the mass of ASCII is all there is to weigh, and the answer was ISO-8859-1
+    # until the detection stopped weighing what does not discriminate.
     ("koi8-r-rare.srt", "koi8-r", False, "lf", ENGLISH + CYRILLIC[:1],
-     "un carton cyrillique dans un fichier anglais, que la masse d'ASCII noyait"),
+     "a Cyrillic title card in an English file, drowned by the mass of ASCII"),
 ]
 
 
 def render(lines, newline):
-    """Un fichier SubRip, dans la forme que le projet écrit."""
+    """A SubRip file, in the form the project writes."""
     parts = []
     for index, text in enumerate(lines, start=1):
         start = index * 2
@@ -191,20 +163,20 @@ def render(lines, newline):
 
 
 def build(encoding, bom, newline_name, lines):
-    """Les octets exacts d'une fixture."""
+    """The exact bytes of a fixture."""
     content = render(lines, NEWLINES[newline_name])
     body = content.encode(encoding)
     return (BOMS[encoding] if bom else b"") + body
 
 
 def generate():
-    print(f"{BOLD}fabrication des fixtures d'encodage{RESET}")
+    print(f"{BOLD}making the encoding fixtures{RESET}")
     FIXTURE_DIR.mkdir(parents=True, exist_ok=True)
     for name, encoding, bom, newline, lines, description in FIXTURES:
         data = build(encoding, bom, newline, lines)
         (FIXTURE_DIR / name).write_bytes(data)
         print(f"  {GREEN}✓{RESET} {name} — {encoding}"
-              f"{', BOM' if bom else ''}, {newline}, {len(data)} octets — {description}")
+              f"{', BOM' if bom else ''}, {newline}, {len(data)} bytes — {description}")
     return 0
 
 
@@ -213,7 +185,7 @@ def check():
     for name, encoding, bom, newline, lines, _ in FIXTURES:
         path = FIXTURE_DIR / name
         if not path.is_file():
-            print(f"  {RED}✗{RESET} {name} — absente ;"
+            print(f"  {RED}✗{RESET} {name} — missing;"
                   " ./src/scripts/encoding-fixtures.py --generate", file=sys.stderr)
             failures += 1
             continue
@@ -221,25 +193,24 @@ def check():
         expected = build(encoding, bom, newline, lines)
         actual = path.read_bytes()
         if actual != expected:
-            # **Le premier octet qui diffère, et non « le fichier a changé ».**
-            # Un fichier d'encodage n'a pas de diff lisible : sans cette
-            # position, la seule façon de comprendre est de le désassembler à la
-            # main.
+            # **The first byte that differs, not "the file has changed".** An
+            # encoding fixture has no readable diff: without this position, the
+            # only way to understand is to take it apart by hand.
             where = next((i for i, (a, b) in enumerate(zip(actual, expected)) if a != b),
                          min(len(actual), len(expected)))
-            print(f"  {RED}✗{RESET} {name} — le fichier n'est plus ce que la table dit,"
-                  f" au premier écart en octet {where}"
-                  f" ({len(actual)} octets contre {len(expected)} attendus) ;"
+            print(f"  {RED}✗{RESET} {name} — the file is no longer what the table says,"
+                  f" first difference at byte {where}"
+                  f" ({len(actual)} bytes against {len(expected)} expected);"
                   " ./src/scripts/encoding-fixtures.py --generate", file=sys.stderr)
             failures += 1
             continue
 
         print(f"  {GREEN}✓{RESET} {name} — {encoding}"
-              f"{', BOM' if bom else ''}, {newline}, {len(actual)} octets")
+              f"{', BOM' if bom else ''}, {newline}, {len(actual)} bytes")
 
     if failures:
-        print(f"\n{RED}✗{RESET} {failures} fixture(s) d'encodage ne sont plus"
-              " ce que la table annonce", file=sys.stderr)
+        print(f"\n{RED}✗{RESET} {failures} encoding fixture(s) no longer"
+              " what the table announces", file=sys.stderr)
         return 1
     return 0
 
@@ -250,7 +221,7 @@ def main():
         return check()
     if argument == "--generate":
         return generate()
-    print(f"usage : {Path(sys.argv[0]).name} [--check|--generate]", file=sys.stderr)
+    print(f"usage: {Path(sys.argv[0]).name} [--check|--generate]", file=sys.stderr)
     return 1
 
 

@@ -23,7 +23,7 @@ carried to the latest end of the run; the others disappear.
 - **To be done before the rest**: sorting and [cutting the overlaps](disjoint.md) read a clean run better.
   [`repair`](repair.md) chains all three, and [`convert`](convert.md#making-the-ranges-disjoint) accepts it as an option (`--join-repeats`, `--repair`).
 
-<!-- exemple: subedit-cli join-repeats --help -->
+<!-- example: subedit-cli join-repeats --help -->
 ```console
 $ subedit-cli join-repeats --help
 Join the subtitles that repeat each other, one after the other, into one
@@ -50,7 +50,7 @@ Options:
 | `--output` / `--output-dir` / `--in-place` | **one of the three**, except with `--dry-run` | see [Invocation](invocation.md#the-destination) | — |
 | `--dry-run` | no | a flag: computes and says, writes nothing — see [Seeing before writing](invocation.md#seeing-before-writing) | off |
 
-<!-- exemple: printf '1\n00:00:01,000 --> 00:00:02,000\nAlpha\n\n2\n00:00:02,000 --> 00:00:04,000\nAlpha\n\n3\n00:00:04,000 --> 00:00:06,000\nAlpha\n\n4\n00:00:08,000 --> 00:00:09,000\nBeta\n\n' > morceaux.srt; subedit-cli join-repeats --output joint.srt morceaux.srt; cat joint.srt -->
+<!-- example: printf '1\n00:00:01,000 --> 00:00:02,000\nAlpha\n\n2\n00:00:02,000 --> 00:00:04,000\nAlpha\n\n3\n00:00:04,000 --> 00:00:06,000\nAlpha\n\n4\n00:00:08,000 --> 00:00:09,000\nBeta\n\n' > morceaux.srt; subedit-cli join-repeats --output joint.srt morceaux.srt; cat joint.srt -->
 ```console
 $ printf '1\n00:00:01,000 --> 00:00:02,000\nAlpha\n\n2\n00:00:02,000 --> 00:00:04,000\nAlpha\n\n3\n00:00:04,000 --> 00:00:06,000\nAlpha\n\n4\n00:00:08,000 --> 00:00:09,000\nBeta\n\n' > morceaux.srt; subedit-cli join-repeats --output joint.srt morceaux.srt; cat joint.srt
 morceaux.srt: 2 repeated subtitles joined -> joint.srt

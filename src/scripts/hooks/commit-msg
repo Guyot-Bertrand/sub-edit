@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Valide la grammaire Conventional Commits du message en cours de rédaction.
+# Validates the Conventional Commits grammar of the message being written.
 
 set -euo pipefail
 

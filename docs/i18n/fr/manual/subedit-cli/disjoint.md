@@ -19,7 +19,7 @@ change, c'est la façon dont la ligne de temps est découpée :
   l'ordre de leurs débuts** — le plus tôt en ligne 1, le suivant en ligne 2 ;
 - un sous-titre qui ne chevauche rien n'est pas touché, et l'ordre du reste est conservé.
 
-<!-- exemple: subedit-cli disjoint --help -->
+<!-- example: subedit-cli disjoint --help -->
 ```console
 $ subedit-cli disjoint --help
 Cut overlapping subtitles so that no range overlaps another, merging what overlaps
@@ -54,7 +54,7 @@ Options:
 | `--output` / `--output-dir` / `--in-place` | **l'une des trois**, sauf avec `--dry-run` | voir [Invocation](invocation.md#la-destination) | — |
 | `--dry-run` | non | un drapeau : calcule et dit, n'écrit rien — voir [Voir avant d'écrire](invocation.md#voir-avant-décrire) | désactivé |
 
-<!-- exemple: printf '1\n00:00:00,000 --> 00:00:05,000\nA\n\n2\n00:00:03,000 --> 00:00:08,000\nB\n\n' > chevauche.srt; subedit-cli disjoint --output disjoint.srt chevauche.srt; cat disjoint.srt -->
+<!-- example: printf '1\n00:00:00,000 --> 00:00:05,000\nA\n\n2\n00:00:03,000 --> 00:00:08,000\nB\n\n' > chevauche.srt; subedit-cli disjoint --output disjoint.srt chevauche.srt; cat disjoint.srt -->
 ```console
 $ printf '1\n00:00:00,000 --> 00:00:05,000\nA\n\n2\n00:00:03,000 --> 00:00:08,000\nB\n\n' > chevauche.srt; subedit-cli disjoint --output disjoint.srt chevauche.srt; cat disjoint.srt
 chevauche.srt: 2 subtitles split, 1 merged -> disjoint.srt
@@ -92,7 +92,7 @@ long. Le texte de l'intervalle n'est perdu que si aucun voisin ne le porte, et a
 est montré **en fenêtres successives** de cette taille, en parts égales de la durée. Trois lignes sur trois
 secondes :
 
-<!-- exemple: printf '1\n00:00:00,000 --> 00:00:03,000\nA\n\n2\n00:00:00,000 --> 00:00:03,000\nB\n\n3\n00:00:00,000 --> 00:00:03,000\nC\n\n' > trois.srt; subedit-cli disjoint --output fenetres.srt trois.srt; cat fenetres.srt -->
+<!-- example: printf '1\n00:00:00,000 --> 00:00:03,000\nA\n\n2\n00:00:00,000 --> 00:00:03,000\nB\n\n3\n00:00:00,000 --> 00:00:03,000\nC\n\n' > trois.srt; subedit-cli disjoint --output fenetres.srt trois.srt; cat fenetres.srt -->
 ```console
 $ printf '1\n00:00:00,000 --> 00:00:03,000\nA\n\n2\n00:00:00,000 --> 00:00:03,000\nB\n\n3\n00:00:00,000 --> 00:00:03,000\nC\n\n' > trois.srt; subedit-cli disjoint --output fenetres.srt trois.srt; cat fenetres.srt
 trois.srt: 0 subtitles split, 1 merged; 1 shown in windows for holding too many lines -> fenetres.srt
@@ -121,7 +121,7 @@ les sous-titres fusionnés diffèrent.
 Les groupes sont des suites de voisins : hors d'ordre, les voisins ne sont pas ceux qui se chevauchent. Un fichier
 dont les débuts ne sont pas dans l'ordre est donc **refusé**, et le message le dit :
 
-<!-- exemple: printf '1\n00:00:03,000 --> 00:00:08,000\nB\n\n2\n00:00:00,000 --> 00:00:05,000\nA\n\n' > desordre.srt; subedit-cli disjoint --output x.srt desordre.srt; echo "code $?" -->
+<!-- example: printf '1\n00:00:03,000 --> 00:00:08,000\nB\n\n2\n00:00:00,000 --> 00:00:05,000\nA\n\n' > desordre.srt; subedit-cli disjoint --output x.srt desordre.srt; echo "code $?" -->
 ```console
 $ printf '1\n00:00:03,000 --> 00:00:08,000\nB\n\n2\n00:00:00,000 --> 00:00:05,000\nA\n\n' > desordre.srt; subedit-cli disjoint --output x.srt desordre.srt; echo "code $?"
 desordre.srt: The subtitles are not in the order of their start: sort them first. Use --sort to do that here.

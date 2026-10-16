@@ -1,26 +1,26 @@
 #!/usr/bin/env python3
-"""Recalcule la table des extrêmes depuis les relevés que le journal conserve.
+"""Recomputes the table of extremes from the records the journal keeps.
 
-**La table n'est jamais élaguée, donc un extrême posé par du bruit est
-définitif** — et un maximum ne tombe que devant un maximum plus haut. Une règle
-d'admission qui se resserre ne répare donc pas le passé toute seule : il faut
-repasser sur ce qui a été posé quand la règle était plus lâche.
+**The table is never pruned, so an extreme set by noise is final** — and a
+maximum only falls before a higher maximum. An admission rule that tightens
+therefore does not repair the past by itself: what was set when the rule was
+looser has to be gone over again.
 
-C'est arrivé trois fois. Deux corrections à la main — la version `0.2.15`, puis
-`0.5.13` — et celle de l'issue #202, qui a ajouté le critère de dispersion et
-trouvé **vingt-trois des soixante extrêmes** posés par un relevé que ce critère
-refuse. Ce script existe pour que la quatrième fois ne soit pas une quatrième
-correction à la main.
+It happened three times. Two corrections by hand — version `0.2.15`, then
+`0.5.13` — and that of issue #202, which added the dispersion criterion and
+found **twenty-three of the sixty extremes** set by a record that this
+criterion refuses. This script exists so that the fourth time is not a fourth
+correction by hand.
 
-    --dry-run   (défaut) écrit ce qui changerait, ne touche à rien
-    --apply     réécrit la table
+    --dry-run   (default) writes what would change, touches nothing
+    --apply     rewrites the table
 
-**Il ne peut réparer que ce que le journal porte encore.** Les relevés de plus
-d'un mois sont élagués ; un extrême dont la source a disparu ne peut être ni
-jugé ni remplacé, et il est laissé tel quel — le dire vaut mieux que de le
-recalculer sur une histoire tronquée.
+**It can only repair what the journal still carries.** Records older than a
+month are pruned; an extreme whose source has disappeared can be neither judged
+nor replaced, and it is left as is — saying so is better than recomputing it on
+a truncated history.
 
-Il n'entre dans aucune porte. Ce n'est pas une vérification, c'est une réparation.
+It enters no gate. It is not a check, it is a repair.
 """
 
 from __future__ import annotations
@@ -34,9 +34,9 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent
 JOURNAL = REPO_ROOT / "docs" / "mesures" / "performances.md"
 
-# Les deux critères d'admission, écrits comme record-bench.sh les écrit. Deux
-# endroits pour un seul nombre est un de trop ; ils sont ici parce que ce script
-# doit pouvoir rejouer une règle passée pour comprendre ce qu'elle a laissé.
+# The two admission criteria, written as record-bench.sh writes them. Two places
+# for a single number is one too many; they are here because this script must be
+# able to replay a past rule to understand what it let through.
 LOAD_BELOW = 1.5
 SPREAD_FACTOR = 1.25
 SPREAD_MINIMUM = 5
@@ -58,7 +58,7 @@ def nanoseconds(cell):
 
 
 def humanise(value):
-    """Trois chiffres significatifs, dans l'unité qui va — comme record-bench.sh."""
+    """Three significant digits, in the unit that fits — as record-bench.sh does."""
     for unit, scale in (("s", 1e9), ("ms", 1e6), ("µs", 1e3), ("ns", 1.0)):
         if value >= scale:
             shown = f"{value / scale:.3g}"
@@ -67,7 +67,7 @@ def humanise(value):
 
 
 def readings(text):
-    """Les relevés conservés : version, date, charge, moyennes et dispersions."""
+    """The records kept: version, date, load, means and dispersions."""
     body = text.split("<!-- records -->", 1)[-1]
     found, current = [], None
     for line in body.splitlines():
@@ -99,7 +99,10 @@ def readings(text):
 
 def main():
     parser = argparse.ArgumentParser(add_help=True)
-    parser.add_argument("--apply", action="store_true", help="réécrit la table")
+    mode = parser.add_mutually_exclusive_group()
+    mode.add_argument("--dry-run", action="store_true",
+                      help="(default) writes what would change, touches nothing")
+    mode.add_argument("--apply", action="store_true", help="rewrites the table")
     parser.add_argument("--journal", default=str(JOURNAL))
     options = parser.parse_args()
 
@@ -107,7 +110,7 @@ def main():
     text = path.read_text(encoding="utf-8")
     kept = readings(text)
     if not kept:
-        print("aucun relevé lisible dans le journal", file=sys.stderr)
+        print("no readable record in the journal", file=sys.stderr)
         return 1
 
     usual = {}
@@ -125,20 +128,19 @@ def main():
             return True
         return spread <= SPREAD_FACTOR * median[name]
 
-    # **Seuls les extrêmes fautifs bougent, et un extrême est fautif quand son
-    # propre relevé d'origine est refusé.** Recalculer l'enveloppe entière
-    # depuis les relevés conservés paraît plus simple et perd davantage : tout
-    # extrême dont la source a été élaguée serait remplacé par le meilleur des
-    # trente derniers jours, ce qui remonte les minima et oublie ce qui a été
-    # mesuré. Ce n'est pas ce que #202 demande.
+    # **Only faulty extremes move, and an extreme is faulty when its own
+    # originating record is refused.** Recomputing the whole envelope from the
+    # records kept looks simpler and loses more: every extreme whose source was
+    # pruned would be replaced by the best of the last thirty days, which raises
+    # the minima and forgets what was measured. That is not what #202 asks.
     #
-    # Trois cas, et deux ne touchent à rien :
+    # Three cases, and two touch nothing:
     #
-    #   source absente du journal   laissé — on ne peut ni le juger ni le
-    #                               remplacer, et le dire vaut mieux que de
-    #                               recalculer sur une histoire tronquée
-    #   source présente, admise     laissé — il est ce qu'il prétend être
-    #   source présente, refusée    remplacé par le meilleur relevé admis
+    #   source absent from the journal  left — it can be neither judged nor
+    #                                   replaced, and saying so is better than
+    #                                   recomputing on a truncated history
+    #   source present, admitted        left — it is what it claims to be
+    #   source present, refused         replaced by the best admitted record
     by_stamp = {reading["stamp"]: reading for reading in kept}
 
     best = {}
@@ -163,7 +165,7 @@ def main():
     kept_values = {}
 
     def verdict(name, role, source):
-        """Cet extrême doit-il bouger, et pourquoi ?"""
+        """Must this extreme move, and why?"""
         reading = by_stamp.get(source)
         if reading is None:
             unjudgeable.append((name, role, source))
@@ -196,19 +198,19 @@ def main():
         rebuilt,
     )
 
-    print(f"{len(kept)} relevés conservés, {len(raw)} mesures dans la table")
-    print(f"{len(changes)} extrême(s) posés par un relevé que les critères refusent :")
+    print(f"{len(kept)} records kept, {len(raw)} measures in the table")
+    print(f"{len(changes)} extreme(s) set by a record the criteria refuse:")
     for name, role, before, after in sorted(changes):
         print(f"  {role:<7} {humanise(before):>9} -> {humanise(after):>9}   {name}")
     if unjudgeable:
-        print(f"\n{len(unjudgeable)} extrême(s) dont le relevé d'origine est élagué : laissés tels quels")
+        print(f"\n{len(unjudgeable)} extreme(s) whose originating record was pruned: left as is")
 
     if not options.apply:
-        print("\n--dry-run : rien n'a été écrit. --apply pour réécrire.")
+        print("\n--dry-run: nothing was written. --apply to rewrite.")
         return 0
 
     path.write_text(head + marker + rebuilt + records_marker + records, encoding="utf-8")
-    print("\ntable réécrite.")
+    print("\ntable rewritten.")
     return 0
 
 

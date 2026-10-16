@@ -1,0 +1,40 @@
+{
+    "latin": [
+        "Le port était vide à cette heure-là.",
+        "Où êtes-vous passé ?",
+        "Ça n'a pas duré très longtemps."
+    ],
+    "central": [
+        "Přišel jsem pozdě.",
+        "Gdzie jesteś?",
+        "Nem tudom, hová ment."
+    ],
+    "cyrillic": [
+        "Порт был пуст в этот час.",
+        "Где вы были?",
+        "Это длилось недолго."
+    ],
+    "cp1252-extra": "Il a dit « non »… puis il est parti.",
+    "english": [
+        "I don't know what you mean.",
+        "The harbour was empty at that hour.",
+        "Where did he go?",
+        "It didn't last very long.",
+        "She said the same thing again, quietly.",
+        "Do you think they will come back?",
+        "They told me it was settled.",
+        "The hotel had been closed since February.",
+        "Stop it, please.",
+        "After that, nobody spoke.",
+        "A strange idea, all the same.",
+        "It is already dark on the coast.",
+        "Nobody answered the telephone.",
+        "We waited until the rain stopped.",
+        "That was not what he promised.",
+        "The train leaves in ten minutes.",
+        "She never mentioned it again.",
+        "Somebody had opened the window.",
+        "You should have told me sooner.",
+        "It made no difference at all."
+    ]
+}

@@ -23,7 +23,7 @@ exemple.
 Le format du fichier lu est **conservé** : changer de format est le travail de
 [`convert`](convert.md).
 
-<!-- exemple: subedit-cli framerate --help -->
+<!-- example: subedit-cli framerate --help -->
 ```console
 $ subedit-cli framerate --help
 Re-time a file mastered at one frame rate for another
@@ -116,7 +116,7 @@ Concrètement, de 25 vers 23.976, le facteur vaut `1001/960` :
 | `1 010 ms` | `1 053 ms` | `1 043 ms` |
 | `3 600 017 ms` | `3 753 768 ms` | `3 753 750 ms` |
 
-<!-- exemple: printf '1\n00:00:01,010 --> 00:00:02,020\nUn.\n\n' > a.srt; subedit-cli framerate --from 25 --to 23.976 --output b.srt a.srt; cat b.srt -->
+<!-- example: printf '1\n00:00:01,010 --> 00:00:02,020\nUn.\n\n' > a.srt; subedit-cli framerate --from 25 --to 23.976 --output b.srt a.srt; cat b.srt -->
 ```console
 $ printf '1\n00:00:01,010 --> 00:00:02,020\nUn.\n\n' > a.srt; subedit-cli framerate --from 25 --to 23.976 --output b.srt a.srt; cat b.srt
 a.srt: 1 subtitle retimed from 25 to 24000/1001 fps -> b.srt
@@ -153,7 +153,7 @@ Aucun refus ne dépend du contenu d'un fichier : deux cadences définissent
 toujours un facteur. C'est la seule des sous-commandes qui écrivent dont
 tous les refus tombent avant la première lecture.
 
-<!-- exemple: printf '1\n00:00:01,010 --> 00:00:02,020\nUn.\n\n' > a.srt; subedit-cli framerate --from 0 --to 25 --output b.srt a.srt; echo "code=$?" -->
+<!-- example: printf '1\n00:00:01,010 --> 00:00:02,020\nUn.\n\n' > a.srt; subedit-cli framerate --from 0 --to 25 --output b.srt a.srt; echo "code=$?" -->
 ```console
 $ printf '1\n00:00:01,010 --> 00:00:02,020\nUn.\n\n' > a.srt; subedit-cli framerate --from 0 --to 25 --output b.srt a.srt; echo "code=$?"
 "0" is not a frame rate: a frame rate must be strictly positive; nothing runs at that speed

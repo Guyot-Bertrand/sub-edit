@@ -1,48 +1,49 @@
 #!/usr/bin/env python3
-"""Ce qu'une conversion perd, mesuré plutôt que cru.
+"""What a conversion loses, measured rather than believed.
 
-L'[ADR 0009](../../docs/adr/0009-texte-en-chaine-brute.md) annonce depuis la
-phase 1 qu'un modèle structuré sert de pivot « uniquement lors d'une conversion
-entre formats, où la perte est inévitable et **assumée** ». *Assumée* suppose
-qu'on la connaisse, et rien ne la disait.
+[ADR 0009](../../docs/adr/0009-texte-en-chaine-brute.md) has announced since
+phase 1 that a structured model serves as a pivot "only during a conversion
+between formats, where the loss is unavoidable and **accepted**". *Accepted*
+assumes it is known, and nothing said it.
 
-    --binary CHEMIN   le subedit-cli à mesurer (défaut : build/dev/bin/subedit-cli)
-    --journal         confronte la mesure au relevé de docs/mesures/conversion.md
-    --record          réécrit ce relevé depuis la mesure ; implique --journal
-    --diff            montre, pour chaque fichier altéré, ce qui ne revient pas
+    --binary PATH     the subedit-cli to measure (default: build/dev/bin/subedit-cli)
+    --journal         compares the measurement with the record in docs/mesures/conversion.md
+    --record          rewrites that record from the measurement; implies --journal
+    --diff            shows, for each altered file, what does not come back
 
-## Ce qui est mesuré, et pourquoi c'est un aller-retour
+## What is measured, and why it is a round trip
 
-Une conversion ne se regarde pas de l'extérieur : le fichier d'arrivée est dans
-un autre format, et il n'y a rien à quoi le comparer. **Le format de départ est
-donc la toise.** Un fichier part en `A`, passe par `B`, revient en `A`, et ce
-qui ne revient pas est ce que `B` n'a pas su porter.
+A conversion cannot be judged from the outside: the resulting file is in
+another format, and there is nothing to compare it with. **The starting format
+is therefore the yardstick.** A file leaves as `A`, goes through `B`, comes back
+as `A`, and what does not come back is what `B` could not carry.
 
-C'est exact, et ça ne l'est que grâce à une propriété que le harnais de #338
-tient par ailleurs : **un fichier du corpus est déjà ce que notre écriture
-produit**, octet pour octet. Sans elle, un écart entre le départ et l'arrivée
-pourrait venir de la mise en forme plutôt que du passage, et la mesure ne dirait
-plus rien.
+That is exact, and it is so only thanks to a property the harness of #338 holds
+elsewhere: **a corpus file is already what our writer produces**, byte for
+byte. Without it, a gap between departure and arrival could come from the
+layout rather than from the trip, and the measurement would no longer say
+anything.
 
-## Le nombre, et ce qu'il vaut
+## The number, and what it is worth
 
     intact round trips: N/M
 
-**Il mélange sciemment deux choses** — ce qu'un format ne *peut* pas porter, et
-ce que notre conversion perd sans y être obligée. Les séparer demanderait de
-déclarer les soixante-douze cases à la main, et une déclaration écrite à la main
-se périme en silence : c'est le défaut que `check-installation.sh` nomme pour le
-manuel, et que #289 a corrigé pour le corpus.
+**It knowingly mixes two things** — what a format *cannot* carry, and what our
+conversion loses without being forced to. Separating them would mean declaring
+the seventy-two cells by hand, and a declaration written by hand goes stale in
+silence: that is the defect `check-installation.sh` names for the manual, and
+that #289 fixed for the corpus.
 
-Ce que le nombre garantit est plus étroit et se tient tout seul : **une perte ne
-s'aggrave pas sans qu'on le voie.** Ce qu'elle vaut en droit se lit à côté, en
-prose, dans le relevé — et c'est là que la politique de dégradation se décide.
+What the number guarantees is narrower and stands on its own: **a loss does not
+get worse without anyone seeing it.** What it is worth in principle is read
+beside it, in prose, in the record — and that is where the degradation policy
+is decided.
 
-## Ce qui n'est pas lu
+## What is not read
 
-**Le corpus privé.** Il est absent de toute machine qui ne l'a pas, donc une
-porte qui le lirait dirait deux choses selon le poste. Il porte pourtant deux
-formats de la phase ; ce qu'on en fera est l'affaire de #340.
+**The private corpus.** It is absent from any machine that does not have it, so
+a gate that read it would say two things depending on the workstation. It does
+carry two formats of the phase; what to do with them is the business of #340.
 """
 
 from __future__ import annotations
@@ -61,21 +62,21 @@ REPO_ROOT = Path(__file__).resolve().parent.parent.parent
 JOURNAL = REPO_ROOT / "docs" / "mesures" / "conversion.md"
 DEFAULT_BINARY = REPO_ROOT / "build" / "dev" / "bin" / "subedit-cli"
 
-# Les répertoires parcourus, dans l'ordre où le relevé les nomme. `formats/`
-# porte la même scène dans les neuf formats — c'est lui qui rendra la matrice
-# comparable d'un format à l'autre ; `valides/` porte des fichiers qui ne se
-# ressemblent pas, et c'est lui qui trouve aujourd'hui ce que la scène ne montre
-# pas : des coordonnées SubRip, un en-tête WebVTT, des réglages de cellule.
+# The directories walked, in the order the record names them. `formats/`
+# carries the same scene in the nine formats — it is what makes the matrix
+# comparable from one format to the next; `valides/` carries files that do not
+# resemble each other, and it is what finds today what the scene does not show:
+# SubRip coordinates, a WebVTT header, cell settings.
 CORPUS = ("valides", "formats")
 
 BLOCK_OPEN = "<!-- generated record: do not edit by hand -->"
 BLOCK_CLOSE = "<!-- end of record -->"
 RECORDED = re.compile(r"^\s*intact round trips\s*:\s*(\d+)\s*/\s*(\d+)\s*$", re.MULTILINE)
 
-# Le nom qu'`inspect` imprime, et la valeur que `--to` attend. Les deux viennent
-# du binaire ; ce qui n'en vient pas est leur correspondance, et c'est pourquoi
-# un nom inconnu des deux côtés **arrête** au lieu d'être ignoré. Un format
-# livré sans sa ligne ici serait mesuré à moitié, en silence.
+# The name `inspect` prints, and the value `--to` expects. Both come from the
+# binary; what does not is their correspondence, and that is why a name unknown
+# on either side **stops** instead of being ignored. A format shipped without
+# its line here would be half measured, in silence.
 TARGET_OF = {
     "SubRip": "srt",
     "WebVTT": "vtt",
@@ -100,10 +101,10 @@ def fail(message):
 
 
 def run(binary, arguments):
-    """Lance le binaire sans passer par un shell.
+    """Runs the binary without going through a shell.
 
-    **Jamais de shell**, et #290 dit pourquoi : les chemins peuvent porter des
-    espaces et des crochets, et une ligne de commande recomposée les éclate.
+    **Never a shell**, and #290 says why: paths can carry spaces and brackets,
+    and a recomposed command line splits them.
     """
     # In English, whatever the machine's locale: `format_of` reads the words of `inspect`, which
     # follow the language now that French is installed (#668), and `LANGUAGE=en` names the source
@@ -113,28 +114,28 @@ def run(binary, arguments):
 
 
 def targets(binary):
-    """Les formats que `--to` accepte, lus dans l'aide du binaire.
+    """The formats `--to` accepts, read from the binary's help.
 
-    **Dérivés plutôt qu'écrits.** Une liste de formats recopiée ici resterait à
-    deux le jour où le binaire en accepterait neuf, et la mesure serait
-    silencieusement partielle.
+    **Derived rather than written.** A list of formats copied here would stay at
+    two the day the binary accepted nine, and the measurement would be silently
+    partial.
     """
     help_text = run(binary, ["convert", "--help"]).stdout
     found = re.search(r"--to TEXT:\{([^}]*)\}", help_text)
     if found is None:
-        fail(f"« --to » introuvable dans l aide de {binary}")
+        fail(f"'--to' not found in the help of {binary}")
     return [name.strip() for name in found.group(1).split(",") if name.strip()]
 
 
 def format_of(binary, path):
-    """Le format qu'`inspect` reconnaît, ou rien s'il n'ouvre pas."""
+    """The format `inspect` recognises, or nothing when it does not open."""
     done = run(binary, ["--quiet", "inspect", str(path)])
     if done.returncode != 0:
         return None
-    # **`(.+?)` et non `(\S+)`** : « SubViewer 2 » porte une espace, et le motif
-    # d'origine ne pouvait pas le lire. Il rendait alors « pas de format », donc
-    # un fichier compté parmi ceux qui ne s'ouvrent pas — un faux négatif
-    # silencieux, trouvé le jour où le premier format à nom composé est arrivé.
+    # **`(.+?)` and not `(\S+)`**: "SubViewer 2" carries a space, and the
+    # original pattern could not read it. It then returned "no format", hence a
+    # file counted among those that do not open — a silent false negative,
+    # found the day the first format with a compound name arrived.
     found = re.search(r"^\s*format:\s*(.+?)\s*$", done.stdout, re.MULTILINE)
     return found.group(1) if found else None
 
@@ -149,23 +150,22 @@ def corpus_files():
     return found
 
 
-# Ce qu'une paire rend quand la conversion refuse de la faire.
+# What a pair returns when the conversion refuses to make it.
 #
-# **Un refus n'est pas une perte**, et le compter comme telle dirait le
-# contraire de ce qu'il est. `convert --to microdvd` refuse un fichier temporel
-# sans grille et sans `--frame-rate` : la seule autre issue serait d'inventer une
-# fréquence et de déplacer chaque réplique. La paire n'est pas mesurable, elle
-# n'est pas perdue.
+# **A refusal is not a loss**, and counting it as one would say the opposite of
+# what it is. `convert --to microdvd` refuses a timed file with no grid and no
+# `--frame-rate`: the only other way out would be to invent a rate and move
+# every cue. The pair cannot be measured; it is not lost.
 REFUSED = object()
 
 
 def round_trip(binary, path, home, via, work):
-    """Envoie le fichier en `via`, le ramène en `home`, et rend ce qui revient.
+    """Sends the file to `via`, brings it back to `home`, and returns what comes back.
 
-    Rend `REFUSED` quand l'une des deux conversions refuse.
+    Returns `REFUSED` when either conversion refuses.
     """
-    outward = work / f"aller.{via}"
-    back = work / f"retour.{home}"
+    outward = work / f"outward.{via}"
+    back = work / f"back.{home}"
     for target, source, output in ((via, path, outward), (home, outward, back)):
         done = run(binary, ["--quiet", "convert", "--to", target,
                             "--output", str(output), str(source)])
@@ -175,7 +175,7 @@ def round_trip(binary, path, home, via, work):
 
 
 def measure(binary, known):
-    """Chaque fichier lisible, envoyé dans chacun des autres formats."""
+    """Each readable file, sent into each of the other formats."""
     trips = []
     unreadable = 0
     refused = []
@@ -188,12 +188,12 @@ def measure(binary, known):
                 unreadable += 1
                 continue
             if name not in TARGET_OF:
-                fail(f"« {name} » est lu par le binaire et absent de TARGET_OF :"
-                     " compléter la table avant de mesurer")
+                fail(f"'{name}' is read by the binary and missing from TARGET_OF:"
+                     " complete the table before measuring")
             home = TARGET_OF[name]
             if home not in known:
-                fail(f"« {home} » n est pas une valeur de --to : la table et le binaire"
-                     " ne disent plus la même chose")
+                fail(f"'{home}' is not a value of --to: the table and the binary"
+                     " no longer say the same thing")
 
             original = path.read_bytes()
             for via in known:
@@ -214,19 +214,19 @@ def relative(path):
 
 
 def first_difference(path, came_back):
-    """La première ligne du départ qui ne revient pas, telle qu'elle est écrite.
+    """The first line of the original that does not come back, as it is written.
 
-    **Une ligne, et non un compte.** Un nombre de lignes qui bougent ne se lit
-    pas ; la ligne elle-même dit ce qui a été perdu, dans le vocabulaire du
-    format de départ, à qui la regarde.
+    **A line, not a count.** A number of lines that move does not read; the line
+    itself tells whoever looks at it what was lost, in the vocabulary of the
+    starting format.
     """
     before = path.read_bytes().decode("utf-8", "replace").splitlines()
     after = came_back.decode("utf-8", "replace").splitlines()
     for line in difflib.unified_diff(before, after, n=0, lineterm=""):
         if line.startswith("-") and not line.startswith("---"):
             return line[1:]
-    # Le départ ne perd rien : ce qui a bougé est un ajout, une fin inventée par
-    # exemple. On rend alors la première ligne ajoutée, pour ne pas rester muet.
+    # The original loses nothing: what moved is an addition, an invented end
+    # for instance. The first added line is returned, so as not to stay silent.
     for line in difflib.unified_diff(before, after, n=0, lineterm=""):
         if line.startswith("+") and not line.startswith("+++"):
             return line[1:]
@@ -237,12 +237,12 @@ def show_diff(path, came_back):
     before = path.read_bytes().decode("utf-8", "replace").splitlines()
     after = came_back.decode("utf-8", "replace").splitlines()
     for line in difflib.unified_diff(before, after, fromfile=relative(path),
-                                     tofile=f"{relative(path)} (revenu)", lineterm=""):
+                                     tofile=f"{relative(path)} (back)", lineterm=""):
         print(f"    {line}")
 
 
 def matrix(trips):
-    """Les paires ordonnées, comptées : c'est la matrice que la phase remplira."""
+    """The ordered pairs, counted: the matrix the phase will fill."""
     cells = {}
     for _, name, via, intact, _ in trips:
         home = TARGET_OF[name]
@@ -254,31 +254,31 @@ def matrix(trips):
 def report(trips, unreadable, refused):
     kept = sum(1 for *_, intact, _ in trips if intact)
     total = len(trips)
-    print(f"    aller-retour intacts : {kept}/{total}")
+    print(f"    intact round trips: {kept}/{total}")
     if refused:
-        print(f"    {len(refused)} paire(s) que la conversion refuse de faire")
+        print(f"    {len(refused)} pair(s) the conversion refuses to make")
     if unreadable:
-        print(f"    {unreadable} fichier(s) du corpus ne s ouvrent pas encore")
+        print(f"    {unreadable} file(s) of the corpus do not open yet")
     return kept, total
 
 
 def journal_text():
     if not JOURNAL.is_file():
-        fail(f"journal introuvable : {JOURNAL}")
+        fail(f"journal not found: {JOURNAL}")
     return JOURNAL.read_text(encoding="utf-8")
 
 
 def recorded_count(text):
-    """Le compte qu'affiche le journal, ou l'arrêt du script.
+    """The count the journal shows, or the script stops.
 
-    **Une ancre absente ou dupliquée arrête**, comme pour le score de détection :
-    un journal réécrit à la main sur lequel plus rien ne se lit rendrait la
-    comparaison muette, donc verte.
+    **A missing or duplicated anchor stops**, as for the detection score: a
+    journal rewritten by hand on which nothing can be read any more would make
+    the comparison silent, hence green.
     """
     found = RECORDED.findall(text)
     if len(found) != 1:
-        fail(f"« intact round trips: N/M » apparaît {len(found)} fois dans"
-             f" {JOURNAL.relative_to(REPO_ROOT)}, une seule attendue")
+        fail(f"'intact round trips: N/M' appears {len(found)} times in"
+             f" {JOURNAL.relative_to(REPO_ROOT)}, exactly one expected")
     return int(found[0][0]), int(found[0][1])
 
 
@@ -287,17 +287,17 @@ def version_of():
         parts = line.split()
         if len(parts) == 2 and parts[0] == "VERSION":
             return parts[1]
-    fail("version illisible dans CMakeLists.txt")
+    fail("unreadable version in CMakeLists.txt")
     return ""
 
 
 def rewrite_journal(trips, unreadable, refused, known, kept, total):
-    """Réécrit le seul bloc engendré du journal, et laisse la prose intacte."""
+    """Rewrites the journal's one generated block, and leaves the prose intact."""
     text = journal_text()
     opened = text.find(BLOCK_OPEN)
     closed = text.find(BLOCK_CLOSE)
     if opened < 0 or closed < opened:
-        fail(f"bornes du relevé introuvables dans {JOURNAL.relative_to(REPO_ROOT)}")
+        fail(f"record markers not found in {JOURNAL.relative_to(REPO_ROOT)}")
 
     body = [f"{BLOCK_OPEN}\n\n", f"    intact round trips: {kept}/{total}\n\n",
             f"Recorded on version {version_of()}, on"
@@ -343,43 +343,43 @@ def rewrite_journal(trips, unreadable, refused, known, kept, total):
 
     written = text[:opened] + "".join(body) + text[closed:]
     if written == text:
-        print(f"{GREEN}✓{RESET} relevé déjà à jour : rien à réenregistrer")
+        print(f"{GREEN}✓{RESET} record already up to date: nothing to re-record")
         return 0
     JOURNAL.write_text(written, encoding="utf-8")
-    print(f"{GREEN}✓{RESET} relevé enregistré : {kept}/{total}")
+    print(f"{GREEN}✓{RESET} record written: {kept}/{total}")
     return 0
 
 
 def compare_to_journal(trips, unreadable, refused, known, kept, total, record):
-    """Les trois situations, séparément — la mécanique de `make score`."""
+    """The three situations, separately — the mechanics of `make score`."""
     if record:
         return rewrite_journal(trips, unreadable, refused, known, kept, total)
 
     was, over = recorded_count(journal_text())
     command = "make conversion-record"
 
-    # Les produits en croix plutôt que les comptes bruts : un fichier ajouté au
-    # corpus change le dénominateur, et deux comptes ne se comparent plus.
+    # Cross products rather than raw counts: a file added to the corpus changes
+    # the denominator, and two counts no longer compare.
     if kept * over < was * total:
-        print(f"{RED}✗{RESET} la conversion perd davantage : {kept}/{total} intacts,"
-              f" contre {was}/{over} au relevé", file=sys.stderr)
+        print(f"{RED}✗{RESET} the conversion loses more: {kept}/{total} intact,"
+              f" against {was}/{over} in the record", file=sys.stderr)
         for path, _, via, intact, came_back in trips:
             if not intact:
-                print(f"    {relative(path)} en passant par {via} :"
+                print(f"    {relative(path)} through {via}:"
                       f" {first_difference(path, came_back)}", file=sys.stderr)
-        print(f"\n  comparer à {JOURNAL.relative_to(REPO_ROOT)} pour voir ce qui a bougé.",
+        print(f"\n  compare with {JOURNAL.relative_to(REPO_ROOT)} to see what moved.",
               file=sys.stderr)
-        print(f"  corriger la conversion, ou réenregistrer sciemment :\n    {command}",
+        print(f"  fix the conversion, or re-record deliberately:\n    {command}",
               file=sys.stderr)
         return 1
 
     if (kept, total) != (was, over):
-        print(f"{GREEN}✓{RESET} la conversion perd moins : {kept}/{total} intacts,"
-              f" contre {was}/{over} au relevé")
-        print(f"  l enregistrer :\n    {command}")
+        print(f"{GREEN}✓{RESET} the conversion loses less: {kept}/{total} intact,"
+              f" against {was}/{over} in the record")
+        print(f"  record it:\n    {command}")
         return 0
 
-    print(f"{GREEN}✓{RESET} {kept}/{total} allers-retours intacts, comme au relevé")
+    print(f"{GREEN}✓{RESET} {kept}/{total} intact round trips, as in the record")
     return 0
 
 
@@ -387,31 +387,31 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__,
                                      formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--binary", default=str(DEFAULT_BINARY),
-                        help="le subedit-cli à mesurer")
+                        help="the subedit-cli to measure")
     parser.add_argument("--journal", action="store_true",
-                        help="confronte la mesure au relevé")
+                        help="compares the measurement with the record")
     parser.add_argument("--record", action="store_true",
-                        help="réécrit le relevé depuis la mesure ; implique --journal")
+                        help="rewrites the record from the measurement; implies --journal")
     parser.add_argument("--diff", action="store_true",
-                        help="montre ce qui ne revient pas, fichier par fichier")
+                        help="shows what does not come back, file by file")
     options = parser.parse_args()
 
     binary = Path(options.binary)
     if not binary.is_file() or not os.access(binary, os.X_OK):
-        fail(f"binaire introuvable ou non exécutable : {binary}\n"
-             "  le construire : cmake --build --preset dev --target subedit-cli")
+        fail(f"binary not found or not executable: {binary}\n"
+             "  build it: cmake --build --preset dev --target subedit-cli")
 
     known = targets(binary)
     trips, unreadable, refused = measure(binary, known)
     if not trips:
-        fail("aucun aller-retour à mesurer : le corpus ou le binaire ne rendent rien")
+        fail("no round trip to measure: the corpus or the binary returns nothing")
 
     kept, total = report(trips, unreadable, refused)
 
     if options.diff:
         for path, _, via, intact, came_back in trips:
             if not intact:
-                print(f"\n  {relative(path)}, en passant par {via} :")
+                print(f"\n  {relative(path)}, through {via}:")
                 show_diff(path, came_back)
 
     if options.journal or options.record:

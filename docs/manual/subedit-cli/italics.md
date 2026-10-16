@@ -24,7 +24,7 @@ is a usage error (code `1`).
 - The text is written **as the format of the file writes italics**: `<i>…</i>` for SubRip, WebVTT and
   SubViewer 2, `{\i1}…{\i0}` for the two Sub Station Alphas, `{Y:i}` for MicroDVD.
 
-<!-- exemple: subedit-cli italics --help -->
+<!-- example: subedit-cli italics --help -->
 ```console
 $ subedit-cli italics --help
 Put the texts in italics, or take their italics out
@@ -66,7 +66,7 @@ Options:
 **The main text by default; the translation with `--document translation -t FILE`.** It is then
 the translation that is changed and written, and only it — see [A translation](invocation.md#a-translation).
 
-<!-- exemple: printf '1\n00:00:01,000 --> 00:00:02,000\n<i>bon</i>jour marie\n\n2\n00:00:03,000 --> 00:00:04,000\nBonjour\nMarie\n\n' > a.srt; subedit-cli italics --on --output i.srt a.srt; cat i.srt -->
+<!-- example: printf '1\n00:00:01,000 --> 00:00:02,000\n<i>bon</i>jour marie\n\n2\n00:00:03,000 --> 00:00:04,000\nBonjour\nMarie\n\n' > a.srt; subedit-cli italics --on --output i.srt a.srt; cat i.srt -->
 ```console
 $ printf '1\n00:00:01,000 --> 00:00:02,000\n<i>bon</i>jour marie\n\n2\n00:00:03,000 --> 00:00:04,000\nBonjour\nMarie\n\n' > a.srt; subedit-cli italics --on --output i.srt a.srt; cat i.srt
 a.srt: 2 subtitles put in italics -> i.srt
@@ -88,7 +88,7 @@ file, with the reason**, and the other files of the batch go on. What counts is 
 format can carry, not the way it writes it: SubRip and WebVTT write italics the same
 way, and do not say the same thing about colour.
 
-<!-- exemple: printf '00:00:01:Hello there\n00:00:03:Bye\n' > a.txt; subedit-cli italics --on --output-dir sortie a.txt; echo "code=$?" -->
+<!-- example: printf '00:00:01:Hello there\n00:00:03:Bye\n' > a.txt; subedit-cli italics --on --output-dir sortie a.txt; echo "code=$?" -->
 ```console
 $ printf '00:00:01:Hello there\n00:00:03:Bye\n' > a.txt; subedit-cli italics --on --output-dir sortie a.txt; echo "code=$?"
 a.txt: TMPlayer writes no style: there are no italics to put on

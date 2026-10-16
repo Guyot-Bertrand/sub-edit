@@ -21,7 +21,7 @@ head gives back the starting file.
   `--output-dir`, `--in-place` and `--recursive` do not exist for `split-file` and are refused like any unknown
   option, code `1`: there is neither a directory to share two named files into, nor an input to overwrite.
 
-<!-- exemple: subedit-cli split-file --help -->
+<!-- example: subedit-cli split-file --help -->
 ```console
 $ subedit-cli split-file --help
 Cut a subtitle file in two, a head and a tail
@@ -57,7 +57,7 @@ Options:
 **The two destinations can be neither the input nor the same file**: writing over what one is
 reading, or writing the tail over the head, is refused before anything is read, code `1`.
 
-<!-- exemple: printf '1\n00:00:01,000 --> 00:00:02,000\nun\n\n2\n00:00:03,000 --> 00:00:04,000\ndeux\n\n3\n00:00:06,000 --> 00:00:07,000\ntrois\n\n4\n00:00:08,000 --> 00:00:09,000\nquatre\n\n' > film.srt; subedit-cli split-file --at 3 --head tete.srt --tail queue.srt film.srt; cat queue.srt -->
+<!-- example: printf '1\n00:00:01,000 --> 00:00:02,000\nun\n\n2\n00:00:03,000 --> 00:00:04,000\ndeux\n\n3\n00:00:06,000 --> 00:00:07,000\ntrois\n\n4\n00:00:08,000 --> 00:00:09,000\nquatre\n\n' > film.srt; subedit-cli split-file --at 3 --head tete.srt --tail queue.srt film.srt; cat queue.srt -->
 ```console
 $ printf '1\n00:00:01,000 --> 00:00:02,000\nun\n\n2\n00:00:03,000 --> 00:00:04,000\ndeux\n\n3\n00:00:06,000 --> 00:00:07,000\ntrois\n\n4\n00:00:08,000 --> 00:00:09,000\nquatre\n\n' > film.srt; subedit-cli split-file --at 3 --head tete.srt --tail queue.srt film.srt; cat queue.srt
 film.srt: split at subtitle 3: 2 subtitles in the head, 2 subtitles in the tail -> tete.srt, queue.srt

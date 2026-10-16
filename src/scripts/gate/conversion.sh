@@ -1,24 +1,24 @@
 #!/usr/bin/env bash
-# Ce qu'une conversion perd, rejoué et confronté à son relevé.
+# What a conversion loses, replayed and compared with its record.
 #
-# **Le même geste que `score.sh`, sur l'autre inconnue de la phase.** Une
-# détection a un taux ; une conversion a une perte. Ni l'une ni l'autre ne se
-# regarde une fois : ce qui compte est la comparaison à la mesure précédente, et
-# une mesure qu'on ne rejoue pas vieillit sans que personne l'apprenne — c'est
-# ce que l'issue #311 a constaté du score, qui avait dormi une phase entière.
+# **The same gesture as `score.sh`, on the phase's other unknown.** A detection
+# has a rate; a conversion has a loss. Neither is looked at once: what matters
+# is the comparison with the previous measurement, and a measurement nobody
+# replays grows old without anyone learning it — that is what issue #311 found
+# of the score, which had slept through a whole phase.
 #
-# **Le corpus privé n'est jamais lu ici**, comme pour le score : absent d'une
-# machine sur deux, il ferait dire deux choses à la même porte.
+# **The private corpus is never read here**, as for the score: absent from one
+# machine in two, it would make the same gate say two things.
 #
-# Ce que l'étape construit est la ligne de commande elle-même. La mesure porte
-# donc sur ce que l'utilisateur obtient, et non sur un chemin de test.
+# What the step builds is the command line itself. The measurement is therefore
+# of what the user gets, not of a test path.
 
 set -euo pipefail
 
 # shellcheck source=src/scripts/gate/common.sh
 source "$(dirname "${BASH_SOURCE[0]}")/common.sh"
 
-step "perte de conversion"
+step "conversion loss"
 
 cmake --preset dev >/dev/null
 cmake --build --preset dev -j "${JOBS}" --target subedit-cli

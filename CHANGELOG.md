@@ -21,6 +21,25 @@ ne pas l'éditer à la main.
 - **build** — Translate check-installation.sh into English
 - **build** — Translate the first half of verify-gates.sh
 - **build** — Translate the second half of verify-gates.sh
+- **doc** — Regenerate the changelog
+- **build** — Translate gate.sh and the gate steps into English
+- **build** — Translate the hooks and helper scripts into English
+- **build** — Translate the bench and manual scripts into English
+- **build** — Translate score-format-detection.py into English
+- **build** — Translate score-encoding-detection.py into English
+- **build** — Translate measure-conversion-loss.py into English
+- **build** — Translate measure-duration-constraints.py into English
+- **build** — Translate measure-include-cost.py into English
+- **build** — Translate measure-mentions.py into English
+- **build** — Translate shifted-pairs.py and wrong-rate-pairs.py
+- **build** — Translate encoding-fixtures.py into English
+- **build** — Translate subtitle-fixtures.py into English
+- **build** — Translate video-fixtures.sh into English
+- **build** — Translate pattern-oracle.py into English
+- **build** — Translate build-rpm.sh into English
+- **build** — Translate prune-runs.sh and prune-releases.sh
+- **build** — Translate setup-github.sh into English
+- **build** — Translate setup-toolchain.sh into English
 
 ## 0.15.32 — 2026-10-15
 

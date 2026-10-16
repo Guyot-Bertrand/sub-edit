@@ -1,22 +1,22 @@
 #!/usr/bin/env bash
-# Les deux binaires optimisés, et rien d'autre.
+# The two optimised binaries, and nothing else.
 #
-# Ni le banc ni le harnais de bout en bout : ils ont leurs propres étapes. Ce
-# qui est demandé ici est ce qu'un utilisateur lance, pas ce qui l'éprouve.
+# Neither the bench nor the end-to-end harness: they have their own steps. What
+# is asked for here is what a user runs, not what tests it.
 #
-# **`JOBS` gouverne le LTO**, pour la raison écrite sur `bench.sh` : sans lui,
-# l'optimisation entre modules démarre autant de processus que de cœurs à chaque
-# édition de liens. C'est ce qui rend cette étape préférable aux deux commandes
-# `cmake` écrites à la main, qui n'en savent rien.
+# **`JOBS` governs LTO**, for the reason written in `bench.sh`: without it,
+# link-time optimisation starts as many processes as there are cores at every
+# link. That is what makes this step preferable to the two `cmake` commands
+# typed by hand, which know nothing of it.
 
 set -euo pipefail
 
 # shellcheck source=src/scripts/gate/common.sh
 source "$(dirname "${BASH_SOURCE[0]}")/common.sh"
 
-step "binaires (release)"
+step "binaries (release)"
 
 cmake --preset release -DSUBEDIT_LTO_JOBS="${JOBS}"
 cmake --build --preset release -j "${JOBS}" --target subedit-cli subedit-gui
 
-printf '  binaires : build/release/bin/subedit-cli, build/release/bin/subedit-gui\n'
+printf '  binaries: build/release/bin/subedit-cli, build/release/bin/subedit-gui\n'

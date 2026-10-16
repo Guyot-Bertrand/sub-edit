@@ -1,50 +1,48 @@
 #!/usr/bin/env python3
-r"""Ce que Gaupol fait de ses motifs de correction — issue #494.
+r"""What Gaupol does with its correction patterns — issue #494.
 
-**L'oracle des motifs, écrit en Python parce que les motifs le sont.** Les
-fichiers de `packaging/patterns/` sont ceux de Gaupol, écrits pour le
-module `re` ; aucun moteur C++ ne les lit tels quels, et celui que la phase 12
-choisira devra prouver qu'il corrige comme Gaupol corrige. Ce script écrit ce
-que Gaupol en fait, cas par cas, dans `attendus/` ; les tests C++ du moteur
-liront ces attendus sans jamais lancer Python.
+**The pattern oracle, written in Python because the patterns are.** The files of
+`packaging/patterns/` are Gaupol's, written for the `re` module; no C++ engine
+reads them as they are, and the one phase 12 chooses will have to prove that it
+corrects as Gaupol corrects. This script writes what Gaupol makes of them, case
+by case, into `attendus/`; the engine's C++ tests read these expected results
+without ever running Python.
 
-**Ce n'est pas `re.sub`, et c'est toute la raison d'être de ce script.** Gaupol
-remplace par un `Finder` qui cherche chaque correspondance **dans le texte déjà
-modifié**, à partir de la fin du dernier remplacement, avec sa propre règle pour
-les correspondances vides. Un oracle qui aurait appelé `re.sub` n'aurait prouvé
-que son accord avec notre lecture — la leçon de #338.
+**It is not `re.sub`, and that is this script's whole reason to exist.** Gaupol
+replaces with a `Finder` that looks for each match **in the already modified
+text**, from the end of the last replacement, with its own rule for empty
+matches. An oracle that called `re.sub` would only have proven its agreement
+with our reading — the lesson of #338.
 
-**La différence est mesurée, et elle est étroite.** Sur les 72 enregistrements,
-des dizaines de milliers de textes tirés au hasard n'en montrent aucune pour les
-erreurs courantes et les majuscules : `Repeat` relance un motif jusqu'à ce qu'il
-ne change plus rien, et rattrape ce qu'un `re.sub` aurait laissé. Elle apparaît
-dans le nettoyage qui suit le retrait des mentions, où `^\W*$` et les lignes
-vides se retirent l'une après l'autre ; les deux cas qui la montrent sont dans
-`hearing-impaired.entrees`.
+**The difference is measured, and it is narrow.** Over the 72 records, tens of
+thousands of random texts show none for common errors and capitalization:
+`Repeat` reruns a pattern until it changes nothing more, and catches what a
+`re.sub` would have left. It appears in the cleanup that follows the removal of
+mentions, where `^\W*$` and blank lines are removed one after the other; the
+two cases that show it are in `hearing-impaired.entrees`.
 
-Ce que le script reproduit, lu dans Gaupol et nommé à chaque endroit :
+What the script reproduces, read in Gaupol and named at each place:
 
-- le chargement des fichiers (`aeidon/patternman.py`) : commentaires de ligne
-  entière, lignes dépouillées, `\0` non suivi d'un chiffre retiré, activation
-  lue dans les `.conf` du même code ;
-- la cascade des codes, `SkipIn` et `Policy=Replace` (`get_patterns`,
-  `_filter_patterns`) ;
-- la recherche et le remplacement (`aeidon/finder.py`) ;
-- les trois opérations (`aeidon/agents/text.py`) : `correct_common_errors`,
-  `capitalize`, `remove_hearing_impaired` et ses nettoyages.
+- the loading of the files (`aeidon/patternman.py`): whole-line comments,
+  stripped lines, `\0` not followed by a digit removed, enablement read from
+  the `.conf` files of the same code;
+- the cascade of codes, `SkipIn` and `Policy=Replace` (`get_patterns`,
+  `_filter_patterns`);
+- the search and the replacement (`aeidon/finder.py`);
+- the three operations (`aeidon/agents/text.py`): `correct_common_errors`,
+  `capitalize`, `remove_hearing_impaired` and its cleanups.
 
-**La plupart des textes n'ont pas de balises**, et pour eux le parseur de
-Gaupol ne laisse rien : il retire ce qu'il n'a pas trouvé, et le remet à la
-même place. Là où une correction touche une balise, issue #501 porte le
-parseur de Gaupol (`aeidon/parser.py`) restreint aux balises de SubRip — le
-travail du parseur de balises de la phase 10, éprouvé ailleurs, est de faire
-aussi bien.
+**Most texts have no tags**, and for them Gaupol's parser leaves nothing: it
+removes what it did not find, and puts it back in the same place. Where a
+correction touches a tag, issue #501 ports Gaupol's parser (`aeidon/parser.py`)
+restricted to SubRip tags — the job of phase 10's tag parser, tested
+elsewhere, is to do as well.
 
-Il ne lit **jamais** le clone de Gaupol : seulement les copies versionnées, ce
-qui le rend rejouable sur une machine qui ne l'a pas.
+It **never** reads the Gaupol clone: only the tracked copies, which makes it
+replayable on a machine that does not have it.
 
-    ./src/scripts/pattern-oracle.py --write   # écrit les attendus
-    ./src/scripts/pattern-oracle.py --check   # refuse un attendu qui a dérivé
+    ./src/scripts/pattern-oracle.py --write   # write the expected results
+    ./src/scripts/pattern-oracle.py --check   # refuse an expected result that drifted
 """
 
 import argparse
@@ -61,9 +59,9 @@ EXPECTED = PATTERNS_ROOT / "attendus"
 
 TYPES = ("common-error", "capitalization", "hearing-impaired", "line-break")
 
-# Les langues dont Gaupol livre des motifs : chacune a sa cascade, sans quoi
-# `SkipIn` et `Policy=Replace` ne seraient jamais éprouvés. Les mentions sont
-# livrées toutes désactivées, d'où leur cascade `tous`.
+# The languages Gaupol ships patterns for: each has its cascade, otherwise
+# `SkipIn` and `Policy=Replace` would never be tested. The mentions ship all
+# disabled, hence their `tous` ("all") cascade.
 REQUIRED_CASCADES = {
     "common-error": ("Latn-en", "Latn-en-US", "Latn-fr", "Latn-fi"),
     "capitalization": ("Latn-en",),
@@ -71,8 +69,8 @@ REQUIRED_CASCADES = {
     "line-break": ("Latn-en",),
 }
 
-# Ce que chaque type appelle un texte changé : un découpage coupe, il ne
-# corrige pas.
+# What each type calls a changed text, in the words of the input files: a line
+# break `coupe` (cuts), it does not `corrige` (correct).
 CHANGED_WORD = {
     "common-error": "corrige",
     "capitalization": "corrige",
@@ -80,25 +78,25 @@ CHANGED_WORD = {
     "line-break": "coupe",
 }
 
-# Un texte d'entrée, ou le sous-titre retiré qu'un vidage laisse : `None`.
+# An input text, or the removed subtitle an emptying leaves: `None`.
 Texts = list[str | None]
 
 
 class Refusal(Exception):
-    """Une entrée qui ne se lit pas."""
+    """An input that cannot be read."""
 
 
-# --- Le chargement : aeidon/patternman.py ---------------------------------------
+# --- The loading: aeidon/patternman.py ------------------------------------------
 
 
 class Pattern:
-    """Un enregistrement d'un fichier de motifs, et le code qui le porte."""
+    """A record of a pattern file, and the code that carries it."""
 
     def __init__(self, code: str, rank: int) -> None:
         self.code = code
         self.rank = rank
         self.fields: dict[str, str] = {}
-        # `Pattern.enabled` vaut vrai tant qu'un `.conf` ne dit rien.
+        # `Pattern.enabled` is true as long as a `.conf` says nothing.
         self.enabled = True
 
     def name(self) -> str:
@@ -108,7 +106,7 @@ class Pattern:
         return [x for x in self.fields.get(field, "").split(";") if x]
 
     def flags(self) -> int:
-        # `Pattern.get_flags` : `getattr(re, nom)` pour chaque nom listé.
+        # `Pattern.get_flags`: `getattr(re, name)` for each listed name.
         value = 0
         for name in self.field_list("Flags"):
             value |= getattr(re, name)
@@ -116,15 +114,15 @@ class Pattern:
 
 
 def read_patterns(kind: str) -> dict[str, list[Pattern]]:
-    """Tous les motifs de `kind`, par code, dans l'ordre des fichiers."""
+    """All the patterns of `kind`, by code, in file order."""
     by_code: dict[str, list[Pattern]] = {}
     for path in sorted(GAUPOL.glob(f"*.{kind}")):
         code = path.name[: -len(f".{kind}")]
         patterns = by_code.setdefault(code, [])
         content = path.read_text(encoding="utf-8").replace("\r\n", "\n")
         for line in content.split("\n"):
-            # `_re_comment` ne retire qu'une ligne *entière* de commentaire : le
-            # `#` des notes de musique, au milieu d'un motif, reste.
+            # `_re_comment` only removes a *whole* comment line: the `#` of
+            # music notes, in the middle of a pattern, stays.
             line = re.sub(r"^\s*#.*$", "", line).strip()
             if not line:
                 continue
@@ -133,8 +131,8 @@ def read_patterns(kind: str) -> dict[str, list[Pattern]]:
                 continue
             name, value = line.split("=", 1)
             name = name[1:] if name.startswith("_") else name
-            # Issue #70 de Gaupol : `\0` protège ce que GKeyFile et msgfmt
-            # « répareraient », et disparaît à la lecture.
+            # Gaupol's issue #70: `\0` protects what GKeyFile and msgfmt
+            # would "repair", and disappears on reading.
             patterns[-1].fields[name] = re.sub(r"\\0(?!\d)", "", value)
         config = path.with_name(path.name + ".conf")
         if config.exists():
@@ -151,13 +149,13 @@ def read_patterns(kind: str) -> dict[str, list[Pattern]]:
 
 
 def codes_of(request: str) -> list[str]:
-    """`_get_codes` : `Zyyy`, puis l'écriture, la langue, le pays."""
+    """`_get_codes`: `Zyyy`, then the script, the language, the country."""
     parts = request.split("-")
     return ["Zyyy"] + ["-".join(parts[: i + 1]) for i in range(len(parts))]
 
 
 def cascade(by_code: dict[str, list[Pattern]], request: str) -> list[Pattern]:
-    """`get_patterns` puis `_filter_patterns`, pour le code `request`."""
+    """`get_patterns` then `_filter_patterns`, for the code `request`."""
     codes = codes_of(request)
     patterns = []
     for code in codes:
@@ -178,11 +176,11 @@ def cascade(by_code: dict[str, list[Pattern]], request: str) -> list[Pattern]:
     return [x for x in filtered if x is not None]
 
 
-# --- La recherche et le remplacement : aeidon/finder.py -------------------------
+# --- The search and the replacement: aeidon/finder.py ---------------------------
 
 
 class Finder:
-    """`aeidon.Finder`, pour une expression, porté ligne à ligne."""
+    """`aeidon.Finder`, for a regular expression, ported line by line."""
 
     def __init__(self, text: str) -> None:
         self.text = text
@@ -239,17 +237,16 @@ class Finder:
         return count
 
 
-# --- Le parseur de balises : aeidon/parser.py, restreint à SubRip — issue #501 --
+# --- The tag parser: aeidon/parser.py, restricted to SubRip — issue #501 -------
 
-# `SubRip.tag` (aeidon/markups/subrip.py) : n'importe quelle balise entre
-# chevrons, casse ignorée. C'est la seule écriture que l'oracle porte — les
-# 184 cas de #494 n'en avaient aucune, et le cadrage de #501 restreint le
-# portage à SubRip.
+# `SubRip.tag` (aeidon/markups/subrip.py): any tag between angle brackets,
+# case ignored. It is the only markup the oracle ports — the 184 cases of #494
+# had none, and the framing of #501 restricts the port to SubRip.
 TAG = re.compile(r"<.*?>", re.DOTALL | re.MULTILINE | re.IGNORECASE)
 
 
 def subrip_clean(text: str) -> str:
-    """`SubRip.clean` : les quatre nettoyages de balises, dans son ordre."""
+    """`SubRip.clean`: the four tag cleanups, in its order."""
     flags = re.DOTALL | re.MULTILINE | re.IGNORECASE
     text = re.sub(r"<([a-z]+)[^<]*?>( *)</\1>", r"\2", text, flags=flags)
     text = re.sub(r"</([a-z]+)>( *)<\1>", r"\2", text, flags=flags)
@@ -259,14 +256,14 @@ def subrip_clean(text: str) -> str:
 
 
 class Parser(Finder):
-    """`aeidon.Parser`, porté pour les balises de SubRip — issue #501.
+    """`aeidon.Parser`, ported for SubRip tags — issue #501.
 
-    Tient les balises à part du texte visible (`self.text`, hérité de
-    `Finder`) pendant qu'une correction le cherche et le remplace, puis les
-    remet en place. **Une marge** — une balise identique en tête et en queue
-    de chaque ligne, comme un `<i>` qui entoure chaque ligne d'un sous-titre —
-    se traite à part : elle enveloppe le texte entier plutôt que de suivre
-    chaque remplacement, exactement comme `_set_margins` le décide.
+    Holds the tags apart from the visible text (`self.text`, inherited from
+    `Finder`) while a correction searches and replaces it, then puts them back.
+    **A margin** — an identical tag at the head and the tail of every line,
+    like an `<i>` around every line of a subtitle — is handled apart: it wraps
+    the whole text rather than following each replacement, exactly as
+    `_set_margins` decides.
     """
 
     def __init__(self, text: str) -> None:
@@ -279,8 +276,8 @@ class Parser(Finder):
         super().__init__(TAG.sub("", text))
 
     def _set_margins(self, text: str) -> None:
-        """`_set_margins` : une balise de tête et de queue communes à
-        chaque ligne, et rien d'autre entre les deux."""
+        """`_set_margins`: a head tag and a tail tag common to every line,
+        and nothing else between them."""
         lines = text.split("\n")
         line = lines[0]
         start_tag = ""
@@ -315,13 +312,13 @@ class Parser(Finder):
         self._margins = [start_tag, end_tag]
 
     def _set_tags(self, text: str) -> None:
-        """`_set_tags` : chaque balise, sa position dans le texte visible."""
+        """`_set_tags`: each tag, its position in the visible text."""
         for match in TAG.finditer(text):
             a, z = match.span()
             self._tags.append([a, text[a:z]])
 
     def _shift_tags(self, pos: int, shift: int, orig_text: str) -> None:
-        """`_shift_tags`, porté tel quel : décale les balises après `pos`."""
+        """`_shift_tags`, ported as is: shifts the tags after `pos`."""
         if not shift:
             return
         if not self._tags:
@@ -350,7 +347,7 @@ class Parser(Finder):
                 self._tags[i][0] += shift
 
     def replace(self) -> None:
-        """`Parser.replace` : celui de `Finder`, puis le décalage des balises."""
+        """`Parser.replace`: `Finder`'s, then the shift of the tags."""
         assert self.match_span is not None
         a = self.match_span[0]
         orig_text = self.text
@@ -358,7 +355,7 @@ class Parser(Finder):
         self._shift_tags(a, len(self.text) - len(orig_text), orig_text)
 
     def get_text(self) -> str:
-        """`get_text` : les balises remises, la marge s'il y en a une, nettoyé."""
+        """`get_text`: the tags put back, the margin if there is one, cleaned."""
         text = self.text
         for pos, tag in self._tags:
             text = text[:pos] + tag + text[pos:]
@@ -368,11 +365,11 @@ class Parser(Finder):
         return subrip_clean(text)
 
 
-# --- Les trois opérations : aeidon/agents/text.py -------------------------------
+# --- The three operations: aeidon/agents/text.py --------------------------------
 
 
 def correct_common_errors(texts: list[str], patterns: list[Pattern]) -> Texts:
-    """`correct_common_errors` : dans l'ordre, et `Repeat` reboucle."""
+    """`correct_common_errors`: in order, and `Repeat` loops again."""
     corrected: Texts = []
     for text in texts:
         finder = Parser(text)
@@ -390,7 +387,7 @@ CAPITALIZABLE = re.compile(r"^\W*(?<!\.\.\.)(?<!…)\w")
 
 
 def capitalize_first(finder: Finder, pos: int) -> bool:
-    """`_capitalize_first` : le premier caractère de mot à partir de `pos`."""
+    """`_capitalize_first`: the first word character from `pos`."""
     match = CAPITALIZABLE.search(finder.text[pos:])
     if match is not None:
         i = pos + match.end() - 1
@@ -400,7 +397,7 @@ def capitalize_first(finder: Finder, pos: int) -> bool:
 
 
 def capitalize_matches(finder: Finder, pattern: Pattern, cap_next: bool) -> bool:
-    """`_capitalize_text` — récursif chez Gaupol, itératif ici, même parcours."""
+    """`_capitalize_text` — recursive in Gaupol, iterative here, same walk."""
     while True:
         try:
             a, z = finder.next()
@@ -413,7 +410,7 @@ def capitalize_matches(finder: Finder, pattern: Pattern, cap_next: bool) -> bool
 
 
 def capitalize(texts: list[str], patterns: list[Pattern]) -> Texts:
-    """`capitalize` sur des sous-titres consécutifs, le premier d'indice 0."""
+    """`capitalize` over consecutive subtitles, the first of index 0."""
     capitalized: Texts = []
     cap_next = False
     for index, text in enumerate(texts):
@@ -441,15 +438,15 @@ LEFTOVERS = (
 
 
 def remove_hearing_impaired(texts: list[str], patterns: list[Pattern]) -> Texts:
-    """`remove_hearing_impaired` : `None` pour un sous-titre retiré.
+    """`remove_hearing_impaired`: `None` for a removed subtitle.
 
-    **Les nettoyages de `_remove_leftover_hi` ne touchent que les textes que les
-    motifs ont changés** — un texte laissé intact garde ses espaces doubles.
+    **The cleanups of `_remove_leftover_hi` only touch the texts the patterns
+    changed** — a text left untouched keeps its double spaces.
 
-    **Deux analyseurs, comme `_remove_leftover_hi` en emploie un second** —
-    issue #501 : les nettoyages relisent le texte déjà recomposé par le
-    premier, balises remises, plutôt que de poursuivre sur le même. Sur un
-    texte sans balise, les deux reviennent au même.
+    **Two parsers, as `_remove_leftover_hi` uses a second one** — issue #501:
+    the cleanups reread the text already recomposed by the first, tags put
+    back, rather than going on with the same one. On a text without tags, both
+    come to the same.
     """
     removed: Texts = []
     for text in texts:
@@ -467,27 +464,27 @@ def remove_hearing_impaired(texts: list[str], patterns: list[Pattern]) -> Texts:
             cleaner.set_regex(expression)
             cleaner.replacement = replacement
             cleaner.replace_all()
-        # `remove_blank`, que l'assistant coche par défaut.
+        # `remove_blank`, which the assistant checks by default.
         removed.append(cleaner.get_text() or None)
     return removed
 
 
-# --- Le découpage de lignes : aeidon/liner.py -----------------------------------
+# --- Line breaking: aeidon/liner.py ---------------------------------------------
 
-# Les trois pénalités de `aeidon/test/test_liner.py`, que ses cinq cas utilisent :
-# l'intention de l'auteur, écrite par lui, à côté de celles que Gaupol livre.
+# The three penalties of `aeidon/test/test_liner.py`, which its five cases use:
+# the author's intent, written by him, beside the ones Gaupol ships.
 TEST_PENALTIES = (
     (r"( )- ", re.DOTALL | re.MULTILINE, 1, -1000.0),
     (r"[,.;:!?]( )", re.DOTALL | re.MULTILINE, 1, -100.0),
     (r"\b(by|the|into|a)( )", re.DOTALL | re.MULTILINE, 2, 1000.0),
 )
 
-# Une pénalité : l'expression, le groupe qui tient l'espace, la valeur.
+# A penalty: the expression, the group that holds the space, the value.
 Penalty = tuple[re.Pattern[str], int, float]
 
 
 def penalties_of(patterns: list[Pattern]) -> list[Penalty]:
-    """`_get_penalties` puis `Liner.set_penalties`."""
+    """`_get_penalties` then `Liner.set_penalties`."""
     return [
         (re.compile(x.fields["Pattern"], x.flags()), int(x.fields["Group"]), float(x.fields["Penalty"]))
         for x in patterns
@@ -495,11 +492,11 @@ def penalties_of(patterns: list[Pattern]) -> list[Penalty]:
 
 
 class Liner:
-    """`aeidon.Liner`, porté ligne à ligne, en unité caractère.
+    """`aeidon.Liner`, ported line by line, in character units.
 
-    `_list_possible_breaks` est mémorisé chez Gaupol par l'identité de l'objet ;
-    ici par ses arguments, pour un seul découpage : les réglages ne changent
-    pas pendant un appel, et le résultat est le même.
+    `_list_possible_breaks` is memoised in Gaupol by the object's identity;
+    here by its arguments, for a single breaking: the settings do not change
+    during a call, and the result is the same.
     """
 
     def __init__(self, penalties: list[Penalty], max_length: int, max_lines: int) -> None:
@@ -514,7 +511,7 @@ class Liner:
         return [" ".join(boxes[edges[i] : edges[i + 1]]) for i in range(len(edges) - 1)]
 
     def demerit(self, boxes: list[str], penalties: list[float], breaks: list[int]) -> float:
-        """`_calculate_demerit`, terme à terme."""
+        """`_calculate_demerit`, term by term."""
         nlines = len(breaks) + 1
         chosen = [penalties[i] for i in breaks]
         lengths = [len(x) for x in self.boxes_to_lines(boxes, breaks)]
@@ -534,7 +531,7 @@ class Liner:
         )
 
     def detect_penalties(self, finder: Finder, boxes: list[str]) -> list[float]:
-        """`_detect_penalties` : chaque espace reçoit la somme de ses pénalités."""
+        """`_detect_penalties`: each space gets the sum of its penalties."""
         text = " ".join(boxes)
         at_space = [0.0] * len(text)
         for regex, group, value in self.penalties:
@@ -555,7 +552,7 @@ class Liner:
         return penalties
 
     def possible_breaks(self, boxes: list[str], penalties: list[float], nlines: int) -> list[int]:
-        """`_list_possible_breaks`, triés par pénalité croissante."""
+        """`_list_possible_breaks`, sorted by increasing penalty."""
         key = (tuple(boxes), tuple(penalties), nlines)
         if key not in self.memo:
             self.memo[key] = self._possible_breaks(boxes, penalties, nlines)
@@ -581,12 +578,12 @@ class Liner:
     def break_among(
         self, boxes: list[str], penalties: list[float], nlines: int
     ) -> tuple[list[int] | None, float]:
-        """`_break_lines` : les coupures et leur démérite, ou rien de valide."""
+        """`_break_lines`: the breaks and their demerit, or nothing valid."""
         breaks = self.possible_breaks(boxes, penalties, nlines)
         best: list[int] | None = None
         best_demerit = float(sys.maxsize)
         if len(" ".join(boxes)) <= self.max_length:
-            # Une ligne seule, valide, est l'étalon qu'il faut battre.
+            # A single valid line is the yardstick to beat.
             best = []
             best_demerit = self.demerit(boxes, penalties, [])
         if nlines == 1:
@@ -614,11 +611,11 @@ class Liner:
         return best, best_demerit
 
     def break_lines(self, text: str) -> str:
-        """`set_text` puis `break_lines`.
+        """`set_text` then `break_lines`.
 
-        **Rien n'est coupé tant que le nombre de lignes essayé n'atteint pas
-        `max_lines`** : un texte trop court en mots pour les atteindre est rendu
-        tel quel, qu'il tienne ou non dans la longueur.
+        **Nothing is broken until the number of lines tried reaches
+        `max_lines`**: a text too short in words to reach it is returned as is,
+        whether or not it fits in the length.
         """
         finder = Finder(text.strip())
         finder.text = finder.text.replace("\n", " ")
@@ -651,11 +648,11 @@ class Liner:
 
 
 def line_break_settings(target: str, where: str) -> tuple[str, int, int]:
-    """`Latn-en:2 24/3`, `cascade Latn-en 24/3`, `essai 40/3`, `aucune 24/2`."""
+    """`Latn-en:2 24/3`, `cascade Latn-en 24/3`, `essai 40/3` (test), `aucune 24/2` (none)."""
     selection, _, settings = target.rpartition(" ")
     length, _, lines = settings.partition("/")
     if not selection or not length.isdigit() or not lines.isdigit():
-        raise Refusal(f"{where} : une cible de découpage finit par « longueur/lignes »")
+        raise Refusal(f"{where}: a line-break target ends with \"length/lines\"")
     return selection, int(length), int(lines)
 
 
@@ -668,17 +665,17 @@ def line_break_penalties(by_code: dict[str, list[Pattern]], selection: str, wher
 
 
 def expected_line_breaks() -> tuple[str, list[str]]:
-    """Le `.cas` des découpages, et ce qui ne va pas dans ses entrées.
+    """The `.cas` of the line breaks, and what is wrong in its inputs.
 
-    **Chaque motif doit décider au moins un cas** : son découpage diffère de
-    celui qu'on obtient sans aucune pénalité, aux mêmes réglages. Sans quoi un
-    moteur qui l'ignorerait passerait quand même.
+    **Each pattern must decide at least one case**: its breaking differs from
+    the one obtained with no penalty at all, under the same settings. Otherwise
+    an engine that ignored it would pass all the same.
     """
     kind = "line-break"
     by_code = read_patterns(kind)
     lines = [
-        "# Engendré par src/scripts/pattern-oracle.py — ne pas éditer à la main.",
-        "# Ce que Gaupol fait des motifs « line-break » : voir ../LISEZMOI.md.",
+        "# Generated by src/scripts/pattern-oracle.py — do not edit by hand.",
+        "# What Gaupol does with the \"line-break\" patterns: see ../LISEZMOI.md.",
         "",
     ]
     decisive: set[str] = set()
@@ -690,8 +687,8 @@ def expected_line_breaks() -> tuple[str, list[str]]:
         outputs = [Liner(penalties, length, count).break_lines(t) for t in case.texts]
         changed = outputs != case.texts
         if (case.expectation == "coupe") != changed:
-            what = "change" if changed else "ne change pas"
-            problems.append(f"{case.where} : annoncé « {case.expectation} », et le texte {what}")
+            what = "changes" if changed else "does not change"
+            problems.append(f"{case.where}: announced \"{case.expectation}\", and the text {what}")
         if selection.startswith("cascade "):
             cascades.add(selection.split(" ", 1)[1])
         elif selection not in ("aucune", "essai"):
@@ -703,12 +700,12 @@ def expected_line_breaks() -> tuple[str, list[str]]:
         for pattern in patterns:
             if f"{code}:{pattern.rank}" not in decisive:
                 problems.append(
-                    f"{kind}.entrees : « {code}:{pattern.rank} » ({pattern.name()}) "
-                    "ne décide aucun cas — son découpage est celui d'aucune pénalité"
+                    f"{kind}.entrees: \"{code}:{pattern.rank}\" ({pattern.name()}) "
+                    "decides no case — its breaking is that of no penalty"
                 )
     for request in REQUIRED_CASCADES[kind]:
         if request not in cascades:
-            problems.append(f"{kind}.entrees : pas de cascade « {request} »")
+            problems.append(f"{kind}.entrees: no cascade \"{request}\"")
     return "\n".join(lines) + "\n", problems
 
 
@@ -719,14 +716,14 @@ OPERATIONS: dict[str, Callable[[list[str], list[Pattern]], Texts]] = {
 }
 
 
-# --- Les entrées et les attendus ------------------------------------------------
+# --- The inputs and the expected results ----------------------------------------
 
 
 def quoted_texts(field: str, where: str) -> list[str]:
-    """Un ou plusieurs textes entre guillemets, séparés par `;`.
+    """One or more quoted texts, separated by `;`.
 
-    Plusieurs textes sont des sous-titres consécutifs : la remise en majuscule
-    porte son état de l'un à l'autre, et c'est la seule façon de l'éprouver.
+    Several texts are consecutive subtitles: capitalization carries its state
+    from one to the next, and it is the only way to test it.
     """
     texts = []
     i = 0
@@ -734,12 +731,12 @@ def quoted_texts(field: str, where: str) -> list[str]:
         while i < len(field) and field[i] == " ":
             i += 1
         if i >= len(field) or field[i] != '"':
-            raise Refusal(f"{where} : un texte s'écrit entre guillemets")
+            raise Refusal(f"{where}: a text is written between double quotes")
         text = ""
         i += 1
         while True:
             if i >= len(field):
-                raise Refusal(f"{where} : un guillemet n'est pas refermé")
+                raise Refusal(f"{where}: a double quote is not closed")
             if field[i] == '"':
                 i += 1
                 break
@@ -747,7 +744,7 @@ def quoted_texts(field: str, where: str) -> list[str]:
                 i += 1
                 escaped = field[i] if i < len(field) else ""
                 if escaped not in ("n", "t", '"', "\\"):
-                    raise Refusal(f"{where} : échappement inconnu « \\{escaped} »")
+                    raise Refusal(f"{where}: unknown escape \"\\{escaped}\"")
                 text += {"n": "\n", "t": "\t"}.get(escaped, escaped)
             else:
                 text += field[i]
@@ -758,7 +755,7 @@ def quoted_texts(field: str, where: str) -> list[str]:
         if i >= len(field):
             return texts
         if field[i] != ";":
-            raise Refusal(f"{where} : deux textes se séparent par « ; »")
+            raise Refusal(f"{where}: two texts are separated by \";\"")
         i += 1
 
 
@@ -769,7 +766,7 @@ def escaped(text: str) -> str:
 
 
 class Case:
-    """Une ligne d'un fichier d'entrées."""
+    """A line of an input file."""
 
     def __init__(self, where: str, target: str, expectation: str, label: str, texts: list[str]) -> None:
         self.where = where
@@ -780,7 +777,7 @@ class Case:
 
 
 def read_cases(kind: str) -> list[Case]:
-    """Les cas écrits à la main pour `kind`."""
+    """The cases written by hand for `kind`."""
     path = INPUTS / f"{kind}.entrees"
     cases = []
     for number, line in enumerate(path.read_text(encoding="utf-8").split("\n"), 1):
@@ -789,39 +786,39 @@ def read_cases(kind: str) -> list[Case]:
         where = f"{path.name}:{number}"
         fields = [x.strip() for x in line.split("|", 3)]
         if len(fields) != 4:
-            raise Refusal(f"{where} : quatre champs — cible | attente | libellé | textes")
+            raise Refusal(f"{where}: four fields — target | expectation | label | texts")
         target, expectation, label, texts = fields
-        # Les espaces d'alignement ne font pas partie de la cible.
+        # The alignment spaces are not part of the target.
         target = " ".join(target.split())
         if expectation not in (CHANGED_WORD[kind], "intact"):
-            raise Refusal(f"{where} : l'attente est « {CHANGED_WORD[kind]} » ou « intact »")
+            raise Refusal(f"{where}: the expectation is \"{CHANGED_WORD[kind]}\" or \"intact\"")
         cases.append(Case(where, target, expectation, label, quoted_texts(texts, where)))
     return cases
 
 
 def patterns_of(by_code: dict[str, list[Pattern]], target: str, where: str) -> list[Pattern]:
-    """Ce qu'une cible désigne.
+    """What a target designates.
 
-    `Latn-en:3` — un enregistrement seul, actif ou non ; `cascade Latn-en` — la
-    cascade entière, telle que Gaupol l'active par défaut ; `cascade Latn-en
-    tous` — la même, tout coché, ce qu'il faut pour les mentions.
+    `Latn-en:3` — a single record, enabled or not; `cascade Latn-en` — the
+    whole cascade, as Gaupol enables it by default; `cascade Latn-en tous` —
+    the same, everything checked, which the mentions need.
     """
     if target.startswith("cascade "):
         request, _, everything = target.split(" ", 1)[1].partition(" ")
         if everything not in ("", "tous"):
-            raise Refusal(f"{where} : « cascade <code> » ou « cascade <code> tous »")
+            raise Refusal(f"{where}: \"cascade <code>\" or \"cascade <code> tous\"")
         patterns = [x for x in cascade(by_code, request) if everything or x.enabled]
         if not patterns:
-            raise Refusal(f"{where} : aucun motif actif pour « {request} »")
+            raise Refusal(f"{where}: no enabled pattern for \"{request}\"")
         return patterns
     code, _, rank = target.partition(":")
     if not rank.isdigit() or code not in by_code or not 1 <= int(rank) <= len(by_code[code]):
-        raise Refusal(f"{where} : pas d'enregistrement « {target} »")
+        raise Refusal(f"{where}: no record \"{target}\"")
     return [by_code[code][int(rank) - 1]]
 
 
 def cas_lines(case: "Case", outputs: Texts) -> list[str]:
-    """Les lignes `.cas` d'un cas : un texte d'une suite porte son rang."""
+    """The `.cas` lines of a case: a text of a sequence carries its rank."""
     lines = []
     for k, (given, output) in enumerate(zip(case.texts, outputs), 1):
         rank = f" [{k}/{len(case.texts)}]" if len(case.texts) > 1 else ""
@@ -837,14 +834,14 @@ def cas_lines(case: "Case", outputs: Texts) -> list[str]:
 
 
 def expected_of(kind: str) -> tuple[str, list[str]]:
-    """Le `.cas` de `kind`, et ce qui ne va pas dans ses entrées."""
+    """The `.cas` of `kind`, and what is wrong in its inputs."""
     if kind == "line-break":
         return expected_line_breaks()
     by_code = read_patterns(kind)
     operation = OPERATIONS[kind]
     lines = [
-        "# Engendré par src/scripts/pattern-oracle.py — ne pas éditer à la main.",
-        f"# Ce que Gaupol fait des motifs « {kind} » : voir ../LISEZMOI.md.",
+        "# Generated by src/scripts/pattern-oracle.py — do not edit by hand.",
+        f"# What Gaupol does with the \"{kind}\" patterns: see ../LISEZMOI.md.",
         "",
     ]
     covered: dict[str, set[str]] = {}
@@ -853,51 +850,51 @@ def expected_of(kind: str) -> tuple[str, list[str]]:
     for case in read_cases(kind):
         outputs = operation(case.texts, patterns_of(by_code, case.target, case.where))
         changed = outputs != case.texts
-        # Un cas qui ne fait pas ce qu'il annonce est un cas qui ne prouve rien.
+        # A case that does not do what it announces is a case that proves nothing.
         if (case.expectation == "corrige") != changed:
-            what = "change" if changed else "ne change pas"
-            problems.append(f"{case.where} : annoncé « {case.expectation} », et le texte {what}")
+            what = "changes" if changed else "does not change"
+            problems.append(f"{case.where}: announced \"{case.expectation}\", and the text {what}")
         if case.target.startswith("cascade "):
             cascades.add(case.target.split(" ", 1)[1])
         else:
             covered.setdefault(case.target, set()).add(case.expectation)
         lines.extend(cas_lines(case, outputs))
 
-    # Chaque enregistrement a un cas qu'il corrige et un cas qu'il laisse, et
-    # chaque langue livrée a sa cascade : sans quoi le fichier ne prouve pas ce
-    # que son nom promet.
+    # Each record has a case it corrects and a case it leaves, and each shipped
+    # language has its cascade: otherwise the file does not prove what its name
+    # promises.
     for code, patterns in by_code.items():
         for pattern in patterns:
             target = f"{code}:{pattern.rank}"
             missing = {"corrige", "intact"} - covered.get(target, set())
             if missing:
                 problems.append(
-                    f"{kind}.entrees : « {target} » ({pattern.name()}) "
-                    f"n'a pas de cas {' ni '.join(sorted(missing))}"
+                    f"{kind}.entrees: \"{target}\" ({pattern.name()}) "
+                    f"has no {' nor '.join(sorted(missing))} case"
                 )
     for request in REQUIRED_CASCADES[kind]:
         if request not in cascades:
-            problems.append(f"{kind}.entrees : pas de cascade « {request} »")
+            problems.append(f"{kind}.entrees: no cascade \"{request}\"")
     return "\n".join(lines) + "\n", problems
 
 
-# Les codes demandés à la cascade : chacun des niveaux, un pays, une langue livrée
-# sans pays, et deux codes dont aucun fichier n'existe.
+# The codes asked of the cascade: each of the levels, a country, a language shipped
+# without a country, and two codes for which no file exists.
 CASCADE_REQUESTS = ("Latn", "Latn-en", "Latn-en-US", "Latn-fr", "Latn-fi", "Latn-de", "Cyrl")
 
 
 def expected_cascades() -> str:
-    """Ce que la cascade de chaque code rend, pour le lecteur du noyau — issue #498.
+    """What the cascade of each code returns, for the core's reader — issue #498.
 
-    Une ligne par type et par code : les enregistrements dans l'ordre où
-    Gaupol les applique, `<code>:<rang>`, suivis de `+` s'ils sont actifs par
-    défaut et de `-` sinon. C'est ce que `get_patterns` rend, et ce que le
-    lecteur C++ doit rendre à son tour, sans jamais lancer Python.
+    One line per type and per code: the records in the order Gaupol applies
+    them, `<code>:<rank>`, followed by `+` if they are enabled by default and
+    by `-` otherwise. It is what `get_patterns` returns, and what the C++ reader
+    must return in turn, without ever running Python.
     """
     lines = [
-        "# Engendré par src/scripts/pattern-oracle.py — ne pas éditer à la main.",
-        "# La cascade de chaque code : `<code>:<rang>`, `+` actif par défaut, `-` non.",
-        "# Voir ../LISEZMOI.md.",
+        "# Generated by src/scripts/pattern-oracle.py — do not edit by hand.",
+        "# The cascade of each code: `<code>:<rank>`, `+` enabled by default, `-` not.",
+        "# See ../LISEZMOI.md.",
         "",
     ]
     for kind in TYPES:
@@ -911,8 +908,8 @@ def expected_cascades() -> str:
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     mode = parser.add_mutually_exclusive_group(required=True)
-    mode.add_argument("--write", action="store_true", help="écrit les attendus")
-    mode.add_argument("--check", action="store_true", help="refuse un attendu qui a dérivé")
+    mode.add_argument("--write", action="store_true", help="write the expected results")
+    mode.add_argument("--check", action="store_true", help="refuse an expected result that drifted")
     arguments = parser.parse_args()
 
     failures = []
@@ -925,14 +922,14 @@ def main() -> int:
         failures.extend(problems)
         path = EXPECTED / f"{kind}.cas"
         if arguments.write:
-            # Rien n'est écrit pour un type dont les entrées ne tiennent pas.
+            # Nothing is written for a type whose inputs do not hold.
             if not problems:
                 EXPECTED.mkdir(exist_ok=True)
                 path.write_text(content, encoding="utf-8")
         elif not path.exists() or path.read_text(encoding="utf-8") != content:
             failures.append(
-                f"{path.relative_to(REPO_ROOT)} n'est pas ce que l'oracle écrit : "
-                "relancer « src/scripts/pattern-oracle.py --write » et relire le diff"
+                f"{path.relative_to(REPO_ROOT)} is not what the oracle writes: "
+                "rerun \"src/scripts/pattern-oracle.py --write\" and review the diff"
             )
 
     cascades = expected_cascades()
@@ -942,15 +939,15 @@ def main() -> int:
             path.write_text(cascades, encoding="utf-8")
     elif not path.exists() or path.read_text(encoding="utf-8") != cascades:
         failures.append(
-            f"{path.relative_to(REPO_ROOT)} n'est pas ce que l'oracle écrit : "
-            "relancer « src/scripts/pattern-oracle.py --write » et relire le diff"
+            f"{path.relative_to(REPO_ROOT)} is not what the oracle writes: "
+            "rerun \"src/scripts/pattern-oracle.py --write\" and review the diff"
         )
 
     if failures:
         for failure in failures:
             print(f"✗ {failure}", file=sys.stderr)
         return 1
-    print("✓ les attendus des motifs sont ce que Gaupol en fait")
+    print("✓ the expected results of the patterns are what Gaupol makes of them")
     return 0
 
 

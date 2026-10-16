@@ -1,37 +1,37 @@
 #!/usr/bin/env bash
-# Attend que la machine soit assez calme pour qu'une mesure veuille dire
-# quelque chose, et écrit la charge finale.
+# Waits for the machine to be quiet enough for a measurement to mean
+# something, and writes the final load.
 #
-# Une mesure de performance prise pendant qu'un navigateur compile du
-# JavaScript ne dit rien du code : elle dit l'état de la machine. Le journal des
-# performances en a fait les frais — le relevé de la version 0.2.15, pris sous
-# une charge de 7,2, a posé douze maxima d'un coup, dont un à 3,4 fois sa valeur
-# habituelle, sur un ticket qui ne touchait aucun chemin mesuré.
+# A performance measurement taken while a browser compiles JavaScript says
+# nothing about the code: it says the state of the machine. The performance
+# journal paid for it — the record of version 0.2.15, taken under a load of
+# 7.2, set twelve maxima at once, one of them at 3.4 times its usual value, on
+# a ticket that touched no measured path.
 #
-# Attendre plutôt que refuser tout de suite : la cause la plus fréquente d'une
-# charge élevée ici est la cible qui précède — `make check-local` construit et
-# lance les tests de bout en bout juste avant d'appeler les benchmarks, et la
-# moyenne d'une minute met une minute à l'oublier.
+# Waiting rather than refusing at once: the most frequent cause of a high load
+# here is the preceding target — `make check-local` builds and runs the
+# end-to-end tests right before calling the benchmarks, and the one-minute
+# average takes a minute to forget them.
 #
-# **Trente secondes, et pas davantage** — issue #270. Le délai était de trois
-# minutes, avec une heuristique qui renonçait plus tôt si la charge ne baissait
-# pas. La mesure a montré que les deux étaient de trop, et pour la même raison :
-# **ce qui se rattrape se rattrape en vingt secondes, ce qui ne se rattrape pas
-# ne se rattrape pas non plus en trois minutes.**
+# **Thirty seconds, and no more** — issue #270. The delay used to be three
+# minutes, with a heuristic that gave up earlier if the load did not drop. The
+# measurement showed both were too much, and for the same reason: **what
+# recovers recovers in twenty seconds, what does not recover does not recover in
+# three minutes either.**
 #
-# Ce que laissent `e2e` et `install-check` culmine à 1,78 cinq secondes après
-# leur fin — la moyenne d'une minute retarde sur ce qui vient de finir — et
-# repasse sous le seuil vers la vingtième. Ce qui tient plus longtemps vient
-# d'ailleurs : la traîne du `make check` qui précède `make check-local` dans le
-# déroulé prescrit, ou une session de bureau. Les deux durent des minutes et
-# n'ont aucune raison de s'arrêter parce qu'on attend.
+# What `e2e` and `install-check` leave behind peaks at 1.78 five seconds after
+# they end — the one-minute average lags behind what just finished — and drops
+# back under the threshold around the twentieth. What lasts longer comes from
+# elsewhere: the tail of the `make check` that precedes `make check-local` in
+# the prescribed sequence, or a desktop session. Both last minutes and have no
+# reason to stop because one is waiting.
 #
-# Les quatre exécutions qui ont tranché sont dans docs/mesures/performances.md.
+# The four runs that settled it are in docs/mesures/performances.md.
 #
-# Sortie standard : la charge finale, un nombre, toujours écrite.
-# Code de retour : 0 si elle est passée sous le seuil, 1 sinon. L'appelant
-# décide ce qu'il fait d'une mesure prise sur une machine occupée ; ce script ne
-# décide que d'attendre.
+# Standard output: the final load, a number, always written.
+# Exit status: 0 if it went under the threshold, 1 otherwise. The caller
+# decides what to do with a measurement taken on a busy machine; this script
+# only decides to wait.
 
 set -euo pipefail
 
@@ -42,13 +42,13 @@ timeout=30
 
 usage() {
     cat >&2 <<'USAGE'
-usage: await-quiet.sh [--below <charge>] [--timeout <secondes>]
+usage: await-quiet.sh [--below <load>] [--timeout <seconds>]
 
-  --below    seuil de charge sous lequel mesurer   (défaut : 2.0)
-  --timeout  attente maximale, en secondes         (défaut : 30)
+  --below    load threshold under which to measure   (default: 2.0)
+  --timeout  maximum wait, in seconds                (default: 30)
 
-Écrit la charge finale sur la sortie standard. Rend 0 si elle est passée sous
-le seuil, 1 si le délai a expiré — la charge est écrite dans les deux cas.
+Writes the final load on standard output. Returns 0 if it went under the
+threshold, 1 if the delay expired — the load is written in both cases.
 USAGE
     exit 2
 }
@@ -58,36 +58,36 @@ while (( $# > 0 )); do
         --below)   [[ $# -ge 2 ]] || usage; below="$2";   shift 2 ;;
         --timeout) [[ $# -ge 2 ]] || usage; timeout="$2"; shift 2 ;;
         -h|--help) usage ;;
-        *) printf 'argument inconnu : %s\n' "$1" >&2; usage ;;
+        *) printf 'unknown argument: %s\n' "$1" >&2; usage ;;
     esac
 done
 
-# La moyenne d'une minute, et non le nombre de tâches exécutables : celui-ci est
-# instantané, donc un échantillon peut tomber entre deux rafales et déclarer
-# calme une machine qui ne l'est pas.
+# The one-minute average, not the number of runnable tasks: that one is
+# instantaneous, so a sample can fall between two bursts and declare quiet a
+# machine that is not.
 current_load() {
     cut -d' ' -f1 /proc/loadavg
 }
 
-# awk plutôt que bc : awk est dans coreutils de fait, bc est un paquet de plus,
-# et la règle de dépendances du projet vaut aussi pour les scripts.
+# awk rather than bc: awk is in coreutils in practice, bc is one more package,
+# and the project's dependency rule holds for scripts too.
 is_below() {
     awk -v load="$1" -v limit="$2" 'BEGIN { exit !(load < limit) }'
 }
 
-# Pas de /proc — un autre système, un conteneur exotique. Le contrôle ne
-# s'applique pas plutôt que d'échouer : mieux vaut une mesure non qualifiée
-# qu'une chaîne de construction qui refuse de tourner.
+# No /proc — another system, an exotic container. The check does not apply
+# rather than failing: better an unqualified measurement than a build chain
+# that refuses to run.
 if [[ ! -r /proc/loadavg ]]; then
     printf 'unknown\n'
     exit 0
 fi
 
-# **Il n'y a plus d'heuristique de décroissance, et il n'y a plus rien à
-# arbitrer.** Le script jugeait si la charge « baissait assez » pour qu'attendre
-# ait un sens, et renonçait sinon. C'était utile face à un délai de trois
-# minutes ; face à trente secondes, la question ne se pose plus — on échantillonne
-# jusqu'au bout du délai, ce qui coûte moins que de décider.
+# **There is no decay heuristic any more, and nothing left to arbitrate.** The
+# script used to judge whether the load « dropped enough » for waiting to make
+# sense, and gave up otherwise. That was useful against a three-minute delay;
+# against thirty seconds, the question no longer arises — sampling goes on to
+# the end of the delay, which costs less than deciding.
 waited=0
 load="$(current_load)"
 while ! is_below "${load}" "${below}"; do

@@ -18,7 +18,7 @@ cases, **almost the whole file is ASCII**, and the little that is not is what
 carries the whole question.
 
 Issue #310 asked to measure where detection stops being reliable. The
-measurement — `score-encoding-detection.py --par-longueur`, and the record in
+measurement — `score-encoding-detection.py --by-length`, and the record in
 [`docs/mesures/detection-d-encodage.md`](../mesures/detection-d-encodage.md) —
 answered something other than the question asked.
 

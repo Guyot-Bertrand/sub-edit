@@ -1,74 +1,72 @@
 #!/usr/bin/env python3
-"""Score une détection d'encodage, au lieu de la croire.
+"""Scores an encoding detection, instead of believing it.
 
-**Une détection est un classifieur, pas une fonction.** Elle a un taux de
-succès, pas un résultat juste ou faux, et « la détection marche » sans chiffre
-est exactement le genre d'affirmation que trois relectures de suite ont
-démentie — l'icône que trois lecteurs sur quatre acceptaient, le `.rpm`
-irréprochable à l'inspection et refusé à l'installation, les raccourcis mesurés
-sur une plateforme qu'aucun utilisateur n'a.
+**A detection is a classifier, not a function.** It has a success rate, not a
+right or wrong result, and "the detection works" without a figure is exactly
+the kind of claim that three reviews in a row proved wrong — the icon that three
+readers out of four accepted, the `.rpm` flawless under inspection and refused
+at installation, the shortcuts measured on a platform no user has.
 
-**Le détecteur est un argument, et c'est tout l'intérêt.** Le cadrage de la
-phase 8 (#288) a trois voies — ICU, uchardet, des tables écrites — et le choix
-entre elles est un choix de taux. Le mesurer après avoir choisi, c'est choisir
-sans mesurer. Chaque voie se passe donc au même corpus, sans que ce script ait à
-connaître aucune d'elles :
+**The detector is an argument, and that is the whole point.** The scoping of
+phase 8 (#288) has three paths — ICU, uchardet, hand-written tables — and the
+choice between them is a choice of rate. Measuring it after choosing is choosing
+without measuring. Each path therefore goes through the same corpus, without
+this script having to know any of them:
 
     ./src/scripts/score-encoding-detection.py --detector 'uchardet {}'
     ./src/scripts/score-encoding-detection.py --detector 'file -b --mime-encoding {}'
-    ./src/scripts/score-encoding-detection.py --detector './build/dev/bin/probe {}' --prive
+    ./src/scripts/score-encoding-detection.py --detector './build/dev/bin/probe {}' --private
 
-`{}` est remplacé par le chemin du fichier ; ce que la commande écrit sur sa
-sortie standard est lu comme le nom de l'encodage.
+`{}` is replaced by the file's path; what the command writes on its standard
+output is read as the name of the encoding.
 
-## Les deux corpus, et ce que chacun peut dire
+## The two corpora, and what each can say
 
-**Le corpus étiqueté** — `src/test/data/encodages/`, fabriqué par
-`encoding-fixtures.py`. L'étiquette vient avec le fichier, gratuitement : la
-table dit dans quel encodage il a été écrit. C'est le seul des deux qui donne un
-**taux**, et il donne aussi le détail des confusions — confondre deux latins ne
-coûte pas ce que coûte confondre un latin et un cyrillique.
+**The labelled corpus** — `src/test/data/encodages/`, made by
+`encoding-fixtures.py`. The label comes with the file, for free: the table says
+which encoding it was written in. It is the only one of the two that gives a
+**rate**, and it also gives the detail of the confusions — confusing two Latin
+encodings does not cost what confusing a Latin one and a Cyrillic one costs.
 
-**Le corpus privé** — `src/data/`, qui porte des fichiers réels, et des fichiers
-réels mal encodés sont précisément ce qu'un corpus fabriqué ne contient pas.
-**Il n'a pas d'étiquettes**, donc il ne donne aucun taux : ce serait inventer une
-vérité. Ce qu'il donne est ce qui se vérifie sans elle — la répartition des
-réponses, combien décodent réellement le fichier de bout en bout, et sur quoi
-deux détecteurs se contredisent.
+**The private corpus** — `src/data/`, which carries real files, and badly
+encoded real files are precisely what a made-up corpus does not contain. **It
+has no labels**, so it gives no rate: that would be inventing a truth. What it
+gives is what can be checked without one — the distribution of the answers, how
+many really decode the file from end to end, and where two detectors contradict
+each other.
 
-**Il ne sait pas nommer un fichier**, et ce n'est pas une politesse : la règle du
-dépôt interdit de citer le corpus privé, et un outil qui *peut* le faire finit
-par le faire. Rien ici ne porte un chemin jusqu'à la sortie.
+**It cannot name a file**, and that is not politeness: the repository's rule
+forbids quoting the private corpus, and a tool that *can* do it ends up doing
+it. Nothing here carries a path to the output.
 
-## Où la détection cesse de savoir — `--par-longueur`
+## Where the detection stops knowing — `--by-length`
 
-Le corpus étiqueté donne **un** taux, sur douze fichiers. Il ne dit pas *où* le
-cas devient difficile, et l'issue #310 est née de là : la table qu'il faut est
-« longueur → taux », et elle se fabrique.
+The labelled corpus gives **one** rate, over a dozen files. It does not say
+*where* the case becomes hard, and issue #310 was born of that: the table needed
+is "length → rate", and it can be made.
 
-`--par-longueur` engendre des fichiers SubRip gradués, les passe au même
-détecteur, et rend deux tables. Rien n'est déposé dans le dépôt : le corpus est
-jetable, il vit le temps de la mesure. La graine est fixe, donc la table se
-rejoue à l'identique.
+`--by-length` generates graded SubRip files, hands them to the same detector,
+and returns two tables. Nothing is committed to the repository: the corpus is
+disposable, it lives as long as the measurement. The seed is fixed, so the table
+replays identically. The cues it draws from, accented text in each encoding,
+are test data and live in `src/test/data/encodages/cliff-pools.json`.
 
-## Le journal, et sa divergence — `--journal`
+## The journal, and its divergence — `--journal`
 
-Un score relevé une fois vieillit sans que personne l'apprenne : c'est le défaut
-de l'issue #311. `--journal` confronte ce qui vient d'être mesuré à ce
-qu'affiche `docs/mesures/detection-d-encodage.md`, et **traite les trois
-situations séparément** — un score qui baisse échoue, un score qui monte invite
-à réenregistrer, un score inchangé se tait. `--record` réécrit le relevé.
+A score recorded once grows old without anyone learning it: that is the defect
+of issue #311. `--journal` compares what has just been measured with what
+`docs/mesures/detection-d-encodage.md` shows, and **treats the three situations
+separately** — a score that drops fails, a score that rises invites a
+re-record, an unchanged score stays quiet. `--record` rewrites the record.
 
-**Ce n'est pas un seuil.** Le nombre comparé est celui de la dernière mesure, et
-non une barre qu'on aurait posée : une détection est un classifieur, et poser
-une barre sur une mesure dont la variance n'est pas connue est ce que ce projet
-refuse ailleurs.
+**It is not a threshold.** The number compared is that of the last measurement,
+not a bar someone set: a detection is a classifier, and setting a bar on a
+measurement whose variance is unknown is what this project refuses elsewhere.
 
-## Ce qui n'est pas mesuré ici
+## What is not measured here
 
-Le temps. Une détection qui prend dix millisecondes par fichier n'est pas un
-problème dans un éditeur de sous-titres ; le banc est là pour le jour où la
-question se posera.
+Time. A detection that takes ten milliseconds per file is not a problem in a
+subtitle editor; the bench is there for the day the question arises.
 """
 
 from __future__ import annotations
@@ -78,6 +76,7 @@ import codecs
 import collections
 import datetime
 import importlib.util
+import json
 import random
 import re
 import shlex
@@ -88,15 +87,16 @@ from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent
 LABELLED = REPO_ROOT / "src" / "test" / "data" / "encodages"
+POOLS_FILE = LABELLED / "cliff-pools.json"
 PRIVATE = REPO_ROOT / "src" / "data"
 JOURNAL = REPO_ROOT / "docs" / "mesures" / "detection-d-encodage.md"
 
-# Les deux bornes du bloc que `--record` réécrit ; tout le reste du journal est
-# de la prose écrite à la main, et elle survit à un réenregistrement.
+# The two markers of the block `--record` rewrites; the rest of the journal is
+# prose written by hand, and it survives a re-record.
 BLOCK_OPEN = "<!-- generated record: do not edit by hand -->"
 BLOCK_CLOSE = "<!-- end of record -->"
 
-# L'ancre que `--journal` relit dans ce bloc.
+# The anchor `--journal` reads back in that block.
 RECORDED = re.compile(r"^\s*labelled corpus\s*:\s*(\d+)\s*/\s*(\d+)\s*$", re.MULTILINE)
 
 GREEN = "\033[32m"
@@ -104,7 +104,7 @@ RED = "\033[31m"
 BOLD = "\033[1m"
 RESET = "\033[0m"
 
-# Ce que les détecteurs écrivent, et que `codecs` ne sait pas relire tel quel.
+# What the detectors write, and `codecs` cannot read back as is.
 ALIASES = {
     "utf-16": "utf-16",
     "utf-16le": "utf-16-le",
@@ -118,11 +118,11 @@ ALIASES = {
 
 
 def canonical(name):
-    """Le nom que Python donne à cet encodage, ou `?` s'il n'en connaît aucun.
+    """The name Python gives this encoding, or `?` when it knows none.
 
-    Les détecteurs n'écrivent pas les mêmes mots pour le même encodage —
-    `WINDOWS-1252`, `cp1252`, `windows-1252`. La comparaison passe donc par le
-    nom canonique plutôt que par la chaîne rendue.
+    The detectors do not write the same words for the same encoding —
+    `WINDOWS-1252`, `cp1252`, `windows-1252`. The comparison therefore goes
+    through the canonical name rather than the string returned.
     """
     cleaned = name.strip().lower()
     if cleaned in ALIASES:
@@ -134,7 +134,7 @@ def canonical(name):
 
 
 def labelled_fixtures():
-    """Les fixtures et leur encodage, lus de la table qui les fabrique."""
+    """The fixtures and their encoding, read from the table that makes them."""
     spec = importlib.util.spec_from_file_location(
         "encoding_fixtures", REPO_ROOT / "src" / "scripts" / "encoding-fixtures.py")
     module = importlib.util.module_from_spec(spec)
@@ -142,28 +142,28 @@ def labelled_fixtures():
     return [(LABELLED / name, encoding, bom) for name, encoding, bom, *_ in module.FIXTURES]
 
 
-# La forme d'un nom d'encodage, et rien d'autre. Lettres, chiffres, tirets,
-# points et soulignés, sur quelques dizaines de caractères au plus.
+# The shape of an encoding name, and nothing else. Letters, digits, hyphens,
+# dots and underscores, a few dozen characters at most.
 ENCODING_NAME = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]{0,31}$")
 
 
 def detect(command, path):
-    """Ce que le détecteur dit de ce fichier, ou `?` s'il ne dit rien.
+    """What the detector says of this file, or `?` when it says nothing.
 
-    **Sans shell, et la réponse est filtrée.** Les deux gardes existent pour la
-    même raison, et elles ont été payées : la première version passait la
-    commande au shell avec le chemin substitué en clair, et les noms du corpus
-    privé portent des espaces et des crochets. `file` a donc reçu des arguments
-    éclatés, s'est plaint de chacun — et **ses plaintes, qui citaient les noms,
-    ont été lues comme des encodages et imprimées.**
+    **No shell, and the answer is filtered.** Both guards exist for the same
+    reason, and they were paid for: the first version passed the command to the
+    shell with the path substituted in plain text, and the names of the private
+    corpus carry spaces and brackets. `file` therefore received split
+    arguments, complained about each one — and **its complaints, which quoted
+    the names, were read as encodings and printed.**
 
-    C'est exactement ce que #290 demandait de rendre impossible : « l'outil ne
-    doit pas être capable de nommer un fichier, pas seulement s'en abstenir ».
+    That is exactly what #290 asked to make impossible: "the tool must not be
+    able to name a file, not merely refrain from it".
 
-    Le chemin est donc un élément d'`argv` et non un morceau de ligne de
-    commande, et **ce qui ressort est refusé s'il n'a pas la forme d'un nom
-    d'encodage** — un chemin n'en a jamais la forme. La sortie d'erreur, elle,
-    n'est jamais lue.
+    The path is therefore an element of `argv` and not a piece of a command
+    line, and **what comes out is refused unless it has the shape of an
+    encoding name** — a path never has that shape. The error output is never
+    read.
     """
     try:
         parts = shlex.split(command)
@@ -185,11 +185,11 @@ def detect(command, path):
 
 
 def agrees(said, expected, has_bom):
-    """Le détecteur a-t-il raison ?
+    """Is the detector right?
 
-    **`utf-16` sans son côté est une bonne réponse quand le fichier a un BOM.**
-    C'est le BOM qui porte l'ordre des octets, et un détecteur qui rend `UTF-16`
-    ne s'est pas trompé : il a laissé au BOM ce qui lui revient.
+    **`utf-16` without its byte order is a good answer when the file has a
+    BOM.** The BOM carries the byte order, and a detector that returns `UTF-16`
+    is not wrong: it left to the BOM what belongs to it.
     """
     if said == expected:
         return True
@@ -197,11 +197,11 @@ def agrees(said, expected, has_bom):
 
 
 def decodes(path, encoding):
-    """Ces octets se décodent-ils entièrement dans cet encodage ?
+    """Do these bytes decode entirely in this encoding?
 
-    C'est la seule chose qu'on puisse vérifier sans étiquette — et elle est
-    nécessaire sans être suffisante : un mono-octet décode presque tout, ce qui
-    est précisément d'où vient le mojibake.
+    It is the only thing that can be checked without a label — and it is
+    necessary without being sufficient: a single-byte encoding decodes almost
+    anything, which is precisely where mojibake comes from.
     """
     if encoding == "?":
         return False
@@ -217,10 +217,10 @@ def score_labelled(command):
     right = 0
     confusions = []
 
-    print(f"{BOLD}corpus étiqueté — {len(fixtures)} fixtures{RESET}")
+    print(f"{BOLD}labelled corpus — {len(fixtures)} fixtures{RESET}")
     for path, expected, has_bom in fixtures:
         if not path.is_file():
-            print(f"  {RED}✗{RESET} {path.name} — absente ;"
+            print(f"  {RED}✗{RESET} {path.name} — missing;"
                   " ./src/scripts/encoding-fixtures.py --generate", file=sys.stderr)
             continue
         said = detect(command, path)
@@ -230,44 +230,44 @@ def score_labelled(command):
             print(f"  {GREEN}✓{RESET} {path.name:<22} {said}")
         else:
             confusions.append((path.name, wanted, said))
-            print(f"  {RED}✗{RESET} {path.name:<22} {said}  au lieu de {wanted}")
+            print(f"  {RED}✗{RESET} {path.name:<22} {said}  instead of {wanted}")
 
     total = len(fixtures)
     part = f"{100 * right / total:.0f} %" if total else "—"
     print(f"\n  {right}/{total} — {part}")
     if confusions:
-        print("\n  confusions :")
+        print("\n  confusions:")
         for name, wanted, said in confusions:
-            print(f"    {wanted} lu comme {said}   ({name})")
+            print(f"    {wanted} read as {said}   ({name})")
     return right, total, confusions
 
 
-# Les extensions sous lesquelles un fichier de sous-titres se présente.
+# The extensions under which a subtitle file presents itself.
 #
-# **Elles étaient deux, et ce parcours a fait dire au corpus ce qu'il ne dit
-# pas** — issue #340. L'initialisation de la phase 9 a écrit que le corpus privé
-# « ne porte que du .srt et du .vtt », sur la foi de ce relevé ; il ne pouvait
-# rien trouver d'autre. Il porte aussi un MicroDVD et un Advanced SSA, réels.
-# C'est le défaut de #268, vérifier avec l'outil qui ne compte pas, une fois de
-# plus.
+# **There used to be two, and this walk made the corpus say what it does not
+# say** — issue #340. The initialisation of phase 9 wrote that the private
+# corpus "carries only .srt and .vtt", on the strength of this record; it could
+# find nothing else. It also carries a MicroDVD and an Advanced SSA, real ones.
+# That is the defect of #268, checking with the tool that does not count, once
+# more.
 #
-# `.txt` n'y est pas, et son absence est un choix : il nomme TMPlayer et MPL2,
-# et tout le reste. Les seuls `.txt` du corpus privé sont des notes et des
-# extraits de manuel.
+# `.txt` is not among them, and its absence is a choice: it names TMPlayer and
+# MPL2, and everything else. The only `.txt` files of the private corpus are
+# notes and manual excerpts.
 SUBTITLE_SUFFIXES = (".srt", ".vtt", ".sub", ".ass", ".ssa", ".lrc")
 
 
 def report_private(commands):
-    """Ce que le corpus privé peut dire, et il ne peut pas dire un taux."""
+    """What the private corpus can say, and it cannot say a rate."""
     files = sorted(p for p in PRIVATE.rglob("*")
                    if p.is_file() and p.suffix.lower() in SUBTITLE_SUFFIXES)
     if not files:
-        print(f"\n{BOLD}corpus privé — absent de cette machine{RESET}")
+        print(f"\n{BOLD}private corpus — absent from this machine{RESET}")
         return
 
-    print(f"\n{BOLD}corpus privé — {len(files)} fichiers, sans étiquettes{RESET}")
-    print("  aucun taux : il n'y a pas de vérité à confronter, seulement ce qui")
-    print("  se vérifie sans elle.")
+    print(f"\n{BOLD}private corpus — {len(files)} files, without labels{RESET}")
+    print("  no rate: there is no truth to compare with, only what can be")
+    print("  checked without one.")
 
     for command in commands:
         answers = collections.Counter()
@@ -280,8 +280,8 @@ def report_private(commands):
         print(f"\n  {BOLD}{command}{RESET}")
         for name, count in answers.most_common():
             print(f"    {count:3d}  {name}")
-        print(f"    {readable}/{len(files)} réponses sous lesquelles le fichier"
-              " se décode entièrement")
+        print(f"    {readable}/{len(files)} answers under which the file"
+              " decodes entirely")
 
     if len(commands) > 1:
         disagreements = 0
@@ -289,51 +289,27 @@ def report_private(commands):
             said = {detect(command, path) for command in commands}
             if len(said) > 1:
                 disagreements += 1
-        print(f"\n  les détecteurs se contredisent sur {disagreements}"
-              f" fichier(s) sur {len(files)}")
+        print(f"\n  the detectors contradict each other on {disagreements}"
+              f" file(s) out of {len(files)}")
 
 
 # ---------------------------------------------------------------------------
-# La falaise : où la détection cesse de savoir — issue #310.
+# The cliff: where the detection stops knowing — issue #310.
 # ---------------------------------------------------------------------------
 
-# Les mêmes répliques que les fixtures, et quelques-unes de plus : une table de
-# taux demande des tirages, là où une fixture n'est qu'un fichier.
-POOLS = {
-    "iso-8859-1": [
-        "Le port était vide à cette heure-là.",
-        "Où êtes-vous passé ?",
-        "Ça n'a pas duré très longtemps.",
-        "Je n'en sais rien, à vrai dire.",
-        "Il fait déjà nuit sur la côte.",
-        "Elle a répété la même phrase, très bas.",
-        "On m'a dit que c'était réglé.",
-        "L'hôtel était fermé depuis février.",
-    ],
-    "cp1250": [
-        "Přišel jsem pozdě.",
-        "Gdzie jesteś?",
-        "Nem tudom, hová ment.",
-        "Nevěděl jsem, co říct.",
-        "Czy słyszałeś to wszystko?",
-        "Már késő van, menjünk haza.",
-        "Ona zawsze wraca późną nocą.",
-        "Musíme počkat do rána.",
-    ],
-    "koi8-r": [
-        "Порт был пуст в этот час.",
-        "Где вы были?",
-        "Это длилось недолго.",
-        "Я ничего не знаю об этом.",
-        "На побережье уже темно.",
-        "Она повторила ту же фразу.",
-        "Мне сказали, что всё улажено.",
-        "Гостиница закрыта с февраля.",
-    ],
-}
+def load_pools():
+    """The cues the cliff draws from, by encoding: the same as the fixtures', and
+    a few more — a rate table needs draws, where a fixture is just one file.
 
-# Ce qui remplit un fichier autour des répliques accentuées : de l'anglais, qui
-# ne porte aucun octet haut. C'est la deuxième table qui en a besoin.
+    **They are test data, and they live with it**: accented text whose language
+    is the point, in `src/test/data/encodages/cliff-pools.json`. The order of the
+    keys is the order of the table's rows.
+    """
+    return json.loads(POOLS_FILE.read_text(encoding="utf-8"))
+
+
+# What fills a file around the accented cues: English, which carries no high
+# byte. The second table is the one that needs it.
 FILLER = [
     "I don't know what you mean.",
     "The harbour was empty at that hour.",
@@ -345,38 +321,38 @@ FILLER = [
     "The hotel had been closed since February.",
 ]
 
-# Combien de tirages par ligne de table. Soixante donne un taux au point de
-# pourcentage près sans que la mesure dure plus de quelques secondes.
+# How many draws per table row. Sixty gives a rate to within a percentage
+# point without the measurement lasting more than a few seconds.
 DRAWS = 60
 
-# La graine, écrite plutôt que tirée : une table qu'on ne peut pas rejouer à
-# l'identique est un témoignage, pas une mesure.
+# The seed, written rather than drawn: a table that cannot be replayed
+# identically is a testimony, not a measurement.
 SEED = 310
 
 
 def script_of(character):
-    """L'écriture d'un caractère, en gros — ce qui distingue un alphabet d'un
-    autre pour un lecteur, et non pour Unicode.
+    """The script of a character, roughly — what tells one alphabet from another
+    for a reader, not for Unicode.
 
-    Les codes `0x80–0x9f` ont leur propre famille et ce n'est pas une finesse :
-    c'est là que la confusion Latin-1 / CP1252 devient visible. Une apostrophe
-    typographique lue en Latin-1 revient en caractère de commande, ce qui est
-    une perte réelle là où le reste de cette confusion n'en est pas une.
+    The codes `0x80–0x9f` have their own family, and it is not a subtlety: that
+    is where the Latin-1 / CP1252 confusion becomes visible. A typographic
+    apostrophe read as Latin-1 comes back as a control character, which is a
+    real loss where the rest of that confusion is none.
     """
     code = ord(character)
     if code < 0x80:
         return "ascii"
     if code < 0xA0:
-        return "commande"
+        return "control"
     if code < 0x250 or 0x1E00 <= code < 0x1F00:
         return "latin"
     if 0x370 <= code < 0x400:
-        return "grec"
+        return "greek"
     if 0x400 <= code < 0x530:
-        return "cyrillique"
+        return "cyrillic"
     if code >= 0x2E80:
-        return "idéogrammes"
-    return "autre"
+        return "ideographs"
+    return "other"
 
 
 def scripts_of(text):
@@ -384,7 +360,7 @@ def scripts_of(text):
 
 
 def subrip(lines):
-    """Un fichier SubRip, dans la forme que le projet écrit."""
+    """A SubRip file, in the form the project writes."""
     parts = []
     for index, text in enumerate(lines, start=1):
         start = index * 2
@@ -395,20 +371,20 @@ def subrip(lines):
     return "".join(parts)
 
 
-def measure(command, directory, encoding, subtitles, accented):
-    """Le taux d'un détecteur sur des fichiers de `subtitles` répliques, dont
-    `accented` portent du texte accentué et le reste de l'anglais.
+def measure(command, directory, pools, encoding, subtitles, accented):
+    """The rate of a detector on files of `subtitles` cues, of which `accented`
+    carry accented text and the rest English.
 
-    Trois taux, et ils ne disent pas la même chose. **Exact** — la réponse nomme
-    l'encodage d'écriture. **Texte** — le fichier relu sous la réponse est le
-    fichier écrit, ce qui pardonne une confusion sans conséquence. **Écriture**
-    — le texte relu garde l'alphabet du texte écrit, ce qui ne pardonne que le
-    mojibake dans la même famille.
+    Three rates, and they do not say the same thing. **Exact** — the answer
+    names the encoding written in. **Text** — the file read back under the
+    answer is the file written, which forgives a confusion without consequence.
+    **Script** — the text read back keeps the alphabet of the text written,
+    which forgives only mojibake within the same family.
     """
-    # La graine est une chaîne et non un tuple : `hash` d'une chaîne varie d'un
-    # processus à l'autre, et la table cesserait de se rejouer à l'identique.
+    # The seed is a string and not a tuple: the `hash` of a string varies from
+    # one process to the next, and the table would stop replaying identically.
     draw = random.Random(f"{SEED}-{encoding}-{subtitles}-{accented}")
-    pool = POOLS[encoding]
+    pool = pools[encoding]
     exact = same_text = same_script = 0
     sizes = []
     highs = []
@@ -441,105 +417,105 @@ def measure(command, directory, encoding, subtitles, accented):
             same_script += 1
 
     return {
-        "octets": sum(sizes) // DRAWS,
-        "hauts": sum(highs) // DRAWS,
+        "bytes": sum(sizes) // DRAWS,
+        "high": sum(highs) // DRAWS,
         "exact": exact,
-        "texte": same_text,
-        "écriture": same_script,
-        "réponses": answers,
+        "text": same_text,
+        "script": same_script,
+        "answers": answers,
     }
 
 
-# Les deux tables, et elles n'attaquent pas le problème par le même bout.
+# The two tables, and they do not attack the problem from the same end.
 #
-# **Par longueur** — tout le fichier est accentué, et il grandit. C'est la table
-# que #310 demande, et elle montre la falaise : une réplique isolée ne porte que
-# trois octets hauts.
+# **By length** — the whole file is accented, and it grows. It is the table #310
+# asks for, and it shows the cliff: a lone cue carries only three high bytes.
 #
-# **À texte rare** — le fichier est long et presque tout ASCII, et seules
-# quelques répliques portent des accents. C'est l'autre bout, et c'est celui qui
-# interdit de poser un seuil sur la longueur : un fichier de quarante kilooctets
-# peut ne rien donner à peser.
+# **With rare text** — the file is long and almost all ASCII, and only a few
+# cues carry accents. It is the other end, and the one that forbids setting a
+# threshold on length: a forty-kilobyte file may give nothing to weigh.
 BY_LENGTH = [1, 2, 3, 5, 8, 13, 21]
 WHEN_RARE = [(40, 1), (40, 3), (200, 1), (200, 3), (200, 10), (600, 1), (600, 10)]
 
 
-def print_table(command, directory, title, rows):
+def print_table(command, directory, pools, title, rows):
     print(f"{BOLD}{title}{RESET}")
-    print(f"  {'écrit en':<12} {'répliques':>9} {'accentuées':>10} {'octets':>7}"
-          f" {'≠ASCII':>7} {'exact':>7} {'texte':>7} {'écriture':>9}   réponses")
+    print(f"  {'written in':<12} {'cues':>9} {'accented':>10} {'bytes':>7}"
+          f" {'≠ASCII':>7} {'exact':>7} {'text':>7} {'script':>9}   answers")
     for encoding, subtitles, accented in rows:
-        found = measure(command, directory, encoding, subtitles, accented)
+        found = measure(command, directory, pools, encoding, subtitles, accented)
         top = ", ".join(f"{count}×{name}"
-                        for name, count in found["réponses"].most_common(3))
-        print(f"  {encoding:<12} {subtitles:>9} {accented:>10} {found['octets']:>7}"
-              f" {found['hauts']:>7}"
+                        for name, count in found["answers"].most_common(3))
+        print(f"  {encoding:<12} {subtitles:>9} {accented:>10} {found['bytes']:>7}"
+              f" {found['high']:>7}"
               f" {100 * found['exact'] / DRAWS:>6.0f}%"
-              f" {100 * found['texte'] / DRAWS:>6.0f}%"
-              f" {100 * found['écriture'] / DRAWS:>8.0f}%   {top}")
+              f" {100 * found['text'] / DRAWS:>6.0f}%"
+              f" {100 * found['script'] / DRAWS:>8.0f}%   {top}")
     print()
 
 
 def report_cliff(command):
-    """Les deux tables graduées, sur un corpus jetable."""
-    print(f"{BOLD}la falaise — corpus engendré, graine {SEED}, {DRAWS} tirages"
-          f" par ligne{RESET}\n")
-    with tempfile.TemporaryDirectory(prefix="falaise-") as name:
+    """The two graded tables, on a disposable corpus."""
+    pools = load_pools()
+    print(f"{BOLD}the cliff — generated corpus, seed {SEED}, {DRAWS} draws"
+          f" per row{RESET}\n")
+    with tempfile.TemporaryDirectory(prefix="cliff-") as name:
         directory = Path(name)
-        print_table(command, directory, "par longueur — tout le fichier est accentué",
+        print_table(command, directory, pools, "by length — the whole file is accented",
                     [(encoding, count, count)
-                     for encoding in POOLS for count in BY_LENGTH])
-        print_table(command, directory, "à texte rare — un fichier long, presque tout ASCII",
+                     for encoding in pools for count in BY_LENGTH])
+        print_table(command, directory, pools,
+                    "with rare text — a long file, almost all ASCII",
                     [(encoding, subtitles, accented)
-                     for encoding in POOLS for subtitles, accented in WHEN_RARE])
+                     for encoding in pools for subtitles, accented in WHEN_RARE])
 
 
 # ---------------------------------------------------------------------------
-# Le journal, et sa divergence — issue #311.
+# The journal, and its divergence — issue #311.
 # ---------------------------------------------------------------------------
 
 
 def journal_text():
     if not JOURNAL.is_file():
-        print(f"{RED}✗{RESET} journal introuvable : {JOURNAL}", file=sys.stderr)
+        print(f"{RED}✗{RESET} journal not found: {JOURNAL}", file=sys.stderr)
         sys.exit(1)
     return JOURNAL.read_text(encoding="utf-8")
 
 
 def recorded_score(text):
-    """Le score qu'affiche le journal, ou l'arrêt du script.
+    """The score the journal shows, or the script stops.
 
-    **Une ancre absente ou dupliquée arrête**, plutôt que de laisser passer :
-    c'est ce que `check-coverage.sh` a appris à faire de son propre cliquet.
-    Un journal réécrit à la main sur lequel plus rien ne se lit rendrait la
-    comparaison muette, donc verte.
+    **A missing or duplicated anchor stops**, rather than letting it through:
+    that is what `check-coverage.sh` learnt to do with its own ratchet. A
+    journal rewritten by hand on which nothing can be read any more would make
+    the comparison silent, hence green.
     """
     found = RECORDED.findall(text)
     if len(found) != 1:
-        print(f"{RED}✗{RESET} « labelled corpus: N/M » apparaît {len(found)} fois dans"
-              f" {JOURNAL.relative_to(REPO_ROOT)}, une seule attendue", file=sys.stderr)
-        print("  corriger le fichier à la main avant de relancer.", file=sys.stderr)
+        print(f"{RED}✗{RESET} 'labelled corpus: N/M' appears {len(found)} times in"
+              f" {JOURNAL.relative_to(REPO_ROOT)}, exactly one expected", file=sys.stderr)
+        print("  fix the file by hand before running again.", file=sys.stderr)
         sys.exit(1)
     return int(found[0][0]), int(found[0][1])
 
 
 def version_of():
-    """Le numéro courant, lu là où il fait foi."""
+    """The current number, read where it is authoritative."""
     for line in (REPO_ROOT / "CMakeLists.txt").read_text(encoding="utf-8").splitlines():
         parts = line.split()
         if len(parts) == 2 and parts[0] == "VERSION":
             return parts[1]
-    print(f"{RED}✗{RESET} version illisible dans CMakeLists.txt", file=sys.stderr)
+    print(f"{RED}✗{RESET} unreadable version in CMakeLists.txt", file=sys.stderr)
     sys.exit(1)
 
 
 def rewrite_journal(right, total, confusions):
-    """Réécrit le seul bloc engendré du journal, et laisse la prose intacte."""
+    """Rewrites the journal's one generated block, and leaves the prose intact."""
     text = journal_text()
     opened = text.find(BLOCK_OPEN)
     closed = text.find(BLOCK_CLOSE)
     if opened < 0 or closed < opened:
-        print(f"{RED}✗{RESET} bornes du relevé introuvables dans"
+        print(f"{RED}✗{RESET} record markers not found in"
               f" {JOURNAL.relative_to(REPO_ROOT)}", file=sys.stderr)
         sys.exit(1)
 
@@ -556,95 +532,95 @@ def rewrite_journal(right, total, confusions):
 
     written = text[:opened] + "".join(body) + text[closed:]
     if written == text:
-        print(f"{GREEN}✓{RESET} relevé déjà à jour : rien à réenregistrer")
+        print(f"{GREEN}✓{RESET} record already up to date: nothing to re-record")
         return
     JOURNAL.write_text(written, encoding="utf-8")
-    print(f"{GREEN}✓{RESET} relevé enregistré : {right}/{total}")
+    print(f"{GREEN}✓{RESET} record written: {right}/{total}")
 
 
 def compare_to_journal(right, total, confusions, record):
-    """Les trois situations, traitées séparément.
+    """The three situations, treated separately.
 
-    Le nombre comparé est celui de la dernière mesure et non une barre posée —
-    ce qui vaut au cliquet de couverture d'être un cliquet et non un seuil. La
-    comparaison passe par les produits en croix plutôt que par les comptes :
-    ajouter une fixture change le dénominateur, et deux comptes bruts ne se
-    comparent plus.
+    The number compared is that of the last measurement and not a bar someone
+    set — which is what makes the coverage ratchet a ratchet and not a
+    threshold. The comparison goes through cross products rather than counts:
+    adding a fixture changes the denominator, and two raw counts no longer
+    compare.
     """
     if record:
         rewrite_journal(right, total, confusions)
         return 0
 
     kept, over = recorded_score(journal_text())
-    # La cible `make` plutôt que la ligne complète : elle construit le détecteur
-    # avant de le lancer, ce qu'une invocation nue de ce script ne fait pas.
+    # The `make` target rather than the full line: it builds the detector before
+    # running it, which a bare invocation of this script does not.
     command = "make score-record"
 
     if right * over < kept * total:
-        print(f"{RED}✗{RESET} la détection a reculé : {right}/{total} reconnues,"
-              f" contre {kept}/{over} au relevé", file=sys.stderr)
+        print(f"{RED}✗{RESET} the detection went back: {right}/{total} recognised,"
+              f" against {kept}/{over} in the record", file=sys.stderr)
         if confusions:
-            print("\n  confusions actuelles :", file=sys.stderr)
+            print("\n  current confusions:", file=sys.stderr)
             for name, wanted, said in confusions:
-                print(f"    {wanted} lu comme {said}   ({name})", file=sys.stderr)
-        print(f"\n  comparer à {JOURNAL.relative_to(REPO_ROOT)} pour voir ce qui a bougé.",
+                print(f"    {wanted} read as {said}   ({name})", file=sys.stderr)
+        print(f"\n  compare with {JOURNAL.relative_to(REPO_ROOT)} to see what moved.",
               file=sys.stderr)
-        print(f"  corriger la détection, ou réenregistrer sciemment :\n    {command}",
+        print(f"  fix the detection, or re-record deliberately:\n    {command}",
               file=sys.stderr)
         return 1
 
     if (right, total) != (kept, over):
-        print(f"{GREEN}✓{RESET} la détection progresse : {right}/{total} reconnues,"
-              f" contre {kept}/{over} au relevé")
-        print(f"  l enregistrer :\n    {command}")
+        print(f"{GREEN}✓{RESET} the detection improves: {right}/{total} recognised,"
+              f" against {kept}/{over} in the record")
+        print(f"  record it:\n    {command}")
         return 0
 
-    print(f"{GREEN}✓{RESET} {right}/{total} reconnues, comme au relevé")
+    print(f"{GREEN}✓{RESET} {right}/{total} recognised, as in the record")
     return 0
 
 
 def main():
     parser = argparse.ArgumentParser(add_help=True)
     parser.add_argument("--detector", action="append", required=True,
-                        help="commande de détection, « {} » pour le chemin ; répétable")
-    parser.add_argument("--prive", action="store_true",
-                        help="ajoute le rapport sur le corpus privé, en agrégats")
-    parser.add_argument("--par-longueur", action="store_true",
-                        help="engendre un corpus gradué et rend la table « longueur → taux »")
+                        help="detection command, '{}' for the path; repeatable")
+    parser.add_argument("--private", action="store_true",
+                        help="adds the report on the private corpus, in aggregates")
+    parser.add_argument("--by-length", action="store_true",
+                        help="generates a graded corpus and returns the 'length → rate' table")
     parser.add_argument("--journal", action="store_true",
-                        help="confronte le score au relevé de docs/mesures/")
+                        help="compares the score with the record in docs/mesures/")
     parser.add_argument("--record", action="store_true",
-                        help="réécrit ce relevé depuis la mesure ; implique --journal")
+                        help="rewrites that record from the measurement; implies --journal")
     options = parser.parse_args()
 
-    # **Un seul détecteur quand le journal est en jeu.** Le relevé porte le
-    # score de la détection du projet ; en confronter deux à un chiffre unique
-    # ne voudrait rien dire.
+    # **A single detector when the journal is at stake.** The record carries the
+    # score of the project's detection; comparing two with a single figure would
+    # mean nothing.
     if (options.journal or options.record) and len(options.detector) != 1:
-        parser.error("--journal et --record demandent un seul --detector")
+        parser.error("--journal and --record take a single --detector")
 
     right = total = 0
     confusions = []
     for command in options.detector:
-        print(f"{BOLD}détecteur : {command}{RESET}\n")
+        print(f"{BOLD}detector: {command}{RESET}\n")
         got, seen, missed = score_labelled(command)
         right, total = right + got, total + seen
         confusions += missed
         print()
 
-    # **Un corpus vide n'est pas un score de zéro, c'est une absence de
-    # mesure**, et la rendre verte serait le pire des défauts de ce script.
+    # **An empty corpus is not a score of zero, it is an absence of
+    # measurement**, and making it green would be the worst defect of this script.
     if total == 0:
-        print(f"{RED}✗{RESET} le corpus étiqueté est vide", file=sys.stderr)
+        print(f"{RED}✗{RESET} the labelled corpus is empty", file=sys.stderr)
         return 1
 
-    if options.par_longueur:
+    if options.by_length:
         for command in options.detector:
             report_cliff(command)
 
-    # Le corpus privé n'est jamais lu par une porte : il est absent de toute
-    # machine qui ne l'a pas, et `--prive` reste un geste à la main.
-    if options.prive:
+    # The private corpus is never read by a gate: it is absent from any machine
+    # that does not have it, and `--private` remains a manual gesture.
+    if options.private:
         report_private(options.detector)
 
     if options.journal or options.record:

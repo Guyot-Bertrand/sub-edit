@@ -1,25 +1,25 @@
 #!/usr/bin/env python3
-"""Les conversions faites à la mauvaise fréquence : un fichier sur une grille, converti
-par un rapport faux, et la vérité de ce qui le remet d'aplomb.
+"""The conversions made at the wrong frame rate: a file on a grid, converted by a
+wrong ratio, and the truth of what sets it right.
 
-La recherche de la phase 14 (D11, #386) essaie les cinquante-six paires ordonnées des huit
-fréquences normalisées et laisse la déduction juger. L'éprouver demande de savoir ce qu'on a
-posé : une fixture tirée de ce que la recherche trouve ne prouverait que son accord avec
-elle-même. Ce script **pose** la conversion fausse, en arithmétique exacte, et écrit à côté
-le rapport qui la défait.
+The search of phase 14 (D11, #386) tries the fifty-six ordered pairs of the eight
+standard frame rates and lets the deduction judge. Testing it requires knowing what was
+laid down: a fixture drawn from what the search finds would only prove that it agrees
+with itself. This script **lays down** the wrong conversion, in exact arithmetic, and
+writes alongside the ratio that undoes it.
 
-    --check       (défaut) reconstruit chaque cas et le compare au disque
-    --generate    réécrit les cas depuis la table
+    --check       (default) rebuild each case and compare it with the disk
+    --generate    rewrite the cases from the table
 
-Chaque cas tient deux fichiers : `fichier.srt` et `verite.txt`, qui porte le rapport à
-appliquer aux positions pour les remettre sur la grille (`6/5`), `aucun` quand rien ne
-convient — un fichier propre, sans grille, ou converti par un rapport hors de l'ensemble —,
-ou `egalite` quand deux rapports conviennent également.
+Each case holds two files: `fichier.srt` and `verite.txt`, which carries the ratio to
+apply to the positions to put them back on the grid (`6/5`), `aucun` ("none") when
+nothing fits — a clean file, one without a grid, or one converted by a ratio outside the
+set —, or `egalite` ("tie") when two ratios fit equally well.
 
-**Les positions sont de l'arithmétique**, jamais un appel à nos commandes : convertir avec
-`ConvertFrameRateCommand` prouverait subedit contre subedit. Chaque position vaut
-`round(n × 1000 / R)` pour une image `n`, puis `round(position × f)` pour le rapport faux
-`f` — les deux arrondis que fait un vrai fichier converti.
+**The positions are arithmetic**, never a call to our commands: converting with
+`ConvertFrameRateCommand` would prove subedit against subedit. Each position is
+`round(n × 1000 / R)` for a frame `n`, then `round(position × f)` for the wrong ratio
+`f` — the two roundings a real converted file goes through.
 """
 
 from __future__ import annotations
@@ -36,7 +36,7 @@ SHORT_MS = 10_000
 
 
 class Steps:
-    """Le générateur congruentiel de `subtitle-fixtures.py` : un pas irrégulier."""
+    """The congruential generator of `subtitle-fixtures.py`: an irregular step."""
 
     def __init__(self, seed: int) -> None:
         self._state = seed
@@ -47,13 +47,13 @@ class Steps:
 
 
 def rounded(value: Fraction) -> int:
-    """Au plus proche, la moitié vers le haut."""
+    """To the nearest, half up."""
     return (value + Fraction(1, 2)).__floor__()
 
 
 def frame_starts(rate: Fraction, span_ms: int, seed: int) -> list[int]:
-    # Une étendue courte est dense, comme `grille-24-courte` : dix positions au moins, sans quoi
-    # la déduction ne rend aucun verdict.
+    # A short span is dense, like `grille-24-courte`: ten positions at least, without which
+    # the deduction returns no verdict.
     low, high = (150, 400) if span_ms <= SHORT_MS else (2000, 5000)
     steps = Steps(seed)
     starts: list[int] = []
@@ -84,13 +84,14 @@ FPS_25 = Fraction(25)
 FPS_30 = Fraction(30)
 FPS_23976 = Fraction(24000, 1001)
 
-# Le nom du cas, la grille du fichier, le rapport faux posé dessus (ou `None` : aucun), l'étendue,
-# et la vérité : le rapport qui le remet d'aplomb, `aucun` ou `egalite`.
-# Une conversion fausse a rarement une seule réparation : une grille à 28,8 images par seconde se
-# remet aussi bien sur 24 que sur 30 avec un rapport de l'ensemble, et un fichier dont tous les
-# temps sont doublés reste sur la grille de 25 — la déduction ne distingue ni l'un ni l'autre —,
-# si bien que la recherche ne propose alors rien. Les cas à vérité unique sont ceux où l'on a converti un fichier déjà à la fréquence visée
-# — le geste le plus courant —, et un second que l'énumération des 320 combinaisons (grille × rapport) trouve seul de son espèce.
+# The case's name, the file's grid, the wrong ratio laid on it (or `None`: none), the span,
+# and the truth: the ratio that sets it right, `aucun` or `egalite`.
+# A wrong conversion rarely has a single repair: a grid at 28.8 frames per second goes back
+# equally well onto 24 and onto 30 with a ratio of the set, and a file whose times are all
+# doubled stays on the 25 grid — the deduction tells neither apart —, so the search then
+# proposes nothing. The cases with a single truth are those where a file already at the target
+# rate was converted — the most common gesture —, and a second one that enumerating the 320
+# combinations (grid × ratio) finds alone of its kind.
 CASES: list[tuple[str, Fraction, Fraction | None, int, str]] = [
     ("propre-24", FPS_24, None, LENGTH_MS, "aucun"),
     ("faux-25-vers-24", FPS_24, Fraction(25, 24), LENGTH_MS, "24/25"),
@@ -131,14 +132,14 @@ def main(argv: list[str]) -> int:
     failures = []
     for path, content in wanted.items():
         if not path.exists():
-            failures.append(f"manque : {path.relative_to(REPO_ROOT)}")
+            failures.append(f"missing: {path.relative_to(REPO_ROOT)}")
         elif path.read_text(encoding="utf-8") != content:
-            failures.append(f"diffère : {path.relative_to(REPO_ROOT)}")
+            failures.append(f"differs: {path.relative_to(REPO_ROOT)}")
     known = {path.parent.name for path in wanted}
     if DIRECTORY.exists():
         for entry in sorted(DIRECTORY.iterdir()):
             if entry.is_dir() and entry.name not in known:
-                failures.append(f"en trop : {entry.relative_to(REPO_ROOT)}")
+                failures.append(f"unexpected: {entry.relative_to(REPO_ROOT)}")
     for failure in failures:
         print(failure, file=sys.stderr)
     return 1 if failures else 0

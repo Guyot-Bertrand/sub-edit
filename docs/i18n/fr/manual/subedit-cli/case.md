@@ -26,7 +26,7 @@ balise. C'est `Outils ▸ Casse` de la [fenêtre](../subedit-gui/operations.md),
 - **ICU décide où commence un mot** : `l'été sera chaud` donne `L'été Sera Chaud`, et les accents
   tiennent (`éléonore` donne `Éléonore`).
 
-<!-- exemple: subedit-cli case --help -->
+<!-- example: subedit-cli case --help -->
 ```console
 $ subedit-cli case --help
 Put the texts in title, sentence, upper or lower case, tags intact
@@ -68,7 +68,7 @@ Options:
 **Le texte principal par défaut ; la traduction avec `--document translation -t FILE`.** C'est alors
 la traduction qui est changée et écrite, et elle seule — voir [Une traduction](invocation.md#une-traduction).
 
-<!-- exemple: printf '1\n00:00:01,000 --> 00:00:02,000\n<i>bon</i>jour marie\n\n2\n00:00:03,000 --> 00:00:04,000\n- BONJOUR MARIE\n\n' > a.srt; subedit-cli case --to title --output titre.srt a.srt; cat titre.srt -->
+<!-- example: printf '1\n00:00:01,000 --> 00:00:02,000\n<i>bon</i>jour marie\n\n2\n00:00:03,000 --> 00:00:04,000\n- BONJOUR MARIE\n\n' > a.srt; subedit-cli case --to title --output titre.srt a.srt; cat titre.srt -->
 ```console
 $ printf '1\n00:00:01,000 --> 00:00:02,000\n<i>bon</i>jour marie\n\n2\n00:00:03,000 --> 00:00:04,000\n- BONJOUR MARIE\n\n' > a.srt; subedit-cli case --to title --output titre.srt a.srt; cat titre.srt
 a.srt: 2 subtitles recased -> titre.srt
@@ -84,7 +84,7 @@ a.srt: 2 subtitles recased -> titre.srt
 Un fichier dont **aucun texte ne change** — tout est déjà dans la casse demandée — est écrit tel quel et
 le dit :
 
-<!-- exemple: printf '1\n00:00:01,000 --> 00:00:02,000\nBONJOUR\n\n' > a.srt; subedit-cli case --to upper --output b.srt a.srt -->
+<!-- example: printf '1\n00:00:01,000 --> 00:00:02,000\nBONJOUR\n\n' > a.srt; subedit-cli case --to upper --output b.srt a.srt -->
 ```console
 $ printf '1\n00:00:01,000 --> 00:00:02,000\nBONJOUR\n\n' > a.srt; subedit-cli case --to upper --output b.srt a.srt
 a.srt: nothing to change -> b.srt

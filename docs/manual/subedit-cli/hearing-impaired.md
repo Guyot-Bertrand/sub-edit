@@ -21,7 +21,7 @@ patterns are those of the window's
 line offers under the name [`correct`](correct.md); and nothing here can be set: the
 transformation is decided, not configurable.
 
-<!-- exemple: subedit-cli hearing-impaired --help -->
+<!-- example: subedit-cli hearing-impaired --help -->
 ```console
 $ subedit-cli hearing-impaired --help
 Remove the sounds described between square brackets
@@ -89,7 +89,7 @@ two lines stay two lines. This case is not a curiosity: across fifteen
 real subtitlings, every square bracket that seemed orphaned was a
 mention cut that way.
 
-<!-- exemple: printf '1\n00:00:01,000 --> 00:00:03,000\nReculez ! [Il\nhurle] Tout de suite !\n\n' > a.srt; subedit-cli --quiet hearing-impaired --output b.srt a.srt; cat b.srt -->
+<!-- example: printf '1\n00:00:01,000 --> 00:00:03,000\nReculez ! [Il\nhurle] Tout de suite !\n\n' > a.srt; subedit-cli --quiet hearing-impaired --output b.srt a.srt; cat b.srt -->
 ```console
 $ printf '1\n00:00:01,000 --> 00:00:03,000\nReculez ! [Il\nhurle] Tout de suite !\n\n' > a.srt; subedit-cli --quiet hearing-impaired --output b.srt a.srt; cat b.srt
 1
@@ -129,7 +129,7 @@ carries it is not empty.
 **A dialogue reduced to a single voice is no longer one**, and the dash that is left
 goes away. As long as two voices remain, the dashes stay.
 
-<!-- exemple: printf '1\n00:00:01,000 --> 00:00:03,000\n[Bruit de pas]\n\n2\n00:00:04,000 --> 00:00:06,000\nAttends [il tousse] Marie.\n\n3\n00:00:07,000 --> 00:00:09,000\nVoir [1] la note.\n\n' > a.srt; subedit-cli hearing-impaired --output b.srt a.srt; cat b.srt -->
+<!-- example: printf '1\n00:00:01,000 --> 00:00:03,000\n[Bruit de pas]\n\n2\n00:00:04,000 --> 00:00:06,000\nAttends [il tousse] Marie.\n\n3\n00:00:07,000 --> 00:00:09,000\nVoir [1] la note.\n\n' > a.srt; subedit-cli hearing-impaired --output b.srt a.srt; cat b.srt -->
 ```console
 $ printf '1\n00:00:01,000 --> 00:00:03,000\n[Bruit de pas]\n\n2\n00:00:04,000 --> 00:00:06,000\nAttends [il tousse] Marie.\n\n3\n00:00:07,000 --> 00:00:09,000\nVoir [1] la note.\n\n' > a.srt; subedit-cli hearing-impaired --output b.srt a.srt; cat b.srt
 a.srt: 1 subtitle cleaned, 1 removed -> b.srt
@@ -151,7 +151,7 @@ It is the rule of the subcommands that write: **a destination given is
 a destination written**. Making an exception here would force a script to know
 which of the subcommands sometimes produces a file and sometimes nothing.
 
-<!-- exemple: printf '1\n00:00:01,000 --> 00:00:03,000\nRien à signaler.\n\n' > a.srt; subedit-cli hearing-impaired --output b.srt a.srt -->
+<!-- example: printf '1\n00:00:01,000 --> 00:00:03,000\nRien à signaler.\n\n' > a.srt; subedit-cli hearing-impaired --output b.srt a.srt -->
 ```console
 $ printf '1\n00:00:01,000 --> 00:00:03,000\nRien à signaler.\n\n' > a.srt; subedit-cli hearing-impaired --output b.srt a.srt
 a.srt: no mention to remove -> b.srt

@@ -1,0 +1,32 @@
+{
+    "iso-8859-1": [
+        "Le port était vide à cette heure-là.",
+        "Où êtes-vous passé ?",
+        "Ça n'a pas duré très longtemps.",
+        "Je n'en sais rien, à vrai dire.",
+        "Il fait déjà nuit sur la côte.",
+        "Elle a répété la même phrase, très bas.",
+        "On m'a dit que c'était réglé.",
+        "L'hôtel était fermé depuis février."
+    ],
+    "cp1250": [
+        "Přišel jsem pozdě.",
+        "Gdzie jesteś?",
+        "Nem tudom, hová ment.",
+        "Nevěděl jsem, co říct.",
+        "Czy słyszałeś to wszystko?",
+        "Már késő van, menjünk haza.",
+        "Ona zawsze wraca późną nocą.",
+        "Musíme počkat do rána."
+    ],
+    "koi8-r": [
+        "Порт был пуст в этот час.",
+        "Где вы были?",
+        "Это длилось недолго.",
+        "Я ничего не знаю об этом.",
+        "На побережье уже темно.",
+        "Она повторила ту же фразу.",
+        "Мне сказали, что всё улажено.",
+        "Гостиница закрыта с февраля."
+    ]
+}

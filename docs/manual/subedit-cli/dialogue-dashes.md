@@ -23,7 +23,7 @@ Puts a **dialogue dash** at the head of the lines, or takes them off. It is `Dia
   `<i>- Bonjour</i>`. No tag moves.
 - **`--remove`** takes the leading dashes off, in all three forms.
 
-<!-- exemple: subedit-cli dialogue-dashes --help -->
+<!-- example: subedit-cli dialogue-dashes --help -->
 ```console
 $ subedit-cli dialogue-dashes --help
 Put dialogue dashes on the lines, or take them off
@@ -65,7 +65,7 @@ Options:
 **The main text by default; the translation with `--document translation -t FILE`.** It is then
 the translation that is changed and written, and only it — see [A translation](invocation.md#a-translation).
 
-<!-- exemple: printf '1\n00:00:01,000 --> 00:00:02,000\nBonjour\nMarie\n\n2\n00:00:03,000 --> 00:00:04,000\n<i>Salut</i>\n\n' > a.srt; subedit-cli dialogue-dashes --add --output t.srt a.srt; cat t.srt -->
+<!-- example: printf '1\n00:00:01,000 --> 00:00:02,000\nBonjour\nMarie\n\n2\n00:00:03,000 --> 00:00:04,000\n<i>Salut</i>\n\n' > a.srt; subedit-cli dialogue-dashes --add --output t.srt a.srt; cat t.srt -->
 ```console
 $ printf '1\n00:00:01,000 --> 00:00:02,000\nBonjour\nMarie\n\n2\n00:00:03,000 --> 00:00:04,000\n<i>Salut</i>\n\n' > a.srt; subedit-cli dialogue-dashes --add --output t.srt a.srt; cat t.srt
 a.srt: 2 subtitles dashed -> t.srt

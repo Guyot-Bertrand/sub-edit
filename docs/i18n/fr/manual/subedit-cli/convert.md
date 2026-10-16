@@ -14,7 +14,7 @@ subedit-cli convert --to <format>
 Écrit chaque fichier dans le format et la forme demandés. **Ne modifie jamais
 l'entrée**, sauf si `--in-place` le demande explicitement.
 
-<!-- exemple: subedit-cli convert --help -->
+<!-- example: subedit-cli convert --help -->
 ```console
 $ subedit-cli convert --help
 Write a subtitle file out in another format or shape
@@ -188,7 +188,7 @@ en gras s'écrit donc sans gras du tout, plutôt qu'avec un gras qui déborde.
 **Elle le dit quand elle perd, et se tait quand elle ne perd rien.** Un rapport
 qui s'affiche à chaque appel est un rapport que personne ne lit.
 
-<!-- exemple: printf '1\n00:00:01,000 --> 00:00:03,500\n<i>sur deux</i>\nlignes\n\n' > a.srt; subedit-cli convert --to lrc --output b.lrc a.srt -->
+<!-- example: printf '1\n00:00:01,000 --> 00:00:03,500\n<i>sur deux</i>\nlignes\n\n' > a.srt; subedit-cli convert --to lrc --output b.lrc a.srt -->
 ```console
 $ printf '1\n00:00:01,000 --> 00:00:03,500\n<i>sur deux</i>\nlignes\n\n' > a.srt; subedit-cli convert --to lrc --output b.lrc a.srt
 a.srt: 1 subtitle written as LRC -> b.lrc
@@ -272,7 +272,7 @@ Par défaut, **le fichier écrit reprend ce que portait le fichier lu**. Le mod�
 retient les deux à la lecture ; les imposer par défaut perdrait à chaque
 conversion une information conservée exprès.
 
-<!-- exemple: printf '1\n00:00:01,000 --> 00:00:03,000\nBonjour.\n\n' > a.srt; subedit-cli convert --to vtt --output b.vtt a.srt; cat b.vtt -->
+<!-- example: printf '1\n00:00:01,000 --> 00:00:03,000\nBonjour.\n\n' > a.srt; subedit-cli convert --to vtt --output b.vtt a.srt; cat b.vtt -->
 ```console
 $ printf '1\n00:00:01,000 --> 00:00:03,000\nBonjour.\n\n' > a.srt; subedit-cli convert --to vtt --output b.vtt a.srt; cat b.vtt
 a.srt: 1 subtitle written as WebVTT -> b.vtt

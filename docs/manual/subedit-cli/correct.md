@@ -21,7 +21,7 @@ same engine, same counts. Six tasks exist here: the **mentions for the
 hearing impaired**, **joining** and **splitting words**, **common errors**,
 **capitalization** and **line breaking**.
 
-<!-- exemple: subedit-cli correct --help -->
+<!-- example: subedit-cli correct --help -->
 ```console
 $ subedit-cli correct --help
 Correct the texts with the patterns of the correction assistant
@@ -132,7 +132,7 @@ a universal default would apply *less* than one believes, without saying so. It 
 every task of the same run; a task that wants a code of its own is a second
 run. A badly written code is a usage error:
 
-<!-- exemple: printf '1\n00:00:01,000 --> 00:00:02,000\nBonjour\n\n' > a.srt; subedit-cli --no-config correct --tasks common-errors --code francais --output b.srt a.srt; echo "code=$?" -->
+<!-- example: printf '1\n00:00:01,000 --> 00:00:02,000\nBonjour\n\n' > a.srt; subedit-cli --no-config correct --tasks common-errors --code francais --output b.srt a.srt; echo "code=$?" -->
 ```console
 $ printf '1\n00:00:01,000 --> 00:00:02,000\nBonjour\n\n' > a.srt; subedit-cli --no-config correct --tasks common-errors --code francais --output b.srt a.srt; echo "code=$?"
 --code: "francais" is not a pattern code: expected Script[-language[-COUNTRY]], like Zyyy, Latn or Latn-en-US
@@ -162,7 +162,7 @@ Fedora), which `subedit-cli` shares with the window. They therefore have neither
 read** and in the words of the window, which greys the function out and says so — here the command line
 refuses and says so, rather than keeping quiet:
 
-<!-- exemple: printf '1\n00:00:01,000 --> 00:00:02,000\nhel lo\n\n' > a.srt; subedit-cli --no-config correct --tasks join-words --language qq_QQ --output b.srt a.srt; echo "code=$?" -->
+<!-- example: printf '1\n00:00:01,000 --> 00:00:02,000\nhel lo\n\n' > a.srt; subedit-cli --no-config correct --tasks join-words --language qq_QQ --output b.srt a.srt; echo "code=$?" -->
 ```console
 $ printf '1\n00:00:01,000 --> 00:00:02,000\nhel lo\n\n' > a.srt; subedit-cli --no-config correct --tasks join-words --language qq_QQ --output b.srt a.srt; echo "code=$?"
 no dictionary for qq_QQ
@@ -182,7 +182,7 @@ text. **Copying the 24 over as characters would cut almost everything, without
 saying so**; there is therefore **no default length**, and `--max-length` is required with
 `line-break`:
 
-<!-- exemple: printf '1\n00:00:01,000 --> 00:00:03,000\nUn texte\n\n' > a.srt; subedit-cli --no-config correct --tasks line-break --code Latn-en --output b.srt a.srt; echo "code=$?" -->
+<!-- example: printf '1\n00:00:01,000 --> 00:00:03,000\nUn texte\n\n' > a.srt; subedit-cli --no-config correct --tasks line-break --code Latn-en --output b.srt a.srt; echo "code=$?" -->
 ```console
 $ printf '1\n00:00:01,000 --> 00:00:03,000\nUn texte\n\n' > a.srt; subedit-cli --no-config correct --tasks line-break --code Latn-en --output b.srt a.srt; echo "code=$?"
 --max-length is required by the task line-break: Gaupol's 24 is a width in ems, and has no value in characters
@@ -195,7 +195,7 @@ left as it is — takes by default **the same bounds** (`--skip-length` = `--max
 `--skip-lines` = `--max-lines`), as Gaupol does; `--skip-length off` and `--skip-lines off`
 switch it off, and the text is then read again as one and cut again:
 
-<!-- exemple: printf '1\n00:00:01,000 --> 00:00:03,000\nWhen the rain stopped, we walked home under the dark sky of the old town.\n\n' > a.srt; subedit-cli --no-config correct --tasks line-break --code Latn-en --max-length 24 --output b.srt a.srt; cat b.srt -->
+<!-- example: printf '1\n00:00:01,000 --> 00:00:03,000\nWhen the rain stopped, we walked home under the dark sky of the old town.\n\n' > a.srt; subedit-cli --no-config correct --tasks line-break --code Latn-en --max-length 24 --output b.srt a.srt; cat b.srt -->
 ```console
 $ printf '1\n00:00:01,000 --> 00:00:03,000\nWhen the rain stopped, we walked home under the dark sky of the old town.\n\n' > a.srt; subedit-cli --no-config correct --tasks line-break --code Latn-en --max-length 24 --output b.srt a.srt; cat b.srt
 a.srt: Edited 1 and removed 0 subtitles -> b.srt
@@ -242,7 +242,7 @@ setting can outlive a pattern that disappeared; an invocation has no survivor.
 **A task without any active pattern is refused**, code `1` — "nothing to do" is an
 answer that is said, not a silent success:
 
-<!-- exemple: printf '1\n00:00:01,000 --> 00:00:02,000\n[Bruit] Bonjour\n\n' > a.srt; subedit-cli --no-config correct --tasks mentions --code Latn --output b.srt a.srt; echo "code=$?" -->
+<!-- example: printf '1\n00:00:01,000 --> 00:00:02,000\n[Bruit] Bonjour\n\n' > a.srt; subedit-cli --no-config correct --tasks mentions --code Latn --output b.srt a.srt; echo "code=$?" -->
 ```console
 $ printf '1\n00:00:01,000 --> 00:00:02,000\n[Bruit] Bonjour\n\n' > a.srt; subedit-cli --no-config correct --tasks mentions --code Latn --output b.srt a.srt; echo "code=$?"
 mentions: no pattern is active under the code Latn; switch one on with --enable
@@ -251,7 +251,7 @@ code=1
 
 The same file, with the square-bracket sweep switched on:
 
-<!-- exemple: printf '1\n00:00:01,000 --> 00:00:02,000\n[Bruit] Bonjour\n\n' > a.srt; subedit-cli --no-config correct --tasks mentions --code Latn --enable "Sound in brackets" --output b.srt a.srt; cat b.srt -->
+<!-- example: printf '1\n00:00:01,000 --> 00:00:02,000\n[Bruit] Bonjour\n\n' > a.srt; subedit-cli --no-config correct --tasks mentions --code Latn --enable "Sound in brackets" --output b.srt a.srt; cat b.srt -->
 ```console
 $ printf '1\n00:00:01,000 --> 00:00:02,000\n[Bruit] Bonjour\n\n' > a.srt; subedit-cli --no-config correct --tasks mentions --code Latn --enable "Sound in brackets" --output b.srt a.srt; cat b.srt
 a.srt: Edited 1 and removed 0 subtitles -> b.srt
@@ -271,7 +271,7 @@ and keeps its subtitle.
 changed and subtitles removed, **never matches**. A file where nothing
 changes is written all the same: a destination given is a destination written.
 
-<!-- exemple: printf '1\n00:00:01,000 --> 00:00:02,000\neﬀet  de ﬁn\n\n2\n00:00:03,000 --> 00:00:04,000\nPropre.\n\n' > a.srt; subedit-cli --no-config correct --tasks common-errors --code Latn --output b.srt a.srt; cat b.srt -->
+<!-- example: printf '1\n00:00:01,000 --> 00:00:02,000\neﬀet  de ﬁn\n\n2\n00:00:03,000 --> 00:00:04,000\nPropre.\n\n' > a.srt; subedit-cli --no-config correct --tasks common-errors --code Latn --output b.srt a.srt; cat b.srt -->
 ```console
 $ printf '1\n00:00:01,000 --> 00:00:02,000\neﬀet  de ﬁn\n\n2\n00:00:03,000 --> 00:00:04,000\nPropre.\n\n' > a.srt; subedit-cli --no-config correct --tasks common-errors --code Latn --output b.srt a.srt; cat b.srt
 a.srt: Edited 1 and removed 0 subtitles -> b.srt

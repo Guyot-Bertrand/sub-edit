@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
-# Les tests de bout en bout seuls, en Release.
+# The end-to-end tests alone, in Release.
 #
-# Filtrés par l'étiquette CTest `e2e` et non par nom : un test unitaire dont le
-# nom s'en approcherait ne tromperait pas le filtre. Partage l'arbre release
-# avec `bench.sh` et `release.sh`, qui ne le reconstruisent donc pas.
+# Filtered by the CTest label `e2e` and not by name: a unit test whose name came
+# close would not fool the filter. Shares the release tree with `bench.sh` and
+# `release.sh`, which therefore do not rebuild it.
 set -euo pipefail
 # shellcheck source=src/scripts/gate/common.sh
 source "$(dirname "${BASH_SOURCE[0]}")/common.sh"
-step "tests de bout en bout (release)"
+step "end-to-end tests (release)"
 cmake --preset release -DSUBEDIT_LTO_JOBS="${JOBS}"
 cmake --build --preset release -j "${JOBS}" --target subedit_e2e_test
 "${REPO_ROOT}/src/scripts/limit-cores.sh" ctest --preset release -L e2e

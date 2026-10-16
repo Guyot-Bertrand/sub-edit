@@ -35,7 +35,7 @@ Se tromper de l'une pour l'autre **ne provoque aucune erreur** : les deux
 acceptent le fichier et écrivent un résultat. La ligne de narration est ce qui
 les distingue — `snap` dit toujours de combien il a bougé les positions.
 
-<!-- exemple: subedit-cli snap --help -->
+<!-- example: subedit-cli snap --help -->
 ```console
 $ subedit-cli snap --help
 Move every position onto the nearest frame of a frame rate (see framerate)
@@ -91,7 +91,7 @@ des secondes, et le sait aussitôt.
 Une réplique à `00:00:01,010`, alignée sur 25 images par seconde — donc sur un
 multiple de quarante millisecondes :
 
-<!-- exemple: printf '1\n00:00:01,010 --> 00:00:03,020\nUn.\n\n' > a.srt; subedit-cli snap --rate 25 --output b.srt a.srt; cat b.srt -->
+<!-- example: printf '1\n00:00:01,010 --> 00:00:03,020\nUn.\n\n' > a.srt; subedit-cli snap --rate 25 --output b.srt a.srt; cat b.srt -->
 ```console
 $ printf '1\n00:00:01,010 --> 00:00:03,020\nUn.\n\n' > a.srt; subedit-cli snap --rate 25 --output b.srt a.srt; cat b.srt
 a.srt: 1 subtitle aligned on 25 fps, 2 positions moved, by at most 20 ms -> b.srt

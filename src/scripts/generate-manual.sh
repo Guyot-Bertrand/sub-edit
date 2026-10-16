@@ -1,35 +1,34 @@
 #!/usr/bin/env bash
-# Réécrit les exemples d'appel du manuel avec ce que les commandes produisent.
+# Rewrites the manual's invocation examples with what the commands produce.
 #
-# Le manuel doit porter un exemple d'appel réel par commande. Recopié à la main,
-# un tel exemple est de la documentation périmée en sursis : le seul numéro de
-# version qu'il contenait a été corrigé douze fois pendant la phase 2, et rien
-# ne vérifiait qu'il était vrai.
+# The manual must carry one real invocation example per command. Copied by
+# hand, such an example is stale documentation on probation: the only version
+# number it contained was corrected twelve times during phase 2, and nothing
+# checked that it was true.
 #
-# Le projet a déjà l'idiome : CHANGELOG.md est généré depuis l'historique, puis
-# commité. Un exemple d'appel est de la même nature — on ne l'écrit plus, on
-# déclare quelle commande l'illustre.
+# The project already has the idiom: CHANGELOG.md is generated from the history,
+# then committed. An invocation example is of the same nature — it is no longer
+# written, the command that illustrates it is declared.
 #
-#     <!-- exemple: subedit-cli --help fichier.srt; echo $? -->
+#     <!-- example: subedit-cli --help file.srt; echo $? -->
 #     ```console
-#     $ subedit-cli --help fichier.srt; echo $?
+#     $ subedit-cli --help file.srt; echo $?
 #     subedit 0.2.4
 #     0
 #     ```
 #
-# Le marqueur porte une ligne de shell entière, jouée par `sh -c`. C'est ce qui
-# permet aux exemples d'enchaîner une commande et la lecture de son code de
-# retour, comme un utilisateur le ferait.
+# The marker carries a whole shell line, run by `sh -c`. That is what lets the
+# examples chain a command and the reading of its exit status, as a user would.
 #
-# Deux modes :
+# Two modes:
 #
-#   (sans argument)  réécrit les blocs dans les fichiers
-#   --check          compare sans écrire, et nomme les blocs périmés
+#   (no argument)  rewrites the blocks in the files
+#   --check        compares without writing, and names the stale blocks
 #
-# `--check` compare la sortie des commandes au contenu du fichier, sans
-# consulter git. Un `git diff` après régénération se tromperait dans un cas
-# courant : une section de manuel fraîchement écrite et non commitée n'est pas
-# périmée, mais le diff la verrait et refuserait.
+# `--check` compares the commands' output with the file's content, without
+# consulting git. A `git diff` after regeneration would be wrong in a common
+# case: a freshly written, uncommitted manual section is not stale, but the diff
+# would see it and refuse.
 
 set -euo pipefail
 
@@ -40,8 +39,8 @@ export LANGUAGE=en
 
 readonly REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 readonly MANUAL_DIR="${REPO_ROOT}/docs/manual"
-# Le preset dev, et non release : la sortie d'un programme ne dépend pas de son
-# niveau d'optimisation, et la porte de qualité construit déjà celui-là.
+# The dev preset, not release: a program's output does not depend on its
+# optimisation level, and the quality gate already builds that one.
 readonly BIN_DIR="${REPO_ROOT}/build/dev/bin"
 readonly FENCE_OPEN='```console'
 readonly FENCE_CLOSE='```'
@@ -56,7 +55,7 @@ case "${1:-}" in
     "") ;;
     --check) mode="check" ;;
     *)
-        printf 'usage : %s [--check]\n' "$(basename "$0")" >&2
+        printf 'usage: %s [--check]\n' "$(basename "$0")" >&2
         exit 2
         ;;
 esac
@@ -65,13 +64,13 @@ readonly mode
 rewritten=0
 stale=0
 
-# Le fichier en cours de réécriture, pour que l'arrêt sur erreur ne laisse pas
-# de résidu derrière lui.
+# The file being rewritten, so that stopping on an error leaves no residue
+# behind.
 output_file=""
 trap 'rm -f "${output_file}"' EXIT
 
-# Un arrêt nomme toujours le fichier et la ligne : un manuel a plusieurs blocs,
-# et « la commande a échoué » sans dire laquelle n'aide personne.
+# A stop always names the file and the line: a manual has several blocks, and
+# "the command failed" without saying which helps nobody.
 die() {
     local location="$1"
     shift
@@ -83,23 +82,23 @@ die() {
     exit 1
 }
 
-# Renseigne example_output et example_status plutôt que d'écrire sur la sortie :
-# l'appelant a besoin des deux, et une substitution de commande n'en rend qu'un.
+# Fills example_output and example_status rather than writing to the output:
+# the caller needs both, and a command substitution returns only one.
 example_output=""
 example_status=0
 
 run_example() {
     local command="$1"
 
-    # Répertoire temporaire : un « fichier.srt » d'exemple ne doit jamais
-    # désigner un fichier du dépôt, ni y laisser de trace.
+    # Temporary directory: an example's "file.srt" must never designate a file
+    # of the repository, nor leave a trace there.
     local workdir
     workdir="$(mktemp -d)"
 
     example_status=0
-    # Les deux sorties sont fusionnées, dans l'ordre où l'utilisateur les
-    # verrait. L'entrée est fermée : un exemple qui attendrait une saisie
-    # bloquerait la génération au lieu d'échouer.
+    # Both outputs are merged, in the order the user would see them. The input
+    # is closed: an example waiting for input would block the generation
+    # instead of failing.
     example_output="$(
         cd "${workdir}" \
             && PATH="${BIN_DIR}:${PATH}" sh -c "${command}" 2>&1 </dev/null
@@ -108,7 +107,7 @@ run_example() {
     rm -rf "${workdir}"
 }
 
-# Le bloc tel qu'il devrait être : l'invite, la commande, puis la sortie.
+# The block as it should be: the prompt, the command, then the output.
 render_block() {
     local command="$1"
     local output="$2"
@@ -127,7 +126,7 @@ process_file() {
     while IFS= read -r line <&3; do
         lineno=$((lineno + 1))
 
-        if [[ "${line}" != *'<!-- exemple:'* ]]; then
+        if [[ "${line}" != *'<!-- example:'* ]]; then
             printf '%s\n' "${line}" >>"${output_file}"
             continue
         fi
@@ -135,23 +134,23 @@ process_file() {
         local marker_line=${lineno}
         local location="${relative}:${marker_line}"
 
-        [[ "${line}" =~ ^[[:space:]]*'<!-- exemple:'[[:space:]]*(.*[^[:space:]])[[:space:]]*'-->'[[:space:]]*$ ]] \
+        [[ "${line}" =~ ^[[:space:]]*'<!-- example:'[[:space:]]*(.*[^[:space:]])[[:space:]]*'-->'[[:space:]]*$ ]] \
             || die "${location}" \
-                "marqueur illisible : ${line}" \
-                "forme attendue : <!-- exemple: <ligne de shell> -->"
+                "unreadable marker: ${line}" \
+                "expected form: <!-- example: <shell line> -->"
         local command="${BASH_REMATCH[1]}"
 
         local fence=""
         IFS= read -r fence <&3 || die "${location}" \
-            "le marqueur est la dernière ligne du fichier" \
-            "un marqueur annonce le bloc qui le suit ; il en faut un."
+            "the marker is the last line of the file" \
+            "a marker announces the block that follows it; one is needed."
         lineno=$((lineno + 1))
 
         [[ "${fence}" == "${FENCE_OPEN}" ]] || die "${location}" \
-            "le marqueur n'est pas suivi d'un bloc ${FENCE_OPEN}" \
-            "trouvé à la place : ${fence}"
+            "the marker is not followed by a ${FENCE_OPEN} block" \
+            "found instead: ${fence}"
 
-        # Le bloc existant est lu pour être comparé, jamais pour être conservé.
+        # The existing block is read to be compared, never to be kept.
         local previous=""
         local closed=0
         local block_line=""
@@ -164,31 +163,31 @@ process_file() {
             previous+="${block_line}"$'\n'
         done
         (( closed == 1 )) || die "${location}" \
-            "le bloc ouvert après le marqueur n'est jamais refermé"
+            "the block opened after the marker is never closed"
 
         run_example "${command}"
 
         if (( example_status == 127 )); then
             die "${location}" \
-                "commande introuvable : ${command}" \
-                "les exemples s'exécutent avec ${BIN_DIR#"${REPO_ROOT}/"} en tête du PATH ;" \
-                "construire d'abord, avec « make build »."
+                "command not found: ${command}" \
+                "the examples run with ${BIN_DIR#"${REPO_ROOT}/"} at the head of the PATH;" \
+                "build first, with \"make build\"."
         fi
 
         if (( example_status != 0 )); then
             die "${location}" \
-                "la commande a rendu le code ${example_status} : ${command}" \
-                "un exemple du manuel illustre un appel qui marche." \
-                "sortie :" \
+                "the command returned status ${example_status}: ${command}" \
+                "an example of the manual illustrates an invocation that works." \
+                "output:" \
                 "${example_output}"
         fi
 
-        # Un bloc vide n'illustre rien, et le pire résultat serait un manuel
-        # silencieusement vidé de ses exemples. Une commande muette est donc une
-        # erreur, et non un bloc vide écrit sans un mot.
+        # An empty block illustrates nothing, and the worst outcome would be a
+        # manual silently emptied of its examples. A silent command is therefore
+        # an error, not an empty block written without a word.
         [[ -n "${example_output}" ]] || die "${location}" \
-            "la commande n'a rien produit : ${command}" \
-            "un bloc vide n'illustre rien ; le manuel ne sera pas vidé en silence."
+            "the command produced nothing: ${command}" \
+            "an empty block illustrates nothing; the manual will not be emptied silently."
 
         local expected
         expected="$(render_block "${command}" "${example_output}")"
@@ -206,11 +205,11 @@ process_file() {
 
         if [[ "${mode}" == "check" ]]; then
             stale=$((stale + 1))
-            printf '  %s✗%s %s — le bloc ne correspond plus à « %s »\n' \
+            printf '  %s✗%s %s — the block no longer matches "%s"\n' \
                 "${RED}" "${RESET}" "${location}" "${command}"
         else
             rewritten=$((rewritten + 1))
-            printf '  %s✓%s %s — « %s »\n' \
+            printf '  %s✓%s %s — "%s"\n' \
                 "${GREEN}" "${RESET}" "${location}" "${command}"
         fi
     done 3<"${file}"
@@ -224,14 +223,14 @@ process_file() {
 
 if [[ ! -d "${BIN_DIR}" ]]; then
     die "${BIN_DIR#"${REPO_ROOT}/"}" \
-        "répertoire de construction absent" \
-        "les exemples ont besoin des binaires : lancer « make build »."
+        "missing build directory" \
+        "the examples need the binaries: run \"make build\"."
 fi
 
 if [[ "${mode}" == "check" ]]; then
-    printf '%sexemples du manuel — vérification%s\n' "${BOLD}" "${RESET}"
+    printf '%smanual examples — check%s\n' "${BOLD}" "${RESET}"
 else
-    printf '%sexemples du manuel%s\n' "${BOLD}" "${RESET}"
+    printf '%smanual examples%s\n' "${BOLD}" "${RESET}"
 fi
 
 # The source manual and every translation of it, `docs/i18n/<lang>/manual/`, whatever the language
@@ -246,15 +245,15 @@ done < <(
 
 if [[ "${mode}" == "check" ]]; then
     if (( stale > 0 )); then
-        printf '%s%d bloc(s) périmé(s) — lancer « make manual »%s\n' \
+        printf '%s%d stale block(s) — run "make manual"%s\n' \
             "${RED}" "${stale}" "${RESET}" >&2
         exit 1
     fi
-    printf '%sles exemples sont à jour%s\n' "${GREEN}" "${RESET}"
+    printf '%sthe examples are up to date%s\n' "${GREEN}" "${RESET}"
 else
     if (( rewritten > 0 )); then
-        printf '%s%d bloc(s) réécrit(s)%s\n' "${GREEN}" "${rewritten}" "${RESET}"
+        printf '%s%d block(s) rewritten%s\n' "${GREEN}" "${rewritten}" "${RESET}"
     else
-        printf 'aucun bloc à réécrire\n'
+        printf 'no block to rewrite\n'
     fi
 fi

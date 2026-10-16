@@ -21,7 +21,7 @@ ou un lot dont l'ordre est rompu — et il se défait, dans la fenêtre, comme n
   demandée.
 - **`sort` ne prend ni plage ni document** : il n'y a rien à choisir, l'ordre est celui des débuts.
 
-<!-- exemple: subedit-cli sort --help -->
+<!-- example: subedit-cli sort --help -->
 ```console
 $ subedit-cli sort --help
 Put the subtitles in the order of their start, keeping ties as they are
@@ -48,7 +48,7 @@ Options:
 | `--output` / `--output-dir` / `--in-place` | **l'une des trois**, sauf avec `--dry-run` | voir [Invocation](invocation.md#la-destination) | — |
 | `--dry-run` | non | un drapeau : calcule et dit, n'écrit rien — voir [Voir avant d'écrire](invocation.md#voir-avant-décrire) | désactivé |
 
-<!-- exemple: printf '1\n00:00:05,000 --> 00:00:06,000\ncinq\n\n2\n00:00:01,000 --> 00:00:02,000\nun\n\n3\n00:00:03,000 --> 00:00:04,000\ntrois\n\n' > desordre.srt; subedit-cli sort --output ordre.srt desordre.srt; cat ordre.srt -->
+<!-- example: printf '1\n00:00:05,000 --> 00:00:06,000\ncinq\n\n2\n00:00:01,000 --> 00:00:02,000\nun\n\n3\n00:00:03,000 --> 00:00:04,000\ntrois\n\n' > desordre.srt; subedit-cli sort --output ordre.srt desordre.srt; cat ordre.srt -->
 ```console
 $ printf '1\n00:00:05,000 --> 00:00:06,000\ncinq\n\n2\n00:00:01,000 --> 00:00:02,000\nun\n\n3\n00:00:03,000 --> 00:00:04,000\ntrois\n\n' > desordre.srt; subedit-cli sort --output ordre.srt desordre.srt; cat ordre.srt
 desordre.srt: 3 subtitles moved -> ordre.srt
@@ -75,7 +75,7 @@ l'exemple ci-dessus, aucune des trois places ne garde son sous-titre, et la phra
 destination écrite, et faire de `sort` l'exception obligerait un script à savoir quelles
 sous-commandes produisent parfois un fichier et parfois rien.
 
-<!-- exemple: printf '1\n00:00:01,000 --> 00:00:02,000\nun\n\n2\n00:00:03,000 --> 00:00:04,000\ntrois\n\n' > ordre.srt; subedit-cli sort --output copie.srt ordre.srt -->
+<!-- example: printf '1\n00:00:01,000 --> 00:00:02,000\nun\n\n2\n00:00:03,000 --> 00:00:04,000\ntrois\n\n' > ordre.srt; subedit-cli sort --output copie.srt ordre.srt -->
 ```console
 $ printf '1\n00:00:01,000 --> 00:00:02,000\nun\n\n2\n00:00:03,000 --> 00:00:04,000\ntrois\n\n' > ordre.srt; subedit-cli sort --output copie.srt ordre.srt
 ordre.srt: already in order -> copie.srt
