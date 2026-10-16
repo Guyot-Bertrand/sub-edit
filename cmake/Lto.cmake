@@ -3,7 +3,7 @@
 # `CMAKE_INTERPROCEDURAL_OPTIMIZATION` turns LTO into `-flto=auto` with GCC,
 # that is "as many processes as cores", **at every link**. That parallelism
 # appears in no `-j`: it escapes the sober setting of the Makefile, which
-# defaults to 1, and saturates a machine on which something else is being done
+# defaults to 2, and saturates a machine on which something else is being done
 # — another project's tests, for instance, which then fail on timeouts they
 # should not have exceeded.
 #
