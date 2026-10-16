@@ -25,10 +25,10 @@ The rest is run by hand, and the detector is an argument:
 ```console
 $ cmake --build build/dev --target subedit_detect_encoding
 $ ./src/scripts/score-encoding-detection.py \
-      --detector './build/dev/bin/subedit_detect_encoding {}' --par-longueur --prive
+      --detector './build/dev/bin/subedit_detect_encoding {}' --by-length --private
 ```
 
-`--prive` adds the private corpus, absent from any machine that does not have
+`--private` adds the private corpus, absent from any machine that does not have
 it — the record reads without it, less complete. No gate reads it.
 
 ## Labelled corpus
@@ -69,7 +69,7 @@ stays — that is what gives the record something to measure.
 ## Where the detection stops knowing
 
 The rate above is **one** figure over thirteen files. It does not say *where*
-the case becomes hard, and issue #310 was born of that. `--par-longueur` makes a
+the case becomes hard, and issue #310 was born of that. `--by-length` makes a
 graded corpus — fixed seed, sixty draws per row, nothing committed to the
 repository — and hands it to the same detector.
 

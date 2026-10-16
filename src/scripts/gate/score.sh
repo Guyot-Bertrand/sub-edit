@@ -10,7 +10,7 @@
 #
 # **The private corpus is never read here.** It is absent from any machine that
 # does not have it, so a gate that read it would say two different things
-# depending on the workstation. `--prive` remains a manual gesture.
+# depending on the workstation. `--private` remains a manual gesture.
 #
 # What the step builds is the project's detection on the command line, and
 # nothing else: the core and a forty-line program.

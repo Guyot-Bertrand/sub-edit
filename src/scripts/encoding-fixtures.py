@@ -52,7 +52,7 @@ qu'a soulevé l'issue #310. Trois fixtures d'une seule réplique s'y ajoutent :
 `latin1-court`, `cp1250-court`, `koi8-r-court`.
 
 **Ce n'est pas la longueur qui décide, ce sont les octets hauts**, et la mesure
-le dit — `score-encoding-detection.py --par-longueur`. Une réplique en porte
+le dit — `score-encoding-detection.py --by-length`. Une réplique en porte
 trois là où trois répliques en portent neuf, et c'est de ce côté-là que la
 détection cesse de savoir.
 
