@@ -1,14 +1,19 @@
 #!/usr/bin/env bash
-# Applique la configuration GitHub automatisable du dépôt.
+# Applies the repository's GitHub configuration that can be automated.
 #
-# Couvre les labels, les milestones et les rulesets décrits dans
-# docs/configuration-github.md. Les réglages qui n'ont pas d'API — limites
-# d'interaction, approbation des workflows de fork — restent à faire dans
-# l'interface ; le document les liste.
+# Covers the labels, milestones and rulesets described in
+# docs/configuration-github.md. The settings that have no API — interaction
+# limits, approval of fork workflows — remain to be done in the interface; the
+# document lists them.
 #
-# Idempotent : relançable sans effet de bord.
+# Idempotent: can be rerun with no side effect.
 #
-# Nécessite gh authentifié avec les droits d'administration du dépôt.
+# Requires gh authenticated with administration rights on the repository.
+#
+# **What is a GitHub identifier stays as it is**: the label names, the
+# milestone titles and the ruleset name are what exists on GitHub, and some are
+# French. Changing a milestone title here would rename the milestone; changing
+# the ruleset's name would create a second one.
 
 set -euo pipefail
 
@@ -26,49 +31,49 @@ done_() { printf '  %s✓%s %s\n' "${GREEN}" "${RESET}" "$*"; }
 
 require_gh() {
     command -v gh >/dev/null 2>&1 || {
-        printf 'gh est requis : ./src/scripts/setup-toolchain.sh\n' >&2
+        printf 'gh is required: ./src/scripts/setup-toolchain.sh\n' >&2
         exit 1
     }
     gh auth status >/dev/null 2>&1 || {
-        printf 'gh non authentifié : gh auth login, ou exporter GH_TOKEN\n' >&2
+        printf 'gh is not authenticated: gh auth login, or export GH_TOKEN\n' >&2
         exit 1
     }
 }
 
 # --- Labels -----------------------------------------------------------------
 #
-# Les valeurs de `area:` sont exactement les scopes des messages de commit, de
-# sorte qu'une issue et les commits qui la traitent portent le même vocabulaire.
+# The values of `area:` are exactly the scopes of commit messages, so that an
+# issue and the commits that address it carry the same vocabulary.
 
 apply_labels() {
     info "labels"
 
     local -a labels=(
-        "type:bug|d73a4a|Comportement incorrect et reproductible"
-        "type:story|0e8a16|Fonctionnalité vue du point de vue de l'utilisateur"
-        "type:enhancement|1d76db|Évolution d'un comportement existant"
-        "type:task|5319e7|Travail technique sans effet direct pour l'utilisateur"
-        "type:doc|006b75|Documentation, spec, manuel ou ADR"
+        "type:bug|d73a4a|Incorrect and reproducible behaviour"
+        "type:story|0e8a16|Feature seen from the user's point of view"
+        "type:enhancement|1d76db|Change to an existing behaviour"
+        "type:task|5319e7|Technical work with no direct effect for the user"
+        "type:doc|006b75|Documentation, spec, manual or ADR"
 
-        "area:build|c5def5|Système de construction et chaîne d'outils"
-        "area:ci|c5def5|Intégration continue"
-        "area:cli|c5def5|Exécutable en ligne de commande"
-        "area:core|c5def5|Modèle de données et opérations"
+        "area:build|c5def5|Build system and toolchain"
+        "area:ci|c5def5|Continuous integration"
+        "area:cli|c5def5|Command-line executable"
+        "area:core|c5def5|Data model and operations"
         "area:doc|c5def5|Documentation"
-        "area:format|c5def5|Lecture et écriture des formats de sous-titres"
-        "area:gui|c5def5|Interface graphique Qt"
-        "area:i18n|c5def5|Internationalisation"
-        "area:scripts|c5def5|Scripts d'automatisation"
-        "area:test|c5def5|Tests et benchmarks"
-        "area:text|c5def5|Correction et mise en forme du texte"
-        "area:video|c5def5|Lecteur vidéo et calage"
+        "area:format|c5def5|Reading and writing of subtitle formats"
+        "area:gui|c5def5|Qt graphical interface"
+        "area:i18n|c5def5|Internationalization"
+        "area:scripts|c5def5|Automation scripts"
+        "area:test|c5def5|Tests and benchmarks"
+        "area:text|c5def5|Correction and formatting of text"
+        "area:video|c5def5|Video player and timing"
 
-        "prio:high|b60205|À traiter en priorité"
-        "prio:medium|fbca04|Priorité normale"
-        "prio:low|0e8a16|Peut attendre"
+        "prio:high|b60205|To be handled first"
+        "prio:medium|fbca04|Normal priority"
+        "prio:low|0e8a16|Can wait"
 
-        "blocked|000000|En attente d'un travail ou d'une décision"
-        "needs-decision|d4c5f9|Nécessite un arbitrage avant de continuer"
+        "blocked|000000|Waiting for some work or a decision"
+        "needs-decision|d4c5f9|Needs a decision before going on"
     )
 
     local entry name color description
@@ -77,10 +82,10 @@ apply_labels() {
         gh label create "${name}" --repo "${REPO}" --color "${color}" \
             --description "${description}" --force >/dev/null
     done
-    done_ "${#labels[@]} labels créés ou mis à jour"
+    done_ "${#labels[@]} labels created or updated"
 
-    # Les labels par défaut de GitHub font doublon avec la taxonomie `type:` et
-    # invitent à des contributions que le projet n'accepte pas.
+    # GitHub's default labels duplicate the `type:` taxonomy and invite
+    # contributions the project does not accept.
     local -a defaults=(
         bug documentation duplicate enhancement
         "good first issue" "help wanted" invalid question wontfix
@@ -92,7 +97,7 @@ apply_labels() {
             removed=$((removed + 1))
         fi
     done
-    (( removed == 0 )) || done_ "${removed} labels par défaut supprimés"
+    (( removed == 0 )) || done_ "${removed} default labels deleted"
 }
 
 # --- Milestones -------------------------------------------------------------
@@ -100,30 +105,31 @@ apply_labels() {
 apply_milestones() {
     info "milestones"
 
-    # Les phases 0 à 7 mènent au MVP, les suivantes complètent
-    # l'iso-fonctionnalité. Voir docs/feuille-de-route.md.
+    # Phases 0 to 7 lead to the MVP, the following ones complete feature
+    # parity. See docs/feuille-de-route.md. The titles, before the `|`, are
+    # GitHub's: they stay as they are; the descriptions after it are prose.
     local -a phases=(
-        "0 — Fondations|Structure, chaîne de construction et filet de vérification"
-        "1 — Noyau : modèle et formats|Sous-titre, positions, SubRip et WebVTT, balises, commandes réversibles"
-        "2 — Opérations d'édition|Édition de base, décalage, transformation, conversion de fréquence d'image"
-        "3 — CLI : harnais|Inspection, conversion et décalage, pour valider et mesurer le noyau sans interface"
-        "4 — Mentions pour malentendants|Suppression des sons entre crochets et entre parenthèses"
-        "5 — Interface : édition tabulaire|Fenêtre, table éditable, ouvrir, enregistrer sous, annuler et refaire"
-        "6 — Le lecteur intégré|Lire la vidéo dans la fenêtre, la réplique dessinée sur l'image"
-        "7 — Finitions et première livraison|Préférences, thème, manuel, empaquetage — le MVP est livrable"
-        "8 — Encodages et fins de ligne|Détection automatique, jeu complet d'encodages et de fins de ligne"
-        "9 — Formats complémentaires|SubViewer 2, SSA, ASS, MicroDVD, MPL2, TMPlayer, LRC et balises riches"
-        "10 — Opérations complémentaires|Durées, casse, italiques, tirets, fusion, scission, recherche"
-        "11 — Traduction et multi-projets|Second document, alignement, onglets, opérations groupées"
-        "12 — Moteur de correction complet|Motifs par langue, découpage de lignes, correcteur orthographique"
-        "13 — CLI complète|Sous-commandes destinées à un usage réel et traitement par lot"
-        "14 — Calage fin|Poser début et fin depuis la position vidéo, avancer image par image, incruster le timecode"
-        "15 — Internationalisation|Reprise des vingt locales de Gaupol"
+        "0 — Fondations|Structure, build chain and verification net"
+        "1 — Noyau : modèle et formats|Subtitle, positions, SubRip and WebVTT, tags, reversible commands"
+        "2 — Opérations d'édition|Basic editing, shift, transformation, frame rate conversion"
+        "3 — CLI : harnais|Inspection, conversion and shift, to validate and measure the core without an interface"
+        "4 — Mentions pour malentendants|Removal of sounds in brackets and in parentheses"
+        "5 — Interface : édition tabulaire|Window, editable table, open, save as, undo and redo"
+        "6 — Le lecteur intégré|Play the video in the window, the line drawn over the picture"
+        "7 — Finitions et première livraison|Preferences, theme, manual, packaging — the MVP can be delivered"
+        "8 — Encodages et fins de ligne|Automatic detection, full set of encodings and line endings"
+        "9 — Formats complémentaires|SubViewer 2, SSA, ASS, MicroDVD, MPL2, TMPlayer, LRC and rich tags"
+        "10 — Opérations complémentaires|Durations, case, italics, dashes, merge, split, search"
+        "11 — Traduction et multi-projets|Second document, alignment, tabs, grouped operations"
+        "12 — Moteur de correction complet|Patterns per language, line breaking, spell checker"
+        "13 — CLI complète|Subcommands meant for real use, and batch processing"
+        "14 — Calage fin|Set start and end from the video position, step frame by frame, burn in the timecode"
+        "15 — Internationalisation|The twenty locales of Gaupol, taken over"
     )
 
-    # Le rapprochement se fait sur le numéro de phase et non sur le titre
-    # complet, afin qu'un libellé révisé renomme le milestone au lieu d'en
-    # créer un second.
+    # The match is made on the phase number and not on the full title, so
+    # that a revised label renames the milestone instead of creating a second
+    # one.
     local existing
     existing="$(gh api "repos/${REPO}/milestones?state=all" --jq '.[] | "\(.number)|\(.title)"')"
 
@@ -146,20 +152,20 @@ apply_milestones() {
         fi
     done
 
-    done_ "${created} milestones créés, ${updated} mis à jour"
+    done_ "${created} milestones created, ${updated} updated"
 }
 
 # --- Rulesets ---------------------------------------------------------------
 #
-# Un seul ruleset, « protection de l'historique », qui ne déroge à personne. Le
-# propriétaire est seul à écrire ; le risque réel n'est donc pas un tiers
-# malveillant mais un force-push accidentel de sa part. Il faut que la règle
-# s'applique aussi à lui pour avoir un sens.
+# A single ruleset, `protection de l'historique` (its name on GitHub), which
+# exempts nobody. The owner is the only one who writes; the real risk is
+# therefore not a malicious third party but an accidental force-push of their
+# own. The rule has to apply to them too to make sense.
 #
-# **Le second, « porte de qualité », a été supprimé à la #232.** Il exigeait le
-# check de `ci.yml`, qui ne tourne plus sur les pull requests : une règle qui
-# attend un contrôle que rien ne produira ne protège de rien. Ce script ne le
-# recrée donc pas.
+# **The second one, `porte de qualité`, was deleted in #232.** It required the
+# check of `ci.yml`, which no longer runs on pull requests: a rule that waits
+# for a check nothing will produce protects from nothing. This script therefore
+# does not recreate it.
 
 ruleset_exists() {
     gh api "repos/${REPO}/rulesets" --jq ".[] | select(.name == \"$1\") | .id" 2>/dev/null
@@ -179,20 +185,20 @@ create_ruleset() {
         endpoint="repos/${REPO}/rulesets/${id}"
     fi
 
-    # Écrire un ruleset relève de la permission « Administration », que les
-    # jetons à granularité fine n'accordent pas par défaut. L'échec est
-    # signalé, pas fatal : le reste de la configuration a déjà été appliqué.
+    # Writing a ruleset falls under the "Administration" permission, which
+    # fine-grained tokens do not grant by default. The failure is reported, not
+    # fatal: the rest of the configuration has already been applied.
     if gh api "${endpoint}" --method "${method}" --input - <<< "${payload}" >/dev/null 2>&1; then
-        done_ "« ${name} » $([[ -n "${id}" ]] && echo "mis à jour" || echo "créé")"
+        done_ "\"${name}\" $([[ -n "${id}" ]] && echo "updated" || echo "created")"
         return
     fi
 
     ruleset_failures=$((ruleset_failures + 1))
-    printf '  %s✗%s « %s » — écriture refusée\n' "${RED}" "${RESET}" "${name}"
+    printf '  %s✗%s "%s" — write refused\n' "${RED}" "${RESET}" "${name}"
 }
 
 apply_rulesets() {
-    info "rulesets sur la branche par défaut"
+    info "rulesets on the default branch"
 
     create_ruleset "protection de l'historique" '{
         "name": "protection de l'\''historique",
@@ -204,20 +210,20 @@ apply_rulesets() {
 }
 
 report_manual_steps() {
-    info "à faire dans l'interface — sans API ou hors portée du jeton"
+    info "to do in the interface — no API, or out of the token's reach"
 
     if (( ruleset_failures > 0 )); then
-        printf '  Le ruleset exige la permission « Administration » du jeton.\n'
-        printf '  Deux voies :\n'
-        printf '    ajouter Administration: Read and write au jeton, puis relancer ce script\n'
-        printf '    ou les créer à la main : Settings → Rules → Rulesets\n\n'
+        printf '  The ruleset requires the "Administration" permission of the token.\n'
+        printf '  Two ways:\n'
+        printf '    add Administration: Read and write to the token, then rerun this script\n'
+        printf '    or create it by hand: Settings → Rules → Rulesets\n\n'
     fi
 
     printf '  Settings → Actions → Fork pull request workflows\n'
     printf '      → Require approval for all external contributors\n'
     printf '  Settings → Moderation → Interaction limits\n'
-    printf '      → Limit to prior contributors, à renouveler tous les six mois\n'
-    printf '  voir docs/configuration-github.md\n'
+    printf '      → Limit to prior contributors, to renew every six months\n'
+    printf '  see docs/configuration-github.md\n'
 }
 
 require_gh
