@@ -1,20 +1,20 @@
-# AddressSanitizer et UndefinedBehaviorSanitizer.
+# AddressSanitizer and UndefinedBehaviorSanitizer.
 #
-# ASan embarque LeakSanitizer sous Linux : une fuite fait échouer les tests au
-# lieu d'être découverte des mois plus tard. C'est ce qui rend mécaniques les
-# règles de propriété mémoire de docs/principes-de-conception.md.
+# ASan embeds LeakSanitizer on Linux: a leak makes the tests fail instead of
+# being discovered months later. That is what makes the memory ownership rules
+# of docs/principes-de-conception.md mechanical.
 #
-# **UBSan ne s'arrête pas de lui-même**, contrairement à ASan : par défaut il
-# écrit son diagnostic et laisse le programme continuer. Un test qui déclenche
-# un comportement indéfini était donc rapporté comme passé, et la porte restait
-# verte avec le message sous les yeux de personne — la sortie de CTest n'est
-# lue que lorsqu'elle échoue.
+# **UBSan does not stop by itself**, unlike ASan: by default it writes its
+# diagnostic and lets the program go on. A test that triggered undefined
+# behaviour was therefore reported as passed, and the gate stayed green with
+# the message in front of nobody's eyes — CTest's output is read only when it
+# fails.
 #
-# Ce n'était pas une hypothèse : la grammaire du temps a débordé en signé sur
-# `shift --by 99999999999999999999` pendant toute la phase 3, puis écrit un
-# fichier décalé de deux cents mille milliards de secondes avec un code de
-# retour 0. `-fno-sanitize-recover=undefined` fait de ce diagnostic un échec.
-# `make verify-gates` en porte la preuve, distincte de celle d'ASan.
+# This was not a hypothesis: the time grammar overflowed as signed on
+# `shift --by 99999999999999999999` throughout phase 3, then wrote a file
+# shifted by two hundred thousand billion seconds with an exit code of 0.
+# `-fno-sanitize-recover=undefined` makes that diagnostic a failure.
+# `make verify-gates` carries the proof of it, distinct from ASan's.
 
 if(NOT SUBEDIT_SANITIZERS)
     return()
@@ -24,10 +24,10 @@ set(SUBEDIT_SANITIZER_FLAGS
     -fsanitize=address
     -fsanitize=undefined
     -fno-sanitize-recover=undefined
-    -fno-omit-frame-pointer      # traces d'appel exploitables
-    -fno-optimize-sibling-calls) # sinon les cadres d'appel disparaissent
+    -fno-omit-frame-pointer      # usable call stacks
+    -fno-optimize-sibling-calls) # otherwise call frames disappear
 
 add_compile_options(${SUBEDIT_SANITIZER_FLAGS})
 add_link_options(${SUBEDIT_SANITIZER_FLAGS})
 
-message(STATUS "sanitizers actifs : address, undefined, leak")
+message(STATUS "sanitizers enabled: address, undefined, leak")

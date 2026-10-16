@@ -1,22 +1,22 @@
-# Les deux paquets natifs — ADR 0023, issue #244.
+# The two native packages — ADR 0023, issue #244.
 #
-# **Ils sortent de l'installation, pas d'une description séparée.** CPack
-# empaquette ce que `cmake --install` dépose ; il n'y a donc pas de liste de
-# fichiers à tenir en phase, et un paquet ne peut pas diverger de ce que le
-# projet installe. C'est la moitié de la décision de l'ADR : l'installation
-# d'abord, les formats ensuite.
+# **They come out of the installation, not out of a separate description.**
+# CPack packages what `cmake --install` lays down; there is therefore no list
+# of files to keep in step, and a package cannot diverge from what the project
+# installs. That is half of the ADR's decision: installation first, formats
+# next.
 #
-# **Le second format est ce qui met cette moitié à l'épreuve.** « L'installation
-# d'abord » est une affirmation tant qu'un seul format l'exerce ; si le `.rpm`
-# demandait de retoucher les règles `install()`, c'est qu'elles étaient fausses.
-# Il ne l'a pas demandé, et `check-installation.sh` le vérifie en confrontant
-# les deux listes de fichiers.
+# **The second format is what puts that half to the test.** "Installation
+# first" is a claim as long as a single format exercises it; had the `.rpm`
+# required touching the `install()` rules, they would have been wrong. It did
+# not, and `check-installation.sh` checks it by comparing the two lists of
+# files.
 #
-# **Ce qui diffère réellement entre les deux est ici, et c'est tout** : les noms
-# des paquets de dépendances. Les mêmes bibliothèques s'appellent autrement chez
-# Debian et chez Fedora, et c'est là que le paquet peut être faux sans que rien
-# ne le montre à la construction — un nom erroné produit un paquet parfaitement
-# valide qui refuse de s'installer.
+# **What really differs between the two is here, and that is all**: the names
+# of the dependency packages. The same libraries are named differently on
+# Debian and on Fedora, and that is where a package can be wrong without
+# anything showing it at build time — a wrong name produces a perfectly valid
+# package that refuses to install.
 
 include(GNUInstallDirs)
 
@@ -27,107 +27,105 @@ set(CPACK_PACKAGE_HOMEPAGE_URL "${PROJECT_HOMEPAGE_URL}")
 set(CPACK_PACKAGE_CONTACT "Bertrand Guyot <bertrand.guyot.vpc@orange.fr>")
 set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/LICENSE")
 
-# **En anglais, comme tout ce que l'utilisateur lit.** Ce résumé s'affiche dans
-# une logithèque et dans `apt show` ; c'est la même phrase que le `summary`
-# AppStream et que la ligne de description du binaire.
+# **In English, like everything the user reads.** This summary shows in a
+# software centre and in `apt show`; it is the same sentence as the AppStream
+# `summary` and as the binary's description line.
 set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Read, inspect and retime subtitle files")
 
 set(CPACK_GENERATOR "DEB;RPM")
 
-# **Chaque famille nomme ses paquets à sa façon, et on lui laisse le faire.**
-# `subedit_0.7.12_amd64.deb` d'un côté, `subedit-0.7.12-1.x86_64.rpm` de
-# l'autre. Sans ces deux lignes, CPack donne aux deux le même nom neutre —
-# `subedit-0.7.12-Linux` — qui ne dit ni l'architecture ni la révision, et qu'un
-# outil de la distribution ne reconnaît pas.
+# **Each family names its packages its own way, and we let it.**
+# `subedit_0.7.12_amd64.deb` on one side, `subedit-0.7.12-1.x86_64.rpm` on the
+# other. Without these two lines, CPack gives both the same neutral name —
+# `subedit-0.7.12-Linux` — which states neither the architecture nor the
+# revision, and which a distribution tool does not recognise.
 set(CPACK_DEBIAN_FILE_NAME "DEB-DEFAULT")
 set(CPACK_RPM_FILE_NAME "RPM-DEFAULT")
 
-# ## Ce qui diffère : les dépendances
+# ## What differs: the dependencies
 #
-# **Ni l'un ni l'autre n'est déduit.** CPack sait déduire les dépendances Debian
-# par `dpkg-shlibdeps`, mais seulement sur la machine où le paquet est construit
-# et pour les bibliothèques que l'éditeur de liens a nommées ; il ne sait rien de
-# Fedora. Les deux listes sont donc écrites, et elles sont la seule chose que ce
-# fichier tient à la main.
+# **Neither is deduced.** CPack can deduce Debian dependencies through
+# `dpkg-shlibdeps`, but only on the machine where the package is built and for
+# the libraries the linker named; it knows nothing of Fedora. Both lists are
+# therefore written, and they are the only thing this file keeps by hand.
 #
-# Qt 6 et libmpv en premier lieu : ce sont les deux dépendances d'exécution que
-# l'ADR 0020 et la phase 5 ont fait entrer.
+# Qt 6 and libmpv first: they are the two runtime dependencies that ADR 0020
+# and phase 5 brought in.
 #
-# **ICU est entrée à la phase 8**, et elle est la seule des trois que
-# `subedit-cli` tire aussi — ADR 0027. Les deux familles ne la nomment pas
-# pareil : `libicu74` chez Debian et Ubuntu, où le numéro suit la version
-# majeure d'ICU, `libicu` chez Fedora, où il n'y en a pas. Un seul numéro et
-# non une alternative : le `SONAME` d'ICU change à chaque version majeure, donc
-# un paquet qui accepterait `libicu70` laisserait installer une bibliothèque que
-# le binaire ne sait pas charger. C'est exactement l'endroit où un paquet peut
-# être faux sans que rien ne le montre à la construction — #266 l'a payé une
-# fois — et `make rpm-check` est ce qui l'attrape désormais, en installant le
-# `.rpm` sur une vraie Fedora.
+# **ICU came in at phase 8**, and it is the only one of the three that
+# `subedit-cli` pulls in too — ADR 0027. The two families do not name it the
+# same: `libicu74` on Debian and Ubuntu, where the number follows ICU's major
+# version, `libicu` on Fedora, where there is none. A single number and not an
+# alternative: ICU's `SONAME` changes with every major version, so a package
+# that accepted `libicu70` would let a library be installed that the binary
+# cannot load. That is exactly the place where a package can be wrong without
+# anything showing it at build time — #266 paid for it once — and
+# `make rpm-check` is what now catches it, by installing the `.rpm` on a real
+# Fedora.
 set(CPACK_DEBIAN_PACKAGE_DEPENDS "libqt6widgets6 (>= 6.4), libqt6gui6 (>= 6.4), libqt6core6 (>= 6.4), libmpv2 | libmpv1, libicu74, libenchant-2-2")
 set(CPACK_DEBIAN_PACKAGE_SECTION "video")
 set(CPACK_DEBIAN_PACKAGE_RECOMMENDS "ffmpeg")
 
-# `ffmpeg` en recommandation et non en dépendance : l'outil fonctionne sans lui
-# — la fenêtre cesse seulement de proposer la cadence que le film déclare. En
-# faire une dépendance ferait tirer un paquet lourd pour une commodité, et
-# mentirait sur ce que le programme exige.
+# `ffmpeg` as a recommendation and not a dependency: the tool works without it
+# — the window only stops offering the frame rate the film declares. Making it
+# a dependency would pull a heavy package in for a convenience, and would lie
+# about what the program requires.
 #
-# **Le `.rpm` n'en porte aucune, et pour deux raisons qui vont dans le même
-# sens.** La première est mécanique : CPack sonde `rpm --suggests`, qui échoue
-# sur le `rpmbuild` d'Ubuntu, et retire alors les quatre étiquettes de
-# dépendance faible — un `SUGGESTS` posé ici serait donc écarté en silence sur
-# la machine même qui construit le paquet. La seconde est de fond : `ffmpeg`
-# n'est pas dans les dépôts par défaut de Fedora, et nommer le paquet qui le
-# remplace serait deviner, sur une distribution que ce dépôt ne sait pas
-# éprouver. Le manuel dit ce que `ffmpeg` apporte ; c'est le bon endroit pour le
-# dire à qui n'a pas de gestionnaire de paquets pour l'apprendre.
+# **The `.rpm` carries none, for two reasons that point the same way.** The
+# first is mechanical: CPack probes `rpm --suggests`, which fails on Ubuntu's
+# `rpmbuild`, and then removes the four weak dependency tags — a `SUGGESTS`
+# set here would therefore be dropped silently on the very machine that builds
+# the package. The second is substantive: `ffmpeg` is not in Fedora's default
+# repositories, and naming the package that replaces it would be guessing, on a
+# distribution this repository cannot test. The manual says what `ffmpeg`
+# brings; that is the right place to tell whoever has no package manager to
+# learn it from.
 set(CPACK_RPM_PACKAGE_REQUIRES "qt6-qtbase-gui >= 6.4, mpv-libs, libicu, enchant2")
-# **La distribution est dans le nom du fichier** : `subedit-X.Y.Z-1.fc43.x86_64.rpm`.
-# Le `.rpm` publié est construit sur chaque Fedora, contre son ICU, et deux
-# d'entre eux ne s'échangent pas — `src/scripts/build-rpm.sh`.
+# **The distribution is in the file name**: `subedit-X.Y.Z-1.fc43.x86_64.rpm`.
+# The published `.rpm` is built on each Fedora, against its ICU, and two of
+# them are not interchangeable — `src/scripts/build-rpm.sh`.
 set(CPACK_RPM_PACKAGE_RELEASE_DIST ON)
 set(CPACK_RPM_PACKAGE_LICENSE "GPL-3.0-or-later")
 set(CPACK_RPM_PACKAGE_GROUP "Applications/Multimedia")
 
-# **Enchant 2 est entrée à la phase 12** — D6 de docs/specs/12-correction.md —,
-# et `subedit-cli` la tire aussi. Contrairement à ICU, son nom ne porte pas de
-# numéro de version majeure : `libenchant-2-2` chez Debian et Ubuntu, où le
-# premier `2` est l'API et le second le `SONAME`, `enchant2` chez Fedora. Les
-# dictionnaires, eux, ne sont pas une dépendance : le programme fonctionne sans,
-# et la fonction s'éteint en le disant.
+# **Enchant 2 came in at phase 12** — D6 of docs/specs/12-correction.md —, and
+# `subedit-cli` pulls it in too. Unlike ICU, its name carries no major version
+# number: `libenchant-2-2` on Debian and Ubuntu, where the first `2` is the API
+# and the second the `SONAME`, `enchant2` on Fedora. The dictionaries, for
+# their part, are not a dependency: the program works without them, and the
+# feature switches off saying so.
 #
-# ## Le préfixe d'empaquetage, écrit plutôt que supposé
+# ## The packaging prefix, written rather than assumed
 #
-# `/usr` est le défaut des deux générateurs, et le laisser tacite avait un coût
-# précis : la liste d'exclusions ci-dessous s'écrit dans les chemins **du
-# paquet**, donc préfixés, et il n'y avait rien à quoi les préfixer. Le nommer
-# ici donne aux deux le même point de départ.
+# `/usr` is the default of both generators, and leaving it implicit had a
+# precise cost: the exclusion list below is written in the paths **of the
+# package**, hence prefixed, and there was nothing to prefix them with. Naming
+# it here gives both the same starting point.
 set(CPACK_PACKAGING_INSTALL_PREFIX "/usr")
 
-# **Les répertoires que la distribution possède déjà ne sont pas au paquet.**
-# Un `.rpm` qui déclare posséder `/usr/share/applications` entre en conflit avec
-# `filesystem`, qui le possède vraiment, et `dnf` refuse la transaction. Le
-# générateur Debian n'a pas ce problème : un `.deb` ne possède pas ses
-# répertoires.
+# **The directories the distribution already owns are not in the package.**
+# A `.rpm` that declares it owns `/usr/share/applications` conflicts with
+# `filesystem`, which really owns it, and `dnf` refuses the transaction. The
+# Debian generator does not have that problem: a `.deb` does not own its
+# directories.
 #
-# **Cette liste existait depuis #244 et n'excluait rien** — issue #266. Elle
-# était écrite en chemins relatifs, `share/applications`, parce que
-# `CMAKE_INSTALL_DATADIR` est relatif ; CPack compare des chemins de paquet,
-# donc absolus, et n'a jamais trouvé une seule correspondance. Le `.rpm`
-# possédait ses huit répertoires partagés, et l'installation échouait sur six
-# conflits :
+# **This list had existed since #244 and excluded nothing** — issue #266. It
+# was written in relative paths, `share/applications`, because
+# `CMAKE_INSTALL_DATADIR` is relative; CPack compares package paths, hence
+# absolute ones, and never found a single match. The `.rpm` owned its eight
+# shared directories, and installation failed on six conflicts:
 #
 #     file /usr/share/applications from install of subedit-0.8.4-1.x86_64
 #     conflicts with file from package filesystem-3.18-47.fc42.x86_64
 #
-# Rien ne pouvait le dire : `rpm -qlp` lit une liste de fichiers, pas une
-# transaction, et le dépôt n'avait pas de Fedora pour en jouer une. Il en a une
-# depuis `src/scripts/check-rpm.sh`.
+# Nothing could tell: `rpm -qlp` reads a list of files, not a transaction, and
+# the repository had no Fedora to play one on. It has had one since
+# `src/scripts/check-rpm.sh`.
 #
-# **Le conflit se joue sur le mode**, et c'est ce qui le rend invisible à l'œil :
-# CPack déclare ces répertoires en 0775, `filesystem` les possède en 0755. Deux
-# paquets peuvent partager un répertoire tant qu'ils le décrivent pareil ; ceux-ci
-# ne le décrivaient pas pareil.
+# **The conflict is about the mode**, and that is what makes it invisible to
+# the eye: CPack declares these directories as 0775, `filesystem` owns them as
+# 0755. Two packages can share a directory as long as they describe it alike;
+# these did not describe it alike.
 set(CPACK_RPM_EXCLUDE_FROM_AUTO_FILELIST_ADDITION
     "${CPACK_PACKAGING_INSTALL_PREFIX}/${CMAKE_INSTALL_DATADIR}/applications"
     "${CPACK_PACKAGING_INSTALL_PREFIX}/${CMAKE_INSTALL_DATADIR}/metainfo"
@@ -138,12 +136,12 @@ set(CPACK_RPM_EXCLUDE_FROM_AUTO_FILELIST_ADDITION
     "${CPACK_PACKAGING_INSTALL_PREFIX}/${CMAKE_INSTALL_MANDIR}"
     "${CPACK_PACKAGING_INSTALL_PREFIX}/${CMAKE_INSTALL_MANDIR}/man1")
 
-# **Aucun script de post-installation, et c'est une décision.** Gaupol appelle
-# `update-desktop-database` depuis son Makefile, et seulement quand `DESTDIR` est
-# vide — parce qu'une installation mise en scène ne doit rien toucher au-dehors.
-# Un paquet natif n'a pas ce souci pour une autre raison : `dpkg` et `rpm`
-# appellent eux-mêmes les déclencheurs des répertoires de bureau. Un script qui
-# le referait ferait le travail deux fois, et le ferait mal le jour où la
-# distribution changerait de mécanisme.
+# **No post-installation script, and that is a decision.** Gaupol calls
+# `update-desktop-database` from its Makefile, and only when `DESTDIR` is empty
+# — because a staged installation must touch nothing outside. A native package
+# does not have that concern, for another reason: `dpkg` and `rpm` call the
+# desktop directory triggers themselves. A script that did it again would do
+# the work twice, and would do it badly the day the distribution changed its
+# mechanism.
 
 include(CPack)

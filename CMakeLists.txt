@@ -3,95 +3,94 @@ cmake_minimum_required(VERSION 3.28)
 project(
     subedit
     VERSION 0.15.34
-    DESCRIPTION "Éditeur de sous-titres"
+    DESCRIPTION "Subtitle editor"
     HOMEPAGE_URL "https://github.com/Guyot-Bertrand/sub-edit"
     LANGUAGES CXX)
 
-# Ce projet n'est jamais construit comme sous-projet d'un autre.
+# This project is never built as a subproject of another.
 if(NOT CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
-    message(FATAL_ERROR "subedit se construit seul, pas comme sous-projet.")
+    message(FATAL_ERROR "subedit is built on its own, not as a subproject.")
 endif()
 
-# C++23 pour std::expected — voir docs/adr/0007-cpp23-et-std-expected.md.
-# Exige clang-tidy >= 19 : la version 18 ne voit pas <expected>.
+# C++23 for std::expected — see docs/adr/0007-cpp23-et-std-expected.md.
+# Requires clang-tidy >= 19: version 18 does not see <expected>.
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-# Les extensions GNU rendraient le code non portable sans qu'on s'en aperçoive.
+# GNU extensions would make the code non-portable without anyone noticing.
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-# Consommé par clang-tidy et par les éditeurs.
+# Consumed by clang-tidy and by editors.
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
 
-option(SUBEDIT_BUILD_TESTS "Construire les tests et les benchmarks" ON)
-option(SUBEDIT_SANITIZERS "Activer AddressSanitizer et UndefinedBehaviorSanitizer" OFF)
-option(SUBEDIT_COVERAGE "Instrumenter pour la mesure de couverture" OFF)
-# OFF par défaut ; seuls les presets asan et release le mettent à ON. Un
-# indicateur déclaratif se lit mieux dans six mois qu'un if() composé sur
-# CMAKE_BUILD_TYPE et SUBEDIT_SANITIZERS — voir src/test/e2e/CMakeLists.txt
-# pour la raison de ce choix de presets.
-option(SUBEDIT_REGISTER_E2E "Enregistrer les tests de bout en bout dans CTest" OFF)
+option(SUBEDIT_BUILD_TESTS "Build the tests and the benchmarks" ON)
+option(SUBEDIT_SANITIZERS "Enable AddressSanitizer and UndefinedBehaviorSanitizer" OFF)
+option(SUBEDIT_COVERAGE "Instrument for coverage measurement" OFF)
+# OFF by default; only the asan and release presets set it to ON. A
+# declarative flag reads better six months later than an if() composed over
+# CMAKE_BUILD_TYPE and SUBEDIT_SANITIZERS — see src/test/e2e/CMakeLists.txt
+# for the reason for this choice of presets.
+option(SUBEDIT_REGISTER_E2E "Register the end-to-end tests with CTest" OFF)
 
-# Date de génération : celle du commit, et non l'horloge. Deux compilations
-# d'une même source donnent alors le même binaire — ce que l'horloge
-# interdirait, et que ccache paierait en recompilations inutiles. La date se
-# rafraîchit à la configuration, ce qui suffit à son usage : dire de quel état
-# du source vient un binaire.
+# Build date: the commit's, not the clock's. Two builds of the same source
+# then give the same binary — which the clock would forbid, and which ccache
+# would pay for in useless recompilations. The date is refreshed at
+# configuration, which is enough for its use: saying which state of the source
+# a binary comes from.
 set(SUBEDIT_BUILD_DATE "")
-# Qt est requis depuis la phase 5, et non plus optionnel : la fenêtre est le
-# cœur de ce que le projet livre.
+# Qt is required since phase 5, and no longer optional: the window is the
+# heart of what the project delivers.
 #
-# Test accompagne Widgets : il porte les fonctions qui simulent un clic ou une
-# frappe, dont le harnais d'interface se sert depuis Catch2 — sans être pour
-# autant un binaire QTest.
+# Test comes along with Widgets: it carries the functions that simulate a
+# click or a keystroke, which the interface harness uses from Catch2 — without
+# being a QTest binary for all that.
 #
-# **Multimedia était déclaré ici, et ne l'est plus.** Il l'avait été « pour la
-# prévisualisation de la phase 6 » ; l'ADR 0020 a tranché le backend vidéo en
-# faveur de libmpv, et personne ne l'a jamais lié. Une dépendance que rien
-# n'utilise n'est pas gratuite : elle est dans le cache de paquets de la CI, et
-# la ligne qui la déclarait annonçait un usage qui n'existera pas.
+# **Multimedia used to be declared here, and no longer is.** It had been "for
+# the phase 6 preview"; ADR 0020 settled the video backend in favour of libmpv,
+# and nobody ever linked it. A dependency that nothing uses is not free: it is
+# in the CI's package cache, and the line that declared it announced a use
+# that will not exist.
 find_package(Qt6 REQUIRED COMPONENTS Widgets Test Concurrent)
 
-# libmpv — le moteur du lecteur intégré, voir
-# docs/adr/0020-libmpv-pour-le-lecteur-integre.md.
+# libmpv — the engine of the embedded player, see
+# `docs/adr/0020-libmpv-pour-le-lecteur-integre.md`.
 #
-# Par pkg-config et non par find_package : libmpv ne fournit pas de fichier de
-# configuration CMake, seulement un `mpv.pc`. `IMPORTED_TARGET` en tire
-# `PkgConfig::mpv`, qui porte ses chemins d'inclusion et ses drapeaux d'édition
-# de liens comme le ferait une cible Qt — donc rien à recopier à la main dans
-# les cibles qui s'en servent.
+# Through pkg-config and not find_package: libmpv provides no CMake
+# configuration file, only an `mpv.pc`. `IMPORTED_TARGET` derives
+# `PkgConfig::mpv` from it, which carries its include paths and its link flags
+# as a Qt target would — so nothing to copy by hand into the targets that use
+# it.
 #
-# Déclaré à la racine, comme Qt, pour que son absence se voie à la
-# configuration : une bibliothèque manquante découverte au milieu d'une
-# compilation coûte le temps de la compilation.
+# Declared at the root, like Qt, so that its absence shows at configuration: a
+# missing library discovered in the middle of a build costs the time of the
+# build.
 find_package(PkgConfig REQUIRED)
 pkg_check_modules(mpv REQUIRED IMPORTED_TARGET mpv)
 
-# ICU — la conversion d'encodages, et leur détection. Voir
-# docs/adr/0027-icu-pour-les-encodages.md.
+# ICU — the conversion of encodings, and their detection. See
+# `docs/adr/0027-icu-pour-les-encodages.md`.
 #
-# **La première dépendance externe du noyau**, et donc de `subedit-cli`, qui
-# n'en avait aucune : c'est le prix écrit de l'ADR 0027, payé pour les
-# quatre-vingt-dix-sept encodages que l'iso-fonctionnalité demande et qui ne
-# s'écrivent pas à la main.
+# **The first external dependency of the core**, and therefore of
+# `subedit-cli`, which had none: that is the written price of ADR 0027, paid
+# for the ninety-seven encodings that iso-functionality requires and that are
+# not written by hand.
 #
-# Deux composants, et chacun pour un usage écrit : `ucnv` convertit, et vit dans
-# `uc` ; `ucsdet` détecte, et vit dans `i18n`. Le second n'a été déclaré qu'avec
-# la détection qui l'emploie, plutôt qu'annoncé d'avance — c'est ce que
-# Qt::Multimedia a coûté d'apprendre.
+# Two components, each for a written use: `ucnv` converts, and lives in `uc`;
+# `ucsdet` detects, and lives in `i18n`. The second was declared only with the
+# detection that uses it, rather than announced in advance — that is what
+# Qt::Multimedia cost us to learn.
 find_package(ICU REQUIRED COMPONENTS uc i18n)
 
-# Enchant 2 — le correcteur orthographique, D6 de docs/specs/12-correction.md.
+# Enchant 2 — the spell checker, D6 of docs/specs/12-correction.md.
 #
-# **La seule dépendance de la phase 12**, et la deuxième du noyau, donc de
-# `subedit-cli` : le correcteur est au noyau, la phase 13 joindra et scindera
-# des mots en ligne de commande. Enchant tient la liste de mots personnelle
-# dans son propre répertoire, commun à toutes les applications qui s'en servent
-# — celle de Gaupol —, et trouve les dictionnaires du système, quel qu'en soit
-# le moteur.
+# **The only dependency of phase 12**, and the second of the core, hence of
+# `subedit-cli`: the spell checker is in the core, and phase 13 will join and
+# split words on the command line. Enchant keeps the personal word list in its
+# own directory, shared by every application that uses it — Gaupol's
+# included —, and finds the system's dictionaries, whatever their engine.
 #
-# Par pkg-config, comme libmpv : Enchant ne fournit qu'un `enchant-2.pc`.
+# Through pkg-config, like libmpv: Enchant provides only an `enchant-2.pc`.
 pkg_check_modules(enchant REQUIRED IMPORTED_TARGET enchant-2)
 
 find_package(Git QUIET)
@@ -116,20 +115,20 @@ include(Sanitizers)
 include(Coverage)
 include(Lto)
 
-# Avant les cibles, et jamais après : `CMAKE_CXX_CLANG_TIDY` est lue au moment
-# où une cible est ajoutée. Inerte hors du preset `tidy`. Issue #269.
+# Before the targets, and never after: `CMAKE_CXX_CLANG_TIDY` is read when a
+# target is added. Inert outside the `tidy` preset. Issue #269.
 include(Tidy)
 
 add_subdirectory(src/lib)
 add_subdirectory(src/exe)
 
-# Après les cibles : `install(TARGETS)` ne peut nommer que ce qui existe.
+# After the targets: `install(TARGETS)` can only name what exists.
 include(Installation)
 include(Translations)
 
-# Après l'installation, et jamais avant : CPack empaquette ce que les règles
-# `install()` déposent, donc il n'a rien à empaqueter tant qu'elles ne sont pas
-# lues. ADR 0023.
+# After the installation, and never before: CPack packages what the
+# `install()` rules lay down, so it has nothing to package until they are
+# read. ADR 0023.
 include(Packaging)
 
 if(SUBEDIT_BUILD_TESTS)
@@ -141,4 +140,4 @@ endif()
 message(STATUS "subedit ${PROJECT_VERSION} — ${CMAKE_BUILD_TYPE}")
 message(STATUS "  tests       : ${SUBEDIT_BUILD_TESTS}")
 message(STATUS "  sanitizers  : ${SUBEDIT_SANITIZERS}")
-message(STATUS "  couverture  : ${SUBEDIT_COVERAGE}")
+message(STATUS "  coverage    : ${SUBEDIT_COVERAGE}")
