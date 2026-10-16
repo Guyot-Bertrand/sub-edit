@@ -57,7 +57,6 @@ src/lib/subedit/gui/.clang-tidy
 src/lib/subedit/gui/CMakeLists.txt
 src/lib/subedit/platform/CMakeLists.txt
 src/scripts/build-rpm.sh
-src/scripts/encoding-fixtures.py
 src/scripts/pattern-oracle.py
 src/scripts/prune-releases.sh
 src/scripts/prune-runs.sh
