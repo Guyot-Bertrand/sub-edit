@@ -62,7 +62,6 @@ src/scripts/prune-releases.sh
 src/scripts/prune-runs.sh
 src/scripts/setup-github.sh
 src/scripts/setup-toolchain.sh
-src/scripts/subtitle-fixtures.py
 src/scripts/video-fixtures.sh
 src/test/.clang-tidy
 src/test/CMakeLists.txt

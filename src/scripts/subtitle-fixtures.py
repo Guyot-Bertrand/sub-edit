@@ -1,35 +1,34 @@
 #!/usr/bin/env python3
-"""Les fixtures de sous-titres sur grille connue : les fabriquer, et vérifier
-qu'elles sont bien ce que le projet dit qu'elles sont.
+"""The subtitle fixtures on a known grid: make them, and check that they are what
+the project says they are.
 
-La phase 16 déduit la fréquence d'image d'un fichier depuis ses positions, en
-mesurant si elles tombent sur une grille. L'éprouver demande de l'étendue et du
-volume : la fixture la plus fournie du dépôt porte six horodatages, et deux
-horodatages ne disent rien d'une grille. Il faut des fichiers de plusieurs
-centaines de répliques, et un fichier de plusieurs centaines de répliques est
-illisible dans un diff.
+Phase 16 deduces a file's frame rate from its positions, by measuring whether
+they fall on a grid. Testing it requires span and volume: the richest fixture of
+the repository carried six timestamps, and two timestamps say nothing of a grid.
+It takes files of several hundred cues, and a file of several hundred cues is
+unreadable in a diff.
 
-Ce script est ce qui les rend **vérifiables plutôt que crues** : la table de ce
-que chaque fixture est vit ici, la fabrication en découle, et `--check`
-reconstruit chaque fichier pour le confronter à celui du disque.
+This script is what makes them **checkable rather than believed**: the table of
+what each fixture is lives here, making follows from it, and `--check` rebuilds
+each file to hold it against the one on disk.
 
-    --check       (défaut) reconstruit chaque fixture et la compare au disque
-    --generate    réécrit les fixtures depuis la table
-    --measure     écrit la concentration de chaque fixture sur les huit candidates
-    --weight      écrit le poids total, en octets
+    --check       (default) rebuild each fixture and compare it with the disk
+    --generate    rewrite the fixtures from the table
+    --measure     print each fixture's concentration on the eight candidates
+    --weight      print the total weight, in bytes
 
-**Les positions sont de l'arithmétique, jamais un appel à nos commandes.** Un
-fichier « déjà décalé » vaut `round(n × 1000 / R) + décalage` ; un fichier
-« déjà transformé » vaut une affine appliquée aux millisecondes. Passer par
-`ShiftCommand` ou par la conversion de fréquence prouverait subedit contre
-subedit : une erreur d'arrondi partagée entre l'opération et la déduction
-passerait au vert. Ce qu'on ne prouve pas ainsi — que le décalage *de Gaupol*
-préserve la grille — est une affirmation sur Gaupol, dont rien ici n'a besoin.
+**The positions are arithmetic, never a call to our commands.** An "already
+shifted" file is `round(n × 1000 / R) + offset`; an "already transformed" file is
+an affine map applied to the milliseconds. Going through `ShiftCommand` or the
+frame rate conversion would prove subedit against subedit: a rounding error
+shared by the operation and the deduction would pass green. What is not proven
+this way — that *Gaupol's* shift preserves the grid — is a claim about Gaupol,
+which nothing here needs.
 
-**Ce script n'exige aucun outil.** Contrairement à `video-fixtures.sh`, qui
-demande ffmpeg et ffprobe, tout est ici de l'arithmétique exacte : la
-reconstruction est reproductible partout, et `--check` peut donc comparer octet
-à octet plutôt que d'interroger un tiers.
+**This script requires no tool.** Unlike `video-fixtures.sh`, which needs ffmpeg
+and ffprobe, everything here is exact arithmetic: the rebuild is reproducible
+everywhere, and `--check` can therefore compare byte by byte rather than ask a
+third party.
 """
 
 from __future__ import annotations
@@ -45,15 +44,15 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent
 FIXTURE_DIR = REPO_ROOT / "src" / "test" / "data" / "grilles"
 
-# Le poids total admis. Il est large — environ le double du poids réel — et son
-# rôle est d'attraper un ordre de grandeur, pas un octet : un jeu de fixtures
-# qui grossit sans qu'on le voie est une dette silencieuse.
+# The total weight allowed. It is generous — about twice the real weight — and its
+# role is to catch an order of magnitude, not a byte: a set of fixtures that grows
+# unseen is a silent debt.
 WEIGHT_CEILING = 270000
 
-# Les huit fréquences normalisées, dans l'ordre où `StandardFrameRate` les
-# énumère. Les trois NTSC sont une fréquence entière divisée par 1,001 et n'ont
-# aucune représentation exacte en virgule flottante : c'est la raison pour
-# laquelle tout ici passe par des rationnels.
+# The eight standard frame rates, in the order `StandardFrameRate` enumerates
+# them. The three NTSC ones are an integer rate divided by 1.001 and have no exact
+# floating-point representation: that is why everything here goes through
+# rationals.
 STANDARD_RATES = {
     "23-976": Fraction(24000, 1001),
     "24": Fraction(24),
@@ -65,41 +64,39 @@ STANDARD_RATES = {
     "60": Fraction(60),
 }
 
-# Dix minutes, et la raison tient en une division. Les grilles à 23,976 et à 24
-# dérivent d'une milliseconde par seconde de film, et une image en dure 41,7 :
-# la phase sur la mauvaise candidate fait donc **un tour complet toutes les
-# quarante-deux secondes**. Dix minutes, c'est quatorze tours, et la mauvaise
-# candidate s'effondre sans appel.
+# Ten minutes, and the reason fits in one division. The 23.976 and 24 grids drift
+# apart by one millisecond per second of film, and a frame lasts 41.7: the phase
+# on the wrong candidate therefore makes **a full turn every forty-two seconds**.
+# Ten minutes is fourteen turns, and the wrong candidate collapses beyond doubt.
 #
-# C'est aussi ce qui donne son sens à la fixture courte, à l'envers : dix
-# secondes, c'est un quart de tour, et les deux candidates restent
-# indiscernables. La déduction doit le dire plutôt que trancher.
+# It is also what gives the short fixture its meaning, the other way round: ten
+# seconds is a quarter of a turn, and the two candidates stay indistinguishable.
+# The deduction must say so rather than decide.
 FULL_EXTENT_SECONDS = 600
 SHORT_EXTENT_SECONDS = 10
 
-# La règle de vitesse de lecture qui calcule les fins d'une fixture, et ce sont
-# les deux défauts de Gaupol — `gaupol/config.py`, quinze caractères par seconde
-# et une seconde et demie de plancher. Ils sont posés ici parce qu'une fixture
-# doit dire d'où viennent ses nombres ; elle ne prétend pas être l'ajustement
-# des durées que la phase 10 écrira, seulement produire des fins hors grille
-# d'une manière plausible et reproductible.
+# The reading speed rule that computes a fixture's ends, and these are Gaupol's
+# two defaults — `gaupol/config.py`, fifteen characters per second and a floor of
+# a second and a half. They are set here because a fixture must say where its
+# numbers come from; it does not claim to be the duration adjustment phase 10
+# will write, only to produce off-grid ends in a plausible, reproducible way.
 READING_SPEED = 15
 SHORTEST_SHOWN_MS = 1500
 
 
 class Lcg:
-    """Un générateur congruentiel linéaire, écrit ici plutôt qu'emprunté.
+    """A linear congruential generator, written here rather than borrowed.
 
-    Le pas entre deux répliques doit être **irrégulier et reproductible**. Sans
-    irrégularité, les phases deviennent périodiques et le fichier à fréquence
-    absurde ressortirait concentré sur une candidate qu'il ne touche pas ; sans
-    reproductibilité, `--check` ne veut plus rien dire.
+    The step between two cues must be **irregular and reproducible**. Without
+    irregularity, the phases become periodic and the file at an absurd rate
+    would come out concentrated on a candidate it does not touch; without
+    reproducibility, `--check` no longer means anything.
 
-    `random` de Python offrirait la seconde et pas la première garantie sur le
-    long terme : sa suite est stable en pratique, mais rien ne le promet d'une
-    version à l'autre. Douze lignes écrites ici valent cette promesse-là, et
-    elles rendent la suite refaisable par qui réimplémenterait le générateur
-    dans une autre langue.
+    Python's `random` would offer the second guarantee but not the first in the
+    long run: its sequence is stable in practice, but nothing promises it from
+    one version to the next. Twelve lines written here are worth that promise,
+    and they make the sequence reproducible by whoever reimplements the
+    generator in another language.
     """
 
     def __init__(self, seed: int) -> None:
@@ -107,33 +104,32 @@ class Lcg:
 
     def _next(self) -> int:
         self._state = (1103515245 * self._state + 12345) % (2**31)
-        # Les bits de poids faible d'un congruentiel sont les moins bons ; on
-        # prend au-dessus d'eux.
+        # The low-order bits of a congruential generator are the worst; take
+        # the ones above them.
         return self._state >> 8
 
     def between(self, low: int, high: int) -> int:
-        """Un entier entre `low` et `high`, bornes comprises."""
+        """An integer between `low` and `high`, both included."""
         return low + self._next() % (high - low + 1)
 
 
 def frames_of(seconds: float, rate: Fraction) -> int:
-    """Combien d'images tiennent dans cette durée, à cette fréquence."""
+    """How many frames fit in this duration, at this rate."""
     return int(Fraction(seconds).limit_denominator(1000) * rate)
 
 
 def milliseconds_of(frame: int, rate: Fraction) -> int:
-    """La position de cette image, en millisecondes entières.
+    """The position of this frame, in whole milliseconds.
 
-    L'arrondi est au plus proche, la moitié vers le haut, et il est écrit à la
-    main : `round` de Python arrondit à l'entier pair, ce qui n'est pas ce que
-    fait un logiciel de sous-titres.
+    The rounding is to the nearest, half up, and it is written by hand: Python's
+    `round` rounds to the even integer, which is not what subtitle software does.
     """
     exact = Fraction(frame * 1000) / rate
     return (2 * exact.numerator + exact.denominator) // (2 * exact.denominator)
 
 
 def timestamp_of(milliseconds: int) -> str:
-    """La forme SubRip d'une position : `01:23:45,678`."""
+    """The SubRip form of a position: `01:23:45,678`."""
     hours, rest = divmod(milliseconds, 3600000)
     minutes, rest = divmod(rest, 60000)
     seconds, rest = divmod(rest, 1000)
@@ -147,17 +143,16 @@ def grid_cues(
     gap_seconds: tuple[float, float] = (2.0, 5.0),
     shortest_cue_seconds: float = 1.0,
 ) -> list[tuple[int, int]]:
-    """Les répliques d'un fichier parfaitement calé, en numéros d'image.
+    """The cues of a perfectly timed file, in frame numbers.
 
-    Une réplique dure de une à quelques secondes et laisse un intervalle avant
-    la suivante : c'est la densité d'un dialogue, et c'est elle qui donne au
-    fichier un pas irrégulier.
+    A cue lasts from one to a few seconds and leaves a gap before the next: that
+    is the density of a dialogue, and it is what gives the file an irregular
+    step.
 
-    `gap_seconds` existe pour la fixture courte, et pour elle seule. Une étendue
-    faible et un dialogue de densité normale ne donnent que huit répliques, et
-    huit points ne disent rien : la concentration d'une candidate quelconque y
-    vaut déjà `1/√8`, soit trente-cinq pour cent. Le hasard n'est pas
-    l'ambiguïté.
+    `gap_seconds` exists for the short fixture, and for it alone. A small span
+    and a dialogue of normal density give only eight cues, and eight points say
+    nothing: the concentration of any candidate there is already `1/√8`, that
+    is thirty-five per cent. Chance is not ambiguity.
     """
     steps = Lcg(seed)
     shortest_gap = frames_of(gap_seconds[0], rate)
@@ -170,21 +165,21 @@ def grid_cues(
     last = frames_of(extent_seconds, rate)
     while frame <= last:
         gap = steps.between(shortest_gap, longest_gap)
-        # La réplique s'arrête avant la suivante : la borne haute est
-        # l'intervalle moins une respiration, jamais l'intervalle lui-même.
-        # `max` plutôt que la soustraction nue : à densité serrée, l'intervalle
-        # moins la respiration peut descendre sous la réplique la plus courte,
-        # et une borne haute inférieure à la borne basse ferait un tirage vide.
+        # The cue stops before the next one: the upper bound is the gap minus a
+        # breath, never the gap itself. `max` rather than the bare subtraction:
+        # at a tight density, the gap minus the breath can fall below the
+        # shortest cue, and an upper bound below the lower bound would make an
+        # empty draw.
         cues.append((frame, frame + steps.between(shortest_cue, max(shortest_cue, gap - breath))))
         frame += gap
     return cues
 
 
 def render(lines: list[tuple[int, int, str]]) -> str:
-    """Un fichier SubRip, en UTF-8 et fins de ligne à l'unix.
+    """A SubRip file, in UTF-8 with Unix line endings.
 
-    Un bloc par réplique, séparés par une ligne vide, et une ligne vide après
-    le dernier : c'est ce que portent déjà les fixtures de `valides/`.
+    One block per cue, separated by a blank line, and a blank line after the
+    last: that is what the fixtures of `valides/` already carry.
     """
     blocks = []
     for index, (start, end, text) in enumerate(lines, start=1):
@@ -194,7 +189,7 @@ def render(lines: list[tuple[int, int, str]]) -> str:
 
 def on_grid(rate: Fraction, extent: float, seed: int, offset: int = 0, **density
             ) -> list[tuple[int, int, str]]:
-    """Un fichier dont chaque position est sur la grille, à `offset` près."""
+    """A file whose every position is on the grid, up to `offset`."""
     return [
         (
             milliseconds_of(start, rate) + offset,
@@ -206,29 +201,29 @@ def on_grid(rate: Fraction, extent: float, seed: int, offset: int = 0, **density
 
 
 def read_ends(rate: Fraction, extent: float, seed: int) -> list[tuple[int, int, str]]:
-    """Des débuts sur la grille, des fins calculées par une vitesse de lecture.
+    """Starts on the grid, ends computed from a reading speed.
 
-    **C'est la forme d'un vrai fichier, et aucune autre fixture ne l'a.** Les
-    treize autres posent les deux bornes sur la grille ; dans un fichier réel
-    seuls les débuts y sont, parce qu'un *cue-out* est calculé plutôt que posé
-    sur une image. Le relevé de la phase 16 le dit du corpus privé — les débuts
-    à 100 sans exception, les fins de 55 à 100 — et c'est jusqu'ici une
-    observation que rien de versionné ne porte.
+    **It is the shape of a real file, and no other fixture has it.** The
+    thirteen others put both bounds on the grid; in a real file only the starts
+    are there, because a *cue-out* is computed rather than placed on a frame.
+    The phase 16 survey says so of the private corpus — starts at 100 without
+    exception, ends from 55 to 100 — and until now it was an observation that
+    nothing tracked carried.
 
-    Ce qu'elle éprouve tient en une phrase : **les débuts suffisent**. Le jour
-    où la déduction se mettrait à lire les fins, cette fixture tomberait et les
-    treize autres resteraient vertes.
+    What it tests fits in one sentence: **the starts are enough**. The day the
+    deduction started reading the ends, this fixture would fail and the
+    thirteen others would stay green.
 
-    La fin s'arrête une image avant le début suivant. Sans cette borne un
-    sous-titre pourrait chevaucher le suivant, ce qu'aucun fichier réel ne fait
-    — et la fixture cesserait d'être plausible pour un gain nul.
+    The end stops one frame before the next start. Without that bound a
+    subtitle could overlap the next one, which no real file does — and the
+    fixture would stop being plausible for no gain.
     """
     lines = on_grid(rate, extent, seed)
     frame = milliseconds_of(1, rate)
 
     computed = []
     for index, (start, _, text) in enumerate(lines):
-        # Arrondi au plus proche, la moitié vers le haut, comme partout ici.
+        # Rounded to the nearest, half up, as everywhere here.
         wanted = max((2000 * len(text) + READING_SPEED) // (2 * READING_SPEED), SHORTEST_SHOWN_MS)
         end = start + wanted
         if index + 1 < len(lines):
@@ -238,24 +233,23 @@ def read_ends(rate: Fraction, extent: float, seed: int) -> list[tuple[int, int, 
 
 
 def no_grid(extent: float, seed: int) -> list[tuple[int, int, str]]:
-    """Des positions écrites en millisecondes, sur aucune grille du tout.
+    """Positions written in milliseconds, on no grid at all.
 
-    **`grille-absurde.srt` n'est pas ce cas-là** : il est régulier sur une
-    fréquence non normalisée, et il éprouve « aucune des huit ». Celui-ci
-    éprouve « aucune grille », ce qui n'est pas la même question — c'est celle
-    du faux positif, et elle n'a de sens qu'à la taille d'un vrai fichier.
+    **`grille-absurde.srt` is not this case**: it is regular on a non-standard
+    rate, and it tests "none of the eight". This one tests "no grid", which is
+    not the same question — it is the false positive's, and it only makes sense
+    at the size of a real file.
 
-    La feuille de route affirme que « l'échec est bruyant » et qu'un fichier
-    sans grille reste sous quelques pour cent sur les huit candidates. C'est
-    l'affirmation sur laquelle repose tout l'usage de la déduction, et elle
-    était appuyée sur trois fichiers du corpus privé que personne d'autre ne
-    possède. Cette fixture la rend vérifiable.
+    The roadmap claims that "failure is loud" and that a file without a grid
+    stays under a few per cent on the eight candidates. It is the claim the
+    whole use of the deduction rests on, and it was backed by three files of
+    the private corpus that nobody else owns. This fixture makes it checkable.
 
-    Le plancher de bruit vaut `1/√n` : à cent soixante-seize positions il est de
-    sept et demi pour cent, et la bande partielle commence à cinquante. La marge
-    est confortable, et elle a été vérifiée avant d'écrire ce générateur — deux
-    mille tirages de cent soixante-seize débuts quelconques ne font jamais
-    monter la meilleure des huit au-dessus de vingt-quatre.
+    The noise floor is `1/√n`: at a hundred and seventy-six positions it is
+    seven and a half per cent, and the partial band starts at fifty. The margin
+    is comfortable, and it was checked before writing this generator — two
+    thousand draws of a hundred and seventy-six arbitrary starts never lift the
+    best of the eight above twenty-four.
     """
     steps = Lcg(seed)
     lines: list[tuple[int, int, str]] = []
@@ -273,24 +267,23 @@ def no_grid(extent: float, seed: int) -> list[tuple[int, int, str]]:
 
 
 def retimed_tail(rate: Fraction, extent: float, seed: int) -> list[tuple[int, int, str]]:
-    """Deux tiers sur la grille, un tiers retimé — un fichier assemblé.
+    """Two thirds on the grid, one third retimed — an assembled file.
 
-    La transformation par deux repères **détruit** la grille : c'est la seule
-    des trois opérations de Gaupol dont la déduction ne se relève pas. Appliquée
-    au dernier tiers seulement, elle donne le cas partiel dont les écarts sont
-    *groupés*, celui qui ressemble à une section recalée.
+    The two-point transformation **destroys** the grid: it is the only one of
+    Gaupol's three operations the deduction does not recover from. Applied to
+    the last third only, it gives the partial case whose deviations are
+    *grouped*, the one that looks like a resynchronised section.
 
-    L'affine est écrite ici, en millisecondes, plutôt qu'obtenue en appelant
-    `TransformCommand` : c'est la règle de tout ce fichier.
+    The affine map is written here, in milliseconds, rather than obtained by
+    calling `TransformCommand`: that is the rule of this whole file.
     """
     lines = on_grid(rate, extent, seed)
     boundary = 2 * len(lines) // 3
 
     def moved(value: int) -> int:
-        # Une pente qui n'est le rapport d'aucune paire de fréquences
-        # normalisées, et une ordonnée à l'origine qui n'est un multiple
-        # d'aucune durée d'image : rien de ce que la déduction cherche ne peut
-        # retomber dessus.
+        # A slope that is the ratio of no pair of standard rates, and an
+        # intercept that is a multiple of no frame duration: nothing the
+        # deduction looks for can land on it.
         return (value * 10007 + 1370000) // 10000
 
     return lines[:boundary] + [
@@ -300,18 +293,18 @@ def retimed_tail(rate: Fraction, extent: float, seed: int) -> list[tuple[int, in
 
 
 def scattered_faults(rate: Fraction, extent: float, seed: int) -> list[tuple[int, int, str]]:
-    """Une position sur cinq écartée de plusieurs images.
+    """One position in five moved by several frames.
 
-    C'est l'autre visage du fichier partiel : non pas une section recalée, mais
-    l'édition à la main, réplique par réplique.
+    It is the other face of the partial file: not a resynchronised section, but
+    editing by hand, cue by cue.
 
-    **L'écart se compte en images, pas en millisecondes.** Une première version
-    déplaçait de neuf millisecondes au plus, en croyant sortir de la grille : à
-    25 images par seconde une image en dure quarante, et neuf millisecondes ne
-    sont qu'un quarantième de tour. La position restait pratiquement sur la
-    grille, et le fichier ressortait à 92 — au-dessus du seuil de grille nette
-    qu'il est précisément censé manquer. Un humain qui corrige une position dans
-    la table la déplace de ce qu'il voit, et la phase en devient quelconque.
+    **The deviation is counted in frames, not in milliseconds.** A first version
+    moved by nine milliseconds at most, believing it left the grid: at 25 frames
+    per second a frame lasts forty, and nine milliseconds are only a fortieth of
+    a turn. The position stayed practically on the grid, and the file came out
+    at 92 — above the clean-grid threshold it is precisely meant to miss. A
+    human who corrects a position in the table moves it by what they see, and
+    its phase becomes arbitrary.
     """
     lines = on_grid(rate, extent, seed)
     frame = milliseconds_of(1, rate)
@@ -322,43 +315,42 @@ def scattered_faults(rate: Fraction, extent: float, seed: int) -> list[tuple[int
             faulty.append((start, end, text))
             continue
         nudge = drift.between(frame + 1, 10 * frame - 1)
-        # Un multiple exact de la durée d'une image retomberait sur la grille,
-        # et l'écart ne se verrait pas.
+        # An exact multiple of a frame's duration would land back on the grid,
+        # and the deviation would not show.
         nudge += 1 if nudge % frame == 0 else 0
         nudge *= 1 if drift.between(0, 1) else -1
         faulty.append((start + nudge, end + nudge, f"Réplique {index}, hors grille."))
     return faulty
 
 
-# nom | ce que la fixture est | comment elle se construit
+# name | what the fixture is | how it is built
 #
-# La graine diffère d'une fixture à l'autre pour qu'aucune paire de fichiers ne
-# porte le même dialogue à deux fréquences près : deux fixtures jumelles se
-# liraient comme une seule.
+# The seed differs from one fixture to the next so that no pair of files carries
+# the same dialogue at two rates: two twin fixtures would read as one.
 Fixture = Callable[[], list[tuple[int, int, str]]]
 
 FIXTURES: list[tuple[str, str, Fixture]] = [
     *(
         (
             f"grille-{name}.srt",
-            f"grille parfaite à {name.replace('-', ',')} images par seconde, dix minutes",
+            f"perfect grid at {name.replace('-', '.')} frames per second, ten minutes",
             partial(on_grid, rate, FULL_EXTENT_SECONDS, seed),
         )
         for seed, (name, rate) in enumerate(STANDARD_RATES.items(), start=1)
     ),
     (
         "grille-absurde.srt",
-        "grille à 26,3 images par seconde — muette sur les huit candidates",
+        "grid at 26.3 frames per second — silent on the eight candidates",
         partial(on_grid, Fraction(263, 10), FULL_EXTENT_SECONDS, 101),
     ),
     (
         "grille-24-decalee.srt",
-        "grille parfaite à 24, translatée de 2 999 ms",
+        "perfect grid at 24, translated by 2,999 ms",
         partial(on_grid, Fraction(24), FULL_EXTENT_SECONDS, 102, offset=2999),
     ),
     (
         "grille-24-courte.srt",
-        "grille parfaite à 24, dix secondes serrées — étendue insuffisante",
+        "perfect grid at 24, ten tight seconds — span too short",
         partial(
             on_grid,
             Fraction(24),
@@ -370,51 +362,51 @@ FIXTURES: list[tuple[str, str, Fixture]] = [
     ),
     (
         "grille-24-fins-calculees.srt",
-        "débuts à 24, fins calculées à 15 caractères par seconde — hors grille",
+        "starts at 24, ends computed at 15 characters per second — off the grid",
         partial(read_ends, Fraction(24), FULL_EXTENT_SECONDS, 106),
     ),
     (
         "sans-grille.srt",
-        "des millisecondes quelconques — aucune grille, et la déduction doit se taire",
+        "arbitrary milliseconds — no grid, and the deduction must stay silent",
         partial(no_grid, FULL_EXTENT_SECONDS, 107),
     ),
     (
         "melange-groupe.srt",
-        "29,97 sur deux tiers, dernier tiers retimé — écarts groupés",
+        "29.97 on two thirds, last third retimed — grouped deviations",
         partial(retimed_tail, Fraction(30000, 1001), FULL_EXTENT_SECONDS, 104),
     ),
     (
         "melange-disperse.srt",
-        "25, une position sur cinq écartée — écarts dispersés",
+        "25, one position in five moved — scattered deviations",
         partial(scattered_faults, Fraction(25), FULL_EXTENT_SECONDS, 105),
     ),
 ]
 
 # --------------------------------------------------------------------------
-# L'instrument : ce que ces fixtures donnent, et pourquoi elles sont celles-là
+# The instrument: what these fixtures give, and why they are these ones
 # --------------------------------------------------------------------------
 #
-# `--measure` n'entre dans aucune porte et rien n'en dépend. Il existe pour que
-# les chiffres du LISEZMOI soient **refaisables par une commande** plutôt que
-# rapportés : sans lui, ils auraient le défaut qu'on reproche aux relevés du
-# corpus privé — un nombre que le lecteur doit croire.
+# `--measure` belongs to no gate and nothing depends on it. It exists so that
+# the figures of the LISEZMOI can be **redone by a command** rather than
+# reported: without it, they would have the defect held against the surveys of
+# the private corpus — a number the reader has to believe.
 #
-# Il réimplémente la méthode que la phase 16 écrira en C++, et c'est assumé. Ce
-# n'est pas une porte et ce n'est pas la référence : la référence sera le code
-# de production et les constantes de ses tests. C'est un second calcul,
-# indépendant, sur des fichiers versionnés — et deux implémentations qui
-# tombent d'accord valent mieux qu'une qui s'auto-atteste.
+# It reimplements the method phase 16 will write in C++, deliberately. It is not
+# a gate and it is not the reference: the reference will be the production code
+# and the constants of its tests. It is a second, independent computation, on
+# tracked files — and two implementations that agree are worth more than one
+# that vouches for itself.
 
 TIMESTAMP = re.compile(r"(\d\d):(\d\d):(\d\d),(\d\d\d) -->")
 CUE_OUT = re.compile(r"--> (\d\d):(\d\d):(\d\d),(\d\d\d)")
 
 
 def starts_of(path: Path) -> list[int]:
-    """Les débuts d'un fichier SubRip, en millisecondes.
+    """The starts of a SubRip file, in milliseconds.
 
-    Les débuts seuls : partout où une grille existe, ils sont à 100 sans
-    exception, là où les fins vont de 55 à 100 — un *cue-out* est souvent
-    calculé par une règle de vitesse de lecture, et non posé sur une image.
+    The starts alone: wherever a grid exists, they are at 100 without
+    exception, where the ends range from 55 to 100 — a *cue-out* is often
+    computed by a reading speed rule, not placed on a frame.
     """
     return [
         ((int(h) * 60 + int(m)) * 60 + int(s)) * 1000 + int(ms)
@@ -423,11 +415,11 @@ def starts_of(path: Path) -> list[int]:
 
 
 def ends_of(path: Path) -> list[int]:
-    """Les fins d'un fichier SubRip, en millisecondes.
+    """The ends of a SubRip file, in milliseconds.
 
-    Elles ne servent à aucune déduction — celle-ci ne lit que les débuts — et
-    c'est précisément ce qu'elles servent à montrer : la fixture à fins
-    calculées les a hors grille, et les treize autres les ont dessus."""
+    They serve no deduction — it reads only the starts — and that is precisely
+    what they serve to show: the fixture with computed ends has them off the
+    grid, and the thirteen others have them on it."""
     return [
         ((int(h) * 60 + int(m)) * 60 + int(s)) * 1000 + int(ms)
         for h, m, s, ms in CUE_OUT.findall(path.read_text(encoding="utf-8"))
@@ -435,15 +427,15 @@ def ends_of(path: Path) -> list[int]:
 
 
 def concentration(positions: list[int], rate: Fraction) -> float:
-    """La concentration des phases sur la grille de `rate`, de 0 à 100.
+    """The concentration of the phases on the grid of `rate`, from 0 to 100.
 
-    Chaque position devient un angle — sa phase sur la grille — et la
-    concentration est la longueur du vecteur moyen. Cent : une grille parfaite,
-    quelle que soit sa phase. Près de zéro : aucune structure.
+    Each position becomes an angle — its phase on the grid — and the
+    concentration is the length of the mean vector. A hundred: a perfect grid,
+    whatever its phase. Near zero: no structure.
 
-    Aucun paramètre de tolérance, et insensible à un décalage : c'est ce qui la
-    distingue d'une recherche de grille à phase nulle, laquelle notait à zéro un
-    24 images par seconde parfait translaté d'une milliseconde et demie.
+    No tolerance parameter, and insensitive to an offset: that is what sets it
+    apart from a zero-phase grid search, which scored zero a perfect 24 frames
+    per second translated by a millisecond and a half.
     """
     turns = [2 * math.pi * ((position * float(rate) / 1000.0) % 1.0) for position in positions]
     resultant = math.hypot(
@@ -459,18 +451,18 @@ RESET = "\033[0m"
 
 
 def generate() -> int:
-    print(f"{BOLD}fabrication des fixtures de grille{RESET}")
+    print(f"{BOLD}making the grid fixtures{RESET}")
     FIXTURE_DIR.mkdir(parents=True, exist_ok=True)
     for name, description, fixture in FIXTURES:
         content = render(fixture())
         path = FIXTURE_DIR / name
         path.write_text(content, encoding="utf-8")
         cues = content.count(" --> ")
-        # Le poids se lit sur le disque et non par `len(content)` : le texte des
-        # répliques porte des accents, et un caractère n'y fait pas un octet.
-        # La table du LISEZMOI a recopié la mauvaise des deux au moins une fois.
+        # The weight is read on disk and not from `len(content)`: the cue text
+        # carries accents, and a character there is not a byte. The table of the
+        # LISEZMOI copied the wrong one of the two at least once.
         print(f"  {GREEN}✓{RESET} {name} — {description},"
-              f" {cues} répliques, {path.stat().st_size} octets")
+              f" {cues} cues, {path.stat().st_size} bytes")
     return 0
 
 
@@ -480,7 +472,7 @@ def check() -> int:
         path = FIXTURE_DIR / name
         if not path.is_file():
             print(
-                f"  {RED}✗{RESET} {name} — absente ;"
+                f"  {RED}✗{RESET} {name} — missing;"
                 " ./src/scripts/subtitle-fixtures.py --generate",
                 file=sys.stderr,
             )
@@ -491,46 +483,46 @@ def check() -> int:
         actual = path.read_text(encoding="utf-8")
         if actual != expected:
             print(
-                f"  {RED}✗{RESET} {name} — le fichier n'est plus ce que la table dit ;"
+                f"  {RED}✗{RESET} {name} — the file is no longer what the table says;"
                 " ./src/scripts/subtitle-fixtures.py --generate",
                 file=sys.stderr,
             )
             failures += 1
             continue
 
-        print(f"  {GREEN}✓{RESET} {name} — {description}, {expected.count(' --> ')} répliques")
+        print(f"  {GREEN}✓{RESET} {name} — {description}, {expected.count(' --> ')} cues")
 
     total = weight()
     if total > WEIGHT_CEILING:
         print(
-            f"  {RED}✗{RESET} poids total {total} octets, maximum {WEIGHT_CEILING}",
+            f"  {RED}✗{RESET} total weight {total} bytes, maximum {WEIGHT_CEILING}",
             file=sys.stderr,
         )
         failures += 1
 
     if failures:
-        print(f"{RED}{failures} écart(s) entre les fixtures et la table.{RESET}", file=sys.stderr)
+        print(f"{RED}{failures} difference(s) between the fixtures and the table.{RESET}", file=sys.stderr)
         return 1
 
-    print(f"  poids total : {total} octets")
+    print(f"  total weight: {total} bytes")
     return 0
 
 
 def measure() -> int:
-    print(f"{BOLD}concentration de chaque fixture sur les huit candidates{RESET}")
+    print(f"{BOLD}concentration of each fixture on the eight candidates{RESET}")
     print("  " + " " * 28 + "  ".join(f"{name:>6s}" for name in STANDARD_RATES))
     for name, _, _ in FIXTURES:
         path = FIXTURE_DIR / name
         if not path.is_file():
-            print(f"  {RED}✗{RESET} {name} — absente", file=sys.stderr)
+            print(f"  {RED}✗{RESET} {name} — missing", file=sys.stderr)
             return 1
         positions = starts_of(path)
         scores = [concentration(positions, rate) for rate in STANDARD_RATES.values()]
         print(f"  {name:28s}" + "  ".join(f"{score:6.1f}" for score in scores))
 
     print()
-    print(f"{BOLD}les fins, sur la candidate que les débuts désignent{RESET}")
-    print(f"  {'':28s}{'candidate':>10s}{'débuts':>9s}{'fins':>7s}")
+    print(f"{BOLD}the ends, on the candidate the starts point to{RESET}")
+    print(f"  {'':28s}{'candidate':>10s}{'starts':>9s}{'ends':>7s}")
     for name, _, _ in FIXTURES:
         path = FIXTURE_DIR / name
         starts = starts_of(path)
@@ -563,7 +555,7 @@ def main() -> int:
         print(weight())
         return 0
     print(
-        f"usage : {Path(sys.argv[0]).name} [--check|--generate|--measure|--weight]",
+        f"usage: {Path(sys.argv[0]).name} [--check|--generate|--measure|--weight]",
         file=sys.stderr,
     )
     return 1
