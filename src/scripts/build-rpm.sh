@@ -1,33 +1,33 @@
 #!/usr/bin/env bash
-# Construit le `.rpm` sur la Fedora où l'on est, contre l'ICU qu'elle porte.
+# Builds the `.rpm` on the Fedora it runs on, against the ICU that Fedora ships.
 #
 #   build-rpm.sh
 #
-# **Pourquoi ce script existe** : un `.rpm` construit sur Ubuntu demande
-# `libicuuc.so.74` et `libicui18n.so.74`, dont les symboles portent le numéro
-# de la version majeure d'ICU (`u_strToUTF8_74`). Une Fedora qui n'a pas ICU 74
-# — ni son paquet de compatibilité — refuse de l'installer, et rien dans le
-# paquet ne permet d'y remédier. Le `.rpm` publié est donc construit **sur
-# chaque Fedora qu'on publie**, contre son ICU, et nommé d'après elle
-# (`subedit-X.Y.Z-1.fc43.x86_64.rpm`). Voir ADR 0023.
+# **Why this script exists**: an `.rpm` built on Ubuntu requires
+# `libicuuc.so.74` and `libicui18n.so.74`, whose symbols carry the number of
+# ICU's major version (`u_strToUTF8_74`). A Fedora that has neither ICU 74 nor
+# its compatibility package refuses to install it, and nothing in the package
+# can remedy that. The published `.rpm` is therefore built **on each Fedora
+# that is published**, against its ICU, and named after it
+# (`subedit-X.Y.Z-1.fc43.x86_64.rpm`). See ADR 0023.
 #
-# À lancer dans une image `fedora:N`, en root : il installe ce qu'il lui faut.
-# Le `.deb` n'est pas concerné, il se construit comme avant.
+# To be run in a `fedora:N` image, as root: it installs what it needs.
+# The `.deb` is not concerned, it is built as before.
 
 set -euo pipefail
 
 readonly REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 
-[[ -r /etc/fedora-release ]] || { echo "ce script se lance sur une Fedora" >&2; exit 1; }
+[[ -r /etc/fedora-release ]] || { echo "this script runs on Fedora" >&2; exit 1; }
 
-# Les mêmes bibliothèques que `setup-toolchain.sh` installe côté Debian ;
-# `mpv-devel` porte `mpv.pc`, `cli11-devel` la bibliothèque d'en-têtes.
+# The same libraries `setup-toolchain.sh` installs on Debian;
+# `mpv-devel` carries `mpv.pc`, `cli11-devel` the header-only library.
 dnf install -y --setopt=install_weak_deps=False \
     gcc-c++ cmake ninja-build git rpm-build pkgconf-pkg-config python3 \
     qt6-qtbase-devel mpv-devel libicu-devel enchant2-devel cli11-devel
 
-# Le plafond vient de l'environnement, comme pour les autres scripts : le workflow
-# le pose à `nproc`, un appel local garde le défaut prudent.
+# The ceiling comes from the environment, as for the other scripts: the workflow
+# sets it to `nproc`, a local call keeps the cautious default.
 readonly JOBS="${JOBS:-2}"
 export CMAKE_GENERATOR="Ninja"
 
