@@ -1,63 +1,62 @@
 #!/usr/bin/env bash
-# Élague les releases de patch des milestones passées — issue #232.
+# Prunes the patch releases of past milestones — issue #232.
 #
-# **La règle, en une phrase :** garder toutes les releases `vX.Y.0`, garder les
-# releases de patch de la milestone en cours, supprimer celles des milestones
-# passées — et ne jamais toucher un tag.
+# **The rule, in one sentence:** keep every `vX.Y.0` release, keep the patch
+# releases of the current milestone, delete those of past milestones — and never
+# touch a tag.
 #
-# « La milestone en cours » est le couple `X.Y` le plus haut parmi les releases
-# présentes. Tant qu'on est en `0.10.*`, tous les `0.10.Z` restent ; le jour où
-# `v0.11.0` est publiée, les releases `0.10.1` à `0.10.N` partent avec leurs
-# paquets, et `v0.10.0` reste.
+# "The current milestone" is the highest `X.Y` pair among the releases present.
+# While we are at `0.10.*`, every `0.10.Z` stays; the day `v0.11.0` is
+# published, the releases `0.10.1` to `0.10.N` go with their packages, and
+# `v0.10.0` stays.
 #
-# **Seule la release s'en va, jamais le tag.** Un tag ne coûte rien, et il garde
-# la possibilité de reconstruire n'importe quelle version depuis l'historique :
-# `gh release delete` sans `--cleanup-tag` retire la release et ses fichiers, et
-# laisse le tag où il est.
+# **Only the release goes, never the tag.** A tag costs nothing, and it keeps
+# the possibility of rebuilding any version from the history: `gh release
+# delete` without `--cleanup-tag` removes the release and its files, and leaves
+# the tag where it is.
 #
-# **Une conséquence à savoir.** Un correctif publié sur une milestone passée —
-# un `v0.9.1` poussé après `v0.10.0` — est construit, publié, puis élagué dans la
-# foulée. La règle ne garde les patchs que de la milestone en cours, et elle ne
-# fait pas d'exception pour le plus récent.
+# **A consequence worth knowing.** A fix published on a past milestone — a
+# `v0.9.1` pushed after `v0.10.0` — is built, published, then pruned straight
+# away. The rule keeps patches of the current milestone only, and it makes no
+# exception for the most recent one.
 #
-# **Sauf à la main.** Reconstruire un vieux patch par `workflow_dispatch` est un
-# geste délibéré — un paquet à refaire — et l'élaguer dans la foulée annulerait ce
-# qu'on vient de demander. Le script constate l'événement (`GITHUB_EVENT_NAME`,
-# que les Actions renseignent d'elles-mêmes), dit qu'il n'élague pas, et sort en
-# 0 sans avoir cherché ni supprimé quoi que ce soit. La garde est ici plutôt que
-# dans un `if:` du workflow pour la raison de la section suivante : une
-# condition de YAML ne se rejoue pas. Elle ne vaut pas pour `--dry-run`, qui ne
-# supprime rien.
+# **Except by hand.** Rebuilding an old patch through `workflow_dispatch` is a
+# deliberate act — a package to redo — and pruning it straight away would undo
+# what was just asked. The script notes the event (`GITHUB_EVENT_NAME`, which
+# Actions sets by itself), says that it does not prune, and exits with 0 without
+# having fetched or deleted anything. The guard is here rather than in an `if:`
+# of the workflow for the reason of the next section: a YAML condition cannot be
+# replayed. It does not apply to `--dry-run`, which deletes nothing.
 #
-# **Deux autres choses que la règle ne disait pas.** Les brouillons sont écartés
-# avant tout : `gh api …/releases` les rend aussi, et un brouillon `v0.12.0`
-# écrit à la main ferait passer la milestone 0.11 au passé — ses patchs partiraient
-# pour une version qui n'existe pas. Et une suppression refusée n'est pas une
-# réussite : le script tente toutes les suppressions, puis sort en erreur en
-# nommant chaque release qui est restée, pour que le travail de publication ne
-# reste pas vert sur une release qu'on croyait élaguée.
+# **Two other things the rule did not say.** Drafts are set aside before
+# anything else: `gh api …/releases` returns them too, and a `v0.12.0` draft
+# written by hand would push milestone 0.11 into the past — its patches would go
+# for a version that does not exist. And a refused deletion is not a success:
+# the script attempts every deletion, then exits with an error naming each
+# release that stayed, so that the publishing job does not stay green over a
+# release believed pruned.
 #
-# Les noms qui ne sont pas de la forme `vX.Y.Z` ne sont ni comptés ni touchés :
-# une release écrite à la main sous un autre nom n'est pas l'affaire de ce script.
+# Names that are not of the form `vX.Y.Z` are neither counted nor touched: a
+# release written by hand under another name is none of this script's business.
 #
-# ## Pourquoi la sélection est à part
+# ## Why the selection is separate
 #
-# Pour la raison de `prune-runs.sh` : un script se lance en local, un bloc de YAML
-# non, et une suppression qu'aucune exécution ne vérifie serait une croyance.
-# `--input` donne la liste au lieu de la chercher, et `verify-gates.sh` s'en sert
-# pour prouver la sélection sur une liste écrite à la main.
+# For the reason of `prune-runs.sh`: a script runs locally, a block of YAML does
+# not, and a deletion that no run verifies would be a belief. `--input` gives
+# the list instead of fetching it, and `verify-gates.sh` uses it to prove the
+# selection on a hand-written list.
 #
 # ## Usage
 #
-#   prune-releases.sh [--dry-run] [--input FICHIER]
+#   prune-releases.sh [--dry-run] [--input FILE]
 #
-#   --dry-run          écrit les tags dont la release partirait, ne supprime rien
-#   --input FICHIER    lit les tags des releases depuis un fichier, un par ligne,
-#                      au lieu d'interroger l'API
+#   --dry-run          writes the tags whose release would go, deletes nothing
+#   --input FILE       reads the releases' tags from a file, one per line,
+#                      instead of querying the API
 #
-# Sans `--input`, le dépôt est celui de `GITHUB_REPOSITORY` — que les Actions
-# renseignent — ou, à défaut, celui du dépôt git courant. La lecture passe avec
-# un jeton personnel ; la suppression demande `contents: write`.
+# Without `--input`, the repository is that of `GITHUB_REPOSITORY` — which
+# Actions sets — or, failing that, that of the current git repository. Reading
+# works with a personal token; deleting requires `contents: write`.
 
 set -euo pipefail
 
@@ -65,19 +64,18 @@ readonly BOLD=$'\033[1m'
 readonly RESET=$'\033[0m'
 
 usage() {
-    cat <<'FIN'
-prune-releases.sh [--dry-run] [--input FICHIER]
+    cat <<'EOF'
+prune-releases.sh [--dry-run] [--input FILE]
 
-Élague les releases : garde toutes les vX.Y.0 et les patchs de la milestone en
-cours, supprime les patchs des milestones passées. Les tags restent. Les
-brouillons sont ignorés. Une suppression refusée fait sortir en erreur, après
-que toutes ont été tentées. Sous `workflow_dispatch` (GITHUB_EVENT_NAME), rien
-n'est élagué.
+Prunes the releases: keeps every vX.Y.0 and the patches of the current
+milestone, deletes the patches of past milestones. Tags stay. Drafts are
+ignored. A refused deletion makes it exit with an error, after all have been
+attempted. Under `workflow_dispatch` (GITHUB_EVENT_NAME), nothing is pruned.
 
-  --dry-run          écrit les tags dont la release partirait, ne supprime rien
-  --input FICHIER    lit les tags des releases depuis un fichier, un par ligne
-  -h, --help         ceci
-FIN
+  --dry-run          writes the tags whose release would go, deletes nothing
+  --input FILE       reads the releases' tags from a file, one per line
+  -h, --help         this help
+EOF
 }
 
 dry_run=0
@@ -87,25 +85,25 @@ while (( $# > 0 )); do
     case "$1" in
         --dry-run) dry_run=1; shift ;;
         --input)
-            [[ $# -ge 2 ]] || { printf '--input attend un fichier\n' >&2; exit 2; }
+            [[ $# -ge 2 ]] || { printf '--input expects a file\n' >&2; exit 2; }
             input="$2"; shift 2 ;;
         -h|--help) usage; exit 0 ;;
-        *) printf 'option inconnue : %s\n' "$1" >&2; usage >&2; exit 2 ;;
+        *) printf 'unknown option: %s\n' "$1" >&2; usage >&2; exit 2 ;;
     esac
 done
 
 require() {
     command -v "$1" >/dev/null 2>&1 || {
-        printf '%s manque : ./src/scripts/setup-toolchain.sh l installe\n' "$1" >&2
+        printf '%s is missing: ./src/scripts/setup-toolchain.sh installs it\n' "$1" >&2
         exit 1
     }
 }
 
 repository="${GITHUB_REPOSITORY:-}"
 
-# Écrit en `if` plutôt qu'en `[[ … ]] && …`, pour la raison écrite dans
-# `prune-runs.sh` : sous `set -e`, la forme courte tue le script au cas le plus
-# courant, celui où le dépôt est déjà connu.
+# Written as an `if` rather than `[[ … ]] && …`, for the reason given in
+# `prune-runs.sh`: under `set -e`, the short form kills the script in the most
+# common case, the one where the repository is already known.
 resolve_repository() {
     if [[ -z "${repository}" ]]; then
         require gh
@@ -113,12 +111,12 @@ resolve_repository() {
     fi
 }
 
-# Les tags des releases publiées, un par ligne. Un brouillon n'est ni une version
-# ni une release à élaguer : il est écarté ici, avant que la milestone en cours
-# soit déduite et avant que la moindre suppression soit choisie.
+# The tags of the published releases, one per line. A draft is neither a
+# version nor a release to prune: it is set aside here, before the current
+# milestone is inferred and before any deletion is chosen.
 fetch_tags() {
     if [[ -n "${input}" ]]; then
-        [[ -f "${input}" ]] || { printf 'fichier introuvable : %s\n' "${input}" >&2; exit 1; }
+        [[ -f "${input}" ]] || { printf 'file not found: %s\n' "${input}" >&2; exit 1; }
         cat "${input}"
         return
     fi
@@ -129,13 +127,13 @@ fetch_tags() {
         --jq '.[] | select(.draft == false) | .tag_name'
 }
 
-# La sélection. Une fonction de la liste, et rien d'autre — ni horloge, ni
-# réseau, ni état.
+# The selection. A function of the list, and nothing else — no clock, no
+# network, no state.
 #
-# Deux passages sur la même liste : le premier trouve la milestone en cours, le
-# second condamne les patchs qui n'en sont pas. Les numéros sont comparés comme
-# des nombres, et c'est tout l'objet : comparés comme du texte, `0.9` passerait
-# après `0.10`.
+# Two passes over the same list: the first finds the current milestone, the
+# second condemns the patches that are not of it. The numbers are compared as
+# numbers, and that is the whole point: compared as text, `0.9` would come after
+# `0.10`.
 select_doomed() {
     awk '
         match($0, /^v[0-9]+\.[0-9]+\.[0-9]+$/) {
@@ -161,13 +159,13 @@ select_doomed() {
     '
 }
 
-# Une reconstruction à la demande republie le paquet et n'élague pas. Le constat
-# précède la lecture des releases : pour ne rien supprimer, il n'y a rien à
-# chercher. `--dry-run` y échappe, puisqu'il ne supprime rien de toute façon.
+# An on-demand rebuild republishes the package and does not prune. The check
+# comes before reading the releases: to delete nothing, there is nothing to
+# fetch. `--dry-run` escapes it, since it deletes nothing anyway.
 if (( dry_run == 0 )) && [[ "${GITHUB_EVENT_NAME:-}" == "workflow_dispatch" ]]; then
-    printf 'reconstruction à la demande (workflow_dispatch) : aucune release élaguée\n'
+    printf 'on-demand rebuild (workflow_dispatch): no release pruned\n'
     if [[ -n "${GITHUB_STEP_SUMMARY:-}" ]]; then
-        printf '## Élagage des releases\n\nReconstruction à la demande : rien n'"'"'est élagué.\n' \
+        printf '## Pruning of the releases\n\nOn-demand rebuild: nothing is pruned.\n' \
             >> "${GITHUB_STEP_SUMMARY}"
     fi
     exit 0
@@ -180,7 +178,7 @@ doomed_count="$(printf '%s' "${doomed}" | grep -c '' || true)"
 
 if (( dry_run == 1 )); then
     [[ -z "${doomed}" ]] || printf '%s\n' "${doomed}"
-    printf '%s%d releases, %d à supprimer, %d gardées%s\n' \
+    printf '%s%d releases, %d to delete, %d kept%s\n' \
         "${BOLD}" "${total}" "${doomed_count}" "$(( total - doomed_count ))" "${RESET}" >&2
     exit 0
 fi
@@ -192,37 +190,37 @@ deleted=0
 refused=()
 while read -r tag; do
     [[ -n "${tag}" ]] || continue
-    # `</dev/null` : sans lui, gh lirait l'entrée standard et avalerait le reste
-    # de la liste. Pas de `--cleanup-tag` : c'est ce qui garde le tag.
+    # `</dev/null`: without it, gh would read standard input and swallow the
+    # rest of the list. No `--cleanup-tag`: that is what keeps the tag.
     if gh release delete "${tag}" --repo "${repository}" --yes </dev/null >/dev/null 2>&1; then
-        printf '  supprimée : %s (le tag reste)\n' "${tag}"
+        printf '  deleted: %s (the tag stays)\n' "${tag}"
         deleted=$(( deleted + 1 ))
     else
-        printf 'refusée : %s\n' "${tag}" >&2
+        printf 'refused: %s\n' "${tag}" >&2
         refused+=("${tag}")
     fi
 done <<< "${doomed}"
 
-printf '%s%d supprimées, %d refusées, %d restantes%s\n' \
+printf '%s%d deleted, %d refused, %d remaining%s\n' \
     "${BOLD}" "${deleted}" "${#refused[@]}" "$(( total - deleted ))" "${RESET}"
 
 if [[ -n "${GITHUB_STEP_SUMMARY:-}" ]]; then
     {
-        printf '## Élagage des releases\n\n'
+        printf '## Pruning of the releases\n\n'
         printf '| | |\n| :--- | ---: |\n'
-        printf '| avant | %d |\n' "${total}"
-        printf '| supprimées | %d |\n' "${deleted}"
-        printf '| refusées | %d |\n' "${#refused[@]}"
-        printf '| après | %d |\n' "$(( total - deleted ))"
-        printf '\nRègle : toutes les `vX.Y.0`, et les patchs de la milestone en cours. '
-        printf 'Les tags ne sont jamais supprimés.\n'
+        printf '| before | %d |\n' "${total}"
+        printf '| deleted | %d |\n' "${deleted}"
+        printf '| refused | %d |\n' "${#refused[@]}"
+        printf '| after | %d |\n' "$(( total - deleted ))"
+        printf '\nRule: every `vX.Y.0`, and the patches of the current milestone. '
+        printf 'Tags are never deleted.\n'
     } >> "${GITHUB_STEP_SUMMARY}"
 fi
 
-# Une suppression refusée fait échouer le travail : sortir en 0 laisserait la
-# publication verte sur une release qu'on croyait élaguée. Elles ont toutes été
-# tentées avant d'en arriver là, et chacune est nommée.
+# A refused deletion fails the job: exiting with 0 would leave the publication
+# green over a release believed pruned. They have all been attempted before
+# getting here, and each one is named.
 if (( ${#refused[@]} > 0 )); then
-    printf 'suppression refusée, la release reste : %s\n' "${refused[*]}" >&2
+    printf 'deletion refused, the release stays: %s\n' "${refused[*]}" >&2
     exit 1
 fi

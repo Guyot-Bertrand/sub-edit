@@ -1,83 +1,81 @@
 #!/usr/bin/env bash
-# Élague les exécutions d'Actions accumulées sur le dépôt.
+# Prunes the Actions runs accumulated on the repository.
 #
-# **La règle, en une phrase :** de chaque workflow, garder les trente
-# exécutions les plus récentes, plus la plus récente dont la branche est `main`
-# si elle n'y est pas déjà ; supprimer le reste ; ne jamais toucher une
-# exécution non terminée.
+# **The rule, in one sentence:** of each workflow, keep the thirty most recent
+# runs, plus the most recent one whose branch is `main` if it is not already
+# among them; delete the rest; never touch a run that has not finished.
 #
-# Chacun des trois morceaux répond à quelque chose de précis.
+# Each of the three parts answers something precise.
 #
-# **Trente par workflow, et non une durée.** GitHub sait fixer une durée — le
-# réglage *Artifact and log retention* — mais elle n'efface que les journaux et
-# les artefacts : la ligne d'exécution reste dans la liste, avec ses étapes
-# vides. Et une durée ne nettoie rien quand l'activité est concentrée sur la
-# semaine écoulée, ce qui était le cas au moment d'écrire ceci : sept jours
-# auraient laissé 103 des 146 exécutions, trente par workflow en laissent 60.
+# **Thirty per workflow, not a duration.** GitHub can set a duration — the
+# *Artifact and log retention* setting — but it only erases logs and artifacts:
+# the run's row stays in the list, with its steps empty. And a duration cleans
+# nothing when the activity is concentrated on the past week, which was the case
+# when this was written: seven days would have left 103 of the 146 runs, thirty
+# per workflow leave 60.
 #
-# **La plus récente sur `main`.** C'est l'analyse complète du lundi, le filet
-# hebdomadaire de `ci.yml`. Sa période est de sept jours et il arrive une
-# douzaine d'exécutions par jour : sans exception elle sortirait des trente en
-# trois jours, et le dépôt n'aurait plus trace de la seule exécution dont
-# l'absence signifie quelque chose. « La plus récente » est au singulier, et
-# c'est délibéré — au pluriel, la clause ressusciterait les quarante-sept
-# exécutions du déclencheur `push` sur `main` supprimé à la #106, que cet
-# élagage existe justement pour effacer.
+# **The most recent on `main`.** That is the full Monday analysis, the weekly
+# net of `ci.yml`. Its period is seven days and a dozen runs arrive each day:
+# without an exception it would fall out of the thirty within three days, and
+# the repository would lose track of the one run whose absence means something.
+# "The most recent" is singular, and deliberately so — in the plural, the clause
+# would resurrect the forty-seven runs of the `push` trigger on `main` removed
+# in #106, which this pruning exists precisely to erase.
 #
-# **Les exécutions non terminées.** GitHub refuse de les supprimer ; les
-# demander ferait échouer le passage sur une course sans intérêt.
+# **Unfinished runs.** GitHub refuses to delete them; asking would make the pass
+# fail over a pointless race.
 #
-# ## Pourquoi un workflow, et non ce script lancé à la main
+# ## Why a workflow, and not this script run by hand
 #
-# Un jeton personnel ne peut pas supprimer une exécution : l'API répond
-# `403 Resource not accessible by personal access token`. Seul le `GITHUB_TOKEN`
-# d'un workflow le peut, avec `permissions: actions: write`. La suppression vit
-# donc dans `.github/workflows/elagage.yml`, qui appelle ce script.
+# A personal token cannot delete a run: the API answers
+# `403 Resource not accessible by personal access token`. Only a workflow's
+# `GITHUB_TOKEN` can, with `permissions: actions: write`. The deletion therefore
+# lives in `.github/workflows/elagage.yml`, which calls this script.
 #
-# La *lecture*, elle, passe avec un jeton personnel. C'est ce qui rend
-# `--dry-run` utile depuis un poste de développement, et c'est ce qui rend la
-# sélection démontrable : `--input` lui donne une liste écrite à la main plutôt
-# que de la lui faire chercher, et `verify-gates.sh` s'en sert pour prouver que
-# les cinq cas qui décident de ce fichier sont traités comme annoncé.
+# *Reading*, on the other hand, works with a personal token. That is what makes
+# `--dry-run` useful from a development machine, and what makes the selection
+# provable: `--input` gives it a hand-written list instead of having it fetch
+# one, and `verify-gates.sh` uses it to prove that the five cases that decide
+# this file are handled as announced.
 #
 # ## Usage
 #
-#   prune-runs.sh [--dry-run] [--input FICHIER]
+#   prune-runs.sh [--dry-run] [--input FILE]
 #
-#   --dry-run          écrit les identifiants à supprimer, ne supprime rien
-#   --input FICHIER    lit la liste depuis un fichier JSONL — un objet par
-#                      ligne, tel que le produit
-#                      `gh api … --paginate --jq '.workflow_runs[]'` — au lieu
-#                      d'interroger l'API
+#   --dry-run          writes the identifiers to delete, deletes nothing
+#   --input FILE       reads the list from a JSONL file — one object per
+#                      line, as produced by
+#                      `gh api … --paginate --jq '.workflow_runs[]'` — instead
+#                      of querying the API
 #
-# Sans `--input`, le dépôt est celui de `GITHUB_REPOSITORY` — que les Actions
-# renseignent — ou, à défaut, celui du dépôt git courant.
+# Without `--input`, the repository is that of `GITHUB_REPOSITORY` — which
+# Actions sets — or, failing that, that of the current git repository.
 
 set -euo pipefail
 
-# Le nombre d'exécutions gardées par workflow. Un seul nombre, écrit une fois :
-# le rendre réglable par option inviterait à le régler différemment ici et là,
-# et la règle cesserait de tenir en une phrase.
+# The number of runs kept per workflow. A single number, written once: making it
+# settable by an option would invite setting it differently here and there, and
+# the rule would no longer fit in one sentence.
 readonly KEEP=30
 
 readonly BOLD=$'\033[1m'
 readonly RESET=$'\033[0m'
 
 usage() {
-    cat <<'FIN'
-prune-runs.sh [--dry-run] [--input FICHIER]
+    cat <<'EOF'
+prune-runs.sh [--dry-run] [--input FILE]
 
-Élague les exécutions d'Actions : de chaque workflow, garde les trente plus
-récentes, plus la plus récente sur `main`, et supprime le reste. Les exécutions
-non terminées ne sont jamais touchées.
+Prunes the Actions runs: of each workflow, keeps the thirty most recent, plus
+the most recent on `main`, and deletes the rest. Unfinished runs are never
+touched.
 
-  --dry-run          écrit les identifiants à supprimer, ne supprime rien
-  --input FICHIER    lit la liste depuis un fichier JSONL au lieu de l'API
-  -h, --help         ceci
+  --dry-run          writes the identifiers to delete, deletes nothing
+  --input FILE       reads the list from a JSONL file instead of the API
+  -h, --help         this help
 
-Supprimer exige le GITHUB_TOKEN d'un workflow : un jeton personnel reçoit 403
-sur les Actions. Depuis un poste de développement, seul --dry-run fonctionne.
-FIN
+Deleting requires a workflow's GITHUB_TOKEN: a personal token gets 403 on
+Actions. From a development machine, only --dry-run works.
+EOF
 }
 
 dry_run=0
@@ -87,16 +85,16 @@ while (( $# > 0 )); do
     case "$1" in
         --dry-run) dry_run=1; shift ;;
         --input)
-            [[ $# -ge 2 ]] || { printf '--input attend un fichier\n' >&2; exit 2; }
+            [[ $# -ge 2 ]] || { printf '--input expects a file\n' >&2; exit 2; }
             input="$2"; shift 2 ;;
         -h|--help) usage; exit 0 ;;
-        *) printf 'option inconnue : %s\n' "$1" >&2; usage >&2; exit 2 ;;
+        *) printf 'unknown option: %s\n' "$1" >&2; usage >&2; exit 2 ;;
     esac
 done
 
 require() {
     command -v "$1" >/dev/null 2>&1 || {
-        printf '%s manque : ./src/scripts/setup-toolchain.sh l installe\n' "$1" >&2
+        printf '%s is missing: ./src/scripts/setup-toolchain.sh installs it\n' "$1" >&2
         exit 1
     }
 }
@@ -105,13 +103,13 @@ require jq
 
 repository="${GITHUB_REPOSITORY:-}"
 
-# Le dépôt visé. Les Actions renseignent GITHUB_REPOSITORY ; en local il faut le
-# demander à git. Résolu à part de la lecture, parce que la suppression en a
-# besoin même quand la liste vient d'un fichier.
+# The target repository. Actions sets GITHUB_REPOSITORY; locally it has to be
+# asked of git. Resolved apart from the reading, because the deletion needs it
+# even when the list comes from a file.
 #
-# Écrit en `if` plutôt qu'en `[[ … ]] && return` : sous `set -e`, ce dernier fait
-# rendre 1 à la fonction quand le test échoue, et tue le script au cas le plus
-# courant — celui où le dépôt est déjà connu.
+# Written as an `if` rather than `[[ … ]] && return`: under `set -e`, the latter
+# makes the function return 1 when the test fails, and kills the script in the
+# most common case — the one where the repository is already known.
 resolve_repository() {
     if [[ -z "${repository}" ]]; then
         require gh
@@ -119,10 +117,10 @@ resolve_repository() {
     fi
 }
 
-# La liste, sous forme d'un objet JSON par ligne.
+# The list, as one JSON object per line.
 fetch_runs() {
     if [[ -n "${input}" ]]; then
-        [[ -f "${input}" ]] || { printf 'fichier introuvable : %s\n' "${input}" >&2; exit 1; }
+        [[ -f "${input}" ]] || { printf 'file not found: %s\n' "${input}" >&2; exit 1; }
         cat "${input}"
         return
     fi
@@ -133,12 +131,12 @@ fetch_runs() {
               | {id, workflow_id, name, head_branch, status, created_at}'
 }
 
-# La sélection. Une fonction de la liste, et rien d'autre : ni horloge, ni
-# réseau, ni état — c'est ce qui la rend démontrable sur un jeu écrit à la main.
+# The selection. A function of the list, and nothing else: no clock, no network,
+# no state — that is what makes it provable on a hand-written set.
 #
-# `index(…)` rend `null` quand l'identifiant est absent, et un entier sinon —
-# y compris zéro, qui est vrai en jq. La négation se comporte donc bien pour le
-# premier élément, ce qu'un `> 0` aurait manqué.
+# `index(…)` returns `null` when the identifier is absent, and an integer
+# otherwise — including zero, which is true in jq. The negation therefore
+# behaves for the first element, which a `> 0` would have missed.
 select_doomed() {
     jq -rs --argjson keep "${KEEP}" '
         group_by(.workflow_id)
@@ -165,7 +163,7 @@ kept=$(( total - doomed_count ))
 
 if (( dry_run == 1 )); then
     [[ -z "${doomed}" ]] || printf '%s\n' "${doomed}"
-    printf '%s%d exécutions, %d à supprimer, %d gardées%s\n' \
+    printf '%s%d runs, %d to delete, %d kept%s\n' \
         "${BOLD}" "${total}" "${doomed_count}" "${kept}" "${RESET}" >&2
     exit 0
 fi
@@ -177,36 +175,36 @@ deleted=0
 refused=0
 while read -r id; do
     [[ -n "${id}" ]] || continue
-    # `</dev/null` : sans lui, un appel qui lirait l'entrée standard avalerait
-    # le reste de la liste et la boucle s'arrêterait après un tour.
+    # `</dev/null`: without it, a call that read standard input would swallow
+    # the rest of the list and the loop would stop after one turn.
     if gh api -X DELETE "repos/${repository}/actions/runs/${id}" --silent \
         </dev/null 2>/dev/null; then
         deleted=$(( deleted + 1 ))
     else
-        # Une exécution peut disparaître entre la lecture et la suppression, ou
-        # être devenue non supprimable. Ça ne justifie pas d'abandonner les
-        # suivantes : le passage suivant les reprendra de toute façon.
-        printf 'refusée : %s\n' "${id}" >&2
+        # A run can disappear between the reading and the deletion, or have
+        # become undeletable. That does not justify giving up on the following
+        # ones: the next pass will pick them up anyway.
+        printf 'refused: %s\n' "${id}" >&2
         refused=$(( refused + 1 ))
     fi
 done <<< "${doomed}"
 
-# Ce qui reste vraiment, et non ce qu'on comptait garder : une suppression
-# refusée laisse son exécution en place.
-printf '%s%d supprimées, %d refusées, %d restantes%s\n' \
+# What really remains, not what was meant to be kept: a refused deletion leaves
+# its run in place.
+printf '%s%d deleted, %d refused, %d remaining%s\n' \
     "${BOLD}" "${deleted}" "${refused}" "$(( total - deleted ))" "${RESET}"
 
-# La mesure demandée par la #123, refaite à chaque passage plutôt que relevée
-# une fois : un chiffre figé dans un document vieillit, celui-ci non.
+# The measure asked for by #123, redone on each pass rather than taken once: a
+# figure frozen in a document goes stale, this one does not.
 if [[ -n "${GITHUB_STEP_SUMMARY:-}" ]]; then
     {
-        printf '## Élagage des exécutions\n\n'
+        printf '## Pruning of the runs\n\n'
         printf '| | |\n| :--- | ---: |\n'
-        printf '| avant | %d |\n' "${total}"
-        printf '| supprimées | %d |\n' "${deleted}"
-        printf '| refusées | %d |\n' "${refused}"
-        printf '| après | %d |\n' "$(( total - deleted ))"
-        printf '\nRègle : les %d plus récentes de chaque workflow, ' "${KEEP}"
-        printf 'plus la plus récente sur `main`.\n'
+        printf '| before | %d |\n' "${total}"
+        printf '| deleted | %d |\n' "${deleted}"
+        printf '| refused | %d |\n' "${refused}"
+        printf '| after | %d |\n' "$(( total - deleted ))"
+        printf '\nRule: the %d most recent of each workflow, ' "${KEEP}"
+        printf 'plus the most recent on `main`.\n'
     } >> "${GITHUB_STEP_SUMMARY}"
 fi
