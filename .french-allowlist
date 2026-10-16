@@ -58,7 +58,6 @@ src/lib/subedit/gui/CMakeLists.txt
 src/lib/subedit/platform/CMakeLists.txt
 src/scripts/build-rpm.sh
 src/scripts/encoding-fixtures.py
-src/scripts/measure-conversion-loss.py
 src/scripts/measure-duration-constraints.py
 src/scripts/measure-include-cost.py
 src/scripts/measure-mentions.py
