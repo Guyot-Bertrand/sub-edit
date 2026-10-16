@@ -1,7 +1,7 @@
-# subedit_core — modèle, formats et opérations.
+# subedit_core — model, formats and operations.
 #
-# Contrainte structurante : aucune dépendance à Qt ni à une interface
-# graphique. Elle est vérifiée par src/scripts/check-architecture.sh.
+# Structuring constraint: no dependency on Qt or on a graphical interface. It
+# is checked by src/scripts/check-architecture.sh.
 
 add_library(
     subedit_core STATIC
@@ -146,26 +146,26 @@ add_library(
     wording/video.cpp)
 add_library(subedit::core ALIAS subedit_core)
 
-# La racine d'inclusion est src/lib/, d'où des inclusions toujours qualifiées :
+# The include root is src/lib/, hence always-qualified includes:
 # #include <subedit/core/version.hpp>
 target_include_directories(subedit_core PUBLIC "${CMAKE_SOURCE_DIR}/src/lib")
 
-# **Sur `version.cpp` seul, et non sur la cible** (#686). Une définition de cible entre dans la ligne
-# de compilation de chacune de ses sources : le bump de patch de chaque pull request, et la date du
-# commit à chaque commit, changeaient donc la commande des quelque trois cents fichiers du noyau, et
-# Ninja les recompilait tous — dans chaque arbre, `tidy` compris, dont l'analyse est accrochée à
-# cette commande. Seul `version.cpp` lit ces macros ; elles ne vivent plus que là.
+# **On `version.cpp` alone, and not on the target** (#686). A target definition enters the compile
+# command line of each of its sources: the patch bump of every pull request, and the commit date at
+# every commit, therefore changed the command of the three hundred or so files of the core, and
+# Ninja recompiled them all — in every tree, `tidy` included, whose analysis is hooked to that
+# command. Only `version.cpp` reads these macros; they now live there alone.
 set_source_files_properties(
     version.cpp
     PROPERTIES COMPILE_DEFINITIONS
                "SUBEDIT_VERSION_MAJOR=${PROJECT_VERSION_MAJOR};SUBEDIT_VERSION_MINOR=${PROJECT_VERSION_MINOR};SUBEDIT_VERSION_PATCH=${PROJECT_VERSION_PATCH};SUBEDIT_BUILD_DATE=\"${SUBEDIT_BUILD_DATE}\"")
 
-# ICU en privé : aucun en-tête du noyau ne montre `unicode/`, seuls deux
-# fichiers d'implémentation l'incluent. Ce qui dépend de subedit_core hérite
-# donc de l'édition de liens, et de rien d'autre.
+# ICU as private: no header of the core shows `unicode/`, only two
+# implementation files include it. What depends on subedit_core therefore
+# inherits the link, and nothing else.
 #
-# Enchant de même : seul `enchant_spell_provider.cpp` l'inclut, et rien de son
-# en-tête ne montre `enchant.h`.
+# Enchant likewise: only `enchant_spell_provider.cpp` includes it, and nothing
+# of its header shows `enchant.h`.
 target_link_libraries(subedit_core PRIVATE ICU::uc ICU::i18n PkgConfig::enchant)
 
 subedit_set_warnings(subedit_core)

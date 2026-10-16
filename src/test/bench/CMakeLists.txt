@@ -1,10 +1,10 @@
-# Les benchmarks sont un exécutable distinct, non enregistré dans CTest : ils
-# se mesurent en Release, pas pendant une passe de tests instrumentée.
+# The benchmarks are a separate executable, not registered with CTest: they
+# are measured in Release, not during an instrumented test pass.
 #
-# **Un seul binaire, noyau et interface confondus.** `record-bench.sh` ne lit
-# qu'une sortie XML, et deux binaires demanderaient soit de la fusionner, soit
-# deux relevés au journal pour une même version. Qt est de toute façon requis
-# pour construire le projet.
+# **A single binary, core and interface together.** `record-bench.sh` reads
+# only one XML output, and two binaries would require either merging it, or
+# two readings in the log for the same version. Qt is required to build the
+# project anyway.
 set(CMAKE_AUTOMOC ON)
 
 add_executable(
@@ -23,25 +23,25 @@ add_executable(
     gui/subtitle_table_model_bench.cpp
     gui/video_bench.cpp)
 
-# Catch2 sans son main — voir main.cpp : la QApplication doit vivre sur sa
-# pile, comme dans subedit_gui_test.
+# Catch2 without its main — see main.cpp: the QApplication must live on its
+# stack, as in subedit_gui_test.
 target_link_libraries(
     subedit_bench PRIVATE subedit::gui subedit::cli subedit::core Qt6::Widgets Catch2::Catch2)
 
-# La fixture partagée vit à la racine de bench/, comme text_cases.hpp vit à
-# celle de unit/. Sans ce chemin d'inclusion, un benchmark rangé dans un
-# sous-répertoire la désignerait par une suite de « ../ » qui changerait à
-# chaque déplacement de fichier.
+# The shared fixture lives at the root of bench/, as text_cases.hpp lives at
+# that of unit/. Without this include path, a benchmark kept in a subdirectory
+# would designate it by a chain of "../" that would change with every file
+# move.
 target_include_directories(subedit_bench PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 
-# La lecture de l'image numérotée, partagée avec les tests d'interface (#610) : le banc du
-# saut et du pas vérifie le geste qu'il mesure avec le même oracle que les tests, et non avec
-# une seconde lecture qui pourrait en différer.
+# The reading of the numbered image, shared with the interface tests (#610): the bench of the
+# jump and the step checks the gesture it measures with the same oracle as the tests, and not
+# with a second reading that could differ from it.
 target_include_directories(subedit_bench PRIVATE ${CMAKE_SOURCE_DIR}/src/test/gui)
 
-# Les fixtures vidéo de #163, pour la seule mesure qui ouvre un vrai fichier :
-# ce que coûtent l'ouverture et la recherche, c'est-à-dire ce qui se passe à
-# chaque changement de ligne.
+# The video fixtures of #163, for the only measurement that opens a real file:
+# what opening and seeking cost, that is what happens at every change of
+# line.
 target_compile_definitions(
     subedit_bench PRIVATE SUBEDIT_TEST_DATA_DIR="${CMAKE_SOURCE_DIR}/src/test/data"
                           SUBEDIT_PATTERNS_DIR="${CMAKE_SOURCE_DIR}/packaging/patterns")

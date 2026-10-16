@@ -25,9 +25,9 @@ add_executable(subedit-cli
     commands/table.cpp
     commands/transform.cpp)
 
-# CLI11 est résolue par le paquet de la distribution, comme le veut l'ADR 0004,
-# et n'entre que dans l'exécutable : le noyau reste sans dépendance — voir
-# docs/adr/0016-cli11-pour-l-analyse-d-arguments.md.
+# CLI11 is resolved through the distribution's package, as ADR 0004 wants,
+# and enters only the executable: the core stays free of dependencies — see
+# `docs/adr/0016-cli11-pour-l-analyse-d-arguments.md`.
 find_package(CLI11 REQUIRED)
 
 target_link_libraries(subedit-cli PRIVATE subedit::cli CLI11::CLI11)

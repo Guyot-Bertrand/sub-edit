@@ -1,15 +1,15 @@
-# subedit_cli — ce qu'une ligne de commande fait, une fois ses arguments lus.
+# subedit_cli — what a command line does, once its arguments are read.
 #
-# Cette bibliothèque existe parce que la règle d'architecture du projet
-# l'impose : aucune logique fonctionnelle dans src/exe. Rapporter ce qu'un
-# fichier contient, décider d'un code de retour, doser ce qui se dit à quel
-# niveau — rien de tout cela n'est du câblage, et rien de tout cela n'a sa
-# place dans le noyau non plus : ce sont des décisions d'interface.
+# This library exists because the project's architecture rule demands it: no
+# functional logic in src/exe. Reporting what a file contains, deciding on an
+# exit code, measuring out what is said at which level — none of that is
+# wiring, and none of that belongs in the core either: these are interface
+# decisions.
 #
-# **Elle ne connaît pas CLI11**, qui reste enfermée dans src/exe/cli/main.cpp.
-# Ce qui est ici prend des chemins, des flux et un niveau — des valeurs, pas
-# une ligne de commande. C'est ce qui la rend testable sans lancer de processus,
-# et ce qui permettrait à un second appelant de s'en servir.
+# **It does not know CLI11**, which stays locked in src/exe/cli/main.cpp. What
+# is here takes paths, streams and a level — values, not a command line. That
+# is what makes it testable without starting a process, and what would let a
+# second caller use it.
 
 add_library(
     subedit_cli STATIC

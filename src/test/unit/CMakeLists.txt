@@ -1,5 +1,5 @@
-# Un binaire de test par bibliothèque, chaque cas étant enregistré
-# individuellement dans CTest par catch_discover_tests.
+# One test binary per library, each case being registered individually with
+# CTest by catch_discover_tests.
 
 add_executable(
     subedit_core_test
@@ -156,19 +156,19 @@ add_executable(
     core/format/encoded_corpus_test.cpp
     core/format/local_corpus_test.cpp)
 
-# ICU directement, pour un seul test : celui qui pose une locale par défaut et
-# vérifie que la casse ne la suit pas (#401). Le noyau garde ICU en privé ; le
-# test, lui, doit pouvoir toucher ce que le noyau refuse de montrer.
+# ICU directly, for a single test: the one that sets a default locale and
+# checks that case does not follow it (#401). The core keeps ICU private; the
+# test, for its part, must be able to touch what the core refuses to show.
 target_link_libraries(subedit_core_test PRIVATE subedit::core Catch2::Catch2WithMain ICU::uc)
 
-# Le harnais de cas de texte vit à la racine de unit/. Sans ce chemin
-# d'inclusion, un test rangé dans un sous-répertoire le désignerait par une
-# suite de « ../ » qui changerait à chaque déplacement de fichier.
+# The text case harness lives at the root of unit/. Without this include
+# path, a test kept in a subdirectory would designate it by a chain of "../"
+# that would change with every file move.
 target_include_directories(subedit_core_test PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 
-# Le corpus vit sur le disque et se lit à l'exécution. Le chemin est passé à la
-# compilation plutôt que déduit du répertoire courant : un test ne doit pas
-# dépendre de l'endroit d'où on le lance.
+# The corpus lives on disk and is read at run time. The path is passed at
+# compile time rather than deduced from the current directory: a test must not
+# depend on where it is started from.
 target_compile_definitions(
     subedit_core_test
     PRIVATE SUBEDIT_TEST_DATA_DIR="${CMAKE_SOURCE_DIR}/src/test/data"
@@ -177,10 +177,10 @@ target_compile_definitions(
             SUBEDIT_LOCAL_DATA_DIR="${CMAKE_SOURCE_DIR}/src/data"
             SUBEDIT_FAKE_PLAYER_BINARY="$<TARGET_FILE:subedit_fake_player>")
 
-# Les catalogues de fixture (#658) : les .po sont versionnés, les .mo se compilent à la
-# construction par msgfmt, exactement comme le feront les traductions livrées. Un test du lecteur
-# lit donc ce que l'outil des traducteurs produit, et non un binaire écrit à la main.
-# `SUBEDIT_MSGFMT` vient de `cmake/Translations.cmake`, qui exige l'outil.
+# The fixture catalogues (#658): the .po files are versioned, the .mo files are compiled at build
+# time by msgfmt, exactly as the shipped translations will be. A test of the reader therefore
+# reads what the translators' tool produces, and not a binary written by hand.
+# `SUBEDIT_MSGFMT` comes from `cmake/Translations.cmake`, which requires the tool.
 set(subedit_i18n_fixtures fr ru bad-plural wording cli)
 set(subedit_i18n_catalogues "")
 foreach(language IN LISTS subedit_i18n_fixtures)
@@ -198,19 +198,19 @@ endforeach()
 add_custom_target(subedit_i18n_fixtures DEPENDS ${subedit_i18n_catalogues})
 add_dependencies(subedit_core_test subedit_i18n_fixtures)
 
-# $<TARGET_FILE:…> donne un chemin, pas un ordre de construction. Sans cette
-# ligne, rien ne garantit que le faux lecteur existe quand un test le lance.
+# $<TARGET_FILE:…> gives a path, not a build order. Without this line,
+# nothing guarantees that the fake player exists when a test starts it.
 add_dependencies(subedit_core_test subedit_fake_player)
 
 subedit_set_warnings(subedit_core_test)
 
-# SKIP_RETURN_CODE dit à CTest ce que Catch2 lui répond : 4 signifie « ignoré »,
-# pas « échoué ». Sans cette ligne, un test qui se déclare ignoré faute de son
-# corpus local fait échouer la porte — sur la machine qui n'a pas ce corpus,
-# donc jamais sur celle où on l'écrit.
+# SKIP_RETURN_CODE tells CTest what Catch2 answers it: 4 means "skipped", not
+# "failed". Without this line, a test that declares itself skipped for lack of
+# its local corpus makes the gate fail — on the machine that does not have that
+# corpus, hence never on the one where it is written.
 catch_discover_tests(subedit_core_test PROPERTIES SKIP_RETURN_CODE 4)
 
-# Un binaire par bibliothèque : subedit_cli a le sien, comme subedit_core.
+# One binary per library: subedit_cli has its own, like subedit_core.
 add_executable(
     subedit_cli_test
     grid_fixtures.cpp
@@ -258,8 +258,8 @@ add_executable(
 
 target_link_libraries(subedit_cli_test PRIVATE subedit::cli Catch2::Catch2WithMain)
 
-# Les fixtures de grille, et la racine où elles vivent : le rapport d'inspection
-# les lit, comme le noyau, et il n'y a qu'un jeu de fichiers pour les deux.
+# The grid fixtures, and the root where they live: the inspection report reads
+# them, like the core, and there is only one set of files for both.
 target_include_directories(subedit_cli_test PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 target_compile_definitions(
     subedit_cli_test PRIVATE SUBEDIT_TEST_DATA_DIR="${CMAKE_SOURCE_DIR}/src/test/data"
