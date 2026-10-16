@@ -1,18 +1,18 @@
 #!/usr/bin/env python3
-"""Mesure, sur un corpus de sous-titres, ce que valent les mentions pour
-malentendants : combien de sous-titres en portent, sous quelle forme, et
-combien deviennent vides si on les enlève.
+"""Measure, over a subtitle corpus, what hearing-impaired mentions amount to:
+how many subtitles carry one, in which form, and how many become empty once
+they are removed.
 
-C'est d'ici que viennent les proportions inscrites dans la fixture de mesure,
-`src/test/bench/full_length_project.hpp`. Le corpus lu est celui de `src/data/`,
-privé à chaque machine et ignoré par git : les chiffres, eux, sont recopiés
-dans la fixture, qui ne lit aucun fichier à l'exécution. Ce script existe pour
-qu'ils puissent être refaits — quand le corpus grandit, ou quand on doute d'eux.
+The proportions written in the benchmark fixture,
+`src/test/bench/full_length_project.hpp`, come from here. The corpus read is
+`src/data/`, private to each machine and ignored by git: the figures are copied
+into the fixture, which reads no file at run time. This script exists so that
+they can be redone — when the corpus grows, or when they are in doubt.
 
-    ./src/scripts/measure-mentions.py [répertoire]
+    ./src/scripts/measure-mentions.py [directory]
 
-Il n'entre dans aucune porte, et rien ne dépend de lui : c'est un instrument,
-pas une vérification. Sur une machine sans corpus, il le dit et s'arrête.
+It belongs to no gate, and nothing depends on it: it is an instrument, not a
+check. On a machine without a corpus, it says so and stops.
 """
 
 import re
@@ -23,22 +23,22 @@ REPO_ROOT = Path(__file__).resolve().parent.parent.parent
 DEFAULT_CORPUS = REPO_ROOT / "src" / "data"
 EXTENSIONS = {".srt", ".vtt", ".sub"}
 
-# Une mention tient sur une ligne : le motif de la phase 4 accepte le saut de
-# ligne, mais le compter ici mélangerait deux formes qu'on veut distinguer.
+# A mention fits on one line: the phase 4 pattern accepts a line break, but
+# counting it here would mix two forms that are to be told apart.
 MENTION = re.compile(r"\[[^\]\n]*\]|\([^)\n]*\)")
-# La même, à cheval sur le saut de ligne — comptée à part.
+# The same, straddling the line break — counted apart.
 STRADDLING = re.compile(r"\[[^\]]*\n[^\]]*\]|\([^)]*\n[^)]*\)")
-# Une ligne entière qui n'est qu'une mention, tiret de dialogue toléré.
+# A whole line that is only a mention, a dialogue dash allowed.
 SOLE_LINE = re.compile(r"^\s*(?:-\s*)?(?:\[[^\]\n]*\]|\([^)\n]*\))\s*$")
-# Les balises de mise en forme ne sont pas du texte : « <i>[soupir]</i> » est
-# une mention seule, et le rester est ce qui rend le compte des vidés juste.
+# Markup tags are not text: "<i>[sigh]</i>" is a mention alone, and staying
+# one is what keeps the count of emptied subtitles right.
 TAG = re.compile(r"</?[a-zA-Z][^>]*>")
 TIMECODE = re.compile(r"\d{1,2}:\d{2}:\d{2}[.,]\d{1,3}\s*-->")
 
 
 def decoded(raw: bytes) -> str:
-    """Rend le texte du fichier, quelle que soit son encodage — un corpus réel
-    en mêle plusieurs, et refuser de lire les uns fausserait les proportions."""
+    """Return the file's text, whatever its encoding — a real corpus mixes
+    several, and refusing to read some would skew the proportions."""
     for encoding in ("utf-8-sig", "cp1252"):
         try:
             return raw.decode(encoding)
@@ -48,11 +48,11 @@ def decoded(raw: bytes) -> str:
 
 
 def texts_of(path: Path) -> list[str]:
-    """Rend le texte de chaque sous-titre du fichier.
+    """Return the text of each subtitle of the file.
 
-    Analyse volontairement grossière : un bloc, une ligne d'horodatage, et tout
-    ce qui suit est du texte. Elle vaut pour SubRip comme pour WebVTT, et il
-    s'agit de compter des mentions, pas de relire un lecteur qui existe."""
+    A deliberately coarse parse: a block, a timing line, and everything after
+    it is text. It holds for SubRip as for WebVTT, and the point is to count
+    mentions, not to rewrite a reader that exists."""
     content = decoded(path.read_bytes()).replace("\r\n", "\n").replace("\r", "\n")
     texts = []
     for block in re.split(r"\n[ \t]*\n", content):
@@ -69,14 +69,14 @@ def texts_of(path: Path) -> list[str]:
 def main() -> int:
     root = Path(sys.argv[1]) if len(sys.argv) > 1 else DEFAULT_CORPUS
     if not root.is_dir():
-        print(f"corpus introuvable : {root}", file=sys.stderr)
+        print(f"corpus not found: {root}", file=sys.stderr)
         return 1
 
     files = sorted(
         path for path in root.rglob("*")
         if path.suffix.lower() in EXTENSIONS and "[write]" not in path.name)
     if not files:
-        print(f"aucun fichier de sous-titres sous {root}", file=sys.stderr)
+        print(f"no subtitle file under {root}", file=sys.stderr)
         return 1
 
     total = biting = emptied = sole_line = straddling = brackets = parentheses = 0
@@ -112,25 +112,25 @@ def main() -> int:
     def share(part: int, whole: int) -> str:
         return f"{100 * part / whole:.1f} %" if whole else "—"
 
-    print(f"{len(per_file)} fichiers, {total} sous-titres")
+    print(f"{len(per_file)} files, {total} subtitles")
     print()
-    print(f"  portant une mention          {biting:6d}   {share(biting, total)} du total")
-    print(f"  vidés par son retrait        {emptied:6d}   {share(emptied, biting)} des mordus")
-    print(f"  dont une ligne entière       {sole_line:6d}   {share(sole_line, biting)} des mordus")
-    print(f"  à cheval sur le saut         {straddling:6d}   {share(straddling, total)} du total")
-    print(f"  crochets                     {brackets:6d}   "
-          f"{share(brackets, brackets + parentheses)} des mentions")
-    print(f"  sur deux lignes ou plus      {two_lines:6d}   {share(two_lines, total)} du total")
+    print(f"  carrying a mention           {biting:6d}   {share(biting, total)} of the total")
+    print(f"  emptied by its removal       {emptied:6d}   {share(emptied, biting)} of those hit")
+    print(f"  with a whole line            {sole_line:6d}   {share(sole_line, biting)} of those hit")
+    print(f"  straddling the break         {straddling:6d}   {share(straddling, total)} of the total")
+    print(f"  brackets                     {brackets:6d}   "
+          f"{share(brackets, brackets + parentheses)} of the mentions")
+    print(f"  on two lines or more         {two_lines:6d}   {share(two_lines, total)} of the total")
     if count:
-        print(f"  longueur : médiane {lengths[count // 2]}, "
-              f"neuvième décile {lengths[int(count * 0.9)]}, maximum {lengths[-1]}, "
-              f"moyenne {sum(lengths) / count:.1f}")
+        print(f"  length: median {lengths[count // 2]}, "
+              f"ninth decile {lengths[int(count * 0.9)]}, maximum {lengths[-1]}, "
+              f"mean {sum(lengths) / count:.1f}")
     print()
-    print("La proportion à retenir n'est pas la moyenne du corpus : un fichier qui")
-    print("n'est pas sous-titré pour malentendants ne porte aucune mention, et il y")
-    print("en a beaucoup. C'est l'étendue des fichiers qui en portent qui compte.")
+    print("The proportion to keep is not the corpus mean: a file that is not")
+    print("subtitled for the hearing impaired carries no mention, and there are")
+    print("many. What counts is the range over the files that carry some.")
     print()
-    print("  part de mentions   sous-titres   fichier")
+    print("     mention share     subtitles   file")
     for name, subtitles, file_biting in per_file:
         if file_biting:
             print(f"  {share(file_biting, subtitles):>16}   {subtitles:11d}   {name}")

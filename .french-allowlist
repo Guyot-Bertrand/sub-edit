@@ -58,8 +58,6 @@ src/lib/subedit/gui/CMakeLists.txt
 src/lib/subedit/platform/CMakeLists.txt
 src/scripts/build-rpm.sh
 src/scripts/encoding-fixtures.py
-src/scripts/measure-include-cost.py
-src/scripts/measure-mentions.py
 src/scripts/pattern-oracle.py
 src/scripts/prune-releases.sh
 src/scripts/prune-runs.sh
