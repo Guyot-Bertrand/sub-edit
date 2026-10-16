@@ -1,26 +1,26 @@
 #!/usr/bin/env bash
-# Le score de la détection d'encodage, rejoué et confronté à son relevé.
+# The score of encoding detection, replayed and compared with its record.
 #
-# **Il existait, et personne ne s'en servait deux fois** — issue #311.
-# `score-encoding-detection.py` date de #290, et le 9/9 du journal avait été
-# relevé à la main à la version 0.8.16 : rien ne le rejouait, donc il
-# vieillissait sans que personne l'apprenne. C'est la forme la plus discrète du
-# défaut que la relecture de la phase 7 a inscrit — là, une vérification passait
-# par un outil qui n'était pas celui qui comptait ; ici l'outil est le bon.
+# **It existed, and nobody used it twice** — issue #311.
+# `score-encoding-detection.py` dates from #290, and the journal's 9/9 had been
+# recorded by hand at version 0.8.16: nothing replayed it, so it grew old
+# without anyone learning it. It is the most discreet form of the defect the
+# phase 7 review wrote down — there, a check went through a tool that was not
+# the one that counted; here the tool is the right one.
 #
-# **Le corpus privé n'est jamais lu ici.** Il est absent de toute machine qui ne
-# l'a pas, donc une porte qui le lirait dirait deux choses différentes selon le
-# poste. `--prive` reste un geste à la main.
+# **The private corpus is never read here.** It is absent from any machine that
+# does not have it, so a gate that read it would say two different things
+# depending on the workstation. `--prive` remains a manual gesture.
 #
-# Ce que l'étape construit est la détection du projet sur la ligne de commande,
-# et rien d'autre : le noyau et un programme de quarante lignes.
+# What the step builds is the project's detection on the command line, and
+# nothing else: the core and a forty-line program.
 
 set -euo pipefail
 
 # shellcheck source=src/scripts/gate/common.sh
 source "$(dirname "${BASH_SOURCE[0]}")/common.sh"
 
-step "score de détection d encodage"
+step "encoding detection score"
 
 cmake --preset dev >/dev/null
 cmake --build --preset dev -j "${JOBS}" --target subedit_detect_encoding

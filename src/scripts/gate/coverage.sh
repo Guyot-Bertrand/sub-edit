@@ -1,19 +1,18 @@
 #!/usr/bin/env bash
-# La couverture des bibliothèques, mesurée et confrontée au cliquet.
+# The coverage of the libraries, measured and compared with the ratchet.
 #
-# Six gestes, et deux d'entre eux existent contre un défaut précis :
+# Six gestures, and two of them exist against a specific defect:
 #
-#   * `clean-stale-coverage.sh` écarte un arbre où traîne un `.gcno` que plus
-#     aucune source ne rattache — le résidu d'un fichier déplacé, sur lequel
-#     gcovr échoue en nommant ni le fautif ni le remède ;
-#   * les `.gcda` sont effacés après la compilation et avant les tests. Ceux
-#     d'une exécution antérieure survivent à une recompilation et gcov les
-#     fusionne : un fichier modifié depuis donnerait un taux faux, sans autre
-#     signe qu'un avertissement noyé dans la sortie.
+#   * `clean-stale-coverage.sh` discards a tree where a `.gcno` lingers that no
+#     source is attached to any more — the leftover of a moved file, on which
+#     gcovr fails naming neither the culprit nor the remedy;
+#   * the `.gcda` files are deleted after the build and before the tests.
+#     Those of an earlier run survive a rebuild and gcov merges them: a file
+#     modified since would give a wrong rate, with no other sign than a warning
+#     drowned in the output.
 #
-# Les tests restent séquentiels : `ctest` ne parallélise que sur `-j` explicite,
-# et le lui donner ferait fusionner les `.gcda` de plusieurs exécutions
-# concurrentes.
+# The tests stay sequential: `ctest` only parallelises on an explicit `-j`, and
+# giving it one would merge the `.gcda` files of several concurrent runs.
 
 set -euo pipefail
 
@@ -24,7 +23,7 @@ require gcovr
 
 readonly REPORT="${REPO_ROOT}/build/coverage-report"
 
-step "couverture"
+step "coverage"
 
 "${REPO_ROOT}/src/scripts/clean-stale-coverage.sh"
 
@@ -44,6 +43,6 @@ gcovr --root "${REPO_ROOT}" "${REPO_ROOT}/build/coverage/src" \
     --html-details "${REPORT}/index.html" \
     --txt "${REPORT}/summary.txt"
 
-printf 'rapport : build/coverage-report/index.html\n'
+printf 'report: build/coverage-report/index.html\n'
 
 "${REPO_ROOT}/src/scripts/check-coverage.sh" --summary "${REPORT}/summary.json"

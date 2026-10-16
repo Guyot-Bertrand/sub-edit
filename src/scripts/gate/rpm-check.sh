@@ -1,14 +1,13 @@
 #!/usr/bin/env bash
-# Le `.rpm`, installé sur une vraie Fedora — issue #266.
+# The `.rpm`, installed on a real Fedora — issue #266.
 #
-# **Une étape à part, qui n'entre dans aucune porte**, comme `packages` et pour
-# une raison de plus : elle demande un conteneur et le réseau. Une porte qui
-# dépend du réseau est rouge un jour de panne, pour une raison étrangère au
-# dépôt. Elle se lance à la main, et une fois par semaine sur `main` —
-# `.github/workflows/fedora.yml`.
+# **A step apart, which belongs to no gate**, like `packages` and for one more
+# reason: it needs a container and the network. A gate that depends on the
+# network is red on an outage day, for a reason foreign to the repository. It is
+# run by hand, and once a week on `main` — `.github/workflows/fedora.yml`.
 #
-# Le paquet est reconstruit avant d'être éprouvé : éprouver celui qui traîne
-# dans l'arbre reviendrait à répondre sur une version qu'on ne sait plus nommer.
+# The package is rebuilt before being tested: testing the one lying in the tree
+# would mean answering about a version nobody can name any more.
 
 set -euo pipefail
 
@@ -17,6 +16,6 @@ source "$(dirname "${BASH_SOURCE[0]}")/common.sh"
 
 "$(dirname "${BASH_SOURCE[0]}")/packages.sh"
 
-step "le .rpm sur une Fedora"
+step "the .rpm on a Fedora"
 
 "${REPO_ROOT}/src/scripts/check-rpm.sh" --build-dir "${REPO_ROOT}/build/release"

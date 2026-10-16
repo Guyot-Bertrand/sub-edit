@@ -1,24 +1,23 @@
 #!/usr/bin/env bash
-# Le score de la détection de format, rejoué et confronté à son relevé.
+# The score of format detection, replayed and compared with its record.
 #
-# **Le même geste que `score.sh`, sur l'autre inconnue de la phase 9.** Avec
-# deux formats la question était fermée d'avance ; avec neuf, `.sub` et `.txt`
-# désignent chacune deux formats et une détection peut se tromper. Ce qu'on
-# mesure ici est donc un classifieur, exactement comme #290 l'a établi pour
-# l'encodage.
+# **The same gesture as `score.sh`, on the other unknown of phase 9.** With two
+# formats the question was closed in advance; with nine, `.sub` and `.txt` each
+# designate two formats and a detection can be wrong. What is measured here is
+# therefore a classifier, exactly as #290 established for the encoding.
 #
-# **Le corpus privé n'est jamais lu ici**, comme pour les deux autres relevés :
-# absent d'une machine sur deux, il ferait dire deux choses à la même porte.
+# **The private corpus is never read here**, as for the two other records:
+# absent from one machine in two, it would make the same gate say two things.
 #
-# Ce que l'étape construit est la détection du projet sur la ligne de commande,
-# et rien d'autre : le noyau et un programme de cinquante lignes.
+# What the step builds is the project's detection on the command line, and
+# nothing else: the core and a fifty-line program.
 
 set -euo pipefail
 
 # shellcheck source=src/scripts/gate/common.sh
 source "$(dirname "${BASH_SOURCE[0]}")/common.sh"
 
-step "score de détection de format"
+step "format detection score"
 
 cmake --preset dev >/dev/null
 cmake --build --preset dev -j "${JOBS}" --target subedit_detect_format
