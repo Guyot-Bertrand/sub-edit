@@ -36,10 +36,10 @@ Measuring it after choosing is choosing without measuring.
 ```console
 $ cmake --build build/dev --target subedit_detect_format
 $ ./src/scripts/score-format-detection.py \
-      --detector './build/dev/bin/subedit_detect_format {}' --prive
+      --detector './build/dev/bin/subedit_detect_format {}' --private
 ```
 
-`--prive` adds the private corpus, absent from any machine that does not have
+`--private` adds the private corpus, absent from any machine that does not have
 it. No gate reads it.
 
 ## Three outcomes, and two of them are not equal

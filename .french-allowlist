@@ -66,7 +66,6 @@ src/scripts/pattern-oracle.py
 src/scripts/prune-releases.sh
 src/scripts/prune-runs.sh
 src/scripts/score-encoding-detection.py
-src/scripts/score-format-detection.py
 src/scripts/setup-github.sh
 src/scripts/setup-toolchain.sh
 src/scripts/shifted-pairs.py
