@@ -12,6 +12,7 @@ add_executable(
     core/analysis/grid_correction_test.cpp
     core/analysis/grid_repair_test.cpp
     core/version_test.cpp
+    core/libraries_test.cpp
     core/wording_language_test.cpp
     core/wording_test.cpp
     core/i18n/catalogue_test.cpp

@@ -1,6 +1,7 @@
 // Which language was asked for — issue #658.
 
 #include <subedit/core/i18n/language.hpp>
+#include <subedit/core/libraries.hpp>
 
 #include <catch2/catch_test_macros.hpp>
 
@@ -24,6 +25,7 @@ using subedit::core::endonymOf;
 using subedit::core::EnvironmentLookup;
 using subedit::core::installedCatalogue;
 using subedit::core::installedLanguage;
+using subedit::core::installedLanguageCodes;
 using subedit::core::isLanguageName;
 using subedit::core::languageCandidates;
 
@@ -262,6 +264,18 @@ TEST_CASE("the languages offered are those whose catalogue reads", "[i18n][langu
 
     CHECK(availableLanguages(locale.path()) == Names{"fr", "ru"});
     CHECK(availableLanguages(locale.path() / "absent").empty());
+}
+
+TEST_CASE("the languages reported are English and those whose catalogue reads",
+          "[i18n][language]") {
+    const LocaleDirectory locale;
+    locale.install("ru", "ru.mo");
+    locale.install("fr", "fr.mo");
+    locale.damage("de");
+
+    // English first: the source, which needs no catalogue and is always there.
+    CHECK(installedLanguageCodes(locale.path()) == Names{"en", "fr", "ru"});
+    CHECK(installedLanguageCodes(locale.path() / "absent") == Names{"en"});
 }
 
 TEST_CASE("a language is named in its own language", "[i18n][language]") {
