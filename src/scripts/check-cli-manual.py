@@ -5,17 +5,22 @@
 `subedit-cli <subcommand> --help` example, replayed, so that an added option
 changes the help, makes the block stale, and fails the gate. **What it did not
 hold**: the "Options" tables written by hand, a subcommand without a page, the
-list of subcommands in `invocation.md`, and the options of the `subedit-cli(1)`
-page. Phase 13 adds subcommands and dozens of options: that is where the drift
-gets paid for (issue #546).
+list of subcommands in `invocation.md`, and the `man` pages. Phase 13 adds
+subcommands and dozens of options: that is where the drift gets paid for (issue
+#546).
 
 What is compared:
 
     what the binary SAYS       `subedit-cli --help` and `subedit-cli <sc> --help`
-    what the manual WRITES     docs/manual/subedit-cli/*.md, and packaging/subedit-cli.1.in
+    what the manual WRITES     docs/manual/subedit-cli/*.md
+    what the man pages WRITE   <man-root>/man1/subedit-cli*.1, generated from the manual by
+                               md-to-man.py (#683), compressed or not
 
 Every translated tree docs/i18n/<lang>/manual/subedit-cli is checked the same way, read with
-the vocabulary of its language (doc_vocabulary.py); the `man` page only with the source (#671).
+the vocabulary of its language (doc_vocabulary.py), and so are its pages, under
+<man-root>/<lang>/man1. `--man-root` defaults to the dev build tree, which lays the pages out
+as an installation does; `check-installation.sh` points it at the installed ones.
+`CLI-I18N-04`.
 
 Errors (exit code 1), each one named:
 
@@ -30,6 +35,10 @@ Errors (exit code 1), each one named:
                         it would not be read, and the check would say nothing.
     MISSING GLOBAL OPTION    a global option of the binary is written neither in
                         `invocation.md` nor in the `subedit-cli(1)` page.
+    MISSING MAN PAGE    `subedit-cli(1)`, or the page of a subcommand of the binary, is not
+                        among the pages.
+    UNKNOWN MAN PAGE    a `subedit-cli-<name>(1)` page names no subcommand of the binary.
+    MAN PAGE WITHOUT OPTION  a long option of a subcommand's help is not in its page.
 
 **What the check does not cover, and does not claim to cover**: the accepted
 values, the defaults, the bounds and the "Errors" section stay written by hand —
@@ -40,6 +49,7 @@ check therefore says *which names exist*, never *what they do*.
 from __future__ import annotations
 
 import argparse
+import gzip
 import os
 import pathlib
 import re
@@ -139,8 +149,7 @@ def option_column(markdown: str, option_header: str) -> set[str]:
     return found
 
 
-def check(binary: pathlib.Path, manual: pathlib.Path, man_page: pathlib.Path | None,
-          vocabularies: dict[str, dict]) -> list[str]:
+def check(binary: pathlib.Path, manual: pathlib.Path, vocabularies: dict[str, dict]) -> list[str]:
     failures: list[str] = []
     unread: dict[str, list[str]] = {}
     top_help = run_help(binary)
@@ -200,14 +209,66 @@ def check(binary: pathlib.Path, manual: pathlib.Path, man_page: pathlib.Path | N
         for name in sorted(listed - set(names)):
             failures.append(f"UNKNOWN SUBCOMMAND: {invocation.name} lists `{name}`, which the binary does not know")
 
-    # The `man` page is checked once, with the source manual: a translated tree has no page of its own yet (#683).
-    man_text = man_page.read_text(encoding="utf-8") if man_page is not None and man_page.is_file() else ""
     for option in sorted(long_options(top_help)):
         if f"`{option}" not in invocation_text:
             failures.append(f"MISSING GLOBAL OPTION: `{option}` is not written in {invocation.name}")
-        if man_page is not None and option.replace("-", r"\-") not in man_text:
-            failures.append(f"MISSING GLOBAL OPTION: `{option}` is not written in {man_page.name}")
     return failures
+
+
+def man_text(page: pathlib.Path) -> str | None:
+    """A page as `man` reads it, compressed or not, or None if there is neither."""
+    if page.is_file():
+        return page.read_text(encoding="utf-8")
+    compressed = page.with_name(page.name + ".gz")
+    if compressed.is_file():
+        return gzip.decompress(compressed.read_bytes()).decode("utf-8")
+    return None
+
+
+def names_option(page: str, option: str) -> bool:
+    """True if a page writes the option, as troff writes it: `\\-\\-by`, not followed by more."""
+    escaped = re.escape(option.replace("-", "\\-"))
+    return re.search(escaped + r"(?![a-z0-9]|\\-)", page) is not None
+
+
+def check_man_pages(binary: pathlib.Path, pages: pathlib.Path) -> list[str]:
+    """The pages of one language against the binary: one per subcommand, each with the options
+    of its help, and `subedit-cli(1)` with the global ones — `CLI-I18N-04`."""
+    failures: list[str] = []
+    top_help = run_help(binary)
+    names = subcommands(top_help)
+
+    top = man_text(pages / "subedit-cli.1")
+    if top is None:
+        failures.append(f"MISSING MAN PAGE: subedit-cli(1) is not in {pages}")
+    else:
+        for option in sorted(long_options(top_help)):
+            if not names_option(top, option):
+                failures.append(f"MISSING GLOBAL OPTION: `{option}` is not written in {pages}/subedit-cli.1")
+
+    for name in names:
+        text = man_text(pages / f"subedit-cli-{name}.1")
+        if text is None:
+            failures.append(f"MISSING MAN PAGE: subedit-cli-{name}(1) is not in {pages}")
+            continue
+        for option in sorted(long_options(run_help(binary, name))):
+            if not names_option(text, option):
+                failures.append(f"MAN PAGE WITHOUT OPTION: `{name} {option}` is in the help, "
+                                f"not in subedit-cli-{name}(1)")
+
+    found = {re.sub(r"\.1(\.gz)?$", "", page.name) for page in pages.glob("subedit-cli-*.1*")}
+    for page in sorted(found - {f"subedit-cli-{name}" for name in names}):
+        failures.append(f"UNKNOWN MAN PAGE: {page}(1) in {pages} names no subcommand of the binary")
+    return failures
+
+
+def man_pages_of(man_root: pathlib.Path, manual: pathlib.Path) -> pathlib.Path:
+    """Where the pages of a manual tree are: `man1` for the source language, `<lang>/man1` for
+    a translation — the layout of `share/man`."""
+    language = doc_vocabulary.language_of(manual / "invocation.md", "")
+    if language == doc_vocabulary.SOURCE_LANGUAGE:
+        return man_root / "man1"
+    return man_root / language / "man1"
 
 
 def main() -> int:
@@ -217,10 +278,14 @@ def main() -> int:
     parser.add_argument("--manual", type=pathlib.Path,
                         help="one manual to check; by default docs/manual/subedit-cli and every "
                              "docs/i18n/<lang>/manual/subedit-cli")
-    parser.add_argument("--man-page", type=pathlib.Path,
-                        default=REPO_ROOT / "packaging/subedit-cli.1.in")
+    parser.add_argument("--man-root", type=pathlib.Path,
+                        default=REPO_ROOT / "build/dev/share/man",
+                        help="the man pages, laid out as share/man is (default: the dev build tree)")
     parser.add_argument("--vocabulary", type=pathlib.Path,
                         help="a JSON file {language: table} that adds to the shipped tables")
+    parser.add_argument("--pages-only", action="store_true",
+                        help="check the man pages alone, not the Markdown: what an installation "
+                             "check asks, the manual being checked by manual-check")
     arguments = parser.parse_args()
 
     if not arguments.binary.is_file():
@@ -229,15 +294,20 @@ def main() -> int:
 
     tables = doc_vocabulary.load_tables(arguments.vocabulary)
     if arguments.manual is not None:
-        failures = check(arguments.binary, arguments.manual, arguments.man_page, tables)
+        trees = [arguments.manual]
     else:
         # The source manual and every translation of it, whatever the language: each one is
         # read with its own vocabulary, and a language without a table is refused.
-        source = REPO_ROOT / "docs/manual/subedit-cli"
-        failures = check(arguments.binary, source, arguments.man_page, tables)
-        for tree in doc_vocabulary.translated_trees(REPO_ROOT / "docs/manual", "subedit-cli"):
-            label = tree.relative_to(REPO_ROOT)
-            failures.extend(f"{label}: {failure}" for failure in check(arguments.binary, tree, None, tables))
+        trees = [REPO_ROOT / "docs/manual/subedit-cli",
+                 *doc_vocabulary.translated_trees(REPO_ROOT / "docs/manual", "subedit-cli")]
+    failures = []
+    for tree in trees:
+        label = tree.relative_to(REPO_ROOT) if tree.is_relative_to(REPO_ROOT) else tree
+        prefix = "" if tree == trees[0] else f"{label}: "
+        if not arguments.pages_only:
+            failures.extend(prefix + failure for failure in check(arguments.binary, tree, tables))
+        failures.extend(prefix + failure
+                        for failure in check_man_pages(arguments.binary, man_pages_of(arguments.man_root, tree)))
     if failures:
         for failure in failures:
             print(failure, file=sys.stderr)

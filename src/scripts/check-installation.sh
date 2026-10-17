@@ -25,11 +25,14 @@
 #   4. **the five desktop files are there, and three of them validate** — the
 #      `.desktop`, the AppStream metadata and the icon, the latter read by the
 #      loader of GTK desktops rather than by just any loader;
-#   5. **the two manual pages do not lie, and render** — one per binary since
-#      #272: their version is the binary's, the manual directory they name is
-#      the one the manual was installed in, each carries the name of the binary
-#      it describes, the subcommands the command-line page lists are the ones
-#      the binary lists, and groff renders them without a single warning;
+#   5. **the manual pages do not lie, and render** — one per binary since #272,
+#      and since #683 one per subcommand and per language for the command line,
+#      generated from its manual: their version is the binary's, the manual
+#      directory they name is the one the manual was installed in, each carries
+#      the name of the binary it describes, every subcommand of the binary has
+#      its page in every language and every option of its `--help` is in it
+#      (`check-cli-manual.py --pages-only`, `CLI-I18N-04`), and groff renders
+#      the head pages without a single warning;
 #   6. **a staged install touches nothing outside** — non-empty `DESTDIR`,
 #      prefix `/usr`, and nothing written outside the staging area;
 #   7. **the two native packages build, and say the same thing** — a `.deb`
@@ -467,23 +470,50 @@ fi
 
 # ## The manual pages do not lie
 #
-# **Two pages since #272, one per binary.** What holds for both is checked for
-# both; what holds only for the command line — the list of subcommands — stays
-# with it.
+# **One page per binary since #272, and one per subcommand and per language for
+# the command line since #683**, generated from its manual. What holds for every
+# head page — version, manual, name — is checked on each; what holds for the
+# command line alone — a page per subcommand, with the options of its `--help` —
+# is asked of `check-cli-manual.py`, which says it for the manual too.
 #
 # Each assertion is of the kind a manual page carries for years without anyone
 # rereading it.
 check_man_pages() {
-    local name
-    for name in "${BINARIES[@]}"; do
-        check_one_man_page "${name}"
-    done
+    check_one_man_page subedit-gui man1 manual
+    check_one_man_page subedit-cli man1 manual
+
+    local language
+    while IFS= read -r language; do
+        [[ -d "${REPO_ROOT}/docs/i18n/${language}/manual/subedit-cli" ]] || continue
+        if [[ ! -f "${prefix}/share/man/${language}/man1/subedit-cli.1.gz" ]]; then
+            report_failure "the \"${language}\" man pages were not installed in share/man/${language}/man1
+    the install() rules of cmake/ManPages.cmake do not lay them down"
+            continue
+        fi
+        check_one_man_page subedit-cli "${language}/man1" "manual/${language}"
+    done < <(installed_languages)
+
+    # **The pages of the command line against the installed binary** — `CLI-I18N-04`. In every
+    # language: a page per subcommand of `--help`, each carrying its options.
+    local complaints
+    if complaints="$(cd "${prefix}" && QT_QPA_PLATFORM=offscreen XDG_CONFIG_HOME="${prefix}/config" \
+        "${REPO_ROOT}/src/scripts/check-cli-manual.py" --pages-only \
+        --binary "${prefix}/bin/subedit-cli" --man-root "${prefix}/share/man" 2>&1)"; then
+        report_success "every subcommand has its man page in every language, with the options of its --help"
+    else
+        report_failure "the installed man pages and the binary disagree:
+$(sed 's/^/    /' <<< "${complaints}")"
+    fi
 }
 
 check_one_man_page() {
-    local name="$1"
-    local compressed="${prefix}/share/man/man1/${name}.1.gz"
-    [[ -f "${compressed}" ]] || return
+    local name="$1" section="$2" manual="$3"
+    local compressed="${prefix}/share/man/${section}/${name}.1.gz"
+    if [[ ! -f "${compressed}" ]]; then
+        report_failure "missing from the install: share/man/${section}/${name}.1.gz"
+        return
+    fi
+    local label="${section}/${name}.1"
 
     # Read decompressed, as `man` reads it. In a variable and not in a file:
     # the function exits through several paths, and one more temporary file
@@ -494,7 +524,7 @@ check_one_man_page() {
     local announced
     announced="$(sed -n 's/^\.TH .* "subedit \([0-9.]*\)".*/\1/p' <<< "${page}")"
     if [[ "${announced}" != "${VERSION}" ]]; then
-        report_failure "${name}.1 reports \"${announced}\", expected \"${VERSION}\""
+        report_failure "${label} reports \"${announced}\", expected \"${VERSION}\""
         return
     fi
 
@@ -503,9 +533,9 @@ check_one_man_page() {
     # configure time, announced /usr/local in a package that installs under
     # /usr.
     local named
-    named="$(sed -n 's/^\.I \(.*subedit\/manual\)$/\1/p' <<< "${page}")"
-    if [[ "${named}" != "${prefix}/share/subedit/manual" ]]; then
-        report_failure "${name}.1 names \"${named}\", the manual is under \"${prefix}/share/subedit/manual\""
+    named="$(sed -n 's/^\.I \(.*\/share\/subedit\/manual.*\)$/\1/p' <<< "${page}")"
+    if [[ "${named}" != "${prefix}/share/subedit/${manual}" ]]; then
+        report_failure "${label} names \"${named}\", the manual is under \"${prefix}/share/subedit/${manual}\""
         return
     fi
 
@@ -516,33 +546,11 @@ check_one_man_page() {
     local titled
     titled="$(sed -n 's/^\.TH \([A-Z-]*\) .*/\1/p' <<< "${page}" | tr 'A-Z' 'a-z')"
     if [[ "${titled}" != "${name}" ]]; then
-        report_failure "${name}.1 is titled \"${titled}\", expected \"${name}\""
+        report_failure "${label} is titled \"${titled}\", expected \"${name}\""
         return
     fi
 
-    # **The subcommands it lists are the binary's.** A subcommand added without
-    # being written here would give a page that forgets one, and nothing else
-    # would say so. Only the command-line page has them — the window has none.
-    if ! grep -q '^\.SH SUBCOMMANDS' <<< "${page}"; then
-        report_success "${name}.1 states the right version, the right manual, and carries its name"
-        return
-    fi
-
-    local written listed
-    written="$(sed -n '/^\.SH SUBCOMMANDS/,/^\.SH [A-Z]/p' <<< "${page}" \
-        | sed -n 's/^\.B \([a-z][a-z-]*\)$/\1/p' | sort -u)"
-    # LANGUAGE=en: the heading read is the English one (spec 15, D4).
-    listed="$(cd "${prefix}" && QT_QPA_PLATFORM=offscreen XDG_CONFIG_HOME="${prefix}/config" LANGUAGE=en \
-        "${prefix}/bin/${name}" --help 2>&1 \
-        | awk '/^Subcommands:/ { seen = 1; next } seen && NF { print $1 }' | sort -u)"
-
-    if [[ "${written}" != "${listed}" ]]; then
-        report_failure "${name}.1 and the binary do not name the same subcommands:
-$(diff <(printf '%s\n' "${written}") <(printf '%s\n' "${listed}") | sed 's/^/    /')"
-        return
-    fi
-
-    report_success "${name}.1 states the version, the manual and the $(printf '%s\n' "${listed}" | wc -l) subcommands of the binary"
+    report_success "${label} states the right version, the right manual, and carries its name"
 }
 
 if wanted pages; then
@@ -658,9 +666,9 @@ fi
 # | directories | a `.deb` owns none, an `.rpm` owns those its distribution does not already own |
 # | `/usr/lib/.build-id/…` | `rpmbuild` places these links for its own debugging tools; nothing installs them |
 #
-# **The compression of the manual page is not in it**, and that is deliberate:
+# **The compression of the manual pages is not in it**, and that is deliberate:
 # `rpmbuild` compresses its own, the Debian policy requires it too, so the
-# install compresses it itself and both packages carry the same
+# install compresses them itself and both packages carry the same
 # `subedit-cli.1.gz`. A difference that could be removed was better than one
 # more difference to excuse here.
 check_packages() {
@@ -715,6 +723,18 @@ $(diff <(printf '%s\n' "${in_deb}") <(printf '%s\n' "${in_rpm}") | sed 's/^/    
             report_failure "the .rpm does not carry the \"${language}\" catalogue (${wanted_path})"
         fi
     done < <(installed_languages)
+
+    # **The man pages of every language, by name** (#683), for the same reason: two packages
+    # without them would match. The head page stands for its language's set, which
+    # `check-cli-manual.py` reads whole on the installation above.
+    local man_page
+    for man_page in /usr/share/man/man1/subedit-cli.1.gz $(installed_languages | while IFS= read -r language; do
+        [[ -d "${REPO_ROOT}/docs/i18n/${language}/manual/subedit-cli" ]] \
+            && printf '/usr/share/man/%s/man1/subedit-cli.1.gz\n' "${language}"
+    done); do
+        grep -qxF "${man_page}" <<<"${in_deb}" || report_failure "the .deb does not carry ${man_page}"
+        grep -qxF "${man_page}" <<<"${in_rpm}" || report_failure "the .rpm does not carry ${man_page}"
+    done
 
     # **The dependencies, for their part, do not match and must not**: the same
     # libraries have different names on Debian and on Fedora. What is checked

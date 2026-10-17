@@ -33,6 +33,12 @@ Keys of a table:
     no_shortcut_words   the words that say "no shortcut" (besides "", "—", "-")
     option_header       the header of the first column of the option tables
     subcommand_header   the header of the subcommand table of `invocation.md`
+
+**The `man` pages need a few words no page of the manual carries** — the section titles every
+manual page has, and the title of the manual they belong to (#683). They are in `MAN_WORDS`,
+per language, kept apart from `TABLES` so that a `--vocabulary` file written for the checks
+above stays valid; `md-to-man.py` refuses a language that has none. A JSON file may add them
+under the key `man`, with the keys of `MAN_KEYS`.
 """
 
 from __future__ import annotations
@@ -65,6 +71,29 @@ TABLES: dict[str, dict] = {
     },
 }
 
+# The words of a `man` page that are not the manual's: its section titles and the name of the
+# manual it belongs to, which `man` prints in the page's header line.
+MAN_KEYS = ("name", "synopsis", "description", "files", "see_also", "manual_title")
+
+MAN_WORDS: dict[str, dict] = {
+    "en": {
+        "name": "NAME",
+        "synopsis": "SYNOPSIS",
+        "description": "DESCRIPTION",
+        "files": "FILES",
+        "see_also": "SEE ALSO",
+        "manual_title": "User Commands",
+    },
+    "fr": {
+        "name": "NOM",
+        "synopsis": "SYNOPSIS",
+        "description": "DESCRIPTION",
+        "files": "FICHIERS",
+        "see_also": "VOIR AUSSI",
+        "manual_title": "Commandes utilisateur",
+    },
+}
+
 DECLARATION = re.compile(r"<!--\s*language:\s*([A-Za-z][A-Za-z_@-]*)\s*-->")
 TREE = re.compile(r"(?:^|/)i18n/([^/]+)/manual(?:/|$)")
 
@@ -79,6 +108,20 @@ def load_tables(extra: pathlib.Path | None) -> dict[str, dict]:
                 raise SystemExit(f"{extra}: the table \"{language}\" has no {', '.join(missing)}")
             tables[language] = table
     return tables
+
+
+def load_man_words(extra: pathlib.Path | None) -> dict[str, dict]:
+    """The words of the `man` pages shipped, plus those under the key `man` of a JSON file."""
+    words = {language: dict(table) for language, table in MAN_WORDS.items()}
+    if extra is not None:
+        for language, table in json.loads(extra.read_text(encoding="utf-8")).items():
+            if "man" not in table:
+                continue
+            missing = [key for key in MAN_KEYS if key not in table["man"]]
+            if missing:
+                raise SystemExit(f"{extra}: the man words of \"{language}\" have no {', '.join(missing)}")
+            words[language] = table["man"]
+    return words
 
 
 def declared_language(text: str) -> str | None:

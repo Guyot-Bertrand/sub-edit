@@ -28,7 +28,6 @@ docs/superpowers/plans/2026-09-30-check-spelling-509.md
 packaging/io.github.guyot_bertrand.subedit.metainfo.xml
 packaging/io.github.guyot_bertrand.subedit.svg
 packaging/patterns/LISEZMOI.md
-packaging/subedit-cli.1.in
 packaging/subedit-gui.1.in
 src/lib/subedit/core/config/insert_placement.hpp
 src/lib/subedit/core/config/theme.hpp

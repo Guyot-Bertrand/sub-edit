@@ -125,6 +125,8 @@ add_subdirectory(src/exe)
 # After the targets: `install(TARGETS)` can only name what exists.
 include(Installation)
 include(Translations)
+# After the translations: it generates a set of pages per installed language.
+include(ManPages)
 
 # After the installation, and never before: CPack packages what the
 # `install()` rules lay down, so it has nothing to package until they are

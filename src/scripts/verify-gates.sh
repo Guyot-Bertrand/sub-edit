@@ -1815,18 +1815,18 @@ expect_translation_structure_gate
 
 # The manual of `subedit-cli` and its `--help` — #546.
 #
-# **Four proofs, one per defect the check promises to see**, and one for green:
+# **Five proofs, one per defect the check promises to see**, and one for green:
 # a subcommand without a page, an option of the help that no table carries, an
-# option of a table that the help does not know, and a global option that the
-# `subedit-cli(1)` man page forgets. Every injection is made in **a copy** of
-# the manual, in a scratch directory: the check takes the manual and the man
-# page as arguments, so nothing of the repository is touched and `restore` has
-# nothing to put back.
+# option of a table that the help does not know, a global option that the
+# generated `subedit-cli(1)` man page forgets, and an option of a subcommand
+# that its generated page forgets (#683). Every injection is made in **a copy**
+# of the manual or of the pages, in a scratch directory: the check takes the
+# manual and the man pages as arguments, so nothing of the repository is
+# touched and `restore` has nothing to put back.
 expect_cli_manual_gate() {
     local script="${REPO_ROOT}/src/scripts/check-cli-manual.py"
     local binary="${REPO_ROOT}/build/dev/bin/subedit-cli"
     local real_manual="${REPO_ROOT}/docs/manual/subedit-cli"
-    local real_man_page="${REPO_ROOT}/packaging/subedit-cli.1.in"
     local root
     root="$(mktemp -d)"
 
@@ -1843,7 +1843,7 @@ expect_cli_manual_gate() {
         local label="$1" expected="$2"
         local output
         if output="$("${script}" --binary "${binary}" --manual "${root}/manual" \
-            --man-page "${root}/subedit-cli.1.in" 2>&1)"; then
+            --man-root "${root}/man" 2>&1)"; then
             printf '  %s✗ the check let it through: %s%s\n' "${RED}" "${label}" "${RESET}"
             failures=$((failures + 1))
         elif [[ "${output}" == *"${expected}"* && "${output}" == *"1 mismatch(es)"* ]]; then
@@ -1855,10 +1855,13 @@ expect_cli_manual_gate() {
             failures=$((failures + 1))
         fi
     }
+    # The pages generated from the copy, as the build generates them: a defect injected into
+    # the manual reaches them the way it would reach the installed ones.
     fresh_copy() {
-        rm -rf "${root}/manual" "${root}/subedit-cli.1.in"
+        rm -rf "${root}/manual" "${root}/man"
         cp -r "${real_manual}" "${root}/manual"
-        cp "${real_man_page}" "${root}/subedit-cli.1.in"
+        "${REPO_ROOT}/src/scripts/md-to-man.py" --manual "${real_manual}" \
+            --output-dir "${root}/man/man1" --version 0 --manual-dir /nowhere >/dev/null
     }
 
     proof_header '%s▸ a subcommand without a manual page%s\n' "${BOLD}" "${RESET}"
@@ -1879,13 +1882,19 @@ expect_cli_manual_gate() {
 
     proof_header '%s▸ a global option that the man page forgets%s\n' "${BOLD}" "${RESET}"
     fresh_copy
-    sed -i 's/\\-\\-encoding/\\-\\-forgotten/' "${root}/subedit-cli.1.in"
+    sed -i 's/\\-\\-encoding/\\-\\-forgotten/g' "${root}/man/man1/subedit-cli.1"
     expect_cli_manual_refused "--encoding missing from the man page" "MISSING GLOBAL OPTION"
+
+    proof_header '%s▸ an option of a subcommand that its man page forgets%s\n' "${BOLD}" "${RESET}"
+    fresh_copy
+    sed -i 's/\\-\\-to\\-grid/\\-\\-forgotten/g' "${root}/man/man1/subedit-cli-shift.1"
+    expect_cli_manual_refused "--to-grid missing from subedit-cli-shift(1)" "MAN PAGE WITHOUT OPTION"
 
     rm -rf "${root}"
 }
 
 expect_cli_manual_gate
+
 
 # The manual of `subedit-gui` and the window's shortcuts — #612, #672.
 #

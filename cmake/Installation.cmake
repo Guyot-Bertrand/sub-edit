@@ -79,8 +79,8 @@ install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/packaging/${SUBEDIT_APP_ID}.desktop"
 install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/packaging/${SUBEDIT_APP_ID}.metainfo.xml"
         DESTINATION "${CMAKE_INSTALL_DATADIR}/metainfo")
 
-# **The man page is generated at installation time, not at configuration
-# time.** Two values are injected into it: the version number, which would be
+# **The window's man page is configured at installation time, not at
+# configuration time.** Two values are injected into it: the version number, which would be
 # wrong at the first increment if it were copied into the source, and the
 # directory of the full manual, which the page names in full.
 #
@@ -105,9 +105,12 @@ install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/packaging/${SUBEDIT_APP_ID}.metainfo.
 # graphical program. What a page describes of a graphical application is not
 # its window but its command-line surface, which exists.
 #
-# The list is written once: both pages are generated and installed by the same
-# path, so a third one would need only one more name.
-set(SUBEDIT_MAN_PAGES subedit-cli subedit-gui)
+# **The window's page is the last one written by hand.** The command line's
+# pages are generated from its manual since #683, one per subcommand and per
+# language — `ManPages.cmake`. Spec 15, D9 generates the pages of the command
+# line, and this one is not among them: it stays a template until the window's
+# own invocation chapter feeds it the same way. The list keeps the loop.
+set(SUBEDIT_MAN_PAGES subedit-gui)
 
 install(
     CODE "
