@@ -20,7 +20,6 @@
 .github/workflows/pull-request.yml
 .github/workflows/release.yml
 .gitignore
-CLAUDE.md
 CMakePresets.json
 cliff.toml
 docs/mesures/performances.md
