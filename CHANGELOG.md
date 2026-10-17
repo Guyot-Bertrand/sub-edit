@@ -9,6 +9,10 @@ ne pas l'éditer à la main.
 
 ## Non publié
 
+### Corrections
+
+- **scripts** — Prove the tidy key from Ninja's plan
+
 ### Documentation
 
 - **build** — Translate the shell check scripts into English
@@ -40,6 +44,12 @@ ne pas l'éditer à la main.
 - **build** — Translate prune-runs.sh and prune-releases.sh
 - **build** — Translate setup-github.sh into English
 - **build** — Translate setup-toolchain.sh into English
+- **doc** — Regenerate the changelog
+- **build** — Translate the Makefile into English
+- **build** — Translate the root CMakeLists.txt and cmake/ into English
+- **build** — Translate the CMakeLists.txt of src/ into English
+- **build** — Correct the default job count in the LTO comment
+- **doc** — Translate CONTRIBUTING.md into English
 
 ## 0.15.32 — 2026-10-15
 

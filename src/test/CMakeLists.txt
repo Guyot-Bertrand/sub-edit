@@ -1,7 +1,7 @@
-# Tests et benchmarks.
+# Tests and benchmarks.
 #
-# L'arborescence reflète celle des bibliothèques, afin qu'un fichier de test se
-# trouve à partir du fichier qu'il couvre, et réciproquement.
+# The tree mirrors that of the libraries, so that a test file is found from
+# the file it covers, and the other way round.
 
 add_subdirectory(tools)
 add_subdirectory(unit)

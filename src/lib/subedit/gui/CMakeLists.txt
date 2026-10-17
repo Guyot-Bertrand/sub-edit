@@ -1,8 +1,8 @@
-# subedit_gui — la fenêtre, ses modèles et ses dialogues.
+# subedit_gui — the window, its models and its dialogs.
 #
-# Contrainte structurante, symétrique de celle du noyau : tout ce qui n'est pas
-# du câblage vit ici et non dans src/exe, parce que check-architecture.sh refuse
-# un main qui définit une classe. C'est ce qui rend l'interface testable.
+# Structuring constraint, symmetrical to the core's: everything that is not
+# wiring lives here and not in src/exe, because check-architecture.sh refuses
+# a main that defines a class. That is what makes the interface testable.
 set(CMAKE_AUTOMOC ON)
 
 add_library(
@@ -34,21 +34,21 @@ target_include_directories(subedit_gui PUBLIC "${CMAKE_SOURCE_DIR}/src/lib")
 
 target_link_libraries(subedit_gui PUBLIC subedit::core subedit::platform Qt6::Widgets Qt6::Concurrent)
 
-# libmpv, derrière la couture `core::VideoPlayer` — voir docs/adr/0020.
+# libmpv, behind the `core::VideoPlayer` seam — see docs/adr/0020.
 #
-# **L'implémentation est ici et non au noyau**, alors que ni elle ni libmpv ne
-# connaissent Qt. Le lecteur est un élément d'interface : il n'existe que pour
-# la fenêtre, il en reçoit la sienne par la propriété `wid`, et rien d'autre ne
-# l'appellera. Faire entrer libmpv dans `subedit_core` aurait donné au domaine
-# une dépendance d'infrastructure pour la seule commodité d'un harnais de test
-# plus léger — ce qui n'est pas une raison d'architecture.
+# **The implementation is here and not in the core**, although neither it nor
+# libmpv knows Qt. The player is an interface element: it exists only for the
+# window, receives the window's own through the `wid` property, and nothing
+# else will call it. Bringing libmpv into `subedit_core` would have given the
+# domain an infrastructure dependency for the mere convenience of a lighter
+# test harness — which is not an architectural reason.
 #
-# Ce qui reste au noyau est l'interface, et elle seule : `core::VideoPlayer` ne
-# nomme ni libmpv ni Qt, et c'est ce qui permet au reste du noyau de raisonner
-# sur un lecteur sans en connaître un.
+# What remains in the core is the interface, and it alone: `core::VideoPlayer`
+# names neither libmpv nor Qt, and that is what lets the rest of the core reason
+# about a player without knowing one.
 #
-# PRIVATE : `mpv_player.hpp` ne fait que déclarer `mpv_handle` et `mpv_render_context`, si bien qu'aucun
-# fichier qui inclut la bibliothèque n'a besoin des en-têtes de libmpv.
+# PRIVATE: `mpv_player.hpp` only declares `mpv_handle` and `mpv_render_context`, so that no file
+# that includes the library needs libmpv's headers.
 target_link_libraries(subedit_gui PRIVATE PkgConfig::mpv)
 
 subedit_set_warnings(subedit_gui)

@@ -1,12 +1,12 @@
-# Vérifie que le compilateur C++ sait produire un exécutable C++.
+# Checks that the C++ compiler can produce a C++ executable.
 #
-# Ce test paraît absurde jusqu'à ce qu'on rencontre le cas : lorsque
-# /etc/alternatives/c++ pointe sur gcc au lieu de g++, le pilote compile bien
-# le C++ mais n'édite pas les liens avec libstdc++. L'erreur qui en résulte est
-# une avalanche de « référence indéfinie vers std::cout » dans du code
-# parfaitement valide, sur laquelle on peut perdre une heure.
+# This test looks absurd until one meets the case: when /etc/alternatives/c++
+# points to gcc instead of g++, the driver compiles C++ fine but does not link
+# against libstdc++. The resulting error is an avalanche of "undefined
+# reference to std::cout" in perfectly valid code, on which one can lose an
+# hour.
 #
-# Mieux vaut échouer ici, avec la cause et le remède.
+# Better to fail here, with the cause and the remedy.
 
 include(CheckCXXSourceCompiles)
 
@@ -18,10 +18,10 @@ check_cxx_source_compiles(
 if(NOT SUBEDIT_CXX_TOOLCHAIN_LINKS)
     message(
         FATAL_ERROR
-        "Le compilateur C++ (${CMAKE_CXX_COMPILER}) compile mais n'édite pas les liens "
-        "avec la bibliothèque standard C++.\n"
-        "Cause habituelle : l'alternative « c++ » du système pointe sur gcc au lieu de g++.\n"
-        "  vérifier : ls -l /etc/alternatives/c++\n"
-        "  corriger : sudo update-alternatives --install /usr/bin/c++ c++ /usr/bin/g++ 100\n"
-        "  contourner sans droits administrateur : CXX=g++ make build")
+        "The C++ compiler (${CMAKE_CXX_COMPILER}) compiles but does not link "
+        "against the C++ standard library.\n"
+        "Usual cause: the system's \"c++\" alternative points to gcc instead of g++.\n"
+        "  check: ls -l /etc/alternatives/c++\n"
+        "  fix: sudo update-alternatives --install /usr/bin/c++ c++ /usr/bin/g++ 100\n"
+        "  work around without administrator rights: CXX=g++ make build")
 endif()

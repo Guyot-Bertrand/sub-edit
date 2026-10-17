@@ -1,8 +1,8 @@
-# La fenêtre — du câblage seulement, tout le reste est dans subedit::gui.
+# The window — wiring only, everything else is in subedit::gui.
 #
-# AUTOMOC est actif dès maintenant : l'allumer plus tard, quand un premier
-# Q_OBJECT arrivera, ferait échouer l'édition de liens sur un symbole manquant
-# dont rien ne dit qu'il vient d'un réglage de construction.
+# AUTOMOC is on from now: switching it on later, when a first Q_OBJECT
+# arrives, would make linking fail on a missing symbol with nothing to say it
+# comes from a build setting.
 set(CMAKE_AUTOMOC ON)
 
 add_executable(subedit-gui main.cpp)

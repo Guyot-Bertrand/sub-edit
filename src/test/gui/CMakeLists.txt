@@ -1,11 +1,11 @@
-# Le harnais de test d'interface.
+# The interface test harness.
 #
-# Catch2 comme partout ailleurs, et de Qt seulement ses fonctions de pilotage :
-# c'est ce qui garde les tags d'exigences visibles par
-# check-requirements.sh, qui interroge des binaires Catch2.
+# Catch2 as everywhere else, and of Qt only its driving functions: that is what
+# keeps the requirement tags visible to check-requirements.sh, which queries
+# Catch2 binaries.
 #
-# Qt6::Test est lié pour QTest::keyClicks et QSignalSpy, sans que le binaire
-# soit un binaire QTest : ni QTEST_MAIN, ni slots privés, ni moc.
+# Qt6::Test is linked for QTest::keyClicks and QSignalSpy, without the binary
+# being a QTest binary: no QTEST_MAIN, no private slots, no moc.
 set(CMAKE_AUTOMOC ON)
 
 add_executable(
@@ -33,24 +33,24 @@ target_link_libraries(
 
 subedit_set_warnings(subedit_gui_test)
 
-# Le corpus versionné, pour le seul test qui ouvre un vrai fichier à travers un
-# vrai système de fichiers. Les autres passent par InMemoryFileSystem, ce qui
-# est le bon choix pour éprouver une fenêtre — mais laissait `openProject` sans
-# preuve sur un fichier qui existe.
+# The versioned corpus, for the only test that opens a real file through a
+# real file system. The others go through InMemoryFileSystem, which is the
+# right choice to put a window to the test — but left `openProject` without
+# proof on a file that exists.
 target_compile_definitions(subedit_gui_test
                            PRIVATE SUBEDIT_TEST_DATA_DIR="${CMAKE_SOURCE_DIR}/src/test/data")
 
-# Le manuel du dépôt, pour le seul test qui l'ouvre en entier dans une
-# `ManualWindow` — #268. Il est donné comme il l'est au programme de captures :
-# `docs/manual/` est versionné, présent sur toute machine fraîchement clonée et
-# en intégration continue, et l'installé en est la copie page pour page.
+# The repository's manual, for the only test that opens it whole in a
+# `ManualWindow` — #268. It is given as it is to the screenshot program:
+# `docs/manual/` is versioned, present on any freshly cloned machine and in
+# continuous integration, and the installed one is its page-for-page copy.
 target_compile_definitions(subedit_gui_test
                            PRIVATE SUBEDIT_MANUAL_DIR="${CMAKE_SOURCE_DIR}/docs/manual")
 
-# Les motifs livrés, pour les tests d'assistant qui ont besoin du vrai catalogue
-# — deux enregistrements de codes différents qui partagent un nom n'existent
-# qu'en vrai, et c'est sur eux qu'une réécriture de réglages s'est trompée
-# (#505). Versionnés, donc présents partout, comme pour subedit_core_test.
+# The shipped patterns, for the wizard tests that need the real catalogue —
+# two records of different codes that share a name exist only in the real one,
+# and that is where a rewrite of settings went wrong (#505). Versioned, hence
+# present everywhere, as for subedit_core_test.
 target_compile_definitions(subedit_gui_test
                            PRIVATE SUBEDIT_PATTERNS_DIR="${CMAKE_SOURCE_DIR}/packaging/patterns")
 
@@ -77,14 +77,14 @@ add_dependencies(subedit_gui_test subedit_locale)
 target_compile_definitions(subedit_gui_test
                            PRIVATE SUBEDIT_SHIPPED_LOCALE_DIR="${SUBEDIT_LOCALE_BUILD_DIR}")
 
-# Les fixtures de grille, partagées avec les tests du noyau et ceux de la ligne
-# de commande : il n'y a qu'un jeu de fichiers, et qu'une façon de l'ouvrir.
+# The grid fixtures, shared with the core's tests and those of the command
+# line: there is only one set of files, and only one way to open it.
 target_include_directories(subedit_gui_test PRIVATE ${CMAKE_SOURCE_DIR}/src/test/unit)
 
-# Catch2 sans son main : le binaire fournit le sien, parce que la QApplication
-# doit vivre sur la pile de main. Détruite parmi les gestionnaires de fin de
-# processus — ce que fait une statique — elle plante, et ASan l'a montré.
+# Catch2 without its main: the binary provides its own, because the
+# QApplication must live on main's stack. Destroyed among the process exit
+# handlers — which is what a static does — it crashes, and ASan showed it.
 #
-# Le réglage sans écran est posé par le binaire lui-même, et non ici : il est
-# aussi lancé hors de CTest, par check-requirements.sh qui lui demande ses tags.
+# The no-display setting is made by the binary itself, and not here: it is also
+# started outside CTest, by check-requirements.sh, which asks it for its tags.
 catch_discover_tests(subedit_gui_test PROPERTIES LABELS gui)

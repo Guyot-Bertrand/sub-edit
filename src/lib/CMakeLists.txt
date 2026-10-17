@@ -1,7 +1,7 @@
-# Bibliothèques du projet.
+# The project's libraries.
 #
-# Chaque enfant direct de src/lib/subedit/ est une cible. Tout le code utile
-# vit ici : les exécutables de src/exe ne font que du câblage.
+# Each direct child of src/lib/subedit/ is a target. All the useful code lives
+# here: the executables of src/exe only do wiring.
 
 add_subdirectory(subedit/core)
 add_subdirectory(subedit/platform)

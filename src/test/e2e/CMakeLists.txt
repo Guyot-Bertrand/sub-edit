@@ -1,9 +1,8 @@
-# Tests de bout en bout.
+# End-to-end tests.
 #
-# Ils ne lient pas la logique qu'ils vérifient : ils lancent le binaire réel et
-# lisent ce qu'un utilisateur en verrait — sortie standard, sortie d'erreur,
-# code de retour. L'arborescence miroite src/exe, comme celle de unit/ miroite
-# src/lib.
+# They do not link the logic they check: they start the real binary and read
+# what a user would see of it — standard output, standard error, exit code.
+# The tree mirrors src/exe, as that of unit/ mirrors src/lib.
 
 add_executable(
     subedit_e2e_test
@@ -44,13 +43,13 @@ add_executable(
     cli/shipped_french_test.cpp
     gui/version_test.cpp)
 
-# subedit::core pour versionString() : l'attendu d'un test se calcule, il ne se
-# recopie pas — un numéro recopié est un numéro qui se périme.
+# subedit::core for versionString(): a test's expectation is computed, not
+# copied — a copied number is a number that goes stale.
 target_link_libraries(subedit_e2e_test PRIVATE subedit::core Catch2::Catch2WithMain)
 
-# Le chemin exact du binaire, résolu par CMake, comme SUBEDIT_TEST_DATA_DIR
-# l'est pour le corpus : un test ne doit pas dépendre du répertoire d'où on le
-# lance.
+# The exact path of the binary, resolved by CMake, as SUBEDIT_TEST_DATA_DIR is
+# for the corpus: a test must not depend on the directory it is started
+# from.
 target_compile_definitions(
     subedit_e2e_test PRIVATE SUBEDIT_CLI_BINARY="$<TARGET_FILE:subedit-cli>"
                              SUBEDIT_GUI_BINARY="$<TARGET_FILE:subedit-gui>"
@@ -58,8 +57,8 @@ target_compile_definitions(
                              SUBEDIT_PATTERN_CATALOGUE_BINARY="$<TARGET_FILE:subedit_pattern_catalogue>"
                              SUBEDIT_TEST_DATA_DIR="${CMAKE_SOURCE_DIR}/src/test/data")
 
-# $<TARGET_FILE:…> donne un chemin, pas un ordre de construction. Sans cette
-# ligne, rien ne garantit que le binaire existe quand le test le lance.
+# $<TARGET_FILE:…> gives a path, not a build order. Without this line,
+# nothing guarantees that the binary exists when the test starts it.
 add_dependencies(subedit_e2e_test subedit-cli subedit-gui subedit_pattern_catalogue)
 
 # **The command line under a second language** (#663, spec 15 D4): a prefix of the
@@ -104,38 +103,37 @@ add_dependencies(subedit_e2e_test subedit_locale)
 
 subedit_set_warnings(subedit_e2e_test)
 
-# Le harnais ne s'enregistre dans CTest que sous les presets asan et release,
-# via l'option de cache SUBEDIT_REGISTER_E2E (déclarée dans CMakeLists.txt) —
-# OFF par défaut, mise à ON explicitement par CMakePresets.json dans ces deux
-# presets et nulle part ailleurs.
+# The harness registers with CTest only under the asan and release presets,
+# through the cache option SUBEDIT_REGISTER_E2E (declared in CMakeLists.txt) —
+# OFF by default, set to ON explicitly by CMakePresets.json in those two
+# presets and nowhere else.
 #
-#   - dev et asan sont tous deux des builds Debug ; asan est strictement plus
-#     informatif (AddressSanitizer, UndefinedBehaviorSanitizer,
-#     LeakSanitizer), donc enregistrer aussi sous dev n'apporterait rien —
-#     une exécution de plus, sans nouveau signal.
-#   - release est le mode qui expédie : c'est le binaire qu'un utilisateur
-#     lance réellement.
-#   - coverage reste exclu : sous ce preset, subedit-cli est lui aussi
-#     instrumenté, et chaque invocation gonflerait la couverture de src/lib
-#     sans qu'aucun test unitaire ait été écrit pour ce code, juste avant que
-#     #50 en fasse un cliquet. Voir docs/adr/0014-registre-d-exigences.md.
+#   - dev and asan are both Debug builds; asan is strictly more informative
+#     (AddressSanitizer, UndefinedBehaviorSanitizer, LeakSanitizer), so also
+#     registering under dev would bring nothing — one more run, with no new
+#     signal.
+#   - release is the mode that ships: it is the binary a user actually runs.
+#   - coverage stays excluded: under that preset, subedit-cli is instrumented
+#     too, and each invocation would inflate the coverage of src/lib without
+#     any unit test having been written for that code, just before #50 made it
+#     a ratchet. See `docs/adr/0014-registre-d-exigences.md`.
 #
-# La cible se construit dans les quatre presets — ses warnings sont les nôtres
-# partout — seule l'exécution est réservée à asan et release.
+# The target builds in all four presets — its warnings are ours everywhere —
+# only the run is reserved for asan and release.
 if(SUBEDIT_REGISTER_E2E)
-    # Le défaut de CTest est de 1500 s : un binaire bloqué immobiliserait la CI
-    # vingt-cinq minutes avant de dire pourquoi. L'étiquette LABELS e2e permet
-    # à `make e2e` de filtrer ces tests par `ctest -L e2e`, sans dépendre de
-    # leurs noms — un test unitaire nommé de façon proche ne le tromperait pas.
-    # **QT_QPA_PLATFORM=offscreen, et il est indispensable.** Mesuré : dans un
-    # environnement sans écran, la construction d'une QApplication avorte sur
-    # « could not connect to display » — un échec d'exécution, que nulle
-    # compilation ne peut annoncer. La CI n'a pas de serveur graphique.
+    # CTest's default is 1500 s: a stuck binary would tie the CI up for
+    # twenty-five minutes before saying why. The LABELS e2e label lets
+    # `make e2e` filter these tests with `ctest -L e2e`, without depending on
+    # their names — a unit test with a similar name would not fool it.
+    # **QT_QPA_PLATFORM=offscreen, and it is indispensable.** Measured: in an
+    # environment without a display, constructing a QApplication aborts on
+    # "could not connect to display" — a runtime failure, which no compilation
+    # can announce. The CI has no graphical server.
     #
-    # Il se règle ici, sur CTest, plutôt que dans chaque binaire : un réglage
-    # posé par le code serait à reposer à chaque nouveau binaire, et son oubli
-    # ne se verrait que sur la machine qui n'a pas d'écran — jamais sur celle
-    # où on l'écrit.
+    # It is set here, on CTest, rather than in each binary: a setting made by
+    # the code would have to be made again for each new binary, and forgetting
+    # it would show only on the machine that has no display — never on the one
+    # where it is written.
     catch_discover_tests(
         subedit_e2e_test
         PROPERTIES TIMEOUT 30 LABELS e2e ENVIRONMENT QT_QPA_PLATFORM=offscreen)

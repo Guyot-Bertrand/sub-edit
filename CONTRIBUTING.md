@@ -1,15 +1,15 @@
-# Contribuer à subedit
+# Contributing to subedit
 
-## Contributions externes
+## External contributions
 
-**Le projet n'accepte pas de contributions externes pour l'instant.** Les pull
-requests venant de forks ne seront pas fusionnées.
+**The project does not accept external contributions for now.** Pull requests
+coming from forks will not be merged.
 
-Ce n'est pas une prise de position sur le travail des autres : le projet est en
-phase de fondation, ses conventions bougent encore, et il n'y a personne pour
-relire. Signaler un bug par une issue reste utile et bienvenu.
+This is not a judgement on anyone's work: the project is in its foundation
+phase, its conventions are still moving, and there is nobody to review. Reporting
+a bug through an issue remains useful and welcome.
 
-## Mettre en place son poste
+## Setting up your machine
 
 ```bash
 git clone git@github.com:Guyot-Bertrand/sub-edit.git subedit
@@ -18,75 +18,73 @@ git clone https://github.com/otsaloma/gaupol.git reference/gaupol
 ./src/scripts/setup-toolchain.sh
 ```
 
-Le clone de référence sert à consulter le comportement de Gaupol. Il est
-maintenu **en lecture seule** par `src/scripts/reference.sh` : lecture et
-`fetch` uniquement, jamais de modification.
+The reference clone is for consulting Gaupol's behaviour. It is kept
+**read-only** by `src/scripts/reference.sh`: reading and `fetch` only, never a
+modification.
 
-## Le cycle de travail
+## The working cycle
 
-Une phase du projet correspond à un milestone, et s'ouvre par une issue de
-cadrage qui produit sa spec. Le travail se découpe ensuite en issues rattachées
-à ce milestone. Voir la [feuille de route](docs/feuille-de-route.md).
+A project phase matches a milestone, and opens with a framing issue that
+produces its spec. The work is then split into issues attached to that
+milestone. See the [roadmap](docs/feuille-de-route.md).
 
-Le travail se fait sur des branches `feat/…`, `fix/…`, `docs/…`. La branche
-`main` est protégée contre la réécriture d'historique.
+Work happens on `feat/…`, `fix/…`, `docs/…` branches. The `main` branch is
+protected against history rewriting.
 
-### Définition de « terminé »
+### Definition of "done"
 
-Une issue n'est close que lorsque tout ceci est vrai :
+An issue is closed only when all of this is true:
 
-- [ ] `make check` passe
-- [ ] Le comportement ajouté ou corrigé est couvert par des tests
-- [ ] Un benchmark existe si la performance est en jeu
-- [ ] La section de manuel concernée est à jour
-- [ ] Le patch de `project(VERSION)` a été incrémenté dans `CMakeLists.txt`
-- [ ] `make changelog` a été régénéré
-- [ ] Le corps de la pull request porte une ligne `Closes #N`
-- [ ] Une ADR est écrite si une décision coûteuse à défaire a été prise
+- [ ] `make check` passes
+- [ ] The added or fixed behaviour is covered by tests
+- [ ] A benchmark exists if performance is at stake
+- [ ] The relevant manual section is up to date
+- [ ] The patch of `project(VERSION)` has been incremented in `CMakeLists.txt`
+- [ ] `make changelog` has been regenerated
+- [ ] The pull request body carries a `Closes #N` line
+- [ ] An ADR is written if a decision that is costly to undo was taken
 
-Les trois points mécaniquement décidables de cette liste — le bump, le journal
-et la ligne `Closes #N` — sont vérifiés par le job `contrôles de pull request`,
-et n'ont donc plus à être relus. **`Closes` et non « Ferme » :** GitHub ne
-ferme une issue que sur ses propres mots-clés, tous anglais. La règle de langue
-du projet ne s'applique pas à cette ligne, qui est une instruction à GitHub et
-non de la prose.
+The three mechanically decidable points of this list — the bump, the journal
+and the `Closes #N` line — are verified by the pull-request checks job, and so
+no longer need to be reviewed by hand. **`Closes`, not a translation of it:**
+GitHub closes an issue only on its own keywords, all of them English. This line
+is an instruction to GitHub and not prose.
 
-Rédiger le manuel fait partie du travail, pas d'une passe de rattrapage :
-formuler en français le comportement attendu est un test de conception.
+Writing the manual is part of the work, not of a catch-up pass: spelling out
+the expected behaviour in prose is a design test.
 
-**Ses exemples d'appel, en revanche, ne s'écrivent pas : ils se déclarent.** Un
-bloc `console` du manuel est précédé d'un marqueur qui nomme la commande à
-illustrer, et `make manual` réécrit le bloc avec ce que cette commande produit
-réellement.
+**Its call examples, however, are not written: they are declared.** A `console`
+block of the manual is preceded by a marker that names the command to
+illustrate, and `make manual` rewrites the block with what that command really
+produces.
 
 ````markdown
 <!-- example: subedit-cli -->
 ```console
-… réécrit par make manual …
+… rewritten by make manual …
 ```
 ````
 
-Le marqueur porte une ligne de shell entière, ce qui permet d'illustrer un
-enchaînement — `subedit-cli fichier.srt; echo $?` — comme un utilisateur
-l'écrirait.
+The marker carries a whole shell line, which allows illustrating a chain —
+`subedit-cli file.srt; echo $?` — as a user would write it.
 
-Une sortie recopiée à la main est de la documentation périmée en sursis : le
-seul numéro de version que le manuel contenait a été corrigé douze fois pendant
-la phase 2, sans que rien vérifie qu'il était vrai. `make check-local` refuse
-désormais un manuel dont les exemples ne correspondent plus.
+An output copied by hand is documentation that is stale on a reprieve: the only
+version number the manual contained was corrected twelve times during phase 2,
+without anything checking that it was true. `make check-local` now refuses a
+manual whose examples no longer match.
 
-**Le manuel a deux lecteurs, et ils ne lisent pas le même Markdown.** GitHub le
-rend dans le navigateur ; `QTextDocument::setMarkdown` le rend dans la fenêtre
-qu'ouvre `Help ▸ Manual`. Le second est plus strict que le premier sur un point
-au moins, mesuré en traitant l'issue #268 : **une ligne de séparation de tableau
-demande au moins trois caractères par colonne** — `| :--- |` passe partout,
-`| :- |` fait un tableau sur GitHub et du texte à barres dans la fenêtre. Trois
-tableaux du manuel étaient dans ce cas, et rien ne le disait.
+**The manual has two readers, and they do not read the same Markdown.** GitHub
+renders it in the browser; `QTextDocument::setMarkdown` renders it in the window
+that `Help ▸ Manual` opens. The second is stricter than the first on at least
+one point, measured while handling issue #268: **a table separator line needs
+at least three characters per column** — `| :--- |` passes everywhere, `| :- |`
+makes a table on GitHub and bar-separated text in the window. Three tables of
+the manual were in that case, and nothing said so.
 
-Il n'y a rien à retenir de plus : `src/test/gui/real_manual_test.cpp` ouvre
-chaque page réelle dans une `ManualWindow` et confronte les tableaux, les
-images et les renvois de la source à ce que le rendu en fait. Une page qui rend
-mal fait échouer la porte, sur le nom de la page.
+There is nothing more to remember: `src/test/gui/real_manual_test.cpp` opens
+every real page in a `ManualWindow` and compares the source's tables, images and
+cross-references with what the rendering makes of them. A page that renders
+badly fails the gate, on the page's name.
 
 ## Conventions
 
@@ -120,50 +118,50 @@ a format's syntax — is exempted in `.translation-exemptions`, with its reason.
 
 ### Commits
 
-[Conventional Commits](https://www.conventionalcommits.org/fr/), vérifiés par un
-hook local et par la CI.
+[Conventional Commits](https://www.conventionalcommits.org/), verified by a
+local hook and by the CI.
 
 ```
 <type>(<scope>): <description>
 ```
 
-- **types** : `feat`, `fix`, `perf`, `refactor`, `test`, `docs`, `build`, `ci`,
+- **types**: `feat`, `fix`, `perf`, `refactor`, `test`, `docs`, `build`, `ci`,
   `chore`, `revert`
-- **scopes** : `build`, `ci`, `cli`, `core`, `doc`, `format`, `gui`, `i18n`,
-  `scripts`, `test`, `text`, `video` — les mêmes que les labels `area:` des
+- **scopes**: `build`, `ci`, `cli`, `core`, `doc`, `format`, `gui`, `i18n`,
+  `scripts`, `test`, `text`, `video` — the same as the `area:` labels of
   issues
-- en-tête de 72 caractères au plus, sans point final
+- a header of at most 72 characters, without a trailing period
 
-Le `CHANGELOG.md` étant généré depuis ces messages, un message bâclé produit une
-entrée bâclée.
+Since `CHANGELOG.md` is generated from these messages, a sloppy message produces
+a sloppy entry.
 
 ### Code
 
-Les règles permanentes sont dans
-[docs/principes-de-conception.md](docs/principes-de-conception.md) : modèles de
-données typés, propriété mémoire explicite, abstraction là où la variation est
-connue, testabilité par construction, performance mesurée.
+The permanent rules are in
+[docs/principes-de-conception.md](docs/principes-de-conception.md): typed data
+models, explicit memory ownership, abstraction where the variation is known,
+testability by construction, measured performance.
 
-Le nommage et le format sont appliqués mécaniquement par `.clang-format` et
-`.clang-tidy`, pas laissés à la vigilance.
+Naming and format are enforced mechanically by `.clang-format` and
+`.clang-tidy`, not left to vigilance.
 
-**Toute exclusion clang-tidy porte sa justification en commentaire.** Une
-exclusion non justifiée est un défaut, pas un réglage.
+**Every clang-tidy exclusion carries its justification in a comment.** An
+unjustified exclusion is a defect, not a setting.
 
-## Commandes
+## Commands
 
-| Commande | Effet |
-| :------- | :---- |
-| `make build` | compile le preset `dev` |
-| `make test` | compile et exécute les tests (hors bout en bout — voir `make asan`) |
-| `make check` | la porte de qualité complète |
-| `make format` | applique clang-format |
-| `make tidy` | analyse statique |
-| `make asan` | tests sous AddressSanitizer et UndefinedBehaviorSanitizer |
-| `make coverage` | rapport de couverture |
-| `make ratchet` | enregistre la couverture mesurée comme nouveau cliquet |
-| `make bench` | benchmarks en Release, versés dans `docs/mesures/performances.md` |
-| `make changelog` | régénère `CHANGELOG.md` |
-| `make manual` | régénère les exemples d'appel du manuel |
-| `make rpm-check` | installe le `.rpm` sur une Fedora en conteneur — hebdomadaire, hors porte |
-| `make help` | toutes les cibles |
+| Command | Effect |
+| :------ | :----- |
+| `make build` | builds the `dev` preset |
+| `make test` | builds and runs the tests (end-to-end excluded — see `make asan`) |
+| `make check` | the complete quality gate |
+| `make format` | applies clang-format |
+| `make tidy` | static analysis |
+| `make asan` | tests under AddressSanitizer and UndefinedBehaviorSanitizer |
+| `make coverage` | coverage report |
+| `make ratchet` | records the measured coverage as the new ratchet |
+| `make bench` | Release benchmarks, recorded in `docs/mesures/performances.md` |
+| `make changelog` | regenerates `CHANGELOG.md` |
+| `make manual` | regenerates the manual's call examples |
+| `make rpm-check` | installs the `.rpm` on a Fedora in a container — weekly, outside the gate |
+| `make help` | all targets |

@@ -1,8 +1,8 @@
-# subedit_platform — où l'exécutable et l'environnement disent que les choses sont.
+# subedit_platform — where the executable and the environment say things are.
 #
-# Ni le noyau, qui ne lit aucune variable et ne demande à aucun exécutable où il
-# vit (ADR 0037), ni une interface : ce qui répond une fois, sans Qt, pour la
-# ligne de commande comme pour la fenêtre. Issue #566.
+# Neither the core, which reads no variable and asks no executable where it
+# lives (ADR 0037), nor an interface: what answers once, without Qt, for the
+# command line as for the window. Issue #566.
 
 add_library(subedit_platform STATIC locations.cpp)
 add_library(subedit::platform ALIAS subedit_platform)

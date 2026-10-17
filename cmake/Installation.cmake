@@ -1,59 +1,58 @@
-# Ce que `cmake --install` dépose, et où.
+# What `cmake --install` lays down, and where.
 #
-# **Rien de tout cela n'est vérifiable depuis l'arbre de construction.** Un
-# fichier de données que le binaire cherche à côté de lui y est présent par
-# accident de disposition : il est là parce que le dépôt le contient, pas parce
-# qu'une règle l'a copié. Le défaut ne se voit qu'à la première installation
-# propre, et c'est `check-installation.sh` qui la fait — issue #239.
+# **None of this can be checked from the build tree.** A data file that the
+# binary looks for next to itself is present there by an accident of layout: it
+# is there because the repository contains it, not because a rule copied it.
+# The defect shows only at the first clean installation, and that is what
+# `check-installation.sh` performs — issue #239.
 #
-# Les chemins viennent de `GNUInstallDirs` et jamais d'une chaîne écrite à la
-# main : `lib` ou `lib64`, `share` ou autre chose, c'est la distribution qui
-# décide, et un empaqueteur qui repositionne `CMAKE_INSTALL_PREFIX` attend que
-# tout suive.
+# The paths come from `GNUInstallDirs` and never from a string written by hand:
+# `lib` or `lib64`, `share` or something else, the distribution decides, and a
+# packager who relocates `CMAKE_INSTALL_PREFIX` expects everything to follow.
 #
-# **Les six lignes de l'ADR 0023 y sont, depuis #244.** Les deux premières —
-# les binaires et le manuel — ont été posées par #239, parce qu'un contrôle
-# d'installation n'avait rien à prouver sans elles ; les quatre autres sont
-# arrivées avec les fichiers qu'elles déposent, qui n'existaient pas non plus.
+# **The six lines of ADR 0023 are here, since #244.** The first two — the
+# binaries and the manual — were set by #239, because an installation check had
+# nothing to prove without them; the other four arrived with the files they lay
+# down, which did not exist either.
 #
-# **Les noms des trois fichiers de bureau sont l'identifiant de l'application**,
-# `io.github.guyot_bertrand.subedit`, et non `subedit`. C'est ce que les bureaux
-# attendent : `appstreamcli` refuse un fichier de métadonnées dont le nom ne
-# reprend pas l'identifiant, et une icône trouvée par le thème est une icône dont
-# le nom est celui que la clé `Icon=` écrit.
+# **The names of the three desktop files are the application identifier**,
+# `io.github.guyot_bertrand.subedit`, and not `subedit`. That is what desktops
+# expect: `appstreamcli` refuses a metadata file whose name does not repeat the
+# identifier, and an icon found by the theme is an icon whose name is the one
+# the `Icon=` key writes.
 
 include(GNUInstallDirs)
 
 install(TARGETS subedit-cli subedit-gui RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}")
 
-# Le manuel entier, sous-répertoires et captures compris.
+# The whole manual, subdirectories and screenshots included.
 #
-# **Un répertoire et non une liste de fichiers**, et c'est une décision : une
-# liste se périme au premier chapitre ajouté, en silence, et le contrôle
-# d'installation ne verrait le manque que si quelqu'un pensait à mettre la
-# nouvelle page dans la liste — c'est-à-dire jamais. `DIRECTORY` rend le défaut
-# structurellement impossible pour ce qui vit sous `docs/manual`.
+# **A directory and not a list of files**, and that is a decision: a list goes
+# stale at the first chapter added, silently, and the installation check would
+# see the gap only if someone thought of putting the new page in the list —
+# that is, never. `DIRECTORY` makes the defect structurally impossible for what
+# lives under `docs/manual`.
 #
-# `Help ▸ Manual` ouvrira ce qui est déposé ici — issue #245.
+# `Help ▸ Manual` will open what is laid down here — issue #245.
 install(
     DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/docs/manual/"
     DESTINATION "${CMAKE_INSTALL_DATADIR}/subedit/manual")
 
-# Les motifs de correction de Gaupol, tels quels — ADR 0037, issue #498.
+# Gaupol's correction patterns, as they are — ADR 0037, issue #498.
 #
-# **Un répertoire, pour la raison du manuel** : une liste se périmerait à la
-# première langue ajoutée. Et **l'emplacement est celui que le programme lit à
-# partir de son exécutable** (`../share/subedit/patterns`), pour tout préfixe.
+# **A directory, for the manual's reason**: a list would go stale at the first
+# language added. And **the location is the one the program reads relative to
+# its executable** (`../share/subedit/patterns`), for any prefix.
 install(
     DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/packaging/patterns/"
     DESTINATION "${CMAKE_INSTALL_DATADIR}/subedit/patterns")
 
-# **L'arbre de construction reproduit l'installation** — issue #566. Le binaire
-# cherche ses motifs à `../share/subedit/patterns` de son exécutable ; un binaire
-# lancé depuis `build/<preset>/bin` les trouve donc pareillement, par un lien
-# que CMake pose, plutôt que par une option de mise au point que la livraison ne
-# contiendrait pas. C'est un lien et non une copie : les motifs sont ceux du
-# dépôt, et une modification s'y voit sans reconfigurer.
+# **The build tree reproduces the installation** — issue #566. The binary looks
+# for its patterns at `../share/subedit/patterns` from its executable; a binary
+# started from `build/<preset>/bin` therefore finds them the same way, through a
+# link that CMake sets, rather than through a debugging option that the release
+# would not contain. It is a link and not a copy: the patterns are the
+# repository's, and a change shows there without reconfiguring.
 file(MAKE_DIRECTORY "${CMAKE_BINARY_DIR}/share/subedit")
 file(
     CREATE_LINK "${CMAKE_CURRENT_SOURCE_DIR}/packaging/patterns"
@@ -61,12 +60,12 @@ file(
     RESULT patterns_link_result
     COPY_ON_ERROR SYMBOLIC)
 if(NOT patterns_link_result STREQUAL "0")
-    message(WARNING "les motifs ne sont pas visibles depuis l'arbre de construction : ${patterns_link_result}")
+    message(WARNING "the patterns are not visible from the build tree: ${patterns_link_result}")
 endif()
 
-# L'identifiant de l'application, écrit une fois. Les trois fichiers de bureau
-# le portent dans leur nom, et le `.desktop` le porte encore dans sa clé
-# `Icon=` : quatre endroits pour un seul nom, donc un seul endroit où le dire.
+# The application identifier, written once. The three desktop files carry it in
+# their name, and the `.desktop` carries it again in its `Icon=` key: four
+# places for a single name, hence a single place to say it.
 set(SUBEDIT_APP_ID "io.github.guyot_bertrand.subedit")
 
 install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/packaging/${SUBEDIT_APP_ID}.svg"
@@ -78,35 +77,34 @@ install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/packaging/${SUBEDIT_APP_ID}.desktop"
 install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/packaging/${SUBEDIT_APP_ID}.metainfo.xml"
         DESTINATION "${CMAKE_INSTALL_DATADIR}/metainfo")
 
-# **La page de manuel est engendrée au moment de l'installation, et non à celui
-# de la configuration.** Deux valeurs y sont injectées : le numéro de version,
-# qui serait faux au premier incrément s'il était recopié dans la source, et le
-# répertoire du manuel complet, que la page nomme en toutes lettres.
+# **The man page is generated at installation time, not at configuration
+# time.** Two values are injected into it: the version number, which would be
+# wrong at the first increment if it were copied into the source, and the
+# directory of the full manual, which the page names in full.
 #
-# Le second est la raison du `install(CODE)`. Le préfixe n'est connu qu'à
-# l'installation — CPack pose `/usr`, `make install-check` un répertoire
-# temporaire, un utilisateur ce qu'il veut. Configurée trop tôt, la page
-# annonçait `/usr/local` dans un paquet qui installe sous `/usr` : mesuré sur le
-# premier `.deb` produit, et c'est exactement le genre de mensonge qu'un fichier
-# engendré est censé rendre impossible.
+# The second is the reason for the `install(CODE)`. The prefix is known only at
+# installation — CPack sets `/usr`, `make install-check` a temporary directory,
+# a user whatever they want. Configured too early, the page announced
+# `/usr/local` in a package that installs under `/usr`: measured on the first
+# `.deb` produced, and that is exactly the kind of lie a generated file is
+# meant to make impossible.
 #
-# **Elle est aussi compressée, et ce n'est pas une coquetterie** : la charte
-# Debian demande une page de manuel compressée, `rpmbuild` compresse la sienne
-# tout seul, et une page nue dans le `.deb` aurait donc été à la fois un
-# manquement à la charte et un écart entre les deux paquets — écart que
-# `check-installation.sh` refuse. `-n` pour que l'archive ne porte ni horodatage
-# ni nom d'origine : sans lui, deux constructions du même fichier donneraient
-# deux octets différents.
-# **Les deux binaires ont chacun la leur** — issue #272. `subedit-gui` n'en
-# avait pas, et le `SEE ALSO` de sa voisine en faisait une décision : « une
-# fenêtre ne se décrit pas par une page de manuel ». Le contre-exemple était
-# dans le dépôt de référence — le seul document que Gaupol installe est une page
-# de manuel, et c'est celle de son programme graphique. Ce qu'une page décrit
-# d'une application graphique n'est pas sa fenêtre mais sa surface en ligne de
-# commande, qui existe.
+# **It is also compressed, and that is not an affectation**: the Debian policy
+# requires a compressed man page, `rpmbuild` compresses its own on its own, and
+# a bare page in the `.deb` would thus have been both a breach of the policy and
+# a difference between the two packages — a difference that
+# `check-installation.sh` refuses. `-n` so that the archive carries neither a
+# timestamp nor an original name: without it, two builds of the same file would
+# give two different sets of bytes.
+# **Each of the two binaries has its own** — issue #272. `subedit-gui` had none,
+# and the `SEE ALSO` of its neighbour made that a decision: "a window is not
+# described by a man page". The counterexample was in the reference repository
+# — the only document Gaupol installs is a man page, and it is the one for its
+# graphical program. What a page describes of a graphical application is not
+# its window but its command-line surface, which exists.
 #
-# La liste est écrite une fois : les deux pages sont engendrées et installées
-# par le même chemin, donc une troisième ne demanderait qu'un nom de plus.
+# The list is written once: both pages are generated and installed by the same
+# path, so a third one would need only one more name.
 set(SUBEDIT_MAN_PAGES subedit-cli subedit-gui)
 
 install(

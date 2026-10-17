@@ -828,10 +828,10 @@ expect_tidy_closes \
 #
 # The injection is made at the end of the file, which requires the CheckOptions
 # list to be the last thing in `.clang-tidy` — that file says so.
-# **Not on every run** (#686): it tests `cmake/Tidy.cmake`, which almost never moves, and it
-# costs a full reanalysis of the tree — twice, since the key goes back to its original value on
-# restore. It runs when `.clang-tidy` or `cmake/Tidy.cmake` differ from `main`, or on request:
-# `VERIFY_GATES_FULL=1`.
+# **Not on every run** (#686): it tests `cmake/Tidy.cmake`, which almost never moves. It runs when
+# `.clang-tidy` or `cmake/Tidy.cmake` differ from `main`, or on request: `VERIFY_GATES_FULL=1`.
+# It first cost a full reanalysis of the tree, twice (the key goes back to its original value on
+# restore); it now reads Ninja's plan, below.
 tidy_config_changed() {
     [[ -n "${VERIFY_GATES_FULL:-}" ]] && return 0
     local base
@@ -839,12 +839,45 @@ tidy_config_changed() {
     ! git -C "${REPO_ROOT}" diff --quiet "${base}" -- .clang-tidy cmake/Tidy.cmake
 }
 
+# **The proof reads Ninja's plan instead of running the analysis.** What it must show is that a
+# change of `.clang-tidy` makes the build system replay every analysis — the key in
+# `cmake/Tidy.cmake`. That is a property of the plan, and `ninja -n` prints the plan in a second;
+# running the 300 analyses to see them fail proves the same thing in half an hour. The rule that
+# the injected line adds is not tested here: "pattern rejected by clang-tidy", above, shows that
+# a finding fails the gate. The restore needs no replay either: a dry run writes nothing to
+# Ninja's log, so the original key matches it again.
+expect_tidy_config_replays() {
+    local build_dir="${REPO_ROOT}/build/tidy"
+    local total before replayed
+
+    proof_header '%s▸ %s%s\n' "${BOLD}" "hardened configuration, analysis replayed" "${RESET}"
+    cmake --preset tidy >/dev/null 2>&1 || true
+    total="$(ninja -C "${build_dir}" -t targets all 2>/dev/null | grep -c '\.o:')"
+    before="$(ninja -C "${build_dir}" -n 2>/dev/null | grep -c 'Building CXX')"
+
+    printf '%s\n' '  - key: readability-identifier-naming.ParameterCase
+    value: UPPER_CASE' >> "${TIDY_CONFIG}"
+    cmake --preset tidy >/dev/null 2>&1 || true
+    replayed="$(ninja -C "${build_dir}" -n 2>/dev/null | grep -c 'Building CXX')"
+
+    if ((before >= total)); then
+        printf '  %s✗ the tree was not up to date before the injection (%d of %d analyses pending): run make tidy first%s\n' \
+            "${RED}" "${before}" "${total}" "${RESET}"
+        failures=$((failures + 1))
+    elif ((total > 0 && replayed >= total)); then
+        printf '  %s✓ the plan replays all %d analyses, as expected%s\n' "${GREEN}" "${total}" "${RESET}"
+    else
+        printf '  %s✗ the plan replays %d of %d analyses after the configuration changed%s\n' \
+            "${RED}" "${replayed}" "${total}" "${RESET}"
+        failures=$((failures + 1))
+    fi
+
+    restore
+    cmake --preset tidy >/dev/null 2>&1 || true
+}
+
 if tidy_config_changed; then
-    expect_tidy_closes \
-        "hardened configuration, analysis replayed" \
-        "${TIDY_CONFIG}" \
-        '  - key: readability-identifier-naming.ParameterCase
-        value: UPPER_CASE'
+    expect_tidy_config_replays
 else
     printf '%s▸ hardened configuration, analysis replayed%s — skipped, .clang-tidy and cmake/Tidy.cmake unchanged (VERIFY_GATES_FULL=1 runs it)\n' "${BOLD}" "${RESET}"
 fi

@@ -262,7 +262,7 @@ what was done is not a silence.
 <!-- example: subedit-cli --version -->
 ```console
 $ subedit-cli --version
-subedit 0.15.34
+subedit 0.15.35
 ```
 
 ## Subcommands
