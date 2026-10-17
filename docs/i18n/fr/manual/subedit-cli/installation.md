@@ -23,6 +23,7 @@ sudo dnf install ./subedit-<version>.x86_64.rpm     # Fedora, and relatives
 | `subedit-cli`, `subedit-gui` | `/usr/bin` |
 | l'entrée de menu, l'icône, les métadonnées de logithèque | `/usr/share/applications`, `/usr/share/icons`, `/usr/share/metainfo` |
 | ce manuel, en Markdown | `/usr/share/subedit/manual` |
+| sa traduction dans chaque langue installée — le français | `/usr/share/subedit/manual/<language>` — `fr` |
 | les motifs de correction de Gaupol | `/usr/share/subedit/patterns` |
 | les pages de manuel de `subedit-cli` et `subedit-gui` | `/usr/share/man/man1` |
 
@@ -192,6 +193,7 @@ choisi :
 | l'icône | `<prefix>/share/icons/hicolor/scalable/apps` |
 | les métadonnées de logithèque | `<prefix>/share/metainfo` |
 | ce manuel, en Markdown | `<prefix>/share/subedit/manual` |
+| sa traduction dans chaque langue installée — le français | `<prefix>/share/subedit/manual/<language>` — `fr` |
 | les motifs de correction de Gaupol | `<prefix>/share/subedit/patterns` |
 | les pages de manuel des deux binaires | `<prefix>/share/man/man1` |
 
