@@ -161,6 +161,9 @@ readonly GREEN=$'\033[32m'
 readonly BOLD=$'\033[1m'
 readonly RESET=$'\033[0m'
 
+# shellcheck source=src/scripts/gate/timing.sh
+source "${REPO_ROOT}/src/scripts/gate/timing.sh"
+
 backup_dir="$(mktemp -d)"
 failures=0
 
@@ -169,15 +172,36 @@ failures=0
 # previous one, and the final report ranks the longest. Nothing is written to the repository: the
 # duration is an observation of the run, to be reported in the pull request that changes it, not a
 # file to keep up.
+#
+# **With what it was measured under**, as in `gate.sh`: the load at the start and end of each
+# proof, the `JOBS` of the run, and one line per proof in the local journal that `make timings`
+# reads (`gate/timing.sh`). The table is written on exit, by the trap, so that a run that dies or
+# is interrupted still says where its time went.
+#
+# A label that comes back — « the tracked tree, as it is » opens two families — takes its rank,
+# « (2) », so that the journal compares each proof with itself from one run to the next.
+GATE_TIMINGS_RUN="$(date -Iseconds)"
+run_started=${SECONDS}
+run_load="$(timing_load)"
 proof_names=()
 proof_seconds=()
+proof_loads=()
+declare -A proof_seen=()
 current_proof=""
 proof_started=${SECONDS}
+proof_load=""
+durations_reported=0
 
 end_proof() {
     if [[ -n "${current_proof}" ]]; then
+        local seconds=$((SECONDS - proof_started)) load_end
+        load_end="$(timing_load)"
         proof_names+=("${current_proof}")
-        proof_seconds+=("$((SECONDS - proof_started))")
+        proof_seconds+=("${seconds}")
+        local load
+        printf -v load '%5s→%-5s' "${proof_load}" "${load_end}"
+        proof_loads+=("${load}")
+        timing_record verify-gates "${current_proof}" "${seconds}" "${proof_load}" "${load_end}"
     fi
     current_proof=""
 }
@@ -191,18 +215,27 @@ proof_header() {
     line="${line//${RESET}/}"
     current_proof="${line//$'\n'/}"
     current_proof="${current_proof#▸ }"
+    # No arithmetic on the key: a label quotes its datum, and `(( ))` would evaluate it.
+    local rank="${proof_seen[${current_proof}]:-0}"
+    rank=$((rank + 1))
+    proof_seen[${current_proof}]="${rank}"
+    ((rank == 1)) || current_proof+=" (${rank})"
     proof_started=${SECONDS}
+    proof_load="$(timing_load)"
 }
 
 report_durations() {
+    ((durations_reported == 0)) || return 0
+    durations_reported=1
     end_proof
     local total=0 index
     for index in "${!proof_seconds[@]}"; do
         total=$((total + proof_seconds[index]))
     done
-    printf '\n%sproof durations: %d s in all, longest first%s\n' "${BOLD}" "${total}" "${RESET}"
+    printf '\n%sproof durations: %d s in all, longest first — %d proof(s), load %s→%s, JOBS=%s%s\n' \
+        "${BOLD}" "${total}" "${#proof_seconds[@]}" "${run_load}" "$(timing_load)" "$(timing_jobs)" "${RESET}"
     for index in "${!proof_seconds[@]}"; do
-        printf '%6d s  %s\n' "${proof_seconds[index]}" "${proof_names[index]}"
+        printf '%6d s  load %s  %s\n' "${proof_seconds[index]}" "${proof_loads[index]}" "${proof_names[index]}"
     done | sort -rn | head -"${VERIFY_GATES_TOP:-15}"
 }
 
@@ -242,6 +275,7 @@ restore() {
 cleanup() {
     restore
     rm -rf "${backup_dir}"
+    report_durations
 }
 
 cp "${LIB_SOURCE}" "${backup_dir}/version.cpp"
@@ -3013,6 +3047,8 @@ expect_json_fixture_gate() {
 expect_json_fixture_gate
 
 report_durations
+# The total of a run that reached its end, whatever its verdict; one that died has none.
+timing_record verify-gates "(total)" "$((SECONDS - run_started))" "${run_load}" "$(timing_load)"
 
 if (( failures > 0 )); then
     printf '%s%d failed proof(s)%s\n' "${RED}" "${failures}" "${RESET}" >&2
