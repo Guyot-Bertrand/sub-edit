@@ -2128,17 +2128,15 @@ FAKE
 
     local tree="${fixture}/docs/i18n/es/manual" table="${fixture}/vocabulary-es.json"
     local name script manual binary output counted
-    local -a extra
     for name in gui cli; do
         script="${REPO_ROOT}/src/scripts/check-${name}-manual.py"
         manual="${tree}/subedit-${name}"
         binary="${root}/fake-${name}"
-        extra=()
         counted="1 difference(s)"
-        [[ "${name}" == cli ]] && extra=(--man-page "${root}/absent.1.in") && counted="1 mismatch(es)"
+        [[ "${name}" == cli ]] && counted="1 mismatch(es)"
 
         proof_header '%s▸ a Spanish page, with its vocabulary table (%s)%s\n' "${BOLD}" "${name}" "${RESET}"
-        if "${script}" --binary "${binary}" --manual "${manual}" "${extra[@]}" --vocabulary "${table}" >/dev/null 2>&1; then
+        if "${script}" --binary "${binary}" --manual "${manual}" --vocabulary "${table}" >/dev/null 2>&1; then
             printf '  %s✓ « check-%s-manual.py » read the Spanish page, as expected%s\n' "${GREEN}" "${name}" "${RESET}"
         else
             printf '  %s✗ the check refuses a Spanish page that has its table%s\n' "${RED}" "${RESET}"
@@ -2146,7 +2144,7 @@ FAKE
         fi
 
         proof_header '%s▸ the same page, without a vocabulary table (%s)%s\n' "${BOLD}" "${name}" "${RESET}"
-        if output="$("${script}" --binary "${binary}" --manual "${manual}" "${extra[@]}" 2>&1)"; then
+        if output="$("${script}" --binary "${binary}" --manual "${manual}" 2>&1)"; then
             printf '  %s✗ the check let through a page whose language it does not know%s\n' "${RED}" "${RESET}"
             failures=$((failures + 1))
         elif [[ "${output}" == *"LANGUAGE WITHOUT VOCABULARY"* && "${output}" == *"${counted}"* ]]; then

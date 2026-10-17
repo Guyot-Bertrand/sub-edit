@@ -279,8 +279,9 @@ def main() -> int:
                         help="one manual to check; by default docs/manual/subedit-cli and every "
                              "docs/i18n/<lang>/manual/subedit-cli")
     parser.add_argument("--man-root", type=pathlib.Path,
-                        default=REPO_ROOT / "build/dev/share/man",
-                        help="the man pages, laid out as share/man is (default: the dev build tree)")
+                        help="the man pages, laid out as share/man is (default: the dev build tree; "
+                             "with --manual, the man pages are checked only if this is given: a "
+                             "manual laid down elsewhere has no pages generated from it)")
     parser.add_argument("--vocabulary", type=pathlib.Path,
                         help="a JSON file {language: table} that adds to the shipped tables")
     parser.add_argument("--pages-only", action="store_true",
@@ -292,6 +293,9 @@ def main() -> int:
         print(f"binary not found: {arguments.binary}", file=sys.stderr)
         return 2
 
+    man_root = arguments.man_root
+    if man_root is None and arguments.manual is None:
+        man_root = REPO_ROOT / "build/dev/share/man"
     tables = doc_vocabulary.load_tables(arguments.vocabulary)
     if arguments.manual is not None:
         trees = [arguments.manual]
@@ -306,8 +310,9 @@ def main() -> int:
         prefix = "" if tree == trees[0] else f"{label}: "
         if not arguments.pages_only:
             failures.extend(prefix + failure for failure in check(arguments.binary, tree, tables))
-        failures.extend(prefix + failure
-                        for failure in check_man_pages(arguments.binary, man_pages_of(arguments.man_root, tree)))
+        if man_root is not None:
+            failures.extend(prefix + failure
+                            for failure in check_man_pages(arguments.binary, man_pages_of(man_root, tree)))
     if failures:
         for failure in failures:
             print(failure, file=sys.stderr)
