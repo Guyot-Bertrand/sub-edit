@@ -34,6 +34,10 @@ struct AdjustOptions {
     std::string gap{};
     bool shorten = false;
     bool noLengthen = false;
+    /// The opposites of the two above, which undo what the settings file says
+    /// (#705): without a file, they say the default again.
+    bool lengthen = false;
+    bool noShorten = false;
 };
 
 /// The constraints those options describe, or why they describe none.
@@ -46,8 +50,11 @@ struct AdjustOptions {
 /// Refused here, before any file is read:
 /// - a number that is not a positive reading speed, a duration that is not a
 ///   time or is negative, a maximum that is not above zero;
-/// - `--shorten` or `--no-lengthen` with `--speed off`: they say which way the
-///   speed may move an end, and there is no speed to move it;
+/// - `--lengthen`, `--no-lengthen`, `--shorten` or `--no-shorten` with
+///   `--speed off`: they say which way the speed may move an end, and there is
+///   no speed to move it;
+/// - a direction given together with its opposite — `--lengthen` and
+///   `--no-lengthen`, `--shorten` and `--no-shorten`;
 /// - **no constraint left active** — nothing to adjust *to*, and an adjustment
 ///   that does nothing and says it succeeded is the worse answer.
 [[nodiscard]] std::expected<subedit::core::DurationConstraints, std::string>
@@ -60,9 +67,10 @@ constraintsOf(const AdjustOptions& options);
 /// - `--speed off` switches the speed off whatever the file says. Otherwise the
 ///   speed is `--speed`, else the file's. The file's speed is active when it
 ///   moves an end one way or the other; its directions are then the starting
-///   ones, and `(lengthen, not shorten)` when it is not. `--no-lengthen` takes
-///   lengthening away and `--shorten` adds shortening. A file whose speed is
-///   off, with neither `--speed` nor a direction given, leaves the speed off.
+///   ones, and `(lengthen, not shorten)` when it is not. `--lengthen` and
+///   `--no-lengthen` set lengthening, `--shorten` and `--no-shorten`
+///   shortening, whatever the file says (#705). A file whose speed is off, with
+///   neither `--speed` nor a direction given, leaves the speed off.
 /// - A speed of zero or less in the file — edited by hand — is read as the
 ///   speed being off, as `core::constraintsOf` reads it (ADR 0022).
 /// - `--minimum`, `--maximum` and `--gap`: `off`, a value, else the file's

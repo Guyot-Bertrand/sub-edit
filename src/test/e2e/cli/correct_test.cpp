@@ -550,6 +550,51 @@ TEST_CASE("the settings file can keep the emptied subtitles, and --no-config ign
     CHECK_THAT(ignored.errors, !ContainsSubstring("settings:"));
 }
 
+TEST_CASE("the emptied subtitles are removed when asked, whatever the settings file says",
+          "[e2e][CLI-CORRECT-12][settings]") {
+    const Scratch scratch;
+    const std::string in = writeFile(scratch, "a.srt", srt({"[Door]", "Hello"}));
+    const std::string config =
+        writeFile(scratch, "settings.conf", "correction.remove-blank = false\n");
+    const std::string removed = scratch.of("removed.srt");
+
+    const CliRun run = invoke({"--config",
+                               config,
+                               "correct",
+                               "--tasks",
+                               "mentions",
+                               "--code",
+                               "Latn",
+                               "--enable",
+                               "Sound in brackets",
+                               "--remove-blank-subtitles",
+                               "--output",
+                               removed,
+                               in});
+    CHECK(run.exitCode == 0);
+    CHECK_THAT(run.errors, ContainsSubstring("Edited 0 and removed 1 subtitles"));
+    CHECK(contentOf(removed) == "1\n00:00:03,000 --> 00:00:04,000\nHello\n\n");
+
+    // With its opposite: the usage code, nothing written.
+    const std::string both = scratch.of("both.srt");
+    const CliRun refused = invoke({"--no-config",
+                                   "correct",
+                                   "--tasks",
+                                   "mentions",
+                                   "--code",
+                                   "Latn",
+                                   "--keep-blank-subtitles",
+                                   "--remove-blank-subtitles",
+                                   "--output",
+                                   both,
+                                   in});
+    CHECK(refused.exitCode == 1);
+    CHECK_THAT(refused.errors,
+               ContainsSubstring(
+                   "--keep-blank-subtitles and --remove-blank-subtitles say opposite things"));
+    CHECK_FALSE(std::filesystem::exists(both));
+}
+
 TEST_CASE("correct refuses a missing file named by --config", "[e2e][CLI-CORRECT-12][settings]") {
     const Scratch scratch;
     const std::string in = writeFile(scratch, "a.srt", srt({"[Door]", "Hello"}));
