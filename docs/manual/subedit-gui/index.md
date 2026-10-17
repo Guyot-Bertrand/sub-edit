@@ -79,8 +79,9 @@ that no menu names keeps its English name: `Enter`, `Esc`, `Shift`.
 
 `Help` carries two entries, in the order the menu shows them. `Manual`, or
 `F1`, opens this manual in a window — see
-[The manual in the window](help.md). `About subedit` gives the version and the
-licence.
+[The manual in the window](help.md). `About subedit` gives the version, the
+licence, and the libraries the window runs against with their versions — see
+[`--version`](invocation.md#--version).
 
 ## The toolbar
 
