@@ -12,5 +12,5 @@ set -euo pipefail
 # shellcheck source=src/scripts/gate/common.sh
 source "$(dirname "${BASH_SOURCE[0]}")/common.sh"
 step "static analysis"
-cmake --preset tidy
-cmake --build --preset tidy -j "${JOBS}"
+timed configure cmake --preset tidy
+timed "build and analysis" cmake --build --preset tidy -j "${JOBS}"

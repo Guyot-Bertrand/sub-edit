@@ -61,8 +61,8 @@ step "benchmarks (release)"
 quiet=0
 load="$("${REPO_ROOT}/src/scripts/await-quiet.sh" --below "${BENCH_MAX_LOAD}")" || quiet=$?
 
-cmake --preset release -DSUBEDIT_LTO_JOBS="${JOBS}"
-cmake --build --preset release -j "${JOBS}" --target subedit_bench
+timed configure cmake --preset release -DSUBEDIT_LTO_JOBS="${JOBS}"
+timed build cmake --build --preset release -j "${JOBS}" --target subedit_bench
 
 # **The video of the seek and step bench** (#611), made in the build tree and handed to the bench
 # through the environment. Without ffmpeg, or if making it fails, it is missing: the bench says so
@@ -70,7 +70,7 @@ cmake --build --preset release -j "${JOBS}" --target subedit_bench
 # take them with.
 film="${REPO_ROOT}/build/release/bench-film.mp4"
 if command -v ffmpeg >/dev/null 2>&1 && command -v ffprobe >/dev/null 2>&1 \
-    && "${REPO_ROOT}/src/scripts/limit-cores.sh" \
+    && timed "bench video" "${REPO_ROOT}/src/scripts/limit-cores.sh" \
         "${REPO_ROOT}/src/scripts/video-fixtures.sh" --film "${film}"; then
     export SUBEDIT_BENCH_FILM="${film}"
 else
@@ -81,7 +81,7 @@ fi
 # **Under `limit-cores.sh`, like the tests**: libmpv creates its threads by itself, and the player
 # bench occupied far more than the two cores the gate allows itself — the bound those threads
 # inherit is the affinity, set on the process that launches them.
-"${REPO_ROOT}/src/scripts/limit-cores.sh" "${REPO_ROOT}/build/release/bin/subedit_bench" \
+timed benchmarks "${REPO_ROOT}/src/scripts/limit-cores.sh" "${REPO_ROOT}/build/release/bin/subedit_bench" \
     --reporter console \
     --reporter "xml::out=${XML}"
 

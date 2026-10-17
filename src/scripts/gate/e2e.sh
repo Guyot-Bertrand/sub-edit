@@ -8,6 +8,6 @@ set -euo pipefail
 # shellcheck source=src/scripts/gate/common.sh
 source "$(dirname "${BASH_SOURCE[0]}")/common.sh"
 step "end-to-end tests (release)"
-cmake --preset release -DSUBEDIT_LTO_JOBS="${JOBS}"
-cmake --build --preset release -j "${JOBS}" --target subedit_e2e_test
-"${REPO_ROOT}/src/scripts/limit-cores.sh" ctest --preset release -L e2e
+timed configure cmake --preset release -DSUBEDIT_LTO_JOBS="${JOBS}"
+timed build cmake --build --preset release -j "${JOBS}" --target subedit_e2e_test
+timed tests "${REPO_ROOT}/src/scripts/limit-cores.sh" ctest --preset release -L e2e

@@ -13,11 +13,11 @@ set -euo pipefail
 # shellcheck source=src/scripts/gate/common.sh
 source "$(dirname "${BASH_SOURCE[0]}")/common.sh"
 step "tests under sanitizers"
-cmake --preset asan
-cmake --build --preset asan -j "${JOBS}"
+timed configure cmake --preset asan
+timed build cmake --build --preset asan -j "${JOBS}"
 if [[ -n "${GATE_PROOF_TESTS:-}" ]]; then
     printf '%s  only the tests « %s » run (gate proof)%s\n' "${YELLOW}" "${GATE_PROOF_TESTS}" "${RESET}"
-    "${REPO_ROOT}/src/scripts/limit-cores.sh" ctest --preset asan -R "${GATE_PROOF_TESTS}"
+    timed tests "${REPO_ROOT}/src/scripts/limit-cores.sh" ctest --preset asan -R "${GATE_PROOF_TESTS}"
 else
-    "${REPO_ROOT}/src/scripts/limit-cores.sh" ctest --preset asan
+    timed tests "${REPO_ROOT}/src/scripts/limit-cores.sh" ctest --preset asan
 fi

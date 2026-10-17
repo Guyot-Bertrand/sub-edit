@@ -41,6 +41,9 @@ readonly GREEN=$'\033[32m'
 readonly RED=$'\033[31m'
 readonly RESET=$'\033[0m'
 
+# shellcheck source=src/scripts/gate/timing.sh
+source "${STEPS_DIR}/timing.sh"
+
 # **The order of `check`, and it is not arbitrary.**
 #
 # The record of untracked files frames everything else, not only the tests:
@@ -246,14 +249,26 @@ printf '%s%s — %d step(s)%s\n' "${BOLD}" "${suite}" "${#selected[@]}" "${RESET
 # **The time of each step**, written on exit — even on a failure: the last line is then the step
 # that failed, with what it cost. It is the figure that was missing to decide what to lighten
 # (#686): without it, « the gate is long » designates nothing.
+#
+# **And what it was measured under.** A duration alone did not tell a busy machine from a slow
+# step: each one carries the load average at its start and end, the table carries the `JOBS` of
+# the run, and every line also goes to the local journal that `make timings` reads — see
+# `gate/timing.sh`. The phases of the long steps write theirs through `timed`, under the names
+# exported here.
+export GATE_TIMINGS_SUITE="${suite}"
+GATE_TIMINGS_RUN="$(date -Iseconds)"
+export GATE_TIMINGS_RUN
+run_started=${SECONDS}
+run_load="$(timing_load)"
 durations=()
 report_durations() {
     local status=$?
     ((${#durations[@]} == 0)) || {
-        printf '\n%sstep durations of %s%s\n' "${BOLD}" "${suite}" "${RESET}"
-        local entry
+        printf '\n%sstep durations of %s — JOBS=%s%s\n' "${BOLD}" "${suite}" "$(timing_jobs)" "${RESET}"
+        local entry seconds load_start load_end name
         for entry in "${durations[@]}"; do
-            printf '%7d s  %s\n' "${entry%% *}" "${entry#* }"
+            read -r seconds load_start load_end name <<<"${entry}"
+            printf '%7d s  load %5s→%-5s  %s\n' "${seconds}" "${load_start}" "${load_end}" "${name}"
         done
     }
     return "${status}"
@@ -261,11 +276,23 @@ report_durations() {
 trap report_durations EXIT
 
 for one in "${selected[@]}"; do
+    export GATE_TIMINGS_STEP="${one}"
     started=${SECONDS}
+    load_start="$(timing_load)"
     status=0
     run_step "${one}" || status=$?
-    durations+=("$((SECONDS - started)) ${one}")
+    seconds=$((SECONDS - started))
+    load_end="$(timing_load)"
+    durations+=("${seconds} ${load_start} ${load_end} ${one}")
+    timing_record "${suite}" "${one}" "${seconds}" "${load_start}" "${load_end}"
     ((status == 0)) || exit "${status}"
 done
+
+# The total of a whole run that passed, and only of one: a run cut short by a failure, or reduced by
+# `--from`, `--only` or `--skip`, would pull the median of the totals down for a reason that is not
+# time.
+if ((${#selected[@]} == ${#steps[@]})); then
+    timing_record "${suite}" "(total)" "$((SECONDS - run_started))" "${run_load}" "$(timing_load)"
+fi
 
 printf '%s✓ %s passed%s\n' "${GREEN}" "${suite}" "${RESET}"
