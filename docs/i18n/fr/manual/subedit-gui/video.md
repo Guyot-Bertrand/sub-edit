@@ -1,6 +1,6 @@
 # La vidéo associée
 
-Le menu **Video** porte d'abord deux commandes, et les gestes qui pilotent le film
+Le menu **Vidéo** porte d'abord deux commandes, et les gestes qui pilotent le film
 — voir [Le lecteur](player.md#se-déplacer-dans-le-film).
 
 | Commande | Raccourci | Ce qu'elle fait |

@@ -6,12 +6,12 @@ seule la validation compte.
 
 | Action | Raccourci | Où  |
 | :----- | :-------- | :-- |
-| Annuler | `Ctrl+Z` | menu **Edit**, barre d'outils |
-| Rétablir | `Ctrl+Shift+Z` | menu **Edit**, barre d'outils |
+| Annuler | `Ctrl+Z` | menu **Édition**, barre d'outils |
+| Rétablir | `Ctrl+Shift+Z` | menu **Édition**, barre d'outils |
 
 ## L'action nomme ce qu'elle défera
 
-Le menu ne dit pas « Undo » mais **« Undo: editing a text »**, du nom de
+Le menu ne dit pas « Annuler » mais **« Annuler : modification d'un texte »**, du nom de
 l'opération qui sera défaite. Le bouton de la barre d'outils garde le mot
 seul — sa largeur suivrait sinon la dernière opération, et il bougerait sous le
 pointeur — mais son infobulle porte le libellé entier.
@@ -54,7 +54,7 @@ en est un, dont le montant a été mesuré plutôt que saisi.
 Ce sont les mêmes mots que ceux de la ligne de commande : ils sont écrits une
 fois, dans le noyau.
 
-Quand il n'y a rien à défaire, l'action lit « Undo » tout court **et elle est
+Quand il n'y a rien à défaire, l'action lit « Annuler » tout court **et elle est
 inactive** : son raccourci ne fait rien.
 
 ## La marque de modification

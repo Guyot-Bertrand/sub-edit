@@ -1,7 +1,7 @@
 # Ouvrir et enregistrer
 
-Le menu **File** porte les trois commandes, deux pour les onglets, et trois de
-plus pour la traduction ; le menu **Projects** agit sur tous les onglets à la fois.
+Le menu **Fichier** porte les trois commandes, deux pour les onglets, et trois de
+plus pour la traduction ; le menu **Projets** agit sur tous les onglets à la fois.
 
 | Commande | Raccourci | Ce qu'elle fait |
 | :------- | :-------- | :-------------- |
@@ -82,7 +82,7 @@ qu'un onglet**, pour la même raison que `Close` est éteinte.
 tant que l'un de ses documents diffère de son fichier — comme le titre de la
 fenêtre le dit du projet qu'on regarde. Elle s'éteint à l'enregistrement.
 
-## Le menu Projects
+## Le menu Projets
 
 Deux commandes agissent sur tous les projets à la fois.
 
@@ -318,7 +318,7 @@ forme choisie, et le fichier d'origine reste tel qu'il était.
 boîte est **celle du document**. Enregistrer sous un autre nom sans toucher au
 filtre ne change donc pas de format.
 
-![Le bas de la boîte « Save As… », palette claire : le nom du fichier et son
+![Le bas de la boîte « Enregistrer sous… », palette claire : le nom du fichier et son
 format, puis l'encodage, les fins de ligne et la marque, sur les mêmes
 colonnes.](captures/enregistrer-sous.png)
 
