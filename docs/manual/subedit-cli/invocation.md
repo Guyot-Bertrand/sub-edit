@@ -779,19 +779,35 @@ code=1
 The walk, the tree kept under `--output-dir` and what is left
 aside are described in [Processing a tree](lots.md).
 
-## The manual page
+## The manual pages
 
-An installation puts `subedit-cli(1)` under `share/man/man1`, next to
-`subedit-gui(1)`:
+An installation puts **one manual page per subcommand** next to `subedit-cli(1)`:
+`subedit-cli-shift(1)`, `subedit-cli-convert(1)` and the others, one for each row of
+[the subcommand table](#subcommands). `subedit-cli(1)` holds this chapter — the global options,
+the outputs, the exit codes — and each other page holds the chapter of its subcommand, its
+examples included. The window's page, `subedit-gui(1)`, is beside them.
 
 ```console
 $ man subedit-cli
+$ man subedit-cli-shift
 ```
 
-It holds in one page what this manual says in ten: the form of a call, what
-each subcommand does, the global options, the exit codes — then where to
-read the rest. **It is short on purpose**: copying it here whole would
-produce a second version to keep up, which would drift apart.
+**The pages are not written apart from this manual**: they are generated from it when the
+program is built, so they say what it says, and cannot drift from it. The section FILES of each
+page names the directory the manual is installed in.
+
+| Pages | Where they are installed |
+| :---- | :----------------------- |
+| English | `share/man/man1` |
+| each installed language — French | `share/man/<language>/man1` — `share/man/fr/man1` |
+
+**`man` picks the language from the locale**, as the program does: under a French locale,
+`man subedit-cli` shows the French page, and a language whose pages are not installed gets the
+English ones. `-L` asks for a language whatever the locale:
+
+```console
+$ man -L fr subedit-cli-shift
+```
 
 ## Exit codes
 
