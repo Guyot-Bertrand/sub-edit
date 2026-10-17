@@ -77,6 +77,11 @@ declare -A APT_TOOLS=(
     # one `man` calls. A desktop Ubuntu has it out of the box, with `man-db`; a
     # bare build image, not always.
     [groff]=groff
+    # **man came in with #683**, which generates the command line's pages from its manual and
+    # lints them with the tool a reader uses: `check-man-pages.py` and the end-to-end test of
+    # `CLI-I18N-04` render every page with `man -l`. A desktop Ubuntu has it; a bare image, not
+    # always. `python3` is not probed: the scripts of this directory need it already.
+    [man]=man-db
 )
 
 # APT packages with no command to probe: a file tells whether they are present.

@@ -95,6 +95,11 @@
 # — this script is the project's only harness for what is written in shell, and
 # an irreversible selection that no run checks would be a belief as well.
 #
+# The man pages of #683 have four more, beside the five of the command-line
+# manual: the pages generated from the manual pass the lint, which refuses a
+# macro groff does not know and a byte outside ASCII, and the converter refuses
+# a page of the manual written outside its subset — what fails the build.
+#
 # To be replayed after any change to .clang-format, .clang-tidy, the compiler
 # options, the coverage ratchet, the requirements registry or cliff.toml.
 #
@@ -1895,6 +1900,76 @@ expect_cli_manual_gate() {
 
 expect_cli_manual_gate
 
+# The man pages, generated and linted — #683.
+#
+# **Three proofs and one for green.** The pages generated from the real manual render without a
+# warning (the lint does not cry wolf); a page carrying a macro groff does not know is refused by
+# `check-man-pages.py`, and so is a page with a byte outside ASCII; and a page of the manual
+# written outside the converter's subset — an image — makes `md-to-man.py` stop and name it, which
+# is what fails the build. Everything is generated into a scratch directory, from a copy for the
+# last proof: nothing of the repository is touched.
+expect_man_pages_gate() {
+    local generator="${REPO_ROOT}/src/scripts/md-to-man.py"
+    local lint="${REPO_ROOT}/src/scripts/check-man-pages.py"
+    local root output
+    root="$(mktemp -d)"
+    "${generator}" --manual "${REPO_ROOT}/docs/manual/subedit-cli" --output-dir "${root}/man1" \
+        --version 0 --manual-dir /nowhere >/dev/null
+
+    proof_header '%s▸ the man pages generated from the manual%s\n' "${BOLD}" "${RESET}"
+    if "${lint}" "${root}/man1" >/dev/null 2>&1; then
+        printf '  %s✓ « check-man-pages.py » let the generated pages through, as expected%s\n' \
+            "${GREEN}" "${RESET}"
+    else
+        printf '  %s✗ the lint refuses the pages generated from the manual%s\n' "${RED}" "${RESET}"
+        failures=$((failures + 1))
+    fi
+
+    expect_man_lint_refused() {
+        local label="$1" expected="$2"
+        if output="$("${lint}" "${root}/man1" 2>&1)"; then
+            printf '  %s✗ the lint let it through: %s%s\n' "${RED}" "${label}" "${RESET}"
+            failures=$((failures + 1))
+        elif [[ "${output}" == *"${expected}"*"subedit-cli-shift.1"* && "${output}" == *"problem(s) in"* ]]; then
+            printf '  %s✓ « check-man-pages.py » refused, and named the page: %s%s\n' \
+                "${GREEN}" "${label}" "${RESET}"
+        else
+            printf '  %s✗ the lint refused, but not for the right reason: %s%s\n' \
+                "${RED}" "${label}" "${RESET}"
+            failures=$((failures + 1))
+        fi
+    }
+
+    proof_header '%s▸ a man page with a macro groff does not know%s\n' "${BOLD}" "${RESET}"
+    cp "${root}/man1/subedit-cli-shift.1" "${root}/shift.1"
+    printf '.UNKNOWN macro\n' >> "${root}/man1/subedit-cli-shift.1"
+    expect_man_lint_refused "an unknown macro" "WARNING"
+
+    proof_header '%s▸ a man page with a byte outside ASCII%s\n' "${BOLD}" "${RESET}"
+    cp "${root}/shift.1" "${root}/man1/subedit-cli-shift.1"
+    printf 'd\xc3\xa9cale\n' >> "${root}/man1/subedit-cli-shift.1"
+    expect_man_lint_refused "a UTF-8 letter" "NOT ASCII"
+
+    proof_header '%s▸ a page of the manual outside the subset the converter handles%s\n' \
+        "${BOLD}" "${RESET}"
+    cp -r "${REPO_ROOT}/docs/manual/subedit-cli" "${root}/manual"
+    printf '\n![a picture](shift.png)\n' >> "${root}/manual/shift.md"
+    if output="$("${generator}" --manual "${root}/manual" --output-dir "${root}/copy" \
+        --version 0 --manual-dir /nowhere 2>&1)"; then
+        printf '  %s✗ the converter let an image through%s\n' "${RED}" "${RESET}"
+        failures=$((failures + 1))
+    elif [[ "${output}" == *"shift.md"*"an image"* ]]; then
+        printf '  %s✓ « md-to-man.py » refused, and named the page and the construct%s\n' \
+            "${GREEN}" "${RESET}"
+    else
+        printf '  %s✗ the converter refused, but not for the right reason%s\n' "${RED}" "${RESET}"
+        failures=$((failures + 1))
+    fi
+
+    rm -rf "${root}"
+}
+
+expect_man_pages_gate
 
 # The manual of `subedit-gui` and the window's shortcuts — #612, #672.
 #

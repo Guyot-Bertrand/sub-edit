@@ -31,8 +31,8 @@
 #      directory they name is the one the manual was installed in, each carries
 #      the name of the binary it describes, every subcommand of the binary has
 #      its page in every language and every option of its `--help` is in it
-#      (`check-cli-manual.py --pages-only`, `CLI-I18N-04`), and groff renders
-#      the head pages without a single warning;
+#      (`check-cli-manual.py --pages-only`, `CLI-I18N-04`), and `man` renders
+#      every page without a single warning (`check-man-pages.py`);
 #   6. **a staged install touches nothing outside** — non-empty `DESTDIR`,
 #      prefix `/usr`, and nothing written outside the staging area;
 #   7. **the two native packages build, and say the same thing** — a `.deb`
@@ -569,42 +569,23 @@ fi
 # no consequence for a reader; that was not the question. The question was
 # that no check would have said so.
 #
-# **`-z` and not a rendering**: we want the diagnostics, not the page. **`-ww`
-# and not the default silence**: groff keeps quiet about almost everything, and
-# a check that asks nothing learns nothing. **Without `-k`**: preconv would make
-# the UTF-8 readable and hide precisely what we are looking for. `man` calls it
-# here, does not call it everywhere, and a page that holds without it holds
-# with it.
-#
-# **The exit code says nothing** — groff warns and returns 0. So it is the
-# error output that is read, and the slightest byte is a failure.
+# **By `man` itself since #683**, which made the pages many and generated:
+# `check-man-pages.py` renders every installed page with `man -l --warnings=w`,
+# all groff warnings on, under a UTF-8 locale and under `C`, where groff
+# renders in ASCII; and it refuses a page that is not ASCII from end to end,
+# which is what lets it read the same with `preconv` or without. **The exit
+# code of `man` says nothing** — groff warns and returns 0 — so it is the error
+# output that is read, and the slightest byte is a failure.
 check_man_pages_render() {
-    if ! command -v groff >/dev/null 2>&1; then
-        report_failure "groff is missing: the manual pages cannot be rendered
-    install it with \"./src/scripts/setup-toolchain.sh\""
-        return
-    fi
-
-    local name rendered=0
-    for name in "${BINARIES[@]}"; do
-        local compressed="${prefix}/share/man/man1/${name}.1.gz"
-        [[ -f "${compressed}" ]] || continue
-
-        local complaints
-        complaints="$(gzip -dc "${compressed}" | groff -ww -z -man - 2>&1 >/dev/null)"
-
-        if [[ -n "${complaints}" ]]; then
-            report_failure "groff complains about ${name}.1:
+    local complaints
+    if complaints="$("${REPO_ROOT}/src/scripts/check-man-pages.py" "${prefix}/share/man" 2>&1)"; then
+        report_success "${complaints}"
+    else
+        report_failure "man complains about the installed pages:
 $(sed 's/^/    /' <<< "${complaints}")
-    the pages are written in ASCII from end to end, comments included —
-    see the header of packaging/${name}.1.in"
-            return
-        fi
-
-        rendered=$((rendered + 1))
-    done
-
-    report_success "the ${rendered} manual pages render without a single groff warning"
+    the generated pages come from src/scripts/md-to-man.py, the window's from
+    packaging/subedit-gui.1.in"
+    fi
 }
 
 if wanted render; then
