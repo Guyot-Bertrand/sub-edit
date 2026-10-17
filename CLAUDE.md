@@ -308,6 +308,11 @@ avec un objectif d'iso-fonctionnalité.
   invoque toujours. Un nom d'étape inconnu fait échouer l'invocation plutôt que
   de n'en jouer aucune.
 
+  Each step, phase and proof is timed with the load and `JOBS` it ran under,
+  and appended to `build/gate-timings.tsv` (local, ignored); `make timings`
+  compares the latest run with the median of the previous ones and flags one
+  above 1.5×.
+
   **Le bump de version, lui, ne compte que si un tag pointe sur HEAD.** C'est le
   seul contrôle qui lit le numéro : `check-architecture.sh` le confronte au tag,
   et il est inerte sans tag. Rien d'autre ne peut en différer — `version_test`
