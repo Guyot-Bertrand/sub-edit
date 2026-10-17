@@ -6,6 +6,8 @@
 #include <QStringList>
 
 #include <iosfwd>
+#include <optional>
+#include <string>
 #include <string_view>
 
 // `QStringList` is an alias for `QList<QString>` and not a class, so it cannot
@@ -109,8 +111,12 @@ void writeUserSettings(core::FileSystem& files,
 /// fourth setter written out in `main.cpp` would send the entry point over the
 /// budget `check-architecture.sh` holds it to, the same way a Qt platform
 /// choice and a frame-rate reader already have.
+///
+/// `language` is the one the window was built in — `InterfaceLanguage::language()`, nothing for
+/// English —, for the manual to open in it (issue #682).
 void configureFromEnvironment(MainWindow& window,
                               const core::FileSystem& files,
+                              const std::optional<std::string>& language,
                               std::ostream& errors);
 
 } // namespace subedit::gui

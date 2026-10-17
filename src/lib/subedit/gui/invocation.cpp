@@ -18,6 +18,7 @@
 
 #include <expected>
 #include <memory>
+#include <optional>
 #include <ostream>
 #include <string>
 #include <string_view>
@@ -120,9 +121,10 @@ void writeUserSettings(core::FileSystem& files,
 
 void configureFromEnvironment(MainWindow& window,
                               const core::FileSystem& files,
+                              const std::optional<std::string>& language,
                               std::ostream& errors) {
     window.applySettings(readUserSettings(files, errors));
-    window.setManualPath(installedManualPath());
+    window.setManualPath(installedManualPath(), language);
     window.setLocaleDirectory(platform::installedLocalePath());
     window.setPatternCatalogue(core::readPatternCatalogue(
         files, platform::installedPatternsPath(), platform::resolvedUserPatternsPath()));

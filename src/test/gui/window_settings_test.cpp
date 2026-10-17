@@ -17,6 +17,7 @@
 #include <subedit/gui/invocation.hpp>
 #include <subedit/gui/main_window.hpp>
 #include <subedit/gui/manual_path.hpp>
+#include <subedit/gui/manual_window.hpp>
 #include <subedit/gui/preferences_dialog.hpp>
 #include <subedit/gui/subtitle_editor.hpp>
 #include <subedit/gui/subtitle_table.hpp>
@@ -41,6 +42,7 @@
 #include <cstdlib>
 #include <filesystem>
 #include <memory>
+#include <optional>
 #include <sstream>
 #include <string>
 #include <vector>
@@ -482,7 +484,7 @@ TEST_CASE("configureFromEnvironment applies settings, the manual path and the "
                   "\n[Common Error Pattern]\nName=Letter I\nClasses=Human;\nPattern=a\n");
 
     std::ostringstream errors;
-    subedit::gui::configureFromEnvironment(window, files, errors);
+    subedit::gui::configureFromEnvironment(window, files, std::nullopt, errors);
 
     CHECK(errors.str().empty());
     CHECK(window.settings().theme == Theme::Dark);
@@ -506,6 +508,28 @@ TEST_CASE("configureFromEnvironment applies settings, the manual path and the "
     window.correctTextsAction()->trigger();
 
     CHECK(patternSeen);
+}
+
+// The language half the call above leaves out — issue #682. `main` hands over the language the
+// window was built in, and the manual opens on that language's tree, `<manual>/fr`.
+TEST_CASE("configureFromEnvironment opens the manual in the language it is given",
+          "[gui][config][i18n][GUI-I18N-03]") {
+    Windowed fixture;
+    MainWindow& window = fixture.window();
+    InMemoryFileSystem& files = fixture.files();
+
+    files.addFile(subedit::gui::installedManualPath() / "index.md", "# Manual\n\nIn English.\n");
+    files.addFile(subedit::gui::installedManualPath() / "fr" / "index.md",
+                  "# Manuel\n\nEn français.\n");
+
+    std::ostringstream errors;
+    subedit::gui::configureFromEnvironment(window, files, std::string{"fr"}, errors);
+    window.manualAction()->trigger();
+
+    REQUIRE(window.manualWindow() != nullptr);
+    CHECK_THAT(window.manualWindow()->shownText().toStdString(), ContainsSubstring("En français"));
+    CHECK(window.manualWindow()->currentFile() ==
+          subedit::gui::installedManualPath() / "fr" / "index.md");
 }
 
 // ## The length of each line — issue #526

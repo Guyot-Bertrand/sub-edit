@@ -48,7 +48,7 @@ int main(int argc, char** argv) {
         // The settings, the manual and the pattern catalogue — ADR 0022's own
         // rule, all three resolved here, with the real executable and the
         // real environment, and nowhere else.
-        subedit::gui::configureFromEnvironment(window, files, std::cerr);
+        subedit::gui::configureFromEnvironment(window, files, language.language(), std::cerr);
         window.show();
 
         const int code = QApplication::exec();
