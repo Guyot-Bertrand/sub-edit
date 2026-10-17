@@ -63,8 +63,12 @@ to it.
 with no byte in the `0x80–0x9f` range, Latin-1 and CP1252 are the same
 encoding, and counting it right is a convention. `cp1250-court.srt` next, which
 none of the detectors tried reads right: eighteen bytes of Czech are not enough
-to separate Central Europe from Western Europe. It is counted wrong, and it
-stays — that is what gives the record something to measure.
+to separate Central Europe from Western Europe. ICU weighs `windows-1252` and
+`windows-1250` at exactly the same confidence there (47 each), and ranks the
+first one first: the right answer is among its candidates, tied with the wrong
+one. Choosing the tie in favour of CP1250 would misread Western text, which is
+the commoner case. It is counted wrong, and it stays — that is what gives the
+record something to measure.
 
 ## Where the detection stops knowing
 
