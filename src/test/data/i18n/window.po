@@ -163,6 +163,18 @@ msgstr "Редактор субтитров."
 msgid "Licensed under the GPL, version 3 or later."
 msgstr "Распространяется по лицензии GPL версии 3 или более поздней."
 
+msgid "Library"
+msgstr "Библиотека"
+
+msgid "Loaded"
+msgstr "Загружена"
+
+msgid "Built with"
+msgstr "Собрана с"
+
+msgid "Languages: %1"
+msgstr "Языки: %1"
+
 # Preferences, and the core's words it shows
 msgid "Preferences"
 msgstr "Параметры"

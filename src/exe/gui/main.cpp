@@ -25,15 +25,15 @@ int main(int argc, char** argv) {
         const QApplication application{argc, argv};
 
         const QStringList arguments = QApplication::arguments();
+        subedit::core::RealFileSystem files;
+
+        // The language, once, before anything is built or said (spec 15, D4): every label is
+        // translated as the window builds it, `--version` included, and English is put back as
+        // this goes. The setting `interface.language` first, the environment otherwise (#669).
+        const subedit::gui::InterfaceLanguage language{subedit::gui::settingsLanguage(files)};
         if (subedit::gui::reportVersion(arguments, std::cout))
             return 0;
 
-        subedit::core::RealFileSystem files;
-
-        // The language, once, before anything is built (spec 15, D4): every label is
-        // translated as the window builds it, and English is put back as this goes. The
-        // setting `interface.language` first, the environment otherwise (#669).
-        const subedit::gui::InterfaceLanguage language{subedit::gui::settingsLanguage(files)};
         subedit::core::OpenedFile opened =
             subedit::gui::openFromArguments(files, arguments, std::cerr);
 

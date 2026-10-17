@@ -2,12 +2,14 @@
 #include <subedit/core/format/open_error.hpp>
 #include <subedit/core/format/project_file.hpp>
 #include <subedit/core/i18n/messages.hpp>
+#include <subedit/core/libraries.hpp>
 #include <subedit/core/text/enchant_spell_provider.hpp>
 #include <subedit/core/text/pattern_catalogue.hpp>
-#include <subedit/core/version.hpp>
 #include <subedit/core/wording/formats.hpp>
 #include <subedit/core/wording/settings.hpp>
+#include <subedit/core/wording/version.hpp>
 #include <subedit/gui/invocation.hpp>
+#include <subedit/gui/libraries.hpp>
 #include <subedit/gui/main_window.hpp>
 #include <subedit/gui/manual_path.hpp>
 #include <subedit/gui/settings_path.hpp>
@@ -17,6 +19,7 @@
 #include <QStringList>
 
 #include <expected>
+#include <filesystem>
 #include <memory>
 #include <optional>
 #include <ostream>
@@ -46,12 +49,18 @@ void reportFatal(std::ostream& errors, std::string_view what) {
     errors << prefixed(what) << "\n";
 }
 
-bool reportVersion(const QStringList& arguments, std::ostream& out) {
+bool reportVersion(const QStringList& arguments,
+                   std::ostream& out,
+                   const std::filesystem::path& localeDirectory) {
     if (!arguments.contains(QStringLiteral("--version")))
         return false;
 
-    out << "subedit " << core::versionString() << "\n";
+    out << core::versionReport(windowLibraries(), core::installedLanguageCodes(localeDirectory));
     return true;
+}
+
+bool reportVersion(const QStringList& arguments, std::ostream& out) {
+    return reportVersion(arguments, out, platform::installedLocalePath());
 }
 
 core::OpenedFile openFromArguments(const core::FileSystem& files,

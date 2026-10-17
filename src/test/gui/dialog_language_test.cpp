@@ -20,6 +20,7 @@
 #include <subedit/core/i18n/language.hpp>
 #include <subedit/core/io/in_memory_file_system.hpp>
 #include <subedit/core/io/real_file_system.hpp>
+#include <subedit/core/libraries.hpp>
 #include <subedit/core/model/document.hpp>
 #include <subedit/core/model/encoding.hpp>
 #include <subedit/core/model/project.hpp>
@@ -47,6 +48,7 @@
 #include <subedit/gui/insert_dialog.hpp>
 #include <subedit/gui/interface_language.hpp>
 #include <subedit/gui/invocation.hpp>
+#include <subedit/gui/libraries.hpp>
 #include <subedit/gui/manual_window.hpp>
 #include <subedit/gui/open_translation_dialog.hpp>
 #include <subedit/gui/operation_dialog.hpp>
@@ -83,14 +85,17 @@
 #include <QSignalSpy>
 #include <QSpinBox>
 #include <QString>
+#include <QStringList>
 #include <QTableView>
 #include <QTableWidget>
+#include <QTableWidgetItem>
 #include <QTemporaryDir>
 #include <QWidget>
 #include <QWizard>
 #include <QWizardPage>
 #include <catch2/catch_test_macros.hpp>
 
+#include <algorithm>
 #include <array>
 #include <cstddef>
 #include <cstdint>
@@ -314,11 +319,63 @@ template<typename Owned>
     return subedit::core::readPatternCatalogue(files, "/patterns", {});
 }
 
+/// The names of the libraries `About subedit` lists, which no catalogue translates.
+[[nodiscard]] std::set<QString> namesOfLibraries() {
+    std::set<QString> names;
+    for (const subedit::core::Library& library : subedit::gui::windowLibraries())
+        names.insert(QString::fromStdString(library.name));
+    return names;
+}
+
 } // namespace
+
+TEST_CASE("About lists the libraries of --version, translated around the versions",
+          "[gui][i18n][GUI-ABOUT-01]") {
+    const InterfaceLanguage language{russian(), kLocale, QString{}};
+    REQUIRE(language.language() == "ru");
+    const subedit::gui::AboutDialog dialog{std::vector<std::string>{"en", "ru"}};
+
+    // The words around the table follow the catalogue.
+    const QTableWidget& table = dialog.libraries();
+    REQUIRE(table.columnCount() == 3);
+    CHECK(table.horizontalHeaderItem(0)->text() == QStringLiteral("Библиотека"));
+    CHECK(table.horizontalHeaderItem(1)->text() == QStringLiteral("Загружена"));
+    CHECK(table.horizontalHeaderItem(2)->text() == QStringLiteral("Собрана с"));
+    CHECK(dialog.languages() == QStringLiteral("Языки: en, ru"));
+
+    // **The rows are the very list `--version` writes**, its names and versions as they are: the
+    // same function answers both, so the two cannot disagree.
+    const std::vector<subedit::core::Library> libraries = subedit::gui::windowLibraries();
+    REQUIRE(table.rowCount() == static_cast<int>(libraries.size()));
+    std::ostringstream written;
+    REQUIRE(
+        subedit::gui::reportVersion(QStringList{QStringLiteral("--version")}, written, kLocale));
+    for (std::size_t at = 0; at < libraries.size(); ++at) {
+        const int row = static_cast<int>(at);
+        const subedit::core::Library& library = libraries.at(at);
+        INFO(library.name);
+        CHECK(table.item(row, 0)->text().toStdString() == library.name);
+        CHECK(table.item(row, 1)->text().toStdString() == library.loaded);
+        CHECK(table.item(row, 2)->text().toStdString() == library.built);
+        CHECK_FALSE(library.loaded.empty());
+        CHECK(written.str().find(library.name) != std::string::npos);
+    }
+    for (const std::string_view name : {"Qt", "ICU", "libmpv", "Enchant"}) {
+        INFO(name);
+        CHECK(std::ranges::any_of(libraries, [&name](const subedit::core::Library& library) {
+            return library.name == name;
+        }));
+    }
+}
 
 TEST_CASE("every dialog shows its words in the chosen language", "[gui][i18n][GUI-I18N-01]") {
     SECTION("About subedit") {
-        checkTranslated([] { return std::make_shared<subedit::gui::AboutDialog>(); });
+        // The libraries' names are their own, in every language (#716).
+        checkTranslated(
+            [] {
+                return std::make_shared<subedit::gui::AboutDialog>(std::vector<std::string>{"en"});
+            },
+            namesOfLibraries());
     }
     SECTION("Preferences") {
         // A language is listed by its own name, which no catalogue translates (#669).

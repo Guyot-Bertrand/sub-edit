@@ -18,6 +18,7 @@
 #include <catch2/catch_test_macros.hpp>
 
 #include <string>
+#include <string_view>
 
 #include "../cli/cli_run.hpp"
 
@@ -25,5 +26,17 @@ TEST_CASE("the window binary runs where there is no screen", "[e2e][gui][GUI-VER
     const subedit::e2e::CliRun run = subedit::e2e::invokeGui({"--version"});
 
     CHECK(run.exitCode == 0);
-    CHECK(run.output == "subedit " + subedit::core::versionString() + "\n");
+    // The first line alone, as the command line's: the one scripts read.
+    CHECK(run.output.starts_with("subedit " + subedit::core::versionString() + "\n"));
+}
+
+TEST_CASE("the window's version names Qt, ICU, libmpv and Enchant", "[e2e][gui][GUI-VERSION-02]") {
+    const subedit::e2e::CliRun run = subedit::e2e::invokeGui({"--version"});
+
+    CHECK(run.exitCode == 0);
+    for (const std::string_view name : {"Qt", "ICU", "libmpv", "Enchant"}) {
+        INFO(name);
+        CHECK(run.output.find("\n  " + std::string{name} + " ") != std::string::npos);
+    }
+    CHECK(run.output.find("\n  Languages: en") != std::string::npos);
 }

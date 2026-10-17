@@ -5,6 +5,7 @@
 
 #include <QStringList>
 
+#include <filesystem>
 #include <iosfwd>
 #include <optional>
 #include <string>
@@ -25,11 +26,19 @@ class MainWindow;
 /// this was the logic sitting in it. Out here it is a function a test can call,
 /// where before only a whole process could.
 ///
-/// `out` is where the line goes — `std::cout` for the program, a string stream
-/// for a test.
+/// `out` is where the block goes — `std::cout` for the program, a string stream
+/// for a test. **The block is the command line's** (`core::versionReport`, #716):
+/// `subedit <version>` alone on the first line, then the libraries of
+/// `windowLibraries()` — the very list `About subedit` shows — and the languages
+/// installed under `localeDirectory`.
 ///
 /// Returns whether the version was asked for, which is also whether there is
 /// anything left to do: `--version` is answered and nothing else happens.
+[[nodiscard]] bool reportVersion(const QStringList& arguments,
+                                 std::ostream& out,
+                                 const std::filesystem::path& localeDirectory);
+
+/// The same, with the catalogues installed beside the executable — the overload `main` calls.
 [[nodiscard]] bool reportVersion(const QStringList& arguments, std::ostream& out);
 
 /// Says on `errors` what stopped the program, `what` behind the program's name, in the
