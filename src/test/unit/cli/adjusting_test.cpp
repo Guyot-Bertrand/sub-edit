@@ -114,6 +114,31 @@ TEST_CASE("what is no constraint is refused, naming the option",
 TEST_CASE("the two directions need a speed to apply to", "[cli][adjusting][CLI-ADJUST-02]") {
     CHECK_FALSE(constraintsOf({.speed = "off", .shorten = true}).has_value());
     CHECK_FALSE(constraintsOf({.speed = "off", .noLengthen = true}).has_value());
+    // The two flags that give a direction back say a direction too.
+    const auto lengthen = constraintsOf({.speed = "off", .lengthen = true});
+    REQUIRE_FALSE(lengthen.has_value());
+    CHECK_THAT(lengthen.error(), ContainsSubstring("--speed off switches the reading speed off"));
+    CHECK_FALSE(constraintsOf({.speed = "off", .noShorten = true}).has_value());
+}
+
+TEST_CASE("a direction and its opposite together are refused, naming both",
+          "[cli][adjusting][CLI-ADJUST-02]") {
+    const auto lengthen = constraintsOf({.noLengthen = true, .lengthen = true});
+    REQUIRE_FALSE(lengthen.has_value());
+    CHECK_THAT(lengthen.error(),
+               ContainsSubstring("--lengthen and --no-lengthen say opposite things"));
+
+    const auto shorten = constraintsOf({.shorten = true, .noShorten = true});
+    REQUIRE_FALSE(shorten.has_value());
+    CHECK_THAT(shorten.error(),
+               ContainsSubstring("--shorten and --no-shorten say opposite things"));
+}
+
+TEST_CASE("without a file, --lengthen and --no-shorten say the default again",
+          "[cli][adjusting][CLI-ADJUST-02]") {
+    const auto constraints = constraintsOf({.lengthen = true, .noShorten = true});
+    REQUIRE(constraints.has_value());
+    CHECK(*constraints == DurationConstraints{});
 }
 
 TEST_CASE("the constraints are recorded in whole milliseconds and a speed as text",
@@ -290,6 +315,35 @@ TEST_CASE("a file with the speed switched off keeps it off until asked",
           ReadingSpeed::create(12.0, true, false));
     CHECK(constraintsOf(AdjustOptions{.shorten = true}, file)->speed ==
           ReadingSpeed::create(15.0, true, true));
+}
+
+TEST_CASE("every direction the file sets has a flag that undoes it", "[cli][adjusting][settings]") {
+    // The file shortens and does not lengthen: --lengthen and --no-shorten put
+    // both back to the default, one at a time and together.
+    DurationAdjustmentSettings file;
+    file.charactersPerSecond = 12;
+    file.lengthen = false;
+    file.shorten = true;
+    CHECK(constraintsOf(AdjustOptions{}, file)->speed == ReadingSpeed::create(12.0, false, true));
+    CHECK(constraintsOf(AdjustOptions{.noShorten = true}, file)->speed ==
+          ReadingSpeed::create(12.0, false, false));
+    CHECK(constraintsOf(AdjustOptions{.lengthen = true}, file)->speed ==
+          ReadingSpeed::create(12.0, true, true));
+    CHECK(constraintsOf(AdjustOptions{.lengthen = true, .noShorten = true}, file)->speed ==
+          ReadingSpeed::create(12.0, true, false));
+}
+
+TEST_CASE("a direction flag brings back a speed the file switched off",
+          "[cli][adjusting][settings]") {
+    // As --shorten and --no-lengthen already do: the directions start from the
+    // default, lengthening only, and the flag changes its own.
+    DurationAdjustmentSettings file;
+    file.lengthen = false;
+    file.shorten = false;
+    CHECK(constraintsOf(AdjustOptions{.lengthen = true}, file)->speed ==
+          ReadingSpeed::create(15.0, true, false));
+    CHECK(constraintsOf(AdjustOptions{.noShorten = true}, file)->speed ==
+          ReadingSpeed::create(15.0, true, false));
 }
 
 TEST_CASE("a hand-edited speed of zero is read as the speed being off",

@@ -7,7 +7,8 @@ subedit-cli correct --tasks LIST --code CODE
                     [--language CODE]
                     [--max-length N] [--max-lines N]
                     [--skip-length N|off] [--skip-lines N|off]
-                    [--keep-blank-subtitles] [--range N-M|N-]
+                    [--keep-blank-subtitles | --remove-blank-subtitles]
+                    [--range N-M|N-]
                     [--document main|translation] [-t FILE] [--align-method position|number]
                     (--output FILE | --output-dir DIR | --in-place)
                     [--dry-run]
@@ -45,6 +46,7 @@ Options:
   --skip-length N|off         Leave alone a subtitle whose longest line is within this, or off: --max-length
   --skip-lines N|off          Leave alone a subtitle whose line count is within this, or off: --max-lines
   --keep-blank-subtitles      Leave the subtitles the correction empties, empty, instead of removing them
+  --remove-blank-subtitles    Remove the subtitles the correction empties, whatever the settings file says
   --range N-M|N-              Act only on subtitles N to M, or N to the end
   --document main|translation The document to change: the main one, or the translation given by -t
   -t,--translation-file FILE  Translation file to lay over the subtitle file, for a single input
@@ -73,11 +75,13 @@ toujours**, puis le fichier, puis le défaut intégré ; voir
 | Clé | Ce qu'elle fournit | Option qui la remplace |
 | :-- | :----------------- | :--------------------- |
 | `correction.human`, `correction.ocr` | les classes d'erreurs courantes appliquées | `--classes` |
-| `correction.remove-blank` | si les sous-titres que la correction vide sont supprimés | `--keep-blank-subtitles` |
+| `correction.remove-blank` | si les sous-titres que la correction vide sont supprimés | `--keep-blank-subtitles`, `--remove-blank-subtitles` |
 | `correction.line-break.max-lines` | le nombre maximal de lignes de `line-break` | `--max-lines` |
 
-- **`correction.remove-blank = false` n'a pas d'option qui le défasse** sur la ligne :
-  `--no-config` rend la suppression.
+- **Chacun des quatre a une option qui le défait**, quoi que dise le fichier : `--classes human,ocr`
+  applique les deux classes, `--remove-blank-subtitles` supprime les sous-titres vidés,
+  `--max-lines 3` rend les lignes de Gaupol. `--keep-blank-subtitles` et
+  `--remove-blank-subtitles` ensemble sont une erreur d'usage.
 - **Les deux classes éteintes dans le fichier sont ignorées, et c'est dit** au niveau 1 —
   `settings: correction.human and correction.ocr are both false, ignored` — : `--classes` ne
   saurait l'écrire, et cela ne laisserait rien à faire aux erreurs courantes. Les deux classes
@@ -100,7 +104,8 @@ défauts intégrés, quels que soient les réglages de la machine qui les exécu
 | `--max-length` | **oui** avec `line-break` | un nombre de **caractères** supérieur à zéro | **aucun** — voir plus bas |
 | `--max-lines` | non | un nombre entier de lignes, supérieur à zéro | 3 — ou ce que dit le fichier de réglages |
 | `--skip-length`, `--skip-lines` | non | un nombre, ou `off` | les mêmes bornes que `--max-length` et `--max-lines` |
-| `--keep-blank-subtitles` | non | un drapeau | les sous-titres vidés sont retirés — sauf si le fichier de réglages dit autre chose |
+| `--keep-blank-subtitles` | non | un drapeau : les sous-titres vidés restent, vides | les sous-titres vidés sont retirés — sauf si le fichier de réglages dit autre chose |
+| `--remove-blank-subtitles` | non | un drapeau : les sous-titres vidés sont retirés, quoi que dise le fichier de réglages ; refusé avec `--keep-blank-subtitles` | désactivé |
 | `--range` | non | `N-M`, ou `N-` jusqu'à la fin — voir [`adjust`](adjust.md#--range) | tout le fichier |
 | `--document` | non | `main` ou `translation` — voir [Une traduction](invocation.md#une-traduction) | `main` |
 | `-t`, `--translation-file` | avec `--document translation` | un fichier de traduction, pour **une seule** entrée | — |
@@ -266,7 +271,8 @@ Bonjour
 
 Le format, l'encodage et les fins de ligne du fichier lu sont **conservés**. **Les
 sous-titres que la correction vide sont retirés**, comme la case par défaut de la
-fenêtre ; `--keep-blank-subtitles` les laisse vides. **Une traduction vidée reste vidée**,
+fenêtre ; `--keep-blank-subtitles` les laisse vides, et `--remove-blank-subtitles` les retire
+même quand le fichier de réglages les garde. **Une traduction vidée reste vidée**,
 et garde son sous-titre.
 
 **Le compte est celui de la fenêtre** — « Edited N and removed M subtitles » : des textes
@@ -350,6 +356,7 @@ seulement, `1` sur une erreur d'usage.
 | `--skip-length` ou `--skip-lines` illisible | `--skip-length: "<value>" is not a bound: expected a number greater than zero, or off` |
 | l'une des quatre options sans `line-break` | `--max-length is for the task line-break, which was not asked for` |
 | une classe inconnue | `--classes: "<name>" is not a class: expected human, ocr or human,ocr` |
+| `--keep-blank-subtitles` avec `--remove-blank-subtitles` | `--keep-blank-subtitles and --remove-blank-subtitles say opposite things; give one of them` |
 | un nom de motif fautif | voir la table plus haut |
 | une tâche sans motif actif | `<task>: no pattern is active under the code <code>; switch one on with --enable` |
 | `--range`, `-t`, `--document`, la destination | ceux de [Invocation](invocation.md#erreurs) et de [Une traduction](invocation.md#une-traduction) |

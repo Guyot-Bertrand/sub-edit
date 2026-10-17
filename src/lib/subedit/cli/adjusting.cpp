@@ -83,16 +83,28 @@ parseLimit(std::string_view option, std::string_view text, bool allowZero) {
 speedFrom(const AdjustOptions& options,
           const core::DurationAdjustmentSettings& base,
           const std::optional<core::ReadingSpeed>& current) {
+    for (const auto& [one, other, flag, opposite] :
+         {std::tuple{"--lengthen", "--no-lengthen", options.lengthen, options.noLengthen},
+          std::tuple{"--shorten", "--no-shorten", options.shorten, options.noShorten}}) {
+        if (flag && opposite) {
+            return std::unexpected{core::substitute(
+                // TRANSLATORS: %1 and %2 are two options, such as --shorten and --no-shorten.
+                core::translate("%1 and %2 say opposite things; give one of them"),
+                {one, other})};
+        }
+    }
+    const bool directed =
+        options.lengthen || options.noLengthen || options.shorten || options.noShorten;
     if (options.speed == kOff) {
-        if (options.shorten || options.noLengthen) {
-            return std::unexpected{std::string{
-                core::translate("--shorten and --no-lengthen say which way the reading speed may "
-                                "move an end, and --speed off switches the reading speed off")}};
+        if (directed) {
+            return std::unexpected{std::string{core::translate(
+                "--lengthen, --no-lengthen, --shorten and --no-shorten say which way the reading "
+                "speed may move an end, and --speed off switches the reading speed off")}};
         }
         return std::nullopt;
     }
     const bool active = base.lengthen || base.shorten;
-    if (!active && options.speed.empty() && !options.shorten && !options.noLengthen) {
+    if (!active && options.speed.empty() && !directed) {
         return current;
     }
     double speed = base.charactersPerSecond;
@@ -103,8 +115,10 @@ speedFrom(const AdjustOptions& options,
         }
         speed = *read;
     }
-    const bool lengthen = (active ? base.lengthen : true) && !options.noLengthen;
-    const bool shorten = (active && base.shorten) || options.shorten;
+    // A flag says its direction, whatever the file said (#705).
+    const bool lengthen =
+        options.lengthen || (!options.noLengthen && (active ? base.lengthen : true));
+    const bool shorten = options.shorten || (!options.noShorten && active && base.shorten);
     // A speed of zero edited into the file is no speed: switched off, not
     // refused (ADR 0022).
     if (speed > 0.0) {

@@ -49,6 +49,10 @@ struct CorrectionOptions {
     /// Leave the subtitles the correction empties, empty, instead of removing them.
     bool keepBlankSubtitles = false;
 
+    /// Remove them, whatever the settings file says (#705); refused with
+    /// `keepBlankSubtitles`.
+    bool removeBlankSubtitles = false;
+
     /// The dictionary the tasks that check words read: `fr_FR`, `en`… **Required
     /// with `join-words` or `split-words`**, and nothing else's.
     std::string language;
@@ -93,7 +97,8 @@ correctionSettingsOf(const CorrectionOptions& options,
 ///   off, which `--classes` cannot write: then both stay on (`prepareCorrection`
 ///   says so);
 /// - the removal of the subtitles a correction empties, which
-///   `keepBlankSubtitles` still forces off;
+///   `keepBlankSubtitles` forces off and `removeBlankSubtitles` on — the two
+///   together are refused;
 /// - the lines of the break, when `maxLines` is empty — and with them the skip
 ///   gate's, when `skipLines` is empty. The file's reader holds them within 1
 ///   to 1000, the bounds of `--max-lines`, and refuses the rest for Gaupol's 3.

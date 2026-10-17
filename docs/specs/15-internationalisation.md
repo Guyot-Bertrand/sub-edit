@@ -479,6 +479,12 @@ manages, and the command line has `--enable` and `--disable`.
 For `adjust`, `--speed off` switches the speed off; the reading speed's directions come from the file unless a flag
 changes them.
 
+**Every key of the `Both` surface has an option that overrides it for one invocation, in both directions** (#705):
+`--lengthen`/`--no-lengthen` and `--shorten`/`--no-shorten` for the reading speed's directions,
+`--keep-blank-subtitles`/`--remove-blank-subtitles` for `correction.remove-blank`; `--speed`, `--minimum`, `--maximum`,
+`--gap`, `--classes` and `--max-lines` already take any value, `off` included. A flag given with its opposite is a usage
+error.
+
 ### The `config` commands
 
 `show`, `set` and `unset` act on the user's file, or on `--config FILE`; `list` reads no file. Only operation keys are

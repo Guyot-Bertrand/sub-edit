@@ -387,6 +387,53 @@ TEST_CASE("maximum off switches off a maximum --config enables", "[e2e][adjust][
     CHECK_THAT(off.output, ContainsSubstring("\"maximum_ms\":null"));
 }
 
+TEST_CASE("the directions --config sets are undone by their opposite flags",
+          "[e2e][adjust][settings][CLI-ADJUST-02]") {
+    const Scratch scratch;
+    const std::string input = writeFile(scratch, "in/d.srt", kInput);
+    const std::string config =
+        writeFile(scratch,
+                  "settings.conf",
+                  "duration-adjust.lengthen = false\nduration-adjust.shorten = true\n");
+
+    // The file alone: the speed only shortens — case F, --shorten --no-lengthen.
+    const CliRun fromFile =
+        invoke({"--config", config, "adjust", "--output-dir", scratch.of("file"), input});
+    REQUIRE(fromFile.exitCode == 0);
+    CHECK(endsOf(contentOf(scratch.of("file/d.srt"))) ==
+          std::vector<std::string>{"00:00:01,500", "00:00:11,500", "00:00:15,000", "00:00:16,500"});
+
+    // Both undone on the line: the built-in directions again — case A.
+    const CliRun undone = invoke({"--format",
+                                  "json",
+                                  "--config",
+                                  config,
+                                  "adjust",
+                                  "--lengthen",
+                                  "--no-shorten",
+                                  "--output-dir",
+                                  scratch.of("undone"),
+                                  input});
+    REQUIRE(undone.exitCode == 0);
+    CHECK(endsOf(contentOf(scratch.of("undone/d.srt"))) ==
+          std::vector<std::string>{"00:00:02,000", "00:00:14,000", "00:00:15,000", "00:00:16,500"});
+    CHECK_THAT(undone.output,
+               ContainsSubstring(R"("speed":{"cps":"15","lengthen":true,"shorten":false})"));
+
+    // A direction and its opposite: the usage code, nothing written.
+    const CliRun both = invoke({"--config",
+                                config,
+                                "adjust",
+                                "--shorten",
+                                "--no-shorten",
+                                "--output-dir",
+                                scratch.of("both"),
+                                input});
+    CHECK(both.exitCode == 1);
+    CHECK_THAT(both.errors, ContainsSubstring("--shorten and --no-shorten say opposite things"));
+    CHECK_FALSE(std::filesystem::exists(scratch.of("both")));
+}
+
 TEST_CASE("giving both --config and --no-config is a usage error", "[e2e][settings]") {
     const Scratch scratch;
     const std::string input = writeFile(scratch, "in/d.srt", kInput);

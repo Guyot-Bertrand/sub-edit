@@ -112,6 +112,13 @@ CLI::App* describeCorrect(CLI::App& app, std::string_view name, CorrectOptions& 
         options.correction.keepBlankSubtitles,
         std::string{core::translate(
             "Leave the subtitles the correction empties, empty, instead of removing them")});
+    // The opposite, so that a settings file that keeps them can be undone on
+    // the line (#705).
+    correct->add_flag(
+        "--remove-blank-subtitles",
+        options.correction.removeBlankSubtitles,
+        std::string{core::translate(
+            "Remove the subtitles the correction empties, whatever the settings file says")});
     describeRange(correct, options.range);
     describeDocument(correct, options.translation);
 

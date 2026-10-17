@@ -1,7 +1,7 @@
 # `adjust`
 
 ```
-subedit-cli adjust [--speed CPS|off] [--shorten] [--no-lengthen]
+subedit-cli adjust [--speed CPS|off] [--shorten | --no-shorten] [--lengthen | --no-lengthen]
                    [--minimum TIME|off] [--maximum TIME|off] [--gap TIME|off]
                    [--range N-M|N-]
                    (--output FILE | --output-dir DIR | --in-place)
@@ -35,7 +35,7 @@ d'un sous-titre est celui du fichier, **choisi ou non** par `--range`.
 | Contrainte | Option | Défaut | Éteindre |
 | :--------- | :----- | :----- | :------- |
 | vitesse | `--speed CPS` | **15** caractères par seconde | `--speed off` |
-| sens de la vitesse | `--shorten`, `--no-lengthen` | elle **allonge** seulement | — |
+| sens de la vitesse | `--shorten`, `--no-shorten`, `--lengthen`, `--no-lengthen` | elle **allonge** seulement | — |
 | minimum | `--minimum TIME` | **1,5 s** | `--minimum off` |
 | maximum | `--maximum TIME` | **aucun** | `--maximum off` |
 | écart | `--gap TIME` | **0** | `--gap off` |
@@ -56,17 +56,17 @@ Voir [Le fichier de réglages](invocation.md#le-fichier-de-réglages) pour l'emp
 | Clé | Ce qu'elle fournit | Option qui la remplace |
 | :-- | :----------------- | :--------------------- |
 | `duration-adjust.speed` | la vitesse de lecture, en caractères par seconde | `--speed CPS` |
-| `duration-adjust.lengthen`, `duration-adjust.shorten` | dans quel sens la vitesse peut déplacer une fin ; les deux à `false` éteignent la vitesse | `--no-lengthen`, `--shorten`, `--speed off` ; donner `--speed CPS` rallume, en allongeant, une vitesse que le fichier a éteinte |
+| `duration-adjust.lengthen`, `duration-adjust.shorten` | dans quel sens la vitesse peut déplacer une fin ; les deux à `false` éteignent la vitesse | `--lengthen`, `--no-lengthen`, `--shorten`, `--no-shorten`, `--speed off` ; donner `--speed CPS` ou un sens rallume, en allongeant, une vitesse que le fichier a éteinte |
 | `duration-adjust.minimum-enabled`, `duration-adjust.minimum-ms` | la durée la plus courte, ou aucune | `--minimum TIME`, `--minimum off` |
 | `duration-adjust.maximum-enabled`, `duration-adjust.maximum-ms` | la durée la plus longue, ou aucune | `--maximum TIME`, `--maximum off` |
 | `duration-adjust.gap-enabled`, `duration-adjust.gap-ms` | l'écart minimal, ou aucun | `--gap TIME`, `--gap off` |
 
-Les drapeaux ne font que déplacer les sens de la vitesse **à partir de ce que dit le fichier** :
-`--shorten` ajoute le raccourcissement, `--no-lengthen` retire l'allongement. `--maximum off`
-abandonne un maximum que le fichier allume. Un raccourcissement que le fichier allume n'a pas de
-drapeau pour le défaire sur la ligne : `--speed off` ou `--no-config` l'abandonne. Avec
-`--format json`, `constraints` dit les réglages réellement employés, d'où qu'ils viennent, et
-`settings` le fichier qui a été lu :
+**Chaque clé a une option qui la défait.** Chaque sens a une paire de drapeaux qui le pose quoi
+que dise le fichier : `--shorten` et `--no-shorten` pour le raccourcissement, `--lengthen` et
+`--no-lengthen` pour l'allongement ; un drapeau absent laisse le sens du fichier tel quel.
+`--maximum off` abandonne un maximum que le fichier allume. Avec `--format json`, `constraints`
+dit les réglages réellement employés, d'où qu'ils viennent, et `settings` le fichier qui a été
+lu :
 
 <!-- example: printf '1\n00:00:01,000 --> 00:00:01,200\nUn.\n\n' > a.srt; subedit-cli --config mine/settings.conf config set duration-adjust.speed 12 2>/dev/null; subedit-cli --config mine/settings.conf --format json adjust --dry-run a.srt -->
 ```console
@@ -93,6 +93,8 @@ Options:
   -r,--recursive              Take directories as inputs, and every subtitle file in them
   --speed CPS|off             Reading speed in characters per second, or off (default 15)
   --shorten                   Let the reading speed bring an end earlier
+  --no-shorten                Do not let the reading speed bring an end earlier
+  --lengthen                  Let the reading speed move an end later
   --no-lengthen               Do not let the reading speed move an end later
   --minimum TIME|off          Shortest duration, or off (default 1.5)
   --maximum TIME|off          Longest duration, or off (default: none)
@@ -112,6 +114,8 @@ Options:
 | `--recursive`, `-r` | non | un drapeau | désactivé — voir [Traiter un arbre](lots.md) |
 | `--speed` | non | un nombre de caractères par seconde, **supérieur à zéro** (`15`, `12.5`), ou `off` | `15` |
 | `--shorten` | non | un drapeau : la vitesse peut aussi **avancer** une fin | désactivé |
+| `--no-shorten` | non | un drapeau : la vitesse n'**avance** plus une fin, quoi que dise le fichier de réglages | désactivé |
+| `--lengthen` | non | un drapeau : la vitesse **recule** une fin, quoi que dise le fichier de réglages | désactivé |
 | `--no-lengthen` | non | un drapeau : la vitesse ne **recule** plus une fin | désactivé |
 | `--minimum` | non | une durée de zéro ou plus, ou `off` | `1.5` |
 | `--maximum` | non | une durée **supérieure à zéro**, ou `off` | aucun |
@@ -128,8 +132,10 @@ réponse. C'est le cas de `--speed off --minimum off --gap off` sans maximum, et
 `--no-lengthen` seul avec le minimum et l'écart éteints : une vitesse qui ne déplace aucune
 fin ne contraint rien.
 
-`--shorten` et `--no-lengthen` disent dans quel sens la vitesse déplace une fin ; ils n'ont de
-sens qu'avec une vitesse, et **`--speed off` les refuse**.
+`--shorten`, `--no-shorten`, `--lengthen` et `--no-lengthen` disent dans quel sens la vitesse
+déplace une fin ; ils n'ont de sens qu'avec une vitesse, et **`--speed off` les refuse**. Un
+drapeau donné avec son contraire — `--shorten --no-shorten`, `--lengthen --no-lengthen` — est
+refusé lui aussi.
 
 ### `--range`
 
@@ -241,7 +247,8 @@ seulement, `1` sur une erreur d'usage. Un fichier qui tient déjà dans ses limi
 | un fichier nommé par `--config` qui n'existe pas — le fichier de l'utilisateur, absent, donne les défauts | `settings file not found: <FILE>` |
 | aucune contrainte active | `adjust has nothing to adjust to: every constraint is off, or the reading speed is told to move no end` |
 | vitesse qui n'en est pas une | `--speed: "…" is not a reading speed: expected a number of characters per second above zero, like 15 or 12.5, or off` |
-| `--shorten`/`--no-lengthen` avec `--speed off` | `--shorten and --no-lengthen say which way the reading speed may move an end, and --speed off switches the reading speed off` |
+| un drapeau de sens avec `--speed off` | `--lengthen, --no-lengthen, --shorten and --no-shorten say which way the reading speed may move an end, and --speed off switches the reading speed off` |
+| un drapeau de sens avec son contraire | `--shorten and --no-shorten say opposite things; give one of them` (idem `--lengthen` et `--no-lengthen`) |
 | durée qui n'en est pas une | `--minimum: "…" is not a time: …` (idem `--maximum`, `--gap`) |
 | durée négative | `--minimum: "-1" is not a duration of zero or more` (idem `--gap`) |
 | maximum nul ou négatif | `--maximum: "0" is not a duration above zero` |

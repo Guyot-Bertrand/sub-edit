@@ -41,6 +41,15 @@ CLI::App* describeAdjust(CLI::App& app, std::string_view name, AdjustCommandOpti
     adjust->add_flag("--shorten",
                      options.constraints.shorten,
                      std::string{core::translate("Let the reading speed bring an end earlier")});
+    // The opposites, so that every direction the settings file sets can be
+    // undone on the line (#705).
+    adjust->add_flag(
+        "--no-shorten",
+        options.constraints.noShorten,
+        std::string{core::translate("Do not let the reading speed bring an end earlier")});
+    adjust->add_flag("--lengthen",
+                     options.constraints.lengthen,
+                     std::string{core::translate("Let the reading speed move an end later")});
     adjust->add_flag(
         "--no-lengthen",
         options.constraints.noLengthen,

@@ -11,6 +11,17 @@ ne pas l'éditer à la main.
 
 ### Ajouts
 
+- **cli** — Let every file setting of adjust and correct be undone
+- **i18n** — Translate the override flags of adjust and correct
+
+### Documentation
+
+- **doc** — Document the override flags of adjust and correct
+
+## 0.15.37 — 2026-10-17
+
+### Ajouts
+
 - **gui** — Open the manual in the language of the window
 - **scripts** — Time the gate steps and their phases, with load and JOBS
 - **scripts** — Time each proof of verify-gates with its load and JOBS
@@ -73,6 +84,7 @@ ne pas l'éditer à la main.
 - **doc** — Regenerate the changelog
 - **doc** — Say where the generated man pages live, in both manuals
 - **doc** — Note the ICU tie on the short CP1250 file
+- **doc** — Regenerate the changelog
 
 ### Tests
 

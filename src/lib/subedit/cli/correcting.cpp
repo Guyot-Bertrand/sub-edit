@@ -553,6 +553,12 @@ correctionSettingsOf(const CorrectionOptions& options,
     settings.commonErrors.enabled = false;
     settings.capitalization.enabled = false;
 
+    if (options.keepBlankSubtitles && options.removeBlankSubtitles) {
+        return std::unexpected{core::substitute(
+            // TRANSLATORS: %1 and %2 are two options, such as --shorten and --no-shorten.
+            core::translate("%1 and %2 say opposite things; give one of them"),
+            {"--keep-blank-subtitles", "--remove-blank-subtitles"})};
+    }
     const std::expected<std::vector<const TaskName*>, std::string> asked = tasksOf(options.tasks);
     if (!asked) {
         return std::unexpected{asked.error()};
@@ -602,7 +608,9 @@ correctionSettingsOf(const CorrectionOptions& options,
         }
     }
 
-    settings.removeBlankSubtitles = !options.keepBlankSubtitles && shared.removeBlankSubtitles;
+    // A flag beats the file, either way (#705).
+    settings.removeBlankSubtitles = options.removeBlankSubtitles ||
+                                    (!options.keepBlankSubtitles && shared.removeBlankSubtitles);
     return settings;
 }
 

@@ -254,6 +254,18 @@ TEST_CASE("the subtitles the correction empties are kept when asked", "[cli][cor
     CHECK_FALSE(correctionSettingsOf(options, catalogue())->removeBlankSubtitles);
 }
 
+TEST_CASE("keeping and removing the emptied subtitles together is refused",
+          "[cli][correct][CLI-CORRECT-12]") {
+    CorrectionOptions options = optionsFor("mentions");
+    options.enable = {"Lyrics"};
+    options.keepBlankSubtitles = true;
+    options.removeBlankSubtitles = true;
+
+    CHECK_THAT(refusalOf(options),
+               ContainsSubstring(
+                   "--keep-blank-subtitles and --remove-blank-subtitles say opposite things"));
+}
+
 TEST_CASE("a run says what the window says, and writes the file", "[cli][correct]") {
     const Run run = correct(optionsFor("common-errors"), srt("ﬁn"));
 
@@ -622,6 +634,24 @@ TEST_CASE("an option beats the file for classes, blank removal and max lines",
     REQUIRE(broken.has_value());
     CHECK(broken->lineBreakMaxLines == 4);
     CHECK(broken->lineBreakSkipMaxLines == 4);
+}
+
+TEST_CASE("asking on the line to remove the emptied subtitles beats a file that keeps them",
+          "[cli][correct][CLI-CORRECT-12][settings]") {
+    subedit::core::CorrectionSettings file;
+    file.removeBlankSubtitles = false;
+
+    CorrectionOptions options = optionsFor("common-errors");
+    options.removeBlankSubtitles = true;
+    const auto settings = correctionSettingsOf(options, catalogue(), file);
+    REQUIRE(settings.has_value());
+    CHECK(settings->removeBlankSubtitles);
+
+    // On a file that removes them already, it says the same thing again.
+    const auto again =
+        correctionSettingsOf(options, catalogue(), subedit::core::CorrectionSettings{});
+    REQUIRE(again.has_value());
+    CHECK(again->removeBlankSubtitles);
 }
 
 TEST_CASE("the file never turns a task on, nor sets a code, a length or a language",

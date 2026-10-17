@@ -151,7 +151,10 @@ fichier pose. Seul le **bloc des opérations** du fichier est lu ; les préfére
 (géométrie, colonnes, thème…) ne le sont jamais. [`config list`](config.md#config-list) nomme les
 clés, et lesquelles la ligne de commande lit : les neuf clés `duration-adjust.*`,
 `correction.human`, `correction.ocr`, `correction.remove-blank` et
-`correction.line-break.max-lines`.
+`correction.line-break.max-lines`. **Chacune a une option qui la supplante le temps d'une
+invocation**, dans quelque sens que le fichier la pose — les tableaux
+d'[`adjust`](adjust.md#ce-que-fournit-le-fichier-de-réglages) et de
+[`correct`](correct.md#ce-qui-est-choisi-et-ce-qui-ne-lest-pas) les nomment.
 
 **La lecture du fichier de l'utilisateur ne fait jamais échouer une commande.** Un fichier absent
 donne les défauts ; un fichier qui ne se lit pas donne les défauts et le dit ; une valeur qui ne se
@@ -269,7 +272,7 @@ marque — mais sans le dire ; ici l'écart entre ce qui a été demandé et ce 
 <!-- example: subedit-cli --version -->
 ```console
 $ subedit-cli --version
-subedit 0.15.37
+subedit 0.15.38
 ```
 
 ## Sous-commandes
