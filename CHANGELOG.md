@@ -9,6 +9,17 @@ ne pas l'éditer à la main.
 
 ## Non publié
 
+### Ajouts
+
+- **gui** — Open the manual in the language of the window
+- **scripts** — Time the gate steps and their phases, with load and JOBS
+- **scripts** — Time each proof of verify-gates with its load and JOBS
+- **scripts** — Compare the last gate timings with make timings
+
+### Construction
+
+- **build** — Install the manual of every installed language
+
 ### Corrections
 
 - **scripts** — Prove the tidy key from Ninja's plan
@@ -50,6 +61,12 @@ ne pas l'éditer à la main.
 - **build** — Translate the CMakeLists.txt of src/ into English
 - **build** — Correct the default job count in the LTO comment
 - **doc** — Translate CONTRIBUTING.md into English
+- **doc** — Regenerate the changelog
+- **doc** — Say which language Help > Manual opens
+- **doc** — Mention the gate timings and make timings
+- **doc** — Translate the French manual's settings and language parts
+- **doc** — Write the French window's labels in the French manual
+- **doc** — Translate CLAUDE.md into English
 
 ## 0.15.32 — 2026-10-15
 
