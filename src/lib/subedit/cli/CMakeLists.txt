@@ -51,7 +51,8 @@ add_library(
     time_grammar.cpp
     transforming.cpp
     translation_writing.cpp
-    verbosity.cpp)
+    verbosity.cpp
+    version_report.cpp)
 
 add_library(subedit::cli ALIAS subedit_cli)
 

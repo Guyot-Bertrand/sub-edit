@@ -61,7 +61,7 @@ longer prove anything.
 | ~~`CLI-VERSION-01`~~ | invoking with no argument writes `subedit <version>` on standard output | 3 | replaced by `CLI-USAGE-01` |
 | ~~`CLI-VERSION-02`~~ | nothing is written on standard error | 3 | replaced by `CLI-VERSION-05` |
 | ~~`CLI-VERSION-03`~~ | any argument is ignored, exit code 0 | 3 | replaced by `CLI-USAGE-02` |
-| `CLI-VERSION-04` | `--version` writes `subedit <version>` on standard output, code 0 | 3 | implemented |
+| `CLI-VERSION-04` | `--version` writes `subedit <version>` on standard output, alone on the first line, code 0 | 3 | implemented |
 | `CLI-VERSION-05` | a successful invocation writes nothing on standard error | 3 | implemented |
 | `CLI-USAGE-01` | with no argument, the help is written on standard output, code 0 | 3 | implemented |
 | `CLI-USAGE-02` | an unknown option or an invalid value gives code 1 | 3 | implemented |
@@ -94,7 +94,7 @@ longer prove anything.
 | `CLI-HEARING-05` | a file without any mention is written unchanged, code 0 | 4 | implemented |
 | `CLI-HEARING-06` | without an explicit destination, nothing is written and the code is 1 | 4 | implemented |
 | `CLI-HEARING-07` | `--parentheses` also removes the mentions between parentheses | 4 | implemented |
-| `GUI-VERSION-01` | `subedit-gui --version` writes `subedit <version>` on standard output, code 0 | 5 | implemented |
+| `GUI-VERSION-01` | `subedit-gui --version` writes `subedit <version>` on standard output, alone on the first line, code 0 | 5 | implemented |
 | `GUI-OPEN-01` | `subedit-gui <file>` opens the file and displays its subtitles | 5 | implemented |
 | `GUI-OPEN-02` | an unreadable file gives a message and leaves the window empty | 5 | implemented |
 | `GUI-OPEN-03` | the reading diagnostics are shown, with their line | 5 | implemented |
@@ -333,3 +333,8 @@ longer prove anything.
 | `GUI-I18N-02` | `Preferences…` offers the interface language; it is kept from one session to the next and applies at the next launch | 15 | implemented |
 | `GUI-I18N-03` | `Help ▸ Manual` opens the manual of the chosen language, English when the page or the language is missing | 15 | implemented |
 | `GUI-I18N-04` | the names and descriptions of Gaupol's correction patterns are shown translated, and a user's own pattern is shown as written | 15 | implemented |
+| `CLI-VERSION-06` | after its first line, `--version` names each library the command line runs against — ICU, Enchant, CLI11 — with the version loaded and the version built against, then the installed languages; the words follow the language, the names and versions do not | 15 | implemented |
+| `CLI-VERSION-07` | `--version --format json` writes one object with the version, the libraries and the languages, wherever `--format` is written | 15 | implemented |
+| `CLI-VERSION-08` | every library the build looks for with `find_package` or `pkg_check_modules` is named by the `--version` of one binary or the other | 15 | implemented |
+| `GUI-VERSION-02` | `subedit-gui --version` names Qt, ICU, libmpv and Enchant with both of their versions, then the installed languages | 15 | implemented |
+| `GUI-ABOUT-01` | `About subedit` lists the libraries of `--version` in a table — name, version loaded, version built against — and the installed languages, its headings in the chosen language | 15 | implemented |

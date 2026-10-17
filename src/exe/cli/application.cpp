@@ -5,12 +5,14 @@
 #include <subedit/cli/reporter.hpp>
 #include <subedit/cli/shared_settings.hpp>
 #include <subedit/cli/verbosity.hpp>
+#include <subedit/cli/version_report.hpp>
 #include <subedit/core/i18n/messages.hpp>
 #include <subedit/core/io/real_file_system.hpp>
-#include <subedit/core/version.hpp>
+#include <subedit/core/libraries.hpp>
 #include <subedit/platform/locations.hpp>
 
 #include <CLI/CLI.hpp>
+#include <CLI/Version.hpp>
 #include <expected>
 #include <iostream>
 #include <memory>
@@ -65,6 +67,15 @@ void headSubcommands(CLI::App& app) {
     }
 }
 
+/// The libraries this binary runs against: the core's, and CLI11 — compiled into the binary, its
+/// headers being all there is of it, so the version loaded is the version built. Neither Qt nor
+/// libmpv: the command line links neither.
+[[nodiscard]] std::vector<core::Library> libraries() {
+    std::vector<core::Library> linked = core::coreLibraries();
+    linked.push_back({.name = "CLI11", .loaded = CLI11_VERSION, .built = CLI11_VERSION});
+    return linked;
+}
+
 } // namespace
 
 ExitCode run(int argc, char** argv) {
@@ -75,11 +86,13 @@ ExitCode run(int argc, char** argv) {
     // the manual.
     app.name("subedit-cli");
     speakTheLanguage(app);
-    // The version is a name and a number, the same in every language.
-    app.set_version_flag(
-        "--version",
-        std::string{"subedit"} + " " + core::versionString(),
-        std::string{core::translate("Display program version information and exit")});
+    // **A flag of ours, and not CLI11's version flag** (#716): CLI11 answers its own as soon as it
+    // meets it, before `--format` is read, and the version now has a JSON form. Read after the
+    // parse, like `--list-encodings`, it does not care where `--format` was written.
+    bool showVersion = false;
+    app.add_flag("--version",
+                 showVersion,
+                 std::string{core::translate("Display program version information and exit")});
 
     // How many times -v was given, not the level itself: CLI11 zeroes a bound
     // counter when the flag is absent, which would silently turn the default
@@ -152,9 +165,19 @@ ExitCode run(int argc, char** argv) {
         app.parse(argc, argv);
     } catch (const CLI::ParseError& error) {
         // CLI11 has its own exit codes; ours are the four of the manual. Help
-        // and version leave through here because CLI11 signals them as
-        // exceptions, and they keep code 0.
+        // leaves through here because CLI11 signals it as an exception, and it
+        // keeps code 0.
         return app.exit(error) == 0 ? ExitCode::Success : ExitCode::Usage;
+    }
+
+    // The answer, before anything else is weighed, as CLI11's own flag was: `-q -v` beside it is
+    // not a reason to refuse to say which version this is.
+    if (showVersion) {
+        writeVersion(std::cout,
+                     libraries(),
+                     core::installedLanguageCodes(platform::installedLocalePath()),
+                     format == "json");
+        return ExitCode::Success;
     }
 
     const std::expected<int, std::string> level = levelFrom(quiet, verboseCount);

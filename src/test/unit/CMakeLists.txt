@@ -255,6 +255,7 @@ add_executable(
     cli/translation_writing_test.cpp
     cli/transforming_test.cpp
     cli/verbosity_test.cpp
+    cli/version_report_test.cpp
     cli/writing_test.cpp)
 
 target_link_libraries(subedit_cli_test PRIVATE subedit::cli Catch2::Catch2WithMain)
