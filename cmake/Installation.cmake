@@ -33,7 +33,9 @@ install(TARGETS subedit-cli subedit-gui RUNTIME DESTINATION "${CMAKE_INSTALL_BIN
 # that is, never. `DIRECTORY` makes the defect structurally impossible for what
 # lives under `docs/manual`.
 #
-# `Help ▸ Manual` will open what is laid down here — issue #245.
+# `Help ▸ Manual` opens what is laid down here — issue #245. The translated
+# trees go under it, one directory per installed language: `Translations.cmake`
+# lays them down, since it is what knows the installed languages — issue #682.
 install(
     DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/docs/manual/"
     DESTINATION "${CMAKE_INSTALL_DATADIR}/subedit/manual")

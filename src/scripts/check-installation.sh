@@ -260,37 +260,60 @@ if wanted binaries; then
     check_binary subedit-gui
 fi
 
+# The languages `src/po/LINGUAS` installs, one per line — read by the manual's check and the
+# catalogues'.
+installed_languages() {
+    grep -v '^[[:space:]]*\(#\|$\)' "${LINGUAS}" || true
+}
+
 # ## Every page of the manual ends up under the prefix
 #
 # **The expected list is computed, never copied.** A list written by hand goes
 # stale at the first added chapter, and the gap would show only if someone
 # thought of adding it — that is, never. The screenshots count as much as the
 # pages: a missing image is a page with a hole in it.
-check_manual() {
-    local installed="${prefix}/share/subedit/manual"
+#
+# **And every installed language's tree, under a directory of its name** — spec 15, D9, issue
+# #682: `docs/i18n/<language>/manual` of each language `src/po/LINGUAS` names, under
+# `share/subedit/manual/<language>`, which `Help ▸ Manual` reads before English. A language with
+# no translated manual has nothing to check.
+check_manual_tree() {
+    local source="$1" installed="$2" rule="$3"
 
     if [[ ! -d "${installed}" ]]; then
-        report_failure "the manual was not installed in share/subedit/manual"
+        report_failure "the manual was not installed in ${installed#"${prefix}/"}"
         return
     fi
 
     local missing=()
     local file
     while IFS= read -r -d '' file; do
-        local relative="${file#"${MANUAL_DIR}/"}"
+        local relative="${file#"${source}/"}"
         [[ -f "${installed}/${relative}" ]] || missing+=("${relative}")
-    done < <(find "${MANUAL_DIR}" -type f -print0)
+    done < <(find "${source}" -type f -print0)
 
     if (( ${#missing[@]} > 0 )); then
-        report_failure "the installed manual is incomplete:
+        report_failure "the manual installed in ${installed#"${prefix}/"} is incomplete:
 $(printf '    %s\n' "${missing[@]}")
-    the install() rules of cmake/Installation.cmake do not copy everything"
+    the install() rules of ${rule} do not copy everything"
         return
     fi
 
     local count
-    count="$(find "${MANUAL_DIR}" -type f | wc -l)"
-    report_success "the ${count} files of the manual are installed"
+    count="$(find "${source}" -type f | wc -l)"
+    report_success "the ${count} files of the manual are installed in ${installed#"${prefix}/"}"
+}
+
+check_manual() {
+    check_manual_tree "${MANUAL_DIR}" "${prefix}/share/subedit/manual" cmake/Installation.cmake
+
+    local language
+    while IFS= read -r language; do
+        local translated="${REPO_ROOT}/docs/i18n/${language}/manual"
+        [[ -d "${translated}" ]] || continue
+        check_manual_tree "${translated}" "${prefix}/share/subedit/manual/${language}" \
+            cmake/Translations.cmake
+    done < <(installed_languages)
 }
 
 if wanted manual; then
@@ -342,10 +365,6 @@ fi
 # falls back to English without a word, and nobody sees it until a user complains. The location
 # is the one the reader of `core/i18n/` looks in (issue #659); the file must also be a `.mo` — an
 # empty file installed in the right place is the defect that a presence check does not see.
-installed_languages() {
-    grep -v '^[[:space:]]*\(#\|$\)' "${LINGUAS}" || true
-}
-
 check_catalogues() {
     local root="${prefix}/share/subedit/locale"
     local language checked=0
