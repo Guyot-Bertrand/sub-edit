@@ -15,6 +15,8 @@ ne pas l'éditer à la main.
 - **scripts** — Time the gate steps and their phases, with load and JOBS
 - **scripts** — Time each proof of verify-gates with its load and JOBS
 - **scripts** — Compare the last gate timings with make timings
+- **i18n** — Generate the subedit-cli man pages from the manual
+- **scripts** — Lint every installed man page with man -l
 
 ### Construction
 
@@ -23,6 +25,7 @@ ne pas l'éditer à la main.
 ### Corrections
 
 - **scripts** — Prove the tidy key from Ninja's plan
+- **scripts** — Fix the vocabulary proofs after the man page check
 
 ### Documentation
 
@@ -67,6 +70,13 @@ ne pas l'éditer à la main.
 - **doc** — Translate the French manual's settings and language parts
 - **doc** — Write the French window's labels in the French manual
 - **doc** — Translate CLAUDE.md into English
+- **doc** — Regenerate the changelog
+- **doc** — Say where the generated man pages live, in both manuals
+- **doc** — Note the ICU tie on the short CP1250 file
+
+### Tests
+
+- **i18n** — Check the generated man pages against --help
 
 ## 0.15.32 — 2026-10-15
 
