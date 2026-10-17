@@ -269,7 +269,7 @@ marque — mais sans le dire ; ici l'écart entre ce qui a été demandé et ce 
 <!-- example: subedit-cli --version -->
 ```console
 $ subedit-cli --version
-subedit 0.15.36
+subedit 0.15.37
 ```
 
 ## Sous-commandes
@@ -786,19 +786,35 @@ code=1
 Le parcours, l'arborescence conservée sous `--output-dir` et ce qui est laissé
 de côté sont décrits dans [Traiter un arbre](lots.md).
 
-## La page de manuel
+## Les pages de manuel
 
-Une installation dépose `subedit-cli(1)` sous `share/man/man1`, à côté de
-`subedit-gui(1)` :
+Une installation dépose **une page de manuel par sous-commande** à côté de `subedit-cli(1)` :
+`subedit-cli-shift(1)`, `subedit-cli-convert(1)` et les autres, une par ligne du
+[tableau des sous-commandes](#sous-commandes). `subedit-cli(1)` reprend ce chapitre — les
+options globales, les sorties, les codes de retour — et chacune des autres le chapitre de sa
+sous-commande, exemples compris. La page de la fenêtre, `subedit-gui(1)`, est à côté.
 
 ```console
 $ man subedit-cli
+$ man subedit-cli-shift
 ```
 
-Elle tient en une page ce que ce manuel dit en dix : la forme d'appel, ce que
-chaque sous-commande fait, les options globales, les codes de retour — puis où
-lire le reste. **Elle est courte délibérément** : la recopier entière ici en
-produirait une seconde version à tenir, qui divergerait.
+**Les pages ne s'écrivent pas à part de ce manuel** : elles en sont engendrées à la construction
+du programme, si bien qu'elles disent ce qu'il dit et ne peuvent pas s'en écarter. La section
+FICHIERS de chaque page nomme le répertoire où le manuel est installé.
+
+| Pages | Où elles sont installées |
+| :---- | :----------------------- |
+| l'anglais | `share/man/man1` |
+| chaque langue installée — le français | `share/man/<language>/man1` — `share/man/fr/man1` |
+
+**`man` choisit la langue d'après la locale**, comme le programme : sous une locale française,
+`man subedit-cli` affiche la page française, et une langue dont les pages ne sont pas installées
+reçoit les pages anglaises. `-L` demande une langue quelle que soit la locale :
+
+```console
+$ man -L fr subedit-cli-shift
+```
 
 ## Codes de retour
 

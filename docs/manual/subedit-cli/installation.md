@@ -25,7 +25,8 @@ sudo dnf install ./subedit-<version>.x86_64.rpm     # Fedora, and relatives
 | this manual, in Markdown | `/usr/share/subedit/manual` |
 | its translation into each installed language — French | `/usr/share/subedit/manual/<language>` — `fr` |
 | Gaupol's correction patterns | `/usr/share/subedit/patterns` |
-| the manual pages of `subedit-cli` and `subedit-gui` | `/usr/share/man/man1` |
+| the manual pages of `subedit-cli`, one per subcommand, and of `subedit-gui` — see [The manual pages](invocation.md#the-manual-pages) | `/usr/share/man/man1` |
+| the pages of `subedit-cli` in each installed language — French | `/usr/share/man/<language>/man1` — `fr` |
 
 `ffmpeg` is **recommended and not required** by both packages: without it, the
 window only stops offering the frame rate the film declares — see
@@ -195,7 +196,8 @@ prefix:
 | this manual, in Markdown | `<prefix>/share/subedit/manual` |
 | its translation into each installed language — French | `<prefix>/share/subedit/manual/<language>` — `fr` |
 | Gaupol's correction patterns | `<prefix>/share/subedit/patterns` |
-| the manual pages of both binaries | `<prefix>/share/man/man1` |
+| the manual pages of both binaries, one per subcommand for `subedit-cli` | `<prefix>/share/man/man1` |
+| the pages of `subedit-cli` in each installed language — French | `<prefix>/share/man/<language>/man1` — `fr` |
 
 **They are the same files the packages install**: the packages come out of them,
 rather than being described a second time.

@@ -27,3 +27,5 @@ step "catalogue seeds: accelerators, placeholders, plurals and fuzzy entries, re
 "${REPO_ROOT}/src/scripts/seed-catalogues.py" --check-fixtures
 step "stale translations: installed languages fail, seeds are reported, replayed on a fixture"
 "${REPO_ROOT}/src/scripts/check-translations.py" --check-fixtures
+step "man pages: the converter's output written by hand, and the constructs it refuses"
+"${REPO_ROOT}/src/scripts/md-to-man.py" --check-fixtures

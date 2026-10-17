@@ -95,6 +95,11 @@
 # — this script is the project's only harness for what is written in shell, and
 # an irreversible selection that no run checks would be a belief as well.
 #
+# The man pages of #683 have four more, beside the five of the command-line
+# manual: the pages generated from the manual pass the lint, which refuses a
+# macro groff does not know and a byte outside ASCII, and the converter refuses
+# a page of the manual written outside its subset — what fails the build.
+#
 # To be replayed after any change to .clang-format, .clang-tidy, the compiler
 # options, the coverage ratchet, the requirements registry or cliff.toml.
 #
@@ -1815,18 +1820,18 @@ expect_translation_structure_gate
 
 # The manual of `subedit-cli` and its `--help` — #546.
 #
-# **Four proofs, one per defect the check promises to see**, and one for green:
+# **Five proofs, one per defect the check promises to see**, and one for green:
 # a subcommand without a page, an option of the help that no table carries, an
-# option of a table that the help does not know, and a global option that the
-# `subedit-cli(1)` man page forgets. Every injection is made in **a copy** of
-# the manual, in a scratch directory: the check takes the manual and the man
-# page as arguments, so nothing of the repository is touched and `restore` has
-# nothing to put back.
+# option of a table that the help does not know, a global option that the
+# generated `subedit-cli(1)` man page forgets, and an option of a subcommand
+# that its generated page forgets (#683). Every injection is made in **a copy**
+# of the manual or of the pages, in a scratch directory: the check takes the
+# manual and the man pages as arguments, so nothing of the repository is
+# touched and `restore` has nothing to put back.
 expect_cli_manual_gate() {
     local script="${REPO_ROOT}/src/scripts/check-cli-manual.py"
     local binary="${REPO_ROOT}/build/dev/bin/subedit-cli"
     local real_manual="${REPO_ROOT}/docs/manual/subedit-cli"
-    local real_man_page="${REPO_ROOT}/packaging/subedit-cli.1.in"
     local root
     root="$(mktemp -d)"
 
@@ -1843,7 +1848,7 @@ expect_cli_manual_gate() {
         local label="$1" expected="$2"
         local output
         if output="$("${script}" --binary "${binary}" --manual "${root}/manual" \
-            --man-page "${root}/subedit-cli.1.in" 2>&1)"; then
+            --man-root "${root}/man" 2>&1)"; then
             printf '  %s✗ the check let it through: %s%s\n' "${RED}" "${label}" "${RESET}"
             failures=$((failures + 1))
         elif [[ "${output}" == *"${expected}"* && "${output}" == *"1 mismatch(es)"* ]]; then
@@ -1855,10 +1860,13 @@ expect_cli_manual_gate() {
             failures=$((failures + 1))
         fi
     }
+    # The pages generated from the copy, as the build generates them: a defect injected into
+    # the manual reaches them the way it would reach the installed ones.
     fresh_copy() {
-        rm -rf "${root}/manual" "${root}/subedit-cli.1.in"
+        rm -rf "${root}/manual" "${root}/man"
         cp -r "${real_manual}" "${root}/manual"
-        cp "${real_man_page}" "${root}/subedit-cli.1.in"
+        "${REPO_ROOT}/src/scripts/md-to-man.py" --manual "${real_manual}" \
+            --output-dir "${root}/man/man1" --version 0 --manual-dir /nowhere >/dev/null
     }
 
     proof_header '%s▸ a subcommand without a manual page%s\n' "${BOLD}" "${RESET}"
@@ -1879,13 +1887,89 @@ expect_cli_manual_gate() {
 
     proof_header '%s▸ a global option that the man page forgets%s\n' "${BOLD}" "${RESET}"
     fresh_copy
-    sed -i 's/\\-\\-encoding/\\-\\-forgotten/' "${root}/subedit-cli.1.in"
+    sed -i 's/\\-\\-encoding/\\-\\-forgotten/g' "${root}/man/man1/subedit-cli.1"
     expect_cli_manual_refused "--encoding missing from the man page" "MISSING GLOBAL OPTION"
+
+    proof_header '%s▸ an option of a subcommand that its man page forgets%s\n' "${BOLD}" "${RESET}"
+    fresh_copy
+    sed -i 's/\\-\\-to\\-grid/\\-\\-forgotten/g' "${root}/man/man1/subedit-cli-shift.1"
+    expect_cli_manual_refused "--to-grid missing from subedit-cli-shift(1)" "MAN PAGE WITHOUT OPTION"
 
     rm -rf "${root}"
 }
 
 expect_cli_manual_gate
+
+# The man pages, generated and linted — #683.
+#
+# **Three proofs and one for green.** The pages generated from the real manual render without a
+# warning (the lint does not cry wolf); a page carrying a macro groff does not know is refused by
+# `check-man-pages.py`, and so is a page with a byte outside ASCII; and a page of the manual
+# written outside the converter's subset — an image — makes `md-to-man.py` stop and name it, which
+# is what fails the build. Everything is generated into a scratch directory, from a copy for the
+# last proof: nothing of the repository is touched.
+expect_man_pages_gate() {
+    local generator="${REPO_ROOT}/src/scripts/md-to-man.py"
+    local lint="${REPO_ROOT}/src/scripts/check-man-pages.py"
+    local root output
+    root="$(mktemp -d)"
+    "${generator}" --manual "${REPO_ROOT}/docs/manual/subedit-cli" --output-dir "${root}/man1" \
+        --version 0 --manual-dir /nowhere >/dev/null
+
+    proof_header '%s▸ the man pages generated from the manual%s\n' "${BOLD}" "${RESET}"
+    if "${lint}" "${root}/man1" >/dev/null 2>&1; then
+        printf '  %s✓ « check-man-pages.py » let the generated pages through, as expected%s\n' \
+            "${GREEN}" "${RESET}"
+    else
+        printf '  %s✗ the lint refuses the pages generated from the manual%s\n' "${RED}" "${RESET}"
+        failures=$((failures + 1))
+    fi
+
+    expect_man_lint_refused() {
+        local label="$1" expected="$2"
+        if output="$("${lint}" "${root}/man1" 2>&1)"; then
+            printf '  %s✗ the lint let it through: %s%s\n' "${RED}" "${label}" "${RESET}"
+            failures=$((failures + 1))
+        elif [[ "${output}" == *"${expected}"*"subedit-cli-shift.1"* && "${output}" == *"problem(s) in"* ]]; then
+            printf '  %s✓ « check-man-pages.py » refused, and named the page: %s%s\n' \
+                "${GREEN}" "${label}" "${RESET}"
+        else
+            printf '  %s✗ the lint refused, but not for the right reason: %s%s\n' \
+                "${RED}" "${label}" "${RESET}"
+            failures=$((failures + 1))
+        fi
+    }
+
+    proof_header '%s▸ a man page with a macro groff does not know%s\n' "${BOLD}" "${RESET}"
+    cp "${root}/man1/subedit-cli-shift.1" "${root}/shift.1"
+    printf '.UNKNOWN macro\n' >> "${root}/man1/subedit-cli-shift.1"
+    expect_man_lint_refused "an unknown macro" "WARNING"
+
+    proof_header '%s▸ a man page with a byte outside ASCII%s\n' "${BOLD}" "${RESET}"
+    cp "${root}/shift.1" "${root}/man1/subedit-cli-shift.1"
+    printf 'd\xc3\xa9cale\n' >> "${root}/man1/subedit-cli-shift.1"
+    expect_man_lint_refused "a UTF-8 letter" "NOT ASCII"
+
+    proof_header '%s▸ a page of the manual outside the subset the converter handles%s\n' \
+        "${BOLD}" "${RESET}"
+    cp -r "${REPO_ROOT}/docs/manual/subedit-cli" "${root}/manual"
+    printf '\n![a picture](shift.png)\n' >> "${root}/manual/shift.md"
+    if output="$("${generator}" --manual "${root}/manual" --output-dir "${root}/copy" \
+        --version 0 --manual-dir /nowhere 2>&1)"; then
+        printf '  %s✗ the converter let an image through%s\n' "${RED}" "${RESET}"
+        failures=$((failures + 1))
+    elif [[ "${output}" == *"shift.md"*"an image"* ]]; then
+        printf '  %s✓ « md-to-man.py » refused, and named the page and the construct%s\n' \
+            "${GREEN}" "${RESET}"
+    else
+        printf '  %s✗ the converter refused, but not for the right reason%s\n' "${RED}" "${RESET}"
+        failures=$((failures + 1))
+    fi
+
+    rm -rf "${root}"
+}
+
+expect_man_pages_gate
 
 # The manual of `subedit-gui` and the window's shortcuts — #612, #672.
 #
@@ -2044,17 +2128,15 @@ FAKE
 
     local tree="${fixture}/docs/i18n/es/manual" table="${fixture}/vocabulary-es.json"
     local name script manual binary output counted
-    local -a extra
     for name in gui cli; do
         script="${REPO_ROOT}/src/scripts/check-${name}-manual.py"
         manual="${tree}/subedit-${name}"
         binary="${root}/fake-${name}"
-        extra=()
         counted="1 difference(s)"
-        [[ "${name}" == cli ]] && extra=(--man-page "${root}/absent.1.in") && counted="1 mismatch(es)"
+        [[ "${name}" == cli ]] && counted="1 mismatch(es)"
 
         proof_header '%s▸ a Spanish page, with its vocabulary table (%s)%s\n' "${BOLD}" "${name}" "${RESET}"
-        if "${script}" --binary "${binary}" --manual "${manual}" "${extra[@]}" --vocabulary "${table}" >/dev/null 2>&1; then
+        if "${script}" --binary "${binary}" --manual "${manual}" --vocabulary "${table}" >/dev/null 2>&1; then
             printf '  %s✓ « check-%s-manual.py » read the Spanish page, as expected%s\n' "${GREEN}" "${name}" "${RESET}"
         else
             printf '  %s✗ the check refuses a Spanish page that has its table%s\n' "${RED}" "${RESET}"
@@ -2062,7 +2144,7 @@ FAKE
         fi
 
         proof_header '%s▸ the same page, without a vocabulary table (%s)%s\n' "${BOLD}" "${name}" "${RESET}"
-        if output="$("${script}" --binary "${binary}" --manual "${manual}" "${extra[@]}" 2>&1)"; then
+        if output="$("${script}" --binary "${binary}" --manual "${manual}" 2>&1)"; then
             printf '  %s✗ the check let through a page whose language it does not know%s\n' "${RED}" "${RESET}"
             failures=$((failures + 1))
         elif [[ "${output}" == *"LANGUAGE WITHOUT VOCABULARY"* && "${output}" == *"${counted}"* ]]; then

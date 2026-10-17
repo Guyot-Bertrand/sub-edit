@@ -135,6 +135,13 @@ set(CPACK_RPM_EXCLUDE_FROM_AUTO_FILELIST_ADDITION
     "${CPACK_PACKAGING_INSTALL_PREFIX}/${CMAKE_INSTALL_DATADIR}/icons/hicolor/scalable/apps"
     "${CPACK_PACKAGING_INSTALL_PREFIX}/${CMAKE_INSTALL_MANDIR}"
     "${CPACK_PACKAGING_INSTALL_PREFIX}/${CMAKE_INSTALL_MANDIR}/man1")
+# The man pages of every installed language go under `man/<language>/man1` (#683), which the
+# distribution owns as it owns `man/man1`: Fedora's `filesystem` lays them down.
+foreach(language IN LISTS SUBEDIT_LANGUAGES)
+    list(APPEND CPACK_RPM_EXCLUDE_FROM_AUTO_FILELIST_ADDITION
+         "${CPACK_PACKAGING_INSTALL_PREFIX}/${CMAKE_INSTALL_MANDIR}/${language}"
+         "${CPACK_PACKAGING_INSTALL_PREFIX}/${CMAKE_INSTALL_MANDIR}/${language}/man1")
+endforeach()
 
 # **No post-installation script, and that is a decision.** Gaupol calls
 # `update-desktop-database` from its Makefile, and only when `DESTDIR` is empty

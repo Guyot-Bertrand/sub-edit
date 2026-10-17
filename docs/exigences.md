@@ -328,7 +328,7 @@ longer prove anything.
 | `CLI-I18N-01` | the command line's help, narration and errors follow the language chosen by `LANGUAGE`, `LC_ALL`, `LC_MESSAGES`, `LANG`, English when it is unknown | 15 | implemented |
 | `CLI-I18N-02` | `--format json` output is byte-identical whatever the language | 15 | implemented |
 | `CLI-I18N-03` | `LC_ALL=C` yields English | 15 | implemented |
-| `CLI-I18N-04` | `subedit-cli(1)` and one page per sub-command are installed, and list the options `--help` lists | 15 | planned |
+| `CLI-I18N-04` | `subedit-cli(1)` and one page per sub-command are installed, and list the options `--help` lists | 15 | implemented |
 | `GUI-I18N-01` | the window shows its menus, dialogs and messages in the chosen language, English when it is not installed | 15 | implemented |
 | `GUI-I18N-02` | `Preferences…` offers the interface language; it is kept from one session to the next and applies at the next launch | 15 | implemented |
 | `GUI-I18N-03` | `Help ▸ Manual` opens the manual of the chosen language, English when the page or the language is missing | 15 | implemented |

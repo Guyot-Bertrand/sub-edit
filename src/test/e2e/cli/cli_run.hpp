@@ -173,6 +173,14 @@ CliRun invokeShipped(const Locale& locale, const std::vector<std::string>& args)
 CliRun invokeInEveryLanguage(const std::vector<std::string>& args,
                              const std::optional<std::string>& workingDirectory = std::nullopt);
 
+/// Runs a program that is not ours — `man`, for the pages the build generates (#683) — under
+/// the same harness: no shell, the configuration homes moved, the language variables exactly
+/// those of `locale`. `program` is a full path, resolved by the build, never looked up in the
+/// `PATH`.
+CliRun invokeProgram(const std::string& program,
+                     const std::vector<std::string>& args,
+                     const Locale& locale);
+
 /// A path into the test corpus, resolved by the build.
 ///
 /// `SUBEDIT_TEST_DATA_DIR` comes from CMake and never from the current

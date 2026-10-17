@@ -1,20 +1,21 @@
-.\" La page de manuel de subedit-gui.
+.\" The manual page of subedit-gui.
 .\"
-.\" **Elle existe parce que Gaupol en a une** -- issue #272. La page de
-.\" subedit-cli disait le contraire en une phrase de SEE ALSO : "une fenetre ne
-.\" se decrit pas par une page de manuel". C'etait un manque habille en
-.\" decision, et le contre-exemple etait dans le depot de reference : le seul
-.\" document que Gaupol installe est une page de manuel, et c'est celle de son
-.\" programme graphique.
+.\" **It exists because Gaupol has one** -- issue #272. The page of subedit-cli
+.\" said the opposite in one sentence of SEE ALSO: "a window is not described
+.\" by a manual page". That was a gap dressed up as a decision, and the
+.\" counterexample was in the reference repository: the only document Gaupol
+.\" installs is a manual page, and it is the one of its graphical program.
 .\"
-.\" Ce qu'une page decrit d'une application graphique n'est pas sa fenetre :
-.\" c'est sa surface en ligne de commande, qui existe et qui tient ici. Les
-.\" chapitres de la fenetre restent au manuel complet.
+.\" What a page describes of a graphical application is not its window: it is
+.\" its command-line surface, which exists and is held here. The chapters of
+.\" the window stay in the full manual.
 .\"
-.\" Comme sa voisine, cette page s'ecrit sans accents : troff lit des octets et
-.\" non de l'UTF-8 tant que personne n'appelle preconv pour lui. Voir l'en-tete
-.\" de subedit-cli.1.in ; check-installation.sh passe les deux pages a
-.\" "groff -ww -z" et refuse le moindre avertissement.
+.\" **The last page written by hand.** The pages of subedit-cli are generated
+.\" from its manual since #683 (src/scripts/md-to-man.py); this one is still a
+.\" template, configured at installation. Like them, it is written in ASCII
+.\" from end to end: troff reads bytes and not UTF-8 as long as nobody calls
+.\" preconv for it. check-installation.sh renders every installed page with
+.\" "man -l --warnings=w" (check-man-pages.py) and refuses the slightest warning.
 .TH SUBEDIT-GUI 1 "" "subedit @PROJECT_VERSION@" "User Commands"
 .SH NAME
 subedit\-gui \- edit subtitle files in a window

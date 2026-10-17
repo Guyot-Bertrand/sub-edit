@@ -35,6 +35,9 @@ set(SUBEDIT_LOCALE_BUILD_DIR "${CMAKE_BINARY_DIR}/share/subedit/locale")
 set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS "${SUBEDIT_PO_DIR}/LINGUAS")
 file(STRINGS "${SUBEDIT_PO_DIR}/LINGUAS" subedit_linguas)
 
+# The installed languages, cleaned of blanks and comments, for the modules that follow: the man
+# pages are generated per language too (`ManPages.cmake`).
+set(SUBEDIT_LANGUAGES "")
 set(subedit_catalogues "")
 foreach(language IN LISTS subedit_linguas)
     string(STRIP "${language}" language)
@@ -46,6 +49,7 @@ foreach(language IN LISTS subedit_linguas)
     if(NOT EXISTS "${po}")
         message(FATAL_ERROR "src/po/LINGUAS names \"${language}\", and ${po} does not exist")
     endif()
+    list(APPEND SUBEDIT_LANGUAGES "${language}")
 
     set(mo "${SUBEDIT_LOCALE_BUILD_DIR}/${language}/LC_MESSAGES/subedit.mo")
     # `--check`: the header is complete, the formats of the messages match those of the original.

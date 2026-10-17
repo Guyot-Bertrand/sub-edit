@@ -1,0 +1,15 @@
+[
+  {"name": "an image", "page": "demo.md", "append": "\n![a picture](demo.png)\n", "expect": "demo.md:", "reason": "an image"},
+  {"name": "raw HTML", "page": "demo.md", "append": "\n<div>block</div>\n", "expect": "demo.md:", "reason": "raw HTML"},
+  {"name": "an indented code block", "page": "demo.md", "append": "\n    indented\n", "expect": "demo.md:", "reason": "an indented code block"},
+  {"name": "a nested list", "page": "demo.md", "append": "\n- outer\n  - inner\n", "expect": "demo.md:", "reason": "a nested list"},
+  {"name": "a horizontal rule", "page": "demo.md", "append": "\n***\n", "expect": "demo.md:", "reason": "a horizontal rule"},
+  {"name": "a heading of level five", "page": "demo.md", "append": "\n##### Deep\n", "expect": "demo.md:", "reason": "a heading of level 5"},
+  {"name": "a setext heading", "page": "demo.md", "append": "\nTitle\n=====\n", "expect": "demo.md:", "reason": "a setext heading"},
+  {"name": "an unclosed **", "page": "demo.md", "append": "\nThis **never closes.\n", "expect": "demo.md:", "reason": "a ** that is never closed"},
+  {"name": "an unclosed code span", "page": "demo.md", "append": "\nThis `never closes.\n", "expect": "demo.md:", "reason": "a code span that is never closed"},
+  {"name": "an unclosed code block", "page": "demo.md", "append": "\n```\nnever closed\n", "expect": "demo.md:", "reason": "a code block that is never closed"},
+  {"name": "a table row of the wrong width", "page": "demo.md", "append": "\n| A | B |\n| :- | :- |\n| one |\n", "expect": "demo.md:", "reason": "a table row of 1 cells under a header of 2"},
+  {"name": "a page that does not give a man page is read too", "page": "index.md", "append": "\n![a picture](demo.png)\n", "expect": "index.md:", "reason": "an image"},
+  {"name": "a subcommand without its page", "page": "demo.md", "delete": true, "expect": "demo.md", "reason": "is in the subcommand table"}
+]
