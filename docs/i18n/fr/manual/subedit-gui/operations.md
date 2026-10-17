@@ -1,6 +1,6 @@
 # Les opérations
 
-Le menu **Tools** porte seize opérations, une analyse et deux entrées d'orthographe. Chacune des
+Le menu **Outils** porte seize opérations, une analyse et deux entrées d'orthographe. Chacune des
 seize s'annule d'un `Ctrl+Z` ; l'analyse ne modifie rien. `Check Spelling…` s'annule aussi, et `Spell-Check Settings…` ne touche à aucun texte.
 
 | Entrée | Dialogue | Ce qu'elle fait |
@@ -18,16 +18,16 @@ seize s'annule d'un `Ctrl+Z` ; l'analyse ne modifie rien. `Check Spelling…` s'
 | `Casse ▸ MAJUSCULES` | **non** | tout en capitales |
 | `Casse ▸ minuscules` | **non** | tout en minuscules |
 | `Remove Hearing-Impaired Mentions…` | oui, sans réglage | retire les mentions pour malentendants |
-| `Correct Texts…` | oui, un assistant à plusieurs pages | propose des corrections — mentions, jonction et scission de mots, erreurs courantes, majuscules, découpage — et les applique une fois acceptées, voir [Correct Texts…](correct-texts.md) |
-| `Check Spelling…` | oui, un parcours mot à mot | parcourt les mots inconnus du dictionnaire et applique ce qu'on a corrigé, voir [Check Spelling…](check-spelling.md) |
-| `Spell-Check Settings…` | oui | choisit la langue, la cible et le document de la vérification, et le soulignement à la frappe, voir [Check Spelling…](check-spelling.md#spell-check-settings) |
+| `Correct Texts…` | oui, un assistant à plusieurs pages | propose des corrections — mentions, jonction et scission de mots, erreurs courantes, majuscules, découpage — et les applique une fois acceptées, voir [Corriger les textes…](correct-texts.md) |
+| `Check Spelling…` | oui, un parcours mot à mot | parcourt les mots inconnus du dictionnaire et applique ce qu'on a corrigé, voir [Vérifier l'orthographe…](check-spelling.md) |
+| `Spell-Check Settings…` | oui | choisit la langue, la cible et le document de la vérification, et le soulignement à la frappe, voir [Vérifier l'orthographe…](check-spelling.md#réglages-de-la-vérification-orthographique) |
 | `Snap to Frame Rate…` | oui | repose chaque horodatage sur l'image la plus proche |
 | `Shift Whole File onto Grid (…)` | **non** | ramène tout le fichier sur sa grille |
 | `Frame Rate Analysis…` | oui, sans réglage | **ne modifie rien** — voir [La grille d'images](frame-grid.md) |
 
 **Ce qu'une opération a fait se dit dans une boîte d'information qu'il faut
 fermer, sauf pour `Italic`, `Case` et `Dialogue`** : ces trois-là n'ouvrent pas
-de dialogue, et leur compte rendu — « nothing to change » compris — s'affiche
+de dialogue, et leur compte rendu — « rien à changer » compris — s'affiche
 dans la barre d'état, sans rien à fermer. `Split Project…` aussi dit le sien
 dans la barre d'état : son résultat est déjà sous les yeux, dans l'onglet neuf. Les messages sont cités dans la
 section de chaque opération.
@@ -110,8 +110,8 @@ lui dit. Voir [la sienne](#split-project).
 
 **`Correct Texts…` choisit sa cible sur sa propre page**, plutôt que de suivre
 la sélection en cours : la sélection, le projet courant ou tous les projets
-ouverts. Voir [Correct Texts…](correct-texts.md). **`Check Spelling…` la choisit dans
-`Spell-Check Settings…`**, et la retient : voir [Check Spelling…](check-spelling.md).
+ouverts. Voir [Corriger les textes…](correct-texts.md). **`Check Spelling…` la choisit dans
+`Spell-Check Settings…`**, et la retient : voir [Vérifier l'orthographe…](check-spelling.md).
 
 **Les deux opérations de grille ne parlent pas de la même chose que la grille.**
 Une opération porte sur la sélection ; l'analyse et la barre d'état parlent du
@@ -167,7 +167,7 @@ bouton d'aperçu.](captures/decalage.png)
 | un décalage de zéro | il n'y a pas d'opération à enregistrer |
 | un sous-titre passerait avant le début de la vidéo | **aucun fichier ne peut porter une telle position** |
 
-Le troisième cas nomme le fautif — « subtitle 1 would start before the origin » —
+Le troisième cas nomme le fautif — « le sous-titre 1 commencerait avant l'origine » —
 et c'est celui qu'il faut regarder pour voir de combien on s'est trompé. Rien
 n'est appliqué.
 
@@ -310,10 +310,11 @@ garde sa valeur** : décocher `Minimum duration` après avoir posé 2 s ne remet
 1,5 s, et la recocher retrouve 2 s. Les neuf réglages sont dans le
 [fichier de préférences](preferences.md#le-fichier), sous `duration-adjust.`.
 
-**The command line shares them.** [`subedit-cli adjust`](../subedit-cli/adjust.md) reads the
-same nine settings by default, so a speed set here is the speed it uses, unless its own options
-say otherwise; [`subedit-cli config`](../subedit-cli/config.md) shows and changes them. See
-[Two blocks, one shared with the command line](preferences.md#two-blocks-one-shared-with-the-command-line).
+**La ligne de commande les partage.** [`subedit-cli adjust`](../subedit-cli/adjust.md) lit par
+défaut les mêmes neuf réglages, si bien qu'une vitesse posée ici est celle qu'elle emploie, sauf si
+ses propres options disent autre chose ; [`subedit-cli config`](../subedit-cli/config.md) les montre
+et les change. Voir
+[Deux blocs, dont un partagé avec la ligne de commande](preferences.md#deux-blocs-dont-un-partagé-avec-la-ligne-de-commande).
 
 ### Dans quel ordre, et laquelle gagne
 
@@ -535,7 +536,7 @@ elle s'annule d'un `Ctrl+Z` comme les autres.
 
 | Action | Raccourci | Où |
 | :----- | :-------- | :--- |
-| Italique | `Ctrl+I` | menu **Tools**, barre d'outils |
+| Italique | `Ctrl+I` | menu **Outils**, barre d'outils |
 
 C'est la seule opération du menu `Tools` qui ait un bouton dans la
 [barre d'outils](index.md#la-barre-doutils).
@@ -583,7 +584,7 @@ Le compte rendu dit ce qui a été fait, dans le sens où cela a été fait :
 
 **Une ligne vide ne gagne jamais de balises** — un `<i></i>` autour de rien se
 verrait dans la table. Une cible qui n'en contient que ne change donc rien, et
-le dit : « nothing to change ». Aucune entrée n'entre alors dans l'historique.
+le dit : « rien à changer ». Aucune entrée n'entre alors dans l'historique.
 
 ### Ce qu'elle ne touche pas
 
@@ -655,8 +656,8 @@ aucun.
 2 subtitles undashed
 ```
 
-Et quand rien ne change — une cible déjà dans la casse demandée — « nothing to
-change », sans rien poser dans l'historique.
+Et quand rien ne change — une cible déjà dans la casse demandée — « rien à
+changer », sans rien poser dans l'historique.
 
 ## `Remove Hearing-Impaired Mentions…`
 
@@ -698,8 +699,8 @@ Le compte rendu dit les deux :
 1 subtitle cleaned, 1 removed
 ```
 
-**Quand rien ne mord, rien ne se passe** — et le dialogue le dit : « no mention
-to remove ». Aucune entrée n'entre dans l'historique, car une opération qui ne
+**Quand rien ne mord, rien ne se passe** — et le dialogue le dit : « aucune mention
+à supprimer ». Aucune entrée n'entre dans l'historique, car une opération qui ne
 change rien n'est pas une opération à annuler.
 
 **Annuler remet tout en place**, les sous-titres retirés comme les textes

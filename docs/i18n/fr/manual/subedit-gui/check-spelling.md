@@ -1,4 +1,4 @@
-# Check Spelling…
+# Vérifier l'orthographe…
 
 `Outils ▸ Vérifier l'orthographe…` parcourt les mots que le dictionnaire ne connaît pas,
 un à la fois, sur le modèle du correcteur de Gaupol. Elle a une compagne,
@@ -14,9 +14,9 @@ Aucune des deux n'a de raccourci.
 est en plus éteinte sans dictionnaire pour la langue réglée, voir
 [Sans dictionnaire](#sans-dictionnaire).
 
-## Spell-Check Settings…
+## Réglages de la vérification orthographique…
 
-![La fenêtre des réglages, French demandé sans dictionnaire pour lui : la
+![La fenêtre des réglages, le français demandé sans dictionnaire pour lui : la
 phrase sous la langue dit pourquoi.](captures/orthographe-reglages.png)
 
 ![La même fenêtre sous la palette sombre.](captures/orthographe-reglages-sombre.png)
@@ -137,7 +137,7 @@ Edited 2 and removed 0 subtitles
 s'écrit à la fermeture dans `spell-check/<language>.repl`, sous le répertoire de
 configuration de `subedit`, et non dans celui de Gaupol, qui n'est jamais lu.
 Elle compte ensuite parmi les suggestions du correcteur, ici comme dans
-[`Correct Texts…`](correct-texts.md#join-or-split-words--recoller-et-scinder-daprès-le-correcteur).
+[`Correct Texts…`](correct-texts.md#joindre-ou-scinder-des-mots--recoller-et-scinder-daprès-le-correcteur).
 Si elle ne peut pas s'écrire, une boîte d'erreur le dit, `Could not save the
 replacements for` suivi de la langue et de la raison, sans annuler les
 corrections.

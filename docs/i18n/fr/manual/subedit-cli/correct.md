@@ -58,34 +58,36 @@ Options:
 
 ## Ce qui est choisi, et ce qui ne l'est pas
 
-**Nothing is ticked beforehand.** The window opens its boxes as the user left them; a
-command line takes its tasks, its code, its line length and its language from its own line,
-never from the settings file: neither the tasks ticked one day in the window, nor the pattern
-boxes switched there (`correction.activations`), nor the spell-checker's replacement list are
-read, and nothing is written on that side.
+**Rien n'est coché d'avance.** La fenêtre ouvre ses cases comme l'utilisateur les a laissées ;
+une ligne de commande prend ses tâches, son code, sa longueur de ligne et sa langue sur sa propre
+ligne, jamais dans le fichier de réglages : ni les tâches cochées un jour dans la fenêtre, ni les
+cases de motifs changées là (`correction.activations`), ni la liste de remplacements du correcteur
+ne sont lues, et rien n'est écrit de ce côté.
 
-**Four settings come from the settings file, by default** — the values `Correct Texts…`
-remembers, or that [`config set`](config.md) wrote. **An option on the line always wins**, then
-the file, then the built-in default; see [The settings file](invocation.md#the-settings-file)
-for where it is, `--config` and `--no-config`.
+**Quatre réglages viennent par défaut du fichier de réglages** — les valeurs que `Correct Texts…`
+retient, ou que [`config set`](config.md) a écrites. **Une option sur la ligne l'emporte
+toujours**, puis le fichier, puis le défaut intégré ; voir
+[Le fichier de réglages](invocation.md#le-fichier-de-réglages) pour son emplacement, `--config` et
+`--no-config`.
 
-| Key | What it supplies | Option that overrides it |
-| :-- | :--------------- | :----------------------- |
-| `correction.human`, `correction.ocr` | the classes of common errors applied | `--classes` |
-| `correction.remove-blank` | whether the subtitles the correction empties are removed | `--keep-blank-subtitles` |
-| `correction.line-break.max-lines` | the most lines of `line-break` | `--max-lines` |
+| Clé | Ce qu'elle fournit | Option qui la remplace |
+| :-- | :----------------- | :--------------------- |
+| `correction.human`, `correction.ocr` | les classes d'erreurs courantes appliquées | `--classes` |
+| `correction.remove-blank` | si les sous-titres que la correction vide sont supprimés | `--keep-blank-subtitles` |
+| `correction.line-break.max-lines` | le nombre maximal de lignes de `line-break` | `--max-lines` |
 
-- **`correction.remove-blank = false` has no option to undo it** on the line: `--no-config`
-  gives back the removal.
-- **Both classes off in the file is ignored, and said** at level 1 —
-  `settings: correction.human and correction.ocr are both false, ignored` —: `--classes` could not write it, and it would
-  leave common-errors nothing to do. Both classes are applied instead.
-- **A number of lines out of 1 to 1000 is not read from the file at all**: the file's reader
-  refuses it — `settings: correction.line-break.max-lines: cannot read 'N', default kept`, at
-  level 1 — and the built-in 3 is used.
+- **`correction.remove-blank = false` n'a pas d'option qui le défasse** sur la ligne :
+  `--no-config` rend la suppression.
+- **Les deux classes éteintes dans le fichier sont ignorées, et c'est dit** au niveau 1 —
+  `settings: correction.human and correction.ocr are both false, ignored` — : `--classes` ne
+  saurait l'écrire, et cela ne laisserait rien à faire aux erreurs courantes. Les deux classes
+  sont appliquées à la place.
+- **Un nombre de lignes hors de 1 à 1000 n'est pas lu du tout dans le fichier** : le lecteur du
+  fichier le refuse — `settings: correction.line-break.max-lines: cannot read 'N', default kept`,
+  au niveau 1 — et le 3 intégré est employé.
 
-The examples on this page are run with `--no-config`, so that they say what the built-in
-defaults do, whatever the settings of the machine that runs them.
+Les exemples de cette page sont exécutés avec `--no-config`, pour qu'ils disent ce que font les
+défauts intégrés, quels que soient les réglages de la machine qui les exécute.
 
 | Option | Requis | Valeurs | Défaut |
 | :----- | :----- | :------ | :----- |
@@ -93,12 +95,12 @@ defaults do, whatever the settings of the machine that runs them.
 | `--tasks` | **oui** | une liste séparée par des virgules : `mentions`, `join-words`, `split-words`, `common-errors`, `capitalization`, `line-break` | aucune tâche |
 | `--code` | **oui** avec une tâche de motifs, et **sans objet** autrement | `Script[-language[-COUNTRY]]` : `Zyyy`, `Latn`, `Latn-en`, `Latn-en-US` | — |
 | `--language` | **oui** avec `join-words` ou `split-words`, et **sans objet** autrement | un code de langue : `fr`, `fr_FR`, `en_US` | — |
-| `--classes` | non | `human`, `ocr` ou `human,ocr` | les deux — or what the settings file says |
+| `--classes` | non | `human`, `ocr` ou `human,ocr` | les deux — ou ce que dit le fichier de réglages |
 | `--enable`, `--disable` | non, répétables | le nom anglais d'un motif, ou `type:name` | les `.conf` livrés |
 | `--max-length` | **oui** avec `line-break` | un nombre de **caractères** supérieur à zéro | **aucun** — voir plus bas |
-| `--max-lines` | non | un nombre entier de lignes, supérieur à zéro | 3 — or what the settings file says |
+| `--max-lines` | non | un nombre entier de lignes, supérieur à zéro | 3 — ou ce que dit le fichier de réglages |
 | `--skip-length`, `--skip-lines` | non | un nombre, ou `off` | les mêmes bornes que `--max-length` et `--max-lines` |
-| `--keep-blank-subtitles` | non | un drapeau | les sous-titres vidés sont retirés — unless the settings file says otherwise |
+| `--keep-blank-subtitles` | non | un drapeau | les sous-titres vidés sont retirés — sauf si le fichier de réglages dit autre chose |
 | `--range` | non | `N-M`, ou `N-` jusqu'à la fin — voir [`adjust`](adjust.md#--range) | tout le fichier |
 | `--document` | non | `main` ou `translation` — voir [Une traduction](invocation.md#une-traduction) | `main` |
 | `-t`, `--translation-file` | avec `--document translation` | un fichier de traduction, pour **une seule** entrée | — |
@@ -314,14 +316,14 @@ et `(removed)` sans ligne `+` pour un sous-titre que la correction retirerait ; 
 
 | Niveau | Ce qui s'ajoute sur la sortie d'erreur |
 | :----- | :------------------------------------- |
-| 1 | `<path>: Edited N and removed M subtitles -> <destination>`, les motifs qui n'ont pas pu s'appliquer, les fichiers de motifs qui ne se lisent pas — and, first, the settings file read — `settings: read <path>` — and what of it was ignored |
+| 1 | `<path>: Edited N and removed M subtitles -> <destination>`, les motifs qui n'ont pas pu s'appliquer, les fichiers de motifs qui ne se lisent pas — et, en premier, le fichier de réglages lu — `settings: read <path>` — et ce qui en a été ignoré |
 | 2 | `<path>: SubRip, UTF-8, no BOM, LF line endings kept` |
 | 3 | `<path>: N bytes read, M written`, puis chaque diagnostic de lecture |
 
 En JSON, `counts` porte `corrected` (les textes changés) et `removed` (les sous-titres
 retirés), et `changes` les sous-titres touchés. Avec `-t`, la clé `alignment` dit comment la
 traduction a été posée.
-`settings` names the settings file that was read, or is `null` when none was.
+`settings` nomme le fichier de réglages qui a été lu, ou vaut `null` quand aucun ne l'a été.
 
 ## Codes de retour
 
@@ -332,7 +334,7 @@ seulement, `1` sur une erreur d'usage.
 
 | Ce qui la déclenche | Ce qui est écrit, sur la sortie d'erreur |
 | :------------------ | :--------------------------------------- |
-| a file named by `--config` that does not exist — the user's own file, missing, gives the defaults | `settings file not found: <FILE>` |
+| un fichier nommé par `--config` qui n'existe pas — le fichier de l'utilisateur, absent, donne les défauts | `settings file not found: <FILE>` |
 | `--tasks` absent | `--tasks is required`, suivi d'un renvoi à `--help` |
 | une tâche inconnue | `--tasks: "<name>" is not a task: expected mentions, join-words, split-words, common-errors, capitalization or line-break` |
 | `--code` absent | `--code is required by the tasks that read patterns: <tasks>` |

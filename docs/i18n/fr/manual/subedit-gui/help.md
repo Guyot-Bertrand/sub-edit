@@ -24,7 +24,7 @@ Il s'ouvre sur la [page d'accueil](../index.md), celle qui dit par où commencer
 **Dans la langue de la fenêtre.** Le manuel s'ouvre dans la langue que parle
 l'interface : celle choisie dans `Édition ▸ Préférences…`, ou sinon celle de
 l'environnement — voir
-[La langue de l'interface](preferences.md#the-interface-language).
+[La langue de l'interface](preferences.md#la-langue-de-linterface).
 
 | La fenêtre parle | Le manuel s'ouvre en |
 | :--------------- | :------------------- |
@@ -80,8 +80,8 @@ programme.** Deux cas, et aucun n'est une panne :
 | le binaire est lancé depuis son arbre de construction | rien n'y a été installé, donc rien n'y est à lire |
 | l'installation est partielle | le manuel a été retiré, ou n'a jamais été copié |
 
-Survoler l'entrée dit lequel des deux : « No manual is installed beside this
-program ».
+Survoler l'entrée dit lequel des deux : « Aucun manuel n'est installé à côté de ce
+programme ».
 
 Une page manquante alors que le manuel est là — un fichier effacé à la main —
 ne referme pas la fenêtre : elle nomme le fichier qu'elle n'a pas pu lire et
