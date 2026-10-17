@@ -41,6 +41,7 @@ add_executable(
     cli/pattern_catalogue_test.cpp
     cli/framerate_test.cpp
     cli/shipped_french_test.cpp
+    cli/man_pages_test.cpp
     gui/version_test.cpp)
 
 # subedit::core for versionString(): a test's expectation is computed, not
@@ -96,6 +97,18 @@ add_custom_target(subedit_translated_cli DEPENDS "${subedit_translated_cli}" "${
 add_dependencies(subedit_e2e_test subedit_translated_cli)
 target_compile_definitions(subedit_e2e_test
                            PRIVATE SUBEDIT_TRANSLATED_CLI_BINARY="${subedit_translated_cli}")
+
+# **The man pages the build generates** (#683): read where the build lays them out, as an
+# installation does (`cmake/ManPages.cmake`), and rendered by the machine's `man`, found here
+# rather than in the test's `PATH`. Missing, it is an empty path, and the test that renders says
+# why it cannot.
+find_program(SUBEDIT_MAN_PROGRAM man)
+if(NOT SUBEDIT_MAN_PROGRAM)
+    set(SUBEDIT_MAN_PROGRAM "")
+endif()
+target_compile_definitions(subedit_e2e_test PRIVATE SUBEDIT_MAN_DIR="${SUBEDIT_MAN_BUILD_DIR}"
+                                                    SUBEDIT_MAN_PROGRAM="${SUBEDIT_MAN_PROGRAM}")
+add_dependencies(subedit_e2e_test subedit_man_pages)
 
 # **The French that ships** (#668): the build tree's binary reads the catalogues the build
 # compiles beside it, as an installed one does, so a test of them needs them built first.

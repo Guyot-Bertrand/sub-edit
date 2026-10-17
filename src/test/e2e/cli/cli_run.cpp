@@ -637,4 +637,10 @@ CliRun invokeGui(const std::vector<std::string>& args) {
     return run(SUBEDIT_GUI_BINARY, args);
 }
 
+CliRun invokeProgram(const std::string& program,
+                     const std::vector<std::string>& args,
+                     const Locale& locale) {
+    return run(program.c_str(), args, std::nullopt, childEnvironment(locale));
+}
+
 } // namespace subedit::e2e
