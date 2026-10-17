@@ -559,6 +559,14 @@ msgid "Let the reading speed bring an end earlier"
 msgstr "Laisser la vitesse de lecture avancer une fin"
 
 #: src/exe/cli/commands/adjust.cpp
+msgid "Do not let the reading speed bring an end earlier"
+msgstr "Ne pas laisser la vitesse de lecture avancer une fin"
+
+#: src/exe/cli/commands/adjust.cpp
+msgid "Let the reading speed move an end later"
+msgstr "Laisser la vitesse de lecture retarder une fin"
+
+#: src/exe/cli/commands/adjust.cpp
 msgid "Do not let the reading speed move an end later"
 msgstr "Ne pas laisser la vitesse de lecture retarder une fin"
 
@@ -766,6 +774,10 @@ msgstr "Laisser tel quel un sous-titre dont le nombre de lignes ne dépasse pas 
 #: src/exe/cli/commands/correct.cpp
 msgid "Leave the subtitles the correction empties, empty, instead of removing them"
 msgstr "Laisser vides les sous-titres que la correction vide, au lieu de les supprimer"
+
+#: src/exe/cli/commands/correct.cpp
+msgid "Remove the subtitles the correction empties, whatever the settings file says"
+msgstr "Supprimer les sous-titres que la correction vide, quoi que dise le fichier de réglages"
 
 #: src/exe/cli/commands/dialogue_dashes.cpp
 msgid "Put dialogue dashes on the lines, or take them off"
@@ -1040,9 +1052,14 @@ msgstr "%1 : \"%2\" n'est pas une durée positive ou nulle"
 msgid "%1: \"%2\" is not a duration above zero"
 msgstr "%1 : \"%2\" n'est pas une durée strictement positive"
 
+#. TRANSLATORS: %1 and %2 are two options, such as --shorten and --no-shorten.
+#: src/lib/subedit/cli/adjusting.cpp src/lib/subedit/cli/correcting.cpp
+msgid "%1 and %2 say opposite things; give one of them"
+msgstr "%1 et %2 disent des choses opposées ; donnez l'un des deux"
+
 #: src/lib/subedit/cli/adjusting.cpp
-msgid "--shorten and --no-lengthen say which way the reading speed may move an end, and --speed off switches the reading speed off"
-msgstr "--shorten et --no-lengthen disent dans quel sens la vitesse de lecture peut déplacer une fin, et --speed off désactive la vitesse de lecture"
+msgid "--lengthen, --no-lengthen, --shorten and --no-shorten say which way the reading speed may move an end, and --speed off switches the reading speed off"
+msgstr "--lengthen, --no-lengthen, --shorten et --no-shorten disent dans quel sens la vitesse de lecture peut déplacer une fin, et --speed off désactive la vitesse de lecture"
 
 #: src/lib/subedit/cli/adjusting.cpp
 msgid "adjust has nothing to adjust to: every constraint is off, or the reading speed is told to move no end"

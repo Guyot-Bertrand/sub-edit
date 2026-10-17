@@ -495,6 +495,14 @@ msgid "Let the reading speed bring an end earlier"
 msgstr ""
 
 #: src/exe/cli/commands/adjust.cpp
+msgid "Do not let the reading speed bring an end earlier"
+msgstr ""
+
+#: src/exe/cli/commands/adjust.cpp
+msgid "Let the reading speed move an end later"
+msgstr ""
+
+#: src/exe/cli/commands/adjust.cpp
 msgid "Do not let the reading speed move an end later"
 msgstr ""
 
@@ -709,6 +717,11 @@ msgstr ""
 #: src/exe/cli/commands/correct.cpp
 msgid ""
 "Leave the subtitles the correction empties, empty, instead of removing them"
+msgstr ""
+
+#: src/exe/cli/commands/correct.cpp
+msgid ""
+"Remove the subtitles the correction empties, whatever the settings file says"
 msgstr ""
 
 #: src/exe/cli/commands/dialogue_dashes.cpp
@@ -1003,10 +1016,15 @@ msgstr ""
 msgid "%1: \"%2\" is not a duration above zero"
 msgstr ""
 
+#. TRANSLATORS: %1 and %2 are two options, such as --shorten and --no-shorten.
+#: src/lib/subedit/cli/adjusting.cpp src/lib/subedit/cli/correcting.cpp
+msgid "%1 and %2 say opposite things; give one of them"
+msgstr ""
+
 #: src/lib/subedit/cli/adjusting.cpp
 msgid ""
-"--shorten and --no-lengthen say which way the reading speed may move an end, "
-"and --speed off switches the reading speed off"
+"--lengthen, --no-lengthen, --shorten and --no-shorten say which way the "
+"reading speed may move an end, and --speed off switches the reading speed off"
 msgstr ""
 
 #: src/lib/subedit/cli/adjusting.cpp
