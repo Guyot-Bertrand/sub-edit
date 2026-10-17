@@ -7,7 +7,8 @@ subedit-cli correct --tasks LIST --code CODE
                     [--language CODE]
                     [--max-length N] [--max-lines N]
                     [--skip-length N|off] [--skip-lines N|off]
-                    [--keep-blank-subtitles] [--range N-M|N-]
+                    [--keep-blank-subtitles | --remove-blank-subtitles]
+                    [--range N-M|N-]
                     [--document main|translation] [-t FILE] [--align-method position|number]
                     (--output FILE | --output-dir DIR | --in-place)
                     [--dry-run]
@@ -45,6 +46,7 @@ Options:
   --skip-length N|off         Leave alone a subtitle whose longest line is within this, or off: --max-length
   --skip-lines N|off          Leave alone a subtitle whose line count is within this, or off: --max-lines
   --keep-blank-subtitles      Leave the subtitles the correction empties, empty, instead of removing them
+  --remove-blank-subtitles    Remove the subtitles the correction empties, whatever the settings file says
   --range N-M|N-              Act only on subtitles N to M, or N to the end
   --document main|translation The document to change: the main one, or the translation given by -t
   -t,--translation-file FILE  Translation file to lay over the subtitle file, for a single input
@@ -72,11 +74,13 @@ for where it is, `--config` and `--no-config`.
 | Key | What it supplies | Option that overrides it |
 | :-- | :--------------- | :----------------------- |
 | `correction.human`, `correction.ocr` | the classes of common errors applied | `--classes` |
-| `correction.remove-blank` | whether the subtitles the correction empties are removed | `--keep-blank-subtitles` |
+| `correction.remove-blank` | whether the subtitles the correction empties are removed | `--keep-blank-subtitles`, `--remove-blank-subtitles` |
 | `correction.line-break.max-lines` | the most lines of `line-break` | `--max-lines` |
 
-- **`correction.remove-blank = false` has no option to undo it** on the line: `--no-config`
-  gives back the removal.
+- **Each of the four has an option that undoes it**, whatever the file says: `--classes human,ocr`
+  applies both classes, `--remove-blank-subtitles` removes the emptied subtitles, `--max-lines 3`
+  gives back Gaupol's lines. `--keep-blank-subtitles` and `--remove-blank-subtitles` together are a
+  usage error.
 - **Both classes off in the file is ignored, and said** at level 1 —
   `settings: correction.human and correction.ocr are both false, ignored` —: `--classes` could not write it, and it would
   leave common-errors nothing to do. Both classes are applied instead.
@@ -98,7 +102,8 @@ defaults do, whatever the settings of the machine that runs them.
 | `--max-length` | **yes** with `line-break` | a number of **characters** above zero | **none** — see below |
 | `--max-lines` | no | a whole number of lines, above zero | 3 — or what the settings file says |
 | `--skip-length`, `--skip-lines` | no | a number, or `off` | the same bounds as `--max-length` and `--max-lines` |
-| `--keep-blank-subtitles` | no | a flag | the emptied subtitles are removed — unless the settings file says otherwise |
+| `--keep-blank-subtitles` | no | a flag: the emptied subtitles stay, empty | the emptied subtitles are removed — unless the settings file says otherwise |
+| `--remove-blank-subtitles` | no | a flag: the emptied subtitles are removed, whatever the settings file says; refused with `--keep-blank-subtitles` | off |
 | `--range` | no | `N-M`, or `N-` up to the end — see [`adjust`](adjust.md#--range) | the whole file |
 | `--document` | no | `main` or `translation` — see [A translation](invocation.md#a-translation) | `main` |
 | `-t`, `--translation-file` | with `--document translation` | a translation file, for **a single** input | — |
@@ -264,7 +269,8 @@ Bonjour
 
 The format, the encoding and the line endings of the file read are **kept**. **The
 subtitles the correction empties are removed**, like the window's default
-box; `--keep-blank-subtitles` leaves them empty. **An emptied translation stays emptied**,
+box; `--keep-blank-subtitles` leaves them empty, and `--remove-blank-subtitles` removes them
+even when the settings file keeps them. **An emptied translation stays emptied**,
 and keeps its subtitle.
 
 **The count is the window's** — "Edited N and removed M subtitles": texts
@@ -348,6 +354,7 @@ some, `1` on a usage error.
 | `--skip-length` or `--skip-lines` unreadable | `--skip-length: "<value>" is not a bound: expected a number greater than zero, or off` |
 | one of the four options without `line-break` | `--max-length is for the task line-break, which was not asked for` |
 | an unknown class | `--classes: "<name>" is not a class: expected human, ocr or human,ocr` |
+| `--keep-blank-subtitles` with `--remove-blank-subtitles` | `--keep-blank-subtitles and --remove-blank-subtitles say opposite things; give one of them` |
 | a faulty pattern name | see the table above |
 | a task without an active pattern | `<task>: no pattern is active under the code <code>; switch one on with --enable` |
 | `--range`, `-t`, `--document`, the destination | those of [Invocation](invocation.md#errors) and of [A translation](invocation.md#a-translation) |

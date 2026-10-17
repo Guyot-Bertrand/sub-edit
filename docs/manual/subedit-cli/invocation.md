@@ -147,7 +147,10 @@ default.** An option always wins: `--speed off` switches off a speed the file se
 **operation block** of the file is read; the display preferences (geometry, columns, theme…)
 never are. [`config list`](config.md#config-list) names the keys, and which of them the command
 line reads: the nine `duration-adjust.*` keys, `correction.human`, `correction.ocr`,
-`correction.remove-blank` and `correction.line-break.max-lines`.
+`correction.remove-blank` and `correction.line-break.max-lines`. **Each of them has an option
+that overrides it for one invocation**, whichever way the file sets it — the tables of
+[`adjust`](adjust.md#what-the-settings-file-supplies) and
+[`correct`](correct.md#what-is-chosen-and-what-is-not) name them.
 
 **Reading the user's file never fails a command.** A missing file gives the defaults; a file
 that cannot be read gives the defaults and says so; a value that cannot be read keeps its default and is named; an

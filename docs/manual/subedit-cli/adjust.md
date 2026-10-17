@@ -1,7 +1,7 @@
 # `adjust`
 
 ```
-subedit-cli adjust [--speed CPS|off] [--shorten] [--no-lengthen]
+subedit-cli adjust [--speed CPS|off] [--shorten | --no-shorten] [--lengthen | --no-lengthen]
                    [--minimum TIME|off] [--maximum TIME|off] [--gap TIME|off]
                    [--range N-M|N-]
                    (--output FILE | --output-dir DIR | --in-place)
@@ -35,7 +35,7 @@ of a subtitle is the one in the file, **whether chosen or not** by `--range`.
 | Constraint | Option | Default | Switching it off |
 | :--------- | :----- | :----- | :------- |
 | speed | `--speed CPS` | **15** characters per second | `--speed off` |
-| direction of the speed | `--shorten`, `--no-lengthen` | it only **lengthens** | — |
+| direction of the speed | `--shorten`, `--no-shorten`, `--lengthen`, `--no-lengthen` | it only **lengthens** | — |
 | minimum | `--minimum TIME` | **1.5 s** | `--minimum off` |
 | maximum | `--maximum TIME` | **none** | `--maximum off` |
 | gap | `--gap TIME` | **0** | `--gap off` |
@@ -56,16 +56,16 @@ given on the line always wins**, then the file, then the built-in default. See
 | Key | What it supplies | Option that overrides it |
 | :-- | :--------------- | :----------------------- |
 | `duration-adjust.speed` | the reading speed, in characters per second | `--speed CPS` |
-| `duration-adjust.lengthen`, `duration-adjust.shorten` | which way the speed may move an end; both `false` switch the speed off | `--no-lengthen`, `--shorten`, `--speed off`; giving `--speed CPS` switches a speed the file turned off back on, lengthening |
+| `duration-adjust.lengthen`, `duration-adjust.shorten` | which way the speed may move an end; both `false` switch the speed off | `--lengthen`, `--no-lengthen`, `--shorten`, `--no-shorten`, `--speed off`; giving `--speed CPS` or a direction switches a speed the file turned off back on, lengthening |
 | `duration-adjust.minimum-enabled`, `duration-adjust.minimum-ms` | the shortest duration, or none | `--minimum TIME`, `--minimum off` |
 | `duration-adjust.maximum-enabled`, `duration-adjust.maximum-ms` | the longest duration, or none | `--maximum TIME`, `--maximum off` |
 | `duration-adjust.gap-enabled`, `duration-adjust.gap-ms` | the least gap, or none | `--gap TIME`, `--gap off` |
 
-The flags only move the speed's directions **from what the file says**: `--shorten` adds
-shortening, `--no-lengthen` takes lengthening away. `--maximum off` drops a maximum the file
-switches on. Shortening the file switches on has no flag to undo it on the line: `--speed off`
-or `--no-config` drops it. With `--format json`, `constraints` says the settings
-really used, wherever they came from, and `settings` the file that was read:
+**Every key has an option that undoes it.** Each direction has a pair of flags that set it
+whatever the file says: `--shorten` and `--no-shorten` for shortening, `--lengthen` and
+`--no-lengthen` for lengthening; a flag not given leaves the file's direction as it is.
+`--maximum off` drops a maximum the file switches on. With `--format json`, `constraints` says
+the settings really used, wherever they came from, and `settings` the file that was read:
 
 <!-- example: printf '1\n00:00:01,000 --> 00:00:01,200\nUn.\n\n' > a.srt; subedit-cli --config mine/settings.conf config set duration-adjust.speed 12 2>/dev/null; subedit-cli --config mine/settings.conf --format json adjust --dry-run a.srt -->
 ```console
@@ -92,6 +92,8 @@ Options:
   -r,--recursive              Take directories as inputs, and every subtitle file in them
   --speed CPS|off             Reading speed in characters per second, or off (default 15)
   --shorten                   Let the reading speed bring an end earlier
+  --no-shorten                Do not let the reading speed bring an end earlier
+  --lengthen                  Let the reading speed move an end later
   --no-lengthen               Do not let the reading speed move an end later
   --minimum TIME|off          Shortest duration, or off (default 1.5)
   --maximum TIME|off          Longest duration, or off (default: none)
@@ -111,6 +113,8 @@ Options:
 | `--recursive`, `-r` | no | a flag | off — see [Processing a tree](lots.md) |
 | `--speed` | no | a number of characters per second, **above zero** (`15`, `12.5`), or `off` | `15` |
 | `--shorten` | no | a flag: the speed may also **bring** an end **earlier** | off |
+| `--no-shorten` | no | a flag: the speed no longer **brings** an end **earlier**, whatever the settings file says | off |
+| `--lengthen` | no | a flag: the speed **moves** an end **later**, whatever the settings file says | off |
 | `--no-lengthen` | no | a flag: the speed no longer **moves** an end **later** | off |
 | `--minimum` | no | a duration of zero or more, or `off` | `1.5` |
 | `--maximum` | no | a duration **above zero**, or `off` | none |
@@ -127,8 +131,9 @@ answer. That is the case of `--speed off --minimum off --gap off` without a maxi
 `--no-lengthen` alone with the minimum and the gap switched off: a speed that moves no
 end constrains nothing.
 
-`--shorten` and `--no-lengthen` say which way the speed moves an end; they only make
-sense with a speed, and **`--speed off` refuses them**.
+`--shorten`, `--no-shorten`, `--lengthen` and `--no-lengthen` say which way the speed moves an
+end; they only make sense with a speed, and **`--speed off` refuses them**. A flag given with its
+opposite — `--shorten --no-shorten`, `--lengthen --no-lengthen` — is refused too.
 
 ### `--range`
 
@@ -240,7 +245,8 @@ some, `1` on a usage error. A file that already fits within its limits is proces
 | a file named by `--config` that does not exist — the user's own file, missing, gives the defaults | `settings file not found: <FILE>` |
 | no active constraint | `adjust has nothing to adjust to: every constraint is off, or the reading speed is told to move no end` |
 | a speed that is not one | `--speed: "…" is not a reading speed: expected a number of characters per second above zero, like 15 or 12.5, or off` |
-| `--shorten`/`--no-lengthen` with `--speed off` | `--shorten and --no-lengthen say which way the reading speed may move an end, and --speed off switches the reading speed off` |
+| a direction flag with `--speed off` | `--lengthen, --no-lengthen, --shorten and --no-shorten say which way the reading speed may move an end, and --speed off switches the reading speed off` |
+| a direction flag with its opposite | `--shorten and --no-shorten say opposite things; give one of them` (likewise `--lengthen` and `--no-lengthen`) |
 | a duration that is not one | `--minimum: "…" is not a time: …` (likewise `--maximum`, `--gap`) |
 | negative duration | `--minimum: "-1" is not a duration of zero or more` (likewise `--gap`) |
 | zero or negative maximum | `--maximum: "0" is not a duration above zero` |
