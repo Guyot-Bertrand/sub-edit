@@ -1,94 +1,93 @@
-# Instructions du projet subedit
+# subedit project instructions
 
-## RÈGLE CRITIQUE — le dépôt de référence est en lecture seule
+## CRITICAL RULE — the reference repository is read-only
 
-`reference/gaupol` est un clone de [Gaupol](https://github.com/otsaloma/gaupol),
-présent uniquement pour être **lu**. Il n'est pas suivi par git et ne fait pas
-partie du projet.
+`reference/gaupol` is a clone of [Gaupol](https://github.com/otsaloma/gaupol),
+present only to be **read**. It is not tracked by git and is not part of the
+project.
 
-**Aucune modification, jamais.** Sont interdits, sans exception ni exception
-apparente :
+**No modification, ever.** The following are forbidden, with no exception and
+no apparent exception:
 
-- écrire, éditer, créer ou supprimer un fichier sous `reference/` ;
-- toute commande git qui écrit dans ce dépôt — `add`, `commit`, `checkout`,
-  `reset`, `clean`, `stash`, `rm`, `restore`, `branch`, `merge`, `rebase` ;
-- y lancer un build, un formateur ou un outil qui produit des artefacts.
+- writing, editing, creating or deleting a file under `reference/`;
+- any git command that writes to that repository — `add`, `commit`, `checkout`,
+  `reset`, `clean`, `stash`, `rm`, `restore`, `branch`, `merge`, `rebase`;
+- running a build, a formatter or any tool that produces artefacts in it.
 
-**Seules opérations autorisées :** la lecture des fichiers, et
-`git -C reference/gaupol fetch` puis `git -C reference/gaupol log`/`diff` pour
-consulter les évolutions amont. Même la mise à jour de la copie de travail
-(`pull`, `merge`) se discute avant d'être faite.
+**The only operations allowed:** reading the files, and
+`git -C reference/gaupol fetch` followed by `git -C reference/gaupol log`/`diff`
+to look at upstream changes. Even updating the working copy (`pull`, `merge`) is
+discussed before it is done.
 
-**La lecture est pour l'humain, jamais pour le code.** Rien sous `src/lib`,
-`src/exe` ou `src/test` ne désigne `reference/` : le clone est absent de la CI,
-absent d'une machine fraîchement clonée, absent d'une archive du dépôt. Un test
-qui le lit passe chez qui l'a et échoue chez tous les autres — ou se déclare
-ignoré, ce qui est pire, puisqu'il reste vert sans rien prouver. La donnée de
-test versionnée vit dans `src/test/data/` ; `src/data/` n'est pas une option,
-c'est le corpus privé de chaque machine et il est ignoré par git.
-`check-architecture.sh` le vérifie.
+**Reading is for the human, never for the code.** Nothing under `src/lib`,
+`src/exe` or `src/test` refers to `reference/`: the clone is absent from CI,
+absent from a freshly cloned machine, absent from an archive of the repository.
+A test that reads it passes for whoever has it and fails for everyone else — or
+reports itself skipped, which is worse, since it stays green while proving
+nothing. Versioned test data lives in `src/test/data/`; `src/data/` is not an
+option, it is each machine's private corpus and it is ignored by git.
+`check-architecture.sh` checks it.
 
-**Le contenu de `src/data/` ne se cite jamais dans un fichier versionné.** Ni le
-code, ni la documentation, ni une spec, ni une ADR, ni un message de commit, ni
-le corps d'une issue ou d'une pull request ne nomme un fichier du corpus privé —
-pas plus son titre que son nom de fichier, pas plus dans un tableau de mesures
-que dans une phrase. Cela vaut pour `src/data/exemples/` comme pour le reste.
+**The content of `src/data/` is never cited in a versioned file.** Neither the
+code, nor the documentation, nor a spec, nor an ADR, nor a commit message, nor
+the body of an issue or a pull request names a file of the private corpus —
+neither its title nor its file name, neither in a table of measurements nor in a
+sentence. This holds for `src/data/exemples/` as for the rest.
 
-La raison est double. Ce sont **des fichiers qui n'appartiennent pas au projet**
-et dont le dépôt n'a pas à publier l'inventaire. Et un chiffre attribué à un fichier que
-personne d'autre ne possède est **une preuve que personne ne peut rejouer** :
-le lecteur croit lire une mesure là où il n'a qu'un témoignage.
+The reason is twofold. These are **files that do not belong to the project**,
+and the repository has no business publishing their inventory. And a figure attributed to a file that
+nobody else has is **evidence that nobody can replay**: the reader believes they
+are reading a measurement where they only have a testimony.
 
-Ce qui reste permis, et qui suffit : parler du corpus **globalement** — « huit
-des quinze fichiers », « les jeux d'exemples 004 à 006 », « le corpus privé ne
-tranche pas ». Une observation ainsi formulée s'assume comme telle. Et quand un
-chiffre doit devenir une garantie plutôt qu'une observation, il lui faut une
-fixture dans `src/test/data/`, versionnée, que tout le monde peut lire.
+What remains allowed, and is enough: speaking of the corpus **as a whole** —
+“eight of the fifteen files”, “example sets 004 to 006”, “the private corpus
+does not settle it”. An observation phrased that way owns up to being one. And
+when a figure must become a guarantee rather than an observation, it needs a
+fixture in `src/test/data/`, versioned, that everyone can read.
 
-Défaut déjà commis, en août 2026, dans la feuille de route et une spec de phase :
-cinq titres de films cités dans un tableau de mesures. Corrigé après coup.
+A mistake already made, in August 2026, in the roadmap and a phase spec: five
+film titles cited in a table of measurements. Corrected afterwards.
 
-**Piège pratique, déjà rencontré :** le répertoire de travail du shell persiste
-d'un appel à l'autre. Un `cd reference/gaupol` fait plus tôt dans la session
-rend toute commande ultérieure dangereuse — `git add -A` cible alors le clone,
-pas le projet.
+**Practical trap, already hit:** the shell's working directory persists from one
+call to the next. A `cd reference/gaupol` done earlier in the session makes any
+later command dangerous — `git add -A` then targets the clone, not the project.
 
-> **Conséquence : toute commande git de ce projet s'écrit avec un chemin
-> explicite,** `git -C /home/beber/Projects/subedit …`, ou est précédée d'une
-> vérification de `pwd`. Ne jamais s'en remettre au répertoire courant supposé.
+> **Consequence: every git command of this project is written with an explicit
+> path,** `git -C /home/beber/Projects/subedit …`, or is preceded by a check of
+> `pwd`. Never rely on the assumed current directory.
 
-### Verrou mécanique
+### Mechanical lock
 
-L'arborescence du clone est maintenue **non inscriptible**, ce qui fait échouer
-toute écriture au niveau du système de fichiers plutôt qu'au niveau de la
-vigilance. `src/scripts/reference.sh` pilote ce verrou :
+The clone's tree is kept **non-writable**, which makes any write fail at the
+file-system level rather than at the level of vigilance.
+`src/scripts/reference.sh` drives this lock:
 
-| Commande | Effet |
-| :------- | :---- |
-| `./src/scripts/reference.sh status` | état du verrou, révision, écarts éventuels |
-| `./src/scripts/reference.sh fetch` | récupère l'amont, **rétablit le verrou automatiquement** |
-| `./src/scripts/reference.sh restore` | rétablit le clone dans l'état de son HEAD |
-| `./src/scripts/reference.sh lock` / `unlock` | verrouille, déverrouille |
+| Command | Effect |
+| :------ | :----- |
+| `./src/scripts/reference.sh status` | state of the lock, revision, any deviations |
+| `./src/scripts/reference.sh fetch` | fetches upstream, **restores the lock automatically** |
+| `./src/scripts/reference.sh restore` | restores the clone to the state of its HEAD |
+| `./src/scripts/reference.sh lock` / `unlock` | locks, unlocks |
 
-`unlock` ne s'utilise que délibérément et se referme aussitôt après. C'est un
-garde-fou contre l'erreur, pas une barrière de sécurité : le propriétaire peut
-défaire un `chmod`. Le but est précisément qu'une modification accidentelle soit
-impossible sans qu'un geste explicite l'ait précédée.
+`unlock` is only used deliberately and is closed again immediately after. It is
+a guard against mistakes, not a security barrier: the owner can undo a `chmod`.
+The point is precisely that an accidental modification is impossible without an
+explicit gesture having preceded it.
 
-Si le clone se retrouve modifié, le signaler et proposer la restauration — ne
-pas la faire silencieusement.
+If the clone turns out to be modified, report it and propose the restoration —
+do not do it silently.
 
-## Le projet
+## The project
 
-`subedit` réécrit Gaupol — éditeur de sous-titres GTK/Python — en C++23 + Qt 6,
-avec un objectif d'iso-fonctionnalité.
+`subedit` rewrites Gaupol — a GTK/Python subtitle editor — in C++23 + Qt 6,
+with a goal of feature parity.
 
-| Document | Contenu |
+| Document | Content |
 | :------- | :------ |
-| [`docs/feuille-de-route.md`](docs/feuille-de-route.md) | le contour du MVP, les phases, leur cadrage et leur ordre |
-| [`docs/principes-de-conception.md`](docs/principes-de-conception.md) | règles permanentes applicables à tout le code |
-| [`docs/specs/`](docs/specs/) | une spec par phase, plus l'inventaire de Gaupol |
-| [`docs/configuration-github.md`](docs/configuration-github.md) | verrouillage du dépôt, labels, milestones |
+| [`docs/feuille-de-route.md`](docs/feuille-de-route.md) | the outline of the MVP, the phases, their scoping and their order |
+| [`docs/principes-de-conception.md`](docs/principes-de-conception.md) | permanent rules applicable to all the code |
+| [`docs/specs/`](docs/specs/) | one spec per phase, plus the inventory of Gaupol |
+| [`docs/configuration-github.md`](docs/configuration-github.md) | locking of the repository, labels, milestones |
 
 ## Conventions
 
@@ -112,8 +111,7 @@ avec un objectif d'iso-fonctionnalité.
   script's header says what it reads and what it leaves out.
   Meanwhile, **anything new is written in English, in a French file as
   anywhere else**, and a French file that is touched in depth is translated in
-  the same diff. This file is one of those still to translate; the sections
-  below are in French until then.
+  the same diff.
 
   **What both surfaces can say** — a format name, an account of an operation, a
   reason for failure — lives in
@@ -139,164 +137,164 @@ avec un objectif d'iso-fonctionnalité.
   `make po` would, and refuses an untranslated, fuzzy or stale entry in a
   language of `src/po/LINGUAS`; a seed is only reported. A changed English
   message therefore means `make po` and its French translation in the same diff.
-- **Commits** — Conventional Commits, scopes alignés sur les labels `area:`.
-- **Titre d'une pull request** — **la même grammaire, la même limite de 72
-  caractères.** `.github/workflows/pull-request.yml` passe le titre à
-  `check-commit-message.sh`, exactement comme le hook `commit-msg` lui passe un
-  message. « Phase 5 review » n'est donc pas un titre valide ;
-  « docs(doc): review the end of phase 5 » l'est.
+- **Commits** — Conventional Commits, scopes aligned with the `area:` labels.
+- **Pull request title** — **the same grammar, the same limit of 72
+  characters.** `.github/workflows/pull-request.yml` passes the title to
+  `check-commit-message.sh`, exactly as the `commit-msg` hook passes it a
+  message. “Phase 5 review” is therefore not a valid title;
+  “docs(doc): review the end of phase 5” is.
 
-  Se vérifie avant d'ouvrir, en une seconde :
+  It is checked before opening, in one second:
 
   ```console
   $ ./src/scripts/check-commit-message.sh "docs(doc): review the end of phase 5"
   ```
 
-  Cette ligne manquait, et le silence a coûté : trois pull requests d'affilée
-  ouvertes avec un titre non conforme en août 2026, trois fois la même étape
-  rouge, et la règle découverte en lisant le YAML plutôt qu'ici. C'est le défaut
-  de la langue de l'interface, à l'identique — une contrainte réelle, tenue par
-  un contrôle, et absente du seul document qu'on lit avant d'agir.
-- **Fermeture d'une issue** — le corps de la PR porte une ligne `Closes #N`,
-  **en anglais**. Ce n'est pas de la prose mais une instruction à GitHub, qui ne
-  reconnaît que ses propres mots-clés : « Ferme #26 » n'en est pas un, et
-  l'issue reste ouverte après la fusion. La règle de langue ne s'y applique pas,
-  comme elle ne s'applique pas au `Co-Authored-By` d'un commit. Écrire la phrase
-  française **en plus** si elle apporte quelque chose ; la ligne `Closes #N`
-  n'est pas négociable.
-- **Versions** — le `project(VERSION)` de `CMakeLists.txt` est la source du
-  numéro courant ; il bouge à deux occasions :
-  - **patch, à chaque PR** — toute PR incrémente le patch dans son propre
-    diff (`0.1.0` → `0.1.1` → `0.1.2`…) ;
-  - **mineur, à chaque milestone terminée** — on remet le patch à zéro et on
-    bumpe le mineur : `v0.1.0` clôt la phase 1, `v0.2.0` clôra la phase 2, et
-    ainsi de suite jusqu'à une `v1.0.0` à la fin.
+  This line was missing, and the silence had a cost: three pull requests in a
+  row opened with a non-conforming title in August 2026, three times the same
+  red step, and the rule discovered by reading the YAML rather than here. It is
+  the same defect as the interface language, identically — a real constraint,
+  held by a check, and absent from the only document one reads before acting.
+- **Closing an issue** — the body of the PR carries a `Closes #N` line,
+  **in English**. It is not prose but an instruction to GitHub, which recognises
+  only its own keywords: “Ferme #26” (French for “Closes #26”) is not one, and
+  the issue stays open after the merge. The language rule does not apply to it,
+  just as it does not apply to the `Co-Authored-By` of a commit. Write a prose
+  sentence **as well** if it adds something; the `Closes #N` line is not
+  negotiable.
+- **Versions** — the `project(VERSION)` of `CMakeLists.txt` is the source of the
+  current number; it moves on two occasions:
+  - **patch, on every PR** — every PR increments the patch in its own
+    diff (`0.1.0` → `0.1.1` → `0.1.2`…);
+  - **minor, on every finished milestone** — the patch is reset to zero and the
+    minor is bumped: `v0.1.0` closes phase 1, `v0.2.0` will close phase 2, and
+    so on up to a `v1.0.0` at the end.
 
-  **Chaque version reçoit son tag, patchs compris** — depuis #232, et
-  `v0.10.9` est le premier patch tagué. Le tag `vX.Y.Z` se pose **sur le commit
-  de fusion dans `main`**, une fois la PR du bump fusionnée : c'est le commit
-  dont le `CMakeLists.txt` porte le numéro. Les versions antérieures ne sont pas
-  taguées après coup.
+  **Every version gets its tag, patches included** — since #232, and
+  `v0.10.9` is the first tagged patch. The `vX.Y.Z` tag is placed **on the merge
+  commit in `main`**, once the PR of the bump is merged: it is the commit whose
+  `CMakeLists.txt` carries the number. Earlier versions are not tagged after the
+  fact.
 
-  **Pousser le tag publie la version.** `.github/workflows/release.yml`
-  construit le `.deb` et le `.rpm` et les dépose dans une release GitHub. Il ne
-  garde que les releases de patch de la milestone en cours : à la publication
-  de `v0.11.0`, les releases `0.10.1` à `0.10.N` partent avec leurs paquets.
-  Les `vX.Y.0` restent toutes, et **aucun tag n'est jamais supprimé**.
+  **Pushing the tag publishes the version.** `.github/workflows/release.yml`
+  builds the `.deb` and the `.rpm` and uploads them to a GitHub release. It
+  keeps only the patch releases of the current milestone: when `v0.11.0` is
+  published, the releases `0.10.1` to `0.10.N` go away with their packages.
+  The `vX.Y.0` all stay, and **no tag is ever deleted**.
 
-  **Le bump se fait au dernier moment** — jamais en début de travail. Le numéro
-  n'est connu qu'à ce moment-là : entre le premier commit et la PR, d'autres PR
-  ont pu être fusionnées et avoir pris le numéro visé. Bumper tôt, c'est se
-  garantir un conflit sur `CMakeLists.txt` et un rebase de plus.
+  **The bump is done at the last moment** — never at the start of the work. The
+  number is only known at that moment: between the first commit and the PR,
+  other PRs may have been merged and taken the intended number. Bumping early
+  guarantees a conflict on `CMakeLists.txt` and one more rebase.
 
-  « Au dernier moment » veut dire **juste avant la dernière porte, pas après**.
-  Le bump touche `CMakeLists.txt`, que la porte lit — le passer après elle
-  obligerait à la relancer, dix minutes pour un chiffre. L'ordre est donc :
+  “At the last moment” means **just before the last gate, not after**.
+  The bump touches `CMakeLists.txt`, which the gate reads — doing it after the
+  gate would force running it again, ten minutes for a digit. The order is
+  therefore:
 
-  1. coder et tester ;
-  2. relire, corriger ;
-  3. **bumper le patch** ;
-  4. **`make manual`** — le bump vient de périmer l'exemple `--version`, qui
-     cite le numéro. Ça tient en dix secondes, et l'oublier fait échouer
-     l'étape suivante : `check-local` enchaîne `manual-check`, qui compare ce
-     bloc à ce que le binaire écrit. Le défaut a été payé trois fois avant
-     d'être inscrit ici ;
-  5. **`make check-local`**, dont le `make bench` qu'il enchaîne tourne sur la
-     version bumpée : **c'est cette exécution-là qui enregistre la mesure qui
-     reste dans le journal** — à moins que la machine ne soit occupée, auquel
-     cas rien n'est enregistré et il faut le dire dans la PR (issue #270) ;
-  6. `make check` — une seule fois, elle voit le code *et* le bump ;
-  7. **mettre à jour le reste de la documentation et le relevé de mesures** —
-     notes, sections de manuel que le ticket change, chiffres relevés à
-     l'étape 5. Rien de tout cela n'est lu par la porte, donc rien ne la
-     réouvre ;
-  8. commiter, régénérer le CHANGELOG, ouvrir la PR.
+  1. code and test;
+  2. review, fix;
+  3. **bump the patch**;
+  4. **`make manual`** — the bump has just made the `--version` example stale,
+     which quotes the number. It takes ten seconds, and forgetting it makes the
+     next step fail: `check-local` chains `manual-check`, which compares that
+     block with what the binary writes. The defect was paid for three times
+     before being written down here;
+  5. **`make check-local`**, whose chained `make bench` runs on the bumped
+     version: **it is that run that records the measurement which stays in the
+     log** — unless the machine is busy, in which case nothing is recorded and
+     the PR must say so (issue #270);
+  6. `make check` — only once, it sees the code *and* the bump;
+  7. **update the rest of the documentation and the record of measurements** —
+     notes, manual sections the ticket changes, figures recorded at
+     step 5. None of that is read by the gate, so none of it reopens it;
+  8. commit, regenerate the CHANGELOG, open the PR.
 
-  **`check-local` avant `check`, et il y a une mesure derrière ce sens-là.**
-  L'ordre inverse a tenu jusqu'à la fin de la phase 8, et il coûtait presque un
-  relevé de banc sur deux : `check-local` enchaîne `make bench` en dernier, donc
-  le banc trouvait la traîne d'un quart d'heure de compilation — six relevés
-  perdus sur treize en phase 7, trois sur six en phase 8. C'est aussi l'ordre
-  que le principe voulait déjà, du moins cher au plus cher : `check` dure
-  dix-sept minutes, `check-local` quelques-unes.
+  **`check-local` before `check`, and there is a measurement behind that order.**
+  The reverse order held until the end of phase 8, and it cost almost one bench
+  record in two: `check-local` chains `make bench` last, so the bench found the
+  tail of a quarter of an hour of compilation — six records lost out of thirteen
+  in phase 7, three out of six in phase 8. It is also the order the principle
+  already wanted, from the cheapest to the most expensive: `check` takes
+  seventeen minutes, `check-local` a few.
 
-  **Cet échange ne suffisait pas, et sa première exécution l'a dit** — le banc a
-  lu 2,21 sur une machine partie de 0,63. Le garde compilait l'arbre Release
-  *puis* demandait si la machine était libre, c'est-à-dire juste après l'avoir
-  occupée lui-même ; la moyenne d'une minute est le passé. La lecture passe
-  désormais avant la construction.
+  **That swap was not enough, and its first run said so** — the bench read
+  2.21 on a machine that started at 0.63. The guard compiled the Release tree
+  *then* asked whether the machine was free, that is, just after having occupied
+  it itself; the one-minute average is the past. The reading now comes before
+  the build.
   [ADR 0015](docs/adr/0015-memoire-des-mesures.md).
 
-  **Il n'y a donc plus d'exécution diagnostique de `make bench` avant la
-  porte** : le relevé qui reste au journal lui est désormais antérieur, et une
-  régression s'y voit au même moment, tant qu'il est temps de la corriger.
+  **There is therefore no longer a diagnostic run of `make bench` before the
+  gate**: the record that stays in the log now precedes it, and a regression
+  shows there at the same moment, while there is still time to fix it.
 
-  L'étape 7 vient après la 6 par construction : c'est la seule position où la
-  documentation ne coûte rien. L'exemple de version, lui, ne peut pas y
-  attendre — il est lu par `check-local`, d'où l'étape 4 qui lui est réservée.
+  Step 7 comes after step 6 by construction: it is the only position where the
+  documentation costs nothing. The version example, for its part, cannot wait
+  until then — it is read by `check-local`, hence step 4, reserved for it.
 
-  Le tag et le `project(VERSION)` doivent porter le même numéro : **bumper le
-  CMake avant de tagger**, sinon le binaire annonce une version périmée.
-  `src/scripts/check-architecture.sh` le vérifie dès qu'un tag pointe sur HEAD.
-- **Qualité** — `make check` est la porte : format, warnings en erreurs,
-  clang-tidy, tests sous ASan, seuil de couverture, et **aucun fichier laissé
-  derrière**. Ne jamais annoncer un travail terminé sans l'avoir lancée.
+  The tag and the `project(VERSION)` must carry the same number: **bump the
+  CMake before tagging**, otherwise the binary announces a stale version.
+  `src/scripts/check-architecture.sh` checks it as soon as a tag points at HEAD.
+- **Quality** — `make check` is the gate: format, warnings as errors,
+  clang-tidy, tests under ASan, coverage threshold, and **no file left
+  behind**. Never announce a piece of work as finished without having run it.
 
-  **La CI ne l'exécute pas, et c'est la règle depuis #232.** Les minutes
-  d'Actions et le stockage du cache partaient trop vite pour une porte par pull
-  request : `ci.yml` et `pull-request.yml` ne tournent qu'à la demande, et
-  aucun ruleset n'exige plus leur check. La phrase ci-dessus en devient la seule
-  garde, et la pull request dit ce qui a été franchi. `Closes #N`, le bump du
-  patch et le journal régénéré sont des gestes à faire, pas à voir échouer.
+  **CI does not run it, and that has been the rule since #232.** The Actions
+  minutes and the cache storage went too fast for a gate per pull
+  request: `ci.yml` and `pull-request.yml` only run on demand, and
+  no ruleset requires their check any more. The sentence above becomes its only
+  guard, and the pull request says what was passed. `Closes #N`, the patch bump
+  and the regenerated log are gestures to make, not to watch fail.
 
-  Le dernier contrôle est le plus récent et le moins évident : la porte relève
-  les fichiers non suivis avant de commencer et refuse ceux qui sont apparus
-  entre-temps. Ce sont les tests de bout en bout qui écrivent, et un nom nu
-  passé à `--output` atterrit là où CTest les lance, c'est-à-dire à la racine du
-  dépôt. **Un test qui écrit passe par le harnais `Scratch`, jamais par un nom
-  nu.** Un fichier non suivi déjà présent avant la porte — une source neuve
-  avant son `git add` — ne la dérange pas ; c'est l'apparition qui est refusée,
-  pas la présence.
+  The last check is the most recent and the least obvious: the gate records the
+  untracked files before starting and refuses those that appeared in the
+  meantime. It is the end-to-end tests that write, and a bare name passed to
+  `--output` lands where CTest runs them, that is, at the root of the
+  repository. **A test that writes goes through the `Scratch` harness, never
+  through a bare name.** An untracked file already present before the gate — a
+  new source before its `git add` — does not disturb it; it is the appearance
+  that is refused, not the presence.
 
-  **Le même contrôle existe hors du dépôt, et il a sa propre règle.**
-  `check-config-home.sh` encadre la porte de la même façon et surveille
-  `~/.config/subedit`, que `git ls-files` ne voit pas. Ce qui le tient au vert :
-  **un test ne résout jamais un emplacement de configuration, il en reçoit
-  un.** The only code that resolves one is `platform::resolvedUserSettingsPath()`,
+  **The same check exists outside the repository, and it has its own rule.**
+  `check-config-home.sh` wraps the gate the same way and watches
+  `~/.config/subedit`, which `git ls-files` does not see. What keeps it green:
+  **a test never resolves a configuration location, it is given one.** The only code that resolves one is `platform::resolvedUserSettingsPath()`,
   called by the two `main` functions, which hand the path down;
-  `gui::userSettingsPath()` delegates to it — ADR 0022 and 0045. Les trois harnais qui lancent quelque chose
-  déplacent en plus `XDG_CONFIG_HOME` vers un répertoire à eux : le binaire de
-  tests d'interface pour lui-même, celui de bout en bout pour chaque binaire
-  qu'il lance, et `check-installation.sh` pour ce qu'il vient d'installer.
+  `gui::userSettingsPath()` delegates to it — ADR 0022 and 0045. The three harnesses that launch something
+  also move `XDG_CONFIG_HOME` to a directory of their own: the interface test
+  binary for itself, the end-to-end one for each binary it launches, and
+  `check-installation.sh` for what it has just installed.
 
-  **L'analyse statique n'a plus de périmètre à calculer, et plus de bouton.**
-  clang-tidy est accroché à la règle de compilation de chaque source, sous le
-  preset `tidy` — `cmake/Tidy.cmake`, issue #269. Ce qui décide de réanalyser un
-  fichier est le système de construction : sa source, un en-tête de son fichier
-  de dépendances, ou sa ligne de commande. Il n'y a donc plus de `TIDY_BASE`,
-  plus de « fichiers gouvernants », et plus de tableau de ce que la porte lit —
-  **une modification qui ne change aucune entrée de compilation ne coûte rien,
-  mécaniquement.** Pour tout réanalyser : `rm -rf build/tidy`.
+  **Static analysis no longer has a scope to compute, and no longer a switch.**
+  clang-tidy is hooked onto the compile rule of each source, under the
+  `tidy` preset — `cmake/Tidy.cmake`, issue #269. What decides to re-analyse a
+  file is the build system: its source, a header of its dependency file, or its
+  command line. There is therefore no more `TIDY_BASE`, no more “governing
+  files”, and no more table of what the gate reads — **a change that alters no
+  compilation input costs nothing, mechanically.** To re-analyse everything:
+  `rm -rf build/tidy`.
 
-  Le prix, écrit plutôt que tu : l'incrémentalité vit dans `build/tidy`, donc un
-  `make clean` la perd, et la CI la garde par un cache d'Actions.
+  The price, written rather than kept quiet: the incrementality lives in
+  `build/tidy`, so a `make clean` loses it, and CI keeps it through an Actions
+  cache.
 
-  **Deux entrées échappent à Ninja, et une clé les lui montre** : le contenu de
-  `.clang-tidy` et la version du binaire, dont ni l'un ni l'autre n'est sur la
-  ligne de commande. `Tidy.cmake` en pose l'empreinte dans les drapeaux de
-  compilation, ce qui les y met. Sans elle, une configuration durcie laisserait
-  l'arbre vert sur une réponse périmée.
+  **Two inputs escape Ninja, and a key shows them to it**: the content of
+  `.clang-tidy` and the version of the binary, neither of which is on the
+  command line. `Tidy.cmake` puts their fingerprint in the compile flags, which
+  puts them there. Without it, a hardened configuration would leave the tree
+  green on a stale answer.
 
-  **`HeaderFilterRegex` n'avait jamais filtré**, et personne ne pouvait le voir :
-  le motif `src/.*\.hpp$` ne correspond à rien depuis la racine du dépôt, si
-  bien que la porte n'a analysé aucun en-tête jusqu'à #269. Le preset a réglé
-  cela par construction, son répertoire courant étant l'arbre de construction.
-  Corollaire à connaître : **un `.clang-tidy` de répertoire ne gouverne que les
-  `.cpp` de ce répertoire** — pour un diagnostic levé dans un en-tête, c'est la
-  configuration de l'unité de traduction qui l'inclut qui s'applique.
+  **`HeaderFilterRegex` had never filtered**, and nobody could see it: the
+  pattern `src/.*\.hpp$` matches nothing from the root of the repository, so
+  that the gate analysed no header until #269. The preset settled that by
+  construction, its current directory being the build tree. A corollary worth
+  knowing: **a directory's `.clang-tidy` governs only the `.cpp` files of that
+  directory** — for a diagnostic raised in a header, it is the configuration of
+  the translation unit that includes it that applies.
 
-  **On sait reprendre la porte au milieu.** Les étapes vivent dans
-  `src/scripts/gate/`, une par fichier, et `src/scripts/gate.sh` porte l'ordre :
+  **The gate can be resumed in the middle.** The steps live in
+  `src/scripts/gate/`, one per file, and `src/scripts/gate.sh` carries the order:
 
   ```console
   $ ./src/scripts/gate.sh --list
@@ -304,41 +302,46 @@ avec un objectif d'iso-fonctionnalité.
   $ ./src/scripts/gate.sh check --only tidy
   ```
 
-  Les cibles `make` restent l'interface qu'on tape, et `verify-gates.sh` les
-  invoque toujours. Un nom d'étape inconnu fait échouer l'invocation plutôt que
-  de n'en jouer aucune.
+  The `make` targets remain the interface one types, and `verify-gates.sh` still
+  invokes them. An unknown step name makes the invocation fail rather than play
+  none of them.
 
-  **Le bump de version, lui, ne compte que si un tag pointe sur HEAD.** C'est le
-  seul contrôle qui lit le numéro : `check-architecture.sh` le confronte au tag,
-  et il est inerte sans tag. Rien d'autre ne peut en différer — `version_test`
-  et le test de bout en bout de `--version` dérivent tous deux le numéro de
-  `versionString()` plutôt que de l'écrire en dur, et le seul endroit où il est
-  recopié, l'exemple `--version` du manuel, est tenu par `manual-check`, qui est
-  dans `check-local`.
+  Each step, phase and proof is timed with the load and `JOBS` it ran under,
+  and appended to `build/gate-timings.tsv` (local, ignored); `make timings`
+  compares the latest run with the median of the previous ones and flags one
+  above 1.5×.
 
-  Donc : **une PR qui ne touche que de la documentation et le patch se contente
-  de `make check-local`.** C'est le cas de toute PR de cadrage, de manuel ou
-  d'ADR. Dès qu'un `.cpp`, un `.hpp`, un script ou une donnée de test bouge, la
-  porte reprend ses droits.
-- **Manuel utilisateur** — [`docs/manual/`](docs/manual/). **Tout ticket qui
-  change ce que l'utilisateur voit se termine par sa mise à jour**, une fois le
-  code écrit, relu et validé — pas avant, sinon le manuel décrit une intention
-  et non un logiciel. Concrètement, à l'étape 7 de l'ordre décrit plus haut :
-  après la porte, qui ne le lit pas. Ce qui doit y figurer, exhaustivement :
+  **The version bump, for its part, only counts if a tag points at HEAD.** It is
+  the only check that reads the number: `check-architecture.sh` confronts it with
+  the tag, and it is inert without a tag. Nothing else can differ from it —
+  `version_test` and the end-to-end test of `--version` both derive the number
+  from `versionString()` rather than hard-coding it, and the only place where it
+  is copied, the `--version` example of the manual, is held by `manual-check`,
+  which is in `check-local`.
 
-  | Élément | Ce qu'on en dit |
-  | :------ | :-------------- |
-  | commande, sous-commande | son nom, ce qu'elle fait, et ce qu'elle ne fait pas |
-  | argument, option | sa forme longue et courte, s'il est requis, sa valeur par défaut |
-  | valeurs acceptées | l'ensemble fermé, énuméré ; les bornes, pour un intervalle |
-  | sortie | ce qui est écrit, où, et sous quelle forme |
-  | codes de retour | chacun, avec sa signification |
-  | erreurs | ce qui les déclenche et le message correspondant |
+  So: **a PR that touches only documentation and the patch makes do with
+  `make check-local`.** That is the case of every scoping, manual or ADR PR. As
+  soon as a `.cpp`, a `.hpp`, a script or a piece of test data moves, the gate
+  takes back its rights.
+- **User manual** — [`docs/manual/`](docs/manual/). **Every ticket that changes
+  what the user sees ends with its update**, once the code is written, reviewed
+  and validated — not before, otherwise the manual describes an intention and
+  not a piece of software. Concretely, at step 7 of the order described above:
+  after the gate, which does not read it. What must appear in it, exhaustively:
 
-  **Les raccourcis de la fenêtre s'écrivent dans un tableau à colonne « Raccourci »**, le raccourci
-  entre apostrophes inverses (`Ctrl+P`), « aucun » quand il n'y en a pas, et l'action nommée comme le
-  menu la libelle — `check-gui-manual.py` (dans `manual-check`) les confronte aux actions de la
-  fenêtre : #612. Une touche citée en prose n'est pas contrôlée, et ne doit pas être celle d'une action.
+  | Element | What is said about it |
+  | :------ | :-------------------- |
+  | command, subcommand | its name, what it does, and what it does not do |
+  | argument, option | its long and short form, whether it is required, its default value |
+  | accepted values | the closed set, enumerated; the bounds, for a range |
+  | output | what is written, where, and in what form |
+  | exit codes | each one, with its meaning |
+  | errors | what triggers them and the corresponding message |
+
+  **The window's shortcuts are written in a table with a “Shortcut” column**, the shortcut
+  between backticks (`Ctrl+P`), “none” when there is none, and the action named as the
+  menu labels it — `check-gui-manual.py` (in `manual-check`) confronts them with the window's
+  actions: #612. A key cited in prose is not checked, and must not be that of an action.
 
   **Each manual tree is checked against the window in its own language** (#672):
   English against the English window, `docs/i18n/<lang>/manual/` against the
@@ -349,35 +352,35 @@ avec un objectif d'iso-fonctionnalité.
   `docs/i18n/<lang>/manual/subedit-gui/captures/`, generated by `make manual`
   for English and every language of `src/po/LINGUAS`.
 
-  Un exemple d'appel réel accompagne chaque commande. **Le manuel décrit ce qui
-  existe, jamais ce qui est prévu** — le prévu va dans la feuille de route.
+  An example of a real call accompanies each command. **The manual describes what
+  exists, never what is planned** — what is planned goes in the roadmap.
 
-  **Les images du manuel d'interface sont engendrées, jamais prises à la
-  main.** `make manual` construit la vraie fenêtre, la montre sans écran et la
-  photographie ; le programme n'écrit jamais une référence, il écrit
-  `<nom>.new.png`, et `compare-screenshots.py` promeut ou efface — si bien
-  qu'une image n'entre dans un diff que le jour où l'interface a changé.
-  `check-screenshots.py` attrape ce qu'aucun des deux ne voit : une image que
-  le manuel montre et que rien n'engendre. Une nouvelle capture s'ajoute dans
-  `src/test/tools/screenshots.cpp`, et elle ne fait foi que sous les réglages
-  que ce programme pose — plateforme sans écran, style Fusion, `DejaVu Sans` ;
-  il refuse de photographier sans cette police. ADR 0024.
-- **Définition de « terminé »** — code, tests, **benchmarks rejoués et mesures
-  relevées**, section de manuel à jour, patch bumpé, entrée de CHANGELOG
-  régénérée.
+  **The images of the interface manual are generated, never taken by
+  hand.** `make manual` builds the real window, shows it without a screen and
+  photographs it; the program never writes a reference, it writes
+  `<name>.new.png`, and `compare-screenshots.py` promotes or deletes — so that
+  an image only enters a diff on the day the interface has changed.
+  `check-screenshots.py` catches what neither of the two sees: an image that
+  the manual shows and that nothing generates. A new screenshot is added in
+  `src/test/tools/screenshots.cpp`, and it is only authoritative under the
+  settings that program sets — screenless platform, Fusion style, `DejaVu Sans`;
+  it refuses to photograph without that font. ADR 0024.
+- **Definition of “done”** — code, tests, **benchmarks replayed and measurements
+  recorded**, manual section up to date, patch bumped, CHANGELOG entry
+  regenerated.
 
-  Les benchmarks se rejouent **à chaque issue**, et non seulement quand la
-  performance est en jeu : une mesure ne dit rien seule, elle ne parle que
-  comparée à la précédente. Ils tournent en `Release`, le mode livré, et la
-  porte ne les construit pas — c'est donc une commande à part,
-  `make bench`. Tant qu'ils prennent une minute, la question de leur coût ne
-  se pose pas ; elle se posera, et se traitera alors par un sous-ensemble.
+  The benchmarks are replayed **on every issue**, and not only when performance
+  is at stake: a measurement says nothing alone, it only speaks when compared
+  with the previous one. They run in `Release`, the shipped mode, and the
+  gate does not build them — it is therefore a separate command,
+  `make bench`. As long as they take a minute, the question of their cost does
+  not arise; it will arise, and will then be dealt with by a subset.
 
-  **« Mesures relevées » admet une absence, et une seule** — issue #270.
-  `make bench` attend trente secondes que la charge passe sous
-  `BENCH_MAX_LOAD` ; au-delà il mesure, affiche, et **n'inscrit rien**. Une
-  section de journal qu'on ne peut comparer à rien occupe la place de celle qui
-  manque et cache le fait qu'il n'y a pas eu de mesure ; une version sans
-  section le dit. Ce qui reste dû, alors, est une phrase dans la PR : pas de
-  mesure pour cette version, et pourquoi. Rejouer `make bench` au calme la
-  produit.
+  **“Measurements recorded” admits one absence, and only one** — issue #270.
+  `make bench` waits thirty seconds for the load to drop below
+  `BENCH_MAX_LOAD`; beyond that it measures, displays, and **records nothing**. A
+  log section that cannot be compared with anything takes the place of the one
+  that is missing and hides the fact that there was no measurement; a version
+  without a section says so. What is then still owed is a sentence in the PR: no
+  measurement for this version, and why. Replaying `make bench` when the machine
+  is quiet produces it.

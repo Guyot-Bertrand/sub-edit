@@ -12,6 +12,7 @@
 #   JOBS        the parallelism ceiling, inherited from the environment
 #   step        announces the current step
 #   require     fails with a useful message rather than a « command not found »
+#   timed       runs a phase of the step and writes what it cost (`timing.sh`)
 #
 # **`JOBS` comes from the environment and is never guessed here.** The
 # `Makefile` exports it, CI sets it to `nproc`, and a direct call can set it
@@ -28,6 +29,9 @@ readonly REPO_ROOT
 
 JOBS="${JOBS:-2}"
 readonly JOBS
+
+# shellcheck source=src/scripts/gate/timing.sh
+source "$(dirname "${BASH_SOURCE[0]}")/timing.sh"
 
 readonly BOLD=$'\033[1m'
 readonly GREEN=$'\033[32m'

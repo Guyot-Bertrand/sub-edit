@@ -10,7 +10,7 @@ subedit-cli [--config FILE] config unset KEY
 Liste, montre et modifie les **réglages d'opération** : la partie du fichier de réglages que la
 fenêtre et la ligne de commande partagent. `Adjust Durations…` et `Correct Texts…` y retiennent
 leurs valeurs, et [`adjust`](adjust.md) et [`correct`](correct.md) les lisent par défaut — voir
-[Le fichier de réglages](invocation.md#the-settings-file).
+[Le fichier de réglages](invocation.md#le-fichier-de-réglages).
 
 **Ce qu'elle ne fait pas :** elle ne lit ni n'écrit jamais une **préférence d'affichage** (la
 géométrie de la fenêtre, les colonnes, le thème, les options de recherche, l'orthographe, la
@@ -164,7 +164,7 @@ duration-adjust.shorten = false   [default]
 Un fichier absent n'est pas une erreur : `show` écrit les défauts, et le code est `0` — le fichier
 de l'utilisateur comme un `FILE` nommé par `--config`, qu'[`adjust`](adjust.md) et
 [`correct`](correct.md), au contraire, refusent (voir
-[Le fichier de réglages](invocation.md#the-settings-file)). Avec
+[Le fichier de réglages](invocation.md#le-fichier-de-réglages)). Avec
 `--no-config` :
 
 <!-- example: subedit-cli --no-config config show | head -2 -->

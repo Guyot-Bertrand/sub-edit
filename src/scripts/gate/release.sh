@@ -16,7 +16,7 @@ source "$(dirname "${BASH_SOURCE[0]}")/common.sh"
 
 step "binaries (release)"
 
-cmake --preset release -DSUBEDIT_LTO_JOBS="${JOBS}"
-cmake --build --preset release -j "${JOBS}" --target subedit-cli subedit-gui
+timed configure cmake --preset release -DSUBEDIT_LTO_JOBS="${JOBS}"
+timed build cmake --build --preset release -j "${JOBS}" --target subedit-cli subedit-gui
 
 printf '  binaries: build/release/bin/subedit-cli, build/release/bin/subedit-gui\n'

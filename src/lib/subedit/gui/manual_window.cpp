@@ -17,9 +17,11 @@
 #include <QVBoxLayout>
 #include <QVariant>
 
+#include <algorithm>
 #include <expected>
 #include <filesystem>
 #include <map>
+#include <optional>
 #include <string>
 #include <utility>
 #include <vector>
@@ -119,9 +121,14 @@ constexpr int kHeight = 700;
 ManualWindow::ManualWindow(core::FileSystem& files,
                            std::filesystem::path directory,
                            QWidget* parent)
+    : ManualWindow(files, std::vector<std::filesystem::path>{std::move(directory)}, parent) {}
+
+ManualWindow::ManualWindow(core::FileSystem& files,
+                           std::vector<std::filesystem::path> trees,
+                           QWidget* parent)
     : QWidget(parent, Qt::Window),
       m_files(&files),
-      m_directory(std::move(directory)),
+      m_trees(std::move(trees)),
       m_view(new QTextBrowser{this}),
       m_notice(new QLabel{this}),
       m_back(new QAction{translate("Back"), this}),
@@ -171,16 +178,26 @@ ManualWindow::ManualWindow(core::FileSystem& files,
 }
 
 void ManualWindow::openPage(const std::filesystem::path& page) {
-    const std::expected<std::string, core::FileError> content =
-        m_files->readFile(m_directory / page);
+    // The first tree that has the page — the language's before English (#682).
+    std::optional<std::string> content;
+    std::filesystem::path file;
+    for (const std::filesystem::path& tree : m_trees) {
+        file = tree / page;
+        std::expected<std::string, core::FileError> read = m_files->readFile(file);
+        if (read) {
+            content = std::move(*read);
+            break;
+        }
+    }
 
     if (!content) {
         // **Said rather than left unsaid.** A partial installation is the case
         // the scoping names, and a window that opened empty would suggest an
-        // empty manual rather than a missing file.
+        // empty manual rather than a missing file. The English path is named:
+        // it is the last place looked, and the one every installation has.
+        const QString shown = QString::fromStdString(file.string());
         // TRANSLATORS: %1 is the path of a page of the manual.
-        m_notice->setText(substitute(translate("%1 could not be read."),
-                                     QString::fromStdString((m_directory / page).string())));
+        m_notice->setText(substitute(translate("%1 could not be read."), shown));
         m_notice->show();
         return;
     }
@@ -194,14 +211,19 @@ void ManualWindow::openPage(const std::filesystem::path& page) {
     // The images of the manual sit beside the page that shows them, and their
     // addresses are relative to it: that is the directory the rendering has to
     // search, and it changes with every page.
-    const std::filesystem::path here = (m_directory / page).parent_path();
-    m_view->setSearchPaths({QString::fromStdString(here.string())});
+    // In the order of the trees, so that a translated screenshot wins and an
+    // untranslated one is still found in English.
+    QStringList searched;
+    for (const std::filesystem::path& tree : m_trees)
+        searched.append(QString::fromStdString((tree / page).parent_path().string()));
+    m_view->setSearchPaths(searched);
 
     m_view->document()->setMarkdown(QString::fromStdString(*content),
                                     QTextDocument::MarkdownDialectGitHub);
     m_view->moveCursor(QTextCursor::Start);
 
     m_current = page;
+    m_currentFile = file;
     refreshActions();
 }
 
@@ -217,7 +239,10 @@ void ManualWindow::followLink(const QUrl& target) {
 
     const std::filesystem::path page = resolved(m_current, asked);
 
-    if (!inside(page) || !m_files->exists(m_directory / page)) {
+    const bool somewhere = std::ranges::any_of(
+        m_trees, [&](const std::filesystem::path& tree) { return m_files->exists(tree / page); });
+
+    if (!inside(page) || !somewhere) {
         // TRANSLATORS: %1 is the path a link of the manual names.
         m_notice->setText(substitute(translate("%1 is not part of the installed manual; it lives "
                                                "in the project's repository."),

@@ -12,8 +12,8 @@ thème n'en a aucun, ni l'unité des longueurs de lignes, ni les deux cases qui
 les montrent, ni le saut et l'avance du lecteur. Voir [Le thème](#le-thème),
 [Les longueurs de lignes](#les-longueurs-de-lignes) et [Le lecteur](#le-lecteur).
 
-**The interface language is in the same dialog, and it is the one that waits**: it applies at the
-next launch, not at once. See [The interface language](#the-interface-language).
+**La langue de l'interface est dans le même dialogue, et c'est elle qui attend** : elle s'applique au
+lancement suivant, pas sur-le-champ. Voir [La langue de l'interface](#la-langue-de-linterface).
 
 **Le volume n'en a pas** : la barre sous l'image et deux gestes le règlent, et il est retenu.
 
@@ -35,8 +35,8 @@ octets. Voir [le fichier](#le-fichier).
 
 **Et ce que l'assistant `Correct Texts…` et `Spell-Check Settings…` règlent** : les
 tâches cochées et leur code, les cases de motifs, les réglages du découpage, la langue,
-la cible de la vérification et le soulignement à la frappe. Voir [Correct Texts…](correct-texts.md) et
-[Check Spelling…](check-spelling.md#spell-check-settings). **La cible et le
+la cible de la vérification et le soulignement à la frappe. Voir [Corriger les textes…](correct-texts.md) et
+[Vérifier l'orthographe…](check-spelling.md#réglages-de-la-vérification-orthographique). **La cible et le
 document de `Correct Texts…` ne sont pas retenus.**
 
 **Ce qui n'est pas retenu :** le dernier fichier ouvert — voir
@@ -44,7 +44,7 @@ document de `Correct Texts…` ne sont pas retenus.**
 
 ## Le lecteur
 
-Quatre champs. **Seek length** et **Context length** sont ceux de Gaupol et ont ses valeurs ; **Frame step** et **Decode on the graphics card** sont propres à subedit :
+Quatre champs. **Durée d'un saut** et **Durée du contexte** sont ceux de Gaupol et ont ses valeurs ; **Pas en images** et **Décoder sur la carte graphique** sont propres à subedit :
 
 | Champ | Ce qu'il règle | Par défaut | Bornes |
 | :---- | :------------- | ---------: | :----- |
@@ -74,28 +74,29 @@ Le fichier est du texte, et il se modifie à la main. C'est une propriété et n
 un effet de bord : c'est ce qui rend un réglage corrigeable quand l'interface
 qui le pose est justement celle qui ne va pas.
 
-### Two blocks, one shared with the command line
+### Deux blocs, dont un partagé avec la ligne de commande
 
-The file is written in **two blocks**, each under a banner comment:
+Le fichier est écrit en **deux blocs**, chacun sous un commentaire de bannière :
 
-| Block | Keys | Read by |
-| :---- | :--- | :------ |
-| `# Operation settings: shared by the window and the command line` | the `duration-adjust.*` and `correction.*` keys | the window **and** `subedit-cli` |
-| `# Display preferences: the window's own` | every other key — geometry, columns, theme, interface language, search, spell-check, editor, video, last directory, write encoding | the window only |
+| Bloc | Clés | Lu par |
+| :--- | :--- | :----- |
+| `# Operation settings: shared by the window and the command line` | les clés `duration-adjust.*` et `correction.*` | la fenêtre **et** `subedit-cli` |
+| `# Display preferences: the window's own` | toutes les autres clés — géométrie, colonnes, thème, langue de l'interface, recherche, vérification orthographique, éditeur, vidéo, dernier répertoire, encodage d'écriture | la fenêtre seule |
 
-**`subedit-cli` reads the operation block by default**: what `Adjust Durations…` and
-`Correct Texts…` remember here is also what [`subedit-cli adjust`](../subedit-cli/adjust.md)
-and part of [`subedit-cli correct`](../subedit-cli/correct.md) start from, unless an option of
-the command line says otherwise. **It never reads the display preferences.** Its
-[`config`](../subedit-cli/config.md) command lists the operation keys, shows their values and
-changes them — `subedit-cli config set duration-adjust.speed 12` — and the window sees the change
-at its next opening. **A change made while the window is open does not survive its closing**: the
-window rewrites the whole file with what it holds. `--no-config` makes a command line ignore the
-file. See
-[The settings file](../subedit-cli/invocation.md#the-settings-file).
+**`subedit-cli` lit le bloc des opérations par défaut** : ce que `Adjust Durations…` et
+`Correct Texts…` retiennent ici est aussi ce dont partent [`subedit-cli adjust`](../subedit-cli/adjust.md)
+et une partie de [`subedit-cli correct`](../subedit-cli/correct.md), sauf si une option de la
+ligne de commande dit autre chose. **Il ne lit jamais les préférences d'affichage.** Sa commande
+[`config`](../subedit-cli/config.md) liste les clés des opérations, montre leurs valeurs et les
+change — `subedit-cli config set duration-adjust.speed 12` — et la fenêtre voit le changement à
+sa prochaine ouverture. **Un changement fait pendant que la fenêtre est ouverte ne survit pas à sa
+fermeture** : la fenêtre réécrit tout le fichier avec ce qu'elle détient. `--no-config` fait
+ignorer le fichier à une ligne de commande. Voir
+[Le fichier de réglages](../subedit-cli/invocation.md#le-fichier-de-réglages).
 
-The reader takes the keys in any order, with or without the banners: a file written before the
-two blocks existed is read unchanged, and rewritten in two blocks at the next closing.
+Le lecteur prend les clés dans n'importe quel ordre, avec ou sans les bannières : un fichier écrit
+avant que les deux blocs n'existent se lit tel quel, et se réécrit en deux blocs à la fermeture
+suivante.
 
 | Option | Ce qu'elle vaut | Défaut |
 | :----- | :-------------- | :----- |
@@ -107,7 +108,7 @@ two blocks existed is read unchanged, and rewritten in two blocks at the next cl
 | `window.table-share` | la part de la hauteur donnée à la table, en pour cent, de 1 à 99 | la fenêtre partage comme elle l'a toujours fait |
 | `file.directory` | un chemin **absolu** de répertoire | aucun : `Open…` s'ouvre là où le programme a été lancé |
 | `general.theme` | `system`, `light` ou `dark` | `system` |
-| `interface.language` | `system`, or a language's name as its catalogue is named: two or three lower-case letters, then optionally `_` and two capitals — `fr`, `pt_BR`; `en` for English | `system` |
+| `interface.language` | `system`, ou le nom d'une langue tel que son catalogue est nommé : deux ou trois minuscules, puis éventuellement `_` et deux majuscules — `fr`, `pt_BR` ; `en` pour l'anglais | `system` |
 | `edit.insert-placement` | `above` ou `below` | `below` |
 | `file.write-encoding` | le nom d'un encodage qu'ICU sait écrire, et dont le convertisseur n'écrit pas sa propre marque | aucun |
 | `file.write-bom` | `true` ou `false` | `false` |
@@ -255,7 +256,7 @@ rouvrir au lancement un document que personne n'a demandé. Retenir un répertoi
 
 Le thème choisi s'applique **immédiatement**, sans redémarrer.
 
-**« System » ne fait rien, et ce n'est pas un manque.** La version de Qt sur
+**« Système » ne fait rien, et ce n'est pas un manque.** La version de Qt sur
 laquelle subedit est bâti n'a aucun moyen de demander au bureau s'il se veut
 clair ou sombre, ni d'être prévenue quand il change d'avis. Plutôt que
 d'inventer une lecture qu'on ne sait pas faire, l'outil livre les deux thèmes
@@ -270,42 +271,45 @@ outre, quel que soit le bureau.
 [La table](table.md#les-anomalies). Ce n'est pas une supposition : le contraste
 du texte sur chacune des teintes est vérifié par un test, sur les deux fonds.
 
-## The interface language
+## La langue de l'interface
 
-`Édition ▸ Préférences…` chooses the language of the window, under the theme.
+`Édition ▸ Préférences…` choisit la langue de la fenêtre, sous le thème.
 
-| Field | Values | Default |
-| :---- | :----- | :------ |
-| `Interface language` | `System default`; `English`; then each language installed with the program, by its own name — `Français` | `System default` |
+| Champ | Valeurs | Défaut |
+| :---- | :------ | :----- |
+| `Interface language` | `System default` ; `English` ; puis chaque langue installée avec le programme, sous son propre nom — `Français` | `System default` |
 
-**It takes effect at the next launch**, and the dialog says so under the field: the window is
-translated as it is built, and a running window keeps the language it started in. The choice is
-kept in the settings file, under `interface.language`, and read when the window next opens.
+**Le choix prend effet au lancement suivant**, et le dialogue le dit sous le champ : la fenêtre est
+traduite au moment où elle se construit, et une fenêtre en marche garde la langue dans laquelle elle
+a démarré. Le choix est retenu dans le fichier de réglages, sous `interface.language`, et lu à la
+prochaine ouverture de la fenêtre.
 
-| Choice | The window starts in |
-| :----- | :------------------- |
-| `System default` | the language of the environment, as before any choice — `LANGUAGE`, `LC_ALL`, `LC_MESSAGES`, `LANG`; see [Language](invocation.md#language) |
-| `English` | English, whatever the environment says |
-| an installed language | that language, **whatever the environment says**, `LC_ALL=C` included: a choice made here is an explicit one |
+| Choix | La fenêtre démarre en |
+| :---- | :-------------------- |
+| `System default` | la langue de l'environnement, comme avant tout choix — `LANGUAGE`, `LC_ALL`, `LC_MESSAGES`, `LANG` ; voir [Langue](invocation.md#langue) |
+| `English` | anglais, quoi que dise l'environnement |
+| une langue installée | cette langue, **quoi que dise l'environnement**, `LC_ALL=C` compris : un choix fait ici est un choix explicite |
 
-The list holds the languages whose catalogue is installed under `<prefix>/share/subedit/locale`;
-English is always there, since it is the language the program is written in. A language is shown
-by its own name, which no catalogue translates, so that a reader finds the one they read.
+La liste contient les langues dont le catalogue est installé sous `<prefix>/share/subedit/locale` ;
+l'anglais y est toujours, puisque c'est la langue dans laquelle le programme est écrit. Une langue
+est montrée sous son propre nom, qu'aucun catalogue ne traduit, pour que chacun trouve celle qu'il
+lit.
 
-**A value the program cannot honour costs nothing but the choice:**
+**Une valeur que le programme ne peut pas honorer ne coûte que le choix :**
 
-| What the file says | What happens |
-| :----------------- | :----------- |
-| a language's name with no catalogue installed — a file brought from another machine | the window follows the environment, without a word; `Preferences…` shows that language, by its name or its code, and keeps it unless another is chosen |
-| something that is not a language's name — `French`, `fr_FR.UTF-8` | `system`, the default, and the option is named on the error stream, as any unreadable value is |
+| Ce que dit le fichier | Ce qui se passe |
+| :-------------------- | :-------------- |
+| le nom d'une langue dont aucun catalogue n'est installé — un fichier apporté d'une autre machine | la fenêtre suit l'environnement, sans un mot ; `Preferences…` montre cette langue, sous son nom ou son code, et la garde tant qu'on n'en choisit pas une autre |
+| ce qui n'est pas le nom d'une langue — `French`, `fr_FR.UTF-8` | `system`, le défaut, et l'option est nommée sur la sortie d'erreur, comme toute valeur illisible |
 
 ```console
 $ subedit-gui film.srt
 subedit-gui: /home/vous/.config/subedit/settings.conf: interface.language: "French" cannot be read, keeping the default
 ```
 
-**The command line never reads it**: `subedit-cli` chooses its language from the environment
-alone, and `subedit-cli config set interface.language fr` is refused as a display preference.
+**La ligne de commande ne la lit jamais** : `subedit-cli` choisit sa langue d'après le seul
+environnement, et `subedit-cli config set interface.language fr` est refusé comme préférence
+d'affichage.
 
 ## Les longueurs de lignes
 

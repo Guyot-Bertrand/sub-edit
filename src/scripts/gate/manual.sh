@@ -47,22 +47,26 @@ done
 
 step "manual examples"
 
-cmake --preset dev >/dev/null
-cmake --build --preset dev -j "${JOBS}" --target subedit-cli subedit_screenshots subedit_list_shortcuts
+timed configure cmake --preset dev >/dev/null
+timed build cmake --build --preset dev -j "${JOBS}" --target subedit-cli subedit_screenshots subedit_list_shortcuts
 
 if ((check)); then
-    "${REPO_ROOT}/src/scripts/generate-manual.sh" --check
+    timed examples "${REPO_ROOT}/src/scripts/generate-manual.sh" --check
 else
-    "${REPO_ROOT}/src/scripts/generate-manual.sh"
+    timed examples "${REPO_ROOT}/src/scripts/generate-manual.sh"
 fi
 
 step "screenshots"
 
 # One shot of every screen and its comparison with the references of the same tree.
+#
+# **The `|| return` is not decoration.** `timed` calls this function on the left of a `||`, where
+# bash suspends `set -e` for everything the function runs: without it, a failed shot would go on to
+# the comparison, and the step would take the comparator's verdict for its own.
 shoot() {
     local directory="$1"
     shift
-    "${REPO_ROOT}/build/dev/bin/subedit_screenshots" --output-dir "${directory}" "$@"
+    "${REPO_ROOT}/build/dev/bin/subedit_screenshots" --output-dir "${directory}" "$@" || return
     if ((check)); then
         "${REPO_ROOT}/src/scripts/compare-screenshots.py" --dir "${directory}" --check
     else
@@ -70,13 +74,14 @@ shoot() {
     fi
 }
 
-shoot "${CAPTURES}"
+timed "screenshots (en)" shoot "${CAPTURES}"
 # Every installed language, in the order of the list; blank lines and comments are not languages.
 while IFS= read -r language; do
     language="${language%%#*}"
     language="${language//[[:space:]]/}"
     [[ -n "${language}" ]] || continue
-    shoot "${REPO_ROOT}/docs/i18n/${language}/manual/subedit-gui/captures" --language "${language}"
+    timed "screenshots (${language})" shoot "${REPO_ROOT}/docs/i18n/${language}/manual/subedit-gui/captures" \
+        --language "${language}"
 done <"${LINGUAS}"
 
 "${REPO_ROOT}/src/scripts/check-screenshots.py"

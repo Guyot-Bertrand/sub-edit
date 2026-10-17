@@ -47,6 +47,7 @@
 #include <subedit/gui/fixes_proposal_dialog.hpp>
 #include <subedit/gui/insert_dialog.hpp>
 #include <subedit/gui/main_window.hpp>
+#include <subedit/gui/manual_path.hpp>
 #include <subedit/gui/manual_window.hpp>
 #include <subedit/gui/messages.hpp>
 #include <subedit/gui/play_bar.hpp>
@@ -981,12 +982,17 @@ void MainWindow::about() {
     (void)m_prompts->run(dialog);
 }
 
-void MainWindow::setManualPath(std::filesystem::path directory) {
-    m_manualDirectory = std::move(directory);
+void MainWindow::setManualPath(const std::filesystem::path& directory,
+                               const std::optional<std::string>& language) {
+    m_manualTrees = manualTrees(directory, language);
 
     // The home page and not the directory: a directory that is there but empty
-    // is a partial installation, and that is the case the scoping names.
-    m_actions->manual->setEnabled(m_files->exists(m_manualDirectory / "index.md"));
+    // is a partial installation, and that is the case the scoping names. In
+    // any of the trees, since the window reads from whichever has it.
+    m_actions->manual->setEnabled(
+        std::ranges::any_of(m_manualTrees, [this](const std::filesystem::path& tree) {
+            return m_files->exists(tree / "index.md");
+        }));
     m_actions->manual->setToolTip(m_actions->manual->isEnabled()
                                       ? translate("Open the installed manual")
                                       : translate("No manual is installed beside this program"));
@@ -997,7 +1003,7 @@ void MainWindow::openManual() {
     // times in a sitting, and a new one at every call would leave a stack of
     // them behind one another.
     if (m_manualWindow == nullptr)
-        m_manualWindow = new ManualWindow{*m_files, m_manualDirectory, this};
+        m_manualWindow = new ManualWindow{*m_files, m_manualTrees, this};
 
     m_manualWindow->show();
     m_manualWindow->raise();

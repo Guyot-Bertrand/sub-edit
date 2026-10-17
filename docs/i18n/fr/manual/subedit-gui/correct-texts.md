@@ -1,4 +1,4 @@
-# Correct Texts…
+# Corriger les textes…
 
 `Outils ▸ Corriger les textes…` ouvre un assistant à plusieurs pages, sur le modèle de
 celui de Gaupol : une page de cible et de tâches, une page par tâche cochée,
@@ -9,14 +9,14 @@ changements sans jamais les imposer.
 
 **La ligne de commande fait la même chose** pour toutes les tâches : [`subedit-cli correct`](../subedit-cli/correct.md), avec les
 mêmes motifs et les mêmes comptes — et en caractères là où la fenêtre mesure en ems.
-**It reads four of this assistant's remembered settings** by default — the two classes of
-common errors (`Human`, `OCR`), `Remove all blank subtitles` and the maximum number of lines of
-`Line Break` — and takes everything else (the tasks, their code, the line length, the language,
-the pattern boxes) from its own line. See
-[Two blocks, one shared with the command line](preferences.md#two-blocks-one-shared-with-the-command-line)
-and [`subedit-cli config`](../subedit-cli/config.md).
+**Elle lit par défaut quatre des réglages que cet assistant retient** — les deux classes des
+erreurs courantes (`Human`, `OCR`), `Remove all blank subtitles` et le nombre maximal de lignes de
+`Line Break` — et prend tout le reste (les tâches, leur code, la longueur de ligne, la langue, les
+cases de motifs) sur sa propre ligne. Voir
+[Deux blocs, dont un partagé avec la ligne de commande](preferences.md#deux-blocs-dont-un-partagé-avec-la-ligne-de-commande)
+et [`subedit-cli config`](../subedit-cli/config.md).
 
-## Tasks and Target — la première page
+## Tâches et cible — la première page
 
 | Groupe | Choix | Par défaut |
 | :----- | :---- | :--------- |
@@ -62,9 +62,9 @@ départ de `Common Errors`, ce qui donne les motifs valables partout. **Les troi
 autres types n'ont de motifs que sous une écriture** : leur page s'ouvre sur la
 première que le catalogue propose, `Latn` avec les motifs livrés, et non sur `Zyyy`.
 
-**Each pattern's description is the tool tip of its box.** Names and descriptions follow the
-language of the window for the patterns shipped with the program; a pattern of your own is shown as
-its file writes it ([Language](invocation.md#language)).
+**La description de chaque motif est l'infobulle de sa case.** Noms et descriptions suivent la
+langue de la fenêtre pour les motifs livrés avec le programme ; un motif à vous est montré comme
+son fichier l'écrit ([Langue](invocation.md#langue)).
 
 **Un motif décoché reste décoché tant qu'on ne le recoche pas**, y compris en
 changeant de code puis en y revenant, et ce choix est retenu d'une ouverture
@@ -87,9 +87,9 @@ fait déjà d'un geste direct. L'une **ou** l'autre cochée suffit à le lancer.
 s'applique dès que l'une des deux cases est cochée ; les trois autres pages ne
 connaissent pas cette distinction.
 
-### Line Break — l'unité et le saut
+### Passage à la ligne — l'unité et le saut
 
-![La page Line Break : longueur, nombre de lignes, unité et conditions de
+![La page Passage à la ligne : longueur, nombre de lignes, unité et conditions de
 saut, sur leurs valeurs par défaut.](captures/correction-decoupage.png)
 
 ![La même page sous la palette sombre.](captures/correction-decoupage-sombre.png)
@@ -117,9 +117,9 @@ en `Ems`.
 
 **Les sept réglages se retiennent** d'une session à l'autre, unité comprise.
 
-### Join or Split Words — recoller et scinder d'après le correcteur
+### Joindre ou scinder des mots — recoller et scinder d'après le correcteur
 
-![La page Join or Split Words, sans dictionnaire pour la langue : les cases
+![La page Joindre ou scinder des mots, sans dictionnaire pour la langue : les cases
 sont grisées et la page dit pourquoi.](captures/correction-jonction.png)
 
 ![La même page sous la palette sombre.](captures/correction-jonction-sombre.png)
@@ -177,7 +177,7 @@ sont `common-error`, `capitalization`, `hearing-impaired` et `line-break`. Les f
 livrés servent de modèle. **Les motifs se lisent une fois, au lancement** : un fichier
 déposé pendant que la fenêtre est ouverte n'est vu qu'au lancement suivant.
 
-## Progress
+## Progression
 
 Une fois `Next` pressé depuis la dernière page de tâche cochée (ou depuis la
 première page si aucune tâche ne l'est), l'assistant calcule les corrections

@@ -65,7 +65,7 @@ l'explique.
 `Start` et `End` en numéros d'image — voir [Les positions en images](table.md#les-positions-en-images).
 
 `Projects` porte deux entrées, `Save All` et `Close All` — voir
-[Le menu Projects](files.md#le-menu-projects).
+[Le menu Projets](files.md#le-menu-projets).
 
 `Edit` porte cinq blocs, chacun sous un séparateur : l'annulation ; le
 presse-papiers — couper, copier, coller des textes ; `Find and Replace…` ;
@@ -121,8 +121,8 @@ menus : elles servent moins souvent, ou pas à tout le monde.
 | [Annuler et rétablir](undo.md) | l'historique, les deux actions, la marque de modification |
 | [La grille d'images](frame-grid.md) | la cadence déduite des positions, l'analyse, et la conversion qui remet un fichier sur une grille |
 | [Les opérations](operations.md) | décaler, transformer, convertir, ajuster les durées, ajouter un fichier, scinder le projet, mettre en italique, la casse, les tirets, retirer les mentions, aligner, ramener sur la grille, et ce qui dépasse la fin du film |
-| [Correct Texts…](correct-texts.md) | l'assistant de correction : la cible et les tâches, chaque page de tâche, la progression, la confirmation |
-| [Check Spelling…](check-spelling.md) | la vérification orthographique : ses réglages, le parcours, la fermeture au milieu, l'absence de dictionnaire |
+| [Corriger les textes…](correct-texts.md) | l'assistant de correction : la cible et les tâches, chaque page de tâche, la progression, la confirmation |
+| [Vérifier l'orthographe…](check-spelling.md) | la vérification orthographique : ses réglages, le parcours, la fermeture au milieu, l'absence de dictionnaire |
 | [La vidéo associée](video.md) | choisir une vidéo, la proposition automatique, la piste audio, la barre d'état, `ffmpeg` |
 | [Le lecteur](player.md) | la vue vidéo, la barre de lecture, jouer, se déplacer, le volume, la table qui suit, la réplique dessinée |
 | [Caler depuis la vidéo](timing.md) | poser le début ou la fin d'un sous-titre, insérer, sélectionner depuis la position du film, avancer image par image, décaler un bord |

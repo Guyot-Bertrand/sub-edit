@@ -10,4 +10,4 @@ set -euo pipefail
 source "$(dirname "${BASH_SOURCE[0]}")/common.sh"
 "$(dirname "${BASH_SOURCE[0]}")/release.sh"
 step "installation into a temporary prefix"
-"${REPO_ROOT}/src/scripts/check-installation.sh" --build-dir "${REPO_ROOT}/build/release"
+timed installation "${REPO_ROOT}/src/scripts/check-installation.sh" --build-dir "${REPO_ROOT}/build/release"

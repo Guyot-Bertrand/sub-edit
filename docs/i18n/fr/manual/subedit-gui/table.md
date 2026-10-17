@@ -140,8 +140,8 @@ en-têtes le disent : `Start (frames)` et `End (frames)`.
 2. **celle que la vidéo associée déclare** ;
 3. **la grille que les positions dessinent**, quand elles en dessinent une.
 
-L'infobulle de l'entrée dit laquelle a été retenue : *Positions are frame numbers, counted at 25 fps, the rate the
-video declares*. **Sans aucune des trois, l'entrée est éteinte, et son infobulle dit pourquoi** : le fichier n'est
+L'infobulle de l'entrée dit laquelle a été retenue : *Les positions sont des numéros d'image, comptés à 25 i/s, la cadence que déclare la
+vidéo*. **Sans aucune des trois, l'entrée est éteinte, et son infobulle dit pourquoi** : le fichier n'est
 pas compté en images, la vidéo ne déclare pas de fréquence, et les positions ne tombent sur aucune grille.
 
 - **Un numéro est le numéro de l'image où tombe la position**, arrondi à l'image la plus proche. **Saisi, il

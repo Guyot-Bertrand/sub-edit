@@ -60,6 +60,17 @@ foreach(language IN LISTS subedit_linguas)
 
     install(FILES "${mo}"
             DESTINATION "${CMAKE_INSTALL_DATADIR}/subedit/locale/${language}/LC_MESSAGES")
+
+    # **The language's manual, beside the English one** — spec 15, D9, issue #682. English stays
+    # at the root of `share/subedit/manual`, where the man pages name it, and each installed
+    # language lays its tree in a directory of its name under it: `Help ▸ Manual` reads a page
+    # there first and from English otherwise (`gui::manualTrees`). A language with no translated
+    # manual installs none, and the window falls back on English for every page.
+    set(manual "${CMAKE_SOURCE_DIR}/docs/i18n/${language}/manual")
+    if(EXISTS "${manual}")
+        install(DIRECTORY "${manual}/"
+                DESTINATION "${CMAKE_INSTALL_DATADIR}/subedit/manual/${language}")
+    endif()
 endforeach()
 
 # In `all`: a `.mo` that no target asks for would not be built, hence not installed.

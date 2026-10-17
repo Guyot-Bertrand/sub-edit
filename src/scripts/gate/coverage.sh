@@ -25,17 +25,17 @@ readonly REPORT="${REPO_ROOT}/build/coverage-report"
 
 step "coverage"
 
-"${REPO_ROOT}/src/scripts/clean-stale-coverage.sh"
+timed "stale tree check" "${REPO_ROOT}/src/scripts/clean-stale-coverage.sh"
 
-cmake --preset coverage
-cmake --build --preset coverage -j "${JOBS}"
+timed configure cmake --preset coverage
+timed build cmake --build --preset coverage -j "${JOBS}"
 
 find "${REPO_ROOT}/build/coverage" -name '*.gcda' -delete
 
-"${REPO_ROOT}/src/scripts/limit-cores.sh" ctest --preset coverage
+timed tests "${REPO_ROOT}/src/scripts/limit-cores.sh" ctest --preset coverage
 
 mkdir -p "${REPORT}"
-gcovr --root "${REPO_ROOT}" "${REPO_ROOT}/build/coverage/src" \
+timed report gcovr --root "${REPO_ROOT}" "${REPO_ROOT}/build/coverage/src" \
     --filter 'src/lib/' \
     --exclude-unreachable-branches --exclude-throw-branches \
     --print-summary \

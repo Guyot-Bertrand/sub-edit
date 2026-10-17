@@ -19,8 +19,8 @@ source "$(dirname "${BASH_SOURCE[0]}")/common.sh"
 
 step "format detection score"
 
-cmake --preset dev >/dev/null
-cmake --build --preset dev -j "${JOBS}" --target subedit_detect_format
+timed configure cmake --preset dev >/dev/null
+timed build cmake --build --preset dev -j "${JOBS}" --target subedit_detect_format
 
 "${REPO_ROOT}/src/scripts/score-format-detection.py" \
     --detector "${REPO_ROOT}/build/dev/bin/subedit_detect_format {}" \

@@ -19,6 +19,29 @@ les fichiers déposés par l'installation, sous
 
 Il s'ouvre sur la [page d'accueil](../index.md), celle qui dit par où commencer.
 
+## Dans quelle langue
+
+**Dans la langue de la fenêtre.** Le manuel s'ouvre dans la langue que parle
+l'interface : celle choisie dans `Édition ▸ Préférences…`, ou sinon celle de
+l'environnement — voir
+[La langue de l'interface](preferences.md#la-langue-de-linterface).
+
+| La fenêtre parle | Le manuel s'ouvre en |
+| :--------------- | :------------------- |
+| anglais | anglais |
+| une langue dont le manuel est installé — le français | cette langue |
+| une langue dont le manuel n'est pas installé | anglais |
+
+**Page par page, et non tout ou rien** : une page que la traduction n'a pas
+s'ouvre en anglais, et toutes les autres restent dans la langue de la fenêtre.
+Un lien mène de l'une à l'autre de la même façon.
+
+Les traductions sont installées à côté du manuel anglais, chacune dans un
+répertoire au nom de sa langue : `<prefix>/share/subedit/manual/fr` pour le
+français. La langue est celle dans laquelle la fenêtre a démarré : une langue
+choisie dans les préférences vaut donc aussi pour le manuel, au lancement
+suivant.
+
 ## Naviguer
 
 | Ce qu'on fait | Ce qui se passe |
@@ -57,8 +80,8 @@ programme.** Deux cas, et aucun n'est une panne :
 | le binaire est lancé depuis son arbre de construction | rien n'y a été installé, donc rien n'y est à lire |
 | l'installation est partielle | le manuel a été retiré, ou n'a jamais été copié |
 
-Survoler l'entrée dit lequel des deux : « No manual is installed beside this
-program ».
+Survoler l'entrée dit lequel des deux : « Aucun manuel n'est installé à côté de ce
+programme ».
 
 Une page manquante alors que le manuel est là — un fichier effacé à la main —
 ne referme pas la fenêtre : elle nomme le fichier qu'elle n'a pas pu lire et

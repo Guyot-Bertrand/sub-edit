@@ -22,8 +22,8 @@ source "$(dirname "${BASH_SOURCE[0]}")/common.sh"
 
 step "encoding detection score"
 
-cmake --preset dev >/dev/null
-cmake --build --preset dev -j "${JOBS}" --target subedit_detect_encoding
+timed configure cmake --preset dev >/dev/null
+timed build cmake --build --preset dev -j "${JOBS}" --target subedit_detect_encoding
 
 "${REPO_ROOT}/src/scripts/score-encoding-detection.py" \
     --detector "${REPO_ROOT}/build/dev/bin/subedit_detect_encoding {}" \

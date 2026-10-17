@@ -19,6 +19,28 @@ by the installation, under `<prefix>/share/subedit/manual`. See
 
 It opens on the [home page](../index.md), the one that says where to start.
 
+## In which language
+
+**In the language of the window.** The manual opens in the language the
+interface speaks: the one chosen in `Edit ▸ Preferences…`, or the one of the
+environment otherwise — see
+[The interface language](preferences.md#the-interface-language).
+
+| The window speaks | The manual opens in |
+| :---------------- | :------------------ |
+| English | English |
+| a language whose manual is installed — French | that language |
+| a language whose manual is not installed | English |
+
+**Page by page, not all or nothing**: a page the translation does not have
+opens in English, and every other page stays in the language of the window. A
+link leads from one to the other the same way.
+
+The translations are installed beside the English manual, each in a directory
+named after its language: `<prefix>/share/subedit/manual/fr` for French. The
+language is the one the window started in, so a language chosen in the
+preferences applies to the manual, too, at the next launch.
+
 ## Navigating
 
 | What you do | What happens |

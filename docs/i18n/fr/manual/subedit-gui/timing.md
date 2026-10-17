@@ -3,7 +3,7 @@
 *On suppose le film ouvert et le lecteur connu : voir [Le lecteur](player.md).*
 
 On regarde le film, on s'arrête sur l'image où une réplique doit commencer, et **cette position devient
-le début du sous-titre**. Cinq gestes, au menu **Video**, sous les noms que Gaupol leur donne. Ils
+le début du sous-titre**. Cinq gestes, au menu **Vidéo**, sous les noms que Gaupol leur donne. Ils
 reposent sur ce qui existe déjà : poser une position est **la même commande que saisir la valeur dans la
 cellule**, et insérer est **la même que `Édition ▸ Insérer des sous-titres…`**.
 

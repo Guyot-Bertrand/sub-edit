@@ -44,28 +44,29 @@ Ce sont les réglages de Gaupol et de la première ouverture de la fenêtre. **`
 contrainte : elle n'est plus vérifiée.** Ce n'est pas la mettre à zéro — un minimum de `0`
 est un minimum de zéro, un écart de `0` interdit tout recouvrement.
 
-## What the settings file supplies
+## Ce que fournit le fichier de réglages
 
-**The defaults above are the built-in ones.** By default `adjust` reads the operation settings of
-the settings file — the values `Adjust Durations…` remembers in the window, or that
-[`config set`](config.md) wrote — and they take the place of the built-in defaults. **An option
-given on the line always wins**, then the file, then the built-in default. See
-[The settings file](invocation.md#the-settings-file) for where the file is, `--config` and
-`--no-config`.
+**Les défauts ci-dessus sont les défauts intégrés.** Par défaut, `adjust` lit les réglages des
+opérations du fichier de réglages — les valeurs que `Adjust Durations…` retient dans la fenêtre,
+ou que [`config set`](config.md) a écrites — et elles prennent la place des défauts intégrés.
+**Une option donnée sur la ligne l'emporte toujours**, puis le fichier, puis le défaut intégré.
+Voir [Le fichier de réglages](invocation.md#le-fichier-de-réglages) pour l'emplacement du fichier,
+`--config` et `--no-config`.
 
-| Key | What it supplies | Option that overrides it |
-| :-- | :--------------- | :----------------------- |
-| `duration-adjust.speed` | the reading speed, in characters per second | `--speed CPS` |
-| `duration-adjust.lengthen`, `duration-adjust.shorten` | which way the speed may move an end; both `false` switch the speed off | `--no-lengthen`, `--shorten`, `--speed off`; giving `--speed CPS` switches a speed the file turned off back on, lengthening |
-| `duration-adjust.minimum-enabled`, `duration-adjust.minimum-ms` | the shortest duration, or none | `--minimum TIME`, `--minimum off` |
-| `duration-adjust.maximum-enabled`, `duration-adjust.maximum-ms` | the longest duration, or none | `--maximum TIME`, `--maximum off` |
-| `duration-adjust.gap-enabled`, `duration-adjust.gap-ms` | the least gap, or none | `--gap TIME`, `--gap off` |
+| Clé | Ce qu'elle fournit | Option qui la remplace |
+| :-- | :----------------- | :--------------------- |
+| `duration-adjust.speed` | la vitesse de lecture, en caractères par seconde | `--speed CPS` |
+| `duration-adjust.lengthen`, `duration-adjust.shorten` | dans quel sens la vitesse peut déplacer une fin ; les deux à `false` éteignent la vitesse | `--no-lengthen`, `--shorten`, `--speed off` ; donner `--speed CPS` rallume, en allongeant, une vitesse que le fichier a éteinte |
+| `duration-adjust.minimum-enabled`, `duration-adjust.minimum-ms` | la durée la plus courte, ou aucune | `--minimum TIME`, `--minimum off` |
+| `duration-adjust.maximum-enabled`, `duration-adjust.maximum-ms` | la durée la plus longue, ou aucune | `--maximum TIME`, `--maximum off` |
+| `duration-adjust.gap-enabled`, `duration-adjust.gap-ms` | l'écart minimal, ou aucun | `--gap TIME`, `--gap off` |
 
-The flags only move the speed's directions **from what the file says**: `--shorten` adds
-shortening, `--no-lengthen` takes lengthening away. `--maximum off` drops a maximum the file
-switches on. Shortening the file switches on has no flag to undo it on the line: `--speed off`
-or `--no-config` drops it. With `--format json`, `constraints` says the settings
-really used, wherever they came from, and `settings` the file that was read:
+Les drapeaux ne font que déplacer les sens de la vitesse **à partir de ce que dit le fichier** :
+`--shorten` ajoute le raccourcissement, `--no-lengthen` retire l'allongement. `--maximum off`
+abandonne un maximum que le fichier allume. Un raccourcissement que le fichier allume n'a pas de
+drapeau pour le défaire sur la ligne : `--speed off` ou `--no-config` l'abandonne. Avec
+`--format json`, `constraints` dit les réglages réellement employés, d'où qu'ils viennent, et
+`settings` le fichier qui a été lu :
 
 <!-- example: printf '1\n00:00:01,000 --> 00:00:01,200\nUn.\n\n' > a.srt; subedit-cli --config mine/settings.conf config set duration-adjust.speed 12 2>/dev/null; subedit-cli --config mine/settings.conf --format json adjust --dry-run a.srt -->
 ```console
@@ -75,8 +76,8 @@ a.srt: adjusted the durations of 1 subtitle (dry run, nothing written)
 {"schema":1,"command":"adjust","file":"a.srt","ok":true,"dry_run":true,"destination":null,"counts":{"subtitles":1,"adjusted":1,"sacrificed":{"speed":0,"minimum":0,"gap":0}},"constraints":{"speed":{"cps":"12","lengthen":true,"shorten":false},"minimum_ms":1500,"maximum_ms":null,"gap_ms":0},"settings":"mine/settings.conf","warnings":[]}
 ```
 
-The other examples on this page are run with `--no-config`, so that they say what the built-in
-defaults do, whatever the settings of the machine that runs them.
+Les autres exemples de cette page sont exécutés avec `--no-config`, pour qu'ils disent ce que font
+les défauts intégrés, quels que soient les réglages de la machine qui les exécute.
 
 <!-- example: subedit-cli adjust --help -->
 ```console
@@ -113,7 +114,7 @@ Options:
 | `--shorten` | non | un drapeau : la vitesse peut aussi **avancer** une fin | désactivé |
 | `--no-lengthen` | non | un drapeau : la vitesse ne **recule** plus une fin | désactivé |
 | `--minimum` | non | une durée de zéro ou plus, ou `off` | `1.5` |
-| `--maximum` | non | une durée **supérieure à zéro**, or `off` | aucun |
+| `--maximum` | non | une durée **supérieure à zéro**, ou `off` | aucun |
 | `--gap` | non | une durée de zéro ou plus, ou `off` | `0` |
 | `--range` | non | `N-M`, ou `N-` jusqu'à la fin — voir ci-dessous | tout le fichier |
 | `--output` / `--output-dir` / `--in-place` | **l'une des trois**, sauf avec `--dry-run` | voir [Invocation](invocation.md#la-destination) | — |
@@ -196,7 +197,7 @@ Le fichier est écrit tel quel : **une destination donnée est une destination �
 
 | Niveau | Ce qui s'ajoute sur la sortie d'erreur |
 | :----- | :------------------------------------- |
-| 1 | `<path>: adjusted the durations of N subtitles; could not satisfy …  -> <destination>`, ou `<path>: no duration to adjust -> <destination>` — and, first, the settings file read — `settings: read <path>` — see [The settings file](invocation.md#the-settings-file) |
+| 1 | `<path>: adjusted the durations of N subtitles; could not satisfy …  -> <destination>`, ou `<path>: no duration to adjust -> <destination>` — et, en premier, le fichier de réglages lu — `settings: read <path>` — voir [Le fichier de réglages](invocation.md#le-fichier-de-réglages) |
 | 2 | `<path>: SubRip, UTF-8, no BOM, LF line endings kept` — le format, l'encodage, la marque et les fins de ligne du fichier lu, remis tels quels |
 | 3 | `<path>: N bytes read, M written`, puis **chaque diagnostic de lecture** — voir [Invocation](invocation.md#les-diagnostics-de-lecture) |
 
@@ -216,7 +217,7 @@ porte, en plus de l'enveloppe :
 | `counts.sacrificed.speed`, `.minimum`, `.gap` | les sous-titres qui ne tiennent pas encore cette contrainte, une fois les autres appliquées, **y compris ceux dont la fin n'a pas bougé** |
 | `constraints.speed` | `{"cps", "lengthen", "shorten"}` — les caractères par seconde **en chaîne** (`"15"`, `"12.5"`) — ou `null` si éteinte |
 | `constraints.minimum_ms`, `.maximum_ms`, `.gap_ms` | les durées employées, en **millisecondes entières**, ou `null` si éteintes |
-| `settings` | the settings file that was read, or `null` when none was |
+| `settings` | le fichier de réglages qui a été lu, ou `null` quand aucun ne l'a été |
 
 `constraints` dit **les réglages réellement employés**, défauts compris : deux calculs
 qui portent sur les mêmes sous-titres se comparent alors sans lire la ligne de commande.
@@ -237,7 +238,7 @@ seulement, `1` sur une erreur d'usage. Un fichier qui tient déjà dans ses limi
 
 | Ce qui la déclenche | Message |
 | :------------------ | :------ |
-| a file named by `--config` that does not exist — the user's own file, missing, gives the defaults | `settings file not found: <FILE>` |
+| un fichier nommé par `--config` qui n'existe pas — le fichier de l'utilisateur, absent, donne les défauts | `settings file not found: <FILE>` |
 | aucune contrainte active | `adjust has nothing to adjust to: every constraint is off, or the reading speed is told to move no end` |
 | vitesse qui n'en est pas une | `--speed: "…" is not a reading speed: expected a number of characters per second above zero, like 15 or 12.5, or off` |
 | `--shorten`/`--no-lengthen` avec `--speed off` | `--shorten and --no-lengthen say which way the reading speed may move an end, and --speed off switches the reading speed off` |

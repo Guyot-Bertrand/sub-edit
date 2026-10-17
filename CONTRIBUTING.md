@@ -164,4 +164,11 @@ unjustified exclusion is a defect, not a setting.
 | `make changelog` | regenerates `CHANGELOG.md` |
 | `make manual` | regenerates the manual's call examples |
 | `make rpm-check` | installs the `.rpm` on a Fedora in a container — weekly, outside the gate |
+| `make timings` | the last durations of each gate step, phase and proof, with their load and `JOBS`; flags a latest run above 1.5× the median (`RUNS=N`, `SUITE=check`) |
 | `make help` | all targets |
+
+`make check`, `make check-local` and `make verify-gates` end with a table of
+what each step or proof cost, and the load average and `JOBS` it ran under; the
+long steps also write the time of each of their phases (`· build: 812 s`). Every
+measurement is appended to `build/gate-timings.tsv`, a local journal that git
+ignores and `make clean` erases — `make timings` reads it.

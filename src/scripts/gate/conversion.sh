@@ -20,8 +20,8 @@ source "$(dirname "${BASH_SOURCE[0]}")/common.sh"
 
 step "conversion loss"
 
-cmake --preset dev >/dev/null
-cmake --build --preset dev -j "${JOBS}" --target subedit-cli
+timed configure cmake --preset dev >/dev/null
+timed build cmake --build --preset dev -j "${JOBS}" --target subedit-cli
 
 "${REPO_ROOT}/src/scripts/measure-conversion-loss.py" \
     --binary "${REPO_ROOT}/build/dev/bin/subedit-cli" \

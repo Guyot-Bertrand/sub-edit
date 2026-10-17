@@ -100,32 +100,33 @@ la fenêtre elle-même, et ne demande rien à la plateforme — voir
 `QT_QPA_PLATFORM=offscreen` fait tourner la fenêtre là où il n'y a pas de
 serveur graphique — c'est ce que font l'intégration continue et les tests.
 
-## Language
+## Langue
 
-The window speaks the language of its environment, **chosen once, when it starts**: changing the
-variables of a running window changes nothing until the next launch. The variables and the rules
-are those of the command line — `LANGUAGE`, `LC_ALL`, `LC_MESSAGES`, `LANG`, `LC_ALL=C` for
-English, English **without a word** when the language asked for is not installed — described in
-[the command line's manual](../subedit-cli/invocation.md#language). The catalogues are the same
-files, installed under `<prefix>/share/subedit/locale`.
+La fenêtre parle la langue de son environnement, **choisie une fois, au démarrage** : changer les
+variables d'une fenêtre en marche ne change rien avant le lancement suivant. Les variables et les
+règles sont celles de la ligne de commande — `LANGUAGE`, `LC_ALL`, `LC_MESSAGES`, `LANG`, `LC_ALL=C`
+pour l'anglais, l'anglais **sans un mot** quand la langue demandée n'est pas installée — décrites
+dans [le manuel de la ligne de commande](../subedit-cli/invocation.md#langue). Les catalogues sont
+les mêmes fichiers, installés sous `<prefix>/share/subedit/locale`.
 
-**A language chosen in `Édition ▸ Préférences…` comes first**, and the environment is read only
-when it is `System default`, which it is until one is chosen: an installed language chosen there
-wins over every variable, `LC_ALL=C` included. The choice, too, applies at the next launch. See
-[The interface language](preferences.md#the-interface-language).
+**Une langue choisie dans `Édition ▸ Préférences…` passe en premier**, et l'environnement n'est lu
+que lorsqu'elle vaut `System default`, ce qui est le cas tant qu'aucune n'est choisie : une langue
+installée choisie là l'emporte sur toutes les variables, `LC_ALL=C` compris. Ce choix aussi
+s'applique au lancement suivant. Voir
+[La langue de l'interface](preferences.md#la-langue-de-linterface).
 
-| What | Follows the language |
-| :--- | :------------------- |
-| the menus and their entries, with their underlined letters; the toolbar; the tool tips | yes |
-| the columns of the table and of `Affichage ▸ Colonnes`, the tabs, the status line, the play bar | yes |
-| the standard buttons Qt draws itself (`OK`, `Cancel`) | yes, when Qt's own catalogue of that language is installed (`qtbase_<language>.qm`); English otherwise |
-| the dialogs, the pages of `Correct Texts…`, the file dialogs' titles and filters, the message boxes and what they say | yes |
-| the lines the window writes on its error stream, `subedit-gui: …` | yes, the program's name excepted |
-| the names of the correction patterns in `Correct Texts…`, and their descriptions in the tool tips | yes, for the patterns shipped with the program; a pattern of your own is shown as its file writes it |
-| the names of encodings, line endings and spelling languages (`UTF-8`, `CRLF`, `en_US`) | never: they are names, not words |
-| the keyboard shortcuts | never: `Ctrl+S` is `Ctrl+S` in every language |
-| a message the catalogue does not translate | shown in English |
+| Quoi | Suit la langue |
+| :--- | :------------- |
+| les menus et leurs entrées, avec leurs lettres soulignées ; la barre d'outils ; les infobulles | oui |
+| les colonnes de la table et de `Affichage ▸ Colonnes`, les onglets, la ligne d'état, la barre de lecture | oui |
+| les boutons standard que Qt dessine lui-même (`OK`, `Cancel`) | oui, quand le catalogue de Qt lui-même pour cette langue est installé (`qtbase_<language>.qm`) ; l'anglais sinon |
+| les dialogues, les pages de `Correct Texts…`, les titres et les filtres des boîtes de fichiers, les boîtes de message et ce qu'elles disent | oui |
+| les lignes que la fenêtre écrit sur sa sortie d'erreur, `subedit-gui: …` | oui, le nom du programme excepté |
+| les noms des motifs de correction dans `Correct Texts…`, et leurs descriptions dans les infobulles | oui, pour les motifs livrés avec le programme ; un motif à vous est montré comme son fichier l'écrit |
+| les noms des encodages, des fins de ligne et des langues d'orthographe (`UTF-8`, `CRLF`, `en_US`) | jamais : ce sont des noms, pas des mots |
+| les raccourcis clavier | jamais : `Ctrl+S` est `Ctrl+S` dans toutes les langues |
+| un message que le catalogue ne traduit pas | montré en anglais |
 
-This version installs `fr`, French, translated in full: on a French desktop the menu bar reads
-`&Fichier`, `É&dition`, `&Affichage`, `&Vidéo`, `&Outils`, `&Projets`, `Aid&e`. The captures of
-this manual are taken in English.
+Cette version installe `fr`, le français, traduit en entier : sur un bureau français, la barre de
+menus porte `&Fichier`, `É&dition`, `&Affichage`, `&Vidéo`, `&Outils`, `&Projets`, `Aid&e`. Les
+captures de ce manuel-ci sont prises en français.

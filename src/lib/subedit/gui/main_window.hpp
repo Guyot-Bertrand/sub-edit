@@ -402,7 +402,14 @@ public:
     /// of a binary run from the build tree and that of a partial installation.
     /// It is what holds the promise of the scoping: a missing manual crashes
     /// nothing, it puts an entry out.
-    void setManualPath(std::filesystem::path directory);
+    ///
+    /// **`language` is the one the window speaks** — spec 15, D9, issue #682:
+    /// the manual opens on that language's tree, `directory/<language>`, and
+    /// falls back on English, `directory` itself, for a page or a language
+    /// that tree lacks (`manualTrees()`). Nothing for English. Received, as the
+    /// directory is: `main` holds the `InterfaceLanguage` that chose it.
+    void setManualPath(const std::filesystem::path& directory,
+                       const std::optional<std::string>& language = std::nullopt);
 
     /// Where the installed message catalogues are, for the languages `Preferences…` offers —
     /// issue #669. **Received, not resolved**, as the manual is: `configureFromEnvironment` passes
@@ -878,8 +885,9 @@ private:
     core::EditorSettings m_editor;
     LengthMeasures m_lengthMeasures;
 
-    /// The root of the installed manual, or nothing.
-    std::filesystem::path m_manualDirectory;
+    /// The trees of the installed manual, the language's first and English
+    /// last, or nothing.
+    std::vector<std::filesystem::path> m_manualTrees;
 
     /// Every open project — ADR 0033, `GUI-TABS-01`. One tab, one entry, in
     /// the order they were opened; never empty, since a window with nothing

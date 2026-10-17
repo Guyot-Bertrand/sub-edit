@@ -46,8 +46,24 @@ public:
                  std::filesystem::path directory,
                  QWidget* parent = nullptr);
 
+    /// Opens the manual read from `trees`, on its home page — spec 15, D9, issue #682.
+    ///
+    /// **Every page is looked up in each tree in turn, and the first that has it is shown**:
+    /// `manualTrees()` puts the language's tree first and English last, so that a page the
+    /// translation lacks opens in English instead of not opening. The images follow the same
+    /// order. A link is followed when any of the trees has its target.
+    ///
+    /// `trees` must not be empty.
+    ManualWindow(core::FileSystem& files,
+                 std::vector<std::filesystem::path> trees,
+                 QWidget* parent = nullptr);
+
     /// The page open, relative to the root of the manual.
     [[nodiscard]] std::filesystem::path currentPage() const { return m_current; }
+
+    /// The file the open page was read from, the tree it was found in included — what tells a
+    /// test which language a page is shown in. Empty while no page is open.
+    [[nodiscard]] std::filesystem::path currentFile() const { return m_currentFile; }
 
     /// What the page shows, text alone — what a test reads in a reader's
     /// stead.
@@ -128,8 +144,12 @@ private:
     void showSection(const QString& anchor);
 
     core::FileSystem* m_files;
-    std::filesystem::path m_directory;
+
+    /// Where pages are looked for, in order; English, the last, is the one named when a page is
+    /// nowhere.
+    std::vector<std::filesystem::path> m_trees;
     std::filesystem::path m_current;
+    std::filesystem::path m_currentFile;
 
     /// The pages already opened, the last of them at the head of what is left
     /// to undo.

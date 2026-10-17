@@ -391,6 +391,15 @@ check-local: ## The one local command to run before a pull request
 verify-gates: ## Prove that each gate closes on its defect
 	@./src/scripts/verify-gates.sh
 
+# The durations of the last runs of each gate step, phase and proof, side by side, read from the
+# local journal that `check`, `check-local` and `verify-gates` append to — build/gate-timings.tsv,
+# which `make clean` erases. A latest run above one and a half times the median of the previous
+# ones is flagged, with the load and the JOBS it ran under. `RUNS=N` shows N runs, `SUITE=check`
+# one suite.
+.PHONY: timings
+timings: ## Compare the last durations of each gate step and proof
+	@./src/scripts/timings.sh $(RUNS) $(SUITE)
+
 .PHONY: changelog
 changelog: ## Regenerate CHANGELOG.md from the commit history
 	$(call require,git-cliff)

@@ -20,7 +20,9 @@
 #include <catch2/matchers/catch_matchers_string.hpp>
 
 #include <filesystem>
+#include <optional>
 #include <string>
+#include <vector>
 
 #include "fake_prompts.hpp"
 
@@ -31,6 +33,7 @@ using subedit::core::InMemoryFileSystem;
 using subedit::core::openProject;
 using subedit::gui::installedManualPath;
 using subedit::gui::MainWindow;
+using subedit::gui::manualTrees;
 using subedit::gui::ManualWindow;
 using subedit::test::FakePrompts;
 
@@ -405,4 +408,134 @@ TEST_CASE("the manual's location is derived from the executable", "[gui][GUI-MAN
     // siblings, which is what `GNUInstallDirs` produces whatever the prefix.
     const std::filesystem::path binaries{QApplication::applicationDirPath().toStdString()};
     CHECK(resolved.parent_path().parent_path().parent_path() == binaries.parent_path());
+}
+
+// ## The manual in the language of the window — spec 15, D9, issue #682
+//
+// The English manual is the root, each translation a directory under it named as its catalogue
+// is. A page is read from the language's tree when it has it, and from English otherwise.
+
+namespace {
+
+/// The French tree of the manual in memory: its home page and nothing else, so that the table
+/// page exists in English alone.
+constexpr const char* kFrenchIndex = "# Manuel\n"
+                                     "\n"
+                                     "En français.\n"
+                                     "\n"
+                                     "Voir [la table](subedit-gui/table.md).\n";
+
+[[nodiscard]] InMemoryFileSystem withFrenchManual() {
+    InMemoryFileSystem files = withManual();
+    files.addFile(std::string{kManual} + "/fr/index.md", kFrenchIndex);
+    return files;
+}
+
+[[nodiscard]] std::filesystem::path under(const char* relative) {
+    return std::filesystem::path{kManual} / relative;
+}
+
+} // namespace
+
+TEST_CASE("the manual's trees put the language first and English last",
+          "[gui][i18n][GUI-I18N-03]") {
+    const std::filesystem::path root{kManual};
+
+    CHECK(manualTrees(root, std::nullopt) == std::vector<std::filesystem::path>{root});
+    CHECK(manualTrees(root, "fr") == std::vector<std::filesystem::path>{root / "fr", root});
+    CHECK(manualTrees(root, "fr_CA") ==
+          std::vector<std::filesystem::path>{root / "fr_CA", root / "fr", root});
+
+    // A name that is not a language's names no directory: English alone.
+    CHECK(manualTrees(root, "../etc") == std::vector<std::filesystem::path>{root});
+    CHECK(manualTrees(root, "") == std::vector<std::filesystem::path>{root});
+}
+
+TEST_CASE("the manual opens on the French tree when French is chosen", "[gui][i18n][GUI-I18N-03]") {
+    InMemoryFileSystem files = withFrenchManual();
+    const ManualWindow manual{files, manualTrees(kManual, "fr")};
+
+    CHECK(manual.currentPage() == std::filesystem::path{"index.md"});
+    CHECK(manual.currentFile() == under("fr/index.md"));
+    CHECK_THAT(manual.shownText().toStdString(), ContainsSubstring("En français"));
+    CHECK(manual.notice().isEmpty());
+}
+
+TEST_CASE("a page the translation lacks opens in English", "[gui][i18n][GUI-I18N-03]") {
+    // **Per page, and not per manual**: a translation that is behind by one page still shows
+    // every page it has, and the one it lacks in English rather than not at all.
+    InMemoryFileSystem files = withFrenchManual();
+    ManualWindow manual{files, manualTrees(kManual, "fr")};
+
+    manual.followLink(QUrl{QStringLiteral("subedit-gui/table.md")});
+
+    CHECK(manual.notice().isEmpty());
+    CHECK(manual.currentPage() == std::filesystem::path{"subedit-gui/table.md"});
+    CHECK(manual.currentFile() == under("subedit-gui/table.md"));
+    CHECK_THAT(manual.shownText().toStdString(), ContainsSubstring("Cinq colonnes"));
+
+    // And the way back leads to the French home page, the tree being chosen afresh per page.
+    manual.homeAction()->trigger();
+
+    CHECK(manual.currentFile() == under("fr/index.md"));
+}
+
+TEST_CASE("a language with no manual opens the English one", "[gui][i18n][GUI-I18N-03]") {
+    InMemoryFileSystem files = withFrenchManual();
+    const ManualWindow manual{files, manualTrees(kManual, "de")};
+
+    CHECK(manual.currentFile() == under("index.md"));
+    CHECK_THAT(manual.shownText().toStdString(), ContainsSubstring("Deux programmes"));
+}
+
+TEST_CASE("a page missing from every tree is reported under its English path",
+          "[gui][i18n][GUI-I18N-03]") {
+    InMemoryFileSystem files = withFrenchManual();
+    ManualWindow manual{files, manualTrees(kManual, "fr")};
+
+    manual.openPage("subedit-cli/inspect.md");
+
+    CHECK(manual.currentFile() == under("fr/index.md"));
+    CHECK_THAT(manual.notice().toStdString(),
+               ContainsSubstring(under("subedit-cli/inspect.md").string()));
+}
+
+TEST_CASE("Help > Manual opens the tree of the window's language", "[gui][i18n][GUI-I18N-03]") {
+    InMemoryFileSystem files = withFrenchManual();
+    files.addFile("film.srt", "1\n00:00:01,000 --> 00:00:02,000\nUn.\n\n");
+    FakePrompts prompts;
+
+    SECTION("French") {
+        MainWindow window{files, openProject(files, "film.srt").value(), prompts};
+        window.setManualPath(kManual, "fr");
+        window.manualAction()->trigger();
+
+        REQUIRE(window.manualWindow() != nullptr);
+        CHECK(window.manualWindow()->currentFile() == under("fr/index.md"));
+    }
+
+    SECTION("English, and a language the manual is not translated into") {
+        for (const std::optional<std::string>& language :
+             {std::optional<std::string>{}, std::optional<std::string>{"de"}}) {
+            MainWindow window{files, openProject(files, "film.srt").value(), prompts};
+            window.setManualPath(kManual, language);
+            window.manualAction()->trigger();
+
+            REQUIRE(window.manualWindow() != nullptr);
+            CHECK(window.manualWindow()->currentFile() == under("index.md"));
+        }
+    }
+}
+
+TEST_CASE("the entry lights up on a translated manual whose English home page is missing",
+          "[gui][i18n][GUI-I18N-03]") {
+    InMemoryFileSystem files;
+    files.addFile("film.srt", "1\n00:00:01,000 --> 00:00:02,000\nUn.\n\n");
+    files.addFile(std::string{kManual} + "/fr/index.md", kFrenchIndex);
+    FakePrompts prompts;
+    MainWindow window{files, openProject(files, "film.srt").value(), prompts};
+
+    window.setManualPath(kManual, "fr");
+
+    CHECK(window.manualAction()->isEnabled());
 }

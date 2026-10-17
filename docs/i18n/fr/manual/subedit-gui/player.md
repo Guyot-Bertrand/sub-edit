@@ -74,7 +74,7 @@ sans attendre le tour suivant du suivi.
 
 ## Se déplacer dans le film
 
-Au menu **Video**, **les gestes de Gaupol**, sous ses noms. Tous sont **éteints sans vidéo**, comme
+Au menu **Vidéo**, **les gestes de Gaupol**, sous ses noms. Tous sont **éteints sans vidéo**, comme
 la lecture ; les trois qui agissent sur la sélection le sont aussi tant que rien n'est sélectionné.
 
 | Commande | Raccourci | Ce qu'elle fait |
@@ -146,7 +146,7 @@ des secondes, et un recentrage toutes les dixièmes de seconde serait un défile
 **Un défilement à la main suspend le suivi.** La molette, la barre de défilement et un clic dans la table
 le suspendent : la table reste où on l'a mise, pendant que la ligne courante, la réplique et la barre
 continuent de suivre le film. Le bouton de suivi — **l'icône des lignes d'une table, l'une marquée d'une flèche**, à droite de la barre de
-lecture ; son infobulle dit « Follow playback » — **est enfoncé tant que la table suit** et se relève alors.
+lecture ; son infobulle dit « Suivre la lecture » — **est enfoncé tant que la table suit** et se relève alors.
 
 **Le suivi reprend sur un geste du lecteur** : la lecture lancée, un saut, un pas, un repère posé, une
 insertion à la position, ou un déplacement de la barre — la table se centre alors tout de suite sur la
