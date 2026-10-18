@@ -241,7 +241,7 @@ report_durations() {
         "${BOLD}" "${total}" "${#proof_seconds[@]}" "${run_load}" "$(timing_load)" "$(timing_jobs)" "${RESET}"
     for index in "${!proof_seconds[@]}"; do
         printf '%6d s  load %s  %s\n' "${proof_seconds[index]}" "${proof_loads[index]}" "${proof_names[index]}"
-    done | sort -rn | head -"${VERIFY_GATES_TOP:-15}"
+    done | sort -rn | sed -n "1,${VERIFY_GATES_TOP:-15}p"
 }
 
 restore() {
