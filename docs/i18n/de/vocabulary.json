@@ -1,0 +1,15 @@
+{
+  "shortcut_header": "Tastenkürzel",
+  "label_headers": ["Befehl", "Eintrag", "Aktion", "Menüeintrag"],
+  "no_shortcut_words": ["keines", "keins"],
+  "option_header": "Option",
+  "subcommand_header": "Unterbefehl",
+  "man": {
+    "name": "BEZEICHNUNG",
+    "synopsis": "ÜBERSICHT",
+    "description": "BESCHREIBUNG",
+    "files": "DATEIEN",
+    "see_also": "SIEHE AUCH",
+    "manual_title": "Dienstprogramme für Benutzer"
+  }
+}
