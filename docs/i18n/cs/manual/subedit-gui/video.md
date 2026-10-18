@@ -1,0 +1,145 @@
+# Přidružené video
+
+<!-- machine-translated -->
+> Tato stránka je strojovým překladem a dosud ji nezkontroloval žádný čtenář tohoto jazyka.
+
+Nabídka **Video** nese nejprve dva příkazy a pak úkony, které ovládají film
+— viz [Přehrávač](player.md#pohyb-filmem).
+
+| Příkaz | Zkratka | Co dělá |
+| :------ | :------- | :----------- |
+| Vybrat video… | žádná | zvolí soubor videa, ke kterému dokument patří |
+| Přehrát / pozastavit | `Ctrl+P` | přehraje nebo zastaví video — viz [Přehrávač](player.md#přehrávání-a-zastavení) |
+
+Přidružené video je **vlastností otevřeného dokumentu**, nikoli nastavením
+aplikace: otevření jiného souboru titulků začíná od nuly. Nezapisuje
+se do žádného souboru a zmizí spolu s oknem.
+
+## Zvuková stopa
+
+Film může nést několik zvukových stop — původní znění, dabing, komentář.
+Podnabídka **`Video ▸ Zvuk ▸ Jazyk`** je vypíše, **jednu položku na stopu**, a **označí tu, která hraje**:
+
+| Co soubor uvádí | Co říká položka |
+| :------------------ | :------------------ |
+| jazyk a název | `1: fra — Original` |
+| jen jazyk | `2: eng` |
+| jen název | `3: Commentary` |
+| ani jedno | `1` |
+
+Číslo je **pořadí stopy ve filmu**, jedna po druhé, v pořadí souboru: dvě stopy
+mohou říkat `eng` a soubor, který o svých označeních mlčí, má přesto první a druhou.
+
+**Volba položky přehraje tuto stopu.** Označení je odpovědí přehrávače, nikoli kliknutí: říká, která
+stopa hraje.
+
+- **Podnabídka je nedostupná** bez videa nebo bez zvukové stopy. S jedinou stopou zůstane dostupná a
+  ukáže ji zaškrtnutou: říká jazyk filmu. Oba úkony hlasitosti, které jsou vedle ní, zůstávají
+  dostupné v každém případě: viz [Hlasitost](player.md#hlasitost).
+- **Stopa se nepamatuje** od jednoho videa k dalšímu ani od jedné relace k další: číslo stopy patří
+  jejímu souboru a jeho přenesení na další film by vybralo cokoli, co tam nese toto číslo.
+  Návrat na kartu znovu otevře její film na stopě, kterou si přehrávač zvolí sám.
+- Žádná klávesová zkratka: jazyk se mění zřídka a nabídka stačí.
+
+## Volba videa
+
+Dialog se otevře v adresáři souboru titulků a filtruje podle
+rozpoznaných přípon videa:
+
+    .avi .flv .m2ts .mkv .mov .mp4 .ogg .ogv .vob .webm
+
+Nabízí také zobrazení všech souborů. Zrušení dialogu nic
+nezmění.
+
+Zvolený soubor se **ihned otevře**: obraz se objeví v okně,
+pozastavený na svém prvním okamžiku. Viz [Přehrávač](player.md).
+
+**Přetažení souboru videa do okna udělá totéž** — viz
+[Přetažení souborů do okna](files.md#přetažení-souborů-do-okna).
+
+**Video patří projektu aktuální karty.** Každá karta si drží
+své vlastní; změna karty změní film. **Návrat na kartu obnoví její
+film tam, kde jste ho opustili**, pozastavený, jako každé otevření. Jiný film
+zvolený pro tento projekt mezitím naopak začne od začátku.
+
+## Automatický návrh
+
+Když se otevře soubor titulků a **dosud nebylo zvoleno žádné video**,
+okno ho hledá ve stejném adresáři: soubor videa, jehož název
+bez přípony je předponou našeho, a to až po tečku.
+
+| Soubor titulků | Nalezené video | Proč |
+| :------------ | :---------- | :-- |
+| `film.fr.srt` | `film.mkv` | `film` je předponou `film.fr` |
+| `film.en.forced.srt` | `film.mkv` | stejně, bez ohledu na počet segmentů |
+| `film.fr.srt` | `film.fr.mkv`, nikoli `film.mkv` | vyhrává nejdelší název |
+| `film.fr.srt` | žádné, jsou-li tam `film.mkv` **i** `film.mp4` | dva kandidáty nelze rozlišit |
+| `film.fr.srt` | žádné, je-li tam jen `fil.mkv` | `fil` nekončí na tečce |
+
+**Návrh není volba.** Nechá se nahradit jiným
+návrhem — otevřením jiného souboru, uložením pod jiným názvem. Výslovná
+volba se naopak nikdy nepřepíše: jakmile bylo použito `Select Video…`,
+automatický návrh se už za ní nevrátí.
+
+Právě to činí odhad přijatelným: lze ho opravit a jeho
+oprava platí.
+
+## Co ukazuje stavový řádek
+
+Vpravo ve stavovém řádku říká jeden řádek, k čemu dokument patří.
+Je posledním ze tří: [kódování](files.md#kódování-ve-stavovém-řádku)
+přečteného souboru je první, [mřížka snímků](frame-grid.md) odvozená z
+pozic následuje.
+
+| Situace | Co se zapíše |
+| :-------- | :-------------- |
+| video je přidruženo | `Video: film.mkv` |
+| … a `ffprobe` uvádí jeho snímkovou frekvenci | `Video: film.mkv, 24000/1001 fps` |
+| žádné | `No video` |
+
+**Snímková frekvence jde s filmem, nikoli vedle něj.** Jde o jediný údaj — k čemu
+tento dokument patří — a třetí zmínka by ji postavila na stejnou úroveň jako
+[mřížku odvozenou z pozic](frame-grid.md), která je údajem jiným.
+
+## Když není film
+
+Okno ukáže tlačítko **`Select Video…`** tam, kde by byl obraz, místo
+prázdného místa. Je to tentýž příkaz jako v nabídce `Video`, na dosah
+myši: nepřítomnost, se kterou nelze nic udělat, se těžko odlišuje od
+poruchy.
+
+Tlačítko zmizí, jakmile se otevře film, a obraz zabere **celé** jeho
+místo: výšku, kterou mu tabulka nad sebou nechává — tu, kterou si
+[`window.table-share`](preferences.md) pamatuje od jedné relace k další —, a
+nikdy méně než minimální výšku obrazu, kterou tabulka v případě potřeby uvolní.
+Když film zmizí, tlačítko zaujme totéž místo.
+
+**Název souboru, nikdy jeho cesta.** Cesta o dvou stech znacích
+by z lišty vytlačila všechno ostatní; celou cestu ukázal
+dialog.
+
+## `ffmpeg` není nutný
+
+`subedit-gui` se ptá programu `ffprobe` — dodávaného s `ffmpeg` — na jedinou
+věc: **snímkovou frekvenci, kterou uvádí kontejner**. Čte se jednou
+za film, když se přidruží.
+
+| S `ffprobe` | Bez něj |
+| :------------- | :------ |
+| stavový řádek zapíše snímkovou frekvenci vedle názvu filmu | zapíše jen název |
+| dialog převodu navrhne ve spodním poli snímkovou frekvenci filmu | nenavrhne nic a otevře se jako dříve |
+| dialog zarovnání se na ní otevře | otevře se na snímkové frekvenci projektu |
+
+**Nic jiného na něm nezávisí a žádná operace neodmítne.** Přehrávač
+naopak `ffprobe` vůbec nepotřebuje: opírá se o `libmpv`, který je
+závislostí sestavení. Doba trvání filmu, ta, podle které se hlásí, co
+přesahuje konec, pochází z přehrávače, a ne z `ffprobe`.
+
+Nejde tedy o omezený režim, ale o **běžný provoz** počítače,
+na kterém nikdy nebyl nainstalován `ffmpeg`: údaj pochází od uživatele a `ffprobe`
+ho navrhne, když je k dispozici.
+
+Přečtená snímková frekvence je **přesné racionální číslo** — `24000/1001`, nikoli `23.976`.
+Proto se `ffprobe` pro tuto odpověď zachovává:
+přehrávač ví totéž jako číslo s plovoucí desetinnou čárkou a přibližná snímková frekvence
+by celý soubor přečasovala mírně vedle.
