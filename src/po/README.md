@@ -5,10 +5,55 @@
 | `subedit.pot` | the template: every literal passed to `translate`, `translateIn` or `translatePlural` in `src/lib` and `src/exe`. Generated, never edited by hand |
 | `<lang>.po` | one catalogue per language, merged from the template |
 | `LINGUAS` | the languages that are **compiled and installed**, one per line — the one list of them |
+| `UNREVIEWED` | the installed languages whose translation is machine-written and **not yet reviewed** by a reader of the language, one per line |
 
 A `.po` that is not in `LINGUAS` stays in the repository without being built or shipped: a language ships when it is
-complete — no untranslated and no fuzzy entry — and has been reviewed by someone who reads it (spec 15, D5). Today
-that is French alone.
+complete — no untranslated and no fuzzy entry —, with its manuals (spec 15, D5). French is reviewed by the maintainer;
+every other language ships machine-translated, listed in `UNREVIEWED` and saying so, until a reader of it signs it off.
+A line of either list is a bare code, `de` or `pt_BR`; a comment is a line of its own, starting with `#`.
+
+## Adding a language
+
+Nothing in the code, the build or the gate names a language: each one is read from `LINGUAS` and from the files of
+the language. For a code `<lang>` whose seed is `<lang>.po`:
+
+1. **The catalogue**: delete the seed marker line of `<lang>.po` (`seed-catalogues.py: a seed…` and the line after it),
+   complete every entry as French was (#668), credit Gaupol's translators as the header already does, and add the
+   review caveat line below. `msgfmt --check --statistics -o /dev/null src/po/<lang>.po` reports no untranslated and no
+   fuzzy entry.
+2. **The manuals**: `docs/i18n/<lang>/manual/`, page for page the English tree, each page opening with the review
+   caveat below; the code blocks and the inline code byte for byte the English ones.
+3. **The vocabulary of the manual checks**: `docs/i18n/<lang>/vocabulary.json` — the words of the tables' headers and
+   of the man pages, read by `doc_vocabulary.py` (its docstring lists the keys); French's table is the model.
+4. **The two lists**: add `<lang>` to `LINGUAS` and to `UNREVIEWED`.
+5. **The English manual**: the `## Language` sections of `docs/manual/subedit-cli/invocation.md` and
+   `docs/manual/subedit-gui/invocation.md` name the language as installed and machine-translated, with the line
+   `<!-- machine-translated: <lang> -->`, and the pages that list the installed languages (`installation.md`,
+   `invocation.md`, `help.md`) name it; the translated manuals follow.
+6. **`make manual`** takes the language's screenshots and refreshes the `--version` example, which lists the installed
+   languages. It needs Qt's own catalogue for the language (`qtbase_<lang>.qm`) on the machine.
+
+What then runs for the language with no line to write: the build compiles and installs its catalogue, manual and man
+pages; `translations` holds it complete and its caveat in place; the structure check, `check-cli-manual.py`,
+`check-gui-manual.py` and the screenshots check read its tree; the shipped-language tests of the command line and of the
+window, and the man page tests, run for it (`SUBEDIT_SHIPPED_LANGUAGES`, the lines of `LINGUAS`, given to those test
+files alone); `check-installation.sh` and `check-rpm.sh` look for its files in the tree and in the packages.
+
+## The review caveat
+
+A language of `UNREVIEWED` says it is machine-translated in three places, each in a fixed form that
+`src/scripts/check-review-caveat.py` (the `translations` step) checks; a language that is not in the list may carry
+none of them, so that signing a language off is a diff of a few lines, each one refused if forgotten.
+
+| Where | What, exactly |
+| :---- | :------------ |
+| the catalogue `<lang>.po` | in the header's comments, before the first `msgid`, the line `# Machine translation, not reviewed by a reader of the language (spec 15, D5).` — `make po` keeps it |
+| every page of `docs/i18n/<lang>/manual/` | right after the `#` title, the line `<!-- machine-translated -->`, then on the very next line a block quote in the language saying that the page is a machine translation awaiting a reader's review — prose only, no inline code and no link, so that the structure check has nothing to compare with the English page; a man page shows it at the head of its DESCRIPTION |
+| each `## Language` section of the English manual | the line `<!-- machine-translated: <lang> -->`, beside the sentence that says the language is machine-translated |
+
+French is reviewed, so it is not in `UNREVIEWED` and carries none of them. **To sign a language off**, once a reader of
+it has said so in its issue: delete its line in `UNREVIEWED`, the header line of its catalogue, the marker and its quote
+on every page, and its line in the Language sections, with the sentence beside it.
 
 ## French
 

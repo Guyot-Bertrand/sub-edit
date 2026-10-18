@@ -173,6 +173,24 @@ developer's French locale reached two maintenance scripts that read the words of
 `measure-duration-constraints.py`; both now ask for `LANGUAGE=en`, as the test harnesses already
 did.
 
+**Prepared by #720 for every language that follows.** Adding a language is a line of `src/po/LINGUAS` and the files
+of the language, with no code: the shipped-language tests of #668 — the command line's help, a usage error and a
+batch's narration in the language, English under `LC_ALL=C` and `LANGUAGE=en:<lang>`, `--format json` the same bytes
+(`CLI-I18N-01` to `03`), the window's menu titles and whole shell as the catalogue gives them (`GUI-I18N-01`) — and
+the man page tests (`CLI-I18N-04`) run for every line of `LINGUAS`, handed by the build to those three test files
+alone (`SUBEDIT_SHIPPED_LANGUAGES`, a definition on the sources and not on a target, so that a language added
+recompiles them and nothing else). Their expectations are read from the language's own compiled catalogue; French
+keeps a case that names its words. The vocabulary of the manual checks of a new language is a file of its tree,
+`docs/i18n/<lang>/vocabulary.json`, and the repository-language check skips every translated tree, not French's
+alone — a Catalan page has the elisions of French. **The review caveat** has a fixed form, held by
+`check-review-caveat.py` in the `translations` step: `src/po/UNREVIEWED` lists the installed languages not yet
+reviewed by a reader; each carries the header line `# Machine translation, not reviewed by a reader of the language
+(spec 15, D5).` in its catalogue, the marker `<!-- machine-translated -->` followed by a block quote in the language
+right after the title of every manual page, and `<!-- machine-translated: <lang> -->` in each `## Language` section of
+the English manual; a language the list does not name carries none of them, and a language of `LINGUAS` without a
+translated manual is refused. Signing a language off is removing its line and its caveat in one diff. The checklist is
+in `src/po/README.md`.
+
 ## D6 — The correction patterns
 
 Pattern files are Gaupol's, read as they are ([ADR 0037](../adr/0037-lire-les-motifs-de-gaupol-tels-quels.md)), and their
