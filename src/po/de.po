@@ -1199,8 +1199,8 @@ msgstr[1] "%1 Positionen verschoben, um höchstens %2 ms"
 #: src/lib/subedit/cli/aligning.cpp
 msgid "%1 subtitle aligned on %2 fps, %3"
 msgid_plural "%1 subtitles aligned on %2 fps, %3"
-msgstr[0] "%1 Untertitel an %2 B/s eingerastet, %3"
-msgstr[1] "%1 Untertitel an %2 B/s eingerastet, %3"
+msgstr[0] "%1 Untertitel an %2 fps eingerastet, %3"
+msgstr[1] "%1 Untertitel an %2 fps eingerastet, %3"
 
 #. TRANSLATORS: %1 is the file written, %2 a number of subtitles (« 12 subtitles »)
 #. and %3 a number of files (« 3 files »).
@@ -1709,8 +1709,8 @@ msgstr[1] "%1: %2 Dateien übergangen, ohne Endung eines bekannten Formats"
 #: src/lib/subedit/cli/frame_rate_conversion.cpp
 msgid "%1 subtitle retimed from %2 to %3 fps"
 msgid_plural "%1 subtitles retimed from %2 to %3 fps"
-msgstr[0] "%1 Untertitel von %2 auf %3 B/s umgerechnet"
-msgstr[1] "%1 Untertitel von %2 auf %3 B/s umgerechnet"
+msgstr[0] "%1 Untertitel von %2 auf %3 fps umgerechnet"
+msgstr[1] "%1 Untertitel von %2 auf %3 fps umgerechnet"
 
 #. TRANSLATORS: %1 is what the user typed, %2 why it does not read.
 #: src/lib/subedit/cli/frame_rate_grammar.cpp
@@ -1825,11 +1825,11 @@ msgstr "%1, erkannt"
 #. TRANSLATORS: %1 is a frame rate.
 #: src/lib/subedit/cli/inspection.cpp
 msgid "%1 fps, assumed"
-msgstr "%1 B/s, angenommen"
+msgstr "%1 fps, angenommen"
 
 #: src/lib/subedit/cli/inspection.cpp
 msgid "%1 fps, as asked for"
-msgstr "%1 B/s, wie verlangt"
+msgstr "%1 fps, wie verlangt"
 
 #. TRANSLATORS: %1 is the verdict on the grid, such as « silent ».
 #: src/lib/subedit/cli/inspection.cpp
@@ -1843,7 +1843,7 @@ msgstr "Bildraster: %1 (bester Kandidat bei %2)"
 #. TRANSLATORS: %1 is a frame rate, %2 the verdict on the grid, %3 a percentage.
 #: src/lib/subedit/cli/inspection.cpp
 msgid "frame rate grid: %1 fps, %2 (%3)"
-msgstr "Bildraster: %1 B/s, %2 (%3)"
+msgstr "Bildraster: %1 fps, %2 (%3)"
 
 #. TRANSLATORS: %1 is a duration, in seconds.
 #: src/lib/subedit/cli/inspection.cpp
@@ -1853,13 +1853,13 @@ msgstr "Rasterversatz: %1"
 #. TRANSLATORS: %1 is a frame rate.
 #: src/lib/subedit/cli/inspection.cpp
 msgid "also fits: %1 fps, of which this rate is a whole divisor"
-msgstr "passt auch: %1 B/s, wovon diese Rate ein ganzzahliger Teiler ist"
+msgstr "passt auch: %1 fps, wovon diese Rate ein ganzzahliger Teiler ist"
 
 #. TRANSLATORS: %1 is a frame rate.
 #: src/lib/subedit/cli/inspection.cpp
 #: src/lib/subedit/gui/grid_analysis_dialog.cpp
 msgid "%1 fps"
-msgstr "%1 B/s"
+msgstr "%1 fps"
 
 #. TRANSLATORS: %1 lists frame rates, each with a space before it.
 #: src/lib/subedit/cli/inspection.cpp
@@ -2020,8 +2020,8 @@ msgstr[1] "%1 Untertitel um %2 verschoben"
 #: src/lib/subedit/cli/shifting.cpp
 msgid "%1 subtitle shifted by %2 onto their %3 fps grid"
 msgid_plural "%1 subtitles shifted by %2 onto their %3 fps grid"
-msgstr[0] "%1 Untertitel um %2 auf ihr Raster von %3 B/s verschoben"
-msgstr[1] "%1 Untertitel um %2 auf ihr Raster von %3 B/s verschoben"
+msgstr[0] "%1 Untertitel um %2 auf ihr Raster von %3 fps verschoben"
+msgstr[1] "%1 Untertitel um %2 auf ihr Raster von %3 fps verschoben"
 
 #: src/lib/subedit/cli/shifting.cpp
 msgid "--by and --to-grid both say by how much to move; give one or the other"
@@ -2393,15 +2393,15 @@ msgstr "Kein Raster"
 #. TRANSLATORS: %1 is a frame rate, %2 the word for a partial grid.
 #: src/lib/subedit/core/wording/analysis.cpp
 msgid "Grid: %1 fps (%2)"
-msgstr "Raster: %1 B/s (%2)"
+msgstr "Raster: %1 fps (%2)"
 
 #: src/lib/subedit/core/wording/analysis.cpp
 msgid "Grid: %1 fps"
-msgstr "Raster: %1 B/s"
+msgstr "Raster: %1 fps"
 
 #: src/lib/subedit/core/wording/analysis.cpp
 msgid "Frames: %1 fps"
-msgstr "Bilder: %1 B/s"
+msgstr "Bilder: %1 fps"
 
 #. TRANSLATORS: %1 is the name of a subtitle format.
 #: src/lib/subedit/core/wording/conversion.cpp
@@ -2463,7 +2463,7 @@ msgstr "%1 nach %2: %3"
 #. TRANSLATORS: %1 and %2 are frame rates.
 #: src/lib/subedit/core/wording/conversion.cpp
 msgid "converting from %1 to %2 fps"
-msgstr "Umrechnen von %1 auf %2 B/s"
+msgstr "Umrechnen von %1 auf %2 fps"
 
 #. TRANSLATORS: %1 is « converting from 25 to 24 fps », %2 a frame rate,
 #. %3 to %5 percentages.
@@ -2472,7 +2472,7 @@ msgid ""
 "%1 puts the positions on a %2 fps grid: %3, against %4 as they are and %5 "
 "for the next best conversion"
 msgstr ""
-"%1 setzt die Positionen auf ein Raster von %2 B/s: %3, gegenüber %4 im "
+"%1 setzt die Positionen auf ein Raster von %2 fps: %3, gegenüber %4 im "
 "jetzigen Zustand und %5 für die nächstbeste Umrechnung"
 
 #. TRANSLATORS: %1 and %2 are « converting from 25 to 24 fps », %3 and %4
@@ -2685,11 +2685,11 @@ msgid_plural ""
 "%1 of %2 subtitles aligned to %3 fps; the document is still read on a %4 fps "
 "grid"
 msgstr[0] ""
-"%1 von %2 Untertitel an %3 B/s eingerastet; das Dokument wird weiterhin auf "
-"einem Raster von %4 B/s gelesen"
+"%1 von %2 Untertitel an %3 fps eingerastet; das Dokument wird weiterhin auf "
+"einem Raster von %4 fps gelesen"
 msgstr[1] ""
-"%1 von %2 Untertiteln an %3 B/s eingerastet; das Dokument wird weiterhin auf "
-"einem Raster von %4 B/s gelesen"
+"%1 von %2 Untertiteln an %3 fps eingerastet; das Dokument wird weiterhin auf "
+"einem Raster von %4 fps gelesen"
 
 #: src/lib/subedit/core/wording/editing.cpp
 msgid "nothing to look for"
@@ -3032,7 +3032,7 @@ msgstr "das Raster, auf dem die Positionen liegen"
 #. rate the video declares ».
 #: src/lib/subedit/core/wording/video.cpp
 msgid "Positions are frame numbers, counted at %1 fps, %2"
-msgstr "Positionen sind Bildnummern, gezählt mit %1 B/s, %2"
+msgstr "Positionen sind Bildnummern, gezählt mit %1 fps, %2"
 
 #: src/lib/subedit/core/wording/video.cpp
 msgid ""
@@ -3051,7 +3051,7 @@ msgstr "Kein Video"
 #. TRANSLATORS: %1 is the file name of a video, %2 the frame rate it declares.
 #: src/lib/subedit/core/wording/video.cpp
 msgid "Video: %1, %2 fps"
-msgstr "Video: %1, %2 B/s"
+msgstr "Video: %1, %2 fps"
 
 #. TRANSLATORS: %1 is the file name of a video.
 #: src/lib/subedit/core/wording/video.cpp
@@ -3492,7 +3492,7 @@ msgstr ""
 #. TRANSLATORS: %1 is a frame rate, %2 how clean the grid is (« clean »), %3 a share.
 #: src/lib/subedit/gui/grid_analysis_dialog.cpp
 msgid "Written on a %1 fps grid — %2, %3."
-msgstr "Auf einem Raster von %1 B/s geschrieben — %2, %3."
+msgstr "Auf einem Raster von %1 fps geschrieben — %2, %3."
 
 #. TRANSLATORS: %1 is a number of subtitle starts, %2 a length of time, « 1:32:05 ».
 #: src/lib/subedit/gui/grid_analysis_dialog.cpp
@@ -3509,12 +3509,12 @@ msgstr "Um %1 gegen das Raster versetzt."
 #. TRANSLATORS: %1 is a frame rate.
 #: src/lib/subedit/gui/grid_analysis_dialog.cpp
 msgid "%1 fps fits just as well, being a whole multiple of it."
-msgstr "%1 B/s passt genauso gut, da ein ganzzahliges Vielfaches davon."
+msgstr "%1 fps passt genauso gut, da ein ganzzahliges Vielfaches davon."
 
 #. TRANSLATORS: %1 is a frame rate.
 #: src/lib/subedit/gui/grid_analysis_dialog.cpp
 msgid "This span is too short to tell it from %1 fps."
-msgstr "Diese Spanne ist zu kurz, um sie von %1 B/s zu unterscheiden."
+msgstr "Diese Spanne ist zu kurz, um sie von %1 fps zu unterscheiden."
 
 #. TRANSLATORS: %1 is a number of starts, %2 a number of runs, « 3 runs ».
 #: src/lib/subedit/gui/grid_analysis_dialog.cpp
