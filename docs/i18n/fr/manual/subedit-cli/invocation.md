@@ -74,7 +74,14 @@ nommé comme son fichier l'écrit. Les fichiers de motifs eux-mêmes ne sont jam
 
 Les catalogues sont installés sous `<prefix>/share/subedit/locale/<language>/LC_MESSAGES/subedit.mo`
 et trouvés à partir du répertoire de l'exécutable lui-même. L'anglais est intégré au programme.
-Cette version installe `fr`, le français, traduit en entier : sous `LANG=fr_FR.UTF-8`,
+Cette version installe `ca`, `cs`, `de` et `fr` — le catalan, le tchèque, l'allemand et le
+français — traduits en entier. Le français a été relu par un lecteur de la langue ; le catalan,
+le tchèque et l'allemand sont traduits par machine et pas encore relus par un lecteur de la
+langue.
+<!-- machine-translated: ca -->
+<!-- machine-translated: cs -->
+<!-- machine-translated: de -->
+Sous `LANG=fr_FR.UTF-8`,
 `subedit-cli --help` commence par « Lire, inspecter et recaler des fichiers de sous-titres. » Un
 script qui lit les mots de la sortie texte pose `LANGUAGE=en` (ou `LC_ALL=C`) — ou lit
 `--format json`, qui ne change jamais.
@@ -861,7 +868,7 @@ FICHIERS de chaque page nomme le répertoire où le manuel est installé.
 | Pages | Où elles sont installées |
 | :---- | :----------------------- |
 | l'anglais | `share/man/man1` |
-| chaque langue installée — le français | `share/man/<language>/man1` — `share/man/fr/man1` |
+| chaque langue installée — catalan, tchèque, allemand, français | `share/man/<language>/man1` — `share/man/fr/man1` |
 
 **`man` choisit la langue d'après la locale**, comme le programme : sous une locale française,
 `man subedit-cli` affiche la page française, et une langue dont les pages ne sont pas installées
