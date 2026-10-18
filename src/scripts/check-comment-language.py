@@ -96,14 +96,14 @@ import json
 import pathlib
 import re
 import shutil
-import subprocess
 import sys
 import tempfile
+
+from revisions import UPSTREAM, git, merge_base
 
 REPO_ROOT = pathlib.Path(__file__).resolve().parent.parent.parent
 ALLOWLIST = ".french-allowlist"
 FIXTURES = REPO_ROOT / "src/test/data/language"
-UPSTREAM = "origin/main"
 
 GREEN, RED, YELLOW, RESET = "\033[32m", "\033[31m", "\033[33m", "\033[0m"
 
@@ -266,11 +266,6 @@ def read_text(path: pathlib.Path) -> str | None:
         return None
 
 
-def git(root: pathlib.Path, *arguments: str) -> subprocess.CompletedProcess:
-    return subprocess.run(["git", "-C", str(root), *arguments], capture_output=True, text=True,
-                          check=False)
-
-
 def french_files(root: pathlib.Path) -> dict[str, list[int]]:
     """Every tracked file the rule applies to and that contains French, with its French lines."""
     listed = git(root, "ls-files", "-z")
@@ -293,21 +288,6 @@ def parse_allowlist(text: str) -> list[str]:
     """The entries of an allowlist: one path per line; blank lines and # comments ignored."""
     return [line.strip() for line in text.splitlines()
             if line.strip() and not line.lstrip().startswith("#")]
-
-
-def merge_base(root: pathlib.Path, base: str | None) -> tuple[str | None, str]:
-    """The revision the list is compared with, or None and why there is none."""
-    if base is not None:
-        if git(root, "rev-parse", "--verify", "--quiet", f"{base}^{{commit}}").returncode != 0:
-            return None, f"{base} is not a revision of this repository"
-        return base, base
-    if git(root, "rev-parse", "--verify", "--quiet", f"{UPSTREAM}^{{commit}}").returncode != 0:
-        return None, f"{UPSTREAM} is not reachable"
-    found = git(root, "merge-base", "HEAD", UPSTREAM)
-    if found.returncode != 0:
-        return None, f"HEAD and {UPSTREAM} have no merge base (shallow clone?)"
-    revision = found.stdout.strip()
-    return revision, f"the merge base with {UPSTREAM} ({revision[:10]})"
 
 
 def check(root: pathlib.Path, base: str | None) -> tuple[list[tuple[str, str, str]], list[str]]:
