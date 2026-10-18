@@ -180,7 +180,9 @@ Le dialogue demande deux fois la même chose : un numéro de sous-titre, et la
 position où son début appartient. Pour chaque repère, il montre **ce que ce
 numéro désigne** — son texte (`Text`) et l'heure à laquelle il commence
 **maintenant** (`Now starts`), en simples étiquettes — et ils suivent le numéro
-à mesure qu'on le change. **Un seul champ est à saisir par repère :
+à mesure qu'on le change. Le texte garde **trois lignes de place** quoi que
+dise le sous-titre : un texte plus long, ou une longue adresse, défile à
+l'intérieur, et le dialogue garde sa taille quand le repère change. **Un seul champ est à saisir par repère :
 `Should start`**, l'heure où ce sous-titre doit commencer. Il n'y a pas à chercher dans le tableau quelle ligne est la `980`.
 
 `Should start` est **proposé à la valeur actuelle** : tant qu'on n'y

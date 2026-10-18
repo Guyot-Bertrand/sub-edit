@@ -564,8 +564,9 @@ installed: those are what differs from one machine to the next.
 
 ## Requirements
 
-**Thirteen**: eight registered `planned` in `docs/exigences.md` with this spec, and five with #716; each issue re-reads
-its own before its code and the state moves to `implemented` when a test cites it.
+**Fourteen**: eight registered `planned` in `docs/exigences.md` with this spec, five with #716, and one with #717 — a
+dialog a longer translation cut, which the phase found and kept; each issue re-reads its own before its code and the
+state moves to `implemented` when a test cites it.
 
 | Identifier | What it promises |
 | :--------- | :--------------- |
@@ -582,6 +583,7 @@ its own before its code and the state moves to `implemented` when a test cites i
 | `CLI-VERSION-08` | every library the build looks for with `find_package` or `pkg_check_modules` is named by the `--version` of one binary or the other |
 | `GUI-VERSION-02` | `subedit-gui --version` names Qt, ICU, libmpv and Enchant with both of their versions, then the installed languages |
 | `GUI-ABOUT-01` | `About subedit` lists the libraries of `--version` in a table — name, version loaded, version built against — and the installed languages, its headings in the chosen language |
+| `GUI-TRANSFORM-02` | the transform dialog shows each marker's text in three lines of room that scroll past them, keeps its size when a marker changes, and shows its explanation whole at any width and in any language |
 
 The shared settings of #699 add no identifier to the registry: what they promise is held by the tests its *done when*
 lists, and by the existing `GUI-CONFIG-*` requirements for the reading rules of ADR 0022, which do not change.

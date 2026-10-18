@@ -15,6 +15,7 @@ class Project;
 
 class QLabel;
 class QLineEdit;
+class QPlainTextEdit;
 class QSpinBox;
 
 namespace subedit::gui {
@@ -113,7 +114,9 @@ private:
         QSpinBox* number;
         QLabel* current;
         QLineEdit* target;
-        QLabel* text;
+        /// Three lines high whatever it shows, and scrolled past them: the
+        /// dialog keeps its size when the reference changes (#717).
+        QPlainTextEdit* text;
     };
 
     [[nodiscard]] static std::optional<TypedReference> referenceOf(const Row& row);
