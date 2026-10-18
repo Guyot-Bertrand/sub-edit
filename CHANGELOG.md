@@ -11,12 +11,31 @@ ne pas l'éditer à la main.
 
 ### Ajouts
 
+- **core** — Report the versions of the libraries in use
+- **gui** — List the libraries in --version and in About
+- **cli** — List the libraries and languages in --version
+- **i18n** — Translate the words of --version and About
+
+### Corrections
+
+- **i18n** — Exempt the source language code from translation
+- **build** — Keep verify-gates from failing on a closed pipe
+
+### Documentation
+
+- **doc** — Describe the libraries --version and About list
+
+## 0.15.38 — 2026-10-17
+
+### Ajouts
+
 - **cli** — Let every file setting of adjust and correct be undone
 - **i18n** — Translate the override flags of adjust and correct
 
 ### Documentation
 
 - **doc** — Document the override flags of adjust and correct
+- **doc** — Regenerate the changelog
 
 ## 0.15.37 — 2026-10-17
 
