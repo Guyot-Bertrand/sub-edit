@@ -20,10 +20,13 @@ ne pas l'éditer à la main.
 
 - **i18n** — Exempt the source language code from translation
 - **build** — Keep verify-gates from failing on a closed pipe
+- **gui** — Keep the Transform positions dialog from clipping its text
 
 ### Documentation
 
 - **doc** — Describe the libraries --version and About list
+- **doc** — Regenerate the changelog
+- **gui** — Say the Transform dialog keeps three lines of marker text
 
 ## 0.15.38 — 2026-10-17
 
