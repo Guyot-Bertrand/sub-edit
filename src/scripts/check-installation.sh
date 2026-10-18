@@ -116,6 +116,8 @@
 set -euo pipefail
 
 readonly REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+# shellcheck source=src/scripts/lib/project.sh
+source "$(dirname "${BASH_SOURCE[0]}")/lib/project.sh"
 readonly MANUAL_DIR="${REPO_ROOT}/docs/manual"
 readonly PATTERNS_DIR="${REPO_ROOT}/packaging/patterns"
 readonly LINGUAS="${REPO_ROOT}/src/po/LINGUAS"
@@ -229,8 +231,7 @@ cmake --install "${build_dir}" --prefix "${prefix}" >/dev/null
 # Run from a directory that is neither the repository nor the build tree: that
 # is half of the check. A binary that finds a file "next to itself" still finds
 # it when run from the repository.
-readonly VERSION="$(sed -n 's/^[[:space:]]*VERSION[[:space:]]\{1,\}\([0-9.]\{1,\}\)[[:space:]]*$/\1/p' \
-    "${REPO_ROOT}/CMakeLists.txt" | head -1)"
+readonly VERSION="$(project_version "${REPO_ROOT}/CMakeLists.txt")"
 
 check_binary() {
     local name="$1"

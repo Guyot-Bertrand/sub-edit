@@ -8,6 +8,8 @@
 set -euo pipefail
 
 readonly REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+# shellcheck source=src/scripts/lib/project.sh
+source "$(dirname "${BASH_SOURCE[0]}")/lib/project.sh"
 readonly MAIN_MAX_LINES=40
 
 readonly RED=$'\033[31m'
@@ -296,7 +298,7 @@ check_version_matches_tag() {
     # first bump of the new phase would raise a false alarm.
     local declared
     declared="$(git -C "${REPO_ROOT}" show HEAD:CMakeLists.txt 2>/dev/null \
-        | sed -n 's/^[[:space:]]*VERSION[[:space:]]\+\([0-9][0-9.]*\)[[:space:]]*$/\1/p' | head -1)"
+        | project_version)"
 
     if [[ "v${declared}" != "${tag}" ]]; then
         report_failure "the tag ${tag} and CMakeLists.txt (${declared:-absent}) do not agree

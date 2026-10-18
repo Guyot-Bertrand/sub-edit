@@ -58,6 +58,8 @@
 set -euo pipefail
 
 readonly REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+# shellcheck source=src/scripts/lib/project.sh
+source "$(dirname "${BASH_SOURCE[0]}")/lib/project.sh"
 
 readonly RED=$'\033[31m'
 readonly GREEN=$'\033[32m'
@@ -106,8 +108,7 @@ if [[ -z "${engine}" ]]; then
     exit 1
 fi
 
-readonly VERSION="$(sed -n 's/^[[:space:]]*VERSION[[:space:]]\{1,\}\([0-9.]\{1,\}\)[[:space:]]*$/\1/p' \
-    "${REPO_ROOT}/CMakeLists.txt" | head -1)"
+readonly VERSION="$(project_version "${REPO_ROOT}/CMakeLists.txt")"
 
 package="$(find "${build_dir}" -maxdepth 1 -name 'subedit*.rpm' 2>/dev/null | head -1)"
 

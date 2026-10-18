@@ -6,6 +6,8 @@
 # and by `gate.sh` and `verify-gates.sh`. It defines functions and variables
 # prefixed `timing_`, and nothing `readonly`: its readers already define their
 # own colours and root, and a second `readonly` of the same name would kill them.
+# For the same reason it takes from `lib/project.sh`, which defines functions
+# and no variable.
 #
 # ## Why a journal
 #
@@ -49,13 +51,15 @@ if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
     exit 2
 fi
 
+# shellcheck source=src/scripts/lib/project.sh
+source "$(dirname "${BASH_SOURCE[0]}")/../lib/project.sh"
+
 timing_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd)"
 timing_file="${GATE_TIMINGS_FILE:-${timing_root}/build/gate-timings.tsv}"
 # Read once, when sourced: `verify-gates.sh` injects defects into `CMakeLists.txt`, and the version
 # of a run is the one it started with.
 timing_rev="$(git -C "${timing_root}" rev-parse --short HEAD 2>/dev/null || printf '-')"
-timing_version="$(sed -n 's/^ *VERSION \([0-9][0-9.]*\)$/\1/p' "${timing_root}/CMakeLists.txt" 2>/dev/null \
-    | head -1 || true)"
+timing_version="$(project_version "${timing_root}/CMakeLists.txt" 2>/dev/null || true)"
 
 # The one-minute load average, or « - » where `/proc` does not give it.
 timing_load() {

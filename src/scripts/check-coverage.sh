@@ -15,6 +15,8 @@
 set -euo pipefail
 
 readonly REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+# shellcheck source=src/scripts/lib/project.sh
+source "$(dirname "${BASH_SOURCE[0]}")/lib/project.sh"
 readonly RATCHET="${REPO_ROOT}/docs/mesures/couverture.md"
 
 readonly RED=$'\033[31m'
@@ -223,8 +225,7 @@ write_ratchet() {
     fi
 
     local version
-    version="$(sed -n 's/^[[:space:]]*VERSION[[:space:]]\+\([0-9][0-9.]*\)[[:space:]]*$/\1/p' \
-        "${REPO_ROOT}/CMakeLists.txt" | head -1)"
+    version="$(project_version "${REPO_ROOT}/CMakeLists.txt")"
     [[ -n "${version}" ]] || {
         printf '%s✗%s unreadable version in %s/CMakeLists.txt\n' \
             "${RED}" "${RESET}" "${REPO_ROOT}" >&2

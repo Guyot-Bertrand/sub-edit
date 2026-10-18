@@ -166,6 +166,8 @@ readonly GREEN=$'\033[32m'
 readonly BOLD=$'\033[1m'
 readonly RESET=$'\033[0m'
 
+# shellcheck source=src/scripts/lib/project.sh
+source "${REPO_ROOT}/src/scripts/lib/project.sh"
 # shellcheck source=src/scripts/gate/timing.sh
 source "${REPO_ROOT}/src/scripts/gate/timing.sh"
 
@@ -609,8 +611,7 @@ expect_pr_check_closes \
 # base would assume that the working copy has not already gone past it, which an
 # uncommitted bump would contradict, and the injection would no longer prove
 # anything.
-head_version="$(git -C "${REPO_ROOT}" show HEAD:CMakeLists.txt \
-    | sed -n 's/^[[:space:]]*VERSION[[:space:]]\+\([0-9][0-9.]*\)[[:space:]]*$/\1/p' | head -1)"
+head_version="$(git -C "${REPO_ROOT}" show HEAD:CMakeLists.txt | project_version)"
 sed -i "s/^\([[:space:]]*VERSION[[:space:]]\+\)[0-9][0-9.]*[[:space:]]*$/\1${head_version}/" \
     "${CMAKE_SOURCE}"
 expect_pr_check_closes \

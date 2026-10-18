@@ -21,6 +21,8 @@
 set -euo pipefail
 
 readonly REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+# shellcheck source=src/scripts/lib/project.sh
+source "$(dirname "${BASH_SOURCE[0]}")/lib/project.sh"
 
 refuse() {
     printf 'tag refused: %s\n' "$1" >&2
@@ -37,7 +39,7 @@ commit="$(git -C "${REPO_ROOT}" rev-parse --verify --quiet "${TAG}^{commit}")" \
     || refuse "${TAG} names no commit"
 
 declared="$(git -C "${REPO_ROOT}" show "${commit}:CMakeLists.txt" 2>/dev/null \
-    | sed -n 's/^[[:space:]]*VERSION[[:space:]]\+\([0-9][0-9.]*\)[[:space:]]*$/\1/p' | head -1)"
+    | project_version)"
 
 [[ "v${declared}" == "${TAG}" ]] \
     || refuse "${TAG} and CMakeLists.txt (${declared:-absent}) disagree"

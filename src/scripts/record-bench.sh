@@ -20,6 +20,8 @@
 set -euo pipefail
 
 readonly REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+# shellcheck source=src/scripts/lib/project.sh
+source "$(dirname "${BASH_SOURCE[0]}")/lib/project.sh"
 readonly RETENTION_DAYS=31
 
 # The journal is a parameter, for the reason that gave `--input` to
@@ -74,8 +76,7 @@ done
 [[ -f "${xml}" ]] || { printf 'XML output not found: %s\n' "${xml}" >&2; exit 1; }
 [[ -f "${journal}" ]] || { printf 'journal not found: %s\n' "${journal}" >&2; exit 1; }
 
-version="$(sed -n 's/^[[:space:]]*VERSION[[:space:]]\+\([0-9][0-9.]*\)[[:space:]]*$/\1/p' \
-    "${REPO_ROOT}/CMakeLists.txt" | head -1)"
+version="$(project_version "${REPO_ROOT}/CMakeLists.txt")"
 [[ -n "${version}" ]] || { printf 'unreadable version in CMakeLists.txt\n' >&2; exit 1; }
 
 python3 - "${xml}" "${journal}" "${version}" "$(date +%Y-%m-%d)" "${RETENTION_DAYS}" "${mode}" \
