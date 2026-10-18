@@ -256,7 +256,10 @@ restore() {
     cp "${backup_dir}/pre-commit" "${HOOK_SOURCE}"
     cp "${backup_dir}/install-hooks.sh" "${PLAIN_SCRIPT_SOURCE}"
     cp "${backup_dir}/lib-CMakeLists.txt" "${NESTED_CMAKE_SOURCE}"
-    cp "${backup_dir}/subtitle_index.hpp" "${MODEL_SOURCE}"
+    # **With its own mtime** (-p), unlike the others (#755): this header is included by some three
+    # hundred translation units, and the proof compiles nothing — a fresh mtime would make the next
+    # `tidy` analyse them all again, for a content that did not change.
+    cp -p "${backup_dir}/subtitle_index.hpp" "${MODEL_SOURCE}"
     cp "${backup_dir}/lrc_writer.hpp" "${LEAF_HEADER}"
     cp "${backup_dir}/cadence-25.mp4" "${VIDEO_FIXTURE}"
     cp "${backup_dir}/grille-25.srt" "${GRID_FIXTURE}"
@@ -294,7 +297,7 @@ cp "${MANUAL_SOURCE}" "${backup_dir}/invocation.md"
 cp "${HOOK_SOURCE}" "${backup_dir}/pre-commit"
 cp "${PLAIN_SCRIPT_SOURCE}" "${backup_dir}/install-hooks.sh"
 cp "${NESTED_CMAKE_SOURCE}" "${backup_dir}/lib-CMakeLists.txt"
-cp "${MODEL_SOURCE}" "${backup_dir}/subtitle_index.hpp"
+cp -p "${MODEL_SOURCE}" "${backup_dir}/subtitle_index.hpp"
 cp "${LEAF_HEADER}" "${backup_dir}/lrc_writer.hpp"
 cp "${VIDEO_FIXTURE}" "${backup_dir}/cadence-25.mp4"
 cp "${GRID_FIXTURE}" "${backup_dir}/grille-25.srt"
