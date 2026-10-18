@@ -1,5 +1,8 @@
 # `demo`
 
+<!-- machine-translated -->
+> Traduction automatique.
+
 ```
 subedit-cli demo --flag <file>...
 ```

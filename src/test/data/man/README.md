@@ -10,6 +10,8 @@ Cases replayed by `src/scripts/md-to-man.py --check-fixtures`, a step of the fix
   an ordered list, a block quote, a table of three columns with an escaped bar, an example marker
   and a `console` block whose second line starts with a dot and holds a backslash, emphasis,
   inline code, a link, and characters outside ASCII — one groff names, one it does not.
+  The French `demo.md` opens with the review caveat of a machine-translated page (#720): its
+  marker and its quote, which the page shows after the synopsis, at the head of DESCRIPTION.
 - `expected/man1/` and `expected/fr/man1/` — the pages each tree must give, version `1.2.3`,
   manual directory `/usr/share/subedit/manual` (and `/fr`). **Written by hand** from the rules of
   the converter's header, never copied from its output: the replay compares the bytes, and the

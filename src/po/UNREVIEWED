@@ -1,0 +1,6 @@
+# The languages whose translation is machine-written and not yet reviewed by a reader of the
+# language (spec 15, D5), one code per line. Each one carries the review caveat in its catalogue,
+# in every page of its manual and in the Language sections of the English manual; signing a
+# language off is deleting its line here and the caveat in the same diff. `src/po/README.md` says
+# where the caveat goes; `check-review-caveat.py` (the `translations` step) holds the two together.
+# French is reviewed by the maintainer, so it is not here.

@@ -42,6 +42,9 @@ vanishing from a page nobody rereads.
                   does not fit eighty columns
     comments      `<!-- ... -->` on one line: the example markers of the manual,
                   the language declaration; dropped
+    review caveat `<!-- machine-translated -->` then a block quote on the next line, first in
+                  a page of a language not yet reviewed (spec 15, D5): the quote opens the
+                  DESCRIPTION, after the SYNOPSIS, so the page keeps the form of its call
     inline        code spans, `**bold**`, `*italic*`, `[text](target)` (the
                   text is kept, the target dropped), backslash escapes
 
@@ -98,6 +101,9 @@ FENCE = re.compile(r"^```([A-Za-z0-9_+-]*)\s*$")
 BULLET = re.compile(r"^([-*+])\s+(.*)$")
 ORDERED = re.compile(r"^(\d+)\.\s+(.*)$")
 COMMENT = re.compile(r"^<!--.*-->\s*$")
+# The marker of a page not yet reviewed by a reader of its language: the block quote on the next
+# line says so in the language (spec 15, D5; `check-review-caveat.py`).
+CAVEAT_MARKER = "<!-- machine-translated -->"
 TABLE_SEPARATOR = re.compile(r"^\|?\s*:?-+:?\s*(\|\s*:?-+:?\s*)*\|?\s*$")
 RULE = re.compile(r"^\s*([-*_])(\s*\1){2,}\s*$")
 
@@ -166,12 +172,13 @@ def parse_blocks(lines: list[tuple[int, str]], page: pathlib.Path | str) -> list
             refuse(number, "a horizontal rule")
 
         if stripped.startswith(">"):
+            caveat = index > 0 and lines[index - 1][1].strip() == CAVEAT_MARKER
             quoted: list[tuple[int, str]] = []
             while index < len(lines) and lines[index][1].strip().startswith(">"):
                 text = lines[index][1].strip()[1:]
                 quoted.append((lines[index][0], text[1:] if text.startswith(" ") else text))
                 index += 1
-            blocks.append(("quote", parse_blocks(quoted, page)))
+            blocks.append(("caveat" if caveat else "quote", parse_blocks(quoted, page)))
             continue
 
         if stripped.startswith("|"):
@@ -391,7 +398,7 @@ def render_blocks(blocks: list[tuple], where: str, out: list[str]) -> None:
                 else:
                     out.append(f".IP {marker}. 4")
                 out.append(text_line(inline(text, where)))
-        elif kind == "quote":
+        elif kind in ("quote", "caveat"):
             out.append(".RS 4")
             render_blocks(block[1], where, out)
             out.append(".RE")
@@ -444,7 +451,7 @@ def links_to(blocks: list[tuple], names: list[str]) -> list[str]:
             for row in block[2]:
                 for cell in row:
                     visit(cell)
-        elif block[0] == "quote":
+        elif block[0] in ("quote", "caveat"):
             for name in links_to(block[1], names):
                 if name not in found:
                     found.append(name)
@@ -476,6 +483,11 @@ def page(name: str, description: str, blocks: list[tuple], source: str, words: d
         ".SH " + quoted(words["name"]),
         f"{escape(name, code=True)} \\- {description}",
     ]
+    # The review caveat first in the page is not what the call looks like: it opens the description.
+    caveats = []
+    while blocks and blocks[0][0] == "caveat":
+        caveats.append(blocks[0])
+        blocks = blocks[1:]
     # A bare code block before any section is the form of the call: the synopsis.
     if blocks and blocks[0][0] == "code" and blocks[0][1] == "":
         out.append(".SH " + quoted(words["synopsis"]))
@@ -483,6 +495,7 @@ def page(name: str, description: str, blocks: list[tuple], source: str, words: d
         out.extend(text_line(escape(line, code=True)) for line in blocks[0][2])
         out.append(".fi")
         blocks = blocks[1:]
+    blocks = caveats + blocks
     if blocks and blocks[0][0] != "heading":
         out.append(".SH " + quoted(words["description"]))
     render_blocks(blocks, source, out)
@@ -528,7 +541,7 @@ def generate(manual: pathlib.Path, output_dir: pathlib.Path, version: str, manua
     language = doc_vocabulary.language_of(invocation, invocation.read_text(encoding="utf-8"))
     if language not in tables or language not in words_by_language:
         raise Unsupported(invocation, 0, f"the language \"{language}\" has no vocabulary "
-                                         f"(doc_vocabulary.TABLES and MAN_WORDS)")
+                                         f"(docs/i18n/{language}/vocabulary.json, or doc_vocabulary.py)")
     words = words_by_language[language]
 
     # Every page is parsed, the ones that give no man page included: the subset is the manual's.
