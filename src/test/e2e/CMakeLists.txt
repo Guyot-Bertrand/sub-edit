@@ -41,7 +41,7 @@ add_executable(
     cli/correct_oracle_test.cpp
     cli/pattern_catalogue_test.cpp
     cli/framerate_test.cpp
-    cli/shipped_french_test.cpp
+    cli/shipped_languages_test.cpp
     cli/man_pages_test.cpp
     gui/version_test.cpp)
 
@@ -115,9 +115,19 @@ target_compile_definitions(subedit_e2e_test PRIVATE SUBEDIT_MAN_DIR="${SUBEDIT_M
                                                     SUBEDIT_MAN_PROGRAM="${SUBEDIT_MAN_PROGRAM}")
 add_dependencies(subedit_e2e_test subedit_man_pages)
 
-# **The French that ships** (#668): the build tree's binary reads the catalogues the build
+# **The languages that ship** (#668, #720): the build tree's binary reads the catalogues the build
 # compiles beside it, as an installed one does, so a test of them needs them built first.
 add_dependencies(subedit_e2e_test subedit_locale)
+
+# **Which languages ship, on the two files that read it alone** — the lines of `src/po/LINGUAS`,
+# as `cmake/Translations.cmake` reads them (`SUBEDIT_LANGUAGES`), and where their catalogues are
+# compiled. On the sources and not on the target, as `version.cpp` carries the version (#686): a
+# language added to LINGUAS changes the command line of these two files, and of no other test.
+string(JOIN "," subedit_shipped_languages ${SUBEDIT_LANGUAGES})
+set_source_files_properties(
+    cli/shipped_languages_test.cpp cli/man_pages_test.cpp
+    PROPERTIES COMPILE_DEFINITIONS
+               "SUBEDIT_SHIPPED_LANGUAGES=\"${subedit_shipped_languages}\";SUBEDIT_SHIPPED_LOCALE_DIR=\"${SUBEDIT_LOCALE_BUILD_DIR}\"")
 
 subedit_set_warnings(subedit_e2e_test)
 
