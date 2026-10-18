@@ -114,7 +114,7 @@ de la sous-commande qu'il écrit, pas celui de l'outil.
 | Option | Effet |
 | :----- | :---- |
 | `-h`, `--help` | écrit l'aide et s'arrête ; celle de la sous-commande si l'on en nomme une |
-| `--version` | écrit `subedit <version>` et s'arrête |
+| `--version` | écrit `subedit <version>`, les bibliothèques avec lesquelles l'outil tourne et les langues installées, et s'arrête — voir [`--version`](#--version) |
 | `-q`, `--quiet` | niveau 0 — plus aucune narration |
 | `-v`, `-vv`, `-vvv` | niveaux 1 à 3 ; le niveau 1 est celui par défaut |
 | `--encoding NAME` | lit les fichiers dans cet encodage, au lieu de le deviner |
@@ -196,6 +196,64 @@ settings file not found: mine.conf
 code=1
 ```
 
+### `--version`
+
+**La version du programme, seule sur la première ligne** — `subedit <version>`, ce qu'était toute la
+sortie jusqu'à 0.15.38 et ce que lit un script. Puis **une ligne par bibliothèque avec laquelle l'outil
+tourne**, puis les langues d'interface installées, sur la sortie standard ; l'outil s'arrête, avec le
+code `0`. Une sous-commande donnée en plus n'est pas exécutée, et `-q` et `-v` n'y changent rien.
+
+<!-- example: subedit-cli --version | head -n 1 -->
+```console
+$ subedit-cli --version | head -n 1
+subedit 0.15.39
+```
+
+Le tout, sur une machine qui a ICU 74.2 et Enchant 2.3.3 — les numéros sont ceux de la machine :
+
+```console
+$ subedit-cli --version
+subedit <version>
+  ICU      74.2 (built with 74.2)
+  Enchant  2.3.3 (built with 2.3.3)
+  CLI11    2.4.1 (built with 2.4.1)
+  Languages: en, fr
+```
+
+| Bibliothèque | Ce que l'outil en fait |
+| :----------- | :--------------------- |
+| `ICU` | lire et écrire les encodages, les détecter, changer la casse des lettres |
+| `Enchant` | le correcteur orthographique de `correct` |
+| `CLI11` | lire cette ligne de commande |
+
+- **Chaque ligne donne deux versions** : celle trouvée à l'exécution, d'abord, et celle avec laquelle
+  le programme a été compilé, entre parenthèses. Elles diffèrent quand la bibliothèque de la machine a
+  été mise à jour après la construction du programme — la première chose à donner dans un rapport de
+  bogue.
+- **Les en-têtes d'Enchant ne portent pas de version** : celle entre parenthèses est celle que
+  `pkg-config` a donnée quand la construction a été configurée.
+- **CLI11 est compilée dans le programme**, ses en-têtes étant tout ce qu'elle est : ses deux versions
+  sont toujours les mêmes.
+- **Ni Qt ni libmpv** : la ligne de commande ne lie ni l'une ni l'autre, et ne liste que ce avec quoi
+  elle tourne. La fenêtre les liste — voir [son manuel](../subedit-gui/invocation.md#--version).
+- **`Languages`** liste `en`, la langue source, qui n'a pas besoin de catalogue, puis chaque catalogue
+  installé sous `<prefix>/share/subedit/locale` qui se lit, par code — les langues que propose
+  `Édition ▸ Préférences…`.
+- **Ce qui suit la langue** : `built with` et `Languages`. La première ligne, les noms, les numéros et
+  les codes de langue, jamais.
+- **Avec `--format json`**, avant ou après `--version`, **un objet sur une ligne** : `schema`
+  (`1`), `command` (`"version"`), `version`, `libraries` — un tableau de
+  `{"name":"ICU","loaded":"74.2","built":"74.2"}`, dans l'ordre du texte — et `languages`, un
+  tableau de codes. Rien n'y est traduit.
+
+<!-- example: subedit-cli --version --format json | grep -o '"name":"[^"]*"' -->
+```console
+$ subedit-cli --version --format json | grep -o '"name":"[^"]*"'
+"name":"ICU"
+"name":"Enchant"
+"name":"CLI11"
+```
+
 ### `--list-encodings`
 
 **Les encodages que l'outil sait lire et écrire, un par ligne, triés par nom**, sur la sortie standard —
@@ -268,12 +326,6 @@ avec-bom.srt: a byte order mark that contradicts the encoding asked for ("UTF-16
 C'est ce que fait Gaupol — il recommence la lecture avec l'encodage de la
 marque — mais sans le dire ; ici l'écart entre ce qui a été demandé et ce qui a
 été fait n'est pas un silence.
-
-<!-- example: subedit-cli --version -->
-```console
-$ subedit-cli --version
-subedit 0.15.38
-```
 
 ## Sous-commandes
 

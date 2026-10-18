@@ -520,6 +520,24 @@ value is a usage error, an unwritable file is the I/O error.
 - the CLI and GUI manuals say where the file is, what it holds and how a command reads it;
 - ADR 0045 records the two parts, the priority and the default reading.
 
+## The libraries in `--version` and *About* (#716)
+
+A bug report has to say which ICU, Enchant, Qt or libmpv the binary found on the machine, and which catalogues are
+installed: those are what differs from one machine to the next.
+
+- **One list per layer, one line per library**: `core::coreLibraries()` (ICU, Enchant), extended by the window
+  (`gui::windowLibraries()`: Qt, libmpv) and by the command line (CLI11, compiled into it). Each entry carries the
+  library's own name, the version loaded at run time and the version built against; none of the three is translated.
+- **One rendering for both binaries**: `core::versionReport` (`core/wording/version.hpp`) writes the block both
+  `--version` print; *About* shows the same list in a table. The first line stays `subedit <version>`, alone, so that
+  scripts reading it still work — hence no `--verbose` form.
+- **The languages are the catalogues installed beside the executable**, as `Preferences…` finds them
+  (`core::availableLanguages`), `en` first; by code, never translated. The label `Languages` is.
+- `--version --format json` writes one object; `--version` is a flag of ours read after the parse, not CLI11's version
+  flag, which answers before `--format` is known.
+- The end-to-end test of `CLI-VERSION-08` reads the `find_package` and `pkg_check_modules` calls of the build files
+  and fails on a package that neither `--version` names and that is not listed as a tool of the configuration.
+
 ## How the phase proves itself
 
 - every requirement below is cited by a test;
@@ -546,8 +564,8 @@ value is a usage error, an unwritable file is the I/O error.
 
 ## Requirements
 
-**Eight**, registered `planned` in `docs/exigences.md` with this spec; each issue re-reads its own before its code and the
-state moves to `implemented` when a test cites it.
+**Thirteen**: eight registered `planned` in `docs/exigences.md` with this spec, and five with #716; each issue re-reads
+its own before its code and the state moves to `implemented` when a test cites it.
 
 | Identifier | What it promises |
 | :--------- | :--------------- |
@@ -559,6 +577,11 @@ state moves to `implemented` when a test cites it.
 | `GUI-I18N-02` | `Preferences…` offers the interface language; it is kept from one session to the next and applies at the next launch |
 | `GUI-I18N-03` | `Help ▸ Manual` opens the manual of the chosen language, English when the page or the language is missing |
 | `GUI-I18N-04` | the names and descriptions of Gaupol's correction patterns are shown translated, and a user's own pattern is shown as written |
+| `CLI-VERSION-06` | after its first line, `--version` names each library the command line runs against — ICU, Enchant, CLI11 — with the version loaded and the version built against, then the installed languages; the words follow the language, the names and versions do not |
+| `CLI-VERSION-07` | `--version --format json` writes one object with the version, the libraries and the languages, wherever `--format` is written |
+| `CLI-VERSION-08` | every library the build looks for with `find_package` or `pkg_check_modules` is named by the `--version` of one binary or the other |
+| `GUI-VERSION-02` | `subedit-gui --version` names Qt, ICU, libmpv and Enchant with both of their versions, then the installed languages |
+| `GUI-ABOUT-01` | `About subedit` lists the libraries of `--version` in a table — name, version loaded, version built against — and the installed languages, its headings in the chosen language |
 
 The shared settings of #699 add no identifier to the registry: what they promise is held by the tests its *done when*
 lists, and by the existing `GUI-CONFIG-*` requirements for the reading rules of ADR 0022, which do not change.

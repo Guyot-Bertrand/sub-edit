@@ -21,6 +21,7 @@
 #include <subedit/core/io/file_system.hpp>
 #include <subedit/core/io/find_video.hpp>
 #include <subedit/core/io/real_file_system.hpp>
+#include <subedit/core/libraries.hpp>
 #include <subedit/core/model/associated_video.hpp>
 #include <subedit/core/model/document.hpp>
 #include <subedit/core/model/file_extras.hpp>
@@ -978,7 +979,7 @@ void MainWindow::proposeVideoBeside() {
 }
 
 void MainWindow::about() {
-    AboutDialog dialog{this};
+    AboutDialog dialog{core::installedLanguageCodes(m_localeDirectory), this};
     (void)m_prompts->run(dialog);
 }
 

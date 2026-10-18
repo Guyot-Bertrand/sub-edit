@@ -103,3 +103,10 @@ msgstr "шаблон «%1» (%2) не применён"
 
 msgid "cannot be translated"
 msgstr "не переводится"
+
+# --version (#716): the words around the libraries' names and versions
+msgid "%1 (built with %2)"
+msgstr "%1 (собрана с %2)"
+
+msgid "Languages: %1"
+msgstr "Языки: %1"

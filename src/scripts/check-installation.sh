@@ -250,6 +250,8 @@ check_binary() {
         return
     }
 
+    # The first line alone: the libraries and languages follow it, and they are the machine's (#716).
+    said="${said%%$'\n'*}"
     if [[ "${said}" != "subedit ${VERSION}" ]]; then
         report_failure "${name} reports \"${said}\", expected \"subedit ${VERSION}\""
         return

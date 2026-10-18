@@ -80,8 +80,9 @@ qu'aucun menu ne nomme garde son nom anglais : `Enter`, `Esc`, `Shift`.
 
 `Help` porte deux entrées, dans l'ordre où le menu les montre. `Manual`, ou
 `F1`, ouvre ce manuel dans une fenêtre — voir
-[Le manuel dans la fenêtre](help.md). `About subedit` dit la version et la
-licence.
+[Le manuel dans la fenêtre](help.md). `About subedit` dit la version, la
+licence, et les bibliothèques avec lesquelles la fenêtre tourne, avec leurs
+versions — voir [`--version`](invocation.md#--version).
 
 ## La barre d'outils
 

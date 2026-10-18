@@ -1,7 +1,5 @@
 // What the tool does with its own command line, before any file is touched.
 
-#include <subedit/core/version.hpp>
-
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/matchers/catch_matchers_string.hpp>
 
@@ -25,14 +23,6 @@ TEST_CASE("invoking with no argument writes the help", "[e2e][CLI-USAGE-01]") {
     // a help that announced a subcommand before it worked would be the tool
     // lying about itself.
     CHECK_THAT(run.output, ContainsSubstring("Usage"));
-}
-
-TEST_CASE("asking for the version writes it", "[e2e][CLI-VERSION-04]") {
-    const CliRun run = invoke({"--version"});
-
-    CHECK(run.exitCode == 0);
-    // Computed, never copied: a version number written by hand goes stale.
-    CHECK(run.output == "subedit " + subedit::core::versionString() + "\n");
 }
 
 TEST_CASE("a successful invocation stays silent on standard error", "[e2e][CLI-VERSION-05]") {

@@ -132,6 +132,7 @@ add_library(
     format/web_vtt_reader.cpp
     format/web_vtt_writer.cpp
     io/real_file_system.cpp
+    libraries.cpp
     process/start_process.cpp
     time/timestamp.cpp
     version.cpp
@@ -143,6 +144,7 @@ add_library(
     wording/formats.cpp
     wording/settings.cpp
     wording/translation.cpp
+    wording/version.cpp
     wording/video.cpp)
 add_library(subedit::core ALIAS subedit_core)
 
@@ -160,12 +162,18 @@ set_source_files_properties(
     PROPERTIES COMPILE_DEFINITIONS
                "SUBEDIT_VERSION_MAJOR=${PROJECT_VERSION_MAJOR};SUBEDIT_VERSION_MINOR=${PROJECT_VERSION_MINOR};SUBEDIT_VERSION_PATCH=${PROJECT_VERSION_PATCH};SUBEDIT_BUILD_DATE=\"${SUBEDIT_BUILD_DATE}\"")
 
-# ICU as private: no header of the core shows `unicode/`, only two
-# implementation files include it. What depends on subedit_core therefore
+# **The version of Enchant the build found, on `libraries.cpp` alone** (#716), for the reason the
+# version macros are on `version.cpp` alone: Enchant's headers carry no version of their own, so the
+# one `pkg-config` gave at configuration is what the report calls the version it was built with.
+set_source_files_properties(libraries.cpp PROPERTIES COMPILE_DEFINITIONS
+                                                     "SUBEDIT_ENCHANT_VERSION=\"${enchant_VERSION}\"")
+
+# ICU as private: no header of the core shows `unicode/`, only implementation
+# files include it. What depends on subedit_core therefore
 # inherits the link, and nothing else.
 #
-# Enchant likewise: only `enchant_spell_provider.cpp` includes it, and nothing
-# of its header shows `enchant.h`.
+# Enchant likewise: only `enchant_spell_provider.cpp` and `libraries.cpp`
+# include it, and nothing of their headers shows `enchant.h`.
 target_link_libraries(subedit_core PRIVATE ICU::uc ICU::i18n PkgConfig::enchant)
 
 subedit_set_warnings(subedit_core)

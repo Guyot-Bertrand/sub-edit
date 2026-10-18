@@ -16,6 +16,7 @@ add_executable(
     cli/language_test.cpp
     cli/dry_run_test.cpp
     cli/usage_test.cpp
+    cli/version_report_test.cpp
     cli/inspect_test.cpp
     cli/narration_test.cpp
     cli/adjust_test.cpp
@@ -51,12 +52,16 @@ target_link_libraries(subedit_e2e_test PRIVATE subedit::core Catch2::Catch2WithM
 # The exact path of the binary, resolved by CMake, as SUBEDIT_TEST_DATA_DIR is
 # for the corpus: a test must not depend on the directory it is started
 # from.
+#
+# SUBEDIT_SOURCE_DIR for the build files themselves, versioned: the test of
+# `--version` reads their `find_package` calls (#716).
 target_compile_definitions(
     subedit_e2e_test PRIVATE SUBEDIT_CLI_BINARY="$<TARGET_FILE:subedit-cli>"
                              SUBEDIT_GUI_BINARY="$<TARGET_FILE:subedit-gui>"
                              SUBEDIT_PATTERNS_DIR="${CMAKE_SOURCE_DIR}/packaging/patterns"
                              SUBEDIT_PATTERN_CATALOGUE_BINARY="$<TARGET_FILE:subedit_pattern_catalogue>"
-                             SUBEDIT_TEST_DATA_DIR="${CMAKE_SOURCE_DIR}/src/test/data")
+                             SUBEDIT_TEST_DATA_DIR="${CMAKE_SOURCE_DIR}/src/test/data"
+                             SUBEDIT_SOURCE_DIR="${CMAKE_SOURCE_DIR}")
 
 # $<TARGET_FILE:…> gives a path, not a build order. Without this line,
 # nothing guarantees that the binary exists when the test starts it.

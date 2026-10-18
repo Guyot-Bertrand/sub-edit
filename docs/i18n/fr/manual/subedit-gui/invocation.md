@@ -14,16 +14,36 @@ qu'un projet à la fois.
 
 ## `--version`
 
-Écrit `subedit <version>` sur la sortie standard et rend la main aussitôt, sans
-ouvrir de fenêtre. Code de retour `0`.
+Écrit sur la sortie standard le bloc qu'écrit le `--version` de la ligne de
+commande, et rend la main aussitôt, sans ouvrir de fenêtre. Code de retour `0`.
+
+**`subedit <version>` seul sur la première ligne**, puis une ligne par
+bibliothèque avec laquelle la fenêtre tourne, avec la version trouvée à
+l'exécution et, entre parenthèses, celle avec laquelle elle a été compilée ; puis
+les langues d'interface installées, par code. Sur une machine qui a Qt 6.4.2 :
 
 ```console
 $ subedit-gui --version
 subedit <version>
+  ICU      74.2 (built with 74.2)
+  Enchant  2.3.3 (built with 2.3.3)
+  Qt       6.4.2 (built with 6.4.2)
+  libmpv   2.2 (built with 2.2)
+  Languages: en, fr
 ```
 
-Le numéro n'est pas recopié ici : ce manuel n'a pas de bloc engendré qui le
-tiendrait à jour, et un numéro figé serait faux dès le prochain incrément.
+Les numéros ne sont pas recopiés ici : ce sont ceux de la machine, et ce manuel
+n'a pas de bloc engendré qui tiendrait à jour celui du programme. Les
+bibliothèques sont celles de la ligne de commande, ICU et Enchant, et les deux
+que seule la fenêtre lie — Qt, et libmpv, le lecteur, dite par la version de son
+API cliente, celle qu'annonce `mpv.pc`. Le reste est décrit dans
+[le manuel de la ligne de commande](../subedit-cli/invocation.md#--version). Les
+mots `built with` et `Languages` suivent la langue de la fenêtre ; rien d'autre.
+
+`Aide ▸ À propos de subedit` montre les mêmes bibliothèques, de la même liste,
+dans un tableau — le nom, la version chargée, la version de compilation, une
+ligne chacune — puis les langues dessous ; ses en-têtes suivent la langue de la
+fenêtre.
 
 ## Ouvrir un fichier
 

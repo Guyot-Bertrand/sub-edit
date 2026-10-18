@@ -7,25 +7,39 @@
 #include <subedit/core/io/in_memory_file_system.hpp>
 #include <subedit/core/model/project.hpp>
 #include <subedit/core/version.hpp>
+#include <subedit/core/wording/version.hpp>
 #include <subedit/gui/invocation.hpp>
+#include <subedit/gui/libraries.hpp>
 
 #include <QString>
 #include <QStringList>
 #include <catch2/catch_test_macros.hpp>
 
+#include <filesystem>
 #include <sstream>
 #include <string>
+#include <string_view>
 
-TEST_CASE("the version asked for is written, and nothing else happens", "[gui]") {
+TEST_CASE("the version asked for is written, and nothing else happens", "[gui][GUI-VERSION-02]") {
     std::ostringstream written;
 
-    const bool answered =
-        subedit::gui::reportVersion(QStringList{QStringLiteral("--version")}, written);
+    const bool answered = subedit::gui::reportVersion(
+        QStringList{QStringLiteral("--version")}, written, std::filesystem::path{"/absent"});
 
     CHECK(answered);
-    // Derived, never spelled out: a number written twice is a number that ends
-    // up wrong in one of the two places.
-    CHECK(written.str() == "subedit " + std::string{subedit::core::versionString()} + "\n");
+    // **The command line's block, from the same function**, over the window's libraries (#716).
+    // Derived, never spelled out: a number written twice is a number that ends up wrong in one of
+    // the two places — and the libraries' versions are the machine's.
+    CHECK(written.str() ==
+          subedit::core::versionReport(subedit::gui::windowLibraries(), {std::string{"en"}}));
+    // The first line is the one scripts read, unchanged since phase 5.
+    CHECK(
+        written.str().starts_with("subedit " + std::string{subedit::core::versionString()} + "\n"));
+    for (const std::string_view name : {"Qt", "ICU", "libmpv", "Enchant"}) {
+        INFO(name);
+        CHECK(written.str().find("  " + std::string{name} + " ") != std::string::npos);
+    }
+    CHECK(written.str().ends_with("  Languages: en\n"));
 }
 
 TEST_CASE("any other argument is not the version being asked for", "[gui]") {

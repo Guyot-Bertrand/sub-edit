@@ -2728,6 +2728,17 @@ msgstr[1] ""
 msgid "the file is already open as the main document"
 msgstr ""
 
+#. TRANSLATORS: %1 is the version of a library the program runs against, %2 the version it
+#. was compiled with — « 74.2 (built with 74.2) ».
+#: src/lib/subedit/core/wording/version.cpp
+msgid "%1 (built with %2)"
+msgstr ""
+
+#. TRANSLATORS: %1 is the list of the interface languages installed, by code — « en, fr ».
+#: src/lib/subedit/core/wording/version.cpp
+msgid "Languages: %1"
+msgstr ""
+
 #: src/lib/subedit/core/wording/video.cpp
 msgid ""
 "positions cannot be shown in frames: the file is not counted in frames, the "
@@ -2783,6 +2794,21 @@ msgstr ""
 
 #: src/lib/subedit/gui/about_dialog.cpp
 msgid "About subedit"
+msgstr ""
+
+#. TRANSLATORS: the heading of the column of the libraries' names, in « About subedit ».
+#: src/lib/subedit/gui/about_dialog.cpp
+msgid "Library"
+msgstr ""
+
+#. TRANSLATORS: the heading of the version of a library the program runs against.
+#: src/lib/subedit/gui/about_dialog.cpp
+msgid "Loaded"
+msgstr ""
+
+#. TRANSLATORS: the heading of the version of a library the program was compiled with.
+#: src/lib/subedit/gui/about_dialog.cpp
+msgid "Built with"
 msgstr ""
 
 #: src/lib/subedit/gui/command_label.cpp src/lib/subedit/gui/window_actions.cpp

@@ -112,7 +112,7 @@ subcommand's help that it writes, not the tool's.
 | Option | Effect |
 | :----- | :---- |
 | `-h`, `--help` | writes the help and stops; the subcommand's if one is named |
-| `--version` | writes `subedit <version>` and stops |
+| `--version` | writes `subedit <version>`, the libraries the tool runs against and the installed languages, and stops — see [`--version`](#--version) |
 | `-q`, `--quiet` | level 0 — no narration at all |
 | `-v`, `-vv`, `-vvv` | levels 1 to 3; level 1 is the default |
 | `--encoding NAME` | reads the files in this encoding, instead of guessing it |
@@ -189,6 +189,63 @@ settings file not found: mine.conf
 code=1
 ```
 
+### `--version`
+
+**The version of the program, alone on the first line** — `subedit <version>`, what the output was until
+0.15.38 and what a script reads. Then **one line per library the tool runs against**, then the interface
+languages installed, on the standard output; the tool stops, with code `0`. A subcommand given as well is
+not run, and `-q` and `-v` change nothing.
+
+<!-- example: subedit-cli --version | head -n 1 -->
+```console
+$ subedit-cli --version | head -n 1
+subedit 0.15.39
+```
+
+The whole of it, on a machine with ICU 74.2 and Enchant 2.3.3 — the numbers are the machine's:
+
+```console
+$ subedit-cli --version
+subedit <version>
+  ICU      74.2 (built with 74.2)
+  Enchant  2.3.3 (built with 2.3.3)
+  CLI11    2.4.1 (built with 2.4.1)
+  Languages: en, fr
+```
+
+| Library | What the tool uses it for |
+| :------ | :------------------------ |
+| `ICU` | reading and writing the encodings, detecting them, changing the case of letters |
+| `Enchant` | the spell checker of `correct` |
+| `CLI11` | reading this command line |
+
+- **Each line gives two versions**: the one found at run time, first, and the one the program was
+  compiled against, in parentheses. They differ when the machine's library was upgraded after the
+  program was built — the first thing to give in a bug report.
+- **Enchant's headers carry no version**: the one in parentheses is the one `pkg-config` reported
+  when the build was configured.
+- **CLI11 is compiled into the program**, its headers being all there is of it: its two versions are
+  always the same.
+- **Neither Qt nor libmpv**: the command line links neither, and lists only what it runs against.
+  The window lists them — see [its manual](../subedit-gui/invocation.md#--version).
+- **`Languages`** lists `en`, the source language, which needs no catalogue, then every catalogue
+  installed under `<prefix>/share/subedit/locale` that reads, by code — the languages
+  `Edit ▸ Preferences…` offers.
+- **What follows the language**: `built with` and `Languages`. The first line, the names, the
+  numbers and the language codes never do.
+- **With `--format json`**, before or after `--version`, **one object on one line**: `schema`
+  (`1`), `command` (`"version"`), `version`, `libraries` — an array of
+  `{"name":"ICU","loaded":"74.2","built":"74.2"}`, in the order of the text — and `languages`, an
+  array of codes. Nothing in it is translated.
+
+<!-- example: subedit-cli --version --format json | grep -o '"name":"[^"]*"' -->
+```console
+$ subedit-cli --version --format json | grep -o '"name":"[^"]*"'
+"name":"ICU"
+"name":"Enchant"
+"name":"CLI11"
+```
+
 ### `--list-encodings`
 
 **The encodings the tool can read and write, one a line, sorted by name**, on the standard output —
@@ -261,12 +318,6 @@ avec-bom.srt: a byte order mark that contradicts the encoding asked for ("UTF-16
 That is what Gaupol does — it starts the reading again with the encoding of
 the mark — but without saying so; here the gap between what was asked for and
 what was done is not a silence.
-
-<!-- example: subedit-cli --version -->
-```console
-$ subedit-cli --version
-subedit 0.15.38
-```
 
 ## Subcommands
 

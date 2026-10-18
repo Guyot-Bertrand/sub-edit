@@ -31,6 +31,8 @@ text      Zyyy
 file      src/lib/subedit/gui/join_split_page.cpp en
 # The code of the source language, which Preferences offers whatever is installed (#669).
 file      src/lib/subedit/gui/preferences_dialog.cpp en
+# The code of the source language, first of the installed languages every surface lists (#716).
+file      src/lib/subedit/core/libraries.cpp en
 # The key CLI11's formatter looks a word of its help up by; what it shows is translated (#663).
 call      label
 # The values of `--format json` the command line writes, one word each: a kind of failure, of
