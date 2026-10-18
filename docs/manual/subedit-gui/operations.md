@@ -180,7 +180,9 @@ The dialog asks twice for the same thing: a subtitle number, and the
 position where its start belongs. For each marker, it shows **what that
 number designates** — its text (`Text`) and the time at which it starts
 **now** (`Now starts`), as plain labels — and they follow the number
-as you change it. **A single field is to be typed per marker:
+as you change it. The text keeps **three lines of room** whatever the
+subtitle says: a longer one, or a long address, scrolls inside it, and
+the dialog keeps its size as the marker changes. **A single field is to be typed per marker:
 `Should start`**, the time at which this subtitle must start. There is no need to search the table for which line is `980`.
 
 `Should start` is **proposed at the current value**: as long as you do not
