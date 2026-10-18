@@ -23,8 +23,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=4; plural=(n == 1 && n % 1 == 0) ? 0 : (n >= 2 && n "
-"<= 4 && n % 1 == 0) ? 1: (n % 1 != 0 ) ? 2 : 3;\n"
+"Plural-Forms: nplurals=3; plural=(n == 1) ? 0 : (n >= 2 && n <= 4) ? 1 : 2;\n"
 
 # From Gaupol.
 #: packaging/patterns/Latn-en-US.common-error
@@ -1159,7 +1158,6 @@ msgid_plural "%1 positions moved, by at most %2 ms"
 msgstr[0] "%1 pozice posunuta, nejvýše o %2 ms"
 msgstr[1] "%1 pozice posunuty, nejvýše o %2 ms"
 msgstr[2] "%1 pozic posunuto, nejvýše o %2 ms"
-msgstr[3] "%1 pozic posunuto, nejvýše o %2 ms"
 
 #. TRANSLATORS: %1 subtitles aligned on the frame rate %2; %3 is
 #. « 4 positions moved, by at most 20 ms ».
@@ -1169,7 +1167,6 @@ msgid_plural "%1 subtitles aligned on %2 fps, %3"
 msgstr[0] "%1 titulek zarovnán na %2 fps, %3"
 msgstr[1] "%1 titulky zarovnány na %2 fps, %3"
 msgstr[2] "%1 titulků zarovnáno na %2 fps, %3"
-msgstr[3] "%1 titulků zarovnáno na %2 fps, %3"
 
 #. TRANSLATORS: %1 is the file written, %2 a number of subtitles (« 12 subtitles »)
 #. and %3 a number of files (« 3 files »).
@@ -1192,7 +1189,6 @@ msgid_plural "%1 of %2 files adjusted"
 msgstr[0] "Upraveno %1 z %2 souboru"
 msgstr[1] "Upraveno %1 z %2 souborů"
 msgstr[2] "Upraveno %1 z %2 souborů"
-msgstr[3] "Upraveno %1 z %2 souborů"
 
 #: src/lib/subedit/cli/batch.cpp
 msgid "%1 of %2 file aligned"
@@ -1200,7 +1196,6 @@ msgid_plural "%1 of %2 files aligned"
 msgstr[0] "Zarovnáno %1 z %2 souboru"
 msgstr[1] "Zarovnáno %1 z %2 souborů"
 msgstr[2] "Zarovnáno %1 z %2 souborů"
-msgstr[3] "Zarovnáno %1 z %2 souborů"
 
 #: src/lib/subedit/cli/batch.cpp
 msgid "%1 of %2 file changed"
@@ -1208,7 +1203,6 @@ msgid_plural "%1 of %2 files changed"
 msgstr[0] "Změněno %1 z %2 souboru"
 msgstr[1] "Změněno %1 z %2 souborů"
 msgstr[2] "Změněno %1 z %2 souborů"
-msgstr[3] "Změněno %1 z %2 souborů"
 
 #: src/lib/subedit/cli/batch.cpp
 msgid "%1 of %2 file cleaned"
@@ -1216,7 +1210,6 @@ msgid_plural "%1 of %2 files cleaned"
 msgstr[0] "Vyčištěno %1 z %2 souboru"
 msgstr[1] "Vyčištěno %1 z %2 souborů"
 msgstr[2] "Vyčištěno %1 z %2 souborů"
-msgstr[3] "Vyčištěno %1 z %2 souborů"
 
 #: src/lib/subedit/cli/batch.cpp
 msgid "%1 of %2 file converted"
@@ -1224,7 +1217,6 @@ msgid_plural "%1 of %2 files converted"
 msgstr[0] "Převedeno %1 z %2 souboru"
 msgstr[1] "Převedeno %1 z %2 souborů"
 msgstr[2] "Převedeno %1 z %2 souborů"
-msgstr[3] "Převedeno %1 z %2 souborů"
 
 #: src/lib/subedit/cli/batch.cpp
 msgid "%1 of %2 file corrected"
@@ -1232,7 +1224,6 @@ msgid_plural "%1 of %2 files corrected"
 msgstr[0] "Opraveno %1 z %2 souboru"
 msgstr[1] "Opraveno %1 z %2 souborů"
 msgstr[2] "Opraveno %1 z %2 souborů"
-msgstr[3] "Opraveno %1 z %2 souborů"
 
 #: src/lib/subedit/cli/batch.cpp
 msgid "%1 of %2 file inspected"
@@ -1240,7 +1231,6 @@ msgid_plural "%1 of %2 files inspected"
 msgstr[0] "Zkontrolováno %1 z %2 souboru"
 msgstr[1] "Zkontrolováno %1 z %2 souborů"
 msgstr[2] "Zkontrolováno %1 z %2 souborů"
-msgstr[3] "Zkontrolováno %1 z %2 souborů"
 
 #: src/lib/subedit/cli/batch.cpp
 msgid "%1 of %2 file joined"
@@ -1248,7 +1238,6 @@ msgid_plural "%1 of %2 files joined"
 msgstr[0] "Spojeno %1 z %2 souboru"
 msgstr[1] "Spojeno %1 z %2 souborů"
 msgstr[2] "Spojeno %1 z %2 souborů"
-msgstr[3] "Spojeno %1 z %2 souborů"
 
 #: src/lib/subedit/cli/batch.cpp
 msgid "%1 of %2 file made disjoint"
@@ -1256,7 +1245,6 @@ msgid_plural "%1 of %2 files made disjoint"
 msgstr[0] "Disjunktní rozsahy: %1 z %2 souboru"
 msgstr[1] "Disjunktní rozsahy: %1 z %2 souborů"
 msgstr[2] "Disjunktní rozsahy: %1 z %2 souborů"
-msgstr[3] "Disjunktní rozsahy: %1 z %2 souborů"
 
 #: src/lib/subedit/cli/batch.cpp
 msgid "%1 of %2 file paired"
@@ -1264,7 +1252,6 @@ msgid_plural "%1 of %2 files paired"
 msgstr[0] "Spárováno %1 z %2 souboru"
 msgstr[1] "Spárováno %1 z %2 souborů"
 msgstr[2] "Spárováno %1 z %2 souborů"
-msgstr[3] "Spárováno %1 z %2 souborů"
 
 #: src/lib/subedit/cli/batch.cpp
 msgid "%1 of %2 file recased"
@@ -1272,7 +1259,6 @@ msgid_plural "%1 of %2 files recased"
 msgstr[0] "Změněna velikost písmen: %1 z %2 souboru"
 msgstr[1] "Změněna velikost písmen: %1 z %2 souborů"
 msgstr[2] "Změněna velikost písmen: %1 z %2 souborů"
-msgstr[3] "Změněna velikost písmen: %1 z %2 souborů"
 
 #: src/lib/subedit/cli/batch.cpp
 msgid "%1 of %2 file repaired"
@@ -1280,7 +1266,6 @@ msgid_plural "%1 of %2 files repaired"
 msgstr[0] "Spraveno %1 z %2 souboru"
 msgstr[1] "Spraveno %1 z %2 souborů"
 msgstr[2] "Spraveno %1 z %2 souborů"
-msgstr[3] "Spraveno %1 z %2 souborů"
 
 #: src/lib/subedit/cli/batch.cpp
 msgid "%1 of %2 file replaced"
@@ -1288,7 +1273,6 @@ msgid_plural "%1 of %2 files replaced"
 msgstr[0] "Nahrazeno %1 z %2 souboru"
 msgstr[1] "Nahrazeno %1 z %2 souborů"
 msgstr[2] "Nahrazeno %1 z %2 souborů"
-msgstr[3] "Nahrazeno %1 z %2 souborů"
 
 #: src/lib/subedit/cli/batch.cpp
 msgid "%1 of %2 file retimed"
@@ -1296,7 +1280,6 @@ msgid_plural "%1 of %2 files retimed"
 msgstr[0] "Přečasováno %1 z %2 souboru"
 msgstr[1] "Přečasováno %1 z %2 souborů"
 msgstr[2] "Přečasováno %1 z %2 souborů"
-msgstr[3] "Přečasováno %1 z %2 souborů"
 
 #: src/lib/subedit/cli/batch.cpp
 msgid "%1 of %2 file shifted"
@@ -1304,7 +1287,6 @@ msgid_plural "%1 of %2 files shifted"
 msgstr[0] "Posunuto %1 z %2 souboru"
 msgstr[1] "Posunuto %1 z %2 souborů"
 msgstr[2] "Posunuto %1 z %2 souborů"
-msgstr[3] "Posunuto %1 z %2 souborů"
 
 #: src/lib/subedit/cli/batch.cpp
 msgid "%1 of %2 file sorted"
@@ -1312,7 +1294,6 @@ msgid_plural "%1 of %2 files sorted"
 msgstr[0] "Seřazeno %1 z %2 souboru"
 msgstr[1] "Seřazeno %1 z %2 souborů"
 msgstr[2] "Seřazeno %1 z %2 souborů"
-msgstr[3] "Seřazeno %1 z %2 souborů"
 
 #: src/lib/subedit/cli/batch.cpp
 msgid "%1 of %2 file transformed"
@@ -1320,7 +1301,6 @@ msgid_plural "%1 of %2 files transformed"
 msgstr[0] "Transformováno %1 z %2 souboru"
 msgstr[1] "Transformováno %1 z %2 souborů"
 msgstr[2] "Transformováno %1 z %2 souborů"
-msgstr[3] "Transformováno %1 z %2 souborů"
 
 #. TRANSLATORS: %1 is the summary of a batch, such as « 1 of 3 files shifted »; %2
 #. how many files of it failed.
@@ -1330,7 +1310,6 @@ msgid_plural "%1, %2 failed"
 msgstr[0] "%1, %2 selhal"
 msgstr[1] "%1, %2 selhaly"
 msgstr[2] "%1, %2 selhalo"
-msgstr[3] "%1, %2 selhalo"
 
 #. TRANSLATORS: %1 is a file, %2 the number of a subtitle.
 #: src/lib/subedit/cli/changes.cpp
@@ -1432,7 +1411,6 @@ msgid_plural "%1: %2 bytes read, %3 would be written"
 msgstr[0] "%1: přečten %2 bajt, zapsalo by se %3"
 msgstr[1] "%1: přečteny %2 bajty, zapsalo by se %3"
 msgstr[2] "%1: přečteno %2 bajtů, zapsalo by se %3"
-msgstr[3] "%1: přečteno %2 bajtů, zapsalo by se %3"
 
 #: src/lib/subedit/cli/conversion.cpp src/lib/subedit/cli/writing.cpp
 msgid "%1: %2 bytes read, %3 written"
@@ -1440,7 +1418,6 @@ msgid_plural "%1: %2 bytes read, %3 written"
 msgstr[0] "%1: přečten %2 bajt, zapsáno %3"
 msgstr[1] "%1: přečteny %2 bajty, zapsáno %3"
 msgstr[2] "%1: přečteno %2 bajtů, zapsáno %3"
-msgstr[3] "%1: přečteno %2 bajtů, zapsáno %3"
 
 #: src/lib/subedit/cli/conversion.cpp
 msgid "%1: %2 -> %3, %4, %5 line endings"
@@ -1452,7 +1429,6 @@ msgid_plural "%1: %2 subtitles converted to %3 (dry run, nothing written)"
 msgstr[0] "%1: %2 titulek převeden do %3 (zkušební běh, nic nezapsáno)"
 msgstr[1] "%1: %2 titulky převedeny do %3 (zkušební běh, nic nezapsáno)"
 msgstr[2] "%1: %2 titulků převedeno do %3 (zkušební běh, nic nezapsáno)"
-msgstr[3] "%1: %2 titulků převedeno do %3 (zkušební běh, nic nezapsáno)"
 
 #: src/lib/subedit/cli/conversion.cpp
 msgid "%1: %2 subtitle written as %3 -> %4"
@@ -1460,7 +1436,6 @@ msgid_plural "%1: %2 subtitles written as %3 -> %4"
 msgstr[0] "%1: %2 titulek zapsán jako %3 -> %4"
 msgstr[1] "%1: %2 titulky zapsány jako %3 -> %4"
 msgstr[2] "%1: %2 titulků zapsáno jako %3 -> %4"
-msgstr[3] "%1: %2 titulků zapsáno jako %3 -> %4"
 
 #: src/lib/subedit/cli/conversion.cpp
 msgid "--bom and --no-bom ask for opposite things; give one or the other"
@@ -1700,7 +1675,6 @@ msgid_plural "%1: %2 files left aside, with no extension of a known format"
 msgstr[0] "%1: %2 soubor vynechán, nemá příponu známého formátu"
 msgstr[1] "%1: %2 soubory vynechány, nemají příponu známého formátu"
 msgstr[2] "%1: %2 souborů vynecháno, nemají příponu známého formátu"
-msgstr[3] "%1: %2 souborů vynecháno, nemají příponu známého formátu"
 
 #. TRANSLATORS: %1 subtitles were retimed from the frame rate %2
 #. to the frame rate %3.
@@ -1710,7 +1684,6 @@ msgid_plural "%1 subtitles retimed from %2 to %3 fps"
 msgstr[0] "%1 titulek přečasován z %2 na %3 fps"
 msgstr[1] "%1 titulky přečasovány z %2 na %3 fps"
 msgstr[2] "%1 titulků přečasováno z %2 na %3 fps"
-msgstr[3] "%1 titulků přečasováno z %2 na %3 fps"
 
 #. TRANSLATORS: %1 is what the user typed, %2 why it does not read.
 #: src/lib/subedit/cli/frame_rate_grammar.cpp
@@ -1795,7 +1768,6 @@ msgid_plural "range %1 starts after the last subtitle: the file has %2"
 msgstr[0] "rozsah %1 začíná za posledním titulkem: soubor má %2 titulek"
 msgstr[1] "rozsah %1 začíná za posledním titulkem: soubor má %2 titulky"
 msgstr[2] "rozsah %1 začíná za posledním titulkem: soubor má %2 titulků"
-msgstr[3] "rozsah %1 začíná za posledním titulkem: soubor má %2 titulků"
 
 #. TRANSLATORS: %1 is the range typed, %2 how many subtitles the file has.
 #: src/lib/subedit/cli/index_grammar.cpp
@@ -1804,7 +1776,6 @@ msgid_plural "range %1 ends after the last subtitle: the file has %2"
 msgstr[0] "rozsah %1 končí za posledním titulkem: soubor má %2 titulek"
 msgstr[1] "rozsah %1 končí za posledním titulkem: soubor má %2 titulky"
 msgstr[2] "rozsah %1 končí za posledním titulkem: soubor má %2 titulků"
-msgstr[3] "rozsah %1 končí za posledním titulkem: soubor má %2 titulků"
 
 #. TRANSLATORS: %1 is a kind of line ending, %2 the line where another kind starts.
 #: src/lib/subedit/cli/inspection.cpp
@@ -1877,7 +1848,6 @@ msgid_plural "off the grid: %1 of %2 starts, in %3"
 msgstr[0] "mimo mřížku: %1 z %2 začátku (%3)"
 msgstr[1] "mimo mřížku: %1 z %2 začátků (%3)"
 msgstr[2] "mimo mřížku: %1 z %2 začátků (%3)"
-msgstr[3] "mimo mřížku: %1 z %2 začátků (%3)"
 
 #: src/lib/subedit/cli/inspection.cpp src/lib/subedit/core/wording/analysis.cpp
 msgid "none"
@@ -1889,7 +1859,6 @@ msgid_plural "%1: %2 bytes read"
 msgstr[0] "%1: přečten %2 bajt"
 msgstr[1] "%1: přečteny %2 bajty"
 msgstr[2] "%1: přečteno %2 bajtů"
-msgstr[3] "%1: přečteno %2 bajtů"
 
 #. TRANSLATORS: %1 is a file, %2 a number of diagnostics.
 #: src/lib/subedit/cli/inspection.cpp
@@ -1898,7 +1867,6 @@ msgid_plural "%1: %2 diagnostics while reading"
 msgstr[0] "%1: %2 hlášení při čtení"
 msgstr[1] "%1: %2 hlášení při čtení"
 msgstr[2] "%1: %2 hlášení při čtení"
-msgstr[3] "%1: %2 hlášení při čtení"
 
 #: src/lib/subedit/cli/inspection.cpp
 msgid "%1: %2, %3, %4 line endings"
@@ -2024,7 +1992,6 @@ msgid_plural "%1 subtitles shifted by %2"
 msgstr[0] "%1 titulek posunut o %2"
 msgstr[1] "%1 titulky posunuty o %2"
 msgstr[2] "%1 titulků posunuto o %2"
-msgstr[3] "%1 titulků posunuto o %2"
 
 #: src/lib/subedit/cli/shifting.cpp
 msgid "%1 subtitle shifted by %2 onto their %3 fps grid"
@@ -2032,7 +1999,6 @@ msgid_plural "%1 subtitles shifted by %2 onto their %3 fps grid"
 msgstr[0] "%1 titulek posunut o %2 na svou mřížku %3 fps"
 msgstr[1] "%1 titulky posunuty o %2 na svou mřížku %3 fps"
 msgstr[2] "%1 titulků posunuto o %2 na svou mřížku %3 fps"
-msgstr[3] "%1 titulků posunuto o %2 na svou mřížku %3 fps"
 
 #: src/lib/subedit/cli/shifting.cpp
 msgid "--by and --to-grid both say by how much to move; give one or the other"
@@ -2067,8 +2033,6 @@ msgstr[1] ""
 "soubor s %1 titulky nelze rozdělit: dělení vyžaduje titulek na každé straně"
 msgstr[2] ""
 "soubor s %1 titulky nelze rozdělit: dělení vyžaduje titulek na každé straně"
-msgstr[3] ""
-"soubor s %1 titulky nelze rozdělit: dělení vyžaduje titulek na každé straně"
 
 #: src/lib/subedit/cli/splitting.cpp
 msgid ""
@@ -2080,8 +2044,6 @@ msgstr[0] ""
 msgstr[1] ""
 "--at %1: soubor obsahuje %2 titulky a druhá část může začínat od 2 do %2"
 msgstr[2] ""
-"--at %1: soubor obsahuje %2 titulků a druhá část může začínat od 2 do %2"
-msgstr[3] ""
 "--at %1: soubor obsahuje %2 titulků a druhá část může začínat od 2 do %2"
 
 #. TRANSLATORS: %1 and %2 are the numbers of bytes of the head and the tail.
@@ -2145,7 +2107,6 @@ msgid_plural "subtitle %1 is past the end: the file holds %2 subtitles"
 msgstr[0] "titulek %1 je za koncem: soubor obsahuje %2 titulek"
 msgstr[1] "titulek %1 je za koncem: soubor obsahuje %2 titulky"
 msgstr[2] "titulek %1 je za koncem: soubor obsahuje %2 titulků"
-msgstr[3] "titulek %1 je za koncem: soubor obsahuje %2 titulků"
 
 #. TRANSLATORS: %1 is a subtitle number.
 #: src/lib/subedit/cli/transforming.cpp
@@ -2178,7 +2139,6 @@ msgid_plural "%1 subtitles transformed onto %2 and %3"
 msgstr[0] "%1 titulek transformován podle %2 a %3"
 msgstr[1] "%1 titulky transformovány podle %2 a %3"
 msgstr[2] "%1 titulků transformováno podle %2 a %3"
-msgstr[3] "%1 titulků transformováno podle %2 a %3"
 
 #: src/lib/subedit/cli/verbosity.cpp
 msgid "--quiet and -v ask for opposite things; give one or the other"
@@ -2426,7 +2386,6 @@ msgid_plural "line breaks were joined in %1 subtitles"
 msgstr[0] "zalomení řádků byla spojena v %1 titulku"
 msgstr[1] "zalomení řádků byla spojena ve %1 titulcích"
 msgstr[2] "zalomení řádků byla spojena v %1 titulcích"
-msgstr[3] "zalomení řádků byla spojena v %1 titulcích"
 
 #: src/lib/subedit/core/wording/conversion.cpp
 msgid "%1 tag dropped"
@@ -2434,7 +2393,6 @@ msgid_plural "%1 tags dropped"
 msgstr[0] "%1 značka vypuštěna"
 msgstr[1] "%1 značky vypuštěny"
 msgstr[2] "%1 značek vypuštěno"
-msgstr[3] "%1 značek vypuštěno"
 
 #: src/lib/subedit/core/wording/conversion.cpp
 msgid "the header was dropped"
@@ -2447,7 +2405,6 @@ msgid_plural "the %1 fields of %2 subtitles were dropped"
 msgstr[0] "pole %1 u %2 titulku byla vypuštěna"
 msgstr[1] "pole %1 u %2 titulků byla vypuštěna"
 msgstr[2] "pole %1 u %2 titulků byla vypuštěna"
-msgstr[3] "pole %1 u %2 titulků byla vypuštěna"
 
 #. TRANSLATORS: %1 is a number of milliseconds.
 #: src/lib/subedit/core/wording/conversion.cpp
@@ -2460,7 +2417,6 @@ msgid_plural "inserted %1 subtitles to fit the clipboard"
 msgstr[0] "%1 titulek vložen, aby se vešel obsah schránky"
 msgstr[1] "%1 titulky vloženy, aby se vešel obsah schránky"
 msgstr[2] "%1 titulků vloženo, aby se vešel obsah schránky"
-msgstr[3] "%1 titulků vloženo, aby se vešel obsah schránky"
 
 #. TRANSLATORS: %1 and %2 are names of subtitle formats, %3 what was
 #. lost on the way, such as « 3 tags dropped ».
@@ -2474,7 +2430,6 @@ msgid_plural "appended %1 subtitles"
 msgstr[0] "%1 titulek připojen"
 msgstr[1] "%1 titulky připojeny"
 msgstr[2] "%1 titulků připojeno"
-msgstr[3] "%1 titulků připojeno"
 
 #. TRANSLATORS: %1 and %2 are names of subtitle formats, %3 what was lost
 #. on the way, such as « 3 tags dropped ».
@@ -2572,7 +2527,6 @@ msgid_plural "Edited %1 and removed %2 subtitles"
 msgstr[0] "Titulky upravené: %1, odstraněné: %2"
 msgstr[1] "Titulky upravené: %1, odstraněné: %2"
 msgstr[2] "Titulky upravené: %1, odstraněné: %2"
-msgstr[3] "Titulky upravené: %1, odstraněné: %2"
 
 #: src/lib/subedit/core/wording/counts.cpp
 msgid "no mention to remove"
@@ -2584,7 +2538,6 @@ msgid_plural "%1 subtitles cleaned, %2 removed"
 msgstr[0] "%1 titulek vyčištěn, %2 odstraněn"
 msgstr[1] "%1 titulky vyčištěny, %2 odstraněno"
 msgstr[2] "%1 titulků vyčištěno, %2 odstraněno"
-msgstr[3] "%1 titulků vyčištěno, %2 odstraněno"
 
 #: src/lib/subedit/core/wording/counts.cpp
 msgid ""
@@ -2604,7 +2557,6 @@ msgid_plural "%1 subtitles"
 msgstr[0] "%1 titulek"
 msgstr[1] "%1 titulky"
 msgstr[2] "%1 titulků"
-msgstr[3] "%1 titulků"
 
 #: src/lib/subedit/core/wording/counts.cpp
 msgid "%1 file"
@@ -2612,7 +2564,6 @@ msgid_plural "%1 files"
 msgstr[0] "%1 soubor"
 msgstr[1] "%1 soubory"
 msgstr[2] "%1 souborů"
-msgstr[3] "%1 souborů"
 
 #: src/lib/subedit/core/wording/counts.cpp
 msgid "%1 run"
@@ -2620,7 +2571,6 @@ msgid_plural "%1 runs"
 msgstr[0] "%1 úsek"
 msgstr[1] "%1 úseky"
 msgstr[2] "%1 úseků"
-msgstr[3] "%1 úseků"
 
 # From Gaupol.
 #. TRANSLATORS: %1 is what the user searched for.
@@ -2638,7 +2588,6 @@ msgid_plural "%1 subtitles put in italics"
 msgstr[0] "%1 titulek převeden na kurzívu"
 msgstr[1] "%1 titulky převedeny na kurzívu"
 msgstr[2] "%1 titulků převedeno na kurzívu"
-msgstr[3] "%1 titulků převedeno na kurzívu"
 
 #: src/lib/subedit/core/wording/counts.cpp
 msgid "%1 subtitle taken out of italics"
@@ -2646,7 +2595,6 @@ msgid_plural "%1 subtitles taken out of italics"
 msgstr[0] "%1 titulek zbaven kurzívy"
 msgstr[1] "%1 titulky zbaveny kurzívy"
 msgstr[2] "%1 titulků zbaveno kurzívy"
-msgstr[3] "%1 titulků zbaveno kurzívy"
 
 #: src/lib/subedit/core/wording/counts.cpp
 msgid "%1 subtitle recased"
@@ -2654,7 +2602,6 @@ msgid_plural "%1 subtitles recased"
 msgstr[0] "u %1 titulku změněna velikost písmen"
 msgstr[1] "u %1 titulků změněna velikost písmen"
 msgstr[2] "u %1 titulků změněna velikost písmen"
-msgstr[3] "u %1 titulků změněna velikost písmen"
 
 #: src/lib/subedit/core/wording/counts.cpp
 msgid "%1 subtitle dashed"
@@ -2662,7 +2609,6 @@ msgid_plural "%1 subtitles dashed"
 msgstr[0] "%1 titulek opatřen pomlčkami"
 msgstr[1] "%1 titulky opatřeny pomlčkami"
 msgstr[2] "%1 titulků opatřeno pomlčkami"
-msgstr[3] "%1 titulků opatřeno pomlčkami"
 
 #: src/lib/subedit/core/wording/counts.cpp
 msgid "%1 subtitle undashed"
@@ -2670,7 +2616,6 @@ msgid_plural "%1 subtitles undashed"
 msgstr[0] "%1 titulek zbaven pomlček"
 msgstr[1] "%1 titulky zbaveny pomlček"
 msgstr[2] "%1 titulků zbaveno pomlček"
-msgstr[3] "%1 titulků zbaveno pomlček"
 
 #: src/lib/subedit/core/wording/counts.cpp
 msgid "replaced %1 match"
@@ -2678,7 +2623,6 @@ msgid_plural "replaced %1 matches"
 msgstr[0] "nahrazen %1 výskyt"
 msgstr[1] "nahrazeny %1 výskyty"
 msgstr[2] "nahrazeno %1 výskytů"
-msgstr[3] "nahrazeno %1 výskytů"
 
 #. TRANSLATORS: %1 is « replaced 4 matches », %2 the number of projects.
 #: src/lib/subedit/core/wording/counts.cpp
@@ -2687,7 +2631,6 @@ msgid_plural "%1 in %2 projects"
 msgstr[0] "%1 v %2 projektu"
 msgstr[1] "%1 ve %2 projektech"
 msgstr[2] "%1 v %2 projektech"
-msgstr[3] "%1 v %2 projektech"
 
 #: src/lib/subedit/core/wording/counts.cpp
 msgid "split %1 subtitle into a new project"
@@ -2695,7 +2638,6 @@ msgid_plural "split %1 subtitles into a new project"
 msgstr[0] "%1 titulek přesunut do nového projektu"
 msgstr[1] "%1 titulky přesunuty do nového projektu"
 msgstr[2] "%1 titulků přesunuto do nového projektu"
-msgstr[3] "%1 titulků přesunuto do nového projektu"
 
 #: src/lib/subedit/core/wording/counts.cpp
 msgid "already in order"
@@ -2707,7 +2649,6 @@ msgid_plural "%1 subtitles moved"
 msgstr[0] "%1 titulek přesunut"
 msgstr[1] "%1 titulky přesunuty"
 msgstr[2] "%1 titulků přesunuto"
-msgstr[3] "%1 titulků přesunuto"
 
 #: src/lib/subedit/core/wording/counts.cpp
 msgid ""
@@ -2725,7 +2666,6 @@ msgid_plural "%1 leaves %2 subtitles past the end of the video, by %3 at most"
 msgstr[0] "%1: %2 titulek zůstává za koncem videa, nejvýše o %3"
 msgstr[1] "%1: %2 titulky zůstávají za koncem videa, nejvýše o %3"
 msgstr[2] "%1: %2 titulků zůstává za koncem videa, nejvýše o %3"
-msgstr[3] "%1: %2 titulků zůstává za koncem videa, nejvýše o %3"
 
 #. TRANSLATORS: %1 of %2 subtitles were aligned; %3 and %4 are frame rates.
 #: src/lib/subedit/core/wording/editing.cpp
@@ -2740,8 +2680,6 @@ msgstr[0] ""
 msgstr[1] ""
 "Zarovnáno %1 z %2 titulků na %3 fps; dokument se stále čte na mřížce %4 fps"
 msgstr[2] ""
-"Zarovnáno %1 z %2 titulků na %3 fps; dokument se stále čte na mřížce %4 fps"
-msgstr[3] ""
 "Zarovnáno %1 z %2 titulků na %3 fps; dokument se stále čte na mřížce %4 fps"
 
 #: src/lib/subedit/core/wording/editing.cpp
@@ -2763,7 +2701,6 @@ msgid_plural "adjusted the durations of %1 subtitles"
 msgstr[0] "upraveny doby trvání %1 titulku"
 msgstr[1] "upraveny doby trvání %1 titulků"
 msgstr[2] "upraveny doby trvání %1 titulků"
-msgstr[3] "upraveny doby trvání %1 titulků"
 
 #: src/lib/subedit/core/wording/editing.cpp
 msgid "the reading speed in %1 subtitle"
@@ -2771,7 +2708,6 @@ msgid_plural "the reading speed in %1 subtitles"
 msgstr[0] "rychlost čtení u %1 titulku"
 msgstr[1] "rychlost čtení u %1 titulků"
 msgstr[2] "rychlost čtení u %1 titulků"
-msgstr[3] "rychlost čtení u %1 titulků"
 
 #: src/lib/subedit/core/wording/editing.cpp
 msgid "the minimum duration in %1 subtitle"
@@ -2779,7 +2715,6 @@ msgid_plural "the minimum duration in %1 subtitles"
 msgstr[0] "minimální dobu trvání u %1 titulku"
 msgstr[1] "minimální dobu trvání u %1 titulků"
 msgstr[2] "minimální dobu trvání u %1 titulků"
-msgstr[3] "minimální dobu trvání u %1 titulků"
 
 #: src/lib/subedit/core/wording/editing.cpp
 msgid "the gap in %1 subtitle"
@@ -2787,7 +2722,6 @@ msgid_plural "the gap in %1 subtitles"
 msgstr[0] "odstup u %1 titulku"
 msgstr[1] "odstup u %1 titulků"
 msgstr[2] "odstup u %1 titulků"
-msgstr[3] "odstup u %1 titulků"
 
 #. TRANSLATORS: %1 is what the adjustment did, %2 the constraints it could
 #. not satisfy, such as « the gap in 2 subtitles ».
@@ -2805,7 +2739,6 @@ msgid_plural "%1 subtitles split, %2 merged"
 msgstr[0] "%1 titulek rozdělen, %2 sloučeno"
 msgstr[1] "%1 titulky rozděleny, %2 sloučeno"
 msgstr[2] "%1 titulků rozděleno, %2 sloučeno"
-msgstr[3] "%1 titulků rozděleno, %2 sloučeno"
 
 #: src/lib/subedit/core/wording/editing.cpp
 msgid "%1 shown in windows for holding too many lines"
@@ -2813,7 +2746,6 @@ msgid_plural "%1 shown in windows for holding too many lines"
 msgstr[0] "%1 zobrazen v oknech kvůli příliš mnoha řádkům"
 msgstr[1] "%1 zobrazeny v oknech kvůli příliš mnoha řádkům"
 msgstr[2] "%1 zobrazeno v oknech kvůli příliš mnoha řádkům"
-msgstr[3] "%1 zobrazeno v oknech kvůli příliš mnoha řádkům"
 
 #: src/lib/subedit/core/wording/editing.cpp
 msgid "%1 very short taken over by a neighbour"
@@ -2821,7 +2753,6 @@ msgid_plural "%1 very short taken over by a neighbour"
 msgstr[0] "%1 velmi krátký převzat sousedem"
 msgstr[1] "%1 velmi krátké převzaty sousedem"
 msgstr[2] "%1 velmi krátkých převzato sousedem"
-msgstr[3] "%1 velmi krátkých převzato sousedem"
 
 #: src/lib/subedit/core/wording/editing.cpp
 msgid "%1 subtitle shorter than the limit left whole"
@@ -2829,7 +2760,6 @@ msgid_plural "%1 subtitles shorter than the limit left whole"
 msgstr[0] "%1 titulek kratší než limit ponechán celý"
 msgstr[1] "%1 titulky kratší než limit ponechány celé"
 msgstr[2] "%1 titulků kratších než limit ponecháno celých"
-msgstr[3] "%1 titulků kratších než limit ponecháno celých"
 
 #: src/lib/subedit/core/wording/editing.cpp
 msgid "%1 merged with styles or positions that differ, the first kept"
@@ -2837,7 +2767,6 @@ msgid_plural "%1 merged with styles or positions that differ, the first kept"
 msgstr[0] "%1 sloučen s odlišnými styly nebo pozicemi, ponechán první"
 msgstr[1] "%1 sloučeny s odlišnými styly nebo pozicemi, ponechán první"
 msgstr[2] "%1 sloučeno s odlišnými styly nebo pozicemi, ponechán první"
-msgstr[3] "%1 sloučeno s odlišnými styly nebo pozicemi, ponechán první"
 
 #: src/lib/subedit/core/wording/editing.cpp
 msgid "%1 subtitle ending before the start left alone"
@@ -2845,7 +2774,6 @@ msgid_plural "%1 subtitles ending before the start left alone"
 msgstr[0] "%1 titulek končící před začátkem ponechán beze změny"
 msgstr[1] "%1 titulky končící před začátkem ponechány beze změny"
 msgstr[2] "%1 titulků končících před začátkem ponecháno beze změny"
-msgstr[3] "%1 titulků končících před začátkem ponecháno beze změny"
 
 #: src/lib/subedit/core/wording/editing.cpp
 msgid "no repeated subtitles"
@@ -2857,7 +2785,6 @@ msgid_plural "%1 repeated subtitles joined"
 msgstr[0] "%1 opakovaný titulek spojen"
 msgstr[1] "%1 opakované titulky spojeny"
 msgstr[2] "%1 opakovaných titulků spojeno"
-msgstr[3] "%1 opakovaných titulků spojeno"
 
 #: src/lib/subedit/core/wording/editing.cpp
 msgid "The subtitles are not in the order of their start: sort them first."
@@ -3007,7 +2934,6 @@ msgid_plural "%1 lines attached"
 msgstr[0] "%1 řádek připojen"
 msgstr[1] "%1 řádky připojeny"
 msgstr[2] "%1 řádků připojeno"
-msgstr[3] "%1 řádků připojeno"
 
 #: src/lib/subedit/core/wording/translation.cpp
 msgid "%1 subtitle born of a line"
@@ -3015,7 +2941,6 @@ msgid_plural "%1 subtitles born of a line"
 msgstr[0] "%1 titulek vznikl z řádku"
 msgstr[1] "%1 titulky vznikly z řádku"
 msgstr[2] "%1 titulků vzniklo z řádku"
-msgstr[3] "%1 titulků vzniklo z řádku"
 
 #: src/lib/subedit/core/wording/translation.cpp
 msgid "%1 subtitle left without a translation"
@@ -3023,7 +2948,6 @@ msgid_plural "%1 subtitles left without a translation"
 msgstr[0] "%1 titulek ponechán bez překladu"
 msgstr[1] "%1 titulky ponechány bez překladu"
 msgstr[2] "%1 titulků ponecháno bez překladu"
-msgstr[3] "%1 titulků ponecháno bez překladu"
 
 #: src/lib/subedit/core/wording/translation.cpp
 msgid "%1 line out of order"
@@ -3031,7 +2955,6 @@ msgid_plural "%1 lines out of order"
 msgstr[0] "%1 řádek mimo pořadí"
 msgstr[1] "%1 řádky mimo pořadí"
 msgstr[2] "%1 řádků mimo pořadí"
-msgstr[3] "%1 řádků mimo pořadí"
 
 #. TRANSLATORS: %1 is what became of the lines of a translation, such as
 #. « 4 lines attached; 1 line out of order ».
@@ -3056,9 +2979,6 @@ msgstr[1] ""
 msgstr[2] ""
 "řádky jsou o %1 později než titulky; po posunutí zpět by se připojilo %2 "
 "řádků místo %3"
-msgstr[3] ""
-"řádky jsou o %1 později než titulky; po posunutí zpět by se připojilo %2 "
-"řádků místo %3"
 
 #: src/lib/subedit/core/wording/translation.cpp
 msgid ""
@@ -3074,9 +2994,6 @@ msgstr[1] ""
 "řádky jsou o %1 dříve než titulky; po posunutí vpřed by se připojily %2 "
 "řádky místo %3"
 msgstr[2] ""
-"řádky jsou o %1 dříve než titulky; po posunutí vpřed by se připojilo %2 "
-"řádků místo %3"
-msgstr[3] ""
 "řádky jsou o %1 dříve než titulky; po posunutí vpřed by se připojilo %2 "
 "řádků místo %3"
 
@@ -3376,7 +3293,6 @@ msgid_plural "%1 diagnostics"
 msgstr[0] "%1 hlášení"
 msgstr[1] "%1 hlášení"
 msgstr[2] "%1 hlášení"
-msgstr[3] "%1 hlášení"
 
 #: src/lib/subedit/gui/disjoint_dialog.cpp
 msgid "Put a dash before each subtitle's text"
@@ -3512,7 +3428,6 @@ msgid_plural ""
 msgstr[0] "Spojit opakované titulky: %1 titulek opakuje sousední"
 msgstr[1] "Spojit opakované titulky: %1 titulky opakují sousední"
 msgstr[2] "Spojit opakované titulky: %1 titulků opakuje sousední"
-msgstr[3] "Spojit opakované titulky: %1 titulků opakuje sousední"
 
 #: src/lib/subedit/gui/fixes_proposal_dialog.cpp
 msgid "Sort the subtitles: not in order of start (%1 subtitle out of place)"
@@ -3523,8 +3438,6 @@ msgstr[0] ""
 msgstr[1] ""
 "Seřadit titulky: nejsou seřazeny podle začátku (%1 titulky mimo pořadí)"
 msgstr[2] ""
-"Seřadit titulky: nejsou seřazeny podle začátku (%1 titulků mimo pořadí)"
-msgstr[3] ""
 "Seřadit titulky: nejsou seřazeny podle začátku (%1 titulků mimo pořadí)"
 
 #: src/lib/subedit/gui/fixes_proposal_dialog.cpp
@@ -3537,8 +3450,6 @@ msgstr[0] ""
 msgstr[1] ""
 "Převést rozsahy na disjunktní: %1 titulky začínají před koncem předchozího"
 msgstr[2] ""
-"Převést rozsahy na disjunktní: %1 titulků začíná před koncem předchozího"
-msgstr[3] ""
 "Převést rozsahy na disjunktní: %1 titulků začíná před koncem předchozího"
 
 #: src/lib/subedit/gui/frame_rate_dialog.cpp
@@ -3590,7 +3501,6 @@ msgid_plural "Measured on %1 starts, over %2."
 msgstr[0] "Změřeno na %1 začátku, v rozpětí %2."
 msgstr[1] "Změřeno na %1 začátcích, v rozpětí %2."
 msgstr[2] "Změřeno na %1 začátcích, v rozpětí %2."
-msgstr[3] "Změřeno na %1 začátcích, v rozpětí %2."
 
 #. TRANSLATORS: %1 is a length of time, « 0.020 s ».
 #: src/lib/subedit/gui/grid_analysis_dialog.cpp
@@ -3614,7 +3524,6 @@ msgid_plural "%1 of these starts leave the grid, in %2."
 msgstr[0] "%1 z těchto začátků opouští mřížku (%2)."
 msgstr[1] "%1 z těchto začátků opouštějí mřížku (%2)."
 msgstr[2] "%1 z těchto začátků opouští mřížku (%2)."
-msgstr[3] "%1 z těchto začátků opouští mřížku (%2)."
 
 #: src/lib/subedit/gui/grid_analysis_dialog.cpp
 msgid "Frame Rate Analysis"
@@ -3712,7 +3621,6 @@ msgid_plural "%1 videos dropped at once: a project watches one film"
 msgstr[0] "Najednou přetaženo %1 video: projekt sleduje jeden film"
 msgstr[1] "Najednou přetažena %1 videa: projekt sleduje jeden film"
 msgstr[2] "Najednou přetaženo %1 videí: projekt sleduje jeden film"
-msgstr[3] "Najednou přetaženo %1 videí: projekt sleduje jeden film"
 
 #: src/lib/subedit/gui/manual_window.cpp
 msgid "Back"
@@ -3773,7 +3681,6 @@ msgid_plural "%1 subtitles would change."
 msgstr[0] "Změnil by se %1 titulek."
 msgstr[1] "Změnily by se %1 titulky."
 msgstr[2] "Změnilo by se %1 titulků."
-msgstr[3] "Změnilo by se %1 titulků."
 
 #: src/lib/subedit/gui/operation_dialog.cpp
 msgid "After"
@@ -3890,7 +3797,6 @@ msgid_plural "Save All stopped: %1 of %2 documents saved"
 msgstr[0] "Uložení všeho přerušeno: uložen %1 z %2 dokumentu"
 msgstr[1] "Uložení všeho přerušeno: uloženo %1 z %2 dokumentů"
 msgstr[2] "Uložení všeho přerušeno: uloženo %1 z %2 dokumentů"
-msgstr[3] "Uložení všeho přerušeno: uloženo %1 z %2 dokumentů"
 
 #: src/lib/subedit/gui/project_files.cpp
 msgid "Nothing to save"
@@ -3902,7 +3808,6 @@ msgid_plural "%1 documents saved"
 msgstr[0] "Uložen %1 dokument"
 msgstr[1] "Uloženy %1 dokumenty"
 msgstr[2] "Uloženo %1 dokumentů"
-msgstr[3] "Uloženo %1 dokumentů"
 
 #: src/lib/subedit/gui/project_operations.cpp
 msgid "the two references define no correction"
