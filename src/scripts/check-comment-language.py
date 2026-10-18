@@ -37,7 +37,7 @@ which is what the list was generated from.
 ## What is not read, and why
 
     src/po/**             the catalogues: French is a locale there
-    docs/i18n/fr/**       the translated manual: French is a locale there
+    docs/i18n/**          the translated manuals, every language: a locale there
     CHANGELOG.md          generated from commit subjects, and history is not
                           rewritten (ADR 0043): the old subjects are French
     src/test/data/**      test data — subtitles, patterns, dictionaries, manual
@@ -159,7 +159,9 @@ REPORTING = re.compile(
     r"\b(?:TEST_CASE|SECTION|FAIL|FAIL_CHECK|SKIP|INFO|UNSCOPED_INFO|WARN|BENCHMARK"
     r"|BENCHMARK_ADVANCED|DYNAMIC_SECTION)\s*\(")
 
-LOCALE_TREES = ("src/po/", "docs/i18n/fr/")
+# Every translated manual, and not French's alone (#720): a Catalan page has the elisions and the
+# function words of French, and would be refused for being in its own language.
+LOCALE_TREES = ("src/po/", "docs/i18n/")
 DATA_TREES = ("src/test/data/", "packaging/patterns/")
 DATA_DOCUMENTATION = ("README.md", "LISEZMOI.md")
 GENERATED = ("CHANGELOG.md",)

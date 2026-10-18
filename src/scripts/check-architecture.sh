@@ -325,7 +325,7 @@ $(printf '    %s\n' ${offenders})
 # Invariant — the repository is written in English; French is a locale.
 #
 # ADR 0043 and #660: French is refused in every tracked file except the two
-# locale trees (`src/po/`, `docs/i18n/fr/`) and the files of `.french-allowlist`,
+# locale trees (`src/po/`, `docs/i18n/`) and the files of `.french-allowlist`,
 # which only ever loses entries as the translation proceeds. It replaces the
 # split of #312, where only the C++ was held to English.
 #

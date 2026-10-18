@@ -12,9 +12,15 @@ therefore carry no word of a page in their logic: they ask for them here, per la
     vocabulary          `TABLES[language]`, completed by a JSON file (`--vocabulary`)
 
 **A page whose language has no table fails the check**, once per language. Adding a
-language to the manual means adding its table here, and nothing else allows it: a
+language to the manual means adding its table, and nothing else allows it: a
 translated tree `docs/i18n/<lang>/manual/` is read by the checks as soon as it exists,
 and refused until its table does.
+
+**A language's table is a file of its tree** (#720): `docs/i18n/<lang>/vocabulary.json`,
+the keys of `KEYS` and, under `man`, those of `MAN_KEYS` — read by `load_tables` and
+`load_man_words` with no line to add here. English, the source, and French, the first
+translation, are written below; a file may not redefine them. The file sits beside
+`manual/`, not in it: it is neither a page of the manual nor installed with it.
 
 The declaration is the exception, for a page whose tree does not say its language: a page
 of `docs/manual/` that is not yet in the source language declares the language it is written
@@ -98,9 +104,30 @@ DECLARATION = re.compile(r"<!--\s*language:\s*([A-Za-z][A-Za-z_@-]*)\s*-->")
 TREE = re.compile(r"(?:^|/)i18n/([^/]+)/manual(?:/|$)")
 
 
+TREE_TABLES = "docs/i18n/*/vocabulary.json"
+
+
+def tree_tables() -> dict[str, dict]:
+    """The tables of the translated trees: `docs/i18n/<lang>/vocabulary.json`, by language."""
+    found: dict[str, dict] = {}
+    for path in sorted(REPO_ROOT.glob(TREE_TABLES)):
+        language = path.parent.name
+        if language in TABLES:
+            raise SystemExit(f"{path}: \"{language}\" has its table in doc_vocabulary.py already")
+        table = json.loads(path.read_text(encoding="utf-8"))
+        missing = [key for key in KEYS if key not in table]
+        if missing:
+            raise SystemExit(f"{path}: the table has no {', '.join(missing)}")
+        found[language] = table
+    return found
+
+
 def load_tables(extra: pathlib.Path | None) -> dict[str, dict]:
-    """The tables shipped, plus those of a JSON file `{language: table}`."""
+    """The tables shipped, those of the translated trees, plus those of a JSON file
+    `{language: table}`."""
     tables = {language: dict(table) for language, table in TABLES.items()}
+    tables.update({language: {key: table[key] for key in KEYS}
+                   for language, table in tree_tables().items()})
     if extra is not None:
         for language, table in json.loads(extra.read_text(encoding="utf-8")).items():
             missing = [key for key in KEYS if key not in table]
@@ -111,8 +138,15 @@ def load_tables(extra: pathlib.Path | None) -> dict[str, dict]:
 
 
 def load_man_words(extra: pathlib.Path | None) -> dict[str, dict]:
-    """The words of the `man` pages shipped, plus those under the key `man` of a JSON file."""
+    """The words of the `man` pages shipped, those of the translated trees, plus those under the
+    key `man` of a JSON file."""
     words = {language: dict(table) for language, table in MAN_WORDS.items()}
+    for language, table in tree_tables().items():
+        man = table.get("man", {})
+        missing = [key for key in MAN_KEYS if key not in man]
+        if missing:
+            raise SystemExit(f"docs/i18n/{language}/vocabulary.json: the man words have no {', '.join(missing)}")
+        words[language] = dict(man)
     if extra is not None:
         for language, table in json.loads(extra.read_text(encoding="utf-8")).items():
             if "man" not in table:
@@ -151,7 +185,7 @@ def missing_table(tables: dict[str, dict], pages_by_language: dict[str, list[str
     """One finding per page language that has no table, with the pages that speak it."""
     return [
         f"LANGUAGE WITHOUT VOCABULARY: the pages in \"{language}\" ({', '.join(sorted(pages))}) "
-        f"have no vocabulary table (doc_vocabulary.py, or --vocabulary)"
+        f"have no vocabulary table (docs/i18n/<lang>/vocabulary.json, doc_vocabulary.py, or --vocabulary)"
         for language, pages in sorted(pages_by_language.items())
         if language not in tables
     ]
