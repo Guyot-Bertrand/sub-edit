@@ -338,3 +338,4 @@ longer prove anything.
 | `CLI-VERSION-08` | every library the build looks for with `find_package` or `pkg_check_modules` is named by the `--version` of one binary or the other | 15 | implemented |
 | `GUI-VERSION-02` | `subedit-gui --version` names Qt, ICU, libmpv and Enchant with both of their versions, then the installed languages | 15 | implemented |
 | `GUI-ABOUT-01` | `About subedit` lists the libraries of `--version` in a table — name, version loaded, version built against — and the installed languages, its headings in the chosen language | 15 | implemented |
+| `GUI-TRANSFORM-02` | the transform dialog shows each marker's text in three lines of room that scroll past them, keeps its size when a marker changes, and shows its explanation whole at any width and in any language | 15 | implemented |

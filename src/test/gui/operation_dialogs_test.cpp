@@ -17,13 +17,21 @@
 #include <subedit/gui/snap_dialog.hpp>
 #include <subedit/gui/transform_dialog.hpp>
 
+#include <QApplication>
 #include <QDialog>
 #include <QHeaderView>
 #include <QLabel>
+#include <QLatin1Char>
 #include <QLineEdit>
+#include <QPlainTextEdit>
 #include <QPushButton>
+#include <QScrollBar>
+#include <QSize>
+#include <QString>
+#include <QStringList>
 #include <QTableWidget>
 #include <QTableWidgetItem>
+#include <QTextDocument>
 #include <catch2/catch_test_macros.hpp>
 
 #include <optional>
@@ -514,4 +522,64 @@ TEST_CASE("the preview lists what the core says would change", "[gui][GUI-PREVIE
     CHECK(described.rows.front().before.toStdString() == "00:00:01,000 → 00:00:02,000");
     CHECK(described.rows.front().after.toStdString() == "00:00:01,500 → 00:00:02,500");
     CHECK(described.rows.front().text.toStdString() == "First line");
+}
+
+TEST_CASE("a reference's text keeps three lines of room, and scrolls past them",
+          "[gui][GUI-TRANSFORM-02]") {
+    // Issue #717: the text was a wrapping label the form gave one line and a
+    // half, and the dialog jumped with every subtitle it showed. The area now
+    // keeps the height of three lines whatever it shows, and only a longer text
+    // brings the scroll bar out.
+    QStringList tenLines;
+    for (int line = 1; line <= 10; ++line)
+        tenLines.append(QStringLiteral("Line %1").arg(line));
+    const QString threeLines = QStringLiteral("One\nTwo\nThree");
+    const QString url = QStringLiteral("https://example.org/") + QString{400, QLatin1Char('a')};
+    const AnchorLookup lookup = [&](int number) -> std::optional<AnchorView> {
+        const QString start = QStringLiteral("00:00:0%1,000").arg(number);
+        switch (number) {
+        case 2:
+            return AnchorView{.start = start, .text = tenLines.join(QLatin1Char('\n'))};
+        case 3:
+            return AnchorView{.start = start, .text = url};
+        default:
+            return AnchorView{.start = start, .text = threeLines};
+        }
+    };
+    TransformDialog dialog{4, lookup};
+    dialog.show();
+    QApplication::processEvents();
+
+    auto* area = dialog.findChild<QPlainTextEdit*>(QStringLiteral("first-text"));
+    REQUIRE(area != nullptr);
+    CHECK(area->isReadOnly());
+
+    // Three lines of the dialog's font, and not a fourth.
+    const int spacing = area->fontMetrics().lineSpacing();
+    const auto margin = static_cast<int>(area->document()->documentMargin());
+    CHECK(area->viewport()->height() >= (3 * spacing) + (2 * margin));
+    CHECK(area->viewport()->height() < (4 * spacing) + (2 * margin));
+
+    const int height = area->height();
+    const QSize opened = dialog.size();
+
+    struct Shown {
+        int number;
+        bool scrolls;
+    };
+
+    for (const Shown shown : {Shown{.number = 1, .scrolls = false},
+                              Shown{.number = 2, .scrolls = true},
+                              Shown{.number = 3, .scrolls = true},
+                              Shown{.number = 1, .scrolls = false}}) {
+        INFO("subtitle " << shown.number);
+        dialog.setTyped(
+            shown.number, QStringLiteral("00:00:01,000"), 4, QStringLiteral("00:00:09,000"));
+        QApplication::processEvents();
+
+        CHECK(area->height() == height);
+        CHECK(dialog.size() == opened);
+        CHECK((area->verticalScrollBar()->maximum() > 0) == shown.scrolls);
+        CHECK(area->verticalScrollBar()->isVisible() == shown.scrolls);
+    }
 }

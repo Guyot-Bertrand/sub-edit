@@ -70,6 +70,7 @@
 #include <QAbstractItemModel>
 #include <QAbstractItemView>
 #include <QAction>
+#include <QApplication>
 #include <QCheckBox>
 #include <QComboBox>
 #include <QDialog>
@@ -81,6 +82,7 @@
 #include <QLineEdit>
 #include <QList>
 #include <QPushButton>
+#include <QRect>
 #include <QRegularExpression>
 #include <QSignalSpy>
 #include <QSpinBox>
@@ -591,6 +593,48 @@ TEST_CASE("the prompts follow the language", "[gui][i18n][GUI-I18N-01]") {
     std::ostringstream errors;
     subedit::gui::reportFatal(errors, "boom");
     CHECK(errors.str() == "subedit-gui — boom\n");
+}
+
+namespace {
+
+/// Checks that the transform dialog's explanation has the room its wrapped text needs, from the
+/// narrowest the dialog goes to twice the width it opens at.
+///
+/// The height is measured against the text itself, wrapped at the width the label was given,
+/// and not against what the label says it needs: that is what the label got wrong (#717).
+void checkExplanationWhole() {
+    subedit::gui::TransformDialog dialog{4};
+    dialog.show();
+    QApplication::processEvents();
+
+    const auto* explanation = dialog.findChild<QLabel*>(QStringLiteral("explanation"));
+    REQUIRE(explanation != nullptr);
+
+    const int opened = dialog.width();
+    for (const int width : {1, opened, 2 * opened}) {
+        dialog.resize(width, dialog.height());
+        QApplication::processEvents();
+
+        const QRect room = explanation->contentsRect();
+        const QRect needed = explanation->fontMetrics().boundingRect(
+            QRect{0, 0, room.width(), 1 << 16}, Qt::TextWordWrap, explanation->text());
+        INFO("dialog " << dialog.width() << " wide, text " << room.width() << " wide");
+        CHECK(needed.height() <= room.height());
+    }
+}
+
+} // namespace
+
+TEST_CASE("the transform dialog's explanation is shown whole, in English as in Russian",
+          "[gui][i18n][GUI-TRANSFORM-02]") {
+    SECTION("English") {
+        checkExplanationWhole();
+    }
+    SECTION("Russian, whose sentences are longer") {
+        const InterfaceLanguage language{russian(), kLocale, QString{}};
+        REQUIRE(language.language() == "ru");
+        checkExplanationWhole();
+    }
 }
 
 TEST_CASE("what stops the window is said behind its name", "[gui][i18n]") {
