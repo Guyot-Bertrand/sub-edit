@@ -19,10 +19,8 @@ set -euo pipefail
 
 readonly REPO="${SUBEDIT_REPO:-Guyot-Bertrand/sub-edit}"
 
-readonly BOLD=$'\033[1m'
-readonly GREEN=$'\033[32m'
-readonly RED=$'\033[31m'
-readonly RESET=$'\033[0m'
+# shellcheck source=src/scripts/lib/output.sh
+source "$(dirname "${BASH_SOURCE[0]}")/lib/output.sh"
 
 ruleset_failures=0
 

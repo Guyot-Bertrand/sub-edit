@@ -58,8 +58,8 @@ set -euo pipefail
 # the rule would no longer fit in one sentence.
 readonly KEEP=30
 
-readonly BOLD=$'\033[1m'
-readonly RESET=$'\033[0m'
+# shellcheck source=src/scripts/lib/output.sh
+source "$(dirname "${BASH_SOURCE[0]}")/lib/output.sh"
 
 usage() {
     cat <<'EOF'

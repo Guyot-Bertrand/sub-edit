@@ -29,9 +29,8 @@ set -euo pipefail
 readonly REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 readonly POT="${REPO_ROOT}/src/po/subedit.pot"
 
-RED=$'\033[31m'
-GREEN=$'\033[32m'
-RESET=$'\033[0m'
+# shellcheck source=src/scripts/lib/output.sh
+source "$(dirname "${BASH_SOURCE[0]}")/lib/output.sh"
 
 mode="write"
 case "${1:-}" in

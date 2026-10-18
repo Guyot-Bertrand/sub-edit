@@ -6,10 +6,11 @@
 # to be. Run directly, it says what it is and stops.
 #
 #   project_version [FILE]  the number of `project(VERSION)`
+#   current_load            the one-minute load average
 #
-# **Functions only, no variable.** `gate/timing.sh` sources it, and its readers
-# — `gate.sh`, `verify-gates.sh` — define their own root and colours: a
-# variable set here, `readonly` or not, would sooner or later meet one of them.
+# **Functions only, no variable.** `gate/timing.sh` sources it, hence every
+# step, `gate.sh` and `verify-gates.sh`, each with a root and colours of its
+# own: a variable set here, `readonly` or not, would sooner or later meet one.
 #
 # A script finds it from its own location, never from the current directory:
 # `source "$(dirname "${BASH_SOURCE[0]}")/lib/project.sh"`.
@@ -35,3 +36,12 @@ project_version() {
         | head -1
 }
 
+# The one-minute average, without a newline; nothing, and a failure, where
+# `/proc` does not give it. The one-minute average and not the number of
+# runnable tasks: that one is instantaneous, so a sample can fall between two
+# bursts and declare quiet a machine that is not.
+current_load() {
+    local load _
+    { read -r load _ </proc/loadavg; } 2>/dev/null || return 1
+    printf '%s' "${load}"
+}

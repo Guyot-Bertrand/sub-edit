@@ -19,9 +19,8 @@ readonly REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 source "$(dirname "${BASH_SOURCE[0]}")/lib/project.sh"
 readonly RATCHET="${REPO_ROOT}/docs/mesures/couverture.md"
 
-readonly RED=$'\033[31m'
-readonly GREEN=$'\033[32m'
-readonly RESET=$'\033[0m'
+# shellcheck source=src/scripts/lib/output.sh
+source "$(dirname "${BASH_SOURCE[0]}")/lib/output.sh"
 
 summary=""
 record=0

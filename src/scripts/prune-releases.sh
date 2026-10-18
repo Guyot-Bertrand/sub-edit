@@ -60,8 +60,8 @@
 
 set -euo pipefail
 
-readonly BOLD=$'\033[1m'
-readonly RESET=$'\033[0m'
+# shellcheck source=src/scripts/lib/output.sh
+source "$(dirname "${BASH_SOURCE[0]}")/lib/output.sh"
 
 usage() {
     cat <<'EOF'

@@ -4,10 +4,10 @@
 #
 # **This file is sourced, not executed** — by `common.sh`, hence by every step,
 # and by `gate.sh` and `verify-gates.sh`. It defines functions and variables
-# prefixed `timing_`, and nothing `readonly`: its readers already define their
+# prefixed `timing_`, and nothing `readonly`: its readers already have their
 # own colours and root, and a second `readonly` of the same name would kill them.
 # For the same reason it takes from `lib/project.sh`, which defines functions
-# and no variable.
+# only, and not from `lib/output.sh`.
 #
 # ## Why a journal
 #
@@ -63,12 +63,7 @@ timing_version="$(project_version "${timing_root}/CMakeLists.txt" 2>/dev/null ||
 
 # The one-minute load average, or « - » where `/proc` does not give it.
 timing_load() {
-    local load _
-    if read -r load _ </proc/loadavg 2>/dev/null; then
-        printf '%s' "${load}"
-    else
-        printf '-'
-    fi
+    current_load || printf '-'
 }
 
 # The `JOBS` the steps run with. The default is that of `common.sh`, which takes

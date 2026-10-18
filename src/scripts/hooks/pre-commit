@@ -6,8 +6,8 @@
 
 set -euo pipefail
 
-readonly RED=$'\033[31m'
-readonly RESET=$'\033[0m'
+# shellcheck source=src/scripts/lib/output.sh
+source "$(dirname "${BASH_SOURCE[0]}")/../lib/output.sh"
 
 fail() { printf '%spre-commit: %s%s\n' "${RED}" "$*" "${RESET}" >&2; exit 1; }
 

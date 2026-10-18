@@ -32,10 +32,8 @@ source "$(dirname "${BASH_SOURCE[0]}")/lib/project.sh"
 PR_BODY="${PR_BODY:-}"
 BASE_SHA="${BASE_SHA:-}"
 
-readonly RED=$'\033[31m'
-readonly GREEN=$'\033[32m'
-readonly BOLD=$'\033[1m'
-readonly RESET=$'\033[0m'
+# shellcheck source=src/scripts/lib/output.sh
+source "$(dirname "${BASH_SOURCE[0]}")/lib/output.sh"
 
 failures=0
 

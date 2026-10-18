@@ -11,8 +11,8 @@ readonly TYPES='feat|fix|perf|refactor|test|docs|build|ci|chore|revert'
 readonly SCOPES='build|ci|cli|core|doc|format|gui|i18n|scripts|test|text|video'
 readonly SUBJECT_MAX_LENGTH=72
 
-readonly RED=$'\033[31m'
-readonly RESET=$'\033[0m'
+# shellcheck source=src/scripts/lib/output.sh
+source "$(dirname "${BASH_SOURCE[0]}")/lib/output.sh"
 
 input="${1:?usage: $(basename "$0") <file|message>}"
 if [[ -f "${input}" ]]; then

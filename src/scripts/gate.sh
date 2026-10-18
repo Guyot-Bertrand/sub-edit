@@ -36,10 +36,8 @@ set -euo pipefail
 readonly REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 readonly STEPS_DIR="${REPO_ROOT}/src/scripts/gate"
 
-readonly BOLD=$'\033[1m'
-readonly GREEN=$'\033[32m'
-readonly RED=$'\033[31m'
-readonly RESET=$'\033[0m'
+# shellcheck source=src/scripts/lib/output.sh
+source "$(dirname "${BASH_SOURCE[0]}")/lib/output.sh"
 
 # shellcheck source=src/scripts/gate/timing.sh
 source "${STEPS_DIR}/timing.sh"

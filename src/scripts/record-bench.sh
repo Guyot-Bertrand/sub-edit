@@ -31,8 +31,8 @@ readonly RETENTION_DAYS=31
 # repository's tracked file, which no proof can afford.
 journal="${REPO_ROOT}/docs/mesures/performances.md"
 
-readonly GREEN=$'\033[32m'
-readonly RESET=$'\033[0m'
+# shellcheck source=src/scripts/lib/output.sh
+source "$(dirname "${BASH_SOURCE[0]}")/lib/output.sh"
 
 xml=""
 mode=""

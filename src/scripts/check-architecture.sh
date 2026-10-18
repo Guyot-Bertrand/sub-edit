@@ -8,24 +8,14 @@
 set -euo pipefail
 
 readonly REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
-# shellcheck source=src/scripts/lib/project.sh
-source "$(dirname "${BASH_SOURCE[0]}")/lib/project.sh"
 readonly MAIN_MAX_LINES=40
 
-readonly RED=$'\033[31m'
-readonly GREEN=$'\033[32m'
-readonly RESET=$'\033[0m'
+# shellcheck source=src/scripts/lib/project.sh
+source "$(dirname "${BASH_SOURCE[0]}")/lib/project.sh"
+# shellcheck source=src/scripts/lib/output.sh
+source "$(dirname "${BASH_SOURCE[0]}")/lib/output.sh"
 
 failures=0
-
-report_failure() {
-    printf '%s✗%s %s\n' "${RED}" "${RESET}" "$*" >&2
-    failures=$((failures + 1))
-}
-
-report_success() {
-    printf '%s✓%s %s\n' "${GREEN}" "${RESET}" "$*"
-}
 
 # Invariant 1 — subedit_core knows neither Qt nor any graphical interface.
 check_core_has_no_ui() {

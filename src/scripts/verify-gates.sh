@@ -161,10 +161,8 @@ readonly STRAY_FILE="${REPO_ROOT}/left-by-a-test.srt"
 # `restore`, even if the script dies.
 readonly FORMAT_STRAY="${REPO_ROOT}/src/test/data/formats/unreadable-by-a-proof.srt"
 
-readonly RED=$'\033[31m'
-readonly GREEN=$'\033[32m'
-readonly BOLD=$'\033[1m'
-readonly RESET=$'\033[0m'
+# shellcheck source=src/scripts/lib/output.sh
+source "${REPO_ROOT}/src/scripts/lib/output.sh"
 
 # shellcheck source=src/scripts/lib/project.sh
 source "${REPO_ROOT}/src/scripts/lib/project.sh"

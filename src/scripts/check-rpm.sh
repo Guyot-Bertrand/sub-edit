@@ -61,9 +61,8 @@ readonly REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 # shellcheck source=src/scripts/lib/project.sh
 source "$(dirname "${BASH_SOURCE[0]}")/lib/project.sh"
 
-readonly RED=$'\033[31m'
-readonly GREEN=$'\033[32m'
-readonly RESET=$'\033[0m'
+# shellcheck source=src/scripts/lib/output.sh
+source "$(dirname "${BASH_SOURCE[0]}")/lib/output.sh"
 
 # **A named version, never `latest`.** An image that changes underfoot would
 # make a failure impossible to replay, and would make this repository bear the

@@ -35,6 +35,9 @@
 
 set -euo pipefail
 
+# shellcheck source=src/scripts/lib/project.sh
+source "$(dirname "${BASH_SOURCE[0]}")/lib/project.sh"
+
 readonly INTERVAL=5
 
 below=2.0
@@ -62,13 +65,6 @@ while (( $# > 0 )); do
     esac
 done
 
-# The one-minute average, not the number of runnable tasks: that one is
-# instantaneous, so a sample can fall between two bursts and declare quiet a
-# machine that is not.
-current_load() {
-    cut -d' ' -f1 /proc/loadavg
-}
-
 # awk rather than bc: awk is in coreutils in practice, bc is one more package,
 # and the project's dependency rule holds for scripts too.
 is_below() {
@@ -78,7 +74,7 @@ is_below() {
 # No /proc — another system, an exotic container. The check does not apply
 # rather than failing: better an unqualified measurement than a build chain
 # that refuses to run.
-if [[ ! -r /proc/loadavg ]]; then
+if ! current_load >/dev/null; then
     printf 'unknown\n'
     exit 0
 fi
