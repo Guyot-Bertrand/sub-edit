@@ -161,11 +161,11 @@ readonly STRAY_FILE="${REPO_ROOT}/left-by-a-test.srt"
 # `restore`, even if the script dies.
 readonly FORMAT_STRAY="${REPO_ROOT}/src/test/data/formats/unreadable-by-a-proof.srt"
 
-readonly RED=$'\033[31m'
-readonly GREEN=$'\033[32m'
-readonly BOLD=$'\033[1m'
-readonly RESET=$'\033[0m'
+# shellcheck source=src/scripts/lib/output.sh
+source "${REPO_ROOT}/src/scripts/lib/output.sh"
 
+# shellcheck source=src/scripts/lib/project.sh
+source "${REPO_ROOT}/src/scripts/lib/project.sh"
 # shellcheck source=src/scripts/gate/timing.sh
 source "${REPO_ROOT}/src/scripts/gate/timing.sh"
 
@@ -256,7 +256,10 @@ restore() {
     cp "${backup_dir}/pre-commit" "${HOOK_SOURCE}"
     cp "${backup_dir}/install-hooks.sh" "${PLAIN_SCRIPT_SOURCE}"
     cp "${backup_dir}/lib-CMakeLists.txt" "${NESTED_CMAKE_SOURCE}"
-    cp "${backup_dir}/subtitle_index.hpp" "${MODEL_SOURCE}"
+    # **With its own mtime** (-p), unlike the others (#755): this header is included by some three
+    # hundred translation units, and the proof compiles nothing — a fresh mtime would make the next
+    # `tidy` analyse them all again, for a content that did not change.
+    cp -p "${backup_dir}/subtitle_index.hpp" "${MODEL_SOURCE}"
     cp "${backup_dir}/lrc_writer.hpp" "${LEAF_HEADER}"
     cp "${backup_dir}/cadence-25.mp4" "${VIDEO_FIXTURE}"
     cp "${backup_dir}/grille-25.srt" "${GRID_FIXTURE}"
@@ -294,7 +297,7 @@ cp "${MANUAL_SOURCE}" "${backup_dir}/invocation.md"
 cp "${HOOK_SOURCE}" "${backup_dir}/pre-commit"
 cp "${PLAIN_SCRIPT_SOURCE}" "${backup_dir}/install-hooks.sh"
 cp "${NESTED_CMAKE_SOURCE}" "${backup_dir}/lib-CMakeLists.txt"
-cp "${MODEL_SOURCE}" "${backup_dir}/subtitle_index.hpp"
+cp -p "${MODEL_SOURCE}" "${backup_dir}/subtitle_index.hpp"
 cp "${LEAF_HEADER}" "${backup_dir}/lrc_writer.hpp"
 cp "${VIDEO_FIXTURE}" "${backup_dir}/cadence-25.mp4"
 cp "${GRID_FIXTURE}" "${backup_dir}/grille-25.srt"
@@ -606,8 +609,7 @@ expect_pr_check_closes \
 # base would assume that the working copy has not already gone past it, which an
 # uncommitted bump would contradict, and the injection would no longer prove
 # anything.
-head_version="$(git -C "${REPO_ROOT}" show HEAD:CMakeLists.txt \
-    | sed -n 's/^[[:space:]]*VERSION[[:space:]]\+\([0-9][0-9.]*\)[[:space:]]*$/\1/p' | head -1)"
+head_version="$(git -C "${REPO_ROOT}" show HEAD:CMakeLists.txt | project_version)"
 sed -i "s/^\([[:space:]]*VERSION[[:space:]]\+\)[0-9][0-9.]*[[:space:]]*$/\1${head_version}/" \
     "${CMAKE_SOURCE}"
 expect_pr_check_closes \

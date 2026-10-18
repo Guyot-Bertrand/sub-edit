@@ -39,9 +39,8 @@ registry="${REPO_ROOT}/docs/exigences.md"
 # The check therefore gathers the tags of every binary it is given.
 binaries=()
 
-readonly RED=$'\033[31m'
-readonly GREEN=$'\033[32m'
-readonly RESET=$'\033[0m'
+# shellcheck source=src/scripts/lib/output.sh
+source "$(dirname "${BASH_SOURCE[0]}")/lib/output.sh"
 
 # Shape of an identifier: capitals, segments separated by a dash, a two-digit
 # number last. It is what tells `CLI-VERSION-01` from an ordinary tag such as
@@ -76,15 +75,6 @@ if (( ${#binaries[@]} == 0 )); then
     binaries=("${REPO_ROOT}/build/dev/bin/subedit_e2e_test"
               "${REPO_ROOT}/build/dev/bin/subedit_gui_test")
 fi
-
-report_failure() {
-    printf '%s✗%s %s\n' "${RED}" "${RESET}" "$*" >&2
-    failures=$((failures + 1))
-}
-
-report_success() {
-    printf '%s✓%s %s\n' "${GREEN}" "${RESET}" "$*"
-}
 
 [[ -f "${registry}" ]] || { printf 'registry not found: %s\n' "${registry}" >&2; exit 1; }
 for binary in "${binaries[@]}"; do

@@ -13,6 +13,7 @@
 #   step        announces the current step
 #   require     fails with a useful message rather than a « command not found »
 #   timed       runs a phase of the step and writes what it cost (`timing.sh`)
+#   BOLD …      the colours and the report lines (`../lib/output.sh`)
 #
 # **`JOBS` comes from the environment and is never guessed here.** The
 # `Makefile` exports it, CI sets it to `nproc`, and a direct call can set it
@@ -33,14 +34,8 @@ readonly JOBS
 # shellcheck source=src/scripts/gate/timing.sh
 source "$(dirname "${BASH_SOURCE[0]}")/timing.sh"
 
-readonly BOLD=$'\033[1m'
-readonly GREEN=$'\033[32m'
-readonly RED=$'\033[31m'
-# Yellow came with #270: a step that succeeds without having been able to do
-# its work is neither green nor red. Benchmarks on a busy machine are the only
-# case to date.
-readonly YELLOW=$'\033[33m'
-readonly RESET=$'\033[0m'
+# shellcheck source=src/scripts/lib/output.sh
+source "$(dirname "${BASH_SOURCE[0]}")/../lib/output.sh"
 
 step() {
     printf '%s▸ %s%s\n' "${BOLD}" "$1" "${RESET}"

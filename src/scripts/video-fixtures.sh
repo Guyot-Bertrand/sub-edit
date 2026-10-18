@@ -111,10 +111,8 @@ readonly AUDIO=(
 # so nothing to step through — the case where `stepFrames` does not know what to do and says so by doing nothing.
 readonly SOUND_ONLY=("sound-only.mkv|12288")
 
-readonly RED=$'\033[31m'
-readonly GREEN=$'\033[32m'
-readonly BOLD=$'\033[1m'
-readonly RESET=$'\033[0m'
+# shellcheck source=src/scripts/lib/output.sh
+source "$(dirname "${BASH_SOURCE[0]}")/lib/output.sh"
 
 failures=0
 

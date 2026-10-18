@@ -9,6 +9,18 @@ ne pas l'éditer à la main.
 
 ## Non publié
 
+### Corrections
+
+- **build** — Restore the model header of verify-gates with its mtime
+
+### Remaniements
+
+- **scripts** — Share the reading of the project version
+- **scripts** — Share the script colours and the load reading
+- **scripts** — Share the merge base of the two descending lists
+
+## 0.15.40 — 2026-10-18
+
 ### Ajouts
 
 - **core** — Report the versions of the libraries in use
@@ -27,6 +39,7 @@ ne pas l'éditer à la main.
 - **doc** — Describe the libraries --version and About list
 - **doc** — Regenerate the changelog
 - **gui** — Say the Transform dialog keeps three lines of marker text
+- **doc** — Regenerate the changelog
 
 ## 0.15.38 — 2026-10-17
 

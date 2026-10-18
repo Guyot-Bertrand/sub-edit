@@ -53,9 +53,8 @@ readonly WATCHED_DIRECTORIES=("${CONFIG_HOME}/subedit" "${CONFIG_HOME}/enchant" 
 # commit.
 readonly SNAPSHOT="${REPO_ROOT}/build/configuration-utilisateur.txt"
 
-readonly RED=$'\033[31m'
-readonly GREEN=$'\033[32m'
-readonly RESET=$'\033[0m'
+# shellcheck source=src/scripts/lib/output.sh
+source "$(dirname "${BASH_SOURCE[0]}")/lib/output.sh"
 
 usage() {
     cat >&2 <<'USAGE'

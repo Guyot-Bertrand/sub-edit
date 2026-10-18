@@ -90,16 +90,16 @@ import json
 import pathlib
 import re
 import shutil
-import subprocess
 import sys
 import tempfile
 from dataclasses import dataclass
+
+from revisions import UPSTREAM, git, merge_base
 
 REPO_ROOT = pathlib.Path(__file__).resolve().parent.parent.parent
 EXEMPTIONS = ".translation-exemptions"
 RATCHET = ".untranslated-ratchet"
 FIXTURES = REPO_ROOT / "src/test/data/translatable"
-UPSTREAM = "origin/main"
 SCANNED_TREES = ("src/lib/", "src/exe/")
 CPP = (".cpp", ".hpp", ".h", ".cc")
 
@@ -292,11 +292,6 @@ def untranslated(path: str, text: str, exemptions: Exemptions) -> list[Literal]:
             if verdict(path, literal, exemptions) == "counted"]
 
 
-def git(root: pathlib.Path, *arguments: str) -> subprocess.CompletedProcess:
-    return subprocess.run(["git", "-C", str(root), *arguments], capture_output=True, text=True,
-                          check=False)
-
-
 def scanned(path: str) -> bool:
     return path.startswith(SCANNED_TREES) and pathlib.PurePosixPath(path).suffix in CPP
 
@@ -353,21 +348,6 @@ def ratchet_text(counts: dict[str, int]) -> str:
     lines = [RATCHET_HEADER, f"total {sum(counts.values())}\n"]
     lines += [f"{count:5}  {path}\n" for path, count in sorted(counts.items())]
     return "".join(lines)
-
-
-def merge_base(root: pathlib.Path, base: str | None) -> tuple[str | None, str]:
-    """The revision the ratchet is compared with, or None and why there is none."""
-    if base is not None:
-        if git(root, "rev-parse", "--verify", "--quiet", f"{base}^{{commit}}").returncode != 0:
-            return None, f"{base} is not a revision of this repository"
-        return base, base
-    if git(root, "rev-parse", "--verify", "--quiet", f"{UPSTREAM}^{{commit}}").returncode != 0:
-        return None, f"{UPSTREAM} is not reachable"
-    found = git(root, "merge-base", "HEAD", UPSTREAM)
-    if found.returncode != 0:
-        return None, f"HEAD and {UPSTREAM} have no merge base (shallow clone?)"
-    revision = found.stdout.strip()
-    return revision, f"the merge base with {UPSTREAM} ({revision[:10]})"
 
 
 def load_exemptions(root: pathlib.Path) -> Exemptions:

@@ -45,10 +45,8 @@ readonly BIN_DIR="${REPO_ROOT}/build/dev/bin"
 readonly FENCE_OPEN='```console'
 readonly FENCE_CLOSE='```'
 
-readonly RED=$'\033[31m'
-readonly GREEN=$'\033[32m'
-readonly BOLD=$'\033[1m'
-readonly RESET=$'\033[0m'
+# shellcheck source=src/scripts/lib/output.sh
+source "$(dirname "${BASH_SOURCE[0]}")/lib/output.sh"
 
 mode="write"
 case "${1:-}" in

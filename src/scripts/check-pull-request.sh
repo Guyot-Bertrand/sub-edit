@@ -26,14 +26,14 @@
 set -euo pipefail
 
 readonly REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+# shellcheck source=src/scripts/lib/project.sh
+source "$(dirname "${BASH_SOURCE[0]}")/lib/project.sh"
 
 PR_BODY="${PR_BODY:-}"
 BASE_SHA="${BASE_SHA:-}"
 
-readonly RED=$'\033[31m'
-readonly GREEN=$'\033[32m'
-readonly BOLD=$'\033[1m'
-readonly RESET=$'\033[0m'
+# shellcheck source=src/scripts/lib/output.sh
+source "$(dirname "${BASH_SOURCE[0]}")/lib/output.sh"
 
 failures=0
 
@@ -88,10 +88,6 @@ check_closes() {
 # The check is about "different", not "patch + 1": a pull request that closes a
 # phase bumps the minor and resets the patch to zero, which also makes the
 # number differ without incrementing it.
-declared_version() {
-    sed -n 's/^[[:space:]]*VERSION[[:space:]]\+\([0-9][0-9.]*\)[[:space:]]*$/\1/p' | head -1
-}
-
 check_version() {
     if [[ -z "${BASE_SHA}" ]]; then
         fail "BASE_SHA is not set" \
@@ -101,7 +97,7 @@ check_version() {
 
     local base=""
     base="$(git -C "${REPO_ROOT}" show "${BASE_SHA}:CMakeLists.txt" 2>/dev/null \
-        | declared_version || true)"
+        | project_version || true)"
     if [[ -z "${base}" ]]; then
         fail "unreadable version in CMakeLists.txt at ${BASE_SHA:0:8}" \
             "is the history complete? the workflow requires fetch-depth: 0."
@@ -109,7 +105,7 @@ check_version() {
     fi
 
     local head=""
-    head="$(declared_version <"${REPO_ROOT}/CMakeLists.txt" || true)"
+    head="$(project_version <"${REPO_ROOT}/CMakeLists.txt" || true)"
     if [[ -z "${head}" ]]; then
         fail "unreadable version in CMakeLists.txt" \
             "project(VERSION) is the source of the current number."
