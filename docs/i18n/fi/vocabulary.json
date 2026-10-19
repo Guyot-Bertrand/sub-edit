@@ -1,0 +1,15 @@
+{
+  "shortcut_header": "Pikanäppäin",
+  "label_headers": ["Komento", "Kohta", "Toiminto", "Valikon kohta"],
+  "no_shortcut_words": ["ei mitään", "ei ole"],
+  "option_header": "Valitsin",
+  "subcommand_header": "Alikomento",
+  "man": {
+    "name": "NIMI",
+    "synopsis": "YLEISKATSAUS",
+    "description": "KUVAUS",
+    "files": "TIEDOSTOT",
+    "see_also": "KATSO MYÖS",
+    "manual_title": "Käyttäjän komennot"
+  }
+}

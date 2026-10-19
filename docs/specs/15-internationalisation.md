@@ -286,7 +286,9 @@ declares another language any more. The other changes, none of which names Frenc
 
 - **Per-language captures.** `subedit_screenshots --language <lang>` builds every screen under that language's shipped
   catalogue and Qt's, and photographs the manual window on that language's tree; `make manual` shoots English and then
-  every language of `src/po/LINGUAS`, comparing each tree with its own references. The French set is the first.
+  every language of `src/po/LINGUAS`, comparing each tree with its own references. The French set is the first. Qt's
+  catalogue is a courtesy: when Qt ships none for the language (Galician), the tool says so and the standard buttons
+  stay English in its shots, as they do in the window (#725).
   `check-screenshots.py` reads every tree on its own, and `check-manual-links.py` refuses an image that does not exist.
 - **The window in the page's language.** `subedit_list_shortcuts --language <lang>` lists the actions with that
   language's labels, and `check-gui-manual.py` compares every tree with the window in its own language: the English

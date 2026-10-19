@@ -26,10 +26,10 @@ sudo dnf install ./subedit-<version>.x86_64.rpm     # Fedora, and relatives
 | `subedit-cli`, `subedit-gui` | `/usr/bin` |
 | položku nabídky, ikonu, metadata pro centrum softwaru | `/usr/share/applications`, `/usr/share/icons`, `/usr/share/metainfo` |
 | tuto příručku ve formátu Markdown | `/usr/share/subedit/manual` |
-| její překlad do každého instalovaného jazyka — katalánštiny, češtiny, němčiny, francouzštiny | `/usr/share/subedit/manual/<language>` — `ca`, `cs`, `de`, `fr` |
+| její překlad do každého instalovaného jazyka — katalánštiny, češtiny, němčiny, španělštiny, finštiny, francouzštiny, galicijštiny | `/usr/share/subedit/manual/<language>` — `ca`, `cs`, `de`, `es`, `fi`, `fr`, `gl` |
 | opravné vzory Gaupolu | `/usr/share/subedit/patterns` |
 | manuálové stránky `subedit-cli`, jednu na podpříkaz, a `subedit-gui` — viz [Manuálové stránky](invocation.md#manuálové-stránky) | `/usr/share/man/man1` |
-| stránky `subedit-cli` v každém instalovaném jazyce — katalánštině, češtině, němčině, francouzštině | `/usr/share/man/<language>/man1` — `ca`, `cs`, `de`, `fr` |
+| stránky `subedit-cli` v každém instalovaném jazyce — katalánštině, češtině, němčině, španělštině, finštině, francouzštině, galicijštině | `/usr/share/man/<language>/man1` — `ca`, `cs`, `de`, `es`, `fi`, `fr`, `gl` |
 
 `ffmpeg` je u obou balíčků **doporučený, nikoli povinný**: bez něj
 okno jen přestane nabízet snímkovou frekvenci, kterou film uvádí — viz
@@ -197,10 +197,10 @@ prefix:
 | ikona | `<prefix>/share/icons/hicolor/scalable/apps` |
 | metadata pro centrum softwaru | `<prefix>/share/metainfo` |
 | tato příručka ve formátu Markdown | `<prefix>/share/subedit/manual` |
-| její překlad do každého instalovaného jazyka — katalánštiny, češtiny, němčiny, francouzštiny | `<prefix>/share/subedit/manual/<language>` — `ca`, `cs`, `de`, `fr` |
+| její překlad do každého instalovaného jazyka — katalánštiny, češtiny, němčiny, španělštiny, finštiny, francouzštiny, galicijštiny | `<prefix>/share/subedit/manual/<language>` — `ca`, `cs`, `de`, `es`, `fi`, `fr`, `gl` |
 | opravné vzory Gaupolu | `<prefix>/share/subedit/patterns` |
 | manuálové stránky obou binárních souborů, pro `subedit-cli` jedna na podpříkaz | `<prefix>/share/man/man1` |
-| stránky `subedit-cli` v každém instalovaném jazyce — katalánštině, češtině, němčině, francouzštině | `<prefix>/share/man/<language>/man1` — `ca`, `cs`, `de`, `fr` |
+| stránky `subedit-cli` v každém instalovaném jazyce — katalánštině, češtině, němčině, španělštině, finštině, francouzštině, galicijštině | `<prefix>/share/man/<language>/man1` — `ca`, `cs`, `de`, `es`, `fi`, `fr`, `gl` |
 
 **Jsou to tytéž soubory, které instalují balíčky**: balíčky z nich vycházejí,
 místo aby se popisovaly podruhé.

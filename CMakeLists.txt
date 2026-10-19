@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.28)
 
 project(
     subedit
-    VERSION 0.15.42
+    VERSION 0.15.43
     DESCRIPTION "Subtitle editor"
     HOMEPAGE_URL "https://github.com/Guyot-Bertrand/sub-edit"
     LANGUAGES CXX)

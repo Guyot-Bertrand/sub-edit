@@ -1,19 +1,21 @@
-# Galician catalogue of subedit, seeded from Gaupol.
+# Galician catalogue of subedit.
+# Copyright (C) the subedit authors
 #
-# Origin: https://github.com/otsaloma/gaupol, file po/gl.po, revision f433bae3d23ef3572411fa9adca3fbab5cb1b3f9.
-# The translations are those of Gaupol's translators, credited in that file:
+# The entries marked "From Gaupol" carry the translation of Gaupol's Galician
+# catalogue (https://github.com/otsaloma/gaupol, file po/gl.po, revision
+# f433bae3d23ef3572411fa9adca3fbab5cb1b3f9), the work of the translators that
+# file credits:
 # Osmo Salomaa <otsaloma@iki.fi>, 2016
+# The other entries were written for subedit (#725).
 # This file is distributed under the GNU General Public License, version 3 or
 # later (GPL-3.0-or-later), as Gaupol and subedit are.
-#
-# seed-catalogues.py: a seed, neither reviewed nor installed (spec 15, D5).
-# Delete the line above to take the file over: the script then leaves it alone.
+# Machine translation, not reviewed by a reader of the language (spec 15, D5).
 msgid ""
 msgstr ""
 "Project-Id-Version: subedit\n"
 "Report-Msgid-Bugs-To: https://github.com/Guyot-Bertrand/sub-edit/issues\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"PO-Revision-Date: 2016-07-07 00:55+0000\n"
+"PO-Revision-Date: 2026-10-19 00:00+0000\n"
 "Last-Translator: \n"
 "Language-Team: Galician\n"
 "Language: gl\n"
@@ -22,70 +24,82 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
+# From Gaupol.
 #: packaging/patterns/Latn-en-US.common-error
 msgid "Add period after a shortened title, such as \"Mr\" and \"Dr\""
 msgstr "Engadir un punto despois dun título abreviado, como «Sr» ou «Dr»"
 
+# From Gaupol.
 #: packaging/patterns/Latn-en-US.common-error
 msgid "Period after title"
 msgstr "Punto despois do título"
 
 #: packaging/patterns/Latn-en.capitalization
 msgid "Capitalize the first person pronoun \"I\""
-msgstr ""
+msgstr "Pór en maiúscula o pronome de primeira persoa «I»"
 
+# From Gaupol.
 #: packaging/patterns/Latn-en.capitalization
 msgid "First person pronoun"
 msgstr "Pronome de primeira persoa"
 
+# From Gaupol.
 #: packaging/patterns/Latn-en.common-error packaging/patterns/Latn.common-error
 msgid "Add or remove space between a number and the associated unit"
 msgstr "Engadir ou eliminar espazo entre un número e a unidade asociada"
 
+# From Gaupol.
 #: packaging/patterns/Latn-en.common-error
 msgid "Letter \"I\" in a lower case word"
 msgstr "Letra «I» nunha palabra en minúsculas"
 
+# From Gaupol.
 #: packaging/patterns/Latn-en.common-error
 msgid "Letter \"l\" in an upper case word"
 msgstr "Letra «l» nunha palabra en maiúsculas"
 
+# From Gaupol.
 #: packaging/patterns/Latn-en.common-error
 msgid "Okay"
 msgstr "Okay"
 
+# From Gaupol.
 #: packaging/patterns/Latn-en.common-error
 msgid "Remove spaces around an apostrophe"
 msgstr "Eliminar os espazos arredor dun apóstrofo"
 
 #: packaging/patterns/Latn-en.common-error
 msgid "Replace letter \"I\" with letter \"l\" in a lower case word"
-msgstr "Subtituír a letra «I» pola letra «l» nunha palabra en minúsculas"
+msgstr "Substituír a letra «I» pola letra «l» nunha palabra en minúsculas"
 
 #: packaging/patterns/Latn-en.common-error
 msgid "Replace letter \"l\" with letter \"I\" in an upper case word"
-msgstr "Subtituír a letra «l» pola letra «I» nunha palabra en maiúsculas"
+msgstr "Substituír a letra «l» pola letra «I» nunha palabra en maiúsculas"
 
 #: packaging/patterns/Latn-en.common-error
 msgid "Replace zero with letter \"O\" in an upper case word"
-msgstr "Subtituír o cero pola letra «O» nunha palabra en maiúsculas"
+msgstr "Substituír o cero pola letra «O» nunha palabra en maiúsculas"
 
+# From Gaupol.
 #: packaging/patterns/Latn-en.common-error packaging/patterns/Latn.common-error
 msgid "Space between number and unit"
 msgstr "Espazo entre número e unidade"
 
+# From Gaupol.
 #: packaging/patterns/Latn-en.common-error
 msgid "Spaces around an apostrophe"
 msgstr "Espazos arredor dun apóstrofo"
 
 #: packaging/patterns/Latn-en.common-error
 msgid "Spell two-letter forms of \"okay\" in all upper case"
-msgstr ""
+msgstr "Escribir en maiúsculas as formas de dúas letras de «okay»"
 
+# From Gaupol.
 #: packaging/patterns/Latn-en.common-error
 msgid "Zero in an upper case word"
 msgstr "Cero nunha palabra en maiúsculas"
 
+# From Gaupol.
 #: packaging/patterns/Latn-en.hearing-impaired
 msgid ""
 "Replace the uppercase name of the speaker before a colon with a dialogue dash"
@@ -93,98 +107,116 @@ msgstr ""
 "Substituír o nome do falante en maiúsculas antes dos dous puntos cun trazo "
 "de diálogo"
 
+# From Gaupol.
 #: packaging/patterns/Latn-en.hearing-impaired
 msgid "Uppercase speaker before a colon"
 msgstr "Falante en maiúsculas antes de dous puntos"
 
+# From Gaupol.
 #: packaging/patterns/Latn-en.line-break
 msgid "Article"
 msgstr "Artigo"
 
 #: packaging/patterns/Latn-en.line-break
 msgid "Do not break after a possessive determiner, e.g. \"my\""
-msgstr "Non quebrar despois dun determinante posesivo, p.ex. \"meu\""
+msgstr "Non quebrar despois dun determinante posesivo, p. ex. «my»"
 
+# From Gaupol.
 #: packaging/patterns/Latn-en.line-break
 msgid "Do not break after a preposition"
 msgstr "Non quebrar despois dunha preposición"
 
 #: packaging/patterns/Latn-en.line-break
 msgid "Do not break after a title, e.g. \" Dr.\""
-msgstr ""
+msgstr "Non quebrar despois dun título, p. ex. «Dr.»"
 
+# From Gaupol.
 #: packaging/patterns/Latn-en.line-break
 msgid "Do not break after an article"
 msgstr "Non quebrar despois dun artigo"
 
+# From Gaupol.
 #: packaging/patterns/Latn-en.line-break
 msgid "Possessive determiner"
 msgstr "Determinante posesivo"
 
+# From Gaupol.
 #: packaging/patterns/Latn-en.line-break
 msgid "Preposition"
 msgstr "Preposición"
 
+# From Gaupol.
 #: packaging/patterns/Latn-en.line-break
 msgid "Title"
 msgstr "Título"
 
+# From Gaupol.
 #: packaging/patterns/Latn-fi.common-error packaging/patterns/Latn.common-error
 msgid "Add space after various punctuation marks"
 msgstr "Engadir un espazo despois de diferentes signos de puntuación"
 
+# From Gaupol.
 #: packaging/patterns/Latn-fi.common-error packaging/patterns/Latn.common-error
 msgid "Space after punctuation marks"
 msgstr "Espazo despois de signos de puntuación"
 
+# From Gaupol.
 #: packaging/patterns/Latn-fr.common-error
 msgid "Add or remove space before various punctuation marks"
 msgstr "Engadir ou eliminar espazo antes de diferentes signos de puntuación"
 
 #: packaging/patterns/Latn-fr.common-error
 msgid "Add spaces around guillemets"
-msgstr "Engadir espazos arredor de aspas"
+msgstr "Engadir espazos arredor das comiñas angulares"
 
+# From Gaupol.
 #: packaging/patterns/Latn-fr.common-error packaging/patterns/Latn.common-error
 msgid "Space before punctuation marks"
 msgstr "Espazo antes dos signos de puntuación"
 
 #: packaging/patterns/Latn-fr.common-error
 msgid "Spaces around guillemets"
-msgstr "Espazos arredor de aspas"
+msgstr "Espazos arredor das comiñas angulares"
 
+# From Gaupol.
 #: packaging/patterns/Latn.capitalization
 msgid "Capitalize after an ellipsis"
 msgstr "Pór en maiúsculas despois de puntos suspensivos"
 
+# From Gaupol.
 #: packaging/patterns/Latn.capitalization
 msgid "Capitalize the first word of a sentence"
 msgstr "Pór en maiúsculas a primeira palabra dunha frase"
 
+# From Gaupol.
 #: packaging/patterns/Latn.capitalization
 msgid "Ellipsis"
 msgstr "Puntos suspensivos"
 
+# From Gaupol.
 #: packaging/patterns/Latn.capitalization
 msgid "Sentence"
 msgstr "Frase"
 
 #: packaging/patterns/Latn.common-error
 msgid "Add or remove spaces around parentheses and square brackets"
-msgstr ""
+msgstr "Engadir ou eliminar os espazos arredor das parénteses e dos corchetes"
 
+# From Gaupol.
 #: packaging/patterns/Latn.common-error
 msgid "Add space after a dialogue dash"
 msgstr "Engadir espazo despois dun trazo de diálogo"
 
+# From Gaupol.
 #: packaging/patterns/Latn.common-error
 msgid "Add space after an ellipsis"
 msgstr "Engadir espazo despois dos puntos suspensivos"
 
 #: packaging/patterns/Latn.common-error
 msgid "Add spaces between musical note characters and lyrics"
-msgstr ""
+msgstr "Engadir espazos entre os caracteres de nota musical e a letra"
 
+# From Gaupol.
 #: packaging/patterns/Latn.common-error
 msgid ""
 "Change the various spellings of 12-hour periods to \"a.m.\" and \"p.m.\""
@@ -192,51 +224,58 @@ msgstr ""
 "Cambiar as diferentes formas de escribir dos períodos de 12 horas a «a.m.» e "
 "«p.m.»"
 
+# From Gaupol.
 #: packaging/patterns/Latn.common-error
 msgid "Double apostrophe"
 msgstr "Dobre apóstrofo"
 
+# From Gaupol.
 #: packaging/patterns/Latn.common-error
 msgid "Letter \"O\" in a number"
 msgstr "Letra «O» nun número"
 
 #: packaging/patterns/Latn.common-error
 msgid "Ligatures"
-msgstr ""
+msgstr "Ligaduras"
 
+# From Gaupol.
 #: packaging/patterns/Latn.common-error
 msgid "Multiple question- and exclamation marks"
 msgstr "Múltiples signos de interrogación e exclamación"
 
 #: packaging/patterns/Latn.common-error
 msgid "Periods around a punctuation mark"
-msgstr "Puntos arredor de signos de puntuación"
+msgstr "Puntos arredor dun signo de puntuación"
 
 #: packaging/patterns/Latn.common-error
 msgid "Remove period before or after various punctuation marks"
-msgstr "Retirar os puntos antes ou despois de diferentes signos de puntuación"
+msgstr "Eliminar o punto antes ou despois de diversos signos de puntuación"
 
 #: packaging/patterns/Latn.common-error
 msgid "Remove space after a starting- and before an ending quotation mark"
 msgstr ""
-"Eliminar espazo despois dunhas comiñas iniciais e antes dunhas comiñas finais"
+"Eliminar o espazo despois dunha comiña inicial e antes dunha comiña final"
 
+# From Gaupol.
 #: packaging/patterns/Latn.common-error
 msgid "Remove space after an ellipsis that starts a line"
 msgstr "Eliminar o espazo despois duns puntos suspensivos ao comezo dunha liña"
 
+# From Gaupol.
 #: packaging/patterns/Latn.common-error
 msgid "Remove space before various punctuation marks"
 msgstr "Eliminar espazo antes de diferentes signos de puntuación"
 
+# From Gaupol.
 #: packaging/patterns/Latn.common-error
 msgid "Replace a double apostrophe with a quotation mark"
 msgstr "Substituír os dobres apóstrofos con comiñas"
 
 #: packaging/patterns/Latn.common-error
 msgid "Replace a single clause-terminating dash with two dashes"
-msgstr ""
+msgstr "Substituír un trazo único ao final dunha cláusula por dous trazos"
 
+# From Gaupol.
 #: packaging/patterns/Latn.common-error
 msgid "Replace letter \"O\" with a zero in a number"
 msgstr "Substituír a letra «O» cun cero nos números"
@@ -245,66 +284,74 @@ msgstr "Substituír a letra «O» cun cero nos números"
 msgid ""
 "Replace multiple consequtive question- and exclamation marks with only one"
 msgstr ""
-"Substituír os signos de interrogación (ou exclamación) múltiples "
-"consecutivos por só un "
+"Substituír varios signos de interrogación e exclamación consecutivos por un "
+"só"
 
+# From Gaupol.
 #: packaging/patterns/Latn.common-error
 msgid "Space after a dialogue dash"
 msgstr "Espazo despois dun trazo de diálogo"
 
+# From Gaupol.
 #: packaging/patterns/Latn.common-error
 msgid "Space after a starting ellipsis"
 msgstr "Espazo despois de puntos suspensivos iniciais"
 
+# From Gaupol.
 #: packaging/patterns/Latn.common-error
 msgid "Space after an ellipsis"
 msgstr "Espazo despois de puntos suspensivos"
 
+# From Gaupol.
 #: packaging/patterns/Latn.common-error
 msgid "Spaces around a quotation mark"
 msgstr "Espazos arredor de comiñas"
 
 #: packaging/patterns/Latn.common-error
 msgid "Spaces around brackets"
-msgstr "Espazos arredor de parénteses"
+msgstr "Espazos arredor dos corchetes"
 
 #: packaging/patterns/Latn.common-error
 msgid "Spaces around musical notes"
-msgstr ""
+msgstr "Espazos arredor das notas musicais"
 
+# From Gaupol.
 #: packaging/patterns/Latn.common-error
 msgid "Spelling of a.m. and p.m."
 msgstr "Formas de escribir a.m. e p.m."
 
 #: packaging/patterns/Latn.common-error
 msgid "Terminating double-dashes"
-msgstr ""
+msgstr "Trazos dobres finais"
 
 #: packaging/patterns/Latn.common-error
 msgid "Unpack ligatures to individual characters"
-msgstr ""
+msgstr "Descompoñer as ligaduras en caracteres individuais"
 
 #: packaging/patterns/Latn.hearing-impaired
 msgid "One-line song lyrics between number signs"
-msgstr ""
+msgstr "Letra de canción dunha liña entre cancelos"
 
 #: packaging/patterns/Latn.hearing-impaired
 msgid "Remove description of a sound between parentheses"
-msgstr ""
+msgstr "Eliminar a descrición dun son entre parénteses"
 
 #: packaging/patterns/Latn.hearing-impaired
 msgid "Remove description of a sound between square brackets"
-msgstr "Retirar a descrición dun son entre corchetes"
+msgstr "Eliminar a descrición dun son entre corchetes"
 
 #: packaging/patterns/Latn.hearing-impaired
 msgid "Remove one-line song lyrics starting with or between number signs"
 msgstr ""
+"Eliminar a letra de canción dunha liña que comeza por cancelo ou está entre "
+"cancelos"
 
 #: packaging/patterns/Latn.hearing-impaired
 msgid "Remove song lyrics starting with or between number signs"
 msgstr ""
-"Retirar a letra de cancións que comece con, ou estea entre signos de número"
+"Eliminar a letra de canción que comeza por cancelo ou está entre cancelos"
 
+# From Gaupol.
 #: packaging/patterns/Latn.hearing-impaired
 msgid "Replace the name of the speaker before a colon with a dialogue dash"
 msgstr ""
@@ -312,8 +359,9 @@ msgstr ""
 
 #: packaging/patterns/Latn.hearing-impaired
 msgid "Song lyrics between number signs"
-msgstr "Letra de canción entre signos de número"
+msgstr "Letra de canción entre cancelos"
 
+# From Gaupol.
 #: packaging/patterns/Latn.hearing-impaired
 #: src/lib/subedit/gui/correction_task_page.cpp
 msgid "Sound in brackets"
@@ -322,660 +370,735 @@ msgstr "Son entre corchetes"
 #: packaging/patterns/Latn.hearing-impaired
 #: src/lib/subedit/gui/correction_task_page.cpp
 msgid "Sound in parentheses"
-msgstr ""
+msgstr "Son entre parénteses"
 
+# From Gaupol.
 #: packaging/patterns/Latn.hearing-impaired
 msgid "Speaker before a colon"
 msgstr "Falante antes de dous puntos"
 
 #: packaging/patterns/Latn.line-break
 msgid "Break according to clauses terminated by a punctuation mark"
-msgstr ""
+msgstr "Quebrar segundo as cláusulas rematadas por un signo de puntuación"
 
+# From Gaupol.
 #: packaging/patterns/Latn.line-break
 msgid "Break according to dialogue separated by dashes"
 msgstr "Quebrar de acordo ao diálogo separado mediante trazos"
 
 #: packaging/patterns/Latn.line-break
 msgid "Clause"
-msgstr ""
+msgstr "Cláusula"
 
+# From Gaupol.
 #: packaging/patterns/Latn.line-break
 msgid "Dialogue"
 msgstr "Diálogo"
 
+# From Gaupol.
 #: packaging/patterns/Latn.line-break
 msgid "Do not break between a number and associated unit"
 msgstr "Non quebrar entre un número e a unidade asociada"
 
+# From Gaupol.
 #: packaging/patterns/Latn.line-break
 msgid "Number and unit"
 msgstr "Número e unidade"
 
 #: packaging/patterns/Zyyy.common-error
 msgid "Ellipses"
-msgstr ""
+msgstr "Puntos suspensivos"
 
+# From Gaupol.
 #: packaging/patterns/Zyyy.common-error
 msgid "Leading and trailing spaces"
 msgstr "Espazos iniciais e finais"
 
+# From Gaupol.
 #: packaging/patterns/Zyyy.common-error
 msgid "Multiple consecutive spaces"
 msgstr "Varios espazos consecutivos"
 
+# From Gaupol.
 #: packaging/patterns/Zyyy.common-error
 msgid "Musical notes"
 msgstr "Notas musicais"
 
+# From Gaupol.
 #: packaging/patterns/Zyyy.common-error
 msgid "Remove space between digits of a number"
 msgstr "Eliminar o espazo entre os díxitos dun número"
 
 #: packaging/patterns/Zyyy.common-error
 msgid "Remove spaces from the beginning and end of lines"
-msgstr "Retirar os espazos do comezo e do final das liñas"
+msgstr "Eliminar os espazos do comezo e do final das liñas"
 
 #: packaging/patterns/Zyyy.common-error
 msgid "Replace Unicode ellipses with three separate dots"
-msgstr ""
+msgstr "Substituír os puntos suspensivos Unicode por tres puntos separados"
 
 #: packaging/patterns/Zyyy.common-error
 msgid "Replace Unicode musical note characters with number signs"
-msgstr ""
+msgstr "Substituír os caracteres Unicode de nota musical por cancelos"
 
+# From Gaupol.
 #: packaging/patterns/Zyyy.common-error
 msgid "Replace multiple consecutive spaces with only one"
 msgstr "Substituír múltiples espazos consecutivos por só un"
 
+# From Gaupol.
 #: packaging/patterns/Zyyy.common-error
 msgid "Space between digits"
 msgstr "Espazo entre díxitos"
 
 #: src/exe/cli/application.cpp
 msgid "Usage"
-msgstr ""
+msgstr "Uso"
 
 #: src/exe/cli/application.cpp
 msgid "Positionals"
-msgstr ""
+msgstr "Argumentos posicionais"
 
 #. TRANSLATORS: written after an argument that must be given.
 #: src/exe/cli/application.cpp
 msgid "REQUIRED"
-msgstr ""
+msgstr "OBRIGATORIO"
 
 #. TRANSLATORS: written before the options an option cannot be given with.
 #: src/exe/cli/application.cpp
 msgid "Excludes"
-msgstr ""
+msgstr "Exclúe"
 
 #. TRANSLATORS: written before the options an option needs.
 #: src/exe/cli/application.cpp
 msgid "Needs"
-msgstr ""
+msgstr "Require"
 
 #: src/exe/cli/application.cpp
 msgid "Options"
-msgstr ""
+msgstr "Opcións"
 
 #: src/exe/cli/application.cpp
 msgid "Print this help message and exit"
-msgstr ""
+msgstr "Mostrar esta axuda e saír"
 
 #: src/exe/cli/application.cpp
 msgid "Subcommands"
-msgstr ""
+msgstr "Subordes"
 
 #: src/exe/cli/application.cpp
 msgid "Read, inspect and retime subtitle files."
-msgstr ""
+msgstr "Ler, examinar e recalcular os tempos de ficheiros de subtítulos."
 
 #: src/exe/cli/application.cpp
 msgid "Display program version information and exit"
-msgstr ""
+msgstr "Mostrar a información da versión do programa e saír"
 
 #: src/exe/cli/application.cpp
 msgid "Say more: -v is the default, -vv details, -vvv debugs"
-msgstr ""
+msgstr "Dicir máis: -v é o predeterminado, -vv detalla, -vvv depura"
 
 #: src/exe/cli/application.cpp
 msgid "Say nothing but errors"
-msgstr ""
+msgstr "Non dicir nada agás os erros"
 
 #: src/exe/cli/application.cpp
 msgid "Encoding to read the files in; detected by default"
 msgstr ""
+"Codificación coa que ler os ficheiros; detectada de modo predeterminado"
 
 #: src/exe/cli/application.cpp
 msgid "Form of the result on standard output: text or json"
-msgstr ""
+msgstr "Forma do resultado na saída estándar: text ou json"
 
 #: src/exe/cli/application.cpp
 msgid ""
 "Read the operation settings from FILE instead of the user's settings file"
 msgstr ""
+"Ler a configuración das operacións de FILE no canto do ficheiro de "
+"configuración do usuario"
 
 #: src/exe/cli/application.cpp
 msgid "Ignore any settings file: use the built-in defaults"
 msgstr ""
+"Ignorar calquera ficheiro de configuración: usar os valores predeterminados "
+"integrados"
 
 #: src/exe/cli/application.cpp
 msgid "Write the encodings that can be read and written, one a line, and stop"
 msgstr ""
+"Escribir as codificacións que se poden ler e escribir, unha por liña, e parar"
 
 #: src/exe/cli/application.cpp
 msgid "--config needs a file name"
-msgstr ""
+msgstr "--config require un nome de ficheiro"
 
 #: src/exe/cli/commands/adjust.cpp
 msgid "Bring the duration of every subtitle within a reading speed and limits"
 msgstr ""
+"Levar a duración de cada subtítulo dentro dunha velocidade de lectura e duns "
+"límites"
 
 #: src/exe/cli/commands/adjust.cpp
 msgid "Subtitle files to adjust"
-msgstr ""
+msgstr "Ficheiros de subtítulos que axustar"
 
 #: src/exe/cli/commands/adjust.cpp
 msgid "Reading speed in characters per second, or off (default 15)"
 msgstr ""
+"Velocidade de lectura en caracteres por segundo, ou off (predeterminado: 15)"
 
 #: src/exe/cli/commands/adjust.cpp
 msgid "Let the reading speed bring an end earlier"
-msgstr ""
+msgstr "Permitir que a velocidade de lectura adiante un final"
 
 #: src/exe/cli/commands/adjust.cpp
 msgid "Do not let the reading speed bring an end earlier"
-msgstr ""
+msgstr "Non permitir que a velocidade de lectura adiante un final"
 
 #: src/exe/cli/commands/adjust.cpp
 msgid "Let the reading speed move an end later"
-msgstr ""
+msgstr "Permitir que a velocidade de lectura atrase un final"
 
 #: src/exe/cli/commands/adjust.cpp
 msgid "Do not let the reading speed move an end later"
-msgstr ""
+msgstr "Non permitir que a velocidade de lectura atrase un final"
 
 #: src/exe/cli/commands/adjust.cpp
 msgid "Shortest duration, or off (default 1.5)"
-msgstr ""
+msgstr "Duración mínima, ou off (predeterminado: 1.5)"
 
 #: src/exe/cli/commands/adjust.cpp
 msgid "Longest duration, or off (default: none)"
-msgstr ""
+msgstr "Duración máxima, ou off (predeterminado: ningunha)"
 
 #: src/exe/cli/commands/adjust.cpp
 msgid "Least time left before the next subtitle, or off (default 0)"
-msgstr ""
+msgstr "Tempo mínimo antes do subtítulo seguinte, ou off (predeterminado: 0)"
 
 #: src/exe/cli/commands/append.cpp
 msgid "Put subtitle files one after another into a single file"
-msgstr ""
+msgstr "Pór ficheiros de subtítulos un despois doutro nun só ficheiro"
 
 #: src/exe/cli/commands/append.cpp
 msgid "The base file, then the files to put after it, in order"
-msgstr ""
+msgstr "O ficheiro base e despois os ficheiros que pór tras el, por orde"
 
 #: src/exe/cli/commands/append.cpp
 msgid "File to write"
-msgstr ""
+msgstr "Ficheiro que escribir"
 
 #: src/exe/cli/commands/append.cpp src/exe/cli/commands/command.cpp
 #: src/exe/cli/commands/split_file.cpp
 msgid "Work out and say what would be written, and write nothing"
-msgstr ""
+msgstr "Calcular e dicir o que se escribiría, sen escribir nada"
 
 #: src/exe/cli/commands/append.cpp src/exe/cli/commands/convert.cpp
 msgid "Put the subtitles in order of their start before writing"
-msgstr ""
+msgstr "Ordenar os subtítulos polo seu inicio antes de escribir"
 
 #: src/exe/cli/commands/append.cpp src/exe/cli/commands/convert.cpp
 msgid ""
 "Cut overlapping subtitles so that no range overlaps another, before writing"
 msgstr ""
+"Cortar os subtítulos que se solapan para que ningunha franxa se solape con "
+"outra, antes de escribir"
 
 #: src/exe/cli/commands/append.cpp
 msgid "append needs a base file and at least one file to put after it"
 msgstr ""
+"append require un ficheiro base e polo menos un ficheiro que pór tras el"
 
 #: src/exe/cli/commands/append.cpp
 msgid "no destination given: append writes one file, use --output"
 msgstr ""
+"non se indicou ningún destino: append escribe un só ficheiro, use --output"
 
 #: src/exe/cli/commands/command.cpp
 msgid "File to write, for a single input"
-msgstr ""
+msgstr "Ficheiro que escribir, para unha soa entrada"
 
 #: src/exe/cli/commands/command.cpp
 msgid "Directory to write into"
-msgstr ""
+msgstr "Directorio no que escribir"
 
 #: src/exe/cli/commands/command.cpp
 msgid "Write back over the inputs"
-msgstr ""
+msgstr "Escribir por riba das entradas"
 
 #: src/exe/cli/commands/command.cpp
 msgid "Take directories as inputs, and every subtitle file in them"
 msgstr ""
+"Tomar directorios como entradas, e todos os ficheiros de subtítulos que "
+"conteñen"
 
 #: src/exe/cli/commands/command.cpp
 msgid "Act only on subtitles N to M, or N to the end"
-msgstr ""
+msgstr "Actuar só sobre os subtítulos N a M, ou de N ata o final"
 
 #: src/exe/cli/commands/command.cpp
 msgid "Translation file to lay over the subtitle file, for a single input"
 msgstr ""
+"Ficheiro de tradución que superpor ao ficheiro de subtítulos, para unha soa "
+"entrada"
 
 #: src/exe/cli/commands/command.cpp
 msgid "How the lines of the translation find their subtitles"
-msgstr ""
+msgstr "Como atopan as liñas da tradución os seus subtítulos"
 
 #: src/exe/cli/commands/command.cpp
 msgid "The document to change: the main one, or the translation given by -t"
-msgstr ""
+msgstr "O documento que cambiar: o principal, ou a tradución indicada con -t"
 
 #: src/exe/cli/commands/config.cpp
 msgid "List, show and change the operation settings"
-msgstr ""
+msgstr "Listar, mostrar e cambiar a configuración das operacións"
 
 #: src/exe/cli/commands/config.cpp
 msgid ""
 "Write every operation key, what it is for, what it accepts and its default"
 msgstr ""
+"Escribir cada clave de operación, para que serve, que acepta e o seu valor "
+"predeterminado"
 
 #: src/exe/cli/commands/config.cpp
 msgid "Write the settings file used, then every operation key with its value"
 msgstr ""
+"Escribir o ficheiro de configuración usado e despois cada clave de operación "
+"co seu valor"
 
 #: src/exe/cli/commands/config.cpp
 msgid "Write KEY = VALUE into the settings file, keeping every other setting"
 msgstr ""
+"Escribir KEY = VALUE no ficheiro de configuración, conservando o resto da "
+"configuración"
 
 #: src/exe/cli/commands/config.cpp
 msgid "Operation key, as config list names it"
-msgstr ""
+msgstr "Clave de operación, tal como a nomea config list"
 
 #: src/exe/cli/commands/config.cpp
 msgid "Value, as config list says it accepts"
-msgstr ""
+msgstr "Valor, tal como config list di que acepta"
 
 #: src/exe/cli/commands/config.cpp
 msgid ""
 "Put KEY back to its default in the settings file, keeping every other setting"
 msgstr ""
+"Devolver KEY ao seu valor predeterminado no ficheiro de configuración, "
+"conservando o resto da configuración"
 
 #: src/exe/cli/commands/config.cpp
 msgid "--no-config has nothing to write to"
-msgstr ""
+msgstr "--no-config non ten onde escribir"
 
 #: src/exe/cli/commands/config.cpp
 msgid "no settings file could be located; give one with --config FILE"
 msgstr ""
+"non se puido localizar ningún ficheiro de configuración; indique un con --"
+"config FILE"
 
 #: src/exe/cli/commands/convert.cpp
 msgid "Write a subtitle file out in another format or shape"
-msgstr ""
+msgstr "Escribir un ficheiro de subtítulos noutro formato ou noutra forma"
 
 #: src/exe/cli/commands/convert.cpp
 msgid "Subtitle files to convert"
-msgstr ""
+msgstr "Ficheiros de subtítulos que converter"
 
 #: src/exe/cli/commands/convert.cpp
 msgid "Format to write"
-msgstr ""
+msgstr "Formato que escribir"
 
 #: src/exe/cli/commands/convert.cpp
 msgid "Line endings to write; the source's by default"
-msgstr ""
+msgstr "Finais de liña que escribir; os da orixe de modo predeterminado"
 
 #: src/exe/cli/commands/convert.cpp
 msgid "Encoding to write; the source's by default"
-msgstr ""
+msgstr "Codificación que escribir; a da orixe de modo predeterminado"
 
 #: src/exe/cli/commands/convert.cpp src/exe/cli/commands/inspect.cpp
 msgid "Frame rate of a file counted in frames: 25, 23.976"
-msgstr ""
+msgstr "Taxa de fotogramas dun ficheiro contado en fotogramas: 25, 23.976"
 
 #: src/exe/cli/commands/convert.cpp
 msgid "Write a byte order mark"
-msgstr ""
+msgstr "Escribir unha marca de orde de bytes"
 
 #: src/exe/cli/commands/convert.cpp
 msgid "Write no byte order mark"
-msgstr ""
+msgstr "Non escribir ningunha marca de orde de bytes"
 
 #: src/exe/cli/commands/convert.cpp
 msgid "Join the subtitles that repeat each other into one, before writing"
-msgstr ""
+msgstr "Unir nun só os subtítulos que se repiten, antes de escribir"
 
 #: src/exe/cli/commands/convert.cpp
 msgid "Join the repeats, sort, then make the ranges disjoint, before writing"
 msgstr ""
+"Unir as repeticións, ordenar e despois facer as franxas disxuntas, antes de "
+"escribir"
 
 #: src/exe/cli/commands/correct.cpp
 msgid "Correct the texts with the patterns of the correction assistant"
-msgstr ""
+msgstr "Corrixir os textos cos padróns do asistente de corrección"
 
 #: src/exe/cli/commands/correct.cpp
 msgid "Subtitle files to correct"
-msgstr ""
+msgstr "Ficheiros de subtítulos que corrixir"
 
 #: src/exe/cli/commands/correct.cpp
 msgid "The tasks to run, in a list: none is chosen beforehand"
 msgstr ""
+"As tarefas que executar, nunha lista: ningunha está escollida de antemán"
 
 #: src/exe/cli/commands/correct.cpp
 msgid "The cascade of patterns the tasks read: Zyyy, Latn, Latn-en, Latn-en-US"
 msgstr ""
+"A cascada de padróns que len as tarefas: Zyyy, Latn, Latn-en, Latn-en-US"
 
 #: src/exe/cli/commands/correct.cpp
 msgid "The classes of common errors to apply: both by default"
-msgstr ""
+msgstr "As clases de erros comúns que aplicar: as dúas de modo predeterminado"
 
 #: src/exe/cli/commands/correct.cpp
 msgid "Switch a pattern on, by its English name or type:name; repeatable"
-msgstr ""
+msgstr "Activar un padrón, polo seu nome en inglés ou por type:name; repetible"
 
 #: src/exe/cli/commands/correct.cpp
 msgid "Switch a pattern off, by its English name or type:name; repeatable"
 msgstr ""
+"Desactivar un padrón, polo seu nome en inglés ou por type:name; repetible"
 
 #: src/exe/cli/commands/correct.cpp
 msgid "The dictionary join-words and split-words read: fr_FR, en_US, en..."
-msgstr ""
+msgstr "O dicionario que len join-words e split-words: fr_FR, en_US, en..."
 
 #: src/exe/cli/commands/correct.cpp
 msgid ""
 "Longest line of line-break, in characters; no default, Gaupol's is in ems"
 msgstr ""
+"Liña máis longa de line-break, en caracteres; sen valor predeterminado, o de "
+"Gaupol está en ems"
 
 #: src/exe/cli/commands/correct.cpp
 msgid "Most lines of line-break: 3, as Gaupol's"
-msgstr ""
+msgstr "Número máximo de liñas de line-break: 3, como en Gaupol"
 
 #: src/exe/cli/commands/correct.cpp
 msgid ""
 "Leave alone a subtitle whose longest line is within this, or off: --max-"
 "length"
 msgstr ""
+"Deixar tal como está un subtítulo cuxa liña máis longa non supera este "
+"valor, ou off: --max-length"
 
 #: src/exe/cli/commands/correct.cpp
 msgid ""
 "Leave alone a subtitle whose line count is within this, or off: --max-lines"
 msgstr ""
+"Deixar tal como está un subtítulo cuxo número de liñas non supera este "
+"valor, ou off: --max-lines"
 
 #: src/exe/cli/commands/correct.cpp
 msgid ""
 "Leave the subtitles the correction empties, empty, instead of removing them"
 msgstr ""
+"Deixar baleiros os subtítulos que a corrección baleira, no canto de "
+"eliminalos"
 
 #: src/exe/cli/commands/correct.cpp
 msgid ""
 "Remove the subtitles the correction empties, whatever the settings file says"
 msgstr ""
+"Eliminar os subtítulos que a corrección baleira, diga o que diga o ficheiro "
+"de configuración"
 
 #: src/exe/cli/commands/dialogue_dashes.cpp
 msgid "Put dialogue dashes on the lines, or take them off"
-msgstr ""
+msgstr "Pór trazos de diálogo nas liñas, ou quitalos"
 
 #: src/exe/cli/commands/dialogue_dashes.cpp src/exe/cli/commands/italics.cpp
 #: src/exe/cli/commands/letter_case.cpp src/exe/cli/commands/replace.cpp
 msgid "Subtitle files to change"
-msgstr ""
+msgstr "Ficheiros de subtítulos que cambiar"
 
 #: src/exe/cli/commands/dialogue_dashes.cpp
 msgid "Put a dialogue dash at the head of the lines"
-msgstr ""
+msgstr "Pór un trazo de diálogo ao comezo das liñas"
 
 #: src/exe/cli/commands/dialogue_dashes.cpp
 msgid "Take the dialogue dashes off"
-msgstr ""
+msgstr "Quitar os trazos de diálogo"
 
 #: src/exe/cli/commands/disjoint.cpp
 msgid ""
 "Cut overlapping subtitles so that no range overlaps another, merging what "
 "overlaps"
 msgstr ""
+"Cortar os subtítulos que se solapan para que ningunha franxa se solape con "
+"outra, fusionando o que se solapa"
 
 #: src/exe/cli/commands/disjoint.cpp
 msgid "Subtitle files to make disjoint"
-msgstr ""
+msgstr "Ficheiros de subtítulos que facer disxuntos"
 
 #: src/exe/cli/commands/disjoint.cpp src/exe/cli/commands/repair.cpp
 msgid ""
 "Shortest interval kept; a shorter one is taken over by a neighbour (default "
 "0.08)"
 msgstr ""
+"Intervalo máis curto conservado; un máis curto pasa a un veciño "
+"(predeterminado: 0.08)"
 
 #: src/exe/cli/commands/disjoint.cpp src/exe/cli/commands/repair.cpp
 msgid ""
 "Most lines of a merged subtitle; more are shown in windows, 0 for no limit "
 "(default 2)"
 msgstr ""
+"Número máximo de liñas dun subtítulo fusionado; as demais móstranse en "
+"xanelas, 0 para ningún límite (predeterminado: 2)"
 
 #: src/exe/cli/commands/disjoint.cpp src/exe/cli/commands/repair.cpp
 msgid "Put a dash before the text of each merged subtitle"
-msgstr ""
+msgstr "Pór un trazo antes do texto de cada subtítulo fusionado"
 
 #: src/exe/cli/commands/disjoint.cpp
 msgid ""
 "Put the subtitles in order of their start first; without it, a file out of "
 "order is refused"
 msgstr ""
+"Ordenar primeiro os subtítulos polo seu inicio; sen isto, rexéitase un "
+"ficheiro desordenado"
 
 #: src/exe/cli/commands/framerate.cpp
 msgid "Re-time a file mastered at one frame rate for another"
 msgstr ""
+"Recalcular os tempos dun ficheiro feito cunha taxa de fotogramas para outra"
 
 #: src/exe/cli/commands/framerate.cpp
 msgid "Subtitle files to re-time"
-msgstr ""
+msgstr "Ficheiros de subtítulos aos que recalcular os tempos"
 
 #: src/exe/cli/commands/framerate.cpp
 msgid "Frame rate the file is timed at: 25, 23.976"
-msgstr ""
+msgstr "Taxa de fotogramas coa que está temporizado o ficheiro: 25, 23.976"
 
 #: src/exe/cli/commands/framerate.cpp
 msgid "Frame rate to time it for: 24, 29.97"
-msgstr ""
+msgstr "Taxa de fotogramas para a que temporizalo: 24, 29.97"
 
 #: src/exe/cli/commands/hearing_impaired.cpp
 msgid "Remove the sounds described between square brackets"
-msgstr ""
+msgstr "Eliminar os sons descritos entre corchetes"
 
 #: src/exe/cli/commands/hearing_impaired.cpp
 msgid "Subtitle files to clean"
-msgstr ""
+msgstr "Ficheiros de subtítulos que limpar"
 
 #: src/exe/cli/commands/hearing_impaired.cpp
 msgid "Also remove the sounds between parentheses, often whispered lines"
-msgstr ""
+msgstr "Eliminar tamén os sons entre parénteses, a miúdo liñas murmuradas"
 
 #: src/exe/cli/commands/inspect.cpp
 msgid "Report what a subtitle file is made of"
-msgstr ""
+msgstr "Informar de que está feito un ficheiro de subtítulos"
 
 #: src/exe/cli/commands/inspect.cpp
 msgid "Subtitle files to report on"
-msgstr ""
+msgstr "Ficheiros de subtítulos dos que informar"
 
 #: src/exe/cli/commands/inspect.cpp
 msgid "List every anomaly, subtitle by subtitle, instead of counting them"
-msgstr ""
+msgstr "Listar cada anomalía, subtítulo por subtítulo, no canto de contalas"
 
 #: src/exe/cli/commands/italics.cpp
 msgid "Put the texts in italics, or take their italics out"
-msgstr ""
+msgstr "Pór os textos en cursiva, ou quitarlles a cursiva"
 
 #: src/exe/cli/commands/italics.cpp
 msgid "Put the texts in italics"
-msgstr ""
+msgstr "Pór os textos en cursiva"
 
 #: src/exe/cli/commands/italics.cpp
 msgid "Take the italics out"
-msgstr ""
+msgstr "Quitar a cursiva"
 
 #: src/exe/cli/commands/join_repeats.cpp
 msgid ""
 "Join the subtitles that repeat each other, one after the other, into one"
-msgstr ""
+msgstr "Unir nun só os subtítulos consecutivos que se repiten"
 
 #: src/exe/cli/commands/join_repeats.cpp
 msgid "Subtitle files to join the repeats of"
-msgstr ""
+msgstr "Ficheiros de subtítulos nos que unir as repeticións"
 
 #: src/exe/cli/commands/letter_case.cpp
 msgid "Put the texts in title, sentence, upper or lower case, tags intact"
 msgstr ""
+"Pór os textos en maiúsculas de título, de frase, en maiúsculas ou en "
+"minúsculas, coas etiquetas intactas"
 
 #: src/exe/cli/commands/letter_case.cpp
 msgid "The case to put the texts in"
-msgstr ""
+msgstr "O tipo de maiúsculas no que pór os textos"
 
 #: src/exe/cli/commands/pair.cpp
 msgid ""
 "Write a translation at the positions of its main file, and say how it lined "
 "up"
 msgstr ""
+"Escribir unha tradución nas posicións do seu ficheiro principal e dicir como "
+"se aliñou"
 
 #: src/exe/cli/commands/pair.cpp
 msgid "The main subtitle file"
-msgstr ""
+msgstr "O ficheiro de subtítulos principal"
 
 #: src/exe/cli/commands/pair.cpp
 msgid "pair needs the translation file to lay over the main one: use -t"
-msgstr ""
+msgstr "pair require o ficheiro de tradución que superpor ao principal: use -t"
 
 #: src/exe/cli/commands/repair.cpp
 msgid ""
 "Join the repeated subtitles, put them in order, then make the ranges disjoint"
 msgstr ""
+"Unir os subtítulos repetidos, ordenalos e despois facer as franxas disxuntas"
 
 #: src/exe/cli/commands/repair.cpp
 msgid "Subtitle files to repair"
-msgstr ""
+msgstr "Ficheiros de subtítulos que reparar"
 
 #: src/exe/cli/commands/replace.cpp
 msgid "Replace a text in the subtitles, without breaking a tag"
-msgstr ""
+msgstr "Substituír un texto nos subtítulos sen romper ningunha etiqueta"
 
 #: src/exe/cli/commands/replace.cpp
 msgid "Text to look for in what is shown"
-msgstr ""
+msgstr "Texto que buscar no que se mostra"
 
 #: src/exe/cli/commands/replace.cpp
 msgid "What replaces it, tags allowed"
-msgstr ""
+msgstr "O que o substitúe, con etiquetas permitidas"
 
 #: src/exe/cli/commands/replace.cpp
 msgid "Read the text to look for as a regular expression"
-msgstr ""
+msgstr "Ler o texto que buscar como unha expresión regular"
 
 #: src/exe/cli/commands/replace.cpp
 msgid "Tell capitals from small letters"
-msgstr ""
+msgstr "Distinguir as maiúsculas das minúsculas"
 
 #: src/exe/cli/commands/shift.cpp
 msgid "Move every position of a file by a fixed amount"
-msgstr ""
+msgstr "Mover cada posición dun ficheiro nunha cantidade fixa"
 
 #: src/exe/cli/commands/shift.cpp
 msgid "Subtitle files to shift"
-msgstr ""
+msgstr "Ficheiros de subtítulos que desprazar"
 
 #: src/exe/cli/commands/shift.cpp
 msgid "Amount to move by: 2.999, -7.001, or 00:00:07.001"
-msgstr ""
+msgstr "Cantidade que mover: 2.999, -7.001 ou 00:00:07.001"
 
 #: src/exe/cli/commands/shift.cpp
 msgid "Move by the amount that puts the positions back on their frame grid"
-msgstr ""
+msgstr "Mover na cantidade que devolve as posicións á súa grade de fotogramas"
 
 #: src/exe/cli/commands/snap.cpp
 msgid ""
 "Move every position onto the nearest frame of a frame rate (see framerate)"
 msgstr ""
+"Mover cada posición ao fotograma máis próximo dunha taxa de fotogramas (ver "
+"framerate)"
 
 #: src/exe/cli/commands/snap.cpp
 msgid "Subtitle files to align"
-msgstr ""
+msgstr "Ficheiros de subtítulos que aliñar"
 
 #: src/exe/cli/commands/snap.cpp
 msgid "Frame rate to align on: 25, 23.976"
-msgstr ""
+msgstr "Taxa de fotogramas na que aliñar: 25, 23.976"
 
 #: src/exe/cli/commands/sort.cpp
 msgid "Put the subtitles in the order of their start, keeping ties as they are"
 msgstr ""
+"Ordenar os subtítulos polo seu inicio, deixando os empates tal como están"
 
 #: src/exe/cli/commands/sort.cpp
 msgid "Subtitle files to sort"
-msgstr ""
+msgstr "Ficheiros de subtítulos que ordenar"
 
 #: src/exe/cli/commands/split_file.cpp
 msgid "Cut a subtitle file in two, a head and a tail"
-msgstr ""
+msgstr "Cortar un ficheiro de subtítulos en dous, unha cabeza e unha cola"
 
 #: src/exe/cli/commands/split_file.cpp
 msgid "Subtitle file to cut"
-msgstr ""
+msgstr "Ficheiro de subtítulos que cortar"
 
 #: src/exe/cli/commands/split_file.cpp
 msgid "Number of the first subtitle of the tail, as the table numbers them"
-msgstr ""
+msgstr "Número do primeiro subtítulo da cola, tal como os numera a táboa"
 
 #: src/exe/cli/commands/split_file.cpp
 msgid "File to write the subtitles before the cut to"
-msgstr ""
+msgstr "Ficheiro no que escribir os subtítulos anteriores ao corte"
 
 #: src/exe/cli/commands/split_file.cpp
 msgid "File to write the subtitles from the cut on to"
-msgstr ""
+msgstr "Ficheiro no que escribir os subtítulos desde o corte"
 
 #: src/exe/cli/commands/split_file.cpp
 msgid ""
 "Put the subtitles in order of their start before cutting; --at counts in "
 "that order"
 msgstr ""
+"Ordenar os subtítulos polo seu inicio antes de cortar; --at conta nesa orde"
 
 #: src/exe/cli/commands/split_file.cpp
 msgid ""
 "Cut overlapping subtitles so that no range overlaps another, before cutting"
 msgstr ""
+"Cortar os subtítulos que se solapan para que ningunha franxa se solape con "
+"outra, antes de cortar"
 
 #: src/exe/cli/commands/split_file.cpp
 msgid ""
 "no destination given: split-file writes two files, use --head and --tail"
 msgstr ""
+"non se indicou ningún destino: split-file escribe dous ficheiros, use --head "
+"e --tail"
 
 #: src/exe/cli/commands/split_file.cpp
 msgid "--head and --tail go together: give both, or neither with --dry-run"
-msgstr ""
+msgstr "--head e --tail van xuntos: indique os dous, ou ningún con --dry-run"
 
 #: src/exe/cli/commands/transform.cpp
 msgid "Correct every position from two points known to be right"
-msgstr ""
+msgstr "Corrixir cada posición a partir de dous puntos que se saben correctos"
 
 #: src/exe/cli/commands/transform.cpp
 msgid "Subtitle files to transform"
-msgstr ""
+msgstr "Ficheiros de subtítulos que transformar"
 
 #: src/exe/cli/commands/transform.cpp
 msgid "Earlier reference, as <index>=<time>: 1=00:00:01.000"
-msgstr ""
+msgstr "Referencia anterior, na forma <index>=<time>: 1=00:00:01.000"
 
 #: src/exe/cli/commands/transform.cpp
 msgid "Later reference, as <index>=<time>: 3=00:00:10.000"
-msgstr ""
+msgstr "Referencia posterior, na forma <index>=<time>: 3=00:00:10.000"
 
 #. TRANSLATORS: %1 is the reason of a failure the program did not foresee.
 #: src/exe/cli/main.cpp
 msgid "subedit-cli: %1"
-msgstr ""
+msgstr "subedit-cli: %1"
 
 #: src/exe/cli/main.cpp
 msgid "subedit-cli: unknown failure"
-msgstr ""
+msgstr "subedit-cli: fallo descoñecido"
 
 #. TRANSLATORS: %1 is what the user typed. « off » is a value of the option, as typed.
 #: src/lib/subedit/cli/adjusting.cpp
@@ -983,6 +1106,8 @@ msgid ""
 "--speed: \"%1\" is not a reading speed: expected a number of characters per "
 "second above zero, like 15 or 12.5, or off"
 msgstr ""
+"--speed: «%1» non é unha velocidade de lectura: agardábase un número de "
+"caracteres por segundo maior que cero, como 15 ou 12.5, ou off"
 
 #. TRANSLATORS: %1 is an option, such as --minimum; %2 why its value does not read.
 #. TRANSLATORS: %1 is the file, or what a message is about; %2 the message.
@@ -995,308 +1120,319 @@ msgstr ""
 #: src/lib/subedit/cli/rewriting.cpp src/lib/subedit/cli/sorting.cpp
 #: src/lib/subedit/gui/command_label.cpp src/lib/subedit/gui/invocation.cpp
 msgid "%1: %2"
-msgstr ""
+msgstr "%1: %2"
 
 #. TRANSLATORS: %1 is an option, such as --minimum; %2 what the user typed.
 #: src/lib/subedit/cli/adjusting.cpp
 msgid "%1: \"%2\" is not a duration of zero or more"
-msgstr ""
+msgstr "%1: «%2» non é unha duración de cero ou máis"
 
 #: src/lib/subedit/cli/adjusting.cpp
 msgid "%1: \"%2\" is not a duration above zero"
-msgstr ""
+msgstr "%1: «%2» non é unha duración maior que cero"
 
 #. TRANSLATORS: %1 and %2 are two options, such as --shorten and --no-shorten.
 #: src/lib/subedit/cli/adjusting.cpp src/lib/subedit/cli/correcting.cpp
 msgid "%1 and %2 say opposite things; give one of them"
-msgstr ""
+msgstr "%1 e %2 din cousas opostas; indique unha delas"
 
 #: src/lib/subedit/cli/adjusting.cpp
 msgid ""
 "--lengthen, --no-lengthen, --shorten and --no-shorten say which way the "
 "reading speed may move an end, and --speed off switches the reading speed off"
 msgstr ""
+"--lengthen, --no-lengthen, --shorten e --no-shorten indican en que sentido "
+"pode mover un final a velocidade de lectura, e --speed off desactiva a "
+"velocidade de lectura"
 
 #: src/lib/subedit/cli/adjusting.cpp
 msgid ""
 "adjust has nothing to adjust to: every constraint is off, or the reading "
 "speed is told to move no end"
 msgstr ""
+"adjust non ten nada ao que axustar: todas as restricións están desactivadas, "
+"ou a velocidade de lectura non debe mover ningún final"
 
 #. TRANSLATORS: %1 positions moved, by at most %2 milliseconds.
 #: src/lib/subedit/cli/aligning.cpp
 msgid "%1 position moved, by at most %2 ms"
 msgid_plural "%1 positions moved, by at most %2 ms"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%1 posición movida, como máximo %2 ms"
+msgstr[1] "%1 posicións movidas, como máximo %2 ms"
 
 #. TRANSLATORS: %1 subtitles aligned on the frame rate %2; %3 is
 #. « 4 positions moved, by at most 20 ms ».
 #: src/lib/subedit/cli/aligning.cpp
 msgid "%1 subtitle aligned on %2 fps, %3"
 msgid_plural "%1 subtitles aligned on %2 fps, %3"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%1 subtítulo aliñado a %2 fps, %3"
+msgstr[1] "%1 subtítulos aliñados a %2 fps, %3"
 
 #. TRANSLATORS: %1 is the file written, %2 a number of subtitles (« 12 subtitles »)
 #. and %3 a number of files (« 3 files »).
 #: src/lib/subedit/cli/appending.cpp
 msgid "%1: %2 from %3"
-msgstr ""
+msgstr "%1: %2 de %3"
 
 #: src/lib/subedit/cli/appending.cpp src/lib/subedit/cli/splitting.cpp
 msgid "%1 (dry run, nothing written)"
-msgstr ""
+msgstr "%1 (simulación, non se escribiu nada)"
 
 #: src/lib/subedit/cli/appending.cpp
 msgid "%1 -> %2"
-msgstr ""
+msgstr "%1 -> %2"
 
 #. TRANSLATORS: %1 of %2 files were done; the form is chosen by %2.
 #: src/lib/subedit/cli/batch.cpp
 msgid "%1 of %2 file adjusted"
 msgid_plural "%1 of %2 files adjusted"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%1 de %2 ficheiro axustado"
+msgstr[1] "%1 de %2 ficheiros axustados"
 
 #: src/lib/subedit/cli/batch.cpp
 msgid "%1 of %2 file aligned"
 msgid_plural "%1 of %2 files aligned"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%1 de %2 ficheiro aliñado"
+msgstr[1] "%1 de %2 ficheiros aliñados"
 
 #: src/lib/subedit/cli/batch.cpp
 msgid "%1 of %2 file changed"
 msgid_plural "%1 of %2 files changed"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%1 de %2 ficheiro cambiado"
+msgstr[1] "%1 de %2 ficheiros cambiados"
 
 #: src/lib/subedit/cli/batch.cpp
 msgid "%1 of %2 file cleaned"
 msgid_plural "%1 of %2 files cleaned"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%1 de %2 ficheiro limpado"
+msgstr[1] "%1 de %2 ficheiros limpados"
 
 #: src/lib/subedit/cli/batch.cpp
 msgid "%1 of %2 file converted"
 msgid_plural "%1 of %2 files converted"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%1 de %2 ficheiro convertido"
+msgstr[1] "%1 de %2 ficheiros convertidos"
 
 #: src/lib/subedit/cli/batch.cpp
 msgid "%1 of %2 file corrected"
 msgid_plural "%1 of %2 files corrected"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%1 de %2 ficheiro corrixido"
+msgstr[1] "%1 de %2 ficheiros corrixidos"
 
 #: src/lib/subedit/cli/batch.cpp
 msgid "%1 of %2 file inspected"
 msgid_plural "%1 of %2 files inspected"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%1 de %2 ficheiro examinado"
+msgstr[1] "%1 de %2 ficheiros examinados"
 
 #: src/lib/subedit/cli/batch.cpp
 msgid "%1 of %2 file joined"
 msgid_plural "%1 of %2 files joined"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%1 de %2 ficheiro unido"
+msgstr[1] "%1 de %2 ficheiros unidos"
 
 #: src/lib/subedit/cli/batch.cpp
 msgid "%1 of %2 file made disjoint"
 msgid_plural "%1 of %2 files made disjoint"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%1 de %2 ficheiro feito disxunto"
+msgstr[1] "%1 de %2 ficheiros feitos disxuntos"
 
 #: src/lib/subedit/cli/batch.cpp
 msgid "%1 of %2 file paired"
 msgid_plural "%1 of %2 files paired"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%1 de %2 ficheiro emparellado"
+msgstr[1] "%1 de %2 ficheiros emparellados"
 
 #: src/lib/subedit/cli/batch.cpp
 msgid "%1 of %2 file recased"
 msgid_plural "%1 of %2 files recased"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%1 de %2 ficheiro coas maiúsculas cambiadas"
+msgstr[1] "%1 de %2 ficheiros coas maiúsculas cambiadas"
 
 #: src/lib/subedit/cli/batch.cpp
 msgid "%1 of %2 file repaired"
 msgid_plural "%1 of %2 files repaired"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%1 de %2 ficheiro reparado"
+msgstr[1] "%1 de %2 ficheiros reparados"
 
 #: src/lib/subedit/cli/batch.cpp
 msgid "%1 of %2 file replaced"
 msgid_plural "%1 of %2 files replaced"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%1 de %2 ficheiro con substitucións"
+msgstr[1] "%1 de %2 ficheiros con substitucións"
 
 #: src/lib/subedit/cli/batch.cpp
 msgid "%1 of %2 file retimed"
 msgid_plural "%1 of %2 files retimed"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%1 de %2 ficheiro con tempos recalculados"
+msgstr[1] "%1 de %2 ficheiros con tempos recalculados"
 
 #: src/lib/subedit/cli/batch.cpp
 msgid "%1 of %2 file shifted"
 msgid_plural "%1 of %2 files shifted"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%1 de %2 ficheiro desprazado"
+msgstr[1] "%1 de %2 ficheiros desprazados"
 
 #: src/lib/subedit/cli/batch.cpp
 msgid "%1 of %2 file sorted"
 msgid_plural "%1 of %2 files sorted"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%1 de %2 ficheiro ordenado"
+msgstr[1] "%1 de %2 ficheiros ordenados"
 
 #: src/lib/subedit/cli/batch.cpp
 msgid "%1 of %2 file transformed"
 msgid_plural "%1 of %2 files transformed"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%1 de %2 ficheiro transformado"
+msgstr[1] "%1 de %2 ficheiros transformados"
 
 #. TRANSLATORS: %1 is the summary of a batch, such as « 1 of 3 files shifted »; %2
 #. how many files of it failed.
 #: src/lib/subedit/cli/batch.cpp
 msgid "%1, %2 failed"
 msgid_plural "%1, %2 failed"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%1, %2 fallou"
+msgstr[1] "%1, %2 fallaron"
 
 #. TRANSLATORS: %1 is a file, %2 the number of a subtitle.
 #: src/lib/subedit/cli/changes.cpp
 msgid "%1: subtitle %2 (translation) (removed)"
-msgstr ""
+msgstr "%1: subtítulo %2 (tradución) (eliminado)"
 
 #: src/lib/subedit/cli/changes.cpp
 msgid "%1: subtitle %2 (removed)"
-msgstr ""
+msgstr "%1: subtítulo %2 (eliminado)"
 
 #. TRANSLATORS: %1 is a file, %2 the number of a subtitle.
 #: src/lib/subedit/cli/changes.cpp
 msgid "%1: subtitle %2 (translation)"
-msgstr ""
+msgstr "%1: subtítulo %2 (tradución)"
 
 #: src/lib/subedit/cli/changes.cpp
 msgid "%1: subtitle %2"
-msgstr ""
+msgstr "%1: subtítulo %2"
 
 #. TRANSLATORS: %1 is the settings file, %2 why it could not be read.
 #: src/lib/subedit/cli/configuring.cpp
 msgid "%1: %2; nothing written"
-msgstr ""
+msgstr "%1: %2; non se escribiu nada"
 
 #. TRANSLATORS: %1 is a settings key, %2 the value the file gave it.
 #: src/lib/subedit/cli/configuring.cpp
 msgid "%1: unreadable value '%2' replaced by its default"
-msgstr ""
+msgstr "%1: o valor ilexible «%2» substituíuse polo predeterminado"
 
 #: src/lib/subedit/cli/configuring.cpp
 msgid "%1 = %2   [file]   (default %3)"
-msgstr ""
+msgstr "%1 = %2   [ficheiro]   (predeterminado %3)"
 
 #. TRANSLATORS: %1 is a settings key, %2 its default value.
 #: src/lib/subedit/cli/configuring.cpp
 msgid "%1 = %2   [default]"
-msgstr ""
+msgstr "%1 = %2   [predeterminado]"
 
 #. TRANSLATORS: %1 is what a settings key accepts, as « true or false ».
 #: src/lib/subedit/cli/configuring.cpp
 msgid "Accepts: %1"
-msgstr ""
+msgstr "Acepta: %1"
 
 #. TRANSLATORS: %1 is the default value of a settings key.
 #: src/lib/subedit/cli/configuring.cpp
 msgid "Default: %1"
-msgstr ""
+msgstr "Predeterminado: %1"
 
 #. TRANSLATORS: %1 lists the commands and window actions that read a settings key.
 #: src/lib/subedit/cli/configuring.cpp
 msgid "Used by: %1"
-msgstr ""
+msgstr "Usado por: %1"
 
 #. TRANSLATORS: %1 is the settings file, %2 why it could not be read.
 #: src/lib/subedit/cli/configuring.cpp
 msgid "File: %1 (unreadable: %2)"
-msgstr ""
+msgstr "Ficheiro: %1 (ilexible: %2)"
 
 #. TRANSLATORS: %1 is the settings file.
 #: src/lib/subedit/cli/configuring.cpp
 msgid "File: %1 (found)"
-msgstr ""
+msgstr "Ficheiro: %1 (atopado)"
 
 #. TRANSLATORS: %1 is the settings file.
 #: src/lib/subedit/cli/configuring.cpp
 msgid "File: %1 (not found)"
-msgstr ""
+msgstr "Ficheiro: %1 (non atopado)"
 
 #: src/lib/subedit/cli/configuring.cpp
 msgid "File: none (--no-config)"
-msgstr ""
+msgstr "Ficheiro: ningún (--no-config)"
 
 #: src/lib/subedit/cli/configuring.cpp
 msgid "%1 reset to its default (%2)"
-msgstr ""
+msgstr "%1 devolto ao seu valor predeterminado (%2)"
 
 #: src/lib/subedit/cli/conversion.cpp
 msgid ""
 "writing frames needs a frame rate, and the positions fall on no grid to take "
 "one from — give --frame-rate"
 msgstr ""
+"escribir fotogramas require unha taxa de fotogramas, e as posicións non caen "
+"en ningunha grade da que tomala; indique --frame-rate"
 
 #. TRANSLATORS: %1 is a file, %2 a frame rate.
 #: src/lib/subedit/cli/conversion.cpp
 msgid "%1: counted in frames at %2, the grid the positions fall on"
-msgstr ""
+msgstr "%1: contado en fotogramas a %2, a grade na que caen as posicións"
 
 #: src/lib/subedit/cli/conversion.cpp
 msgid "%1 has no byte order mark to write"
-msgstr ""
+msgstr "%1 non ten ningunha marca de orde de bytes que escribir"
 
 #. TRANSLATORS: %1 is a file, %2 and %3 numbers of bytes. English says « bytes »
 #. whatever the count; the form is chosen by %2.
 #: src/lib/subedit/cli/conversion.cpp src/lib/subedit/cli/writing.cpp
 msgid "%1: %2 bytes read, %3 would be written"
 msgid_plural "%1: %2 bytes read, %3 would be written"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%1: %2 byte lido, escribiríanse %3"
+msgstr[1] "%1: %2 bytes lidos, escribiríanse %3"
 
 #: src/lib/subedit/cli/conversion.cpp src/lib/subedit/cli/writing.cpp
 msgid "%1: %2 bytes read, %3 written"
 msgid_plural "%1: %2 bytes read, %3 written"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%1: %2 byte lido, %3 escritos"
+msgstr[1] "%1: %2 bytes lidos, %3 escritos"
 
 #: src/lib/subedit/cli/conversion.cpp
 msgid "%1: %2 -> %3, %4, %5 line endings"
-msgstr ""
+msgstr "%1: %2 -> %3, %4, finais de liña %5"
 
 #: src/lib/subedit/cli/conversion.cpp
 msgid "%1: %2 subtitle converted to %3 (dry run, nothing written)"
 msgid_plural "%1: %2 subtitles converted to %3 (dry run, nothing written)"
-msgstr[0] ""
+msgstr[0] "%1: %2 subtítulo convertido a %3 (simulación, non se escribiu nada)"
 msgstr[1] ""
+"%1: %2 subtítulos convertidos a %3 (simulación, non se escribiu nada)"
 
 #: src/lib/subedit/cli/conversion.cpp
 msgid "%1: %2 subtitle written as %3 -> %4"
 msgid_plural "%1: %2 subtitles written as %3 -> %4"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%1: %2 subtítulo escrito como %3 -> %4"
+msgstr[1] "%1: %2 subtítulos escritos como %3 -> %4"
 
 #: src/lib/subedit/cli/conversion.cpp
 msgid "--bom and --no-bom ask for opposite things; give one or the other"
-msgstr ""
+msgstr "--bom e --no-bom piden cousas opostas; indique unha ou a outra"
 
 #: src/lib/subedit/cli/conversion.cpp
 msgid ""
 "--in-place cannot change the format: the file would keep a name its content "
 "no longer matches"
 msgstr ""
+"--in-place non pode cambiar o formato: o ficheiro conservaría un nome co que "
+"xa non se corresponde o seu contido"
 
 #. TRANSLATORS: %1 is --enable or --disable, %2 what the user typed, %3 a pattern code.
 #: src/lib/subedit/cli/correcting.cpp
 msgid "%1: \"%2\" names no pattern of the tasks given, under the code %3"
 msgstr ""
+"%1: «%2» non nomea ningún padrón das tarefas indicadas, baixo o código %3"
 
 #. TRANSLATORS: %1 is --enable or --disable, %2 what the user typed. The types
 #. are values the user types, as written.
@@ -1305,16 +1441,18 @@ msgid ""
 "%1: \"%2\" names patterns of several types: write type:name, with the type "
 "one of common-error, capitalization, hearing-impaired, line-break"
 msgstr ""
+"%1: «%2» nomea padróns de varios tipos: escriba type:name, sendo o tipo "
+"common-error, capitalization, hearing-impaired ou line-break"
 
 #. TRANSLATORS: %1 is the name of a pattern, %2 why it gave up, %3 a subtitle number.
 #: src/lib/subedit/cli/correcting.cpp
 msgid "pattern \"%1\" (%2) was not applied to subtitle %3"
-msgstr ""
+msgstr "o padrón «%1» (%2) non se aplicou ao subtítulo %3"
 
 #. TRANSLATORS: %1 is the name of a pattern, %2 why it gave up.
 #: src/lib/subedit/cli/correcting.cpp
 msgid "pattern \"%1\" (%2) was not applied"
-msgstr ""
+msgstr "o padrón «%1» (%2) non se aplicou"
 
 #. TRANSLATORS: %1 is what the user typed; the tasks are typed as written.
 #: src/lib/subedit/cli/correcting.cpp
@@ -1322,15 +1460,17 @@ msgid ""
 "--tasks: \"%1\" is not a task: expected mentions, join-words, split-words, "
 "common-errors, capitalization or line-break"
 msgstr ""
+"--tasks: «%1» non é unha tarefa: agardábase mentions, join-words, split-"
+"words, common-errors, capitalization ou line-break"
 
 #: src/lib/subedit/cli/correcting.cpp
 msgid "--code is for the tasks that read patterns, and none was asked for"
-msgstr ""
+msgstr "--code é para as tarefas que len padróns, e non se pediu ningunha"
 
 #. TRANSLATORS: %1 is the list of tasks the user gave.
 #: src/lib/subedit/cli/correcting.cpp
 msgid "--code is required by the tasks that read patterns: %1"
-msgstr ""
+msgstr "--code é obrigatorio para as tarefas que len padróns: %1"
 
 #. TRANSLATORS: %1 is what the user typed.
 #: src/lib/subedit/cli/correcting.cpp
@@ -1338,21 +1478,24 @@ msgid ""
 "--code: \"%1\" is not a pattern code: expected Script[-language[-COUNTRY]], "
 "like Zyyy, Latn or Latn-en-US"
 msgstr ""
+"--code: «%1» non é un código de padróns: agardábase Script[-language[-"
+"COUNTRY]], como Zyyy, Latn ou Latn-en-US"
 
 #: src/lib/subedit/cli/correcting.cpp
 msgid "--classes: \"%1\" is not a class: expected human, ocr or human,ocr"
-msgstr ""
+msgstr "--classes: «%1» non é unha clase: agardábase human, ocr ou human,ocr"
 
 #: src/lib/subedit/cli/correcting.cpp
 msgid ""
 "--language is for the tasks join-words and split-words, which were not asked "
 "for"
 msgstr ""
+"--language é para as tarefas join-words e split-words, que non se pediron"
 
 #. TRANSLATORS: %1 is the list of tasks the user gave.
 #: src/lib/subedit/cli/correcting.cpp
 msgid "--language is required by the tasks that check words: %1"
-msgstr ""
+msgstr "--language é obrigatorio para as tarefas que verifican palabras: %1"
 
 #. TRANSLATORS: %1 is what the user typed.
 #: src/lib/subedit/cli/correcting.cpp
@@ -1360,21 +1503,25 @@ msgid ""
 "--language: \"%1\" is not a language: expected a locale code, like fr, en_US "
 "or sr@Latn"
 msgstr ""
+"--language: «%1» non é unha lingua: agardábase un código de configuración "
+"rexional, como fr, en_US ou sr@Latn"
 
 #: src/lib/subedit/cli/correcting.cpp
 msgid "%1: \"%2\" is not a bound: expected a number greater than zero, or off"
-msgstr ""
+msgstr "%1: «%2» non é un límite: agardábase un número maior que cero, ou off"
 
 #. TRANSLATORS: %1 is an option of the task line-break.
 #: src/lib/subedit/cli/correcting.cpp
 msgid "%1 is for the task line-break, which was not asked for"
-msgstr ""
+msgstr "%1 é para a tarefa line-break, que non se pediu"
 
 #: src/lib/subedit/cli/correcting.cpp
 msgid ""
 "--max-length is required by the task line-break: Gaupol's 24 is a width in "
 "ems, and has no value in characters"
 msgstr ""
+"--max-length é obrigatorio para a tarefa line-break: o 24 de Gaupol é unha "
+"largura en ems e non ten valor en caracteres"
 
 #. TRANSLATORS: %1 is what the user typed.
 #: src/lib/subedit/cli/correcting.cpp
@@ -1382,6 +1529,8 @@ msgid ""
 "--max-length: \"%1\" is not a length: expected a number of characters "
 "greater than zero"
 msgstr ""
+"--max-length: «%1» non é unha lonxitude: agardábase un número de caracteres "
+"maior que cero"
 
 #. TRANSLATORS: %1 is what the user typed.
 #: src/lib/subedit/cli/correcting.cpp
@@ -1389,92 +1538,101 @@ msgid ""
 "--max-lines: \"%1\" is not a number of lines: expected a whole number "
 "greater than zero"
 msgstr ""
+"--max-lines: «%1» non é un número de liñas: agardábase un número enteiro "
+"maior que cero"
 
 #: src/lib/subedit/cli/correcting.cpp
 msgid ""
 "--skip-lines: \"%1\" is not a number of lines: expected a whole number "
 "greater than zero, or off"
 msgstr ""
+"--skip-lines: «%1» non é un número de liñas: agardábase un número enteiro "
+"maior que cero, ou off"
 
 #. TRANSLATORS: %1 is the name of a pattern, as the user typed it.
 #: src/lib/subedit/cli/correcting.cpp
 msgid "\"%1\" is given to --enable and to --disable: choose one"
-msgstr ""
+msgstr "«%1» indícase a --enable e a --disable: escolla un dos dous"
 
 #. TRANSLATORS: %1 is a task, as typed; %2 a pattern code.
 #: src/lib/subedit/cli/correcting.cpp
 msgid "%1: no pattern is active under the code %2; switch one on with --enable"
 msgstr ""
+"%1: ningún padrón está activo baixo o código %2; active un con --enable"
 
 #: src/lib/subedit/cli/correcting.cpp
 msgid "patterns: %1"
-msgstr ""
+msgstr "padróns: %1"
 
 #: src/lib/subedit/cli/correcting.cpp
 msgid "settings: correction.human and correction.ocr are both false, ignored"
 msgstr ""
+"configuración: correction.human e correction.ocr son ambos false, ignorados"
 
 #. TRANSLATORS: %1 is the file that would be written, %2 the input it is.
 #: src/lib/subedit/cli/destination.cpp
 msgid "%1: would be written over the input %2"
-msgstr ""
+msgstr "%1: escribiríase por riba da entrada %2"
 
 #: src/lib/subedit/cli/destination.cpp
 msgid "no destination given: use --output, --output-dir or --in-place"
 msgstr ""
+"non se indicou ningún destino: use --output, --output-dir ou --in-place"
 
 #: src/lib/subedit/cli/destination.cpp
 msgid "--output, --output-dir and --in-place exclude one another"
-msgstr ""
+msgstr "--output, --output-dir e --in-place exclúense mutuamente"
 
 #: src/lib/subedit/cli/destination.cpp
 msgid ""
 "--output names one file but several were given: use --output-dir instead"
 msgstr ""
+"--output nomea un só ficheiro pero indicáronse varios: use --output-dir no "
+"seu lugar"
 
 #. TRANSLATORS: %1 is a file to write, %2 and %3 the two inputs it would come
 #. from.
 #: src/lib/subedit/cli/destination.cpp
 msgid "%1: would be written by both %2 and %3"
-msgstr ""
+msgstr "%1: escribiríano tanto %2 como %3"
 
 #. TRANSLATORS: %1 is what a reading met, such as « ignored line », %2 how
 #. serious it is.
 #: src/lib/subedit/cli/diagnostics.cpp
 msgid "%1, %2"
-msgstr ""
+msgstr "%1, %2"
 
 #. TRANSLATORS: %1 is a line number, %2 what a reading met on it, %3 how
 #. serious it is.
 #: src/lib/subedit/cli/diagnostics.cpp
 msgid "line %1: %2, %3"
-msgstr ""
+msgstr "liña %1: %2, %3"
 
 #. TRANSLATORS: %1 is what a reading met, %2 an excerpt of the file, %3 how serious
 #. it is.
 #: src/lib/subedit/cli/diagnostics.cpp
 msgid "%1 (\"%2\"), %3"
-msgstr ""
+msgstr "%1 («%2»), %3"
 
 #. TRANSLATORS: %1 is a line number, %2 what a reading met on it, %3 an excerpt
 #. of the file, %4 how serious it is.
 #: src/lib/subedit/cli/diagnostics.cpp
 msgid "line %1: %2 (\"%3\"), %4"
-msgstr ""
+msgstr "liña %1: %2 («%3»), %4"
 
 #. TRANSLATORS: %1 is why the subtitles cannot be made disjoint as they are.
 #: src/lib/subedit/cli/disjoining.cpp
 msgid "%1 Use --sort to do that here."
-msgstr ""
+msgstr "%1 Use --sort para facelo aquí."
 
 #: src/lib/subedit/cli/disjoining.cpp
 msgid "--minimum: %1"
-msgstr ""
+msgstr "--minimum: %1"
 
 #. TRANSLATORS: %1 is what the user typed.
 #: src/lib/subedit/cli/disjoining.cpp
 msgid "--minimum: \"%1\" is not a duration of zero or more"
-msgstr ""
+msgstr "--minimum: «%1» non é unha duración de cero ou máis"
 
 #. TRANSLATORS: %1 is what the user typed.
 #: src/lib/subedit/cli/disjoining.cpp
@@ -1482,354 +1640,368 @@ msgid ""
 "--max-lines: \"%1\" is not a number of lines: expected a whole number, 0 for "
 "no limit"
 msgstr ""
+"--max-lines: «%1» non é un número de liñas: agardábase un número enteiro, 0 "
+"para ningún límite"
 
 #. TRANSLATORS: %1 is a directory the user named.
 #: src/lib/subedit/cli/expansion.cpp
 msgid "%1: is a directory: use --recursive"
-msgstr ""
+msgstr "%1: é un directorio: use --recursive"
 
 #. TRANSLATORS: %1 is a directory.
 #: src/lib/subedit/cli/expansion.cpp
 msgid "%1: holds no file in a format this tool walks for"
-msgstr ""
+msgstr "%1: non contén ningún ficheiro nun formato que busque esta ferramenta"
 
 #: src/lib/subedit/cli/expansion.cpp
 msgid "%1: %2 file left aside, with no extension of a known format"
 msgid_plural "%1: %2 files left aside, with no extension of a known format"
-msgstr[0] ""
+msgstr[0] "%1: %2 ficheiro deixado de lado, sen extensión dun formato coñecido"
 msgstr[1] ""
+"%1: %2 ficheiros deixados de lado, sen extensión dun formato coñecido"
 
 #. TRANSLATORS: %1 subtitles were retimed from the frame rate %2
 #. to the frame rate %3.
 #: src/lib/subedit/cli/frame_rate_conversion.cpp
 msgid "%1 subtitle retimed from %2 to %3 fps"
 msgid_plural "%1 subtitles retimed from %2 to %3 fps"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%1 subtítulo cos tempos recalculados de %2 a %3 fps"
+msgstr[1] "%1 subtítulos cos tempos recalculados de %2 a %3 fps"
 
 #. TRANSLATORS: %1 is what the user typed, %2 why it does not read.
 #: src/lib/subedit/cli/frame_rate_grammar.cpp
 msgid "\"%1\" is not a frame rate: %2"
-msgstr ""
+msgstr "«%1» non é unha taxa de fotogramas: %2"
 
 #: src/lib/subedit/cli/frame_rate_grammar.cpp
 #: src/lib/subedit/cli/time_grammar.cpp
 msgid "it is empty"
-msgstr ""
+msgstr "está baleiro"
 
 #: src/lib/subedit/cli/frame_rate_grammar.cpp
 #: src/lib/subedit/cli/time_grammar.cpp
 msgid "use a decimal point and not a comma, in every language"
-msgstr ""
+msgstr "use un punto decimal e non unha coma, en todas as linguas"
 
 #: src/lib/subedit/cli/frame_rate_grammar.cpp
 msgid "expected frames per second, like 25 or 23.976"
-msgstr ""
+msgstr "agardábanse fotogramas por segundo, como 25 ou 23.976"
 
 #: src/lib/subedit/cli/frame_rate_grammar.cpp
 msgid "a frame rate must be strictly positive; nothing runs at that speed"
 msgstr ""
+"unha taxa de fotogramas debe ser estritamente positiva; nada se reproduce a "
+"esa velocidade"
 
 #: src/lib/subedit/cli/frame_rate_grammar.cpp
 msgid "no video runs at that many frames per second"
-msgstr ""
+msgstr "ningún vídeo se reproduce a tantos fotogramas por segundo"
 
 #. TRANSLATORS: %1 is what the user typed, %2 why it does not read.
 #: src/lib/subedit/cli/index_grammar.cpp
 msgid "\"%1\" is not a subtitle number: %2"
-msgstr ""
+msgstr "«%1» non é un número de subtítulo: %2"
 
 #. TRANSLATORS: <index>=<time> is the form typed, as written.
 #: src/lib/subedit/cli/index_grammar.cpp
 msgid "write it <index>=<time>, as in 3=00:00:10.000"
-msgstr ""
+msgstr "escríbaa como <index>=<time>, como en 3=00:00:10.000"
 
 #: src/lib/subedit/cli/index_grammar.cpp
 msgid "expected a whole number, counted from 1 as the file shows them"
 msgstr ""
+"agardábase un número enteiro, contado desde 1 tal como os mostra o ficheiro"
 
 #: src/lib/subedit/cli/index_grammar.cpp
 msgid "no subtitle file holds that many subtitles"
-msgstr ""
+msgstr "ningún ficheiro de subtítulos contén tantos subtítulos"
 
 #: src/lib/subedit/cli/index_grammar.cpp
 msgid "subtitles are counted from 1, as the file shows them"
-msgstr ""
+msgstr "os subtítulos cóntanse desde 1, tal como os mostra o ficheiro"
 
 #. TRANSLATORS: %1 is what the user typed, %2 how a reference is written.
 #: src/lib/subedit/cli/index_grammar.cpp
 msgid "\"%1\" is not a reference: %2"
-msgstr ""
+msgstr "«%1» non é unha referencia: %2"
 
 #. TRANSLATORS: %1 is what the user typed, %2 how a reference is written.
 #: src/lib/subedit/cli/index_grammar.cpp
 msgid "\"%1\" is missing one of its two halves: %2"
-msgstr ""
+msgstr "a «%1» fáltalle unha das súas dúas metades: %2"
 
 #. TRANSLATORS: %1 is what the user typed, %2 why it does not read.
 #: src/lib/subedit/cli/index_grammar.cpp
 msgid "\"%1\" is not a range: %2"
-msgstr ""
+msgstr "«%1» non é unha franxa: %2"
 
 #. TRANSLATORS: N-M and N- are the forms typed, as written.
 #: src/lib/subedit/cli/index_grammar.cpp
 msgid "write it N-M, or N- to go to the end, counted from 1 and inclusive"
 msgstr ""
+"escríbaa como N-M, ou N- para ir ata o final, contando desde 1 e incluíndo "
+"os extremos"
 
 #: src/lib/subedit/cli/index_grammar.cpp
 msgid "it ends before it starts"
-msgstr ""
+msgstr "remata antes de comezar"
 
 #. TRANSLATORS: %1 is the range typed, %2 how many subtitles the file has. English
 #. writes the number alone; the form is chosen by %2.
 #: src/lib/subedit/cli/index_grammar.cpp
 msgid "range %1 starts after the last subtitle: the file has %2"
 msgid_plural "range %1 starts after the last subtitle: the file has %2"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "a franxa %1 comeza despois do último subtítulo: o ficheiro ten %2"
+msgstr[1] "a franxa %1 comeza despois do último subtítulo: o ficheiro ten %2"
 
 #. TRANSLATORS: %1 is the range typed, %2 how many subtitles the file has.
 #: src/lib/subedit/cli/index_grammar.cpp
 msgid "range %1 ends after the last subtitle: the file has %2"
 msgid_plural "range %1 ends after the last subtitle: the file has %2"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "a franxa %1 remata despois do último subtítulo: o ficheiro ten %2"
+msgstr[1] "a franxa %1 remata despois do último subtítulo: o ficheiro ten %2"
 
 #. TRANSLATORS: %1 is a kind of line ending, %2 the line where another kind starts.
 #: src/lib/subedit/cli/inspection.cpp
 msgid "%1, mixed from line %2"
-msgstr ""
+msgstr "%1, mesturado desde a liña %2"
 
 #. TRANSLATORS: %1 is the name of an encoding.
 #: src/lib/subedit/cli/inspection.cpp
 msgid "%1, from its byte order mark"
-msgstr ""
+msgstr "%1, segundo a súa marca de orde de bytes"
 
 #. TRANSLATORS: %1 is the name of an encoding.
 #: src/lib/subedit/cli/inspection.cpp
 msgid "%1, as asked for"
-msgstr ""
+msgstr "%1, como se pediu"
 
 #: src/lib/subedit/cli/inspection.cpp
 msgid "%1, detected"
-msgstr ""
+msgstr "%1, detectada"
 
 #. TRANSLATORS: %1 is a frame rate.
 #: src/lib/subedit/cli/inspection.cpp
 msgid "%1 fps, assumed"
-msgstr ""
+msgstr "%1 fps, suposta"
 
 #: src/lib/subedit/cli/inspection.cpp
 msgid "%1 fps, as asked for"
-msgstr ""
+msgstr "%1 fps, como se pediu"
 
 #. TRANSLATORS: %1 is the verdict on the grid, such as « silent ».
 #: src/lib/subedit/cli/inspection.cpp
 msgid "frame rate grid: %1 (too few subtitles to tell)"
-msgstr ""
+msgstr "grade de fotogramas: %1 (demasiado poucos subtítulos para decidir)"
 
 #: src/lib/subedit/cli/inspection.cpp
 msgid "frame rate grid: %1 (best candidate at %2)"
-msgstr ""
+msgstr "grade de fotogramas: %1 (mellor candidata en %2)"
 
 #. TRANSLATORS: %1 is a frame rate, %2 the verdict on the grid, %3 a percentage.
 #: src/lib/subedit/cli/inspection.cpp
 msgid "frame rate grid: %1 fps, %2 (%3)"
-msgstr ""
+msgstr "grade de fotogramas: %1 fps, %2 (%3)"
 
 #. TRANSLATORS: %1 is a duration, in seconds.
 #: src/lib/subedit/cli/inspection.cpp
 msgid "grid offset: %1"
-msgstr ""
+msgstr "desprazamento da grade: %1"
 
 #. TRANSLATORS: %1 is a frame rate.
 #: src/lib/subedit/cli/inspection.cpp
 msgid "also fits: %1 fps, of which this rate is a whole divisor"
-msgstr ""
+msgstr "tamén encaixa: %1 fps, do que esta taxa é un divisor enteiro"
 
 #. TRANSLATORS: %1 is a frame rate.
 #: src/lib/subedit/cli/inspection.cpp
 #: src/lib/subedit/gui/grid_analysis_dialog.cpp
 msgid "%1 fps"
-msgstr ""
+msgstr "%1 fps"
 
 #. TRANSLATORS: %1 lists frame rates, each with a space before it.
 #: src/lib/subedit/cli/inspection.cpp
 msgid "too short a span to separate:%1"
-msgstr ""
+msgstr "extensión demasiado curta para distinguir:%1"
 
 #. TRANSLATORS: %1 starts of %2 are off the grid, %3 is a number of runs (« 2
 #. runs »).
 #: src/lib/subedit/cli/inspection.cpp
 msgid "off the grid: %1 of %2 start, in %3"
 msgid_plural "off the grid: %1 of %2 starts, in %3"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "fóra da grade: %1 de %2 inicio, en %3"
+msgstr[1] "fóra da grade: %1 de %2 inicios, en %3"
 
 #: src/lib/subedit/cli/inspection.cpp src/lib/subedit/core/wording/analysis.cpp
 msgid "none"
-msgstr ""
+msgstr "ningunha"
 
 #: src/lib/subedit/cli/inspection.cpp
 msgid "%1: %2 bytes read"
 msgid_plural "%1: %2 bytes read"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%1: %2 byte lido"
+msgstr[1] "%1: %2 bytes lidos"
 
 #. TRANSLATORS: %1 is a file, %2 a number of diagnostics.
 #: src/lib/subedit/cli/inspection.cpp
 msgid "%1: %2 diagnostic while reading"
 msgid_plural "%1: %2 diagnostics while reading"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%1: %2 diagnóstico durante a lectura"
+msgstr[1] "%1: %2 diagnósticos durante a lectura"
 
 #: src/lib/subedit/cli/inspection.cpp
 msgid "%1: %2, %3, %4 line endings"
-msgstr ""
+msgstr "%1: %2, %3, finais de liña %4"
 
 #. TRANSLATORS: the lines of the report of `inspect`; %1 is the value of each.
 #: src/lib/subedit/cli/inspection.cpp
 msgid "format: %1"
-msgstr ""
+msgstr "formato: %1"
 
 #: src/lib/subedit/cli/inspection.cpp
 msgid "encoding: %1"
-msgstr ""
+msgstr "codificación: %1"
 
 #: src/lib/subedit/cli/inspection.cpp
 msgid "byte order mark: present"
-msgstr ""
+msgstr "marca de orde de bytes: presente"
 
 #: src/lib/subedit/cli/inspection.cpp
 msgid "byte order mark: absent"
-msgstr ""
+msgstr "marca de orde de bytes: ausente"
 
 #: src/lib/subedit/cli/inspection.cpp
 msgid "line endings: %1"
-msgstr ""
+msgstr "finais de liña: %1"
 
 #: src/lib/subedit/cli/inspection.cpp
 msgid "subtitles: %1"
-msgstr ""
+msgstr "subtítulos: %1"
 
 #: src/lib/subedit/cli/inspection.cpp
 msgid "span: %1"
-msgstr ""
+msgstr "extensión: %1"
 
 #: src/lib/subedit/cli/inspection.cpp
 msgid "frame rate: %1"
-msgstr ""
+msgstr "taxa de fotogramas: %1"
 
 #: src/lib/subedit/cli/inspection.cpp
 msgid "anomalies:"
-msgstr ""
+msgstr "anomalías:"
 
 #. TRANSLATORS: %1 is the translation file.
 #: src/lib/subedit/cli/inspection.cpp
 msgid "translation file: %1, matched by position"
-msgstr ""
+msgstr "ficheiro de tradución: %1, emparellado por posición"
 
 #: src/lib/subedit/cli/inspection.cpp
 msgid "translation file: %1, matched by number"
-msgstr ""
+msgstr "ficheiro de tradución: %1, emparellado por número"
 
 #. TRANSLATORS: %1 is why the range does not read.
 #: src/lib/subedit/cli/options.cpp
 msgid "--range: %1"
-msgstr ""
+msgstr "--range: %1"
 
 #: src/lib/subedit/cli/options.cpp
 msgid "--document translation needs the translation file: use -t"
-msgstr ""
+msgstr "--document translation require o ficheiro de tradución: use -t"
 
 #: src/lib/subedit/cli/options.cpp
 msgid "-t names a translation to change: use --document translation"
-msgstr ""
+msgstr "-t nomea unha tradución que cambiar: use --document translation"
 
 #: src/lib/subedit/cli/options.cpp
 msgid "--align-method needs a translation file: use -t"
-msgstr ""
+msgstr "--align-method require un ficheiro de tradución: use -t"
 
 #: src/lib/subedit/cli/options.cpp
 msgid ""
 "-t names one file but several inputs were given: use one invocation per pair"
 msgstr ""
+"-t nomea un só ficheiro pero indicáronse varias entradas: use unha "
+"invocación por parella"
 
 #: src/lib/subedit/cli/options.cpp
 msgid "--frame-rate: %1"
-msgstr ""
+msgstr "--frame-rate: %1"
 
 #. TRANSLATORS: %1 is why the text to look for does not compile.
 #: src/lib/subedit/cli/replacing.cpp
 msgid "pattern: %1"
-msgstr ""
+msgstr "padrón: %1"
 
 #. TRANSLATORS: %1 is a file, %2 what was done to it.
 #: src/lib/subedit/cli/rewriting.cpp
 msgid "%1: %2 (dry run, nothing written)"
-msgstr ""
+msgstr "%1: %2 (simulación, non se escribiu nada)"
 
 #. TRANSLATORS: %1 is a file, %2 what was done to it, %3 the file written.
 #: src/lib/subedit/cli/rewriting.cpp
 msgid "%1: %2 -> %3"
-msgstr ""
+msgstr "%1: %2 -> %3"
 
 #. TRANSLATORS: %1 is the settings file named by --config.
 #: src/lib/subedit/cli/shared_settings.cpp
 msgid "settings file not found: %1"
-msgstr ""
+msgstr "non se atopou o ficheiro de configuración: %1"
 
 #. TRANSLATORS: %1 is the settings file.
 #: src/lib/subedit/cli/shared_settings.cpp
 msgid "settings: read %1"
-msgstr ""
+msgstr "configuración: lido %1"
 
 #. TRANSLATORS: %1 is a settings key, %2 the value the file gave it.
 #: src/lib/subedit/cli/shared_settings.cpp
 msgid "settings: %1: cannot read '%2', default kept"
-msgstr ""
+msgstr "configuración: %1: non se pode ler «%2», mantense o predeterminado"
 
 #. TRANSLATORS: %1 is the settings file.
 #: src/lib/subedit/cli/shared_settings.cpp
 msgid "settings: %1 not found, defaults used"
-msgstr ""
+msgstr "configuración: non se atopou %1, úsanse os valores predeterminados"
 
 #. TRANSLATORS: %1 is the settings file.
 #: src/lib/subedit/cli/shared_settings.cpp
 msgid "settings: %1 unreadable, defaults used"
-msgstr ""
+msgstr "configuración: %1 ilexible, úsanse os valores predeterminados"
 
 #: src/lib/subedit/cli/shifting.cpp
 msgid "%1 subtitle shifted by %2"
 msgid_plural "%1 subtitles shifted by %2"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%1 subtítulo desprazado %2"
+msgstr[1] "%1 subtítulos desprazados %2"
 
 #: src/lib/subedit/cli/shifting.cpp
 msgid "%1 subtitle shifted by %2 onto their %3 fps grid"
 msgid_plural "%1 subtitles shifted by %2 onto their %3 fps grid"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%1 subtítulo desprazado %2 á súa grade de %3 fps"
+msgstr[1] "%1 subtítulos desprazados %2 á súa grade de %3 fps"
 
 #: src/lib/subedit/cli/shifting.cpp
 msgid "--by and --to-grid both say by how much to move; give one or the other"
-msgstr ""
+msgstr "--by e --to-grid indican ambos canto mover; indique un ou o outro"
 
 #: src/lib/subedit/cli/shifting.cpp
 msgid ""
 "shift needs --by, or --to-grid to work the amount out from the positions"
 msgstr ""
+"shift require --by, ou --to-grid para calcular a cantidade a partir das "
+"posicións"
 
 #: src/lib/subedit/cli/shifting.cpp
 msgid ""
 "no frame rate grid was found in these positions, so there is nothing to "
 "bring them back onto"
 msgstr ""
+"non se atopou ningunha grade de fotogramas nestas posicións, así que non hai "
+"nada ao que devolvelas"
 
 #. TRANSLATORS: %1 is a file the user named.
 #: src/lib/subedit/cli/splitting.cpp
 msgid "%1: named as both the head and the tail"
-msgstr ""
+msgstr "%1: nomeado á vez como cabeza e como cola"
 
 #: src/lib/subedit/cli/splitting.cpp
 msgid ""
@@ -1837,7 +2009,11 @@ msgid ""
 msgid_plural ""
 "a file of %1 subtitles cannot be split: a cut needs a subtitle on each side"
 msgstr[0] ""
+"non se pode dividir un ficheiro de %1 subtítulo: un corte require un "
+"subtítulo a cada lado"
 msgstr[1] ""
+"non se pode dividir un ficheiro de %1 subtítulos: un corte require un "
+"subtítulo a cada lado"
 
 #: src/lib/subedit/cli/splitting.cpp
 msgid ""
@@ -1845,68 +2021,75 @@ msgid ""
 msgid_plural ""
 "--at %1: the file holds %2 subtitles, and the tail can start from 2 to %2"
 msgstr[0] ""
+"--at %1: o ficheiro contén %2 subtítulo, e a cola pode comezar de 2 a %2"
 msgstr[1] ""
+"--at %1: o ficheiro contén %2 subtítulos, e a cola pode comezar de 2 a %2"
 
 #. TRANSLATORS: %1 and %2 are the numbers of bytes of the head and the tail.
 #: src/lib/subedit/cli/splitting.cpp
 msgid "%1 and %2"
-msgstr ""
+msgstr "%1 e %2"
 
 #: src/lib/subedit/cli/splitting.cpp
 msgid "%1: split at subtitle %2: %3 in the head, %4 in the tail"
-msgstr ""
+msgstr "%1: dividido no subtítulo %2: %3 na cabeza, %4 na cola"
 
 #. TRANSLATORS: %1 is what was done, %2 and %3 the two files written.
 #: src/lib/subedit/cli/splitting.cpp
 msgid "%1 -> %2, %3"
-msgstr ""
+msgstr "%1 -> %2, %3"
 
 #: src/lib/subedit/cli/text_rewriting.cpp
 msgid "--on and --off say opposite things; give one of them"
-msgstr ""
+msgstr "--on e --off din cousas opostas; indique unha delas"
 
 #: src/lib/subedit/cli/text_rewriting.cpp
 msgid "italics needs --on to put the texts in italics, or --off"
-msgstr ""
+msgstr "italics require --on para pór os textos en cursiva, ou --off"
 
 #: src/lib/subedit/cli/text_rewriting.cpp
 msgid "--add and --remove say opposite things; give one of them"
-msgstr ""
+msgstr "--add e --remove din cousas opostas; indique unha delas"
 
 #: src/lib/subedit/cli/text_rewriting.cpp
 msgid "dialogue-dashes needs --add to put dashes on, or --remove"
-msgstr ""
+msgstr "dialogue-dashes require --add para pór trazos, ou --remove"
 
 #: src/lib/subedit/cli/text_rewriting.cpp
 msgid "%1 writes no style: there are no italics to put on"
-msgstr ""
+msgstr "%1 non escribe ningún estilo: non hai cursiva que pór"
 
 #: src/lib/subedit/cli/text_rewriting.cpp
 msgid "%1 writes no style: there are no italics to take out"
-msgstr ""
+msgstr "%1 non escribe ningún estilo: non hai cursiva que quitar"
 
 #. TRANSLATORS: %1 is what the user typed, %2 why it does not read.
 #: src/lib/subedit/cli/time_grammar.cpp
 msgid "\"%1\" is not a time: %2"
-msgstr ""
+msgstr "«%1» non é un tempo: %2"
 
 #: src/lib/subedit/cli/time_grammar.cpp
 msgid "positions are held to the millisecond, no finer"
-msgstr ""
+msgstr "as posicións gárdanse ao milisegundo, non con máis precisión"
 
 #: src/lib/subedit/cli/time_grammar.cpp
 msgid "it is too large to hold, positions being counted in milliseconds"
 msgstr ""
+"é demasiado grande para gardalo, xa que as posicións se contan en "
+"milisegundos"
 
 #: src/lib/subedit/cli/time_grammar.cpp
 msgid "expected seconds like 2.999, or a timestamp like 00:00:07.001"
 msgstr ""
+"agardábanse segundos como 2.999, ou unha marca de tempo como 00:00:07.001"
 
 #: src/lib/subedit/cli/transforming.cpp
 msgid "subtitle %1 is past the end: the file holds %2 subtitle"
 msgid_plural "subtitle %1 is past the end: the file holds %2 subtitles"
 msgstr[0] ""
+"o subtítulo %1 está despois do final: o ficheiro contén %2 subtítulo"
 msgstr[1] ""
+"o subtítulo %1 está despois do final: o ficheiro contén %2 subtítulos"
 
 #. TRANSLATORS: %1 is a subtitle number.
 #: src/lib/subedit/cli/transforming.cpp
@@ -1914,321 +2097,327 @@ msgid ""
 "--first and --last both name subtitle %1, and two references on one subtitle "
 "define no transform"
 msgstr ""
+"--first e --last nomean ambos o subtítulo %1, e dúas referencias nun mesmo "
+"subtítulo non definen ningunha transformación"
 
 #: src/lib/subedit/cli/transforming.cpp
 msgid ""
 "subtitles %1 and %2 start at the same moment, so they define no transform"
 msgstr ""
+"os subtítulos %1 e %2 comezan no mesmo instante, polo que non definen "
+"ningunha transformación"
 
 #: src/lib/subedit/cli/transforming.cpp
 msgid ""
 "subtitle %1 would land before the origin, which no subtitle file can hold"
 msgstr ""
+"o subtítulo %1 quedaría antes da orixe, o que ningún ficheiro de subtítulos "
+"pode conter"
 
 #. TRANSLATORS: %1 subtitles were transformed; %2 and %3 are the two references, as
 #. typed: 1=00:00:01.000.
 #: src/lib/subedit/cli/transforming.cpp
 msgid "%1 subtitle transformed onto %2 and %3"
 msgid_plural "%1 subtitles transformed onto %2 and %3"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%1 subtítulo transformado segundo %2 e %3"
+msgstr[1] "%1 subtítulos transformados segundo %2 e %3"
 
 #: src/lib/subedit/cli/verbosity.cpp
 msgid "--quiet and -v ask for opposite things; give one or the other"
-msgstr ""
+msgstr "--quiet e -v piden cousas opostas; indique unha ou a outra"
 
 #: src/lib/subedit/cli/writing.cpp
 msgid "%1: %2, %3, %4 line endings kept"
-msgstr ""
+msgstr "%1: %2, %3, finais de liña %4 conservados"
 
 #: src/lib/subedit/core/wording/analysis.cpp
 msgid "ends before it starts"
-msgstr ""
+msgstr "remata antes de comezar"
 
 #: src/lib/subedit/core/wording/analysis.cpp
 msgid "starts before the previous one ends"
-msgstr ""
+msgstr "comeza antes de que remate o anterior"
 
 #: src/lib/subedit/core/wording/analysis.cpp
 msgid "starts before the previous one starts"
-msgstr ""
+msgstr "comeza antes de que comece o anterior"
 
 #. TRANSLATORS: %1 is a subtitle number, %2 what is wrong with it, such as
 #. « starts before the previous one ends ».
 #: src/lib/subedit/core/wording/analysis.cpp
 msgid "subtitle %1 %2"
-msgstr ""
+msgstr "subtítulo %1 %2"
 
 #. TRANSLATORS: %1 is what is wrong with a subtitle, such as « starts before
 #. the previous one ends », and %2 how many subtitles it is wrong with.
 #: src/lib/subedit/core/wording/analysis.cpp
 msgid "subtitle %1: %2"
-msgstr ""
+msgstr "subtítulo que %1: %2"
 
 #: src/lib/subedit/core/wording/analysis.cpp
 msgid "a line that fits nowhere"
-msgstr ""
+msgstr "unha liña que non encaixa en ningures"
 
 #: src/lib/subedit/core/wording/analysis.cpp
 msgid "a timing line that could not be read"
-msgstr ""
+msgstr "unha liña de tempos que non se puido ler"
 
 #: src/lib/subedit/core/wording/analysis.cpp
 msgid "a SubRip block without its number"
-msgstr ""
+msgstr "un bloque SubRip sen o seu número"
 
 #: src/lib/subedit/core/wording/analysis.cpp
 msgid "SubRip numbers that do not follow"
-msgstr ""
+msgstr "números SubRip que non son correlativos"
 
 #: src/lib/subedit/core/wording/analysis.cpp
 msgid "text before the first timing line"
-msgstr ""
+msgstr "texto antes da primeira liña de tempos"
 
 #: src/lib/subedit/core/wording/analysis.cpp
 msgid "a WebVTT block of an unknown kind"
-msgstr ""
+msgstr "un bloque WebVTT dun tipo descoñecido"
 
 #: src/lib/subedit/core/wording/analysis.cpp
 msgid "declares an event column this tool cannot fill"
-msgstr ""
+msgstr "declara unha columna de evento que esta ferramenta non pode encher"
 
 #: src/lib/subedit/core/wording/analysis.cpp
 msgid "counts in frames and states no rate; it was read at"
-msgstr ""
+msgstr "conta en fotogramas e non indica ningunha taxa; leuse a"
 
 #: src/lib/subedit/core/wording/analysis.cpp
 msgid "carries no end times; each one was taken from the next start"
-msgstr ""
+msgstr "non leva tempos de final; cada un tomouse do inicio seguinte"
 
 #: src/lib/subedit/core/wording/analysis.cpp
 msgid "more than one kind of line ending"
-msgstr ""
+msgstr "máis dun tipo de final de liña"
 
 #: src/lib/subedit/core/wording/analysis.cpp
 msgid "an encoding nothing declared"
-msgstr ""
+msgstr "unha codificación que nada declaraba"
 
 #: src/lib/subedit/core/wording/analysis.cpp
 msgid "a byte order mark that contradicts the encoding asked for"
-msgstr ""
+msgstr "unha marca de orde de bytes que contradí a codificación pedida"
 
 #: src/lib/subedit/core/wording/analysis.cpp
 msgid "left as it stands"
-msgstr ""
+msgstr "deixado tal como está"
 
 #: src/lib/subedit/core/wording/analysis.cpp
 msgid "settled by the reader"
-msgstr ""
+msgstr "resolto pola lectura"
 
 #: src/lib/subedit/core/wording/analysis.cpp
 msgid "editing a text"
-msgstr ""
+msgstr "edición dun texto"
 
 #: src/lib/subedit/core/wording/analysis.cpp
 msgid "editing a start"
-msgstr ""
+msgstr "edición dun inicio"
 
 #: src/lib/subedit/core/wording/analysis.cpp
 msgid "editing an end"
-msgstr ""
+msgstr "edición dun final"
 
 #: src/lib/subedit/core/wording/analysis.cpp
 msgid "editing a duration"
-msgstr ""
+msgstr "edición dunha duración"
 
 #: src/lib/subedit/core/wording/analysis.cpp
 msgid "inserting"
-msgstr ""
+msgstr "inserción"
 
 #: src/lib/subedit/core/wording/analysis.cpp
 msgid "removing"
-msgstr ""
+msgstr "eliminación"
 
 #: src/lib/subedit/core/wording/analysis.cpp
 msgid "shifting"
-msgstr ""
+msgstr "desprazamento"
 
 #: src/lib/subedit/core/wording/analysis.cpp
 msgid "transforming"
-msgstr ""
+msgstr "transformación"
 
 #: src/lib/subedit/core/wording/analysis.cpp
 msgid "converting the frame rate"
-msgstr ""
+msgstr "conversión da taxa de fotogramas"
 
 #: src/lib/subedit/core/wording/analysis.cpp
 msgid "aligning on the frame rate"
-msgstr ""
+msgstr "aliñamento á taxa de fotogramas"
 
 #: src/lib/subedit/core/wording/analysis.cpp
 msgid "sorting"
-msgstr ""
+msgstr "ordenación"
 
 #: src/lib/subedit/core/wording/analysis.cpp
 msgid "removing hearing-impaired mentions"
-msgstr ""
+msgstr "eliminación das mencións para persoas xordas"
 
 #: src/lib/subedit/core/wording/analysis.cpp
 msgid "putting in italics"
-msgstr ""
+msgstr "aplicación de cursiva"
 
 #: src/lib/subedit/core/wording/analysis.cpp
 msgid "taking italics out"
-msgstr ""
+msgstr "eliminación da cursiva"
 
 #: src/lib/subedit/core/wording/analysis.cpp
 msgid "changing the case"
-msgstr ""
+msgstr "cambio de maiúsculas"
 
 #: src/lib/subedit/core/wording/analysis.cpp
 msgid "adding dialogue dashes"
-msgstr ""
+msgstr "adición de trazos de diálogo"
 
 #: src/lib/subedit/core/wording/analysis.cpp
 msgid "removing dialogue dashes"
-msgstr ""
+msgstr "eliminación dos trazos de diálogo"
 
 #: src/lib/subedit/core/wording/analysis.cpp
 msgid "merging"
-msgstr ""
+msgstr "fusión"
 
 #: src/lib/subedit/core/wording/analysis.cpp
 msgid "splitting"
-msgstr ""
+msgstr "división"
 
 #: src/lib/subedit/core/wording/analysis.cpp
 msgid "cutting texts"
-msgstr ""
+msgstr "corte de textos"
 
 #: src/lib/subedit/core/wording/analysis.cpp
 msgid "pasting texts"
-msgstr ""
+msgstr "pegado de textos"
 
 #: src/lib/subedit/core/wording/analysis.cpp
 msgid "opening a translation"
-msgstr ""
+msgstr "apertura dunha tradución"
 
 #: src/lib/subedit/core/wording/analysis.cpp
 msgid "adjusting durations"
-msgstr ""
+msgstr "axuste das duracións"
 
 #: src/lib/subedit/core/wording/analysis.cpp
 msgid "replacing"
-msgstr ""
+msgstr "substitución"
 
 #: src/lib/subedit/core/wording/analysis.cpp
 msgid "replacing all"
-msgstr ""
+msgstr "substitución de todo"
 
 #: src/lib/subedit/core/wording/analysis.cpp
 msgid "appending a file"
-msgstr ""
+msgstr "adición dun ficheiro"
 
 #: src/lib/subedit/core/wording/analysis.cpp
 msgid "splitting the project"
-msgstr ""
+msgstr "división do proxecto"
 
 #: src/lib/subedit/core/wording/analysis.cpp
 msgid "correcting texts"
-msgstr ""
+msgstr "corrección dos textos"
 
 #: src/lib/subedit/core/wording/analysis.cpp
 msgid "making the ranges disjoint"
-msgstr ""
+msgstr "disxunción das franxas"
 
 #: src/lib/subedit/core/wording/analysis.cpp
 msgid "joining repeated subtitles"
-msgstr ""
+msgstr "unión dos subtítulos repetidos"
 
 #. TRANSLATORS: how well the positions fall on a frame-rate grid: clean,
 #. partial, or none at all.
 #: src/lib/subedit/core/wording/analysis.cpp
 msgid "clean"
-msgstr ""
+msgstr "limpa"
 
 #: src/lib/subedit/core/wording/analysis.cpp
 msgid "partial"
-msgstr ""
+msgstr "parcial"
 
 #: src/lib/subedit/core/wording/analysis.cpp
 msgid "No grid"
-msgstr ""
+msgstr "Sen grade"
 
 #. TRANSLATORS: %1 is a frame rate, %2 the word for a partial grid.
 #: src/lib/subedit/core/wording/analysis.cpp
 msgid "Grid: %1 fps (%2)"
-msgstr ""
+msgstr "Grade: %1 fps (%2)"
 
 #: src/lib/subedit/core/wording/analysis.cpp
 msgid "Grid: %1 fps"
-msgstr ""
+msgstr "Grade: %1 fps"
 
 #: src/lib/subedit/core/wording/analysis.cpp
 msgid "Frames: %1 fps"
-msgstr ""
+msgstr "Fotogramas: %1 fps"
 
 #. TRANSLATORS: %1 is the name of a subtitle format.
 #: src/lib/subedit/core/wording/conversion.cpp
 msgid "ends are not carried by %1"
-msgstr ""
+msgstr "%1 non leva os finais"
 
 #: src/lib/subedit/core/wording/conversion.cpp
 msgid "line breaks were joined in %1 subtitle"
 msgid_plural "line breaks were joined in %1 subtitles"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "uníronse os saltos de liña en %1 subtítulo"
+msgstr[1] "uníronse os saltos de liña en %1 subtítulos"
 
 #: src/lib/subedit/core/wording/conversion.cpp
 msgid "%1 tag dropped"
 msgid_plural "%1 tags dropped"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%1 etiqueta descartada"
+msgstr[1] "%1 etiquetas descartadas"
 
 #: src/lib/subedit/core/wording/conversion.cpp
 msgid "the header was dropped"
-msgstr ""
+msgstr "descartouse a cabeceira"
 
 #. TRANSLATORS: %1 is the name of a subtitle format, %2 a count.
 #: src/lib/subedit/core/wording/conversion.cpp
 msgid "the %1 fields of %2 subtitle were dropped"
 msgid_plural "the %1 fields of %2 subtitles were dropped"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "descartáronse os campos %1 de %2 subtítulo"
+msgstr[1] "descartáronse os campos %1 de %2 subtítulos"
 
 #. TRANSLATORS: %1 is a number of milliseconds.
 #: src/lib/subedit/core/wording/conversion.cpp
 msgid "positions moved by up to %1 ms"
-msgstr ""
+msgstr "posicións movidas como máximo %1 ms"
 
 #: src/lib/subedit/core/wording/conversion.cpp
 msgid "inserted %1 subtitle to fit the clipboard"
 msgid_plural "inserted %1 subtitles to fit the clipboard"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "inseriuse %1 subtítulo para que caiba o portapapeis"
+msgstr[1] "inseríronse %1 subtítulos para que caiba o portapapeis"
 
 #. TRANSLATORS: %1 and %2 are names of subtitle formats, %3 what was
 #. lost on the way, such as « 3 tags dropped ».
 #: src/lib/subedit/core/wording/conversion.cpp
 msgid "pasting %1 texts into %2: %3"
-msgstr ""
+msgstr "pegado de textos %1 en %2: %3"
 
 #: src/lib/subedit/core/wording/conversion.cpp
 msgid "appended %1 subtitle"
 msgid_plural "appended %1 subtitles"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "engadiuse %1 subtítulo"
+msgstr[1] "engadíronse %1 subtítulos"
 
 #. TRANSLATORS: %1 and %2 are names of subtitle formats, %3 what was lost
 #. on the way, such as « 3 tags dropped ».
 #: src/lib/subedit/core/wording/conversion.cpp
 msgid "%1 into %2: %3"
-msgstr ""
+msgstr "%1 en %2: %3"
 
 #. TRANSLATORS: %1 and %2 are frame rates.
 #: src/lib/subedit/core/wording/conversion.cpp
 msgid "converting from %1 to %2 fps"
-msgstr ""
+msgstr "conversión de %1 a %2 fps"
 
 #. TRANSLATORS: %1 is « converting from 25 to 24 fps », %2 a frame rate,
 #. %3 to %5 percentages.
@@ -2237,120 +2426,126 @@ msgid ""
 "%1 puts the positions on a %2 fps grid: %3, against %4 as they are and %5 "
 "for the next best conversion"
 msgstr ""
+"%1 pon as posicións nunha grade de %2 fps: %3, fronte a %4 tal como están e "
+"%5 para a seguinte mellor conversión"
 
 #. TRANSLATORS: %1 and %2 are « converting from 25 to 24 fps », %3 and %4
 #. percentages.
 #: src/lib/subedit/core/wording/conversion.cpp
 msgid "%1 and %2 fit equally well (%3 and %4), so none is proposed"
 msgstr ""
+"%1 e %2 encaixan igual de ben (%3 e %4), polo que non se propón ningunha"
 
 #: src/lib/subedit/core/wording/correction.cpp
 msgid "cannot be translated"
-msgstr ""
+msgstr "non se pode traducir"
 
 #: src/lib/subedit/core/wording/correction.cpp
 msgid "will not compile"
-msgstr ""
+msgstr "non compila"
 
 #: src/lib/subedit/core/wording/correction.cpp
 msgid "has an invalid replacement"
-msgstr ""
+msgstr "ten unha substitución non válida"
 
 #: src/lib/subedit/core/wording/correction.cpp
 msgid "timed out"
-msgstr ""
+msgstr "esgotou o tempo"
 
 #: src/lib/subedit/core/wording/correction.cpp
 msgid "never settled"
-msgstr ""
+msgstr "nunca se estabilizou"
 
 #: src/lib/subedit/core/wording/correction.cpp
 msgid "grew the text too long"
-msgstr ""
+msgstr "alongou demasiado o texto"
 
 #: src/lib/subedit/core/wording/correction.cpp
 msgid "directory cannot be read"
-msgstr ""
+msgstr "non se pode ler o directorio"
 
 #: src/lib/subedit/core/wording/correction.cpp
 msgid "file cannot be read"
-msgstr ""
+msgstr "non se pode ler o ficheiro"
 
 #: src/lib/subedit/core/wording/correction.cpp
 msgid "malformed line"
-msgstr ""
+msgstr "liña mal formada"
 
 #: src/lib/subedit/core/wording/correction.cpp
 msgid "field outside any pattern"
-msgstr ""
+msgstr "campo fóra de calquera padrón"
 
 #: src/lib/subedit/core/wording/correction.cpp
 msgid "unknown field"
-msgstr ""
+msgstr "campo descoñecido"
 
 #: src/lib/subedit/core/wording/correction.cpp
 msgid "missing field"
-msgstr ""
+msgstr "falta un campo"
 
 #: src/lib/subedit/core/wording/correction.cpp
 msgid "invalid value"
-msgstr ""
+msgstr "valor non válido"
 
 #: src/lib/subedit/core/wording/correction.cpp
 msgid "malformed activation"
-msgstr ""
+msgstr "activación mal formada"
 
 #. TRANSLATORS: %1 is a file name, %2 a line number in it.
 #: src/lib/subedit/core/wording/correction.cpp
 msgid "%1, line %2"
-msgstr ""
+msgstr "%1, liña %2"
 
 #. TRANSLATORS: %1 subtitles were edited and %2 removed. English says
 #. « subtitles » whatever the counts; the form is chosen by %2.
 #: src/lib/subedit/core/wording/counts.cpp
 msgid "Edited %1 and removed %2 subtitles"
 msgid_plural "Edited %1 and removed %2 subtitles"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "Subtítulos editados: %1, eliminados: %2"
+msgstr[1] "Subtítulos editados: %1, eliminados: %2"
 
 #: src/lib/subedit/core/wording/counts.cpp
 msgid "no mention to remove"
-msgstr ""
+msgstr "non hai ningunha mención que eliminar"
 
 #: src/lib/subedit/core/wording/counts.cpp
 msgid "%1 subtitle cleaned, %2 removed"
 msgid_plural "%1 subtitles cleaned, %2 removed"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%1 subtítulo limpado, eliminados: %2"
+msgstr[1] "%1 subtítulos limpados, eliminados: %2"
 
 #: src/lib/subedit/core/wording/counts.cpp
 msgid ""
 "subtitle %1 would start before the origin, which no subtitle file can hold"
 msgstr ""
+"o subtítulo %1 comezaría antes da orixe, o que ningún ficheiro de subtítulos "
+"pode conter"
 
 #. TRANSLATORS: %1 is a language code, such as en_GB.
 #: src/lib/subedit/core/wording/counts.cpp
 msgid "no dictionary for %1"
-msgstr ""
+msgstr "non hai dicionario para %1"
 
 #: src/lib/subedit/core/wording/counts.cpp
 msgid "%1 subtitle"
 msgid_plural "%1 subtitles"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%1 subtítulo"
+msgstr[1] "%1 subtítulos"
 
 #: src/lib/subedit/core/wording/counts.cpp
 msgid "%1 file"
 msgid_plural "%1 files"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%1 ficheiro"
+msgstr[1] "%1 ficheiros"
 
 #: src/lib/subedit/core/wording/counts.cpp
 msgid "%1 run"
 msgid_plural "%1 runs"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%1 serie"
+msgstr[1] "%1 series"
 
+# From Gaupol.
 #. TRANSLATORS: %1 is what the user searched for.
 #: src/lib/subedit/core/wording/counts.cpp
 msgid "\"%1\" not found"
@@ -2358,80 +2553,82 @@ msgstr "Non se atopou «%1»"
 
 #: src/lib/subedit/core/wording/counts.cpp
 msgid "nothing to change"
-msgstr ""
+msgstr "nada que cambiar"
 
 #: src/lib/subedit/core/wording/counts.cpp
 msgid "%1 subtitle put in italics"
 msgid_plural "%1 subtitles put in italics"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%1 subtítulo posto en cursiva"
+msgstr[1] "%1 subtítulos postos en cursiva"
 
 #: src/lib/subedit/core/wording/counts.cpp
 msgid "%1 subtitle taken out of italics"
 msgid_plural "%1 subtitles taken out of italics"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%1 subtítulo sen cursiva"
+msgstr[1] "%1 subtítulos sen cursiva"
 
 #: src/lib/subedit/core/wording/counts.cpp
 msgid "%1 subtitle recased"
 msgid_plural "%1 subtitles recased"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%1 subtítulo coas maiúsculas cambiadas"
+msgstr[1] "%1 subtítulos coas maiúsculas cambiadas"
 
 #: src/lib/subedit/core/wording/counts.cpp
 msgid "%1 subtitle dashed"
 msgid_plural "%1 subtitles dashed"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%1 subtítulo con trazos"
+msgstr[1] "%1 subtítulos con trazos"
 
 #: src/lib/subedit/core/wording/counts.cpp
 msgid "%1 subtitle undashed"
 msgid_plural "%1 subtitles undashed"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%1 subtítulo sen trazos"
+msgstr[1] "%1 subtítulos sen trazos"
 
 #: src/lib/subedit/core/wording/counts.cpp
 msgid "replaced %1 match"
 msgid_plural "replaced %1 matches"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "substituíuse %1 coincidencia"
+msgstr[1] "substituíronse %1 coincidencias"
 
 #. TRANSLATORS: %1 is « replaced 4 matches », %2 the number of projects.
 #: src/lib/subedit/core/wording/counts.cpp
 msgid "%1 in %2 project"
 msgid_plural "%1 in %2 projects"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%1 en %2 proxecto"
+msgstr[1] "%1 en %2 proxectos"
 
 #: src/lib/subedit/core/wording/counts.cpp
 msgid "split %1 subtitle into a new project"
 msgid_plural "split %1 subtitles into a new project"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%1 subtítulo dividido nun proxecto novo"
+msgstr[1] "%1 subtítulos divididos nun proxecto novo"
 
 #: src/lib/subedit/core/wording/counts.cpp
 msgid "already in order"
-msgstr ""
+msgstr "xa están en orde"
 
 #: src/lib/subedit/core/wording/counts.cpp
 msgid "%1 subtitle moved"
 msgid_plural "%1 subtitles moved"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%1 subtítulo movido"
+msgstr[1] "%1 subtítulos movidos"
 
 #: src/lib/subedit/core/wording/counts.cpp
 msgid ""
 "Cannot split at subtitle %1: subtitle %2 would fall before the start of the "
 "video. Cut somewhere else."
 msgstr ""
+"Non se pode dividir no subtítulo %1: o subtítulo %2 quedaría antes do inicio "
+"do vídeo. Corte noutro sitio."
 
 #. TRANSLATORS: %1 is an operation, such as « shifting », %2 a count, %3
 #. a length in seconds.
 #: src/lib/subedit/core/wording/editing.cpp
 msgid "%1 leaves %2 subtitle past the end of the video, by %3 at most"
 msgid_plural "%1 leaves %2 subtitles past the end of the video, by %3 at most"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%1: %2 subtítulo pasa do final do vídeo, como máximo %3"
+msgstr[1] "%1: %2 subtítulos pasan do final do vídeo, como máximo %3"
 
 #. TRANSLATORS: %1 of %2 subtitles were aligned; %3 and %4 are frame rates.
 #: src/lib/subedit/core/wording/editing.cpp
@@ -2442,123 +2639,129 @@ msgid_plural ""
 "%1 of %2 subtitles aligned to %3 fps; the document is still read on a %4 fps "
 "grid"
 msgstr[0] ""
+"%1 de %2 subtítulo aliñado a %3 fps; o documento aínda se le nunha grade de "
+"%4 fps"
 msgstr[1] ""
+"%1 de %2 subtítulos aliñados a %3 fps; o documento aínda se le nunha grade "
+"de %4 fps"
 
 #: src/lib/subedit/core/wording/editing.cpp
 msgid "nothing to look for"
-msgstr ""
+msgstr "nada que buscar"
 
 #. TRANSLATORS: %1 is the regular expression engine's own reason, in English.
 #: src/lib/subedit/core/wording/editing.cpp
 msgid "not a regular expression (%1)"
-msgstr ""
+msgstr "non é unha expresión regular (%1)"
 
 #: src/lib/subedit/core/wording/editing.cpp
 msgid "no duration to adjust"
-msgstr ""
+msgstr "non hai ningunha duración que axustar"
 
 #: src/lib/subedit/core/wording/editing.cpp
 msgid "adjusted the durations of %1 subtitle"
 msgid_plural "adjusted the durations of %1 subtitles"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "axustáronse as duracións de %1 subtítulo"
+msgstr[1] "axustáronse as duracións de %1 subtítulos"
 
 #: src/lib/subedit/core/wording/editing.cpp
 msgid "the reading speed in %1 subtitle"
 msgid_plural "the reading speed in %1 subtitles"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "a velocidade de lectura en %1 subtítulo"
+msgstr[1] "a velocidade de lectura en %1 subtítulos"
 
 #: src/lib/subedit/core/wording/editing.cpp
 msgid "the minimum duration in %1 subtitle"
 msgid_plural "the minimum duration in %1 subtitles"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "a duración mínima en %1 subtítulo"
+msgstr[1] "a duración mínima en %1 subtítulos"
 
 #: src/lib/subedit/core/wording/editing.cpp
 msgid "the gap in %1 subtitle"
 msgid_plural "the gap in %1 subtitles"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "a separación en %1 subtítulo"
+msgstr[1] "a separación en %1 subtítulos"
 
 #. TRANSLATORS: %1 is what the adjustment did, %2 the constraints it could
 #. not satisfy, such as « the gap in 2 subtitles ».
 #: src/lib/subedit/core/wording/editing.cpp
 msgid "%1; could not satisfy %2"
-msgstr ""
+msgstr "%1; non se puido cumprir %2"
 
 #: src/lib/subedit/core/wording/editing.cpp
 msgid "already disjoint"
-msgstr ""
+msgstr "xa son disxuntas"
 
 #: src/lib/subedit/core/wording/editing.cpp
 msgid "%1 subtitle split, %2 merged"
 msgid_plural "%1 subtitles split, %2 merged"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%1 subtítulo dividido, fusionados: %2"
+msgstr[1] "%1 subtítulos divididos, fusionados: %2"
 
 #: src/lib/subedit/core/wording/editing.cpp
 msgid "%1 shown in windows for holding too many lines"
 msgid_plural "%1 shown in windows for holding too many lines"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%1 mostrado en xanelas por ter demasiadas liñas"
+msgstr[1] "%1 mostrados en xanelas por ter demasiadas liñas"
 
 #: src/lib/subedit/core/wording/editing.cpp
 msgid "%1 very short taken over by a neighbour"
 msgid_plural "%1 very short taken over by a neighbour"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%1 moi curto pasou a un veciño"
+msgstr[1] "%1 moi curtos pasaron a veciños"
 
 #: src/lib/subedit/core/wording/editing.cpp
 msgid "%1 subtitle shorter than the limit left whole"
 msgid_plural "%1 subtitles shorter than the limit left whole"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%1 subtítulo máis curto que o límite deixado enteiro"
+msgstr[1] "%1 subtítulos máis curtos que o límite deixados enteiros"
 
 #: src/lib/subedit/core/wording/editing.cpp
 msgid "%1 merged with styles or positions that differ, the first kept"
 msgid_plural "%1 merged with styles or positions that differ, the first kept"
 msgstr[0] ""
+"%1 fusionado con estilos ou posicións que difiren, conservouse o primeiro"
 msgstr[1] ""
+"%1 fusionados con estilos ou posicións que difiren, conservouse o primeiro"
 
 #: src/lib/subedit/core/wording/editing.cpp
 msgid "%1 subtitle ending before the start left alone"
 msgid_plural "%1 subtitles ending before the start left alone"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%1 subtítulo que remata antes do inicio deixado tal como está"
+msgstr[1] "%1 subtítulos que rematan antes do inicio deixados tal como están"
 
 #: src/lib/subedit/core/wording/editing.cpp
 msgid "no repeated subtitles"
-msgstr ""
+msgstr "non hai subtítulos repetidos"
 
 #: src/lib/subedit/core/wording/editing.cpp
 msgid "%1 repeated subtitle joined"
 msgid_plural "%1 repeated subtitles joined"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%1 subtítulo repetido unido"
+msgstr[1] "%1 subtítulos repetidos unidos"
 
 #: src/lib/subedit/core/wording/editing.cpp
 msgid "The subtitles are not in the order of their start: sort them first."
-msgstr ""
+msgstr "Os subtítulos non están ordenados polo seu inicio: ordéneos primeiro."
 
 #. TRANSLATORS: %1 is the name of a character encoding, such as UTF-8; a BOM
 #. is a byte order mark.
 #: src/lib/subedit/core/wording/formats.cpp
 msgid "%1, BOM"
-msgstr ""
+msgstr "%1, BOM"
 
 #: src/lib/subedit/core/wording/formats.cpp
 msgid "%1, no BOM"
-msgstr ""
+msgstr "%1, sen BOM"
 
 #: src/lib/subedit/core/wording/formats.cpp
 msgid "Encoding: %1"
-msgstr ""
+msgstr "Codificación: %1"
 
 #. TRANSLATORS: %1 is the name the user gave for an encoding.
 #: src/lib/subedit/core/wording/formats.cpp
 msgid "no encoding is named \"%1\""
-msgstr ""
+msgstr "ningunha codificación se chama «%1»"
 
 #. TRANSLATORS: %1 is the name the user gave for an encoding.
 #: src/lib/subedit/core/wording/formats.cpp
@@ -2566,74 +2769,76 @@ msgid ""
 "\"%1\" writes a byte order mark of its own; name the byte order, as UTF-16LE "
 "and UTF-16BE do"
 msgstr ""
+"«%1» escribe a súa propia marca de orde de bytes; nomee a orde de bytes, "
+"como fan UTF-16LE e UTF-16BE"
 
 #: src/lib/subedit/core/wording/formats.cpp
 msgid "cannot be decoded in the chosen encoding"
-msgstr ""
+msgstr "non se pode descodificar na codificación escollida"
 
 #: src/lib/subedit/core/wording/formats.cpp
 msgid "holds nothing recognisable as a subtitle"
-msgstr ""
+msgstr "non contén nada recoñecible como subtítulo"
 
 #: src/lib/subedit/core/wording/formats.cpp
 msgid "is in no format this tool knows"
-msgstr ""
+msgstr "non está en ningún formato que coñeza esta ferramenta"
 
 #: src/lib/subedit/core/wording/formats.cpp
 msgid "does not exist"
-msgstr ""
+msgstr "non existe"
 
 #: src/lib/subedit/core/wording/formats.cpp
 msgid "cannot be opened: permission denied"
-msgstr ""
+msgstr "non se pode abrir: permiso denegado"
 
 #: src/lib/subedit/core/wording/formats.cpp
 msgid "cannot be read"
-msgstr ""
+msgstr "non se pode ler"
 
 #: src/lib/subedit/core/wording/formats.cpp
 msgid "cannot be written: permission denied"
-msgstr ""
+msgstr "non se pode escribir: permiso denegado"
 
 #: src/lib/subedit/core/wording/formats.cpp
 msgid "cannot be written"
-msgstr ""
+msgstr "non se pode escribir"
 
 #: src/lib/subedit/core/wording/formats.cpp
 msgid "cannot be created: permission denied"
-msgstr ""
+msgstr "non se pode crear: permiso denegado"
 
 #: src/lib/subedit/core/wording/formats.cpp
 msgid "cannot be created"
-msgstr ""
+msgstr "non se pode crear"
 
 #: src/lib/subedit/core/wording/formats.cpp
 msgid "holds a character the chosen encoding cannot write"
-msgstr ""
+msgstr "contén un carácter que a codificación escollida non pode escribir"
 
 #: src/lib/subedit/core/wording/settings.cpp
 msgid "System"
-msgstr ""
+msgstr "Sistema"
 
 #: src/lib/subedit/core/wording/settings.cpp
 msgid "Light"
-msgstr ""
+msgstr "Claro"
 
 #: src/lib/subedit/core/wording/settings.cpp
 msgid "Dark"
-msgstr ""
+msgstr "Escuro"
 
 #: src/lib/subedit/core/wording/settings.cpp
 msgid "Above the selection"
-msgstr ""
+msgstr "Por riba da selección"
 
 #: src/lib/subedit/core/wording/settings.cpp
 msgid "Below the selection"
-msgstr ""
+msgstr "Por debaixo da selección"
 
 #: src/lib/subedit/core/wording/settings.cpp
 msgid "leaves the colours to the desktop"
-msgstr ""
+msgstr "deixa as cores ao escritorio"
 
 #: src/lib/subedit/core/wording/settings.cpp
 msgid ""
@@ -2650,48 +2855,62 @@ msgid ""
 "# A value this file cannot read is left at its default, and said so on\n"
 "# the standard error when the program starts.\n"
 msgstr ""
+"# Configuración de subedit.\n"
+"#\n"
+"# As opcións que teñen o valor predeterminado escríbense comentadas.\n"
+"# Descomente unha liña e cambie o seu valor para sobrescribilo; elimine a\n"
+"# liña para volver ao valor predeterminado, sexa cal sexa nunha versión\n"
+"# posterior.\n"
+"#\n"
+"# Dúas delas teñen como predeterminado o que escolla a xanela, e non un\n"
+"# número: a súa liña comentada mostra a forma dun valor, non un valor\n"
+"# predeterminado en vigor.\n"
+"#\n"
+"# Un valor que este ficheiro non pode ler queda co seu valor\n"
+"# predeterminado, e isto indícase na saída de erro estándar ao iniciar o\n"
+"# programa.\n"
 
 #: src/lib/subedit/core/wording/settings.cpp
 msgid "cannot be read, keeping the default"
-msgstr ""
+msgstr "non se pode ler, mantense o predeterminado"
 
 #: src/lib/subedit/core/wording/settings.cpp
 msgid "settings could not be written"
-msgstr ""
+msgstr "non se puido escribir a configuración"
 
 #: src/lib/subedit/core/wording/translation.cpp
 msgid "translation: the file holds no line"
-msgstr ""
+msgstr "tradución: o ficheiro non contén ningunha liña"
 
 #: src/lib/subedit/core/wording/translation.cpp
 msgid "%1 line attached"
 msgid_plural "%1 lines attached"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%1 liña asociada"
+msgstr[1] "%1 liñas asociadas"
 
 #: src/lib/subedit/core/wording/translation.cpp
 msgid "%1 subtitle born of a line"
 msgid_plural "%1 subtitles born of a line"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%1 subtítulo nacido dunha liña"
+msgstr[1] "%1 subtítulos nacidos dunha liña"
 
 #: src/lib/subedit/core/wording/translation.cpp
 msgid "%1 subtitle left without a translation"
 msgid_plural "%1 subtitles left without a translation"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%1 subtítulo sen tradución"
+msgstr[1] "%1 subtítulos sen tradución"
 
 #: src/lib/subedit/core/wording/translation.cpp
 msgid "%1 line out of order"
 msgid_plural "%1 lines out of order"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%1 liña desordenada"
+msgstr[1] "%1 liñas desordenadas"
 
 #. TRANSLATORS: %1 is what became of the lines of a translation, such as
 #. « 4 lines attached; 1 line out of order ».
 #: src/lib/subedit/core/wording/translation.cpp
 msgid "translation: %1"
-msgstr ""
+msgstr "tradución: %1"
 
 #. TRANSLATORS: %1 is a length in seconds, %2 and %3 counts of lines.
 #: src/lib/subedit/core/wording/translation.cpp
@@ -2702,7 +2921,11 @@ msgid_plural ""
 "the lines sit %1 later than the subtitles; moved back, %2 lines would attach "
 "instead of %3"
 msgstr[0] ""
+"as liñas están %1 despois dos subtítulos; adiantándoas, asociaríase %2 liña "
+"no canto de %3"
 msgstr[1] ""
+"as liñas están %1 despois dos subtítulos; adiantándoas, asociaríanse %2 "
+"liñas no canto de %3"
 
 #: src/lib/subedit/core/wording/translation.cpp
 msgid ""
@@ -2712,46 +2935,53 @@ msgid_plural ""
 "the lines sit %1 earlier than the subtitles; moved forward, %2 lines would "
 "attach instead of %3"
 msgstr[0] ""
+"as liñas están %1 antes dos subtítulos; atrasándoas, asociaríase %2 liña no "
+"canto de %3"
 msgstr[1] ""
+"as liñas están %1 antes dos subtítulos; atrasándoas, asociaríanse %2 liñas "
+"no canto de %3"
 
 #: src/lib/subedit/core/wording/translation.cpp
 msgid "the file is already open as the main document"
-msgstr ""
+msgstr "o ficheiro xa está aberto como documento principal"
 
 #. TRANSLATORS: %1 is the version of a library the program runs against, %2 the version it
 #. was compiled with — « 74.2 (built with 74.2) ».
 #: src/lib/subedit/core/wording/version.cpp
 msgid "%1 (built with %2)"
-msgstr ""
+msgstr "%1 (compilada con %2)"
 
 #. TRANSLATORS: %1 is the list of the interface languages installed, by code — « en, fr ».
 #: src/lib/subedit/core/wording/version.cpp
 msgid "Languages: %1"
-msgstr ""
+msgstr "Linguas: %1"
 
 #: src/lib/subedit/core/wording/video.cpp
 msgid ""
 "positions cannot be shown in frames: the file is not counted in frames, the "
 "video declares no frame rate, and the positions fall on no grid"
 msgstr ""
+"as posicións non se poden mostrar en fotogramas: o ficheiro non se conta en "
+"fotogramas, o vídeo non declara ningunha taxa de fotogramas e as posicións "
+"non caen en ningunha grade"
 
 #: src/lib/subedit/core/wording/video.cpp
 msgid "the rate the video declares"
-msgstr ""
+msgstr "a taxa que declara o vídeo"
 
 #: src/lib/subedit/core/wording/video.cpp
 msgid "the rate of the file"
-msgstr ""
+msgstr "a taxa do ficheiro"
 
 #: src/lib/subedit/core/wording/video.cpp
 msgid "the grid the positions fall on"
-msgstr ""
+msgstr "a grade na que caen as posicións"
 
 #. TRANSLATORS: %1 is a frame rate, %2 where it came from, such as « the
 #. rate the video declares ».
 #: src/lib/subedit/core/wording/video.cpp
 msgid "Positions are frame numbers, counted at %1 fps, %2"
-msgstr ""
+msgstr "As posicións son números de fotograma, contados a %1 fps, %2"
 
 #: src/lib/subedit/core/wording/video.cpp
 msgid ""
@@ -2759,120 +2989,126 @@ msgid ""
 "counted in frames, and its positions fall on no grid. Associate a video that "
 "declares one."
 msgstr ""
+"non hai ningunha taxa de fotogramas coa que contar un fotograma: o vídeo non "
+"declara ningunha, o ficheiro non se conta en fotogramas e as súas posicións "
+"non caen en ningunha grade. Asocie un vídeo que declare unha."
 
 #: src/lib/subedit/core/wording/video.cpp
 msgid "No video"
-msgstr ""
+msgstr "Sen vídeo"
 
 #. TRANSLATORS: %1 is the file name of a video, %2 the frame rate it declares.
 #: src/lib/subedit/core/wording/video.cpp
 msgid "Video: %1, %2 fps"
-msgstr ""
+msgstr "Vídeo: %1, %2 fps"
 
 #. TRANSLATORS: %1 is the file name of a video.
 #: src/lib/subedit/core/wording/video.cpp
 msgid "Video: %1"
-msgstr ""
+msgstr "Vídeo: %1"
 
 #: src/lib/subedit/gui/about_dialog.cpp
 msgid "A subtitle editor."
-msgstr ""
+msgstr "Un editor de subtítulos."
 
 #: src/lib/subedit/gui/about_dialog.cpp
 msgid "Licensed under the GPL, version 3 or later."
-msgstr ""
+msgstr "Distribuído baixo a licenza GPL, versión 3 ou posterior."
 
 #: src/lib/subedit/gui/about_dialog.cpp
 msgid "About subedit"
-msgstr ""
+msgstr "Acerca de subedit"
 
 #. TRANSLATORS: the heading of the column of the libraries' names, in « About subedit ».
 #: src/lib/subedit/gui/about_dialog.cpp
 msgid "Library"
-msgstr ""
+msgstr "Biblioteca"
 
 #. TRANSLATORS: the heading of the version of a library the program runs against.
 #: src/lib/subedit/gui/about_dialog.cpp
 msgid "Loaded"
-msgstr ""
+msgstr "Cargada"
 
 #. TRANSLATORS: the heading of the version of a library the program was compiled with.
 #: src/lib/subedit/gui/about_dialog.cpp
 msgid "Built with"
-msgstr ""
+msgstr "Compilada con"
 
 #: src/lib/subedit/gui/command_label.cpp src/lib/subedit/gui/window_actions.cpp
 msgid "Undo"
-msgstr ""
+msgstr "Desfacer"
 
 #: src/lib/subedit/gui/command_label.cpp src/lib/subedit/gui/window_actions.cpp
 msgid "Redo"
-msgstr ""
+msgstr "Refacer"
 
 #: src/lib/subedit/gui/command_label.cpp
 msgid "Shift Whole File onto Grid"
-msgstr ""
+msgstr "Desprazar todo o ficheiro á grade"
 
 #. TRANSLATORS: %1 is how far the whole file moves, in seconds.
 #: src/lib/subedit/gui/command_label.cpp
 msgid "Shift Whole File onto Grid (%1)"
-msgstr ""
+msgstr "Desprazar todo o ficheiro á grade (%1)"
 
 #. TRANSLATORS: %1 lists the patterns left out, each with its reason.
 #: src/lib/subedit/gui/correction_confirmation_page.cpp
 msgid "Not applied: %1"
-msgstr ""
+msgstr "Non aplicados: %1"
 
 #. TRANSLATORS: %1 lists the pattern files that could not be read.
 #: src/lib/subedit/gui/correction_confirmation_page.cpp
 msgid "Could not be read: %1"
-msgstr ""
+msgstr "Non se puideron ler: %1"
 
 #: src/lib/subedit/gui/correction_confirmation_page.cpp
 msgid "Mark All"
-msgstr ""
+msgstr "Marcar todo"
 
 #: src/lib/subedit/gui/correction_confirmation_page.cpp
 msgid "Unmark All"
-msgstr ""
+msgstr "Desmarcar todo"
 
 #: src/lib/subedit/gui/correction_confirmation_page.cpp
 #: src/lib/subedit/gui/operation_dialog.cpp
 msgid "Preview"
-msgstr ""
+msgstr "Vista previa"
 
 #: src/lib/subedit/gui/correction_confirmation_page.cpp
 msgid "Remove all blank subtitles"
-msgstr ""
+msgstr "Eliminar todos os subtítulos baleiros"
 
 #: src/lib/subedit/gui/correction_confirmation_page.cpp
 msgid "Confirmation"
-msgstr ""
+msgstr "Confirmación"
 
 #: src/lib/subedit/gui/correction_progress_page.cpp
 msgid "Progress"
-msgstr ""
+msgstr "Progreso"
 
 #: src/lib/subedit/gui/correction_progress_page.cpp
 msgid "Computing the proposed corrections…"
-msgstr ""
+msgstr "Calculando as correccións propostas…"
 
+# From Gaupol.
 #: src/lib/subedit/gui/correction_result_model.cpp
 msgid "Accept"
 msgstr "Aceptar"
 
 #: src/lib/subedit/gui/correction_result_model.cpp
 msgid "Original"
-msgstr ""
+msgstr "Orixinal"
 
+# From Gaupol.
 #: src/lib/subedit/gui/correction_result_model.cpp
 msgid "Corrected Text"
 msgstr "Texto corrixido"
 
 #: src/lib/subedit/gui/correction_target_page.cpp
 msgid "Tasks and Target"
-msgstr ""
+msgstr "Tarefas e obxectivo"
 
+# From Gaupol.
 #: src/lib/subedit/gui/correction_target_page.cpp
 #: src/lib/subedit/gui/spell_check_settings_dialog.cpp
 msgid "Target"
@@ -2881,22 +3117,22 @@ msgstr "Obxectivo"
 #: src/lib/subedit/gui/correction_target_page.cpp
 #: src/lib/subedit/gui/spell_check_settings_dialog.cpp
 msgid "Selection"
-msgstr ""
+msgstr "Selección"
 
 #: src/lib/subedit/gui/correction_target_page.cpp
 #: src/lib/subedit/gui/spell_check_settings_dialog.cpp
 msgid "Current Project"
-msgstr ""
+msgstr "Proxecto actual"
 
 #: src/lib/subedit/gui/correction_target_page.cpp
 #: src/lib/subedit/gui/spell_check_settings_dialog.cpp
 msgid "All Open Projects"
-msgstr ""
+msgstr "Todos os proxectos abertos"
 
 #: src/lib/subedit/gui/correction_target_page.cpp
 #: src/lib/subedit/gui/spell_check_settings_dialog.cpp
 msgid "Document"
-msgstr ""
+msgstr "Documento"
 
 #: src/lib/subedit/gui/correction_target_page.cpp
 #: src/lib/subedit/gui/operation_dialog.cpp
@@ -2904,129 +3140,135 @@ msgstr ""
 #: src/lib/subedit/gui/subtitle_table_model.cpp
 #: src/lib/subedit/gui/transform_dialog.cpp
 msgid "Text"
-msgstr ""
+msgstr "Texto"
 
 #: src/lib/subedit/gui/correction_target_page.cpp
 #: src/lib/subedit/gui/spell_check_settings_dialog.cpp
 #: src/lib/subedit/gui/subtitle_table_model.cpp src/lib/subedit/gui/target.cpp
 msgid "Translation"
-msgstr ""
+msgstr "Tradución"
 
 #: src/lib/subedit/gui/correction_target_page.cpp
 msgid "Tasks"
-msgstr ""
+msgstr "Tarefas"
 
 #: src/lib/subedit/gui/correction_target_page.cpp
 #: src/lib/subedit/gui/correction_task_page.cpp
 msgid "Mentions"
-msgstr ""
+msgstr "Mencións"
 
 #: src/lib/subedit/gui/correction_target_page.cpp
 #: src/lib/subedit/gui/join_split_page.cpp
 msgid "Join or Split Words"
-msgstr ""
+msgstr "Unir ou dividir palabras"
 
 #: src/lib/subedit/gui/correction_target_page.cpp
 #: src/lib/subedit/gui/correction_task_page.cpp
 msgid "Common Errors"
-msgstr ""
+msgstr "Erros comúns"
 
 #: src/lib/subedit/gui/correction_target_page.cpp
 #: src/lib/subedit/gui/correction_task_page.cpp
 msgid "Capitalization"
-msgstr ""
+msgstr "Maiúsculas"
 
 #: src/lib/subedit/gui/correction_target_page.cpp
 #: src/lib/subedit/gui/correction_task_page.cpp
 msgid "Line Break"
-msgstr ""
+msgstr "Salto de liña"
 
 #: src/lib/subedit/gui/correction_task_page.cpp
 msgid "Human"
-msgstr ""
+msgstr "Erros humanos"
 
 #: src/lib/subedit/gui/correction_task_page.cpp
 msgid "OCR"
-msgstr ""
+msgstr "OCR"
 
 #: src/lib/subedit/gui/correction_task_page.cpp
 msgid "Skip subtitles with maximum line length of"
-msgstr ""
+msgstr "Omitir os subtítulos cunha lonxitude máxima de liña de"
 
 #: src/lib/subedit/gui/correction_task_page.cpp
 msgid "Skip subtitles with maximum line amount of"
-msgstr ""
+msgstr "Omitir os subtítulos cun número máximo de liñas de"
 
 #: src/lib/subedit/gui/correction_task_page.cpp
 #: src/lib/subedit/gui/preferences_dialog.cpp
 msgid "Characters"
-msgstr ""
+msgstr "Caracteres"
 
 #: src/lib/subedit/gui/correction_task_page.cpp
 #: src/lib/subedit/gui/preferences_dialog.cpp
 msgid "Ems"
-msgstr ""
+msgstr "Ems"
 
 #: src/lib/subedit/gui/correction_task_page.cpp
 msgid "Maximum length:"
-msgstr ""
+msgstr "Lonxitude máxima:"
 
 #: src/lib/subedit/gui/correction_task_page.cpp
 msgid "Maximum lines:"
-msgstr ""
+msgstr "Número máximo de liñas:"
 
 #: src/lib/subedit/gui/correction_task_page.cpp
 msgid "Unit:"
-msgstr ""
+msgstr "Unidade:"
 
 #: src/lib/subedit/gui/correction_wizard.cpp
 msgid "Correct Texts"
-msgstr "Textos corrixidos"
+msgstr "Corrixir os textos"
 
 #: src/lib/subedit/gui/diagnostics_button.cpp
 msgid ""
 "What the reading ran into, and what is wrong with the subtitles — click for "
 "the list"
 msgstr ""
+"O que atopou a lectura e o que está mal nos subtítulos; prema para ver a "
+"lista"
 
 #: src/lib/subedit/gui/diagnostics_button.cpp
 msgid "%1 diagnostic"
 msgid_plural "%1 diagnostics"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%1 diagnóstico"
+msgstr[1] "%1 diagnósticos"
 
 #: src/lib/subedit/gui/disjoint_dialog.cpp
 msgid "Put a dash before each subtitle's text"
-msgstr ""
+msgstr "Pór un trazo antes do texto de cada subtítulo"
 
 #: src/lib/subedit/gui/disjoint_dialog.cpp
 msgid "Make ranges disjoint"
-msgstr ""
+msgstr "Facer as franxas disxuntas"
 
 #: src/lib/subedit/gui/disjoint_dialog.cpp
 msgid "Repair subtitles"
-msgstr ""
+msgstr "Reparar os subtítulos"
 
 #. TRANSLATORS: the unit after the number of a spin box, with its space: « 50 ms ».
 #: src/lib/subedit/gui/disjoint_dialog.cpp
 msgid " ms"
-msgstr ""
+msgstr " ms"
 
 #: src/lib/subedit/gui/disjoint_dialog.cpp
 msgid ""
 "An interval shorter than this is taken over by a neighbour. Zero keeps every "
 "interval."
 msgstr ""
+"Un intervalo máis curto ca este pasa a un veciño. Cero conserva todos os "
+"intervalos."
 
 #: src/lib/subedit/gui/disjoint_dialog.cpp
 msgid "No limit"
-msgstr ""
+msgstr "Sen límite"
 
 #: src/lib/subedit/gui/disjoint_dialog.cpp
 msgid ""
 "A merged subtitle with more lines is shown in windows of this many lines, "
 "one after the other."
 msgstr ""
+"Un subtítulo fusionado con máis liñas móstrase en xanelas de tantas liñas, "
+"unha despois doutra."
 
 #: src/lib/subedit/gui/disjoint_dialog.cpp
 msgid ""
@@ -3035,6 +3277,10 @@ msgid ""
 "what shows together is merged line by line, the earliest first. Nothing is "
 "shortened or lengthened. Each change can be undone."
 msgstr ""
+"Primeiro únense os subtítulos que se repiten, e os demais ordénanse polo seu "
+"inicio. Os subtítulos que se solapan córtanse onde se solapan, e o que se "
+"mostra á vez fusiónase liña a liña, o máis temperán primeiro. Nada se acurta "
+"nin se alonga. Cada cambio pódese desfacer."
 
 #: src/lib/subedit/gui/disjoint_dialog.cpp
 msgid ""
@@ -3042,85 +3288,95 @@ msgid ""
 "merged line by line, the earliest first. Nothing is shortened or lengthened. "
 "Each change can be undone."
 msgstr ""
+"Os subtítulos que se solapan córtanse onde se solapan, e o que se mostra á "
+"vez fusiónase liña a liña, o máis temperán primeiro. Nada se acurta nin se "
+"alonga. Cada cambio pódese desfacer."
 
 #: src/lib/subedit/gui/disjoint_dialog.cpp
 msgid "Shortest interval kept"
-msgstr ""
+msgstr "Intervalo máis curto conservado"
 
 #: src/lib/subedit/gui/disjoint_dialog.cpp
 msgid "Most lines in a subtitle"
-msgstr ""
+msgstr "Máximo de liñas nun subtítulo"
 
 #. TRANSLATORS: the unit after a number of seconds, with its space: « 1.5 s ».
 #: src/lib/subedit/gui/duration_adjust_dialog.cpp
 #: src/lib/subedit/gui/preferences_dialog.cpp
 msgid " s"
-msgstr ""
+msgstr " s"
 
 #: src/lib/subedit/gui/duration_adjust_dialog.cpp
 msgid "Lengthen durations to match it"
-msgstr ""
+msgstr "Alongar as duracións para respectala"
 
 #: src/lib/subedit/gui/duration_adjust_dialog.cpp
 msgid "Shorten durations to match it"
-msgstr ""
+msgstr "Acurtar as duracións para respectala"
 
 #: src/lib/subedit/gui/duration_adjust_dialog.cpp
 msgid "Minimum duration"
-msgstr ""
+msgstr "Duración mínima"
 
 #: src/lib/subedit/gui/duration_adjust_dialog.cpp
 msgid "Maximum duration"
-msgstr ""
+msgstr "Duración máxima"
 
 #: src/lib/subedit/gui/duration_adjust_dialog.cpp
 msgid "Gap between subtitles"
-msgstr ""
+msgstr "Separación entre subtítulos"
 
 #: src/lib/subedit/gui/duration_adjust_dialog.cpp
 msgid "Adjust durations"
-msgstr ""
+msgstr "Axustar as duracións"
 
 #. TRANSLATORS: the unit after a reading speed, with its space: « 15 char/s ».
 #: src/lib/subedit/gui/duration_adjust_dialog.cpp
 msgid " char/s"
-msgstr ""
+msgstr " car./s"
 
 #: src/lib/subedit/gui/duration_adjust_dialog.cpp
 msgid "Reading speed"
-msgstr ""
+msgstr "Velocidade de lectura"
 
 #: src/lib/subedit/gui/fixes_proposal_dialog.cpp
 msgid "Problems found in this file"
-msgstr ""
+msgstr "Problemas atopados neste ficheiro"
 
 #: src/lib/subedit/gui/fixes_proposal_dialog.cpp
 msgid ""
 "Opening this file found something that can be put right. Each correction can "
 "be undone."
 msgstr ""
+"Ao abrir este ficheiro atopouse algo que se pode arranxar. Cada corrección "
+"pódese desfacer."
 
 #: src/lib/subedit/gui/fixes_proposal_dialog.cpp
 msgid "Fix"
-msgstr ""
+msgstr "Arranxar"
 
 #: src/lib/subedit/gui/fixes_proposal_dialog.cpp
 msgid "Keep as is"
-msgstr ""
+msgstr "Deixar tal como está"
 
 #: src/lib/subedit/gui/fixes_proposal_dialog.cpp
 msgid "Join the repeated subtitles: %1 subtitle repeat one that they touch"
 msgid_plural ""
 "Join the repeated subtitles: %1 subtitles repeat one that they touch"
-msgstr[0] ""
+msgstr[0] "Unir os subtítulos repetidos: %1 subtítulo repite un co que se toca"
 msgstr[1] ""
+"Unir os subtítulos repetidos: %1 subtítulos repiten un co que se tocan"
 
 #: src/lib/subedit/gui/fixes_proposal_dialog.cpp
 msgid "Sort the subtitles: not in order of start (%1 subtitle out of place)"
 msgid_plural ""
 "Sort the subtitles: not in order of start (%1 subtitles out of place)"
 msgstr[0] ""
+"Ordenar os subtítulos: non están ordenados polo inicio (%1 subtítulo fóra de "
+"lugar)"
 msgstr[1] ""
+"Ordenar os subtítulos: non están ordenados polo inicio (%1 subtítulos fóra "
+"de lugar)"
 
 #: src/lib/subedit/gui/fixes_proposal_dialog.cpp
 msgid ""
@@ -3128,36 +3384,40 @@ msgid ""
 msgid_plural ""
 "Make the ranges disjoint: %1 subtitles start before the previous one ends"
 msgstr[0] ""
+"Facer as franxas disxuntas: %1 subtítulo comeza antes de que remate o "
+"anterior"
 msgstr[1] ""
+"Facer as franxas disxuntas: %1 subtítulos comezan antes de que remate o "
+"anterior"
 
 #: src/lib/subedit/gui/frame_rate_dialog.cpp
 msgid "Convert frame rate"
-msgstr ""
+msgstr "Converter a taxa de fotogramas"
 
 #: src/lib/subedit/gui/frame_rate_dialog.cpp
 msgid "Timed against"
-msgstr ""
+msgstr "Temporizado para"
 
 #: src/lib/subedit/gui/frame_rate_dialog.cpp
 msgid "Should play at"
-msgstr ""
+msgstr "Debería reproducirse a"
 
 #: src/lib/subedit/gui/frame_rate_dialog.cpp
 msgid "The positions say"
-msgstr ""
+msgstr "Segundo as posicións"
 
 #: src/lib/subedit/gui/frame_rate_dialog.cpp
 msgid "The video declares"
-msgstr ""
+msgstr "O vídeo declara"
 
 #: src/lib/subedit/gui/frame_rate_dialog.cpp
 msgid "The file was read at"
-msgstr ""
+msgstr "O ficheiro leuse a"
 
 #. TRANSLATORS: %1 is the number of subtitles the file has, too few to measure.
 #: src/lib/subedit/gui/grid_analysis_dialog.cpp
 msgid "Too few subtitles to tell: %1 of them."
-msgstr ""
+msgstr "Demasiado poucos subtítulos para decidir: %1."
 
 #. TRANSLATORS: %1 is a share, « 41.2 % ».
 #: src/lib/subedit/gui/grid_analysis_dialog.cpp
@@ -3165,225 +3425,232 @@ msgid ""
 "No frame rate grid explains these positions. The closest candidate reaches "
 "%1."
 msgstr ""
+"Ningunha grade de fotogramas explica estas posicións. A candidata máis "
+"próxima chega a %1."
 
 #. TRANSLATORS: %1 is a frame rate, %2 how clean the grid is (« clean »), %3 a share.
 #: src/lib/subedit/gui/grid_analysis_dialog.cpp
 msgid "Written on a %1 fps grid — %2, %3."
-msgstr ""
+msgstr "Escrito nunha grade de %1 fps: %2, %3."
 
 #. TRANSLATORS: %1 is a number of subtitle starts, %2 a length of time, « 1:32:05 ».
 #: src/lib/subedit/gui/grid_analysis_dialog.cpp
 msgid "Measured on %1 start, over %2."
 msgid_plural "Measured on %1 starts, over %2."
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "Medido sobre %1 inicio, ao longo de %2."
+msgstr[1] "Medido sobre %1 inicios, ao longo de %2."
 
 #. TRANSLATORS: %1 is a length of time, « 0.020 s ».
 #: src/lib/subedit/gui/grid_analysis_dialog.cpp
 msgid "Shifted off the grid by %1."
-msgstr ""
+msgstr "Desprazado %1 respecto da grade."
 
 #. TRANSLATORS: %1 is a frame rate.
 #: src/lib/subedit/gui/grid_analysis_dialog.cpp
 msgid "%1 fps fits just as well, being a whole multiple of it."
-msgstr ""
+msgstr "%1 fps encaixa igual de ben, por ser un múltiplo enteiro dela."
 
 #. TRANSLATORS: %1 is a frame rate.
 #: src/lib/subedit/gui/grid_analysis_dialog.cpp
 msgid "This span is too short to tell it from %1 fps."
-msgstr ""
+msgstr "Esta extensión é demasiado curta para distinguila de %1 fps."
 
 #. TRANSLATORS: %1 is a number of starts, %2 a number of runs, « 3 runs ».
 #: src/lib/subedit/gui/grid_analysis_dialog.cpp
 msgid "%1 of these starts leaves the grid, in %2."
 msgid_plural "%1 of these starts leave the grid, in %2."
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%1 destes inicios sae da grade, en %2."
+msgstr[1] "%1 destes inicios saen da grade, en %2."
 
 #: src/lib/subedit/gui/grid_analysis_dialog.cpp
 msgid "Frame Rate Analysis"
-msgstr ""
+msgstr "Análise da taxa de fotogramas"
 
 #: src/lib/subedit/gui/grid_analysis_dialog.cpp
 msgid "Fit"
-msgstr ""
+msgstr "Axuste"
 
 #: src/lib/subedit/gui/grid_analysis_dialog.cpp
 msgid "Frame rate"
-msgstr ""
+msgstr "Taxa de fotogramas"
 
 #: src/lib/subedit/gui/grid_analysis_dialog.cpp
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "Convert Frame Rate…"
-msgstr ""
+msgstr "Converter a taxa de fotogramas…"
 
 #: src/lib/subedit/gui/hearing_impaired_dialog.cpp
 msgid "Remove hearing-impaired mentions"
-msgstr ""
+msgstr "Eliminar as mencións para persoas xordas"
 
 #: src/lib/subedit/gui/hearing_impaired_dialog.cpp
 msgid ""
 "Mentions in square brackets are removed; parentheses are kept.\n"
 "A subtitle left with nothing is taken away."
 msgstr ""
+"Elimínanse as mencións entre corchetes; mantéñense as parénteses.\n"
+"Un subtítulo que queda sen nada elimínase."
 
 #: src/lib/subedit/gui/insert_dialog.cpp
 msgid "Insert subtitles"
-msgstr ""
+msgstr "Inserir subtítulos"
 
 #: src/lib/subedit/gui/insert_dialog.cpp
 msgid "How many"
-msgstr ""
+msgstr "Cantos"
 
 #: src/lib/subedit/gui/insert_dialog.cpp
 msgid "Where"
-msgstr ""
+msgstr "Onde"
 
 #. TRANSLATORS: the start of every line the window writes on its error stream.
 #: src/lib/subedit/gui/invocation.cpp
 msgid "subedit-gui: %1"
-msgstr ""
+msgstr "subedit-gui: %1"
 
 #: src/lib/subedit/gui/invocation.cpp
 msgid "%1: \"%2\" %3"
-msgstr ""
+msgstr "%1: «%2» %3"
 
 #: src/lib/subedit/gui/join_split_page.cpp
 msgid "Join words"
-msgstr ""
+msgstr "Unir palabras"
 
 #: src/lib/subedit/gui/join_split_page.cpp
 msgid "Split words"
-msgstr ""
+msgstr "Dividir palabras"
 
 #: src/lib/subedit/gui/join_split_page.cpp
 #: src/lib/subedit/gui/spell_check_settings_dialog.cpp
 msgid "Language:"
-msgstr ""
+msgstr "Lingua:"
 
 #. TRANSLATORS: %1 is the name of the file; `[*]` is where Qt puts the mark of unsaved
 #. changes, and stays as it is.
 #: src/lib/subedit/gui/main_window.cpp
 msgid "%1[*] — subedit"
-msgstr ""
+msgstr "%1[*] — subedit"
 
 #: src/lib/subedit/gui/main_window.cpp src/lib/subedit/gui/project_files.cpp
 msgid "untitled"
-msgstr ""
+msgstr "sen título"
 
 #: src/lib/subedit/gui/main_window.cpp
 msgid "New project"
-msgstr ""
+msgstr "Novo proxecto"
 
 #: src/lib/subedit/gui/main_window.cpp
 msgid "Open the installed manual"
-msgstr ""
+msgstr "Abrir o manual instalado"
 
 #: src/lib/subedit/gui/main_window.cpp
 msgid "No manual is installed beside this program"
-msgstr ""
+msgstr "Non hai ningún manual instalado xunto a este programa"
 
 #. TRANSLATORS: %1 is the name of a file.
 #: src/lib/subedit/gui/main_window.cpp
 msgid "%1: already open"
-msgstr ""
+msgstr "%1: xa está aberto"
 
 #: src/lib/subedit/gui/main_window.cpp
 msgid "%1 video dropped at once: a project watches one film"
 msgid_plural "%1 videos dropped at once: a project watches one film"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%1 vídeo soltado á vez: un proxecto mira unha soa película"
+msgstr[1] "%1 vídeos soltados á vez: un proxecto mira unha soa película"
 
 #: src/lib/subedit/gui/manual_window.cpp
 msgid "Back"
-msgstr ""
+msgstr "Atrás"
 
 #: src/lib/subedit/gui/manual_window.cpp
 msgid "Contents"
-msgstr ""
+msgstr "Contidos"
 
 #: src/lib/subedit/gui/manual_window.cpp
 msgid "subedit — manual"
-msgstr ""
+msgstr "subedit — manual"
 
 #. TRANSLATORS: %1 is the path of a page of the manual.
 #: src/lib/subedit/gui/manual_window.cpp
 msgid "%1 could not be read."
-msgstr ""
+msgstr "Non se puido ler %1."
 
 #. TRANSLATORS: %1 is the path a link of the manual names.
 #: src/lib/subedit/gui/manual_window.cpp
 msgid ""
 "%1 is not part of the installed manual; it lives in the project's repository."
 msgstr ""
+"%1 non forma parte do manual instalado; está no repositorio do proxecto."
 
 #: src/lib/subedit/gui/mpv_player.cpp
 msgid "the video player could not be started"
-msgstr ""
+msgstr "non se puido iniciar o reprodutor de vídeo"
 
+# From Gaupol.
 #: src/lib/subedit/gui/open_translation_dialog.cpp
 msgid "Open Translation"
 msgstr "Abrir tradución"
 
 #: src/lib/subedit/gui/open_translation_dialog.cpp
 msgid "How should the lines of %1 be matched to the subtitles?"
-msgstr ""
+msgstr "Como se deben emparellar as liñas de %1 cos subtítulos?"
 
 #: src/lib/subedit/gui/open_translation_dialog.cpp
 msgid "By position — each line goes to the subtitle it falls in"
-msgstr ""
+msgstr "Por posición: cada liña vai ao subtítulo no que cae"
 
 #: src/lib/subedit/gui/open_translation_dialog.cpp
 msgid "By number — the nth line goes to the nth subtitle"
-msgstr ""
+msgstr "Por número: a liña n-ésima vai ao subtítulo n-ésimo"
 
 #: src/lib/subedit/gui/operation_dialog.cpp
 msgid "Preview changes…"
-msgstr ""
+msgstr "Vista previa dos cambios…"
 
 #: src/lib/subedit/gui/operation_dialog.cpp
 msgid "Nothing would change."
-msgstr ""
+msgstr "Non cambiaría nada."
 
 #: src/lib/subedit/gui/operation_dialog.cpp
 msgid "%1 subtitle would change."
 msgid_plural "%1 subtitles would change."
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "Cambiaría %1 subtítulo."
+msgstr[1] "Cambiarían %1 subtítulos."
 
 #: src/lib/subedit/gui/operation_dialog.cpp
 msgid "After"
-msgstr ""
+msgstr "Despois"
 
 #: src/lib/subedit/gui/operation_dialog.cpp
 msgid "Before"
-msgstr ""
+msgstr "Antes"
 
 #: src/lib/subedit/gui/operation_dialog.cpp
 msgid "Selected: %1"
-msgstr ""
+msgstr "Seleccionados: %1"
 
 #: src/lib/subedit/gui/operation_dialog.cpp
 msgid "Whole project: %1"
-msgstr ""
+msgstr "Proxecto completo: %1"
 
 #. TRANSLATORS: %1 is a count of subtitles, « 120 subtitles ».
 #: src/lib/subedit/gui/operation_dialog.cpp
 msgid "Applies to: %1"
-msgstr ""
+msgstr "Aplícase a: %1"
 
 #: src/lib/subedit/gui/pattern_code_selector.cpp
 msgid "(every language)"
-msgstr ""
+msgstr "(todas as linguas)"
 
 #: src/lib/subedit/gui/pattern_code_selector.cpp
 msgid "(every country)"
-msgstr ""
+msgstr "(todos os países)"
 
 #: src/lib/subedit/gui/play_bar.cpp
 msgid "Position"
-msgstr ""
+msgstr "Posición"
 
+# From Gaupol.
 #: src/lib/subedit/gui/play_bar.cpp
 msgid "Volume"
 msgstr "Volume"
@@ -3391,36 +3658,38 @@ msgstr "Volume"
 #: src/lib/subedit/gui/play_bar.cpp
 msgid "Follow playback: keep the table on the subtitle that is showing"
 msgstr ""
+"Seguir a reprodución: manter a táboa no subtítulo que se está a mostrar"
 
 #: src/lib/subedit/gui/play_bar.cpp
 msgid "Follow"
-msgstr ""
+msgstr "Seguir"
 
 #: src/lib/subedit/gui/play_bar.cpp
 msgid "Pause"
-msgstr ""
+msgstr "Pausa"
 
 #: src/lib/subedit/gui/play_bar.cpp
 msgid "Play"
-msgstr ""
+msgstr "Reproducir"
 
 #. TRANSLATORS: the interface language that follows the environment, LANGUAGE and LANG.
 #: src/lib/subedit/gui/preferences_dialog.cpp
 msgid "System default"
-msgstr ""
+msgstr "Predeterminado do sistema"
 
 #: src/lib/subedit/gui/preferences_dialog.cpp
 msgid "Show line lengths in cells"
-msgstr ""
+msgstr "Mostrar a lonxitude das liñas nas celas"
 
 #: src/lib/subedit/gui/preferences_dialog.cpp
 msgid "Show line lengths in the editor"
-msgstr ""
+msgstr "Mostrar a lonxitude das liñas no editor"
 
 #: src/lib/subedit/gui/preferences_dialog.cpp
 msgid "Decode on the graphics card"
-msgstr ""
+msgstr "Descodificar na tarxeta gráfica"
 
+# From Gaupol.
 #: src/lib/subedit/gui/preferences_dialog.cpp
 msgid "Preferences"
 msgstr "Preferencias"
@@ -3428,111 +3697,113 @@ msgstr "Preferencias"
 #. TRANSLATORS: the unit after a number of frames, with its space: « 2 frames ».
 #: src/lib/subedit/gui/preferences_dialog.cpp
 msgid " frames"
-msgstr ""
+msgstr " fotogramas"
 
 #: src/lib/subedit/gui/preferences_dialog.cpp
 msgid "Theme"
-msgstr ""
+msgstr "Tema"
 
 #: src/lib/subedit/gui/preferences_dialog.cpp
 msgid "Interface language"
-msgstr ""
+msgstr "Lingua da interface"
 
 #: src/lib/subedit/gui/preferences_dialog.cpp
 msgid "Takes effect at the next launch."
-msgstr ""
+msgstr "Aplícase no seguinte inicio."
 
 #: src/lib/subedit/gui/preferences_dialog.cpp
 msgid "Length unit"
-msgstr ""
+msgstr "Unidade de lonxitude"
 
 #: src/lib/subedit/gui/preferences_dialog.cpp
 msgid "Seek length"
-msgstr ""
+msgstr "Duración dun salto"
 
 #: src/lib/subedit/gui/preferences_dialog.cpp
 msgid "Context length"
-msgstr ""
+msgstr "Duración do contexto"
 
 #: src/lib/subedit/gui/preferences_dialog.cpp
 msgid "Frame step"
-msgstr ""
+msgstr "Paso en fotogramas"
 
 #: src/lib/subedit/gui/project_files.cpp
 msgid "Save All stopped: %1 of %2 document saved"
 msgid_plural "Save All stopped: %1 of %2 documents saved"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "Gardar todo detívose: %1 de %2 documento gardado"
+msgstr[1] "Gardar todo detívose: %1 de %2 documentos gardados"
 
 #: src/lib/subedit/gui/project_files.cpp
 msgid "Nothing to save"
-msgstr ""
+msgstr "Nada que gardar"
 
 #: src/lib/subedit/gui/project_files.cpp
 msgid "%1 document saved"
 msgid_plural "%1 documents saved"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%1 documento gardado"
+msgstr[1] "%1 documentos gardados"
 
 #: src/lib/subedit/gui/project_operations.cpp
 msgid "the two references define no correction"
-msgstr ""
+msgstr "as dúas referencias non definen ningunha corrección"
 
 #. TRANSLATORS: %1 is Main or Translation.
 #: src/lib/subedit/gui/project_search.cpp
 msgid "Searching in: %1"
-msgstr ""
+msgstr "Buscando en: %1"
 
 #: src/lib/subedit/gui/project_search.cpp
 msgid "Search wrapped around"
-msgstr ""
+msgstr "A busca volveu ao comezo"
 
 #. TRANSLATORS: a filter of the file dialog; %1 lists the patterns, « *.srt *.vtt ».
 #: src/lib/subedit/gui/qt_prompts.cpp
 msgid "Subtitles (%1)"
-msgstr ""
+msgstr "Subtítulos (%1)"
 
 #: src/lib/subedit/gui/qt_prompts.cpp
 msgid "All files (*)"
-msgstr ""
+msgstr "Todos os ficheiros (*)"
 
 #. TRANSLATORS: a filter of the file dialog; %1 lists the patterns, « *.mkv *.mp4 ».
 #: src/lib/subedit/gui/qt_prompts.cpp
 msgid "Videos (%1)"
-msgstr ""
+msgstr "Vídeos (%1)"
 
+# From Gaupol.
 #: src/lib/subedit/gui/qt_prompts.cpp src/lib/subedit/gui/window_actions.cpp
 msgid "Open"
 msgstr "Abrir"
 
+# From Gaupol.
 #: src/lib/subedit/gui/qt_prompts.cpp
 msgid "Select Video"
 msgstr "Seleccionar vídeo"
 
 #: src/lib/subedit/gui/qt_prompts.cpp
 msgid "The translation is no longer where it was read from."
-msgstr ""
+msgstr "A tradución xa non está onde se leu."
 
 #: src/lib/subedit/gui/qt_prompts.cpp
 msgid "The translation has changes that were never written."
-msgstr ""
+msgstr "A tradución ten cambios que nunca se escribiron."
 
 #: src/lib/subedit/gui/qt_prompts.cpp
 msgid "The document is no longer where it was read from."
-msgstr ""
+msgstr "O documento xa non está onde se leu."
 
 #: src/lib/subedit/gui/qt_prompts.cpp
 msgid "The document has changes that were never written."
-msgstr ""
+msgstr "O documento ten cambios que nunca se escribiron."
 
 #: src/lib/subedit/gui/qt_prompts.cpp
 #: src/lib/subedit/gui/unsaved_documents_dialog.cpp
 msgid "Unsaved changes"
-msgstr ""
+msgstr "Cambios sen gardar"
 
 #: src/lib/subedit/gui/qt_prompts.cpp
 msgid "Saving will lose something"
-msgstr ""
+msgstr "Ao gardar perderase algo"
 
 #: src/lib/subedit/gui/qt_prompts.cpp
 msgid ""
@@ -3540,632 +3811,686 @@ msgid ""
 "\n"
 "Open it again, moved?"
 msgstr ""
+"%1\n"
+"\n"
+"Abrilo de novo, na súa nova localización?"
 
+# From Gaupol.
 #: src/lib/subedit/gui/save_shape.cpp
 msgid "Western"
 msgstr "Occidental"
 
+# From Gaupol.
 #: src/lib/subedit/gui/save_shape.cpp
 msgid "Central European"
 msgstr "Centroeuropeo"
 
+# From Gaupol.
 #: src/lib/subedit/gui/save_shape.cpp
 msgid "Cyrillic"
 msgstr "Cirílico"
 
+# From Gaupol.
 #: src/lib/subedit/gui/save_shape.cpp
 msgid "Greek"
 msgstr "Grego"
 
+# From Gaupol.
 #: src/lib/subedit/gui/save_shape.cpp
 msgid "Turkish"
 msgstr "Turco"
 
+# From Gaupol.
 #: src/lib/subedit/gui/save_shape.cpp
 msgid "Japanese"
 msgstr "Xaponés"
 
+# From Gaupol.
 #: src/lib/subedit/gui/save_shape.cpp
 msgid "Chinese simplified"
 msgstr "Chinés simplificado"
 
+# From Gaupol.
 #: src/lib/subedit/gui/save_shape.cpp
 msgid "Chinese traditional"
 msgstr "Chinés tradicional"
 
 #: src/lib/subedit/gui/save_shape.cpp
 msgid "Byte order mark"
-msgstr ""
+msgstr "Marca de orde de bytes"
 
+# From Gaupol.
 #: src/lib/subedit/gui/save_shape.cpp
 msgid "Other…"
 msgstr "Outro…"
 
 #: src/lib/subedit/gui/save_shape.cpp
 msgid "Name of an encoding, e.g. cp1257"
-msgstr ""
+msgstr "Nome dunha codificación, p. ex. cp1257"
 
 #: src/lib/subedit/gui/save_shape.cpp
 msgid "Encoding:"
-msgstr ""
+msgstr "Codificación:"
 
 #: src/lib/subedit/gui/save_shape.cpp
 msgid "Line endings:"
-msgstr ""
+msgstr "Finais de liña:"
 
+# From Gaupol.
 #: src/lib/subedit/gui/save_shape.cpp
 msgid "Save As"
 msgstr "Gardar como"
 
 #: src/lib/subedit/gui/save_shape.cpp
 msgid "nothing was chosen"
-msgstr ""
+msgstr "non se escolleu nada"
 
 #: src/lib/subedit/gui/search_dialog.cpp
 msgid "Regular expression"
-msgstr ""
+msgstr "Expresión regular"
 
 #: src/lib/subedit/gui/search_dialog.cpp
 msgid "Ignore case"
-msgstr ""
+msgstr "Ignorar maiúsculas e minúsculas"
 
 #: src/lib/subedit/gui/search_dialog.cpp
 msgid "All open projects"
-msgstr ""
+msgstr "Todos os proxectos abertos"
 
 #: src/lib/subedit/gui/search_dialog.cpp
 msgid "Find &Previous"
-msgstr ""
+msgstr "Buscar &anterior"
 
+# From Gaupol.
 #: src/lib/subedit/gui/search_dialog.cpp
 msgid "Find &Next"
 msgstr "Buscar &seguinte"
 
+# From Gaupol.
 #: src/lib/subedit/gui/search_dialog.cpp
 msgid "&Replace"
 msgstr "Substituí&r"
 
 #: src/lib/subedit/gui/search_dialog.cpp
 msgid "Replace &All"
-msgstr ""
+msgstr "Substituír &todo"
 
 #: src/lib/subedit/gui/search_dialog.cpp
 msgid "Find and replace"
-msgstr ""
+msgstr "Buscar e substituír"
 
+# From Gaupol.
 #: src/lib/subedit/gui/search_dialog.cpp src/lib/subedit/gui/window_actions.cpp
 msgid "Find"
 msgstr "Buscar"
 
 #: src/lib/subedit/gui/search_dialog.cpp
 msgid "Replace with"
-msgstr ""
+msgstr "Substituír por"
 
 #: src/lib/subedit/gui/shift_dialog.cpp
 msgid "Shift positions"
-msgstr ""
+msgstr "Desprazar as posicións"
 
 #: src/lib/subedit/gui/shift_dialog.cpp
 msgid "Shift by"
-msgstr ""
+msgstr "Desprazar"
 
 #: src/lib/subedit/gui/snap_dialog.cpp
 msgid "Snap to frame rate"
-msgstr ""
+msgstr "Aliñar á taxa de fotogramas"
 
 #: src/lib/subedit/gui/snap_dialog.cpp
 msgid "Lay positions on"
-msgstr ""
+msgstr "Aliñar as posicións a"
 
 #: src/lib/subedit/gui/spell_check_controller.cpp
 msgid "Nothing to check."
-msgstr ""
+msgstr "Nada que verificar."
 
 #: src/lib/subedit/gui/spell_check_controller.cpp
 msgid "Could not save the replacements for %1: %2"
-msgstr ""
+msgstr "Non se puideron gardar as substitucións para %1: %2"
 
 #: src/lib/subedit/gui/spell_check_dialog.cpp
 msgid "Add"
-msgstr ""
+msgstr "Engadir"
 
 #: src/lib/subedit/gui/spell_check_dialog.cpp
 msgid "Ignore"
-msgstr ""
+msgstr "Ignorar"
 
 #: src/lib/subedit/gui/spell_check_dialog.cpp
 msgid "Ignore All"
-msgstr ""
+msgstr "Ignorar todo"
 
 #: src/lib/subedit/gui/spell_check_dialog.cpp
 msgid "Replace"
-msgstr ""
+msgstr "Substituír"
 
 #: src/lib/subedit/gui/spell_check_dialog.cpp
 msgid "Replace All"
-msgstr ""
+msgstr "Substituír todo"
 
 #: src/lib/subedit/gui/spell_check_dialog.cpp
 msgid "Join with Previous"
-msgstr ""
+msgstr "Unir co anterior"
 
 #: src/lib/subedit/gui/spell_check_dialog.cpp
 msgid "Join with Next"
-msgstr ""
+msgstr "Unir co seguinte"
 
 #: src/lib/subedit/gui/spell_check_dialog.cpp
 msgid "Save and Resume"
-msgstr ""
+msgstr "Gardar e continuar"
 
+# From Gaupol.
 #: src/lib/subedit/gui/spell_check_dialog.cpp
 msgid "Check Spelling"
 msgstr "Corrección ortográfica"
 
 #: src/lib/subedit/gui/spell_check_dialog.cpp
 msgid "Replace with:"
-msgstr ""
+msgstr "Substituír por:"
 
 #: src/lib/subedit/gui/spell_check_dialog.cpp
 msgid "Suggestions:"
-msgstr ""
+msgstr "Suxestións:"
 
 #: src/lib/subedit/gui/spell_check_settings_dialog.cpp
 msgid "Check spelling while editing"
-msgstr ""
+msgstr "Verificar a ortografía durante a edición"
 
 #: src/lib/subedit/gui/spell_check_settings_dialog.cpp
 msgid "Spell-Check Settings"
-msgstr ""
+msgstr "Configuración da corrección ortográfica"
 
 #: src/lib/subedit/gui/split_project_dialog.cpp
 msgid "Split project"
-msgstr ""
+msgstr "Dividir o proxecto"
 
 #: src/lib/subedit/gui/split_project_dialog.cpp
 msgid "Split at subtitle"
-msgstr ""
+msgstr "Dividir no subtítulo"
 
 #: src/lib/subedit/gui/split_project_dialog.cpp
 msgid ""
 "The subtitles from this one on move to a new project, opened in a tab of its "
 "own."
 msgstr ""
+"Os subtítulos desde este pasan a un proxecto novo, aberto nunha lapela "
+"propia."
 
 #. TRANSLATORS: %1 is Main or Translation, the text an operation aims at.
 #: src/lib/subedit/gui/status_line.cpp
 msgid "Text: %1"
-msgstr ""
+msgstr "Texto: %1"
 
+# From Gaupol.
 #: src/lib/subedit/gui/subtitle_table_model.cpp
 msgid "Start"
 msgstr "Inicio"
 
 #: src/lib/subedit/gui/subtitle_table_model.cpp
 msgid "Start (frames)"
-msgstr ""
+msgstr "Inicio (fotogramas)"
 
+# From Gaupol.
 #: src/lib/subedit/gui/subtitle_table_model.cpp
 msgid "End"
 msgstr "Fin"
 
 #: src/lib/subedit/gui/subtitle_table_model.cpp
 msgid "End (frames)"
-msgstr ""
+msgstr "Fin (fotogramas)"
 
+# From Gaupol.
 #: src/lib/subedit/gui/subtitle_table_model.cpp
 msgid "Duration"
 msgstr "Duración"
 
+# From Gaupol.
 #: src/lib/subedit/gui/table_columns.cpp
 msgid "&Duration"
 msgstr "&Duración"
 
+# From Gaupol.
 #: src/lib/subedit/gui/table_columns.cpp
 msgid "&End"
 msgstr "&Fin"
 
+# From Gaupol.
 #: src/lib/subedit/gui/table_columns.cpp
 msgid "&No."
 msgstr "&Nº"
 
+# From Gaupol.
 #: src/lib/subedit/gui/table_columns.cpp
 msgid "&Start"
 msgstr "&Inicio"
 
 #: src/lib/subedit/gui/table_columns.cpp
 msgid "&Translation"
-msgstr ""
+msgstr "&Tradución"
 
 #: src/lib/subedit/gui/table_columns.cpp
 msgid "Show the translation next to the text"
-msgstr ""
+msgstr "Mostrar a tradución xunto ao texto"
 
 #: src/lib/subedit/gui/target.cpp
 msgid "Main"
-msgstr ""
+msgstr "Principal"
 
 #: src/lib/subedit/gui/transform_dialog.cpp
 msgid "Transform positions"
-msgstr ""
+msgstr "Transformar as posicións"
 
 #: src/lib/subedit/gui/transform_dialog.cpp
 msgid "Subtitle"
-msgstr ""
+msgstr "Subtítulo"
 
 #: src/lib/subedit/gui/transform_dialog.cpp
 msgid "Now starts"
-msgstr ""
+msgstr "Inicio actual"
 
 #: src/lib/subedit/gui/transform_dialog.cpp
 msgid "Should start"
-msgstr ""
+msgstr "Inicio desexado"
 
 #: src/lib/subedit/gui/transform_dialog.cpp
 msgid ""
 "Pick two subtitles and say when each one should start.\n"
 "All the other subtitles are moved and stretched to match."
 msgstr ""
+"Escolla dous subtítulos e indique cando debe comezar cada un.\n"
+"Todos os demais subtítulos móvense e estíranse para corresponder."
 
 #: src/lib/subedit/gui/transform_dialog.cpp
 msgid "Reference 1"
-msgstr ""
+msgstr "Referencia 1"
 
 #: src/lib/subedit/gui/transform_dialog.cpp
 msgid "Reference 2"
-msgstr ""
+msgstr "Referencia 2"
 
 #. TRANSLATORS: %1 is « Main — film.srt », a document and its file.
 #: src/lib/subedit/gui/unsaved_documents_dialog.cpp
 msgid "%1 (file is gone from the disk)"
-msgstr ""
+msgstr "%1 (o ficheiro desapareceu do disco)"
 
+# From Gaupol.
 #: src/lib/subedit/gui/unsaved_documents_dialog.cpp
 msgid "&Save"
 msgstr "&Gardar"
 
+# From Gaupol.
 #: src/lib/subedit/gui/unsaved_documents_dialog.cpp
 msgid "Close &Without Saving"
 msgstr "Pechar &sen gardar"
 
 #: src/lib/subedit/gui/unsaved_documents_dialog.cpp
 msgid "Cancel"
-msgstr ""
+msgstr "Cancelar"
 
 #: src/lib/subedit/gui/unsaved_documents_dialog.cpp
 msgid ""
 "These documents have changes that were never written.\n"
 "Tick the ones to save."
 msgstr ""
+"Estes documentos teñen cambios que nunca se escribiron.\n"
+"Marque os que quere gardar."
 
 #: src/lib/subedit/gui/video_pane.cpp src/lib/subedit/gui/window_actions.cpp
 msgid "Select Video…"
-msgstr ""
+msgstr "Seleccionar vídeo…"
 
 #: src/lib/subedit/gui/video_pane.cpp
 msgid "%1: no video player is available"
-msgstr ""
+msgstr "%1: non hai ningún reprodutor de vídeo dispoñible"
 
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "&New Project"
-msgstr ""
+msgstr "&Novo proxecto"
 
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "Open…"
-msgstr ""
+msgstr "Abrir…"
 
+# From Gaupol.
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "Open &Translation…"
 msgstr "Abrir &tradución…"
 
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "Save"
-msgstr ""
+msgstr "Gardar"
 
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "Save As…"
-msgstr ""
+msgstr "Gardar como…"
 
+# From Gaupol.
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "Save Tr&anslation"
 msgstr "Gardar tra&dución"
 
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "Save Translation As…"
-msgstr ""
+msgstr "Gardar tradución como…"
 
+# From Gaupol.
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "&Close"
 msgstr "Pe&char"
 
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "Cu&t Texts"
-msgstr ""
+msgstr "Cor&tar os textos"
 
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "&Copy Texts"
-msgstr ""
+msgstr "&Copiar os textos"
 
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "&Paste Texts"
-msgstr ""
+msgstr "&Pegar os textos"
 
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "&Find and Replace…"
-msgstr ""
+msgstr "&Buscar e substituír…"
 
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "Insert Subtitles…"
-msgstr ""
+msgstr "Inserir subtítulos…"
 
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "Remove Subtitles"
-msgstr ""
+msgstr "Eliminar os subtítulos"
 
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "&Join Repeated Subtitles"
-msgstr ""
+msgstr "&Unir os subtítulos repetidos"
 
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "S&ort Subtitles"
-msgstr ""
+msgstr "&Ordenar os subtítulos"
 
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "Make Ranges &Disjoint…"
-msgstr ""
+msgstr "Facer as franxas dis&xuntas…"
 
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "&Repair Subtitles…"
-msgstr ""
+msgstr "&Reparar os subtítulos…"
 
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "&Merge Subtitles"
-msgstr "Co&mbinar os subtítulos"
+msgstr "&Fusionar os subtítulos"
 
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "S&plit Subtitle"
-msgstr "&Dividir subtítulo"
+msgstr "&Dividir o subtítulo"
 
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "&Preferences…"
-msgstr ""
+msgstr "Prefere&ncias…"
 
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "Positions in &Frames"
-msgstr ""
+msgstr "Posicións en &fotogramas"
 
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "Play / Pause"
-msgstr ""
+msgstr "Reproducir / Pausa"
 
+# From Gaupol.
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "Play &Selection"
 msgstr "Reproducir a &selección"
 
+# From Gaupol.
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "Seek &Previous"
 msgstr "Saltar ao an&terior"
 
+# From Gaupol.
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "Seek &Next"
 msgstr "Saltar ao segui&nte"
 
+# From Gaupol.
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "Seek &Backward"
 msgstr "Saltar cara &atrás"
 
+# From Gaupol.
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "Seek &Forward"
 msgstr "Saltar cara a&diante"
 
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "S&eek Selection Start"
-msgstr "Sa&ltar o comezo da selección"
+msgstr "Saltar ao &comezo da selección"
 
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "See&k Selection End"
-msgstr "Sal&tar ao fin da selección"
+msgstr "Saltar ao &final da selección"
 
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "Step Backward"
-msgstr ""
+msgstr "Retroceder un fotograma"
 
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "Step Forward"
-msgstr ""
+msgstr "Avanzar un fotograma"
 
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "Nudge Start Earlier"
-msgstr ""
+msgstr "Adiantar o inicio"
 
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "Nudge Start Later"
-msgstr ""
+msgstr "Atrasar o inicio"
 
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "Nudge End Earlier"
-msgstr ""
+msgstr "Adiantar o final"
 
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "Nudge End Later"
-msgstr ""
+msgstr "Atrasar o final"
 
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "Set S&tart from Video Position"
-msgstr ""
+msgstr "Fixar o &inicio desde a posición do vídeo"
 
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "Set En&d from Video Position"
-msgstr ""
+msgstr "Fixar o fina&l desde a posición do vídeo"
 
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "&Insert Subtitle at Video Position"
-msgstr ""
+msgstr "Inserir un su&btítulo na posición do vídeo"
 
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "Select Previous from Video Position"
-msgstr ""
+msgstr "Seleccionar o anterior desde a posición do vídeo"
 
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "Select Next from Video Position"
-msgstr ""
+msgstr "Seleccionar o seguinte desde a posición do vídeo"
 
+# From Gaupol.
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "Volume &Down"
 msgstr "&Baixar o volume"
 
+# From Gaupol.
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "Volume &Up"
 msgstr "&Subir o volume"
 
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "&Language"
-msgstr "&Idioma"
+msgstr "&Lingua"
 
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "Shift Positions…"
-msgstr ""
+msgstr "Desprazar as posicións…"
 
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "Transform Positions…"
-msgstr ""
+msgstr "Transformar as posicións…"
 
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "Adjust Durations…"
-msgstr ""
+msgstr "Axustar as duracións…"
 
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "Append &File…"
-msgstr "&Agregar ficheiro…"
+msgstr "Engadir un &ficheiro…"
 
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "Spli&t Project…"
-msgstr "&Dividir proxecto…"
+msgstr "Dividir o &proxecto…"
 
+# From Gaupol.
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "&Italic"
 msgstr "&Cursiva"
 
+# From Gaupol.
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "&Dialogue"
 msgstr "&Diálogo"
 
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "Remove Hearing-Impaired Mentions…"
-msgstr ""
+msgstr "Eliminar as mencións para persoas xordas…"
 
+# From Gaupol.
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "&Correct Texts…"
 msgstr "C&orrixir os textos…"
 
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "Chec&k Spelling…"
-msgstr ""
+msgstr "&Verificar a ortografía…"
 
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "Spell-Check &Settings…"
-msgstr ""
+msgstr "Confi&guración da corrección ortográfica…"
 
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "Snap to Frame Rate…"
-msgstr ""
+msgstr "Aliñar á taxa de fotogramas…"
 
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "Frame Rate &Analysis…"
-msgstr ""
+msgstr "&Análise da taxa de fotogramas…"
 
+# From Gaupol.
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "&Save All"
 msgstr "&Gardar todos"
 
+# From Gaupol.
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "&Close All"
 msgstr "&Pechar todo"
 
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "&Manual"
-msgstr ""
+msgstr "&Manual"
 
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "&About subedit"
-msgstr ""
+msgstr "&Acerca de subedit"
 
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "&Title Case"
-msgstr ""
+msgstr "Maiúsculas de &título"
 
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "&Sentence case"
-msgstr ""
+msgstr "Maiúsculas de &frase"
 
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "&UPPER CASE"
-msgstr ""
+msgstr "&MAIÚSCULAS"
 
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "&lower case"
-msgstr ""
+msgstr "mi&núsculas"
 
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "Open an empty project in a new tab"
-msgstr ""
+msgstr "Abrir un proxecto baleiro nunha lapela nova"
 
+# From Gaupol.
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "&File"
 msgstr "&Ficheiro"
 
+# From Gaupol.
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "&Edit"
 msgstr "&Editar"
 
+# From Gaupol.
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "&View"
 msgstr "&Ver"
 
+# From Gaupol.
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "&Columns"
 msgstr "&Columnas"
 
+# From Gaupol.
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "&Video"
 msgstr "Ví&deo"
 
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "&Audio"
-msgstr "&Son"
+msgstr "S&on"
 
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "&Tools"
-msgstr "&Ferramentas"
+msgstr "Ferramen&tas"
 
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "Ca&se"
-msgstr ""
+msgstr "&Maiúsculas"
 
+# From Gaupol.
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "&Projects"
 msgstr "&Proxectos"
 
+# From Gaupol.
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "&Help"
 msgstr "A&xuda"
 
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "New"
-msgstr ""
+msgstr "Novo"
 
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "Insert"
-msgstr ""
+msgstr "Inserir"
 
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "Remove"
-msgstr "Retirar"
+msgstr "Eliminar"
 
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "Italic"
-msgstr ""
+msgstr "Cursiva"
 
 #: src/lib/subedit/gui/window_actions.cpp
 msgctxt "toolbar"
 msgid "Main"
-msgstr ""
+msgstr "Principal"

@@ -1,0 +1,15 @@
+{
+  "shortcut_header": "Atallo",
+  "label_headers": ["Orde", "Entrada", "Acción", "Entrada do menú"],
+  "no_shortcut_words": ["ningún", "ningunha"],
+  "option_header": "Opción",
+  "subcommand_header": "Suborde",
+  "man": {
+    "name": "NOME",
+    "synopsis": "SINOPSE",
+    "description": "DESCRICIÓN",
+    "files": "FICHEIROS",
+    "see_also": "VÉXASE TAMÉN",
+    "manual_title": "Ordes de usuario"
+  }
+}
