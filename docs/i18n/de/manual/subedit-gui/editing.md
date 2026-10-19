@@ -128,7 +128,7 @@ Der Untertitel verschwindet dann im selben Augenblick, in dem er erscheint.
 
 **Ein Ende, das über den nächsten Untertitel hinausgeht, ist erlaubt.** Die
 Überschneidung wird in der Tabelle eingefärbt, mit ihrem Tooltip — siehe
-[Die Tabelle](table.md#die-anomalien) — ein Hinweis, keine Ablehnung: Es kann sein, dass Sie
+[Die Tabelle](table.md#die-auffälligkeiten) — ein Hinweis, keine Ablehnung: Es kann sein, dass Sie
 genau das wollten. Die [Liste der Diagnosen](files.md#die-diagnosen-beim-lesen)
 führt sie ebenfalls, und entfernt sie, wenn Sie sie korrigiert haben.
 

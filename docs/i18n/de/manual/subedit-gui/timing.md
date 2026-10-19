@@ -34,7 +34,7 @@ zwei Buchstaben. Eine gerade bearbeitete Zelle wird vor `Set Start…`, `Set End
 - **Ein Eintrag im Verlauf je Handgriff**: `Bearbeiten ▸ Rückgängig` gibt die vorherige Position zurück, und sonst nichts.
 - **Dieselben Regeln wie in der Zelle.** Ein Beginn, der nach dem Ende des Untertitels gesetzt wird, oder ein Ende vor seinem
   Beginn, **wird nicht abgelehnt**: Er wird gesetzt, und die Tabelle markiert den Untertitel so, wie sie den markiert,
-  dessen Wert von Hand eingetippt wurde — siehe [Die Anomalien](table.md#die-anomalien). Nichts wird stillschweigend korrigiert.
+  dessen Wert von Hand eingetippt wurde — siehe [Die Auffälligkeiten](table.md#die-auffälligkeiten). Nichts wird stillschweigend korrigiert.
 - **Eine Position, die bereits die des Randes ist, tut nichts**, und fügt dem Verlauf nichts hinzu.
 - **Die Position ist immer der Anfang eines Bildes**: Der Player meldet nie eine Position
   innerhalb eines Bildes. Einen Rand zu setzen und dann zu ihm zurückzukehren — zum Beispiel mit `Seek Selection Start` —,
@@ -92,7 +92,7 @@ nimmt `Alt+Shift`, weil Gaupols `E` hier der Buchstabe von `Edit` ist.
 
 - **Ein Eintrag im Verlauf je Verschiebung**, rückgängig zu machen. Der benachbarte Untertitel und die Überschneidung werden
   **wie beim Tippen** gemeldet: Der Rand wird gesetzt, und die Tabelle markiert, was nicht mehr stimmt — siehe
-  [Die Anomalien](table.md#die-anomalien).
+  [Die Auffälligkeiten](table.md#die-auffälligkeiten).
 - **Derselbe Schritt wie beim Player**, also standardmäßig ein Bild. **Was ein Bild wert ist**, wird in dieser Reihenfolge
   gelesen: aus **der Bildrate, die das Video angibt**, aus der des **Dokuments, wenn es in Bildern zählt** (MicroDVD), dann aus
   **dem Raster, das die Positionen zeichnen**. **Ohne eine der drei lehnt der Handgriff ab und sagt es**: Eine
