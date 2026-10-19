@@ -40,7 +40,7 @@ fenestre solmen cessa oferter li frequentie de fotogrammas quel li film declara 
 **Installa con `apt` o `dnf`, nequande con `dpkg -i` o `rpm -i`.** Ti du
 comandes posa li paccage sin resolver su dependenties: les solmen
 lista ti queles manca, e se ferma. To es quo `rpm -i` responde sur
-un Fedora quel have bon quo it besona a portée de `dnf`:
+un Fedora quel have bon quo it besona disponibil per `dnf`:
 
 ```console
 $ rpm -i subedit-0.13.0-1.fc43.x86_64.rpm

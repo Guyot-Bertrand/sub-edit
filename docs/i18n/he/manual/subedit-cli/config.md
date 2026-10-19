@@ -127,8 +127,8 @@ $ subedit-cli config list | grep -c '^[a-z]'
 מספר השורות נקבע במפתח `correction.line-break.max-lines`
 ובמפתח השני שלצדו, `correction.line-break.skip-max-lines`. ערכם הוא מספר שלם מ-1 עד 1000 — גבולות
 `correct --max-lines` —. אורך השורה נקבע במפתח `correction.line-break.max-length`
-ובמפתח השני שלצדו, `correction.line-break.skip-max-length`. ערכם הוא מספר גדול מ-
-0. `set` דוחה את השאר, וקובץ שנערך ביד ומכיל ערך כזה שומר על ברירת המחדל.
+ובמפתח השני שלצדו, `correction.line-break.skip-max-length`. ערכם הוא מספר גדול מ-0.
+`set` דוחה את השאר, וקובץ שנערך ביד ומכיל ערך כזה שומר על ברירת המחדל.
 
 `correct` לוקחת את המשימות, הקוד ואורך השורה משורתה שלה בכוונה: דבר אינו
 מסומן מראש בשורת פקודה, והחלון מודד שורות באמים ואילו שורת הפקודה
