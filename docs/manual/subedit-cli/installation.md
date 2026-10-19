@@ -23,10 +23,10 @@ sudo dnf install ./subedit-<version>.x86_64.rpm     # Fedora, and relatives
 | `subedit-cli`, `subedit-gui` | `/usr/bin` |
 | the menu entry, the icon, the software-centre metadata | `/usr/share/applications`, `/usr/share/icons`, `/usr/share/metainfo` |
 | this manual, in Markdown | `/usr/share/subedit/manual` |
-| its translation into each installed language — Catalan, Czech, German, French | `/usr/share/subedit/manual/<language>` — `ca`, `cs`, `de`, `fr` |
+| its translation into each installed language — Catalan, Czech, German, Spanish, Finnish, French, Galician | `/usr/share/subedit/manual/<language>` — `ca`, `cs`, `de`, `es`, `fi`, `fr`, `gl` |
 | Gaupol's correction patterns | `/usr/share/subedit/patterns` |
 | the manual pages of `subedit-cli`, one per subcommand, and of `subedit-gui` — see [The manual pages](invocation.md#the-manual-pages) | `/usr/share/man/man1` |
-| the pages of `subedit-cli` in each installed language — Catalan, Czech, German, French | `/usr/share/man/<language>/man1` — `ca`, `cs`, `de`, `fr` |
+| the pages of `subedit-cli` in each installed language — Catalan, Czech, German, Spanish, Finnish, French, Galician | `/usr/share/man/<language>/man1` — `ca`, `cs`, `de`, `es`, `fi`, `fr`, `gl` |
 
 `ffmpeg` is **recommended and not required** by both packages: without it, the
 window only stops offering the frame rate the film declares — see
@@ -194,10 +194,10 @@ prefix:
 | the icon | `<prefix>/share/icons/hicolor/scalable/apps` |
 | the software-centre metadata | `<prefix>/share/metainfo` |
 | this manual, in Markdown | `<prefix>/share/subedit/manual` |
-| its translation into each installed language — Catalan, Czech, German, French | `<prefix>/share/subedit/manual/<language>` — `ca`, `cs`, `de`, `fr` |
+| its translation into each installed language — Catalan, Czech, German, Spanish, Finnish, French, Galician | `<prefix>/share/subedit/manual/<language>` — `ca`, `cs`, `de`, `es`, `fi`, `fr`, `gl` |
 | Gaupol's correction patterns | `<prefix>/share/subedit/patterns` |
 | the manual pages of both binaries, one per subcommand for `subedit-cli` | `<prefix>/share/man/man1` |
-| the pages of `subedit-cli` in each installed language — Catalan, Czech, German, French | `<prefix>/share/man/<language>/man1` — `ca`, `cs`, `de`, `fr` |
+| the pages of `subedit-cli` in each installed language — Catalan, Czech, German, Spanish, Finnish, French, Galician | `<prefix>/share/man/<language>/man1` — `ca`, `cs`, `de`, `es`, `fi`, `fr`, `gl` |
 
 **They are the same files the packages install**: the packages come out of them,
 rather than being described a second time.

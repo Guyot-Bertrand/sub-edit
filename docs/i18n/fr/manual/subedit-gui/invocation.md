@@ -147,13 +147,16 @@ s'applique au lancement suivant. Voir
 | les raccourcis clavier | jamais : `Ctrl+S` est `Ctrl+S` dans toutes les langues |
 | un message que le catalogue ne traduit pas | montré en anglais |
 
-Cette version installe `ca`, `cs`, `de` et `fr` — le catalan, le tchèque, l'allemand et le
-français — traduits en entier. Le français a été relu par un lecteur de la langue ; le catalan,
-le tchèque et l'allemand sont traduits par machine et pas encore relus par un lecteur de la
-langue.
+Cette version installe `ca`, `cs`, `de`, `es`, `fi`, `fr` et `gl` — le catalan, le tchèque,
+l'allemand, l'espagnol, le finnois, le français et le galicien — traduits en entier. Le français a
+été relu par un lecteur de la langue ; le catalan, le tchèque, l'allemand, l'espagnol, le finnois
+et le galicien sont traduits par machine et pas encore relus par un lecteur de la langue.
 <!-- machine-translated: ca -->
 <!-- machine-translated: cs -->
 <!-- machine-translated: de -->
+<!-- machine-translated: es -->
+<!-- machine-translated: fi -->
+<!-- machine-translated: gl -->
 Sur un bureau français, la barre de
 menus porte `&Fichier`, `É&dition`, `&Affichage`, `&Vidéo`, `&Outils`, `&Projets`, `Aid&e`. Les
 captures de ce manuel-ci sont prises en français.
