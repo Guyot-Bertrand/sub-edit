@@ -75,9 +75,9 @@ kun käännösluettelo tuntee sen — ohjelman mukana toimitetut lausekkeet; oma
 nimetään niin kuin sen tiedosto sen kirjoittaa. Itse lauseketiedostoja ei koskaan kirjoiteta uudelleen.
 
 Käännösluettelot asennetaan polkuun `<prefix>/share/subedit/locale/<language>/LC_MESSAGES/subedit.mo`,
-ja ne löydetään ohjelman omasta hakemistosta käsin. Englanti on sisäänrakennettu. Tämä versio asentaa kielet `ca`, `cs`, `de`, `es`, `fi`, `fr` ja `gl` — katalaanin,
-tšekin, saksan, espanjan, suomen, ranskan ja galician — kokonaan käännettyinä. Ranskan on tarkistanut
-kielen lukija; katalaani, tšekki, saksa, espanja, suomi ja galicia ovat
+ja ne löydetään ohjelman omasta hakemistosta käsin. Englanti on sisäänrakennettu. Tämä versio asentaa kielet `ca`, `cs`, `de`, `es`, `fi`, `fr`, `gl`, `he`, `hu` ja `ie` — katalaanin,
+tšekin, saksan, espanjan, suomen, ranskan, galician, heprean, unkarin ja interlinguen — kokonaan käännettyinä. Ranskan on tarkistanut
+kielen lukija; katalaani, tšekki, saksa, espanja, suomi, galicia, heprea, unkari ja interlingue ovat
 konekäännöksiä, eikä kukaan kielen lukija ole vielä tarkistanut niitä.
 <!-- machine-translated: ca -->
 <!-- machine-translated: cs -->
@@ -868,7 +868,7 @@ osio TIEDOSTOT nimeää hakemiston, johon käyttöopas on asennettu.
 | Sivut | Minne ne asennetaan |
 | :---- | :----------------------- |
 | englanti | `share/man/man1` |
-| kukin asennettu kieli — katalaani, tšekki, saksa, espanja, suomi, ranska, galicia | `share/man/<language>/man1` — `share/man/fr/man1` |
+| kukin asennettu kieli — katalaani, tšekki, saksa, espanja, suomi, ranska, galicia, heprea, unkari, interlingue | `share/man/<language>/man1` — `share/man/fr/man1` |
 
 **`man` valitsee kielen kieliasetuksen mukaan**, kuten ohjelma: ranskalaisella kieliasetuksella
 `man subedit-cli` näyttää ranskankielisen sivun, ja kieli, jonka sivuja ei ole asennettu, saa

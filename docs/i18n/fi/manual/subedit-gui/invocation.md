@@ -148,9 +148,9 @@ voittaa jokaisen muuttujan, myös muuttujan `LC_ALL=C`. Myös valinta tulee voim
 | pikanäppäimet | ei koskaan: `Ctrl+S` on `Ctrl+S` kaikilla kielillä |
 | viesti, jota käännösluettelo ei käännä | näytetään englanniksi |
 
-Tämä versio asentaa kielet `ca`, `cs`, `de`, `es`, `fi`, `fr` ja `gl` — katalaanin, tšekin, saksan, espanjan,
-suomen, ranskan ja galician — kokonaan käännettyinä. Ranskan on tarkistanut kielen lukija;
-katalaani, tšekki, saksa, espanja, suomi ja galicia ovat konekäännöksiä, eikä kukaan kielen lukija ole
+Tämä versio asentaa kielet `ca`, `cs`, `de`, `es`, `fi`, `fr`, `gl`, `he`, `hu` ja `ie` — katalaanin, tšekin, saksan, espanjan,
+suomen, ranskan, galician, heprean, unkarin ja interlinguen — kokonaan käännettyinä. Ranskan on tarkistanut kielen lukija;
+katalaani, tšekki, saksa, espanja, suomi, galicia, heprea, unkari ja interlingue ovat konekäännöksiä, eikä kukaan kielen lukija ole
 vielä tarkistanut niitä.
 <!-- machine-translated: ca -->
 <!-- machine-translated: cs -->
