@@ -19,7 +19,7 @@ altri programma e por saver u comensar, vide [li manual](../index.md).
 > mover, transformar, converter li frequentie de fotogrammas, ajustar durationes,
 > **apender un file, separar li projecte in du**, metter in
 > italic, adjunter tirés de dialog, changear li casu de líttere in quar manieres,
-> remover mentiones por surdes, **corecter textus per un assistent a
+> remover mentiones por mal-audientes, **corecter textus per un assistent a
 > plurmen págines**, **controlar li ortografie parole per parole**, alliniar a un frequentie de fotogrammas, remetter sur
 > li grille — e li analyse del grille, quel modifica nullcos. Li menu `Projects`
 > **salva e clúde omnicos** in un sol gesto. It **associa un video
