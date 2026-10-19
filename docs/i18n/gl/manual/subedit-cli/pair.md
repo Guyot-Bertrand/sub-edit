@@ -26,7 +26,7 @@ lese para recibir as liñas, **nunca se escribe**.
 - **Un só ficheiro principal**, e sen `--recursive`: un par son dous ficheiros, e unha árbore non ten
   forma de dicir que tradución vai con que ficheiro principal. Para un lote, unha invocación por par.
 - **`--output` nomea o ficheiro da tradución escrita, `--output-dir` pon alí o seu nome base, `--in-place`
-  reescríbeo**, como para calquera suborde que acepte `-t` — vexa [Unha tradución](invocation.md#unha-tradución).
+  reescríbeo**, como para calquera suborde que acepte `-t` — véxase [Unha tradución](invocation.md#unha-tradución).
 - **`--document` non existe**: só hai un documento obxectivo, a tradución.
 
 <!-- example: subedit-cli pair --help -->
@@ -55,9 +55,9 @@ Options:
 | :----- | :----- | :------ | :----- |
 | `<main>` | si | **unha soa** ruta | — |
 | `-t`, `--translation-file` | **si** | o ficheiro de tradución | — |
-| `--align-method` | non | `position` ou `number` — vexa [Unha tradución](invocation.md#unha-tradución) | `position` |
-| `--output` / `--output-dir` / `--in-place` | **unha das tres**, agás con `--dry-run` | vexa [Invocación](invocation.md#o-destino) | — |
-| `--dry-run` | non | un indicador: calcula e di, non escribe nada — vexa [Ver antes de escribir](invocation.md#ver-antes-de-escribir) | desactivado |
+| `--align-method` | non | `position` ou `number` — véxase [Unha tradución](invocation.md#unha-tradución) | `position` |
+| `--output` / `--output-dir` / `--in-place` | **unha das tres**, agás con `--dry-run` | véxase [Invocación](invocation.md#o-destino) | — |
+| `--dry-run` | non | un indicador: calcula e di, non escribe nada — véxase [Ver antes de escribir](invocation.md#ver-antes-de-escribir) | desactivado |
 
 <!-- example: printf '1\n00:00:01,000 --> 00:00:02,000\nHello.\n\n2\n00:00:03,000 --> 00:00:04,000\nBye.\n\n' > film.srt; printf '1\n00:00:01,300 --> 00:00:02,300\nBonjour.\n\n2\n00:00:03,300 --> 00:00:04,300\nAu revoir.\n\n' > film.fr.srt; subedit-cli pair film.srt -t film.fr.srt --output recale.fr.srt; cat recale.fr.srt -->
 ```console
@@ -78,7 +78,7 @@ ficheiro escrito leva as posicións do ficheiro principal.
 ## O que di o aliñamento
 
 A frase é **a mesma que di a xanela** cando abre unha tradución, cada parte só cando non é
-cero — vexa [`inspect -t`](inspect.md#unha-tradución--t) para a táboa das súas partes. **Escríbese
+cero — véxase [`inspect -t`](inspect.md#unha-tradución--t) para a táboa das súas partes. **Escríbese
 desde o nivel 1**, e non no nivel 2 como para as outras subordes: aquí o aliñamento non é un
 detalle do procesamento, é o resultado.
 
@@ -103,7 +103,7 @@ cada método.
 | :----- | :------------------------------------- |
 | 1 | `<translation>: translation: N lines attached; … -> <destination>` — **a ruta é a da tradución**, que é o ficheiro escrito; con `--dry-run`, `(dry run, nothing written)` en lugar de `-> <destination>` |
 | 2 | `<translation>: SubRip, UTF-8, no BOM, LF line endings kept` — o formato, a codificación, a marca e os finais de liña **da tradución**, repostos como estaban |
-| 3 | `<translation>: N bytes read, M written`, despois **cada diagnóstico de lectura** do ficheiro principal e da tradución — vexa [Invocación](invocation.md#diagnósticos-de-lectura) |
+| 3 | `<translation>: N bytes read, M written`, despois **cada diagnóstico de lectura** do ficheiro principal e da tradución — véxase [Invocación](invocation.md#diagnósticos-de-lectura) |
 
 ### En JSON
 

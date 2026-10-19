@@ -35,7 +35,7 @@ máis ou menos no seu sitio con poucos milisegundos de diferenza. Non hai tempos
 varios segundos ao final da película.
 
 Tomar un polo outro **non provoca ningún erro**: os dous
-aceptan o ficheiro e escriben un resultado. A liña de relato é o que
+aceptan o ficheiro e escriben un resultado. A liña de narración é o que
 os distingue — `snap` di sempre canto moveu as posicións.
 
 <!-- example: subedit-cli snap --help -->
@@ -62,10 +62,10 @@ Options:
 | Opción | Obrigatorio | Valores | Predeterminado |
 | :----- | :----- | :------ | :----- |
 | `<file>...` | si | unha ou máis rutas | — |
-| `--recursive`, `-r` | non | un indicador | desactivado — vexa [Procesar unha árbore](lots.md) |
+| `--recursive`, `-r` | non | un indicador | desactivado — véxase [Procesar unha árbore](lots.md) |
 | `--rate` | **si** | unha taxa de fotogramas en fotogramas por segundo, escrita como para [`framerate`](framerate.md#escribir-unha-taxa-de-fotogramas) | — |
-| `--output` / `--output-dir` / `--in-place` | **unha das tres**, agás con `--dry-run` | vexa [Invocación](invocation.md#o-destino) | — |
-| `--dry-run` | non | un indicador: calcula e di, non escribe nada — vexa [Ver antes de escribir](invocation.md#ver-antes-de-escribir) | desactivado |
+| `--output` / `--output-dir` / `--in-place` | **unha das tres**, agás con `--dry-run` | véxase [Invocación](invocation.md#o-destino) | — |
+| `--dry-run` | non | un indicador: calcula e di, non escribe nada — véxase [Ver antes de escribir](invocation.md#ver-antes-de-escribir) | desactivado |
 
 `--rate` acepta **calquera taxa de fotogramas válida**, e non só as oito
 estándar: é a elección do usuario, como para `framerate`. Rexéitase unha taxa de fotogramas
@@ -76,13 +76,13 @@ O formato do ficheiro lido **consérvase**: cambiar o formato é o traballo de
 
 ## Saída
 
-**Saída estándar** — nada: o resultado é o ficheiro escrito. Con `--dry-run`, tampouco nada: non hai ficheiro, e a liña de relato dio — vexa [Ver antes de escribir](invocation.md#ver-antes-de-escribir).
+**Saída estándar** — nada: o resultado é o ficheiro escrito. Con `--dry-run`, tampouco nada: non hai ficheiro, e a liña de narración dio — véxase [Ver antes de escribir](invocation.md#ver-antes-de-escribir).
 
 | Nivel | O que se engade na saída de erro |
 | :----- | :------------------------------------- |
 | 1 | `<path>: N subtitles aligned on 25 fps, M positions moved, by at most 20 ms -> <destination>` |
 | 2 | `<path>: SubRip, UTF-8, no BOM, LF line endings kept` — o formato, a codificación, a marca e os finais de liña do ficheiro lido, repostos como estaban |
-| 3 | `<path>: N bytes read, M written`, despois **cada diagnóstico de lectura** — vexa [Invocación](invocation.md#diagnósticos-de-lectura) |
+| 3 | `<path>: N bytes read, M written`, despois **cada diagnóstico de lectura** — véxase [Invocación](invocation.md#diagnósticos-de-lectura) |
 
 **Os dous números son a razón de ser da liña.** Medio fotograma a 25 fotogramas por
 segundo son vinte milisegundos, e alí non se pode escribir nada maior. Quen
@@ -137,4 +137,4 @@ Os dunha taxa de fotogramas, palabra por palabra os de [`framerate`](framerate.m
 
 **Non se escribe nada sen unha das tres opcións de destino**, e os seus erros
 son comúns ás subordes que escriben:
-vexa [Invocación](invocation.md#o-destino).
+véxase [Invocación](invocation.md#o-destino).
