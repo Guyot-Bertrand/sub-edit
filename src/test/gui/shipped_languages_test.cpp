@@ -178,7 +178,7 @@ TEST_CASE("the window speaks every language that ships, every text of its shell"
 TEST_CASE("the window says the French words the catalogue ships", "[gui][i18n][GUI-I18N-01]") {
     const InterfaceLanguage language{userOf("fr"), kShipped, QString{}};
     REQUIRE(language.language() == "fr");
-    EmptyWindow shell;
+    const EmptyWindow shell;
 
     std::vector<QString> titles;
     for (const QAction* action : shell.window.menuBar()->actions())
