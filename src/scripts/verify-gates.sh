@@ -2177,12 +2177,12 @@ expect_gui_manual_gate
 
 # The manual checks read the vocabulary of the page's language — #657.
 #
-# **Two proofs per check, and the same page for both**: a Spanish page of a few lines, under
-# `docs/i18n/es/manual/`, is accepted when a Spanish table is supplied, and **refused, saying so,
+# **Two proofs per check, and the same page for both**: a page of a few lines in the made-up language `xx`, under
+# `docs/i18n/xx/manual/`, is accepted when its table is supplied, and **refused, saying so,
 # when it is not**. The defect is silence: a check that looks for "Shortcut" on a page that
-# writes "Atajo" finds no table, and says nothing.
-# The fixture is in a language with no shipped table on purpose: English and French have theirs
-# since #671, and the proof is about any language that does not, whichever it is.
+# writes "Atajo" in its own language finds no table, and says nothing.
+# The fixture is in a language that will never ship (`xx`, its words Spanish): every language that
+# ships has its table (#671, #720), and the proof is about one that does not.
 # Both programs are fake binaries that declare just enough to make the page agree, so that no
 # other mismatch mixes with the only one looked for.
 expect_vocabulary_gate() {
@@ -2203,7 +2203,7 @@ esac
 FAKE
     chmod +x "${root}/fake-gui" "${root}/fake-cli"
 
-    local tree="${fixture}/docs/i18n/es/manual" table="${fixture}/vocabulary-es.json"
+    local tree="${fixture}/docs/i18n/xx/manual" table="${fixture}/vocabulary-xx.json"
     local name script manual binary output counted
     for name in gui cli; do
         script="${REPO_ROOT}/src/scripts/check-${name}-manual.py"
@@ -2212,11 +2212,11 @@ FAKE
         counted="1 difference(s)"
         [[ "${name}" == cli ]] && counted="1 mismatch(es)"
 
-        proof_header '%s▸ a Spanish page, with its vocabulary table (%s)%s\n' "${BOLD}" "${name}" "${RESET}"
+        proof_header '%s▸ a page of the language xx, with its vocabulary table (%s)%s\n' "${BOLD}" "${name}" "${RESET}"
         if "${script}" --binary "${binary}" --manual "${manual}" --vocabulary "${table}" >/dev/null 2>&1; then
-            printf '  %s✓ « check-%s-manual.py » read the Spanish page, as expected%s\n' "${GREEN}" "${name}" "${RESET}"
+            printf '  %s✓ « check-%s-manual.py » read the page of xx, as expected%s\n' "${GREEN}" "${name}" "${RESET}"
         else
-            printf '  %s✗ the check refuses a Spanish page that has its table%s\n' "${RED}" "${RESET}"
+            printf '  %s✗ the check refuses a page of xx that has its table%s\n' "${RED}" "${RESET}"
             failures=$((failures + 1))
         fi
 
