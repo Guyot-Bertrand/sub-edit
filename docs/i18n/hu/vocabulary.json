@@ -1,0 +1,15 @@
+{
+  "shortcut_header": "Gyorsbillentyű",
+  "label_headers": ["Parancs", "Elem", "Művelet", "Menüpont"],
+  "no_shortcut_words": ["nincs", "nincsen"],
+  "option_header": "Kapcsoló",
+  "subcommand_header": "Alparancs",
+  "man": {
+    "name": "NÉV",
+    "synopsis": "ÁTTEKINTÉS",
+    "description": "LEÍRÁS",
+    "files": "FÁJLOK",
+    "see_also": "LÁSD MÉG",
+    "manual_title": "Felhasználói parancsok"
+  }
+}
