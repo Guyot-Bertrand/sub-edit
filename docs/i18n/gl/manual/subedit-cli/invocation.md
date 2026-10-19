@@ -75,9 +75,9 @@ lingua, cando o catálogo o coñece — os padróns distribuídos co programa; u
 nómease tal como o escribe o seu ficheiro. Os ficheiros de padróns en si nunca se reescriben.
 
 Os catálogos instálanse en `<prefix>/share/subedit/locale/<language>/LC_MESSAGES/subedit.mo`
-e atópanse a partir do propio directorio do executable. O inglés vai integrado. Esta versión instala `ca`, `cs`, `de`, `es`, `fi`, `fr` e `gl` — catalán,
-checo, alemán, español, finés, francés e galego — traducidos por completo. O francés foi revisado
-por un lector da lingua; o catalán, o checo, o alemán, o español, o finés e o galego son
+e atópanse a partir do propio directorio do executable. O inglés vai integrado. Esta versión instala `ca`, `cs`, `de`, `es`, `fi`, `fr`, `gl`, `he`, `hu` e `ie` — catalán,
+checo, alemán, español, finés, francés, galego, hebreo, húngaro e interlingue — traducidos por completo. O francés foi revisado
+por un lector da lingua; o catalán, o checo, o alemán, o español, o finés, o galego, o hebreo, o húngaro e o interlingue son
 traducións automáticas aínda non revisadas por ningún lector da lingua.
 <!-- machine-translated: ca -->
 <!-- machine-translated: cs -->
@@ -868,7 +868,7 @@ páxina nomea o directorio no que está instalado o manual.
 | Páxinas | Onde se instalan |
 | :---- | :----------------------- |
 | inglés | `share/man/man1` |
-| cada lingua instalada — catalán, checo, alemán, español, finés, francés, galego | `share/man/<language>/man1` — `share/man/fr/man1` |
+| cada lingua instalada — catalán, checo, alemán, español, finés, francés, galego, hebreo, húngaro, interlingue | `share/man/<language>/man1` — `share/man/fr/man1` |
 
 **`man` escolle a lingua a partir da configuración rexional**, como fai o programa: cunha configuración rexional francesa,
 `man subedit-cli` mostra a páxina francesa, e unha lingua cuxas páxinas non están instaladas recibe as
