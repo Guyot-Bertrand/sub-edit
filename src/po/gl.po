@@ -1,19 +1,21 @@
-# Galician catalogue of subedit, seeded from Gaupol.
+# Galician catalogue of subedit.
+# Copyright (C) the subedit authors
 #
-# Origin: https://github.com/otsaloma/gaupol, file po/gl.po, revision f433bae3d23ef3572411fa9adca3fbab5cb1b3f9.
-# The translations are those of Gaupol's translators, credited in that file:
+# The entries marked "From Gaupol" carry the translation of Gaupol's Galician
+# catalogue (https://github.com/otsaloma/gaupol, file po/gl.po, revision
+# f433bae3d23ef3572411fa9adca3fbab5cb1b3f9), the work of the translators that
+# file credits:
 # Osmo Salomaa <otsaloma@iki.fi>, 2016
+# The other entries were written for subedit (#725).
 # This file is distributed under the GNU General Public License, version 3 or
 # later (GPL-3.0-or-later), as Gaupol and subedit are.
-#
-# seed-catalogues.py: a seed, neither reviewed nor installed (spec 15, D5).
-# Delete the line above to take the file over: the script then leaves it alone.
+# Machine translation, not reviewed by a reader of the language (spec 15, D5).
 msgid ""
 msgstr ""
 "Project-Id-Version: subedit\n"
 "Report-Msgid-Bugs-To: https://github.com/Guyot-Bertrand/sub-edit/issues\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"PO-Revision-Date: 2016-07-07 00:55+0000\n"
+"PO-Revision-Date: 2026-10-19 00:00+0000\n"
 "Last-Translator: \n"
 "Language-Team: Galician\n"
 "Language: gl\n"
