@@ -31,9 +31,24 @@ namespace {
 
 namespace fs = std::filesystem;
 
-/// The languages whose pages the build generates, under `share/man`: English in `man1`, every
-/// other in `<language>/man1`. French is the one that ships (`src/po/LINGUAS`).
-const std::vector<std::string> kPageDirectories{"man1", "fr/man1"};
+/// The directories of the pages the build generates, under `share/man`: English in `man1`, and
+/// every language of `src/po/LINGUAS` in `<language>/man1` — the list handed to this file alone by
+/// its CMakeLists (`SUBEDIT_SHIPPED_LANGUAGES`), so that a language added is read here with no line
+/// to write, and one that ships without its pages fails rather than being left out.
+[[nodiscard]] std::vector<std::string> pageDirectories() {
+    std::vector<std::string> directories{"man1"};
+    const std::string_view list{SUBEDIT_SHIPPED_LANGUAGES};
+    std::size_t start = 0;
+    while (start < list.size()) {
+        std::size_t end = list.find(',', start);
+        if (end == std::string_view::npos)
+            end = list.size();
+        if (end > start)
+            directories.push_back(std::string{list.substr(start, end - start)} + "/man1");
+        start = end + 1;
+    }
+    return directories;
+}
 
 /// The lines of a section of a help (`Options:`, `Subcommands:`), as `check-cli-manual.py`
 /// reads them: from its title to the first blank line after a line of it.
@@ -131,7 +146,7 @@ TEST_CASE("every subcommand has its man page in every language, with the options
     const std::set<std::string> global = longOptions(invoke({"--help"}).output);
     REQUIRE(global.contains("--format"));
 
-    for (const std::string& directory : kPageDirectories) {
+    for (const std::string& directory : pageDirectories()) {
         INFO("pages of " << pages(directory).string());
         const std::string top = contentOf(pages(directory) / "subedit-cli.1");
         REQUIRE_FALSE(top.empty());
@@ -162,6 +177,20 @@ TEST_CASE("every subcommand has its man page in every language, with the options
     }
 }
 
+TEST_CASE("the pages of every language that ships are not the English ones",
+          "[e2e][man][i18n][CLI-I18N-04]") {
+    const std::string english = contentOf(pages("man1") / "subedit-cli-shift.1");
+    REQUIRE_FALSE(english.empty());
+    for (const std::string& directory : pageDirectories()) {
+        if (directory == "man1")
+            continue;
+        INFO("pages of " << pages(directory).string());
+        const std::string page = contentOf(pages(directory) / "subedit-cli-shift.1");
+        REQUIRE_FALSE(page.empty());
+        CHECK(page != english);
+    }
+}
+
 TEST_CASE("the French pages are written in French", "[e2e][man][i18n][CLI-I18N-04]") {
     const std::string page = contentOf(pages("fr/man1") / "subedit-cli-shift.1");
     CHECK(page.find(".SH \"NOM\"") != std::string::npos);
@@ -178,7 +207,7 @@ TEST_CASE("man renders every page without a single warning", "[e2e][man][i18n][C
     INFO("man was not found at configuration; ./src/scripts/setup-toolchain.sh installs it");
     REQUIRE_FALSE(man.empty());
 
-    for (const std::string& directory : kPageDirectories) {
+    for (const std::string& directory : pageDirectories()) {
         for (const fs::directory_entry& entry : fs::directory_iterator(pages(directory))) {
             // A UTF-8 terminal, and the ASCII one `C` gives, where a character with no glyph
             // draws nothing — the generated page carries a fallback for each.

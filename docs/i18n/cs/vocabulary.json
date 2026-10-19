@@ -1,0 +1,15 @@
+{
+  "shortcut_header": "Zkratka",
+  "label_headers": ["Příkaz", "Položka", "Akce", "Položka nabídky"],
+  "no_shortcut_words": ["žádná"],
+  "option_header": "Volba",
+  "subcommand_header": "Podpříkaz",
+  "man": {
+    "name": "NÁZEV",
+    "synopsis": "POUŽITÍ",
+    "description": "POPIS",
+    "files": "SOUBORY",
+    "see_also": "VIZ TAKÉ",
+    "manual_title": "Uživatelské příkazy"
+  }
+}

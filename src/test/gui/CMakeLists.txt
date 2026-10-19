@@ -25,7 +25,7 @@ add_executable(
     window_player_test.cpp player_factory_test.cpp video_surface_test.cpp play_bar_test.cpp audio_track_menu_test.cpp invocation_test.cpp
     window_video_bounds_test.cpp window_grid_test.cpp window_commit_edit_test.cpp
     window_appearance_test.cpp settings_path_test.cpp window_settings_test.cpp theme_test.cpp
-    window_language_test.cpp dialog_language_test.cpp shipped_french_test.cpp
+    window_language_test.cpp dialog_language_test.cpp shipped_languages_test.cpp
     ${CMAKE_SOURCE_DIR}/src/test/unit/grid_fixtures.cpp)
 
 target_link_libraries(
@@ -71,11 +71,19 @@ add_custom_target(subedit_gui_test_catalogue DEPENDS "${subedit_gui_catalogue}")
 add_dependencies(subedit_gui_test subedit_gui_test_catalogue)
 target_compile_definitions(subedit_gui_test PRIVATE SUBEDIT_TEST_LOCALE_DIR="${subedit_gui_locale}")
 
-# The French that ships (#668): the catalogues of the build tree, compiled from `src/po/` and laid
-# out as `cmake/Translations.cmake` installs them, read by one test as the window reads them.
+# The languages that ship (#668, #720): the catalogues of the build tree, compiled from `src/po/`
+# and laid out as `cmake/Translations.cmake` installs them, read by one test as the window reads
+# them.
 add_dependencies(subedit_gui_test subedit_locale)
 target_compile_definitions(subedit_gui_test
                            PRIVATE SUBEDIT_SHIPPED_LOCALE_DIR="${SUBEDIT_LOCALE_BUILD_DIR}")
+
+# **Which languages ship** (#720): the lines of `src/po/LINGUAS`, on the one file that reads them
+# and not on the target, so that a language added changes the command line of this file alone.
+string(JOIN "," subedit_shipped_languages ${SUBEDIT_LANGUAGES})
+set_source_files_properties(
+    shipped_languages_test.cpp PROPERTIES COMPILE_DEFINITIONS
+                                          "SUBEDIT_SHIPPED_LANGUAGES=\"${subedit_shipped_languages}\"")
 
 # The grid fixtures, shared with the core's tests and those of the command
 # line: there is only one set of files, and only one way to open it.

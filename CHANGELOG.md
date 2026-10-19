@@ -9,9 +9,142 @@ ne pas l'éditer à la main.
 
 ## Non publié
 
+### Ajouts
+
+- **i18n** — Check the review caveat of a machine-translated language
+- **i18n** — Take over the Catalan seed catalogue
+- **i18n** — Complete the Catalan catalogue
+- **i18n** — Take over the Czech seed catalogue
+- **i18n** — Complete the Czech catalogue
+- **i18n** — Take over the German seed catalogue
+- **i18n** — Complete the German catalogue
+- **i18n** — Install Catalan, Czech and German
+
+### Corrections
+
+- **i18n** — Give Czech the usual three plural forms
+- **i18n** — Write frames per second as fps in German
+- **scripts** — Escape the man page words of a language
+- **test** — Declare the shipped-language window shell const
+- **build** — Prove the seed gate on a language still in seed
+
+### Documentation
+
+- **i18n** — Write the checklist for adding a language
+- **i18n** — Translate the Catalan manual index pages
+- **i18n** — Translate the Catalan installation and tree pages
+- **i18n** — Translate the Catalan CLI invocation page
+- **i18n** — Translate the Catalan correct page
+- **i18n** — Translate the Catalan inspect page
+- **i18n** — Translate the Catalan convert page
+- **i18n** — Translate the Catalan adjust page
+- **i18n** — Translate the Catalan config page
+- **i18n** — Translate the Catalan shift and replace pages
+- **i18n** — Translate the Catalan disjoint and append pages
+- **i18n** — Translate the Catalan split-file and transform pages
+- **i18n** — Translate the Catalan hearing-impaired and framerate pages
+- **i18n** — Translate the Catalan pair and snap pages
+- **i18n** — Translate the Catalan italics and case pages
+- **i18n** — Translate the Catalan dialogue-dashes and sort pages
+- **i18n** — Translate the Catalan join-repeats and repair pages
+- **i18n** — Translate the Catalan window manual index
+- **i18n** — Translate the Catalan window invocation page
+- **i18n** — Translate the Catalan window help page
+- **i18n** — Translate the Catalan window files page
+- **i18n** — Translate the Catalan window operations page
+- **i18n** — Translate the Catalan window preferences page
+- **i18n** — Translate the Catalan window lines page
+- **i18n** — Translate the Catalan window correct-texts page
+- **i18n** — Translate the Catalan window player page
+- **i18n** — Translate the Catalan window table page
+- **i18n** — Translate the Catalan window undo and clipboard pages
+- **i18n** — Translate the Catalan window editing and timing pages
+- **i18n** — Translate the Catalan window video and frame-grid pages
+- **i18n** — Translate the Catalan window check-spelling page
+- **i18n** — Translate the Catalan window find-and-replace page
+- **i18n** — Translate the Czech manual index, installation and lots
+- **i18n** — Translate the Czech command-line invocation page
+- **i18n** — Translate the Czech command-line correct page
+- **i18n** — Translate the Czech command-line inspect page
+- **i18n** — Translate the Czech command-line convert page
+- **i18n** — Translate the Czech command-line adjust page
+- **i18n** — Translate the Czech command-line config page
+- **i18n** — Translate the Czech command-line shift and replace pages
+- **i18n** — Translate the Czech command-line disjoint and append pages
+- **i18n** — Translate the Czech command-line split-file, transform pages
+- **i18n** — Translate the Czech command-line hearing-impaired, framerate
+- **i18n** — Translate the Czech command-line pair and snap pages
+- **i18n** — Translate the Czech command-line italics and case pages
+- **i18n** — Translate the Czech command-line dialogue-dashes and sort
+- **i18n** — Translate the Czech command-line join-repeats and repair
+- **i18n** — Translate the Czech window manual index
+- **i18n** — Translate the Czech window invocation page
+- **i18n** — Translate the Czech window manual-in-the-window page
+- **i18n** — Translate the Czech window opening-and-saving page
+- **i18n** — Translate the Czech window operations page
+- **i18n** — Translate the Czech window preferences page
+- **i18n** — Translate the Czech window lines page
+- **i18n** — Translate the Czech window correct-texts page
+- **i18n** — Translate the Czech window player page
+- **i18n** — Translate the Czech window table page
+- **i18n** — Translate the Czech window search and spelling pages
+- **i18n** — Translate the Czech window frame grid and video pages
+- **i18n** — Translate the Czech window timing and editing pages
+- **i18n** — Translate the Czech window clipboard and undo pages
+- **i18n** — Translate the German manual index and three CLI pages
+- **i18n** — Translate the German CLI invocation page
+- **i18n** — Translate the German CLI correct page
+- **i18n** — Translate the German CLI inspect page
+- **i18n** — Translate the German CLI convert page
+- **i18n** — Translate the German CLI adjust page
+- **i18n** — Translate the German CLI config page
+- **i18n** — Translate the German CLI shift and replace pages
+- **i18n** — Translate the German CLI disjoint and append pages
+- **i18n** — Translate the German CLI split-file and transform pages
+- **i18n** — Translate the German CLI hearing-impaired, framerate pages
+- **i18n** — Translate the German CLI pair and snap pages
+- **i18n** — Translate the German CLI italics and case pages
+- **i18n** — Translate the German CLI dialogue-dashes and sort pages
+- **i18n** — Translate the German CLI join-repeats and repair pages
+- **i18n** — Translate the German GUI index page
+- **i18n** — Translate the German GUI invocation page
+- **i18n** — Translate the German GUI help page
+- **i18n** — Translate the German GUI files page
+- **i18n** — Translate the German GUI operations page
+- **i18n** — Translate the German GUI find-and-replace page
+- **i18n** — Translate the German GUI timing page
+- **i18n** — Translate the German GUI check-spelling page
+- **i18n** — Follow lot 5's heading in the German check-spelling page
+- **i18n** — Translate the German GUI preferences page
+- **i18n** — Translate the German GUI editing page
+- **i18n** — Translate the German GUI clipboard page
+- **i18n** — Translate the German GUI frame grid page
+- **i18n** — Link the German table anomalies heading
+- **i18n** — Translate the German GUI undo page
+- **i18n** — Translate the German GUI video page
+- **i18n** — Translate the German GUI lines page
+- **i18n** — Translate the German GUI correct-texts page
+- **i18n** — Translate the German GUI player page
+- **i18n** — Translate the German GUI table page
+- **i18n** — Add the Catalan, Czech and German screenshots
+
+### Remaniements
+
+- **scripts** — Name no translated language in the manual scripts
+
+### Tests
+
+- **i18n** — Run the shipped-language tests for every line of LINGUAS
+
+## 0.15.41 — 2026-10-18
+
 ### Corrections
 
 - **build** — Restore the model header of verify-gates with its mtime
+
+### Documentation
+
+- **doc** — Regenerate the changelog
 
 ### Remaniements
 

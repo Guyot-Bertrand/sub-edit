@@ -1,0 +1,15 @@
+{
+  "shortcut_header": "Drecera",
+  "label_headers": ["Ordre", "Entrada", "Acció", "Entrada del menú"],
+  "no_shortcut_words": ["cap"],
+  "option_header": "Opció",
+  "subcommand_header": "Subordre",
+  "man": {
+    "name": "NOM",
+    "synopsis": "SINOPSI",
+    "description": "DESCRIPCIÓ",
+    "files": "FITXERS",
+    "see_also": "VEGEU TAMBÉ",
+    "manual_title": "Ordres d'usuari"
+  }
+}

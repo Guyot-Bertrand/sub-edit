@@ -1141,8 +1141,9 @@ expect_untranslated_gate
 # The check reads the catalogues of `src/po/` only, so the proofs run on a scratch copy of the
 # files git tracks there; nothing of the repository is touched, and the copy goes with the proof.
 # Three proofs: the copy as it is passes (the check does not cry wolf on the shipped French), one
-# French entry emptied is refused and named, and the same entry emptied in a seed passes — it is
-# reported, its translated count one lower, and nothing fails.
+# French entry emptied is refused and named, and the same entry emptied in a seed (Spanish, one of
+# the languages not yet shipped) passes — it is reported, its translated count one lower, and
+# nothing fails.
 expect_stale_translation_gate() {
     local script="${REPO_ROOT}/src/scripts/check-translations.py"
     local root output seed_before seed_after
@@ -1158,7 +1159,7 @@ expect_stale_translation_gate() {
         printf '  %s✗ the check refuses the catalogues as they are%s\n' "${RED}" "${RESET}"
         failures=$((failures + 1))
     fi
-    seed_before="$(grep '^de ' <<<"${output}" || true)"
+    seed_before="$(grep '^es ' <<<"${output}" || true)"
 
     proof_header '%s▸ an entry emptied in an installed language%s\n' "${BOLD}" "${RESET}"
     cp "${root}/src/po/fr.po" "${root}/fr.po.orig"
@@ -1175,9 +1176,9 @@ expect_stale_translation_gate() {
     mv "${root}/fr.po.orig" "${root}/src/po/fr.po"
 
     proof_header '%s▸ the same entry emptied in a seed%s\n' "${BOLD}" "${RESET}"
-    sed -i "${empty_edit}" "${root}/src/po/de.po"
+    sed -i "${empty_edit}" "${root}/src/po/es.po"
     if output="$("${script}" --root "${root}" 2>&1)"; then
-        seed_after="$(grep '^de ' <<<"${output}" || true)"
+        seed_after="$(grep '^es ' <<<"${output}" || true)"
         if [[ -n "${seed_before}" && "${seed_after}" != "${seed_before}" ]]; then
             printf '  %s✓ « check-translations.py » reported the seed and passed%s\n' "${GREEN}" "${RESET}"
         else
@@ -1193,6 +1194,80 @@ expect_stale_translation_gate() {
 }
 
 expect_stale_translation_gate
+
+# The review caveat of a machine-translated language agrees with `src/po/UNREVIEWED` — #720.
+#
+# The check reads `src/po/` and the Markdown of the manuals only, so the proofs run on a scratch
+# copy of those tracked files. Four proofs: the copy as it is passes; French declared unreviewed,
+# with the caveat in its catalogue, on every page of its manual and in the Language sections of the
+# English manual, passes too — the convention as `src/po/README.md` writes it is one the check
+# accepts; the same with the marker removed from one page is refused and names the page; and French
+# reviewed again with its catalogue still carrying the caveat is refused, named.
+expect_review_caveat_gate() {
+    local script="${REPO_ROOT}/src/scripts/check-review-caveat.py"
+    local root output page
+    root="$(mktemp -d)"
+    git -C "${REPO_ROOT}" ls-files -z src/po 'docs/manual/*.md' 'docs/i18n/*.md' \
+        | (cd "${REPO_ROOT}" && tar --null -T - -cf -) | tar -xf - -C "${root}"
+    local -r caveat='# Machine translation, not reviewed by a reader of the language (spec 15, D5).'
+
+    proof_header '%s▸ the review caveat, as it is%s\n' "${BOLD}" "${RESET}"
+    if "${script}" --root "${root}" >/dev/null 2>&1; then
+        printf '  %s✓ « check-review-caveat.py » accepted the tree%s\n' "${GREEN}" "${RESET}"
+    else
+        printf '  %s✗ the check refuses the tree as it is%s\n' "${RED}" "${RESET}"
+        failures=$((failures + 1))
+    fi
+
+    proof_header '%s▸ a language declared unreviewed, with its caveat everywhere%s\n' "${BOLD}" "${RESET}"
+    printf 'fr\n' >>"${root}/src/po/UNREVIEWED"
+    sed -i "1i ${caveat}" "${root}/src/po/fr.po"
+    while IFS= read -r -d '' page; do
+        sed -i '1a\\n<!-- machine-translated -->\n> Traduction automatique, en attente de relecture.' "${page}"
+    done < <(find "${root}/docs/i18n/fr/manual" -name '*.md' -print0)
+    while IFS= read -r -d '' page; do
+        sed -i 's/^## Language$/&\n\n<!-- machine-translated: fr -->/' "${page}"
+    done < <(find "${root}/docs/manual" -name '*.md' -print0)
+    if output="$("${script}" --root "${root}" 2>&1)"; then
+        printf '  %s✓ « check-review-caveat.py » accepted the caveat as the convention writes it%s\n' \
+            "${GREEN}" "${RESET}"
+    else
+        printf '  %s✗ the check refuses the caveat written as the convention says:%s\n%s\n' \
+            "${RED}" "${RESET}" "${output}"
+        failures=$((failures + 1))
+    fi
+
+    proof_header '%s▸ a page of an unreviewed language without its marker%s\n' "${BOLD}" "${RESET}"
+    sed -i '/^<!-- machine-translated -->$/d' "${root}/docs/i18n/fr/manual/index.md"
+    if output="$("${script}" --root "${root}" 2>&1)"; then
+        printf '  %s✗ the check let a page without its caveat through%s\n' "${RED}" "${RESET}"
+        failures=$((failures + 1))
+    elif [[ "${output}" == *"PAGE"*"docs/i18n/fr/manual/index.md"* && "${output}" == *"1 problem(s)"* ]]; then
+        printf '  %s✓ « check-review-caveat.py » refused and named the page%s\n' "${GREEN}" "${RESET}"
+    else
+        printf '  %s✗ the check refused, but not for the right reason%s\n' "${RED}" "${RESET}"
+        failures=$((failures + 1))
+    fi
+
+    proof_header '%s▸ a language signed off whose catalogue keeps the caveat%s\n' "${BOLD}" "${RESET}"
+    rm -rf "${root}/docs"
+    git -C "${REPO_ROOT}" ls-files -z 'docs/manual/*.md' 'docs/i18n/*.md' \
+        | (cd "${REPO_ROOT}" && tar --null -T - -cf -) | tar -xf - -C "${root}"
+    sed -i '/^fr$/d' "${root}/src/po/UNREVIEWED"
+    if output="$("${script}" --root "${root}" 2>&1)"; then
+        printf '  %s✗ the check let a caveat left behind through%s\n' "${RED}" "${RESET}"
+        failures=$((failures + 1))
+    elif [[ "${output}" == *"CATALOGUE LEFT"*"src/po/fr.po"* && "${output}" == *"1 problem(s)"* ]]; then
+        printf '  %s✓ « check-review-caveat.py » refused and named the catalogue%s\n' "${GREEN}" "${RESET}"
+    else
+        printf '  %s✗ the check refused, but not for the right reason%s\n' "${RED}" "${RESET}"
+        failures=$((failures + 1))
+    fi
+
+    rm -rf "${root}"
+}
+
+expect_review_caveat_gate
 
 # The gate refuses what a run has left behind — #226.
 #

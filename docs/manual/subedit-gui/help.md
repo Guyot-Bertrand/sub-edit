@@ -29,7 +29,7 @@ environment otherwise — see
 | The window speaks | The manual opens in |
 | :---------------- | :------------------ |
 | English | English |
-| a language whose manual is installed — French | that language |
+| a language whose manual is installed — Catalan, Czech, German, French | that language |
 | a language whose manual is not installed | English |
 
 **Page by page, not all or nothing**: a page the translation does not have
