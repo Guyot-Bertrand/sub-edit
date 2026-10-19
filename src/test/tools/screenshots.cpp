@@ -432,15 +432,20 @@ int main(int argc, char** argv) {
             [](std::string_view) -> std::optional<std::string> { return std::nullopt; },
             subedit::platform::installedLocalePath(),
             QLibraryInfo::path(QLibraryInfo::TranslationsPath));
-        if (language->language() != requested || !language->hasQtCatalogue()) {
+        if (language->language() != requested) {
             std::cerr << "subedit_screenshots: the language \"" << *requested
                       << "\" has no catalogue of ours under "
-                      << subedit::platform::installedLocalePath().string()
-                      << ", or Qt has none of its own\n"
+                      << subedit::platform::installedLocalePath().string() << "\n"
                       << "  the shots of a language are authoritative fully translated alone;\n"
-                      << "  build the catalogues (the subedit_locale target) and install Qt's\n"
-                      << "  (Debian, Ubuntu: qt6-translations-l10n)\n";
+                      << "  build the catalogues (the subedit_locale target)\n";
             return 1;
+        }
+        // **Qt's own catalogue is a courtesy, not a condition**: it translates the standard
+        // buttons, and Qt ships none for some languages (Galician has no `qtbase_gl`). The window
+        // runs without it, English on those buttons only; the shots do as the window does.
+        if (!language->hasQtCatalogue()) {
+            std::cerr << "subedit_screenshots: Qt has no catalogue of its own for \"" << *requested
+                      << "\": its standard buttons stay English in these shots\n";
         }
     }
 
