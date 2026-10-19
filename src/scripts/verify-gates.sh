@@ -1141,8 +1141,9 @@ expect_untranslated_gate
 # The check reads the catalogues of `src/po/` only, so the proofs run on a scratch copy of the
 # files git tracks there; nothing of the repository is touched, and the copy goes with the proof.
 # Three proofs: the copy as it is passes (the check does not cry wolf on the shipped French), one
-# French entry emptied is refused and named, and the same entry emptied in a seed passes — it is
-# reported, its translated count one lower, and nothing fails.
+# French entry emptied is refused and named, and the same entry emptied in a seed (Spanish, one of
+# the languages not yet shipped) passes — it is reported, its translated count one lower, and
+# nothing fails.
 expect_stale_translation_gate() {
     local script="${REPO_ROOT}/src/scripts/check-translations.py"
     local root output seed_before seed_after
@@ -1158,7 +1159,7 @@ expect_stale_translation_gate() {
         printf '  %s✗ the check refuses the catalogues as they are%s\n' "${RED}" "${RESET}"
         failures=$((failures + 1))
     fi
-    seed_before="$(grep '^de ' <<<"${output}" || true)"
+    seed_before="$(grep '^es ' <<<"${output}" || true)"
 
     proof_header '%s▸ an entry emptied in an installed language%s\n' "${BOLD}" "${RESET}"
     cp "${root}/src/po/fr.po" "${root}/fr.po.orig"
@@ -1175,9 +1176,9 @@ expect_stale_translation_gate() {
     mv "${root}/fr.po.orig" "${root}/src/po/fr.po"
 
     proof_header '%s▸ the same entry emptied in a seed%s\n' "${BOLD}" "${RESET}"
-    sed -i "${empty_edit}" "${root}/src/po/de.po"
+    sed -i "${empty_edit}" "${root}/src/po/es.po"
     if output="$("${script}" --root "${root}" 2>&1)"; then
-        seed_after="$(grep '^de ' <<<"${output}" || true)"
+        seed_after="$(grep '^es ' <<<"${output}" || true)"
         if [[ -n "${seed_before}" && "${seed_after}" != "${seed_before}" ]]; then
             printf '  %s✓ « check-translations.py » reported the seed and passed%s\n' "${GREEN}" "${RESET}"
         else
