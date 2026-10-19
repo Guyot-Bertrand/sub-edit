@@ -63,12 +63,16 @@ public:
     /// The catalogue's name (`ru`, `fr_FR`), or nothing for English.
     [[nodiscard]] const std::optional<std::string>& language() const { return m_language; }
 
+    /// Whether the window lays out right to left — the language is written that way (Hebrew).
+    [[nodiscard]] bool isMirrored() const { return m_mirrored; }
+
     /// Whether Qt's own catalogue of that language was found and installed.
     [[nodiscard]] bool hasQtCatalogue() const { return m_qt != nullptr; }
 
 private:
     std::optional<std::string> m_language;
     std::unique_ptr<QTranslator> m_qt;
+    bool m_mirrored = false;
 };
 
 /// The value of `interface.language` in the settings at `path`, nothing for `system`.

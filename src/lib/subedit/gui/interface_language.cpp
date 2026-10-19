@@ -6,7 +6,9 @@
 #include <subedit/platform/locations.hpp>
 
 #include <QCoreApplication>
+#include <QGuiApplication>
 #include <QLibraryInfo>
+#include <QLocale>
 #include <QString>
 #include <QTranslator>
 
@@ -43,6 +45,13 @@ InterfaceLanguage::InterfaceLanguage(const std::optional<std::string>& preferred
     m_language = found->name;
     core::installCatalogue(std::move(found->catalogue));
 
+    // The whole window mirrors under a right-to-left language: menus, dialogs, the table's
+    // columns. Text that is not language — the timeline, the video controls — sets its own.
+    if (QLocale(QString::fromStdString(found->name)).textDirection() == Qt::RightToLeft) {
+        QGuiApplication::setLayoutDirection(Qt::RightToLeft);
+        m_mirrored = true;
+    }
+
     // `qtbase_fr_FR` falls back on `qtbase_fr` by itself: Qt drops a suffix at a time.
     auto qt = std::make_unique<QTranslator>();
     if (!qt->load(QStringLiteral("qtbase_") + QString::fromStdString(found->name), qtDirectory))
@@ -52,6 +61,8 @@ InterfaceLanguage::InterfaceLanguage(const std::optional<std::string>& preferred
 }
 
 InterfaceLanguage::~InterfaceLanguage() {
+    if (m_mirrored)
+        QGuiApplication::setLayoutDirection(Qt::LeftToRight);
     if (m_qt)
         QCoreApplication::removeTranslator(m_qt.get());
     if (m_language)
