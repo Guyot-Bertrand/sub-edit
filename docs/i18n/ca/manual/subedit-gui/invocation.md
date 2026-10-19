@@ -148,9 +148,9 @@ s'imposa a totes les variables, `LC_ALL=C` inclosa. L'elecció, també, s'aplica
 | les dreceres de teclat | mai: `Ctrl+S` és `Ctrl+S` en totes les llengües |
 | un missatge que el catàleg no tradueix | es mostra en anglès |
 
-Aquesta versió instal·la `ca`, `cs`, `de`, `es`, `fi`, `fr` i `gl` — el català, el txec, l'alemany,
-l'espanyol, el finès, el francès i el gallec — traduïts íntegrament. El francès l'ha revisat un lector
-de la llengua; el català, el txec, l'alemany, l'espanyol, el finès i el gallec són traduccions
+Aquesta versió instal·la `ca`, `cs`, `de`, `es`, `fi`, `fr`, `gl`, `he`, `hu` i `ie` — el català, el txec, l'alemany,
+l'espanyol, el finès, el francès, el gallec, l'hebreu, el hongarès i l'interlingua — traduïts íntegrament. El francès l'ha revisat un lector
+de la llengua; el català, el txec, l'alemany, l'espanyol, el finès, el gallec, l'hebreu, el hongarès i l'interlingua són traduccions
 automàtiques que encara no ha revisat cap lector de la llengua.
 <!-- machine-translated: ca -->
 <!-- machine-translated: cs -->
