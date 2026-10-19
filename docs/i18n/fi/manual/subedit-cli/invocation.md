@@ -67,14 +67,14 @@ ohjelma lukee sen itse: kieliasetusta ei tarvitse olla luotu koneelle.
 | merkistökoodaus ja tarkenne | ohitetaan: `fr_FR.UTF-8@euro` etsii ensin `fr_FR`, sitten `fr` |
 | `LC_ALL=C`, kieliasetus `C` tai `POSIX` tai ei kieliasetusta lainkaan | englanti, eikä muuttujaa `LANGUAGE` lueta |
 | englannin nimeävä merkintä (`en`, `en_GB`) | englanti: sitä seuraavaa muuttujan `LANGUAGE` osaa ei lueta |
-| kieli, jonka luetteloa ei ole asennettu | seuraava pyydetty, ja viimeisen jälkeen englanti, **sanaakaan sanomatta** |
-| viesti, jota luettelo ei käännä | näytetään englanniksi |
+| kieli, jonka käännösluetteloa ei ole asennettu | seuraava pyydetty, ja viimeisen jälkeen englanti, **sanaakaan sanomatta** |
+| viesti, jota käännösluettelo ei käännä | näytetään englanniksi |
 
 **Korjauslausekkeen nimi**, jota `correct` kertoo, ettei se voinut käyttää, noudattaa myös kieltä,
-kun luettelo tuntee sen — ohjelman mukana toimitetut lausekkeet; oma lauseke
+kun käännösluettelo tuntee sen — ohjelman mukana toimitetut lausekkeet; oma lauseke
 nimetään niin kuin sen tiedosto sen kirjoittaa. Itse lauseketiedostoja ei koskaan kirjoiteta uudelleen.
 
-Luettelot asennetaan polkuun `<prefix>/share/subedit/locale/<language>/LC_MESSAGES/subedit.mo`,
+Käännösluettelot asennetaan polkuun `<prefix>/share/subedit/locale/<language>/LC_MESSAGES/subedit.mo`,
 ja ne löydetään ohjelman omasta hakemistosta käsin. Englanti on sisäänrakennettu. Tämä versio asentaa kielet `ca`, `cs`, `de`, `es`, `fi`, `fr` ja `gl` — katalaanin,
 tšekin, saksan, espanjan, suomen, ranskan ja galician — kokonaan käännettyinä. Ranskan on tarkistanut
 kielen lukija; katalaani, tšekki, saksa, espanja, suomi ja galicia ovat
@@ -240,8 +240,8 @@ subedit <version>
   aina samat.
 - **Ei Qt:tä eikä libmpv:tä**: komentorivi ei linkitä kumpaakaan, ja se luettelee vain sen, minkä varassa se toimii.
   Ikkuna luettelee ne — katso [sen käyttöopas](../subedit-gui/invocation.md#--version).
-- **`Languages`** luettelee koodin `en`, lähdekielen, joka ei tarvitse luetteloa, ja sitten koodeittain jokaisen
-  hakemistoon `<prefix>/share/subedit/locale` asennetun luettelon, joka voidaan lukea — ne kielet, joita
+- **`Languages`** luettelee koodin `en`, lähdekielen, joka ei tarvitse käännösluetteloa, ja sitten koodeittain jokaisen
+  hakemistoon `<prefix>/share/subedit/locale` asennetun käännösluettelon, joka voidaan lukea — ne kielet, joita
   `Muokkaa ▸ Asetukset…` tarjoaa.
 - **Mikä noudattaa kieltä**: `built with` ja `Languages`. Ensimmäinen rivi, nimet,
   numerot ja kielikoodit eivät koskaan.
