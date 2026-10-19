@@ -21,7 +21,7 @@ kuudestatoista kumotaan näppäimillä `Ctrl+Z`; analyysi ei muuta mitään. My�
 | `Case ▸ UPPER CASE` | **ei** | kaikki isoilla kirjaimilla |
 | `Case ▸ lower case` | **ei** | kaikki pienillä kirjaimilla |
 | `Remove Hearing-Impaired Mentions…` | kyllä, ilman asetuksia | poistaa kuulovammaisille tarkoitetut maininnat |
-| `Correct Texts…` | kyllä, monisivuinen ohjattu toiminto | ehdottaa korjauksia — maininnat, sanojen yhdistäminen ja jakaminen, yleiset virheet, isot alkukirjaimet, rivinvaihto — ja soveltaa ne hyväksymisen jälkeen, katso [Korjaa tekstejä…](correct-texts.md) |
+| `Correct Texts…` | kyllä, monisivuinen avustaja | ehdottaa korjauksia — maininnat, sanojen yhdistäminen ja jakaminen, yleiset virheet, isot alkukirjaimet, rivinvaihto — ja soveltaa ne hyväksymisen jälkeen, katso [Korjaa tekstejä…](correct-texts.md) |
 | `Check Spelling…` | kyllä, läpikäynti sana sanalta | käy läpi sanakirjalle tuntemattomat sanat ja soveltaa tehdyt korjaukset, katso [Tarkista oikeinkirjoitus…](check-spelling.md) |
 | `Spell-Check Settings…` | kyllä | valitsee tarkistuksen kielen, kohteen ja asiakirjan sekä alleviivauksen kirjoitettaessa, katso [Tarkista oikeinkirjoitus…](check-spelling.md#oikoluvun-asetukset) |
 | `Snap to Frame Rate…` | kyllä | siirtää kunkin aikaleiman lähimpään ruutuun |

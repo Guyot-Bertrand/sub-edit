@@ -20,7 +20,7 @@ ohjelmasta ja siitä, mistä aloittaa, kerrotaan [käyttöoppaassa](../index.md)
 > **tiedoston lisääminen perään, projektin jakaminen kahtia**, kursivointi,
 > vuoropuheluviivojen lisääminen, kirjainkoon muuttaminen neljällä tavalla,
 > kuulovammaisille tarkoitettujen mainintojen poistaminen, **tekstien korjaaminen
-> monisivuisella ohjatulla toiminnolla**, **oikeinkirjoituksen tarkistus sana sanalta**, kohdistus ruutunopeuteen, palautus
+> monisivuisella avustajalla**, **oikeinkirjoituksen tarkistus sana sanalta**, kohdistus ruutunopeuteen, palautus
 > ruudukolle — sekä ruudukon analyysi, joka ei muuta mitään. Valikko `Projects`
 > **tallentaa ja sulkee kaiken** yhdellä eleellä. Se **liittää videon
 > asiakirjaan**, valittuna tai arvattuna, ja **toistaa sen ikkunassa**, nykyinen
@@ -124,7 +124,7 @@ valikoissaan: niitä käytetään harvemmin, tai kaikki eivät käytä niitä.
 | [Kumoa ja tee uudelleen](undo.md) | historia, kaksi toimintoa, muutosmerkki |
 | [Ruuturuudukko](frame-grid.md) | kohdista päätelty ruutunopeus, analyysi ja muunto, joka palauttaa tiedoston ruudukolle |
 | [Toiminnot](operations.md) | siirto, muunto, ruutunopeuden muunto, kestojen säätö, tiedoston lisääminen perään, projektin jakaminen, kursivointi, kirjainkoko, viivat, mainintojen poistaminen, kohdistus, palautus ruudukolle ja se, mikä menee elokuvan lopun yli |
-| [Korjaa tekstejä…](correct-texts.md) | korjauksen ohjattu toiminto: kohde ja tehtävät, kunkin tehtävän sivu, eteneminen, vahvistus |
+| [Korjaa tekstejä…](correct-texts.md) | korjausavustaja: kohde ja tehtävät, kunkin tehtävän sivu, eteneminen, vahvistus |
 | [Tarkista oikeinkirjoitus…](check-spelling.md) | oikoluku: sen asetukset, läpikäynti, sulkeminen kesken, sanakirjan puuttuminen |
 | [Liitetty video](video.md) | videon valitseminen, automaattinen ehdotus, ääniraita, tilarivi, `ffmpeg` |
 | [Soitin](player.md) | videonäkymä, toistopalkki, toistaminen, liikkuminen, äänenvoimakkuus, seuraava taulukko, piirretty rivi |
