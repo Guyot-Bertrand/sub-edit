@@ -148,9 +148,9 @@ setzt sich gegen jede Variable durch, `LC_ALL=C` eingeschlossen. Auch die Wahl g
 | die Tastenkürzel | nie: `Ctrl+S` ist `Ctrl+S` in jeder Sprache |
 | eine Meldung, die der Katalog nicht übersetzt | auf Englisch gezeigt |
 
-Diese Version installiert `ca`, `cs`, `de`, `es`, `fi`, `fr` und `gl` — Katalanisch, Tschechisch, Deutsch,
-Spanisch, Finnisch, Französisch und Galicisch — vollständig übersetzt. Französisch wurde von einer Leserin oder einem
-Leser der Sprache geprüft; Katalanisch, Tschechisch, Deutsch, Spanisch, Finnisch und Galicisch sind
+Diese Version installiert `ca`, `cs`, `de`, `es`, `fi`, `fr`, `gl`, `he`, `hu` und `ie` — Katalanisch, Tschechisch, Deutsch,
+Spanisch, Finnisch, Französisch, Galicisch, Hebräisch, Ungarisch und Interlingue — vollständig übersetzt. Französisch wurde von einer Leserin oder einem
+Leser der Sprache geprüft; Katalanisch, Tschechisch, Deutsch, Spanisch, Finnisch, Galicisch, Hebräisch, Ungarisch und Interlingue sind
 maschinell übersetzt und noch von keiner Leserin und keinem Leser der Sprache geprüft.
 <!-- machine-translated: ca -->
 <!-- machine-translated: cs -->
