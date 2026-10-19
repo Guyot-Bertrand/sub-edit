@@ -19,6 +19,13 @@ ne pas l'éditer à la main.
 - **i18n** — Take over the German seed catalogue
 - **i18n** — Complete the German catalogue
 - **i18n** — Install Catalan, Czech and German
+- **i18n** — Install Spanish, Finnish and Galician
+- **i18n** — Take over the Finnish seed catalogue
+- **i18n** — Complete the Finnish catalogue
+- **i18n** — Take over the Spanish seed catalogue
+- **i18n** — Take over the Galician seed catalogue
+- **i18n** — Complete the Galician catalogue
+- **i18n** — Complete the Spanish catalogue
 
 ### Corrections
 
@@ -27,6 +34,9 @@ ne pas l'éditer à la main.
 - **scripts** — Escape the man page words of a language
 - **test** — Declare the shipped-language window shell const
 - **build** — Prove the seed gate on a language still in seed
+- **build** — Move the seed proof of verify-gates to Dutch
+- **test** — Let screenshots go on without a Qt catalogue
+- **build** — Move the vocabulary proofs to a made-up language
 
 ### Documentation
 
@@ -127,6 +137,133 @@ ne pas l'éditer à la main.
 - **i18n** — Translate the German GUI player page
 - **i18n** — Translate the German GUI table page
 - **i18n** — Add the Catalan, Czech and German screenshots
+- **doc** — Regenerate the changelog
+- **i18n** — Name the new languages in the manuals
+- **i18n** — Add the Finnish vocabulary
+- **i18n** — Add the Galician vocabulary
+- **i18n** — Add the Spanish vocabulary
+- **i18n** — Translate the Finnish manual home page
+- **i18n** — Translate the Finnish CLI shift page
+- **i18n** — Translate the Spanish manual home page
+- **i18n** — Translate the Finnish CLI config page
+- **i18n** — Translate the Finnish GUI find-and-replace page
+- **i18n** — Translate the Spanish CLI pair page
+- **i18n** — Translate the Spanish CLI index page
+- **i18n** — Translate the Galician CLI shift page
+- **i18n** — Translate the Galician manual home page
+- **i18n** — Translate the Finnish CLI pair and snap pages
+- **i18n** — Translate the Galician CLI config page
+- **i18n** — Translate the Finnish GUI index page
+- **i18n** — Translate the Spanish CLI shift and replace pages
+- **i18n** — Translate the Finnish CLI replace page
+- **i18n** — Translate the Spanish GUI preferences page
+- **i18n** — Translate the Spanish CLI correct page
+- **i18n** — Translate the Spanish CLI snap page
+- **i18n** — Translate the Spanish CLI tree processing page
+- **i18n** — Translate the Spanish GUI index page
+- **i18n** — Translate the Spanish GUI undo and clipboard pages
+- **i18n** — Translate the Finnish GUI preferences page
+- **i18n** — Translate the Galician CLI pair and snap pages
+- **i18n** — Translate the Finnish GUI check-spelling page
+- **i18n** — Translate the Galician GUI preferences page
+- **i18n** — Translate the Finnish GUI invocation page
+- **i18n** — Translate the Finnish CLI adjust page
+- **i18n** — Translate the Spanish CLI italics page
+- **i18n** — Translate the Galician CLI replace page
+- **i18n** — Translate the Galician GUI index page
+- **i18n** — Translate the Finnish CLI disjoint page
+- **i18n** — Translate the Spanish GUI invocation page
+- **i18n** — Translate the Spanish CLI installation page
+- **i18n** — Translate the Spanish GUI editing page
+- **i18n** — Translate the Finnish GUI help page
+- **i18n** — Translate the Finnish CLI italics and case pages
+- **i18n** — Translate the Finnish CLI command-line manual index
+- **i18n** — Translate the Finnish CLI installation page
+- **i18n** — Translate the Spanish GUI help page
+- **i18n** — Translate the Spanish CLI disjoint and append pages
+- **i18n** — Translate the Galician CLI adjust page
+- **i18n** — Translate the Finnish GUI frame-grid page
+- **i18n** — Translate the Galician CLI disjoint page
+- **i18n** — Translate the Galician GUI invocation page
+- **i18n** — Translate the Spanish CLI case page
+- **i18n** — Translate the Spanish CLI inspect page
+- **i18n** — Translate the Finnish CLI append page
+- **i18n** — Translate the Spanish GUI lines page
+- **i18n** — Translate the Galician CLI italics and case pages
+- **i18n** — Translate the Spanish GUI timing page
+- **i18n** — Translate the Galician GUI help page
+- **i18n** — Translate the Spanish CLI split-file page
+- **i18n** — Translate the Spanish CLI dialogue-dashes page
+- **i18n** — Translate the Finnish CLI tree processing page
+- **i18n** — Translate the Galician CLI append page
+- **i18n** — Translate the Finnish CLI split-file page
+- **i18n** — Translate the Spanish CLI sort page
+- **i18n** — Translate the Finnish GUI lines page
+- **i18n** — Translate the Finnish GUI video page
+- **i18n** — Translate the Finnish CLI convert page
+- **i18n** — Keep code spans uninflected on the Finnish config page
+- **i18n** — Translate the Galician CLI convert page
+- **i18n** — Translate the Spanish GUI correct-texts page
+- **i18n** — Translate the Spanish GUI video page
+- **i18n** — Translate the Galician GUI lines page
+- **i18n** — Translate the Spanish CLI transform page
+- **i18n** — Translate the Spanish CLI convert page
+- **i18n** — Translate the Galician CLI split-file page
+- **i18n** — Translate the Spanish CLI join-repeats page
+- **i18n** — Translate the Finnish CLI dialogue-dashes and sort pages
+- **i18n** — Translate the Finnish CLI transform page
+- **i18n** — Translate the Spanish GUI files page
+- **i18n** — Translate four Galician CLI pages, dashes to repair
+- **i18n** — Translate the Spanish CLI repair page
+- **i18n** — Translate the Spanish GUI frame grid page
+- **i18n** — Translate the Spanish CLI hearing-impaired page
+- **i18n** — Translate the Finnish GUI timing page
+- **i18n** — Translate the Galician CLI invocation page
+- **i18n** — Translate the Finnish GUI correct-texts page
+- **i18n** — Translate the Finnish CLI join-repeats and repair pages
+- **i18n** — Translate the Galician GUI correct-texts page
+- **i18n** — Translate the Galician CLI transform page
+- **i18n** — Translate the Spanish GUI player page
+- **i18n** — Translate the Finnish GUI files page
+- **i18n** — Translate the Finnish CLI hearing-impaired page
+- **i18n** — Translate the Spanish CLI adjust page
+- **i18n** — Translate the Galician CLI manual index
+- **i18n** — Translate the Finnish CLI inspect page
+- **i18n** — Translate the Spanish GUI spell check page
+- **i18n** — Translate the Finnish GUI editing page
+- **i18n** — Translate the Spanish CLI framerate page
+- **i18n** — Translate the Galician CLI hearing-impaired page
+- **i18n** — Translate the Galician CLI inspect page
+- **i18n** — Translate the Galician GUI files page
+- **i18n** — Translate the Finnish CLI framerate page
+- **i18n** — Translate the Spanish GUI table page
+- **i18n** — Translate the Spanish CLI config page
+- **i18n** — Translate the Finnish GUI clipboard page
+- **i18n** — Translate the Galician installation page
+- **i18n** — Translate the Galician CLI framerate page
+- **i18n** — Translate the Galician GUI player page
+- **i18n** — Translate the Spanish CLI invocation page
+- **i18n** — Translate the Spanish GUI find and replace page
+- **i18n** — Translate the Galician CLI tree processing page
+- **i18n** — Translate the Finnish GUI player page
+- **i18n** — Translate the Spanish GUI operations page
+- **i18n** — Translate the Finnish GUI undo page
+- **i18n** — Translate the Galician CLI correct page
+- **i18n** — Translate the Finnish CLI correct page
+- **i18n** — Translate the Galician GUI table page
+- **i18n** — Translate the Finnish GUI table page
+- **i18n** — Translate the Finnish GUI operations page
+- **i18n** — Translate the Galician GUI operations page
+- **i18n** — Use the Finnish catalogue's word for the assistant
+- **i18n** — Translate the Finnish CLI invocation page
+- **i18n** — Use the Finnish catalogue term in the CLI invocation page
+- **i18n** — Translate the Galician GUI search and spelling pages
+- **i18n** — Translate the Galician GUI frame grid and video pages
+- **i18n** — Translate the Galician GUI timing page
+- **i18n** — Translate the Galician GUI cell editing page
+- **i18n** — Translate the Galician GUI clipboard page
+- **i18n** — Translate the Galician GUI undo page
+- **i18n** — Add the Spanish, Finnish and Galician screenshots
 
 ### Remaniements
 
