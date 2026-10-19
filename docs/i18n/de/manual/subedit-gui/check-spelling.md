@@ -140,7 +140,7 @@ Edited 2 and removed 0 subtitles
 wird beim Schließen nach `spell-check/<language>.repl` geschrieben, unter dem Konfigurationsverzeichnis
 von `subedit`, und nicht in das von Gaupol, das nie gelesen wird.
 Sie zählt dann zu den Vorschlägen der Rechtschreibprüfung, hier wie in
-[`Correct Texts…`](correct-texts.md#wörter-zusammenfügen-oder-trennen--zusammenfügen-und-trennen-durch-die-rechtschreibprüfung).
+[`Correct Texts…`](correct-texts.md#wörter-zusammenfügen-oder-trennen--wieder-zusammenfügen-und-trennen-durch-die-rechtschreibprüfung).
 Kann sie nicht geschrieben werden, sagt es ein Fehlerfenster, `Could not save the
 replacements for`, gefolgt von der Sprache und dem Grund, ohne die
 Korrekturen zu verwerfen.
