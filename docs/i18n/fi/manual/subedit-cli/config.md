@@ -84,7 +84,7 @@ ja `unset` hylätään, ja tiedosto nimetään valitsimella `--config FILE`.
 
 **Toiminta-avainten luettelo** tiedoston järjestyksessä: kukin avain ja sen jälkeen neljä sisennettyä
 riviä — mihin se on tarkoitettu, `Accepts:` (suljettu joukko tai muoto ja rajat), `Default:` ja
-`Used by:` (sitä lukevat `subedit-cli`-komennot ja ikkunan toiminnot). Se ei lue tiedostoa eikä
+`Used by:` (sitä lukevat komennot `subedit-cli` ja ikkunan toiminnot). Se ei lue tiedostoa eikä
 tarvitse sellaista, ja se toimii valitsimen `--no-config` kanssa.
 
 <!-- example: subedit-cli config list | head -10 -->
@@ -122,7 +122,7 @@ rivi `Used by:` kertoo sen sekä nimeää alikomennon `correct` valitsimen, joka
 | `correction.human`, `correction.ocr` | [`correct`](correct.md) ja `Correct Texts…` |
 | `correction.remove-blank` | `correct` ja `Correct Texts…` |
 | `correction.line-break.max-lines` | `correct` ja `Correct Texts…` |
-| kaikki muut `correction.*`-avaimet | vain `Correct Texts…` — `correct` ottaa valitsimet `--tasks`, `--code`, `--max-length`, `--skip-length`, `--skip-lines`, `--language`, `--enable` ja `--disable` omalta komentoriviltään |
+| kaikki muut avaimet `correction.*` | vain `Correct Texts…` — `correct` ottaa valitsimet `--tasks`, `--code`, `--max-length`, `--skip-length`, `--skip-lines`, `--language`, `--enable` ja `--disable` omalta komentoriviltään |
 
 Rivimäärät, `correction.line-break.max-lines` ja `correction.line-break.skip-max-lines`,
 ovat kokonaislukuja väliltä 1–1 000 — valitsimen `correct --max-lines` rajat —, ja rivipituudet,
