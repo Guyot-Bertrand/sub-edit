@@ -85,6 +85,9 @@ konekäännöksiä, eikä kukaan kielen lukija ole vielä tarkistanut niitä.
 <!-- machine-translated: es -->
 <!-- machine-translated: fi -->
 <!-- machine-translated: gl -->
+<!-- machine-translated: he -->
+<!-- machine-translated: hu -->
+<!-- machine-translated: ie -->
 Kun `LANG=fr_FR.UTF-8`, ohje `subedit-cli --help` alkaa sanoin ”Lire,
 inspecter et recaler des fichiers de sous-titres.” Skripti, joka lukee tekstitulosteen
 sanoja, asettaa `LANGUAGE=en` (tai `LC_ALL=C`) — tai lukee muotoa `--format json`, joka ei koskaan muutu.

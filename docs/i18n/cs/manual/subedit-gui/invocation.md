@@ -158,6 +158,9 @@ jsou strojově přeložené a dosud je nezkontroloval žádný čtenář daného
 <!-- machine-translated: es -->
 <!-- machine-translated: fi -->
 <!-- machine-translated: gl -->
+<!-- machine-translated: he -->
+<!-- machine-translated: hu -->
+<!-- machine-translated: ie -->
 Ve francouzském pracovním prostředí nese řádek nabídek
 `&Fichier`, `É&dition`, `&Affichage`, `&Vidéo`, `&Outils`, `&Projets`, `Aid&e`. Snímky obrazovky
 v této příručce jsou pořízeny v češtině.

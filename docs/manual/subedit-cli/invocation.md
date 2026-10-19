@@ -72,9 +72,9 @@ too, when the catalogue knows it — the patterns shipped with the program; a pa
 named as its file writes it. The pattern files themselves are never rewritten.
 
 The catalogues are installed under `<prefix>/share/subedit/locale/<language>/LC_MESSAGES/subedit.mo`
-and found from the executable's own directory. English is built in. This version installs `ca`, `cs`, `de`, `es`, `fi`, `fr` and `gl` — Catalan,
-Czech, German, Spanish, Finnish, French and Galician — translated in full. French has been reviewed
-by a reader of the language; Catalan, Czech, German, Spanish, Finnish and Galician are
+and found from the executable's own directory. English is built in. This version installs `ca`, `cs`, `de`, `es`, `fi`, `fr`, `gl`, `he`, `hu` and `ie` — Catalan,
+Czech, German, Spanish, Finnish, French, Galician, Hebrew, Hungarian and Interlingue — translated in full. French has been reviewed
+by a reader of the language; Catalan, Czech, German, Spanish, Finnish, Galician, Hebrew, Hungarian and Interlingue are
 machine-translated and not yet reviewed by a reader of the language.
 <!-- machine-translated: ca -->
 <!-- machine-translated: cs -->
@@ -82,6 +82,9 @@ machine-translated and not yet reviewed by a reader of the language.
 <!-- machine-translated: es -->
 <!-- machine-translated: fi -->
 <!-- machine-translated: gl -->
+<!-- machine-translated: he -->
+<!-- machine-translated: hu -->
+<!-- machine-translated: ie -->
 Under `LANG=fr_FR.UTF-8`, `subedit-cli --help` begins with "Lire,
 inspecter et recaler des fichiers de sous-titres." A script that reads the words of the text
 output sets `LANGUAGE=en` (or `LC_ALL=C`) — or reads `--format json`, which never changes.
@@ -862,7 +865,7 @@ page names the directory the manual is installed in.
 | Pages | Where they are installed |
 | :---- | :----------------------- |
 | English | `share/man/man1` |
-| each installed language — Catalan, Czech, German, Spanish, Finnish, French, Galician | `share/man/<language>/man1` — `share/man/fr/man1` |
+| each installed language — Catalan, Czech, German, Spanish, Finnish, French, Galician, Hebrew, Hungarian, Interlingue | `share/man/<language>/man1` — `share/man/fr/man1` |
 
 **`man` picks the language from the locale**, as the program does: under a French locale,
 `man subedit-cli` shows the French page, and a language whose pages are not installed gets the

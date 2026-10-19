@@ -157,6 +157,9 @@ et le galicien sont traduits par machine et pas encore relus par un lecteur de l
 <!-- machine-translated: es -->
 <!-- machine-translated: fi -->
 <!-- machine-translated: gl -->
+<!-- machine-translated: he -->
+<!-- machine-translated: hu -->
+<!-- machine-translated: ie -->
 Sur un bureau français, la barre de
 menus porte `&Fichier`, `É&dition`, `&Affichage`, `&Vidéo`, `&Outils`, `&Projets`, `Aid&e`. Les
 captures de ce manuel-ci sont prises en français.

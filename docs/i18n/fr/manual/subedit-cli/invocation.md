@@ -84,6 +84,9 @@ et le galicien sont traduits par machine et pas encore relus par un lecteur de l
 <!-- machine-translated: es -->
 <!-- machine-translated: fi -->
 <!-- machine-translated: gl -->
+<!-- machine-translated: he -->
+<!-- machine-translated: hu -->
+<!-- machine-translated: ie -->
 Sous `LANG=fr_FR.UTF-8`,
 `subedit-cli --help` commence par « Lire, inspecter et recaler des fichiers de sous-titres. » Un
 script qui lit les mots de la sortie texte pose `LANGUAGE=en` (ou `LC_ALL=C`) — ou lit
