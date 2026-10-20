@@ -1,0 +1,15 @@
+{
+  "shortcut_header": "Sneltoets",
+  "label_headers": ["Commando", "Item", "Actie", "Menu-item"],
+  "no_shortcut_words": ["geen"],
+  "option_header": "Optie",
+  "subcommand_header": "Subcommando",
+  "man": {
+    "name": "NAAM",
+    "synopsis": "SAMENVATTING",
+    "description": "BESCHRIJVING",
+    "files": "BESTANDEN",
+    "see_also": "ZIE OOK",
+    "manual_title": "Gebruikerscommando's"
+  }
+}
