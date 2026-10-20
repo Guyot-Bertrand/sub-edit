@@ -74,7 +74,8 @@
 
 ### שבירת שורה — היחידה והדילוג
 
-![עמוד Line Break: אורך, מספר שורות, יחידה ותנאי דילוג, על ערכי ברירת המחדל שלהם.](captures/correction-decoupage.png)
+![עמוד Line Break: אורך, מספר שורות, יחידה
+ותנאי דילוג, על ערכי ברירת המחדל שלהם.](captures/correction-decoupage.png)
 
 ![אותו עמוד בפלטה הכהה.](captures/correction-decoupage-sombre.png)
 
@@ -97,7 +98,8 @@
 
 ### צירוף או פיצול מילים — צירוף ופיצול לפי בודק האיות
 
-![העמוד Join or Split Words, בלי מילון לשפה: התיבות מאופרות והעמוד אומר מדוע.](captures/correction-jonction.png)
+![העמוד Join or Split Words, בלי
+מילון לשפה: התיבות מאופרות והעמוד אומר מדוע.](captures/correction-jonction.png)
 
 ![אותו עמוד בפלטה הכהה.](captures/correction-jonction-sombre.png)
 
@@ -154,7 +156,8 @@
 
 ## אישור — העמוד האחרון
 
-![עמוד האישור: שלוש שורות, אחת התקבלה, אחת הוסרה, אחת נדחתה.](captures/correction.png)
+![עמוד האישור: שלוש שורות, אחת
+התקבלה, אחת הוסרה, אחת נדחתה.](captures/correction.png)
 
 ![אותו עמוד בפלטה הכהה.](captures/correction-sombre.png)
 

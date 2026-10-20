@@ -15,7 +15,8 @@
 
 ## הגדרות בדיקת האיות…
 
-![חלון ההגדרות, צרפתית מבוקשת בלי מילון לה: המשפט שמתחת לשפה אומר מדוע.](captures/orthographe-reglages.png)
+![חלון ההגדרות, צרפתית מבוקשת בלי מילון
+לה: המשפט שמתחת לשפה אומר מדוע.](captures/orthographe-reglages.png)
 
 ![אותו חלון בפלטה הכהה.](captures/orthographe-reglages-sombre.png)
 
@@ -48,7 +49,8 @@
 
 ## קו תחתון בזמן ההקלדה
 
-![העורך של תא הטקסט, המילה שהוקלדה בטעות עם קו גלי אדום מתחתיה.](captures/edition-orthographe.png)
+![העורך של תא הטקסט, המילה שהוקלדה
+בטעות עם קו גלי אדום מתחתיה.](captures/edition-orthographe.png)
 
 ![אותו עורך בפלטה הכהה.](captures/edition-orthographe-sombre.png)
 
@@ -65,7 +67,8 @@
 
 ## הסריקה
 
-![חלון הבדיקה שנעצר על מילה לא מוכרת: הטקסט, המילה שנבחרה, רשימת ההצעות והכפתורים.](captures/orthographe.png)
+![חלון הבדיקה שנעצר על מילה לא
+מוכרת: הטקסט, המילה שנבחרה, רשימת ההצעות והכפתורים.](captures/orthographe.png)
 
 ![אותו חלון בפלטה הכהה.](captures/orthographe-sombre.png)
 

@@ -5,7 +5,8 @@
 
 `עריכה ▸ חיפוש והחלפה…`, או `Ctrl+F`, פותח את תיבת החיפוש.
 
-![תיבת החיפוש, תבנית שהוקלדה, על אפשרויות ברירת המחדל.](captures/recherche.png)
+![תיבת החיפוש, תבנית שהוקלדה,
+על אפשרויות ברירת המחדל.](captures/recherche.png)
 
 ![אותה תיבה בפלטה הכהה.](captures/recherche-sombre.png)
 
@@ -85,7 +86,8 @@
 
 **התיבה אומרת באיזה טקסט היא מחפשת**, בשורה מעל `Find`, ומשנה אותה כשהעמודה הנוכחית משתנה — גם כשהיא פתוחה:
 
-![תיבת החיפוש של מיזם שנושא תרגום, התא הנוכחי בעמודה `Translation`.](captures/recherche-traduction.png)
+![תיבת החיפוש של מיזם שנושא
+תרגום, התא הנוכחי בעמודה `Translation`.](captures/recherche-traduction.png)
 
 ![אותה תיבה בפלטה הכהה.](captures/recherche-traduction-sombre.png)
 
