@@ -75,9 +75,9 @@ idioma, cuando el catálogo lo conoce — los patrones que se distribuyen con el
 se nombra tal como lo escribe su archivo. Los archivos de patrones en sí nunca se reescriben.
 
 Los catálogos se instalan bajo `<prefix>/share/subedit/locale/<language>/LC_MESSAGES/subedit.mo`
-y se encuentran a partir del propio directorio del ejecutable. El inglés va integrado. Esta versión instala `ca`, `cs`, `de`, `es`, `fi`, `fr`, `gl`, `he`, `hu` e `ie` — catalán,
-checo, alemán, español, finés, francés, gallego, hebreo, húngaro e interlingue — traducidos por completo. El francés lo ha revisado
-un lector del idioma; el catalán, el checo, el alemán, el español, el finés, el gallego, el hebreo, el húngaro y el interlingue están
+y se encuentran a partir del propio directorio del ejecutable. El inglés va integrado. Esta versión instala `ca`, `cs`, `de`, `es`, `fi`, `fr`, `gl`, `he`, `hu`, `ie`, `is`, `it_IT` y `nl` — catalán,
+checo, alemán, español, finés, francés, gallego, hebreo, húngaro, interlingue, islandés, italiano y neerlandés — traducidos por completo. El francés lo ha revisado
+un lector del idioma; el catalán, el checo, el alemán, el español, el finés, el gallego, el hebreo, el húngaro, el interlingue, el islandés, el italiano y el neerlandés están
 traducidos automáticamente y todavía no los ha revisado ningún lector del idioma.
 <!-- machine-translated: ca -->
 <!-- machine-translated: cs -->
@@ -871,7 +871,7 @@ página nombra el directorio en el que está instalado el manual.
 | Páginas | Dónde se instalan |
 | :---- | :----------------------- |
 | inglés | `share/man/man1` |
-| cada idioma instalado — catalán, checo, alemán, español, finés, francés, gallego, hebreo, húngaro, interlingue | `share/man/<language>/man1` — `share/man/fr/man1` |
+| cada idioma instalado — catalán, checo, alemán, español, finés, francés, gallego, hebreo, húngaro, interlingue, islandés, italiano, neerlandés | `share/man/<language>/man1` — `share/man/fr/man1` |
 
 **`man` elige el idioma según la configuración regional**, como hace el programa: con una configuración regional francesa,
 `man subedit-cli` muestra la página francesa, y un idioma cuyas páginas no están instaladas recibe las
