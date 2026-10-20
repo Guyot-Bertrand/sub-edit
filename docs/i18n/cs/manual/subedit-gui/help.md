@@ -32,7 +32,7 @@ prostředí — viz
 | Okno mluví | Příručka se otevře |
 | :---------------- | :------------------ |
 | anglicky | anglicky |
-| jazykem, jehož příručka je nainstalována — katalánsky, česky, německy, španělsky, finsky, francouzsky, galicijsky | v tomto jazyce |
+| jazykem, jehož příručka je nainstalována — katalánsky, česky, německy, španělsky, finsky, francouzsky, galicijsky, hebrejsky, maďarsky, interlingue | v tomto jazyce |
 | jazykem, jehož příručka není nainstalována | anglicky |
 
 **Stránku po stránce, ne všechno, nebo nic**: stránka, kterou překlad nemá,

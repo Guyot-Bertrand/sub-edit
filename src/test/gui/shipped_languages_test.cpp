@@ -19,7 +19,9 @@
 
 #include <QAbstractItemModel>
 #include <QAction>
+#include <QGuiApplication>
 #include <QList>
+#include <QLocale>
 #include <QMenu>
 #include <QMenuBar>
 #include <QString>
@@ -227,5 +229,24 @@ TEST_CASE("with a language installed beside it, the window is English when Engli
                 return code + ".UTF-8";
             return std::nullopt;
         });
+    }
+}
+
+TEST_CASE("the window lays out the way the language is written, and goes back when it is gone",
+          "[gui][i18n][GUI-I18N-01]") {
+    const std::string code = GENERATE(from_range(shippedLanguages()));
+    DYNAMIC_SECTION("language " << code) {
+        const bool rightToLeft =
+            QLocale(QString::fromStdString(code)).textDirection() == Qt::RightToLeft;
+        {
+            const InterfaceLanguage language{userOf(code), kShipped, QString{}};
+            CHECK(language.isMirrored() == rightToLeft);
+            CHECK(QGuiApplication::layoutDirection() ==
+                  (rightToLeft ? Qt::RightToLeft : Qt::LeftToRight));
+            const EmptyWindow shell;
+            CHECK(shell.window.layoutDirection() ==
+                  (rightToLeft ? Qt::RightToLeft : Qt::LeftToRight));
+        }
+        CHECK(QGuiApplication::layoutDirection() == Qt::LeftToRight);
     }
 }

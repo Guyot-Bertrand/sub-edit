@@ -148,9 +148,9 @@ impóñese a todas as variables, `LC_ALL=C` incluída. A escolla, tamén, aplíc
 | os atallos de teclado | nunca: `Ctrl+S` é `Ctrl+S` en todas as linguas |
 | unha mensaxe que o catálogo non traduce | móstrase en inglés |
 
-Esta versión instala `ca`, `cs`, `de`, `es`, `fi`, `fr` e `gl` — catalán, checo, alemán, español,
-finés, francés e galego — traducidos por completo. O francés foi revisado por un lector da
-lingua; o catalán, o checo, o alemán, o español, o finés e o galego son traducións automáticas aínda non
+Esta versión instala `ca`, `cs`, `de`, `es`, `fi`, `fr`, `gl`, `he`, `hu` e `ie` — catalán, checo, alemán, español,
+finés, francés, galego, hebreo, húngaro e interlingue — traducidos por completo. O francés foi revisado por un lector da
+lingua; o catalán, o checo, o alemán, o español, o finés, o galego, o hebreo, o húngaro e o interlingue son traducións automáticas aínda non
 revisadas por ningún lector da lingua.
 <!-- machine-translated: ca -->
 <!-- machine-translated: cs -->
@@ -158,6 +158,9 @@ revisadas por ningún lector da lingua.
 <!-- machine-translated: es -->
 <!-- machine-translated: fi -->
 <!-- machine-translated: gl -->
+<!-- machine-translated: he -->
+<!-- machine-translated: hu -->
+<!-- machine-translated: ie -->
 Nun escritorio en francés a barra de menús mostra
 `&Fichier`, `É&dition`, `&Affichage`, `&Vidéo`, `&Outils`, `&Projets`, `Aid&e`. As capturas de pantalla deste
 manual fanse en galego.

@@ -75,9 +75,9 @@ Sprache, wenn der Katalog ihn kennt — bei den mit dem Programm ausgelieferten 
 so genannt, wie seine Datei es schreibt. Die Musterdateien selbst werden niemals umgeschrieben.
 
 Englisch ist eingebaut, und die Kataloge der übrigen Sprachen werden unter `<prefix>/share/subedit/locale/<language>/LC_MESSAGES/subedit.mo`
-installiert und vom Verzeichnis des Programms selbst aus gefunden. Diese Version installiert `ca`, `cs`, `de`, `es`, `fi`, `fr` und `gl` — Katalanisch, Tschechisch,
-Deutsch, Spanisch, Finnisch, Französisch und Galicisch —, vollständig übersetzt. Französisch wurde von einer Leserin
-oder einem Leser der Sprache geprüft; Katalanisch, Tschechisch, Deutsch, Spanisch, Finnisch und Galicisch sind maschinell
+installiert und vom Verzeichnis des Programms selbst aus gefunden. Diese Version installiert `ca`, `cs`, `de`, `es`, `fi`, `fr`, `gl`, `he`, `hu` und `ie` — Katalanisch, Tschechisch,
+Deutsch, Spanisch, Finnisch, Französisch, Galicisch, Hebräisch, Ungarisch und Interlingue —, vollständig übersetzt. Französisch wurde von einer Leserin
+oder einem Leser der Sprache geprüft; Katalanisch, Tschechisch, Deutsch, Spanisch, Finnisch, Galicisch, Hebräisch, Ungarisch und Interlingue sind maschinell
 übersetzt und noch nicht von einer Leserin oder einem Leser der Sprache geprüft.
 <!-- machine-translated: ca -->
 <!-- machine-translated: cs -->
@@ -85,6 +85,9 @@ oder einem Leser der Sprache geprüft; Katalanisch, Tschechisch, Deutsch, Spanis
 <!-- machine-translated: es -->
 <!-- machine-translated: fi -->
 <!-- machine-translated: gl -->
+<!-- machine-translated: he -->
+<!-- machine-translated: hu -->
+<!-- machine-translated: ie -->
 Unter `LANG=fr_FR.UTF-8` beginnt `subedit-cli --help` mit „Lire,
 inspecter et recaler des fichiers de sous-titres.“ Ein Skript, das die Wörter der Textausgabe
 liest, setzt `LANGUAGE=en` (oder `LC_ALL=C`) — oder liest `--format json`, das sich nie ändert.
@@ -211,7 +214,7 @@ nicht ausgeführt, und `-q` und `-v` ändern nichts.
 <!-- example: subedit-cli --version | head -n 1 -->
 ```console
 $ subedit-cli --version | head -n 1
-subedit 0.15.43
+subedit 0.15.44
 ```
 
 Die vollständige Ausgabe, auf einem Rechner mit ICU 74.2 und Enchant 2.3.3 — die Nummern sind die des Rechners:
@@ -865,7 +868,7 @@ Seite nennt das Verzeichnis, in dem das Handbuch installiert ist.
 | Seiten | Wo sie installiert werden |
 | :---- | :----------------------- |
 | Englisch | `share/man/man1` |
-| jede installierte Sprache — Katalanisch, Tschechisch, Deutsch, Spanisch, Finnisch, Französisch, Galicisch | `share/man/<language>/man1` — `share/man/fr/man1` |
+| jede installierte Sprache — Katalanisch, Tschechisch, Deutsch, Spanisch, Finnisch, Französisch, Galicisch, Hebräisch, Ungarisch, Interlingue | `share/man/<language>/man1` — `share/man/fr/man1` |
 
 **`man` wählt die Sprache anhand der Locale**, wie das Programm: Unter einer französischen Locale
 zeigt `man subedit-cli` die französische Seite, und eine Sprache, deren Seiten nicht installiert sind, erhält die

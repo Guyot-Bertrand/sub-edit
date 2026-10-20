@@ -1,0 +1,15 @@
+{
+  "shortcut_header": "קיצור דרך",
+  "label_headers": ["פקודה", "פריט", "פעולה", "פריט בתפריט"],
+  "no_shortcut_words": ["אין", "ללא"],
+  "option_header": "אפשרות",
+  "subcommand_header": "תת-פקודה",
+  "man": {
+    "name": "שם",
+    "synopsis": "תקציר",
+    "description": "תיאור",
+    "files": "קבצים",
+    "see_also": "ראו גם",
+    "manual_title": "פקודות משתמש"
+  }
+}

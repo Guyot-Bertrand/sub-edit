@@ -148,9 +148,9 @@ vítězí nad každou proměnnou, včetně `LC_ALL=C`. I tato volba platí od p�
 | klávesové zkratky | nikdy: `Ctrl+S` je `Ctrl+S` v každém jazyce |
 | hlášení, které katalog nepřekládá | zobrazí se anglicky |
 
-Tato verze instaluje `ca`, `cs`, `de`, `es`, `fi`, `fr` a `gl` — katalánštinu, češtinu, němčinu,
-španělštinu, finštinu, francouzštinu a galicijštinu — v úplném překladu. Francouzštinu zkontroloval
-čtenář tohoto jazyka; katalánština, čeština, němčina, španělština, finština a galicijština
+Tato verze instaluje `ca`, `cs`, `de`, `es`, `fi`, `fr`, `gl`, `he`, `hu` a `ie` — katalánštinu, češtinu, němčinu,
+španělštinu, finštinu, francouzštinu, galicijštinu, hebrejštinu, maďarštinu a interlingue — v úplném překladu. Francouzštinu zkontroloval
+čtenář tohoto jazyka; katalánština, čeština, němčina, španělština, finština, galicijština, hebrejština, maďarština a interlingue
 jsou strojově přeložené a dosud je nezkontroloval žádný čtenář daného jazyka.
 <!-- machine-translated: ca -->
 <!-- machine-translated: cs -->
@@ -158,6 +158,9 @@ jsou strojově přeložené a dosud je nezkontroloval žádný čtenář daného
 <!-- machine-translated: es -->
 <!-- machine-translated: fi -->
 <!-- machine-translated: gl -->
+<!-- machine-translated: he -->
+<!-- machine-translated: hu -->
+<!-- machine-translated: ie -->
 Ve francouzském pracovním prostředí nese řádek nabídek
 `&Fichier`, `É&dition`, `&Affichage`, `&Vidéo`, `&Outils`, `&Projets`, `Aid&e`. Snímky obrazovky
 v této příručce jsou pořízeny v češtině.

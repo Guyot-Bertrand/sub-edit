@@ -1,0 +1,15 @@
+{
+  "shortcut_header": "Via rapid",
+  "label_headers": ["Comande", "Entrata", "Action", "Entrata del menu"],
+  "no_shortcut_words": ["null", "nul"],
+  "option_header": "Option",
+  "subcommand_header": "Subcomande",
+  "man": {
+    "name": "NÓMINE",
+    "synopsis": "SINOPSE",
+    "description": "DESCRIPTION",
+    "files": "FILES",
+    "see_also": "VIDE ANCHE",
+    "manual_title": "Comandes de usator"
+  }
+}

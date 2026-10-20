@@ -1,19 +1,21 @@
-# Hungarian catalogue of subedit, seeded from Gaupol.
+# Hungarian catalogue of subedit.
+# Copyright (C) the subedit authors
 #
-# Origin: https://github.com/otsaloma/gaupol, file po/hu.po, revision f433bae3d23ef3572411fa9adca3fbab5cb1b3f9.
-# The translations are those of Gaupol's translators, credited in that file:
+# The entries marked "From Gaupol" carry the translation of Gaupol's Hungarian
+# catalogue (https://github.com/otsaloma/gaupol, file po/hu.po, revision
+# f433bae3d23ef3572411fa9adca3fbab5cb1b3f9), the work of the translators that
+# file credits:
 # Osmo Salomaa <otsaloma@iki.fi>, 2016
+# The other entries were written for subedit (#727).
 # This file is distributed under the GNU General Public License, version 3 or
 # later (GPL-3.0-or-later), as Gaupol and subedit are.
-#
-# seed-catalogues.py: a seed, neither reviewed nor installed (spec 15, D5).
-# Delete the line above to take the file over: the script then leaves it alone.
+# Machine translation, not reviewed by a reader of the language (spec 15, D5).
 msgid ""
 msgstr ""
 "Project-Id-Version: subedit\n"
 "Report-Msgid-Bugs-To: https://github.com/Guyot-Bertrand/sub-edit/issues\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"PO-Revision-Date: 2016-07-07 00:55+0000\n"
+"PO-Revision-Date: 2026-10-19 00:00+0000\n"
 "Last-Translator: \n"
 "Language-Team: Hungarian\n"
 "Language: hu\n"
@@ -25,16 +27,18 @@ msgstr ""
 #: packaging/patterns/Latn-en-US.common-error
 msgid "Add period after a shortened title, such as \"Mr\" and \"Dr\""
 msgstr ""
-"Pont hozzáadása olyan rövidített előtagok után, mint pl. a \"Mr\" és \"Dr\""
+"Pont hozzáadása a rövidített előtag után, például a „Mr” és a „Dr” esetében"
 
+# From Gaupol.
 #: packaging/patterns/Latn-en-US.common-error
 msgid "Period after title"
 msgstr "Pont az előtag után"
 
 #: packaging/patterns/Latn-en.capitalization
 msgid "Capitalize the first person pronoun \"I\""
-msgstr "Az \"I\" (én) névmás cseréje nagy betűre (Angol)"
+msgstr "Az „I” (én) személyes névmás átírása nagybetűre (angol)"
 
+# From Gaupol.
 #: packaging/patterns/Latn-en.capitalization
 msgid "First person pronoun"
 msgstr "Egyes szám első személy"
@@ -42,131 +46,139 @@ msgstr "Egyes szám első személy"
 #: packaging/patterns/Latn-en.common-error packaging/patterns/Latn.common-error
 msgid "Add or remove space between a number and the associated unit"
 msgstr ""
-"A számok és a társított mértékegységek közötti szóköz hozzáadása vagy "
+"A számok és a hozzájuk tartozó mértékegységek közötti szóköz hozzáadása vagy "
 "eltávolítása"
 
 #: packaging/patterns/Latn-en.common-error
 msgid "Letter \"I\" in a lower case word"
-msgstr "Az \"I\" betű egy kisbetűs szóban (Angol)"
+msgstr "Az „I” betű kisbetűs szóban (angol)"
 
 #: packaging/patterns/Latn-en.common-error
 msgid "Letter \"l\" in an upper case word"
-msgstr "Az \"l\" betű egy nagybetűs szóban (Angol)"
+msgstr "Az „l” betű nagybetűs szóban (angol)"
 
+# From Gaupol.
 #: packaging/patterns/Latn-en.common-error
 msgid "Okay"
 msgstr "Okay"
 
 #: packaging/patterns/Latn-en.common-error
 msgid "Remove spaces around an apostrophe"
-msgstr "Szóközök eltávolítása az idézőjelek mellől"
+msgstr "Szóközök eltávolítása az aposztróf körül"
 
 #: packaging/patterns/Latn-en.common-error
 msgid "Replace letter \"I\" with letter \"l\" in a lower case word"
-msgstr "Az \"I\" betű cseréje \"l\" betűre kisbetűs szavakban (Angol)"
+msgstr "Az „I” betű cseréje „l” betűre kisbetűs szóban (angol)"
 
 #: packaging/patterns/Latn-en.common-error
 msgid "Replace letter \"l\" with letter \"I\" in an upper case word"
-msgstr "Az \"l\" betű cseréje \"I\" betűre nagybetűs szavakban (Angol)"
+msgstr "Az „l” betű cseréje „I” betűre nagybetűs szóban (angol)"
 
 #: packaging/patterns/Latn-en.common-error
 msgid "Replace zero with letter \"O\" in an upper case word"
-msgstr "Nulla (0) cseréje \"O\" betűre a nagybetűs szavakban"
+msgstr "A nulla (0) cseréje „O” betűre nagybetűs szóban"
 
 #: packaging/patterns/Latn-en.common-error packaging/patterns/Latn.common-error
 msgid "Space between number and unit"
-msgstr "Szóközök a számok és a mértékegységek között"
+msgstr "Szóköz a szám és a mértékegység között"
 
 #: packaging/patterns/Latn-en.common-error
 msgid "Spaces around an apostrophe"
-msgstr "Szóközök az idézőjelek mellett"
+msgstr "Szóközök az aposztróf körül"
 
 #: packaging/patterns/Latn-en.common-error
 msgid "Spell two-letter forms of \"okay\" in all upper case"
-msgstr "Az \"okay\" kétbetűs formája mindig nagybetűvel"
+msgstr "Az „okay” kétbetűs alakjainak írása csupa nagybetűvel"
 
 #: packaging/patterns/Latn-en.common-error
 msgid "Zero in an upper case word"
-msgstr "Nulla (0) egy nagybetűs szóban"
+msgstr "Nulla (0) nagybetűs szóban"
 
 #: packaging/patterns/Latn-en.hearing-impaired
 msgid ""
 "Replace the uppercase name of the speaker before a colon with a dialogue dash"
 msgstr ""
-"A \"Beszélő\" kettőspont előtti nagybetűs nevének cseréje gondolatjelre"
+"A beszélő nagybetűs nevének cseréje párbeszéd-gondolatjelre a kettőspont "
+"előtt"
 
 #: packaging/patterns/Latn-en.hearing-impaired
 msgid "Uppercase speaker before a colon"
-msgstr "A \"Beszélő\" kettőspont előtti nagybetűs neve"
+msgstr "Nagybetűs beszélő a kettőspont előtt"
 
+# From Gaupol.
 #: packaging/patterns/Latn-en.line-break
 msgid "Article"
 msgstr "Névelő"
 
 #: packaging/patterns/Latn-en.line-break
 msgid "Do not break after a possessive determiner, e.g. \"my\""
-msgstr "Ne legyen törés az olyan birtokos névmások után, mint a \"my\""
+msgstr "Ne legyen sortörés birtokos névmás után, például a „my” után"
 
 #: packaging/patterns/Latn-en.line-break
 msgid "Do not break after a preposition"
-msgstr "Ne legyen törés elöljáró után"
+msgstr "Ne legyen sortörés elöljáró után"
 
 #: packaging/patterns/Latn-en.line-break
 msgid "Do not break after a title, e.g. \" Dr.\""
-msgstr "Ne legyen törés az olyan előtagok után, mint a \"Dr.\""
+msgstr "Ne legyen sortörés előtag után, például a „Dr.” után"
 
 #: packaging/patterns/Latn-en.line-break
 msgid "Do not break after an article"
-msgstr "Ne legyen törés névelő után"
+msgstr "Ne legyen sortörés névelő után"
 
+# From Gaupol.
 #: packaging/patterns/Latn-en.line-break
 msgid "Possessive determiner"
 msgstr "Birtokos névmás"
 
 #: packaging/patterns/Latn-en.line-break
 msgid "Preposition"
-msgstr "_Elöljáró:"
+msgstr "Elöljáró"
 
+# From Gaupol.
 #: packaging/patterns/Latn-en.line-break
 msgid "Title"
 msgstr "Előtag"
 
 #: packaging/patterns/Latn-fi.common-error packaging/patterns/Latn.common-error
 msgid "Add space after various punctuation marks"
-msgstr "Szóköz hozzáadása a különböző írásjelek után"
+msgstr "Szóköz hozzáadása különféle írásjelek után"
 
+# From Gaupol.
 #: packaging/patterns/Latn-fi.common-error packaging/patterns/Latn.common-error
 msgid "Space after punctuation marks"
 msgstr "Szóköz az írásjelek után"
 
 #: packaging/patterns/Latn-fr.common-error
 msgid "Add or remove space before various punctuation marks"
-msgstr "A különböző írásjelek előtti szóközök hozzáadása vagy eltávolítása"
+msgstr "Szóköz hozzáadása vagy eltávolítása különféle írásjelek előtt"
 
 #: packaging/patterns/Latn-fr.common-error
 msgid "Add spaces around guillemets"
-msgstr "Szóközök hozzáadása az idézőjelek mellé"
+msgstr "Szóközök hozzáadása a francia idézőjelek körül"
 
+# From Gaupol.
 #: packaging/patterns/Latn-fr.common-error packaging/patterns/Latn.common-error
 msgid "Space before punctuation marks"
 msgstr "Szóköz az írásjelek előtt"
 
 #: packaging/patterns/Latn-fr.common-error
 msgid "Spaces around guillemets"
-msgstr "Szóközök az idézőjelek mellett"
+msgstr "Szóközök a francia idézőjelek körül"
 
 #: packaging/patterns/Latn.capitalization
 msgid "Capitalize after an ellipsis"
-msgstr "Nagybetű a pontozás (...) után"
+msgstr "Nagybetű a három pont után"
 
 #: packaging/patterns/Latn.capitalization
 msgid "Capitalize the first word of a sentence"
-msgstr "A mondat nagybetűvel kezdődjön"
+msgstr "A mondat első szavának nagybetűvel írása"
 
 #: packaging/patterns/Latn.capitalization
 msgid "Ellipsis"
-msgstr "Pontozás"
+msgstr "Három pont"
 
+# From Gaupol.
 #: packaging/patterns/Latn.capitalization
 msgid "Sentence"
 msgstr "Mondat"
@@ -174,807 +186,882 @@ msgstr "Mondat"
 #: packaging/patterns/Latn.common-error
 msgid "Add or remove spaces around parentheses and square brackets"
 msgstr ""
+"Szóközök hozzáadása vagy eltávolítása a zárójelek és a szögletes zárójelek "
+"körül"
 
 #: packaging/patterns/Latn.common-error
 msgid "Add space after a dialogue dash"
-msgstr "Szóköz hozzáadása a párbeszéd kötőjel után"
+msgstr "Szóköz hozzáadása a párbeszéd-gondolatjel után"
 
 #: packaging/patterns/Latn.common-error
 msgid "Add space after an ellipsis"
-msgstr "Szóköz hozzáadása pontozás (...) után"
+msgstr "Szóköz hozzáadása a három pont után"
 
 #: packaging/patterns/Latn.common-error
 msgid "Add spaces between musical note characters and lyrics"
-msgstr "Szóköz hozzáadása a hangjegyek és a dalszövegek közé"
+msgstr "Szóközök hozzáadása a hangjegykarakterek és a dalszöveg közé"
 
 #: packaging/patterns/Latn.common-error
 msgid ""
 "Change the various spellings of 12-hour periods to \"a.m.\" and \"p.m.\""
-msgstr "A 12 órás időformátumok átalakítása \"a.m\" és \"p.m.\" formátumúra"
+msgstr ""
+"A 12 órás időszakok különféle írásmódjának cseréje „a.m.” és „p.m.” alakra"
 
 #: packaging/patterns/Latn.common-error
 msgid "Double apostrophe"
-msgstr "Dupla idézőjel"
+msgstr "Dupla aposztróf"
 
 #: packaging/patterns/Latn.common-error
 msgid "Letter \"O\" in a number"
-msgstr "\"O\" betű a számokban"
+msgstr "Az „O” betű számban"
 
 #: packaging/patterns/Latn.common-error
 msgid "Ligatures"
-msgstr ""
+msgstr "Ligatúrák"
 
 #: packaging/patterns/Latn.common-error
 msgid "Multiple question- and exclamation marks"
-msgstr "Többszörös kérdőjelek és felkiáltójelek"
+msgstr "Többszörös kérdőjel és felkiáltójel"
 
 #: packaging/patterns/Latn.common-error
 msgid "Periods around a punctuation mark"
-msgstr "Pont az írásjelek mellett"
+msgstr "Pontok az írásjel körül"
 
 #: packaging/patterns/Latn.common-error
 msgid "Remove period before or after various punctuation marks"
-msgstr "Pont eltávolítása a különböző írásjelek mellől"
+msgstr "A pont eltávolítása különféle írásjelek előtt vagy után"
 
 #: packaging/patterns/Latn.common-error
 msgid "Remove space after a starting- and before an ending quotation mark"
-msgstr "Kezdő idézőjel utáni és záró idézőjel előtti szóközök eltávolítása"
+msgstr "A nyitó idézőjel utáni és a záró idézőjel előtti szóköz eltávolítása"
 
 #: packaging/patterns/Latn.common-error
 msgid "Remove space after an ellipsis that starts a line"
-msgstr "Sort elindító pontozás (...) utáni szóköz eltávolítása"
+msgstr "A sort kezdő három pont utáni szóköz eltávolítása"
 
 #: packaging/patterns/Latn.common-error
 msgid "Remove space before various punctuation marks"
-msgstr "Szóközök eltávolítása a különböző írásjelek elől"
+msgstr "A szóköz eltávolítása különféle írásjelek előtt"
 
 #: packaging/patterns/Latn.common-error
 msgid "Replace a double apostrophe with a quotation mark"
-msgstr "Két szimpla idézőjel cseréje dupla idézőjelre"
+msgstr "A dupla aposztróf cseréje idézőjelre"
 
 #: packaging/patterns/Latn.common-error
 msgid "Replace a single clause-terminating dash with two dashes"
-msgstr "Lecseréli a lezáró kötőjelet két kötőjelre"
+msgstr "A mondatot lezáró egyetlen gondolatjel cseréje két gondolatjelre"
 
 #: packaging/patterns/Latn.common-error
 msgid "Replace letter \"O\" with a zero in a number"
-msgstr "\"O\" betű cseréje 0-ra a számokban"
+msgstr "Az „O” betű cseréje nullára számban"
 
 #: packaging/patterns/Latn.common-error
 msgid ""
 "Replace multiple consequtive question- and exclamation marks with only one"
-msgstr "Többszörös kérdőjelek és felkiáltójelek cseréje egyre"
+msgstr "Az egymást követő kérdőjelek és felkiáltójelek cseréje egyetlenre"
 
 #: packaging/patterns/Latn.common-error
 msgid "Space after a dialogue dash"
-msgstr "Szóköz a párbeszéd kötőjel után"
+msgstr "Szóköz a párbeszéd-gondolatjel után"
 
 #: packaging/patterns/Latn.common-error
 msgid "Space after a starting ellipsis"
-msgstr "Szóköz a pontozás indítása után"
+msgstr "Szóköz a kezdő három pont után"
 
 #: packaging/patterns/Latn.common-error
 msgid "Space after an ellipsis"
-msgstr "Szóköz a pontozás (...) után"
+msgstr "Szóköz a három pont után"
 
 #: packaging/patterns/Latn.common-error
 msgid "Spaces around a quotation mark"
-msgstr "Szóközök az idézőjelek mellett"
+msgstr "Szóközök az idézőjel körül"
 
 #: packaging/patterns/Latn.common-error
 msgid "Spaces around brackets"
-msgstr "Szóközök a zárójelek mellett"
+msgstr "Szóközök a szögletes zárójelek körül"
 
 #: packaging/patterns/Latn.common-error
 msgid "Spaces around musical notes"
-msgstr "Szóközök a hangjegyek mellett"
+msgstr "Szóközök a hangjegyek körül"
 
 #: packaging/patterns/Latn.common-error
 msgid "Spelling of a.m. and p.m."
-msgstr "\"a.m.\" és \"p.m.\" helyesírása"
+msgstr "Az a.m. és a p.m. írásmódja"
 
 #: packaging/patterns/Latn.common-error
 msgid "Terminating double-dashes"
-msgstr "Befejező dupla kötőjel"
+msgstr "Lezáró dupla gondolatjelek"
 
 #: packaging/patterns/Latn.common-error
 msgid "Unpack ligatures to individual characters"
-msgstr ""
+msgstr "A ligatúrák felbontása különálló karakterekre"
 
 #: packaging/patterns/Latn.hearing-impaired
 msgid "One-line song lyrics between number signs"
-msgstr "Egysoros dalszövegek kettős-keresztek között"
+msgstr "Egysoros dalszöveg kettőskeresztek között"
 
 #: packaging/patterns/Latn.hearing-impaired
 msgid "Remove description of a sound between parentheses"
-msgstr ""
+msgstr "A zárójelek közötti hangleírás eltávolítása"
 
 #: packaging/patterns/Latn.hearing-impaired
 msgid "Remove description of a sound between square brackets"
-msgstr "Szögletes zárójelek közötti hang-leírások eltávolítása"
+msgstr "A szögletes zárójelek közötti hangleírás eltávolítása"
 
 #: packaging/patterns/Latn.hearing-impaired
 msgid "Remove one-line song lyrics starting with or between number signs"
 msgstr ""
-"Olyan egysoros dalszövegek eltávolítása, melyek kettős-kereszttel kezdődnek, "
-"vagy azok között vannak"
+"A kettőskereszttel kezdődő vagy kettőskeresztek közötti egysoros dalszöveg "
+"eltávolítása"
 
 #: packaging/patterns/Latn.hearing-impaired
 msgid "Remove song lyrics starting with or between number signs"
 msgstr ""
-"Olyan dalszövegek eltávolítása, melyek kettős-kereszttel kezdődnek, vagy "
-"azok között vannak"
+"A kettőskereszttel kezdődő vagy kettőskeresztek közötti dalszöveg "
+"eltávolítása"
 
 #: packaging/patterns/Latn.hearing-impaired
 msgid "Replace the name of the speaker before a colon with a dialogue dash"
-msgstr "A \"Beszélő\" nevének cseréje gondolatjelre a kettőspont előtt"
+msgstr "A beszélő nevének cseréje párbeszéd-gondolatjelre a kettőspont előtt"
 
 #: packaging/patterns/Latn.hearing-impaired
 msgid "Song lyrics between number signs"
-msgstr "Dalszöveg kettős-keresztek között"
+msgstr "Dalszöveg kettőskeresztek között"
 
 #: packaging/patterns/Latn.hearing-impaired
 #: src/lib/subedit/gui/correction_task_page.cpp
 msgid "Sound in brackets"
-msgstr "Hangok zárójelben"
+msgstr "Hang szögletes zárójelben"
 
 #: packaging/patterns/Latn.hearing-impaired
 #: src/lib/subedit/gui/correction_task_page.cpp
 msgid "Sound in parentheses"
-msgstr ""
+msgstr "Hang zárójelben"
 
 #: packaging/patterns/Latn.hearing-impaired
 msgid "Speaker before a colon"
-msgstr "\"Beszélő\" neve a kettőspont előtt"
+msgstr "Beszélő a kettőspont előtt"
 
 #: packaging/patterns/Latn.line-break
 msgid "Break according to clauses terminated by a punctuation mark"
-msgstr "Tördelés a mondatban szereplő írásjelek alapján"
+msgstr "Tördelés az írásjellel lezárt tagmondatok szerint"
 
 #: packaging/patterns/Latn.line-break
 msgid "Break according to dialogue separated by dashes"
-msgstr "Kötőjellel elválasztott párbeszédek tördelése"
+msgstr "Tördelés a gondolatjellel elválasztott párbeszédek szerint"
 
 #: packaging/patterns/Latn.line-break
 msgid "Clause"
-msgstr "Feltétel"
+msgstr "Tagmondat"
 
+# From Gaupol.
 #: packaging/patterns/Latn.line-break
 msgid "Dialogue"
 msgstr "Párbeszéd"
 
 #: packaging/patterns/Latn.line-break
 msgid "Do not break between a number and associated unit"
-msgstr "Ne legyen törés a számok és a mértékegységek között"
+msgstr "Ne legyen sortörés a szám és a hozzá tartozó mértékegység között"
 
 #: packaging/patterns/Latn.line-break
 msgid "Number and unit"
-msgstr "Számok és mértékegységek"
+msgstr "Szám és mértékegység"
 
 #: packaging/patterns/Zyyy.common-error
 msgid "Ellipses"
-msgstr ""
+msgstr "Három pont"
 
 #: packaging/patterns/Zyyy.common-error
 msgid "Leading and trailing spaces"
-msgstr "Vezető és záró szóközök"
+msgstr "Sor eleji és sor végi szóközök"
 
+# From Gaupol.
 #: packaging/patterns/Zyyy.common-error
 msgid "Multiple consecutive spaces"
 msgstr "Több egymást követő szóköz"
 
+# From Gaupol.
 #: packaging/patterns/Zyyy.common-error
 msgid "Musical notes"
 msgstr "Hangjegyek"
 
 #: packaging/patterns/Zyyy.common-error
 msgid "Remove space between digits of a number"
-msgstr "Számjegyek közötti szóközök eltávolítása"
+msgstr "A szóközök eltávolítása a szám számjegyei között"
 
 #: packaging/patterns/Zyyy.common-error
 msgid "Remove spaces from the beginning and end of lines"
-msgstr "Sorok vezető és záró szóközeinek eltávolítása"
+msgstr "A sorok elején és végén álló szóközök eltávolítása"
 
 #: packaging/patterns/Zyyy.common-error
 msgid "Replace Unicode ellipses with three separate dots"
-msgstr ""
+msgstr "A Unicode három pont (…) cseréje három különálló pontra"
 
 #: packaging/patterns/Zyyy.common-error
 msgid "Replace Unicode musical note characters with number signs"
-msgstr "Hangjegyek Unicode-os karaktereinek cseréje kettős-keresztekre"
+msgstr "A Unicode hangjegykarakterek cseréje kettőskeresztekre"
 
 #: packaging/patterns/Zyyy.common-error
 msgid "Replace multiple consecutive spaces with only one"
-msgstr "Több egymást követő szóköz cseréje egyre"
+msgstr "Az egymást követő szóközök cseréje egyetlen szóközre"
 
+# From Gaupol.
 #: packaging/patterns/Zyyy.common-error
 msgid "Space between digits"
 msgstr "Szóköz a számjegyek között"
 
 #: src/exe/cli/application.cpp
 msgid "Usage"
-msgstr ""
+msgstr "Használat"
 
 #: src/exe/cli/application.cpp
 msgid "Positionals"
-msgstr ""
+msgstr "Helyzetfüggő argumentumok"
 
 #. TRANSLATORS: written after an argument that must be given.
 #: src/exe/cli/application.cpp
 msgid "REQUIRED"
-msgstr ""
+msgstr "KÖTELEZŐ"
 
 #. TRANSLATORS: written before the options an option cannot be given with.
 #: src/exe/cli/application.cpp
 msgid "Excludes"
-msgstr ""
+msgstr "Kizárja"
 
 #. TRANSLATORS: written before the options an option needs.
 #: src/exe/cli/application.cpp
 msgid "Needs"
-msgstr ""
+msgstr "Megköveteli"
 
 #: src/exe/cli/application.cpp
 msgid "Options"
-msgstr ""
+msgstr "Kapcsolók"
 
 #: src/exe/cli/application.cpp
 msgid "Print this help message and exit"
-msgstr ""
+msgstr "Kiírja ezt a súgót, és kilép"
 
 #: src/exe/cli/application.cpp
 msgid "Subcommands"
-msgstr ""
+msgstr "Alparancsok"
 
 #: src/exe/cli/application.cpp
 msgid "Read, inspect and retime subtitle files."
-msgstr ""
+msgstr "Feliratfájlok olvasása, vizsgálata és időzítésének módosítása."
 
 #: src/exe/cli/application.cpp
 msgid "Display program version information and exit"
-msgstr ""
+msgstr "Kiírja a program verzióját, és kilép"
 
 #: src/exe/cli/application.cpp
 msgid "Say more: -v is the default, -vv details, -vvv debugs"
 msgstr ""
+"Bőbeszédűbb kimenet: a -v az alapértelmezett, a -vv részletez, a -vvv "
+"hibakeresési üzeneteket is ír"
 
 #: src/exe/cli/application.cpp
 msgid "Say nothing but errors"
-msgstr ""
+msgstr "Csak a hibák kiírása"
 
 #: src/exe/cli/application.cpp
 msgid "Encoding to read the files in; detected by default"
-msgstr ""
+msgstr "A fájlok olvasásának kódolása; alapértelmezés szerint felismeri"
 
 #: src/exe/cli/application.cpp
 msgid "Form of the result on standard output: text or json"
-msgstr ""
+msgstr "Az eredmény alakja a szabványos kimeneten: text vagy json"
 
 #: src/exe/cli/application.cpp
 msgid ""
 "Read the operation settings from FILE instead of the user's settings file"
 msgstr ""
+"A műveleti beállítások olvasása a FILE fájlból a felhasználó beállításfájlja "
+"helyett"
 
 #: src/exe/cli/application.cpp
 msgid "Ignore any settings file: use the built-in defaults"
 msgstr ""
+"Minden beállításfájl figyelmen kívül hagyása: a beépített alapértékek "
+"használata"
 
 #: src/exe/cli/application.cpp
 msgid "Write the encodings that can be read and written, one a line, and stop"
-msgstr ""
+msgstr "Az olvasható és írható kódolások kiírása soronként egyet, majd kilépés"
 
 #: src/exe/cli/application.cpp
 msgid "--config needs a file name"
-msgstr ""
+msgstr "a --config fájlnevet igényel"
 
 #: src/exe/cli/commands/adjust.cpp
 msgid "Bring the duration of every subtitle within a reading speed and limits"
 msgstr ""
+"Minden felirat időtartamának igazítása egy olvasási sebességhez és "
+"korlátokhoz"
 
 #: src/exe/cli/commands/adjust.cpp
 msgid "Subtitle files to adjust"
-msgstr ""
+msgstr "Az igazítandó feliratfájlok"
 
 #: src/exe/cli/commands/adjust.cpp
 msgid "Reading speed in characters per second, or off (default 15)"
-msgstr ""
+msgstr "Olvasási sebesség karakter/másodpercben, vagy off (alapértelmezés: 15)"
 
 #: src/exe/cli/commands/adjust.cpp
 msgid "Let the reading speed bring an end earlier"
-msgstr ""
+msgstr "Az olvasási sebesség hozhasson korábbra egy végpontot"
 
 #: src/exe/cli/commands/adjust.cpp
 msgid "Do not let the reading speed bring an end earlier"
-msgstr ""
+msgstr "Az olvasási sebesség ne hozhasson korábbra végpontot"
 
 #: src/exe/cli/commands/adjust.cpp
 msgid "Let the reading speed move an end later"
-msgstr ""
+msgstr "Az olvasási sebesség tolhasson későbbre egy végpontot"
 
 #: src/exe/cli/commands/adjust.cpp
 msgid "Do not let the reading speed move an end later"
-msgstr ""
+msgstr "Az olvasási sebesség ne tolhasson későbbre végpontot"
 
 #: src/exe/cli/commands/adjust.cpp
 msgid "Shortest duration, or off (default 1.5)"
-msgstr ""
+msgstr "A legrövidebb időtartam, vagy off (alapértelmezés: 1.5)"
 
 #: src/exe/cli/commands/adjust.cpp
 msgid "Longest duration, or off (default: none)"
-msgstr ""
+msgstr "A leghosszabb időtartam, vagy off (alapértelmezés: nincs)"
 
 #: src/exe/cli/commands/adjust.cpp
 msgid "Least time left before the next subtitle, or off (default 0)"
 msgstr ""
+"A következő feliratig hagyandó legkisebb idő, vagy off (alapértelmezés: 0)"
 
 #: src/exe/cli/commands/append.cpp
 msgid "Put subtitle files one after another into a single file"
-msgstr ""
+msgstr "Feliratfájlok egymás után fűzése egyetlen fájlba"
 
 #: src/exe/cli/commands/append.cpp
 msgid "The base file, then the files to put after it, in order"
-msgstr ""
+msgstr "Az alapfájl, majd az utána fűzendő fájlok sorrendben"
 
 #: src/exe/cli/commands/append.cpp
 msgid "File to write"
-msgstr ""
+msgstr "Az írandó fájl"
 
 #: src/exe/cli/commands/append.cpp src/exe/cli/commands/command.cpp
 #: src/exe/cli/commands/split_file.cpp
 msgid "Work out and say what would be written, and write nothing"
-msgstr ""
+msgstr "A kiírandó tartalom kiszámítása és közlése, írás nélkül"
 
 #: src/exe/cli/commands/append.cpp src/exe/cli/commands/convert.cpp
 msgid "Put the subtitles in order of their start before writing"
-msgstr ""
+msgstr "A feliratok rendezése kezdetük szerint az írás előtt"
 
 #: src/exe/cli/commands/append.cpp src/exe/cli/commands/convert.cpp
 msgid ""
 "Cut overlapping subtitles so that no range overlaps another, before writing"
 msgstr ""
+"Az átfedő feliratok szétvágása az írás előtt, hogy egy tartomány se fedjen "
+"át másikat"
 
 #: src/exe/cli/commands/append.cpp
 msgid "append needs a base file and at least one file to put after it"
-msgstr ""
+msgstr "az append alapfájlt és legalább egy utána fűzendő fájlt igényel"
 
 #: src/exe/cli/commands/append.cpp
 msgid "no destination given: append writes one file, use --output"
 msgstr ""
+"nincs megadva cél: az append egyetlen fájlt ír, használja a --output "
+"kapcsolót"
 
 #: src/exe/cli/commands/command.cpp
 msgid "File to write, for a single input"
-msgstr ""
+msgstr "Az írandó fájl, egyetlen bemenet esetén"
 
 #: src/exe/cli/commands/command.cpp
 msgid "Directory to write into"
-msgstr ""
+msgstr "A könyvtár, amelybe írni kell"
 
 #: src/exe/cli/commands/command.cpp
 msgid "Write back over the inputs"
-msgstr ""
+msgstr "Visszaírás a bemenetek fölé"
 
 #: src/exe/cli/commands/command.cpp
 msgid "Take directories as inputs, and every subtitle file in them"
 msgstr ""
+"Könyvtárak elfogadása bemenetként, az összes bennük lévő feliratfájllal "
+"együtt"
 
 #: src/exe/cli/commands/command.cpp
 msgid "Act only on subtitles N to M, or N to the end"
-msgstr ""
+msgstr "Csak az N.–M. feliratra vonatkozzon, vagy az N.-től az utolsóig"
 
 #: src/exe/cli/commands/command.cpp
 msgid "Translation file to lay over the subtitle file, for a single input"
-msgstr ""
+msgstr "A feliratfájlra ráillesztendő fordításfájl, egyetlen bemenet esetén"
 
 #: src/exe/cli/commands/command.cpp
 msgid "How the lines of the translation find their subtitles"
-msgstr ""
+msgstr "Hogyan találják meg a fordítás sorai a hozzájuk tartozó feliratokat"
 
 #: src/exe/cli/commands/command.cpp
 msgid "The document to change: the main one, or the translation given by -t"
 msgstr ""
+"A módosítandó dokumentum: a fő dokumentum, vagy a -t által megadott fordítás"
 
 #: src/exe/cli/commands/config.cpp
 msgid "List, show and change the operation settings"
-msgstr ""
+msgstr "A műveleti beállítások felsorolása, megjelenítése és módosítása"
 
 #: src/exe/cli/commands/config.cpp
 msgid ""
 "Write every operation key, what it is for, what it accepts and its default"
 msgstr ""
+"Minden műveleti kulcs kiírása a céljával, az elfogadott értékekkel és az "
+"alapértékkel"
 
 #: src/exe/cli/commands/config.cpp
 msgid "Write the settings file used, then every operation key with its value"
 msgstr ""
+"A használt beállításfájl, majd minden műveleti kulcs kiírása az értékével"
 
 #: src/exe/cli/commands/config.cpp
 msgid "Write KEY = VALUE into the settings file, keeping every other setting"
-msgstr ""
+msgstr "KEY = VALUE írása a beállításfájlba, a többi beállítás megtartásával"
 
 #: src/exe/cli/commands/config.cpp
 msgid "Operation key, as config list names it"
-msgstr ""
+msgstr "A műveleti kulcs, ahogy a config list nevezi"
 
 #: src/exe/cli/commands/config.cpp
 msgid "Value, as config list says it accepts"
-msgstr ""
+msgstr "Az érték, amelyet a config list elfogadhatónak mond"
 
 #: src/exe/cli/commands/config.cpp
 msgid ""
 "Put KEY back to its default in the settings file, keeping every other setting"
 msgstr ""
+"A KEY visszaállítása az alapértékére a beállításfájlban, a többi beállítás "
+"megtartásával"
 
 #: src/exe/cli/commands/config.cpp
 msgid "--no-config has nothing to write to"
-msgstr ""
+msgstr "a --no-config esetén nincs hová írni"
 
 #: src/exe/cli/commands/config.cpp
 msgid "no settings file could be located; give one with --config FILE"
 msgstr ""
+"nem található beállításfájl; adjon meg egyet a --config FILE kapcsolóval"
 
 #: src/exe/cli/commands/convert.cpp
 msgid "Write a subtitle file out in another format or shape"
-msgstr ""
+msgstr "Feliratfájl kiírása más formátumban vagy alakban"
 
 #: src/exe/cli/commands/convert.cpp
 msgid "Subtitle files to convert"
-msgstr ""
+msgstr "Az átalakítandó feliratfájlok"
 
 #: src/exe/cli/commands/convert.cpp
 msgid "Format to write"
-msgstr ""
+msgstr "Az írandó formátum"
 
 #: src/exe/cli/commands/convert.cpp
 msgid "Line endings to write; the source's by default"
-msgstr ""
+msgstr "Az írandó sorvégek; alapértelmezés szerint a forrásé"
 
 #: src/exe/cli/commands/convert.cpp
 msgid "Encoding to write; the source's by default"
-msgstr ""
+msgstr "Az írandó kódolás; alapértelmezés szerint a forrásé"
 
 #: src/exe/cli/commands/convert.cpp src/exe/cli/commands/inspect.cpp
 msgid "Frame rate of a file counted in frames: 25, 23.976"
-msgstr ""
+msgstr "A képkockákban számolt fájl képkockasebessége: 25, 23.976"
 
 #: src/exe/cli/commands/convert.cpp
 msgid "Write a byte order mark"
-msgstr ""
+msgstr "Bájtsorrend-jelző (BOM) írása"
 
 #: src/exe/cli/commands/convert.cpp
 msgid "Write no byte order mark"
-msgstr ""
+msgstr "Ne legyen bájtsorrend-jelző (BOM)"
 
 #: src/exe/cli/commands/convert.cpp
 msgid "Join the subtitles that repeat each other into one, before writing"
-msgstr ""
+msgstr "Az egymást ismétlő feliratok egyesítése az írás előtt"
 
 #: src/exe/cli/commands/convert.cpp
 msgid "Join the repeats, sort, then make the ranges disjoint, before writing"
 msgstr ""
+"Az ismétlések egyesítése, rendezés, majd a tartományok szétválasztása az "
+"írás előtt"
 
 #: src/exe/cli/commands/correct.cpp
 msgid "Correct the texts with the patterns of the correction assistant"
-msgstr ""
+msgstr "A szövegek javítása a javítóvarázsló mintáival"
 
 #: src/exe/cli/commands/correct.cpp
 msgid "Subtitle files to correct"
-msgstr ""
+msgstr "A javítandó feliratfájlok"
 
 #: src/exe/cli/commands/correct.cpp
 msgid "The tasks to run, in a list: none is chosen beforehand"
-msgstr ""
+msgstr "A futtatandó feladatok listája: előre egyik sincs kijelölve"
 
 #: src/exe/cli/commands/correct.cpp
 msgid "The cascade of patterns the tasks read: Zyyy, Latn, Latn-en, Latn-en-US"
-msgstr ""
+msgstr "A feladatok által olvasott mintasor: Zyyy, Latn, Latn-en, Latn-en-US"
 
 #: src/exe/cli/commands/correct.cpp
 msgid "The classes of common errors to apply: both by default"
 msgstr ""
+"Az alkalmazandó gyakori hibák osztályai: alapértelmezés szerint mindkettő"
 
 #: src/exe/cli/commands/correct.cpp
 msgid "Switch a pattern on, by its English name or type:name; repeatable"
 msgstr ""
+"Egy minta bekapcsolása angol nevével vagy type:name alakban; ismételhető"
 
 #: src/exe/cli/commands/correct.cpp
 msgid "Switch a pattern off, by its English name or type:name; repeatable"
 msgstr ""
+"Egy minta kikapcsolása angol nevével vagy type:name alakban; ismételhető"
 
 #: src/exe/cli/commands/correct.cpp
 msgid "The dictionary join-words and split-words read: fr_FR, en_US, en..."
 msgstr ""
+"A join-words és a split-words által olvasott szótár: fr_FR, en_US, en..."
 
 #: src/exe/cli/commands/correct.cpp
 msgid ""
 "Longest line of line-break, in characters; no default, Gaupol's is in ems"
 msgstr ""
+"A line-break leghosszabb sora karakterben; nincs alapérték, a Gaupolé em "
+"egységben van"
 
 #: src/exe/cli/commands/correct.cpp
 msgid "Most lines of line-break: 3, as Gaupol's"
-msgstr ""
+msgstr "A line-break legtöbb sora: 3, mint a Gaupolban"
 
 #: src/exe/cli/commands/correct.cpp
 msgid ""
 "Leave alone a subtitle whose longest line is within this, or off: --max-"
 "length"
 msgstr ""
+"Békén hagyja azt a feliratot, amelynek leghosszabb sora ezen belül marad, "
+"vagy off: --max-length"
 
 #: src/exe/cli/commands/correct.cpp
 msgid ""
 "Leave alone a subtitle whose line count is within this, or off: --max-lines"
 msgstr ""
+"Békén hagyja azt a feliratot, amelynek sorszáma ezen belül marad, vagy off: "
+"--max-lines"
 
 #: src/exe/cli/commands/correct.cpp
 msgid ""
 "Leave the subtitles the correction empties, empty, instead of removing them"
 msgstr ""
+"A javítás által kiüresített feliratok üresen hagyása eltávolítás helyett"
 
 #: src/exe/cli/commands/correct.cpp
 msgid ""
 "Remove the subtitles the correction empties, whatever the settings file says"
 msgstr ""
+"A javítás által kiüresített feliratok eltávolítása, bármit mond a "
+"beállításfájl"
 
 #: src/exe/cli/commands/dialogue_dashes.cpp
 msgid "Put dialogue dashes on the lines, or take them off"
-msgstr ""
+msgstr "Párbeszéd-gondolatjelek betétele a sorokba, vagy eltávolításuk"
 
 #: src/exe/cli/commands/dialogue_dashes.cpp src/exe/cli/commands/italics.cpp
 #: src/exe/cli/commands/letter_case.cpp src/exe/cli/commands/replace.cpp
 msgid "Subtitle files to change"
-msgstr ""
+msgstr "A módosítandó feliratfájlok"
 
 #: src/exe/cli/commands/dialogue_dashes.cpp
 msgid "Put a dialogue dash at the head of the lines"
-msgstr ""
+msgstr "Párbeszéd-gondolatjel betétele a sorok elejére"
 
 #: src/exe/cli/commands/dialogue_dashes.cpp
 msgid "Take the dialogue dashes off"
-msgstr ""
+msgstr "A párbeszéd-gondolatjelek eltávolítása"
 
 #: src/exe/cli/commands/disjoint.cpp
 msgid ""
 "Cut overlapping subtitles so that no range overlaps another, merging what "
 "overlaps"
 msgstr ""
+"Az átfedő feliratok szétvágása, hogy egy tartomány se fedjen át másikat, az "
+"átfedő részek egyesítésével"
 
 #: src/exe/cli/commands/disjoint.cpp
 msgid "Subtitle files to make disjoint"
-msgstr ""
+msgstr "A szétválasztandó feliratfájlok"
 
 #: src/exe/cli/commands/disjoint.cpp src/exe/cli/commands/repair.cpp
 msgid ""
 "Shortest interval kept; a shorter one is taken over by a neighbour (default "
 "0.08)"
 msgstr ""
+"A megtartott legrövidebb köz; a rövidebbet átveszi egy szomszéd "
+"(alapértelmezés: 0.08)"
 
 #: src/exe/cli/commands/disjoint.cpp src/exe/cli/commands/repair.cpp
 msgid ""
 "Most lines of a merged subtitle; more are shown in windows, 0 for no limit "
 "(default 2)"
 msgstr ""
+"Az egyesített felirat legtöbb sora; a többit ablakokban mutatja, 0 esetén "
+"nincs korlát (alapértelmezés: 2)"
 
 #: src/exe/cli/commands/disjoint.cpp src/exe/cli/commands/repair.cpp
 msgid "Put a dash before the text of each merged subtitle"
-msgstr ""
+msgstr "Gondolatjel betétele minden egyesített felirat szövege elé"
 
 #: src/exe/cli/commands/disjoint.cpp
 msgid ""
 "Put the subtitles in order of their start first; without it, a file out of "
 "order is refused"
 msgstr ""
+"A feliratok előzetes rendezése kezdetük szerint; enélkül a rendezetlen fájlt "
+"visszautasítja"
 
 #: src/exe/cli/commands/framerate.cpp
 msgid "Re-time a file mastered at one frame rate for another"
 msgstr ""
+"Az egyik képkockasebességre készült fájl időzítésének átigazítása másikra"
 
 #: src/exe/cli/commands/framerate.cpp
 msgid "Subtitle files to re-time"
-msgstr ""
+msgstr "Az átidőzítendő feliratfájlok"
 
 #: src/exe/cli/commands/framerate.cpp
 msgid "Frame rate the file is timed at: 25, 23.976"
-msgstr ""
+msgstr "A képkockasebesség, amelyre a fájl időzítve van: 25, 23.976"
 
 #: src/exe/cli/commands/framerate.cpp
 msgid "Frame rate to time it for: 24, 29.97"
-msgstr ""
+msgstr "A képkockasebesség, amelyre időzíteni kell: 24, 29.97"
 
 #: src/exe/cli/commands/hearing_impaired.cpp
 msgid "Remove the sounds described between square brackets"
-msgstr ""
+msgstr "A szögletes zárójelek között leírt hangok eltávolítása"
 
 #: src/exe/cli/commands/hearing_impaired.cpp
 msgid "Subtitle files to clean"
-msgstr ""
+msgstr "A megtisztítandó feliratfájlok"
 
 #: src/exe/cli/commands/hearing_impaired.cpp
 msgid "Also remove the sounds between parentheses, often whispered lines"
 msgstr ""
+"A zárójelek közötti hangok eltávolítása is, ezek gyakran suttogott sorok"
 
 #: src/exe/cli/commands/inspect.cpp
 msgid "Report what a subtitle file is made of"
-msgstr ""
+msgstr "Jelentés arról, miből áll egy feliratfájl"
 
 #: src/exe/cli/commands/inspect.cpp
 msgid "Subtitle files to report on"
-msgstr ""
+msgstr "A vizsgálandó feliratfájlok"
 
 #: src/exe/cli/commands/inspect.cpp
 msgid "List every anomaly, subtitle by subtitle, instead of counting them"
-msgstr ""
+msgstr "Minden rendellenesség felsorolása felirat szerint, a számlálás helyett"
 
 #: src/exe/cli/commands/italics.cpp
 msgid "Put the texts in italics, or take their italics out"
-msgstr ""
+msgstr "A szövegek dőlt betűssé tétele, vagy a dőlt betű eltávolítása"
 
 #: src/exe/cli/commands/italics.cpp
 msgid "Put the texts in italics"
-msgstr ""
+msgstr "A szövegek dőlt betűssé tétele"
 
 #: src/exe/cli/commands/italics.cpp
 msgid "Take the italics out"
-msgstr ""
+msgstr "A dőlt betű eltávolítása"
 
 #: src/exe/cli/commands/join_repeats.cpp
 msgid ""
 "Join the subtitles that repeat each other, one after the other, into one"
-msgstr ""
+msgstr "Az egymást követően ismétlődő feliratok egyesítése"
 
 #: src/exe/cli/commands/join_repeats.cpp
 msgid "Subtitle files to join the repeats of"
-msgstr ""
+msgstr "A feliratfájlok, amelyeknek az ismétléseit egyesíteni kell"
 
 #: src/exe/cli/commands/letter_case.cpp
 msgid "Put the texts in title, sentence, upper or lower case, tags intact"
 msgstr ""
+"A szövegek címszerű, mondatszerű, nagy- vagy kisbetűssé alakítása, a címkék "
+"érintetlenül hagyásával"
 
 #: src/exe/cli/commands/letter_case.cpp
 msgid "The case to put the texts in"
 msgstr ""
+"A betűtípus-forma (kis- és nagybetűk), amelyre a szövegeket alakítani kell"
 
 #: src/exe/cli/commands/pair.cpp
 msgid ""
 "Write a translation at the positions of its main file, and say how it lined "
 "up"
 msgstr ""
+"Fordítás írása a fő fájl pozícióira, és közlés arról, hogyan illeszkedett"
 
 #: src/exe/cli/commands/pair.cpp
 msgid "The main subtitle file"
-msgstr ""
+msgstr "A fő feliratfájl"
 
 #: src/exe/cli/commands/pair.cpp
 msgid "pair needs the translation file to lay over the main one: use -t"
 msgstr ""
+"a pair a főre ráillesztendő fordításfájlt igényel: használja a -t kapcsolót"
 
 #: src/exe/cli/commands/repair.cpp
 msgid ""
 "Join the repeated subtitles, put them in order, then make the ranges disjoint"
 msgstr ""
+"Az ismétlődő feliratok egyesítése, rendezése, majd a tartományok "
+"szétválasztása"
 
 #: src/exe/cli/commands/repair.cpp
 msgid "Subtitle files to repair"
-msgstr ""
+msgstr "A javítandó feliratfájlok"
 
 #: src/exe/cli/commands/replace.cpp
 msgid "Replace a text in the subtitles, without breaking a tag"
-msgstr ""
+msgstr "Szöveg cseréje a feliratokban, címke megtörése nélkül"
 
 #: src/exe/cli/commands/replace.cpp
 msgid "Text to look for in what is shown"
-msgstr ""
+msgstr "A megjelenített szövegben keresendő szöveg"
 
 #: src/exe/cli/commands/replace.cpp
 msgid "What replaces it, tags allowed"
-msgstr ""
+msgstr "Amire cserélni kell; a címkék megengedettek"
 
 #: src/exe/cli/commands/replace.cpp
 msgid "Read the text to look for as a regular expression"
-msgstr ""
+msgstr "A keresett szöveg olvasása reguláris kifejezésként"
 
 #: src/exe/cli/commands/replace.cpp
 msgid "Tell capitals from small letters"
-msgstr ""
+msgstr "A kis- és nagybetűk megkülönböztetése"
 
 #: src/exe/cli/commands/shift.cpp
 msgid "Move every position of a file by a fixed amount"
-msgstr ""
+msgstr "A fájl minden pozíciójának eltolása rögzített mértékkel"
 
 #: src/exe/cli/commands/shift.cpp
 msgid "Subtitle files to shift"
-msgstr ""
+msgstr "Az eltolandó feliratfájlok"
 
 #: src/exe/cli/commands/shift.cpp
 msgid "Amount to move by: 2.999, -7.001, or 00:00:07.001"
-msgstr ""
+msgstr "Az eltolás mértéke: 2.999, -7.001 vagy 00:00:07.001"
 
 #: src/exe/cli/commands/shift.cpp
 msgid "Move by the amount that puts the positions back on their frame grid"
 msgstr ""
+"Eltolás azzal a mértékkel, amely a pozíciókat visszaállítja a "
+"képkockarácsukra"
 
 #: src/exe/cli/commands/snap.cpp
 msgid ""
 "Move every position onto the nearest frame of a frame rate (see framerate)"
 msgstr ""
+"Minden pozíció áthelyezése a képkockasebesség legközelebbi képkockájára "
+"(lásd: framerate)"
 
 #: src/exe/cli/commands/snap.cpp
 msgid "Subtitle files to align"
-msgstr ""
+msgstr "Az illesztendő feliratfájlok"
 
 #: src/exe/cli/commands/snap.cpp
 msgid "Frame rate to align on: 25, 23.976"
-msgstr ""
+msgstr "A képkockasebesség, amelyre illeszteni kell: 25, 23.976"
 
 #: src/exe/cli/commands/sort.cpp
 msgid "Put the subtitles in the order of their start, keeping ties as they are"
 msgstr ""
+"A feliratok rendezése kezdetük szerint, az egyenlők sorrendjének "
+"megtartásával"
 
 #: src/exe/cli/commands/sort.cpp
 msgid "Subtitle files to sort"
-msgstr ""
+msgstr "A rendezendő feliratfájlok"
 
 #: src/exe/cli/commands/split_file.cpp
 msgid "Cut a subtitle file in two, a head and a tail"
-msgstr ""
+msgstr "Feliratfájl kettévágása: fej és farok"
 
 #: src/exe/cli/commands/split_file.cpp
 msgid "Subtitle file to cut"
-msgstr ""
+msgstr "A kettévágandó feliratfájl"
 
 #: src/exe/cli/commands/split_file.cpp
 msgid "Number of the first subtitle of the tail, as the table numbers them"
-msgstr ""
+msgstr "A farok első feliratának száma, ahogy a táblázat számozza"
 
 #: src/exe/cli/commands/split_file.cpp
 msgid "File to write the subtitles before the cut to"
-msgstr ""
+msgstr "A vágás előtti feliratok fájlja"
 
 #: src/exe/cli/commands/split_file.cpp
 msgid "File to write the subtitles from the cut on to"
-msgstr ""
+msgstr "A vágástól kezdődő feliratok fájlja"
 
 #: src/exe/cli/commands/split_file.cpp
 msgid ""
 "Put the subtitles in order of their start before cutting; --at counts in "
 "that order"
 msgstr ""
+"A feliratok rendezése kezdetük szerint vágás előtt; a --at ebben a "
+"sorrendben számol"
 
 #: src/exe/cli/commands/split_file.cpp
 msgid ""
 "Cut overlapping subtitles so that no range overlaps another, before cutting"
 msgstr ""
+"Az átfedő feliratok szétvágása vágás előtt, hogy egy tartomány se fedjen át "
+"másikat"
 
 #: src/exe/cli/commands/split_file.cpp
 msgid ""
 "no destination given: split-file writes two files, use --head and --tail"
 msgstr ""
+"nincs megadva cél: a split-file két fájlt ír, használja a --head és a --tail "
+"kapcsolót"
 
 #: src/exe/cli/commands/split_file.cpp
 msgid "--head and --tail go together: give both, or neither with --dry-run"
 msgstr ""
+"a --head és a --tail összetartozik: adja meg mindkettőt, vagy egyiket sem a "
+"--dry-run mellett"
 
 #: src/exe/cli/commands/transform.cpp
 msgid "Correct every position from two points known to be right"
-msgstr ""
+msgstr "Minden pozíció javítása két ismerten helyes pont alapján"
 
 #: src/exe/cli/commands/transform.cpp
 msgid "Subtitle files to transform"
-msgstr ""
+msgstr "Az átalakítandó feliratfájlok"
 
 #: src/exe/cli/commands/transform.cpp
 msgid "Earlier reference, as <index>=<time>: 1=00:00:01.000"
-msgstr ""
+msgstr "A korábbi hivatkozási pont <index>=<time> alakban: 1=00:00:01.000"
 
 #: src/exe/cli/commands/transform.cpp
 msgid "Later reference, as <index>=<time>: 3=00:00:10.000"
-msgstr ""
+msgstr "A későbbi hivatkozási pont <index>=<time> alakban: 3=00:00:10.000"
 
 #. TRANSLATORS: %1 is the reason of a failure the program did not foresee.
 #: src/exe/cli/main.cpp
 msgid "subedit-cli: %1"
-msgstr ""
+msgstr "subedit-cli: %1"
 
 #: src/exe/cli/main.cpp
 msgid "subedit-cli: unknown failure"
-msgstr ""
+msgstr "subedit-cli: ismeretlen hiba"
 
 #. TRANSLATORS: %1 is what the user typed. « off » is a value of the option, as typed.
 #: src/lib/subedit/cli/adjusting.cpp
@@ -982,6 +1069,8 @@ msgid ""
 "--speed: \"%1\" is not a reading speed: expected a number of characters per "
 "second above zero, like 15 or 12.5, or off"
 msgstr ""
+"--speed: a(z) „%1” nem olvasási sebesség: nullánál nagyobb, karakter/"
+"másodpercben megadott számot vár, például 15 vagy 12.5, vagy off értéket"
 
 #. TRANSLATORS: %1 is an option, such as --minimum; %2 why its value does not read.
 #. TRANSLATORS: %1 is the file, or what a message is about; %2 the message.
@@ -994,308 +1083,323 @@ msgstr ""
 #: src/lib/subedit/cli/rewriting.cpp src/lib/subedit/cli/sorting.cpp
 #: src/lib/subedit/gui/command_label.cpp src/lib/subedit/gui/invocation.cpp
 msgid "%1: %2"
-msgstr ""
+msgstr "%1: %2"
 
 #. TRANSLATORS: %1 is an option, such as --minimum; %2 what the user typed.
 #: src/lib/subedit/cli/adjusting.cpp
 msgid "%1: \"%2\" is not a duration of zero or more"
-msgstr ""
+msgstr "%1: „%2” nem nulla vagy annál nagyobb időtartam"
 
 #: src/lib/subedit/cli/adjusting.cpp
 msgid "%1: \"%2\" is not a duration above zero"
-msgstr ""
+msgstr "%1: „%2” nem nullánál nagyobb időtartam"
 
 #. TRANSLATORS: %1 and %2 are two options, such as --shorten and --no-shorten.
 #: src/lib/subedit/cli/adjusting.cpp src/lib/subedit/cli/correcting.cpp
 msgid "%1 and %2 say opposite things; give one of them"
-msgstr ""
+msgstr "A(z) %1 és a(z) %2 ellentétes dolgot kér; adja meg csak az egyiket"
 
 #: src/lib/subedit/cli/adjusting.cpp
 msgid ""
 "--lengthen, --no-lengthen, --shorten and --no-shorten say which way the "
 "reading speed may move an end, and --speed off switches the reading speed off"
 msgstr ""
+"A --lengthen, a --no-lengthen, a --shorten és a --no-shorten megmondja, "
+"merre mozdíthat el egy végpontot az olvasási sebesség, a --speed off pedig "
+"kikapcsolja az olvasási sebességet"
 
 #: src/lib/subedit/cli/adjusting.cpp
 msgid ""
 "adjust has nothing to adjust to: every constraint is off, or the reading "
 "speed is told to move no end"
 msgstr ""
+"az adjust-nak nincs mihez igazítania: minden megszorítás ki van kapcsolva, "
+"vagy az olvasási sebesség egy végpontot sem mozdíthat el"
 
 #. TRANSLATORS: %1 positions moved, by at most %2 milliseconds.
 #: src/lib/subedit/cli/aligning.cpp
 msgid "%1 position moved, by at most %2 ms"
 msgid_plural "%1 positions moved, by at most %2 ms"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%1 pozíció eltolva, legfeljebb %2 ms-mal"
+msgstr[1] "%1 pozíció eltolva, legfeljebb %2 ms-mal"
 
 #. TRANSLATORS: %1 subtitles aligned on the frame rate %2; %3 is
 #. « 4 positions moved, by at most 20 ms ».
 #: src/lib/subedit/cli/aligning.cpp
 msgid "%1 subtitle aligned on %2 fps, %3"
 msgid_plural "%1 subtitles aligned on %2 fps, %3"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%1 felirat illesztve %2 fps-re, %3"
+msgstr[1] "%1 felirat illesztve %2 fps-re, %3"
 
 #. TRANSLATORS: %1 is the file written, %2 a number of subtitles (« 12 subtitles »)
 #. and %3 a number of files (« 3 files »).
 #: src/lib/subedit/cli/appending.cpp
 msgid "%1: %2 from %3"
-msgstr ""
+msgstr "%1: %2, forrása: %3"
 
 #: src/lib/subedit/cli/appending.cpp src/lib/subedit/cli/splitting.cpp
 msgid "%1 (dry run, nothing written)"
-msgstr ""
+msgstr "%1 (próbafuttatás, nem íródott semmi)"
 
 #: src/lib/subedit/cli/appending.cpp
 msgid "%1 -> %2"
-msgstr ""
+msgstr "%1 -> %2"
 
 #. TRANSLATORS: %1 of %2 files were done; the form is chosen by %2.
 #: src/lib/subedit/cli/batch.cpp
 msgid "%1 of %2 file adjusted"
 msgid_plural "%1 of %2 files adjusted"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%1/%2 fájl igazítva"
+msgstr[1] "%1/%2 fájl igazítva"
 
 #: src/lib/subedit/cli/batch.cpp
 msgid "%1 of %2 file aligned"
 msgid_plural "%1 of %2 files aligned"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%1/%2 fájl illesztve"
+msgstr[1] "%1/%2 fájl illesztve"
 
 #: src/lib/subedit/cli/batch.cpp
 msgid "%1 of %2 file changed"
 msgid_plural "%1 of %2 files changed"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%1/%2 fájl módosítva"
+msgstr[1] "%1/%2 fájl módosítva"
 
 #: src/lib/subedit/cli/batch.cpp
 msgid "%1 of %2 file cleaned"
 msgid_plural "%1 of %2 files cleaned"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%1/%2 fájl megtisztítva"
+msgstr[1] "%1/%2 fájl megtisztítva"
 
 #: src/lib/subedit/cli/batch.cpp
 msgid "%1 of %2 file converted"
 msgid_plural "%1 of %2 files converted"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%1/%2 fájl átalakítva"
+msgstr[1] "%1/%2 fájl átalakítva"
 
 #: src/lib/subedit/cli/batch.cpp
 msgid "%1 of %2 file corrected"
 msgid_plural "%1 of %2 files corrected"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%1/%2 fájl javítva"
+msgstr[1] "%1/%2 fájl javítva"
 
 #: src/lib/subedit/cli/batch.cpp
 msgid "%1 of %2 file inspected"
 msgid_plural "%1 of %2 files inspected"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%1/%2 fájl megvizsgálva"
+msgstr[1] "%1/%2 fájl megvizsgálva"
 
 #: src/lib/subedit/cli/batch.cpp
 msgid "%1 of %2 file joined"
 msgid_plural "%1 of %2 files joined"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%1/%2 fájl egyesítve"
+msgstr[1] "%1/%2 fájl egyesítve"
 
 #: src/lib/subedit/cli/batch.cpp
 msgid "%1 of %2 file made disjoint"
 msgid_plural "%1 of %2 files made disjoint"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%1/%2 fájl tartományai szétválasztva"
+msgstr[1] "%1/%2 fájl tartományai szétválasztva"
 
 #: src/lib/subedit/cli/batch.cpp
 msgid "%1 of %2 file paired"
 msgid_plural "%1 of %2 files paired"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%1/%2 fájl párosítva"
+msgstr[1] "%1/%2 fájl párosítva"
 
 #: src/lib/subedit/cli/batch.cpp
 msgid "%1 of %2 file recased"
 msgid_plural "%1 of %2 files recased"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%1/%2 fájl betűformája átalakítva"
+msgstr[1] "%1/%2 fájl betűformája átalakítva"
 
 #: src/lib/subedit/cli/batch.cpp
 msgid "%1 of %2 file repaired"
 msgid_plural "%1 of %2 files repaired"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%1/%2 fájl helyreállítva"
+msgstr[1] "%1/%2 fájl helyreállítva"
 
 #: src/lib/subedit/cli/batch.cpp
 msgid "%1 of %2 file replaced"
 msgid_plural "%1 of %2 files replaced"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%1/%2 fájlban kicserélve"
+msgstr[1] "%1/%2 fájlban kicserélve"
 
 #: src/lib/subedit/cli/batch.cpp
 msgid "%1 of %2 file retimed"
 msgid_plural "%1 of %2 files retimed"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%1/%2 fájl újraidőzítve"
+msgstr[1] "%1/%2 fájl újraidőzítve"
 
 #: src/lib/subedit/cli/batch.cpp
 msgid "%1 of %2 file shifted"
 msgid_plural "%1 of %2 files shifted"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%1/%2 fájl eltolva"
+msgstr[1] "%1/%2 fájl eltolva"
 
 #: src/lib/subedit/cli/batch.cpp
 msgid "%1 of %2 file sorted"
 msgid_plural "%1 of %2 files sorted"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%1/%2 fájl rendezve"
+msgstr[1] "%1/%2 fájl rendezve"
 
 #: src/lib/subedit/cli/batch.cpp
 msgid "%1 of %2 file transformed"
 msgid_plural "%1 of %2 files transformed"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%1/%2 fájl átalakítva"
+msgstr[1] "%1/%2 fájl átalakítva"
 
 #. TRANSLATORS: %1 is the summary of a batch, such as « 1 of 3 files shifted »; %2
 #. how many files of it failed.
 #: src/lib/subedit/cli/batch.cpp
 msgid "%1, %2 failed"
 msgid_plural "%1, %2 failed"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%1, ebből %2 sikertelen"
+msgstr[1] "%1, ebből %2 sikertelen"
 
 #. TRANSLATORS: %1 is a file, %2 the number of a subtitle.
 #: src/lib/subedit/cli/changes.cpp
 msgid "%1: subtitle %2 (translation) (removed)"
-msgstr ""
+msgstr "%1: %2. felirat (fordítás) (eltávolítva)"
 
 #: src/lib/subedit/cli/changes.cpp
 msgid "%1: subtitle %2 (removed)"
-msgstr ""
+msgstr "%1: %2. felirat (eltávolítva)"
 
 #. TRANSLATORS: %1 is a file, %2 the number of a subtitle.
 #: src/lib/subedit/cli/changes.cpp
 msgid "%1: subtitle %2 (translation)"
-msgstr ""
+msgstr "%1: %2. felirat (fordítás)"
 
 #: src/lib/subedit/cli/changes.cpp
 msgid "%1: subtitle %2"
-msgstr ""
+msgstr "%1: %2. felirat"
 
 #. TRANSLATORS: %1 is the settings file, %2 why it could not be read.
 #: src/lib/subedit/cli/configuring.cpp
 msgid "%1: %2; nothing written"
-msgstr ""
+msgstr "%1: %2; nem íródott semmi"
 
 #. TRANSLATORS: %1 is a settings key, %2 the value the file gave it.
 #: src/lib/subedit/cli/configuring.cpp
 msgid "%1: unreadable value '%2' replaced by its default"
-msgstr ""
+msgstr "%1: az olvashatatlan '%2' érték az alapértékével lett helyettesítve"
 
 #: src/lib/subedit/cli/configuring.cpp
 msgid "%1 = %2   [file]   (default %3)"
-msgstr ""
+msgstr "%1 = %2   [fájl]   (alapérték: %3)"
 
 #. TRANSLATORS: %1 is a settings key, %2 its default value.
 #: src/lib/subedit/cli/configuring.cpp
 msgid "%1 = %2   [default]"
-msgstr ""
+msgstr "%1 = %2   [alapérték]"
 
 #. TRANSLATORS: %1 is what a settings key accepts, as « true or false ».
 #: src/lib/subedit/cli/configuring.cpp
 msgid "Accepts: %1"
-msgstr ""
+msgstr "Elfogad: %1"
 
 #. TRANSLATORS: %1 is the default value of a settings key.
 #: src/lib/subedit/cli/configuring.cpp
 msgid "Default: %1"
-msgstr ""
+msgstr "Alapérték: %1"
 
 #. TRANSLATORS: %1 lists the commands and window actions that read a settings key.
 #: src/lib/subedit/cli/configuring.cpp
 msgid "Used by: %1"
-msgstr ""
+msgstr "Használja: %1"
 
 #. TRANSLATORS: %1 is the settings file, %2 why it could not be read.
 #: src/lib/subedit/cli/configuring.cpp
 msgid "File: %1 (unreadable: %2)"
-msgstr ""
+msgstr "Fájl: %1 (olvashatatlan: %2)"
 
 #. TRANSLATORS: %1 is the settings file.
 #: src/lib/subedit/cli/configuring.cpp
 msgid "File: %1 (found)"
-msgstr ""
+msgstr "Fájl: %1 (megtalálva)"
 
 #. TRANSLATORS: %1 is the settings file.
 #: src/lib/subedit/cli/configuring.cpp
 msgid "File: %1 (not found)"
-msgstr ""
+msgstr "Fájl: %1 (nem található)"
 
 #: src/lib/subedit/cli/configuring.cpp
 msgid "File: none (--no-config)"
-msgstr ""
+msgstr "Fájl: nincs (--no-config)"
 
 #: src/lib/subedit/cli/configuring.cpp
 msgid "%1 reset to its default (%2)"
-msgstr ""
+msgstr "%1 visszaállítva az alapértékére (%2)"
 
 #: src/lib/subedit/cli/conversion.cpp
 msgid ""
 "writing frames needs a frame rate, and the positions fall on no grid to take "
 "one from — give --frame-rate"
 msgstr ""
+"a képkockákban írás képkockasebességet igényel, és a pozíciók egyetlen "
+"rácsra sem esnek, amelyből ez átvehető — adja meg a --frame-rate kapcsolót"
 
 #. TRANSLATORS: %1 is a file, %2 a frame rate.
 #: src/lib/subedit/cli/conversion.cpp
 msgid "%1: counted in frames at %2, the grid the positions fall on"
 msgstr ""
+"%1: képkockákban számolva, %2 sebességgel, azon a rácson, amelyre a pozíciók "
+"esnek"
 
 #: src/lib/subedit/cli/conversion.cpp
 msgid "%1 has no byte order mark to write"
-msgstr ""
+msgstr "A(z) %1 fájlhoz nincs írandó bájtsorrend-jelző"
 
 #. TRANSLATORS: %1 is a file, %2 and %3 numbers of bytes. English says « bytes »
 #. whatever the count; the form is chosen by %2.
 #: src/lib/subedit/cli/conversion.cpp src/lib/subedit/cli/writing.cpp
 msgid "%1: %2 bytes read, %3 would be written"
 msgid_plural "%1: %2 bytes read, %3 would be written"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%1: %2 bájt beolvasva, %3 íródna ki"
+msgstr[1] "%1: %2 bájt beolvasva, %3 íródna ki"
 
 #: src/lib/subedit/cli/conversion.cpp src/lib/subedit/cli/writing.cpp
 msgid "%1: %2 bytes read, %3 written"
 msgid_plural "%1: %2 bytes read, %3 written"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%1: %2 bájt beolvasva, %3 kiírva"
+msgstr[1] "%1: %2 bájt beolvasva, %3 kiírva"
 
 #: src/lib/subedit/cli/conversion.cpp
 msgid "%1: %2 -> %3, %4, %5 line endings"
-msgstr ""
+msgstr "%1: %2 -> %3, %4, %5 sorvég"
 
 #: src/lib/subedit/cli/conversion.cpp
 msgid "%1: %2 subtitle converted to %3 (dry run, nothing written)"
 msgid_plural "%1: %2 subtitles converted to %3 (dry run, nothing written)"
 msgstr[0] ""
+"%1: %2 felirat átalakítva %3 formátumra (próbafuttatás, nem íródott semmi)"
 msgstr[1] ""
+"%1: %2 felirat átalakítva %3 formátumra (próbafuttatás, nem íródott semmi)"
 
 #: src/lib/subedit/cli/conversion.cpp
 msgid "%1: %2 subtitle written as %3 -> %4"
 msgid_plural "%1: %2 subtitles written as %3 -> %4"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%1: %2 felirat kiírva %3 formátumban -> %4"
+msgstr[1] "%1: %2 felirat kiírva %3 formátumban -> %4"
 
 #: src/lib/subedit/cli/conversion.cpp
 msgid "--bom and --no-bom ask for opposite things; give one or the other"
-msgstr ""
+msgstr "a --bom és a --no-bom ellentétes dolgot kér; adja meg csak az egyiket"
 
 #: src/lib/subedit/cli/conversion.cpp
 msgid ""
 "--in-place cannot change the format: the file would keep a name its content "
 "no longer matches"
 msgstr ""
+"a --in-place nem módosíthatja a formátumot: a fájl olyan nevet tartana meg, "
+"amelyhez a tartalma már nem illik"
 
 #. TRANSLATORS: %1 is --enable or --disable, %2 what the user typed, %3 a pattern code.
 #: src/lib/subedit/cli/correcting.cpp
 msgid "%1: \"%2\" names no pattern of the tasks given, under the code %3"
 msgstr ""
+"%1: „%2” nem nevez meg mintát a megadott feladatok egyikében sem, a(z) %3 "
+"kód alatt"
 
 #. TRANSLATORS: %1 is --enable or --disable, %2 what the user typed. The types
 #. are values the user types, as written.
@@ -1304,16 +1408,18 @@ msgid ""
 "%1: \"%2\" names patterns of several types: write type:name, with the type "
 "one of common-error, capitalization, hearing-impaired, line-break"
 msgstr ""
+"%1: „%2” több típusú mintát nevez meg: írjon type:name alakot, ahol a típus "
+"common-error, capitalization, hearing-impaired vagy line-break"
 
 #. TRANSLATORS: %1 is the name of a pattern, %2 why it gave up, %3 a subtitle number.
 #: src/lib/subedit/cli/correcting.cpp
 msgid "pattern \"%1\" (%2) was not applied to subtitle %3"
-msgstr ""
+msgstr "a(z) „%1” minta (%2) nem lett alkalmazva a(z) %3. feliratra"
 
 #. TRANSLATORS: %1 is the name of a pattern, %2 why it gave up.
 #: src/lib/subedit/cli/correcting.cpp
 msgid "pattern \"%1\" (%2) was not applied"
-msgstr ""
+msgstr "a(z) „%1” minta (%2) nem lett alkalmazva"
 
 #. TRANSLATORS: %1 is what the user typed; the tasks are typed as written.
 #: src/lib/subedit/cli/correcting.cpp
@@ -1321,15 +1427,17 @@ msgid ""
 "--tasks: \"%1\" is not a task: expected mentions, join-words, split-words, "
 "common-errors, capitalization or line-break"
 msgstr ""
+"--tasks: „%1” nem feladat: mentions, join-words, split-words, common-errors, "
+"capitalization vagy line-break várható"
 
 #: src/lib/subedit/cli/correcting.cpp
 msgid "--code is for the tasks that read patterns, and none was asked for"
-msgstr ""
+msgstr "a --code a mintákat olvasó feladatokhoz való, de egyiket sem kérték"
 
 #. TRANSLATORS: %1 is the list of tasks the user gave.
 #: src/lib/subedit/cli/correcting.cpp
 msgid "--code is required by the tasks that read patterns: %1"
-msgstr ""
+msgstr "a --code megadása kötelező a mintákat olvasó feladatoknál: %1"
 
 #. TRANSLATORS: %1 is what the user typed.
 #: src/lib/subedit/cli/correcting.cpp
@@ -1337,21 +1445,25 @@ msgid ""
 "--code: \"%1\" is not a pattern code: expected Script[-language[-COUNTRY]], "
 "like Zyyy, Latn or Latn-en-US"
 msgstr ""
+"--code: „%1” nem mintakód: Script[-language[-COUNTRY]] alak várható, például "
+"Zyyy, Latn vagy Latn-en-US"
 
 #: src/lib/subedit/cli/correcting.cpp
 msgid "--classes: \"%1\" is not a class: expected human, ocr or human,ocr"
-msgstr ""
+msgstr "--classes: „%1” nem osztály: human, ocr vagy human,ocr várható"
 
 #: src/lib/subedit/cli/correcting.cpp
 msgid ""
 "--language is for the tasks join-words and split-words, which were not asked "
 "for"
 msgstr ""
+"a --language a join-words és a split-words feladatokhoz való, de ezeket nem "
+"kérték"
 
 #. TRANSLATORS: %1 is the list of tasks the user gave.
 #: src/lib/subedit/cli/correcting.cpp
 msgid "--language is required by the tasks that check words: %1"
-msgstr ""
+msgstr "a --language megadása kötelező a szavakat ellenőrző feladatoknál: %1"
 
 #. TRANSLATORS: %1 is what the user typed.
 #: src/lib/subedit/cli/correcting.cpp
@@ -1359,21 +1471,25 @@ msgid ""
 "--language: \"%1\" is not a language: expected a locale code, like fr, en_US "
 "or sr@Latn"
 msgstr ""
+"--language: „%1” nem nyelv: területikód-alak várható, például fr, en_US vagy "
+"sr@Latn"
 
 #: src/lib/subedit/cli/correcting.cpp
 msgid "%1: \"%2\" is not a bound: expected a number greater than zero, or off"
-msgstr ""
+msgstr "%1: „%2” nem korlát: nullánál nagyobb szám várható, vagy off"
 
 #. TRANSLATORS: %1 is an option of the task line-break.
 #: src/lib/subedit/cli/correcting.cpp
 msgid "%1 is for the task line-break, which was not asked for"
-msgstr ""
+msgstr "a %1 a line-break feladathoz való, de azt nem kérték"
 
 #: src/lib/subedit/cli/correcting.cpp
 msgid ""
 "--max-length is required by the task line-break: Gaupol's 24 is a width in "
 "ems, and has no value in characters"
 msgstr ""
+"a --max-length megadása kötelező a line-break feladatnál: a Gaupol 24-es "
+"értéke em egységű szélesség, karakterben nincs értéke"
 
 #. TRANSLATORS: %1 is what the user typed.
 #: src/lib/subedit/cli/correcting.cpp
@@ -1381,99 +1497,110 @@ msgid ""
 "--max-length: \"%1\" is not a length: expected a number of characters "
 "greater than zero"
 msgstr ""
+"--max-length: „%1” nem hosszúság: nullánál nagyobb karakterszám várható"
 
 #. TRANSLATORS: %1 is what the user typed.
 #: src/lib/subedit/cli/correcting.cpp
 msgid ""
 "--max-lines: \"%1\" is not a number of lines: expected a whole number "
 "greater than zero"
-msgstr ""
+msgstr "--max-lines: „%1” nem sorszám: nullánál nagyobb egész szám várható"
 
 #: src/lib/subedit/cli/correcting.cpp
 msgid ""
 "--skip-lines: \"%1\" is not a number of lines: expected a whole number "
 "greater than zero, or off"
 msgstr ""
+"--skip-lines: „%1” nem sorszám: nullánál nagyobb egész szám várható, vagy off"
 
 #. TRANSLATORS: %1 is the name of a pattern, as the user typed it.
 #: src/lib/subedit/cli/correcting.cpp
 msgid "\"%1\" is given to --enable and to --disable: choose one"
 msgstr ""
+"„%1” meg van adva a --enable és a --disable kapcsolónak is: válasszon egyet"
 
 #. TRANSLATORS: %1 is a task, as typed; %2 a pattern code.
 #: src/lib/subedit/cli/correcting.cpp
 msgid "%1: no pattern is active under the code %2; switch one on with --enable"
 msgstr ""
+"%1: a(z) %2 kód alatt nincs aktív minta; kapcsoljon be egyet a --enable "
+"kapcsolóval"
 
 #: src/lib/subedit/cli/correcting.cpp
 msgid "patterns: %1"
-msgstr ""
+msgstr "minták: %1"
 
 #: src/lib/subedit/cli/correcting.cpp
 msgid "settings: correction.human and correction.ocr are both false, ignored"
 msgstr ""
+"beállítások: a correction.human és a correction.ocr egyaránt false, "
+"figyelmen kívül hagyva"
 
 #. TRANSLATORS: %1 is the file that would be written, %2 the input it is.
 #: src/lib/subedit/cli/destination.cpp
 msgid "%1: would be written over the input %2"
-msgstr ""
+msgstr "%1: a(z) %2 bemenetet írná felül"
 
 #: src/lib/subedit/cli/destination.cpp
 msgid "no destination given: use --output, --output-dir or --in-place"
 msgstr ""
+"nincs megadva cél: használja a --output, a --output-dir vagy a --in-place "
+"kapcsolót"
 
 #: src/lib/subedit/cli/destination.cpp
 msgid "--output, --output-dir and --in-place exclude one another"
-msgstr ""
+msgstr "a --output, a --output-dir és a --in-place kizárja egymást"
 
 #: src/lib/subedit/cli/destination.cpp
 msgid ""
 "--output names one file but several were given: use --output-dir instead"
 msgstr ""
+"a --output egyetlen fájlt nevez meg, de több lett megadva: használja inkább "
+"a --output-dir kapcsolót"
 
 #. TRANSLATORS: %1 is a file to write, %2 and %3 the two inputs it would come
 #. from.
 #: src/lib/subedit/cli/destination.cpp
 msgid "%1: would be written by both %2 and %3"
-msgstr ""
+msgstr "%1: egyszerre írná a(z) %2 és a(z) %3"
 
 #. TRANSLATORS: %1 is what a reading met, such as « ignored line », %2 how
 #. serious it is.
 #: src/lib/subedit/cli/diagnostics.cpp
 msgid "%1, %2"
-msgstr ""
+msgstr "%1, %2"
 
 #. TRANSLATORS: %1 is a line number, %2 what a reading met on it, %3 how
 #. serious it is.
 #: src/lib/subedit/cli/diagnostics.cpp
 msgid "line %1: %2, %3"
-msgstr ""
+msgstr "%1. sor: %2, %3"
 
 #. TRANSLATORS: %1 is what a reading met, %2 an excerpt of the file, %3 how serious
 #. it is.
 #: src/lib/subedit/cli/diagnostics.cpp
 msgid "%1 (\"%2\"), %3"
-msgstr ""
+msgstr "%1 („%2”), %3"
 
 #. TRANSLATORS: %1 is a line number, %2 what a reading met on it, %3 an excerpt
 #. of the file, %4 how serious it is.
 #: src/lib/subedit/cli/diagnostics.cpp
 msgid "line %1: %2 (\"%3\"), %4"
-msgstr ""
+msgstr "%1. sor: %2 („%3”), %4"
 
 #. TRANSLATORS: %1 is why the subtitles cannot be made disjoint as they are.
 #: src/lib/subedit/cli/disjoining.cpp
 msgid "%1 Use --sort to do that here."
-msgstr ""
+msgstr "%1 Ennek itt elvégzéséhez használja a --sort kapcsolót."
 
 #: src/lib/subedit/cli/disjoining.cpp
 msgid "--minimum: %1"
-msgstr ""
+msgstr "--minimum: %1"
 
 #. TRANSLATORS: %1 is what the user typed.
 #: src/lib/subedit/cli/disjoining.cpp
 msgid "--minimum: \"%1\" is not a duration of zero or more"
-msgstr ""
+msgstr "--minimum: „%1” nem nulla vagy annál nagyobb időtartam"
 
 #. TRANSLATORS: %1 is what the user typed.
 #: src/lib/subedit/cli/disjoining.cpp
@@ -1481,103 +1608,108 @@ msgid ""
 "--max-lines: \"%1\" is not a number of lines: expected a whole number, 0 for "
 "no limit"
 msgstr ""
+"--max-lines: „%1” nem sorszám: egész szám várható, 0 esetén nincs korlát"
 
 #. TRANSLATORS: %1 is a directory the user named.
 #: src/lib/subedit/cli/expansion.cpp
 msgid "%1: is a directory: use --recursive"
-msgstr ""
+msgstr "%1: könyvtár: használja a --recursive kapcsolót"
 
 #. TRANSLATORS: %1 is a directory.
 #: src/lib/subedit/cli/expansion.cpp
 msgid "%1: holds no file in a format this tool walks for"
-msgstr ""
+msgstr "%1: nem tartalmaz olyan formátumú fájlt, amelyet ez az eszköz keres"
 
 #: src/lib/subedit/cli/expansion.cpp
 msgid "%1: %2 file left aside, with no extension of a known format"
 msgid_plural "%1: %2 files left aside, with no extension of a known format"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%1: %2 fájl félretéve, ismert formátum kiterjesztése nélkül"
+msgstr[1] "%1: %2 fájl félretéve, ismert formátum kiterjesztése nélkül"
 
 #. TRANSLATORS: %1 subtitles were retimed from the frame rate %2
 #. to the frame rate %3.
 #: src/lib/subedit/cli/frame_rate_conversion.cpp
 msgid "%1 subtitle retimed from %2 to %3 fps"
 msgid_plural "%1 subtitles retimed from %2 to %3 fps"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%1 felirat újraidőzítve %2 fps-ről %3 fps-re"
+msgstr[1] "%1 felirat újraidőzítve %2 fps-ről %3 fps-re"
 
 #. TRANSLATORS: %1 is what the user typed, %2 why it does not read.
 #: src/lib/subedit/cli/frame_rate_grammar.cpp
 msgid "\"%1\" is not a frame rate: %2"
-msgstr ""
+msgstr "„%1” nem képkockasebesség: %2"
 
 #: src/lib/subedit/cli/frame_rate_grammar.cpp
 #: src/lib/subedit/cli/time_grammar.cpp
 msgid "it is empty"
-msgstr ""
+msgstr "üres"
 
 #: src/lib/subedit/cli/frame_rate_grammar.cpp
 #: src/lib/subedit/cli/time_grammar.cpp
 msgid "use a decimal point and not a comma, in every language"
-msgstr ""
+msgstr "tizedesvesszőként pontot használjon, nem vesszőt, minden nyelven"
 
 #: src/lib/subedit/cli/frame_rate_grammar.cpp
 msgid "expected frames per second, like 25 or 23.976"
-msgstr ""
+msgstr "másodpercenkénti képkockaszám várható, például 25 vagy 23.976"
 
 #: src/lib/subedit/cli/frame_rate_grammar.cpp
 msgid "a frame rate must be strictly positive; nothing runs at that speed"
 msgstr ""
+"a képkockasebességnek nullánál nagyobbnak kell lennie; semmi sem fut ilyen "
+"sebességgel"
 
 #: src/lib/subedit/cli/frame_rate_grammar.cpp
 msgid "no video runs at that many frames per second"
-msgstr ""
+msgstr "egyetlen videó sem fut ennyi képkockával másodpercenként"
 
 #. TRANSLATORS: %1 is what the user typed, %2 why it does not read.
 #: src/lib/subedit/cli/index_grammar.cpp
 msgid "\"%1\" is not a subtitle number: %2"
-msgstr ""
+msgstr "„%1” nem feliratszám: %2"
 
 #. TRANSLATORS: <index>=<time> is the form typed, as written.
 #: src/lib/subedit/cli/index_grammar.cpp
 msgid "write it <index>=<time>, as in 3=00:00:10.000"
-msgstr ""
+msgstr "írja <index>=<time> alakban, például 3=00:00:10.000"
 
 #: src/lib/subedit/cli/index_grammar.cpp
 msgid "expected a whole number, counted from 1 as the file shows them"
-msgstr ""
+msgstr "egész szám várható, 1-től számolva, ahogy a fájl mutatja"
 
 #: src/lib/subedit/cli/index_grammar.cpp
 msgid "no subtitle file holds that many subtitles"
-msgstr ""
+msgstr "egyetlen feliratfájl sem tartalmaz ennyi feliratot"
 
 #: src/lib/subedit/cli/index_grammar.cpp
 msgid "subtitles are counted from 1, as the file shows them"
-msgstr ""
+msgstr "a feliratokat 1-től számoljuk, ahogy a fájl mutatja"
 
 #. TRANSLATORS: %1 is what the user typed, %2 how a reference is written.
 #: src/lib/subedit/cli/index_grammar.cpp
 msgid "\"%1\" is not a reference: %2"
-msgstr ""
+msgstr "„%1” nem hivatkozási pont: %2"
 
 #. TRANSLATORS: %1 is what the user typed, %2 how a reference is written.
 #: src/lib/subedit/cli/index_grammar.cpp
 msgid "\"%1\" is missing one of its two halves: %2"
-msgstr ""
+msgstr "„%1” egyik fele hiányzik: %2"
 
 #. TRANSLATORS: %1 is what the user typed, %2 why it does not read.
 #: src/lib/subedit/cli/index_grammar.cpp
 msgid "\"%1\" is not a range: %2"
-msgstr ""
+msgstr "„%1” nem tartomány: %2"
 
 #. TRANSLATORS: N-M and N- are the forms typed, as written.
 #: src/lib/subedit/cli/index_grammar.cpp
 msgid "write it N-M, or N- to go to the end, counted from 1 and inclusive"
 msgstr ""
+"írja N-M alakban, vagy N- alakban a végéig, 1-től számolva, a határokat is "
+"beleértve"
 
 #: src/lib/subedit/cli/index_grammar.cpp
 msgid "it ends before it starts"
-msgstr ""
+msgstr "előbb ér véget, mint ahogy kezdődik"
 
 #. TRANSLATORS: %1 is the range typed, %2 how many subtitles the file has. English
 #. writes the number alone; the form is chosen by %2.
@@ -1585,250 +1717,265 @@ msgstr ""
 msgid "range %1 starts after the last subtitle: the file has %2"
 msgid_plural "range %1 starts after the last subtitle: the file has %2"
 msgstr[0] ""
+"a(z) %1 tartomány az utolsó felirat után kezdődik: a fájlban ennyi van: %2"
 msgstr[1] ""
+"a(z) %1 tartomány az utolsó felirat után kezdődik: a fájlban ennyi van: %2"
 
 #. TRANSLATORS: %1 is the range typed, %2 how many subtitles the file has.
 #: src/lib/subedit/cli/index_grammar.cpp
 msgid "range %1 ends after the last subtitle: the file has %2"
 msgid_plural "range %1 ends after the last subtitle: the file has %2"
 msgstr[0] ""
+"a(z) %1 tartomány az utolsó felirat után ér véget: a fájlban ennyi van: %2"
 msgstr[1] ""
+"a(z) %1 tartomány az utolsó felirat után ér véget: a fájlban ennyi van: %2"
 
 #. TRANSLATORS: %1 is a kind of line ending, %2 the line where another kind starts.
 #: src/lib/subedit/cli/inspection.cpp
 msgid "%1, mixed from line %2"
-msgstr ""
+msgstr "%1, a(z) %2. sortól vegyesen"
 
 #. TRANSLATORS: %1 is the name of an encoding.
 #: src/lib/subedit/cli/inspection.cpp
 msgid "%1, from its byte order mark"
-msgstr ""
+msgstr "%1, a bájtsorrend-jelzőből"
 
 #. TRANSLATORS: %1 is the name of an encoding.
 #: src/lib/subedit/cli/inspection.cpp
 msgid "%1, as asked for"
-msgstr ""
+msgstr "%1, kérés szerint"
 
 #: src/lib/subedit/cli/inspection.cpp
 msgid "%1, detected"
-msgstr ""
+msgstr "%1, felismerve"
 
 #. TRANSLATORS: %1 is a frame rate.
 #: src/lib/subedit/cli/inspection.cpp
 msgid "%1 fps, assumed"
-msgstr ""
+msgstr "%1 fps, feltételezve"
 
 #: src/lib/subedit/cli/inspection.cpp
 msgid "%1 fps, as asked for"
-msgstr ""
+msgstr "%1 fps, kérés szerint"
 
 #. TRANSLATORS: %1 is the verdict on the grid, such as « silent ».
 #: src/lib/subedit/cli/inspection.cpp
 msgid "frame rate grid: %1 (too few subtitles to tell)"
-msgstr ""
+msgstr "képkockarács: %1 (túl kevés felirat az eldöntéshez)"
 
 #: src/lib/subedit/cli/inspection.cpp
 msgid "frame rate grid: %1 (best candidate at %2)"
-msgstr ""
+msgstr "képkockarács: %1 (legjobb jelölt: %2)"
 
 #. TRANSLATORS: %1 is a frame rate, %2 the verdict on the grid, %3 a percentage.
 #: src/lib/subedit/cli/inspection.cpp
 msgid "frame rate grid: %1 fps, %2 (%3)"
-msgstr ""
+msgstr "képkockarács: %1 fps, %2 (%3)"
 
 #. TRANSLATORS: %1 is a duration, in seconds.
 #: src/lib/subedit/cli/inspection.cpp
 msgid "grid offset: %1"
-msgstr ""
+msgstr "rácseltolás: %1"
 
 #. TRANSLATORS: %1 is a frame rate.
 #: src/lib/subedit/cli/inspection.cpp
 msgid "also fits: %1 fps, of which this rate is a whole divisor"
-msgstr ""
+msgstr "ez is megfelel: %1 fps, amelynek ez a sebesség egész osztója"
 
 #. TRANSLATORS: %1 is a frame rate.
 #: src/lib/subedit/cli/inspection.cpp
 #: src/lib/subedit/gui/grid_analysis_dialog.cpp
 msgid "%1 fps"
-msgstr ""
+msgstr "%1 fps"
 
 #. TRANSLATORS: %1 lists frame rates, each with a space before it.
 #: src/lib/subedit/cli/inspection.cpp
 msgid "too short a span to separate:%1"
-msgstr ""
+msgstr "túl rövid időtartam a megkülönböztetéshez:%1"
 
 #. TRANSLATORS: %1 starts of %2 are off the grid, %3 is a number of runs (« 2
 #. runs »).
 #: src/lib/subedit/cli/inspection.cpp
 msgid "off the grid: %1 of %2 start, in %3"
 msgid_plural "off the grid: %1 of %2 starts, in %3"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "a rácson kívül: %2 kezdetből %1 (%3)"
+msgstr[1] "a rácson kívül: %2 kezdetből %1 (%3)"
 
 #: src/lib/subedit/cli/inspection.cpp src/lib/subedit/core/wording/analysis.cpp
 msgid "none"
-msgstr ""
+msgstr "nincs"
 
 #: src/lib/subedit/cli/inspection.cpp
 msgid "%1: %2 bytes read"
 msgid_plural "%1: %2 bytes read"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%1: %2 bájt beolvasva"
+msgstr[1] "%1: %2 bájt beolvasva"
 
 #. TRANSLATORS: %1 is a file, %2 a number of diagnostics.
 #: src/lib/subedit/cli/inspection.cpp
 msgid "%1: %2 diagnostic while reading"
 msgid_plural "%1: %2 diagnostics while reading"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%1: %2 diagnosztikai üzenet olvasáskor"
+msgstr[1] "%1: %2 diagnosztikai üzenet olvasáskor"
 
 #: src/lib/subedit/cli/inspection.cpp
 msgid "%1: %2, %3, %4 line endings"
-msgstr ""
+msgstr "%1: %2, %3, %4 sorvég"
 
 #. TRANSLATORS: the lines of the report of `inspect`; %1 is the value of each.
 #: src/lib/subedit/cli/inspection.cpp
 msgid "format: %1"
-msgstr ""
+msgstr "formátum: %1"
 
 #: src/lib/subedit/cli/inspection.cpp
 msgid "encoding: %1"
-msgstr ""
+msgstr "kódolás: %1"
 
 #: src/lib/subedit/cli/inspection.cpp
 msgid "byte order mark: present"
-msgstr ""
+msgstr "bájtsorrend-jelző: van"
 
 #: src/lib/subedit/cli/inspection.cpp
 msgid "byte order mark: absent"
-msgstr ""
+msgstr "bájtsorrend-jelző: nincs"
 
 #: src/lib/subedit/cli/inspection.cpp
 msgid "line endings: %1"
-msgstr ""
+msgstr "sorvégek: %1"
 
 #: src/lib/subedit/cli/inspection.cpp
 msgid "subtitles: %1"
-msgstr ""
+msgstr "feliratok: %1"
 
 #: src/lib/subedit/cli/inspection.cpp
 msgid "span: %1"
-msgstr ""
+msgstr "időtartam: %1"
 
 #: src/lib/subedit/cli/inspection.cpp
 msgid "frame rate: %1"
-msgstr ""
+msgstr "képkockasebesség: %1"
 
 #: src/lib/subedit/cli/inspection.cpp
 msgid "anomalies:"
-msgstr ""
+msgstr "rendellenességek:"
 
 #. TRANSLATORS: %1 is the translation file.
 #: src/lib/subedit/cli/inspection.cpp
 msgid "translation file: %1, matched by position"
-msgstr ""
+msgstr "fordításfájl: %1, pozíció szerint párosítva"
 
 #: src/lib/subedit/cli/inspection.cpp
 msgid "translation file: %1, matched by number"
-msgstr ""
+msgstr "fordításfájl: %1, szám szerint párosítva"
 
 #. TRANSLATORS: %1 is why the range does not read.
 #: src/lib/subedit/cli/options.cpp
 msgid "--range: %1"
-msgstr ""
+msgstr "--range: %1"
 
 #: src/lib/subedit/cli/options.cpp
 msgid "--document translation needs the translation file: use -t"
 msgstr ""
+"a --document translation a fordításfájlt igényli: használja a -t kapcsolót"
 
 #: src/lib/subedit/cli/options.cpp
 msgid "-t names a translation to change: use --document translation"
 msgstr ""
+"a -t módosítandó fordítást nevez meg: használja a --document translation "
+"kapcsolót"
 
 #: src/lib/subedit/cli/options.cpp
 msgid "--align-method needs a translation file: use -t"
-msgstr ""
+msgstr "az --align-method fordításfájlt igényel: használja a -t kapcsolót"
 
 #: src/lib/subedit/cli/options.cpp
 msgid ""
 "-t names one file but several inputs were given: use one invocation per pair"
 msgstr ""
+"a -t egyetlen fájlt nevez meg, de több bemenet lett megadva: párosával hívja "
+"meg"
 
 #: src/lib/subedit/cli/options.cpp
 msgid "--frame-rate: %1"
-msgstr ""
+msgstr "--frame-rate: %1"
 
 #. TRANSLATORS: %1 is why the text to look for does not compile.
 #: src/lib/subedit/cli/replacing.cpp
 msgid "pattern: %1"
-msgstr ""
+msgstr "minta: %1"
 
 #. TRANSLATORS: %1 is a file, %2 what was done to it.
 #: src/lib/subedit/cli/rewriting.cpp
 msgid "%1: %2 (dry run, nothing written)"
-msgstr ""
+msgstr "%1: %2 (próbafuttatás, nem íródott semmi)"
 
 #. TRANSLATORS: %1 is a file, %2 what was done to it, %3 the file written.
 #: src/lib/subedit/cli/rewriting.cpp
 msgid "%1: %2 -> %3"
-msgstr ""
+msgstr "%1: %2 -> %3"
 
 #. TRANSLATORS: %1 is the settings file named by --config.
 #: src/lib/subedit/cli/shared_settings.cpp
 msgid "settings file not found: %1"
-msgstr ""
+msgstr "a beállításfájl nem található: %1"
 
 #. TRANSLATORS: %1 is the settings file.
 #: src/lib/subedit/cli/shared_settings.cpp
 msgid "settings: read %1"
-msgstr ""
+msgstr "beállítások: %1 beolvasva"
 
 #. TRANSLATORS: %1 is a settings key, %2 the value the file gave it.
 #: src/lib/subedit/cli/shared_settings.cpp
 msgid "settings: %1: cannot read '%2', default kept"
-msgstr ""
+msgstr "beállítások: %1: a(z) '%2' nem olvasható, az alapérték marad"
 
 #. TRANSLATORS: %1 is the settings file.
 #: src/lib/subedit/cli/shared_settings.cpp
 msgid "settings: %1 not found, defaults used"
-msgstr ""
+msgstr "beállítások: %1 nem található, alapértékek használatban"
 
 #. TRANSLATORS: %1 is the settings file.
 #: src/lib/subedit/cli/shared_settings.cpp
 msgid "settings: %1 unreadable, defaults used"
-msgstr ""
+msgstr "beállítások: %1 olvashatatlan, alapértékek használatban"
 
 #: src/lib/subedit/cli/shifting.cpp
 msgid "%1 subtitle shifted by %2"
 msgid_plural "%1 subtitles shifted by %2"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%1 felirat eltolva %2 értékkel"
+msgstr[1] "%1 felirat eltolva %2 értékkel"
 
 #: src/lib/subedit/cli/shifting.cpp
 msgid "%1 subtitle shifted by %2 onto their %3 fps grid"
 msgid_plural "%1 subtitles shifted by %2 onto their %3 fps grid"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%1 felirat eltolva %2 értékkel a(z) %3 fps rácsra"
+msgstr[1] "%1 felirat eltolva %2 értékkel a(z) %3 fps rácsra"
 
 #: src/lib/subedit/cli/shifting.cpp
 msgid "--by and --to-grid both say by how much to move; give one or the other"
 msgstr ""
+"a --by és a --to-grid egyaránt az eltolás mértékét adja meg; adja meg csak "
+"az egyiket"
 
 #: src/lib/subedit/cli/shifting.cpp
 msgid ""
 "shift needs --by, or --to-grid to work the amount out from the positions"
 msgstr ""
+"a shift a --by kapcsolót igényli, vagy a --to-grid kapcsolót, amellyel a "
+"mértéket a pozíciókból számolja ki"
 
 #: src/lib/subedit/cli/shifting.cpp
 msgid ""
 "no frame rate grid was found in these positions, so there is nothing to "
 "bring them back onto"
 msgstr ""
+"ezekben a pozíciókban nem található képkockarács, így nincs mire "
+"visszaállítani őket"
 
 #. TRANSLATORS: %1 is a file the user named.
 #: src/lib/subedit/cli/splitting.cpp
 msgid "%1: named as both the head and the tail"
-msgstr ""
+msgstr "%1: egyszerre van fejként és farokként megnevezve"
 
 #: src/lib/subedit/cli/splitting.cpp
 msgid ""
@@ -1836,7 +1983,11 @@ msgid ""
 msgid_plural ""
 "a file of %1 subtitles cannot be split: a cut needs a subtitle on each side"
 msgstr[0] ""
+"a(z) %1 feliratot tartalmazó fájl nem vágható ketté: a vágáshoz mindkét "
+"oldalon kell egy felirat"
 msgstr[1] ""
+"a(z) %1 feliratot tartalmazó fájl nem vágható ketté: a vágáshoz mindkét "
+"oldalon kell egy felirat"
 
 #: src/lib/subedit/cli/splitting.cpp
 msgid ""
@@ -1844,68 +1995,74 @@ msgid ""
 msgid_plural ""
 "--at %1: the file holds %2 subtitles, and the tail can start from 2 to %2"
 msgstr[0] ""
+"--at %1: a fájl %2 feliratot tartalmaz, és a farok 2-től %2-ig kezdődhet"
 msgstr[1] ""
+"--at %1: a fájl %2 feliratot tartalmaz, és a farok 2-től %2-ig kezdődhet"
 
 #. TRANSLATORS: %1 and %2 are the numbers of bytes of the head and the tail.
 #: src/lib/subedit/cli/splitting.cpp
 msgid "%1 and %2"
-msgstr ""
+msgstr "%1 és %2"
 
 #: src/lib/subedit/cli/splitting.cpp
 msgid "%1: split at subtitle %2: %3 in the head, %4 in the tail"
-msgstr ""
+msgstr "%1: kettévágva a(z) %2. feliratnál: %3 a fejben, %4 a farokban"
 
 #. TRANSLATORS: %1 is what was done, %2 and %3 the two files written.
 #: src/lib/subedit/cli/splitting.cpp
 msgid "%1 -> %2, %3"
-msgstr ""
+msgstr "%1 -> %2, %3"
 
 #: src/lib/subedit/cli/text_rewriting.cpp
 msgid "--on and --off say opposite things; give one of them"
-msgstr ""
+msgstr "a --on és a --off ellentétes dolgot kér; adja meg csak az egyiket"
 
 #: src/lib/subedit/cli/text_rewriting.cpp
 msgid "italics needs --on to put the texts in italics, or --off"
 msgstr ""
+"az italics a --on kapcsolót igényli a szövegek dőlt betűssé tételéhez, vagy "
+"a --off kapcsolót"
 
 #: src/lib/subedit/cli/text_rewriting.cpp
 msgid "--add and --remove say opposite things; give one of them"
-msgstr ""
+msgstr "az --add és a --remove ellentétes dolgot kér; adja meg csak az egyiket"
 
 #: src/lib/subedit/cli/text_rewriting.cpp
 msgid "dialogue-dashes needs --add to put dashes on, or --remove"
 msgstr ""
+"a dialogue-dashes az --add kapcsolót igényli a gondolatjelek betételéhez, "
+"vagy a --remove kapcsolót"
 
 #: src/lib/subedit/cli/text_rewriting.cpp
 msgid "%1 writes no style: there are no italics to put on"
-msgstr ""
+msgstr "a(z) %1 nem ír stílust: nincs mit dőlt betűssé tenni"
 
 #: src/lib/subedit/cli/text_rewriting.cpp
 msgid "%1 writes no style: there are no italics to take out"
-msgstr ""
+msgstr "a(z) %1 nem ír stílust: nincs miből eltávolítani a dőlt betűt"
 
 #. TRANSLATORS: %1 is what the user typed, %2 why it does not read.
 #: src/lib/subedit/cli/time_grammar.cpp
 msgid "\"%1\" is not a time: %2"
-msgstr ""
+msgstr "„%1” nem időpont: %2"
 
 #: src/lib/subedit/cli/time_grammar.cpp
 msgid "positions are held to the millisecond, no finer"
-msgstr ""
+msgstr "a pozíciókat ezredmásodpercre pontosan tárolja, finomabban nem"
 
 #: src/lib/subedit/cli/time_grammar.cpp
 msgid "it is too large to hold, positions being counted in milliseconds"
-msgstr ""
+msgstr "túl nagy a tároláshoz, mivel a pozíciókat ezredmásodpercben számolja"
 
 #: src/lib/subedit/cli/time_grammar.cpp
 msgid "expected seconds like 2.999, or a timestamp like 00:00:07.001"
-msgstr ""
+msgstr "másodperc várható, például 2.999, vagy időbélyeg, például 00:00:07.001"
 
 #: src/lib/subedit/cli/transforming.cpp
 msgid "subtitle %1 is past the end: the file holds %2 subtitle"
 msgid_plural "subtitle %1 is past the end: the file holds %2 subtitles"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "a(z) %1. felirat a vég után van: a fájl %2 feliratot tartalmaz"
+msgstr[1] "a(z) %1. felirat a vég után van: a fájl %2 feliratot tartalmaz"
 
 #. TRANSLATORS: %1 is a subtitle number.
 #: src/lib/subedit/cli/transforming.cpp
@@ -1913,321 +2070,327 @@ msgid ""
 "--first and --last both name subtitle %1, and two references on one subtitle "
 "define no transform"
 msgstr ""
+"a --first és a --last egyaránt a(z) %1. feliratot nevezi meg, és ugyanarra a "
+"feliratra mutató két hivatkozási pont nem határoz meg átalakítást"
 
 #: src/lib/subedit/cli/transforming.cpp
 msgid ""
 "subtitles %1 and %2 start at the same moment, so they define no transform"
 msgstr ""
+"a(z) %1. és %2. felirat ugyanabban a pillanatban kezdődik, ezért nem "
+"határoznak meg átalakítást"
 
 #: src/lib/subedit/cli/transforming.cpp
 msgid ""
 "subtitle %1 would land before the origin, which no subtitle file can hold"
 msgstr ""
+"a(z) %1. felirat a nulla pont elé esne, amit egyetlen feliratfájl sem tud "
+"tárolni"
 
 #. TRANSLATORS: %1 subtitles were transformed; %2 and %3 are the two references, as
 #. typed: 1=00:00:01.000.
 #: src/lib/subedit/cli/transforming.cpp
 msgid "%1 subtitle transformed onto %2 and %3"
 msgid_plural "%1 subtitles transformed onto %2 and %3"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%1 felirat átalakítva a(z) %2 és %3 hivatkozási pontra"
+msgstr[1] "%1 felirat átalakítva a(z) %2 és %3 hivatkozási pontra"
 
 #: src/lib/subedit/cli/verbosity.cpp
 msgid "--quiet and -v ask for opposite things; give one or the other"
-msgstr ""
+msgstr "a --quiet és a -v ellentétes dolgot kér; adja meg csak az egyiket"
 
 #: src/lib/subedit/cli/writing.cpp
 msgid "%1: %2, %3, %4 line endings kept"
-msgstr ""
+msgstr "%1: %2, %3, %4 sorvég megtartva"
 
 #: src/lib/subedit/core/wording/analysis.cpp
 msgid "ends before it starts"
-msgstr ""
+msgstr "előbb ér véget, mint ahogy kezdődik"
 
 #: src/lib/subedit/core/wording/analysis.cpp
 msgid "starts before the previous one ends"
-msgstr ""
+msgstr "az előző vége előtt kezdődik"
 
 #: src/lib/subedit/core/wording/analysis.cpp
 msgid "starts before the previous one starts"
-msgstr ""
+msgstr "az előző kezdete előtt kezdődik"
 
 #. TRANSLATORS: %1 is a subtitle number, %2 what is wrong with it, such as
 #. « starts before the previous one ends ».
 #: src/lib/subedit/core/wording/analysis.cpp
 msgid "subtitle %1 %2"
-msgstr ""
+msgstr "%1. felirat: %2"
 
 #. TRANSLATORS: %1 is what is wrong with a subtitle, such as « starts before
 #. the previous one ends », and %2 how many subtitles it is wrong with.
 #: src/lib/subedit/core/wording/analysis.cpp
 msgid "subtitle %1: %2"
-msgstr ""
+msgstr "felirat, amely %1: %2"
 
 #: src/lib/subedit/core/wording/analysis.cpp
 msgid "a line that fits nowhere"
-msgstr ""
+msgstr "egy sor, amely sehová sem illik"
 
 #: src/lib/subedit/core/wording/analysis.cpp
 msgid "a timing line that could not be read"
-msgstr ""
+msgstr "egy időzítési sor, amely nem olvasható"
 
 #: src/lib/subedit/core/wording/analysis.cpp
 msgid "a SubRip block without its number"
-msgstr ""
+msgstr "egy SubRip-blokk a száma nélkül"
 
 #: src/lib/subedit/core/wording/analysis.cpp
 msgid "SubRip numbers that do not follow"
-msgstr ""
+msgstr "SubRip-számok, amelyek nem követik egymást"
 
 #: src/lib/subedit/core/wording/analysis.cpp
 msgid "text before the first timing line"
-msgstr ""
+msgstr "szöveg az első időzítési sor előtt"
 
 #: src/lib/subedit/core/wording/analysis.cpp
 msgid "a WebVTT block of an unknown kind"
-msgstr ""
+msgstr "ismeretlen típusú WebVTT-blokk"
 
 #: src/lib/subedit/core/wording/analysis.cpp
 msgid "declares an event column this tool cannot fill"
-msgstr ""
+msgstr "olyan eseményoszlopot deklarál, amelyet ez az eszköz nem tud kitölteni"
 
 #: src/lib/subedit/core/wording/analysis.cpp
 msgid "counts in frames and states no rate; it was read at"
-msgstr ""
+msgstr "képkockában számol, és nem ad meg sebességet; ennyivel lett beolvasva"
 
 #: src/lib/subedit/core/wording/analysis.cpp
 msgid "carries no end times; each one was taken from the next start"
-msgstr ""
+msgstr "nem tartalmaz végidőpontot; mindegyik a következő kezdetéből lett véve"
 
 #: src/lib/subedit/core/wording/analysis.cpp
 msgid "more than one kind of line ending"
-msgstr ""
+msgstr "többféle sorvég"
 
 #: src/lib/subedit/core/wording/analysis.cpp
 msgid "an encoding nothing declared"
-msgstr ""
+msgstr "egy kódolás, amelyet semmi sem deklarált"
 
 #: src/lib/subedit/core/wording/analysis.cpp
 msgid "a byte order mark that contradicts the encoding asked for"
-msgstr ""
+msgstr "bájtsorrend-jelző, amely ellentmond a kért kódolásnak"
 
 #: src/lib/subedit/core/wording/analysis.cpp
 msgid "left as it stands"
-msgstr ""
+msgstr "változatlanul hagyva"
 
 #: src/lib/subedit/core/wording/analysis.cpp
 msgid "settled by the reader"
-msgstr ""
+msgstr "az olvasó által eldöntve"
 
 #: src/lib/subedit/core/wording/analysis.cpp
 msgid "editing a text"
-msgstr ""
+msgstr "szöveg szerkesztése"
 
 #: src/lib/subedit/core/wording/analysis.cpp
 msgid "editing a start"
-msgstr ""
+msgstr "kezdet szerkesztése"
 
 #: src/lib/subedit/core/wording/analysis.cpp
 msgid "editing an end"
-msgstr ""
+msgstr "vég szerkesztése"
 
 #: src/lib/subedit/core/wording/analysis.cpp
 msgid "editing a duration"
-msgstr ""
+msgstr "időtartam szerkesztése"
 
 #: src/lib/subedit/core/wording/analysis.cpp
 msgid "inserting"
-msgstr ""
+msgstr "beszúrás"
 
 #: src/lib/subedit/core/wording/analysis.cpp
 msgid "removing"
-msgstr ""
+msgstr "eltávolítás"
 
 #: src/lib/subedit/core/wording/analysis.cpp
 msgid "shifting"
-msgstr ""
+msgstr "eltolás"
 
 #: src/lib/subedit/core/wording/analysis.cpp
 msgid "transforming"
-msgstr ""
+msgstr "átalakítás"
 
 #: src/lib/subedit/core/wording/analysis.cpp
 msgid "converting the frame rate"
-msgstr ""
+msgstr "képkockasebesség átváltása"
 
 #: src/lib/subedit/core/wording/analysis.cpp
 msgid "aligning on the frame rate"
-msgstr ""
+msgstr "illesztés a képkockasebességhez"
 
 #: src/lib/subedit/core/wording/analysis.cpp
 msgid "sorting"
-msgstr ""
+msgstr "rendezés"
 
 #: src/lib/subedit/core/wording/analysis.cpp
 msgid "removing hearing-impaired mentions"
-msgstr ""
+msgstr "hallássérültek számára készült megjegyzések eltávolítása"
 
 #: src/lib/subedit/core/wording/analysis.cpp
 msgid "putting in italics"
-msgstr ""
+msgstr "dőlt betűssé tétel"
 
 #: src/lib/subedit/core/wording/analysis.cpp
 msgid "taking italics out"
-msgstr ""
+msgstr "dőlt betű eltávolítása"
 
 #: src/lib/subedit/core/wording/analysis.cpp
 msgid "changing the case"
-msgstr ""
+msgstr "kis- és nagybetűk módosítása"
 
 #: src/lib/subedit/core/wording/analysis.cpp
 msgid "adding dialogue dashes"
-msgstr ""
+msgstr "párbeszéd-gondolatjelek hozzáadása"
 
 #: src/lib/subedit/core/wording/analysis.cpp
 msgid "removing dialogue dashes"
-msgstr ""
+msgstr "párbeszéd-gondolatjelek eltávolítása"
 
 #: src/lib/subedit/core/wording/analysis.cpp
 msgid "merging"
-msgstr ""
+msgstr "összevonás"
 
 #: src/lib/subedit/core/wording/analysis.cpp
 msgid "splitting"
-msgstr ""
+msgstr "felosztás"
 
 #: src/lib/subedit/core/wording/analysis.cpp
 msgid "cutting texts"
-msgstr ""
+msgstr "szövegek kivágása"
 
 #: src/lib/subedit/core/wording/analysis.cpp
 msgid "pasting texts"
-msgstr ""
+msgstr "szövegek beillesztése"
 
 #: src/lib/subedit/core/wording/analysis.cpp
 msgid "opening a translation"
-msgstr ""
+msgstr "fordítás megnyitása"
 
 #: src/lib/subedit/core/wording/analysis.cpp
 msgid "adjusting durations"
-msgstr ""
+msgstr "időtartamok igazítása"
 
 #: src/lib/subedit/core/wording/analysis.cpp
 msgid "replacing"
-msgstr ""
+msgstr "csere"
 
 #: src/lib/subedit/core/wording/analysis.cpp
 msgid "replacing all"
-msgstr ""
+msgstr "összes cseréje"
 
 #: src/lib/subedit/core/wording/analysis.cpp
 msgid "appending a file"
-msgstr ""
+msgstr "fájl hozzáfűzése"
 
 #: src/lib/subedit/core/wording/analysis.cpp
 msgid "splitting the project"
-msgstr ""
+msgstr "projekt kettéosztása"
 
 #: src/lib/subedit/core/wording/analysis.cpp
 msgid "correcting texts"
-msgstr ""
+msgstr "szövegek javítása"
 
 #: src/lib/subedit/core/wording/analysis.cpp
 msgid "making the ranges disjoint"
-msgstr ""
+msgstr "tartományok szétválasztása"
 
 #: src/lib/subedit/core/wording/analysis.cpp
 msgid "joining repeated subtitles"
-msgstr ""
+msgstr "ismétlődő feliratok egyesítése"
 
 #. TRANSLATORS: how well the positions fall on a frame-rate grid: clean,
 #. partial, or none at all.
 #: src/lib/subedit/core/wording/analysis.cpp
 msgid "clean"
-msgstr ""
+msgstr "tiszta"
 
 #: src/lib/subedit/core/wording/analysis.cpp
 msgid "partial"
-msgstr ""
+msgstr "részleges"
 
 #: src/lib/subedit/core/wording/analysis.cpp
 msgid "No grid"
-msgstr ""
+msgstr "Nincs rács"
 
 #. TRANSLATORS: %1 is a frame rate, %2 the word for a partial grid.
 #: src/lib/subedit/core/wording/analysis.cpp
 msgid "Grid: %1 fps (%2)"
-msgstr ""
+msgstr "Rács: %1 fps (%2)"
 
 #: src/lib/subedit/core/wording/analysis.cpp
 msgid "Grid: %1 fps"
-msgstr ""
+msgstr "Rács: %1 fps"
 
 #: src/lib/subedit/core/wording/analysis.cpp
 msgid "Frames: %1 fps"
-msgstr ""
+msgstr "Képkockák: %1 fps"
 
 #. TRANSLATORS: %1 is the name of a subtitle format.
 #: src/lib/subedit/core/wording/conversion.cpp
 msgid "ends are not carried by %1"
-msgstr ""
+msgstr "a végpontokat a(z) %1 nem tárolja"
 
 #: src/lib/subedit/core/wording/conversion.cpp
 msgid "line breaks were joined in %1 subtitle"
 msgid_plural "line breaks were joined in %1 subtitles"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "a sortörések egyesítve lettek %1 feliratban"
+msgstr[1] "a sortörések egyesítve lettek %1 feliratban"
 
 #: src/lib/subedit/core/wording/conversion.cpp
 msgid "%1 tag dropped"
 msgid_plural "%1 tags dropped"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%1 címke elhagyva"
+msgstr[1] "%1 címke elhagyva"
 
 #: src/lib/subedit/core/wording/conversion.cpp
 msgid "the header was dropped"
-msgstr ""
+msgstr "a fejléc elhagyva"
 
 #. TRANSLATORS: %1 is the name of a subtitle format, %2 a count.
 #: src/lib/subedit/core/wording/conversion.cpp
 msgid "the %1 fields of %2 subtitle were dropped"
 msgid_plural "the %1 fields of %2 subtitles were dropped"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%2 felirat mezői elhagyva (%1)"
+msgstr[1] "%2 felirat mezői elhagyva (%1)"
 
 #. TRANSLATORS: %1 is a number of milliseconds.
 #: src/lib/subedit/core/wording/conversion.cpp
 msgid "positions moved by up to %1 ms"
-msgstr ""
+msgstr "a pozíciók legfeljebb %1 ms-mal elmozdítva"
 
 #: src/lib/subedit/core/wording/conversion.cpp
 msgid "inserted %1 subtitle to fit the clipboard"
 msgid_plural "inserted %1 subtitles to fit the clipboard"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%1 felirat beszúrva a vágólap tartalmának elhelyezéséhez"
+msgstr[1] "%1 felirat beszúrva a vágólap tartalmának elhelyezéséhez"
 
 #. TRANSLATORS: %1 and %2 are names of subtitle formats, %3 what was
 #. lost on the way, such as « 3 tags dropped ».
 #: src/lib/subedit/core/wording/conversion.cpp
 msgid "pasting %1 texts into %2: %3"
-msgstr ""
+msgstr "szövegek beillesztése (%1 -> %2): %3"
 
 #: src/lib/subedit/core/wording/conversion.cpp
 msgid "appended %1 subtitle"
 msgid_plural "appended %1 subtitles"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%1 felirat hozzáfűzve"
+msgstr[1] "%1 felirat hozzáfűzve"
 
 #. TRANSLATORS: %1 and %2 are names of subtitle formats, %3 what was lost
 #. on the way, such as « 3 tags dropped ».
 #: src/lib/subedit/core/wording/conversion.cpp
 msgid "%1 into %2: %3"
-msgstr ""
+msgstr "%1 -> %2: %3"
 
 #. TRANSLATORS: %1 and %2 are frame rates.
 #: src/lib/subedit/core/wording/conversion.cpp
 msgid "converting from %1 to %2 fps"
-msgstr ""
+msgstr "átváltás %1 fps-ről %2 fps-re"
 
 #. TRANSLATORS: %1 is « converting from 25 to 24 fps », %2 a frame rate,
 #. %3 to %5 percentages.
@@ -2236,201 +2399,207 @@ msgid ""
 "%1 puts the positions on a %2 fps grid: %3, against %4 as they are and %5 "
 "for the next best conversion"
 msgstr ""
+"%1: a pozíciók %2 fps-es rácsra esnek: %3; változatlanul %4, a következő "
+"legjobb átváltással %5"
 
 #. TRANSLATORS: %1 and %2 are « converting from 25 to 24 fps », %3 and %4
 #. percentages.
 #: src/lib/subedit/core/wording/conversion.cpp
 msgid "%1 and %2 fit equally well (%3 and %4), so none is proposed"
-msgstr ""
+msgstr "%1 és %2 egyformán jó (%3 és %4), ezért egyiket sem javasolja"
 
 #: src/lib/subedit/core/wording/correction.cpp
 msgid "cannot be translated"
-msgstr ""
+msgstr "nem fordítható le"
 
 #: src/lib/subedit/core/wording/correction.cpp
 msgid "will not compile"
-msgstr ""
+msgstr "nem fordítható le reguláris kifejezésként"
 
 #: src/lib/subedit/core/wording/correction.cpp
 msgid "has an invalid replacement"
-msgstr ""
+msgstr "érvénytelen a helyettesítő szöveg"
 
 #: src/lib/subedit/core/wording/correction.cpp
 msgid "timed out"
-msgstr ""
+msgstr "időtúllépés"
 
 #: src/lib/subedit/core/wording/correction.cpp
 msgid "never settled"
-msgstr ""
+msgstr "sosem állapodott meg"
 
 #: src/lib/subedit/core/wording/correction.cpp
 msgid "grew the text too long"
-msgstr ""
+msgstr "túl hosszúra növelte a szöveget"
 
 #: src/lib/subedit/core/wording/correction.cpp
 msgid "directory cannot be read"
-msgstr ""
+msgstr "a könyvtár nem olvasható"
 
 #: src/lib/subedit/core/wording/correction.cpp
 msgid "file cannot be read"
-msgstr ""
+msgstr "a fájl nem olvasható"
 
 #: src/lib/subedit/core/wording/correction.cpp
 msgid "malformed line"
-msgstr ""
+msgstr "hibás felépítésű sor"
 
 #: src/lib/subedit/core/wording/correction.cpp
 msgid "field outside any pattern"
-msgstr ""
+msgstr "mező minta nélkül"
 
 #: src/lib/subedit/core/wording/correction.cpp
 msgid "unknown field"
-msgstr ""
+msgstr "ismeretlen mező"
 
 #: src/lib/subedit/core/wording/correction.cpp
 msgid "missing field"
-msgstr ""
+msgstr "hiányzó mező"
 
 #: src/lib/subedit/core/wording/correction.cpp
 msgid "invalid value"
-msgstr ""
+msgstr "érvénytelen érték"
 
 #: src/lib/subedit/core/wording/correction.cpp
 msgid "malformed activation"
-msgstr ""
+msgstr "hibás felépítésű aktiválás"
 
 #. TRANSLATORS: %1 is a file name, %2 a line number in it.
 #: src/lib/subedit/core/wording/correction.cpp
 msgid "%1, line %2"
-msgstr ""
+msgstr "%1, %2. sor"
 
 #. TRANSLATORS: %1 subtitles were edited and %2 removed. English says
 #. « subtitles » whatever the counts; the form is chosen by %2.
 #: src/lib/subedit/core/wording/counts.cpp
 msgid "Edited %1 and removed %2 subtitles"
 msgid_plural "Edited %1 and removed %2 subtitles"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "Módosított feliratok: %1, eltávolított feliratok: %2"
+msgstr[1] "Módosított feliratok: %1, eltávolított feliratok: %2"
 
 #: src/lib/subedit/core/wording/counts.cpp
 msgid "no mention to remove"
-msgstr ""
+msgstr "nincs eltávolítandó megjegyzés"
 
 #: src/lib/subedit/core/wording/counts.cpp
 msgid "%1 subtitle cleaned, %2 removed"
 msgid_plural "%1 subtitles cleaned, %2 removed"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%1 felirat megtisztítva, %2 eltávolítva"
+msgstr[1] "%1 felirat megtisztítva, %2 eltávolítva"
 
 #: src/lib/subedit/core/wording/counts.cpp
 msgid ""
 "subtitle %1 would start before the origin, which no subtitle file can hold"
 msgstr ""
+"a(z) %1. felirat a nulla pont előtt kezdődne, amit egyetlen feliratfájl sem "
+"tud tárolni"
 
 #. TRANSLATORS: %1 is a language code, such as en_GB.
 #: src/lib/subedit/core/wording/counts.cpp
 msgid "no dictionary for %1"
-msgstr ""
+msgstr "nincs szótár ehhez: %1"
 
 #: src/lib/subedit/core/wording/counts.cpp
 msgid "%1 subtitle"
 msgid_plural "%1 subtitles"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%1 felirat"
+msgstr[1] "%1 felirat"
 
 #: src/lib/subedit/core/wording/counts.cpp
 msgid "%1 file"
 msgid_plural "%1 files"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%1 fájl"
+msgstr[1] "%1 fájl"
 
 #: src/lib/subedit/core/wording/counts.cpp
 msgid "%1 run"
 msgid_plural "%1 runs"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%1 sorozat"
+msgstr[1] "%1 sorozat"
 
 #. TRANSLATORS: %1 is what the user searched for.
 #: src/lib/subedit/core/wording/counts.cpp
 msgid "\"%1\" not found"
-msgstr "\"%1\" nem található"
+msgstr "„%1” nem található"
 
 #: src/lib/subedit/core/wording/counts.cpp
 msgid "nothing to change"
-msgstr ""
+msgstr "nincs mit módosítani"
 
 #: src/lib/subedit/core/wording/counts.cpp
 msgid "%1 subtitle put in italics"
 msgid_plural "%1 subtitles put in italics"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%1 felirat dőlt betűssé téve"
+msgstr[1] "%1 felirat dőlt betűssé téve"
 
 #: src/lib/subedit/core/wording/counts.cpp
 msgid "%1 subtitle taken out of italics"
 msgid_plural "%1 subtitles taken out of italics"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%1 felirat dőlt betűje eltávolítva"
+msgstr[1] "%1 felirat dőlt betűje eltávolítva"
 
 #: src/lib/subedit/core/wording/counts.cpp
 msgid "%1 subtitle recased"
 msgid_plural "%1 subtitles recased"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%1 felirat kis- és nagybetűi módosítva"
+msgstr[1] "%1 felirat kis- és nagybetűi módosítva"
 
 #: src/lib/subedit/core/wording/counts.cpp
 msgid "%1 subtitle dashed"
 msgid_plural "%1 subtitles dashed"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%1 felirat gondolatjellel ellátva"
+msgstr[1] "%1 felirat gondolatjellel ellátva"
 
 #: src/lib/subedit/core/wording/counts.cpp
 msgid "%1 subtitle undashed"
 msgid_plural "%1 subtitles undashed"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%1 felirat gondolatjele eltávolítva"
+msgstr[1] "%1 felirat gondolatjele eltávolítva"
 
 #: src/lib/subedit/core/wording/counts.cpp
 msgid "replaced %1 match"
 msgid_plural "replaced %1 matches"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%1 találat kicserélve"
+msgstr[1] "%1 találat kicserélve"
 
 #. TRANSLATORS: %1 is « replaced 4 matches », %2 the number of projects.
 #: src/lib/subedit/core/wording/counts.cpp
 msgid "%1 in %2 project"
 msgid_plural "%1 in %2 projects"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%1, %2 projektben"
+msgstr[1] "%1, %2 projektben"
 
 #: src/lib/subedit/core/wording/counts.cpp
 msgid "split %1 subtitle into a new project"
 msgid_plural "split %1 subtitles into a new project"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%1 felirat áthelyezve új projektbe"
+msgstr[1] "%1 felirat áthelyezve új projektbe"
 
 #: src/lib/subedit/core/wording/counts.cpp
 msgid "already in order"
-msgstr ""
+msgstr "már sorrendben van"
 
 #: src/lib/subedit/core/wording/counts.cpp
 msgid "%1 subtitle moved"
 msgid_plural "%1 subtitles moved"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%1 felirat áthelyezve"
+msgstr[1] "%1 felirat áthelyezve"
 
 #: src/lib/subedit/core/wording/counts.cpp
 msgid ""
 "Cannot split at subtitle %1: subtitle %2 would fall before the start of the "
 "video. Cut somewhere else."
 msgstr ""
+"Nem lehet kettéosztani a(z) %1. feliratnál: a(z) %2. felirat a videó kezdete "
+"elé esne. Vágjon máshol."
 
 #. TRANSLATORS: %1 is an operation, such as « shifting », %2 a count, %3
 #. a length in seconds.
 #: src/lib/subedit/core/wording/editing.cpp
 msgid "%1 leaves %2 subtitle past the end of the video, by %3 at most"
 msgid_plural "%1 leaves %2 subtitles past the end of the video, by %3 at most"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%1: %2 felirat a videó vége után van, legfeljebb %3 értékkel"
+msgstr[1] "%1: %2 felirat a videó vége után van, legfeljebb %3 értékkel"
 
 #. TRANSLATORS: %1 of %2 subtitles were aligned; %3 and %4 are frame rates.
 #: src/lib/subedit/core/wording/editing.cpp
@@ -2441,123 +2610,130 @@ msgid_plural ""
 "%1 of %2 subtitles aligned to %3 fps; the document is still read on a %4 fps "
 "grid"
 msgstr[0] ""
+"%1/%2 felirat %3 fps-re illesztve; a dokumentumot továbbra is %4 fps-es "
+"rácson olvassa"
 msgstr[1] ""
+"%1/%2 felirat %3 fps-re illesztve; a dokumentumot továbbra is %4 fps-es "
+"rácson olvassa"
 
 #: src/lib/subedit/core/wording/editing.cpp
 msgid "nothing to look for"
-msgstr ""
+msgstr "nincs mit keresni"
 
 #. TRANSLATORS: %1 is the regular expression engine's own reason, in English.
 #: src/lib/subedit/core/wording/editing.cpp
 msgid "not a regular expression (%1)"
-msgstr ""
+msgstr "nem reguláris kifejezés (%1)"
 
 #: src/lib/subedit/core/wording/editing.cpp
 msgid "no duration to adjust"
-msgstr ""
+msgstr "nincs igazítandó időtartam"
 
 #: src/lib/subedit/core/wording/editing.cpp
 msgid "adjusted the durations of %1 subtitle"
 msgid_plural "adjusted the durations of %1 subtitles"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%1 felirat időtartama igazítva"
+msgstr[1] "%1 felirat időtartama igazítva"
 
 #: src/lib/subedit/core/wording/editing.cpp
 msgid "the reading speed in %1 subtitle"
 msgid_plural "the reading speed in %1 subtitles"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "az olvasási sebesség %1 feliratban"
+msgstr[1] "az olvasási sebesség %1 feliratban"
 
 #: src/lib/subedit/core/wording/editing.cpp
 msgid "the minimum duration in %1 subtitle"
 msgid_plural "the minimum duration in %1 subtitles"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "a legkisebb időtartam %1 feliratban"
+msgstr[1] "a legkisebb időtartam %1 feliratban"
 
 #: src/lib/subedit/core/wording/editing.cpp
 msgid "the gap in %1 subtitle"
 msgid_plural "the gap in %1 subtitles"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "a köz %1 feliratban"
+msgstr[1] "a köz %1 feliratban"
 
 #. TRANSLATORS: %1 is what the adjustment did, %2 the constraints it could
 #. not satisfy, such as « the gap in 2 subtitles ».
 #: src/lib/subedit/core/wording/editing.cpp
 msgid "%1; could not satisfy %2"
-msgstr ""
+msgstr "%1; nem teljesíthető: %2"
 
 #: src/lib/subedit/core/wording/editing.cpp
 msgid "already disjoint"
-msgstr ""
+msgstr "már szét vannak választva"
 
 #: src/lib/subedit/core/wording/editing.cpp
 msgid "%1 subtitle split, %2 merged"
 msgid_plural "%1 subtitles split, %2 merged"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%1 felirat szétvágva, %2 összevonva"
+msgstr[1] "%1 felirat szétvágva, %2 összevonva"
 
 #: src/lib/subedit/core/wording/editing.cpp
 msgid "%1 shown in windows for holding too many lines"
 msgid_plural "%1 shown in windows for holding too many lines"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%1 ablakokban megjelenítve, mert túl sok sort tartalmaz"
+msgstr[1] "%1 ablakokban megjelenítve, mert túl sok sort tartalmaz"
 
 #: src/lib/subedit/core/wording/editing.cpp
 msgid "%1 very short taken over by a neighbour"
 msgid_plural "%1 very short taken over by a neighbour"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%1 nagyon rövid, átvette egy szomszéd"
+msgstr[1] "%1 nagyon rövid, átvette egy szomszéd"
 
 #: src/lib/subedit/core/wording/editing.cpp
 msgid "%1 subtitle shorter than the limit left whole"
 msgid_plural "%1 subtitles shorter than the limit left whole"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%1 felirat rövidebb a korlátnál, egészben hagyva"
+msgstr[1] "%1 felirat rövidebb a korlátnál, egészben hagyva"
 
 #: src/lib/subedit/core/wording/editing.cpp
 msgid "%1 merged with styles or positions that differ, the first kept"
 msgid_plural "%1 merged with styles or positions that differ, the first kept"
 msgstr[0] ""
+"%1 összevonva eltérő stílusokkal vagy pozíciókkal, az első megtartva"
 msgstr[1] ""
+"%1 összevonva eltérő stílusokkal vagy pozíciókkal, az első megtartva"
 
 #: src/lib/subedit/core/wording/editing.cpp
 msgid "%1 subtitle ending before the start left alone"
 msgid_plural "%1 subtitles ending before the start left alone"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%1 felirat, amely a kezdet előtt ér véget, érintetlenül hagyva"
+msgstr[1] "%1 felirat, amely a kezdet előtt ér véget, érintetlenül hagyva"
 
 #: src/lib/subedit/core/wording/editing.cpp
 msgid "no repeated subtitles"
-msgstr ""
+msgstr "nincs ismétlődő felirat"
 
 #: src/lib/subedit/core/wording/editing.cpp
 msgid "%1 repeated subtitle joined"
 msgid_plural "%1 repeated subtitles joined"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%1 ismétlődő felirat egyesítve"
+msgstr[1] "%1 ismétlődő felirat egyesítve"
 
 #: src/lib/subedit/core/wording/editing.cpp
 msgid "The subtitles are not in the order of their start: sort them first."
 msgstr ""
+"A feliratok nincsenek kezdetük szerinti sorrendben: előbb rendezze őket."
 
 #. TRANSLATORS: %1 is the name of a character encoding, such as UTF-8; a BOM
 #. is a byte order mark.
 #: src/lib/subedit/core/wording/formats.cpp
 msgid "%1, BOM"
-msgstr ""
+msgstr "%1, BOM"
 
 #: src/lib/subedit/core/wording/formats.cpp
 msgid "%1, no BOM"
-msgstr ""
+msgstr "%1, BOM nélkül"
 
 #: src/lib/subedit/core/wording/formats.cpp
 msgid "Encoding: %1"
-msgstr ""
+msgstr "Kódolás: %1"
 
 #. TRANSLATORS: %1 is the name the user gave for an encoding.
 #: src/lib/subedit/core/wording/formats.cpp
 msgid "no encoding is named \"%1\""
-msgstr ""
+msgstr "nincs „%1” nevű kódolás"
 
 #. TRANSLATORS: %1 is the name the user gave for an encoding.
 #: src/lib/subedit/core/wording/formats.cpp
@@ -2565,74 +2741,76 @@ msgid ""
 "\"%1\" writes a byte order mark of its own; name the byte order, as UTF-16LE "
 "and UTF-16BE do"
 msgstr ""
+"a(z) „%1” saját bájtsorrend-jelzőt ír; nevezze meg a bájtsorrendet, ahogy az "
+"UTF-16LE és az UTF-16BE teszi"
 
 #: src/lib/subedit/core/wording/formats.cpp
 msgid "cannot be decoded in the chosen encoding"
-msgstr ""
+msgstr "nem dekódolható a választott kódolásban"
 
 #: src/lib/subedit/core/wording/formats.cpp
 msgid "holds nothing recognisable as a subtitle"
-msgstr ""
+msgstr "nem tartalmaz semmit, ami feliratként felismerhető"
 
 #: src/lib/subedit/core/wording/formats.cpp
 msgid "is in no format this tool knows"
-msgstr ""
+msgstr "nincs olyan formátumban, amelyet ez az eszköz ismer"
 
 #: src/lib/subedit/core/wording/formats.cpp
 msgid "does not exist"
-msgstr ""
+msgstr "nem létezik"
 
 #: src/lib/subedit/core/wording/formats.cpp
 msgid "cannot be opened: permission denied"
-msgstr ""
+msgstr "nem nyitható meg: hozzáférés megtagadva"
 
 #: src/lib/subedit/core/wording/formats.cpp
 msgid "cannot be read"
-msgstr ""
+msgstr "nem olvasható"
 
 #: src/lib/subedit/core/wording/formats.cpp
 msgid "cannot be written: permission denied"
-msgstr ""
+msgstr "nem írható: hozzáférés megtagadva"
 
 #: src/lib/subedit/core/wording/formats.cpp
 msgid "cannot be written"
-msgstr ""
+msgstr "nem írható"
 
 #: src/lib/subedit/core/wording/formats.cpp
 msgid "cannot be created: permission denied"
-msgstr ""
+msgstr "nem hozható létre: hozzáférés megtagadva"
 
 #: src/lib/subedit/core/wording/formats.cpp
 msgid "cannot be created"
-msgstr ""
+msgstr "nem hozható létre"
 
 #: src/lib/subedit/core/wording/formats.cpp
 msgid "holds a character the chosen encoding cannot write"
-msgstr ""
+msgstr "olyan karaktert tartalmaz, amelyet a választott kódolás nem tud kiírni"
 
 #: src/lib/subedit/core/wording/settings.cpp
 msgid "System"
-msgstr ""
+msgstr "Rendszer"
 
 #: src/lib/subedit/core/wording/settings.cpp
 msgid "Light"
-msgstr ""
+msgstr "Világos"
 
 #: src/lib/subedit/core/wording/settings.cpp
 msgid "Dark"
-msgstr ""
+msgstr "Sötét"
 
 #: src/lib/subedit/core/wording/settings.cpp
 msgid "Above the selection"
-msgstr ""
+msgstr "A kijelölés felett"
 
 #: src/lib/subedit/core/wording/settings.cpp
 msgid "Below the selection"
-msgstr ""
+msgstr "A kijelölés alatt"
 
 #: src/lib/subedit/core/wording/settings.cpp
 msgid "leaves the colours to the desktop"
-msgstr ""
+msgstr "a színeket az asztali környezetre bízza"
 
 #: src/lib/subedit/core/wording/settings.cpp
 msgid ""
@@ -2649,48 +2827,61 @@ msgid ""
 "# A value this file cannot read is left at its default, and said so on\n"
 "# the standard error when the program starts.\n"
 msgstr ""
+"# A subedit beállításai.\n"
+"#\n"
+"# Az alapértéken hagyott beállítások megjegyzésként vannak kiírva.\n"
+"# Egy sor felülbírálásához távolítsa el a megjegyzésjelet, és módosítsa\n"
+"# az értékét; az alapértékre való visszatéréshez törölje a sort, bármi\n"
+"# is legyen az alapérték egy későbbi változatban.\n"
+"#\n"
+"# Kettő közülük alapértelmezés szerint azt kapja, amit az ablak választ,\n"
+"# nem egy számot: kommentezett soruk egy érték alakját mutatja, nem\n"
+"# érvényben lévő alapértéket.\n"
+"#\n"
+"# Az az érték, amelyet ez a fájl nem tud beolvasni, az alapértéken marad,\n"
+"# amit a program indulásakor a szabványos hibakimeneten közöl.\n"
 
 #: src/lib/subedit/core/wording/settings.cpp
 msgid "cannot be read, keeping the default"
-msgstr ""
+msgstr "nem olvasható, az alapérték marad"
 
 #: src/lib/subedit/core/wording/settings.cpp
 msgid "settings could not be written"
-msgstr ""
+msgstr "a beállításokat nem sikerült kiírni"
 
 #: src/lib/subedit/core/wording/translation.cpp
 msgid "translation: the file holds no line"
-msgstr ""
+msgstr "fordítás: a fájl nem tartalmaz sort"
 
 #: src/lib/subedit/core/wording/translation.cpp
 msgid "%1 line attached"
 msgid_plural "%1 lines attached"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%1 sor csatolva"
+msgstr[1] "%1 sor csatolva"
 
 #: src/lib/subedit/core/wording/translation.cpp
 msgid "%1 subtitle born of a line"
 msgid_plural "%1 subtitles born of a line"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%1 felirat jött létre sorból"
+msgstr[1] "%1 felirat jött létre sorból"
 
 #: src/lib/subedit/core/wording/translation.cpp
 msgid "%1 subtitle left without a translation"
 msgid_plural "%1 subtitles left without a translation"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%1 felirat maradt fordítás nélkül"
+msgstr[1] "%1 felirat maradt fordítás nélkül"
 
 #: src/lib/subedit/core/wording/translation.cpp
 msgid "%1 line out of order"
 msgid_plural "%1 lines out of order"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%1 sor rossz sorrendben"
+msgstr[1] "%1 sor rossz sorrendben"
 
 #. TRANSLATORS: %1 is what became of the lines of a translation, such as
 #. « 4 lines attached; 1 line out of order ».
 #: src/lib/subedit/core/wording/translation.cpp
 msgid "translation: %1"
-msgstr ""
+msgstr "fordítás: %1"
 
 #. TRANSLATORS: %1 is a length in seconds, %2 and %3 counts of lines.
 #: src/lib/subedit/core/wording/translation.cpp
@@ -2701,7 +2892,11 @@ msgid_plural ""
 "the lines sit %1 later than the subtitles; moved back, %2 lines would attach "
 "instead of %3"
 msgstr[0] ""
+"a sorok %1 értékkel későbbiek a feliratoknál; visszahúzva %2 sor csatlakozna "
+"%3 helyett"
 msgstr[1] ""
+"a sorok %1 értékkel későbbiek a feliratoknál; visszahúzva %2 sor csatlakozna "
+"%3 helyett"
 
 #: src/lib/subedit/core/wording/translation.cpp
 msgid ""
@@ -2711,46 +2906,53 @@ msgid_plural ""
 "the lines sit %1 earlier than the subtitles; moved forward, %2 lines would "
 "attach instead of %3"
 msgstr[0] ""
+"a sorok %1 értékkel korábbiak a feliratoknál; előretolva %2 sor csatlakozna "
+"%3 helyett"
 msgstr[1] ""
+"a sorok %1 értékkel korábbiak a feliratoknál; előretolva %2 sor csatlakozna "
+"%3 helyett"
 
 #: src/lib/subedit/core/wording/translation.cpp
 msgid "the file is already open as the main document"
-msgstr ""
+msgstr "a fájl már meg van nyitva főként dokumentumként"
 
 #. TRANSLATORS: %1 is the version of a library the program runs against, %2 the version it
 #. was compiled with — « 74.2 (built with 74.2) ».
 #: src/lib/subedit/core/wording/version.cpp
 msgid "%1 (built with %2)"
-msgstr ""
+msgstr "%1 (fordításkor: %2)"
 
 #. TRANSLATORS: %1 is the list of the interface languages installed, by code — « en, fr ».
 #: src/lib/subedit/core/wording/version.cpp
 msgid "Languages: %1"
-msgstr ""
+msgstr "Nyelvek: %1"
 
 #: src/lib/subedit/core/wording/video.cpp
 msgid ""
 "positions cannot be shown in frames: the file is not counted in frames, the "
 "video declares no frame rate, and the positions fall on no grid"
 msgstr ""
+"a pozíciók nem mutathatók képkockákban: a fájl nincs képkockákban számolva, "
+"a videó nem deklarál képkockasebességet, és a pozíciók egyetlen rácsra sem "
+"esnek"
 
 #: src/lib/subedit/core/wording/video.cpp
 msgid "the rate the video declares"
-msgstr ""
+msgstr "a videó által deklarált sebesség"
 
 #: src/lib/subedit/core/wording/video.cpp
 msgid "the rate of the file"
-msgstr ""
+msgstr "a fájl sebessége"
 
 #: src/lib/subedit/core/wording/video.cpp
 msgid "the grid the positions fall on"
-msgstr ""
+msgstr "a rács, amelyre a pozíciók esnek"
 
 #. TRANSLATORS: %1 is a frame rate, %2 where it came from, such as « the
 #. rate the video declares ».
 #: src/lib/subedit/core/wording/video.cpp
 msgid "Positions are frame numbers, counted at %1 fps, %2"
-msgstr ""
+msgstr "A pozíciók képkockaszámok, %1 fps-sel számolva; forrás: %2"
 
 #: src/lib/subedit/core/wording/video.cpp
 msgid ""
@@ -2758,83 +2960,87 @@ msgid ""
 "counted in frames, and its positions fall on no grid. Associate a video that "
 "declares one."
 msgstr ""
+"nincs képkockasebesség a képkockák számolásához: a videó nem deklarál ilyet, "
+"a fájl nincs képkockákban számolva, és a pozíciói egyetlen rácsra sem esnek. "
+"Társítson olyan videót, amely deklarál."
 
 #: src/lib/subedit/core/wording/video.cpp
 msgid "No video"
-msgstr ""
+msgstr "Nincs videó"
 
 #. TRANSLATORS: %1 is the file name of a video, %2 the frame rate it declares.
 #: src/lib/subedit/core/wording/video.cpp
 msgid "Video: %1, %2 fps"
-msgstr ""
+msgstr "Videó: %1, %2 fps"
 
 #. TRANSLATORS: %1 is the file name of a video.
 #: src/lib/subedit/core/wording/video.cpp
 msgid "Video: %1"
-msgstr ""
+msgstr "Videó: %1"
 
 #: src/lib/subedit/gui/about_dialog.cpp
 msgid "A subtitle editor."
-msgstr ""
+msgstr "Feliratszerkesztő."
 
 #: src/lib/subedit/gui/about_dialog.cpp
 msgid "Licensed under the GPL, version 3 or later."
-msgstr ""
+msgstr "A GPL 3. vagy újabb változata szerint licencelve."
 
 #: src/lib/subedit/gui/about_dialog.cpp
 msgid "About subedit"
-msgstr ""
+msgstr "A subedit névjegye"
 
 #. TRANSLATORS: the heading of the column of the libraries' names, in « About subedit ».
 #: src/lib/subedit/gui/about_dialog.cpp
 msgid "Library"
-msgstr ""
+msgstr "Programkönyvtár"
 
 #. TRANSLATORS: the heading of the version of a library the program runs against.
 #: src/lib/subedit/gui/about_dialog.cpp
 msgid "Loaded"
-msgstr ""
+msgstr "Betöltve"
 
 #. TRANSLATORS: the heading of the version of a library the program was compiled with.
 #: src/lib/subedit/gui/about_dialog.cpp
 msgid "Built with"
-msgstr ""
+msgstr "Fordításkor"
 
 #: src/lib/subedit/gui/command_label.cpp src/lib/subedit/gui/window_actions.cpp
 msgid "Undo"
-msgstr ""
+msgstr "Visszavonás"
 
 #: src/lib/subedit/gui/command_label.cpp src/lib/subedit/gui/window_actions.cpp
 msgid "Redo"
-msgstr ""
+msgstr "Újra"
 
 #: src/lib/subedit/gui/command_label.cpp
 msgid "Shift Whole File onto Grid"
-msgstr ""
+msgstr "Az egész fájl eltolása a rácsra"
 
 #. TRANSLATORS: %1 is how far the whole file moves, in seconds.
 #: src/lib/subedit/gui/command_label.cpp
 msgid "Shift Whole File onto Grid (%1)"
-msgstr ""
+msgstr "Az egész fájl eltolása a rácsra (%1)"
 
 #. TRANSLATORS: %1 lists the patterns left out, each with its reason.
 #: src/lib/subedit/gui/correction_confirmation_page.cpp
 msgid "Not applied: %1"
-msgstr ""
+msgstr "Nem alkalmazva: %1"
 
 #. TRANSLATORS: %1 lists the pattern files that could not be read.
 #: src/lib/subedit/gui/correction_confirmation_page.cpp
 msgid "Could not be read: %1"
-msgstr ""
+msgstr "Nem olvasható: %1"
 
 #: src/lib/subedit/gui/correction_confirmation_page.cpp
 msgid "Mark All"
-msgstr ""
+msgstr "Összes kijelölése"
 
 #: src/lib/subedit/gui/correction_confirmation_page.cpp
 msgid "Unmark All"
-msgstr ""
+msgstr "Összes kijelölésének törlése"
 
+# From Gaupol.
 #: src/lib/subedit/gui/correction_confirmation_page.cpp
 #: src/lib/subedit/gui/operation_dialog.cpp
 msgid "Preview"
@@ -2842,36 +3048,38 @@ msgstr "Előnézet"
 
 #: src/lib/subedit/gui/correction_confirmation_page.cpp
 msgid "Remove all blank subtitles"
-msgstr ""
+msgstr "Az összes üres felirat eltávolítása"
 
 #: src/lib/subedit/gui/correction_confirmation_page.cpp
 msgid "Confirmation"
-msgstr ""
+msgstr "Megerősítés"
 
 #: src/lib/subedit/gui/correction_progress_page.cpp
 msgid "Progress"
-msgstr ""
+msgstr "Folyamat"
 
 #: src/lib/subedit/gui/correction_progress_page.cpp
 msgid "Computing the proposed corrections…"
-msgstr ""
+msgstr "A javasolt javítások kiszámítása…"
 
 #: src/lib/subedit/gui/correction_result_model.cpp
 msgid "Accept"
-msgstr "Elfogad"
+msgstr "Elfogadás"
 
 #: src/lib/subedit/gui/correction_result_model.cpp
 msgid "Original"
-msgstr ""
+msgstr "Eredeti"
 
+# From Gaupol.
 #: src/lib/subedit/gui/correction_result_model.cpp
 msgid "Corrected Text"
 msgstr "Javított szöveg"
 
 #: src/lib/subedit/gui/correction_target_page.cpp
 msgid "Tasks and Target"
-msgstr "Feladatok és célok"
+msgstr "Feladatok és cél"
 
+# From Gaupol.
 #: src/lib/subedit/gui/correction_target_page.cpp
 #: src/lib/subedit/gui/spell_check_settings_dialog.cpp
 msgid "Target"
@@ -2880,23 +3088,24 @@ msgstr "Cél"
 #: src/lib/subedit/gui/correction_target_page.cpp
 #: src/lib/subedit/gui/spell_check_settings_dialog.cpp
 msgid "Selection"
-msgstr ""
+msgstr "Kijelölés"
 
 #: src/lib/subedit/gui/correction_target_page.cpp
 #: src/lib/subedit/gui/spell_check_settings_dialog.cpp
 msgid "Current Project"
-msgstr ""
+msgstr "Jelenlegi projekt"
 
 #: src/lib/subedit/gui/correction_target_page.cpp
 #: src/lib/subedit/gui/spell_check_settings_dialog.cpp
 msgid "All Open Projects"
-msgstr ""
+msgstr "Az összes megnyitott projekt"
 
 #: src/lib/subedit/gui/correction_target_page.cpp
 #: src/lib/subedit/gui/spell_check_settings_dialog.cpp
 msgid "Document"
-msgstr ""
+msgstr "Dokumentum"
 
+# From Gaupol.
 #: src/lib/subedit/gui/correction_target_page.cpp
 #: src/lib/subedit/gui/operation_dialog.cpp
 #: src/lib/subedit/gui/spell_check_settings_dialog.cpp
@@ -2905,6 +3114,7 @@ msgstr ""
 msgid "Text"
 msgstr "Szöveg"
 
+# From Gaupol.
 #: src/lib/subedit/gui/correction_target_page.cpp
 #: src/lib/subedit/gui/spell_check_settings_dialog.cpp
 #: src/lib/subedit/gui/subtitle_table_model.cpp src/lib/subedit/gui/target.cpp
@@ -2913,13 +3123,14 @@ msgstr "Fordítás"
 
 #: src/lib/subedit/gui/correction_target_page.cpp
 msgid "Tasks"
-msgstr ""
+msgstr "Feladatok"
 
 #: src/lib/subedit/gui/correction_target_page.cpp
 #: src/lib/subedit/gui/correction_task_page.cpp
 msgid "Mentions"
-msgstr ""
+msgstr "Megjegyzések"
 
+# From Gaupol.
 #: src/lib/subedit/gui/correction_target_page.cpp
 #: src/lib/subedit/gui/join_split_page.cpp
 msgid "Join or Split Words"
@@ -2928,56 +3139,57 @@ msgstr "Szavak egyesítése vagy szétválasztása"
 #: src/lib/subedit/gui/correction_target_page.cpp
 #: src/lib/subedit/gui/correction_task_page.cpp
 msgid "Common Errors"
-msgstr ""
+msgstr "Gyakori hibák"
 
 #: src/lib/subedit/gui/correction_target_page.cpp
 #: src/lib/subedit/gui/correction_task_page.cpp
 msgid "Capitalization"
-msgstr ""
+msgstr "Nagybetűk"
 
 #: src/lib/subedit/gui/correction_target_page.cpp
 #: src/lib/subedit/gui/correction_task_page.cpp
 msgid "Line Break"
-msgstr ""
+msgstr "Sortörés"
 
 #: src/lib/subedit/gui/correction_task_page.cpp
 msgid "Human"
-msgstr ""
+msgstr "Emberi"
 
 #: src/lib/subedit/gui/correction_task_page.cpp
 msgid "OCR"
-msgstr ""
+msgstr "OCR"
 
 #: src/lib/subedit/gui/correction_task_page.cpp
 msgid "Skip subtitles with maximum line length of"
-msgstr ""
+msgstr "Azon feliratok kihagyása, amelyek leghosszabb sora legfeljebb"
 
 #: src/lib/subedit/gui/correction_task_page.cpp
 msgid "Skip subtitles with maximum line amount of"
-msgstr ""
+msgstr "Azon feliratok kihagyása, amelyek sorainak száma legfeljebb"
 
 #: src/lib/subedit/gui/correction_task_page.cpp
 #: src/lib/subedit/gui/preferences_dialog.cpp
 msgid "Characters"
-msgstr ""
+msgstr "Karakter"
 
 #: src/lib/subedit/gui/correction_task_page.cpp
 #: src/lib/subedit/gui/preferences_dialog.cpp
 msgid "Ems"
-msgstr ""
+msgstr "Em"
 
 #: src/lib/subedit/gui/correction_task_page.cpp
 msgid "Maximum length:"
-msgstr ""
+msgstr "Legnagyobb hosszúság:"
 
 #: src/lib/subedit/gui/correction_task_page.cpp
 msgid "Maximum lines:"
-msgstr ""
+msgstr "Legtöbb sor:"
 
 #: src/lib/subedit/gui/correction_task_page.cpp
 msgid "Unit:"
-msgstr ""
+msgstr "Egység:"
 
+# From Gaupol.
 #: src/lib/subedit/gui/correction_wizard.cpp
 msgid "Correct Texts"
 msgstr "Szövegek javítása"
@@ -2987,45 +3199,50 @@ msgid ""
 "What the reading ran into, and what is wrong with the subtitles — click for "
 "the list"
 msgstr ""
+"Amibe az olvasás ütközött, és ami a feliratokkal nincs rendben — kattintson "
+"a listáért"
 
 #: src/lib/subedit/gui/diagnostics_button.cpp
 msgid "%1 diagnostic"
 msgid_plural "%1 diagnostics"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%1 diagnosztikai üzenet"
+msgstr[1] "%1 diagnosztikai üzenet"
 
 #: src/lib/subedit/gui/disjoint_dialog.cpp
 msgid "Put a dash before each subtitle's text"
-msgstr ""
+msgstr "Gondolatjel betétele minden felirat szövege elé"
 
 #: src/lib/subedit/gui/disjoint_dialog.cpp
 msgid "Make ranges disjoint"
-msgstr ""
+msgstr "Tartományok szétválasztása"
 
 #: src/lib/subedit/gui/disjoint_dialog.cpp
 msgid "Repair subtitles"
-msgstr ""
+msgstr "Feliratok helyreállítása"
 
 #. TRANSLATORS: the unit after the number of a spin box, with its space: « 50 ms ».
 #: src/lib/subedit/gui/disjoint_dialog.cpp
 msgid " ms"
-msgstr ""
+msgstr " ms"
 
 #: src/lib/subedit/gui/disjoint_dialog.cpp
 msgid ""
 "An interval shorter than this is taken over by a neighbour. Zero keeps every "
 "interval."
 msgstr ""
+"Az ennél rövidebb közt átveszi egy szomszéd. A nulla minden közt megtart."
 
 #: src/lib/subedit/gui/disjoint_dialog.cpp
 msgid "No limit"
-msgstr ""
+msgstr "Nincs korlát"
 
 #: src/lib/subedit/gui/disjoint_dialog.cpp
 msgid ""
 "A merged subtitle with more lines is shown in windows of this many lines, "
 "one after the other."
 msgstr ""
+"Az ennél több soros egyesített feliratot ennyi soros ablakokban mutatja, "
+"egymás után."
 
 #: src/lib/subedit/gui/disjoint_dialog.cpp
 msgid ""
@@ -3034,6 +3251,10 @@ msgid ""
 "what shows together is merged line by line, the earliest first. Nothing is "
 "shortened or lengthened. Each change can be undone."
 msgstr ""
+"Az egymást ismétlő feliratok előbb egyesítve lesznek, a többi pedig kezdete "
+"szerint rendezve. Az átfedő feliratok az átfedésnél szét lesznek vágva, és "
+"ami egyszerre látszik, soronként egyesítve lesz, a legkorábbival kezdve. "
+"Semmi sem lesz rövidítve vagy hosszabbítva. Minden módosítás visszavonható."
 
 #: src/lib/subedit/gui/disjoint_dialog.cpp
 msgid ""
@@ -3041,122 +3262,131 @@ msgid ""
 "merged line by line, the earliest first. Nothing is shortened or lengthened. "
 "Each change can be undone."
 msgstr ""
+"Az átfedő feliratok az átfedésnél szét lesznek vágva, és ami egyszerre "
+"látszik, soronként egyesítve lesz, a legkorábbival kezdve. Semmi sem lesz "
+"rövidítve vagy hosszabbítva. Minden módosítás visszavonható."
 
 #: src/lib/subedit/gui/disjoint_dialog.cpp
 msgid "Shortest interval kept"
-msgstr ""
+msgstr "A megtartott legrövidebb köz"
 
 #: src/lib/subedit/gui/disjoint_dialog.cpp
 msgid "Most lines in a subtitle"
-msgstr ""
+msgstr "Legtöbb sor egy feliratban"
 
 #. TRANSLATORS: the unit after a number of seconds, with its space: « 1.5 s ».
 #: src/lib/subedit/gui/duration_adjust_dialog.cpp
 #: src/lib/subedit/gui/preferences_dialog.cpp
 msgid " s"
-msgstr ""
+msgstr " s"
 
 #: src/lib/subedit/gui/duration_adjust_dialog.cpp
 msgid "Lengthen durations to match it"
-msgstr ""
+msgstr "Az időtartamok növelése a megfeleléshez"
 
 #: src/lib/subedit/gui/duration_adjust_dialog.cpp
 msgid "Shorten durations to match it"
-msgstr ""
+msgstr "Az időtartamok csökkentése a megfeleléshez"
 
 #: src/lib/subedit/gui/duration_adjust_dialog.cpp
 msgid "Minimum duration"
-msgstr ""
+msgstr "Legkisebb időtartam"
 
 #: src/lib/subedit/gui/duration_adjust_dialog.cpp
 msgid "Maximum duration"
-msgstr ""
+msgstr "Legnagyobb időtartam"
 
 #: src/lib/subedit/gui/duration_adjust_dialog.cpp
 msgid "Gap between subtitles"
-msgstr ""
+msgstr "Köz a feliratok között"
 
 #: src/lib/subedit/gui/duration_adjust_dialog.cpp
 msgid "Adjust durations"
-msgstr ""
+msgstr "Időtartamok igazítása"
 
 #. TRANSLATORS: the unit after a reading speed, with its space: « 15 char/s ».
 #: src/lib/subedit/gui/duration_adjust_dialog.cpp
 msgid " char/s"
-msgstr ""
+msgstr " kar./s"
 
 #: src/lib/subedit/gui/duration_adjust_dialog.cpp
 msgid "Reading speed"
-msgstr ""
+msgstr "Olvasási sebesség"
 
 #: src/lib/subedit/gui/fixes_proposal_dialog.cpp
 msgid "Problems found in this file"
-msgstr ""
+msgstr "A fájlban talált problémák"
 
 #: src/lib/subedit/gui/fixes_proposal_dialog.cpp
 msgid ""
 "Opening this file found something that can be put right. Each correction can "
 "be undone."
 msgstr ""
+"A fájl megnyitásakor valami helyreállítható dolog derült ki. Minden javítás "
+"visszavonható."
 
 #: src/lib/subedit/gui/fixes_proposal_dialog.cpp
 msgid "Fix"
-msgstr ""
+msgstr "Javítás"
 
 #: src/lib/subedit/gui/fixes_proposal_dialog.cpp
 msgid "Keep as is"
-msgstr ""
+msgstr "Marad, ahogy van"
 
 #: src/lib/subedit/gui/fixes_proposal_dialog.cpp
 msgid "Join the repeated subtitles: %1 subtitle repeat one that they touch"
 msgid_plural ""
 "Join the repeated subtitles: %1 subtitles repeat one that they touch"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "Ismétlődő feliratok egyesítése: %1 felirat a mellette lévőt ismétli"
+msgstr[1] "Ismétlődő feliratok egyesítése: %1 felirat a mellette lévőt ismétli"
 
 #: src/lib/subedit/gui/fixes_proposal_dialog.cpp
 msgid "Sort the subtitles: not in order of start (%1 subtitle out of place)"
 msgid_plural ""
 "Sort the subtitles: not in order of start (%1 subtitles out of place)"
 msgstr[0] ""
+"Feliratok rendezése: nincsenek kezdet szerinti sorrendben (%1 felirat rossz "
+"helyen)"
 msgstr[1] ""
+"Feliratok rendezése: nincsenek kezdet szerinti sorrendben (%1 felirat rossz "
+"helyen)"
 
 #: src/lib/subedit/gui/fixes_proposal_dialog.cpp
 msgid ""
 "Make the ranges disjoint: %1 subtitle start before the previous one ends"
 msgid_plural ""
 "Make the ranges disjoint: %1 subtitles start before the previous one ends"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "Tartományok szétválasztása: %1 felirat az előző vége előtt kezdődik"
+msgstr[1] "Tartományok szétválasztása: %1 felirat az előző vége előtt kezdődik"
 
 #: src/lib/subedit/gui/frame_rate_dialog.cpp
 msgid "Convert frame rate"
-msgstr ""
+msgstr "Képkockasebesség átváltása"
 
 #: src/lib/subedit/gui/frame_rate_dialog.cpp
 msgid "Timed against"
-msgstr ""
+msgstr "Időzítve ehhez"
 
 #: src/lib/subedit/gui/frame_rate_dialog.cpp
 msgid "Should play at"
-msgstr ""
+msgstr "Ezen kellene lejátszani"
 
 #: src/lib/subedit/gui/frame_rate_dialog.cpp
 msgid "The positions say"
-msgstr ""
+msgstr "A pozíciók szerint"
 
 #: src/lib/subedit/gui/frame_rate_dialog.cpp
 msgid "The video declares"
-msgstr ""
+msgstr "A videó deklarálja"
 
 #: src/lib/subedit/gui/frame_rate_dialog.cpp
 msgid "The file was read at"
-msgstr ""
+msgstr "A fájl beolvasva ezzel"
 
 #. TRANSLATORS: %1 is the number of subtitles the file has, too few to measure.
 #: src/lib/subedit/gui/grid_analysis_dialog.cpp
 msgid "Too few subtitles to tell: %1 of them."
-msgstr ""
+msgstr "Túl kevés felirat az eldöntéshez: %1."
 
 #. TRANSLATORS: %1 is a share, « 41.2 % ».
 #: src/lib/subedit/gui/grid_analysis_dialog.cpp
@@ -3164,374 +3394,388 @@ msgid ""
 "No frame rate grid explains these positions. The closest candidate reaches "
 "%1."
 msgstr ""
+"Egyetlen képkockarács sem magyarázza ezeket a pozíciókat. A legközelebbi "
+"jelölt eredménye: %1."
 
 #. TRANSLATORS: %1 is a frame rate, %2 how clean the grid is (« clean »), %3 a share.
 #: src/lib/subedit/gui/grid_analysis_dialog.cpp
 msgid "Written on a %1 fps grid — %2, %3."
-msgstr ""
+msgstr "Írva %1 fps-es rácson — %2, %3."
 
 #. TRANSLATORS: %1 is a number of subtitle starts, %2 a length of time, « 1:32:05 ».
 #: src/lib/subedit/gui/grid_analysis_dialog.cpp
 msgid "Measured on %1 start, over %2."
 msgid_plural "Measured on %1 starts, over %2."
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "Mérve %1 kezdeten, %2 időtartamon át."
+msgstr[1] "Mérve %1 kezdeten, %2 időtartamon át."
 
 #. TRANSLATORS: %1 is a length of time, « 0.020 s ».
 #: src/lib/subedit/gui/grid_analysis_dialog.cpp
 msgid "Shifted off the grid by %1."
-msgstr ""
+msgstr "A rácstól való eltérés: %1."
 
 #. TRANSLATORS: %1 is a frame rate.
 #: src/lib/subedit/gui/grid_analysis_dialog.cpp
 msgid "%1 fps fits just as well, being a whole multiple of it."
 msgstr ""
+"A(z) %1 fps ugyanolyan jól megfelel, mert ennek egész számú többszöröse."
 
 #. TRANSLATORS: %1 is a frame rate.
 #: src/lib/subedit/gui/grid_analysis_dialog.cpp
 msgid "This span is too short to tell it from %1 fps."
 msgstr ""
+"Ez az időtartam túl rövid ahhoz, hogy megkülönböztethető legyen a(z) %1 fps-"
+"től."
 
 #. TRANSLATORS: %1 is a number of starts, %2 a number of runs, « 3 runs ».
 #: src/lib/subedit/gui/grid_analysis_dialog.cpp
 msgid "%1 of these starts leaves the grid, in %2."
 msgid_plural "%1 of these starts leave the grid, in %2."
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "Ezek közül a kezdetek közül %1 kilép a rácsból (%2)."
+msgstr[1] "Ezek közül a kezdetek közül %1 kilép a rácsból (%2)."
 
 #: src/lib/subedit/gui/grid_analysis_dialog.cpp
 msgid "Frame Rate Analysis"
-msgstr ""
+msgstr "Képkockasebesség-elemzés"
 
 #: src/lib/subedit/gui/grid_analysis_dialog.cpp
 msgid "Fit"
-msgstr ""
+msgstr "Illeszkedés"
 
 #: src/lib/subedit/gui/grid_analysis_dialog.cpp
 msgid "Frame rate"
-msgstr ""
+msgstr "Képkockasebesség"
 
 #: src/lib/subedit/gui/grid_analysis_dialog.cpp
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "Convert Frame Rate…"
-msgstr ""
+msgstr "Képkockasebesség átváltása…"
 
 #: src/lib/subedit/gui/hearing_impaired_dialog.cpp
 msgid "Remove hearing-impaired mentions"
-msgstr ""
+msgstr "Hallássérültek számára készült megjegyzések eltávolítása"
 
 #: src/lib/subedit/gui/hearing_impaired_dialog.cpp
 msgid ""
 "Mentions in square brackets are removed; parentheses are kept.\n"
 "A subtitle left with nothing is taken away."
 msgstr ""
+"A szögletes zárójelben álló megjegyzések eltávolításra kerülnek; a zárójelek "
+"megmaradnak.\n"
+"Az a felirat, amelyből semmi sem marad, törlődik."
 
 #: src/lib/subedit/gui/insert_dialog.cpp
 msgid "Insert subtitles"
-msgstr ""
+msgstr "Feliratok beszúrása"
 
 #: src/lib/subedit/gui/insert_dialog.cpp
 msgid "How many"
-msgstr ""
+msgstr "Hány"
 
 #: src/lib/subedit/gui/insert_dialog.cpp
 msgid "Where"
-msgstr ""
+msgstr "Hová"
 
 #. TRANSLATORS: the start of every line the window writes on its error stream.
 #: src/lib/subedit/gui/invocation.cpp
 msgid "subedit-gui: %1"
-msgstr ""
+msgstr "subedit-gui: %1"
 
 #: src/lib/subedit/gui/invocation.cpp
 msgid "%1: \"%2\" %3"
-msgstr ""
+msgstr "%1: „%2” %3"
 
 #: src/lib/subedit/gui/join_split_page.cpp
 msgid "Join words"
-msgstr ""
+msgstr "Szavak egyesítése"
 
 #: src/lib/subedit/gui/join_split_page.cpp
 msgid "Split words"
-msgstr ""
+msgstr "Szavak szétválasztása"
 
 #: src/lib/subedit/gui/join_split_page.cpp
 #: src/lib/subedit/gui/spell_check_settings_dialog.cpp
 msgid "Language:"
-msgstr ""
+msgstr "Nyelv:"
 
 #. TRANSLATORS: %1 is the name of the file; `[*]` is where Qt puts the mark of unsaved
 #. changes, and stays as it is.
 #: src/lib/subedit/gui/main_window.cpp
 msgid "%1[*] — subedit"
-msgstr ""
+msgstr "%1[*] — subedit"
 
 #: src/lib/subedit/gui/main_window.cpp src/lib/subedit/gui/project_files.cpp
 msgid "untitled"
-msgstr ""
+msgstr "névtelen"
 
 #: src/lib/subedit/gui/main_window.cpp
 msgid "New project"
-msgstr ""
+msgstr "Új projekt"
 
 #: src/lib/subedit/gui/main_window.cpp
 msgid "Open the installed manual"
-msgstr ""
+msgstr "A telepített kézikönyv megnyitása"
 
 #: src/lib/subedit/gui/main_window.cpp
 msgid "No manual is installed beside this program"
-msgstr ""
+msgstr "Nincs telepítve kézikönyv e program mellé"
 
 #. TRANSLATORS: %1 is the name of a file.
 #: src/lib/subedit/gui/main_window.cpp
 msgid "%1: already open"
-msgstr ""
+msgstr "%1: már meg van nyitva"
 
 #: src/lib/subedit/gui/main_window.cpp
 msgid "%1 video dropped at once: a project watches one film"
 msgid_plural "%1 videos dropped at once: a project watches one film"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "Egyszerre %1 videó lett ejtve: egy projekt egyetlen filmet néz"
+msgstr[1] "Egyszerre %1 videó lett ejtve: egy projekt egyetlen filmet néz"
 
 #: src/lib/subedit/gui/manual_window.cpp
 msgid "Back"
-msgstr ""
+msgstr "Vissza"
 
 #: src/lib/subedit/gui/manual_window.cpp
 msgid "Contents"
-msgstr ""
+msgstr "Tartalom"
 
 #: src/lib/subedit/gui/manual_window.cpp
 msgid "subedit — manual"
-msgstr ""
+msgstr "subedit — kézikönyv"
 
 #. TRANSLATORS: %1 is the path of a page of the manual.
 #: src/lib/subedit/gui/manual_window.cpp
 msgid "%1 could not be read."
-msgstr ""
+msgstr "A(z) %1 nem olvasható."
 
 #. TRANSLATORS: %1 is the path a link of the manual names.
 #: src/lib/subedit/gui/manual_window.cpp
 msgid ""
 "%1 is not part of the installed manual; it lives in the project's repository."
 msgstr ""
+"A(z) %1 nem része a telepített kézikönyvnek; a projekt tárolójában található."
 
 #: src/lib/subedit/gui/mpv_player.cpp
 msgid "the video player could not be started"
-msgstr ""
+msgstr "a videólejátszót nem sikerült elindítani"
 
+# From Gaupol.
 #: src/lib/subedit/gui/open_translation_dialog.cpp
 msgid "Open Translation"
 msgstr "Fordítás megnyitása"
 
 #: src/lib/subedit/gui/open_translation_dialog.cpp
 msgid "How should the lines of %1 be matched to the subtitles?"
-msgstr ""
+msgstr "Hogyan párosítsuk a(z) %1 sorait a feliratokkal?"
 
 #: src/lib/subedit/gui/open_translation_dialog.cpp
 msgid "By position — each line goes to the subtitle it falls in"
 msgstr ""
+"Pozíció szerint — minden sor ahhoz a felirathoz kerül, amelyben elhelyezkedik"
 
 #: src/lib/subedit/gui/open_translation_dialog.cpp
 msgid "By number — the nth line goes to the nth subtitle"
-msgstr ""
+msgstr "Szám szerint — az n-edik sor az n-edik feliratra kerül"
 
 #: src/lib/subedit/gui/operation_dialog.cpp
 msgid "Preview changes…"
-msgstr ""
+msgstr "Módosítások előnézete…"
 
 #: src/lib/subedit/gui/operation_dialog.cpp
 msgid "Nothing would change."
-msgstr ""
+msgstr "Semmi sem változna."
 
 #: src/lib/subedit/gui/operation_dialog.cpp
 msgid "%1 subtitle would change."
 msgid_plural "%1 subtitles would change."
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%1 felirat változna."
+msgstr[1] "%1 felirat változna."
 
 #: src/lib/subedit/gui/operation_dialog.cpp
 msgid "After"
-msgstr ""
+msgstr "Utána"
 
 #: src/lib/subedit/gui/operation_dialog.cpp
 msgid "Before"
-msgstr ""
+msgstr "Előtte"
 
 #: src/lib/subedit/gui/operation_dialog.cpp
 msgid "Selected: %1"
-msgstr ""
+msgstr "Kijelölt: %1"
 
 #: src/lib/subedit/gui/operation_dialog.cpp
 msgid "Whole project: %1"
-msgstr ""
+msgstr "Teljes projekt: %1"
 
 #. TRANSLATORS: %1 is a count of subtitles, « 120 subtitles ».
 #: src/lib/subedit/gui/operation_dialog.cpp
 msgid "Applies to: %1"
-msgstr ""
+msgstr "Érintett: %1"
 
 #: src/lib/subedit/gui/pattern_code_selector.cpp
 msgid "(every language)"
-msgstr ""
+msgstr "(minden nyelv)"
 
 #: src/lib/subedit/gui/pattern_code_selector.cpp
 msgid "(every country)"
-msgstr ""
+msgstr "(minden ország)"
 
 #: src/lib/subedit/gui/play_bar.cpp
 msgid "Position"
-msgstr ""
+msgstr "Pozíció"
 
+# From Gaupol.
 #: src/lib/subedit/gui/play_bar.cpp
 msgid "Volume"
 msgstr "Hangerő"
 
 #: src/lib/subedit/gui/play_bar.cpp
 msgid "Follow playback: keep the table on the subtitle that is showing"
-msgstr ""
+msgstr "Lejátszás követése: a táblázat a látható feliratnál marad"
 
 #: src/lib/subedit/gui/play_bar.cpp
 msgid "Follow"
-msgstr ""
+msgstr "Követés"
 
 #: src/lib/subedit/gui/play_bar.cpp
 msgid "Pause"
-msgstr ""
+msgstr "Szünet"
 
 #: src/lib/subedit/gui/play_bar.cpp
 msgid "Play"
-msgstr ""
+msgstr "Lejátszás"
 
 #. TRANSLATORS: the interface language that follows the environment, LANGUAGE and LANG.
 #: src/lib/subedit/gui/preferences_dialog.cpp
 msgid "System default"
-msgstr ""
+msgstr "Rendszer alapértelmezése"
 
 #: src/lib/subedit/gui/preferences_dialog.cpp
 msgid "Show line lengths in cells"
-msgstr ""
+msgstr "Sorhosszak megjelenítése a cellákban"
 
 #: src/lib/subedit/gui/preferences_dialog.cpp
 msgid "Show line lengths in the editor"
-msgstr ""
+msgstr "Sorhosszak megjelenítése a szerkesztőben"
 
 #: src/lib/subedit/gui/preferences_dialog.cpp
 msgid "Decode on the graphics card"
-msgstr ""
+msgstr "Dekódolás a grafikus kártyán"
 
 #: src/lib/subedit/gui/preferences_dialog.cpp
 msgid "Preferences"
-msgstr "Tulajdonságok"
+msgstr "Beállítások"
 
 #. TRANSLATORS: the unit after a number of frames, with its space: « 2 frames ».
 #: src/lib/subedit/gui/preferences_dialog.cpp
 msgid " frames"
-msgstr ""
+msgstr " képkocka"
 
 #: src/lib/subedit/gui/preferences_dialog.cpp
 msgid "Theme"
-msgstr ""
+msgstr "Téma"
 
 #: src/lib/subedit/gui/preferences_dialog.cpp
 msgid "Interface language"
-msgstr ""
+msgstr "A felület nyelve"
 
 #: src/lib/subedit/gui/preferences_dialog.cpp
 msgid "Takes effect at the next launch."
-msgstr ""
+msgstr "A következő indításkor lép érvénybe."
 
 #: src/lib/subedit/gui/preferences_dialog.cpp
 msgid "Length unit"
-msgstr ""
+msgstr "Hosszegység"
 
 #: src/lib/subedit/gui/preferences_dialog.cpp
 msgid "Seek length"
-msgstr ""
+msgstr "Tekerés hossza"
 
 #: src/lib/subedit/gui/preferences_dialog.cpp
 msgid "Context length"
-msgstr ""
+msgstr "Környezet hossza"
 
 #: src/lib/subedit/gui/preferences_dialog.cpp
 msgid "Frame step"
-msgstr ""
+msgstr "Léptetés képkockában"
 
 #: src/lib/subedit/gui/project_files.cpp
 msgid "Save All stopped: %1 of %2 document saved"
 msgid_plural "Save All stopped: %1 of %2 documents saved"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "Az összes mentése leállt: %1/%2 dokumentum mentve"
+msgstr[1] "Az összes mentése leállt: %1/%2 dokumentum mentve"
 
 #: src/lib/subedit/gui/project_files.cpp
 msgid "Nothing to save"
-msgstr ""
+msgstr "Nincs mit menteni"
 
 #: src/lib/subedit/gui/project_files.cpp
 msgid "%1 document saved"
 msgid_plural "%1 documents saved"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%1 dokumentum mentve"
+msgstr[1] "%1 dokumentum mentve"
 
 #: src/lib/subedit/gui/project_operations.cpp
 msgid "the two references define no correction"
-msgstr ""
+msgstr "a két hivatkozási pont nem határoz meg javítást"
 
 #. TRANSLATORS: %1 is Main or Translation.
 #: src/lib/subedit/gui/project_search.cpp
 msgid "Searching in: %1"
-msgstr ""
+msgstr "Keresés itt: %1"
 
 #: src/lib/subedit/gui/project_search.cpp
 msgid "Search wrapped around"
-msgstr ""
+msgstr "A keresés elölről folytatódott"
 
 #. TRANSLATORS: a filter of the file dialog; %1 lists the patterns, « *.srt *.vtt ».
 #: src/lib/subedit/gui/qt_prompts.cpp
 msgid "Subtitles (%1)"
-msgstr ""
+msgstr "Feliratok (%1)"
 
 #: src/lib/subedit/gui/qt_prompts.cpp
 msgid "All files (*)"
-msgstr ""
+msgstr "Minden fájl (*)"
 
 #. TRANSLATORS: a filter of the file dialog; %1 lists the patterns, « *.mkv *.mp4 ».
 #: src/lib/subedit/gui/qt_prompts.cpp
 msgid "Videos (%1)"
-msgstr ""
+msgstr "Videók (%1)"
 
+# From Gaupol.
 #: src/lib/subedit/gui/qt_prompts.cpp src/lib/subedit/gui/window_actions.cpp
 msgid "Open"
 msgstr "Megnyitás"
 
+# From Gaupol.
 #: src/lib/subedit/gui/qt_prompts.cpp
 msgid "Select Video"
 msgstr "Videó kiválasztása"
 
 #: src/lib/subedit/gui/qt_prompts.cpp
 msgid "The translation is no longer where it was read from."
-msgstr ""
+msgstr "A fordítás már nincs ott, ahonnan beolvasták."
 
 #: src/lib/subedit/gui/qt_prompts.cpp
 msgid "The translation has changes that were never written."
-msgstr ""
+msgstr "A fordításban vannak soha ki nem írt módosítások."
 
 #: src/lib/subedit/gui/qt_prompts.cpp
 msgid "The document is no longer where it was read from."
-msgstr ""
+msgstr "A dokumentum már nincs ott, ahonnan beolvasták."
 
 #: src/lib/subedit/gui/qt_prompts.cpp
 msgid "The document has changes that were never written."
-msgstr ""
+msgstr "A dokumentumban vannak soha ki nem írt módosítások."
 
 #: src/lib/subedit/gui/qt_prompts.cpp
 #: src/lib/subedit/gui/unsaved_documents_dialog.cpp
 msgid "Unsaved changes"
-msgstr ""
+msgstr "Nem mentett módosítások"
 
 #: src/lib/subedit/gui/qt_prompts.cpp
 msgid "Saving will lose something"
-msgstr ""
+msgstr "A mentés elveszít valamit"
 
 #: src/lib/subedit/gui/qt_prompts.cpp
 msgid ""
@@ -3539,632 +3783,684 @@ msgid ""
 "\n"
 "Open it again, moved?"
 msgstr ""
+"%1\n"
+"\n"
+"Megnyitja újra, az új helyén?"
 
+# From Gaupol.
 #: src/lib/subedit/gui/save_shape.cpp
 msgid "Western"
 msgstr "Nyugati"
 
 #: src/lib/subedit/gui/save_shape.cpp
 msgid "Central European"
-msgstr "Közép-Európai"
+msgstr "Közép-európai"
 
+# From Gaupol.
 #: src/lib/subedit/gui/save_shape.cpp
 msgid "Cyrillic"
 msgstr "Cirill"
 
+# From Gaupol.
 #: src/lib/subedit/gui/save_shape.cpp
 msgid "Greek"
 msgstr "Görög"
 
+# From Gaupol.
 #: src/lib/subedit/gui/save_shape.cpp
 msgid "Turkish"
 msgstr "Török"
 
+# From Gaupol.
 #: src/lib/subedit/gui/save_shape.cpp
 msgid "Japanese"
 msgstr "Japán"
 
+# From Gaupol.
 #: src/lib/subedit/gui/save_shape.cpp
 msgid "Chinese simplified"
 msgstr "Egyszerűsített kínai"
 
+# From Gaupol.
 #: src/lib/subedit/gui/save_shape.cpp
 msgid "Chinese traditional"
 msgstr "Hagyományos kínai"
 
 #: src/lib/subedit/gui/save_shape.cpp
 msgid "Byte order mark"
-msgstr ""
+msgstr "Bájtsorrend-jelző"
 
+# From Gaupol.
 #: src/lib/subedit/gui/save_shape.cpp
 msgid "Other…"
 msgstr "Egyéb…"
 
 #: src/lib/subedit/gui/save_shape.cpp
 msgid "Name of an encoding, e.g. cp1257"
-msgstr ""
+msgstr "Egy kódolás neve, például cp1257"
 
 #: src/lib/subedit/gui/save_shape.cpp
 msgid "Encoding:"
-msgstr ""
+msgstr "Kódolás:"
 
 #: src/lib/subedit/gui/save_shape.cpp
 msgid "Line endings:"
-msgstr ""
+msgstr "Sorvégek:"
 
+# From Gaupol.
 #: src/lib/subedit/gui/save_shape.cpp
 msgid "Save As"
 msgstr "Mentés másként"
 
 #: src/lib/subedit/gui/save_shape.cpp
 msgid "nothing was chosen"
-msgstr ""
+msgstr "semmi sem lett kiválasztva"
 
 #: src/lib/subedit/gui/search_dialog.cpp
 msgid "Regular expression"
-msgstr ""
+msgstr "Reguláris kifejezés"
 
 #: src/lib/subedit/gui/search_dialog.cpp
 msgid "Ignore case"
-msgstr ""
+msgstr "Kis- és nagybetű figyelmen kívül hagyása"
 
 #: src/lib/subedit/gui/search_dialog.cpp
 msgid "All open projects"
-msgstr ""
+msgstr "Az összes megnyitott projekt"
 
+# From Gaupol.
 #: src/lib/subedit/gui/search_dialog.cpp
 msgid "Find &Previous"
 msgstr "Elő&ző találat"
 
+# From Gaupol.
 #: src/lib/subedit/gui/search_dialog.cpp
 msgid "Find &Next"
 msgstr "Kö&vetkező találat"
 
+# From Gaupol.
 #: src/lib/subedit/gui/search_dialog.cpp
 msgid "&Replace"
 msgstr "Cse&re"
 
 #: src/lib/subedit/gui/search_dialog.cpp
 msgid "Replace &All"
-msgstr ""
+msgstr "&Összes cseréje"
 
 #: src/lib/subedit/gui/search_dialog.cpp
 msgid "Find and replace"
-msgstr ""
+msgstr "Keresés és csere"
 
+# From Gaupol.
 #: src/lib/subedit/gui/search_dialog.cpp src/lib/subedit/gui/window_actions.cpp
 msgid "Find"
 msgstr "Keresés"
 
 #: src/lib/subedit/gui/search_dialog.cpp
 msgid "Replace with"
-msgstr ""
+msgstr "Csere erre"
 
 #: src/lib/subedit/gui/shift_dialog.cpp
 msgid "Shift positions"
-msgstr ""
+msgstr "Pozíciók eltolása"
 
 #: src/lib/subedit/gui/shift_dialog.cpp
 msgid "Shift by"
-msgstr ""
+msgstr "Eltolás mértéke"
 
 #: src/lib/subedit/gui/snap_dialog.cpp
 msgid "Snap to frame rate"
-msgstr ""
+msgstr "Illesztés a képkockasebességhez"
 
 #: src/lib/subedit/gui/snap_dialog.cpp
 msgid "Lay positions on"
-msgstr ""
+msgstr "A pozíciók illesztése ehhez"
 
 #: src/lib/subedit/gui/spell_check_controller.cpp
 msgid "Nothing to check."
-msgstr ""
+msgstr "Nincs mit ellenőrizni."
 
 #: src/lib/subedit/gui/spell_check_controller.cpp
 msgid "Could not save the replacements for %1: %2"
-msgstr ""
+msgstr "Nem sikerült menteni a cseréket ehhez: %1: %2"
 
+# From Gaupol.
 #: src/lib/subedit/gui/spell_check_dialog.cpp
 msgid "Add"
 msgstr "Hozzáadás"
 
 #: src/lib/subedit/gui/spell_check_dialog.cpp
 msgid "Ignore"
-msgstr ""
+msgstr "Kihagyás"
 
 #: src/lib/subedit/gui/spell_check_dialog.cpp
 msgid "Ignore All"
-msgstr ""
+msgstr "Összes kihagyása"
 
 #: src/lib/subedit/gui/spell_check_dialog.cpp
 msgid "Replace"
-msgstr ""
+msgstr "Csere"
 
 #: src/lib/subedit/gui/spell_check_dialog.cpp
 msgid "Replace All"
-msgstr ""
+msgstr "Összes cseréje"
 
 #: src/lib/subedit/gui/spell_check_dialog.cpp
 msgid "Join with Previous"
-msgstr ""
+msgstr "Egyesítés az előzővel"
 
 #: src/lib/subedit/gui/spell_check_dialog.cpp
 msgid "Join with Next"
-msgstr ""
+msgstr "Egyesítés a következővel"
 
 #: src/lib/subedit/gui/spell_check_dialog.cpp
 msgid "Save and Resume"
-msgstr ""
+msgstr "Mentés és folytatás"
 
+# From Gaupol.
 #: src/lib/subedit/gui/spell_check_dialog.cpp
 msgid "Check Spelling"
 msgstr "Helyesírás-ellenőrzés"
 
 #: src/lib/subedit/gui/spell_check_dialog.cpp
 msgid "Replace with:"
-msgstr ""
+msgstr "Csere erre:"
 
 #: src/lib/subedit/gui/spell_check_dialog.cpp
 msgid "Suggestions:"
-msgstr ""
+msgstr "Javaslatok:"
 
 #: src/lib/subedit/gui/spell_check_settings_dialog.cpp
 msgid "Check spelling while editing"
-msgstr ""
+msgstr "Helyesírás-ellenőrzés gépelés közben"
 
 #: src/lib/subedit/gui/spell_check_settings_dialog.cpp
 msgid "Spell-Check Settings"
-msgstr ""
+msgstr "Helyesírás-ellenőrzés beállításai"
 
 #: src/lib/subedit/gui/split_project_dialog.cpp
 msgid "Split project"
-msgstr ""
+msgstr "Projekt kettéosztása"
 
 #: src/lib/subedit/gui/split_project_dialog.cpp
 msgid "Split at subtitle"
-msgstr ""
+msgstr "Kettéosztás ennél a feliratnál"
 
 #: src/lib/subedit/gui/split_project_dialog.cpp
 msgid ""
 "The subtitles from this one on move to a new project, opened in a tab of its "
 "own."
 msgstr ""
+"Az ettől kezdődő feliratok új projektbe kerülnek, amely saját lapon nyílik "
+"meg."
 
 #. TRANSLATORS: %1 is Main or Translation, the text an operation aims at.
 #: src/lib/subedit/gui/status_line.cpp
 msgid "Text: %1"
-msgstr ""
+msgstr "Szöveg: %1"
 
+# From Gaupol.
 #: src/lib/subedit/gui/subtitle_table_model.cpp
 msgid "Start"
 msgstr "Kezdet"
 
 #: src/lib/subedit/gui/subtitle_table_model.cpp
 msgid "Start (frames)"
-msgstr ""
+msgstr "Kezdet (képkocka)"
 
+# From Gaupol.
 #: src/lib/subedit/gui/subtitle_table_model.cpp
 msgid "End"
 msgstr "Vég"
 
 #: src/lib/subedit/gui/subtitle_table_model.cpp
 msgid "End (frames)"
-msgstr ""
+msgstr "Vég (képkocka)"
 
+# From Gaupol.
 #: src/lib/subedit/gui/subtitle_table_model.cpp
 msgid "Duration"
 msgstr "Időtartam"
 
+# From Gaupol.
 #: src/lib/subedit/gui/table_columns.cpp
 msgid "&Duration"
 msgstr "I&dőtartam"
 
+# From Gaupol.
 #: src/lib/subedit/gui/table_columns.cpp
 msgid "&End"
 msgstr "&Vég"
 
+# From Gaupol.
 #: src/lib/subedit/gui/table_columns.cpp
 msgid "&No."
 msgstr "&Sorszám"
 
+# From Gaupol.
 #: src/lib/subedit/gui/table_columns.cpp
 msgid "&Start"
 msgstr "Ke&zdet"
 
+# From Gaupol.
 #: src/lib/subedit/gui/table_columns.cpp
 msgid "&Translation"
 msgstr "Fo&rdítás"
 
 #: src/lib/subedit/gui/table_columns.cpp
 msgid "Show the translation next to the text"
-msgstr ""
+msgstr "A fordítás megjelenítése a szöveg mellett"
 
 #: src/lib/subedit/gui/target.cpp
 msgid "Main"
-msgstr ""
+msgstr "Fő"
 
 #: src/lib/subedit/gui/transform_dialog.cpp
 msgid "Transform positions"
-msgstr ""
+msgstr "Pozíciók átalakítása"
 
 #: src/lib/subedit/gui/transform_dialog.cpp
 msgid "Subtitle"
-msgstr ""
+msgstr "Felirat"
 
 #: src/lib/subedit/gui/transform_dialog.cpp
 msgid "Now starts"
-msgstr ""
+msgstr "Jelenlegi kezdet"
 
 #: src/lib/subedit/gui/transform_dialog.cpp
 msgid "Should start"
-msgstr ""
+msgstr "Kívánt kezdet"
 
 #: src/lib/subedit/gui/transform_dialog.cpp
 msgid ""
 "Pick two subtitles and say when each one should start.\n"
 "All the other subtitles are moved and stretched to match."
 msgstr ""
+"Válasszon ki két feliratot, és adja meg, mikor kell mindegyiknek kezdődnie.\n"
+"Minden más felirat eltolódik és nyúlik, hogy illeszkedjen."
 
 #: src/lib/subedit/gui/transform_dialog.cpp
 msgid "Reference 1"
-msgstr ""
+msgstr "1. hivatkozási pont"
 
 #: src/lib/subedit/gui/transform_dialog.cpp
 msgid "Reference 2"
-msgstr ""
+msgstr "2. hivatkozási pont"
 
 #. TRANSLATORS: %1 is « Main — film.srt », a document and its file.
 #: src/lib/subedit/gui/unsaved_documents_dialog.cpp
 msgid "%1 (file is gone from the disk)"
-msgstr ""
+msgstr "%1 (a fájl eltűnt a lemezről)"
 
+# From Gaupol.
 #: src/lib/subedit/gui/unsaved_documents_dialog.cpp
 msgid "&Save"
 msgstr "&Mentés"
 
 #: src/lib/subedit/gui/unsaved_documents_dialog.cpp
 msgid "Close &Without Saving"
-msgstr "Bezárás &mentés nélkül"
+msgstr "Bezárás m&entés nélkül"
 
 #: src/lib/subedit/gui/unsaved_documents_dialog.cpp
 msgid "Cancel"
-msgstr ""
+msgstr "Mégse"
 
 #: src/lib/subedit/gui/unsaved_documents_dialog.cpp
 msgid ""
 "These documents have changes that were never written.\n"
 "Tick the ones to save."
 msgstr ""
+"Ezekben a dokumentumokban vannak soha ki nem írt módosítások.\n"
+"Jelölje be azokat, amelyeket menteni kell."
 
 #: src/lib/subedit/gui/video_pane.cpp src/lib/subedit/gui/window_actions.cpp
 msgid "Select Video…"
-msgstr ""
+msgstr "Videó kiválasztása…"
 
 #: src/lib/subedit/gui/video_pane.cpp
 msgid "%1: no video player is available"
-msgstr ""
+msgstr "%1: nem érhető el videólejátszó"
 
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "&New Project"
-msgstr ""
+msgstr "&Új projekt"
 
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "Open…"
-msgstr ""
+msgstr "Megnyitás…"
 
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "Open &Translation…"
-msgstr "Fordí&tási fájl megnyitása…"
+msgstr "Fordítás &megnyitása…"
 
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "Save"
-msgstr ""
+msgstr "Mentés"
 
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "Save As…"
-msgstr ""
+msgstr "Mentés másként…"
 
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "Save Tr&anslation"
-msgstr "&Fordítás mentése"
+msgstr "Fordítás m&entése"
 
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "Save Translation As…"
-msgstr ""
+msgstr "Fordítás mentése másként…"
 
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "&Close"
-msgstr "Be&zárás"
+msgstr "&Bezárás"
 
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "Cu&t Texts"
-msgstr ""
+msgstr "Szövegek &kivágása"
 
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "&Copy Texts"
-msgstr ""
+msgstr "Szövegek &másolása"
 
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "&Paste Texts"
-msgstr ""
+msgstr "Szövegek &beillesztése"
 
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "&Find and Replace…"
-msgstr ""
+msgstr "Ke&resés és csere…"
 
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "Insert Subtitles…"
-msgstr ""
+msgstr "Feliratok beszúrása…"
 
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "Remove Subtitles"
-msgstr ""
+msgstr "Feliratok eltávolítása"
 
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "&Join Repeated Subtitles"
-msgstr ""
+msgstr "Ismétlődő feliratok &egyesítése"
 
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "S&ort Subtitles"
-msgstr ""
+msgstr "Feliratok re&ndezése"
 
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "Make Ranges &Disjoint…"
-msgstr ""
+msgstr "Tartományok &szétválasztása…"
 
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "&Repair Subtitles…"
-msgstr ""
+msgstr "Feliratok &helyreállítása…"
 
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "&Merge Subtitles"
-msgstr "Fel&iratsorok egyesítése"
+msgstr "Feliratok össze&vonása"
 
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "S&plit Subtitle"
-msgstr "Felirats&or felosztása"
+msgstr "Felirat &felosztása"
 
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "&Preferences…"
-msgstr ""
+msgstr "Be&állítások…"
 
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "Positions in &Frames"
-msgstr ""
+msgstr "Pozíciók &képkockában"
 
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "Play / Pause"
-msgstr ""
+msgstr "Lejátszás / Szünet"
 
+# From Gaupol.
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "Play &Selection"
 msgstr "Kijelö&lt lejátszása"
 
+# From Gaupol.
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "Seek &Previous"
 msgstr "&Ugrás az előzőre"
 
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "Seek &Next"
-msgstr "&Ugrás a következőre"
+msgstr "Ugrás a &következőre"
 
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "Seek &Backward"
-msgstr "Lé&ptetés hátra"
+msgstr "Vissza&tekerés"
 
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "Seek &Forward"
-msgstr "Léptetés elő&re"
+msgstr "&Előretekerés"
 
+# From Gaupol.
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "S&eek Selection Start"
 msgstr "Ugrás a ki&jelölés elejére"
 
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "See&k Selection End"
-msgstr "Ugrás a &kijelölés végére"
+msgstr "Ugrás a kijelölés &végére"
 
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "Step Backward"
-msgstr ""
+msgstr "Léptetés hátra"
 
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "Step Forward"
-msgstr ""
+msgstr "Léptetés előre"
 
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "Nudge Start Earlier"
-msgstr ""
+msgstr "Kezdet korábbra"
 
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "Nudge Start Later"
-msgstr ""
+msgstr "Kezdet későbbre"
 
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "Nudge End Earlier"
-msgstr ""
+msgstr "Vég korábbra"
 
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "Nudge End Later"
-msgstr ""
+msgstr "Vég későbbre"
 
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "Set S&tart from Video Position"
-msgstr ""
+msgstr "Kez&det beállítása a videó pozíciójából"
 
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "Set En&d from Video Position"
-msgstr ""
+msgstr "Vé&g beállítása a videó pozíciójából"
 
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "&Insert Subtitle at Video Position"
-msgstr ""
+msgstr "Felirat &beszúrása a videó pozíciójánál"
 
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "Select Previous from Video Position"
-msgstr ""
+msgstr "Az előző kijelölése a videó pozíciójától"
 
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "Select Next from Video Position"
-msgstr ""
+msgstr "A következő kijelölése a videó pozíciójától"
 
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "Volume &Down"
-msgstr "Hangerő &Le"
+msgstr "Hangerő &le"
 
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "Volume &Up"
-msgstr "Hangerő &Fel"
+msgstr "Hangerő &fel"
 
+# From Gaupol.
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "&Language"
 msgstr "&Nyelv"
 
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "Shift Positions…"
-msgstr ""
+msgstr "Pozíciók eltolása…"
 
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "Transform Positions…"
-msgstr ""
+msgstr "Pozíciók átalakítása…"
 
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "Adjust Durations…"
-msgstr ""
+msgstr "Időtartamok igazítása…"
 
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "Append &File…"
-msgstr "Fáj&l hozzáfűzése…"
+msgstr "Fájl hozzá&fűzése…"
 
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "Spli&t Project…"
-msgstr "Projek&t felosztása…"
+msgstr "Projekt &kettéosztása…"
 
+# From Gaupol.
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "&Italic"
 msgstr "&Dőlt betű"
 
+# From Gaupol.
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "&Dialogue"
 msgstr "&Párbeszéd"
 
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "Remove Hearing-Impaired Mentions…"
-msgstr ""
+msgstr "Hallássérültek számára készült megjegyzések eltávolítása…"
 
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "&Correct Texts…"
-msgstr "Szöveg &javítása…"
+msgstr "Szövegek &javítása…"
 
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "Chec&k Spelling…"
-msgstr ""
+msgstr "&Helyesírás-ellenőrzés…"
 
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "Spell-Check &Settings…"
-msgstr ""
+msgstr "Helyesírás-ellenőrzés &beállításai…"
 
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "Snap to Frame Rate…"
-msgstr ""
+msgstr "Illesztés a képkockasebességhez…"
 
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "Frame Rate &Analysis…"
-msgstr ""
+msgstr "Képkockasebesség-&elemzés…"
 
+# From Gaupol.
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "&Save All"
 msgstr "Ö&sszes mentése"
 
+# From Gaupol.
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "&Close All"
 msgstr "Öss&zes bezárása"
 
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "&Manual"
-msgstr ""
+msgstr "&Kézikönyv"
 
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "&About subedit"
-msgstr ""
+msgstr "A subedit &névjegye"
 
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "&Title Case"
-msgstr ""
+msgstr "&Címszerű"
 
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "&Sentence case"
-msgstr ""
+msgstr "&Mondatszerű"
 
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "&UPPER CASE"
-msgstr ""
+msgstr "&NAGYBETŰS"
 
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "&lower case"
-msgstr ""
+msgstr "&kisbetűs"
 
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "Open an empty project in a new tab"
-msgstr ""
+msgstr "Üres projekt megnyitása új lapon"
 
+# From Gaupol.
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "&File"
 msgstr "&Fájl"
 
+# From Gaupol.
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "&Edit"
 msgstr "&Szerkesztés"
 
+# From Gaupol.
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "&View"
 msgstr "&Nézet"
 
+# From Gaupol.
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "&Columns"
 msgstr "&Oszlopok"
 
+# From Gaupol.
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "&Video"
 msgstr "Vi&deó"
 
+# From Gaupol.
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "&Audio"
 msgstr "&Audió"
 
+# From Gaupol.
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "&Tools"
 msgstr "&Eszközök"
 
+# From Gaupol.
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "Ca&se"
 msgstr "Ki&s- és nagybetű"
 
+# From Gaupol.
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "&Projects"
 msgstr "&Projektek"
 
+# From Gaupol.
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "&Help"
 msgstr "Sú&gó"
 
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "New"
-msgstr ""
+msgstr "Új"
 
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "Insert"
-msgstr ""
+msgstr "Beszúrás"
 
+# From Gaupol.
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "Remove"
 msgstr "Eltávolítás"
 
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "Italic"
-msgstr ""
+msgstr "Dőlt betű"
 
 #: src/lib/subedit/gui/window_actions.cpp
 msgctxt "toolbar"
 msgid "Main"
-msgstr ""
+msgstr "Fő"

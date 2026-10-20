@@ -74,16 +74,19 @@ nommé comme son fichier l'écrit. Les fichiers de motifs eux-mêmes ne sont jam
 
 Les catalogues sont installés sous `<prefix>/share/subedit/locale/<language>/LC_MESSAGES/subedit.mo`
 et trouvés à partir du répertoire de l'exécutable lui-même. L'anglais est intégré au programme.
-Cette version installe `ca`, `cs`, `de`, `es`, `fi`, `fr` et `gl` — le catalan, le tchèque,
-l'allemand, l'espagnol, le finnois, le français et le galicien — traduits en entier. Le français a
-été relu par un lecteur de la langue ; le catalan, le tchèque, l'allemand, l'espagnol, le finnois
-et le galicien sont traduits par machine et pas encore relus par un lecteur de la langue.
+Cette version installe `ca`, `cs`, `de`, `es`, `fi`, `fr`, `gl`, `he`, `hu` et `ie` — le catalan, le tchèque,
+l'allemand, l'espagnol, le finnois, le français, le galicien, l'hébreu, le hongrois et l'interlingue — traduits en entier. Le français a
+été relu par un lecteur de la langue ; le catalan, le tchèque, l'allemand, l'espagnol, le finnois,
+le galicien, l'hébreu, le hongrois et l'interlingue sont traduits par machine et pas encore relus par un lecteur de la langue.
 <!-- machine-translated: ca -->
 <!-- machine-translated: cs -->
 <!-- machine-translated: de -->
 <!-- machine-translated: es -->
 <!-- machine-translated: fi -->
 <!-- machine-translated: gl -->
+<!-- machine-translated: he -->
+<!-- machine-translated: hu -->
+<!-- machine-translated: ie -->
 Sous `LANG=fr_FR.UTF-8`,
 `subedit-cli --help` commence par « Lire, inspecter et recaler des fichiers de sous-titres. » Un
 script qui lit les mots de la sortie texte pose `LANGUAGE=en` (ou `LC_ALL=C`) — ou lit
@@ -216,7 +219,7 @@ code `0`. Une sous-commande donnée en plus n'est pas exécutée, et `-q` et `-v
 <!-- example: subedit-cli --version | head -n 1 -->
 ```console
 $ subedit-cli --version | head -n 1
-subedit 0.15.43
+subedit 0.15.44
 ```
 
 Le tout, sur une machine qui a ICU 74.2 et Enchant 2.3.3 — les numéros sont ceux de la machine :
@@ -871,7 +874,7 @@ FICHIERS de chaque page nomme le répertoire où le manuel est installé.
 | Pages | Où elles sont installées |
 | :---- | :----------------------- |
 | l'anglais | `share/man/man1` |
-| chaque langue installée — catalan, tchèque, allemand, espagnol, finnois, français, galicien | `share/man/<language>/man1` — `share/man/fr/man1` |
+| chaque langue installée — catalan, tchèque, allemand, espagnol, finnois, français, galicien, hébreu, hongrois, interlingue | `share/man/<language>/man1` — `share/man/fr/man1` |
 
 **`man` choisit la langue d'après la locale**, comme le programme : sous une locale française,
 `man subedit-cli` affiche la page française, et une langue dont les pages ne sont pas installées

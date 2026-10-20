@@ -26,10 +26,10 @@ sudo dnf install ./subedit-<version>.x86_64.rpm     # Fedora, and relatives
 | `subedit-cli`, `subedit-gui` | `/usr/bin` |
 | valikkomerkintä, kuvake, sovelluskeskuksen metatiedot | `/usr/share/applications`, `/usr/share/icons`, `/usr/share/metainfo` |
 | tämä käyttöopas Markdown-muodossa | `/usr/share/subedit/manual` |
-| sen käännös kullekin asennetulle kielelle — katalaani, tšekki, saksa, espanja, suomi, ranska, galicia | `/usr/share/subedit/manual/<language>` — `ca`, `cs`, `de`, `es`, `fi`, `fr`, `gl` |
+| sen käännös kullekin asennetulle kielelle — katalaani, tšekki, saksa, espanja, suomi, ranska, galicia, heprea, unkari, interlingue | `/usr/share/subedit/manual/<language>` — `ca`, `cs`, `de`, `es`, `fi`, `fr`, `gl`, `he`, `hu`, `ie` |
 | Gaupolin korjauslausekkeet | `/usr/share/subedit/patterns` |
 | ohjelman `subedit-cli` man-sivut, yksi kutakin alikomentoa kohden, sekä ohjelman `subedit-gui` man-sivu — katso [Man-sivut](invocation.md#man-sivut) | `/usr/share/man/man1` |
-| ohjelman `subedit-cli` sivut kullakin asennetulla kielellä — katalaani, tšekki, saksa, espanja, suomi, ranska, galicia | `/usr/share/man/<language>/man1` — `ca`, `cs`, `de`, `es`, `fi`, `fr`, `gl` |
+| ohjelman `subedit-cli` sivut kullakin asennetulla kielellä — katalaani, tšekki, saksa, espanja, suomi, ranska, galicia, heprea, unkari, interlingue | `/usr/share/man/<language>/man1` — `ca`, `cs`, `de`, `es`, `fi`, `fr`, `gl`, `he`, `hu`, `ie` |
 
 Molemmat paketit **suosittelevat ohjelmaa `ffmpeg`, mutta eivät vaadi sitä**: ilman sitä
 ikkuna ainoastaan lakkaa tarjoamasta elokuvan ilmoittamaa ruutunopeutta — katso
@@ -197,10 +197,10 @@ etuliitteelle:
 | kuvake | `<prefix>/share/icons/hicolor/scalable/apps` |
 | sovelluskeskuksen metatiedot | `<prefix>/share/metainfo` |
 | tämä käyttöopas Markdown-muodossa | `<prefix>/share/subedit/manual` |
-| sen käännös kullekin asennetulle kielelle — katalaani, tšekki, saksa, espanja, suomi, ranska, galicia | `<prefix>/share/subedit/manual/<language>` — `ca`, `cs`, `de`, `es`, `fi`, `fr`, `gl` |
+| sen käännös kullekin asennetulle kielelle — katalaani, tšekki, saksa, espanja, suomi, ranska, galicia, heprea, unkari, interlingue | `<prefix>/share/subedit/manual/<language>` — `ca`, `cs`, `de`, `es`, `fi`, `fr`, `gl`, `he`, `hu`, `ie` |
 | Gaupolin korjauslausekkeet | `<prefix>/share/subedit/patterns` |
 | molempien ohjelmien man-sivut, ohjelmalle `subedit-cli` yksi kutakin alikomentoa kohden | `<prefix>/share/man/man1` |
-| ohjelman `subedit-cli` sivut kullakin asennetulla kielellä — katalaani, tšekki, saksa, espanja, suomi, ranska, galicia | `<prefix>/share/man/<language>/man1` — `ca`, `cs`, `de`, `es`, `fi`, `fr`, `gl` |
+| ohjelman `subedit-cli` sivut kullakin asennetulla kielellä — katalaani, tšekki, saksa, espanja, suomi, ranska, galicia, heprea, unkari, interlingue | `<prefix>/share/man/<language>/man1` — `ca`, `cs`, `de`, `es`, `fi`, `fr`, `gl`, `he`, `hu`, `ie` |
 
 **Ne ovat samat tiedostot, jotka paketit asentavat**: paketit syntyvät niistä
 sen sijaan, että ne kuvattaisiin toiseen kertaan.
