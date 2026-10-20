@@ -32,7 +32,7 @@ környezeté — lásd:
 | Az ablak ezen szól | A kézikönyv ezen nyílik meg |
 | :---------------- | :------------------ |
 | angolul | angolul |
-| olyan nyelven, amelynek kézikönyve telepítve van — katalán, cseh, német, spanyol, finn, francia, galíciai, héber, magyar, interlingue | azon a nyelven |
+| olyan nyelven, amelynek kézikönyve telepítve van — katalán, cseh, német, spanyol, finn, francia, galíciai, héber, magyar, interlingue, izlandi, olasz, holland | azon a nyelven |
 | olyan nyelven, amelynek kézikönyve nincs telepítve | angolul |
 
 **Oldalanként, nem mindent vagy semmit**: az az oldal, amellyel a fordítás nem rendelkezik,
