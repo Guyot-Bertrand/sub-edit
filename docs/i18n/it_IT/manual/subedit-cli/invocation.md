@@ -75,9 +75,9 @@ anch'esso la lingua, quando il catalogo lo conosce — i modelli forniti con il 
 proprio è nominato come lo scrive il suo file. I file dei modelli non vengono mai riscritti.
 
 I cataloghi sono installati in `<prefix>/share/subedit/locale/<language>/LC_MESSAGES/subedit.mo`
-e cercati a partire dalla directory dell'eseguibile stesso. L'inglese è integrato. Questa versione installa `ca`, `cs`, `de`, `es`, `fi`, `fr`, `gl`, `he`, `hu`, `ie`, `is`, `it_IT` e `nl` — catalano,
-ceco, tedesco, spagnolo, finlandese, francese, galiziano, ebraico, ungherese, interlingue, islandese, italiano e olandese — tradotte per intero. Il francese è stato rivisto
-da un lettore della lingua; catalano, ceco, tedesco, spagnolo, finlandese, galiziano, ebraico, ungherese, interlingue, islandese, italiano e olandese sono
+e cercati a partire dalla directory dell'eseguibile stesso. L'inglese è integrato. Questa versione installa `ca`, `cs`, `de`, `es`, `fi`, `fr`, `gl`, `he`, `hu`, `ie`, `is`, `it_IT`, `nl`, `pl`, `pt` e `pt_BR` — catalano,
+ceco, tedesco, spagnolo, finlandese, francese, galiziano, ebraico, ungherese, interlingue, islandese, italiano, olandese, polacco, portoghese e portoghese brasiliano — tradotte per intero. Il francese è stato rivisto
+da un lettore della lingua; catalano, ceco, tedesco, spagnolo, finlandese, galiziano, ebraico, ungherese, interlingue, islandese, italiano, olandese, polacco, portoghese e portoghese brasiliano sono
 tradotti automaticamente e non ancora rivisti da un lettore della lingua.
 <!-- machine-translated: ca -->
 <!-- machine-translated: cs -->
@@ -874,7 +874,7 @@ pagina nomina la directory in cui il manuale è installato.
 | Pagine | Dove sono installate |
 | :---- | :----------------------- |
 | inglese | `share/man/man1` |
-| ogni lingua installata — catalano, ceco, tedesco, spagnolo, finlandese, francese, galiziano, ebraico, ungherese, interlingue, islandese, italiano, olandese | `share/man/<language>/man1` — `share/man/fr/man1` |
+| ogni lingua installata — catalano, ceco, tedesco, spagnolo, finlandese, francese, galiziano, ebraico, ungherese, interlingue, islandese, italiano, olandese, polacco, portoghese, portoghese brasiliano | `share/man/<language>/man1` — `share/man/fr/man1` |
 
 **`man` sceglie la lingua dal locale**, come fa il programma: con un locale francese,
 `man subedit-cli` mostra la pagina francese, e una lingua le cui pagine non sono installate riceve
