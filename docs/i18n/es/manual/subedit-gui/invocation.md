@@ -148,9 +148,9 @@ se impone a cualquier variable, `LC_ALL=C` incluida. La elección también se ap
 | los atajos de teclado | nunca: `Ctrl+S` es `Ctrl+S` en todos los idiomas |
 | un mensaje que el catálogo no traduce | se muestra en inglés |
 
-Esta versión instala `ca`, `cs`, `de`, `es`, `fi`, `fr`, `gl`, `he`, `hu`, `ie`, `is`, `it_IT` y `nl` — catalán, checo, alemán, español,
-finés, francés, gallego, hebreo, húngaro, interlingue, islandés, italiano y neerlandés — traducidos por completo. El francés lo ha revisado un lector del
-idioma; el catalán, el checo, el alemán, el español, el finés, el gallego, el hebreo, el húngaro, el interlingue, el islandés, el italiano y el neerlandés son traducciones automáticas que todavía
+Esta versión instala `ca`, `cs`, `de`, `es`, `fi`, `fr`, `gl`, `he`, `hu`, `ie`, `is`, `it_IT`, `nl`, `pl`, `pt` y `pt_BR` — catalán, checo, alemán, español,
+finés, francés, gallego, hebreo, húngaro, interlingue, islandés, italiano, neerlandés, polaco, portugués y portugués brasileño — traducidos por completo. El francés lo ha revisado un lector del
+idioma; el catalán, el checo, el alemán, el español, el finés, el gallego, el hebreo, el húngaro, el interlingue, el islandés, el italiano, el neerlandés, el polaco, el portugués y el portugués brasileño son traducciones automáticas que todavía
 no ha revisado ningún lector del idioma.
 <!-- machine-translated: ca -->
 <!-- machine-translated: cs -->

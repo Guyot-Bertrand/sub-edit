@@ -32,7 +32,7 @@ entorno en caso contrario — véase
 | La ventana habla | El manual se abre en |
 | :---------------- | :------------------ |
 | inglés | inglés |
-| un idioma cuyo manual está instalado — catalán, checo, alemán, español, finés, francés, gallego, hebreo, húngaro, interlingue, islandés, italiano, neerlandés | ese idioma |
+| un idioma cuyo manual está instalado — catalán, checo, alemán, español, finés, francés, gallego, hebreo, húngaro, interlingue, islandés, italiano, neerlandés, polaco, portugués, portugués brasileño | ese idioma |
 | un idioma cuyo manual no está instalado | inglés |
 
 **Página a página, no todo o nada**: una página que la traducción no tiene
