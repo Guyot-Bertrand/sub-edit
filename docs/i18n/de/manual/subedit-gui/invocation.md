@@ -148,9 +148,9 @@ setzt sich gegen jede Variable durch, `LC_ALL=C` eingeschlossen. Auch die Wahl g
 | die Tastenkürzel | nie: `Ctrl+S` ist `Ctrl+S` in jeder Sprache |
 | eine Meldung, die der Katalog nicht übersetzt | auf Englisch gezeigt |
 
-Diese Version installiert `ca`, `cs`, `de`, `es`, `fi`, `fr`, `gl`, `he`, `hu`, `ie`, `is`, `it_IT` und `nl` — Katalanisch, Tschechisch, Deutsch,
-Spanisch, Finnisch, Französisch, Galicisch, Hebräisch, Ungarisch, Interlingue, Isländisch, Italienisch und Niederländisch — vollständig übersetzt. Französisch wurde von einer Leserin oder einem
-Leser der Sprache geprüft; Katalanisch, Tschechisch, Deutsch, Spanisch, Finnisch, Galicisch, Hebräisch, Ungarisch, Interlingue, Isländisch, Italienisch und Niederländisch sind
+Diese Version installiert `ca`, `cs`, `de`, `es`, `fi`, `fr`, `gl`, `he`, `hu`, `ie`, `is`, `it_IT`, `nl`, `pl`, `pt` und `pt_BR` — Katalanisch, Tschechisch, Deutsch,
+Spanisch, Finnisch, Französisch, Galicisch, Hebräisch, Ungarisch, Interlingue, Isländisch, Italienisch, Niederländisch, Polnisch, Portugiesisch und Brasilianisches Portugiesisch — vollständig übersetzt. Französisch wurde von einer Leserin oder einem
+Leser der Sprache geprüft; Katalanisch, Tschechisch, Deutsch, Spanisch, Finnisch, Galicisch, Hebräisch, Ungarisch, Interlingue, Isländisch, Italienisch, Niederländisch, Polnisch, Portugiesisch und Brasilianisches Portugiesisch sind
 maschinell übersetzt und noch von keiner Leserin und keinem Leser der Sprache geprüft.
 <!-- machine-translated: ca -->
 <!-- machine-translated: cs -->

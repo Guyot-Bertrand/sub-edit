@@ -26,10 +26,10 @@ sudo dnf install ./subedit-<version>.x86_64.rpm     # Fedora, and relatives
 | `subedit-cli`, `subedit-gui` | `/usr/bin` |
 | den Menüeintrag, das Symbol, die Metadaten für die Softwarezentrale | `/usr/share/applications`, `/usr/share/icons`, `/usr/share/metainfo` |
 | dieses Handbuch, in Markdown | `/usr/share/subedit/manual` |
-| seine Übersetzung in jede installierte Sprache — Katalanisch, Tschechisch, Deutsch, Spanisch, Finnisch, Französisch, Galicisch, Hebräisch, Ungarisch, Interlingue, Isländisch, Italienisch, Niederländisch | `/usr/share/subedit/manual/<language>` — `ca`, `cs`, `de`, `es`, `fi`, `fr`, `gl`, `he`, `hu`, `ie`, `is`, `it_IT`, `nl` |
+| seine Übersetzung in jede installierte Sprache — Katalanisch, Tschechisch, Deutsch, Spanisch, Finnisch, Französisch, Galicisch, Hebräisch, Ungarisch, Interlingue, Isländisch, Italienisch, Niederländisch, Polnisch, Portugiesisch, Brasilianisches Portugiesisch | `/usr/share/subedit/manual/<language>` — `ca`, `cs`, `de`, `es`, `fi`, `fr`, `gl`, `he`, `hu`, `ie`, `is`, `it_IT`, `nl`, `pl`, `pt`, `pt_BR` |
 | die Korrekturmuster von Gaupol | `/usr/share/subedit/patterns` |
 | die Handbuchseiten von `subedit-cli`, eine pro Unterbefehl, und von `subedit-gui` — siehe [Die Handbuchseiten](invocation.md#die-handbuchseiten) | `/usr/share/man/man1` |
-| die Seiten von `subedit-cli` in jeder installierten Sprache — Katalanisch, Tschechisch, Deutsch, Spanisch, Finnisch, Französisch, Galicisch, Hebräisch, Ungarisch, Interlingue, Isländisch, Italienisch, Niederländisch | `/usr/share/man/<language>/man1` — `ca`, `cs`, `de`, `es`, `fi`, `fr`, `gl`, `he`, `hu`, `ie`, `is`, `it_IT`, `nl` |
+| die Seiten von `subedit-cli` in jeder installierten Sprache — Katalanisch, Tschechisch, Deutsch, Spanisch, Finnisch, Französisch, Galicisch, Hebräisch, Ungarisch, Interlingue, Isländisch, Italienisch, Niederländisch, Polnisch, Portugiesisch, Brasilianisches Portugiesisch | `/usr/share/man/<language>/man1` — `ca`, `cs`, `de`, `es`, `fi`, `fr`, `gl`, `he`, `hu`, `ie`, `is`, `it_IT`, `nl`, `pl`, `pt`, `pt_BR` |
 
 `ffmpeg` wird von beiden Paketen **empfohlen und nicht verlangt**: Ohne es
 bietet das Fenster lediglich die Bildrate nicht mehr an, die der Film angibt — siehe
@@ -197,10 +197,10 @@ Präfix festlegt:
 | das Symbol | `<prefix>/share/icons/hicolor/scalable/apps` |
 | die Metadaten für die Softwarezentrale | `<prefix>/share/metainfo` |
 | dieses Handbuch, in Markdown | `<prefix>/share/subedit/manual` |
-| seine Übersetzung in jede installierte Sprache — Katalanisch, Tschechisch, Deutsch, Spanisch, Finnisch, Französisch, Galicisch, Hebräisch, Ungarisch, Interlingue, Isländisch, Italienisch, Niederländisch | `<prefix>/share/subedit/manual/<language>` — `ca`, `cs`, `de`, `es`, `fi`, `fr`, `gl`, `he`, `hu`, `ie`, `is`, `it_IT`, `nl` |
+| seine Übersetzung in jede installierte Sprache — Katalanisch, Tschechisch, Deutsch, Spanisch, Finnisch, Französisch, Galicisch, Hebräisch, Ungarisch, Interlingue, Isländisch, Italienisch, Niederländisch, Polnisch, Portugiesisch, Brasilianisches Portugiesisch | `<prefix>/share/subedit/manual/<language>` — `ca`, `cs`, `de`, `es`, `fi`, `fr`, `gl`, `he`, `hu`, `ie`, `is`, `it_IT`, `nl`, `pl`, `pt`, `pt_BR` |
 | die Korrekturmuster von Gaupol | `<prefix>/share/subedit/patterns` |
 | die Handbuchseiten beider Binaries, eine pro Unterbefehl für `subedit-cli` | `<prefix>/share/man/man1` |
-| die Seiten von `subedit-cli` in jeder installierten Sprache — Katalanisch, Tschechisch, Deutsch, Spanisch, Finnisch, Französisch, Galicisch, Hebräisch, Ungarisch, Interlingue, Isländisch, Italienisch, Niederländisch | `<prefix>/share/man/<language>/man1` — `ca`, `cs`, `de`, `es`, `fi`, `fr`, `gl`, `he`, `hu`, `ie`, `is`, `it_IT`, `nl` |
+| die Seiten von `subedit-cli` in jeder installierten Sprache — Katalanisch, Tschechisch, Deutsch, Spanisch, Finnisch, Französisch, Galicisch, Hebräisch, Ungarisch, Interlingue, Isländisch, Italienisch, Niederländisch, Polnisch, Portugiesisch, Brasilianisches Portugiesisch | `<prefix>/share/man/<language>/man1` — `ca`, `cs`, `de`, `es`, `fi`, `fr`, `gl`, `he`, `hu`, `ie`, `is`, `it_IT`, `nl`, `pl`, `pt`, `pt_BR` |
 
 **Es sind dieselben Dateien, die die Pakete installieren**: Die Pakete gehen aus ihnen hervor,
 statt ein zweites Mal beschrieben zu werden.

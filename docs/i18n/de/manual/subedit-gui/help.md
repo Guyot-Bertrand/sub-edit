@@ -32,7 +32,7 @@ Umgebung — siehe
 | Das Fenster spricht | Das Handbuch öffnet sich auf |
 | :---------------- | :------------------ |
 | Englisch | Englisch |
-| eine Sprache, deren Handbuch installiert ist — Katalanisch, Tschechisch, Deutsch, Spanisch, Finnisch, Französisch, Galicisch, Hebräisch, Ungarisch, Interlingue, Isländisch, Italienisch, Niederländisch | dieser Sprache |
+| eine Sprache, deren Handbuch installiert ist — Katalanisch, Tschechisch, Deutsch, Spanisch, Finnisch, Französisch, Galicisch, Hebräisch, Ungarisch, Interlingue, Isländisch, Italienisch, Niederländisch, Polnisch, Portugiesisch, Brasilianisches Portugiesisch | dieser Sprache |
 | eine Sprache, deren Handbuch nicht installiert ist | Englisch |
 
 **Seite für Seite, nicht alles oder nichts**: Eine Seite, die die Übersetzung nicht hat,
