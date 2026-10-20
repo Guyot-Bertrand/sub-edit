@@ -32,7 +32,7 @@ ympäristön kielellä — katso
 | Ikkunan kieli | Käyttöoppaan kieli |
 | :---------------- | :------------------ |
 | englanti | englanti |
-| kieli, jonka käyttöopas on asennettu — katalaani, tšekki, saksa, espanja, suomi, ranska, galicia, heprea, unkari, interlingue, islanti, italia, hollanti | sama kieli |
+| kieli, jonka käyttöopas on asennettu — katalaani, tšekki, saksa, espanja, suomi, ranska, galicia, heprea, unkari, interlingue, islanti, italia, hollanti, puola, portugali, brasilianportugali | sama kieli |
 | kieli, jonka käyttöopasta ei ole asennettu | englanti |
 
 **Sivu kerrallaan, ei kaikki tai ei mitään**: sivu, jota käännöksessä ei ole,
