@@ -41,6 +41,13 @@ ne pas l'éditer à la main.
 - **i18n** — Complete the Italian catalogue
 - **i18n** — Complete the Icelandic catalogue
 - **i18n** — Install Icelandic, Italian and Dutch
+- **i18n** — Take over the Portuguese seed catalogue
+- **i18n** — Complete the Portuguese catalogue
+- **i18n** — Take over the Polish seed catalogue
+- **i18n** — Take over the Brazilian Portuguese seed catalogue
+- **i18n** — Complete the Brazilian Portuguese catalogue
+- **i18n** — Complete the Polish catalogue
+- **i18n** — Install Polish, Portuguese and Brazilian Portuguese
 
 ### Corrections
 
@@ -58,6 +65,9 @@ ne pas l'éditer à la main.
 - **test** — Render the Hebrew man pages under one terminal only
 - **build** — Move the seed proof to Polish, Dutch is shipping
 - **test** — Ask each help once, not once per language of man pages
+- **build** — Move the seed proof to Russian, Polish is shipping
+- **i18n** — Use the final Case menu label in Polish and Portuguese
+- **i18n** — Name the dialogue dash as the Polish window does
 
 ### Documentation
 
@@ -369,6 +379,49 @@ ne pas l'éditer à la main.
 - **i18n** — Translate Icelandic GUI manual pages, batch G2
 - **i18n** — Translate Icelandic GUI manual, index to preferences
 - **i18n** — Add the Icelandic, Italian and Dutch screenshots
+- **doc** — Regenerate the changelog
+- **doc** — List Polish and the two Portuguese in the manual
+- **i18n** — List Polish and Portuguese in the Hungarian manual
+- **i18n** — List Polish and Portuguese in the Interlingue manual
+- **i18n** — List Polish and Portuguese in the Icelandic manual
+- **i18n** — List Polish and Portuguese in the Italian manual
+- **i18n** — List Polish and Portuguese in the Dutch manual
+- **i18n** — List Polish and Portuguese in the Spanish manual
+- **i18n** — List Polish and Portuguese in the Finnish manual
+- **i18n** — List Polish and Portuguese in the Galician manual
+- **i18n** — List Polish and Portuguese in the Hebrew manual
+- **i18n** — List Polish and Portuguese in the French manual
+- **i18n** — List Polish and Portuguese in the Catalan manual
+- **i18n** — List Polish and Portuguese in the Czech manual
+- **i18n** — List Polish and Portuguese in the German manual
+- **i18n** — Add the Brazilian Portuguese vocabulary
+- **i18n** — Add the Polish vocabulary
+- **i18n** — Add the Portuguese vocabulary
+- **i18n** — Translate the Brazilian Portuguese CLI pages, batch C
+- **i18n** — Translate the Portuguese CLI pages, batch C
+- **i18n** — Translate the Polish lots, pair and repair pages
+- **i18n** — Translate the Polish replace, shift and snap pages
+- **i18n** — Translate the Polish sort, split-file, transform pages
+- **i18n** — Translate Brazilian Portuguese CLI pages, batch A
+- **i18n** — Translate the Portuguese GUI pages, batch G3
+- **i18n** — Translate the Polish manual index and CLI index
+- **i18n** — Translate the Polish adjust, convert and correct pages
+- **i18n** — Translate the Portuguese CLI pages, batch A
+- **i18n** — Translate the Brazilian Portuguese CLI pages, batch B
+- **i18n** — Translate the Brazilian Portuguese GUI pages, batch G3
+- **i18n** — Translate five Polish CLI operation pages
+- **i18n** — Translate the Polish CLI inspect, install, invoke pages
+- **i18n** — Translate five Portuguese CLI pages
+- **i18n** — Translate the Portuguese CLI inspect and invocation pages
+- **i18n** — Translate the Brazilian Portuguese GUI pages, batch G2
+- **i18n** — Translate six Portuguese GUI manual pages
+- **i18n** — Translate the Polish GUI pages, batch G3
+- **i18n** — Translate the Portuguese GUI manual, first batch
+- **i18n** — Translate the Polish GUI pages, batch G2
+- **i18n** — Translate Brazilian Portuguese GUI pages, batch G1a
+- **i18n** — Translate Brazilian Portuguese GUI pages, batch G1b
+- **i18n** — Translate the Polish GUI pages, batch G1
+- **i18n** — Add the Polish and Portuguese screenshots
 
 ### Remaniements
 
