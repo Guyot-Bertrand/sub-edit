@@ -1,19 +1,21 @@
-# Dutch catalogue of subedit, seeded from Gaupol.
+# Dutch catalogue of subedit.
+# Copyright (C) the subedit authors
 #
-# Origin: https://github.com/otsaloma/gaupol, file po/nl.po, revision f433bae3d23ef3572411fa9adca3fbab5cb1b3f9.
-# The translations are those of Gaupol's translators, credited in that file:
+# The entries marked "From Gaupol" carry the translation of Gaupol's Dutch
+# catalogue (https://github.com/otsaloma/gaupol, file po/nl.po, revision
+# f433bae3d23ef3572411fa9adca3fbab5cb1b3f9), the work of the translators that
+# file credits:
 # Heimen Stoffels <vistausss@fastmail.com>, 2023
+# The other entries were written for subedit (#731).
 # This file is distributed under the GNU General Public License, version 3 or
 # later (GPL-3.0-or-later), as Gaupol and subedit are.
-#
-# seed-catalogues.py: a seed, neither reviewed nor installed (spec 15, D5).
-# Delete the line above to take the file over: the script then leaves it alone.
+# Machine translation, not reviewed by a reader of the language (spec 15, D5).
 msgid ""
 msgstr ""
 "Project-Id-Version: subedit\n"
 "Report-Msgid-Bugs-To: https://github.com/Guyot-Bertrand/sub-edit/issues\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"PO-Revision-Date: 2016-07-07 00:55+0000\n"
+"PO-Revision-Date: 2026-10-20 00:00+0000\n"
 "Last-Translator: \n"
 "Language-Team: Dutch\n"
 "Language: nl\n"
@@ -22,366 +24,455 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
+# From Gaupol.
 #: packaging/patterns/Latn-en-US.common-error
 msgid "Add period after a shortened title, such as \"Mr\" and \"Dr\""
 msgstr "Voeg een punt toe achter een afkorting, zoals die van ‘Mr’ en ‘Dr’"
 
+# From Gaupol.
 #: packaging/patterns/Latn-en-US.common-error
 msgid "Period after title"
 msgstr "Punt achter titel"
 
+# From Gaupol.
 #: packaging/patterns/Latn-en.capitalization
 msgid "Capitalize the first person pronoun \"I\""
 msgstr "‘I’ in Engelstalige teksten met hoofdletter schrijven"
 
+# From Gaupol.
 #: packaging/patterns/Latn-en.capitalization
 msgid "First person pronoun"
 msgstr "Voornaamwoord"
 
+# From Gaupol.
 #: packaging/patterns/Latn-en.common-error packaging/patterns/Latn.common-error
 msgid "Add or remove space between a number and the associated unit"
 msgstr "Voeg een spatie toe (of verwijder deze) tussen een getal en eenheid"
 
+# From Gaupol.
 #: packaging/patterns/Latn-en.common-error
 msgid "Letter \"I\" in a lower case word"
 msgstr "‘I’ in Engelstalige teksten in kleine letters schrijven"
 
+# From Gaupol.
 #: packaging/patterns/Latn-en.common-error
 msgid "Letter \"l\" in an upper case word"
 msgstr "‘I’ in Engelstalige woorden met hoofdletter schrijven"
 
+# From Gaupol.
 #: packaging/patterns/Latn-en.common-error
 msgid "Okay"
 msgstr "Oké"
 
+# From Gaupol.
 #: packaging/patterns/Latn-en.common-error
 msgid "Remove spaces around an apostrophe"
 msgstr "Verwijder spaties rondom aanhalingstekens"
 
+# From Gaupol.
 #: packaging/patterns/Latn-en.common-error
 msgid "Replace letter \"I\" with letter \"l\" in a lower case word"
 msgstr "‘I’ in Engelstalige woorden met kleine letter schrijven"
 
+# From Gaupol.
 #: packaging/patterns/Latn-en.common-error
 msgid "Replace letter \"l\" with letter \"I\" in an upper case word"
 msgstr "‘i’ in Engelstalige woorden met hoofdletter schrijven"
 
+# From Gaupol.
 #: packaging/patterns/Latn-en.common-error
 msgid "Replace zero with letter \"O\" in an upper case word"
 msgstr "‘0’ in woorden met hoofdletters vervangen door ‘O’"
 
+# From Gaupol.
 #: packaging/patterns/Latn-en.common-error packaging/patterns/Latn.common-error
 msgid "Space between number and unit"
 msgstr "Spatie tussen getal en eenheid"
 
+# From Gaupol.
 #: packaging/patterns/Latn-en.common-error
 msgid "Spaces around an apostrophe"
 msgstr "Spaties rondom aanhalingstekens"
 
+# From Gaupol.
 #: packaging/patterns/Latn-en.common-error
 msgid "Spell two-letter forms of \"okay\" in all upper case"
 msgstr "‘okay’ vervangen door ‘OK’"
 
+# From Gaupol.
 #: packaging/patterns/Latn-en.common-error
 msgid "Zero in an upper case word"
 msgstr "Nul in woord met hoofdletters"
 
+# From Gaupol.
 #: packaging/patterns/Latn-en.hearing-impaired
 msgid ""
 "Replace the uppercase name of the speaker before a colon with a dialogue dash"
 msgstr ""
 "Vervang de naam van een spreker voor een dubbele punt door een streepje"
 
+# From Gaupol.
 #: packaging/patterns/Latn-en.hearing-impaired
 msgid "Uppercase speaker before a colon"
 msgstr "Hoofdletters voor dubbele punten"
 
+# From Gaupol.
 #: packaging/patterns/Latn-en.line-break
 msgid "Article"
 msgstr "Lidwoord"
 
+# From Gaupol.
 #: packaging/patterns/Latn-en.line-break
 msgid "Do not break after a possessive determiner, e.g. \"my\""
 msgstr "Geen spatie na bezittelijke voornaamwoorden, zoals in ‘mijn’"
 
+# From Gaupol.
 #: packaging/patterns/Latn-en.line-break
 msgid "Do not break after a preposition"
 msgstr "Geen spatie na voorzetsels"
 
+# From Gaupol.
 #: packaging/patterns/Latn-en.line-break
 msgid "Do not break after a title, e.g. \" Dr.\""
 msgstr "Geen spatie na een titel, zoals die van ‘ Dr.’"
 
+# From Gaupol.
 #: packaging/patterns/Latn-en.line-break
 msgid "Do not break after an article"
 msgstr "Geen spatie na lidwoorden"
 
+# From Gaupol.
 #: packaging/patterns/Latn-en.line-break
 msgid "Possessive determiner"
 msgstr "Bezittelijk voornaamwoord"
 
+# From Gaupol.
 #: packaging/patterns/Latn-en.line-break
 msgid "Preposition"
 msgstr "Voorzetsel"
 
+# From Gaupol.
 #: packaging/patterns/Latn-en.line-break
 msgid "Title"
 msgstr "Titel"
 
+# From Gaupol.
 #: packaging/patterns/Latn-fi.common-error packaging/patterns/Latn.common-error
 msgid "Add space after various punctuation marks"
 msgstr "Voeg een spatie toe na punctuatie"
 
+# From Gaupol.
 #: packaging/patterns/Latn-fi.common-error packaging/patterns/Latn.common-error
 msgid "Space after punctuation marks"
 msgstr "Spatie na punctuatie"
 
+# From Gaupol.
 #: packaging/patterns/Latn-fr.common-error
 msgid "Add or remove space before various punctuation marks"
 msgstr "Voeg een spatie toe (of verwijder deze) voor punctuatie"
 
+# From Gaupol.
 #: packaging/patterns/Latn-fr.common-error
 msgid "Add spaces around guillemets"
 msgstr "Voeg spaties toe rondom guillemets"
 
+# From Gaupol.
 #: packaging/patterns/Latn-fr.common-error packaging/patterns/Latn.common-error
 msgid "Space before punctuation marks"
 msgstr "Spaties voor punctuatie"
 
+# From Gaupol.
 #: packaging/patterns/Latn-fr.common-error
 msgid "Spaces around guillemets"
 msgstr "Spaties rondom guillemets"
 
+# From Gaupol.
 #: packaging/patterns/Latn.capitalization
 msgid "Capitalize after an ellipsis"
 msgstr "Hoofdletter na ellipsen"
 
+# From Gaupol.
 #: packaging/patterns/Latn.capitalization
 msgid "Capitalize the first word of a sentence"
 msgstr "Zinnen beginnen met een hoofdletter"
 
+# From Gaupol.
 #: packaging/patterns/Latn.capitalization
 msgid "Ellipsis"
 msgstr "Ellips"
 
+# From Gaupol.
 #: packaging/patterns/Latn.capitalization
 msgid "Sentence"
 msgstr "Zin"
 
+# From Gaupol.
 #: packaging/patterns/Latn.common-error
 msgid "Add or remove spaces around parentheses and square brackets"
 msgstr "Voeg een spatie toe (of verwijder deze) rondom alle soorten haakjes"
 
+# From Gaupol.
 #: packaging/patterns/Latn.common-error
 msgid "Add space after a dialogue dash"
 msgstr "Voeg een spatie toe na een dialoogstreepje"
 
+# From Gaupol.
 #: packaging/patterns/Latn.common-error
 msgid "Add space after an ellipsis"
 msgstr "Voeg een spatie toe na een ellips"
 
+# From Gaupol.
 #: packaging/patterns/Latn.common-error
 msgid "Add spaces between musical note characters and lyrics"
 msgstr "Voeg spaties toe tussen muzieknoten en songteksten"
 
+# From Gaupol.
 #: packaging/patterns/Latn.common-error
 msgid ""
 "Change the various spellings of 12-hour periods to \"a.m.\" and \"p.m.\""
 msgstr "Verander de spelling van 12-uurnotaties in ‘a.m.’ en ‘p.m.’"
 
+# From Gaupol.
 #: packaging/patterns/Latn.common-error
 msgid "Double apostrophe"
 msgstr "Dubbele aanhalingstekens"
 
+# From Gaupol.
 #: packaging/patterns/Latn.common-error
 msgid "Letter \"O\" in a number"
 msgstr "Letter ‘O’ als getal"
 
+# From Gaupol.
 #: packaging/patterns/Latn.common-error
 msgid "Ligatures"
 msgstr "Ligaturen"
 
+# From Gaupol.
 #: packaging/patterns/Latn.common-error
 msgid "Multiple question- and exclamation marks"
 msgstr "Meerdere vraag- en uitroeptekens"
 
+# From Gaupol.
 #: packaging/patterns/Latn.common-error
 msgid "Periods around a punctuation mark"
 msgstr "Punt na punctuatie"
 
+# From Gaupol.
 #: packaging/patterns/Latn.common-error
 msgid "Remove period before or after various punctuation marks"
 msgstr "Verwijder een punt voor of na punctuatie"
 
+# From Gaupol.
 #: packaging/patterns/Latn.common-error
 msgid "Remove space after a starting- and before an ending quotation mark"
 msgstr ""
 "Verwijder een spatie na het begin en voor het einde van een citaataanduiding"
 
+# From Gaupol.
 #: packaging/patterns/Latn.common-error
 msgid "Remove space after an ellipsis that starts a line"
 msgstr "Verwijder een spatie na een ellips aan het begin van een zin"
 
+# From Gaupol.
 #: packaging/patterns/Latn.common-error
 msgid "Remove space before various punctuation marks"
 msgstr "Verwijder een spatie voor punctuatie"
 
+# From Gaupol.
 #: packaging/patterns/Latn.common-error
 msgid "Replace a double apostrophe with a quotation mark"
 msgstr "Vervang dubbele aanhalingstekens door citaataanduidingen"
 
+# From Gaupol.
 #: packaging/patterns/Latn.common-error
 msgid "Replace a single clause-terminating dash with two dashes"
 msgstr "Vervang dubbele streepjes door twee streepjes"
 
+# From Gaupol.
 #: packaging/patterns/Latn.common-error
 msgid "Replace letter \"O\" with a zero in a number"
 msgstr "Vervang de letter ‘O’ door een nul in een getal"
 
+# From Gaupol.
 #: packaging/patterns/Latn.common-error
 msgid ""
 "Replace multiple consequtive question- and exclamation marks with only one"
 msgstr "Vervang meerdere opeenvolgende vraag- en uitroeptekens door één"
 
+# From Gaupol.
 #: packaging/patterns/Latn.common-error
 msgid "Space after a dialogue dash"
 msgstr "Spatie na dialoogstreepje"
 
+# From Gaupol.
 #: packaging/patterns/Latn.common-error
 msgid "Space after a starting ellipsis"
 msgstr "Spatie na ellips aan begin"
 
+# From Gaupol.
 #: packaging/patterns/Latn.common-error
 msgid "Space after an ellipsis"
 msgstr "Spatie na ellips"
 
+# From Gaupol.
 #: packaging/patterns/Latn.common-error
 msgid "Spaces around a quotation mark"
 msgstr "Spaties rondom citaataanduidingen"
 
+# From Gaupol.
 #: packaging/patterns/Latn.common-error
 msgid "Spaces around brackets"
 msgstr "Spaties rondom haakjes"
 
+# From Gaupol.
 #: packaging/patterns/Latn.common-error
 msgid "Spaces around musical notes"
 msgstr "Spaties rondom muzieknoten"
 
+# From Gaupol.
 #: packaging/patterns/Latn.common-error
 msgid "Spelling of a.m. and p.m."
 msgstr "Spelling van a.m. en p.m."
 
+# From Gaupol.
 #: packaging/patterns/Latn.common-error
 msgid "Terminating double-dashes"
 msgstr "Dubbele streepjes"
 
+# From Gaupol.
 #: packaging/patterns/Latn.common-error
 msgid "Unpack ligatures to individual characters"
 msgstr "Ligaturen omzetten naar losse tekens"
 
+# From Gaupol.
 #: packaging/patterns/Latn.hearing-impaired
 msgid "One-line song lyrics between number signs"
 msgstr "Eénregelige songteksten tussen getalaanduidingen"
 
+# From Gaupol.
 #: packaging/patterns/Latn.hearing-impaired
 msgid "Remove description of a sound between parentheses"
 msgstr "Verwijder de geluidsomschrijving tussen haakjes"
 
+# From Gaupol.
 #: packaging/patterns/Latn.hearing-impaired
 msgid "Remove description of a sound between square brackets"
 msgstr "Verwijder de geluidsomschrijving tussen rechte haakjes"
 
+# From Gaupol.
 #: packaging/patterns/Latn.hearing-impaired
 msgid "Remove one-line song lyrics starting with or between number signs"
 msgstr "Verwijder éénregelige songteksten die beginnen met een getal"
 
+# From Gaupol.
 #: packaging/patterns/Latn.hearing-impaired
 msgid "Remove song lyrics starting with or between number signs"
 msgstr "Verwijder songteksten die beginnen met een getal"
 
+# From Gaupol.
 #: packaging/patterns/Latn.hearing-impaired
 msgid "Replace the name of the speaker before a colon with a dialogue dash"
 msgstr ""
 "Vervang de naam van een spreker voor een dubbele punt door een streepje"
 
+# From Gaupol.
 #: packaging/patterns/Latn.hearing-impaired
 msgid "Song lyrics between number signs"
 msgstr "Songteksten tussen getalaanduidingen"
 
+# From Gaupol.
 #: packaging/patterns/Latn.hearing-impaired
 #: src/lib/subedit/gui/correction_task_page.cpp
 msgid "Sound in brackets"
 msgstr "Geluid tussen rechte haakjes"
 
+# From Gaupol.
 #: packaging/patterns/Latn.hearing-impaired
 #: src/lib/subedit/gui/correction_task_page.cpp
 msgid "Sound in parentheses"
 msgstr "Geluid tussen haakjes"
 
+# From Gaupol.
 #: packaging/patterns/Latn.hearing-impaired
 msgid "Speaker before a colon"
 msgstr "Spreker voor dubbele punt"
 
+# From Gaupol.
 #: packaging/patterns/Latn.line-break
 msgid "Break according to clauses terminated by a punctuation mark"
 msgstr "Zinnen opdelen op basis van punctuatie"
 
+# From Gaupol.
 #: packaging/patterns/Latn.line-break
 msgid "Break according to dialogue separated by dashes"
 msgstr "Regelafbreking met streepjes op basis van dialoog"
 
+# From Gaupol.
 #: packaging/patterns/Latn.line-break
 msgid "Clause"
 msgstr "Zinnen opdelen"
 
+# From Gaupol.
 #: packaging/patterns/Latn.line-break
 msgid "Dialogue"
 msgstr "Dialoog"
 
+# From Gaupol.
 #: packaging/patterns/Latn.line-break
 msgid "Do not break between a number and associated unit"
 msgstr "Geen regelafbreking tussen een getal en eenheid"
 
+# From Gaupol.
 #: packaging/patterns/Latn.line-break
 msgid "Number and unit"
 msgstr "Getal en eenheid"
 
+# From Gaupol.
 #: packaging/patterns/Zyyy.common-error
 msgid "Ellipses"
 msgstr "Ellipsen"
 
+# From Gaupol.
 #: packaging/patterns/Zyyy.common-error
 msgid "Leading and trailing spaces"
 msgstr "Voor- en achterloopspaties"
 
+# From Gaupol.
 #: packaging/patterns/Zyyy.common-error
 msgid "Multiple consecutive spaces"
 msgstr "Meerdere opeenvolgende spaties"
 
+# From Gaupol.
 #: packaging/patterns/Zyyy.common-error
 msgid "Musical notes"
 msgstr "Muzieknoten"
 
+# From Gaupol.
 #: packaging/patterns/Zyyy.common-error
 msgid "Remove space between digits of a number"
 msgstr "Verwijder spaties tussen getallen"
 
+# From Gaupol.
 #: packaging/patterns/Zyyy.common-error
 msgid "Remove spaces from the beginning and end of lines"
 msgstr "Verwijder spaties aan het begin en einde van regels"
 
+# From Gaupol.
 #: packaging/patterns/Zyyy.common-error
 msgid "Replace Unicode ellipses with three separate dots"
 msgstr "Ellipsen vervangen door drie losse puntjes"
 
+# From Gaupol.
 #: packaging/patterns/Zyyy.common-error
 msgid "Replace Unicode musical note characters with number signs"
 msgstr "Vervang Unicode-muzieknoten door getalaanduidingen"
 
+# From Gaupol.
 #: packaging/patterns/Zyyy.common-error
 msgid "Replace multiple consecutive spaces with only one"
 msgstr "Vervang meerdere opeenvolgende spaties door één"
 
+# From Gaupol.
 #: packaging/patterns/Zyyy.common-error
 msgid "Space between digits"
 msgstr "Spaties tussen getallen"
@@ -2345,6 +2436,7 @@ msgid_plural "%1 runs"
 msgstr[0] ""
 msgstr[1] ""
 
+# From Gaupol.
 #. TRANSLATORS: %1 is what the user searched for.
 #: src/lib/subedit/core/wording/counts.cpp
 msgid "\"%1\" not found"
@@ -2830,6 +2922,7 @@ msgstr ""
 msgid "Unmark All"
 msgstr ""
 
+# From Gaupol.
 #: src/lib/subedit/gui/correction_confirmation_page.cpp
 #: src/lib/subedit/gui/operation_dialog.cpp
 msgid "Preview"
@@ -2851,6 +2944,7 @@ msgstr ""
 msgid "Computing the proposed corrections…"
 msgstr ""
 
+# From Gaupol.
 #: src/lib/subedit/gui/correction_result_model.cpp
 msgid "Accept"
 msgstr "Toepassen"
@@ -2859,14 +2953,17 @@ msgstr "Toepassen"
 msgid "Original"
 msgstr ""
 
+# From Gaupol.
 #: src/lib/subedit/gui/correction_result_model.cpp
 msgid "Corrected Text"
 msgstr "Gecorrigeerde tekst"
 
+# From Gaupol.
 #: src/lib/subedit/gui/correction_target_page.cpp
 msgid "Tasks and Target"
 msgstr "Taken en doelen"
 
+# From Gaupol.
 #: src/lib/subedit/gui/correction_target_page.cpp
 #: src/lib/subedit/gui/spell_check_settings_dialog.cpp
 msgid "Target"
@@ -2892,6 +2989,7 @@ msgstr ""
 msgid "Document"
 msgstr ""
 
+# From Gaupol.
 #: src/lib/subedit/gui/correction_target_page.cpp
 #: src/lib/subedit/gui/operation_dialog.cpp
 #: src/lib/subedit/gui/spell_check_settings_dialog.cpp
@@ -2900,6 +2998,7 @@ msgstr ""
 msgid "Text"
 msgstr "Tekst"
 
+# From Gaupol.
 #: src/lib/subedit/gui/correction_target_page.cpp
 #: src/lib/subedit/gui/spell_check_settings_dialog.cpp
 #: src/lib/subedit/gui/subtitle_table_model.cpp src/lib/subedit/gui/target.cpp
@@ -2915,6 +3014,7 @@ msgstr ""
 msgid "Mentions"
 msgstr ""
 
+# From Gaupol.
 #: src/lib/subedit/gui/correction_target_page.cpp
 #: src/lib/subedit/gui/join_split_page.cpp
 msgid "Join or Split Words"
@@ -2973,6 +3073,7 @@ msgstr ""
 msgid "Unit:"
 msgstr ""
 
+# From Gaupol.
 #: src/lib/subedit/gui/correction_wizard.cpp
 msgid "Correct Texts"
 msgstr "Teksten corrigeren"
@@ -3315,6 +3416,7 @@ msgstr ""
 msgid "the video player could not be started"
 msgstr ""
 
+# From Gaupol.
 #: src/lib/subedit/gui/open_translation_dialog.cpp
 msgid "Open Translation"
 msgstr "Vertaling openen"
@@ -3378,6 +3480,7 @@ msgstr ""
 msgid "Position"
 msgstr ""
 
+# From Gaupol.
 #: src/lib/subedit/gui/play_bar.cpp
 msgid "Volume"
 msgstr "Volume"
@@ -3415,6 +3518,7 @@ msgstr ""
 msgid "Decode on the graphics card"
 msgstr ""
 
+# From Gaupol.
 #: src/lib/subedit/gui/preferences_dialog.cpp
 msgid "Preferences"
 msgstr "Instellingen"
@@ -3495,10 +3599,12 @@ msgstr ""
 msgid "Videos (%1)"
 msgstr ""
 
+# From Gaupol.
 #: src/lib/subedit/gui/qt_prompts.cpp src/lib/subedit/gui/window_actions.cpp
 msgid "Open"
 msgstr "Openen"
 
+# From Gaupol.
 #: src/lib/subedit/gui/qt_prompts.cpp
 msgid "Select Video"
 msgstr "Video kiezen"
@@ -3535,34 +3641,42 @@ msgid ""
 "Open it again, moved?"
 msgstr ""
 
+# From Gaupol.
 #: src/lib/subedit/gui/save_shape.cpp
 msgid "Western"
 msgstr "Westers"
 
+# From Gaupol.
 #: src/lib/subedit/gui/save_shape.cpp
 msgid "Central European"
 msgstr "Centraal-Europees"
 
+# From Gaupol.
 #: src/lib/subedit/gui/save_shape.cpp
 msgid "Cyrillic"
 msgstr "Cyrillisch"
 
+# From Gaupol.
 #: src/lib/subedit/gui/save_shape.cpp
 msgid "Greek"
 msgstr "Grieks"
 
+# From Gaupol.
 #: src/lib/subedit/gui/save_shape.cpp
 msgid "Turkish"
 msgstr "Turks"
 
+# From Gaupol.
 #: src/lib/subedit/gui/save_shape.cpp
 msgid "Japanese"
 msgstr "Japans"
 
+# From Gaupol.
 #: src/lib/subedit/gui/save_shape.cpp
 msgid "Chinese simplified"
 msgstr "Chinees (Vereenvoudigd)"
 
+# From Gaupol.
 #: src/lib/subedit/gui/save_shape.cpp
 msgid "Chinese traditional"
 msgstr "Chinees (Traditioneel)"
@@ -3571,6 +3685,7 @@ msgstr "Chinees (Traditioneel)"
 msgid "Byte order mark"
 msgstr ""
 
+# From Gaupol.
 #: src/lib/subedit/gui/save_shape.cpp
 msgid "Other…"
 msgstr "Overig…"
@@ -3587,6 +3702,7 @@ msgstr ""
 msgid "Line endings:"
 msgstr ""
 
+# From Gaupol.
 #: src/lib/subedit/gui/save_shape.cpp
 msgid "Save As"
 msgstr "Opslaan als"
@@ -3607,14 +3723,17 @@ msgstr ""
 msgid "All open projects"
 msgstr ""
 
+# From Gaupol.
 #: src/lib/subedit/gui/search_dialog.cpp
 msgid "Find &Previous"
 msgstr "Vo&rige zoeken"
 
+# From Gaupol.
 #: src/lib/subedit/gui/search_dialog.cpp
 msgid "Find &Next"
 msgstr "Volge&nde zoeken"
 
+# From Gaupol.
 #: src/lib/subedit/gui/search_dialog.cpp
 msgid "&Replace"
 msgstr "Ve&rvangen"
@@ -3627,6 +3746,7 @@ msgstr ""
 msgid "Find and replace"
 msgstr ""
 
+# From Gaupol.
 #: src/lib/subedit/gui/search_dialog.cpp src/lib/subedit/gui/window_actions.cpp
 msgid "Find"
 msgstr "Zoeken"
@@ -3659,6 +3779,7 @@ msgstr ""
 msgid "Could not save the replacements for %1: %2"
 msgstr ""
 
+# From Gaupol.
 #: src/lib/subedit/gui/spell_check_dialog.cpp
 msgid "Add"
 msgstr "Toevoegen"
@@ -3691,6 +3812,7 @@ msgstr ""
 msgid "Save and Resume"
 msgstr ""
 
+# From Gaupol.
 #: src/lib/subedit/gui/spell_check_dialog.cpp
 msgid "Check Spelling"
 msgstr "Spelling controleren"
@@ -3730,6 +3852,7 @@ msgstr ""
 msgid "Text: %1"
 msgstr ""
 
+# From Gaupol.
 #: src/lib/subedit/gui/subtitle_table_model.cpp
 msgid "Start"
 msgstr "Begin"
@@ -3738,6 +3861,7 @@ msgstr "Begin"
 msgid "Start (frames)"
 msgstr ""
 
+# From Gaupol.
 #: src/lib/subedit/gui/subtitle_table_model.cpp
 msgid "End"
 msgstr "Einde"
@@ -3746,26 +3870,32 @@ msgstr "Einde"
 msgid "End (frames)"
 msgstr ""
 
+# From Gaupol.
 #: src/lib/subedit/gui/subtitle_table_model.cpp
 msgid "Duration"
 msgstr "Duur"
 
+# From Gaupol.
 #: src/lib/subedit/gui/table_columns.cpp
 msgid "&Duration"
 msgstr "&Duur"
 
+# From Gaupol.
 #: src/lib/subedit/gui/table_columns.cpp
 msgid "&End"
 msgstr "&Einde"
 
+# From Gaupol.
 #: src/lib/subedit/gui/table_columns.cpp
 msgid "&No."
 msgstr "&Nummer"
 
+# From Gaupol.
 #: src/lib/subedit/gui/table_columns.cpp
 msgid "&Start"
 msgstr "&Begin"
 
+# From Gaupol.
 #: src/lib/subedit/gui/table_columns.cpp
 msgid "&Translation"
 msgstr "Ve&rtaling"
@@ -3813,10 +3943,12 @@ msgstr ""
 msgid "%1 (file is gone from the disk)"
 msgstr ""
 
+# From Gaupol.
 #: src/lib/subedit/gui/unsaved_documents_dialog.cpp
 msgid "&Save"
 msgstr "Op&slaan"
 
+# From Gaupol.
 #: src/lib/subedit/gui/unsaved_documents_dialog.cpp
 msgid "Close &Without Saving"
 msgstr "Sl&uiten zonder opslaan"
@@ -3847,6 +3979,7 @@ msgstr ""
 msgid "Open…"
 msgstr ""
 
+# From Gaupol.
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "Open &Translation…"
 msgstr "Ver&taling openen…"
@@ -3859,6 +3992,7 @@ msgstr ""
 msgid "Save As…"
 msgstr ""
 
+# From Gaupol.
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "Save Tr&anslation"
 msgstr "Verta&ling opslaan"
@@ -3867,6 +4001,7 @@ msgstr "Verta&ling opslaan"
 msgid "Save Translation As…"
 msgstr ""
 
+# From Gaupol.
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "&Close"
 msgstr "&Sluiten"
@@ -3911,10 +4046,12 @@ msgstr ""
 msgid "&Repair Subtitles…"
 msgstr ""
 
+# From Gaupol.
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "&Merge Subtitles"
 msgstr "Ondertitels sa&menvoegen"
 
+# From Gaupol.
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "S&plit Subtitle"
 msgstr "Ondertitel &splitsen"
@@ -3931,30 +4068,37 @@ msgstr ""
 msgid "Play / Pause"
 msgstr ""
 
+# From Gaupol.
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "Play &Selection"
 msgstr "&Selectie afspelen"
 
+# From Gaupol.
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "Seek &Previous"
 msgstr "Terugs&poelen"
 
+# From Gaupol.
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "Seek &Next"
 msgstr "Verderspoele&n"
 
+# From Gaupol.
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "Seek &Backward"
 msgstr "&Terugspoelen"
 
+# From Gaupol.
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "Seek &Forward"
 msgstr "Vooruitspoelen"
 
+# From Gaupol.
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "S&eek Selection Start"
 msgstr "Spo&elen naar begin van selectie"
 
+# From Gaupol.
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "See&k Selection End"
 msgstr "Spo&elen naar einde van selectie"
@@ -4003,14 +4147,17 @@ msgstr ""
 msgid "Select Next from Video Position"
 msgstr ""
 
+# From Gaupol.
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "Volume &Down"
 msgstr "Volume omlaa&g"
 
+# From Gaupol.
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "Volume &Up"
 msgstr "Vol&ume omhoog"
 
+# From Gaupol.
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "&Language"
 msgstr "Taa&l"
@@ -4027,18 +4174,22 @@ msgstr ""
 msgid "Adjust Durations…"
 msgstr ""
 
+# From Gaupol.
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "Append &File…"
 msgstr "Best&and invoegen…"
 
+# From Gaupol.
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "Spli&t Project…"
 msgstr "Project spli&tsen…"
 
+# From Gaupol.
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "&Italic"
 msgstr "Curs&ief"
 
+# From Gaupol.
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "&Dialogue"
 msgstr "&Dialoog"
@@ -4047,6 +4198,7 @@ msgstr "&Dialoog"
 msgid "Remove Hearing-Impaired Mentions…"
 msgstr ""
 
+# From Gaupol.
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "&Correct Texts…"
 msgstr "Teksten c&orrigeren…"
@@ -4067,10 +4219,12 @@ msgstr ""
 msgid "Frame Rate &Analysis…"
 msgstr ""
 
+# From Gaupol.
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "&Save All"
 msgstr "Alles op&slaan"
 
+# From Gaupol.
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "&Close All"
 msgstr "Alles &sluiten"
@@ -4103,42 +4257,52 @@ msgstr ""
 msgid "Open an empty project in a new tab"
 msgstr ""
 
+# From Gaupol.
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "&File"
 msgstr "&Bestand"
 
+# From Gaupol.
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "&Edit"
 msgstr "Aanpass&en"
 
+# From Gaupol.
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "&View"
 msgstr "&Beeld"
 
+# From Gaupol.
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "&Columns"
 msgstr "&Kolommen"
 
+# From Gaupol.
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "&Video"
 msgstr "Vi&deo"
 
+# From Gaupol.
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "&Audio"
 msgstr "&Audio"
 
+# From Gaupol.
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "&Tools"
 msgstr "Gereedsch&ap"
 
+# From Gaupol.
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "Ca&se"
 msgstr "Grote/Kleine tek&st"
 
+# From Gaupol.
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "&Projects"
 msgstr "&Projecten"
 
+# From Gaupol.
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "&Help"
 msgstr "&Hulp"
@@ -4151,6 +4315,7 @@ msgstr ""
 msgid "Insert"
 msgstr ""
 
+# From Gaupol.
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "Remove"
 msgstr "Verwijderen"
