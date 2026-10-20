@@ -148,9 +148,9 @@ prevale sur omni variabile, `LC_ALL=C` includet. Li election anc aplica se al se
 | li vias rapid | nequande: `Ctrl+S` es `Ctrl+S` in chascun lingue |
 | un missage quel li catalogo ne traduce | monstrat in anglesi |
 
-Ca version installa `ca`, `cs`, `de`, `es`, `fi`, `fr`, `gl`, `he`, `hu` e `ie` — catalan, cec, german,
-hispan, finnesi, francesi, galician, hebraic, hungarian e interlingue — traductet integralmen. Francesi ha esset revidet de un lector del
-lingue; catalan, cec, german, hispan, finnesi, galician, hebraic, hungarian e interlingue es traductet machinalmen e ancor ne revidet de un lector del
+Ca version installa `ca`, `cs`, `de`, `es`, `fi`, `fr`, `gl`, `he`, `hu`, `ie`, `is`, `it_IT` e `nl` — catalan, cec, german,
+hispan, finnesi, francesi, galician, hebraic, hungarian, interlingue, islandesi, italian e hollandesi — traductet integralmen. Francesi ha esset revidet de un lector del
+lingue; catalan, cec, german, hispan, finnesi, galician, hebraic, hungarian, interlingue, islandesi, italian e hollandesi es traductet machinalmen e ancor ne revidet de un lector del
 lingue.
 <!-- machine-translated: ca -->
 <!-- machine-translated: cs -->
