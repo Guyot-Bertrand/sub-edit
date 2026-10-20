@@ -87,6 +87,9 @@ le galicien, l'hébreu, le hongrois et l'interlingue sont traduits par machine e
 <!-- machine-translated: he -->
 <!-- machine-translated: hu -->
 <!-- machine-translated: ie -->
+<!-- machine-translated: is -->
+<!-- machine-translated: it_IT -->
+<!-- machine-translated: nl -->
 Sous `LANG=fr_FR.UTF-8`,
 `subedit-cli --help` commence par « Lire, inspecter et recaler des fichiers de sous-titres. » Un
 script qui lit les mots de la sortie texte pose `LANGUAGE=en` (ou `LC_ALL=C`) — ou lit

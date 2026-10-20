@@ -77,6 +77,9 @@ Subcommands:
 <!-- machine-translated: he -->
 <!-- machine-translated: hu -->
 <!-- machine-translated: ie -->
+<!-- machine-translated: is -->
+<!-- machine-translated: it_IT -->
+<!-- machine-translated: nl -->
 תחת `LANG=fr_FR.UTF-8`, `subedit-cli --help` מתחילה ב"Lire, inspecter et recaler des fichiers de sous-titres." סקריפט שקורא את מילות פלט הטקסט מגדיר `LANGUAGE=en` (או `LC_ALL=C`) — או קורא `--format json`, שאינו משתנה לעולם.
 
 **מה שאינו עוקב אחר השפה לעולם** — מה שסקריפט קורא:

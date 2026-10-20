@@ -161,6 +161,9 @@ nyelv olvasója még nem nézte át.
 <!-- machine-translated: he -->
 <!-- machine-translated: hu -->
 <!-- machine-translated: ie -->
+<!-- machine-translated: is -->
+<!-- machine-translated: it_IT -->
+<!-- machine-translated: nl -->
 Francia asztali környezetben a menüsor így szól:
 `&Fichier`, `É&dition`, `&Affichage`, `&Vidéo`, `&Outils`, `&Projets`, `Aid&e`. A kézikönyv
 képernyőképei magyar nyelvű felületen készülnek.

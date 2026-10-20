@@ -161,6 +161,9 @@ revisadas por ningún lector da lingua.
 <!-- machine-translated: he -->
 <!-- machine-translated: hu -->
 <!-- machine-translated: ie -->
+<!-- machine-translated: is -->
+<!-- machine-translated: it_IT -->
+<!-- machine-translated: nl -->
 Nun escritorio en francés a barra de menús mostra
 `&Fichier`, `É&dition`, `&Affichage`, `&Vidéo`, `&Outils`, `&Projets`, `Aid&e`. As capturas de pantalla deste
 manual fanse en galego.

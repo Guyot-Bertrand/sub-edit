@@ -88,6 +88,9 @@ oder einem Leser der Sprache geprüft; Katalanisch, Tschechisch, Deutsch, Spanis
 <!-- machine-translated: he -->
 <!-- machine-translated: hu -->
 <!-- machine-translated: ie -->
+<!-- machine-translated: is -->
+<!-- machine-translated: it_IT -->
+<!-- machine-translated: nl -->
 Unter `LANG=fr_FR.UTF-8` beginnt `subedit-cli --help` mit „Lire,
 inspecter et recaler des fichiers de sous-titres.“ Ein Skript, das die Wörter der Textausgabe
 liest, setzt `LANGUAGE=en` (oder `LC_ALL=C`) — oder liest `--format json`, das sich nie ändert.

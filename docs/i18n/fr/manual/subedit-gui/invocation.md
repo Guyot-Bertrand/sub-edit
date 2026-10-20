@@ -160,6 +160,9 @@ le galicien, l'hébreu, le hongrois et l'interlingue sont traduits par machine e
 <!-- machine-translated: he -->
 <!-- machine-translated: hu -->
 <!-- machine-translated: ie -->
+<!-- machine-translated: is -->
+<!-- machine-translated: it_IT -->
+<!-- machine-translated: nl -->
 Sur un bureau français, la barre de
 menus porte `&Fichier`, `É&dition`, `&Affichage`, `&Vidéo`, `&Outils`, `&Projets`, `Aid&e`. Les
 captures de ce manuel-ci sont prises en français.

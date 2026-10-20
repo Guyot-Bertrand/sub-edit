@@ -161,6 +161,9 @@ vielä tarkistanut niitä.
 <!-- machine-translated: he -->
 <!-- machine-translated: hu -->
 <!-- machine-translated: ie -->
+<!-- machine-translated: is -->
+<!-- machine-translated: it_IT -->
+<!-- machine-translated: nl -->
 Ranskankielisellä työpöydällä valikkorivillä lukee
 `&Fichier`, `É&dition`, `&Affichage`, `&Vidéo`, `&Outils`, `&Projets`, `Aid&e`. Tämän käyttöoppaan
 kuvakaappaukset on otettu suomenkielisestä käyttöliittymästä.

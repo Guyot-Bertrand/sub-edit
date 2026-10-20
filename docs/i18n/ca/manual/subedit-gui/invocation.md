@@ -161,6 +161,9 @@ automàtiques que encara no ha revisat cap lector de la llengua.
 <!-- machine-translated: he -->
 <!-- machine-translated: hu -->
 <!-- machine-translated: ie -->
+<!-- machine-translated: is -->
+<!-- machine-translated: it_IT -->
+<!-- machine-translated: nl -->
 En un escriptori francès, la barra de menús mostra
 `&Fichier`, `É&dition`, `&Affichage`, `&Vidéo`, `&Outils`, `&Projets`, `Aid&e`. Les captures
 d'aquest manual es fan en català.
