@@ -148,9 +148,9 @@ wint van elke variabele, `LC_ALL=C` inbegrepen. De keuze geldt eveneens bij de v
 | de sneltoetsen | nooit: `Ctrl+S` is `Ctrl+S` in elke taal |
 | een melding die de catalogus niet vertaalt | getoond in het Engels |
 
-Deze versie installeert `ca`, `cs`, `de`, `es`, `fi`, `fr`, `gl`, `he`, `hu`, `ie`, `is`, `it_IT` en `nl` — Catalaans, Tsjechisch, Duits,
-Spaans, Fins, Frans, Galicisch, Hebreeuws, Hongaars, Interlingue, IJslands, Italiaans en Nederlands — volledig vertaald. Frans is nagelezen door een lezer van de
-taal; Catalaans, Tsjechisch, Duits, Spaans, Fins, Galicisch, Hebreeuws, Hongaars, Interlingue, IJslands, Italiaans en Nederlands zijn machinevertaald en nog door geen lezer van de taal
+Deze versie installeert `ca`, `cs`, `de`, `es`, `fi`, `fr`, `gl`, `he`, `hu`, `ie`, `is`, `it_IT`, `nl`, `pl`, `pt` en `pt_BR` — Catalaans, Tsjechisch, Duits,
+Spaans, Fins, Frans, Galicisch, Hebreeuws, Hongaars, Interlingue, IJslands, Italiaans, Nederlands, Pools, Portugees en Braziliaans Portugees — volledig vertaald. Frans is nagelezen door een lezer van de
+taal; Catalaans, Tsjechisch, Duits, Spaans, Fins, Galicisch, Hebreeuws, Hongaars, Interlingue, IJslands, Italiaans, Nederlands, Pools, Portugees en Braziliaans Portugees zijn machinevertaald en nog door geen lezer van de taal
 nagelezen.
 <!-- machine-translated: ca -->
 <!-- machine-translated: cs -->

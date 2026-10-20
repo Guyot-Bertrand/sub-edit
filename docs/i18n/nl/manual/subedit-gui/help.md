@@ -32,7 +32,7 @@ omgeving — zie
 | Het venster spreekt | De handleiding opent in |
 | :---------------- | :------------------ |
 | Engels | Engels |
-| een taal waarvan de handleiding is geïnstalleerd — Catalaans, Tsjechisch, Duits, Spaans, Fins, Frans, Galicisch, Hebreeuws, Hongaars, Interlingue, IJslands, Italiaans, Nederlands | die taal |
+| een taal waarvan de handleiding is geïnstalleerd — Catalaans, Tsjechisch, Duits, Spaans, Fins, Frans, Galicisch, Hebreeuws, Hongaars, Interlingue, IJslands, Italiaans, Nederlands, Pools, Portugees, Braziliaans Portugees | die taal |
 | een taal waarvan de handleiding niet is geïnstalleerd | Engels |
 
 **Pagina voor pagina, niet alles of niets**: een pagina die de vertaling niet heeft,
