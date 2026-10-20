@@ -26,10 +26,10 @@ sudo dnf install ./subedit-<version>.x86_64.rpm     # Fedora, and relatives
 | `subedit-cli`, `subedit-gui` | `/usr/bin` |
 | het menu-item, het pictogram, de metadata voor het softwarecentrum | `/usr/share/applications`, `/usr/share/icons`, `/usr/share/metainfo` |
 | deze handleiding, in Markdown | `/usr/share/subedit/manual` |
-| de vertaling ervan in elke geïnstalleerde taal — Catalaans, Tsjechisch, Duits, Spaans, Fins, Frans, Galicisch, Hebreeuws, Hongaars, Interlingue, IJslands, Italiaans, Nederlands | `/usr/share/subedit/manual/<language>` — `ca`, `cs`, `de`, `es`, `fi`, `fr`, `gl`, `he`, `hu`, `ie`, `is`, `it_IT`, `nl` |
+| de vertaling ervan in elke geïnstalleerde taal — Catalaans, Tsjechisch, Duits, Spaans, Fins, Frans, Galicisch, Hebreeuws, Hongaars, Interlingue, IJslands, Italiaans, Nederlands, Pools, Portugees, Braziliaans Portugees | `/usr/share/subedit/manual/<language>` — `ca`, `cs`, `de`, `es`, `fi`, `fr`, `gl`, `he`, `hu`, `ie`, `is`, `it_IT`, `nl`, `pl`, `pt`, `pt_BR` |
 | de correctiepatronen van Gaupol | `/usr/share/subedit/patterns` |
 | de man-pagina's van `subedit-cli`, een per subcommando, en van `subedit-gui` — zie [De man-pagina's](invocation.md#de-man-paginas) | `/usr/share/man/man1` |
-| de pagina's van `subedit-cli` in elke geïnstalleerde taal — Catalaans, Tsjechisch, Duits, Spaans, Fins, Frans, Galicisch, Hebreeuws, Hongaars, Interlingue, IJslands, Italiaans, Nederlands | `/usr/share/man/<language>/man1` — `ca`, `cs`, `de`, `es`, `fi`, `fr`, `gl`, `he`, `hu`, `ie`, `is`, `it_IT`, `nl` |
+| de pagina's van `subedit-cli` in elke geïnstalleerde taal — Catalaans, Tsjechisch, Duits, Spaans, Fins, Frans, Galicisch, Hebreeuws, Hongaars, Interlingue, IJslands, Italiaans, Nederlands, Pools, Portugees, Braziliaans Portugees | `/usr/share/man/<language>/man1` — `ca`, `cs`, `de`, `es`, `fi`, `fr`, `gl`, `he`, `hu`, `ie`, `is`, `it_IT`, `nl`, `pl`, `pt`, `pt_BR` |
 
 `ffmpeg` wordt door beide pakketten **aanbevolen en is niet vereist**: zonder dat
 biedt het venster alleen de framerate die de film declareert niet meer aan — zie
@@ -197,10 +197,10 @@ prefix vastlegt:
 | het pictogram | `<prefix>/share/icons/hicolor/scalable/apps` |
 | de metadata voor het softwarecentrum | `<prefix>/share/metainfo` |
 | deze handleiding, in Markdown | `<prefix>/share/subedit/manual` |
-| de vertaling ervan in elke geïnstalleerde taal — Catalaans, Tsjechisch, Duits, Spaans, Fins, Frans, Galicisch, Hebreeuws, Hongaars, Interlingue, IJslands, Italiaans, Nederlands | `<prefix>/share/subedit/manual/<language>` — `ca`, `cs`, `de`, `es`, `fi`, `fr`, `gl`, `he`, `hu`, `ie`, `is`, `it_IT`, `nl` |
+| de vertaling ervan in elke geïnstalleerde taal — Catalaans, Tsjechisch, Duits, Spaans, Fins, Frans, Galicisch, Hebreeuws, Hongaars, Interlingue, IJslands, Italiaans, Nederlands, Pools, Portugees, Braziliaans Portugees | `<prefix>/share/subedit/manual/<language>` — `ca`, `cs`, `de`, `es`, `fi`, `fr`, `gl`, `he`, `hu`, `ie`, `is`, `it_IT`, `nl`, `pl`, `pt`, `pt_BR` |
 | de correctiepatronen van Gaupol | `<prefix>/share/subedit/patterns` |
 | de man-pagina's van beide binaire bestanden, een per subcommando voor `subedit-cli` | `<prefix>/share/man/man1` |
-| de pagina's van `subedit-cli` in elke geïnstalleerde taal — Catalaans, Tsjechisch, Duits, Spaans, Fins, Frans, Galicisch, Hebreeuws, Hongaars, Interlingue, IJslands, Italiaans, Nederlands | `<prefix>/share/man/<language>/man1` — `ca`, `cs`, `de`, `es`, `fi`, `fr`, `gl`, `he`, `hu`, `ie`, `is`, `it_IT`, `nl` |
+| de pagina's van `subedit-cli` in elke geïnstalleerde taal — Catalaans, Tsjechisch, Duits, Spaans, Fins, Frans, Galicisch, Hebreeuws, Hongaars, Interlingue, IJslands, Italiaans, Nederlands, Pools, Portugees, Braziliaans Portugees | `<prefix>/share/man/<language>/man1` — `ca`, `cs`, `de`, `es`, `fi`, `fr`, `gl`, `he`, `hu`, `ie`, `is`, `it_IT`, `nl`, `pl`, `pt`, `pt_BR` |
 
 **Het zijn dezelfde bestanden die de pakketten installeren**: de pakketten komen eruit voort,
 in plaats van een tweede keer te worden beschreven.

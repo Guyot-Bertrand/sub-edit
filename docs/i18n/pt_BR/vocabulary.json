@@ -1,0 +1,15 @@
+{
+  "shortcut_header": "Atalho",
+  "label_headers": ["Comando", "Entrada", "Ação", "Item de menu"],
+  "no_shortcut_words": ["nenhum", "nenhuma"],
+  "option_header": "Opção",
+  "subcommand_header": "Subcomando",
+  "man": {
+    "name": "NOME",
+    "synopsis": "SINOPSE",
+    "description": "DESCRIÇÃO",
+    "files": "ARQUIVOS",
+    "see_also": "VEJA TAMBÉM",
+    "manual_title": "Comandos do usuário"
+  }
+}

@@ -32,7 +32,7 @@ umhverfisins — sjá
 | Glugginn talar | Handbókin opnast á |
 | :---------------- | :------------------ |
 | ensku | ensku |
-| tungumáli sem handbók er uppsett fyrir — katalónsku, tékknesku, þýsku, spænsku, finnsku, frönsku, galisísku, hebresku, ungversku, interlingue, íslensku, ítölsku, hollensku | því tungumáli |
+| tungumáli sem handbók er uppsett fyrir — katalónsku, tékknesku, þýsku, spænsku, finnsku, frönsku, galisísku, hebresku, ungversku, interlingue, íslensku, ítölsku, hollensku, pólsku, portúgölsku, brasilísku portúgölsku | því tungumáli |
 | tungumáli sem handbók er ekki uppsett fyrir | ensku |
 
 **Síða fyrir síðu, ekki allt eða ekkert**: síða sem þýðingin hefur ekki

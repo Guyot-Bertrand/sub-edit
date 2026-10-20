@@ -75,10 +75,10 @@ jazykem, pokud ho katalog zná — jde o vzory dodávané s programem; vlastní 
 uvádí tak, jak ho zapisuje jeho soubor. Samotné soubory vzorů se nikdy nepřepisují.
 
 Katalogy se instalují do `<prefix>/share/subedit/locale/<language>/LC_MESSAGES/subedit.mo`
-a hledají se od adresáře samotného spustitelného souboru. Angličtina je vestavěná. Tato verze instaluje `ca`, `cs`, `de`, `es`, `fi`, `fr`, `gl`, `he`, `hu`, `ie`, `is`, `it_IT` a `nl` — katalánštinu,
-češtinu, němčinu, španělštinu, finštinu, francouzštinu, galicijštinu, hebrejštinu, maďarštinu, interlingue, islandštinu, italštinu a nizozemštinu — v úplném překladu.
+a hledají se od adresáře samotného spustitelného souboru. Angličtina je vestavěná. Tato verze instaluje `ca`, `cs`, `de`, `es`, `fi`, `fr`, `gl`, `he`, `hu`, `ie`, `is`, `it_IT`, `nl`, `pl`, `pt` a `pt_BR` — katalánštinu,
+češtinu, němčinu, španělštinu, finštinu, francouzštinu, galicijštinu, hebrejštinu, maďarštinu, interlingue, islandštinu, italštinu, nizozemštinu, polštinu, portugalštinu a brazilskou portugalštinu — v úplném překladu.
 Francouzštinu zkontroloval čtenář tohoto jazyka; katalánština, čeština, němčina, španělština,
-finština, galicijština, hebrejština, maďarština, interlingue, islandština, italština a nizozemština jsou strojově přeložené a dosud je nezkontroloval žádný čtenář daného jazyka.
+finština, galicijština, hebrejština, maďarština, interlingue, islandština, italština, nizozemština, polština, portugalština a brazilská portugalština jsou strojově přeložené a dosud je nezkontroloval žádný čtenář daného jazyka.
 <!-- machine-translated: ca -->
 <!-- machine-translated: cs -->
 <!-- machine-translated: de -->
@@ -91,6 +91,9 @@ finština, galicijština, hebrejština, maďarština, interlingue, islandština,
 <!-- machine-translated: is -->
 <!-- machine-translated: it_IT -->
 <!-- machine-translated: nl -->
+<!-- machine-translated: pl -->
+<!-- machine-translated: pt -->
+<!-- machine-translated: pt_BR -->
 Při `LANG=fr_FR.UTF-8` začíná `subedit-cli --help` větou „Lire,
 inspecter et recaler des fichiers de sous-titres.“ Skript, který čte slova textového
 výstupu, nastaví `LANGUAGE=en` (nebo `LC_ALL=C`) — nebo čte `--format json`, který se nikdy nemění.
@@ -217,7 +220,7 @@ nespustí a `-q` ani `-v` nic nemění.
 <!-- example: subedit-cli --version | head -n 1 -->
 ```console
 $ subedit-cli --version | head -n 1
-subedit 0.15.45
+subedit 0.15.46
 ```
 
 Celý výstup na počítači s ICU 74.2 a Enchant 2.3.3 — čísla jsou čísla daného počítače:
@@ -871,7 +874,7 @@ stránky uvádí adresář, do kterého je příručka nainstalována.
 | Stránky | Kam se instalují |
 | :---- | :----------------------- |
 | anglické | `share/man/man1` |
-| každý instalovaný jazyk — katalánština, čeština, němčina, španělština, finština, francouzština, galicijština, hebrejština, maďarština, interlingue, islandština, italština, nizozemština | `share/man/<language>/man1` — `share/man/fr/man1` |
+| každý instalovaný jazyk — katalánština, čeština, němčina, španělština, finština, francouzština, galicijština, hebrejština, maďarština, interlingue, islandština, italština, nizozemština, polština, portugalština, brazilská portugalština | `share/man/<language>/man1` — `share/man/fr/man1` |
 
 **`man` vybírá jazyk podle národního prostředí**, stejně jako program: při francouzském národním prostředí
 zobrazí `man subedit-cli` francouzskou stránku a jazyk, jehož stránky nejsou nainstalovány, dostane

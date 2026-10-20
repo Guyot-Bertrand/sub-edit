@@ -75,9 +75,9 @@ ook, wanneer de catalogus hem kent — de patronen die met het programma worden 
 genoemd zoals zijn bestand het schrijft. De patroonbestanden zelf worden nooit herschreven.
 
 De catalogi worden geïnstalleerd onder `<prefix>/share/subedit/locale/<language>/LC_MESSAGES/subedit.mo`
-en gevonden vanuit de eigen map van het uitvoerbare bestand. Engels is ingebouwd. Deze versie installeert `ca`, `cs`, `de`, `es`, `fi`, `fr`, `gl`, `he`, `hu`, `ie`, `is`, `it_IT` en `nl` — Catalaans,
-Tsjechisch, Duits, Spaans, Fins, Frans, Galicisch, Hebreeuws, Hongaars, Interlingue, IJslands, Italiaans en Nederlands — volledig vertaald. Frans is nagelezen
-door een lezer van de taal; Catalaans, Tsjechisch, Duits, Spaans, Fins, Galicisch, Hebreeuws, Hongaars, Interlingue, IJslands, Italiaans en Nederlands zijn
+en gevonden vanuit de eigen map van het uitvoerbare bestand. Engels is ingebouwd. Deze versie installeert `ca`, `cs`, `de`, `es`, `fi`, `fr`, `gl`, `he`, `hu`, `ie`, `is`, `it_IT`, `nl`, `pl`, `pt` en `pt_BR` — Catalaans,
+Tsjechisch, Duits, Spaans, Fins, Frans, Galicisch, Hebreeuws, Hongaars, Interlingue, IJslands, Italiaans, Nederlands, Pools, Portugees en Braziliaans Portugees — volledig vertaald. Frans is nagelezen
+door een lezer van de taal; Catalaans, Tsjechisch, Duits, Spaans, Fins, Galicisch, Hebreeuws, Hongaars, Interlingue, IJslands, Italiaans, Nederlands, Pools, Portugees en Braziliaans Portugees zijn
 machinevertaald en nog door geen lezer van de taal nagelezen.
 <!-- machine-translated: ca -->
 <!-- machine-translated: cs -->
@@ -91,6 +91,9 @@ machinevertaald en nog door geen lezer van de taal nagelezen.
 <!-- machine-translated: is -->
 <!-- machine-translated: it_IT -->
 <!-- machine-translated: nl -->
+<!-- machine-translated: pl -->
+<!-- machine-translated: pt -->
+<!-- machine-translated: pt_BR -->
 Onder `LANG=fr_FR.UTF-8` begint `subedit-cli --help` met “Lire,
 inspecter et recaler des fichiers de sous-titres.” Een script dat de woorden van de tekstuitvoer
 leest, stelt `LANGUAGE=en` in (of `LC_ALL=C`) — of leest `--format json`, dat nooit verandert.
@@ -217,7 +220,7 @@ wordt niet uitgevoerd, en `-q` en `-v` veranderen niets.
 <!-- example: subedit-cli --version | head -n 1 -->
 ```console
 $ subedit-cli --version | head -n 1
-subedit 0.15.45
+subedit 0.15.46
 ```
 
 Het geheel, op een machine met ICU 74.2 en Enchant 2.3.3 — de nummers zijn die van de machine:
@@ -870,7 +873,7 @@ pagina noemt de map waarin de handleiding is geïnstalleerd.
 | Pagina's | Waar ze zijn geïnstalleerd |
 | :---- | :----------------------- |
 | Engels | `share/man/man1` |
-| elke geïnstalleerde taal — Catalaans, Tsjechisch, Duits, Spaans, Fins, Frans, Galicisch, Hebreeuws, Hongaars, Interlingue, IJslands, Italiaans, Nederlands | `share/man/<language>/man1` — `share/man/fr/man1` |
+| elke geïnstalleerde taal — Catalaans, Tsjechisch, Duits, Spaans, Fins, Frans, Galicisch, Hebreeuws, Hongaars, Interlingue, IJslands, Italiaans, Nederlands, Pools, Portugees, Braziliaans Portugees | `share/man/<language>/man1` — `share/man/fr/man1` |
 
 **`man` kiest de taal uit de landinstelling**, zoals het programma: onder een Franse landinstelling
 toont `man subedit-cli` de Franse pagina, en een taal waarvan de pagina's niet zijn geïnstalleerd, krijgt de

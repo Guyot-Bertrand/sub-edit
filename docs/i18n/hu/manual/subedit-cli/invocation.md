@@ -67,7 +67,7 @@ A parancssor a környezete nyelvén szól: **a súgója, a beszámolói és a hi
 
 **A javítási minta neve**, amelyről a `correct` közli, hogy nem tudta alkalmazni, szintén követi a nyelvet, ha a katalógus ismeri — a programmal szállított mintáknál; a saját minta úgy szerepel, ahogy a fájlja írja. Maguk a mintafájlok soha nem íródnak át.
 
-A katalógusok a végrehajtható fájl saját könyvtárából találhatók meg, és ezen az útvonalon települnek: `<prefix>/share/subedit/locale/<language>/LC_MESSAGES/subedit.mo`. Az angol be van építve. Ez a verzió a következőket telepíti: `ca`, `cs`, `de`, `es`, `fi`, `fr`, `gl`, `he`, `hu`, `ie`, `is`, `it_IT` és `nl` — katalán, cseh, német, spanyol, finn, francia, galíciai, héber, magyar, interlingue, izlandi, olasz és holland —, teljesen lefordítva. A franciát a nyelv egyik olvasója átnézte; a katalán, a cseh, a német, a spanyol, a finn, a galíciai, a héber, a magyar, az interlingue, az izlandi, az olasz és a holland gépi fordítású, és a nyelv egyik olvasója még nem nézte át.
+A katalógusok a végrehajtható fájl saját könyvtárából találhatók meg, és ezen az útvonalon települnek: `<prefix>/share/subedit/locale/<language>/LC_MESSAGES/subedit.mo`. Az angol be van építve. Ez a verzió a következőket telepíti: `ca`, `cs`, `de`, `es`, `fi`, `fr`, `gl`, `he`, `hu`, `ie`, `is`, `it_IT`, `nl`, `pl`, `pt` és `pt_BR` — katalán, cseh, német, spanyol, finn, francia, galíciai, héber, magyar, interlingue, izlandi, olasz, holland, lengyel, portugál és brazil portugál —, teljesen lefordítva. A franciát a nyelv egyik olvasója átnézte; a katalán, a cseh, a német, a spanyol, a finn, a galíciai, a héber, a magyar, az interlingue, az izlandi, az olasz, a holland, a lengyel, a portugál és a brazil portugál gépi fordítású, és a nyelv egyik olvasója még nem nézte át.
 <!-- machine-translated: ca -->
 <!-- machine-translated: cs -->
 <!-- machine-translated: de -->
@@ -80,6 +80,9 @@ A katalógusok a végrehajtható fájl saját könyvtárából találhatók meg,
 <!-- machine-translated: is -->
 <!-- machine-translated: it_IT -->
 <!-- machine-translated: nl -->
+<!-- machine-translated: pl -->
+<!-- machine-translated: pt -->
+<!-- machine-translated: pt_BR -->
 A `LANG=fr_FR.UTF-8` beállítással a `subedit-cli --help` kimenete így kezdődik: „Lire, inspecter et recaler des fichiers de sous-titres.” Az a szkript, amely a szöveges kimenet szavait olvassa, a `LANGUAGE=en` (vagy `LC_ALL=C`) értéket állítja be — vagy a `--format json` kimenetet olvassa, amely sosem változik.
 
 **Ami sosem követi a nyelvet** — amit a szkript olvas:
@@ -169,7 +172,7 @@ code=1
 <!-- example: subedit-cli --version | head -n 1 -->
 ```console
 $ subedit-cli --version | head -n 1
-subedit 0.15.45
+subedit 0.15.46
 ```
 
 Az egész, egy ICU 74.2 és Enchant 2.3.3 verziójú gépen — a számok a gép számai:
@@ -610,7 +613,7 @@ $ man subedit-cli-shift
 | Oldalak | Hová települnek |
 | :---- | :----------------------- |
 | angol | `share/man/man1` |
-| minden telepített nyelv — katalán, cseh, német, spanyol, finn, francia, galíciai, héber, magyar, interlingue, izlandi, olasz, holland | `share/man/<language>/man1` — `share/man/fr/man1` |
+| minden telepített nyelv — katalán, cseh, német, spanyol, finn, francia, galíciai, héber, magyar, interlingue, izlandi, olasz, holland, lengyel, portugál, brazil portugál | `share/man/<language>/man1` — `share/man/fr/man1` |
 
 **A `man` a nyelvet a területi beállításból veszi**, ahogy a program is: francia területi beállítással a `man subedit-cli` a francia oldalt mutatja, és az a nyelv, amelynek az oldalai nincsenek telepítve, az angolokat kapja. A `-L` a területi beállítástól függetlenül kér nyelvet:
 

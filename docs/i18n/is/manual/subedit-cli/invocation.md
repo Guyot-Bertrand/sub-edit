@@ -75,9 +75,9 @@ líka, þegar þýðingaskráin þekkir það — mynstrin sem fylgja forritinu;
 nefnt eins og skráin þess ritar það. Mynstraskrárnar sjálfar eru aldrei endurskrifaðar.
 
 Þýðingaskrárnar eru settar upp undir `<prefix>/share/subedit/locale/<language>/LC_MESSAGES/subedit.mo`
-og fundnar út frá eigin möppu keyrsluskrárinnar. Enska er innbyggð. Þessi útgáfa setur upp `ca`, `cs`, `de`, `es`, `fi`, `fr`, `gl`, `he`, `hu`, `ie`, `is`, `it_IT` og `nl` — katalónsku,
-tékknesku, þýsku, spænsku, finnsku, frönsku, galisísku, hebresku, ungversku, interlingue, íslensku, ítölsku og hollensku — þýddar að fullu. Franskan hefur verið yfirfarin
-af lesanda tungumálsins; katalónska, tékkneska, þýska, spænska, finnska, galisíska, hebreska, ungverska, interlingue, íslenska, ítalska og hollenska eru
+og fundnar út frá eigin möppu keyrsluskrárinnar. Enska er innbyggð. Þessi útgáfa setur upp `ca`, `cs`, `de`, `es`, `fi`, `fr`, `gl`, `he`, `hu`, `ie`, `is`, `it_IT`, `nl`, `pl`, `pt` og `pt_BR` — katalónsku,
+tékknesku, þýsku, spænsku, finnsku, frönsku, galisísku, hebresku, ungversku, interlingue, íslensku, ítölsku, hollensku, pólsku, portúgölsku og brasilísku portúgölsku — þýddar að fullu. Franskan hefur verið yfirfarin
+af lesanda tungumálsins; katalónska, tékkneska, þýska, spænska, finnska, galisíska, hebreska, ungverska, interlingue, íslenska, ítalska, hollenska, pólska, portúgalska og brasilíska portúgalska eru
 vélþýddar og enn ekki yfirfarnar af lesanda tungumálsins.
 <!-- machine-translated: ca -->
 <!-- machine-translated: cs -->
@@ -91,6 +91,9 @@ vélþýddar og enn ekki yfirfarnar af lesanda tungumálsins.
 <!-- machine-translated: is -->
 <!-- machine-translated: it_IT -->
 <!-- machine-translated: nl -->
+<!-- machine-translated: pl -->
+<!-- machine-translated: pt -->
+<!-- machine-translated: pt_BR -->
 Undir `LANG=fr_FR.UTF-8` byrjar `subedit-cli --help` á „Lire,
 inspecter et recaler des fichiers de sous-titres.“ Skripta sem les orðin í textaúttakinu
 stillir `LANGUAGE=en` (eða `LC_ALL=C`) — eða les `--format json`, sem breytist aldrei.
@@ -217,7 +220,7 @@ ekki keyrð, og `-q` og `-v` breyta engu.
 <!-- example: subedit-cli --version | head -n 1 -->
 ```console
 $ subedit-cli --version | head -n 1
-subedit 0.15.45
+subedit 0.15.46
 ```
 
 Allt úttakið, á vél með ICU 74.2 og Enchant 2.3.3 — tölurnar eru vélarinnar:

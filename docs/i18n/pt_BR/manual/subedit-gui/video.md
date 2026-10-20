@@ -1,0 +1,145 @@
+# O vídeo associado
+
+<!-- machine-translated -->
+> Esta página é uma tradução automática e ainda não foi revisada por um leitor do idioma.
+
+O menu **Vídeo** traz primeiro dois comandos, e os gestos que conduzem o filme
+— veja [O reprodutor](player.md#navegar-pelo-filme).
+
+| Comando | Atalho | O que faz |
+| :------ | :----- | :-------- |
+| Selecionar vídeo… | nenhum | escolhe o arquivo de vídeo ao qual o documento se associa |
+| Reproduzir / Pausar | `Ctrl+P` | reproduz ou interrompe o vídeo — veja [O reprodutor](player.md#reproduzir-e-parar) |
+
+O vídeo associado é **uma propriedade do documento aberto**, e não uma configuração
+do aplicativo: abrir outro arquivo de legendas recomeça do zero. Ele
+não é gravado em nenhum arquivo e desaparece com a janela.
+
+## A faixa de áudio
+
+Um filme pode ter várias faixas de som — a versão original, uma dublagem, um comentário. O
+submenu **`Vídeo ▸ Áudio ▸ Idioma`** as lista, **uma entrada por faixa**, e **marca a que está tocando**:
+
+| O que o arquivo fornece | O que a entrada diz |
+| :---------------------- | :------------------ |
+| um idioma e um título | `1: fra — Original` |
+| um idioma apenas | `2: eng` |
+| um título apenas | `3: Commentary` |
+| nenhum dos dois | `1` |
+
+O número é **o lugar da faixa no filme**, contado uma a uma, na ordem do arquivo: duas faixas
+podem dizer `eng`, e um arquivo sem nenhum rótulo ainda tem uma primeira e uma segunda.
+
+**Escolher uma entrada reproduz essa faixa.** A marca é a resposta do reprodutor, não o clique: ela indica a
+faixa que está tocando.
+
+- **O submenu fica desativado** sem vídeo ou sem faixa de áudio. Com uma única faixa, ele continua ativado e
+  a mostra, marcada: indica o idioma do filme. Os dois gestos de volume, que ficam ao lado, continuam
+  ativados em qualquer caso: veja [O volume](player.md#o-volume).
+- **A faixa não é lembrada** de um vídeo para o seguinte, nem de uma sessão para a seguinte: um número de faixa é
+  o do seu arquivo, e transportá-lo para o filme seguinte escolheria o que quer que tenha esse número ali.
+  Voltar a uma aba reabre o filme com a faixa que o reprodutor escolhe por conta própria.
+- Sem atalho: o idioma é trocado raramente, e o menu basta.
+
+## Escolher um vídeo
+
+A caixa de diálogo abre no diretório do arquivo de legendas e filtra pelas
+extensões de vídeo reconhecidas:
+
+    .avi .flv .m2ts .mkv .mov .mp4 .ogg .ogv .vob .webm
+
+Ela também oferece mostrar todos os arquivos. Cancelar a caixa de diálogo não muda
+nada.
+
+O arquivo escolhido é **aberto imediatamente**: a imagem aparece na janela,
+em pausa no seu primeiro instante. Veja [O reprodutor](player.md).
+
+**Soltar um arquivo de vídeo na janela faz a mesma coisa** — veja
+[Soltar arquivos na janela](files.md#soltar-arquivos-na-janela).
+
+**O vídeo é o do projeto da aba atual.** Cada aba guarda o
+seu; trocar de aba troca o filme. **Voltar a uma aba retoma o seu
+filme de onde foi deixado**, em pausa, como em qualquer abertura. Outro filme
+escolhido para esse projeto nesse meio-tempo começa, por sua vez, do início.
+
+## A proposta automática
+
+Quando um arquivo de legendas é aberto, **se nenhum vídeo foi escolhido**,
+a janela procura um no mesmo diretório: um arquivo de vídeo cujo nome
+sem a extensão é um prefixo do nosso, até um ponto.
+
+| Arquivo de legendas | Vídeo encontrado | Por quê |
+| :------------------ | :--------------- | :------ |
+| `film.fr.srt` | `film.mkv` | `film` é um prefixo de `film.fr` |
+| `film.en.forced.srt` | `film.mkv` | idem, qualquer que seja o número de segmentos |
+| `film.fr.srt` | `film.fr.mkv` em vez de `film.mkv` | o nome mais longo vence |
+| `film.fr.srt` | nenhum, se `film.mkv` **e** `film.mp4` estiverem presentes | dois candidatos não podem ser distinguidos |
+| `film.fr.srt` | nenhum, se só `fil.mkv` estiver presente | `fil` não termina num ponto |
+
+**Uma proposta não é uma escolha.** Ela se deixa substituir por outra
+proposta — abrir outro arquivo, salvar com outro nome. Uma escolha
+explícita, por outro lado, nunca é sobrescrita: depois de usar `Select Video…`, a
+proposta automática não volta mais atrás dela.
+
+É isso que torna aceitável o palpite: ele pode ser corrigido, e sua
+correção se mantém.
+
+## O que a barra de status mostra
+
+À direita da barra de status, uma linha diz a que o documento se associa. Ela
+é a última de três: a [codificação](files.md#a-codificação-na-barra-de-status)
+do arquivo lido vem primeiro, a [grade de quadros](frame-grid.md) deduzida das
+posições vem em seguida.
+
+| Situação | O que está escrito |
+| :------- | :----------------- |
+| um vídeo está associado | `Video: film.mkv` |
+| … e `ffprobe` fornece sua taxa de quadros | `Video: film.mkv, 24000/1001 fps` |
+| nenhum | `No video` |
+
+**A taxa de quadros acompanha o filme em vez de ficar ao lado dele.** São um único fato — a que
+este documento se associa — e uma terceira menção a colocaria no mesmo nível que
+a [grade deduzida das posições](frame-grid.md), que é outra coisa.
+
+## Quando não há filme
+
+A janela mostra um botão **`Select Video…`** onde ficaria a imagem, em vez de
+nada. É o mesmo comando do menu `Video`, ao
+alcance do mouse: uma ausência sobre a qual não se pode agir é difícil de distinguir de uma
+falha.
+
+O botão desaparece assim que um filme é aberto, e a imagem ocupa **todo** o seu
+lugar: a altura que a tabela deixa acima dela — a que
+[`window.table-share`](preferences.md) lembrou de uma sessão para a seguinte —, e
+nunca menos que a altura mínima da imagem, que a tabela cede se necessário.
+Quando o filme sai, o botão retoma o mesmo lugar.
+
+**O nome do arquivo, nunca o seu caminho.** Um caminho de duzentos caracteres
+empurraria todo o resto para fora da barra; o caminho completo é o que a caixa de
+diálogo mostrou.
+
+## `ffmpeg` não é obrigatório
+
+O `subedit-gui` consulta o `ffprobe` — fornecido com o `ffmpeg` — para uma única
+coisa: **a taxa de quadros que o contêiner declara**. Ela é lida uma vez
+por filme, quando ele é associado.
+
+| Com `ffprobe` | Sem |
+| :------------ | :-- |
+| a barra de status escreve a taxa de quadros ao lado do nome do filme | ela escreve apenas o nome |
+| a caixa de diálogo de conversão propõe a taxa de quadros do filme no campo inferior | ela não propõe nada, e abre como antes |
+| a caixa de diálogo de alinhamento abre nela | ela abre na taxa de quadros do projeto |
+
+**Nada mais depende dele, e nenhuma operação se recusa.** O reprodutor, por sua vez,
+não precisa do `ffprobe` de forma alguma: ele se apoia na `libmpv`, que é uma
+dependência de compilação. A duração do filme, a que serve para relatar o que
+ultrapassa o fim, vem do reprodutor e não do `ffprobe`.
+
+Não é portanto um modo degradado, mas **o funcionamento normal** de uma máquina
+que nunca instalou o `ffmpeg`: o dado vem do usuário, e o `ffprobe`
+o propõe quando está presente.
+
+Uma taxa de quadros lida é um **racional exato** — `24000/1001`, e não `23.976`.
+É essa a razão de o `ffprobe` ser mantido para essa resposta: o
+reprodutor conhece a mesma coisa como número de ponto flutuante, e uma taxa de quadros aproximada
+ressincronizaria o arquivo inteiro um pouco fora do lugar.

@@ -1,0 +1,15 @@
+{
+  "shortcut_header": "Skrót",
+  "label_headers": ["Polecenie", "Pozycja", "Akcja", "Pozycja menu"],
+  "no_shortcut_words": ["brak"],
+  "option_header": "Opcja",
+  "subcommand_header": "Podpolecenie",
+  "man": {
+    "name": "NAZWA",
+    "synopsis": "SKŁADNIA",
+    "description": "OPIS",
+    "files": "PLIKI",
+    "see_also": "ZOBACZ TAKŻE",
+    "manual_title": "Polecenia użytkownika"
+  }
+}

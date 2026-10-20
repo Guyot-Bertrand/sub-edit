@@ -148,9 +148,9 @@ vítězí nad každou proměnnou, včetně `LC_ALL=C`. I tato volba platí od p�
 | klávesové zkratky | nikdy: `Ctrl+S` je `Ctrl+S` v každém jazyce |
 | hlášení, které katalog nepřekládá | zobrazí se anglicky |
 
-Tato verze instaluje `ca`, `cs`, `de`, `es`, `fi`, `fr`, `gl`, `he`, `hu`, `ie`, `is`, `it_IT` a `nl` — katalánštinu, češtinu, němčinu,
-španělštinu, finštinu, francouzštinu, galicijštinu, hebrejštinu, maďarštinu, interlingue, islandštinu, italštinu a nizozemštinu — v úplném překladu. Francouzštinu zkontroloval
-čtenář tohoto jazyka; katalánština, čeština, němčina, španělština, finština, galicijština, hebrejština, maďarština, interlingue, islandština, italština a nizozemština
+Tato verze instaluje `ca`, `cs`, `de`, `es`, `fi`, `fr`, `gl`, `he`, `hu`, `ie`, `is`, `it_IT`, `nl`, `pl`, `pt` a `pt_BR` — katalánštinu, češtinu, němčinu,
+španělštinu, finštinu, francouzštinu, galicijštinu, hebrejštinu, maďarštinu, interlingue, islandštinu, italštinu, nizozemštinu, polštinu, portugalštinu a brazilskou portugalštinu — v úplném překladu. Francouzštinu zkontroloval
+čtenář tohoto jazyka; katalánština, čeština, němčina, španělština, finština, galicijština, hebrejština, maďarština, interlingue, islandština, italština, nizozemština, polština, portugalština a brazilská portugalština
 jsou strojově přeložené a dosud je nezkontroloval žádný čtenář daného jazyka.
 <!-- machine-translated: ca -->
 <!-- machine-translated: cs -->
@@ -164,6 +164,9 @@ jsou strojově přeložené a dosud je nezkontroloval žádný čtenář daného
 <!-- machine-translated: is -->
 <!-- machine-translated: it_IT -->
 <!-- machine-translated: nl -->
+<!-- machine-translated: pl -->
+<!-- machine-translated: pt -->
+<!-- machine-translated: pt_BR -->
 Ve francouzském pracovním prostředí nese řádek nabídek
 `&Fichier`, `É&dition`, `&Affichage`, `&Vidéo`, `&Outils`, `&Projets`, `Aid&e`. Snímky obrazovky
 v této příručce jsou pořízeny v češtině.

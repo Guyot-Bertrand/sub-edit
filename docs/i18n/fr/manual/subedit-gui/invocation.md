@@ -147,10 +147,10 @@ s'applique au lancement suivant. Voir
 | les raccourcis clavier | jamais : `Ctrl+S` est `Ctrl+S` dans toutes les langues |
 | un message que le catalogue ne traduit pas | montré en anglais |
 
-Cette version installe `ca`, `cs`, `de`, `es`, `fi`, `fr`, `gl`, `he`, `hu`, `ie`, `is`, `it_IT` et `nl` — le catalan, le tchèque,
-l'allemand, l'espagnol, le finnois, le français, le galicien, l'hébreu, le hongrois, l'interlingue, l'islandais, l'italien et le néerlandais — traduits en entier. Le français a
+Cette version installe `ca`, `cs`, `de`, `es`, `fi`, `fr`, `gl`, `he`, `hu`, `ie`, `is`, `it_IT`, `nl`, `pl`, `pt` et `pt_BR` — le catalan, le tchèque,
+l'allemand, l'espagnol, le finnois, le français, le galicien, l'hébreu, le hongrois, l'interlingue, l'islandais, l'italien, le néerlandais, le polonais, le portugais et le portugais brésilien — traduits en entier. Le français a
 été relu par un lecteur de la langue ; le catalan, le tchèque, l'allemand, l'espagnol, le finnois,
-le galicien, l'hébreu, le hongrois, l'interlingue, l'islandais, l'italien et le néerlandais sont traduits par machine et pas encore relus par un lecteur de la langue.
+le galicien, l'hébreu, le hongrois, l'interlingue, l'islandais, l'italien, le néerlandais, le polonais, le portugais et le portugais brésilien sont traduits par machine et pas encore relus par un lecteur de la langue.
 <!-- machine-translated: ca -->
 <!-- machine-translated: cs -->
 <!-- machine-translated: de -->
@@ -163,6 +163,9 @@ le galicien, l'hébreu, le hongrois, l'interlingue, l'islandais, l'italien et le
 <!-- machine-translated: is -->
 <!-- machine-translated: it_IT -->
 <!-- machine-translated: nl -->
+<!-- machine-translated: pl -->
+<!-- machine-translated: pt -->
+<!-- machine-translated: pt_BR -->
 Sur un bureau français, la barre de
 menus porte `&Fichier`, `É&dition`, `&Affichage`, `&Vidéo`, `&Outils`, `&Projets`, `Aid&e`. Les
 captures de ce manuel-ci sont prises en français.

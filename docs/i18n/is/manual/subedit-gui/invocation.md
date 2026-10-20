@@ -148,9 +148,9 @@ sigrar allar breytur, `LC_ALL=C` meðtalið. Valið tekur líka gildi við næst
 | flýtilyklarnir | aldrei: `Ctrl+S` er `Ctrl+S` á öllum tungumálum |
 | skilaboð sem þýðingaskráin þýðir ekki | sýnd á ensku |
 
-Þessi útgáfa setur upp `ca`, `cs`, `de`, `es`, `fi`, `fr`, `gl`, `he`, `hu`, `ie`, `is`, `it_IT` og `nl` — katalónsku, tékknesku, þýsku,
-spænsku, finnsku, frönsku, galisísku, hebresku, ungversku, interlingue, íslensku, ítölsku og hollensku — þýdd að fullu. Franskan hefur verið yfirfarin af lesanda
-tungumálsins; katalónska, tékkneska, þýska, spænska, finnska, galisíska, hebreska, ungverska, interlingue, íslenska, ítalska og hollenska eru vélþýddar og enn ekki
+Þessi útgáfa setur upp `ca`, `cs`, `de`, `es`, `fi`, `fr`, `gl`, `he`, `hu`, `ie`, `is`, `it_IT`, `nl`, `pl`, `pt` og `pt_BR` — katalónsku, tékknesku, þýsku,
+spænsku, finnsku, frönsku, galisísku, hebresku, ungversku, interlingue, íslensku, ítölsku, hollensku, pólsku, portúgölsku og brasilísku portúgölsku — þýdd að fullu. Franskan hefur verið yfirfarin af lesanda
+tungumálsins; katalónska, tékkneska, þýska, spænska, finnska, galisíska, hebreska, ungverska, interlingue, íslenska, ítalska, hollenska, pólska, portúgalska og brasilíska portúgalska eru vélþýddar og enn ekki
 yfirfarnar af lesanda tungumálsins.
 <!-- machine-translated: ca -->
 <!-- machine-translated: cs -->
@@ -164,5 +164,8 @@ yfirfarnar af lesanda tungumálsins.
 <!-- machine-translated: is -->
 <!-- machine-translated: it_IT -->
 <!-- machine-translated: nl -->
+<!-- machine-translated: pl -->
+<!-- machine-translated: pt -->
+<!-- machine-translated: pt_BR -->
 Á frönsku skjáborði stendur í valmyndastikunni
 `&Fichier`, `É&dition`, `&Affichage`, `&Vidéo`, `&Outils`, `&Projets`, `Aid&e`. Skjámyndir þessarar handbókar eru teknar á íslensku.
