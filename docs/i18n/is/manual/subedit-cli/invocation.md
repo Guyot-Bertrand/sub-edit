@@ -75,9 +75,9 @@ líka, þegar þýðingaskráin þekkir það — mynstrin sem fylgja forritinu;
 nefnt eins og skráin þess ritar það. Mynstraskrárnar sjálfar eru aldrei endurskrifaðar.
 
 Þýðingaskrárnar eru settar upp undir `<prefix>/share/subedit/locale/<language>/LC_MESSAGES/subedit.mo`
-og fundnar út frá eigin möppu keyrsluskrárinnar. Enska er innbyggð. Þessi útgáfa setur upp `ca`, `cs`, `de`, `es`, `fi`, `fr`, `gl`, `he`, `hu`, `ie`, `is`, `it_IT` og `nl` — katalónsku,
-tékknesku, þýsku, spænsku, finnsku, frönsku, galisísku, hebresku, ungversku, interlingue, íslensku, ítölsku og hollensku — þýddar að fullu. Franskan hefur verið yfirfarin
-af lesanda tungumálsins; katalónska, tékkneska, þýska, spænska, finnska, galisíska, hebreska, ungverska, interlingue, íslenska, ítalska og hollenska eru
+og fundnar út frá eigin möppu keyrsluskrárinnar. Enska er innbyggð. Þessi útgáfa setur upp `ca`, `cs`, `de`, `es`, `fi`, `fr`, `gl`, `he`, `hu`, `ie`, `is`, `it_IT`, `nl`, `pl`, `pt` og `pt_BR` — katalónsku,
+tékknesku, þýsku, spænsku, finnsku, frönsku, galisísku, hebresku, ungversku, interlingue, íslensku, ítölsku, hollensku, pólsku, portúgölsku og brasilísku portúgölsku — þýddar að fullu. Franskan hefur verið yfirfarin
+af lesanda tungumálsins; katalónska, tékkneska, þýska, spænska, finnska, galisíska, hebreska, ungverska, interlingue, íslenska, ítalska, hollenska, pólska, portúgalska og brasilíska portúgalska eru
 vélþýddar og enn ekki yfirfarnar af lesanda tungumálsins.
 <!-- machine-translated: ca -->
 <!-- machine-translated: cs -->
