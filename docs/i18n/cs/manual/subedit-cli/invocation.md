@@ -75,10 +75,10 @@ jazykem, pokud ho katalog zná — jde o vzory dodávané s programem; vlastní 
 uvádí tak, jak ho zapisuje jeho soubor. Samotné soubory vzorů se nikdy nepřepisují.
 
 Katalogy se instalují do `<prefix>/share/subedit/locale/<language>/LC_MESSAGES/subedit.mo`
-a hledají se od adresáře samotného spustitelného souboru. Angličtina je vestavěná. Tato verze instaluje `ca`, `cs`, `de`, `es`, `fi`, `fr`, `gl`, `he`, `hu` a `ie` — katalánštinu,
-češtinu, němčinu, španělštinu, finštinu, francouzštinu, galicijštinu, hebrejštinu, maďarštinu a interlingue — v úplném překladu.
+a hledají se od adresáře samotného spustitelného souboru. Angličtina je vestavěná. Tato verze instaluje `ca`, `cs`, `de`, `es`, `fi`, `fr`, `gl`, `he`, `hu`, `ie`, `is`, `it_IT` a `nl` — katalánštinu,
+češtinu, němčinu, španělštinu, finštinu, francouzštinu, galicijštinu, hebrejštinu, maďarštinu, interlingue, islandštinu, italštinu a nizozemštinu — v úplném překladu.
 Francouzštinu zkontroloval čtenář tohoto jazyka; katalánština, čeština, němčina, španělština,
-finština, galicijština, hebrejština, maďarština a interlingue jsou strojově přeložené a dosud je nezkontroloval žádný čtenář daného jazyka.
+finština, galicijština, hebrejština, maďarština, interlingue, islandština, italština a nizozemština jsou strojově přeložené a dosud je nezkontroloval žádný čtenář daného jazyka.
 <!-- machine-translated: ca -->
 <!-- machine-translated: cs -->
 <!-- machine-translated: de -->
@@ -871,7 +871,7 @@ stránky uvádí adresář, do kterého je příručka nainstalována.
 | Stránky | Kam se instalují |
 | :---- | :----------------------- |
 | anglické | `share/man/man1` |
-| každý instalovaný jazyk — katalánština, čeština, němčina, španělština, finština, francouzština, galicijština, hebrejština, maďarština, interlingue | `share/man/<language>/man1` — `share/man/fr/man1` |
+| každý instalovaný jazyk — katalánština, čeština, němčina, španělština, finština, francouzština, galicijština, hebrejština, maďarština, interlingue, islandština, italština, nizozemština | `share/man/<language>/man1` — `share/man/fr/man1` |
 
 **`man` vybírá jazyk podle národního prostředí**, stejně jako program: při francouzském národním prostředí
 zobrazí `man subedit-cli` francouzskou stránku a jazyk, jehož stránky nejsou nainstalovány, dostane
