@@ -26,6 +26,14 @@ ne pas l'éditer à la main.
 - **i18n** — Take over the Galician seed catalogue
 - **i18n** — Complete the Galician catalogue
 - **i18n** — Complete the Spanish catalogue
+- **gui** — Lay the window out right to left for Hebrew
+- **i18n** — Take over the Hungarian seed catalogue
+- **i18n** — Complete the Hungarian catalogue
+- **i18n** — Take over the Hebrew seed catalogue
+- **i18n** — Complete the Hebrew catalogue
+- **i18n** — Take over the Interlingue seed catalogue
+- **i18n** — Complete the Interlingue catalogue
+- **i18n** — Install Hebrew, Hungarian and Interlingue
 
 ### Corrections
 
@@ -37,6 +45,10 @@ ne pas l'éditer à la main.
 - **build** — Move the seed proof of verify-gates to Dutch
 - **test** — Let screenshots go on without a Qt catalogue
 - **build** — Move the vocabulary proofs to a made-up language
+- **i18n** — Repair two lines of the Hebrew and Interlingue manuals
+- **build** — Ask the Hebrew man pages of one terminal only
+- **i18n** — Wrap the Hebrew image captions like the English ones
+- **test** — Render the Hebrew man pages under one terminal only
 
 ### Documentation
 
@@ -264,6 +276,36 @@ ne pas l'éditer à la main.
 - **i18n** — Translate the Galician GUI clipboard page
 - **i18n** — Translate the Galician GUI undo page
 - **i18n** — Add the Spanish, Finnish and Galician screenshots
+- **doc** — Regenerate the changelog
+- **i18n** — Add the Interlingue vocabulary
+- **i18n** — Add the Hungarian vocabulary
+- **i18n** — Add the Hebrew vocabulary
+- **i18n** — Translate the Hungarian CLI pages, batch C
+- **i18n** — Translate the Interlingue CLI batch C pages
+- **i18n** — Translate nine Hebrew CLI pages (batch C)
+- **i18n** — Translate the Interlingue manual home and CLI A
+- **i18n** — Translate the Hungarian home and CLI pages (batch A)
+- **i18n** — Translate the Hebrew manual index and CLI pages A
+- **i18n** — Translate eight Interlingue CLI pages
+- **i18n** — Translate Hungarian GUI timing and editing pages
+- **i18n** — Translate eight Hebrew CLI pages
+- **i18n** — Translate the Hebrew GUI pages, batch G3
+- **i18n** — Translate eight Hungarian CLI pages
+- **i18n** — Translate six Hungarian window manual pages
+- **i18n** — Translate the Interlingue GUI pages, batch G1a
+- **i18n** — Translate the Interlingue GUI pages, batch G3
+- **i18n** — Translate the Hungarian GUI intro and file pages
+- **i18n** — Translate Interlingue GUI pages, batch G2
+- **doc** — List Hebrew, Hungarian and Interlingue in the manual
+- **i18n** — Translate the Interlingue GUI pages, batch G1b
+- **i18n** — Translate six Hebrew GUI manual pages
+- **i18n** — Translate the Hebrew GUI index, files, operations pages
+- **i18n** — List he, hu and ie in the Czech and German manuals
+- **i18n** — List Hebrew, Hungarian, Interlingue in fr and ca
+- **i18n** — List Hebrew, Hungarian and Interlingue in the Spanish manual
+- **i18n** — List Hebrew, Hungarian and Interlingue in the Finnish manual
+- **i18n** — List Hebrew, Hungarian, Interlingue in the Galician manual
+- **i18n** — Add the Hungarian and Interlingue screenshots
 
 ### Remaniements
 
