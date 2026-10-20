@@ -74,10 +74,10 @@ nommé comme son fichier l'écrit. Les fichiers de motifs eux-mêmes ne sont jam
 
 Les catalogues sont installés sous `<prefix>/share/subedit/locale/<language>/LC_MESSAGES/subedit.mo`
 et trouvés à partir du répertoire de l'exécutable lui-même. L'anglais est intégré au programme.
-Cette version installe `ca`, `cs`, `de`, `es`, `fi`, `fr`, `gl`, `he`, `hu` et `ie` — le catalan, le tchèque,
-l'allemand, l'espagnol, le finnois, le français, le galicien, l'hébreu, le hongrois et l'interlingue — traduits en entier. Le français a
+Cette version installe `ca`, `cs`, `de`, `es`, `fi`, `fr`, `gl`, `he`, `hu`, `ie`, `is`, `it_IT` et `nl` — le catalan, le tchèque,
+l'allemand, l'espagnol, le finnois, le français, le galicien, l'hébreu, le hongrois, l'interlingue, l'islandais, l'italien et le néerlandais — traduits en entier. Le français a
 été relu par un lecteur de la langue ; le catalan, le tchèque, l'allemand, l'espagnol, le finnois,
-le galicien, l'hébreu, le hongrois et l'interlingue sont traduits par machine et pas encore relus par un lecteur de la langue.
+le galicien, l'hébreu, le hongrois, l'interlingue, l'islandais, l'italien et le néerlandais sont traduits par machine et pas encore relus par un lecteur de la langue.
 <!-- machine-translated: ca -->
 <!-- machine-translated: cs -->
 <!-- machine-translated: de -->
@@ -877,7 +877,7 @@ FICHIERS de chaque page nomme le répertoire où le manuel est installé.
 | Pages | Où elles sont installées |
 | :---- | :----------------------- |
 | l'anglais | `share/man/man1` |
-| chaque langue installée — catalan, tchèque, allemand, espagnol, finnois, français, galicien, hébreu, hongrois, interlingue | `share/man/<language>/man1` — `share/man/fr/man1` |
+| chaque langue installée — catalan, tchèque, allemand, espagnol, finnois, français, galicien, hébreu, hongrois, interlingue, islandais, italien, néerlandais | `share/man/<language>/man1` — `share/man/fr/man1` |
 
 **`man` choisit la langue d'après la locale**, comme le programme : sous une locale française,
 `man subedit-cli` affiche la page française, et une langue dont les pages ne sont pas installées

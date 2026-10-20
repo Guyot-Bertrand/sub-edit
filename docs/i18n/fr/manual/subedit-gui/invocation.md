@@ -147,10 +147,10 @@ s'applique au lancement suivant. Voir
 | les raccourcis clavier | jamais : `Ctrl+S` est `Ctrl+S` dans toutes les langues |
 | un message que le catalogue ne traduit pas | montré en anglais |
 
-Cette version installe `ca`, `cs`, `de`, `es`, `fi`, `fr`, `gl`, `he`, `hu` et `ie` — le catalan, le tchèque,
-l'allemand, l'espagnol, le finnois, le français, le galicien, l'hébreu, le hongrois et l'interlingue — traduits en entier. Le français a
+Cette version installe `ca`, `cs`, `de`, `es`, `fi`, `fr`, `gl`, `he`, `hu`, `ie`, `is`, `it_IT` et `nl` — le catalan, le tchèque,
+l'allemand, l'espagnol, le finnois, le français, le galicien, l'hébreu, le hongrois, l'interlingue, l'islandais, l'italien et le néerlandais — traduits en entier. Le français a
 été relu par un lecteur de la langue ; le catalan, le tchèque, l'allemand, l'espagnol, le finnois,
-le galicien, l'hébreu, le hongrois et l'interlingue sont traduits par machine et pas encore relus par un lecteur de la langue.
+le galicien, l'hébreu, le hongrois, l'interlingue, l'islandais, l'italien et le néerlandais sont traduits par machine et pas encore relus par un lecteur de la langue.
 <!-- machine-translated: ca -->
 <!-- machine-translated: cs -->
 <!-- machine-translated: de -->
