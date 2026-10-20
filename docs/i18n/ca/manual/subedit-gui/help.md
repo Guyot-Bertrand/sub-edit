@@ -32,7 +32,7 @@ l'entorn — vegeu
 | La finestra parla | El manual s'obre en |
 | :---------------- | :------------------ |
 | anglès | anglès |
-| una llengua el manual de la qual està instal·lat — català, txec, alemany, espanyol, finès, francès, gallec, hebreu, hongarès, interlingua | aquesta llengua |
+| una llengua el manual de la qual està instal·lat — català, txec, alemany, espanyol, finès, francès, gallec, hebreu, hongarès, interlingua, islandès, italià, neerlandès | aquesta llengua |
 | una llengua el manual de la qual no està instal·lat | anglès |
 
 **Pàgina per pàgina, no tot o res**: una pàgina que la traducció no té

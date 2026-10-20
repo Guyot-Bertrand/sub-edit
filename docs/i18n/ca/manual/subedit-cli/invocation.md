@@ -76,9 +76,9 @@ llengua, quan el catàleg el coneix — els patrons que es distribueixen amb el 
 s'anomena tal com l'escriu el seu fitxer. Els fitxers de patrons mateixos no es reescriuen mai.
 
 Els catàlegs s'instal·len a `<prefix>/share/subedit/locale/<language>/LC_MESSAGES/subedit.mo`
-i es troben a partir del directori del mateix executable. L'anglès està integrat al programa. Aquesta versió instal·la `ca`, `cs`, `de`, `es`, `fi`, `fr`, `gl`, `he`, `hu` i `ie` — català, txec,
-alemany, espanyol, finès, francès, gallec, hebreu, hongarès i interlingua — traduïts íntegrament. El francès l'ha revisat un lector
-de la llengua; el català, el txec, l'alemany, l'espanyol, el finès, el gallec, l'hebreu, el hongarès i l'interlingua són traduccions
+i es troben a partir del directori del mateix executable. L'anglès està integrat al programa. Aquesta versió instal·la `ca`, `cs`, `de`, `es`, `fi`, `fr`, `gl`, `he`, `hu`, `ie`, `is`, `it_IT` i `nl` — català, txec,
+alemany, espanyol, finès, francès, gallec, hebreu, hongarès, interlingua, islandès, italià i neerlandès — traduïts íntegrament. El francès l'ha revisat un lector
+de la llengua; el català, el txec, l'alemany, l'espanyol, el finès, el gallec, l'hebreu, el hongarès, l'interlingua, l'islandès, l'italià i el neerlandès són traduccions
 automàtiques que encara no ha revisat cap lector de la llengua.
 <!-- machine-translated: ca -->
 <!-- machine-translated: cs -->
@@ -872,7 +872,7 @@ pàgina anomena el directori on està instal·lat el manual.
 | Pàgines | On s'instal·len |
 | :---- | :----------------------- |
 | anglès | `share/man/man1` |
-| cada llengua instal·lada — català, txec, alemany, espanyol, finès, francès, gallec, hebreu, hongarès, interlingua | `share/man/<language>/man1` — `share/man/fr/man1` |
+| cada llengua instal·lada — català, txec, alemany, espanyol, finès, francès, gallec, hebreu, hongarès, interlingua, islandès, italià, neerlandès | `share/man/<language>/man1` — `share/man/fr/man1` |
 
 **`man` tria la llengua a partir de la configuració regional**, com fa el programa: amb una configuració regional francesa,
 `man subedit-cli` mostra la pàgina francesa, i una llengua les pàgines de la qual no estan instal·lades rep les
