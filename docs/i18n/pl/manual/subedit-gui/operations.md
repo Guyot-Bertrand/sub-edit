@@ -614,7 +614,7 @@ kursywę na cały wyraz.
 | Wielkość liter ▸ Jak w zdaniu | — | `BONJOUR MARIE` staje się `Bonjour marie` |
 | Wielkość liter ▸ WIELKIE LITERY | — | wszystko wielkimi literami |
 | Wielkość liter ▸ małe litery | — | wszystko małymi literami |
-| Dialog | — | dodaje lub usuwa myślniki |
+| Myślnik dialogowy | — | dodaje lub usuwa myślniki |
 
 ### Czego wielkość liter nie dotyka
 
