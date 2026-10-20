@@ -29,7 +29,7 @@ l'environnement — voir
 | La fenêtre parle | Le manuel s'ouvre en |
 | :--------------- | :------------------- |
 | anglais | anglais |
-| une langue dont le manuel est installé — catalan, tchèque, allemand, espagnol, finnois, français, galicien, hébreu, hongrois, interlingue | cette langue |
+| une langue dont le manuel est installé — catalan, tchèque, allemand, espagnol, finnois, français, galicien, hébreu, hongrois, interlingue, islandais, italien, néerlandais | cette langue |
 | une langue dont le manuel n'est pas installé | anglais |
 
 **Page par page, et non tout ou rien** : une page que la traduction n'a pas

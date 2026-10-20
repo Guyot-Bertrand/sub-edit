@@ -26,10 +26,10 @@ sudo dnf install ./subedit-<version>.x86_64.rpm     # Fedora, and relatives
 | `subedit-cli`, `subedit-gui` | `/usr/bin` |
 | l'entrada de menú, la icona, les metadades del centre de programari | `/usr/share/applications`, `/usr/share/icons`, `/usr/share/metainfo` |
 | aquest manual, en Markdown | `/usr/share/subedit/manual` |
-| la seva traducció a cada llengua instal·lada — català, txec, alemany, espanyol, finès, francès, gallec, hebreu, hongarès, interlingua | `/usr/share/subedit/manual/<language>` — `ca`, `cs`, `de`, `es`, `fi`, `fr`, `gl`, `he`, `hu`, `ie` |
+| la seva traducció a cada llengua instal·lada — català, txec, alemany, espanyol, finès, francès, gallec, hebreu, hongarès, interlingua, islandès, italià, neerlandès | `/usr/share/subedit/manual/<language>` — `ca`, `cs`, `de`, `es`, `fi`, `fr`, `gl`, `he`, `hu`, `ie`, `is`, `it_IT`, `nl` |
 | els patrons de correcció de Gaupol | `/usr/share/subedit/patterns` |
 | les pàgines de manual de `subedit-cli`, una per subordre, i de `subedit-gui` — vegeu [Les pàgines de manual](invocation.md#les-pàgines-de-manual) | `/usr/share/man/man1` |
-| les pàgines de `subedit-cli` a cada llengua instal·lada — català, txec, alemany, espanyol, finès, francès, gallec, hebreu, hongarès, interlingua | `/usr/share/man/<language>/man1` — `ca`, `cs`, `de`, `es`, `fi`, `fr`, `gl`, `he`, `hu`, `ie` |
+| les pàgines de `subedit-cli` a cada llengua instal·lada — català, txec, alemany, espanyol, finès, francès, gallec, hebreu, hongarès, interlingua, islandès, italià, neerlandès | `/usr/share/man/<language>/man1` — `ca`, `cs`, `de`, `es`, `fi`, `fr`, `gl`, `he`, `hu`, `ie`, `is`, `it_IT`, `nl` |
 
 Tots dos paquets **recomanen `ffmpeg` però no l'exigeixen**: sense ell, la
 finestra només deixa d'oferir la freqüència de fotogrames que declara la pel·lícula — vegeu
@@ -197,10 +197,10 @@ prefix triat:
 | la icona | `<prefix>/share/icons/hicolor/scalable/apps` |
 | les metadades del centre de programari | `<prefix>/share/metainfo` |
 | aquest manual, en Markdown | `<prefix>/share/subedit/manual` |
-| la seva traducció a cada llengua instal·lada — català, txec, alemany, espanyol, finès, francès, gallec, hebreu, hongarès, interlingua | `<prefix>/share/subedit/manual/<language>` — `ca`, `cs`, `de`, `es`, `fi`, `fr`, `gl`, `he`, `hu`, `ie` |
+| la seva traducció a cada llengua instal·lada — català, txec, alemany, espanyol, finès, francès, gallec, hebreu, hongarès, interlingua, islandès, italià, neerlandès | `<prefix>/share/subedit/manual/<language>` — `ca`, `cs`, `de`, `es`, `fi`, `fr`, `gl`, `he`, `hu`, `ie`, `is`, `it_IT`, `nl` |
 | els patrons de correcció de Gaupol | `<prefix>/share/subedit/patterns` |
 | les pàgines de manual de tots dos binaris, una per subordre per a `subedit-cli` | `<prefix>/share/man/man1` |
-| les pàgines de `subedit-cli` a cada llengua instal·lada — català, txec, alemany, espanyol, finès, francès, gallec, hebreu, hongarès, interlingua | `<prefix>/share/man/<language>/man1` — `ca`, `cs`, `de`, `es`, `fi`, `fr`, `gl`, `he`, `hu`, `ie` |
+| les pàgines de `subedit-cli` a cada llengua instal·lada — català, txec, alemany, espanyol, finès, francès, gallec, hebreu, hongarès, interlingua, islandès, italià, neerlandès | `<prefix>/share/man/<language>/man1` — `ca`, `cs`, `de`, `es`, `fi`, `fr`, `gl`, `he`, `hu`, `ie`, `is`, `it_IT`, `nl` |
 
 **Són els mateixos fitxers que instal·len els paquets**: els paquets en surten,
 en lloc de descriure'ls una segona vegada.

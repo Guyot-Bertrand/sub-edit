@@ -1,0 +1,15 @@
+{
+  "shortcut_header": "Scorciatoia",
+  "label_headers": ["Comando", "Voce", "Azione", "Voce di menu"],
+  "no_shortcut_words": ["nessuna", "nessuno"],
+  "option_header": "Opzione",
+  "subcommand_header": "Sottocomando",
+  "man": {
+    "name": "NOME",
+    "synopsis": "SINTASSI",
+    "description": "DESCRIZIONE",
+    "files": "FILE",
+    "see_also": "VEDERE ANCHE",
+    "manual_title": "Comandi utente"
+  }
+}

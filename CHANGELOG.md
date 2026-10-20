@@ -34,6 +34,13 @@ ne pas l'éditer à la main.
 - **i18n** — Take over the Interlingue seed catalogue
 - **i18n** — Complete the Interlingue catalogue
 - **i18n** — Install Hebrew, Hungarian and Interlingue
+- **i18n** — Take over the Icelandic seed catalogue
+- **i18n** — Take over the Italian seed catalogue
+- **i18n** — Take over the Dutch seed catalogue
+- **i18n** — Complete the Dutch catalogue
+- **i18n** — Complete the Italian catalogue
+- **i18n** — Complete the Icelandic catalogue
+- **i18n** — Install Icelandic, Italian and Dutch
 
 ### Corrections
 
@@ -49,6 +56,8 @@ ne pas l'éditer à la main.
 - **build** — Ask the Hebrew man pages of one terminal only
 - **i18n** — Wrap the Hebrew image captions like the English ones
 - **test** — Render the Hebrew man pages under one terminal only
+- **build** — Move the seed proof to Polish, Dutch is shipping
+- **test** — Ask each help once, not once per language of man pages
 
 ### Documentation
 
@@ -306,6 +315,60 @@ ne pas l'éditer à la main.
 - **i18n** — List Hebrew, Hungarian and Interlingue in the Finnish manual
 - **i18n** — List Hebrew, Hungarian, Interlingue in the Galician manual
 - **i18n** — Add the Hungarian and Interlingue screenshots
+- **doc** — Regenerate the changelog
+- **doc** — List Icelandic, Italian and Dutch in the manual
+- **i18n** — Add the Icelandic vocabulary
+- **i18n** — List Icelandic, Italian and Dutch in the German manual
+- **i18n** — List Icelandic, Italian and Dutch in the Spanish manual
+- **i18n** — List Icelandic, Italian and Dutch in the Finnish manual
+- **i18n** — List Icelandic, Italian and Dutch in the French manual
+- **i18n** — List Icelandic, Italian and Dutch in the Catalan manual
+- **i18n** — List Icelandic, Italian and Dutch in the Czech manual
+- **i18n** — List Icelandic, Italian and Dutch in the Galician manual
+- **i18n** — List Icelandic, Italian and Dutch in the Hebrew manual
+- **i18n** — List Icelandic, Italian and Dutch in the Hungarian manual
+- **i18n** — List Icelandic, Italian and Dutch in the Interlingue manual
+- **i18n** — Add the Dutch vocabulary
+- **i18n** — Add the Italian vocabulary
+- **i18n** — Translate the Dutch GUI lines and correct-texts pages
+- **i18n** — Translate the Dutch CLI pages shift, snap and transform
+- **i18n** — Translate the Dutch CLI pages lots, sort, repair, pair
+- **i18n** — Translate the Dutch CLI pages replace and split-file
+- **i18n** — Translate the Italian lots, pair and repair CLI pages
+- **i18n** — Translate the Italian replace, shift and snap CLI pages
+- **i18n** — Translate the Italian sort, split-file, transform CLI pages
+- **i18n** — Translate the Icelandic shift, snap and transform pages
+- **i18n** — Translate the Icelandic sort, repair and split-file pages
+- **i18n** — Translate the Icelandic lots, pair and replace pages
+- **i18n** — Translate the Dutch GUI player page
+- **i18n** — Translate Dutch GUI frame, video, timing pages
+- **i18n** — Translate the Dutch manual index pages
+- **i18n** — Translate the Dutch CLI pages adjust to dialogue-dashes
+- **i18n** — Translate the Icelandic manual index pages
+- **i18n** — Translate the Icelandic adjust, append and case pages
+- **i18n** — Translate the Icelandic config, convert and correct pages
+- **i18n** — Translate the Italian manual index pages
+- **i18n** — Translate the Italian CLI adjust, case and dashes pages
+- **i18n** — Translate the Italian CLI append, config, convert pages
+- **i18n** — Translate the Dutch GUI table page
+- **i18n** — Translate Italian GUI pages, batch G3
+- **i18n** — Translate six Dutch CLI subcommand pages
+- **i18n** — Translate the Dutch CLI invocation and installation
+- **i18n** — Translate the Icelandic CLI pages, batch B
+- **i18n** — Translate the Italian join-repeats and disjoint pages
+- **i18n** — Translate the Italian framerate and hearing-impaired pages
+- **i18n** — Translate the Italian inspect and italics pages
+- **i18n** — Translate the Italian installation and invocation pages
+- **i18n** — Translate the Italian GUI pages, batch G2
+- **i18n** — Translate the Dutch find-and-replace and spelling pages
+- **i18n** — Translate the Icelandic GUI player-side pages
+- **i18n** — Translate the Dutch GUI index, invocation and help
+- **i18n** — Translate the Dutch GUI opening and saving page
+- **i18n** — Translate the Dutch GUI operations and preferences
+- **i18n** — Translate the Italian GUI manual, batch G1
+- **i18n** — Translate Icelandic GUI manual pages, batch G2
+- **i18n** — Translate Icelandic GUI manual, index to preferences
+- **i18n** — Add the Icelandic, Italian and Dutch screenshots
 
 ### Remaniements
 

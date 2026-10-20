@@ -21,10 +21,10 @@ sudo dnf install ./subedit-<version>.x86_64.rpm     # Fedora, and relatives
 | `subedit-cli`, `subedit-gui` | `/usr/bin` |
 | a menübejegyzés, az ikon, a szoftverközpont metaadatai | `/usr/share/applications`, `/usr/share/icons`, `/usr/share/metainfo` |
 | ez a kézikönyv, Markdown formátumban | `/usr/share/subedit/manual` |
-| a fordítása minden telepített nyelvre — katalán, cseh, német, spanyol, finn, francia, galíciai, héber, magyar, interlingue | `/usr/share/subedit/manual/<language>` — `ca`, `cs`, `de`, `es`, `fi`, `fr`, `gl`, `he`, `hu`, `ie` |
+| a fordítása minden telepített nyelvre — katalán, cseh, német, spanyol, finn, francia, galíciai, héber, magyar, interlingue, izlandi, olasz, holland | `/usr/share/subedit/manual/<language>` — `ca`, `cs`, `de`, `es`, `fi`, `fr`, `gl`, `he`, `hu`, `ie`, `is`, `it_IT`, `nl` |
 | a Gaupol javítómintái | `/usr/share/subedit/patterns` |
 | a `subedit-cli` kézikönyvoldalai alparancsonként egy, és a `subedit-gui` kézikönyvoldala — lásd [A kézikönyvoldalak](invocation.md#a-kézikönyvoldalak) | `/usr/share/man/man1` |
-| a `subedit-cli` oldalai minden telepített nyelven — katalán, cseh, német, spanyol, finn, francia, galíciai, héber, magyar, interlingue | `/usr/share/man/<language>/man1` — `ca`, `cs`, `de`, `es`, `fi`, `fr`, `gl`, `he`, `hu`, `ie` |
+| a `subedit-cli` oldalai minden telepített nyelven — katalán, cseh, német, spanyol, finn, francia, galíciai, héber, magyar, interlingue, izlandi, olasz, holland | `/usr/share/man/<language>/man1` — `ca`, `cs`, `de`, `es`, `fi`, `fr`, `gl`, `he`, `hu`, `ie`, `is`, `it_IT`, `nl` |
 
 Az `ffmpeg` mindkét csomagnál **ajánlott, és nem kötelező**: nélküle az ablak csak azt nem kínálja fel többé, hogy a film által megadott képkockasebességet használja — lásd [mit változtat az `ffmpeg`](../subedit-gui/video.md#az-ffmpeg-nem-kötelező).
 
@@ -144,10 +144,10 @@ Ami települ, a `GNUInstallDirs` által a választott előtaghoz megadott útvon
 | az ikon | `<prefix>/share/icons/hicolor/scalable/apps` |
 | a szoftverközpont metaadatai | `<prefix>/share/metainfo` |
 | ez a kézikönyv, Markdown formátumban | `<prefix>/share/subedit/manual` |
-| a fordítása minden telepített nyelvre — katalán, cseh, német, spanyol, finn, francia, galíciai, héber, magyar, interlingue | `<prefix>/share/subedit/manual/<language>` — `ca`, `cs`, `de`, `es`, `fi`, `fr`, `gl`, `he`, `hu`, `ie` |
+| a fordítása minden telepített nyelvre — katalán, cseh, német, spanyol, finn, francia, galíciai, héber, magyar, interlingue, izlandi, olasz, holland | `<prefix>/share/subedit/manual/<language>` — `ca`, `cs`, `de`, `es`, `fi`, `fr`, `gl`, `he`, `hu`, `ie`, `is`, `it_IT`, `nl` |
 | a Gaupol javítómintái | `<prefix>/share/subedit/patterns` |
 | mindkét bináris kézikönyvoldalai, a `subedit-cli` esetén alparancsonként egy | `<prefix>/share/man/man1` |
-| a `subedit-cli` oldalai minden telepített nyelven — katalán, cseh, német, spanyol, finn, francia, galíciai, héber, magyar, interlingue | `<prefix>/share/man/<language>/man1` — `ca`, `cs`, `de`, `es`, `fi`, `fr`, `gl`, `he`, `hu`, `ie` |
+| a `subedit-cli` oldalai minden telepített nyelven — katalán, cseh, német, spanyol, finn, francia, galíciai, héber, magyar, interlingue, izlandi, olasz, holland | `<prefix>/share/man/<language>/man1` — `ca`, `cs`, `de`, `es`, `fi`, `fr`, `gl`, `he`, `hu`, `ie`, `is`, `it_IT`, `nl` |
 
 **Ugyanazok a fájlok, amelyeket a csomagok telepítenek**: a csomagok ezekből készülnek, ahelyett hogy másodszor is le kellene írni őket.
 

@@ -14,6 +14,7 @@
 
 #include <cctype>
 #include <filesystem>
+#include <map>
 #include <set>
 #include <string>
 #include <string_view>
@@ -146,6 +147,12 @@ TEST_CASE("every subcommand has its man page in every language, with the options
     const std::set<std::string> global = longOptions(invoke({"--help"}).output);
     REQUIRE(global.contains("--format"));
 
+    // The help is the same whatever the language of the pages: it is asked once per subcommand and
+    // not once per page directory, which grows with every language that ships.
+    std::map<std::string, std::set<std::string>> helpOptions;
+    for (const std::string& name : names)
+        helpOptions[name] = longOptions(invoke({name, "--help"}).output);
+
     for (const std::string& directory : pageDirectories()) {
         INFO("pages of " << pages(directory).string());
         const std::string top = contentOf(pages(directory) / "subedit-cli.1");
@@ -160,7 +167,7 @@ TEST_CASE("every subcommand has its man page in every language, with the options
             const std::string page = contentOf(pages(directory) / ("subedit-cli-" + name + ".1"));
             REQUIRE_FALSE(page.empty());
             CHECK(page.find(".TH SUBEDIT-CLI-") != std::string::npos);
-            for (const std::string& option : longOptions(invoke({name, "--help"}).output)) {
+            for (const std::string& option : helpOptions.at(name)) {
                 INFO("option " << option);
                 CHECK(namesOption(page, option));
             }

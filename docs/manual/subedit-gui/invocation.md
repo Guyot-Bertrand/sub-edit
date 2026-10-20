@@ -145,9 +145,9 @@ wins over every variable, `LC_ALL=C` included. The choice, too, applies at the n
 | the keyboard shortcuts | never: `Ctrl+S` is `Ctrl+S` in every language |
 | a message the catalogue does not translate | shown in English |
 
-This version installs `ca`, `cs`, `de`, `es`, `fi`, `fr`, `gl`, `he`, `hu` and `ie` — Catalan, Czech, German,
-Spanish, Finnish, French, Galician, Hebrew, Hungarian and Interlingue — translated in full. French has been reviewed by a reader of the
-language; Catalan, Czech, German, Spanish, Finnish, Galician, Hebrew, Hungarian and Interlingue are machine-translated and not yet
+This version installs `ca`, `cs`, `de`, `es`, `fi`, `fr`, `gl`, `he`, `hu`, `ie`, `is`, `it_IT` and `nl` — Catalan, Czech, German,
+Spanish, Finnish, French, Galician, Hebrew, Hungarian, Interlingue, Icelandic, Italian and Dutch — translated in full. French has been reviewed by a reader of the
+language; Catalan, Czech, German, Spanish, Finnish, Galician, Hebrew, Hungarian, Interlingue, Icelandic, Italian and Dutch are machine-translated and not yet
 reviewed by a reader of the language.
 <!-- machine-translated: ca -->
 <!-- machine-translated: cs -->
@@ -158,6 +158,9 @@ reviewed by a reader of the language.
 <!-- machine-translated: he -->
 <!-- machine-translated: hu -->
 <!-- machine-translated: ie -->
+<!-- machine-translated: is -->
+<!-- machine-translated: it_IT -->
+<!-- machine-translated: nl -->
 On a French desktop the menu bar reads
 `&Fichier`, `É&dition`, `&Affichage`, `&Vidéo`, `&Outils`, `&Projets`, `Aid&e`. The captures of
 this manual are taken in English.

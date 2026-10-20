@@ -75,9 +75,9 @@ kun käännösluettelo tuntee sen — ohjelman mukana toimitetut lausekkeet; oma
 nimetään niin kuin sen tiedosto sen kirjoittaa. Itse lauseketiedostoja ei koskaan kirjoiteta uudelleen.
 
 Käännösluettelot asennetaan polkuun `<prefix>/share/subedit/locale/<language>/LC_MESSAGES/subedit.mo`,
-ja ne löydetään ohjelman omasta hakemistosta käsin. Englanti on sisäänrakennettu. Tämä versio asentaa kielet `ca`, `cs`, `de`, `es`, `fi`, `fr`, `gl`, `he`, `hu` ja `ie` — katalaanin,
-tšekin, saksan, espanjan, suomen, ranskan, galician, heprean, unkarin ja interlinguen — kokonaan käännettyinä. Ranskan on tarkistanut
-kielen lukija; katalaani, tšekki, saksa, espanja, suomi, galicia, heprea, unkari ja interlingue ovat
+ja ne löydetään ohjelman omasta hakemistosta käsin. Englanti on sisäänrakennettu. Tämä versio asentaa kielet `ca`, `cs`, `de`, `es`, `fi`, `fr`, `gl`, `he`, `hu`, `ie`, `is`, `it_IT` ja `nl` — katalaanin,
+tšekin, saksan, espanjan, suomen, ranskan, galician, heprean, unkarin, interlinguen, islannin, italian ja hollannin — kokonaan käännettyinä. Ranskan on tarkistanut
+kielen lukija; katalaani, tšekki, saksa, espanja, suomi, galicia, heprea, unkari, interlingue, islanti, italia ja hollanti ovat
 konekäännöksiä, eikä kukaan kielen lukija ole vielä tarkistanut niitä.
 <!-- machine-translated: ca -->
 <!-- machine-translated: cs -->
@@ -88,6 +88,9 @@ konekäännöksiä, eikä kukaan kielen lukija ole vielä tarkistanut niitä.
 <!-- machine-translated: he -->
 <!-- machine-translated: hu -->
 <!-- machine-translated: ie -->
+<!-- machine-translated: is -->
+<!-- machine-translated: it_IT -->
+<!-- machine-translated: nl -->
 Kun `LANG=fr_FR.UTF-8`, ohje `subedit-cli --help` alkaa sanoin ”Lire,
 inspecter et recaler des fichiers de sous-titres.” Skripti, joka lukee tekstitulosteen
 sanoja, asettaa `LANGUAGE=en` (tai `LC_ALL=C`) — tai lukee muotoa `--format json`, joka ei koskaan muutu.
@@ -214,7 +217,7 @@ ei ajeta, eivätkä `-q` ja `-v` muuta mitään.
 <!-- example: subedit-cli --version | head -n 1 -->
 ```console
 $ subedit-cli --version | head -n 1
-subedit 0.15.44
+subedit 0.15.45
 ```
 
 Koko tuloste koneella, jossa on ICU 74.2 ja Enchant 2.3.3 — numerot ovat koneen omia:
@@ -868,7 +871,7 @@ osio TIEDOSTOT nimeää hakemiston, johon käyttöopas on asennettu.
 | Sivut | Minne ne asennetaan |
 | :---- | :----------------------- |
 | englanti | `share/man/man1` |
-| kukin asennettu kieli — katalaani, tšekki, saksa, espanja, suomi, ranska, galicia, heprea, unkari, interlingue | `share/man/<language>/man1` — `share/man/fr/man1` |
+| kukin asennettu kieli — katalaani, tšekki, saksa, espanja, suomi, ranska, galicia, heprea, unkari, interlingue, islanti, italia, hollanti | `share/man/<language>/man1` — `share/man/fr/man1` |
 
 **`man` valitsee kielen kieliasetuksen mukaan**, kuten ohjelma: ranskalaisella kieliasetuksella
 `man subedit-cli` näyttää ranskankielisen sivun, ja kieli, jonka sivuja ei ole asennettu, saa

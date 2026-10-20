@@ -1,0 +1,145 @@
+# De gekoppelde video
+
+<!-- machine-translated -->
+> Deze pagina is een machinevertaling en is nog niet nagelezen door een lezer van de taal.
+
+Het menu **Video** bevat eerst twee commando's, en daarna de gebaren die de film aansturen
+— zie [De speler](player.md#door-de-film-navigeren).
+
+| Commando | Sneltoets | Wat het doet |
+| :------- | :-------- | :----------- |
+| Video kiezen… | geen | kiest het videobestand waarbij het document hoort |
+| Afspelen / Pauzeren | `Ctrl+P` | speelt de video af of stopt haar — zie [De speler](player.md#afspelen-en-stoppen) |
+
+De gekoppelde video is **een eigenschap van het geopende document**, geen instelling van
+het programma: een ander ondertitelbestand openen begint opnieuw. Ze
+wordt in geen enkel bestand geschreven en verdwijnt met het venster.
+
+## Het audiospoor
+
+Een film kan meerdere geluidssporen bevatten — de originele versie, een nasynchronisatie, een commentaar. Het
+submenu **`Video ▸ Audio ▸ Taal`** toont ze, **één item per spoor**, en **markeert het spoor dat wordt afgespeeld**:
+
+| Wat het bestand geeft | Wat het item zegt |
+| :-------------------- | :---------------- |
+| een taal en een titel | `1: fra — Original` |
+| alleen een taal | `2: eng` |
+| alleen een titel | `3: Commentary` |
+| geen van beide | `1` |
+
+Het nummer is **de plaats van het spoor in de film**, telkens één verder, in de volgorde van het bestand: twee sporen
+kunnen `eng` zeggen, en een bestand dat over zijn labels zwijgt heeft toch een eerste en een tweede.
+
+**Een item kiezen speelt dat spoor af.** De markering is het antwoord van de speler, niet de klik: ze geeft aan
+welk spoor wordt afgespeeld.
+
+- **Het submenu is uitgeschakeld** zonder video of zonder audiospoor. Met één enkel spoor blijft het ingeschakeld en
+  toont het dat spoor, aangevinkt: het zegt in welke taal de film is. De twee volumegebaren, die ernaast staan, blijven
+  in elk geval ingeschakeld: zie [Het volume](player.md#het-volume).
+- **Het spoor wordt niet onthouden** van de ene video naar de volgende, noch van de ene sessie naar de volgende: een spoornummer is
+  dat van zijn bestand, en het overnemen naar de volgende film zou kiezen wat daar toevallig dat nummer draagt.
+  Teruggaan naar een tabblad heropent zijn film op het spoor dat de speler zelf kiest.
+- Geen sneltoets: u wisselt zelden van taal, en het menu volstaat.
+
+## Een video kiezen
+
+Het dialoogvenster opent in de map van het ondertitelbestand en filtert op
+de herkende video-extensies:
+
+    .avi .flv .m2ts .mkv .mov .mp4 .ogg .ogv .vob .webm
+
+Het biedt ook aan alle bestanden te tonen. Het dialoogvenster annuleren verandert
+niets.
+
+Het gekozen bestand wordt **meteen geopend**: het beeld verschijnt in het venster,
+gepauzeerd op zijn eerste moment. Zie [De speler](player.md).
+
+**Een videobestand op het venster neerzetten doet hetzelfde** — zie
+[Bestanden op het venster neerzetten](files.md#bestanden-op-het-venster-neerzetten).
+
+**De video is die van het project van het huidige tabblad.** Elk tabblad houdt
+de zijne; van tabblad wisselen wisselt van film. **Teruggaan naar een tabblad hervat zijn
+film waar u hem hebt achtergelaten**, gepauzeerd, zoals bij elke opening. Een andere film
+die in de tussentijd voor dat project is gekozen, begint van zijn kant vanaf het begin.
+
+## Het automatische voorstel
+
+Wanneer een ondertitelbestand wordt geopend, **als er geen video is gekozen**,
+zoekt het venster er een in dezelfde map: een videobestand waarvan de naam
+zonder extensie een voorvoegsel is van de onze, tot aan een punt.
+
+| Ondertitelbestand | Gevonden video | Waarom |
+| :---------------- | :------------- | :----- |
+| `film.fr.srt` | `film.mkv` | `film` is een voorvoegsel van `film.fr` |
+| `film.en.forced.srt` | `film.mkv` | idem, ongeacht het aantal segmenten |
+| `film.fr.srt` | `film.fr.mkv` in plaats van `film.mkv` | de langste naam wint |
+| `film.fr.srt` | geen, als `film.mkv` **en** `film.mp4` er zijn | twee kandidaten zijn niet van elkaar te onderscheiden |
+| `film.fr.srt` | geen, als alleen `fil.mkv` er is | `fil` eindigt niet op een punt |
+
+**Een voorstel is geen keuze.** Het laat zich vervangen door een ander
+voorstel — een ander bestand openen, onder een andere naam opslaan. Een uitdrukkelijke
+keuze daarentegen wordt nooit overschreven: zodra `Select Video…` is gebruikt, komt het
+automatische voorstel er niet meer achteraan.
+
+Dat maakt de gok aanvaardbaar: ze kan worden gecorrigeerd, en haar
+correctie blijft staan.
+
+## Wat de statusbalk toont
+
+Rechts op de statusbalk zegt een regel waarbij het document hoort. Ze
+is de laatste van drie: de [codering](files.md#de-codering-in-de-statusbalk)
+van het gelezen bestand komt eerst, het [framerooster](frame-grid.md) dat uit de
+posities wordt afgeleid daarna.
+
+| Situatie | Wat er wordt geschreven |
+| :------- | :---------------------- |
+| een video is gekoppeld | `Video: film.mkv` |
+| … en `ffprobe` geeft haar framesnelheid | `Video: film.mkv, 24000/1001 fps` |
+| geen | `No video` |
+
+**De framesnelheid hoort bij de film in plaats van ernaast te staan.** Ze vormen één feit — waarbij
+dit document hoort — en een derde vermelding zou haar op dezelfde rang plaatsen als
+het [raster dat uit de posities wordt afgeleid](frame-grid.md), wat een ander feit is.
+
+## Wanneer er geen film is
+
+Het venster toont een knop **`Select Video…`** waar het beeld zou komen, in plaats van
+helemaal niets. Het is hetzelfde commando als dat van het menu `Video`, binnen
+handbereik van de muis: een afwezigheid waar u niets aan kunt doen, is moeilijk te onderscheiden van
+een fout.
+
+De knop verdwijnt zodra een film is geopend, en het beeld neemt **al** zijn
+plaats in: de hoogte die de tabel erboven laat — die welke
+[`window.table-share`](preferences.md) van de ene sessie naar de volgende heeft onthouden —, en
+nooit minder dan de minimale hoogte van het beeld, waaraan de tabel zo nodig toegeeft.
+Wanneer de film verdwijnt, neemt de knop dezelfde plaats weer in.
+
+**De naam van het bestand, nooit zijn pad.** Een pad van tweehonderd tekens
+zou al het andere uit de balk duwen; het volledige pad is dat wat het
+dialoogvenster toonde.
+
+## `ffmpeg` is niet vereist
+
+`subedit-gui` raadpleegt `ffprobe` — meegeleverd met `ffmpeg` — voor één ding en
+niets anders: **de framesnelheid die de container opgeeft**. Ze wordt één keer
+per film gelezen, wanneer die wordt gekoppeld.
+
+| Met `ffprobe` | Zonder |
+| :------------ | :----- |
+| de statusbalk schrijft de framesnelheid naast de naam van de film | ze schrijft alleen de naam |
+| het conversiedialoogvenster stelt de framesnelheid van de film voor in het onderste veld | het stelt niets voor, en opent zoals voorheen |
+| het dialoogvenster voor de uitlijning opent erop | het opent op de framesnelheid van het project |
+
+**Niets anders hangt ervan af, en geen enkele bewerking weigert.** De speler heeft
+`ffprobe` helemaal niet nodig: hij steunt op `libmpv`, dat een
+afhankelijkheid bij het bouwen is. De duur van de film, die waarmee wordt gemeld wat
+voorbij het einde komt, komt van de speler en niet van `ffprobe`.
+
+Het is dus geen verminderde modus maar **de normale werking** van een machine
+waarop `ffmpeg` nooit is geïnstalleerd: het gegeven komt van de gebruiker, en `ffprobe`
+stelt het voor wanneer het aanwezig is.
+
+Een gelezen framesnelheid is een **exacte breuk** — `24000/1001`, niet `23.976`.
+Daarom wordt `ffprobe` voor dat antwoord behouden: de
+speler kent hetzelfde gegeven als een kommagetal, en een benaderde framesnelheid
+zou het hele bestand een beetje verkeerd opnieuw timen.

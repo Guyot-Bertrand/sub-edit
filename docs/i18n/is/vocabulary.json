@@ -1,0 +1,15 @@
+{
+  "shortcut_header": "Flýtilykill",
+  "label_headers": ["Skipun", "Færsla", "Aðgerð", "Valmyndarfærsla"],
+  "no_shortcut_words": ["enginn", "engin", "ekkert"],
+  "option_header": "Valkostur",
+  "subcommand_header": "Undirskipun",
+  "man": {
+    "name": "NAFN",
+    "synopsis": "YFIRLIT",
+    "description": "LÝSING",
+    "files": "SKRÁR",
+    "see_also": "SJÁ EINNIG",
+    "manual_title": "Notendaskipanir"
+  }
+}

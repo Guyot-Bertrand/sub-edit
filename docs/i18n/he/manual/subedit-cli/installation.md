@@ -21,10 +21,10 @@ sudo dnf install ./subedit-<version>.x86_64.rpm     # Fedora, and relatives
 | `subedit-cli`, `subedit-gui` | `/usr/bin` |
 | פריט התפריט, הסמל, המטא-נתונים של מרכז התוכנות | `/usr/share/applications`, `/usr/share/icons`, `/usr/share/metainfo` |
 | המדריך הזה, ב-Markdown | `/usr/share/subedit/manual` |
-| תרגומו לכל שפה מותקנת — קטלאנית, צ׳כית, גרמנית, ספרדית, פינית, צרפתית, גליסית, עברית, הונגרית, אינטרלינגה | `/usr/share/subedit/manual/<language>` — `ca`, `cs`, `de`, `es`, `fi`, `fr`, `gl`, `he`, `hu`, `ie` |
+| תרגומו לכל שפה מותקנת — קטלאנית, צ׳כית, גרמנית, ספרדית, פינית, צרפתית, גליסית, עברית, הונגרית, אינטרלינגה, איסלנדית, איטלקית, הולנדית | `/usr/share/subedit/manual/<language>` — `ca`, `cs`, `de`, `es`, `fi`, `fr`, `gl`, `he`, `hu`, `ie`, `is`, `it_IT`, `nl` |
 | תבניות התיקון של Gaupol | `/usr/share/subedit/patterns` |
 | דפי ה-man של `subedit-cli`, אחד לכל תת-פקודה, ושל `subedit-gui` — ראו [דפי ה-man](invocation.md#דפי-ה-man) | `/usr/share/man/man1` |
-| דפי `subedit-cli` בכל שפה מותקנת — קטלאנית, צ׳כית, גרמנית, ספרדית, פינית, צרפתית, גליסית, עברית, הונגרית, אינטרלינגה | `/usr/share/man/<language>/man1` — `ca`, `cs`, `de`, `es`, `fi`, `fr`, `gl`, `he`, `hu`, `ie` |
+| דפי `subedit-cli` בכל שפה מותקנת — קטלאנית, צ׳כית, גרמנית, ספרדית, פינית, צרפתית, גליסית, עברית, הונגרית, אינטרלינגה, איסלנדית, איטלקית, הולנדית | `/usr/share/man/<language>/man1` — `ca`, `cs`, `de`, `es`, `fi`, `fr`, `gl`, `he`, `hu`, `ie`, `is`, `it_IT`, `nl` |
 
 `ffmpeg` **מומלצת ואינה חובה** בשתי החבילות: בלעדיה החלון רק מפסיק להציע את קצב הפריימים שהסרט מצהיר עליו — ראו [מה `ffmpeg` משנה](../subedit-gui/video.md#ffmpeg-אינו-חובה).
 
@@ -144,10 +144,10 @@ cmake --install build/release --prefix ~/.local
 | הסמל | `<prefix>/share/icons/hicolor/scalable/apps` |
 | המטא-נתונים של מרכז התוכנות | `<prefix>/share/metainfo` |
 | המדריך הזה, ב-Markdown | `<prefix>/share/subedit/manual` |
-| תרגומו לכל שפה מותקנת — קטלאנית, צ׳כית, גרמנית, ספרדית, פינית, צרפתית, גליסית, עברית, הונגרית, אינטרלינגה | `<prefix>/share/subedit/manual/<language>` — `ca`, `cs`, `de`, `es`, `fi`, `fr`, `gl`, `he`, `hu`, `ie` |
+| תרגומו לכל שפה מותקנת — קטלאנית, צ׳כית, גרמנית, ספרדית, פינית, צרפתית, גליסית, עברית, הונגרית, אינטרלינגה, איסלנדית, איטלקית, הולנדית | `<prefix>/share/subedit/manual/<language>` — `ca`, `cs`, `de`, `es`, `fi`, `fr`, `gl`, `he`, `hu`, `ie`, `is`, `it_IT`, `nl` |
 | תבניות התיקון של Gaupol | `<prefix>/share/subedit/patterns` |
 | דפי ה-man של שני הקבצים הבינאריים, אחד לכל תת-פקודה עבור `subedit-cli` | `<prefix>/share/man/man1` |
-| דפי `subedit-cli` בכל שפה מותקנת — קטלאנית, צ׳כית, גרמנית, ספרדית, פינית, צרפתית, גליסית, עברית, הונגרית, אינטרלינגה | `<prefix>/share/man/<language>/man1` — `ca`, `cs`, `de`, `es`, `fi`, `fr`, `gl`, `he`, `hu`, `ie` |
+| דפי `subedit-cli` בכל שפה מותקנת — קטלאנית, צ׳כית, גרמנית, ספרדית, פינית, צרפתית, גליסית, עברית, הונגרית, אינטרלינגה, איסלנדית, איטלקית, הולנדית | `<prefix>/share/man/<language>/man1` — `ca`, `cs`, `de`, `es`, `fi`, `fr`, `gl`, `he`, `hu`, `ie`, `is`, `it_IT`, `nl` |
 
 **אלה אותם קבצים שהחבילות מתקינות**: החבילות יוצאות מהם, ולא מתוארות פעם שנייה.
 

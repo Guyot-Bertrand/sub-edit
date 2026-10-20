@@ -148,9 +148,9 @@ s'imposa a totes les variables, `LC_ALL=C` inclosa. L'elecció, també, s'aplica
 | les dreceres de teclat | mai: `Ctrl+S` és `Ctrl+S` en totes les llengües |
 | un missatge que el catàleg no tradueix | es mostra en anglès |
 
-Aquesta versió instal·la `ca`, `cs`, `de`, `es`, `fi`, `fr`, `gl`, `he`, `hu` i `ie` — el català, el txec, l'alemany,
-l'espanyol, el finès, el francès, el gallec, l'hebreu, el hongarès i l'interlingua — traduïts íntegrament. El francès l'ha revisat un lector
-de la llengua; el català, el txec, l'alemany, l'espanyol, el finès, el gallec, l'hebreu, el hongarès i l'interlingua són traduccions
+Aquesta versió instal·la `ca`, `cs`, `de`, `es`, `fi`, `fr`, `gl`, `he`, `hu`, `ie`, `is`, `it_IT` i `nl` — el català, el txec, l'alemany,
+l'espanyol, el finès, el francès, el gallec, l'hebreu, el hongarès, l'interlingua, l'islandès, l'italià i el neerlandès — traduïts íntegrament. El francès l'ha revisat un lector
+de la llengua; el català, el txec, l'alemany, l'espanyol, el finès, el gallec, l'hebreu, el hongarès, l'interlingua, l'islandès, l'italià i el neerlandès són traduccions
 automàtiques que encara no ha revisat cap lector de la llengua.
 <!-- machine-translated: ca -->
 <!-- machine-translated: cs -->
@@ -161,6 +161,9 @@ automàtiques que encara no ha revisat cap lector de la llengua.
 <!-- machine-translated: he -->
 <!-- machine-translated: hu -->
 <!-- machine-translated: ie -->
+<!-- machine-translated: is -->
+<!-- machine-translated: it_IT -->
+<!-- machine-translated: nl -->
 En un escriptori francès, la barra de menús mostra
 `&Fichier`, `É&dition`, `&Affichage`, `&Vidéo`, `&Outils`, `&Projets`, `Aid&e`. Les captures
 d'aquest manual es fan en català.

@@ -148,9 +148,9 @@ minden változót felülír, az `LC_ALL=C` beállítást is. A választás is a 
 | a gyorsbillentyűk | soha: a `Ctrl+S` minden nyelven `Ctrl+S` |
 | olyan üzenet, amelyet a katalógus nem fordít | angolul jelenik meg |
 
-Ez a verzió a következőket telepíti: `ca`, `cs`, `de`, `es`, `fi`, `fr`, `gl`, `he`, `hu` és `ie` — katalán, cseh, német,
-spanyol, finn, francia, galíciai, héber, magyar és interlingue — teljes fordításban. A franciát a
-nyelv egyik olvasója átnézte; a katalán, cseh, német, spanyol, finn, galíciai, héber, magyar és interlingue gépi fordítású, és a
+Ez a verzió a következőket telepíti: `ca`, `cs`, `de`, `es`, `fi`, `fr`, `gl`, `he`, `hu`, `ie`, `is`, `it_IT` és `nl` — katalán, cseh, német,
+spanyol, finn, francia, galíciai, héber, magyar, interlingue, izlandi, olasz és holland — teljes fordításban. A franciát a
+nyelv egyik olvasója átnézte; a katalán, cseh, német, spanyol, finn, galíciai, héber, magyar, interlingue, izlandi, olasz és holland gépi fordítású, és a
 nyelv olvasója még nem nézte át.
 <!-- machine-translated: ca -->
 <!-- machine-translated: cs -->
@@ -161,6 +161,9 @@ nyelv olvasója még nem nézte át.
 <!-- machine-translated: he -->
 <!-- machine-translated: hu -->
 <!-- machine-translated: ie -->
+<!-- machine-translated: is -->
+<!-- machine-translated: it_IT -->
+<!-- machine-translated: nl -->
 Francia asztali környezetben a menüsor így szól:
 `&Fichier`, `É&dition`, `&Affichage`, `&Vidéo`, `&Outils`, `&Projets`, `Aid&e`. A kézikönyv
 képernyőképei magyar nyelvű felületen készülnek.
