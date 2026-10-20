@@ -13,7 +13,7 @@ subedit-cli case --to title|sentence|upper|lower [--range N-M|N-]
 ```
 
 Coloca os textos em **iniciais maiúsculas, primeira letra maiúscula, maiúsculas ou minúsculas**, sem tocar em
-nenhuma marcação. É o `Ferramentas ▸ Maiúsculo/Minúsculo` da [janela](../subedit-gui/operations.md), com suas regras.
+nenhuma marcação. É o `Ferramentas ▸ Maiúsculas/minúsculas` da [janela](../subedit-gui/operations.md), com suas regras.
 
 | `--to` | Efeito | `bonjour marie` se torna |
 | :----- | :---- | :---------------------- |

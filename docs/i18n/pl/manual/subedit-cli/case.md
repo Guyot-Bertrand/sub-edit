@@ -13,7 +13,7 @@ subedit-cli case --to title|sentence|upper|lower [--range N-M|N-]
 ```
 
 Zmienia teksty na **wielkie litery w wyrazach, wielką literę w zdaniu, same wielkie lub same małe litery**, nie dotykając
-żadnego znacznika. Odpowiada to `Narzędzia ▸ Rozmiar` w [oknie](../subedit-gui/operations.md), z jego regułami.
+żadnego znacznika. Odpowiada to `Narzędzia ▸ Wielkość liter` w [oknie](../subedit-gui/operations.md), z jego regułami.
 
 | `--to` | Efekt | `bonjour marie` zmienia się w |
 | :----- | :---- | :---------------------- |
