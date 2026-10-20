@@ -189,8 +189,8 @@ op het scherm. Zodra de berekening klaar is, opent de bevestigingspagina vanzelf
 
 **`Cancel` in deze stap geeft de berekening op zonder haar te onderbreken**: er
 wordt niets toegepast, maar de assistent wacht, voordat hij sluit, tot de lopende
-berekening klaar is — een wachttijd die wordt begrensd door de tijdslimiet die de patroon-
-engine aan elke zoekopdracht oplegt.
+berekening klaar is — een wachttijd die wordt begrensd door de tijdslimiet die de patroonengine
+aan elke zoekopdracht oplegt.
 
 **`Back` in deze stap gaat terug naar de vorige pagina zonder te wachten**: de berekening
 wordt op de achtergrond afgerond en haar resultaat wordt weggegooid — de assistent springt niet
@@ -246,7 +246,7 @@ teksten of projecten waarop het mislukte: het scherm zegt niet welke.
 | `has an invalid replacement` | de vervanging leest niet zoals Python haar leest |
 | `timed out` | een zoekopdracht overschreed de tijd die de engine haar op een tekst geeft |
 | `never settled` | `Repeat` wijzigde de tekst na honderd doorgangen nog steeds |
-| `grew the text too long` | de tekst overschreed 16.384 bytes terwijl het patroon eraan werkte |
+| `grew the text too long` | de tekst overschreed 16 384 bytes terwijl het patroon eraan werkte |
 
 **Een patroon dat op een tekst mislukt, laat hem zoals hij was vóór dat patroon**: een half
 uitgevoerde vervanging is minder waard dan geen vervanging. De andere patronen worden toegepast.

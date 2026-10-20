@@ -148,8 +148,8 @@ seconden, en elke tiende van een seconde opnieuw centreren zou zinloos scrollen 
 
 **Handmatig scrollen schort het volgen op.** Het wiel, de schuifbalk en een klik in de tabel
 schorten het op: de tabel blijft waar u hem hebt gezet, terwijl de huidige regel, de getekende regel en de balk
-de film blijven volgen. De volgknop — **het pictogram van de regels van een tabel, één ervan met een pijl gemarkeerd**, rechts van de afspeel-
-balk; zijn knopinfo begint met ‘Volgen’ — **is ingedrukt zolang de tabel volgt** en springt dan omhoog.
+de film blijven volgen. De volgknop — **het pictogram van de regels van een tabel, één ervan met een pijl gemarkeerd**, rechts van de afspeelbalk;
+zijn knopinfo begint met ‘Volgen’ — **is ingedrukt zolang de tabel volgt** en springt dan omhoog.
 
 **Het volgen hervat bij een handeling van de speler**: het afspelen gestart, een sprong, een stap, een markering gezet, een
 invoeging op de positie, of een verplaatsing van de balk — de tabel centreert dan meteen op de

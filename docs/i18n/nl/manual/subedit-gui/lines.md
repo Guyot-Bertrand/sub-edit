@@ -32,7 +32,7 @@ de selectie waar ze komen.](captures/insertion.png)
 
 | Veld | Wat het bevat | Standaard |
 | :---- | :------------ | :------ |
-| `How many` | een geheel getal van 1 tot 99.999 | `1` |
+| `How many` | een geheel getal van 1 tot 99 999 | `1` |
 | `Where` | `Above the selection` of `Below the selection` | de laatste keuze, `Below` bij de eerste start |
 
 `OK` voegt de regels toe, `Cancel` voegt niets toe.
@@ -229,7 +229,7 @@ Het dialoogvenster vraagt om drie instellingen, die van de ene keer op de andere
 
 | Veld | Wat het bevat | Standaard |
 | :---- | :------------ | :------ |
-| `Shortest interval kept` | van 0 tot 10.000 ms: een korter interval wordt door een buur overgenomen | `80 ms` (ongeveer twee frames) |
+| `Shortest interval kept` | van 0 tot 10 000 ms: een korter interval wordt door een buur overgenomen | `80 ms` (ongeveer twee frames) |
 | `Most lines in a subtitle` | van 0 tot 10; `No limit` bij 0 | `2` |
 | `Put a dash before each subtitle's text` | een streepje vóór wat elke ondertitel bijdraagt aan een samengevoegde ondertitel | niet aangevinkt |
 
