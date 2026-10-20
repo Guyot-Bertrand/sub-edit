@@ -91,6 +91,9 @@ vélþýddar og enn ekki yfirfarnar af lesanda tungumálsins.
 <!-- machine-translated: is -->
 <!-- machine-translated: it_IT -->
 <!-- machine-translated: nl -->
+<!-- machine-translated: pl -->
+<!-- machine-translated: pt -->
+<!-- machine-translated: pt_BR -->
 Undir `LANG=fr_FR.UTF-8` byrjar `subedit-cli --help` á „Lire,
 inspecter et recaler des fichiers de sous-titres.“ Skripta sem les orðin í textaúttakinu
 stillir `LANGUAGE=en` (eða `LC_ALL=C`) — eða les `--format json`, sem breytist aldrei.

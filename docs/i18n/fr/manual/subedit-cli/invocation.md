@@ -90,6 +90,9 @@ le galicien, l'hébreu, le hongrois, l'interlingue, l'islandais, l'italien et le
 <!-- machine-translated: is -->
 <!-- machine-translated: it_IT -->
 <!-- machine-translated: nl -->
+<!-- machine-translated: pl -->
+<!-- machine-translated: pt -->
+<!-- machine-translated: pt_BR -->
 Sous `LANG=fr_FR.UTF-8`,
 `subedit-cli --help` commence par « Lire, inspecter et recaler des fichiers de sous-titres. » Un
 script qui lit les mots de la sortie texte pose `LANGUAGE=en` (ou `LC_ALL=C`) — ou lit

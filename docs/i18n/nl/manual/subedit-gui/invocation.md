@@ -164,6 +164,9 @@ nagelezen.
 <!-- machine-translated: is -->
 <!-- machine-translated: it_IT -->
 <!-- machine-translated: nl -->
+<!-- machine-translated: pl -->
+<!-- machine-translated: pt -->
+<!-- machine-translated: pt_BR -->
 Op een Franse desktop is de menubalk
 `&Fichier`, `É&dition`, `&Affichage`, `&Vidéo`, `&Outils`, `&Projets`, `Aid&e`. De schermafbeeldingen
 van deze handleiding zijn in het Nederlands gemaakt.
