@@ -220,7 +220,7 @@ de interface instalados, na saída padrão; a ferramenta para, com o código `0`
 <!-- example: subedit-cli --version | head -n 1 -->
 ```console
 $ subedit-cli --version | head -n 1
-subedit 0.15.45
+subedit 0.15.46
 ```
 
 O conjunto completo, em uma máquina com ICU 74.2 e Enchant 2.3.3 — os números são os da máquina:
