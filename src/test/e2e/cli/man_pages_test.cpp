@@ -217,9 +217,12 @@ TEST_CASE("man renders every page without a single warning", "[e2e][man][i18n][C
     for (const std::string& directory : pageDirectories()) {
         for (const fs::directory_entry& entry : fs::directory_iterator(pages(directory))) {
             // A UTF-8 terminal, and the ASCII one `C` gives, where a character with no glyph
-            // draws nothing — the generated page carries a fallback for each. Hebrew has no
-            // fallback in ASCII, so it is asked of the first terminal only.
-            const std::vector<const char*> locales = directory.starts_with("he/")
+            // draws nothing — the generated page carries a fallback for each. Hebrew, Cyrillic
+            // and Chinese have none in ASCII, so they are asked of the first terminal only.
+            const bool drawsInAscii =
+                !(directory.starts_with("he/") || directory.starts_with("ru/") ||
+                  directory.starts_with("sr/") || directory.starts_with("zh_CN/"));
+            const std::vector<const char*> locales = !drawsInAscii
                                                          ? std::vector<const char*>{"C.UTF-8"}
                                                          : std::vector<const char*>{"C.UTF-8", "C"};
             for (const char* locale : locales) {
