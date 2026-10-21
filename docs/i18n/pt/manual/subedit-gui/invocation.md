@@ -148,9 +148,9 @@ arranque seguinte. Veja-se
 | os atalhos de teclado | nunca: `Ctrl+S` é `Ctrl+S` em todos os idiomas |
 | uma mensagem que o catálogo não traduz | mostrada em inglês |
 
-Esta versão instala `ca`, `cs`, `de`, `es`, `fi`, `fr`, `gl`, `he`, `hu`, `ie`, `is`, `it_IT`, `nl`, `pl`, `pt` e `pt_BR` — catalão, checo, alemão,
-espanhol, finlandês, francês, galego, hebraico, húngaro, interlingue, islandês, italiano, neerlandês, polaco, português e português do Brasil — traduzidos na totalidade. O francês foi revisto por um leitor do
-idioma; o catalão, o checo, o alemão, o espanhol, o finlandês, o galego, o hebraico, o húngaro, o interlingue, o islandês, o italiano, o neerlandês, o polaco, o português e o português do Brasil são traduções automáticas e ainda não foram
+Esta versão instala `ca`, `cs`, `de`, `es`, `fi`, `fr`, `gl`, `he`, `hu`, `ie`, `is`, `it_IT`, `nl`, `pl`, `pt`, `pt_BR`, `ru`, `sr`, `tr` e `zh_CN` — catalão, checo, alemão,
+espanhol, finlandês, francês, galego, hebraico, húngaro, interlingue, islandês, italiano, neerlandês, polaco, português, português do Brasil, russo, sérvio, turco e chinês simplificado — traduzidos na totalidade. O francês foi revisto por um leitor do
+idioma; o catalão, o checo, o alemão, o espanhol, o finlandês, o galego, o hebraico, o húngaro, o interlingue, o islandês, o italiano, o neerlandês, o polaco, o português, o português do Brasil, o russo, o sérvio, o turco e o chinês simplificado são traduções automáticas e ainda não foram
 revistas por nenhum leitor do idioma.
 <!-- machine-translated: ca -->
 <!-- machine-translated: cs -->
