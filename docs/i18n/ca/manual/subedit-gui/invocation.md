@@ -148,9 +148,9 @@ s'imposa a totes les variables, `LC_ALL=C` inclosa. L'elecció, també, s'aplica
 | les dreceres de teclat | mai: `Ctrl+S` és `Ctrl+S` en totes les llengües |
 | un missatge que el catàleg no tradueix | es mostra en anglès |
 
-Aquesta versió instal·la `ca`, `cs`, `de`, `es`, `fi`, `fr`, `gl`, `he`, `hu`, `ie`, `is`, `it_IT`, `nl`, `pl`, `pt` i `pt_BR` — el català, el txec, l'alemany,
-l'espanyol, el finès, el francès, el gallec, l'hebreu, el hongarès, l'interlingua, l'islandès, l'italià, el neerlandès, el polonès, el portuguès i el portuguès del Brasil — traduïts íntegrament. El francès l'ha revisat un lector
-de la llengua; el català, el txec, l'alemany, l'espanyol, el finès, el gallec, l'hebreu, el hongarès, l'interlingua, l'islandès, l'italià, el neerlandès, el polonès, el portuguès i el portuguès del Brasil són traduccions
+Aquesta versió instal·la `ca`, `cs`, `de`, `es`, `fi`, `fr`, `gl`, `he`, `hu`, `ie`, `is`, `it_IT`, `nl`, `pl`, `pt`, `pt_BR`, `ru`, `sr`, `tr` i `zh_CN` — el català, el txec, l'alemany,
+l'espanyol, el finès, el francès, el gallec, l'hebreu, el hongarès, l'interlingua, l'islandès, l'italià, el neerlandès, el polonès, el portuguès, el portuguès del Brasil, el rus, el serbi, el turc i el xinès simplificat — traduïts íntegrament. El francès l'ha revisat un lector
+de la llengua; el català, el txec, l'alemany, l'espanyol, el finès, el gallec, l'hebreu, el hongarès, l'interlingua, l'islandès, l'italià, el neerlandès, el polonès, el portuguès, el portuguès del Brasil, el rus, el serbi, el turc i el xinès simplificat són traduccions
 automàtiques que encara no ha revisat cap lector de la llengua.
 <!-- machine-translated: ca -->
 <!-- machine-translated: cs -->
