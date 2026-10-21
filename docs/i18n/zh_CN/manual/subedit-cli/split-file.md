@@ -77,7 +77,7 @@ quatre
 
 ## 拒绝切分的情形
 
-**在切分处重叠的两半不会被切开。**如果后半部分有一条字幕在前半部分最后一条字幕结束之前就已开始，移动会把它带到视频开头之前——得到负的位置，没有任何格式能写出。`split-file` 会拒绝并**指明那条字幕**，用的是窗口的措辞：
+**在切分处重叠的两半不会被切开**。如果后半部分有一条字幕在前半部分最后一条字幕结束之前就已开始，移动会把它带到视频开头之前——得到负的位置，没有任何格式能写出。`split-file` 会拒绝并**指明那条字幕**，用的是窗口的措辞：
 
 ```text
 o.srt: Cannot split at subtitle 3: subtitle 3 would fall before the start of the video. Cut somewhere else.
