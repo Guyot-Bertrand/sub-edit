@@ -13,7 +13,7 @@ subedit-cli case --to title|sentence|upper|lower [--range N-M|N-]
 ```
 
 Metinleri, hiçbir etikete dokunmadan **başlık düzenine, cümle düzenine, büyük harfe veya küçük harfe** getirir.
-[Pencerenin](../subedit-gui/operations.md) kurallarıyla birlikte `Araçlar ▸ Büyük/Küçük Harf` işlemidir.
+[Pencerenin](../subedit-gui/operations.md) kurallarıyla birlikte `Araçlar ▸ Harf Biçimi` işlemidir.
 
 | `--to` | Etki | `bonjour marie` şuna dönüşür |
 | :----- | :---- | :---------------------- |

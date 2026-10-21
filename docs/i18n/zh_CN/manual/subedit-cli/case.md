@@ -12,7 +12,7 @@ subedit-cli case --to title|sentence|upper|lower [--range N-M|N-]
                  <file>...
 ```
 
-把文本改为**单词首字母大写、句首字母大写、全部大写或全部小写**，且不触动任何标签。它对应[窗口](../subedit-gui/operations.md)中的 `工具 ▸ 大小写`，规则也相同。
+把文本改为**单词首字母大写、句首字母大写、全部大写或全部小写**，且不触动任何标签。它对应[窗口](../subedit-gui/operations.md)中的 `工具(O) ▸ 大小写(S)`，规则也相同。
 
 | `--to` | 效果 | `bonjour marie` 变为 |
 | :----- | :---- | :---------------------- |
