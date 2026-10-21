@@ -1,0 +1,130 @@
+# Bağlı video
+
+<!-- machine-translated -->
+> Bu sayfa makine çevirisidir ve henüz dili bilen bir okuyucu tarafından gözden geçirilmemiştir.
+
+**Video** menüsü önce iki komut ve filmi yöneten hareketleri taşır
+— bkz. [Oynatıcı](player.md#filmde-gezinme).
+
+| Komut | Kısayol | Ne yapar |
+| :---- | :------ | :------- |
+| Video Seç… | yok | belgenin eşlik ettiği video dosyasını seçer |
+| Oynat / Duraklat | `Ctrl+P` | videoyu oynatır ya da durdurur — bkz. [Oynatıcı](player.md#oynatma-ve-durdurma) |
+
+Bağlı video **açık belgenin bir özelliğidir**, uygulamanın bir ayarı değil: başka bir altyazı
+dosyası açmak sıfırdan başlar. Hiçbir dosyaya yazılmaz ve pencereyle birlikte kaybolur.
+
+## Ses izi
+
+Bir film birkaç ses izi taşıyabilir — özgün sürüm, bir dublaj, bir yorum. **`Video ▸ Ses ▸ Dil`**
+alt menüsü bunları listeler, **iz başına bir öğe**, ve **çalanı işaretler**:
+
+| Dosyanın verdiği | Öğenin söylediği |
+| :--------------- | :--------------- |
+| bir dil ve bir başlık | `1: fra — Original` |
+| yalnızca bir dil | `2: eng` |
+| yalnızca bir başlık | `3: Commentary` |
+| hiçbiri | `1` |
+
+Numara, **izin filmdeki yeridir**, birer birer, dosyanın sırasıyla: iki iz `eng` diyebilir ve
+etiketleri hakkında sessiz kalan bir dosyanın da yine bir birinci ve bir ikinci izi vardır.
+
+**Bir öğeyi seçmek o izi çalar.** İşaret, tıklamanın değil oynatıcının yanıtıdır: çalan izi söyler.
+
+- **Alt menü devre dışıdır**, video ya da ses izi yoksa. Tek iz varsa etkin kalır ve onu işaretli
+  olarak gösterir: filmin dilini söyler. Yanında bulunan iki ses düzeyi hareketi her durumda etkin
+  kalır: bkz. [Ses düzeyi](player.md#ses-düzeyi).
+- **İz hatırlanmaz**, bir videodan ötekine ya da bir oturumdan ötekine: bir iz numarası kendi
+  dosyasına özgüdür ve onu sonraki filme taşımak orada o numarayı taşıyanı seçerdi. Bir sekmeye
+  dönmek filmini, oynatıcının kendi seçtiği izle yeniden açar.
+- Kısayol yok: dili seyrek değiştirirsiniz ve menü yeter.
+
+## Video seçme
+
+İletişim kutusu altyazı dosyasının dizininde açılır ve tanınan video uzantılarına göre süzer:
+
+    .avi .flv .m2ts .mkv .mov .mp4 .ogg .ogv .vob .webm
+
+Tüm dosyaları göstermeyi de önerir. İletişim kutusunu iptal etmek hiçbir şeyi değiştirmez.
+
+Seçilen dosya **hemen açılır**: görüntü pencerede belirir, ilk anında duraklatılmış olarak.
+Bkz. [Oynatıcı](player.md).
+
+**Bir video dosyasını pencereye bırakmak da aynı şeyi yapar** — bkz.
+[Dosyaları pencereye bırakma](files.md#dosyaları-pencereye-bırakma).
+
+**Video, geçerli sekmenin projesinin videosudur.** Her sekme kendisininkini tutar; sekme
+değiştirmek filmi değiştirir. **Bir sekmeye dönmek filmine bıraktığınız yerden devam eder**,
+duraklatılmış olarak, her açılış gibi. Bu arada o proje için seçilen başka bir film ise baştan
+başlar.
+
+## Otomatik öneri
+
+Bir altyazı dosyası açıldığında, **hiçbir video seçilmemişse**, pencere aynı dizinde bir tane arar:
+uzantısız adı, bir noktaya kadar, bizimkinin bir öneki olan bir video dosyası.
+
+| Altyazı dosyası | Bulunan video | Neden |
+| :-------------- | :------------ | :---- |
+| `film.fr.srt` | `film.mkv` | `film`, `film.fr` adının önekidir |
+| `film.en.forced.srt` | `film.mkv` | aynı şekilde, bölüm sayısı ne olursa olsun |
+| `film.fr.srt` | `film.mkv` yerine `film.fr.mkv` | en uzun ad kazanır |
+| `film.fr.srt` | yok, `film.mkv` **ve** `film.mp4` varsa | iki aday birbirinden ayırt edilemez |
+| `film.fr.srt` | yok, yalnızca `fil.mkv` varsa | `fil` bir noktada bitmez |
+
+**Bir öneri bir seçim değildir.** Başka bir öneriyle değiştirilmesine izin verir — başka bir dosya
+açmak, başka bir adla kaydetmek. Açık bir seçim ise asla üzerine yazılmaz: `Select Video…` bir kez
+kullanıldığında otomatik öneri artık arkasından geri gelmez.
+
+Tahmini kabul edilebilir kılan budur: düzeltilebilir ve düzeltmesi kalır.
+
+## Durum çubuğunun gösterdikleri
+
+Durum çubuğunun sağında bir satır, belgenin neye eşlik ettiğini söyler. Üçün sonuncusudur: önce
+okunan dosyanın [kodlaması](files.md#durum-çubuğundaki-kodlama) gelir, ardından konumlardan çıkarılan
+[kare ızgarası](frame-grid.md).
+
+| Durum | Ne yazılır |
+| :---- | :--------- |
+| bir video bağlıdır | `Video: film.mkv` |
+| … ve `ffprobe` kare hızını verir | `Video: film.mkv, 24000/1001 fps` |
+| hiçbiri | `No video` |
+
+**Kare hızı filmin yanında değil, filmle birlikte gider.** Bunlar tek bir olgudur — bu belgenin neye
+eşlik ettiği — ve üçüncü bir ifade onu, başka bir şey olan
+[konumlardan çıkarılan ızgara](frame-grid.md) ile aynı sıraya koyardı.
+
+## Film olmadığında
+
+Pencere, görüntünün yerine hiçbir şey koymak yerine bir **`Select Video…`** düğmesi gösterir. Bu,
+`Video` menüsündekiyle aynı komuttur, fare erişiminde: üzerinde işlem yapamadığınız bir yokluğu bir
+arızadan ayırmak zordur.
+
+Düğme bir film açılır açılmaz kaybolur ve görüntü yerinin **tamamını** alır: tablonun onun
+üstünde bıraktığı yükseklik — [`window.table-share`](preferences.md) değerinin bir oturumdan
+ötekine hatırladığı — ve görüntünün en küçük yüksekliğinden asla az olmamak üzere; gerekirse tablo
+yer verir. Film gittiğinde düğme aynı yeri geri alır.
+
+**Dosyanın adı, yolu asla.** İki yüz karakterlik bir yol, çubuktaki her şeyi dışarı iterdi; tam yol,
+iletişim kutusunun gösterdiğidir.
+
+## `ffmpeg` gerekmez
+
+`subedit-gui`, `ffprobe` programına — `ffmpeg` ile birlikte gelir — yalnızca bir şey sorar:
+**kapsayıcının bildirdiği kare hızı**. Her film için, bağlandığında bir kez okunur.
+
+| `ffprobe` ile | Olmadan |
+| :------------ | :------ |
+| durum çubuğu kare hızını filmin adının yanına yazar | yalnızca adı yazar |
+| dönüştürme iletişim kutusu filmin kare hızını alttaki alanda önerir | hiçbir şey önermez ve eskisi gibi açılır |
+| hizalama iletişim kutusu onunla açılır | projenin kare hızıyla açılır |
+
+**Başka hiçbir şey ona bağlı değildir ve hiçbir işlem reddetmez.** Oynatıcı ise `ffprobe`
+programına hiç ihtiyaç duymaz: bir derleme bağımlılığı olan `libmpv` kitaplığına dayanır. Filmin
+süresi, sonun ötesine geçeni bildirmek için kullanılan süre, `ffprobe` değil oynatıcıdan gelir.
+
+Bu nedenle bir bozulmuş kip değil, `ffmpeg` kurmamış bir makinenin **normal işleyişidir**: veri
+kullanıcıdan gelir ve `ffprobe` varsa onu önerir.
+
+Okunan kare hızı **kesin bir orandır** — `24000/1001`, `23.976` değil. `ffprobe` programının bu
+yanıt için tutulmasının nedeni budur: oynatıcı aynı şeyi kayan noktalı bir sayı olarak bilir ve
+yaklaşık bir kare hızı bütün dosyayı biraz yanlış yeniden zamanlardı.
