@@ -242,7 +242,7 @@ def parse_blocks(lines: list[tuple[int, str]], page: pathlib.Path | str) -> list
                 refuse(lines[index][0], "a setext heading: write it with #")
             paragraph.append(current.strip())
             index += 1
-        blocks.append(("paragraph", " ".join(paragraph), number))
+        blocks.append(("paragraph", join_lines(paragraph), number))
 
     return blocks
 
@@ -260,11 +260,35 @@ NAMED = {
 }
 
 
+def is_cjk(char: str) -> bool:
+    """A Han character, a Japanese or Korean letter, or a CJK or full-width sign: text in these
+    scripts has no spaces, so groff has nowhere to break a line unless it is told."""
+    return ("\u2e80" <= char <= "\u9fff" or "\uac00" <= char <= "\ud7af"
+            or "\uf900" <= char <= "\ufaff" or "\uff00" <= char <= "\uffef")
+
+
+# A sign that cannot start a line, and one that cannot end it.
+NOT_LINE_START = "，。；：！？）、”’》」』】…—"
+NOT_LINE_END = "（“‘《「『【"
+
+
+def join_lines(lines: list[str]) -> str:
+    """The lines of a paragraph as one: a space between them, except between two characters of
+    a script written without spaces, where a space would show."""
+    joined = lines[0]
+    for line in lines[1:]:
+        if joined and line and is_cjk(joined[-1]) and is_cjk(line[0]):
+            joined += line
+        else:
+            joined += " " + line
+    return joined
+
+
 def escape(text: str, code: bool = False) -> str:
     """Text as troff reads it: backslashes doubled, non-ASCII escaped, and in code every
     hyphen a minus, so that an option is typed back as it reads."""
     out: list[str] = []
-    for char in text:
+    for position, char in enumerate(text):
         if char == "\\":
             out.append(r"\e")
         elif char == "-" and code:
@@ -275,6 +299,12 @@ def escape(text: str, code: bool = False) -> str:
             out.append(NAMED[char])
         else:
             out.append(f"\\[u{ord(char):04X}]")
+            # `\:` is a break groff may take, with no width: between two CJK characters, unless
+            # the sign that follows cannot start a line or the one before cannot end it.
+            following = text[position + 1:position + 2]
+            if (is_cjk(char) and following and is_cjk(following)
+                    and following not in NOT_LINE_START and char not in NOT_LINE_END):
+                out.append(r"\:")
     return "".join(out)
 
 
@@ -480,6 +510,7 @@ def page(name: str, description: str, blocks: list[tuple], source: str, words: d
         f".TH {name.upper()} 1 \"\" \"subedit {version}\" {quoted(escape(words['manual_title']))}",
         # No hyphenation: a page names commands and options, which a hyphen would make untypable.
         ".nh",
+        *([".na"] if any(is_cjk(char) for char in description + words["name"]) else []),
         ".SH " + quoted(escape(words["name"])),
         f"{escape(name, code=True)} \\- {description}",
     ]
