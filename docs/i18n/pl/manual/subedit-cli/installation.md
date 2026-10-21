@@ -26,10 +26,10 @@ sudo dnf install ./subedit-<version>.x86_64.rpm     # Fedora, and relatives
 | `subedit-cli`, `subedit-gui` | `/usr/bin` |
 | pozycja menu, ikona, metadane centrum oprogramowania | `/usr/share/applications`, `/usr/share/icons`, `/usr/share/metainfo` |
 | ten podręcznik, w Markdown | `/usr/share/subedit/manual` |
-| jego tłumaczenie na każdy zainstalowany język — kataloński, czeski, niemiecki, hiszpański, fiński, francuski, galicyjski, hebrajski, węgierski, interlingue, islandzki, włoski, niderlandzki, polski, portugalski, brazylijski portugalski | `/usr/share/subedit/manual/<language>` — `ca`, `cs`, `de`, `es`, `fi`, `fr`, `gl`, `he`, `hu`, `ie`, `is`, `it_IT`, `nl`, `pl`, `pt`, `pt_BR` |
+| jego tłumaczenie na każdy zainstalowany język — kataloński, czeski, niemiecki, hiszpański, fiński, francuski, galicyjski, hebrajski, węgierski, interlingue, islandzki, włoski, niderlandzki, polski, portugalski, brazylijski portugalski, rosyjski, serbski, turecki, chiński uproszczony | `/usr/share/subedit/manual/<language>` — `ca`, `cs`, `de`, `es`, `fi`, `fr`, `gl`, `he`, `hu`, `ie`, `is`, `it_IT`, `nl`, `pl`, `pt`, `pt_BR`, `ru`, `sr`, `tr`, `zh_CN` |
 | wzorce poprawek z Gaupola | `/usr/share/subedit/patterns` |
 | strony podręcznika man dla `subedit-cli`, po jednej na podpolecenie, i dla `subedit-gui` — zobacz [Strony podręcznika man](invocation.md#strony-podręcznika-man) | `/usr/share/man/man1` |
-| strony `subedit-cli` w każdym zainstalowanym języku — kataloński, czeski, niemiecki, hiszpański, fiński, francuski, galicyjski, hebrajski, węgierski, interlingue, islandzki, włoski, niderlandzki, polski, portugalski, brazylijski portugalski | `/usr/share/man/<language>/man1` — `ca`, `cs`, `de`, `es`, `fi`, `fr`, `gl`, `he`, `hu`, `ie`, `is`, `it_IT`, `nl`, `pl`, `pt`, `pt_BR` |
+| strony `subedit-cli` w każdym zainstalowanym języku — kataloński, czeski, niemiecki, hiszpański, fiński, francuski, galicyjski, hebrajski, węgierski, interlingue, islandzki, włoski, niderlandzki, polski, portugalski, brazylijski portugalski, rosyjski, serbski, turecki, chiński uproszczony | `/usr/share/man/<language>/man1` — `ca`, `cs`, `de`, `es`, `fi`, `fr`, `gl`, `he`, `hu`, `ie`, `is`, `it_IT`, `nl`, `pl`, `pt`, `pt_BR`, `ru`, `sr`, `tr`, `zh_CN` |
 
 `ffmpeg` jest w obu pakietach **zalecany, a nie wymagany**: bez niego okno
 tylko przestaje proponować liczbę klatek na sekundę deklarowaną przez film — zobacz
@@ -197,10 +197,10 @@ prefiksu:
 | ikona | `<prefix>/share/icons/hicolor/scalable/apps` |
 | metadane centrum oprogramowania | `<prefix>/share/metainfo` |
 | ten podręcznik, w Markdown | `<prefix>/share/subedit/manual` |
-| jego tłumaczenie na każdy zainstalowany język — kataloński, czeski, niemiecki, hiszpański, fiński, francuski, galicyjski, hebrajski, węgierski, interlingue, islandzki, włoski, niderlandzki, polski, portugalski, brazylijski portugalski | `<prefix>/share/subedit/manual/<language>` — `ca`, `cs`, `de`, `es`, `fi`, `fr`, `gl`, `he`, `hu`, `ie`, `is`, `it_IT`, `nl`, `pl`, `pt`, `pt_BR` |
+| jego tłumaczenie na każdy zainstalowany język — kataloński, czeski, niemiecki, hiszpański, fiński, francuski, galicyjski, hebrajski, węgierski, interlingue, islandzki, włoski, niderlandzki, polski, portugalski, brazylijski portugalski, rosyjski, serbski, turecki, chiński uproszczony | `<prefix>/share/subedit/manual/<language>` — `ca`, `cs`, `de`, `es`, `fi`, `fr`, `gl`, `he`, `hu`, `ie`, `is`, `it_IT`, `nl`, `pl`, `pt`, `pt_BR`, `ru`, `sr`, `tr`, `zh_CN` |
 | wzorce poprawek z Gaupola | `<prefix>/share/subedit/patterns` |
 | strony podręcznika man obu plików binarnych, po jednej na podpolecenie dla `subedit-cli` | `<prefix>/share/man/man1` |
-| strony `subedit-cli` w każdym zainstalowanym języku — kataloński, czeski, niemiecki, hiszpański, fiński, francuski, galicyjski, hebrajski, węgierski, interlingue, islandzki, włoski, niderlandzki, polski, portugalski, brazylijski portugalski | `<prefix>/share/man/<language>/man1` — `ca`, `cs`, `de`, `es`, `fi`, `fr`, `gl`, `he`, `hu`, `ie`, `is`, `it_IT`, `nl`, `pl`, `pt`, `pt_BR` |
+| strony `subedit-cli` w każdym zainstalowanym języku — kataloński, czeski, niemiecki, hiszpański, fiński, francuski, galicyjski, hebrajski, węgierski, interlingue, islandzki, włoski, niderlandzki, polski, portugalski, brazylijski portugalski, rosyjski, serbski, turecki, chiński uproszczony | `<prefix>/share/man/<language>/man1` — `ca`, `cs`, `de`, `es`, `fi`, `fr`, `gl`, `he`, `hu`, `ie`, `is`, `it_IT`, `nl`, `pl`, `pt`, `pt_BR`, `ru`, `sr`, `tr`, `zh_CN` |
 
 **To te same pliki, które instalują pakiety**: pakiety powstają z nich,
 zamiast być opisywane po raz drugi.

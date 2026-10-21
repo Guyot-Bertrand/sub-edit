@@ -147,9 +147,9 @@ wygrywa z każdą zmienną, także z `LC_ALL=C`. Wybór również zaczyna obowi�
 | skróty klawiszowe | nigdy: `Ctrl+S` to `Ctrl+S` w każdym języku |
 | komunikat, którego katalog nie tłumaczy | pokazany po angielsku |
 
-Ta wersja instaluje języki `ca`, `cs`, `de`, `es`, `fi`, `fr`, `gl`, `he`, `hu`, `ie`, `is`, `it_IT`, `nl`, `pl`, `pt` i `pt_BR` — kataloński, czeski, niemiecki,
-hiszpański, fiński, francuski, galicyjski, hebrajski, węgierski, interlingue, islandzki, włoski, niderlandzki, polski, portugalski i brazylijski portugalski — w pełni przetłumaczone.
-Francuski został sprawdzony przez osobę władającą językiem; kataloński, czeski, niemiecki, hiszpański, fiński, galicyjski, hebrajski, węgierski, interlingue, islandzki, włoski, niderlandzki, polski, portugalski i brazylijski portugalski są przetłumaczone maszynowo i nie zostały jeszcze
+Ta wersja instaluje języki `ca`, `cs`, `de`, `es`, `fi`, `fr`, `gl`, `he`, `hu`, `ie`, `is`, `it_IT`, `nl`, `pl`, `pt`, `pt_BR`, `ru`, `sr`, `tr` i `zh_CN` — kataloński, czeski, niemiecki,
+hiszpański, fiński, francuski, galicyjski, hebrajski, węgierski, interlingue, islandzki, włoski, niderlandzki, polski, portugalski, brazylijski portugalski, rosyjski, serbski, turecki i chiński uproszczony — w pełni przetłumaczone.
+Francuski został sprawdzony przez osobę władającą językiem; kataloński, czeski, niemiecki, hiszpański, fiński, galicyjski, hebrajski, węgierski, interlingue, islandzki, włoski, niderlandzki, polski, portugalski, brazylijski portugalski, rosyjski, serbski, turecki i chiński uproszczony są przetłumaczone maszynowo i nie zostały jeszcze
 sprawdzone przez osobę władającą językiem.
 <!-- machine-translated: ca -->
 <!-- machine-translated: cs -->
