@@ -94,6 +94,10 @@ finština, galicijština, hebrejština, maďarština, interlingue, islandština,
 <!-- machine-translated: pl -->
 <!-- machine-translated: pt -->
 <!-- machine-translated: pt_BR -->
+<!-- machine-translated: ru -->
+<!-- machine-translated: sr -->
+<!-- machine-translated: tr -->
+<!-- machine-translated: zh_CN -->
 Při `LANG=fr_FR.UTF-8` začíná `subedit-cli --help` větou „Lire,
 inspecter et recaler des fichiers de sous-titres.“ Skript, který čte slova textového
 výstupu, nastaví `LANGUAGE=en` (nebo `LC_ALL=C`) — nebo čte `--format json`, který se nikdy nemění.

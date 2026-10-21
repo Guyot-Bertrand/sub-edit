@@ -167,6 +167,10 @@ maschinell übersetzt und noch von keiner Leserin und keinem Leser der Sprache g
 <!-- machine-translated: pl -->
 <!-- machine-translated: pt -->
 <!-- machine-translated: pt_BR -->
+<!-- machine-translated: ru -->
+<!-- machine-translated: sr -->
+<!-- machine-translated: tr -->
+<!-- machine-translated: zh_CN -->
 Auf einer französischen Arbeitsumgebung lautet die Menüleiste
 `&Fichier`, `É&dition`, `&Affichage`, `&Vidéo`, `&Outils`, `&Projets`, `Aid&e`. Die Bildschirmfotos
 dieses Handbuchs werden auf Deutsch aufgenommen.

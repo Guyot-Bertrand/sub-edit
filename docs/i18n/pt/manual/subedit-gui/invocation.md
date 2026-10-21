@@ -167,5 +167,9 @@ revistas por nenhum leitor do idioma.
 <!-- machine-translated: pl -->
 <!-- machine-translated: pt -->
 <!-- machine-translated: pt_BR -->
+<!-- machine-translated: ru -->
+<!-- machine-translated: sr -->
+<!-- machine-translated: tr -->
+<!-- machine-translated: zh_CN -->
 Num ambiente de trabalho francês, a barra de menus é
 `&Fichier`, `É&dition`, `&Affichage`, `&Vidéo`, `&Outils`, `&Projets`, `Aid&e`. As capturas de ecrã deste manual foram feitas em português.

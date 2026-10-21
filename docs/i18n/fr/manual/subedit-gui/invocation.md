@@ -166,6 +166,10 @@ le galicien, l'hébreu, le hongrois, l'interlingue, l'islandais, l'italien, le n
 <!-- machine-translated: pl -->
 <!-- machine-translated: pt -->
 <!-- machine-translated: pt_BR -->
+<!-- machine-translated: ru -->
+<!-- machine-translated: sr -->
+<!-- machine-translated: tr -->
+<!-- machine-translated: zh_CN -->
 Sur un bureau français, la barre de
 menus porte `&Fichier`, `É&dition`, `&Affichage`, `&Vidéo`, `&Outils`, `&Projets`, `Aid&e`. Les
 captures de ce manuel-ci sont prises en français.

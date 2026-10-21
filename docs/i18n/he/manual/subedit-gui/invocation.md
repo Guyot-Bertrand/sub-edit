@@ -167,6 +167,10 @@ $ man subedit-gui
 <!-- machine-translated: pl -->
 <!-- machine-translated: pt -->
 <!-- machine-translated: pt_BR -->
+<!-- machine-translated: ru -->
+<!-- machine-translated: sr -->
+<!-- machine-translated: tr -->
+<!-- machine-translated: zh_CN -->
 בשולחן עבודה צרפתי סרגל התפריטים נקרא
 `&Fichier`, `É&dition`, `&Affichage`, `&Vidéo`, `&Outils`, `&Projets`, `Aid&e`. צילומי המסך
 במדריך זה נלקחו בעברית.

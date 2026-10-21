@@ -94,6 +94,10 @@ traduzidos automaticamente e ainda não foram revisados por um leitor do idioma.
 <!-- machine-translated: pl -->
 <!-- machine-translated: pt -->
 <!-- machine-translated: pt_BR -->
+<!-- machine-translated: ru -->
+<!-- machine-translated: sr -->
+<!-- machine-translated: tr -->
+<!-- machine-translated: zh_CN -->
 Com `LANG=fr_FR.UTF-8`, `subedit-cli --help` começa por "Lire,
 inspecter et recaler des fichiers de sous-titres." Um script que lê as palavras da saída
 em texto define `LANGUAGE=en` (ou `LC_ALL=C`) — ou lê `--format json`, que nunca muda.

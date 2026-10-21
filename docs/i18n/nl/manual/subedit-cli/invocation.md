@@ -94,6 +94,10 @@ machinevertaald en nog door geen lezer van de taal nagelezen.
 <!-- machine-translated: pl -->
 <!-- machine-translated: pt -->
 <!-- machine-translated: pt_BR -->
+<!-- machine-translated: ru -->
+<!-- machine-translated: sr -->
+<!-- machine-translated: tr -->
+<!-- machine-translated: zh_CN -->
 Onder `LANG=fr_FR.UTF-8` begint `subedit-cli --help` met “Lire,
 inspecter et recaler des fichiers de sous-titres.” Een script dat de woorden van de tekstuitvoer
 leest, stelt `LANGUAGE=en` in (of `LC_ALL=C`) — of leest `--format json`, dat nooit verandert.

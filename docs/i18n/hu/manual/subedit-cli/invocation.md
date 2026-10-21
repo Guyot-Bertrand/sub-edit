@@ -83,6 +83,10 @@ A katalógusok a végrehajtható fájl saját könyvtárából találhatók meg,
 <!-- machine-translated: pl -->
 <!-- machine-translated: pt -->
 <!-- machine-translated: pt_BR -->
+<!-- machine-translated: ru -->
+<!-- machine-translated: sr -->
+<!-- machine-translated: tr -->
+<!-- machine-translated: zh_CN -->
 A `LANG=fr_FR.UTF-8` beállítással a `subedit-cli --help` kimenete így kezdődik: „Lire, inspecter et recaler des fichiers de sous-titres.” Az a szkript, amely a szöveges kimenet szavait olvassa, a `LANGUAGE=en` (vagy `LC_ALL=C`) értéket állítja be — vagy a `--format json` kimenetet olvassa, amely sosem változik.
 
 **Ami sosem követi a nyelvet** — amit a szkript olvas:

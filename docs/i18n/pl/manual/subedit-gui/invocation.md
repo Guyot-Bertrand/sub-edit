@@ -166,5 +166,9 @@ sprawdzone przez osobę władającą językiem.
 <!-- machine-translated: pl -->
 <!-- machine-translated: pt -->
 <!-- machine-translated: pt_BR -->
+<!-- machine-translated: ru -->
+<!-- machine-translated: sr -->
+<!-- machine-translated: tr -->
+<!-- machine-translated: zh_CN -->
 Na francuskim pulpicie pasek menu ma postać
 `&Fichier`, `É&dition`, `&Affichage`, `&Vidéo`, `&Outils`, `&Projets`, `Aid&e`. Zrzuty ekranu w tym podręczniku wykonano w języku polskim.
