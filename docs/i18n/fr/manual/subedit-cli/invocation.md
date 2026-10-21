@@ -74,10 +74,10 @@ nommé comme son fichier l'écrit. Les fichiers de motifs eux-mêmes ne sont jam
 
 Les catalogues sont installés sous `<prefix>/share/subedit/locale/<language>/LC_MESSAGES/subedit.mo`
 et trouvés à partir du répertoire de l'exécutable lui-même. L'anglais est intégré au programme.
-Cette version installe `ca`, `cs`, `de`, `es`, `fi`, `fr`, `gl`, `he`, `hu`, `ie`, `is`, `it_IT`, `nl`, `pl`, `pt` et `pt_BR` — le catalan, le tchèque,
-l'allemand, l'espagnol, le finnois, le français, le galicien, l'hébreu, le hongrois, l'interlingue, l'islandais, l'italien, le néerlandais, le polonais, le portugais et le portugais brésilien — traduits en entier. Le français a
+Cette version installe `ca`, `cs`, `de`, `es`, `fi`, `fr`, `gl`, `he`, `hu`, `ie`, `is`, `it_IT`, `nl`, `pl`, `pt`, `pt_BR`, `ru`, `sr`, `tr` et `zh_CN` — le catalan, le tchèque,
+l'allemand, l'espagnol, le finnois, le français, le galicien, l'hébreu, le hongrois, l'interlingue, l'islandais, l'italien, le néerlandais, le polonais, le portugais, le portugais brésilien, le russe, le serbe, le turc et le chinois simplifié — traduits en entier. Le français a
 été relu par un lecteur de la langue ; le catalan, le tchèque, l'allemand, l'espagnol, le finnois,
-le galicien, l'hébreu, le hongrois, l'interlingue, l'islandais, l'italien, le néerlandais, le polonais, le portugais et le portugais brésilien sont traduits par machine et pas encore relus par un lecteur de la langue.
+le galicien, l'hébreu, le hongrois, l'interlingue, l'islandais, l'italien, le néerlandais, le polonais, le portugais, le portugais brésilien, le russe, le serbe, le turc et le chinois simplifié sont traduits par machine et pas encore relus par un lecteur de la langue.
 <!-- machine-translated: ca -->
 <!-- machine-translated: cs -->
 <!-- machine-translated: de -->
@@ -884,7 +884,7 @@ FICHIERS de chaque page nomme le répertoire où le manuel est installé.
 | Pages | Où elles sont installées |
 | :---- | :----------------------- |
 | l'anglais | `share/man/man1` |
-| chaque langue installée — catalan, tchèque, allemand, espagnol, finnois, français, galicien, hébreu, hongrois, interlingue, islandais, italien, néerlandais, polonais, portugais, portugais brésilien | `share/man/<language>/man1` — `share/man/fr/man1` |
+| chaque langue installée — catalan, tchèque, allemand, espagnol, finnois, français, galicien, hébreu, hongrois, interlingue, islandais, italien, néerlandais, polonais, portugais, portugais brésilien, russe, serbe, turc, chinois simplifié | `share/man/<language>/man1` — `share/man/fr/man1` |
 
 **`man` choisit la langue d'après la locale**, comme le programme : sous une locale française,
 `man subedit-cli` affiche la page française, et une langue dont les pages ne sont pas installées
