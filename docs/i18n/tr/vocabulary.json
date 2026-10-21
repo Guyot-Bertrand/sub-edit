@@ -1,0 +1,15 @@
+{
+  "shortcut_header": "Kısayol",
+  "label_headers": ["Komut", "Öğe", "Eylem", "Menü öğesi"],
+  "no_shortcut_words": ["yok"],
+  "option_header": "Seçenek",
+  "subcommand_header": "Alt komut",
+  "man": {
+    "name": "AD",
+    "synopsis": "ÖZET",
+    "description": "AÇIKLAMA",
+    "files": "DOSYALAR",
+    "see_also": "BUNLARA DA BAKIN",
+    "manual_title": "Kullanıcı komutları"
+  }
+}
