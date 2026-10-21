@@ -48,6 +48,16 @@ ne pas l'éditer à la main.
 - **i18n** — Complete the Brazilian Portuguese catalogue
 - **i18n** — Complete the Polish catalogue
 - **i18n** — Install Polish, Portuguese and Brazilian Portuguese
+- **i18n** — Take over the Russian seed catalogue
+- **i18n** — Take over the Simplified Chinese seed catalogue
+- **i18n** — Complete the Simplified Chinese catalogue
+- **build** — Let groff break a line of Chinese in the man pages
+- **i18n** — Take over the Serbian seed catalogue
+- **i18n** — Complete the Serbian catalogue
+- **i18n** — Take over the Turkish seed catalogue
+- **i18n** — Complete the Turkish catalogue
+- **i18n** — Complete the Russian catalogue
+- **i18n** — Install Russian, Serbian, Turkish and Chinese
 
 ### Corrections
 
@@ -68,6 +78,13 @@ ne pas l'éditer à la main.
 - **build** — Move the seed proof to Russian, Polish is shipping
 - **i18n** — Use the final Case menu label in Polish and Portuguese
 - **i18n** — Name the dialogue dash as the Polish window does
+- **build** — Make the seed proof's language up, none is left unshipped
+- **test** — Ask Cyrillic and Chinese man pages of one terminal only
+- **build** — Keep Chinese man pages unadjusted in every paragraph
+- **i18n** — Close the bold of four Chinese CLI pages before the Han text
+- **i18n** — Use the final Case menu label in Turkish and Chinese
+- **i18n** — Give the Serbian spell-check settings their contract heading
+- **i18n** — Name the Chinese Save action as the window does
 
 ### Documentation
 
@@ -422,6 +439,76 @@ ne pas l'éditer à la main.
 - **i18n** — Translate Brazilian Portuguese GUI pages, batch G1b
 - **i18n** — Translate the Polish GUI pages, batch G1
 - **i18n** — Add the Polish and Portuguese screenshots
+- **doc** — Regenerate the changelog
+- **doc** — List Russian, Serbian, Turkish and Chinese in the manual
+- **i18n** — Add the Russian vocabulary
+- **i18n** — List Russian and three more in the French manual
+- **i18n** — List Russian and three more in the Catalan manual
+- **i18n** — List Russian and three more in the Czech manual
+- **i18n** — List Russian and three more in the German manual
+- **i18n** — Add the Serbian vocabulary
+- **i18n** — List Russian and three more in the Spanish manual
+- **i18n** — List Russian and three more in the Finnish manual
+- **i18n** — List Russian and three more in the Galician manual
+- **i18n** — List Russian and three more in the Hebrew manual
+- **i18n** — List Russian and three more in the Hungarian manual
+- **i18n** — List Russian and three more in the Interlingue manual
+- **i18n** — List Russian and three more in the Icelandic manual
+- **i18n** — List Russian and three more in the Italian manual
+- **i18n** — List Russian and three more in the Dutch manual
+- **i18n** — List Russian and three more in the Polish manual
+- **i18n** — List Russian and three more in the Portuguese manual
+- **i18n** — List Russian and three more in the pt_BR manual
+- **i18n** — Add the Simplified Chinese vocabulary
+- **i18n** — Add the Turkish vocabulary
+- **i18n** — Translate nine Russian CLI pages (lots to transform)
+- **i18n** — Translate the Serbian CLI pages, batch C
+- **i18n** — Translate the Russian manual home and CLI index
+- **i18n** — Translate the Russian adjust, append and case pages
+- **i18n** — Translate the Russian config and convert pages
+- **i18n** — Translate the Russian correct and dialogue-dashes pages
+- **i18n** — Translate nine Turkish CLI pages (lots to transform)
+- **i18n** — Translate nine Simplified Chinese CLI pages (batch C)
+- **i18n** — Translate the Serbian manual home and CLI A pages
+- **i18n** — Translate Serbian frame grid, video, timing pages
+- **i18n** — Translate Serbian editing, clipboard, undo pages
+- **i18n** — Translate the Russian lines page
+- **i18n** — Translate six Simplified Chinese GUI pages
+- **i18n** — Translate the Turkish manual home and CLI index
+- **i18n** — Translate six Turkish CLI pages, adjust to dashes
+- **i18n** — Translate the Serbian CLI invocation and install pages
+- **i18n** — Translate six Serbian CLI subcommand pages
+- **i18n** — Translate the Russian Correct Texts page
+- **i18n** — Translate the Simplified Chinese manual index pages
+- **i18n** — Translate Simplified Chinese adjust, append, case pages
+- **i18n** — Translate Simplified Chinese config, convert, correct
+- **i18n** — Translate the Russian disjoint and join-repeats CLI pages
+- **i18n** — Translate the Russian framerate and italics CLI pages
+- **i18n** — Translate the Russian hearing-impaired and inspect pages
+- **i18n** — Translate the Russian installation and invocation pages
+- **i18n** — Translate the Simplified Chinese GUI index, files, help
+- **i18n** — Translate the Russian player page
+- **i18n** — Translate six Turkish GUI pages, batch G3
+- **i18n** — Translate Simplified Chinese GUI pages (batch G2)
+- **i18n** — Translate Simplified Chinese disjoint, framerate and italics
+- **i18n** — Translate Simplified Chinese inspect and hearing-impaired
+- **i18n** — Translate Simplified Chinese invocation and installation
+- **i18n** — Translate the Russian table page
+- **i18n** — Translate six Russian GUI pages (grid, video, editing)
+- **i18n** — Translate the Serbian GUI table and player pages
+- **i18n** — Translate the Russian find and replace page
+- **i18n** — Translate the Turkish join-repeats and disjoint pages
+- **i18n** — Translate the Turkish framerate and italics pages
+- **i18n** — Translate the Turkish inspect and hearing-impaired pages
+- **i18n** — Translate the Turkish CLI installation and invocation
+- **i18n** — Translate the Simplified Chinese operations page
+- **i18n** — Translate the Serbian window manual, part 1
+- **i18n** — Translate the Russian Check Spelling page
+- **i18n** — Translate the Turkish window manual, batch G1
+- **i18n** — Translate six Turkish GUI pages (batch G2)
+- **i18n** — Translate the Simplified Chinese preferences page
+- **i18n** — Translate the Russian window manual, batch G1
+- **i18n** — Add the Russian, Serbian, Turkish and Chinese screenshots
 
 ### Remaniements
 
