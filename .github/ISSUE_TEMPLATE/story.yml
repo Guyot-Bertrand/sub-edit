@@ -1,26 +1,25 @@
 name: Story
-description: Une fonctionnalité vue du point de vue de l'utilisateur
+description: A feature seen from the user's point of view
 labels: ["type:story"]
 body:
   - type: textarea
     id: need
     attributes:
-      label: Besoin
+      label: Need
       description: >
-        Qui a besoin de quoi, et pour quoi faire. Décrire l'usage, pas la
-        solution — la conception vient après.
+        Who needs what, and what for. Describe the use, not the solution — the
+        design comes after.
       placeholder: >
-        En tant que traducteur, je veux ouvrir un fichier de traduction en
-        regard du fichier principal, afin de saisir la traduction sans perdre
-        le calage.
+        As a translator, I want to open a translation file alongside the main
+        file, so that I can enter the translation without losing the sync.
     validations:
       required: true
 
   - type: textarea
     id: acceptance
     attributes:
-      label: Critères d'acceptation
-      description: Ce qui, une fois vérifiable, permet de clore la story.
+      label: Acceptance criteria
+      description: What, once verifiable, allows the story to be closed.
       placeholder: |
         - [ ] …
         - [ ] …
@@ -30,13 +29,13 @@ body:
   - type: input
     id: reference
     attributes:
-      label: Référence Gaupol
+      label: Gaupol reference
       description: >
-        Le fichier ou la fonctionnalité correspondante dans reference/gaupol,
-        s'il y en a une. Le projet vise l'iso-fonctionnalité.
+        The corresponding file or feature in reference/gaupol, if there is one.
+        The project aims at feature parity.
 
   - type: textarea
     id: notes
     attributes:
-      label: Points d'attention
-      description: Difficultés pressenties, décisions à trancher, dépendances.
+      label: Points to watch
+      description: Anticipated difficulties, decisions to make, dependencies.

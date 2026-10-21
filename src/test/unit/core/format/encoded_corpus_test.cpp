@@ -123,7 +123,7 @@ constexpr std::array<Fixture, 9> kFixtures = {
 [[nodiscard]] Encoding named(std::string_view name, ByteOrderMark mark) {
     const std::expected<Encoding, EncodingRefusal> encoding = Encoding::create(name, mark);
     if (!encoding.has_value()) {
-        FAIL("ICU ne connaît pas l'encodage " + std::string{name});
+        FAIL("ICU does not know the encoding " + std::string{name});
         return Encoding::utf8(ByteOrderMark::Absent);
     }
     return *encoding;

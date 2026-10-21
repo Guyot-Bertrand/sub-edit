@@ -23,7 +23,7 @@ std::string roundTrip(std::string_view content) {
     const WebVttReader reader;
     std::expected<ReadResult, ReadError> read = reader.read(content);
     if (!read.has_value()) {
-        FAIL("la lecture a échoué alors qu'elle devait aboutir");
+        FAIL("reading failed although it was meant to succeed");
         return {};
     }
 

@@ -26,7 +26,7 @@ ReadResult readOrFail(std::string_view content) {
     const WebVttReader reader;
     std::expected<ReadResult, ReadError> result = reader.read(content);
     if (!result.has_value()) {
-        FAIL("la lecture a échoué alors qu'elle devait aboutir");
+        FAIL("reading failed although it was meant to succeed");
         return {};
     }
     return *std::move(result);

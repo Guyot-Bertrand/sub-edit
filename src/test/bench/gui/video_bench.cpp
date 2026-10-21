@@ -57,7 +57,7 @@ TEST_CASE("finding the subtitle showing at a position", "[benchmark]") {
     const subedit::core::Project project = fullLengthProject();
     const Timestamp when = Timestamp::fromMilliseconds(kMidFilmMilliseconds);
 
-    BENCHMARK("la réplique en cours, sur 4000 sous-titres") {
+    BENCHMARK("the current line, among 4000 subtitles") {
         return showingAt(project, when);
     };
 }
@@ -68,7 +68,7 @@ TEST_CASE("translating a tagged text for the overlay", "[benchmark]") {
     const std::string line =
         "<i>Il n'y a pas de quoi</i> en faire une <b>histoire</b>,\net tu le sais.";
 
-    BENCHMARK("traduire une réplique balisée pour l'image") {
+    BENCHMARK("converting a tagged line for the image") {
         return subedit::core::replicaOf(line, subedit::core::SubtitleFormat::SubRip);
     };
 }
@@ -76,7 +76,7 @@ TEST_CASE("translating a tagged text for the overlay", "[benchmark]") {
 TEST_CASE("composing the replica handed to the overlay", "[benchmark]") {
     const std::string line = "Il n'y a pas de quoi en faire une histoire,\net tu le sais.";
 
-    BENCHMARK("composer une réplique de deux lignes") {
+    BENCHMARK("composing a two-line line") {
         return assEventOf(line);
     };
 }
@@ -84,7 +84,7 @@ TEST_CASE("composing the replica handed to the overlay", "[benchmark]") {
 // Two seconds of film, which is all a fixture needs to be: what is timed is the
 // call and the wait, not the length of what is behind it.
 TEST_CASE("opening a video and seeking into it", "[benchmark]") {
-    BENCHMARK("ouvrir une vidéo") {
+    BENCHMARK("opening a video") {
         std::expected<MpvPlayer, PlayerError> built = MpvPlayer::create();
         MpvPlayer player = std::move(built.value());
         return player.open(fixture("cadence-25.mp4")).has_value();
@@ -94,7 +94,7 @@ TEST_CASE("opening a video and seeking into it", "[benchmark]") {
     MpvPlayer player = std::move(built.value());
     REQUIRE(player.open(fixture("cadence-25.mp4")).has_value());
 
-    BENCHMARK("chercher une position") {
+    BENCHMARK("seeking a position") {
         player.seek(Timestamp::fromMilliseconds(1000));
         return player.position();
     };
@@ -124,13 +124,13 @@ TEST_CASE("rendering a picture into the buffer of the surface", "[benchmark]") {
     std::vector<unsigned char> medium(kMedium * 720 * kBytesAPixel);
     std::vector<unsigned char> large(kLarge * 1080 * kBytesAPixel);
 
-    BENCHMARK("rendre une image de 640×360") {
+    BENCHMARK("rendering a frame of 640×360") {
         return player.render(small, 640, 360, kSmall * kBytesAPixel);
     };
-    BENCHMARK("rendre une image de 1280×720") {
+    BENCHMARK("rendering a frame of 1280×720") {
         return player.render(medium, 1280, 720, kMedium * kBytesAPixel);
     };
-    BENCHMARK("rendre une image de 1920×1080") {
+    BENCHMARK("rendering a frame of 1920×1080") {
         return player.render(large, 1920, 1080, kLarge * kBytesAPixel);
     };
 }
@@ -182,7 +182,7 @@ TEST_CASE("seeking and stepping on a film-sized video", "[benchmark][film]") {
         player.seek(startOfFrame(frame));
         REQUIRE(shownFrame(player) == frame);
 
-        BENCHMARK("chercher l'image " + std::to_string(frame) + " (vidéo 720p)") {
+        BENCHMARK("seeking frame " + std::to_string(frame) + " (720p video)") {
             player.seek(startOfFrame(frame));
             return player.position();
         };
@@ -200,7 +200,7 @@ TEST_CASE("seeking and stepping on a film-sized video", "[benchmark][film]") {
         player.stepFrames(1);
         REQUIRE(shownFrame(player) == frame);
 
-        BENCHMARK_ADVANCED("pas avant vers l'image " + std::to_string(frame) + " (vidéo 720p)")
+        BENCHMARK_ADVANCED("step forward to frame " + std::to_string(frame) + " (720p video)")
         (Catch::Benchmark::Chronometer meter) {
             player.seek(startOfFrame(frame - 1));
             meter.measure([&] {
@@ -215,7 +215,7 @@ TEST_CASE("seeking and stepping on a film-sized video", "[benchmark][film]") {
         player.stepFrames(-1);
         REQUIRE(shownFrame(player) == frame);
 
-        BENCHMARK_ADVANCED("pas arrière vers l'image " + std::to_string(frame) + " (vidéo 720p)")
+        BENCHMARK_ADVANCED("step back to frame " + std::to_string(frame) + " (720p video)")
         (Catch::Benchmark::Chronometer meter) {
             player.seek(startOfFrame(frame + 1));
             meter.measure([&] {
@@ -269,13 +269,13 @@ TEST_CASE("seeking and stepping on a real film", "[benchmark][realfilm]") {
     // The distance to the keyframe, in frames: a short one, and one near the far end of ten
     // seconds.
     for (const int frame : {25, 100, 225}) {
-        BENCHMARK("chercher l'image " + std::to_string(frame) + " et la rendre (vrai film)") {
+        BENCHMARK("seeking frame " + std::to_string(frame) + " and rendering it (real film)") {
             player.seek(startOf(frame));
             return player.render(buffer, static_cast<int>(kWidth), kHeight, kWidth * kBytesAPixel);
         };
 
-        BENCHMARK_ADVANCED("pas avant vers l'image " + std::to_string(frame) +
-                           " et son rendu (vrai film)")
+        BENCHMARK_ADVANCED("step forward to frame " + std::to_string(frame) +
+                           " and its rendering (real film)")
         (Catch::Benchmark::Chronometer meter) {
             player.seek(startOf(frame - 1));
             meter.measure([&] {

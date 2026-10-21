@@ -48,7 +48,7 @@ std::string bytesOf(const std::filesystem::path& path) {
     const RealFileSystem files;
     std::expected<std::string, subedit::core::FileError> content = files.readFile(path);
     if (!content.has_value()) {
-        FAIL("fichier du corpus introuvable : " + path.string());
+        FAIL("corpus file not found : " + path.string());
         return {};
     }
     return *std::move(content);
@@ -65,7 +65,7 @@ std::string roundTrip(const ReadResult& result) {
                            .header = result.header,
                        });
     if (!written.has_value()) {
-        FAIL("l'écriture a échoué alors qu'elle devait aboutir");
+        FAIL("writing failed although it was meant to succeed");
         return {};
     }
     return *std::move(written);

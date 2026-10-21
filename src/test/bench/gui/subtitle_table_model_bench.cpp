@@ -50,7 +50,7 @@ constexpr int kTableHeight = 600;
 TEST_CASE("building a table over a full-length file", "[benchmark]") {
     Session session{fullLengthProject()};
 
-    BENCHMARK("construction du modèle sur 4000 sous-titres") {
+    BENCHMARK("building the model over 4000 subtitles") {
         const SubtitleTableModel model{session};
         return model.rowCount({});
     };
@@ -60,7 +60,7 @@ TEST_CASE("reading the cells a window shows", "[benchmark]") {
     Session session{fullLengthProject()};
     const SubtitleTableModel model{session};
 
-    BENCHMARK("une fenêtre de 40 lignes, cinq colonnes") {
+    BENCHMARK("a window of 40 rows, five columns") {
         int seen = 0;
         for (int row = 0; row < kVisibleRows; ++row) {
             for (int column = 0; column < SubtitleTableModel::kColumnCount; ++column)
@@ -79,7 +79,7 @@ TEST_CASE("turning a whole-file change into signals", "[benchmark]") {
     const std::vector<Change> whole = {
         Change{.kind = ChangeKind::Positions, .subtitles = Selection::all(session.project())}};
 
-    BENCHMARK("rafraîchir après un décalage de 4000 sous-titres") {
+    BENCHMARK("rafraîchir après un shifting 4000 subtitles") {
         model.applied(whole);
         return whole.size();
     };
@@ -108,7 +108,7 @@ TEST_CASE("resetting the table on a change of structure", "[benchmark]") {
     const std::vector<Change> oneLineGone = {
         Change{.kind = ChangeKind::Removal, .subtitles = Selection::range(middle, middle)}};
 
-    BENCHMARK("réinitialisation du modèle après une ligne retirée") {
+    BENCHMARK("resetting the model after a row is removed") {
         model.applied(oneLineGone);
         return model.rowCount({});
     };
@@ -126,7 +126,7 @@ TEST_CASE("carrying a cell edit out", "[benchmark]") {
     // into a file it keeps.
     const int middle = static_cast<int>(subedit::test::kSubtitleCount) / 2;
 
-    BENCHMARK_ADVANCED("édition d'une cellule de texte")
+    BENCHMARK_ADVANCED("editing a text cell")
     (Catch::Benchmark::Chronometer meter) {
         Session session{fullLengthProject()};
         SubtitleTableModel model{session};
@@ -141,7 +141,7 @@ TEST_CASE("carrying a cell edit out", "[benchmark]") {
         });
     };
 
-    BENCHMARK_ADVANCED("édition d'une cellule de position")
+    BENCHMARK_ADVANCED("editing a position cell")
     (Catch::Benchmark::Chronometer meter) {
         Session session{fullLengthProject()};
         SubtitleTableModel model{session};
@@ -169,7 +169,7 @@ TEST_CASE("centering a row of a table of thousands", "[benchmark]") {
     constexpr int kFirst = 500;
     constexpr int kSecond = 3500;
     bool toggle = false;
-    BENCHMARK("centrer une ligne sur 4000 sous-titres") {
+    BENCHMARK("centring a row among 4000 subtitles") {
         toggle = !toggle;
         table.scrollTo(model.index(toggle ? kFirst : kSecond, 0),
                        QAbstractItemView::PositionAtCenter);

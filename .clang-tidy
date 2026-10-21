@@ -1,14 +1,14 @@
 ---
-# Analyse statique du projet subedit. Voir docs/specs/00-fondations.md et
+# Static analysis of the subedit project. See docs/specs/00-fondations.md and
 # docs/principes-de-conception.md.
 #
-# Règle du projet : toute exclusion porte sa justification en commentaire.
-# Une exclusion non justifiée est un défaut, pas un réglage.
+# Project rule: every exclusion carries its justification in a comment.
+# An unjustified exclusion is a defect, not a setting.
 #
-# Les familles cppcoreguidelines sont sélectionnées une par une plutôt
-# qu'activées en bloc : le bloc contient des vérifications très bruyantes
-# (pro-bounds-*, pro-type-vararg) qui noieraient celles qui portent réellement
-# les règles de propriété mémoire.
+# The cppcoreguidelines families are selected one by one rather than enabled
+# as a block: the block contains very noisy checks (pro-bounds-*,
+# pro-type-vararg) that would drown out those that actually carry the
+# memory-ownership rules.
 
 Checks: >
   bugprone-*,
@@ -40,89 +40,90 @@ Checks: >
   -readability-redundant-member-init,
   -readability-redundant-string-init
 
-# Justification des exclusions ci-dessus :
+# Justification of the exclusions above:
 #
 # modernize-use-trailing-return-type
-#   Préférence de style, pas un défaut. Imposerait `auto f() -> int` partout.
+#   A style preference, not a defect. Would impose `auto f() -> int` everywhere.
 # readability-identifier-length
-#   Un nom court dans une portée de trois lignes est plus lisible qu'un long.
+#   A short name in a three-line scope is more readable than a long one.
 # readability-braces-around-statements
-#   clang-format garantit déjà l'indentation ; le gain est nul et le bruit fort.
+#   clang-format already guarantees the indentation; the gain is nil and the
+#   noise high.
 # misc-no-recursion
-#   Le découpage de lignes et l'analyse de balises sont naturellement récursifs.
+#   Line breaking and tag parsing are naturally recursive.
 # misc-include-cleaner
-#   Faux positifs nombreux avec les en-têtes de Qt et de la bibliothèque standard.
+#   Many false positives with the Qt and standard library headers.
 # bugprone-easily-swappable-parameters
-#   Rendu obsolète par notre règle de types forts : `Timestamp` et `Duration`
-#   n'étant pas interchangeables, le compilateur couvre déjà le risque.
+#   Made obsolete by our strong-types rule: `Timestamp` and `Duration` not
+#   being interchangeable, the compiler already covers the risk.
 # performance-enum-size
-#   Exigerait `enum class Format : std::uint8_t` sur chaque énumération du
-#   projet, pour économiser trois octets par valeur. C'est de l'optimisation
-#   spéculative, que docs/principes-de-conception.md proscrit sans mesure à
-#   l'appui. À réactiver si un profil montre un jour que ça compte.
+#   Would require `enum class Format : std::uint8_t` on every enumeration of
+#   the project, to save three bytes per value. That is speculative
+#   optimisation, which docs/principes-de-conception.md forbids without a
+#   measurement to back it. To be re-enabled if a profile ever shows it matters.
 # readability-redundant-member-init
-#   Il appelle « redondant » un `{}` qui ne l'est pas : c'est l'initialisateur
-#   de membre par défaut, et c'est lui qui rend légale l'initialisation
-#   désignée partielle. Les modèles du noyau sont des agrégats qu'on construit
-#   en ne nommant que les champs qui comptent — `Subtitle{.start = t, .end = u}`
-#   — et retirer le `{}` fait exiger tous les autres par
-#   `clang-diagnostic-missing-designated-field-initializers`, qui est actif ici.
+#   It calls "redundant" a `{}` that is not: it is the default member
+#   initialiser, and it is what makes partial designated initialisation legal.
+#   The core models are aggregates built by naming only the fields that
+#   matter — `Subtitle{.start = t, .end = u}` — and removing the `{}` makes
+#   `clang-diagnostic-missing-designated-field-initializers`, which is active
+#   here, demand all the others.
 #
-#   Mesuré plutôt que supposé, à la relecture de #269 : sur quinze `{}`
-#   retirés, trois sites d'appel ont cessé de compiler. Les deux contrôles se
-#   contredisent, et c'est celui-ci qui a tort — l'autre dit une vraie chose,
-#   qu'un champ oublié dans une initialisation désignée est invisible.
+#   Measured rather than assumed, in the review of #269: of fifteen `{}`
+#   removed, three call sites stopped compiling. The two checks contradict
+#   each other, and this one is wrong — the other says something true, that a
+#   field forgotten in a designated initialisation is invisible.
 # readability-redundant-string-init
-#   Même défaut que `readability-redundant-member-init`, pour `std::string`
-#   seul : `PatternCodeParts{std::string script = "";}` (#505) est ce qui rend
-#   légal `PatternCodeParts{.script = "Latn"}` ailleurs dans le dépôt, et le
-#   retirer aurait la même conséquence — un champ manquant refusé par
-#   `clang-diagnostic-missing-designated-field-initializers`. Une variable
-#   locale `std::string x = "";` reste, elle, une vraie redondance ; le
-#   contrôle n'a pas cette distinction, et rien ne la lui donne.
+#   Same defect as `readability-redundant-member-init`, for `std::string`
+#   alone: `PatternCodeParts{std::string script = "";}` (#505) is what makes
+#   `PatternCodeParts{.script = "Latn"}` legal elsewhere in the repository,
+#   and removing it would have the same consequence — a missing field refused
+#   by `clang-diagnostic-missing-designated-field-initializers`. A local
+#   variable `std::string x = "";` remains a genuine redundancy; the check
+#   has no such distinction, and nothing gives it one.
 
 WarningsAsErrors: '*'
 HeaderFilterRegex: 'src/.*\.hpp$'
 FormatStyle: file
 
-# NOLINT — les deux exemptions locales du projet, et pourquoi elles le sont
+# NOLINT — the project's two local exemptions, and why they are such
 #
-# Toutes les exclusions ci-dessus portent sur le projet entier, et c'est le bon
-# grain pour un contrôle qu'on ne veut nulle part. Il existe deux cas où ce
-# grain est trop gros, et ils portent chacun leur raison à côté d'eux :
+# All the exclusions above apply to the whole project, which is the right grain
+# for a check that is wanted nowhere. There are two cases where that grain is
+# too coarse, and each carries its reason next to it:
 #
 #   core/time/frame_rate.hpp, `FrameRate::exactValueOf`
-#     readability-magic-numbers. C'est la table des huit cadences normalisées :
-#     `24000/1001` y est la **définition** de `StandardFrameRate::Fps23976`, pas
-#     un nombre surgi de nulle part, et la définition d'une constante est le
-#     seul endroit où un littéral a le droit d'être nu.
+#     readability-magic-numbers. This is the table of the eight standard frame
+#     rates: `24000/1001` is there the **definition** of
+#     `StandardFrameRate::Fps23976`, not a number that came out of nowhere, and
+#     the definition of a constant is the only place where a literal is allowed
+#     to be bare.
 #
 #   src/test/gui/fake_video_player.hpp, `FakeVideoPlayer`
-#     misc-non-private-member-variables-in-classes. L'état retenu par un double
-#     de test *est* son interface : un cas lit `player.opened` et `player.seeks`
-#     pour dire ce que la fenêtre a fait.
+#     misc-non-private-member-variables-in-classes. The state retained by a
+#     test double *is* its interface: a case reads `player.opened` and
+#     `player.seeks` to say what the window did.
 #
-# Les deux contrôles gardent donc toute leur portée ailleurs.
+# Both checks therefore keep their full scope elsewhere.
 #
-# **Un `.clang-tidy` n'aurait pas pu le faire**, et c'est mesuré plutôt que
-# supposé : un fichier de configuration porte sur un répertoire, et pour un
-# diagnostic levé dans un **en-tête** il ne porte même pas sur celui-là — c'est
-# la configuration de l'unité de traduction qui l'inclut qui s'applique, et
-# `frame_rate.hpp` est inclus de partout.
+# **A `.clang-tidy` could not have done it**, and this is measured rather than
+# assumed: a configuration file applies to a directory, and for a diagnostic
+# raised in a **header** it does not even apply to that one — it is the
+# configuration of the translation unit that includes it that applies, and
+# `frame_rate.hpp` is included from everywhere.
 #
-# Corollaire à connaître, découvert en même temps : `src/lib/subedit/gui/` et
-# `src/test/` ont chacun leur `.clang-tidy`, et ils ne gouvernent que les
-# `.cpp` de ces répertoires. Leurs en-têtes reçoivent celui-ci. Personne ne
-# pouvait s'en apercevoir tant que `HeaderFilterRegex` n'attrapait aucun
-# en-tête — issue #269.
+# A corollary worth knowing, discovered at the same time: `src/lib/subedit/gui/`
+# and `src/test/` each have their own `.clang-tidy`, and they govern only the
+# `.cpp` files of those directories. Their headers receive this one. Nobody
+# could notice as long as `HeaderFilterRegex` caught no header — issue #269.
 
-# **Rien ne suit cette liste.** `src/scripts/verify-gates.sh` prouve que la clé
-# de l'analyse se referme en ajoutant une entrée en fin de fichier ; du texte
-# après elle lui ferait injecter son défaut au mauvais endroit, et la preuve ne
-# prouverait plus rien. Même règle que la table de `docs/exigences.md`.
+# **Nothing follows this list.** `src/scripts/verify-gates.sh` proves that the
+# analysis key closes by adding an entry at the end of the file; text after it
+# would make it inject its defect in the wrong place, and the proof would prove
+# nothing any more. Same rule as the table of `docs/exigences.md`.
 
 CheckOptions:
-  # Conventions de nommage, voir docs/specs/00-fondations.md.
+  # Naming conventions, see docs/specs/00-fondations.md.
   - key: readability-identifier-naming.NamespaceCase
     value: lower_case
   - key: readability-identifier-naming.ClassCase
@@ -158,32 +159,32 @@ CheckOptions:
   - key: readability-identifier-naming.MacroDefinitionCase
     value: UPPER_CASE
 
-  # Les cinq noms que `std::iterator_traits` impose, et qu'on ne renomme pas.
+  # The five names that `std::iterator_traits` imposes, and that are not renamed.
   #
-  # (Voir aussi le paragraphe « NOLINT » en bas de ce fichier : c'est ici que se
-  # lisent les exemptions qui portent sur tout le projet, là que se lit la seule
-  # qui porte sur une fonction.)
+  # (See also the "NOLINT" paragraph at the bottom of this file: the exemptions
+  # that apply to the whole project are read here, the only one that applies to
+  # a function is read there.)
   #
-  # Un itérateur qui appelle son `value_type` autrement n'est plus un
-  # itérateur : la bibliothèque standard les lit sous ces noms exacts, et la
-  # convention de casse du projet ne les concerne donc pas. `Selection::Indices`
-  # les porte. Le contrôle n'a rien vu jusqu'ici parce qu'il ne regardait aucun
-  # en-tête — voir HeaderFilterRegex ci-dessus.
+  # An iterator that calls its `value_type` something else is no longer an
+  # iterator: the standard library reads them under these exact names, and the
+  # project's case convention therefore does not concern them.
+  # `Selection::Indices` carries them. The check saw nothing until now because
+  # it looked at no header — see HeaderFilterRegex above.
   - key: readability-identifier-naming.TypeAliasIgnoredRegexp
     value: '(iterator_category|value_type|difference_type|reference|pointer)'
 
-  # Les modèles du noyau sont des agrégats, et c'est une décision.
+  # The core models are aggregates, and that is a decision.
   #
-  # `Subtitle` porte ses deux positions et ses deux textes en clair, `IndexRange`
-  # ses deux bornes : ce sont des données, pas des objets qui gardent un
-  # invariant. `docs/principes-de-conception.md` le pose, et l'ADR 0008 va plus
-  # loin pour `Subtitle` — `end >= start` n'est **pas** un invariant, puisqu'un
-  # vrai fichier peut porter l'anomalie et que l'utilisateur doit la voir.
-  # Rendre les membres privés pour les ressortir par des accesseurs ajouterait
-  # une couche qui ne protège rien.
+  # `Subtitle` carries its two positions and its two texts in the open,
+  # `IndexRange` its two bounds: these are data, not objects guarding an
+  # invariant. `docs/principes-de-conception.md` states it, and ADR 0008 goes
+  # further for `Subtitle` — `end >= start` is **not** an invariant, since a
+  # real file can carry the anomaly and the user must see it. Making the
+  # members private only to expose them again through accessors would add a
+  # layer that protects nothing.
   #
-  # L'option ne désarme le contrôle que là où **tous** les membres sont
-  # publics ; une classe qui en cacherait certains et pas d'autres reste
-  # signalée, ce qui est bien le cas douteux.
+  # The option only disarms the check where **all** the members are public; a
+  # class that hid some and not others is still flagged, which is indeed the
+  # doubtful case.
   - key: misc-non-private-member-variables-in-classes.IgnoreClassesWithAllMemberVariablesBeingPublic
     value: true

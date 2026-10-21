@@ -1,8 +1,8 @@
 ---
-# Style du projet subedit. Voir docs/specs/00-fondations.md.
+# The subedit project style. See docs/specs/00-fondations.md.
 #
-# Dérivé de LLVM, avec trois écarts : indentation de 4 espaces, colonnes à 100
-# et pointeurs alignés à gauche — le type porte le `*`, pas le nom.
+# Derived from LLVM, with three deviations: 4-space indentation, 100 columns
+# and left-aligned pointers — the type carries the `*`, not the name.
 Language: Cpp
 BasedOnStyle: LLVM
 
@@ -24,13 +24,13 @@ PackConstructorInitializers: NextLine
 SeparateDefinitionBlocks: Always
 SpaceAfterTemplateKeyword: false
 
-# Ordre des inclusions : en-tête correspondant au fichier (priorité 0, détecté
-# automatiquement), puis en-têtes du projet, puis bibliothèques tierces, puis
-# bibliothèque standard.
+# Include order: the header matching the file (priority 0, detected
+# automatically), then project headers, then third-party libraries, then the
+# standard library.
 #
-# Placer les en-têtes du projet en premier est délibéré : un en-tête qui oublie
-# une de ses propres inclusions échoue alors à compiler, au lieu d'être sauvé
-# par un <string> inclus plus haut. L'ordre inverse masquerait le défaut.
+# Putting the project headers first is deliberate: a header that forgets one of
+# its own includes then fails to compile, instead of being rescued by a <string>
+# included higher up. The opposite order would hide the defect.
 IncludeBlocks: Regroup
 IncludeCategories:
   - Regex: '^<subedit/'

@@ -42,7 +42,7 @@ const Encoding kUtf8 = Encoding::utf8(ByteOrderMark::Absent);
     const std::expected<Encoding, EncodingRefusal> encoding =
         Encoding::create(name, ByteOrderMark::Absent);
     if (!encoding.has_value()) {
-        FAIL("ICU ne connaît pas l'encodage " + std::string{name});
+        FAIL("ICU does not know the encoding " + std::string{name});
         return kUtf8;
     }
     return *encoding;
@@ -51,7 +51,7 @@ const Encoding kUtf8 = Encoding::utf8(ByteOrderMark::Absent);
 DetectedEncoding proposedFor(std::string_view bytes) {
     const std::optional<DetectedEncoding> detected = detectEncoding(bytes);
     if (!detected.has_value()) {
-        FAIL("aucun encodage proposé pour ces octets");
+        FAIL("no encoding proposed for these bytes");
         return DetectedEncoding{.encoding = kUtf8, .choice = EncodingChoice::Detected};
     }
     return *detected;

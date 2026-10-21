@@ -31,7 +31,7 @@ using subedit::core::WriteRequest;
     const std::expected<Encoding, EncodingRefusal> encoding =
         Encoding::create(name, ByteOrderMark::Absent);
     if (!encoding.has_value()) {
-        FAIL("ICU ne connaît pas cet encodage");
+        FAIL("ICU does not know this encoding");
         return Encoding::utf8(ByteOrderMark::Absent);
     }
     return *encoding;

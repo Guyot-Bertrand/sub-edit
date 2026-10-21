@@ -27,7 +27,7 @@ ReadResult readOrFail(std::string_view content) {
     const SubRipReader reader;
     std::expected<ReadResult, ReadError> result = reader.read(content);
     if (!result.has_value()) {
-        FAIL("la lecture a échoué alors qu'elle devait aboutir");
+        FAIL("reading failed although it was meant to succeed");
         return {};
     }
     return *std::move(result);
@@ -112,7 +112,7 @@ TEST_CASE("the extended coordinates are kept", "[format][subrip]") {
     REQUIRE(std::holds_alternative<SubRipExtras>(result.subtitles[0].extras));
     const SubRipExtras extras = std::get<SubRipExtras>(result.subtitles[0].extras);
     if (!extras.coordinates.has_value()) {
-        FAIL("les coordonnées étendues n'ont pas été lues");
+        FAIL("the extended coordinates were not read");
         return;
     }
 

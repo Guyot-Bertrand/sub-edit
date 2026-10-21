@@ -1,105 +1,102 @@
 name: ci
 
-# **Une exécution par pull request, et pas deux.** Il y avait ici un
-# déclencheur `push` sur `main` qui rejouait, après la fusion, exactement
-# l'arbre que la pull request venait de valider : la moitié du quota d'Actions
-# partait à revérifier ce qui l'avait déjà été. Ce qu'il couvrait vraiment —
-# une pull request fusionnée sur une base périmée — est repris par
-# l'exécution hebdomadaire ci-dessous, et se ferme complètement en exigeant
-# une branche à jour avant fusion.
+# **One run per pull request, not two.** There used to be a `push` trigger on
+# `main` here that replayed, after the merge, exactly the tree the pull request
+# had just validated: half the Actions quota went on re-checking what had
+# already been checked. What it really covered — a pull request merged onto a
+# stale base — is taken over by the weekly run below, and is fully closed by
+# requiring an up-to-date branch before merge.
 #
-# **La documentation ne réveille pas la porte.** C'est la règle écrite dans
-# CLAUDE.md — elle ne se relance que si elle peut voir la différence —
-# appliquée ici. Une pull request de cadrage, de manuel ou d'ADR ne déclenche
-# donc rien. Les contrôles qui, eux, doivent tourner sur une pull request de
-# documentation — grammaire des messages, titre, « Closes #N », bump, journal —
-# vivent dans pull-request.yml, qui n'a pas de filtre de chemins.
+# **Documentation does not wake the gate.** This is the rule written in
+# CLAUDE.md — it is only rerun if it can see the difference — applied here.
+# A scoping, manual or ADR pull request therefore triggers nothing. The checks
+# that must run on a documentation pull request — message grammar, title,
+# "Closes #N", bump, log — live in pull-request.yml, which has no path filter.
 
-# **À la demande seulement, depuis #232.** Les minutes d'Actions et le stockage
-# du cache partaient trop vite pour une exécution par pull request : le quota
-# d'août a été épuisé le 2026-08-27, et le renouvellement n'y changeait rien.
-# Les déclencheurs `pull_request` et `schedule` sont donc retirés, et
-# `workflow_dispatch` reste pour qu'une pull request qui le mérite puisse encore
-# être rejouée sur une machine neutre.
+# **On demand only, since #232.** The Actions minutes and the cache storage
+# went too fast for one run per pull request: the August quota was exhausted on
+# 2026-08-27, and the renewal changed nothing. The `pull_request` and
+# `schedule` triggers are therefore removed, and `workflow_dispatch` remains so
+# that a pull request that deserves it can still be replayed on a neutral
+# machine.
 #
-# **Ce qui garde le dépôt est `make check`, en local.** C'est la même cible ; ce
-# qui se perd est la neutralité de la machine qui la rejouait. Ce qui tourne
-# désormais sur GitHub à chaque version est `release.yml`, qui construit et
-# publie les paquets quand un tag est poussé.
+# **What guards the repository is `make check`, locally.** It is the same
+# target; what is lost is the neutrality of the machine that replayed it. What
+# now runs on GitHub for each version is `release.yml`, which builds and
+# publishes the packages when a tag is pushed.
 
 on:
-  # Relance manuelle, sur n'importe quelle branche. Le bouton n'apparaît dans
-  # l'interface que si ce fichier est sur la branche par défaut, contrainte de
-  # GitHub.
+  # Manual rerun, on any branch. The button only appears in the interface if
+  # this file is on the default branch, a GitHub constraint.
   workflow_dispatch:
 
-# Une nouvelle poussée annule la vérification en cours sur la même référence.
+# A new push cancels the check in progress on the same reference.
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
   check:
-    name: porte de qualité
+    name: quality gate
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v7
         with:
-          # L'historique complet. Le périmètre de clang-tidy ne s'en sert plus
-          # depuis #269 — il ne se calcule plus du tout —, mais deux contrôles
-          # de la porte lisent encore git : `check-untracked.sh`, qui confronte
-          # les fichiers non suivis avant et après, et `check-architecture.sh`,
-          # qui confronte un tag à la version déclarée. Un clone superficiel
-          # les gênerait.
+          # The full history. clang-tidy's scope no longer uses it since
+          # #269 — it is no longer computed at all —, but two checks of the
+          # gate still read git: `check-untracked.sh`, which compares the
+          # untracked files before and after, and `check-architecture.sh`,
+          # which compares a tag with the declared version. A shallow clone
+          # would hinder them.
           fetch-depth: 0
 
-      # Les paquets sont restaurés installés, pas retéléchargés : c'est la
-      # différence entre trois secondes et près de cinq minutes, mesurées.
+      # The packages are restored installed, not downloaded again: that is the
+      # difference between three seconds and nearly five minutes, measured.
       #
-      # La liste vient de setup-toolchain.sh et n'est pas recopiée ici. Une
-      # seconde liste divergerait au premier paquet ajouté, et le cache
-      # restaurerait une chaîne d'outils incomplète sans que rien ne le dise.
-      - name: Paquets de la chaîne d'outils
+      # The list comes from setup-toolchain.sh and is not copied here. A second
+      # list would diverge at the first package added, and the cache would
+      # restore an incomplete toolchain without anything saying so.
+      - name: Toolchain packages
         id: paquets
         run: echo "liste=$(./src/scripts/setup-toolchain.sh --list-packages | tr '\n' ' ')" >> "$GITHUB_OUTPUT"
 
-      - name: Cache des paquets
+      - name: Packages cache
         uses: awalsh128/cache-apt-pkgs-action@v1.6.3
         with:
           packages: ${{ steps.paquets.outputs.liste }}
           version: 1
 
-      # La CI installe la chaîne d'outils avec le script utilisé en local :
-      # une divergence entre les deux environnements deviendrait invisible. Le
-      # script est idempotent — après le cache, il ne réinstalle rien et se
-      # contente de git-cliff et des hooks.
-      - name: Chaîne d'outils
+      # The CI installs the toolchain with the script used locally: a
+      # divergence between the two environments would become invisible. The
+      # script is idempotent — after the cache, it reinstalls nothing and
+      # settles for git-cliff and the hooks.
+      - name: Toolchain
         run: ./src/scripts/setup-toolchain.sh
 
-      - name: Cache de compilation
+      - name: Compilation cache
         uses: hendrikmuhs/ccache-action@v1
         with:
           key: ${{ github.job }}
 
-      # L'arbre de l'analyse statique, gardé d'une exécution à l'autre.
+      # The static analysis tree, kept from one run to the next.
       #
-      # **C'est lui qui porte l'incrémentalité depuis #269.** clang-tidy est
-      # accroché à la règle de compilation de chaque source, donc ce qui décide
-      # de réanalyser un fichier est le système de construction : la source, un
-      # en-tête de son fichier de dépendances, ou sa ligne de commande. Un
-      # coureur neuf a un arbre vide, et analyserait donc les 223 fichiers à
-      # chaque exécution — treize minutes qu'un cache rend inutiles.
+      # **It is what carries incrementality since #269.** clang-tidy is hooked
+      # onto each source's compile rule, so what decides to re-analyse a file
+      # is the build system: the source, a header of its dependency file, or
+      # its command line. A fresh runner has an empty tree, and would therefore
+      # analyse all 223 files on every run — thirteen minutes a cache makes
+      # unnecessary.
       #
-      # La clé retombe sur la base pour une pull request, ce qui donne à la
-      # branche l'arbre de `main` comme point de départ. `restore-keys` accepte
-      # un arbre plus ancien plutôt que rien : Ninja rejouera ce qui a changé
-      # depuis, ce qui est exactement son travail.
+      # The key falls back to the base for a pull request, which gives the
+      # branch the `main` tree as a starting point. `restore-keys` accepts an
+      # older tree rather than none: Ninja will replay what changed since,
+      # which is exactly its job.
       #
-      # **Un cache périmé ne peut pas rendre l'analyse fausse**, et c'est ce qui
-      # autorise à en poser un : Ninja compare les empreintes qu'il a écrites
-      # aux entrées qu'il trouve. Un arbre venu d'ailleurs fait au pire trop de
-      # travail, jamais trop peu.
-      - name: Cache de l'analyse statique
+      # **A stale cache cannot make the analysis wrong**, and that is what
+      # allows one to be set: Ninja compares the fingerprints it wrote with
+      # the inputs it finds. A tree from elsewhere does at worst too much work,
+      # never too little.
+      - name: Static analysis cache
         uses: actions/cache@v4
         with:
           path: build/tidy
@@ -107,24 +104,24 @@ jobs:
           restore-keys: |
             tidy-${{ runner.os }}-
 
-      # La CI n'exécute rien d'autre que make check. Recopier ses étapes ici
-      # les ferait diverger du filet local dès la première modification.
+      # The CI runs nothing but make check. Copying its steps here would make
+      # them diverge from the local net at the first change.
       #
-      # JOBS est passé explicitement : la valeur par défaut est de un cœur, pour
-      # ne pas affamer les autres travaux d'une machine de développement. Ici la
-      # machine est à nous seuls, et rien ne justifie d'attendre.
+      # JOBS is passed explicitly: the default is one core, so as not to starve
+      # the other jobs of a development machine. Here the machine is ours
+      # alone, and nothing justifies waiting.
       #
-      # **Plus de `TIDY_BASE`.** Le périmètre de l'analyse ne se calcule plus
-      # depuis un diff git : il n'y a plus rien à dire à la CI, et donc plus
-      # rien où se tromper. Une pull request et une exécution hebdomadaire
-      # lancent exactement la même commande — issue #269.
+      # **No more `TIDY_BASE`.** The analysis scope is no longer computed from
+      # a git diff: there is nothing left to tell the CI, and so nothing left
+      # to get wrong. A pull request and a weekly run launch exactly the same
+      # command — issue #269.
       - name: make check
         run: make check JOBS=$(nproc)
 
-      - name: Rapport de couverture
+      - name: Coverage report
         if: always()
         uses: actions/upload-artifact@v7
         with:
-          name: couverture
+          name: coverage
           path: build/coverage-report/
           if-no-files-found: ignore

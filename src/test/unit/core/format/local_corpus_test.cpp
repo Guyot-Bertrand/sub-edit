@@ -61,7 +61,7 @@ using subedit::core::writeSubtitles;
                            .header = result.header,
                        });
     if (!written.has_value()) {
-        FAIL("l'écriture a échoué alors qu'elle devait aboutir");
+        FAIL("writing failed although it was meant to succeed");
         return {};
     }
     return *std::move(written);
@@ -72,7 +72,7 @@ using subedit::core::writeSubtitles;
 TEST_CASE("local files open, or fail for a reason we can name", "[format][local]") {
     const std::vector<std::filesystem::path> files = localFiles();
     if (files.empty())
-        SKIP("aucun fichier local dans src/data/");
+        SKIP("no local file in src/data/");
 
     const RealFileSystem disk;
     for (const std::filesystem::path& path : files) {
@@ -99,7 +99,7 @@ TEST_CASE("a local file that opens survives being saved twice", "[format][local]
     // the first save settles the shape and no later save moves it.
     const std::vector<std::filesystem::path> files = localFiles();
     if (files.empty())
-        SKIP("aucun fichier local dans src/data/");
+        SKIP("no local file in src/data/");
 
     const RealFileSystem disk;
     for (const std::filesystem::path& path : files) {

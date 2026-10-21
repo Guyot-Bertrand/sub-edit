@@ -73,7 +73,7 @@ constexpr std::array<Rendering, 9> kNine = {
         std::filesystem::path{SUBEDIT_TEST_DATA_DIR} / "formats" / std::string{name};
     const std::ifstream file{path, std::ios::binary};
     if (!file) {
-        FAIL("le corpus versionné est introuvable : " << path.string());
+        FAIL("the versioned corpus cannot be found : " << path.string());
         return {};
     }
 

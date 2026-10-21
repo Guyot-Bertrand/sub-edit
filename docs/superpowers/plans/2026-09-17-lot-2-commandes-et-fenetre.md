@@ -1,75 +1,75 @@
-# Lot 2 — Commandes et fenêtre — Plan d'implémentation
+# Batch 2 — Commands and window — Implementation plan
 
-> **Pour qui exécute :** SOUS-COMPÉTENCE REQUISE : suivre
-> superpowers:subagent-driven-development (recommandé) ou
-> superpowers:executing-plans pour dérouler ce plan tâche par tâche. Les étapes
-> utilisent la syntaxe case à cocher (`- [ ]`) pour le suivi.
+> **For the executor:** REQUIRED SUB-SKILL: follow
+> superpowers:subagent-driven-development (recommended) or
+> superpowers:executing-plans to work through this plan task by task. The steps
+> use the checkbox syntax (`- [ ]`) for tracking.
 
-**Objectif :** fermer les cinq issues du lot 2 défini par #411 — #396, #404,
-#398, #397, #409 — dans une seule pull request, un commit par issue, dans cet
-ordre.
+**Goal:** close the five issues of batch 2 defined by #411 — #396, #404,
+#398, #397, #409 — in a single pull request, one commit per issue, in this
+order.
 
-**Architecture :** cinq correctifs indépendants mais touchant les mêmes
-fichiers à fort taux d'inclusion (`main_window.cpp`/`.hpp`, `wording.hpp`,
-`command_kind.hpp`), d'où le regroupement en une seule PR décidé par #411.
-Chaque tâche ci-dessous correspond à un commit. #404 est la plus grosse : elle
-factorise en une fonction libre la boucle « construire, sauter l'inchangé,
-empiler, grouper » que quatre opérations recopiaient, et corrige au passage un
-compte fantôme dans la recherche.
+**Architecture:** five independent fixes that nonetheless touch the same
+heavily included files (`main_window.cpp`/`.hpp`, `wording.hpp`,
+`command_kind.hpp`), hence the grouping into a single PR decided by #411.
+Each task below corresponds to one commit. #404 is the biggest: it
+factors into a free function the loop "build, skip the unchanged,
+stack, group" that four operations were copying, and fixes along the way a
+phantom count in search.
 
-**Tech Stack :** C++23, Qt 6, Catch2, ICU (recherche).
+**Tech Stack:** C++23, Qt 6, Catch2, ICU (search).
 
-**Spec :** issue #411 (découpage des lots) et les cinq issues elles-mêmes —
-#396, #404, #398, #397, #409, chacune avec son corps et, pour #398 et #409, une
-décision déjà actée en commentaire. Pas de spec de phase séparée : ce sont des
-corrections de fin de phase 10.
+**Spec:** issue #411 (split into batches) and the five issues themselves —
+#396, #404, #398, #397, #409, each with its body and, for #398 and #409, a
+decision already settled in a comment. No separate phase spec: these are
+end-of-phase-10 corrections.
 
-## Contraintes globales
+## Global constraints
 
-- **Un commit par issue**, avec une ligne `Closes #N` par issue dans le corps
-  de la pull request (pas dans les commits individuels), en anglais.
-- **Le C++ s'écrit en anglais**, identifiants et commentaires ; les messages de
-  commit et ce document sont en français.
-- **`make check-local` puis `make check`** doivent passer avant d'ouvrir la
-  pull request ; le bump de patch, `make manual` et le relevé de banc suivent
-  l'ordre décrit dans `CLAUDE.md` — bumper une seule fois, à la toute fin du
-  lot, pas après chaque tâche.
-- **Aucun test ne doit lire `reference/gaupol`** ni y écrire quoi que ce soit.
-- Le manuel (`docs/manual/`) se met à jour à l'étape 7 de l'ordre de
-  `CLAUDE.md`, après la porte, pour chaque tâche qui change ce que
-  l'utilisateur voit — donc en fin de lot, avant de commiter le dernier
-  correctif ou dans un commit dédié juste avant la pull request.
+- **One commit per issue**, with one `Closes #N` line per issue in the body
+  of the pull request (not in the individual commits), in English.
+- **C++ is written in English**, identifiers and comments; the commit messages
+  and this document are in French.
+- **`make check-local` then `make check`** must pass before opening the
+  pull request; the patch bump, `make manual` and the bench record follow
+  the order described in `CLAUDE.md` — bump only once, at the very end of the
+  batch, not after each task.
+- **No test may read `reference/gaupol`** or write anything to it.
+- The manual (`docs/manual/`) is updated at step 7 of the order in
+  `CLAUDE.md`, after the gate, for each task that changes what the
+  user sees — hence at the end of the batch, before committing the last
+  fix or in a dedicated commit just before the pull request.
 
 ---
 
-## Tâche 1 — #396 : la cible de recherche survit à une annulation structurelle
+## Task 1 — #396: the search target survives a structural undo
 
-**Fichiers :**
-- Modifier : `src/lib/subedit/gui/main_window.cpp` (`MainWindow::openOn`,
-  autour de la ligne 592)
-- Modifier : `src/lib/subedit/gui/main_window.hpp` (commentaire de `m_match`,
-  ligne 661)
-- Test : `src/test/gui/window_search_test.cpp`
+**Files:**
+- Modify: `src/lib/subedit/gui/main_window.cpp` (`MainWindow::openOn`,
+  around line 592)
+- Modify: `src/lib/subedit/gui/main_window.hpp` (comment of `m_match`,
+  line 661)
+- Test: `src/test/gui/window_search_test.cpp`
 
-**Cause exacte.** `SubtitleTableModel::applied()` ne fait `beginResetModel()` /
-`endResetModel()` que pour une opération structurelle (insertion, suppression,
-et donc une annulation qui rejoue l'inverse d'une fusion ou d'une scission).
-`QItemSelectionModel::reset()`, appelé alors par Qt, vide la sélection **sans
-émettre `selectionChanged`** — le connect de la ligne 612 de `main_window.cpp`,
-qui oublie `m_searchTarget`/`m_match` sur un changement de sélection, ne se
-déclenche donc jamais dans ce cas précis. La cible garde des indices qui
-n'existent plus, et `Project::subtitleAt` lève `std::out_of_range` au prochain
-`Find Next` ou `Replace All`.
+**Exact cause.** `SubtitleTableModel::applied()` does `beginResetModel()` /
+`endResetModel()` only for a structural operation (insertion, deletion,
+and therefore an undo that replays the inverse of a merge or a split).
+`QItemSelectionModel::reset()`, then called by Qt, empties the selection **without
+emitting `selectionChanged`** — the connect at line 612 of `main_window.cpp`,
+which forgets `m_searchTarget`/`m_match` on a selection change, therefore
+never fires in this precise case. The target keeps indices that
+no longer exist, and `Project::subtitleAt` throws `std::out_of_range` on the next
+`Find Next` or `Replace All`.
 
-Le signal Qt natif `QAbstractItemModel::modelReset` est émis, lui, dans tous
-les cas — c'est exactement ce que `beginResetModel`/`endResetModel` déclenchent
-— et rien d'autre ne s'y accroche aujourd'hui.
+Qt's native signal `QAbstractItemModel::modelReset`, for its part, is emitted in every
+case — it is exactly what `beginResetModel`/`endResetModel` trigger
+— and nothing else hooks onto it today.
 
-- [ ] **Étape 1 — écrire le test qui échoue aujourd'hui**
+- [ ] **Step 1 — write the test that fails today**
 
-Dans `src/test/gui/window_search_test.cpp`, ajouter, à la suite des cas
-existants (le fichier a déjà les fonctions utilitaires `withFour`, `fourIn`,
-`searching`, `selectedRows`, `statusOf` — les réutiliser) :
+In `src/test/gui/window_search_test.cpp`, add, after the existing
+cases (the file already has the helper functions `withFour`, `fourIn`,
+`searching`, `selectedRows`, `statusOf` — reuse them):
 
 ```cpp
 TEST_CASE("an undo that resets the model forgets a stale search target",
@@ -100,18 +100,18 @@ TEST_CASE("an undo that resets the model forgets a stale search target",
 }
 ```
 
-- [ ] **Étape 2 — vérifier qu'il échoue**
+- [ ] **Step 2 — verify that it fails**
 
-`./src/scripts/gate.sh check --only build-test` puis lancer le binaire de
-tests de fenêtre filtré sur `[GUI-SEARCH-03]` (voir `--list-tests` du binaire
-concerné pour le nom exact de la cible CTest). Avant le correctif, le test doit
-planter (`std::out_of_range` non rattrapé) plutôt qu'échouer proprement sur une
-assertion — c'est le crash que #396 décrit.
+`./src/scripts/gate.sh check --only build-test` then run the window test
+binary filtered on `[GUI-SEARCH-03]` (see `--list-tests` of the binary
+concerned for the exact name of the CTest target). Before the fix, the test must
+crash (uncaught `std::out_of_range`) rather than fail cleanly on an
+assertion — this is the crash #396 describes.
 
-- [ ] **Étape 3 — corriger `main_window.cpp`**
+- [ ] **Step 3 — fix `main_window.cpp`**
 
-Dans `MainWindow::openOn`, juste après le connect existant de la ligne 592
-(`historyChanged`), ajouter :
+In `MainWindow::openOn`, right after the existing connect at line 592
+(`historyChanged`), add:
 
 ```cpp
     // A structural undo or redo resets the model rather than reporting which
@@ -124,19 +124,19 @@ Dans `MainWindow::openOn`, juste après le connect existant de la ligne 592
     });
 ```
 
-(`QAbstractItemModel` est déjà inclus via `<QAbstractItemModel>` dans ce
-fichier, à vérifier — sinon ajouter l'include.)
+(`QAbstractItemModel` is already included via `<QAbstractItemModel>` in this
+file, to be verified — otherwise add the include.)
 
-- [ ] **Étape 4 — corriger le commentaire de `main_window.hpp`**
+- [ ] **Step 4 — fix the comment in `main_window.hpp`**
 
-Ligne 661, remplacer :
+Line 661, replace:
 
 ```cpp
     /// The match last found, which `Find Next` starts after and `Replace`
     /// rewrites. Forgotten when the pattern, an option or the document changes.
 ```
 
-par :
+with:
 
 ```cpp
     /// The match last found, which `Find Next` starts after and `Replace`
@@ -145,56 +145,56 @@ par :
     /// rather than reporting the change.
 ```
 
-- [ ] **Étape 5 — vérifier que le test passe**
+- [ ] **Step 5 — verify that the test passes**
 
-Relancer le même test ciblé ; il doit passer sans lever d'exception.
+Rerun the same targeted test; it must pass without throwing.
 
-- [ ] **Étape 6 — commiter**
+- [ ] **Step 6 — commit**
 
 ```bash
 git -C /home/beber/Projects/subedit add src/lib/subedit/gui/main_window.cpp \
     src/lib/subedit/gui/main_window.hpp src/test/gui/window_search_test.cpp
 git -C /home/beber/Projects/subedit commit -m "$(cat <<'EOF'
-fix(gui): oublier la cible de recherche sur une réinitialisation du modèle
+fix(gui): forget the search target on a model reset
 
 Closes #396
 EOF
 )"
 ```
 
-(Le message de commit ci-dessus est illustratif — `Closes #N` se place dans le
-corps de la pull request, pas nécessairement dans chaque commit ; suivre la
-convention déjà en usage dans le dépôt pour ce détail.)
+(The commit message above is illustrative — `Closes #N` goes in the
+body of the pull request, not necessarily in each commit; follow the
+convention already in use in the repository for this detail.)
 
 ---
 
-## Tâche 2 — #404 : une seule réécriture de textes, et des comptes qui disent la même chose
+## Task 2 — #404: a single text rewrite, and counts that say the same thing
 
-C'est la tâche la plus grosse du lot. Elle se découpe en cinq mouvements, dans
-l'ordre : factoriser la boucle, migrer les quatre opérations simples, migrer
-les comptes rendus vers `wording.hpp`, corriger le compte fantôme de
-`Replace All`, et deux nettoyages annexes que l'issue mentionne explicitement.
+This is the biggest task of the batch. It splits into five movements, in
+order: factor the loop, migrate the four simple operations, migrate
+the reports to `wording.hpp`, fix the phantom count of
+`Replace All`, and two side cleanups that the issue mentions explicitly.
 
-**Ce qui reste hors périmètre, délibérément :** `replaceAll` garde sa propre
-boucle (elle a besoin du moteur ICU de `rewrite()` et compte des
-*correspondances*, pas des sous-titres — un sous-titre à deux correspondances
-compte pour deux dans `noticeOfReplaceAll`, comme le test
-`"replace all is one entry in the history, and says how many"` le fixe déjà :
-« replaced 3 matches » pour deux sous-titres touchés). Le
-`Document::Main` en dur de `replaceAll` n'est pas non plus touché : l'issue
-l'observe mais ne le met pas dans ses « ce qu'on pourrait faire », et rien
-n'indique qu'un remplacement doive un jour toucher la traduction.
+**What stays out of scope, deliberately:** `replaceAll` keeps its own
+loop (it needs the ICU engine of `rewrite()` and counts
+*matches*, not subtitles — a subtitle with two matches
+counts for two in `noticeOfReplaceAll`, as the test
+`"replace all is one entry in the history, and says how many"` already fixes:
+"replaced 3 matches" for two subtitles touched). The hard-coded
+`Document::Main` of `replaceAll` is not touched either: the issue
+observes it but does not put it among its "what could be done", and nothing
+indicates that a replacement should ever touch the translation.
 
-### 2.1 — Factoriser la boucle commune
+### 2.1 — Factor the common loop
 
-**Fichiers :**
-- Créer : `src/lib/subedit/core/edit/rewrite_texts.hpp`
-- Créer : `src/lib/subedit/core/edit/rewrite_texts.cpp`
-- Modifier : `src/lib/subedit/core/CMakeLists.txt` (ajouter les deux fichiers
-  à la bibliothèque)
-- Test : `src/test/unit/core/edit/rewrite_texts_test.cpp` (nouveau)
+**Files:**
+- Create: `src/lib/subedit/core/edit/rewrite_texts.hpp`
+- Create: `src/lib/subedit/core/edit/rewrite_texts.cpp`
+- Modify: `src/lib/subedit/core/CMakeLists.txt` (add the two files
+  to the library)
+- Test: `src/test/unit/core/edit/rewrite_texts_test.cpp` (new)
 
-**Interfaces produites**, que les tâches 2.2 et 2.3 consomment :
+**Interfaces produced**, which tasks 2.2 and 2.3 consume:
 
 ```cpp
 [[nodiscard]] std::unique_ptr<Command>
@@ -207,7 +207,7 @@ rewriteTexts(const Project& project,
 [[nodiscard]] std::size_t rewrittenCount(const Command& command);
 ```
 
-- [ ] **Étape 1 — écrire le test qui échoue**
+- [ ] **Step 1 — write the test that fails**
 
 ```cpp
 #include <subedit/core/edit/rewrite_texts.hpp>
@@ -277,14 +277,14 @@ TEST_CASE("rewriteTexts groups every real change under the kind it is given",
 }
 ```
 
-(Adapter les inclusions exactes de `InMemoryFileSystem`/`openProject` sur le
-modèle de `italics_command_test.cpp`, qui construit déjà un `Project` de test
-de cette manière — s'y référer plutôt que deviner les signatures.)
+(Adapt the exact includes of `InMemoryFileSystem`/`openProject` on the
+model of `italics_command_test.cpp`, which already builds a test `Project`
+this way — refer to it rather than guess the signatures.)
 
-- [ ] **Étape 2 — vérifier que la compilation échoue** (le fichier `.hpp`
-  n'existe pas encore)
+- [ ] **Step 2 — verify that compilation fails** (the `.hpp` file
+  does not exist yet)
 
-- [ ] **Étape 3 — écrire `rewrite_texts.hpp`**
+- [ ] **Step 3 — write `rewrite_texts.hpp`**
 
 ```cpp
 #pragma once
@@ -330,7 +330,7 @@ rewriteTexts(const Project& project,
 } // namespace subedit::core
 ```
 
-- [ ] **Étape 4 — écrire `rewrite_texts.cpp`**
+- [ ] **Step 4 — write `rewrite_texts.cpp`**
 
 ```cpp
 #include <subedit/core/edit/rewrite_texts.hpp>
@@ -382,44 +382,44 @@ std::size_t rewrittenCount(const Command& command) {
 } // namespace subedit::core
 ```
 
-- [ ] **Étape 5 — enregistrer les deux fichiers dans `CMakeLists.txt`** du
-  noyau (à côté des autres fichiers de `core/edit`) et le test dans celui de
+- [ ] **Step 5 — register the two files in the core's `CMakeLists.txt`**
+  (next to the other `core/edit` files) and the test in that of
   `src/test`.
 
-- [ ] **Étape 6 — vérifier que le test passe**
+- [ ] **Step 6 — verify that the test passes**
 
-- [ ] **Étape 7 — commiter** (voir message-type en fin de tâche 2).
+- [ ] **Step 7 — commit** (see the sample message at the end of task 2).
 
-### 2.2 — Migrer italique, casse, tirets et couper vers `rewriteTexts`
+### 2.2 — Migrate italics, case, dashes and cut to `rewriteTexts`
 
-**Fichiers :**
-- Modifier : `src/lib/subedit/core/edit/italics_command.hpp`/`.cpp`
-- Modifier : `src/lib/subedit/core/edit/letter_case_command.hpp`/`.cpp`
-- Modifier : `src/lib/subedit/core/edit/dialogue_dashes_command.cpp`
-- Modifier : `src/lib/subedit/core/edit/clipboard.cpp`
-- Modifier : `src/lib/subedit/gui/main_window.cpp` (trois sites : lignes 1317,
+**Files:**
+- Modify: `src/lib/subedit/core/edit/italics_command.hpp`/`.cpp`
+- Modify: `src/lib/subedit/core/edit/letter_case_command.hpp`/`.cpp`
+- Modify: `src/lib/subedit/core/edit/dialogue_dashes_command.cpp`
+- Modify: `src/lib/subedit/core/edit/clipboard.cpp`
+- Modify: `src/lib/subedit/gui/main_window.cpp` (three sites: lines 1317,
   1340, 1361)
-- Tests existants à faire passer sans régression :
+- Existing tests to keep passing without regression:
   `src/test/unit/core/edit/italics_command_test.cpp`,
-  `text_commands_test.cpp`, tests de tirets et de couper, tests de fenêtre
-  correspondants.
+  `text_commands_test.cpp`, the dashes and cut tests, the corresponding
+  window tests.
 
-**Interfaces consommées :** `rewriteTexts(...)` et `rewrittenCount(...)` de
+**Interfaces consumed:** `rewriteTexts(...)` and `rewrittenCount(...)` from
 2.1.
 
-- [ ] **Étape 1 — adapter `italics_command_test.cpp`**
+- [ ] **Step 1 — adapt `italics_command_test.cpp`**
 
-La ligne `CHECK(subedit::core::italicisedCount(*command) == 2);` devient
-`CHECK(subedit::core::rewrittenCount(*command) == 2);`, et l'inclusion de
-`<subedit/core/edit/rewrite_texts.hpp>` s'ajoute.
+The line `CHECK(subedit::core::italicisedCount(*command) == 2);` becomes
+`CHECK(subedit::core::rewrittenCount(*command) == 2);`, and the include of
+`<subedit/core/edit/rewrite_texts.hpp>` is added.
 
-- [ ] **Étape 2 — vérifier que ce test échoue à la compilation** (la fonction
-  n'existe pas encore sous ce nom à cet appel, `italicisedCount` va être
-  retirée à l'étape suivante — donc soit ce test casse *après* l'étape 3, soit
-  on avance les deux ensemble ; dans les faits, avancer 1 et 3 dans le même
-  geste est plus simple ici que de forcer un échec intermédiaire artificiel).
+- [ ] **Step 2 — verify that this test fails to compile** (the function
+  does not exist yet under this name at this call, `italicisedCount` will be
+  removed in the next step — so either this test breaks *after* step 3, or
+  both are advanced together; in practice, advancing 1 and 3 in the same
+  gesture is simpler here than forcing an artificial intermediate failure).
 
-- [ ] **Étape 3 — réécrire `italics_command.cpp`**
+- [ ] **Step 3 — rewrite `italics_command.cpp`**
 
 ```cpp
 #include <subedit/core/command/command_kind.hpp>
@@ -462,9 +462,9 @@ setItalics(const Project& project, const Selection& selection, Document document
 } // namespace subedit::core
 ```
 
-Retirer `italicisedCount` du `.hpp` et du `.cpp`.
+Remove `italicisedCount` from the `.hpp` and the `.cpp`.
 
-- [ ] **Étape 4 — réécrire `letter_case_command.cpp`** de la même manière :
+- [ ] **Step 4 — rewrite `letter_case_command.cpp`** in the same way:
 
 ```cpp
 #include <subedit/core/command/command_kind.hpp>
@@ -491,10 +491,10 @@ std::unique_ptr<Command> setLetterCase(const Project& project,
 } // namespace subedit::core
 ```
 
-Retirer `recasedCount` du `.hpp` et du `.cpp`. Dans `text_commands_test.cpp`,
-`recasedCount(*command)` devient `rewrittenCount(*command)`.
+Remove `recasedCount` from the `.hpp` and the `.cpp`. In `text_commands_test.cpp`,
+`recasedCount(*command)` becomes `rewrittenCount(*command)`.
 
-- [ ] **Étape 5 — réécrire `dialogue_dashes_command.cpp`** :
+- [ ] **Step 5 — rewrite `dialogue_dashes_command.cpp`**:
 
 ```cpp
 std::unique_ptr<Command> setDialogueDashes(const Project& project,
@@ -514,9 +514,9 @@ std::unique_ptr<Command> setDialogueDashes(const Project& project,
 }
 ```
 
-(`wouldAddDialogueDashes` ne change pas.)
+(`wouldAddDialogueDashes` does not change.)
 
-- [ ] **Étape 6 — réécrire `cutTexts` dans `clipboard.cpp`** :
+- [ ] **Step 6 — rewrite `cutTexts` in `clipboard.cpp`**:
 
 ```cpp
 std::unique_ptr<Command>
@@ -526,33 +526,33 @@ cutTexts(const Project& project, const Selection& selection, Document document) 
 }
 ```
 
-(Le saut des textes déjà vides est déjà assuré par `rewriteTexts`, puisque
-`written == text` quand les deux sont vides.)
+(Skipping texts that are already empty is already ensured by `rewriteTexts`, since
+`written == text` when both are empty.)
 
-- [ ] **Étape 7 — mettre à jour les trois sites de `main_window.cpp`**
+- [ ] **Step 7 — update the three sites of `main_window.cpp`**
 
-Ligne 1317 : `core::italicisedCount(*command)` → `core::rewrittenCount(*command)`.
-Ligne 1340 : `core::recasedCount(*command)` → `core::rewrittenCount(*command)`.
-Ligne 1361 : `core::recasedCount(*command)` → `core::rewrittenCount(*command)`
-(les tirets empruntaient déjà celui de la casse ; ils lisent maintenant leur
-propre commande, ce qui règle au passage l'emprunt que #404 relève).
+Line 1317: `core::italicisedCount(*command)` → `core::rewrittenCount(*command)`.
+Line 1340: `core::recasedCount(*command)` → `core::rewrittenCount(*command)`.
+Line 1361: `core::recasedCount(*command)` → `core::rewrittenCount(*command)`
+(the dashes already borrowed the case's; they now read their
+own command, which settles in passing the borrowing that #404 notes).
 
-- [ ] **Étape 8 — lancer les tests unitaires et de fenêtre concernés**, les
-  faire tous passer.
+- [ ] **Step 8 — run the unit and window tests concerned**, make
+  them all pass.
 
-- [ ] **Étape 9 — commiter** (dans le même commit que 2.1, ou séparément selon
-  ce qui rend la revue la plus claire — les deux sont un seul mouvement
-  logique et peuvent être un seul commit d'issue).
+- [ ] **Step 9 — commit** (in the same commit as 2.1, or separately depending on
+  what makes the review clearest — the two are a single logical
+  movement and can be a single issue commit).
 
-### 2.3 — Déplacer les comptes rendus vers `wording.hpp`
+### 2.3 — Move the reports to `wording.hpp`
 
-**Fichiers :**
-- Modifier : `src/lib/subedit/core/wording.hpp`
-- Modifier : `src/lib/subedit/core/wording.cpp`
-- Modifier : `src/lib/subedit/gui/main_window.cpp` (mêmes trois fonctions)
-- Modifier : `CLAUDE.md` (portée de la règle sur `wording.hpp`)
+**Files:**
+- Modify: `src/lib/subedit/core/wording.hpp`
+- Modify: `src/lib/subedit/core/wording.cpp`
+- Modify: `src/lib/subedit/gui/main_window.cpp` (same three functions)
+- Modify: `CLAUDE.md` (scope of the rule on `wording.hpp`)
 
-**Interfaces produites :**
+**Interfaces produced:**
 
 ```cpp
 [[nodiscard]] std::string_view nothingToChange();
@@ -561,9 +561,9 @@ propre commande, ce qui règle au passage l'emprunt que #404 relève).
 [[nodiscard]] std::string noticeOfDialogueDashes(std::size_t count, bool dashed);
 ```
 
-- [ ] **Étape 1 — ajouter les déclarations à `wording.hpp`**, à côté de
-  `noticeOfReplaceAll` (ligne 368), avec une doc Doxygen anglaise sur le modèle
-  des fonctions voisines :
+- [ ] **Step 1 — add the declarations to `wording.hpp`**, next to
+  `noticeOfReplaceAll` (line 368), with English Doxygen documentation on the model
+  of the neighbouring functions:
 
 ```cpp
 /// What no rewrite had to do — italics, case or dialogue dashes alike. Never
@@ -581,8 +581,8 @@ propre commande, ce qui règle au passage l'emprunt que #404 relève).
 [[nodiscard]] std::string noticeOfDialogueDashes(std::size_t count, bool dashed);
 ```
 
-- [ ] **Étape 2 — les implémenter dans `wording.cpp`**, à côté de
-  `noticeOfReplaceAll` :
+- [ ] **Step 2 — implement them in `wording.cpp`**, next to
+  `noticeOfReplaceAll`:
 
 ```cpp
 std::string_view nothingToChange() {
@@ -602,7 +602,7 @@ std::string noticeOfDialogueDashes(std::size_t count, bool dashed) {
 }
 ```
 
-- [ ] **Étape 3 — mettre à jour `main_window.cpp`**
+- [ ] **Step 3 — update `main_window.cpp`**
 
 ```cpp
 void MainWindow::toggleItalicsOnTarget() {
@@ -622,69 +622,69 @@ void MainWindow::toggleItalicsOnTarget() {
 }
 ```
 
-(et de même pour `changeCaseOfTarget`/`core::noticeOfRecase`,
-`toggleDialogueDashesOnTarget`/`core::noticeOfDialogueDashes`). Les trois
-`"nothing to change"` littéraux disparaissent au profit de
-`core::nothingToChange()`. **Note :** la tâche 3 (#398) remplacera ces mêmes
-appels `reportOutcome` par `statusBar()->showMessage(...)` — ne pas s'étonner
-que ce code soit retouché une deuxième fois deux tâches plus loin ; c'est
-l'ordre des commits que #411 fixe.
+(and likewise for `changeCaseOfTarget`/`core::noticeOfRecase`,
+`toggleDialogueDashesOnTarget`/`core::noticeOfDialogueDashes`). The three
+literal `"nothing to change"` strings disappear in favour of
+`core::nothingToChange()`. **Note:** task 3 (#398) will replace these same
+`reportOutcome` calls with `statusBar()->showMessage(...)` — do not be surprised
+that this code is touched a second time two tasks later; it is
+the order of commits that #411 fixes.
 
-- [ ] **Étape 4 — corriger la portée de la règle dans `CLAUDE.md`**
+- [ ] **Step 4 — fix the scope of the rule in `CLAUDE.md`**
 
-Le passage actuel :
+The current passage:
 
-> Anglais aussi pour tout ce que le binaire écrit à un utilisateur — sortie
-> standard, sortie d'erreur, en-têtes de colonne, libellés de menu, messages de
-> dialogue. Les deux surfaces disent les mêmes mots, et
-> [`core/wording.hpp`](src/lib/subedit/core/wording.hpp) est l'unique endroit
-> où ils sont écrits.
+> English also for everything the binary writes to a user — standard
+> output, error output, column headers, menu labels, dialog
+> messages. The two surfaces say the same words, and
+> [`core/wording.hpp`](src/lib/subedit/core/wording.hpp) is the only place
+> where they are written.
 
-devient (préciser que `wording.hpp` porte ce que les *deux* surfaces peuvent
-écrire, pas les libellés propres à une seule) :
+becomes (specify that `wording.hpp` carries what the *two* surfaces can
+write, not the labels specific to one):
 
-> Anglais aussi pour tout ce que le binaire écrit à un utilisateur — sortie
-> standard, sortie d'erreur, en-têtes de colonne, libellés de menu, messages de
-> dialogue. **Ce que les deux surfaces peuvent dire toutes les deux** — le nom
-> d'un format, un compte rendu d'opération, une raison d'échec — vit dans
-> [`core/wording.hpp`](src/lib/subedit/core/wording.hpp), l'unique endroit où
-> c'est écrit ; **un libellé de menu ou de dialogue, propre à la fenêtre et
-> sans équivalent en ligne de commande, reste dans le fichier de la fenêtre**
-> — la règle porte sur les mots partagés, pas sur la surface qui les affiche.
+> English also for everything the binary writes to a user — standard
+> output, error output, column headers, menu labels, dialog
+> messages. **What both surfaces can say** — the name
+> of a format, an account of an operation, a reason for failure — lives in
+> [`core/wording.hpp`](src/lib/subedit/core/wording.hpp), the only place where
+> it is written; **a menu or dialog label that belongs to the window and has no
+> command-line equivalent stays in the window's file**
+> — the rule is about shared words, not about the surface that shows them.
 
-(Le texte exact ci-dessus est une proposition ; l'important est que la règle
-cesse d'affirmer que `wording.hpp` est l'unique endroit où *tout* libellé de
-menu est écrit, ce que #404 a trouvé faux par lecture — 42 `QStringLiteral`
-dans `main_window.cpp`.)
+(The exact text above is a proposal; what matters is that the rule
+stop asserting that `wording.hpp` is the only place where *every* menu
+label is written, which #404 found false by reading — 42 `QStringLiteral`
+in `main_window.cpp`.)
 
-- [ ] **Étape 5 — tests**, faire passer ceux qui lisent aujourd'hui les
-  chaînes littérales dans `FakePrompts::outcomes` (ils continuent de le faire
-  jusqu'à la tâche 3, qui les fera lire la barre d'état à la place) ; vérifier
-  qu'ils comparent toujours aux mêmes mots exacts (`"2 subtitles put in
-  italics"`, etc. — inchangés, seul l'endroit où ils sont composés bouge).
+- [ ] **Step 5 — tests**, make pass those that today read the literal
+  strings in `FakePrompts::outcomes` (they keep doing so
+  until task 3, which will make them read the status bar instead); verify
+  that they still compare to the same exact words (`"2 subtitles put in
+  italics"`, etc. — unchanged, only the place where they are composed moves).
 
-- [ ] **Étape 6 — commiter.**
+- [ ] **Step 6 — commit.**
 
-### 2.4 — Corriger le compte fantôme de `Replace All`
+### 2.4 — Fix the phantom count of `Replace All`
 
-**Fichiers :**
-- Modifier : `src/lib/subedit/core/edit/search.cpp` (fonction `rewrite`, ligne
+**Files:**
+- Modify: `src/lib/subedit/core/edit/search.cpp` (function `rewrite`, line
   ~243-277)
-- Test : `src/test/unit/core/edit/search_test.cpp` (ou fichier équivalent —
-  vérifier son nom exact avant d'écrire)
+- Test: `src/test/unit/core/edit/search_test.cpp` (or equivalent file —
+  verify its exact name before writing)
 
-**Le bug.** `rewrite()` incrémente `rewritten.count` à chaque correspondance
-trouvée, même quand le remplacement produit exactement le même texte que celui
-trouvé (remplacer « Marie » par « Marie »). `replaceAll` additionne ce compte
-sans jamais vérifier qu'un texte a réellement changé, si bien que
-`replaceAllInTarget` (`main_window.cpp:1629`) annonce « replaced 1 match » sans
-qu'aucune commande n'entre dans l'historique.
+**The bug.** `rewrite()` increments `rewritten.count` at each match
+found, even when the replacement produces exactly the same text as the one
+found (replacing "Marie" with "Marie"). `replaceAll` adds up this count
+without ever checking that a text really changed, so that
+`replaceAllInTarget` (`main_window.cpp:1629`) announces "replaced 1 match"
+without any command entering the history.
 
-- [ ] **Étape 1 — écrire le test qui échoue**
+- [ ] **Step 1 — write the test that fails**
 
-Sur le modèle des tests existants de `search.cpp` (vérifier le nom exact du
-fichier et des inclusions avant d'écrire — probablement
-`src/test/unit/core/edit/search_test.cpp`) :
+On the model of the existing tests of `search.cpp` (verify the exact name of the
+file and the includes before writing — probably
+`src/test/unit/core/edit/search_test.cpp`):
 
 ```cpp
 TEST_CASE("replacing a match by itself changes nothing and counts nothing",
@@ -706,9 +706,9 @@ TEST_CASE("replacing a match by itself changes nothing and counts nothing",
 }
 ```
 
-- [ ] **Étape 2 — vérifier qu'il échoue** (`replaced.count` vaut 1 aujourd'hui).
+- [ ] **Step 2 — verify that it fails** (`replaced.count` is 1 today).
 
-- [ ] **Étape 3 — corriger `rewrite()` dans `search.cpp`**
+- [ ] **Step 3 — fix `rewrite()` in `search.cpp`**
 
 ```cpp
     Rewritten rewritten{.text = std::string{text}};
@@ -745,39 +745,39 @@ TEST_CASE("replacing a match by itself changes nothing and counts nothing",
     return rewritten;
 ```
 
-(Seuls les cinq lignes autour du `++rewritten.count` changent ; le reste de la
-fonction, cité ici en entier pour le contexte, ne bouge pas.)
+(Only the five lines around `++rewritten.count` change; the rest of the
+function, quoted here in full for context, does not move.)
 
-- [ ] **Étape 4 — vérifier que le nouveau test passe, et qu'aucun test
-  existant de recherche/remplacement ne casse** — en particulier
-  `window_search_test.cpp`, dont « replace all is one entry in the history,
-  and says how many » attend toujours « replaced 3 matches » pour un vrai
-  remplacement : ce test ne doit pas bouger, puisque ses trois correspondances
-  changent bien le texte.
+- [ ] **Step 4 — verify that the new test passes, and that no existing
+  search/replace test breaks** — in particular
+  `window_search_test.cpp`, whose "replace all is one entry in the history,
+  and says how many" still expects "replaced 3 matches" for a real
+  replacement: this test must not move, since its three matches do
+  change the text.
 
-- [ ] **Étape 5 — commiter.**
+- [ ] **Step 5 — commit.**
 
-### 2.5 — Deux nettoyages annexes que l'issue nomme explicitement
+### 2.5 — Two side cleanups that the issue names explicitly
 
-**a) Retirer `replacingAll`, code mort.**
+**a) Remove `replacingAll`, dead code.**
 
-- [ ] Vérifier qu'aucun appelant de production n'existe (déjà confirmé par la
-  recherche : seul `markup_parser_test.cpp` l'appelle).
-- [ ] Retirer la déclaration de `markup_parser.hpp` (ligne 104) et
-  l'implémentation de `markup_parser.cpp` (lignes 597-616).
-- [ ] Retirer le ou les cas de test qui l'exercaient dans
+- [ ] Verify that no production caller exists (already confirmed by the
+  search: only `markup_parser_test.cpp` calls it).
+- [ ] Remove the declaration from `markup_parser.hpp` (line 104) and
+  the implementation from `markup_parser.cpp` (lines 597-616).
+- [ ] Remove the test case(s) that exercised it in
   `markup_parser_test.cpp`.
-- [ ] Vérifier que la compilation et les tests du fichier passent toujours.
+- [ ] Verify that compilation and the file's tests still pass.
 
-**b) `SetDurationCommand` devient une fonction bâtie sur `SetPositionCommand`.**
+**b) `SetDurationCommand` becomes a function built on `SetPositionCommand`.**
 
-**Fichiers :**
-- Modifier : `src/lib/subedit/core/edit/set_duration_command.hpp`/`.cpp`
-- Modifier : `src/lib/subedit/gui/subtitle_table_model.cpp` (seul appelant de
-  production)
-- Modifier : `src/test/unit/core/edit/set_duration_command_test.cpp`
+**Files:**
+- Modify: `src/lib/subedit/core/edit/set_duration_command.hpp`/`.cpp`
+- Modify: `src/lib/subedit/gui/subtitle_table_model.cpp` (only production
+  caller)
+- Modify: `src/test/unit/core/edit/set_duration_command_test.cpp`
 
-- [ ] Remplacer la classe par une fonction libre :
+- [ ] Replace the class with a free function:
 
 ```cpp
 // set_duration_command.hpp
@@ -797,24 +797,24 @@ setDuration(const Project& project, SubtitleIndex index, Duration duration) {
 }
 ```
 
-- [ ] Dans `subtitle_table_model.cpp`, remplacer
-  `std::make_unique<SetDurationCommand>(project, index, duration)` par
-  `setDuration(project, index, duration)` (le type de retour change de
-  `std::unique_ptr<SetDurationCommand>` à `std::unique_ptr<Command>` — vérifier
-  que l'appelant ne dépend pas du type concret).
-- [ ] Adapter `set_duration_command_test.cpp` à la nouvelle signature ; les
-  assertions sur `kind()` et `describe()` doivent continuer de passer sans
-  changement de valeurs attendues, puisque `CompositeCommand` les délègue.
+- [ ] In `subtitle_table_model.cpp`, replace
+  `std::make_unique<SetDurationCommand>(project, index, duration)` with
+  `setDuration(project, index, duration)` (the return type changes from
+  `std::unique_ptr<SetDurationCommand>` to `std::unique_ptr<Command>` — verify
+  that the caller does not depend on the concrete type).
+- [ ] Adapt `set_duration_command_test.cpp` to the new signature; the
+  assertions on `kind()` and `describe()` must keep passing without
+  any change of expected values, since `CompositeCommand` delegates them.
 
-- [ ] **Commiter 2.5 séparément ou avec 2.4** — ce sont deux nettoyages
-  indépendants l'un de l'autre, tous deux rattachés au même commit d'issue
-  #404 si la revue préfère un seul commit pour toute la tâche 2.
+- [ ] **Commit 2.5 separately or with 2.4** — they are two cleanups
+  independent of each other, both attached to the same issue commit
+  #404 if the review prefers a single commit for the whole of task 2.
 
-### Message de commit de la tâche 2
+### Commit message of task 2
 
 ```
 git -C /home/beber/Projects/subedit commit -m "$(cat <<'EOF'
-refactor(core): une seule réécriture de textes pour italique, casse, tirets et couper
+refactor(core): a single text rewrite for italics, case, dashes and cut
 
 Closes #404
 EOF
@@ -823,40 +823,40 @@ EOF
 
 ---
 
-## Tâche 3 — #398 : les gestes sans dialogue parlent dans la barre d'état
+## Task 3 — #398: gestures without a dialog speak in the status bar
 
-**Décision déjà actée** (commentaire du 2026-09-15 sur #398) : Italic, les
-quatre Case, Dialogue et leur « nothing to change » passent en barre d'état ;
-tout le reste, dialogues compris et `Paste Texts` avec pertes, garde une
-boîte.
+**Decision already settled** (comment of 2026-09-15 on #398): Italic, the
+four Case, Dialogue and their "nothing to change" move to the status bar;
+everything else, dialogs included and `Paste Texts` with losses, keeps a
+box.
 
-**Fichiers :**
-- Modifier : `src/lib/subedit/gui/main_window.cpp` (les trois fonctions
-  retouchées en 2.3)
-- Modifier : `docs/manual/subedit-gui/operations.md` (lignes 23-25)
-- Modifier : `src/test/gui/window_italics_test.cpp`,
-  `src/test/gui/window_text_test.cpp` (ou fichiers équivalents portant les
-  tests de casse/tirets — confirmer les noms exacts)
+**Files:**
+- Modify: `src/lib/subedit/gui/main_window.cpp` (the three functions
+  touched in 2.3)
+- Modify: `docs/manual/subedit-gui/operations.md` (lines 23-25)
+- Modify: `src/test/gui/window_italics_test.cpp`,
+  `src/test/gui/window_text_test.cpp` (or equivalent files carrying the
+  case/dashes tests — confirm the exact names)
 
-Aucune interface ne change : `MainWindow` hérite publiquement de `QMainWindow`,
-donc `statusBar()` est déjà accessible, y compris depuis un test qui tient une
+No interface changes: `MainWindow` publicly inherits from `QMainWindow`,
+so `statusBar()` is already accessible, including from a test that holds a
 `MainWindow&`.
 
-- [ ] **Étape 1 — adapter les tests d'abord**
+- [ ] **Step 1 — adapt the tests first**
 
-Dans `window_italics_test.cpp` et `window_text_test.cpp`, remplacer chaque
-`prompts.outcomes.back() == "..."` concernant Italic/Case/Dialogue par
-`window.statusBar()->currentMessage().toStdString() == "..."`. Ajouter
-`#include <QStatusBar>` si absent. Les messages attendus ne changent pas
-(mêmes chaînes que produit `wording.hpp` depuis la tâche 2.3).
+In `window_italics_test.cpp` and `window_text_test.cpp`, replace each
+`prompts.outcomes.back() == "..."` concerning Italic/Case/Dialogue with
+`window.statusBar()->currentMessage().toStdString() == "..."`. Add
+`#include <QStatusBar>` if absent. The expected messages do not change
+(same strings as `wording.hpp` produces since task 2.3).
 
-- [ ] **Étape 2 — vérifier que ces tests échouent** (`FakePrompts::outcomes`
-  reste vide puisque le code de production appelle encore `reportOutcome`).
+- [ ] **Step 2 — verify that these tests fail** (`FakePrompts::outcomes`
+  stays empty since the production code still calls `reportOutcome`).
 
-- [ ] **Étape 3 — définir un délai d'affichage**
+- [ ] **Step 3 — define a display delay**
 
-Dans l'espace de noms anonyme de `main_window.cpp`, à côté des autres
-constantes du fichier :
+In the anonymous namespace of `main_window.cpp`, next to the other
+constants of the file:
 
 ```cpp
 // Long enough to be read without a click, short enough not to survive past
@@ -864,7 +864,7 @@ constantes du fichier :
 constexpr int kOperationStatusTimeoutMs = 5000;
 ```
 
-- [ ] **Étape 4 — remplacer les trois `reportOutcome` visés**
+- [ ] **Step 4 — replace the three `reportOutcome` calls concerned**
 
 ```cpp
 void MainWindow::toggleItalicsOnTarget() {
@@ -882,43 +882,43 @@ void MainWindow::toggleItalicsOnTarget() {
 }
 ```
 
-(même geste pour `changeCaseOfTarget`/`noticeOfRecase` et
-`toggleDialogueDashesOnTarget`/`noticeOfDialogueDashes`). Les quinze autres
-appels à `reportOutcome`/`reportFailure` du fichier — `Adjust Durations…`,
-`Remove Hearing-Impaired Mentions…`, `Paste Texts`, la recherche, etc. — ne
-changent pas : ils gardent leur dialogue.
+(same gesture for `changeCaseOfTarget`/`noticeOfRecase` and
+`toggleDialogueDashesOnTarget`/`noticeOfDialogueDashes`). The fifteen other
+calls to `reportOutcome`/`reportFailure` in the file — `Adjust Durations…`,
+`Remove Hearing-Impaired Mentions…`, `Paste Texts`, search, etc. — do not
+change: they keep their dialog.
 
-- [ ] **Étape 5 — vérifier que les tests passent.**
+- [ ] **Step 5 — verify that the tests pass.**
 
-- [ ] **Étape 6 — mettre à jour le manuel**
+- [ ] **Step 6 — update the manual**
 
-`docs/manual/subedit-gui/operations.md`, lignes 23-25, remplacer :
-
-```
-**Ce qu'une opération a fait se dit dans une boîte d'information**, qu'il faut
-fermer — y compris après un `Ctrl+I`. Les messages sont cités dans la section de
-chaque opération.
-```
-
-par :
+`docs/manual/subedit-gui/operations.md`, lines 23-25, replace:
 
 ```
-**Ce qu'une opération a fait se dit dans une boîte d'information qu'il faut
-fermer, sauf pour `Italic`, `Case` et `Dialogue`** : ces trois-là n'ouvrent pas
-de dialogue, et leur compte rendu — « nothing to change » compris — s'affiche
-dans la barre d'état, sans rien à fermer. Les messages sont cités dans la
-section de chaque opération.
+**What an operation did is told in an information box**, which has to be
+closed — even after a `Ctrl+I`. The messages are quoted in the section of
+each operation.
 ```
 
-Les blocs de messages cités plus bas (lignes 393-395, 399, 466-468, 471-472)
-ne changent pas de mots, seulement de support — rien à corriger dans leur
-contenu.
+with:
 
-- [ ] **Étape 7 — commiter.**
+```
+**What an operation did is told in an information box that has to be
+closed, except for `Italic`, `Case` and `Dialogue`**: these three open
+no dialog, and their report — "nothing to change" included — is displayed
+in the status bar, with nothing to close. The messages are quoted in the
+section of each operation.
+```
+
+The message blocks quoted further down (lines 393-395, 399, 466-468, 471-472)
+do not change words, only medium — nothing to fix in their
+content.
+
+- [ ] **Step 7 — commit.**
 
 ```
 git -C /home/beber/Projects/subedit commit -m "$(cat <<'EOF'
-feat(gui): les gestes sans dialogue parlent dans la barre d'état
+feat(gui): gestures without a dialog speak in the status bar
 
 Closes #398
 EOF
@@ -927,25 +927,25 @@ EOF
 
 ---
 
-## Tâche 4 — #397 : valider la cellule en cours d'édition avant un geste sans dialogue
+## Task 4 — #397: commit the cell being edited before a gesture without a dialog
 
-**Ce que l'issue demande en premier : rejouer, pas supposer.** Les deux
-scénarios sont qualifiés de « plausibles, non rejoués » — la tâche commence
-donc par deux tests qui établissent, avant tout correctif, ce qui se passe
-réellement.
+**What the issue asks first: replay, do not assume.** The two
+scenarios are described as "plausible, not replayed" — the task therefore starts
+with two tests that establish, before any fix, what really
+happens.
 
-**Fichiers :**
-- Modifier : `src/lib/subedit/gui/main_window.cpp` (nouvelle méthode privée, et
-  sept sites d'appel)
-- Modifier : `src/lib/subedit/gui/main_window.hpp` (déclaration privée)
-- Test : `src/test/gui/window_italics_test.cpp` (scénario clavier `Ctrl+I`),
-  nouveau fichier ou section dédiée pour le second scénario si un geste de
-  souris est nécessaire à le distinguer
+**Files:**
+- Modify: `src/lib/subedit/gui/main_window.cpp` (new private method, and
+  seven call sites)
+- Modify: `src/lib/subedit/gui/main_window.hpp` (private declaration)
+- Test: `src/test/gui/window_italics_test.cpp` (`Ctrl+I` keyboard scenario),
+  new file or dedicated section for the second scenario if a mouse
+  gesture is needed to tell them apart
 
-- [ ] **Étape 1 — écrire le scénario « une ligne »**
+- [ ] **Step 1 — write the "one line" scenario**
 
-Sur le modèle de `window_player_test.cpp:415-434`, qui ouvre déjà un éditeur
-avec `window.table()->edit(index)` :
+On the model of `window_player_test.cpp:415-434`, which already opens an editor
+with `window.table()->edit(index)`:
 
 ```cpp
 TEST_CASE("Ctrl+I while a cell is being edited commits the edit first",
@@ -977,23 +977,23 @@ TEST_CASE("Ctrl+I while a cell is being edited commits the edit first",
 }
 ```
 
-(Adapter le nom exact du délégué/widget d'édition et l'inclusion de
-`<QTest>`/`<QPlainTextEdit>` en s'appuyant sur `cell_delegates.hpp` — vérifier
-sur place quel widget `TextDelegate::createEditor` construit avant d'écrire ce
-test, plutôt que de deviner.)
+(Adapt the exact name of the delegate/editing widget and the include of
+`<QTest>`/`<QPlainTextEdit>` relying on `cell_delegates.hpp` — verify
+on the spot which widget `TextDelegate::createEditor` builds before writing this
+test, rather than guess.)
 
-- [ ] **Étape 2 — lancer ce test et noter ce qui se passe réellement**
-  (c'est la « lecture » que l'issue demande avant de corriger : soit la saisie
-  est perdue — bug 1 — soit l'italique posé est écrasé — bug 2 — soit rien ne
-  casse parce que Qt committe déjà tout seul dans ce cas précis). Consigner le
-  résultat observé dans le message du commit ou dans la description de la
-  pull request, puisque c'est une information que l'issue elle-même n'avait
-  pas.
+- [ ] **Step 2 — run this test and note what really happens**
+  (this is the "reading" the issue asks for before fixing: either the typing
+  is lost — bug 1 — or the italic applied is overwritten — bug 2 — or nothing
+  breaks because Qt already commits by itself in this precise case). Record the
+  observed result in the commit message or in the description of the
+  pull request, since it is information the issue itself did not
+  have.
 
-- [ ] **Étape 3 — ajouter la méthode commune**
+- [ ] **Step 3 — add the common method**
 
-Dans `main_window.hpp`, section privée (à côté des autres méthodes utilitaires
-de gestes) :
+In `main_window.hpp`, private section (next to the other gesture helper
+methods):
 
 ```cpp
 /// Commits and closes the cell editor open on the table, if any — the same
@@ -1016,28 +1016,28 @@ void MainWindow::commitCellEditor() {
 }
 ```
 
-- [ ] **Étape 4 — appeler `commitCellEditor()` en tête des sept gestes sans
-  dialogue**
+- [ ] **Step 4 — call `commitCellEditor()` at the head of the seven gestures without
+  a dialog**
 
 `toggleItalicsOnTarget()`, `changeCaseOfTarget()`, `toggleDialogueDashesOnTarget()`,
-`cutTexts()`, `pasteTexts()`, `mergeSubtitles()`, `splitSubtitle()` — une ligne
-`commitCellEditor();` comme première instruction de chacune.
+`cutTexts()`, `pasteTexts()`, `mergeSubtitles()`, `splitSubtitle()` — one line
+`commitCellEditor();` as the first statement of each.
 
-- [ ] **Étape 5 — vérifier que le test de l'étape 1 passe désormais**, et
-  qu'aucun test existant de ces sept gestes ne régresse (en particulier ceux
-  qui vérifient la sélection ou le focus après le geste).
+- [ ] **Step 5 — verify that the test of step 1 now passes**, and
+  that no existing test of these seven gestures regresses (in particular those
+  that check the selection or the focus after the gesture).
 
-- [ ] **Étape 6 — écrire un second test si l'étape 2 a montré un second bug
-  distinct** (le scénario « plusieurs lignes » de l'issue, où l'italique posé
-  serait écrasé plutôt que la saisie perdue) — sinon, noter explicitement dans
-  la pull request que ce second scénario ne reproduit pas et pourquoi, plutôt
-  que d'écrire un test qui ne prouve rien.
+- [ ] **Step 6 — write a second test if step 2 showed a second distinct
+  bug** (the issue's "several lines" scenario, where the italic applied
+  would be overwritten rather than the typing lost) — otherwise, note explicitly in
+  the pull request that this second scenario does not reproduce and why, rather
+  than write a test that proves nothing.
 
-- [ ] **Étape 7 — commiter.**
+- [ ] **Step 7 — commit.**
 
 ```
 git -C /home/beber/Projects/subedit commit -m "$(cat <<'EOF'
-fix(gui): valider la cellule en cours d'édition avant un geste sans dialogue
+fix(gui): commit the cell being edited before a gesture without a dialog
 
 Closes #397
 EOF
@@ -1046,27 +1046,27 @@ EOF
 
 ---
 
-## Tâche 5 — #409 : l'ajustement des durées valide sa vitesse et garde ses réglages
+## Task 5 — #409: duration adjustment validates its speed and keeps its settings
 
-**Décision déjà actée** (commentaire du 2026-09-15 sur #409) : quatre volets —
-une `ReadingSpeed` validée à la construction, les quatre défauts au noyau,
-l'état du formulaire distinct de la requête, et la persistance dans
-`settings.conf` comme les deux options de la recherche.
+**Decision already settled** (comment of 2026-09-15 on #409): four parts —
+a `ReadingSpeed` validated at construction, the four defaults in the core,
+the form state distinct from the request, and persistence in
+`settings.conf` like the two search options.
 
-### 5.1 — `ReadingSpeed` validée à la construction
+### 5.1 — `ReadingSpeed` validated at construction
 
-**Fichiers :**
-- Modifier : `src/lib/subedit/core/edit/duration_adjustment.hpp`/`.cpp`
-- Modifier : `src/lib/subedit/gui/duration_adjust_dialog.cpp` (deux
-  constructions, lignes 98 et 132)
-- Modifier : `src/test/unit/core/edit/duration_adjustment_test.cpp` (cinq
-  constructions), `src/test/gui/window_durations_test.cpp` (une)
+**Files:**
+- Modify: `src/lib/subedit/core/edit/duration_adjustment.hpp`/`.cpp`
+- Modify: `src/lib/subedit/gui/duration_adjust_dialog.cpp` (two
+  constructions, lines 98 and 132)
+- Modify: `src/test/unit/core/edit/duration_adjustment_test.cpp` (five
+  constructions), `src/test/gui/window_durations_test.cpp` (one)
 
-Suivre le patron déjà en usage pour `FrameRate`
-(`src/lib/subedit/core/time/frame_rate.hpp:46-73`) : constructeur privé,
-fabrique publique renvoyant `std::optional`.
+Follow the pattern already in use for `FrameRate`
+(`src/lib/subedit/core/time/frame_rate.hpp:46-73`): private constructor,
+public factory returning `std::optional`.
 
-- [ ] **Étape 1 — écrire le test qui échoue**
+- [ ] **Step 1 — write the test that fails**
 
 ```cpp
 TEST_CASE("a reading speed of zero or less is refused", "[core][edit]") {
@@ -1076,10 +1076,10 @@ TEST_CASE("a reading speed of zero or less is refused", "[core][edit]") {
 }
 ```
 
-- [ ] **Étape 2 — vérifier qu'il échoue à la compilation** (`create` n'existe
-  pas).
+- [ ] **Step 2 — verify that it fails to compile** (`create` does not
+  exist).
 
-- [ ] **Étape 3 — réécrire `ReadingSpeed`** dans `duration_adjustment.hpp` :
+- [ ] **Step 3 — rewrite `ReadingSpeed`** in `duration_adjustment.hpp`:
 
 ```cpp
 struct ReadingSpeed {
@@ -1107,21 +1107,21 @@ private:
 };
 ```
 
-**Attention** : ce changement transforme des champs publics en accesseurs, et
-casse donc toute construction agrégée existante (`ReadingSpeed{...}`), pas
-seulement les deux du dialogue. Mettre à jour dans la foulée, au même commit :
-`duration_adjustment.cpp` (fonctions `boundsOf`, `endFor`, `countSacrifices`,
-qui lisent `speed.charactersPerSecond`, `speed.lengthen`, `speed.shorten` —
-passer aux accesseurs), et le `.value_or(ReadingSpeed{})` de
-`duration_adjust_dialog.cpp:98`, qui doit devenir
-`.value_or(*ReadingSpeed::create(core::kDefaultReadingSpeed, true, false))` ou
-une constante par défaut équivalente construite une fois.
+**Careful**: this change turns public fields into accessors, and
+therefore breaks every existing aggregate construction (`ReadingSpeed{...}`), not
+only the two of the dialog. Update at once, in the same commit:
+`duration_adjustment.cpp` (functions `boundsOf`, `endFor`, `countSacrifices`,
+which read `speed.charactersPerSecond`, `speed.lengthen`, `speed.shorten` —
+switch to the accessors), and the `.value_or(ReadingSpeed{})` of
+`duration_adjust_dialog.cpp:98`, which must become
+`.value_or(*ReadingSpeed::create(core::kDefaultReadingSpeed, true, false))` or
+an equivalent default constant built once.
 
-- [ ] **Étape 4 — dans `duration_adjustment.cpp`**, remplacer chaque accès
-  `speed.charactersPerSecond`/`.lengthen`/`.shorten` par
+- [ ] **Step 4 — in `duration_adjustment.cpp`**, replace each access
+  `speed.charactersPerSecond`/`.lengthen`/`.shorten` with
   `speed.charactersPerSecond()`/`.lengthen()`/`.shorten()`.
 
-- [ ] **Étape 5 — dans `duration_adjust_dialog.cpp`**, ligne 98-101 :
+- [ ] **Step 5 — in `duration_adjust_dialog.cpp`**, lines 98-101:
 
 ```cpp
     const core::ReadingSpeed speed =
@@ -1131,12 +1131,11 @@ une constante par défaut équivalente construite une fois.
     m_shorten->setChecked(initial.speed.has_value() && speed.shorten());
 ```
 
-et ligne 129-135 (`constraints()`), en tenant compte du fait que la vitesse
-saisie dans un `QDoubleSpinBox` borné à `[1.0, 99.0]` (ligne 93 du même
-fichier) ne peut jamais produire un `create()` refusé en pratique — le
-`.value()` y est donc sûr, avec un commentaire qui le dit plutôt qu'un silence
-qui laisserait croire à un oubli :
-
+and lines 129-135 (`constraints()`), taking into account that the speed
+entered in a `QDoubleSpinBox` bounded to `[1.0, 99.0]` (line 93 of the same
+file) can never produce a refused `create()` in practice — the
+`.value()` is therefore safe there, with a comment that says so rather than a silence
+that would suggest an oversight:
 ```cpp
     std::optional<core::ReadingSpeed> speed;
     if (m_lengthen->isChecked() || m_shorten->isChecked()) {
@@ -1146,20 +1145,20 @@ qui laisserait croire à un oubli :
     }
 ```
 
-- [ ] **Étape 6 — adapter les six tests existants** (`duration_adjustment_test.cpp`
-  lignes 96, 110, 124, 140, 177 ; `window_durations_test.cpp` ligne 144) au
-  nouveau constructeur : `ReadingSpeed{...}` → `*ReadingSpeed::create(...)`.
+- [ ] **Step 6 — adapt the six existing tests** (`duration_adjustment_test.cpp`
+  lines 96, 110, 124, 140, 177; `window_durations_test.cpp` line 144) to the
+  new constructor: `ReadingSpeed{...}` → `*ReadingSpeed::create(...)`.
 
-- [ ] **Étape 7 — vérifier que tout compile et que les tests passent.**
+- [ ] **Step 7 — verify that everything compiles and the tests pass.**
 
-### 5.2 — Le maximum par défaut migre au noyau
+### 5.2 — The default maximum migrates to the core
 
-**Fichiers :**
-- Modifier : `src/lib/subedit/core/edit/duration_adjustment.hpp`
-- Modifier : `src/lib/subedit/gui/duration_adjust_dialog.cpp`
+**Files:**
+- Modify: `src/lib/subedit/core/edit/duration_adjustment.hpp`
+- Modify: `src/lib/subedit/gui/duration_adjust_dialog.cpp`
 
-- [ ] Ajouter dans `duration_adjustment.hpp`, à côté de
-  `kDefaultMinimumMilliseconds` :
+- [ ] Add to `duration_adjustment.hpp`, next to
+  `kDefaultMinimumMilliseconds`:
 
 ```cpp
 /// Gaupol's default maximum duration, in milliseconds — off by default, and
@@ -1167,32 +1166,32 @@ qui laisserait croire à un oubli :
 inline constexpr std::int64_t kDefaultMaximumMilliseconds = 6000;
 ```
 
-- [ ] Dans `duration_adjust_dialog.cpp`, retirer
-  `constexpr double kDefaultMaximumSeconds = 6.0;` (ligne 32) et son usage
-  (ligne 110), le remplacer par
+- [ ] In `duration_adjust_dialog.cpp`, remove
+  `constexpr double kDefaultMaximumSeconds = 6.0;` (line 32) and its use
+  (line 110), replace it with
   `secondsOf(core::Duration::fromMilliseconds(core::kDefaultMaximumMilliseconds))`.
-  Les trois autres défauts (`kDefaultReadingSpeed`, `kDefaultMinimumMilliseconds`,
-  le zéro de `gap`) sont déjà au noyau — rien à y changer.
+  The other three defaults (`kDefaultReadingSpeed`, `kDefaultMinimumMilliseconds`,
+  the zero of `gap`) are already in the core — nothing to change there.
 
-- [ ] Vérifier la compilation.
+- [ ] Verify compilation.
 
-### 5.3 — L'état du formulaire, distinct de la requête
+### 5.3 — The form state, distinct from the request
 
-**Fichiers :**
-- Modifier : `src/lib/subedit/gui/duration_adjust_dialog.hpp`/`.cpp`
-- Modifier : `src/lib/subedit/gui/main_window.cpp`/`.hpp`
-- Test : `src/test/gui/window_durations_test.cpp`
+**Files:**
+- Modify: `src/lib/subedit/gui/duration_adjust_dialog.hpp`/`.cpp`
+- Modify: `src/lib/subedit/gui/main_window.cpp`/`.hpp`
+- Test: `src/test/gui/window_durations_test.cpp`
 
-**Le problème exact** (confirmé par lecture) : `main_window.hpp:652` stocke un
-`core::DurationConstraints` — dont les champs optionnels décochés valent
-`std::nullopt` — comme `initial` de la prochaine ouverture. La valeur qu'une
-case décochée portait avant d'être décochée n'est jamais conservée nulle part
-en dehors du widget Qt détruit avec le dialogue. Décision #409 : séparer un
-type « ce que le formulaire affiche » — quatre valeurs, toujours présentes, et
-leurs cases — de `DurationConstraints`, qui reste la requête que le noyau
-reçoit.
+**The exact problem** (confirmed by reading): `main_window.hpp:652` stores a
+`core::DurationConstraints` — whose unchecked optional fields are
+`std::nullopt` — as the `initial` of the next opening. The value that an
+unchecked box held before being unchecked is never kept anywhere
+outside the Qt widget destroyed with the dialog. Decision #409: separate a
+"what the form shows" type — four values, always present, and
+their boxes — from `DurationConstraints`, which remains the request the core
+receives.
 
-- [ ] **Étape 1 — écrire le test qui échoue**
+- [ ] **Step 1 — write the test that fails**
 
 ```cpp
 TEST_CASE("an unchecked minimum keeps its value across two openings of the dialog",
@@ -1218,18 +1217,18 @@ TEST_CASE("an unchecked minimum keeps its value across two openings of the dialo
 }
 ```
 
-(Vérifier le nom exact de l'action — `adjustDurationsAction()` est une
-supposition à confirmer dans `main_window.hpp` avant d'écrire ce test ; si
-l'accesseur n'existe pas encore, l'ajouter comme les autres `*Action()`
-publics du fichier.)
+(Verify the exact name of the action — `adjustDurationsAction()` is a
+guess to be confirmed in `main_window.hpp` before writing this test; if
+the accessor does not exist yet, add it like the other public `*Action()`
+of the file.)
 
-- [ ] **Étape 2 — vérifier qu'il échoue** (le champ affiche 1,5 s, le défaut,
-  et non 2,0 s).
+- [ ] **Step 2 — verify that it fails** (the field shows 1.5 s, the default,
+  and not 2.0 s).
 
-- [ ] **Étape 3 — créer le type d'état de formulaire**
+- [ ] **Step 3 — create the form state type**
 
-Dans `src/lib/subedit/core/config/duration_adjustment_settings.hpp` (nouveau
-fichier, aux côtés de `search_options.hpp`, dont il suit le patron) :
+In `src/lib/subedit/core/config/duration_adjustment_settings.hpp` (new
+file, alongside `search_options.hpp`, whose pattern it follows):
 
 ```cpp
 #pragma once
@@ -1272,7 +1271,7 @@ struct DurationAdjustmentSettings {
 } // namespace subedit::core
 ```
 
-et son `.cpp` :
+and its `.cpp`:
 
 ```cpp
 #include <subedit/core/config/duration_adjustment_settings.hpp>
@@ -1304,28 +1303,28 @@ DurationConstraints constraintsOf(const DurationAdjustmentSettings& settings) {
 } // namespace subedit::core
 ```
 
-- [ ] **Étape 4 — le dialogue prend `DurationAdjustmentSettings` en entrée et
-  en sortie**
+- [ ] **Step 4 — the dialog takes `DurationAdjustmentSettings` as input and
+  output**
 
-`DurationAdjustDialog` : le constructeur reçoit
-`const core::DurationAdjustmentSettings& initial` au lieu de
-`const core::DurationConstraints&`. Une nouvelle méthode publique :
+`DurationAdjustDialog`: the constructor receives
+`const core::DurationAdjustmentSettings& initial` instead of
+`const core::DurationConstraints&`. A new public method:
 
 ```cpp
 [[nodiscard]] core::DurationAdjustmentSettings settings() const;
 ```
 
-remplace `constraints()` comme ce que la fenêtre lit après `exec()` ;
-`isComplete()` appelle `core::constraintsOf(settings()).isAny()`. Le
-remplissage initial des champs (lignes 98-112 actuelles) se lit directement
-sur `initial.*` plutôt que sur des `value_or` — plus besoin de `value_or`
-puisque `DurationAdjustmentSettings` n'a pas de champ optionnel.
+replaces `constraints()` as what the window reads after `exec()`;
+`isComplete()` calls `core::constraintsOf(settings()).isAny()`. The initial
+filling of the fields (current lines 98-112) reads directly
+from `initial.*` rather than from `value_or`s — no more need for `value_or`
+since `DurationAdjustmentSettings` has no optional field.
 
-- [ ] **Étape 5 — `MainWindow` garde l'état plutôt que la requête**
+- [ ] **Step 5 — `MainWindow` keeps the state rather than the request**
 
-`main_window.hpp:652` : `core::DurationConstraints m_durationConstraints;`
-devient `core::DurationAdjustmentSettings m_durationSettings;`.
-`main_window.cpp:1255-1272` (`adjustDurationsOfTarget`) :
+`main_window.hpp:652`: `core::DurationConstraints m_durationConstraints;`
+becomes `core::DurationAdjustmentSettings m_durationSettings;`.
+`main_window.cpp:1255-1272` (`adjustDurationsOfTarget`):
 
 ```cpp
 void MainWindow::adjustDurationsOfTarget() {
@@ -1347,39 +1346,39 @@ void MainWindow::adjustDurationsOfTarget() {
 }
 ```
 
-(`commitCellEditor()` n'apparaît ici que si la tâche 4 a déjà été intégrée —
-`Adjust Durations…` a un dialogue, donc #397 ne l'exigeait pas à proprement
-parler ; l'ajouter est sans risque et cohérent, mais n'est pas requis par
-#397. Le laisser de côté si l'on préfère ne pas mélanger les deux tâches.)
+(`commitCellEditor()` appears here only if task 4 has already been integrated —
+`Adjust Durations…` has a dialog, so #397 did not strictly
+require it; adding it is harmless and consistent, but is not required by
+#397. Leave it out if one prefers not to mix the two tasks.)
 
-- [ ] **Étape 6 — vérifier que le test de l'étape 1 passe**, et que les tests
-  existants de `window_durations_test.cpp` passent toujours (adapter les
-  éventuelles constructions de `DurationConstraints` en
-  `DurationAdjustmentSettings` là où le test construisait l'état initial).
+- [ ] **Step 6 — verify that the test of step 1 passes**, and that the existing
+  tests of `window_durations_test.cpp` still pass (adapt any
+  constructions of `DurationConstraints` into
+  `DurationAdjustmentSettings` where the test built the initial state).
 
-### 5.4 — Persistance dans `settings.conf`
+### 5.4 — Persistence in `settings.conf`
 
-**Fichiers :**
-- Modifier : `src/lib/subedit/core/config/settings.hpp` (ajouter le champ)
-- Modifier : `src/lib/subedit/core/config/settings.cpp` (clés, lecture,
-  écriture)
-- Modifier : `src/lib/subedit/gui/main_window.cpp` (`applySettings`,
+**Files:**
+- Modify: `src/lib/subedit/core/config/settings.hpp` (add the field)
+- Modify: `src/lib/subedit/core/config/settings.cpp` (keys, reading,
+  writing)
+- Modify: `src/lib/subedit/gui/main_window.cpp` (`applySettings`,
   `settings()`)
-- Modifier : `docs/manual/subedit-gui/operations.md` (ligne 222-223) et
-  `docs/manual/subedit-gui/preferences.md` (lignes 170, 177-182)
-- Test : `src/test/unit/core/config/settings_test.cpp` (confirmer le nom
-  exact)
+- Modify: `docs/manual/subedit-gui/operations.md` (lines 222-223) and
+  `docs/manual/subedit-gui/preferences.md` (lines 170, 177-182)
+- Test: `src/test/unit/core/config/settings_test.cpp` (confirm the exact
+  name)
 
-Suivre exactement le patron de `SearchOptions` (`settings.hpp:119`,
+Follow exactly the pattern of `SearchOptions` (`settings.hpp:119`,
 `settings.cpp:34-35,256-259,384-385`).
 
-- [ ] **Étape 1 — écrire le test qui échoue**, sur le modèle des tests
-  existants de `search.regex`/`search.ignore-case` dans
-  `settings_test.cpp` — un aller-retour écriture/lecture qui vérifie que
-  `durationAdjustment` survit, et qu'un fichier qui ne le mentionne pas
-  retombe sur les défauts.
+- [ ] **Step 1 — write the test that fails**, on the model of the existing
+  tests of `search.regex`/`search.ignore-case` in
+  `settings_test.cpp` — a write/read round trip that checks that
+  `durationAdjustment` survives, and that a file that does not mention it
+  falls back on the defaults.
 
-- [ ] **Étape 2 — ajouter le champ à `Settings`**
+- [ ] **Step 2 — add the field to `Settings`**
 
 ```cpp
 /// The form of `Adjust Durations…`, kept from one opening of the dialog to
@@ -1388,10 +1387,10 @@ Suivre exactement le patron de `SearchOptions` (`settings.hpp:119`,
 DurationAdjustmentSettings durationAdjustment{};
 ```
 
-(avec l'inclusion de `<subedit/core/config/duration_adjustment_settings.hpp>`
-dans `settings.hpp`.)
+(with the include of `<subedit/core/config/duration_adjustment_settings.hpp>`
+in `settings.hpp`.)
 
-- [ ] **Étape 3 — les clés**, à côté de `kSearchIgnoreCaseKey` :
+- [ ] **Step 3 — the keys**, next to `kSearchIgnoreCaseKey`:
 
 ```cpp
 constexpr std::string_view kDurationSpeedKey = "duration-adjust.speed";
@@ -1405,9 +1404,9 @@ constexpr std::string_view kDurationGapEnabledKey = "duration-adjust.gap-enabled
 constexpr std::string_view kDurationGapKey = "duration-adjust.gap-ms";
 ```
 
-**Un nombre à virgule est à lire différemment d'un entier** : `speed` est un
-`double`, alors que `integerOf`/`booleanOf` couvrent le reste. Ajouter une
-petite fonction voisine de `integerOf` :
+**A decimal number must be read differently from an integer**: `speed` is a
+`double`, whereas `integerOf`/`booleanOf` cover the rest. Add a
+small function next to `integerOf`:
 
 ```cpp
 [[nodiscard]] std::optional<double> decimalOf(std::string_view text) {
@@ -1421,24 +1420,24 @@ petite fonction voisine de `integerOf` :
 }
 ```
 
-- [ ] **Étape 4 — `applyOption`**
+- [ ] **Step 4 — `applyOption`**
 
-Le commentaire de la fonction dit déjà que la septième option l'a fait
-franchir le seuil de complexité que la porte tolère — en ajouter neuf de plus
-d'affilée le refranchirait presque certainement. **Avant d'ajouter les
-branches, lancer `clang-tidy` sur `settings.cpp` seul** pour mesurer l'effet :
+The function's comment already says that the seventh option made it
+cross the complexity threshold the gate tolerates — adding nine more
+in a row would almost certainly cross it again. **Before adding the
+branches, run `clang-tidy` on `settings.cpp` alone** to measure the effect:
 
 ```console
 $ ./src/scripts/gate.sh check --only tidy
 ```
 
-Si le seuil est dépassé après ajout, ne pas empiler des `else if`
-supplémentaires : regrouper les neuf clés de l'ajustement des durées dans une
-fonction dédiée `applyDurationAdjustmentOption(read, key, value)` appelée
-depuis `applyOption` par un unique `else if (key.starts_with("duration-adjust."))`
-— une décomposition plutôt qu'une gonflette de la fonction existante, dans le
-même esprit que ce qui a déjà été fait pour la faire tenir sous le seuil au
-septième réglage.
+If the threshold is exceeded after the addition, do not pile up additional
+`else if`s: group the nine keys of the duration adjustment in a
+dedicated function `applyDurationAdjustmentOption(read, key, value)` called
+from `applyOption` by a single `else if (key.starts_with("duration-adjust."))`
+— a decomposition rather than inflating the existing function, in the
+same spirit as what was already done to make it fit under the threshold at the
+seventh setting.
 
 ```cpp
 void applyDurationAdjustmentOption(SettingsRead& read, std::string_view key, std::string_view value) {
@@ -1472,20 +1471,20 @@ void applyDurationAdjustmentOption(SettingsRead& read, std::string_view key, std
 }
 ```
 
-(`integerOf` rend un `int` ; `minimumMilliseconds` etc. sont des
-`std::int64_t` — vérifier la conversion, ou changer `integerOf` pour un
-gabarit couvrant les deux tailles si la porte l'exige. Un détail à trancher à
-l'implémentation plutôt qu'ici : les deux options sont raisonnables, et le
-choix dépend de ce que `clang-tidy`/`cppcoreguidelines` acceptent.)
+(`integerOf` returns an `int`; `minimumMilliseconds` etc. are
+`std::int64_t` — verify the conversion, or change `integerOf` into a
+template covering both sizes if the gate requires it. A detail to settle at
+implementation rather than here: both options are reasonable, and the
+choice depends on what `clang-tidy`/`cppcoreguidelines` accept.)
 
-Puis, dans `applyOption` :
+Then, in `applyOption`:
 
 ```cpp
     else if (key.starts_with("duration-adjust."))
         applyDurationAdjustmentOption(read, key, value);
 ```
 
-- [ ] **Étape 5 — `renderSettings`**, à côté du bloc de `search` :
+- [ ] **Step 5 — `renderSettings`**, next to the `search` block:
 
 ```cpp
     const DurationAdjustmentSettings duration = settings.durationAdjustment;
@@ -1510,70 +1509,70 @@ Puis, dans `applyOption` :
                 duration.gapMilliseconds == durationDefaults.gapMilliseconds);
 ```
 
-- [ ] **Étape 6 — `main_window.cpp`**, dans `applySettings` (à côté de la
-  ligne 1830) :
+- [ ] **Step 6 — `main_window.cpp`**, in `applySettings` (next to
+  line 1830):
 
 ```cpp
     m_durationSettings = settings.durationAdjustment;
 ```
 
-et dans `settings()` (à côté de la ligne 1866) :
+and in `settings()` (next to line 1866):
 
 ```cpp
     settings.durationAdjustment = m_durationSettings;
 ```
 
-- [ ] **Étape 7 — vérifier que le test de l'étape 1 passe, et que
-  `make check` reste vert sur `settings.cpp`** (complexité comprise).
+- [ ] **Step 7 — verify that the test of step 1 passes, and that
+  `make check` stays green on `settings.cpp`** (complexity included).
 
-- [ ] **Étape 8 — mettre à jour le manuel**
+- [ ] **Step 8 — update the manual**
 
-`docs/manual/subedit-gui/operations.md`, lignes 222-223, remplacer :
-
-```
-Le dialogue rouvre sur les valeurs du dernier ajustement, le temps que la fenêtre
-reste ouverte ; il ne les garde pas d'une session à l'autre.
-```
-
-par :
+`docs/manual/subedit-gui/operations.md`, lines 222-223, replace:
 
 ```
-Le dialogue rouvre sur les valeurs du dernier ajustement, **et les garde d'une
-session à l'autre** — comme les deux options de la recherche.
+The dialog reopens on the values of the last adjustment, for as long as the window
+stays open; it does not keep them from one session to the next.
 ```
 
-`docs/manual/subedit-gui/preferences.md` :
-
-- ligne 170, « Cinq réglages » devient « Six réglages », et la liste gagne
-  l'ajustement des durées :
+with:
 
 ```
-**Six réglages retenus se choisissent dans un dialogue**, et chacun dans celui où
-il sert : le thème, ici ; le côté d'une insertion, dans le dialogue
-d'insertion ; les deux options de la recherche, dans le dialogue de
-recherche ; l'encodage et la marque d'ordre des octets, dans `Save As…` ; la
-vitesse de lecture, les durées et l'écart de l'ajustement des durées, dans son
-propre dialogue.
+The dialog reopens on the values of the last adjustment, **and keeps them from one
+session to the next** — like the two search options.
 ```
 
-- lignes 177-182, la phrase sur `Adjust Durations…` comme seule exception
-  disparaît puisqu'il n'en est plus une :
+`docs/manual/subedit-gui/preferences.md`:
+
+- line 170, "Five settings" becomes "Six settings", and the list gains
+  the duration adjustment:
 
 ```
-Et **aucun nombre qui appartient à un document n'est gardé d'une session à
-l'autre** : une durée de décalage, deux repères de transformation sont vrais
-d'un fichier et faux du suivant. Les dialogues les redemandent à chaque
-lancement, délibérément. Les réglages de `Adjust Durations…` font exception au
-même titre que les deux options de la recherche : une vitesse de lecture, une
-durée minimale ou un écart sont des choix de méthode plutôt que des mesures
-d'un fichier, et persistent d'une session à l'autre pour cette raison.
+**Six retained settings are chosen in a dialog**, each in the one where
+it is used: the theme, here; the side of an insertion, in the insertion
+dialog; the two search options, in the search
+dialog; the encoding and the byte order mark, in `Save As…`; the
+reading speed, the durations and the gap of the duration adjustment, in its
+own dialog.
 ```
 
-- [ ] **Étape 9 — commiter.**
+- lines 177-182, the sentence about `Adjust Durations…` as the only exception
+  disappears since it is no longer one:
+
+```
+And **no number that belongs to a document is kept from one session to
+the next**: an offset duration, two transformation reference points are true
+of one file and false of the next. The dialogs ask for them again at each
+launch, deliberately. The settings of `Adjust Durations…` are an exception on
+the same footing as the two search options: a reading speed, a minimum
+duration or a gap are choices of method rather than measurements
+of a file, and persist from one session to the next for that reason.
+```
+
+- [ ] **Step 9 — commit.**
 
 ```
 git -C /home/beber/Projects/subedit commit -m "$(cat <<'EOF'
-feat(core): valider la vitesse de lecture et garder les réglages d'ajustement
+feat(core): validate the reading speed and keep the adjustment settings
 
 Closes #409
 EOF
@@ -1582,21 +1581,21 @@ EOF
 
 ---
 
-## Fin de lot — ce qui reste dû, une fois les cinq commits en place
+## End of batch — what remains owed, once the five commits are in place
 
-Suivre l'ordre déjà décrit dans `CLAUDE.md` :
+Follow the order already described in `CLAUDE.md`:
 
-- [ ] relire l'ensemble du diff des cinq tâches ;
-- [ ] bumper le patch dans `CMakeLists.txt` (une seule fois, à la fin) ;
-- [ ] `make manual` ;
-- [ ] `make check-local`, relever le banc ;
-- [ ] `make check` ;
-- [ ] vérifier que toute la documentation touchée est à jour (manuel,
-  `CLAUDE.md`) — fait au fil des tâches ci-dessus, à relire une dernière fois ;
-- [ ] régénérer le `CHANGELOG` ;
-- [ ] ouvrir la pull request avec les cinq lignes `Closes #N` (#396, #404,
-  #398, #397, #409) dans son corps, titre à la portée dominante (probablement
-  `feat(gui):` ou `fix(gui):` selon ce qui domine — cinq issues touchant à la
-  fois `core` et `gui`, à trancher à l'écriture du titre) et sous la limite de
-  72 caractères, vérifié par
-  `./src/scripts/check-commit-message.sh "<titre>"` avant de l'ouvrir.
+- [ ] reread the whole diff of the five tasks;
+- [ ] bump the patch in `CMakeLists.txt` (only once, at the end);
+- [ ] `make manual`;
+- [ ] `make check-local`, record the bench;
+- [ ] `make check`;
+- [ ] verify that all the documentation touched is up to date (manual,
+  `CLAUDE.md`) — done along the way in the tasks above, to be reread one last time;
+- [ ] regenerate the `CHANGELOG`;
+- [ ] open the pull request with the five `Closes #N` lines (#396, #404,
+  #398, #397, #409) in its body, title at the dominant scope (probably
+  `feat(gui):` or `fix(gui):` depending on what dominates — five issues touching
+  both `core` and `gui`, to be settled when writing the title) and under the limit of
+  72 characters, verified by
+  `./src/scripts/check-commit-message.sh "<title>"` before opening it.

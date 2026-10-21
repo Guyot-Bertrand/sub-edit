@@ -24,7 +24,7 @@ using subedit::core::EncodingRefusal;
     const std::expected<Encoding, EncodingRefusal> encoding =
         Encoding::create(name, ByteOrderMark::Absent);
     if (!encoding.has_value()) {
-        FAIL("ICU ne connaît pas l'encodage " + std::string{name});
+        FAIL("ICU does not know the encoding " + std::string{name});
         return Encoding::utf8(ByteOrderMark::Absent);
     }
     return *encoding;

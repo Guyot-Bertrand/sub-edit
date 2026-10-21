@@ -1,95 +1,94 @@
 name: pull request
 
-# Les trois obligations que la porte de qualité ne voit pas : la ligne
-# « Closes #N » dans le corps, le bump du patch et la régénération du journal.
-# Elles sont mécaniquement décidables et étaient faites à la main jusqu'ici.
+# The three obligations the quality gate does not see: the "Closes #N" line in
+# the body, the patch bump and the regeneration of the log. They are
+# mechanically decidable and were done by hand until now.
 #
-# Fichier séparé de ci.yml à cause du type « edited » : le corps d'une pull
-# request se corrige souvent, et ajouter ce type au déclencheur commun
-# relancerait la porte de qualité — un quart d'heure de compilation — à chaque
-# retouche. Ce travail-ci ne construit rien et tient en quelques secondes.
+# A file separate from ci.yml because of the "edited" type: a pull request's
+# body is often corrected, and adding that type to the common trigger would
+# rerun the quality gate — a quarter of an hour of compilation — on every
+# touch-up. This job builds nothing and takes a few seconds.
 #
-# « edited » est indispensable : sans lui, corriger un corps oublié ne
-# relancerait rien et le contrôle resterait rouge. « synchronize » l'est tout
-# autant, pour que la version et le journal soient revus à chaque poussée.
+# "edited" is indispensable: without it, correcting a forgotten body would
+# rerun nothing and the check would stay red. "synchronize" is just as much so,
+# for the version and the log to be reviewed on every push.
 
-# **À la demande seulement, depuis #232**, et pour la raison de `ci.yml`. Il ne
-# coûte qu'une minute ; c'est le geste qui est cohérent, pas l'économie. Les
-# trois obligations qu'il vérifie — « Closes #N », le bump du patch, le journal
-# régénéré — sont des règles écrites dans CLAUDE.md, tenues à la main.
+# **On demand only, since #232**, and for the reason given in `ci.yml`. It
+# costs only a minute; it is the gesture that is consistent, not the saving.
+# The three obligations it checks — "Closes #N", the patch bump, the
+# regenerated log — are rules written in CLAUDE.md, held by hand.
 #
-# `workflow_dispatch` reste pour que le fichier demeure un workflow valide. Il
-# ne sert pas à grand-chose : les contrôles lisent le corps et la base de la
-# pull request qui les déclenche, et une exécution manuelle n'en a aucune.
+# `workflow_dispatch` remains so that the file stays a valid workflow. It is of
+# little use: the checks read the body and the base of the pull request that
+# triggers them, and a manual run has none.
 
 on:
   workflow_dispatch:
 
-# Une nouvelle poussée, ou une nouvelle édition, annule la vérification en
-# cours sur la même pull request.
+# A new push, or a new edit, cancels the check in progress on the same pull
+# request.
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
   pull-request:
-    name: contrôles de pull request
+    name: pull request checks
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v7
         with:
-          # La tête de la branche, et non le commit de fusion que GitHub
-          # fabrique par défaut. Régénérer le journal sur la fusion y ferait
-          # entrer les commits arrivés sur main depuis l'ouverture, donc un
-          # journal différent de celui que l'auteur a commité — et le refus
-          # d'une pull request correcte.
+          # The branch head, and not the merge commit GitHub builds by
+          # default. Regenerating the log on the merge would pull in the
+          # commits that arrived on main since the opening, hence a log
+          # different from the one the author committed — and the refusal of a
+          # correct pull request.
           ref: ${{ github.event.pull_request.head.sha }}
-          # git-cliff a besoin de l'historique complet et des tags, et le
-          # contrôle de version doit pouvoir lire CMakeLists.txt sur la base.
+          # git-cliff needs the full history and the tags, and the version
+          # check must be able to read CMakeLists.txt on the base.
           fetch-depth: 0
 
-      # Pas setup-toolchain.sh en entier : ce travail ne compile rien, et
-      # installer cmake, clang-tidy et gcovr lui coûterait plusieurs minutes
-      # pour trois comparaisons de texte.
+      # Not all of setup-toolchain.sh: this job compiles nothing, and
+      # installing cmake, clang-tidy and gcovr would cost it several minutes
+      # for three text comparisons.
       - name: git-cliff
         run: ./src/scripts/setup-toolchain.sh --git-cliff-only
 
-      # Les trois contrôles vivent dans un script, pas dans ce fichier : un
-      # script se teste en local, et src/scripts/verify-gates.sh prouve que
-      # chacun se referme sur le défaut qu'il existe pour attraper.
-      - name: Contrôles de pull request
+      # The three checks live in a script, not in this file: a script can be
+      # tested locally, and src/scripts/verify-gates.sh proves that each one
+      # closes on the defect it exists to catch.
+      - name: Pull request checks
         env:
           PR_BODY: ${{ github.event.pull_request.body }}
           BASE_SHA: ${{ github.event.pull_request.base.sha }}
         run: ./src/scripts/check-pull-request.sh
 
-  # Ce travail vivait dans ci.yml, et il en descend pour deux raisons.
+  # This job lived in ci.yml, and it came down from there for two reasons.
   #
-  # **Il y était sourd aux corrections.** ci.yml n'écoute pas « edited » : un
-  # titre de pull request corrigé ne relançait jamais son propre contrôle, qui
-  # restait rouge indéfiniment. C'est arrivé sur la #99. Ici, « edited » est
-  # dans le déclencheur, précisément parce qu'un corps et un titre se
-  # corrigent.
+  # **It was deaf to corrections there.** ci.yml does not listen to "edited": a
+  # corrected pull request title never reran its own check, which stayed red
+  # indefinitely. It happened on #99. Here, "edited" is in the trigger,
+  # precisely because a body and a title get corrected.
   #
-  # **Il y aurait été sauté.** ci.yml ignore désormais les pull requests qui ne
-  # touchent que la documentation — et une pull request de documentation a
-  # exactement autant besoin d'un titre valide que les autres.
+  # **It would have been skipped there.** ci.yml now ignores pull requests that
+  # only touch documentation — and a documentation pull request needs a valid
+  # title exactly as much as the others.
   commits:
-    name: messages de commit
+    name: commit messages
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v7
         with:
           fetch-depth: 0
 
-      - name: Grammaire Conventional Commits
+      - name: Conventional Commits grammar
         env:
           EVENT: ${{ github.event_name }}
           BASE_SHA: ${{ github.event.pull_request.base.sha }}
           HEAD_SHA: ${{ github.event.pull_request.head.sha }}
         run: ./src/scripts/check-commit-range.sh
 
-      - name: Titre de la pull request
+      - name: Pull request title
         env:
           PR_TITLE: ${{ github.event.pull_request.title }}
         run: ./src/scripts/check-commit-message.sh "${PR_TITLE}"

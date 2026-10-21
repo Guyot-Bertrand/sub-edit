@@ -1,25 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
   <!--
-    L'icône de subedit.
+    The subedit icon.
 
-    **Le commentaire est ici, après la balise racine, et il doit y rester.**
-    gdk-pixbuf — le chargeur par lequel les bureaux GTK lisent une icône —
-    reconnaît un SVG en cherchant « <svg » dans les **256 premiers octets** du
-    fichier. Un commentaire placé avant la racine repousse la balise au-delà, et
-    le fichier n'est alors reconnu par personne : le bureau affiche une tuile
-    vide. C'est ce qui est arrivé — issue #260 —, et rien ne le disait, parce
-    qu'Inkscape et Qt lisent le fichier sans se soucier de cette fenêtre.
-    `check-icon.py` la vérifie désormais.
+    **The comment is here, after the root tag, and it must stay here.**
+    gdk-pixbuf — the loader through which GTK desktops read an icon —
+    recognises an SVG by looking for "<svg" in the **first 256 bytes** of the
+    file. A comment placed before the root pushes the tag beyond that, and the
+    file is then recognised by nobody: the desktop shows an empty tile. That is
+    what happened — issue #260 — and nothing said so, because Inkscape and Qt
+    read the file without caring about that window. `check-icon.py` now checks
+    it.
 
-    Ce qu'elle dessine : une tuile pleine, et deux lignes de sous-titre, la
-    seconde plus courte. La tuile pleine est ce qui la rend visible sur un fond
-    sombre — la version précédente était un cadre sombre sur fond transparent,
-    donc invisible sur un bureau sombre, ce qui était l'autre moitié du défaut.
+    What it draws: a solid tile, and two subtitle lines, the second shorter.
+    The solid tile is what makes it visible on a dark background — the
+    previous version was a dark frame on a transparent background, hence
+    invisible on a dark desktop, which was the other half of the defect.
 
-    Sans texte : le répertoire est « scalable/apps », une seule image sert
-    toutes les tailles, et un glyphe dépendrait d'une police que la machine peut
-    ne pas avoir.
+    No text: the directory is "scalable/apps", a single image serves all
+    sizes, and a glyph would depend on a font the machine may not have.
   -->
   <rect x="2" y="6" width="60" height="52" rx="12" fill="#3d7ad6"/>
   <rect x="12" y="23" width="40" height="9" rx="4.5" fill="#ffffff"/>

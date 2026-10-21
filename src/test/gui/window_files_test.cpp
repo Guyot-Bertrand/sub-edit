@@ -61,7 +61,7 @@ using subedit::gui::UnsavedChoice;
     const std::expected<Encoding, EncodingRefusal> encoding =
         Encoding::create(name, ByteOrderMark::Absent);
     if (!encoding.has_value()) {
-        FAIL("ICU ne connaît pas cet encodage");
+        FAIL("ICU does not know this encoding");
         return Encoding::utf8(ByteOrderMark::Absent);
     }
     return *encoding;
@@ -327,7 +327,7 @@ TEST_CASE("saving under another name moves the document there", "[gui][GUI-SAVE-
 
 TEST_CASE("saving under another name asks first, and gives up if told to", "[gui][GUI-SAVE-02]") {
     InMemoryFileSystem files = withFile("film.srt", kThree);
-    FakePrompts prompts; // nextSaveTarget vide : l'utilisateur a annulé
+    FakePrompts prompts; // nextSaveTarget empty: the user cancelled
     MainWindow window{files, fileIn(files, "film.srt"), prompts};
     window.show();
 
@@ -595,7 +595,7 @@ TEST_CASE("a save-as that cannot be written says so and moves nothing", "[gui][G
 
 TEST_CASE("giving up on the file dialog opens nothing", "[gui][GUI-OPEN-01]") {
     InMemoryFileSystem files = withFile("film.srt", kThree);
-    FakePrompts prompts; // nextFileToOpen vide : l'utilisateur a renoncé
+    FakePrompts prompts; // nextFileToOpen empty: the user gave up
     MainWindow window{files, fileIn(files, "film.srt"), prompts};
     window.show();
 

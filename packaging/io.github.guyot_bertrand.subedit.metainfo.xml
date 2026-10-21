@@ -1,21 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  Les métadonnées AppStream, celles qu'une logithèque lit.
+  The AppStream metadata, the kind a software centre reads.
 
-  **En anglais, comme tout ce que l'utilisateur voit.** C'est la règle du
-  projet : la ligne de commande, la fenêtre et ce fichier disent les mêmes mots.
-  La traduction est une étape à elle seule, et AppStream l'attend sous forme
-  d'attributs `xml:lang` qui viendront avec elle.
+  **In English, like everything the user sees.** That is the project's rule:
+  the command line, the window and this file say the same words. Translation
+  is a step of its own, and AppStream expects it as `xml:lang` attributes that
+  will come with it.
 
-  **La liste des versions est celle des tags, et rien d'autre.** Le projet
-  incrémente son patch à chaque pull request sans poser de tag ; ce qui est
-  livré, ce sont les `vX.Y.0` de fin de phase. Écrire ici les patchs
-  reviendrait à annoncer des versions que personne n'a publiées.
+  **The list of releases is that of the tags, and nothing else.** The project
+  increments its patch on every pull request without placing a tag; what is
+  delivered is the `vX.Y.0` at the end of each phase. Writing the patches here
+  would amount to announcing versions that nobody has published.
 
-  Une ligne s'ajoute donc au moment du tag, avec lui.
-  `check-installation.sh` confronte la plus récente au tag le plus récent : une
-  ligne oubliée fait échouer la porte plutôt que de laisser la logithèque
-  annoncer une version périmée.
+  A line is therefore added at the moment of the tag, with it.
+  `check-installation.sh` confronts the most recent one with the most recent
+  tag: a forgotten line fails the gate rather than letting the software centre
+  announce an outdated version.
 -->
 <component type="desktop-application">
   <id>io.github.guyot_bertrand.subedit</id>

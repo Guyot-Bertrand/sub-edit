@@ -1,141 +1,139 @@
-# Les motifs de correction de Gaupol, et ce qu'il en fait
+# Gaupol's correction patterns, and what it does with them
 
-Les motifs de correction de Gaupol, versionnés tels quels, des textes écrits à la
-main pour les éprouver, et **ce que Gaupol en fait**, écrit par un oracle. C'est ce
-que le moteur de correction de la phase 12 devra reproduire, quel que soit le
-moteur d'expressions rationnelles retenu. Issue
-[#494](https://github.com/Guyot-Bertrand/sub-edit/issues/494), outil retenu par
-l'initialisation de la phase ([#492](https://github.com/Guyot-Bertrand/sub-edit/issues/492)).
+Gaupol's correction patterns, versioned as they are, texts written by hand to
+test them, and **what Gaupol does with them**, written by an oracle. This is what
+the phase 12 correction engine will have to reproduce, whichever regular-expression
+engine is retained. Issue
+[#494](https://github.com/Guyot-Bertrand/sub-edit/issues/494), a tool retained by
+the initialisation of the phase ([#492](https://github.com/Guyot-Bertrand/sub-edit/issues/492)).
 
-Ces attendus ont été écrits **avant** le moteur, pour la raison de
-[`formats/`](../formats/LISEZMOI.md) : une fixture tirée de la compréhension qu'on
-a d'un algorithme, relue par l'implémentation de ce même algorithme, ne prouve que
-leur accord.
+These expected files were written **before** the engine, for the reason given in
+[`formats/`](../formats/LISEZMOI.md): a fixture drawn from one's understanding of
+an algorithm, read back by the implementation of that same algorithm, proves only
+their agreement.
 
-## Ce qu'il y a ici
+## What is here
 
-| Répertoire | Ce que c'est | Écrit par |
+| Directory | What it is | Written by |
 | :--------- | :----------- | :-------- |
-| [`packaging/patterns/`](../../../../packaging/patterns/) | les douze fichiers de motifs de Gaupol et leurs douze `.conf` d'activation | copiés, jamais retouchés |
-| `entrees/` | les textes à éprouver, un fichier par type de motif | à la main |
-| `attendus/` | ce que Gaupol fait de chaque texte, au format des `.cas`, et **la cascade de chaque code** (`cascades.txt`) | `src/scripts/pattern-oracle.py` |
-| `utilisateur/` | des fichiers de motifs **que l'utilisateur dépose** dans `$XDG_DATA_HOME/subedit/patterns` : deux qui échouent (`Latn-xt`, un motif qui ne termine pas ; `Latn-xu`, un motif intraduisible), `Latn-xg` — two untranslatable patterns, one bearing a shipped pattern's English name and one the user's own, for the names shown in a language (#666) —, deux qui partagent un nom entre deux types (`Latn-xa`), un qui s'ajoute aux motifs livrés (`Latn-xb`), et les trois pénalités du test du découpeur de Gaupol (`Zzzz-xl`, ce que les cas `essai` de `line-break.cas` demandent) | à la main, pour les cas de bout en bout de `correct` (`src/test/e2e/cli/correct_test.cpp`), qui les dépose dans le répertoire que le harnais a déplacé |
+| [`packaging/patterns/`](../../../../packaging/patterns/) | Gaupol's twelve pattern files and their twelve activation `.conf` files | copied, never touched up |
+| `entrees/` | the texts to test, one file per pattern type | by hand |
+| `attendus/` | what Gaupol does with each text, in the `.cas` format, and **the cascade of each code** (`cascades.txt`) | `src/scripts/pattern-oracle.py` |
+| `utilisateur/` | pattern files **that the user drops** into `$XDG_DATA_HOME/subedit/patterns`: two that fail (`Latn-xt`, a pattern that does not terminate; `Latn-xu`, an untranslatable pattern), `Latn-xg` — two untranslatable patterns, one bearing a shipped pattern's English name and one the user's own, for the names shown in a language (#666) —, two that share a name between two types (`Latn-xa`), one that is added to the shipped patterns (`Latn-xb`), and the three penalties of the Gaupol line-breaker test (`Zzzz-xl`, what the `essai` cases of `line-break.cas` ask for) | by hand, for the end-to-end cases of `correct` (`src/test/e2e/cli/correct_test.cpp`), which drops them into the directory the harness has moved |
 
-## `packaging/patterns/` — les motifs, tels que Gaupol les livre
+## `packaging/patterns/` — the patterns, as Gaupol ships them
 
-Ils ne vivent plus ici : le programme les installe et les lit, l'oracle et les
-tests avec lui, et il n'y a donc qu'une copie. Leur provenance, leur attribution
-et la règle de mise à jour sont dans
+They no longer live here: the program installs and reads them, the oracle and the
+tests with it, so there is only one copy. Their provenance, their attribution
+and the update rule are in
 [`packaging/patterns/LISEZMOI.md`](../../../../packaging/patterns/LISEZMOI.md).
 Issue [#498](https://github.com/Guyot-Bertrand/sub-edit/issues/498).
 
-## `entrees/` — les textes à éprouver
+## `entrees/` — the texts to test
 
-Un fichier par type : `common-error`, `capitalization`, `hearing-impaired`,
-`line-break`. Une ligne par cas :
+One file per type: `common-error`, `capitalization`, `hearing-impaired`,
+`line-break`. One line per case:
 
 ```
-cible | attente | libellé | "texte"
+target | expectation | label | "text"
 ```
 
-| Champ | Ce qu'il dit |
+| Field | What it says |
 | :---- | :----------- |
-| `cible` | un enregistrement seul — `Latn-en:3`, le troisième de `Latn-en.<type>`, appliqué qu'il soit actif ou non —, ou une cascade — `cascade Latn-en`, telle que Gaupol l'active par défaut, `cascade Latn-en tous`, tout coché |
-| `attente` | `corrige` ou `intact` : ce que le cas **annonce** |
-| `libellé` | ce que le cas montre, en français |
-| `"texte"` | le texte, entre guillemets ; plusieurs textes séparés par `;` sont des sous-titres consécutifs |
+| target | a single record — `Latn-en:3`, the third of `Latn-en.<type>`, applied whether it is active or not —, or a cascade — `cascade Latn-en`, as Gaupol activates it by default, `cascade Latn-en tous` (all), everything ticked |
+| expectation | `corrige` (fixed) or `intact` (untouched): what the case **announces** |
+| label | what the case shows, as prose |
+| text | the text, between quotation marks; several texts separated by `;` are consecutive subtitles |
 
-Les échappements sont ceux des `.cas` : `\"`, `\\`, `\n`, `\t`. Les espaces
-d'alignement d'une cible ne comptent pas.
+The escapes are those of the `.cas` files: `\"`, `\\`, `\n`, `\t`. The alignment
+spaces of a target do not count.
 
-**L'oracle refuse un cas qui ne fait pas ce qu'il annonce** — un `corrige` qui ne
-change rien, un `intact` qui change —, **un enregistrement qui n'a pas un cas de
-chaque sorte**, et une langue livrée sans sa cascade. C'est ce qui garde ces
-entrées honnêtes : un cas `intact` se place **au bord** du motif, là où un moteur
-qui traduirait mal un lookbehind corrigerait trop.
+**The oracle refuses a case that does not do what it announces** — a `corrige` that
+changes nothing, an `intact` that changes —, **a record that does not have a case of
+each kind**, and a shipped language without its cascade. This is what keeps these
+inputs honest: an `intact` case is placed **at the edge** of the pattern, where an engine
+that translated a lookbehind badly would correct too much.
 
-**Le découpage de lignes a sa propre cible et sa propre attente** — issue
-[#495](https://github.com/Guyot-Bertrand/sub-edit/issues/495) :
+**Line breaking has its own target and its own expectation** — issue
+[#495](https://github.com/Guyot-Bertrand/sub-edit/issues/495):
 
-- la cible finit par les réglages, `<longueur>/<lignes>` — `Latn-en:2 16/2`,
-  `cascade Latn-en 42/2` ; deux sélections de plus, `essai` pour les trois
-  pénalités de `aeidon/test/test_liner.py` et `aucune` ;
-- l'attente est `coupe` ou `intact` ;
-- **chaque motif décide au moins un cas** : son découpage diffère de celui
-  d'aucune pénalité aux mêmes réglages. L'oracle refuse un motif qui ne décide
-  rien, sans quoi un moteur qui l'ignorerait passerait ;
-- **en caractères seulement** : la mesure en *ems* dépend de la police, et c'est
-  au cadrage d'en décider (#493).
+- the target ends with the settings, `<length>/<lines>` — `Latn-en:2 16/2`,
+  `cascade Latn-en 42/2`; two more selections, `essai` for the three
+  penalties of `aeidon/test/test_liner.py` and `aucune` (none);
+- the expectation is `coupe` (breaks) or `intact`;
+- **each pattern decides at least one case**: its breaking differs from that of
+  no penalty at the same settings. The oracle refuses a pattern that decides
+  nothing, otherwise an engine that ignored it would pass;
+- **in characters only**: measurement in *ems* depends on the font, and it is
+  for the scoping to decide it (#493).
 
-**La plupart des textes ne portent pas de balise.** Le parseur de Gaupol retire
-les balises et les remet autour des remplacements. Là où une correction touche
-une balise de SubRip, `entrees/` porte quelques cas de plus — issue
-[#501](https://github.com/Guyot-Bertrand/sub-edit/issues/501) —, et l'oracle
-porte le parseur de Gaupol (`aeidon/parser.py`) pour les produire ; c'est ce
-que le parseur de balises de la phase 10, éprouvé ailleurs, doit reproduire.
+**Most texts carry no tag.** Gaupol's parser strips the tags and puts them back
+around the replacements. Where a correction touches a SubRip tag, `entrees/` carries
+a few more cases — issue [#501](https://github.com/Guyot-Bertrand/sub-edit/issues/501) —,
+and the oracle carries Gaupol's parser (`aeidon/parser.py`) to produce them; this is what
+the tag parser of phase 10, tested elsewhere, must reproduce.
 
-## `attendus/` — ce que Gaupol en fait
+## `attendus/` — what Gaupol does with them
 
-Un `.cas` par type, que `textCasesOf` sait lire : `libellé | "entrée" | "attendu"`,
-`=` pour un texte que les motifs laissent, `supprimé` pour un sous-titre que le
-retrait des mentions vide. Le libellé commence par la cible et l'attente ; un
-sous-titre d'une suite porte son rang, `[2/3]`.
+One `.cas` per type, which `textCasesOf` can read: `label | "input" | "expected"`,
+`=` for a text the patterns leave alone, `supprimé` (removed) for a subtitle that
+mention removal empties. The label begins with the target and the expectation; a
+subtitle of a sequence carries its rank, `[2/3]`.
 
-**Engendrés, jamais écrits à la main** :
+**Generated, never written by hand**:
 
 ```console
-$ ./src/scripts/pattern-oracle.py --write   # après avoir changé une entrée
-$ ./src/scripts/pattern-oracle.py --check   # ce que make fixtures lance
+$ ./src/scripts/pattern-oracle.py --write   # after changing an input
+$ ./src/scripts/pattern-oracle.py --check   # what make fixtures runs
 ```
 
-## Ce que l'oracle reproduit, et pourquoi pas `re.sub`
+## What the oracle reproduces, and why not `re.sub`
 
-L'oracle reproduit le chargement de Gaupol (lignes de commentaire, `\0` retiré,
-activation par les `.conf`), sa cascade des codes (`SkipIn`, `Policy=Replace`), sa
-recherche, ses trois opérations sur le texte et son découpeur de lignes (`Liner`),
-**ligne à ligne**. Chacune est nommée dans le
-script à côté de ce qu'elle porte.
+The oracle reproduces Gaupol's loading (comment lines, `\0` removed,
+activation through the `.conf` files), its cascade of codes (`SkipIn`, `Policy=Replace`), its
+search, its three operations on the text and its line breaker (`Liner`),
+**line by line**. Each is named in the
+script next to what it carries.
 
-**Gaupol ne remplace pas avec `re.sub`.** Il cherche chaque correspondance dans le
-texte **déjà modifié**, à partir de la fin du dernier remplacement, avec sa propre
-règle pour les correspondances vides. La différence est étroite, et mesurée : des
-dizaines de milliers de textes tirés au hasard n'en montrent aucune pour les
-erreurs courantes et les majuscules, où `Repeat` rattrape tout. Elle apparaît dans
-le nettoyage qui suit le retrait des mentions, et les deux cas qui la montrent sont
-commentés dans `entrees/hearing-impaired.entrees`.
+**Gaupol does not replace with `re.sub`.** It searches for each match in the
+text **already modified**, from the end of the last replacement, with its own
+rule for empty matches. The difference is narrow, and measured: tens of thousands of
+randomly drawn texts show none for common errors and capitalisation, where `Repeat`
+catches everything. It appears in the cleanup that follows mention removal, and the two
+cases that show it are commented in `entrees/hearing-impaired.entrees`.
 
-## Ce qui a été vérifié, et ce qui ne se rejoue pas
+## What was verified, and what cannot be replayed
 
-**L'oracle a été confronté au code de Gaupol lui-même** avant d'être versionné :
-chaque cas, passé par les fonctions de Gaupol sur une copie de son paquet `aeidon`
-faite hors du dépôt, une fois sans fichier et une fois dans un projet SubRip — pour
-faire passer le parseur de balises. **Aucun désaccord.** La même confrontation,
-refaite avec un oracle réduit à `re.sub`, trouve les deux cas de la section
-précédente : elle sait voir une différence.
+**The oracle was checked against Gaupol's own code** before being versioned:
+each case, passed through Gaupol's functions on a copy of its `aeidon` package
+made outside the repository, once without a file and once in a SubRip project — to
+exercise the tag parser. **No disagreement.** The same check,
+redone with an oracle reduced to `re.sub`, finds the two cases of the
+previous section: it knows how to see a difference.
 
-**Le découpeur a été confronté de même**, au `Liner` de Gaupol aux mêmes réglages
-et aux mêmes pénalités : aucun désaccord, et les quatre découpages de
-`test_liner.py` y sont exactement ceux que ce test affirme. Trois oracles
-faussés — sans le terme de « pyramide », sans la variance des longueurs, sans la
-règle qui attend `max_lines` lignes avant de couper — en trouvent chacun.
+**The line breaker was checked likewise**, against Gaupol's `Liner` at the same settings
+and the same penalties: no disagreement, and the four breakings of
+`test_liner.py` are exactly those that this test asserts. Three
+falsified oracles — without the "pyramid" term, without the variance of lengths, without the
+rule that waits for `max_lines` lines before breaking — each find one.
 
-Deux comportements du découpeur valent d'être sus avant d'en écrire un :
+Two behaviours of the breaker are worth knowing before writing one:
 
-- **il dépasse `max_lines` quand la longueur l'exige** — « It is 40 cm longer than
-  mine » sort en trois lignes à 11 de large et deux lignes voulues, pour ne pas
-  séparer « 40 » de « cm » ;
-- **il ne coupe rien tant que le nombre de lignes essayé n'atteint pas
-  `max_lines`** : deux mots trop longs pour une ligne restent sur une seule ligne
-  quand on en permet trois, et se coupent quand on en permet deux.
+- **it exceeds `max_lines` when the length requires it** — "It is 40 cm longer than
+  mine" comes out on three lines at width 11 with two lines wanted, so as not to
+  separate "40" from "cm";
+- **it breaks nothing as long as the number of lines tried does not reach
+  `max_lines`**: two words too long for a line stay on a single line
+  when three are allowed, and break when two are allowed.
 
-C'est **une observation, pas un contrôle** : elle demande Gaupol, et le dépôt ne le
-contient pas. Ce qui se rejoue partout, c'est l'oracle sur les copies versionnées,
-et c'est lui que la porte lance.
+This is **an observation, not a check**: it requires Gaupol, and the repository does not
+contain it. What can be replayed anywhere is the oracle on the versioned copies,
+and it is the one the gate runs.
 
-## `cascades.txt` — les motifs que chaque code active
+## `cascades.txt` — the patterns each code activates
 
-Une ligne par type et par code : `<type> <code> | <code>:<rang>± …`, les
-enregistrements dans l'ordre où Gaupol les applique, `+` s'ils sont actifs par
-défaut et `-` sinon. C'est ce que `get_patterns` rend, et **ce que le lecteur du
-noyau rend à son tour** — le test `pattern_catalogue_test.cpp` les confronte, sans
-lancer Python. Issue [#498](https://github.com/Guyot-Bertrand/sub-edit/issues/498).
+One line per type and per code: `<type> <code> | <code>:<rank>± …`, the
+records in the order in which Gaupol applies them, `+` if active by
+default and `-` otherwise. This is what `get_patterns` returns, and **what the core's
+reader returns in turn** — the test `pattern_catalogue_test.cpp` checks them against each other, without
+launching Python. Issue [#498](https://github.com/Guyot-Bertrand/sub-edit/issues/498).

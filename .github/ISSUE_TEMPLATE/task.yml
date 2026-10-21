@@ -1,28 +1,28 @@
-name: Tâche
-description: Un travail technique sans effet direct pour l'utilisateur
+name: Task
+description: Technical work with no direct effect for the user
 labels: ["type:task"]
 body:
   - type: textarea
     id: work
     attributes:
-      label: Travail à faire
+      label: Work to do
     validations:
       required: true
 
   - type: textarea
     id: why
     attributes:
-      label: Pourquoi maintenant
+      label: Why now
       description: >
-        Ce qui rend ce travail nécessaire, et ce qu'il débloque. Une tâche sans
-        conséquence identifiée est une tâche à ne pas faire.
+        What makes this work necessary, and what it unblocks. A task with no
+        identified consequence is a task not to do.
     validations:
       required: true
 
   - type: textarea
     id: done
     attributes:
-      label: Critères de fin
+      label: Completion criteria
       placeholder: |
         - [ ] …
     validations:

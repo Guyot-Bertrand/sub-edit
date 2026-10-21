@@ -42,7 +42,7 @@ using subedit::core::Project;
 TEST_CASE("deducing the frame rate of a full-length file", "[bench][analysis]") {
     const Project project = subedit::test::fullLengthProject();
 
-    BENCHMARK("déduction de fréquence sur 4000 sous-titres") {
+    BENCHMARK("frame rate deduction over 4000 subtitles") {
         return deduceFrameRate(project);
     };
 }
@@ -62,7 +62,7 @@ TEST_CASE("searching the conversion of a full-length file", "[bench][analysis]")
     for (const auto& subtitle : project.subtitles())
         starts.push_back(subtitle.start.scaledBy(off));
 
-    BENCHMARK("recherche de conversion sur 4000 sous-titres") {
+    BENCHMARK("conversion search over 4000 subtitles") {
         return findGridRepair(starts);
     };
 }

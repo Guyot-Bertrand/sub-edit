@@ -1,109 +1,109 @@
 name: release
 
-# Les paquets d'une version, construits et publiés quand son tag est poussé —
+# The packages of a version, built and published when its tag is pushed —
 # issue #232.
 #
-# **Ce workflow remplace la porte en CI, il ne la complète pas.** Les minutes
-# d'Actions et le stockage du cache partaient trop vite pour une exécution de
-# `make check` par pull request : la porte est locale, et elle a été franchie
-# avant la fusion. Ce qui reste à faire sur une machine neutre est ce qu'un
-# poste de développement ne peut pas donner — des paquets construits depuis un
-# clone propre, et une page où les télécharger.
+# **This workflow replaces the gate in CI, it does not complete it.** The
+# Actions minutes and the cache storage went too fast for a `make check` run
+# per pull request: the gate is local, and it was passed before the merge. What
+# remains to be done on a neutral machine is what a development machine cannot
+# give — packages built from a clean clone, and a page to download them from.
 #
-# **Un tag par version, patchs compris**, posé sur le commit de fusion dans
-# `main`. Voir la section « Versions » de CLAUDE.md.
+# **One tag per version, patches included**, placed on the merge commit in
+# `main`. See the "Versions" section of CLAUDE.md.
 #
-# **Pas de cache**, ni de paquets apt ni de compilation : c'est le poste de
-# stockage qui a coûté. Chaque exécution compile à froid, et c'est le prix
-# accepté d'une exécution par version plutôt que par poussée.
+# **No cache**, neither of apt packages nor of compilation: it is the storage
+# item that cost. Every run compiles cold, and that is the accepted price of
+# one run per version rather than per push.
 #
-# **Pas d'artefact d'Actions** : les paquets vont directement dans la release,
-# dont les fichiers ne comptent pas dans le stockage d'Actions.
+# **No Actions artefact**: the packages go straight into the release, whose
+# files do not count against Actions storage.
 #
-# La logique vit dans deux scripts, pour la raison de `elagage.yml` — un script
-# se lance en local, un bloc de YAML non : `check-release-tag.sh` décide si le
-# tag mérite une release, `prune-releases.sh` décide lesquelles s'en vont.
+# The logic lives in two scripts, for the reason given in `elagage.yml` — a
+# script can be run locally, a block of YAML cannot: `check-release-tag.sh`
+# decides whether the tag deserves a release, `prune-releases.sh` decides
+# which ones go.
 
 on:
   push:
     tags:
       - 'v[0-9]+.[0-9]+.[0-9]+'
 
-  # Rejouer la publication d'un tag déjà poussé : une exécution perdue pour une
-  # raison étrangère au dépôt, ou un paquet à reconstruire. Les fichiers d'une
-  # release existante sont remplacés, pas dupliqués. Le bouton n'apparaît dans
-  # l'interface que si ce fichier est sur la branche par défaut.
+  # Replay the publication of a tag already pushed: a run lost for a reason
+  # foreign to the repository, or a package to rebuild. The files of an
+  # existing release are replaced, not duplicated. The button only appears in
+  # the interface if this file is on the default branch.
   #
-  # **Une reconstruction à la demande republie le paquet et n'élague pas.**
-  # Sans cela, rebâtir un patch d'une milestone close — `v0.9.3` alors que
-  # `v0.10.0` existe — recréerait la release, puis l'étape d'élagage la
-  # supprimerait dans le même travail. La garde est dans `prune-releases.sh`,
-  # qui lit `GITHUB_EVENT_NAME`.
+  # **An on-demand rebuild republishes the package and does not prune.**
+  # Without that, rebuilding a patch of a closed milestone — `v0.9.3` while
+  # `v0.10.0` exists — would recreate the release, then the pruning step would
+  # delete it in the same job. The guard is in `prune-releases.sh`, which reads
+  # `GITHUB_EVENT_NAME`.
   workflow_dispatch:
     inputs:
       tag:
-        description: 'Le tag à publier, vX.Y.Z'
+        description: 'The tag to publish, vX.Y.Z'
         required: true
 
-# Écrire une release, et en supprimer. Rien d'autre.
+# Write a release, and delete some. Nothing else.
 permissions:
   contents: write
 
-# Deux publications du même tag ne se marchent pas dessus ; la seconde attend
-# plutôt que d'annuler une construction à moitié faite.
+# Two publications of the same tag do not step on each other; the second waits
+# rather than cancelling a half-done build.
 concurrency:
   group: release-${{ inputs.tag || github.ref_name }}
   cancel-in-progress: false
 
 jobs:
   release:
-    name: paquets et release
+    name: packages and release
     runs-on: ubuntu-24.04
     env:
       TAG: ${{ inputs.tag || github.ref_name }}
     steps:
-      # Avant le checkout, parce que le nom sert de `ref:` : une saisie manuelle
-      # qui ne serait pas un tag de version n'atteint jamais git. Lu par
-      # l'environnement et jamais interpolé dans le script.
-      - name: Le nom est celui d'une version
+      # Before the checkout, because the name serves as `ref:`: a manual input
+      # that is not a version tag never reaches git. Read through the
+      # environment and never interpolated into the script.
+      - name: The name is that of a version
         run: |
           [[ "${TAG}" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]] \
-              || { echo "« ${TAG} » ne s'écrit pas vX.Y.Z" >&2; exit 1; }
+              || { echo "“${TAG}” is not written vX.Y.Z" >&2; exit 1; }
 
-      # L'historique complet : `check-release-tag.sh` vérifie que le commit est
-      # sur `main`, et git-cliff écrit les notes depuis le tag précédent.
+      # The full history: `check-release-tag.sh` verifies that the commit is on
+      # `main`, and git-cliff writes the notes from the previous tag.
       - uses: actions/checkout@v7
         with:
           ref: ${{ env.TAG }}
           fetch-depth: 0
 
-      # Avant la chaîne d'outils, et c'est tout l'intérêt : un tag qui ne
-      # s'accorde pas avec sa version est refusé en quelques secondes, pas après
-      # vingt minutes de compilation.
-      - name: Le tag désigne une version de main
+      # Before the toolchain, and that is the whole point: a tag that does not
+      # agree with its version is refused in a few seconds, not after twenty
+      # minutes of compilation.
+      - name: The tag designates a version of main
         run: ./src/scripts/check-release-tag.sh "${TAG}"
 
-      # Le script du poste de développement, pour que la machine qui construit
-      # les paquets ne diverge pas de celle qui les éprouve.
-      - name: Chaîne d'outils
+      # The development machine's script, so that the machine that builds the
+      # packages does not diverge from the one that tests them.
+      - name: Toolchain
         run: ./src/scripts/setup-toolchain.sh
 
       - name: make packages
         run: make packages JOBS=$(nproc)
 
-      # La section du journal de cette version, écrite par le même outil que
-      # CHANGELOG.md : `--current` la borne au tag qui pointe sur HEAD.
-      - name: Notes de version
+      # This version's section of the log, written by the same tool as
+      # CHANGELOG.md: `--current` bounds it to the tag pointing at HEAD.
+      - name: Release notes
         run: git-cliff --current --strip header --output "${RUNNER_TEMP}/notes.md"
 
-      - name: Publier
+      - name: Publish
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           shopt -s failglob
-          # Le `.deb` seul : le `.rpm` construit ici l'est contre l'ICU d'Ubuntu, et
-          # ne s'installerait sur aucune Fedora. Ceux qu'on publie sont construits
-          # par le travail `rpm`, un par Fedora.
+          # The `.deb` alone: the `.rpm` built here is built against Ubuntu's ICU,
+          # and would install on no Fedora. The ones that get published are built
+          # by the `rpm` job, one per Fedora.
           paquets=(build/release/subedit*.deb)
           if gh release view "${TAG}" >/dev/null 2>&1; then
               gh release upload "${TAG}" "${paquets[@]}" --clobber
@@ -113,25 +113,25 @@ jobs:
                   --title "subedit ${TAG#v}" --notes-file "${RUNNER_TEMP}/notes.md"
           fi
 
-      # Après la publication, et dans le même travail : un tag poussé est le
-      # seul moment où la milestone en cours peut changer. Sous
-      # `workflow_dispatch`, le script le constate dans `GITHUB_EVENT_NAME`, que
-      # les Actions posent d'elles-mêmes, et sort sans rien supprimer. Une
-      # suppression refusée le fait sortir en erreur : ce travail rougit.
-      - name: Élaguer les releases de patch des milestones passées
+      # After the publication, and in the same job: a pushed tag is the only
+      # moment when the current milestone can change. Under
+      # `workflow_dispatch`, the script notices it in `GITHUB_EVENT_NAME`, which
+      # Actions sets by itself, and exits without deleting anything. A refused
+      # deletion makes it exit with an error: this job goes red.
+      - name: Prune the patch releases of past milestones
         env:
           GH_TOKEN: ${{ github.token }}
         run: ./src/scripts/prune-releases.sh
 
-  # Le `.rpm`, construit **sur chaque Fedora publiée**, contre son ICU.
+  # The `.rpm`, built **on every published Fedora**, against its ICU.
   #
-  # Les symboles d'ICU portent le numéro de sa version majeure : un `.rpm` fait
-  # sur Ubuntu (ICU 74) demande `libicuuc.so.74`, qu'une Fedora récente n'a pas
-  # et ne propose pas. Le paquet n'est donc pas portable d'une Fedora à l'autre,
-  # et le nom du fichier le dit : `subedit-X.Y.Z-1.fc43.x86_64.rpm`.
+  # ICU's symbols carry its major version number: an `.rpm` made on Ubuntu
+  # (ICU 74) asks for `libicuuc.so.74`, which a recent Fedora does not have and
+  # does not offer. The package is therefore not portable from one Fedora to
+  # another, and the file name says so: `subedit-X.Y.Z-1.fc43.x86_64.rpm`.
   #
-  # Après le travail `release`, qui crée la release : celui-ci n'y ajoute que
-  # son fichier. Une Fedora qui échoue n'empêche pas les autres.
+  # After the `release` job, which creates the release: this one only adds its
+  # file to it. A Fedora that fails does not stop the others.
   rpm:
     name: rpm fedora ${{ matrix.fedora }}
     needs: release
@@ -144,17 +144,17 @@ jobs:
     env:
       TAG: ${{ inputs.tag || github.ref_name }}
     steps:
-      - name: git et gh
+      - name: git and gh
         run: dnf install -y git gh
 
       - uses: actions/checkout@v7
         with:
           ref: ${{ env.TAG }}
 
-      - name: Le .rpm
+      - name: The .rpm
         run: JOBS=$(nproc) ./src/scripts/build-rpm.sh
 
-      - name: Publier
+      - name: Publish
         env:
           GH_TOKEN: ${{ github.token }}
         run: |

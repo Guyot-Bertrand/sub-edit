@@ -1,155 +1,154 @@
-# Fixtures sur grille connue
+# Fixtures on a known grid
 
-Quinze fichiers SubRip engendrés, dont on ne lit ni le texte ni le sens : ce
-qu'on y lit, c'est **si les positions tombent sur une grille d'images, et
-laquelle**. C'est la donnée dont la phase 16 a besoin, et qu'un fichier de
-sous-titres ne déclare jamais.
+Fifteen generated SubRip files, whose text and meaning are not read: what
+is read in them is **whether the positions fall on a frame grid, and
+which one**. This is the data phase 16 needs, and which a subtitle file never declares.
 
-**Ne pas les éditer à la main, et ne pas les croire sur parole.**
+**Do not edit them by hand, and do not take them on trust.**
 [`src/scripts/subtitle-fixtures.py`](../../../scripts/subtitle-fixtures.py)
-porte la table de ce que chaque fixture est, et reconstruit chaque fichier pour
-le confronter à celui du disque :
+carries the table of what each fixture is, and rebuilds each file to
+compare it with the one on disk:
 
 ```console
-$ ./src/scripts/subtitle-fixtures.py --check      # le disque, contre la table
-$ ./src/scripts/subtitle-fixtures.py --generate   # les refabriquer
-$ ./src/scripts/subtitle-fixtures.py --measure    # ce qu'elles donnent
+$ ./src/scripts/subtitle-fixtures.py --check      # the disk, against the table
+$ ./src/scripts/subtitle-fixtures.py --generate   # rebuild them
+$ ./src/scripts/subtitle-fixtures.py --measure    # what they give
 ```
 
-`--check` tourne dans `make check-local`. C'est là qu'est la garantie : un
-fichier de cent soixante-seize répliques est illisible dans un diff, et personne
-ne relira ces 128 Ko.
+`--check` runs in `make check-local`. That is where the guarantee lies: a
+file of one hundred and seventy-six lines is unreadable in a diff, and no one
+will reread these 128 KB.
 
-## Ce que chaque fixture est
+## What each fixture is
 
-| Fixture | Fréquence | Étendue | Décalage | Répliques | Poids |
+| Fixture | Rate | Span | Offset | Lines | Weight |
 | :------ | :-------- | ------: | -------: | --------: | ----: |
-| `grille-23-976.srt` | `24000/1001` | 10 min | — | 176 | 10 734 o |
-| `grille-24.srt` | `24/1` | 10 min | — | 176 | 10 734 o |
-| `grille-25.srt` | `25/1` | 10 min | — | 170 | 10 367 o |
-| `grille-29-97.srt` | `30000/1001` | 10 min | — | 174 | 10 636 o |
-| `grille-30.srt` | `30/1` | 10 min | — | 176 | 10 763 o |
-| `grille-50.srt` | `50/1` | 10 min | — | 171 | 10 494 o |
-| `grille-59-94.srt` | `60000/1001` | 10 min | — | 166 | 10 190 o |
-| `grille-60.srt` | `60/1` | 10 min | — | 170 | 10 440 o |
-| `grille-absurde.srt` | `263/10` | 10 min | — | 177 | 10 810 o |
-| `grille-24-decalee.srt` | `24/1` | 10 min | +2 999 ms | 168 | 10 242 o |
-| `grille-24-courte.srt` | `24/1` | 10 s | — | 37 | 2 152 o |
-| `grille-24-fins-calculees.srt` | `24/1` **aux débuts** | 10 min | — | 170 | 10 364 o |
-| `sans-grille.srt` | **aucune** | 10 min | — | 166 | 10 242 o |
-| `melange-groupe.srt` | `30000/1001` | 10 min | — | 168 | 10 264 o |
-| `melange-disperse.srt` | `25/1` | 10 min | — | 171 | 10 454 o |
+| `grille-23-976.srt` | `24000/1001` | 10 min | — | 176 | 10,734 B |
+| `grille-24.srt` | `24/1` | 10 min | — | 176 | 10,734 B |
+| `grille-25.srt` | `25/1` | 10 min | — | 170 | 10,367 B |
+| `grille-29-97.srt` | `30000/1001` | 10 min | — | 174 | 10,636 B |
+| `grille-30.srt` | `30/1` | 10 min | — | 176 | 10,763 B |
+| `grille-50.srt` | `50/1` | 10 min | — | 171 | 10,494 B |
+| `grille-59-94.srt` | `60000/1001` | 10 min | — | 166 | 10,190 B |
+| `grille-60.srt` | `60/1` | 10 min | — | 170 | 10,440 B |
+| `grille-absurde.srt` | `263/10` | 10 min | — | 177 | 10,810 B |
+| `grille-24-decalee.srt` | `24/1` | 10 min | +2,999 ms | 168 | 10,242 B |
+| `grille-24-courte.srt` | `24/1` | 10 s | — | 37 | 2,152 B |
+| `grille-24-fins-calculees.srt` | `24/1` **on the starts** | 10 min | — | 170 | 10,364 B |
+| `sans-grille.srt` | **none** | 10 min | — | 166 | 10,242 B |
+| `melange-groupe.srt` | `30000/1001` | 10 min | — | 168 | 10,264 B |
+| `melange-disperse.srt` | `25/1` | 10 min | — | 171 | 10,454 B |
 
-Chaque position vaut `round(n × 1000 / R)`, arrondi au plus proche et la moitié
-vers le haut, plus le décalage. Le pas entre deux répliques est irrégulier —
-deux à cinq secondes — et tiré d'un générateur congruentiel écrit dans le
-script : un pas constant rendrait les phases périodiques, et le fichier à
-fréquence absurde ressortirait concentré sur une candidate qu'il ne touche pas.
+Each position is `round(n × 1000 / R)`, rounded to the nearest with halves
+going up, plus the offset. The step between two lines is irregular —
+two to five seconds — and drawn from a congruential generator written in the
+script: a constant step would make the phases periodic, and the file at an
+absurd rate would come out concentrated on a candidate it does not touch.
 
-**Les débuts et les fins sont tous les deux sur la grille — sauf pour une.**
-Dans un vrai fichier, seuls les débuts le sont : un *cue-out* est souvent
-calculé par une règle de vitesse de lecture, ce qui fait descendre les fins
-entre 55 et 100. `grille-24-fins-calculees.srt` est cette fixture-là, ajoutée en
-phase 10 ; les quatorze autres gardent leurs fins sur la grille, et c'est le
-contraste qui rend la première utile.
+**Starts and ends are both on the grid — except for one.**
+In a real file, only the starts are: a *cue-out* is often
+computed by a reading-speed rule, which makes the ends fall
+between 55 and 100. `grille-24-fins-calculees.srt` is that fixture, added in
+phase 10; the other fourteen keep their ends on the grid, and it is the contrast
+that makes the first one useful.
 
-`--measure` rend la comparaison en une table de trois colonnes : la candidate
-que les débuts désignent, ce qu'ils y valent, et ce que les fins y valent.
-Quatorze fichiers y portent deux fois le même nombre ; le quinzième lit 99,9
-aux débuts et 52,4 aux fins.
+`--measure` renders the comparison as a three-column table: the candidate
+that the starts designate, what they are worth there, and what the ends are worth there.
+Fourteen files carry the same number twice; the fifteenth reads 99.9
+on the starts and 52.4 on the ends.
 
-## Ce qu'elles donnent
+## What they give
 
-Concentration de phase sur les huit candidates, en pour cent. Refaisable par
-`--measure` : ces chiffres sont mesurés sur ces fichiers-là, et non rapportés.
+Phase concentration on the eight candidates, in percent. Redoable with
+`--measure`: these figures are measured on these files, not reported.
 
-| Fixture | 23,976 | 24 | 25 | 29,97 | 30 | 50 | 59,94 | 60 |
+| Fixture | 23.976 | 24 | 25 | 29.97 | 30 | 50 | 59.94 | 60 |
 | :------ | -----: | -: | -: | ----: | -: | -: | ----: | -: |
-| `grille-23-976.srt` | **99,9** | 4,6 | 3,1 | 5,1 | 4,7 | 6,7 | 9,1 | 1,9 |
-| `grille-24.srt` | 2,6 | **99,9** | 7,6 | 9,0 | 6,3 | 2,7 | 3,6 | 10,2 |
-| `grille-25.srt` | 8,6 | 10,1 | **100** | 5,0 | 8,5 | **100** | 9,9 | 2,7 |
-| `grille-29-97.srt` | 7,5 | 16,1 | 6,2 | **99,8** | 1,8 | 10,3 | **99,4** | 1,8 |
-| `grille-30.srt` | 8,4 | 14,4 | 5,0 | 2,6 | **99,9** | 6,5 | 0,1 | **99,5** |
-| `grille-50.srt` | 1,6 | 9,6 | 15,8 | 6,2 | 2,1 | **100** | 2,3 | 7,3 |
-| `grille-59-94.srt` | 1,6 | 4,1 | 5,0 | 4,8 | 0,8 | 3,8 | **99,4** | 2,7 |
-| `grille-60.srt` | 15,1 | 8,8 | 7,1 | 6,4 | 1,3 | 8,2 | 2,3 | **99,5** |
-| `grille-absurde.srt` | 9,2 | 8,3 | 15,3 | 2,1 | 13,2 | 6,2 | 3,8 | 9,0 |
-| `grille-24-decalee.srt` | 3,7 | **99,9** | 11,8 | 2,6 | 9,5 | 5,4 | 8,6 | 4,7 |
-| `grille-24-courte.srt` | *92,7* | **99,9** | 3,9 | 10,9 | 22,2 | 10,1 | 27,2 | 8,6 |
-| `grille-24-fins-calculees.srt` | 1,1 | **99,9** | 5,5 | 7,0 | 3,8 | 7,6 | 11,0 | 19,9 |
-| `sans-grille.srt` | 3,2 | 2,9 | 7,3 | 5,0 | 5,8 | 12,5 | 5,2 | 4,0 |
-| `melange-groupe.srt` | 3,4 | 2,7 | 2,6 | *65,1* | 1,8 | 1,7 | *66,4* | 1,1 |
-| `melange-disperse.srt` | 4,1 | 7,6 | *75,4* | 8,1 | 2,6 | *84,9* | 2,9 | 11,1 |
+| `grille-23-976.srt` | **99.9** | 4.6 | 3.1 | 5.1 | 4.7 | 6.7 | 9.1 | 1.9 |
+| `grille-24.srt` | 2.6 | **99.9** | 7.6 | 9.0 | 6.3 | 2.7 | 3.6 | 10.2 |
+| `grille-25.srt` | 8.6 | 10.1 | **100** | 5.0 | 8.5 | **100** | 9.9 | 2.7 |
+| `grille-29-97.srt` | 7.5 | 16.1 | 6.2 | **99.8** | 1.8 | 10.3 | **99.4** | 1.8 |
+| `grille-30.srt` | 8.4 | 14.4 | 5.0 | 2.6 | **99.9** | 6.5 | 0.1 | **99.5** |
+| `grille-50.srt` | 1.6 | 9.6 | 15.8 | 6.2 | 2.1 | **100** | 2.3 | 7.3 |
+| `grille-59-94.srt` | 1.6 | 4.1 | 5.0 | 4.8 | 0.8 | 3.8 | **99.4** | 2.7 |
+| `grille-60.srt` | 15.1 | 8.8 | 7.1 | 6.4 | 1.3 | 8.2 | 2.3 | **99.5** |
+| `grille-absurde.srt` | 9.2 | 8.3 | 15.3 | 2.1 | 13.2 | 6.2 | 3.8 | 9.0 |
+| `grille-24-decalee.srt` | 3.7 | **99.9** | 11.8 | 2.6 | 9.5 | 5.4 | 8.6 | 4.7 |
+| `grille-24-courte.srt` | *92.7* | **99.9** | 3.9 | 10.9 | 22.2 | 10.1 | 27.2 | 8.6 |
+| `grille-24-fins-calculees.srt` | 1.1 | **99.9** | 5.5 | 7.0 | 3.8 | 7.6 | 11.0 | 19.9 |
+| `sans-grille.srt` | 3.2 | 2.9 | 7.3 | 5.0 | 5.8 | 12.5 | 5.2 | 4.0 |
+| `melange-groupe.srt` | 3.4 | 2.7 | 2.6 | *65.1* | 1.8 | 1.7 | *66.4* | 1.1 |
+| `melange-disperse.srt` | 4.1 | 7.6 | *75.4* | 8.1 | 2.6 | *84.9* | 2.9 | 11.1 |
 
-## Ce que chacune éprouve
+## What each one tests
 
-**Les huit grilles parfaites** disent que la déduction trouve la bonne
-candidate. Elles disent aussi que **l'ambiguïté harmonique est réelle** : une
-grille à 25 est incluse dans une grille à 50, et le fichier sort à 100 sur les
-deux. Les seules paires ambiguës de l'ensemble normalisé sont celles dont l'une
-est le multiple entier de l'autre — 25 et 50, 29,97 et 59,94, 30 et 60. Aucune
-autre : 24 et 60 sont dans un rapport de deux et demi, donc une image sur deux
-seulement coïncide.
+**The eight perfect grids** say that the deduction finds the right
+candidate. They also say that **the harmonic ambiguity is real**: a
+25 grid is included in a 50 grid, and the file comes out at 100 on both.
+The only ambiguous pairs of the normalised set are those where one
+is the integer multiple of the other — 25 and 50, 29.97 and 59.94, 30 and 60. No
+others: 24 and 60 are in a ratio of two and a half, so only one frame in two
+coincides.
 
-**`grille-absurde.srt`** dit que **l'échec est bruyant**. Un fichier régulier,
-mais sur une grille qui n'est aucune des huit, reste sous 16 partout : c'est un
-« je ne sais pas » sans équivoque, et non une mauvaise réponse. C'est la
-propriété qui autorise à se servir de la déduction, là où une heuristique de nom
-de fichier ne l'aurait jamais offerte.
+**`grille-absurde.srt`** says that **failure is loud**. A regular file,
+but on a grid that is none of the eight, stays under 16 everywhere: it is an
+unequivocal "I don't know", and not a wrong answer. This is the
+property that authorises using the deduction, where a file-name heuristic
+would never have offered it.
 
-**`grille-24-decalee.srt`** dit que **la phase n'est pas un déchet**. Ses
-positions sont celles de `grille-24.srt` translatées de 2 999 ms — un décalage
-que Gaupol applique tel quel — et la grille reste à 99,9. Une première version
-de la méthode cherchait une grille de *phase nulle* et notait à zéro un fichier
-comme celui-ci.
+**`grille-24-decalee.srt`** says that **the phase is not waste**. Its
+positions are those of `grille-24.srt` translated by 2,999 ms — an offset
+that Gaupol applies as is — and the grid stays at 99.9. A first version
+of the method looked for a *zero-phase* grid and scored a file like this one
+at zero.
 
-**`grille-24-courte.srt`** dit que **distinguer 23,976 de 24 demande de
-l'étendue**. Les deux grilles dérivent d'une milliseconde par seconde de film,
-et une image en dure 41,7 : la phase sur la mauvaise candidate fait un tour
-complet toutes les quarante-deux secondes. Sur dix secondes, elle n'en couvre
-qu'un quart, et 23,976 reste à 92,7 contre 99,9. La déduction doit rendre
-l'étendue qu'elle a eue sous les yeux, et non une concentration seule.
+**`grille-24-courte.srt`** says that **telling 23.976 from 24 takes
+span**. The two grids drift by a millisecond per second of film,
+and a frame lasts 41.7: the phase on the wrong candidate makes a
+full turn every forty-two seconds. Over ten seconds, it covers
+only a quarter, and 23.976 stays at 92.7 against 99.9. The deduction must return
+the span it had in view, and not a concentration alone.
 
-Le fichier est **serré** — trente-sept répliques en dix secondes — et c'est
-délibéré. À densité de dialogue normale, dix secondes ne donnent que trois
-répliques, et trois points ne disent rien : la concentration d'une candidate
-quelconque y vaut déjà `1/√3`. Le hasard n'est pas l'ambiguïté.
+The file is **tight** — thirty-seven lines in ten seconds — and this is
+deliberate. At normal dialogue density, ten seconds give only three
+lines, and three points say nothing: the concentration of any candidate
+is already worth `1/√3` there. Chance is not ambiguity.
 
-**`melange-groupe.srt`** est le cas partiel **groupé** : deux tiers sur une
-grille à 29,97, dernier tiers passé par une transformation affine qui détruit la
-grille. C'est ce que produit un fichier assemblé, ou une section recalée. La
-concentration tombe à 65, entre la grille nette et le bruit — et dire « les deux
-tiers de vos débuts sont sur une grille 29,97 » est vrai sans aider personne. Ce
-fichier existe pour qu'on doive dire **lesquels**.
+**`melange-groupe.srt`** is the **grouped** partial case: two thirds on a
+29.97 grid, the last third passed through an affine transformation that destroys the
+grid. This is what an assembled file, or a re-timed section, produces. The
+concentration falls to 65, between the clean grid and noise — and saying "two thirds of your starts
+are on a 29.97 grid" is true without helping anyone. This
+file exists so that one must say **which ones**.
 
-**`melange-disperse.srt`** est le cas partiel **dispersé** : une position sur
-cinq déplacée de une à dix images, comme le ferait une correction à la main dans
-la table. La concentration tombe dans la même bande, et c'est précisément ce qui
-rend le cas difficile : les deux fichiers se ressemblent par le chiffre et ne se
-ressemblent pas du tout par la cause.
+**`melange-disperse.srt`** is the **scattered** partial case: one position in
+five moved by one to ten frames, as a manual fix in the
+table would do. The concentration falls into the same band, and that is precisely what
+makes the case hard: the two files look alike by the figure and do not look alike at all by the
+cause.
 
-**`grille-24-fins-calculees.srt`** dit que **les débuts suffisent**. Ses débuts
-sont ceux d'une grille à 24 ; ses fins sont calculées à quinze caractères par
-seconde, avec un plancher d'une seconde et demie et une image d'écart avant le
-début suivant — les deux défauts de Gaupol, posés dans le script. Elle ne
-prétend pas être l'ajustement des durées que la phase 10 écrira : elle produit
-des fins hors grille d'une manière plausible et reproductible.
+**`grille-24-fins-calculees.srt`** says that **the starts are enough**. Its starts
+are those of a 24 grid; its ends are computed at fifteen characters per
+second, with a floor of a second and a half and a frame of gap before the
+next start — the two Gaupol defaults, laid down in the script. It does not
+claim to be the duration adjustment that phase 10 will write: it produces
+off-grid ends in a plausible and reproducible way.
 
-Le jour où la déduction se mettrait à lire les fins, **elle tomberait et les
-quatorze autres resteraient vertes.** C'est toute sa raison d'être.
+The day the deduction started reading the ends, **it would fall and the
+other fourteen would stay green.** That is its whole reason for being.
 
-**`sans-grille.srt`** dit que **l'échec est bruyant, et cela ne s'appuie plus
-sur un corpus que personne ne possède**. Ses positions sont des millisecondes
-quelconques, et la meilleure des huit candidates y monte à 12,5 — loin des
-cinquante où s'ouvre la bande partielle. La feuille de route affirmait qu'un
-fichier écrit en millisecondes sans grille « reste sous quelques pour cent sur
-les huit candidates » ; elle l'affirmait d'après trois fichiers du corpus privé,
-et c'était un témoignage. C'en est une mesure.
+**`sans-grille.srt`** says that **failure is loud, and this no longer rests on a
+corpus that nobody owns**. Its positions are arbitrary milliseconds,
+and the best of the eight candidates rises there to 12.5 — far from the
+fifty where the partial band opens. The roadmap asserted that a file written in
+milliseconds without a grid "stays under a few percent on the
+eight candidates"; it asserted it from three files of the private corpus,
+and that was testimony. This is a measurement.
 
-**Ce n'est pas la même question que `grille-absurde.srt`.** Celui-ci est
-parfaitement régulier, sur une grille à 26,3 images par seconde, et il éprouve
-« aucune des huit ». Celui-là n'est régulier sur rien, et il éprouve « aucune
-grille » — le faux positif, qui n'a de sens qu'à la taille d'un vrai fichier.
-Le plancher de bruit vaut `1/√n` : sept et demi pour cent à cent soixante-seize
-positions, et deux mille tirages de débuts quelconques ne font jamais monter la
-meilleure des huit au-dessus de vingt-quatre.
+**It is not the same question as `grille-absurde.srt`.** That one is
+perfectly regular, on a grid of 26.3 frames per second, and it tests
+"none of the eight". This one is regular on nothing, and it tests "no
+grid" — the false positive, which makes sense only at the size of a real file.
+The noise floor is `1/√n`: seven and a half percent at one hundred and seventy-six
+positions, and two thousand draws of arbitrary starts never push
+the best of the eight above twenty-four.

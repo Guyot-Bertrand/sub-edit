@@ -62,7 +62,7 @@ TEST_CASE("breaking the lines of a full-length file, in ems", "[bench][text]") {
     // file's own reason for existing.
     const QFont font{QStringLiteral("DejaVu Sans"), 10};
     if (QFontInfo{font}.family() != QStringLiteral("DejaVu Sans"))
-        SKIP("la police DejaVu Sans est absente (paquet fonts-dejavu-core)");
+        SKIP("the DejaVu Sans font is missing (package fonts-dejavu-core)");
 
     const Project project = subedit::test::fullLengthProject();
     const Setup setup = setupFor(project);
@@ -76,7 +76,7 @@ TEST_CASE("breaking the lines of a full-length file, in ems", "[bench][text]") {
     constexpr double kMaxLength = 24.0;
     constexpr int kMaxLines = 3;
 
-    BENCHMARK("découpage de 4000 sous-titres, en ems, avec cache de longueurs") {
+    BENCHMARK("splitting 4000 subtitles, in ems, with a length cache") {
         return subedit::core::breakLines(
             engine, patterns, setup.texts, *measure, kMaxLength, kMaxLines);
     };
