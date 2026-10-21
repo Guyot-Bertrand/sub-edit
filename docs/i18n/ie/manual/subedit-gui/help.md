@@ -32,7 +32,7 @@ ambiente — vide
 | Li fenestre parla | Li manual aperte se in |
 | :---------------- | :------------------ |
 | anglesi | anglesi |
-| un lingue de quel li manual es installat — catalan, cec, german, hispan, finnesi, francesi, galician, hebraic, hungarian, interlingue, islandesi, italian, hollandesi, polonesi, portugalesi, portugalesi brasilian | ti lingue |
+| un lingue de quel li manual es installat — catalan, cec, german, hispan, finnesi, francesi, galician, hebraic, hungarian, interlingue, islandesi, italian, hollandesi, polonesi, portugalesi, portugalesi brasilian, russ, serb, turc, chinesi simplificat | ti lingue |
 | un lingue de quel li manual ne es installat | anglesi |
 
 **Págine por págine, ne omni o nullcos**: un págine quel li traduction ne have

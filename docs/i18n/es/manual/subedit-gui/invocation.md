@@ -148,9 +148,9 @@ se impone a cualquier variable, `LC_ALL=C` incluida. La elección también se ap
 | los atajos de teclado | nunca: `Ctrl+S` es `Ctrl+S` en todos los idiomas |
 | un mensaje que el catálogo no traduce | se muestra en inglés |
 
-Esta versión instala `ca`, `cs`, `de`, `es`, `fi`, `fr`, `gl`, `he`, `hu`, `ie`, `is`, `it_IT`, `nl`, `pl`, `pt` y `pt_BR` — catalán, checo, alemán, español,
-finés, francés, gallego, hebreo, húngaro, interlingue, islandés, italiano, neerlandés, polaco, portugués y portugués brasileño — traducidos por completo. El francés lo ha revisado un lector del
-idioma; el catalán, el checo, el alemán, el español, el finés, el gallego, el hebreo, el húngaro, el interlingue, el islandés, el italiano, el neerlandés, el polaco, el portugués y el portugués brasileño son traducciones automáticas que todavía
+Esta versión instala `ca`, `cs`, `de`, `es`, `fi`, `fr`, `gl`, `he`, `hu`, `ie`, `is`, `it_IT`, `nl`, `pl`, `pt`, `pt_BR`, `ru`, `sr`, `tr` y `zh_CN` — catalán, checo, alemán, español,
+finés, francés, gallego, hebreo, húngaro, interlingue, islandés, italiano, neerlandés, polaco, portugués, portugués brasileño, ruso, serbio, turco y chino simplificado — traducidos por completo. El francés lo ha revisado un lector del
+idioma; el catalán, el checo, el alemán, el español, el finés, el gallego, el hebreo, el húngaro, el interlingue, el islandés, el italiano, el neerlandés, el polaco, el portugués, el portugués brasileño, el ruso, el serbio, el turco y el chino simplificado son traducciones automáticas que todavía
 no ha revisado ningún lector del idioma.
 <!-- machine-translated: ca -->
 <!-- machine-translated: cs -->
@@ -167,6 +167,10 @@ no ha revisado ningún lector del idioma.
 <!-- machine-translated: pl -->
 <!-- machine-translated: pt -->
 <!-- machine-translated: pt_BR -->
+<!-- machine-translated: ru -->
+<!-- machine-translated: sr -->
+<!-- machine-translated: tr -->
+<!-- machine-translated: zh_CN -->
 En un escritorio en francés, la barra de menús dice
 `&Fichier`, `É&dition`, `&Affichage`, `&Vidéo`, `&Outils`, `&Projets`, `Aid&e`. Las capturas de pantalla de
 este manual se toman en español.

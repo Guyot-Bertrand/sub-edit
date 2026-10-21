@@ -148,9 +148,9 @@ prevale sur omni variabile, `LC_ALL=C` includet. Li election anc aplica se al se
 | li vias rapid | nequande: `Ctrl+S` es `Ctrl+S` in chascun lingue |
 | un missage quel li catalogo ne traduce | monstrat in anglesi |
 
-Ca version installa `ca`, `cs`, `de`, `es`, `fi`, `fr`, `gl`, `he`, `hu`, `ie`, `is`, `it_IT`, `nl`, `pl`, `pt` e `pt_BR` — catalan, cec, german,
-hispan, finnesi, francesi, galician, hebraic, hungarian, interlingue, islandesi, italian, hollandesi, polonesi, portugalesi e portugalesi brasilian — traductet integralmen. Francesi ha esset revidet de un lector del
-lingue; catalan, cec, german, hispan, finnesi, galician, hebraic, hungarian, interlingue, islandesi, italian, hollandesi, polonesi, portugalesi e portugalesi brasilian es traductet machinalmen e ancor ne revidet de un lector del
+Ca version installa `ca`, `cs`, `de`, `es`, `fi`, `fr`, `gl`, `he`, `hu`, `ie`, `is`, `it_IT`, `nl`, `pl`, `pt`, `pt_BR`, `ru`, `sr`, `tr` e `zh_CN` — catalan, cec, german,
+hispan, finnesi, francesi, galician, hebraic, hungarian, interlingue, islandesi, italian, hollandesi, polonesi, portugalesi, portugalesi brasilian, russ, serb, turc e chinesi simplificat — traductet integralmen. Francesi ha esset revidet de un lector del
+lingue; catalan, cec, german, hispan, finnesi, galician, hebraic, hungarian, interlingue, islandesi, italian, hollandesi, polonesi, portugalesi, portugalesi brasilian, russ, serb, turc e chinesi simplificat es traductet machinalmen e ancor ne revidet de un lector del
 lingue.
 <!-- machine-translated: ca -->
 <!-- machine-translated: cs -->
@@ -167,6 +167,10 @@ lingue.
 <!-- machine-translated: pl -->
 <!-- machine-translated: pt -->
 <!-- machine-translated: pt_BR -->
+<!-- machine-translated: ru -->
+<!-- machine-translated: sr -->
+<!-- machine-translated: tr -->
+<!-- machine-translated: zh_CN -->
 Sur un table de labor francesi, li barre de menus lee
 `&Fichier`, `É&dition`, `&Affichage`, `&Vidéo`, `&Outils`, `&Projets`, `Aid&e`. Li capturas de ecran de
 ca manual es prendet in interlingue.

@@ -148,9 +148,9 @@ wint van elke variabele, `LC_ALL=C` inbegrepen. De keuze geldt eveneens bij de v
 | de sneltoetsen | nooit: `Ctrl+S` is `Ctrl+S` in elke taal |
 | een melding die de catalogus niet vertaalt | getoond in het Engels |
 
-Deze versie installeert `ca`, `cs`, `de`, `es`, `fi`, `fr`, `gl`, `he`, `hu`, `ie`, `is`, `it_IT`, `nl`, `pl`, `pt` en `pt_BR` — Catalaans, Tsjechisch, Duits,
-Spaans, Fins, Frans, Galicisch, Hebreeuws, Hongaars, Interlingue, IJslands, Italiaans, Nederlands, Pools, Portugees en Braziliaans Portugees — volledig vertaald. Frans is nagelezen door een lezer van de
-taal; Catalaans, Tsjechisch, Duits, Spaans, Fins, Galicisch, Hebreeuws, Hongaars, Interlingue, IJslands, Italiaans, Nederlands, Pools, Portugees en Braziliaans Portugees zijn machinevertaald en nog door geen lezer van de taal
+Deze versie installeert `ca`, `cs`, `de`, `es`, `fi`, `fr`, `gl`, `he`, `hu`, `ie`, `is`, `it_IT`, `nl`, `pl`, `pt`, `pt_BR`, `ru`, `sr`, `tr` en `zh_CN` — Catalaans, Tsjechisch, Duits,
+Spaans, Fins, Frans, Galicisch, Hebreeuws, Hongaars, Interlingue, IJslands, Italiaans, Nederlands, Pools, Portugees, Braziliaans Portugees, Russisch, Servisch, Turks en Vereenvoudigd Chinees — volledig vertaald. Frans is nagelezen door een lezer van de
+taal; Catalaans, Tsjechisch, Duits, Spaans, Fins, Galicisch, Hebreeuws, Hongaars, Interlingue, IJslands, Italiaans, Nederlands, Pools, Portugees, Braziliaans Portugees, Russisch, Servisch, Turks en Vereenvoudigd Chinees zijn machinevertaald en nog door geen lezer van de taal
 nagelezen.
 <!-- machine-translated: ca -->
 <!-- machine-translated: cs -->
@@ -167,6 +167,10 @@ nagelezen.
 <!-- machine-translated: pl -->
 <!-- machine-translated: pt -->
 <!-- machine-translated: pt_BR -->
+<!-- machine-translated: ru -->
+<!-- machine-translated: sr -->
+<!-- machine-translated: tr -->
+<!-- machine-translated: zh_CN -->
 Op een Franse desktop is de menubalk
 `&Fichier`, `É&dition`, `&Affichage`, `&Vidéo`, `&Outils`, `&Projets`, `Aid&e`. De schermafbeeldingen
 van deze handleiding zijn in het Nederlands gemaakt.

@@ -32,7 +32,7 @@ contorno — véxase
 | A xanela fala | O manual ábrese en |
 | :---------------- | :------------------ |
 | inglés | inglés |
-| unha lingua cuxo manual está instalado — catalán, checo, alemán, español, finés, francés, galego, hebreo, húngaro, interlingue, islandés, italiano, neerlandés, polaco, portugués, portugués do Brasil | esa lingua |
+| unha lingua cuxo manual está instalado — catalán, checo, alemán, español, finés, francés, galego, hebreo, húngaro, interlingue, islandés, italiano, neerlandés, polaco, portugués, portugués do Brasil, ruso, serbio, turco, chinés simplificado | esa lingua |
 | unha lingua cuxo manual non está instalado | inglés |
 
 **Páxina a páxina, non todo ou nada**: unha páxina que a tradución non ten

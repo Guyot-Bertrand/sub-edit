@@ -32,7 +32,7 @@ ambiente, no caso contrário — veja-se
 | A janela fala | O manual abre em |
 | :---------------- | :------------------ |
 | inglês | inglês |
-| um idioma cujo manual está instalado — catalão, checo, alemão, espanhol, finlandês, francês, galego, hebraico, húngaro, interlingue, islandês, italiano, neerlandês, polaco, português, português do Brasil | esse idioma |
+| um idioma cujo manual está instalado — catalão, checo, alemão, espanhol, finlandês, francês, galego, hebraico, húngaro, interlingue, islandês, italiano, neerlandês, polaco, português, português do Brasil, russo, sérvio, turco, chinês simplificado | esse idioma |
 | um idioma cujo manual não está instalado | inglês |
 
 **Página a página, não tudo ou nada**: uma página que a tradução não tem

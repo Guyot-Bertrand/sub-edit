@@ -32,7 +32,7 @@ interfejs: w tym wybranym w `Edycja ▸ Preferencje…` albo, w przeciwnym razie
 | Okno mówi | Podręcznik otwiera się w |
 | :---------------- | :------------------ |
 | po angielsku | języku angielskim |
-| w języku, którego podręcznik jest zainstalowany — kataloński, czeski, niemiecki, hiszpański, fiński, francuski, galicyjski, hebrajski, węgierski, interlingue, islandzki, włoski, niderlandzki, polski, portugalski, brazylijski portugalski | tym języku |
+| w języku, którego podręcznik jest zainstalowany — kataloński, czeski, niemiecki, hiszpański, fiński, francuski, galicyjski, hebrajski, węgierski, interlingue, islandzki, włoski, niderlandzki, polski, portugalski, brazylijski portugalski, rosyjski, serbski, turecki, chiński uproszczony | tym języku |
 | w języku, którego podręcznik nie jest zainstalowany | języku angielskim |
 
 **Strona po stronie, a nie wszystko albo nic**: strona, której tłumaczenie nie ma,

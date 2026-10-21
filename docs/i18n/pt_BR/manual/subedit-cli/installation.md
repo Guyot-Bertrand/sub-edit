@@ -26,10 +26,10 @@ sudo dnf install ./subedit-<version>.x86_64.rpm     # Fedora, and relatives
 | `subedit-cli`, `subedit-gui` | `/usr/bin` |
 | a entrada de menu, o ícone, os metadados da central de programas | `/usr/share/applications`, `/usr/share/icons`, `/usr/share/metainfo` |
 | este manual, em Markdown | `/usr/share/subedit/manual` |
-| sua tradução para cada idioma instalado — catalão, tcheco, alemão, espanhol, finlandês, francês, galego, hebraico, húngaro, interlíngua, islandês, italiano, holandês, polonês, português, português do Brasil | `/usr/share/subedit/manual/<language>` — `ca`, `cs`, `de`, `es`, `fi`, `fr`, `gl`, `he`, `hu`, `ie`, `is`, `it_IT`, `nl`, `pl`, `pt`, `pt_BR` |
+| sua tradução para cada idioma instalado — catalão, tcheco, alemão, espanhol, finlandês, francês, galego, hebraico, húngaro, interlíngua, islandês, italiano, holandês, polonês, português, português do Brasil, russo, sérvio, turco, chinês simplificado | `/usr/share/subedit/manual/<language>` — `ca`, `cs`, `de`, `es`, `fi`, `fr`, `gl`, `he`, `hu`, `ie`, `is`, `it_IT`, `nl`, `pl`, `pt`, `pt_BR`, `ru`, `sr`, `tr`, `zh_CN` |
 | os padrões de correção do Gaupol | `/usr/share/subedit/patterns` |
 | as páginas de manual de `subedit-cli`, uma por subcomando, e de `subedit-gui` — veja [As páginas de manual](invocation.md#as-páginas-de-manual) | `/usr/share/man/man1` |
-| as páginas de `subedit-cli` em cada idioma instalado — catalão, tcheco, alemão, espanhol, finlandês, francês, galego, hebraico, húngaro, interlíngua, islandês, italiano, holandês, polonês, português, português do Brasil | `/usr/share/man/<language>/man1` — `ca`, `cs`, `de`, `es`, `fi`, `fr`, `gl`, `he`, `hu`, `ie`, `is`, `it_IT`, `nl`, `pl`, `pt`, `pt_BR` |
+| as páginas de `subedit-cli` em cada idioma instalado — catalão, tcheco, alemão, espanhol, finlandês, francês, galego, hebraico, húngaro, interlíngua, islandês, italiano, holandês, polonês, português, português do Brasil, russo, sérvio, turco, chinês simplificado | `/usr/share/man/<language>/man1` — `ca`, `cs`, `de`, `es`, `fi`, `fr`, `gl`, `he`, `hu`, `ie`, `is`, `it_IT`, `nl`, `pl`, `pt`, `pt_BR`, `ru`, `sr`, `tr`, `zh_CN` |
 
 O `ffmpeg` é **recomendado e não obrigatório** nos dois pacotes: sem ele, a
 janela apenas deixa de oferecer a taxa de quadros que o filme declara — veja
@@ -197,10 +197,10 @@ prefixo escolhido:
 | o ícone | `<prefix>/share/icons/hicolor/scalable/apps` |
 | os metadados da central de programas | `<prefix>/share/metainfo` |
 | este manual, em Markdown | `<prefix>/share/subedit/manual` |
-| sua tradução para cada idioma instalado — catalão, tcheco, alemão, espanhol, finlandês, francês, galego, hebraico, húngaro, interlíngua, islandês, italiano, holandês, polonês, português, português do Brasil | `<prefix>/share/subedit/manual/<language>` — `ca`, `cs`, `de`, `es`, `fi`, `fr`, `gl`, `he`, `hu`, `ie`, `is`, `it_IT`, `nl`, `pl`, `pt`, `pt_BR` |
+| sua tradução para cada idioma instalado — catalão, tcheco, alemão, espanhol, finlandês, francês, galego, hebraico, húngaro, interlíngua, islandês, italiano, holandês, polonês, português, português do Brasil, russo, sérvio, turco, chinês simplificado | `<prefix>/share/subedit/manual/<language>` — `ca`, `cs`, `de`, `es`, `fi`, `fr`, `gl`, `he`, `hu`, `ie`, `is`, `it_IT`, `nl`, `pl`, `pt`, `pt_BR`, `ru`, `sr`, `tr`, `zh_CN` |
 | os padrões de correção do Gaupol | `<prefix>/share/subedit/patterns` |
 | as páginas de manual dos dois binários, uma por subcomando para `subedit-cli` | `<prefix>/share/man/man1` |
-| as páginas de `subedit-cli` em cada idioma instalado — catalão, tcheco, alemão, espanhol, finlandês, francês, galego, hebraico, húngaro, interlíngua, islandês, italiano, holandês, polonês, português, português do Brasil | `<prefix>/share/man/<language>/man1` — `ca`, `cs`, `de`, `es`, `fi`, `fr`, `gl`, `he`, `hu`, `ie`, `is`, `it_IT`, `nl`, `pl`, `pt`, `pt_BR` |
+| as páginas de `subedit-cli` em cada idioma instalado — catalão, tcheco, alemão, espanhol, finlandês, francês, galego, hebraico, húngaro, interlíngua, islandês, italiano, holandês, polonês, português, português do Brasil, russo, sérvio, turco, chinês simplificado | `<prefix>/share/man/<language>/man1` — `ca`, `cs`, `de`, `es`, `fi`, `fr`, `gl`, `he`, `hu`, `ie`, `is`, `it_IT`, `nl`, `pl`, `pt`, `pt_BR`, `ru`, `sr`, `tr`, `zh_CN` |
 
 **São os mesmos arquivos que os pacotes instalam**: os pacotes saem deles,
 em vez de serem descritos uma segunda vez.

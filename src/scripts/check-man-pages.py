@@ -9,7 +9,7 @@ groff warning turned on, twice — under `C.UTF-8`, the terminal most readers ha
 `C`, where groff renders in ASCII and a character it has no glyph for draws nothing. Each
 page must also be ASCII from end to end: troff reads bytes, and a page that is ASCII renders
 the same whether or not `preconv` is called for it (see `md-to-man.py`). A language whose script
-ASCII cannot draw at all (Hebrew) is asked of the first terminal only.
+ASCII cannot draw at all (Hebrew, Cyrillic, Chinese) is asked of the first terminal only.
 
 **The exit code of `man` says nothing**: groff warns and returns 0. So it is the error output
 that is read, and one byte of it is a failure.
@@ -38,7 +38,7 @@ LOCALES = ("C.UTF-8", "C")
 # A language written in a script that ASCII cannot draw, not even with an accent: under `C` its
 # words draw nothing whatever the page does, so only the first terminal is asked of it. The
 # page's language is the directory above `man1` (`share/man/he/man1`).
-NON_LATIN_LANGUAGES = ("he",)
+NON_LATIN_LANGUAGES = ("he", "ru", "sr", "zh_CN")
 
 
 def pages_under(path: pathlib.Path) -> list[pathlib.Path]:

@@ -72,9 +72,9 @@ too, when the catalogue knows it — the patterns shipped with the program; a pa
 named as its file writes it. The pattern files themselves are never rewritten.
 
 The catalogues are installed under `<prefix>/share/subedit/locale/<language>/LC_MESSAGES/subedit.mo`
-and found from the executable's own directory. English is built in. This version installs `ca`, `cs`, `de`, `es`, `fi`, `fr`, `gl`, `he`, `hu`, `ie`, `is`, `it_IT`, `nl`, `pl`, `pt` and `pt_BR` — Catalan,
-Czech, German, Spanish, Finnish, French, Galician, Hebrew, Hungarian, Interlingue, Icelandic, Italian, Dutch, Polish, Portuguese and Brazilian Portuguese — translated in full. French has been reviewed
-by a reader of the language; Catalan, Czech, German, Spanish, Finnish, Galician, Hebrew, Hungarian, Interlingue, Icelandic, Italian, Dutch, Polish, Portuguese and Brazilian Portuguese are
+and found from the executable's own directory. English is built in. This version installs `ca`, `cs`, `de`, `es`, `fi`, `fr`, `gl`, `he`, `hu`, `ie`, `is`, `it_IT`, `nl`, `pl`, `pt`, `pt_BR`, `ru`, `sr`, `tr` and `zh_CN` — Catalan,
+Czech, German, Spanish, Finnish, French, Galician, Hebrew, Hungarian, Interlingue, Icelandic, Italian, Dutch, Polish, Portuguese, Brazilian Portuguese, Russian, Serbian, Turkish and Simplified Chinese — translated in full. French has been reviewed
+by a reader of the language; Catalan, Czech, German, Spanish, Finnish, Galician, Hebrew, Hungarian, Interlingue, Icelandic, Italian, Dutch, Polish, Portuguese, Brazilian Portuguese, Russian, Serbian, Turkish and Simplified Chinese are
 machine-translated and not yet reviewed by a reader of the language.
 <!-- machine-translated: ca -->
 <!-- machine-translated: cs -->
@@ -91,6 +91,10 @@ machine-translated and not yet reviewed by a reader of the language.
 <!-- machine-translated: pl -->
 <!-- machine-translated: pt -->
 <!-- machine-translated: pt_BR -->
+<!-- machine-translated: ru -->
+<!-- machine-translated: sr -->
+<!-- machine-translated: tr -->
+<!-- machine-translated: zh_CN -->
 Under `LANG=fr_FR.UTF-8`, `subedit-cli --help` begins with "Lire,
 inspecter et recaler des fichiers de sous-titres." A script that reads the words of the text
 output sets `LANGUAGE=en` (or `LC_ALL=C`) — or reads `--format json`, which never changes.
@@ -217,7 +221,7 @@ not run, and `-q` and `-v` change nothing.
 <!-- example: subedit-cli --version | head -n 1 -->
 ```console
 $ subedit-cli --version | head -n 1
-subedit 0.15.46
+subedit 0.15.47
 ```
 
 The whole of it, on a machine with ICU 74.2 and Enchant 2.3.3 — the numbers are the machine's:
@@ -871,7 +875,7 @@ page names the directory the manual is installed in.
 | Pages | Where they are installed |
 | :---- | :----------------------- |
 | English | `share/man/man1` |
-| each installed language — Catalan, Czech, German, Spanish, Finnish, French, Galician, Hebrew, Hungarian, Interlingue, Icelandic, Italian, Dutch, Polish, Portuguese, Brazilian Portuguese | `share/man/<language>/man1` — `share/man/fr/man1` |
+| each installed language — Catalan, Czech, German, Spanish, Finnish, French, Galician, Hebrew, Hungarian, Interlingue, Icelandic, Italian, Dutch, Polish, Portuguese, Brazilian Portuguese, Russian, Serbian, Turkish, Simplified Chinese | `share/man/<language>/man1` — `share/man/fr/man1` |
 
 **`man` picks the language from the locale**, as the program does: under a French locale,
 `man subedit-cli` shows the French page, and a language whose pages are not installed gets the

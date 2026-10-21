@@ -148,9 +148,9 @@ setzt sich gegen jede Variable durch, `LC_ALL=C` eingeschlossen. Auch die Wahl g
 | die Tastenkürzel | nie: `Ctrl+S` ist `Ctrl+S` in jeder Sprache |
 | eine Meldung, die der Katalog nicht übersetzt | auf Englisch gezeigt |
 
-Diese Version installiert `ca`, `cs`, `de`, `es`, `fi`, `fr`, `gl`, `he`, `hu`, `ie`, `is`, `it_IT`, `nl`, `pl`, `pt` und `pt_BR` — Katalanisch, Tschechisch, Deutsch,
-Spanisch, Finnisch, Französisch, Galicisch, Hebräisch, Ungarisch, Interlingue, Isländisch, Italienisch, Niederländisch, Polnisch, Portugiesisch und Brasilianisches Portugiesisch — vollständig übersetzt. Französisch wurde von einer Leserin oder einem
-Leser der Sprache geprüft; Katalanisch, Tschechisch, Deutsch, Spanisch, Finnisch, Galicisch, Hebräisch, Ungarisch, Interlingue, Isländisch, Italienisch, Niederländisch, Polnisch, Portugiesisch und Brasilianisches Portugiesisch sind
+Diese Version installiert `ca`, `cs`, `de`, `es`, `fi`, `fr`, `gl`, `he`, `hu`, `ie`, `is`, `it_IT`, `nl`, `pl`, `pt`, `pt_BR`, `ru`, `sr`, `tr` und `zh_CN` — Katalanisch, Tschechisch, Deutsch,
+Spanisch, Finnisch, Französisch, Galicisch, Hebräisch, Ungarisch, Interlingue, Isländisch, Italienisch, Niederländisch, Polnisch, Portugiesisch, Brasilianisches Portugiesisch, Russisch, Serbisch, Türkisch und Vereinfachtes Chinesisch — vollständig übersetzt. Französisch wurde von einer Leserin oder einem
+Leser der Sprache geprüft; Katalanisch, Tschechisch, Deutsch, Spanisch, Finnisch, Galicisch, Hebräisch, Ungarisch, Interlingue, Isländisch, Italienisch, Niederländisch, Polnisch, Portugiesisch, Brasilianisches Portugiesisch, Russisch, Serbisch, Türkisch und Vereinfachtes Chinesisch sind
 maschinell übersetzt und noch von keiner Leserin und keinem Leser der Sprache geprüft.
 <!-- machine-translated: ca -->
 <!-- machine-translated: cs -->
@@ -167,6 +167,10 @@ maschinell übersetzt und noch von keiner Leserin und keinem Leser der Sprache g
 <!-- machine-translated: pl -->
 <!-- machine-translated: pt -->
 <!-- machine-translated: pt_BR -->
+<!-- machine-translated: ru -->
+<!-- machine-translated: sr -->
+<!-- machine-translated: tr -->
+<!-- machine-translated: zh_CN -->
 Auf einer französischen Arbeitsumgebung lautet die Menüleiste
 `&Fichier`, `É&dition`, `&Affichage`, `&Vidéo`, `&Outils`, `&Projets`, `Aid&e`. Die Bildschirmfotos
 dieses Handbuchs werden auf Deutsch aufgenommen.

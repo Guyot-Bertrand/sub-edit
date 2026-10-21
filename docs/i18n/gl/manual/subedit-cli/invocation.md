@@ -75,9 +75,9 @@ lingua, cando o catálogo o coñece — os padróns distribuídos co programa; u
 nómease tal como o escribe o seu ficheiro. Os ficheiros de padróns en si nunca se reescriben.
 
 Os catálogos instálanse en `<prefix>/share/subedit/locale/<language>/LC_MESSAGES/subedit.mo`
-e atópanse a partir do propio directorio do executable. O inglés vai integrado. Esta versión instala `ca`, `cs`, `de`, `es`, `fi`, `fr`, `gl`, `he`, `hu`, `ie`, `is`, `it_IT`, `nl`, `pl`, `pt` e `pt_BR` — catalán,
-checo, alemán, español, finés, francés, galego, hebreo, húngaro, interlingue, islandés, italiano, neerlandés, polaco, portugués e portugués do Brasil — traducidos por completo. O francés foi revisado
-por un lector da lingua; o catalán, o checo, o alemán, o español, o finés, o galego, o hebreo, o húngaro, o interlingue, o islandés, o italiano, o neerlandés, o polaco, o portugués e o portugués do Brasil son
+e atópanse a partir do propio directorio do executable. O inglés vai integrado. Esta versión instala `ca`, `cs`, `de`, `es`, `fi`, `fr`, `gl`, `he`, `hu`, `ie`, `is`, `it_IT`, `nl`, `pl`, `pt`, `pt_BR`, `ru`, `sr`, `tr` e `zh_CN` — catalán,
+checo, alemán, español, finés, francés, galego, hebreo, húngaro, interlingue, islandés, italiano, neerlandés, polaco, portugués, portugués do Brasil, ruso, serbio, turco e chinés simplificado — traducidos por completo. O francés foi revisado
+por un lector da lingua; o catalán, o checo, o alemán, o español, o finés, o galego, o hebreo, o húngaro, o interlingue, o islandés, o italiano, o neerlandés, o polaco, o portugués, o portugués do Brasil, o ruso, o serbio, o turco e o chinés simplificado son
 traducións automáticas aínda non revisadas por ningún lector da lingua.
 <!-- machine-translated: ca -->
 <!-- machine-translated: cs -->
@@ -94,6 +94,10 @@ traducións automáticas aínda non revisadas por ningún lector da lingua.
 <!-- machine-translated: pl -->
 <!-- machine-translated: pt -->
 <!-- machine-translated: pt_BR -->
+<!-- machine-translated: ru -->
+<!-- machine-translated: sr -->
+<!-- machine-translated: tr -->
+<!-- machine-translated: zh_CN -->
 Con `LANG=fr_FR.UTF-8`, `subedit-cli --help` comeza por «Lire,
 inspecter et recaler des fichiers de sous-titres.» Un script que le as palabras da saída
 de texto define `LANGUAGE=en` (ou `LC_ALL=C`) — ou le `--format json`, que nunca cambia.
@@ -220,7 +224,7 @@ non se executa, e `-q` e `-v` non cambian nada.
 <!-- example: subedit-cli --version | head -n 1 -->
 ```console
 $ subedit-cli --version | head -n 1
-subedit 0.15.46
+subedit 0.15.47
 ```
 
 Completa, nunha máquina con ICU 74.2 e Enchant 2.3.3 — os números son os da máquina:
@@ -874,7 +878,7 @@ páxina nomea o directorio no que está instalado o manual.
 | Páxinas | Onde se instalan |
 | :---- | :----------------------- |
 | inglés | `share/man/man1` |
-| cada lingua instalada — catalán, checo, alemán, español, finés, francés, galego, hebreo, húngaro, interlingue, islandés, italiano, neerlandés, polaco, portugués, portugués do Brasil | `share/man/<language>/man1` — `share/man/fr/man1` |
+| cada lingua instalada — catalán, checo, alemán, español, finés, francés, galego, hebreo, húngaro, interlingue, islandés, italiano, neerlandés, polaco, portugués, portugués do Brasil, ruso, serbio, turco, chinés simplificado | `share/man/<language>/man1` — `share/man/fr/man1` |
 
 **`man` escolle a lingua a partir da configuración rexional**, como fai o programa: cunha configuración rexional francesa,
 `man subedit-cli` mostra a páxina francesa, e unha lingua cuxas páxinas non están instaladas recibe as

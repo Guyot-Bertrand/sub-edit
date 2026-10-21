@@ -26,10 +26,10 @@ sudo dnf install ./subedit-<version>.x86_64.rpm     # Fedora, and relatives
 | `subedit-cli`, `subedit-gui` | `/usr/bin` |
 | li entrata de menu, li icone, li metadata del centre de software | `/usr/share/applications`, `/usr/share/icons`, `/usr/share/metainfo` |
 | ca manual, in Markdown | `/usr/share/subedit/manual` |
-| su traduction in chascun lingue installat — catalan, tchec, german, hispan, finnic, francesi, galician, hebraic, hungaric, interlingue, islandesi, italian, hollandesi, polonesi, portugalesi, portugalesi brasilian | `/usr/share/subedit/manual/<language>` — `ca`, `cs`, `de`, `es`, `fi`, `fr`, `gl`, `he`, `hu`, `ie`, `is`, `it_IT`, `nl`, `pl`, `pt`, `pt_BR` |
+| su traduction in chascun lingue installat — catalan, tchec, german, hispan, finnic, francesi, galician, hebraic, hungaric, interlingue, islandesi, italian, hollandesi, polonesi, portugalesi, portugalesi brasilian, russ, serb, turc, chinesi simplificat | `/usr/share/subedit/manual/<language>` — `ca`, `cs`, `de`, `es`, `fi`, `fr`, `gl`, `he`, `hu`, `ie`, `is`, `it_IT`, `nl`, `pl`, `pt`, `pt_BR`, `ru`, `sr`, `tr`, `zh_CN` |
 | li modelles de correction de Gaupol | `/usr/share/subedit/patterns` |
 | li págines de manual de `subedit-cli`, un per subcomande, e de `subedit-gui` — vide [Li págines de manual](invocation.md#li-págines-de-manual) | `/usr/share/man/man1` |
-| li págines de `subedit-cli` in chascun lingue installat — catalan, tchec, german, hispan, finnic, francesi, galician, hebraic, hungaric, interlingue, islandesi, italian, hollandesi, polonesi, portugalesi, portugalesi brasilian | `/usr/share/man/<language>/man1` — `ca`, `cs`, `de`, `es`, `fi`, `fr`, `gl`, `he`, `hu`, `ie`, `is`, `it_IT`, `nl`, `pl`, `pt`, `pt_BR` |
+| li págines de `subedit-cli` in chascun lingue installat — catalan, tchec, german, hispan, finnic, francesi, galician, hebraic, hungaric, interlingue, islandesi, italian, hollandesi, polonesi, portugalesi, portugalesi brasilian, russ, serb, turc, chinesi simplificat | `/usr/share/man/<language>/man1` — `ca`, `cs`, `de`, `es`, `fi`, `fr`, `gl`, `he`, `hu`, `ie`, `is`, `it_IT`, `nl`, `pl`, `pt`, `pt_BR`, `ru`, `sr`, `tr`, `zh_CN` |
 
 `ffmpeg` es **recomandat e ne obligatori** per ambi paccages: sin it, li
 fenestre solmen cessa oferter li frequentie de fotogrammas quel li film declara — vide
@@ -197,10 +197,10 @@ electet:
 | li icone | `<prefix>/share/icons/hicolor/scalable/apps` |
 | li metadata del centre de software | `<prefix>/share/metainfo` |
 | ca manual, in Markdown | `<prefix>/share/subedit/manual` |
-| su traduction in chascun lingue installat — catalan, tchec, german, hispan, finnic, francesi, galician, hebraic, hungaric, interlingue, islandesi, italian, hollandesi, polonesi, portugalesi, portugalesi brasilian | `<prefix>/share/subedit/manual/<language>` — `ca`, `cs`, `de`, `es`, `fi`, `fr`, `gl`, `he`, `hu`, `ie`, `is`, `it_IT`, `nl`, `pl`, `pt`, `pt_BR` |
+| su traduction in chascun lingue installat — catalan, tchec, german, hispan, finnic, francesi, galician, hebraic, hungaric, interlingue, islandesi, italian, hollandesi, polonesi, portugalesi, portugalesi brasilian, russ, serb, turc, chinesi simplificat | `<prefix>/share/subedit/manual/<language>` — `ca`, `cs`, `de`, `es`, `fi`, `fr`, `gl`, `he`, `hu`, `ie`, `is`, `it_IT`, `nl`, `pl`, `pt`, `pt_BR`, `ru`, `sr`, `tr`, `zh_CN` |
 | li modelles de correction de Gaupol | `<prefix>/share/subedit/patterns` |
 | li págines de manual de ambi binaries, un per subcomande por `subedit-cli` | `<prefix>/share/man/man1` |
-| li págines de `subedit-cli` in chascun lingue installat — catalan, tchec, german, hispan, finnic, francesi, galician, hebraic, hungaric, interlingue, islandesi, italian, hollandesi, polonesi, portugalesi, portugalesi brasilian | `<prefix>/share/man/<language>/man1` — `ca`, `cs`, `de`, `es`, `fi`, `fr`, `gl`, `he`, `hu`, `ie`, `is`, `it_IT`, `nl`, `pl`, `pt`, `pt_BR` |
+| li págines de `subedit-cli` in chascun lingue installat — catalan, tchec, german, hispan, finnic, francesi, galician, hebraic, hungaric, interlingue, islandesi, italian, hollandesi, polonesi, portugalesi, portugalesi brasilian, russ, serb, turc, chinesi simplificat | `<prefix>/share/man/<language>/man1` — `ca`, `cs`, `de`, `es`, `fi`, `fr`, `gl`, `he`, `hu`, `ie`, `is`, `it_IT`, `nl`, `pl`, `pt`, `pt_BR`, `ru`, `sr`, `tr`, `zh_CN` |
 
 **Es li sam files que li paccages installa**: li paccages veni de les,
 vice esser descrit un duesim vez.

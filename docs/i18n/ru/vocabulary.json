@@ -1,0 +1,15 @@
+{
+  "shortcut_header": "Комбинация клавиш",
+  "label_headers": ["Команда", "Пункт", "Действие", "Пункт меню"],
+  "no_shortcut_words": ["нет"],
+  "option_header": "Параметр",
+  "subcommand_header": "Подкоманда",
+  "man": {
+    "name": "ИМЯ",
+    "synopsis": "ОБЗОР",
+    "description": "ОПИСАНИЕ",
+    "files": "ФАЙЛЫ",
+    "see_also": "СМ. ТАКЖЕ",
+    "manual_title": "Пользовательские команды"
+  }
+}

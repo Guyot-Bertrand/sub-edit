@@ -148,9 +148,9 @@ voittaa jokaisen muuttujan, myös muuttujan `LC_ALL=C`. Myös valinta tulee voim
 | pikanäppäimet | ei koskaan: `Ctrl+S` on `Ctrl+S` kaikilla kielillä |
 | viesti, jota käännösluettelo ei käännä | näytetään englanniksi |
 
-Tämä versio asentaa kielet `ca`, `cs`, `de`, `es`, `fi`, `fr`, `gl`, `he`, `hu`, `ie`, `is`, `it_IT`, `nl`, `pl`, `pt` ja `pt_BR` — katalaanin, tšekin, saksan, espanjan,
-suomen, ranskan, galician, heprean, unkarin, interlinguen, islannin, italian, hollannin, puolan, portugalin ja brasilianportugalin — kokonaan käännettyinä. Ranskan on tarkistanut kielen lukija;
-katalaani, tšekki, saksa, espanja, suomi, galicia, heprea, unkari, interlingue, islanti, italia, hollanti, puola, portugali ja brasilianportugali ovat konekäännöksiä, eikä kukaan kielen lukija ole
+Tämä versio asentaa kielet `ca`, `cs`, `de`, `es`, `fi`, `fr`, `gl`, `he`, `hu`, `ie`, `is`, `it_IT`, `nl`, `pl`, `pt`, `pt_BR`, `ru`, `sr`, `tr` ja `zh_CN` — katalaanin, tšekin, saksan, espanjan,
+suomen, ranskan, galician, heprean, unkarin, interlinguen, islannin, italian, hollannin, puolan, portugalin, brasilianportugalin, venäjän, serbian, turkin ja yksinkertaistetun kiinan — kokonaan käännettyinä. Ranskan on tarkistanut kielen lukija;
+katalaani, tšekki, saksa, espanja, suomi, galicia, heprea, unkari, interlingue, islanti, italia, hollanti, puola, portugali, brasilianportugali, venäjä, serbia, turkki ja yksinkertaistettu kiina ovat konekäännöksiä, eikä kukaan kielen lukija ole
 vielä tarkistanut niitä.
 <!-- machine-translated: ca -->
 <!-- machine-translated: cs -->
@@ -167,6 +167,10 @@ vielä tarkistanut niitä.
 <!-- machine-translated: pl -->
 <!-- machine-translated: pt -->
 <!-- machine-translated: pt_BR -->
+<!-- machine-translated: ru -->
+<!-- machine-translated: sr -->
+<!-- machine-translated: tr -->
+<!-- machine-translated: zh_CN -->
 Ranskankielisellä työpöydällä valikkorivillä lukee
 `&Fichier`, `É&dition`, `&Affichage`, `&Vidéo`, `&Outils`, `&Projets`, `Aid&e`. Tämän käyttöoppaan
 kuvakaappaukset on otettu suomenkielisestä käyttöliittymästä.

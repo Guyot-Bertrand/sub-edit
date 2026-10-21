@@ -75,9 +75,9 @@ lingue, quande li catalog save it — li modelles livrat con li programma; un mo
 nominat quam su file lo scri. Li files de modelles self es nequande rescrit.
 
 Li catalogs es installat sub `<prefix>/share/subedit/locale/<language>/LC_MESSAGES/subedit.mo`
-e trovat ex li directoria del executabile self. Anglesi es integrat. Ca version installa `ca`, `cs`, `de`, `es`, `fi`, `fr`, `gl`, `he`, `hu`, `ie`, `is`, `it_IT`, `nl`, `pl`, `pt` e `pt_BR` — catalan,
-tchec, german, hispan, finnic, francesi, galician, hebraic, hungaric, interlingue, islandesi, italian, hollandesi, polonesi, portugalesi e portugalesi brasilian — traductet in plen. Francesi ha esset revidet
-de un lector del lingue; catalan, tchec, german, hispan, finnic, galician, hebraic, hungaric, interlingue, islandesi, italian, hollandesi, polonesi, portugalesi e portugalesi brasilian es
+e trovat ex li directoria del executabile self. Anglesi es integrat. Ca version installa `ca`, `cs`, `de`, `es`, `fi`, `fr`, `gl`, `he`, `hu`, `ie`, `is`, `it_IT`, `nl`, `pl`, `pt`, `pt_BR`, `ru`, `sr`, `tr` e `zh_CN` — catalan,
+tchec, german, hispan, finnic, francesi, galician, hebraic, hungaric, interlingue, islandesi, italian, hollandesi, polonesi, portugalesi, portugalesi brasilian, russ, serb, turc e chinesi simplificat — traductet in plen. Francesi ha esset revidet
+de un lector del lingue; catalan, tchec, german, hispan, finnic, galician, hebraic, hungaric, interlingue, islandesi, italian, hollandesi, polonesi, portugalesi, portugalesi brasilian, russ, serb, turc e chinesi simplificat es
 traductet machinalmen e ancor ne revidet de un lector del lingue.
 <!-- machine-translated: ca -->
 <!-- machine-translated: cs -->
@@ -94,6 +94,10 @@ traductet machinalmen e ancor ne revidet de un lector del lingue.
 <!-- machine-translated: pl -->
 <!-- machine-translated: pt -->
 <!-- machine-translated: pt_BR -->
+<!-- machine-translated: ru -->
+<!-- machine-translated: sr -->
+<!-- machine-translated: tr -->
+<!-- machine-translated: zh_CN -->
 Sub `LANG=fr_FR.UTF-8`, `subedit-cli --help` comensa per «Lire,
 inspecter et recaler des fichiers de sous-titres.» Un script quel leer li paroles del
 output textu fixa `LANGUAGE=en` (o `LC_ALL=C`) — o leer `--format json`, quel nequande changea.
@@ -220,7 +224,7 @@ ne es executet, e `-q` e `-v` changea nequo.
 <!-- example: subedit-cli --version | head -n 1 -->
 ```console
 $ subedit-cli --version | head -n 1
-subedit 0.15.46
+subedit 0.15.47
 ```
 
 Li tot, sur un machine con ICU 74.2 e Enchant 2.3.3 — li númeres es ti del machine:
@@ -874,7 +878,7 @@ págine nomina li directoria in quel li manual es installat.
 | Págines | U les es installat |
 | :---- | :----------------------- |
 | anglesi | `share/man/man1` |
-| chascun lingue installat — catalan, tchec, german, hispan, finnic, francesi, galician, hebraic, hungaric, interlingue, islandesi, italian, hollandesi, polonesi, portugalesi, portugalesi brasilian | `share/man/<language>/man1` — `share/man/fr/man1` |
+| chascun lingue installat — catalan, tchec, german, hispan, finnic, francesi, galician, hebraic, hungaric, interlingue, islandesi, italian, hollandesi, polonesi, portugalesi, portugalesi brasilian, russ, serb, turc, chinesi simplificat | `share/man/<language>/man1` — `share/man/fr/man1` |
 
 **`man` elige li lingue ex li locale**, quam li programma fa: sub un locale francesi,
 `man subedit-cli` monstra li págine francesi, e un lingue de quel págines ne es installat obtene

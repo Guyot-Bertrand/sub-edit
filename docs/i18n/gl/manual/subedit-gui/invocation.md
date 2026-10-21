@@ -148,9 +148,9 @@ impóñese a todas as variables, `LC_ALL=C` incluída. A escolla, tamén, aplíc
 | os atallos de teclado | nunca: `Ctrl+S` é `Ctrl+S` en todas as linguas |
 | unha mensaxe que o catálogo non traduce | móstrase en inglés |
 
-Esta versión instala `ca`, `cs`, `de`, `es`, `fi`, `fr`, `gl`, `he`, `hu`, `ie`, `is`, `it_IT`, `nl`, `pl`, `pt` e `pt_BR` — catalán, checo, alemán, español,
-finés, francés, galego, hebreo, húngaro, interlingue, islandés, italiano, neerlandés, polaco, portugués e portugués do Brasil — traducidos por completo. O francés foi revisado por un lector da
-lingua; o catalán, o checo, o alemán, o español, o finés, o galego, o hebreo, o húngaro, o interlingue, o islandés, o italiano, o neerlandés, o polaco, o portugués e o portugués do Brasil son traducións automáticas aínda non
+Esta versión instala `ca`, `cs`, `de`, `es`, `fi`, `fr`, `gl`, `he`, `hu`, `ie`, `is`, `it_IT`, `nl`, `pl`, `pt`, `pt_BR`, `ru`, `sr`, `tr` e `zh_CN` — catalán, checo, alemán, español,
+finés, francés, galego, hebreo, húngaro, interlingue, islandés, italiano, neerlandés, polaco, portugués, portugués do Brasil, ruso, serbio, turco e chinés simplificado — traducidos por completo. O francés foi revisado por un lector da
+lingua; o catalán, o checo, o alemán, o español, o finés, o galego, o hebreo, o húngaro, o interlingue, o islandés, o italiano, o neerlandés, o polaco, o portugués, o portugués do Brasil, o ruso, o serbio, o turco e o chinés simplificado son traducións automáticas aínda non
 revisadas por ningún lector da lingua.
 <!-- machine-translated: ca -->
 <!-- machine-translated: cs -->
@@ -167,6 +167,10 @@ revisadas por ningún lector da lingua.
 <!-- machine-translated: pl -->
 <!-- machine-translated: pt -->
 <!-- machine-translated: pt_BR -->
+<!-- machine-translated: ru -->
+<!-- machine-translated: sr -->
+<!-- machine-translated: tr -->
+<!-- machine-translated: zh_CN -->
 Nun escritorio en francés a barra de menús mostra
 `&Fichier`, `É&dition`, `&Affichage`, `&Vidéo`, `&Outils`, `&Projets`, `Aid&e`. As capturas de pantalla deste
 manual fanse en galego.

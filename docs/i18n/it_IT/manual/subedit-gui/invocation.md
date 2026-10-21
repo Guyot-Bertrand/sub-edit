@@ -148,9 +148,9 @@ prevale su qualsiasi variabile, `LC_ALL=C` compresa. Anche la scelta si applica 
 | le scorciatoie da tastiera | mai: `Ctrl+S` è `Ctrl+S` in ogni lingua |
 | un messaggio che il catalogo non traduce | mostrato in inglese |
 
-Questa versione installa `ca`, `cs`, `de`, `es`, `fi`, `fr`, `gl`, `he`, `hu`, `ie`, `is`, `it_IT`, `nl`, `pl`, `pt` e `pt_BR` — catalano, ceco, tedesco,
-spagnolo, finlandese, francese, galiziano, ebraico, ungherese, interlingue, islandese, italiano, olandese, polacco, portoghese e portoghese brasiliano — tradotte per intero. Il francese è stato rivisto da un lettore della
-lingua; catalano, ceco, tedesco, spagnolo, finlandese, galiziano, ebraico, ungherese, interlingue, islandese, italiano, olandese, polacco, portoghese e portoghese brasiliano sono tradotti automaticamente e non ancora
+Questa versione installa `ca`, `cs`, `de`, `es`, `fi`, `fr`, `gl`, `he`, `hu`, `ie`, `is`, `it_IT`, `nl`, `pl`, `pt`, `pt_BR`, `ru`, `sr`, `tr` e `zh_CN` — catalano, ceco, tedesco,
+spagnolo, finlandese, francese, galiziano, ebraico, ungherese, interlingue, islandese, italiano, olandese, polacco, portoghese, portoghese brasiliano, russo, serbo, turco e cinese semplificato — tradotte per intero. Il francese è stato rivisto da un lettore della
+lingua; catalano, ceco, tedesco, spagnolo, finlandese, galiziano, ebraico, ungherese, interlingue, islandese, italiano, olandese, polacco, portoghese, portoghese brasiliano, russo, serbo, turco e cinese semplificato sono tradotti automaticamente e non ancora
 rivisti da un lettore della lingua.
 <!-- machine-translated: ca -->
 <!-- machine-translated: cs -->
@@ -167,6 +167,10 @@ rivisti da un lettore della lingua.
 <!-- machine-translated: pl -->
 <!-- machine-translated: pt -->
 <!-- machine-translated: pt_BR -->
+<!-- machine-translated: ru -->
+<!-- machine-translated: sr -->
+<!-- machine-translated: tr -->
+<!-- machine-translated: zh_CN -->
 Su un desktop in francese la barra dei menu mostra
 `&Fichier`, `É&dition`, `&Affichage`, `&Vidéo`, `&Outils`, `&Projets`, `Aid&e`. Le schermate di
 questo manuale sono acquisite in italiano.

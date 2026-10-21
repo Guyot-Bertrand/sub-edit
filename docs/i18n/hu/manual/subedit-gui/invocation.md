@@ -148,9 +148,9 @@ minden változót felülír, az `LC_ALL=C` beállítást is. A választás is a 
 | a gyorsbillentyűk | soha: a `Ctrl+S` minden nyelven `Ctrl+S` |
 | olyan üzenet, amelyet a katalógus nem fordít | angolul jelenik meg |
 
-Ez a verzió a következőket telepíti: `ca`, `cs`, `de`, `es`, `fi`, `fr`, `gl`, `he`, `hu`, `ie`, `is`, `it_IT`, `nl`, `pl`, `pt` és `pt_BR` — katalán, cseh, német,
-spanyol, finn, francia, galíciai, héber, magyar, interlingue, izlandi, olasz, holland, lengyel, portugál és brazil portugál — teljes fordításban. A franciát a
-nyelv egyik olvasója átnézte; a katalán, cseh, német, spanyol, finn, galíciai, héber, magyar, interlingue, izlandi, olasz, holland, lengyel, portugál és brazil portugál gépi fordítású, és a
+Ez a verzió a következőket telepíti: `ca`, `cs`, `de`, `es`, `fi`, `fr`, `gl`, `he`, `hu`, `ie`, `is`, `it_IT`, `nl`, `pl`, `pt`, `pt_BR`, `ru`, `sr`, `tr` és `zh_CN` — katalán, cseh, német,
+spanyol, finn, francia, galíciai, héber, magyar, interlingue, izlandi, olasz, holland, lengyel, portugál, brazil portugál, orosz, szerb, török és egyszerűsített kínai — teljes fordításban. A franciát a
+nyelv egyik olvasója átnézte; a katalán, cseh, német, spanyol, finn, galíciai, héber, magyar, interlingue, izlandi, olasz, holland, lengyel, portugál, brazil portugál, orosz, szerb, török és egyszerűsített kínai gépi fordítású, és a
 nyelv olvasója még nem nézte át.
 <!-- machine-translated: ca -->
 <!-- machine-translated: cs -->
@@ -167,6 +167,10 @@ nyelv olvasója még nem nézte át.
 <!-- machine-translated: pl -->
 <!-- machine-translated: pt -->
 <!-- machine-translated: pt_BR -->
+<!-- machine-translated: ru -->
+<!-- machine-translated: sr -->
+<!-- machine-translated: tr -->
+<!-- machine-translated: zh_CN -->
 Francia asztali környezetben a menüsor így szól:
 `&Fichier`, `É&dition`, `&Affichage`, `&Vidéo`, `&Outils`, `&Projets`, `Aid&e`. A kézikönyv
 képernyőképei magyar nyelvű felületen készülnek.
