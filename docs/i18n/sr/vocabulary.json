@@ -1,0 +1,15 @@
+{
+  "shortcut_header": "Пречица",
+  "label_headers": ["Команда", "Ставка", "Радња", "Ставка менија"],
+  "no_shortcut_words": ["нема", "ниједна"],
+  "option_header": "Опција",
+  "subcommand_header": "Подкоманда",
+  "man": {
+    "name": "ИМЕ",
+    "synopsis": "УВОД",
+    "description": "ОПИС",
+    "files": "ДАТОТЕКЕ",
+    "see_also": "ВИДИ ЈОШ",
+    "manual_title": "Корисничке команде"
+  }
+}
