@@ -75,9 +75,9 @@ Sprache, wenn der Katalog ihn kennt — bei den mit dem Programm ausgelieferten 
 so genannt, wie seine Datei es schreibt. Die Musterdateien selbst werden niemals umgeschrieben.
 
 Englisch ist eingebaut, und die Kataloge der übrigen Sprachen werden unter `<prefix>/share/subedit/locale/<language>/LC_MESSAGES/subedit.mo`
-installiert und vom Verzeichnis des Programms selbst aus gefunden. Diese Version installiert `ca`, `cs`, `de`, `es`, `fi`, `fr`, `gl`, `he`, `hu`, `ie`, `is`, `it_IT`, `nl`, `pl`, `pt` und `pt_BR` — Katalanisch, Tschechisch,
-Deutsch, Spanisch, Finnisch, Französisch, Galicisch, Hebräisch, Ungarisch, Interlingue, Isländisch, Italienisch, Niederländisch, Polnisch, Portugiesisch und Brasilianisches Portugiesisch —, vollständig übersetzt. Französisch wurde von einer Leserin
-oder einem Leser der Sprache geprüft; Katalanisch, Tschechisch, Deutsch, Spanisch, Finnisch, Galicisch, Hebräisch, Ungarisch, Interlingue, Isländisch, Italienisch, Niederländisch, Polnisch, Portugiesisch und Brasilianisches Portugiesisch sind maschinell
+installiert und vom Verzeichnis des Programms selbst aus gefunden. Diese Version installiert `ca`, `cs`, `de`, `es`, `fi`, `fr`, `gl`, `he`, `hu`, `ie`, `is`, `it_IT`, `nl`, `pl`, `pt`, `pt_BR`, `ru`, `sr`, `tr` und `zh_CN` — Katalanisch, Tschechisch,
+Deutsch, Spanisch, Finnisch, Französisch, Galicisch, Hebräisch, Ungarisch, Interlingue, Isländisch, Italienisch, Niederländisch, Polnisch, Portugiesisch, Brasilianisches Portugiesisch, Russisch, Serbisch, Türkisch und Vereinfachtes Chinesisch —, vollständig übersetzt. Französisch wurde von einer Leserin
+oder einem Leser der Sprache geprüft; Katalanisch, Tschechisch, Deutsch, Spanisch, Finnisch, Galicisch, Hebräisch, Ungarisch, Interlingue, Isländisch, Italienisch, Niederländisch, Polnisch, Portugiesisch, Brasilianisches Portugiesisch, Russisch, Serbisch, Türkisch und Vereinfachtes Chinesisch sind maschinell
 übersetzt und noch nicht von einer Leserin oder einem Leser der Sprache geprüft.
 <!-- machine-translated: ca -->
 <!-- machine-translated: cs -->
@@ -878,7 +878,7 @@ Seite nennt das Verzeichnis, in dem das Handbuch installiert ist.
 | Seiten | Wo sie installiert werden |
 | :---- | :----------------------- |
 | Englisch | `share/man/man1` |
-| jede installierte Sprache — Katalanisch, Tschechisch, Deutsch, Spanisch, Finnisch, Französisch, Galicisch, Hebräisch, Ungarisch, Interlingue, Isländisch, Italienisch, Niederländisch, Polnisch, Portugiesisch, Brasilianisches Portugiesisch | `share/man/<language>/man1` — `share/man/fr/man1` |
+| jede installierte Sprache — Katalanisch, Tschechisch, Deutsch, Spanisch, Finnisch, Französisch, Galicisch, Hebräisch, Ungarisch, Interlingue, Isländisch, Italienisch, Niederländisch, Polnisch, Portugiesisch, Brasilianisches Portugiesisch, Russisch, Serbisch, Türkisch, Vereinfachtes Chinesisch | `share/man/<language>/man1` — `share/man/fr/man1` |
 
 **`man` wählt die Sprache anhand der Locale**, wie das Programm: Unter einer französischen Locale
 zeigt `man subedit-cli` die französische Seite, und eine Sprache, deren Seiten nicht installiert sind, erhält die
