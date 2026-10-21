@@ -33,7 +33,22 @@ return "Français"; // expect: counted
 
 // path: src/lib/subedit/core/i18n/catalogue.cpp
 constexpr std::string_view kKey = "Plural-Forms:"; // expect: exempt:file-syntax
+return std::unexpected("the header lacks nplurals or plural"); // expect: exempt:catalogue-loading
+
+// path: src/lib/subedit/core/i18n/language.cpp
 return std::unexpected("the header lacks nplurals or plural"); // expect: counted
+
+// path: src/lib/subedit/core/model/project.cpp
+throw std::out_of_range("subtitle index " + std::to_string(value) + " in a project of "); // expect: exempt:contract
+
+// path: src/lib/subedit/core/config/settings.cpp
+constexpr std::string_view kDark = "dark"; // expect: exempt:setting-value
+out << "# Display preferences: the window's own, the command line never reads them."; // expect: exempt:setting-value
+return std::unexpected("the setting could not be read"); // expect: counted
+
+// path: src/lib/subedit/core/text/pattern_catalogue.cpp
+const auto group = numberOf<int>(reading, "Group"); // expect: exempt:format-field
+return std::unexpected("the pattern file is not valid"); // expect: counted
 
 // path: src/lib/subedit/core/video/declared_frame_rate.cpp
 return {"error", "stream=r_frame_rate", "default=noprint_wrappers=1:nokey=1"}; // expect: exempt:external-program

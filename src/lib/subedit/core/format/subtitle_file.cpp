@@ -21,6 +21,7 @@
 #include <subedit/core/format/web_vtt_reader.hpp>
 #include <subedit/core/format/web_vtt_writer.hpp>
 #include <subedit/core/format/write_error.hpp>
+#include <subedit/core/i18n/messages.hpp>
 #include <subedit/core/model/encoding.hpp>
 #include <subedit/core/model/subtitle_format.hpp>
 #include <subedit/core/text/encoding.hpp>
@@ -128,7 +129,7 @@ readAs(SubtitleFormat format, std::string_view content, const ReadingChoices& ch
     if (!format.has_value())
         return std::unexpected(ReadError{
             .kind = ReadErrorKind::UnknownFormat,
-            .detail = "no format recognised",
+            .detail = std::string{translate("no format recognised")},
         });
 
     std::expected<ReadResult, ReadError> result = readAs(*format, text, choices);

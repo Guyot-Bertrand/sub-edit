@@ -1,3 +1,4 @@
+#include <subedit/core/i18n/messages.hpp>
 #include <subedit/core/model/subtitle_format.hpp>
 #include <subedit/core/text/common_errors.hpp>
 #include <subedit/core/text/correction_pattern.hpp>
@@ -76,7 +77,8 @@ struct PassFailure {
         if (!searched) {
             // The one way a search fails — pattern_engine.hpp's SearchFailure.
             return std::unexpected{
-                PassFailure{.kind = FailureKind::TimedOut, .detail = "the search was given up"}};
+                PassFailure{.kind = FailureKind::TimedOut,
+                            .detail = std::string{translate("the search was given up")}}};
         }
         if (!searched->has_value())
             return count;
@@ -100,7 +102,8 @@ struct PassFailure {
 
         if (parser.visible().size() > kMaxTextBytes) {
             return std::unexpected{
-                PassFailure{.kind = FailureKind::TooLong, .detail = "the text outgrew a subtitle"}};
+                PassFailure{.kind = FailureKind::TooLong,
+                            .detail = std::string{translate("the text outgrew a subtitle")}}};
         }
     }
 }
@@ -111,8 +114,9 @@ struct PassFailure {
     for (int passes = 1; one.repeat && count && *count > 0; ++passes) {
         if (passes > kMaxRepeatPasses) {
             return PassFailure{.kind = FailureKind::TooManyPasses,
-                               .detail = "the text still changed after " +
-                                         std::to_string(kMaxRepeatPasses) + " passes"};
+                               .detail =
+                                   substitute(translate("the text still changed after %1 passes"),
+                                              {std::to_string(kMaxRepeatPasses)})};
         }
         const std::string before{parser.visible()};
         count = replaceAll(one, parser);

@@ -7,32 +7,4 @@
 #
 # The target is zero before phase 15 closes.
 
-total 142
-   56  src/lib/subedit/core/config/operation_settings.cpp
-   19  src/lib/subedit/core/config/settings.cpp
-    1  src/lib/subedit/core/edit/split_project.cpp
-    1  src/lib/subedit/core/format/lrc_reader.cpp
-    1  src/lib/subedit/core/format/micro_dvd_reader.cpp
-    1  src/lib/subedit/core/format/mpl2_reader.cpp
-    1  src/lib/subedit/core/format/sub_rip_reader.cpp
-    1  src/lib/subedit/core/format/sub_station_alpha_reader.cpp
-    1  src/lib/subedit/core/format/sub_viewer2_reader.cpp
-    1  src/lib/subedit/core/format/subtitle_file.cpp
-    1  src/lib/subedit/core/format/tm_player_reader.cpp
-    2  src/lib/subedit/core/format/web_vtt_reader.cpp
-    2  src/lib/subedit/core/i18n/catalogue.cpp
-   10  src/lib/subedit/core/i18n/plural_expression.cpp
-    5  src/lib/subedit/core/io/real_file_system.cpp
-    1  src/lib/subedit/core/model/format_extras.hpp
-    5  src/lib/subedit/core/model/project.cpp
-    4  src/lib/subedit/core/process/start_process.cpp
-    1  src/lib/subedit/core/text/break_marker.hpp
-    1  src/lib/subedit/core/text/capitalization.cpp
-    4  src/lib/subedit/core/text/common_errors.cpp
-    1  src/lib/subedit/core/text/correction_pattern.cpp
-    2  src/lib/subedit/core/text/hearing_impaired_correction.cpp
-    1  src/lib/subedit/core/text/icu_pattern_engine.cpp
-    1  src/lib/subedit/core/text/line_breaking.cpp
-    6  src/lib/subedit/core/text/pattern_catalogue.cpp
-    4  src/lib/subedit/core/text/python_regex_syntax.cpp
-    8  src/lib/subedit/core/text/replacement_template.cpp
+total 0

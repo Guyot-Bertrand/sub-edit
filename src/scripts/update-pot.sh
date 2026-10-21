@@ -3,7 +3,7 @@
 # and #666.
 #
 # **What the template lists**: every literal passed to the API of `core/i18n/messages.hpp`
-# (`translate`, `translateIn`, `translatePlural`) in `src/lib` and `src/exe`. Tests are not read:
+# (`translate`, `translateIn`, `translatePlural`, `deferred`) in `src/lib` and `src/exe`. Tests are not read:
 # their messages are not the user's. The window has no keyword of its own: `gui/messages.hpp`
 # bears the same three names, and no `tr` is left (#665).
 #
@@ -72,7 +72,7 @@ extract() {
         --add-location=file --add-comments=TRANSLATORS \
         --package-name=subedit --copyright-holder='the subedit authors' \
         --msgid-bugs-address='https://github.com/Guyot-Bertrand/sub-edit/issues' \
-        -k -ktranslate:1 -ktranslateIn:1c,2 -ktranslatePlural:1,2 \
+        -k -ktranslate:1 -ktranslateIn:1c,2 -ktranslatePlural:1,2 -kdeferred:1 \
         --output="${scratch}/subedit.pot" ${sources}
 
     sed 's/^"POT-Creation-Date: .*\\n"$/"POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\\n"/' \

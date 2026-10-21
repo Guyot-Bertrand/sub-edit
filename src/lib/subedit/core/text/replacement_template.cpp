@@ -1,3 +1,4 @@
+#include <subedit/core/i18n/messages.hpp>
 #include <subedit/core/text/pattern_engine.hpp>
 #include <subedit/core/text/replacement_template.hpp>
 
@@ -109,7 +110,8 @@ private:
 
     [[nodiscard]] std::optional<TemplateError> group(int number) {
         if (number < 0 || std::cmp_greater(number, m_groupCount))
-            return fail("invalid group reference " + std::to_string(number));
+            return fail(
+                substitute(translate("invalid group reference %1"), {std::to_string(number)}));
         m_result.m_pieces.push_back({.group = number, .literal = {}});
         return std::nullopt;
     }
@@ -117,7 +119,7 @@ private:
     /// The escape after a backslash, which `m_at` stands on.
     [[nodiscard]] std::optional<TemplateError> escape() {
         if (m_at == m_text.size())
-            return fail("a backslash ends the replacement");
+            return fail(std::string{translate("a backslash ends the replacement")});
         const char letter = m_text[m_at++];
 
         if (const std::optional<char> simple = simpleEscape(letter)) {
@@ -131,7 +133,7 @@ private:
         if (isDigit(letter))
             return digits(letter);
         if (isAsciiLetter(letter))
-            return fail(std::string{"bad escape \\"} + letter);
+            return fail(substitute(translate("bad escape \\%1"), {std::string_view{&letter, 1}}));
         // Anything else stays as written, backslash included.
         literal(std::string{'\\'} + letter);
         return std::nullopt;
@@ -161,7 +163,7 @@ private:
                     static_cast<unsigned>(m_text[m_at++] - '0');
                 constexpr unsigned kLargest = 0377;
                 if (code > kLargest)
-                    return fail("octal escape value out of range");
+                    return fail(std::string{translate("octal escape value out of range")});
                 literal(characterOf(code));
                 return std::nullopt;
             }
@@ -173,21 +175,21 @@ private:
     /// `\g<name>` or `\g<number>`.
     [[nodiscard]] std::optional<TemplateError> namedGroup() {
         if (m_at == m_text.size() || m_text[m_at] != '<')
-            return fail("missing < after \\g");
+            return fail(std::string{translate("missing < after \\g")});
         const std::size_t close = m_text.find('>', m_at);
         if (close == std::string_view::npos)
-            return fail("missing > after \\g<");
+            return fail(std::string{translate("missing > after \\g<")});
         const std::string_view name = m_text.substr(m_at + 1, close - m_at - 1);
         m_at = close + 1;
 
         if (name.empty())
-            return fail("missing group name");
+            return fail(std::string{translate("missing group name")});
         if (std::ranges::all_of(name, isDigit))
             return group(std::stoi(std::string{name}));
 
         const std::optional<int> found = m_groupNamed(name);
         if (!found)
-            return fail("unknown group name '" + std::string{name} + "'");
+            return fail(substitute(translate("unknown group name '%1'"), {name}));
         return group(*found);
     }
 

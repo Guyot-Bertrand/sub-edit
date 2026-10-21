@@ -3,6 +3,7 @@
 #include <subedit/core/format/read_result.hpp>
 #include <subedit/core/format/sub_viewer2_reader.hpp>
 #include <subedit/core/format/sub_viewer2_syntax.hpp>
+#include <subedit/core/i18n/messages.hpp>
 #include <subedit/core/model/subtitle.hpp>
 #include <subedit/core/model/subtitle_format.hpp>
 #include <subedit/core/text/break_marker.hpp>
@@ -84,7 +85,7 @@ std::expected<ReadResult, ReadError> SubViewer2Reader::read(std::string_view con
     if (result.subtitles.empty())
         return std::unexpected(ReadError{
             .kind = ReadErrorKind::NoSubtitleFound,
-            .detail = "no timestamp line",
+            .detail = std::string{translate("no timestamp line")},
         });
 
     return result;

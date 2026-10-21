@@ -1,3 +1,4 @@
+#include <subedit/core/i18n/messages.hpp>
 #include <subedit/core/text/correction_pattern.hpp>
 #include <subedit/core/text/hearing_impaired.hpp>
 #include <subedit/core/text/hearing_impaired_correction.hpp>
@@ -56,7 +57,8 @@ replaceOnce(PatternMatcher& matcher, const ReplacementTemplate& replacement, Mar
             matcher.find(parser.visible(), pos);
         if (!searched) {
             return std::unexpected{
-                PassFailure{.kind = FailureKind::TimedOut, .detail = "the search was given up"}};
+                PassFailure{.kind = FailureKind::TimedOut,
+                            .detail = std::string{translate("the search was given up")}}};
         }
         if (!searched->has_value())
             break;
@@ -80,7 +82,8 @@ replaceOnce(PatternMatcher& matcher, const ReplacementTemplate& replacement, Mar
 
         if (parser.visible().size() > kMaxTextBytes) {
             return std::unexpected{
-                PassFailure{.kind = FailureKind::TooLong, .detail = "the text outgrew a subtitle"}};
+                PassFailure{.kind = FailureKind::TooLong,
+                            .detail = std::string{translate("the text outgrew a subtitle")}}};
         }
     }
     return changed;

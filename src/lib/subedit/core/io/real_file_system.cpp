@@ -1,3 +1,4 @@
+#include <subedit/core/i18n/messages.hpp>
 #include <subedit/core/io/file_system.hpp>
 #include <subedit/core/io/real_file_system.hpp>
 
@@ -151,7 +152,7 @@ RealFileSystem::readFile(const std::filesystem::path& path) const {
     if (!file)
         return failure(exists(path) ? FileErrorKind::Io : FileErrorKind::NotFound,
                        path,
-                       "could not be opened for reading");
+                       translate("could not be opened for reading"));
 
     // Read in blocks rather than through `istreambuf_iterator`, which walks the
     // stream one character at a time. The size is never asked for: `tellg`
@@ -163,7 +164,7 @@ RealFileSystem::readFile(const std::filesystem::path& path) const {
         content.append(block.data(), static_cast<std::size_t>(file.gcount()));
 
     if (file.bad())
-        return failure(FileErrorKind::Io, path, "reading was interrupted");
+        return failure(FileErrorKind::Io, path, translate("reading was interrupted"));
 
     return content;
 }
@@ -172,12 +173,12 @@ std::expected<void, FileError> RealFileSystem::writeFile(const std::filesystem::
                                                          std::string_view content) {
     std::ofstream file{path, std::ios::binary | std::ios::trunc};
     if (!file)
-        return failure(FileErrorKind::Io, path, "could not be opened for writing");
+        return failure(FileErrorKind::Io, path, translate("could not be opened for writing"));
 
     file.write(content.data(), static_cast<std::streamsize>(content.size()));
     file.close();
     if (!file)
-        return failure(FileErrorKind::Io, path, "writing was interrupted");
+        return failure(FileErrorKind::Io, path, translate("writing was interrupted"));
 
     return {};
 }
@@ -208,7 +209,7 @@ std::expected<void, FileError> RealFileSystem::remove(const std::filesystem::pat
     if (!std::filesystem::remove(path, code)) {
         if (code)
             return failure(code, path);
-        return failure(FileErrorKind::NotFound, path, "no such file");
+        return failure(FileErrorKind::NotFound, path, translate("no such file"));
     }
     return {};
 }

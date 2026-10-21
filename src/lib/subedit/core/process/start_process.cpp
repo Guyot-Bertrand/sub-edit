@@ -1,3 +1,4 @@
+#include <subedit/core/i18n/messages.hpp>
 #include <subedit/core/process/start_process.hpp>
 
 #include <array>
@@ -152,9 +153,10 @@ constexpr std::size_t kReadBlockSize = 4096;
                                                           const std::filesystem::path& program,
                                                           std::span<const std::string> arguments) {
     if (!actions.valid())
-        return failure(errno, program, "could not prepare the launch");
+        return failure(errno, program, std::string{translate("could not prepare the launch")});
     if (actions.error() != 0)
-        return failure(actions.error(), program, "could not redirect the output");
+        return failure(
+            actions.error(), program, std::string{translate("could not redirect the output")});
 
     // argv[0] is the program itself, by convention and by necessity. The
     // strings are copied because posix_spawn wants writable pointers, and the
@@ -174,7 +176,7 @@ constexpr std::size_t kReadBlockSize = 4096;
     const int spawned =
         ::posix_spawn(&child, owned.front().c_str(), actions.get(), nullptr, argv.data(), environ);
     if (spawned != 0)
-        return failure(spawned, program, "could not be started");
+        return failure(spawned, program, std::string{translate("could not be started")});
 
     return child;
 }
@@ -201,7 +203,7 @@ std::expected<ProgramOutput, LaunchError> runAndCapture(const std::filesystem::p
                                                         std::span<const std::string> arguments) {
     std::array<int, 2> ends{-1, -1};
     if (::pipe(ends.data()) != 0)
-        return failure(errno, program, "could not open a pipe");
+        return failure(errno, program, std::string{translate("could not open a pipe")});
     const Descriptor readEnd{ends[0]};
     Descriptor writeEnd{ends[1]};
 

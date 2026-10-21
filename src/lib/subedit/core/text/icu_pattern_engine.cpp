@@ -1,3 +1,4 @@
+#include <subedit/core/i18n/messages.hpp>
 #include <subedit/core/text/icu_pattern_engine.hpp>
 #include <subedit/core/text/pattern_engine.hpp>
 #include <subedit/core/text/python_regex_syntax.hpp>
@@ -139,9 +140,10 @@ IcuPatternEngine::compile(std::string_view expression, const PatternFlags& flags
         where,
         status)};
     if (failed(status) || pattern == nullptr) {
-        return std::unexpected{CompileError{.kind = CompileFailure::Invalid,
-                                            .reason = std::string{u_errorName(status)} + " at " +
-                                                      std::to_string(where.offset)}};
+        return std::unexpected{CompileError{
+            .kind = CompileFailure::Invalid,
+            .reason = substitute(translate("%1 at %2"),
+                                 {u_errorName(status), std::to_string(where.offset)})}};
     }
 
     // Not checked for failure: `core/edit/search.cpp` trusts the same call the

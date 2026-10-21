@@ -1,3 +1,4 @@
+#include <subedit/core/i18n/messages.hpp>
 #include <subedit/core/text/common_errors.hpp>
 #include <subedit/core/text/correction_pattern.hpp>
 #include <subedit/core/text/line_breaking.hpp>
@@ -385,8 +386,10 @@ scanPenalty(const Penalty& one, std::string_view joined) {
     for (const Penalty& one : penalties) {
         const std::expected<std::vector<double>, SearchFailure> scanned = scanPenalty(one, joined);
         if (!scanned) {
-            failures.push_back(failureOf(
-                FailureKind::TimedOut, *one.pattern, textIndex, "the search was given up"));
+            failures.push_back(failureOf(FailureKind::TimedOut,
+                                         *one.pattern,
+                                         textIndex,
+                                         std::string{translate("the search was given up")}));
             continue;
         }
         for (std::size_t at = 0; at < joined.size(); ++at)

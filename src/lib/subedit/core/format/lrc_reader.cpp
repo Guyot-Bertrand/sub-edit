@@ -4,6 +4,7 @@
 #include <subedit/core/format/lrc_syntax.hpp>
 #include <subedit/core/format/read_error.hpp>
 #include <subedit/core/format/read_result.hpp>
+#include <subedit/core/i18n/messages.hpp>
 #include <subedit/core/model/subtitle.hpp>
 #include <subedit/core/model/subtitle_format.hpp>
 #include <subedit/core/text/lines.hpp>
@@ -86,7 +87,7 @@ std::expected<ReadResult, ReadError> LrcReader::read(std::string_view content) c
     if (result.subtitles.empty())
         return std::unexpected(ReadError{
             .kind = ReadErrorKind::NoSubtitleFound,
-            .detail = "no timed line",
+            .detail = std::string{translate("no timed line")},
         });
 
     result.header = headerOf(headerLines);
