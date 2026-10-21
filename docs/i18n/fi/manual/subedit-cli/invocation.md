@@ -75,9 +75,9 @@ kun käännösluettelo tuntee sen — ohjelman mukana toimitetut lausekkeet; oma
 nimetään niin kuin sen tiedosto sen kirjoittaa. Itse lauseketiedostoja ei koskaan kirjoiteta uudelleen.
 
 Käännösluettelot asennetaan polkuun `<prefix>/share/subedit/locale/<language>/LC_MESSAGES/subedit.mo`,
-ja ne löydetään ohjelman omasta hakemistosta käsin. Englanti on sisäänrakennettu. Tämä versio asentaa kielet `ca`, `cs`, `de`, `es`, `fi`, `fr`, `gl`, `he`, `hu`, `ie`, `is`, `it_IT`, `nl`, `pl`, `pt` ja `pt_BR` — katalaanin,
-tšekin, saksan, espanjan, suomen, ranskan, galician, heprean, unkarin, interlinguen, islannin, italian, hollannin, puolan, portugalin ja brasilianportugalin — kokonaan käännettyinä. Ranskan on tarkistanut
-kielen lukija; katalaani, tšekki, saksa, espanja, suomi, galicia, heprea, unkari, interlingue, islanti, italia, hollanti, puola, portugali ja brasilianportugali ovat
+ja ne löydetään ohjelman omasta hakemistosta käsin. Englanti on sisäänrakennettu. Tämä versio asentaa kielet `ca`, `cs`, `de`, `es`, `fi`, `fr`, `gl`, `he`, `hu`, `ie`, `is`, `it_IT`, `nl`, `pl`, `pt`, `pt_BR`, `ru`, `sr`, `tr` ja `zh_CN` — katalaanin,
+tšekin, saksan, espanjan, suomen, ranskan, galician, heprean, unkarin, interlinguen, islannin, italian, hollannin, puolan, portugalin, brasilianportugalin, venäjän, serbian, turkin ja yksinkertaistetun kiinan — kokonaan käännettyinä. Ranskan on tarkistanut
+kielen lukija; katalaani, tšekki, saksa, espanja, suomi, galicia, heprea, unkari, interlingue, islanti, italia, hollanti, puola, portugali, brasilianportugali, venäjä, serbia, turkki ja yksinkertaistettu kiina ovat
 konekäännöksiä, eikä kukaan kielen lukija ole vielä tarkistanut niitä.
 <!-- machine-translated: ca -->
 <!-- machine-translated: cs -->
@@ -878,7 +878,7 @@ osio TIEDOSTOT nimeää hakemiston, johon käyttöopas on asennettu.
 | Sivut | Minne ne asennetaan |
 | :---- | :----------------------- |
 | englanti | `share/man/man1` |
-| kukin asennettu kieli — katalaani, tšekki, saksa, espanja, suomi, ranska, galicia, heprea, unkari, interlingue, islanti, italia, hollanti, puola, portugali, brasilianportugali | `share/man/<language>/man1` — `share/man/fr/man1` |
+| kukin asennettu kieli — katalaani, tšekki, saksa, espanja, suomi, ranska, galicia, heprea, unkari, interlingue, islanti, italia, hollanti, puola, portugali, brasilianportugali, venäjä, serbia, turkki, yksinkertaistettu kiina | `share/man/<language>/man1` — `share/man/fr/man1` |
 
 **`man` valitsee kielen kieliasetuksen mukaan**, kuten ohjelma: ranskalaisella kieliasetuksella
 `man subedit-cli` näyttää ranskankielisen sivun, ja kieli, jonka sivuja ei ole asennettu, saa
