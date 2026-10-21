@@ -272,6 +272,28 @@ NOT_LINE_START = "，。；：！？）、”’》」』】…—"
 NOT_LINE_END = "（“‘《「『【"
 
 
+AFTER_SIGN = re.compile(r"(\\\[u([0-9A-F]{4})\])(?=\\f\[)")
+BEFORE_SIGN = re.compile(r"(\\f\[[A-Z]+\])(\\\[u([0-9A-F]{4})\])")
+
+
+def break_at_seams(line: str) -> str:
+    """A font change between two runs hides one from the other: the optional break that
+    `escape` would have put next to a CJK character at that seam is put here."""
+    def after(match: re.Match) -> str:
+        sign = chr(int(match.group(2), 16))
+        if is_cjk(sign) and sign not in NOT_LINE_END:
+            return match.group(1) + r"\:"
+        return match.group(1)
+
+    def before(match: re.Match) -> str:
+        sign = chr(int(match.group(3), 16))
+        if is_cjk(sign) and sign not in NOT_LINE_START:
+            return match.group(1) + r"\:" + match.group(2)
+        return match.group(0)
+
+    return BEFORE_SIGN.sub(before, AFTER_SIGN.sub(after, line))
+
+
 def join_lines(lines: list[str]) -> str:
     """The lines of a paragraph as one: a space between them, except between two characters of
     a script written without spaces, where a space would show."""
@@ -295,6 +317,10 @@ def escape(text: str, code: bool = False) -> str:
             out.append(r"\-")
         elif ord(char) < 128:
             out.append(char)
+            following = text[position + 1:position + 2]
+            if (following and is_cjk(following) and not char.isspace()
+                    and following not in NOT_LINE_START):
+                out.append(r"\:")
         elif char in NAMED:
             out.append(NAMED[char])
         else:
@@ -302,7 +328,7 @@ def escape(text: str, code: bool = False) -> str:
             # `\:` is a break groff may take, with no width: between two CJK characters, unless
             # the sign that follows cannot start a line or the one before cannot end it.
             following = text[position + 1:position + 2]
-            if (is_cjk(char) and following and is_cjk(following)
+            if (is_cjk(char) and following and not following.isspace()
                     and following not in NOT_LINE_START and char not in NOT_LINE_END):
                 out.append(r"\:")
     return "".join(out)
@@ -510,7 +536,6 @@ def page(name: str, description: str, blocks: list[tuple], source: str, words: d
         f".TH {name.upper()} 1 \"\" \"subedit {version}\" {quoted(escape(words['manual_title']))}",
         # No hyphenation: a page names commands and options, which a hyphen would make untypable.
         ".nh",
-        *([".na"] if any(is_cjk(char) for char in description + words["name"]) else []),
         ".SH " + quoted(escape(words["name"])),
         f"{escape(name, code=True)} \\- {description}",
     ]
@@ -546,6 +571,24 @@ def page(name: str, description: str, blocks: list[tuple], source: str, words: d
         letters = "".join(c for c in unicodedata.normalize("NFKD", chr(int(code, 16))) if ord(c) < 128)
         fallbacks.append(f".if !c\\[u{code}] .char \\[u{code}] {escape(ASCII_FALLBACK.get(code, letters) or '?')}")
     out[3:3] = fallbacks
+    # A page with optional breaks (`\:`) is a page of a script written without spaces: its lines
+    # cannot be stretched, so they are left-aligned and groff does not warn of the ones it cannot.
+    if any("\\:" in line for line in out):
+        # The macros of a paragraph restore the adjustment: each one is told to switch it off again.
+        keep = [".na"]
+        for macro in ("PP", "IP", "TP", "SH", "SS", "RS", "RE", "EX", "EE", "TQ", "P", "LP", "HP"):
+            keep += [f".am {macro}", ".na", ".."]
+        out[out.index(".nh") + 1:out.index(".nh") + 1] = keep
+        out = [line if line.startswith(".") else break_at_seams(line) for line in out]
+        # And the text of a hanging paragraph, which `.TP` sets after the tag line.
+        adjusted: list[str] = []
+        after_tag = False
+        for line in out:
+            adjusted.append(line)
+            if after_tag:
+                adjusted.append(".na")
+            after_tag = line == ".TP"
+        out = adjusted
     return "\n".join(out) + "\n"
 
 
