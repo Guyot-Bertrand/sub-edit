@@ -148,9 +148,9 @@ sigrar allar breytur, `LC_ALL=C` meðtalið. Valið tekur líka gildi við næst
 | flýtilyklarnir | aldrei: `Ctrl+S` er `Ctrl+S` á öllum tungumálum |
 | skilaboð sem þýðingaskráin þýðir ekki | sýnd á ensku |
 
-Þessi útgáfa setur upp `ca`, `cs`, `de`, `es`, `fi`, `fr`, `gl`, `he`, `hu`, `ie`, `is`, `it_IT`, `nl`, `pl`, `pt` og `pt_BR` — katalónsku, tékknesku, þýsku,
-spænsku, finnsku, frönsku, galisísku, hebresku, ungversku, interlingue, íslensku, ítölsku, hollensku, pólsku, portúgölsku og brasilísku portúgölsku — þýdd að fullu. Franskan hefur verið yfirfarin af lesanda
-tungumálsins; katalónska, tékkneska, þýska, spænska, finnska, galisíska, hebreska, ungverska, interlingue, íslenska, ítalska, hollenska, pólska, portúgalska og brasilíska portúgalska eru vélþýddar og enn ekki
+Þessi útgáfa setur upp `ca`, `cs`, `de`, `es`, `fi`, `fr`, `gl`, `he`, `hu`, `ie`, `is`, `it_IT`, `nl`, `pl`, `pt`, `pt_BR`, `ru`, `sr`, `tr` og `zh_CN` — katalónsku, tékknesku, þýsku,
+spænsku, finnsku, frönsku, galisísku, hebresku, ungversku, interlingue, íslensku, ítölsku, hollensku, pólsku, portúgölsku, brasilísku portúgölsku, rússnesku, serbnesku, tyrknesku og einfaldaða kínversku — þýdd að fullu. Franskan hefur verið yfirfarin af lesanda
+tungumálsins; katalónska, tékkneska, þýska, spænska, finnska, galisíska, hebreska, ungverska, interlingue, íslenska, ítalska, hollenska, pólska, portúgalska, brasilíska portúgalska, rússneska, serbneska, tyrkneska og einfölduð kínverska eru vélþýddar og enn ekki
 yfirfarnar af lesanda tungumálsins.
 <!-- machine-translated: ca -->
 <!-- machine-translated: cs -->

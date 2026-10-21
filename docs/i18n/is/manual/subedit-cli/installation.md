@@ -26,10 +26,10 @@ sudo dnf install ./subedit-<version>.x86_64.rpm     # Fedora, and relatives
 | `subedit-cli`, `subedit-gui` | `/usr/bin` |
 | valmyndarfærslan, táknmyndin, lýsigögn hugbúnaðarmiðstöðvarinnar | `/usr/share/applications`, `/usr/share/icons`, `/usr/share/metainfo` |
 | þessi handbók, á Markdown-sniði | `/usr/share/subedit/manual` |
-| þýðing hennar á hvert uppsett tungumál — katalónsku, tékknesku, þýsku, spænsku, finnsku, frönsku, galisísku, hebresku, ungversku, interlingue, íslensku, ítölsku, hollensku, pólsku, portúgölsku, brasilísku portúgölsku | `/usr/share/subedit/manual/<language>` — `ca`, `cs`, `de`, `es`, `fi`, `fr`, `gl`, `he`, `hu`, `ie`, `is`, `it_IT`, `nl`, `pl`, `pt`, `pt_BR` |
+| þýðing hennar á hvert uppsett tungumál — katalónsku, tékknesku, þýsku, spænsku, finnsku, frönsku, galisísku, hebresku, ungversku, interlingue, íslensku, ítölsku, hollensku, pólsku, portúgölsku, brasilísku portúgölsku, rússnesku, serbnesku, tyrknesku, einfaldaða kínversku | `/usr/share/subedit/manual/<language>` — `ca`, `cs`, `de`, `es`, `fi`, `fr`, `gl`, `he`, `hu`, `ie`, `is`, `it_IT`, `nl`, `pl`, `pt`, `pt_BR`, `ru`, `sr`, `tr`, `zh_CN` |
 | leiðréttingarmynstur Gaupol | `/usr/share/subedit/patterns` |
 | man-síður `subedit-cli`, ein fyrir hverja undirskipun, og `subedit-gui` — sjá [Man-síðurnar](invocation.md#man-síðurnar) | `/usr/share/man/man1` |
-| síður `subedit-cli` á hverju uppsettu tungumáli — katalónsku, tékknesku, þýsku, spænsku, finnsku, frönsku, galisísku, hebresku, ungversku, interlingue, íslensku, ítölsku, hollensku, pólsku, portúgölsku, brasilísku portúgölsku | `/usr/share/man/<language>/man1` — `ca`, `cs`, `de`, `es`, `fi`, `fr`, `gl`, `he`, `hu`, `ie`, `is`, `it_IT`, `nl`, `pl`, `pt`, `pt_BR` |
+| síður `subedit-cli` á hverju uppsettu tungumáli — katalónsku, tékknesku, þýsku, spænsku, finnsku, frönsku, galisísku, hebresku, ungversku, interlingue, íslensku, ítölsku, hollensku, pólsku, portúgölsku, brasilísku portúgölsku, rússnesku, serbnesku, tyrknesku, einfaldaða kínversku | `/usr/share/man/<language>/man1` — `ca`, `cs`, `de`, `es`, `fi`, `fr`, `gl`, `he`, `hu`, `ie`, `is`, `it_IT`, `nl`, `pl`, `pt`, `pt_BR`, `ru`, `sr`, `tr`, `zh_CN` |
 
 `ffmpeg` er **mælt með en ekki nauðsynlegt** fyrir báða pakkana: án þess hættir
 glugginn aðeins að bjóða rammatíðnina sem kvikmyndin lýsir yfir — sjá
@@ -197,10 +197,10 @@ forskeyti:
 | táknmyndin | `<prefix>/share/icons/hicolor/scalable/apps` |
 | lýsigögn hugbúnaðarmiðstöðvarinnar | `<prefix>/share/metainfo` |
 | þessi handbók, á Markdown-sniði | `<prefix>/share/subedit/manual` |
-| þýðing hennar á hvert uppsett tungumál — katalónsku, tékknesku, þýsku, spænsku, finnsku, frönsku, galisísku, hebresku, ungversku, interlingue, íslensku, ítölsku, hollensku, pólsku, portúgölsku, brasilísku portúgölsku | `<prefix>/share/subedit/manual/<language>` — `ca`, `cs`, `de`, `es`, `fi`, `fr`, `gl`, `he`, `hu`, `ie`, `is`, `it_IT`, `nl`, `pl`, `pt`, `pt_BR` |
+| þýðing hennar á hvert uppsett tungumál — katalónsku, tékknesku, þýsku, spænsku, finnsku, frönsku, galisísku, hebresku, ungversku, interlingue, íslensku, ítölsku, hollensku, pólsku, portúgölsku, brasilísku portúgölsku, rússnesku, serbnesku, tyrknesku, einfaldaða kínversku | `<prefix>/share/subedit/manual/<language>` — `ca`, `cs`, `de`, `es`, `fi`, `fr`, `gl`, `he`, `hu`, `ie`, `is`, `it_IT`, `nl`, `pl`, `pt`, `pt_BR`, `ru`, `sr`, `tr`, `zh_CN` |
 | leiðréttingarmynstur Gaupol | `<prefix>/share/subedit/patterns` |
 | man-síður beggja tvíundarskránna, ein fyrir hverja undirskipun hjá `subedit-cli` | `<prefix>/share/man/man1` |
-| síður `subedit-cli` á hverju uppsettu tungumáli — katalónsku, tékknesku, þýsku, spænsku, finnsku, frönsku, galisísku, hebresku, ungversku, interlingue, íslensku, ítölsku, hollensku, pólsku, portúgölsku, brasilísku portúgölsku | `<prefix>/share/man/<language>/man1` — `ca`, `cs`, `de`, `es`, `fi`, `fr`, `gl`, `he`, `hu`, `ie`, `is`, `it_IT`, `nl`, `pl`, `pt`, `pt_BR` |
+| síður `subedit-cli` á hverju uppsettu tungumáli — katalónsku, tékknesku, þýsku, spænsku, finnsku, frönsku, galisísku, hebresku, ungversku, interlingue, íslensku, ítölsku, hollensku, pólsku, portúgölsku, brasilísku portúgölsku, rússnesku, serbnesku, tyrknesku, einfaldaða kínversku | `<prefix>/share/man/<language>/man1` — `ca`, `cs`, `de`, `es`, `fi`, `fr`, `gl`, `he`, `hu`, `ie`, `is`, `it_IT`, `nl`, `pl`, `pt`, `pt_BR`, `ru`, `sr`, `tr`, `zh_CN` |
 
 **Þetta eru sömu skrár og pakkarnir setja upp**: pakkarnir koma úr þeim,
 í stað þess að vera lýst í annað sinn.
