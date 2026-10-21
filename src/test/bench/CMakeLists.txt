@@ -15,6 +15,7 @@ add_executable(
     core/analysis/frame_rate_deduction_bench.cpp
     core/edit/operations_bench.cpp
     core/format/subtitle_file_bench.cpp
+    core/i18n/catalogue_bench.cpp
     core/text/common_errors_bench.cpp
     core/text/line_breaking_bench.cpp
     core/time/timestamp_bench.cpp
@@ -44,6 +45,10 @@ target_include_directories(subedit_bench PRIVATE ${CMAKE_SOURCE_DIR}/src/test/gu
 # line.
 target_compile_definitions(
     subedit_bench PRIVATE SUBEDIT_TEST_DATA_DIR="${CMAKE_SOURCE_DIR}/src/test/data"
-                          SUBEDIT_PATTERNS_DIR="${CMAKE_SOURCE_DIR}/packaging/patterns")
+                          SUBEDIT_PATTERNS_DIR="${CMAKE_SOURCE_DIR}/packaging/patterns"
+                          SUBEDIT_SHIPPED_LOCALE_DIR="${SUBEDIT_LOCALE_BUILD_DIR}")
+
+# The catalogues the bench of catalogue loading reads (#684).
+add_dependencies(subedit_bench subedit_locale)
 
 subedit_set_warnings(subedit_bench)
