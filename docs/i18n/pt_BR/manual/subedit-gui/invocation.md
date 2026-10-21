@@ -148,9 +148,9 @@ prevalece sobre qualquer variável, `LC_ALL=C` inclusive. A escolha também vale
 | os atalhos de teclado | nunca: `Ctrl+S` é `Ctrl+S` em todos os idiomas |
 | uma mensagem que o catálogo não traduz | mostrada em inglês |
 
-Esta versão instala `ca`, `cs`, `de`, `es`, `fi`, `fr`, `gl`, `he`, `hu`, `ie`, `is`, `it_IT`, `nl`, `pl`, `pt` e `pt_BR` — catalão, tcheco, alemão,
-espanhol, finlandês, francês, galego, hebraico, húngaro, interlingue, islandês, italiano, holandês, polonês, português e português do Brasil — traduzidos por completo. O francês foi revisado por um leitor do
-idioma; o catalão, o tcheco, o alemão, o espanhol, o finlandês, o galego, o hebraico, o húngaro, o interlingue, o islandês, o italiano, o holandês, o polonês, o português e o português do Brasil são traduções automáticas ainda não
+Esta versão instala `ca`, `cs`, `de`, `es`, `fi`, `fr`, `gl`, `he`, `hu`, `ie`, `is`, `it_IT`, `nl`, `pl`, `pt`, `pt_BR`, `ru`, `sr`, `tr` e `zh_CN` — catalão, tcheco, alemão,
+espanhol, finlandês, francês, galego, hebraico, húngaro, interlingue, islandês, italiano, holandês, polonês, português, português do Brasil, russo, sérvio, turco e chinês simplificado — traduzidos por completo. O francês foi revisado por um leitor do
+idioma; o catalão, o tcheco, o alemão, o espanhol, o finlandês, o galego, o hebraico, o húngaro, o interlingue, o islandês, o italiano, o holandês, o polonês, o português, o português do Brasil, o russo, o sérvio, o turco e o chinês simplificado são traduções automáticas ainda não
 revisadas por um leitor do idioma.
 <!-- machine-translated: ca -->
 <!-- machine-translated: cs -->
