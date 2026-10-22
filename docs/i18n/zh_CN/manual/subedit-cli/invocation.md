@@ -175,7 +175,7 @@ code=1
 <!-- example: subedit-cli --version | head -n 1 -->
 ```console
 $ subedit-cli --version | head -n 1
-subedit 1.0.0
+subedit 1.0.1
 ```
 
 完整输出如下，机器上装有 ICU 74.2 和 Enchant 2.3.3——数字取决于具体机器：
