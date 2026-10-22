@@ -1395,7 +1395,7 @@ French one language among others; **the whole repository is translated** (about 
 the maintainer; a single source for the manual, the window's help and the `man` pages. The phase ships two languages,
 English and French, and the tooling for Gaupol's twenty, the others of which remain uninstalled seeds. Twenty-seven
 issues, [#658](https://github.com/Guyot-Bertrand/sub-edit/issues/658) to
-[#684](https://github.com/Guyot-Bertrand/sub-edit/issues/684), written in English; closing in 0.16.0.
+[#684](https://github.com/Guyot-Bertrand/sub-edit/issues/684), written in English; closing in 1.0.0.
 
 **Folded in on 2026-10-12: the settings shared by the window and the command line**
 ([#699](https://github.com/Guyot-Bertrand/sub-edit/issues/699), [ADR 0045](adr/0045-one-settings-file-two-parts.md)).
@@ -1404,7 +1404,7 @@ The settings file gets an operation part, which the command line reads by defaul
 display part, which stays the window's; `subedit-cli config list|show|set|unset` documents, shows and changes the
 operation part. Its decisions are S1 to S8 of the [phase spec](specs/15-internationalisation.md).
 
-**Closed in 0.16.0, on 2026-10-21** ([#684](https://github.com/Guyot-Bertrand/sub-edit/issues/684)). The review found the
+**Closed in 1.0.0, on 2026-10-21** ([#684](https://github.com/Guyot-Bertrand/sub-edit/issues/684)). The review found the
 two ratchets of the phase not yet at zero, and the closure brought them there: the 142 untranslated literals of 28 files
 (reader and file failures, the text engine's reasons, the settings table of `config list`) went through the translation
 API, the rest being exempted with a reason each (`deferred()` marks a message of a constant table, translated when it is
