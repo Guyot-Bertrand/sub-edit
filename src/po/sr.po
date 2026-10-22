@@ -2456,11 +2456,11 @@ msgstr "контра коса црта завршава замену"
 
 #: src/lib/subedit/core/text/replacement_template.cpp
 msgid "bad escape \\%1"
-msgstr "лош еск \\%1"
+msgstr "неисправна escape секвенца \\%1"
 
 #: src/lib/subedit/core/text/replacement_template.cpp
 msgid "octal escape value out of range"
-msgstr "октални еск изван опсега"
+msgstr "вредност октал escape секвенце изван опсега"
 
 #: src/lib/subedit/core/text/replacement_template.cpp
 msgid "missing < after \\g"

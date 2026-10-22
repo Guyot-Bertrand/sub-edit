@@ -176,7 +176,7 @@ code=1
 <!-- example: subedit-cli --version | head -n 1 -->
 ```console
 $ subedit-cli --version | head -n 1
-subedit 1.0.1
+subedit 1.0.2
 ```
 
 Az egész, egy ICU 74.2 és Enchant 2.3.3 verziójú gépen — a számok a gép számai:
