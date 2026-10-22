@@ -1530,13 +1530,19 @@ without a graphics card; a graphics card only speeds up processing. The models
 weigh from a few hundred MB to several GB: **they are not shipped**, and
 the user fetches them, through a dedicated command or a path to fill in.
 
-**To be settled at scoping:**
+**Scoped on 2026-10-22** ([spec](specs/22-transcription.md), issues #767 to #781, ADR 0046 to come):
 
-- executable as a subprocess or library — same direction as for
-  phase 19: the executable, which leaves the choice of hardware variant;
-- the build shipped in the packages: CPU only by default;
-- the output: timed sentences, or timed words, which phase 23 reuses;
-- detecting the language of the audio.
+- **whisper.cpp as an executable** (`whisper-cli`), behind **a port in the core** so that another engine can replace it;
+  two ports, transcription now and alignment (phase 23, contract only), with capabilities declared per engine **and
+  model**;
+- **nothing is shipped** — neither the executable, nor the models, nor the extraction tool (`ffmpeg`): the user installs
+  them, the manual says how, and **subedit downloads nothing**; the "CPU-only build in the packages" point therefore
+  falls;
+- input: an audio file or the audio track of a video on the command line, the project's video in the window;
+- output: the engine's segments, with timed words when it gives them, then an engine-independent **post-processing** that
+  merges close pieces of a sentence; the command line writes a subtitle file, the window replaces the subtitles of the
+  open project after a confirmation;
+- the language is detected, unless the user forces it.
 
 ## 23 — Automatic alignment
 

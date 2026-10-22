@@ -339,3 +339,15 @@ longer prove anything.
 | `GUI-VERSION-02` | `subedit-gui --version` names Qt, ICU, libmpv and Enchant with both of their versions, then the installed languages | 15 | implemented |
 | `GUI-ABOUT-01` | `About subedit` lists the libraries of `--version` in a table — name, version loaded, version built against — and the installed languages, its headings in the chosen language | 15 | implemented |
 | `GUI-TRANSFORM-02` | the transform dialog shows each marker's text in three lines of room that scroll past them, keeps its size when a marker changes, and shows its explanation whole at any width and in any language | 15 | implemented |
+| `CLI-TRANSCRIBE-01` | `transcribe` writes a subtitle file, in the format of `--output`, from the audio of a video or of an audio file | 22 | planned |
+| `CLI-TRANSCRIBE-02` | `--audio-track` chooses the audio track of a video, and a video with no such track is refused with the tracks it has | 22 | planned |
+| `CLI-TRANSCRIBE-03` | the language is detected unless `--language` forces it, and the language used is reported | 22 | planned |
+| `CLI-TRANSCRIBE-04` | an option writes the extracted audio to the file it names | 22 | planned |
+| `CLI-TRANSCRIBE-05` | `--raw` writes the segments of the engine with no post-processing | 22 | planned |
+| `CLI-TRANSCRIBE-06` | a missing executable, model or extraction tool is reported with a pointer to the installation page, with a non-zero exit code and nothing written | 22 | planned |
+| `CLI-TRANSCRIBE-07` | a language the chosen model cannot transcribe is refused before any work starts | 22 | planned |
+| `CLI-TRANSCRIBE-08` | `--format json` writes one record with the language used, the counts and the files written | 22 | planned |
+| `GUI-TRANSCRIBE-01` | `Transcribe Audio…` opens a dialog offering the audio tracks of the project's video, a language and a model | 22 | planned |
+| `GUI-TRANSCRIBE-02` | the transcription runs in the background with a progress indicator and can be cancelled, a cancelled or failed run leaving the project unchanged | 22 | planned |
+| `GUI-TRANSCRIBE-03` | when the subtitle section is not empty the window asks for confirmation before replacing it, and one undo restores it | 22 | planned |
+| `GUI-TRANSCRIBE-04` | without the executable, the model or the extraction tool the command explains what is missing and where to read how to install it, and the rest of the window is unaffected | 22 | planned |
