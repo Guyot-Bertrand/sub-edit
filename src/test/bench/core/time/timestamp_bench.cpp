@@ -37,15 +37,15 @@ TEST_CASE("position conversions", "[benchmark]") {
     const subedit::core::Frame frame = position.toFrame(rate);
     const subedit::core::Ratio factor = pal.conversionTo(rate);
 
-    BENCHMARK("position vers image") {
+    BENCHMARK("position to frame") {
         return position.toFrame(rate);
     };
 
-    BENCHMARK("image vers position") {
+    BENCHMARK("frame to position") {
         return subedit::core::Timestamp::fromFrame(frame, rate);
     };
 
-    BENCHMARK("mise à l'échelle par un rationnel exact") {
+    BENCHMARK("scaling by an exact rational") {
         return position.scaledBy(factor);
     };
 }

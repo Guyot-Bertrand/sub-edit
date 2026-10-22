@@ -70,11 +70,11 @@ TEST_CASE("reading and writing a full-length file", "[benchmark]") {
     const std::string content = generateSubRip();
     const std::vector<Subtitle> subtitles = parsedOnce(content);
 
-    BENCHMARK("lecture de 4000 sous-titres") {
+    BENCHMARK("reading 4000 subtitles") {
         return readSubtitles(content);
     };
 
-    BENCHMARK("écriture de 4000 sous-titres") {
+    BENCHMARK("writing 4000 subtitles") {
         return writeSubtitles(SubtitleFormat::SubRip, WriteRequest{.subtitles = subtitles})
             .value_or(std::string{});
     };

@@ -1357,7 +1357,6 @@ msgstr "%1 = %2   [файл]   (по умолчанию %3)"
 msgid "%1 = %2   [default]"
 msgstr "%1 = %2   [по умолчанию]"
 
-#. TRANSLATORS: %1 is what a settings key accepts, as « true or false ».
 #: src/lib/subedit/cli/configuring.cpp
 msgid "Accepts: %1"
 msgstr "Допустимо: %1"
@@ -1367,7 +1366,6 @@ msgstr "Допустимо: %1"
 msgid "Default: %1"
 msgstr "По умолчанию: %1"
 
-#. TRANSLATORS: %1 lists the commands and window actions that read a settings key.
 #: src/lib/subedit/cli/configuring.cpp
 msgid "Used by: %1"
 msgstr "Используется: %1"
@@ -2196,6 +2194,366 @@ msgstr "--quiet и -v требуют противоположного; укаж�
 #: src/lib/subedit/cli/writing.cpp
 msgid "%1: %2, %3, %4 line endings kept"
 msgstr "%1: %2, %3, окончания строк %4 сохранены"
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "true or false"
+msgstr "истина или ложь"
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "a whole number of milliseconds, 0 or more"
+msgstr "целое число миллисекунд, 0 или больше"
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid ""
+"a pattern code, Script[-language[-COUNTRY]], not empty: Zyyy, Latn, Latn-en, "
+"Latn-en-US"
+msgstr "код шаблонов Script[-language[-COUNTRY]], не пустой: Zyyy, Latn, Latn-en, Latn-en-US"
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "a number above 0, decimals allowed: 24, 42.5"
+msgstr "число больше 0, допускаются десятичные дроби: 24, 42.5"
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "a whole number from 1 to 1000: 2, 3"
+msgstr "целое число от 1 до 1000: 2, 3"
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "subedit-cli adjust; Adjust Durations…"
+msgstr "subedit-cli adjust; Корректировка длительностей…"
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "subedit-cli correct; Correct Texts…"
+msgstr "subedit-cli correct; Исправить тексты…"
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "Correct Texts… (window only; correct takes --tasks instead)"
+msgstr "Исправить тексты… (только в окне; в correct вместо этого используется --tasks)"
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "Correct Texts… (window only; correct takes --code instead)"
+msgstr "Исправить тексты… (только в окне; в correct вместо этого используется --code)"
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "Correct Texts… (window only; correct takes --enable/--disable instead)"
+msgstr "Исправить тексты… (только в окне; в correct вместо этого используются --enable/--disable)"
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "Correct Texts… (window only; correct takes --max-length instead)"
+msgstr "Исправить тексты… (только в окне; в correct вместо этого используется --max-length)"
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "Correct Texts… (window only; correct takes --skip-length instead)"
+msgstr "Исправить тексты… (только в окне; в correct вместо этого используется --skip-length)"
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "Correct Texts… (window only; correct takes --skip-lines instead)"
+msgstr "Исправить тексты… (только в окне; в correct вместо этого используется --skip-lines)"
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "Correct Texts… (window only; correct takes --language instead)"
+msgstr "Исправить тексты… (только в окне; в correct вместо этого используется --language)"
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "Reading speed the durations are brought to."
+msgstr "Скорость чтения, до которой доводятся длительности."
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "a number of characters per second, above 0, decimals allowed"
+msgstr "число символов в секунду, больше 0, допускаются десятичные дроби"
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "Let the reading speed move an end later."
+msgstr "Позволить скорости чтения сдвигать конец позже."
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "Let the reading speed move an end earlier."
+msgstr "Позволить скорости чтения сдвигать конец раньше."
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "Whether a shortest duration is enforced."
+msgstr "Действует ли минимальная длительность."
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "Shortest duration of a subtitle."
+msgstr "Минимальная длительность субтитра."
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "Whether a longest duration is enforced."
+msgstr "Действует ли максимальная длительность."
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "Longest duration of a subtitle."
+msgstr "Максимальная длительность субтитра."
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "Whether a least gap before the next subtitle is enforced."
+msgstr "Действует ли минимальный промежуток перед следующим субтитром."
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "Least time left before the next subtitle."
+msgstr "Минимальное время перед следующим субтитром."
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "Whether the window ticks the hearing-impaired task."
+msgstr "Отмечает ли окно задачу для слабослышащих."
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "Pattern code the window reads for the hearing-impaired task."
+msgstr "Код шаблонов, который окно читает для задачи для слабослышащих."
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "Whether the window ticks the common-errors task."
+msgstr "Отмечает ли окно задачу исправления частых ошибок."
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "Pattern code the window reads for the common-errors task."
+msgstr "Код шаблонов, который окно читает для задачи исправления частых ошибок."
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "Whether the window ticks the capitalization task."
+msgstr "Отмечает ли окно задачу заглавных букв."
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "Pattern code the window reads for the capitalization task."
+msgstr "Код шаблонов, который окно читает для задачи заглавных букв."
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "Whether the window ticks the line-break task."
+msgstr "Отмечает ли окно задачу переноса строк."
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "Pattern code the window reads for the line-break task."
+msgstr "Код шаблонов, который окно читает для задачи переноса строк."
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "Apply the patterns of human-made errors."
+msgstr "Применять шаблоны ошибок, допускаемых человеком."
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "Apply the patterns of recognition (OCR) errors."
+msgstr "Применять шаблоны ошибок распознавания (OCR)."
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "Whether the window's hearing-impaired task acts on text in brackets."
+msgstr "Действует ли задача окна для слабослышащих на текст в квадратных скобках."
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "Whether the window's hearing-impaired task acts on text in parentheses."
+msgstr "Действует ли задача окна для слабослышащих на текст в круглых скобках."
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid ""
+"Longest line the window's line-break task aims at, in the unit in-ems names."
+msgstr "Самая длинная строка, к которой стремится задача переноса строк окна, в единицах, названных in-ems."
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "Most lines a subtitle is broken into."
+msgstr "Наибольшее число строк, на которое разбивается субтитр."
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "Whether the window measures lines in ems rather than characters."
+msgstr "Измеряет ли окно строки в em, а не в символах."
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid ""
+"Whether the window's line-break task leaves alone a subtitle whose lines are "
+"short enough."
+msgstr "Оставляет ли задача переноса строк окна без изменений субтитр с достаточно короткими строками."
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid ""
+"Longest line a subtitle may have and still be left alone by the window's "
+"line-break task."
+msgstr "Самая длинная строка субтитра, при которой задача переноса строк окна его не трогает."
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid ""
+"Whether the window's line-break task leaves alone a subtitle with few enough "
+"lines."
+msgstr "Оставляет ли задача переноса строк окна без изменений субтитр с достаточно малым числом строк."
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid ""
+"Most lines a subtitle may have and still be left alone by the window's line-"
+"break task."
+msgstr "Наибольшее число строк субтитра, при котором задача переноса строк окна его не трогает."
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "Whether the window ticks the join/split-words task."
+msgstr "Отмечает ли окно задачу объединения/разделения слов."
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "Whether the window's join/split-words task joins words."
+msgstr "Объединяет ли слова задача объединения/разделения слов окна."
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "Whether the window's join/split-words task splits words."
+msgstr "Разделяет ли слова задача объединения/разделения слов окна."
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "Dictionary the window's join/split-words task checks words by."
+msgstr "Словарь, по которому задача объединения/разделения слов окна проверяет слова."
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid ""
+"a locale code, two lower-case letters, then optionally _ and two upper-case, "
+"then optionally @ and a script: fr, en_US, sr@Latn"
+msgstr "код локали: две строчные буквы, затем необязательно _ и две заглавные, затем необязательно @ и письменность: fr, en_US, sr@Latn"
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid ""
+"Remove the subtitles the correction empties, instead of leaving them empty."
+msgstr "Удалять субтитры, которые исправление опустошает, а не оставлять их пустыми."
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "%1 is managed by the window; use --enable/--disable on correct"
+msgstr "%1 управляется окном; используйте --enable/--disable в correct"
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "%1 is a display preference; set it in the window"
+msgstr "%1 — настройка отображения; задайте её в окне"
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "unknown setting %1; subedit-cli config list names them"
+msgstr "неизвестная настройка %1; их перечисляет subedit-cli config list"
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "cannot read '%1' for %2; subedit-cli config list says what it accepts"
+msgstr "не удалось прочитать '%1' для %2; subedit-cli config list показывает допустимые значения"
+
+#: src/lib/subedit/core/format/lrc_reader.cpp
+#: src/lib/subedit/core/format/tm_player_reader.cpp
+msgid "no timed line"
+msgstr "нет строки с временем"
+
+#: src/lib/subedit/core/format/micro_dvd_reader.cpp
+msgid "no braced line"
+msgstr "нет строки в фигурных скобках"
+
+#: src/lib/subedit/core/format/mpl2_reader.cpp
+msgid "no bracketed line"
+msgstr "нет строки в квадратных скобках"
+
+#: src/lib/subedit/core/format/sub_rip_reader.cpp
+#: src/lib/subedit/core/format/sub_viewer2_reader.cpp
+msgid "no timestamp line"
+msgstr "нет строки с отметкой времени"
+
+#: src/lib/subedit/core/format/sub_station_alpha_reader.cpp
+msgid "no dialogue line"
+msgstr "нет строки диалога"
+
+#: src/lib/subedit/core/format/subtitle_file.cpp
+msgid "no format recognised"
+msgstr "формат не распознан"
+
+#: src/lib/subedit/core/format/web_vtt_reader.cpp
+msgid "no WEBVTT signature"
+msgstr "нет сигнатуры WEBVTT"
+
+#: src/lib/subedit/core/format/web_vtt_reader.cpp
+msgid "no cue"
+msgstr "нет реплик"
+
+#: src/lib/subedit/core/io/real_file_system.cpp
+msgid "could not be opened for reading"
+msgstr "не удалось открыть для чтения"
+
+#: src/lib/subedit/core/io/real_file_system.cpp
+msgid "reading was interrupted"
+msgstr "чтение прервано"
+
+#: src/lib/subedit/core/io/real_file_system.cpp
+msgid "could not be opened for writing"
+msgstr "не удалось открыть для записи"
+
+#: src/lib/subedit/core/io/real_file_system.cpp
+msgid "writing was interrupted"
+msgstr "запись прервана"
+
+#: src/lib/subedit/core/io/real_file_system.cpp
+msgid "no such file"
+msgstr "нет такого файла"
+
+#: src/lib/subedit/core/process/start_process.cpp
+msgid "could not prepare the launch"
+msgstr "не удалось подготовить запуск"
+
+#: src/lib/subedit/core/process/start_process.cpp
+msgid "could not redirect the output"
+msgstr "не удалось перенаправить вывод"
+
+#: src/lib/subedit/core/process/start_process.cpp
+msgid "could not be started"
+msgstr "не удалось запустить"
+
+#: src/lib/subedit/core/process/start_process.cpp
+msgid "could not open a pipe"
+msgstr "не удалось открыть канал"
+
+#: src/lib/subedit/core/text/capitalization.cpp
+#: src/lib/subedit/core/text/common_errors.cpp
+#: src/lib/subedit/core/text/hearing_impaired_correction.cpp
+#: src/lib/subedit/core/text/line_breaking.cpp
+msgid "the search was given up"
+msgstr "поиск прекращён"
+
+#: src/lib/subedit/core/text/common_errors.cpp
+#: src/lib/subedit/core/text/hearing_impaired_correction.cpp
+msgid "the text outgrew a subtitle"
+msgstr "текст перерос размер субтитра"
+
+#: src/lib/subedit/core/text/common_errors.cpp
+msgid "the text still changed after %1 passes"
+msgstr "текст всё ещё менялся после %1 проходов"
+
+#: src/lib/subedit/core/text/icu_pattern_engine.cpp
+msgid "%1 at %2"
+msgstr "%1 в %2"
+
+#: src/lib/subedit/core/text/python_regex_syntax.cpp
+msgid "an unterminated group name"
+msgstr "незавершённое имя группы"
+
+#: src/lib/subedit/core/text/python_regex_syntax.cpp
+msgid "the group name '%1' is not letters and digits, which is all ICU accepts"
+msgstr "имя группы '%1' состоит не только из букв и цифр, а ICU принимает только их"
+
+#: src/lib/subedit/core/text/python_regex_syntax.cpp
+msgid "a backslash ends the expression"
+msgstr "обратная косая черта завершает выражение"
+
+#: src/lib/subedit/core/text/replacement_template.cpp
+msgid "invalid group reference %1"
+msgstr "недопустимая ссылка на группу %1"
+
+#: src/lib/subedit/core/text/replacement_template.cpp
+msgid "a backslash ends the replacement"
+msgstr "обратная косая черта завершает замену"
+
+#: src/lib/subedit/core/text/replacement_template.cpp
+msgid "bad escape \\%1"
+msgstr "недопустимый escape-символ \\%1"
+
+#: src/lib/subedit/core/text/replacement_template.cpp
+msgid "octal escape value out of range"
+msgstr "восьмеричное escape-значение вне допустимого диапазона"
+
+#: src/lib/subedit/core/text/replacement_template.cpp
+msgid "missing < after \\g"
+msgstr "отсутствует < после \\g"
+
+#: src/lib/subedit/core/text/replacement_template.cpp
+msgid "missing > after \\g<"
+msgstr "отсутствует > после \\g<"
+
+#: src/lib/subedit/core/text/replacement_template.cpp
+msgid "missing group name"
+msgstr "отсутствует имя группы"
+
+#: src/lib/subedit/core/text/replacement_template.cpp
+msgid "unknown group name '%1'"
+msgstr "неизвестное имя группы '%1'"
 
 #: src/lib/subedit/core/wording/analysis.cpp
 msgid "ends before it starts"

@@ -1,20 +1,20 @@
-# Un dictionnaire d'essai, pour la jonction et la scission de mots
+# A trial dictionary, for joining and splitting words
 
-`zz.dic` et `zz.aff` : **six mots et rien d'autre**, au format de Hunspell, pour une langue
-(`zz`) que nulle machine ne possède. Les cas de bout en bout de `correct --tasks join-words,split-words`
-les déposent dans `hunspell/` sous le `ENCHANT_CONFIG_DIR` que le harnais a déplacé : Enchant les
-trouve par son moteur Hunspell, et **aucun test ne dépend d'un dictionnaire installé sur la machine
-qui le lance**. Issue [#569](https://github.com/Guyot-Bertrand/sub-edit/issues/569).
+`zz.dic` and `zz.aff`: **six words and nothing else**, in Hunspell format, for a language
+(`zz`) that no machine owns. The end-to-end cases of `correct --tasks join-words,split-words`
+drop them into `hunspell/` under the `ENCHANT_CONFIG_DIR` the harness has moved: Enchant
+finds them through its Hunspell engine, and **no test depends on a dictionary installed on the machine
+that runs it**. Issue [#569](https://github.com/Guyot-Bertrand/sub-edit/issues/569).
 
-| Fichier | Ce que c'est |
+| File | What it is |
 | :------ | :----------- |
-| `zz.dic` | le nombre de mots, puis `hello`, `there`, `world`, `how`, `are`, `you` — un par ligne |
-| `zz.aff` | l'encodage (UTF-8) et l'ordre des lettres que Hunspell essaie pour proposer une correction |
+| `zz.dic` | the number of words, then `hello`, `there`, `world`, `how`, `are`, `you` — one per line |
+| `zz.aff` | the encoding (UTF-8) and the order of letters Hunspell tries to propose a correction |
 
-**Ce que ces cas prouvent, et ce qu'ils ne prouvent pas.** Ils prouvent que la ligne de commande
-ouvre un dictionnaire par Enchant, le donne à la jonction et à la scission, et que ce qu'elles
-rendent arrive dans le fichier — avec des attendus écrits à la main, d'après la règle de Gaupol :
-`hel lo` est `hello` seul quand une seule direction orthographie ; `hellothere` est `hello there`
-seul quand une seule proposition est le mot avec une espace. **Ils ne prouvent rien d'un dictionnaire
-réel** — la qualité de `fr_FR` n'est pas notre affaire — et **ils supposent le moteur Hunspell
-d'Enchant**, qui est celui de la plupart des installations : sans lui, ils échouent en le disant.
+**What these cases prove, and what they do not.** They prove that the command line
+opens a dictionary through Enchant, hands it to the join and the split, and that what they
+return reaches the file — with expected files written by hand, from Gaupol's rule:
+`hel lo` is `hello` alone when only one direction spells; `hellothere` is `hello there`
+alone when only one suggestion is the word with a space. **They prove nothing about a real
+dictionary** — the quality of `fr_FR` is not our business — and **they assume Enchant's
+Hunspell engine**, which is that of most installations: without it, they fail and say so.

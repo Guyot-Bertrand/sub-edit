@@ -1348,7 +1348,6 @@ msgstr "%1 = %2   [soubor]   (výchozí %3)"
 msgid "%1 = %2   [default]"
 msgstr "%1 = %2   [výchozí]"
 
-#. TRANSLATORS: %1 is what a settings key accepts, as « true or false ».
 #: src/lib/subedit/cli/configuring.cpp
 msgid "Accepts: %1"
 msgstr "Přijímá: %1"
@@ -1358,7 +1357,6 @@ msgstr "Přijímá: %1"
 msgid "Default: %1"
 msgstr "Výchozí: %1"
 
-#. TRANSLATORS: %1 lists the commands and window actions that read a settings key.
 #: src/lib/subedit/cli/configuring.cpp
 msgid "Used by: %1"
 msgstr "Používá: %1"
@@ -2147,6 +2145,366 @@ msgstr "--quiet a -v žádají opačné věci; zadejte jen jednu z nich"
 #: src/lib/subedit/cli/writing.cpp
 msgid "%1: %2, %3, %4 line endings kept"
 msgstr "%1: %2, %3, konce řádků %4 zachovány"
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "true or false"
+msgstr "pravda nebo nepravda"
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "a whole number of milliseconds, 0 or more"
+msgstr "celé číslo milisekund, 0 nebo více"
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid ""
+"a pattern code, Script[-language[-COUNTRY]], not empty: Zyyy, Latn, Latn-en, "
+"Latn-en-US"
+msgstr "kód vzorů, Script[-language[-COUNTRY]], neprázdný: Zyyy, Latn, Latn-en, Latn-en-US"
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "a number above 0, decimals allowed: 24, 42.5"
+msgstr "číslo větší než 0, desetinná místa povolena: 24, 42.5"
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "a whole number from 1 to 1000: 2, 3"
+msgstr "celé číslo od 1 do 1000: 2, 3"
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "subedit-cli adjust; Adjust Durations…"
+msgstr "subedit-cli adjust; Upravit doby trvání…"
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "subedit-cli correct; Correct Texts…"
+msgstr "subedit-cli correct; Opravit texty…"
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "Correct Texts… (window only; correct takes --tasks instead)"
+msgstr "Opravit texty… (jen v okně; correct místo toho používá --tasks)"
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "Correct Texts… (window only; correct takes --code instead)"
+msgstr "Opravit texty… (jen v okně; correct místo toho používá --code)"
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "Correct Texts… (window only; correct takes --enable/--disable instead)"
+msgstr "Opravit texty… (jen v okně; correct místo toho používá --enable/--disable)"
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "Correct Texts… (window only; correct takes --max-length instead)"
+msgstr "Opravit texty… (jen v okně; correct místo toho používá --max-length)"
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "Correct Texts… (window only; correct takes --skip-length instead)"
+msgstr "Opravit texty… (jen v okně; correct místo toho používá --skip-length)"
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "Correct Texts… (window only; correct takes --skip-lines instead)"
+msgstr "Opravit texty… (jen v okně; correct místo toho používá --skip-lines)"
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "Correct Texts… (window only; correct takes --language instead)"
+msgstr "Opravit texty… (jen v okně; correct místo toho používá --language)"
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "Reading speed the durations are brought to."
+msgstr "Rychlost čtení, na kterou se doby trvání upraví."
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "a number of characters per second, above 0, decimals allowed"
+msgstr "počet znaků za sekundu, větší než 0, desetinná místa povolena"
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "Let the reading speed move an end later."
+msgstr "Dovolit rychlosti čtení posunout konec později."
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "Let the reading speed move an end earlier."
+msgstr "Dovolit rychlosti čtení posunout konec dříve."
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "Whether a shortest duration is enforced."
+msgstr "Zda se vynucuje nejkratší doba trvání."
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "Shortest duration of a subtitle."
+msgstr "Nejkratší doba trvání titulku."
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "Whether a longest duration is enforced."
+msgstr "Zda se vynucuje nejdelší doba trvání."
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "Longest duration of a subtitle."
+msgstr "Nejdelší doba trvání titulku."
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "Whether a least gap before the next subtitle is enforced."
+msgstr "Zda se vynucuje nejmenší mezera před dalším titulkem."
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "Least time left before the next subtitle."
+msgstr "Nejmenší čas ponechaný před dalším titulkem."
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "Whether the window ticks the hearing-impaired task."
+msgstr "Zda okno zaškrtává úlohu pro sluchově postižené."
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "Pattern code the window reads for the hearing-impaired task."
+msgstr "Kód vzorů, který okno čte pro úlohu pro sluchově postižené."
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "Whether the window ticks the common-errors task."
+msgstr "Zda okno zaškrtává úlohu běžných chyb."
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "Pattern code the window reads for the common-errors task."
+msgstr "Kód vzorů, který okno čte pro úlohu běžných chyb."
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "Whether the window ticks the capitalization task."
+msgstr "Zda okno zaškrtává úlohu velkých písmen."
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "Pattern code the window reads for the capitalization task."
+msgstr "Kód vzorů, který okno čte pro úlohu velkých písmen."
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "Whether the window ticks the line-break task."
+msgstr "Zda okno zaškrtává úlohu zalamování řádků."
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "Pattern code the window reads for the line-break task."
+msgstr "Kód vzorů, který okno čte pro úlohu zalamování řádků."
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "Apply the patterns of human-made errors."
+msgstr "Použít vzory chyb způsobených člověkem."
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "Apply the patterns of recognition (OCR) errors."
+msgstr "Použít vzory chyb rozpoznávání (OCR)."
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "Whether the window's hearing-impaired task acts on text in brackets."
+msgstr "Zda úloha okna pro sluchově postižené působí na text v hranatých závorkách."
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "Whether the window's hearing-impaired task acts on text in parentheses."
+msgstr "Zda úloha okna pro sluchově postižené působí na text v kulatých závorkách."
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid ""
+"Longest line the window's line-break task aims at, in the unit in-ems names."
+msgstr "Nejdelší řádek, o který usiluje úloha okna pro zalamování řádků, v jednotce určené volbou in-ems."
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "Most lines a subtitle is broken into."
+msgstr "Nejvyšší počet řádků, na které se titulek rozdělí."
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "Whether the window measures lines in ems rather than characters."
+msgstr "Zda okno měří řádky v em místo ve znacích."
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid ""
+"Whether the window's line-break task leaves alone a subtitle whose lines are "
+"short enough."
+msgstr "Zda úloha okna pro zalamování řádků nechává beze změny titulek, jehož řádky jsou dostatečně krátké."
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid ""
+"Longest line a subtitle may have and still be left alone by the window's "
+"line-break task."
+msgstr "Nejdelší řádek, který titulek může mít, aby ho úloha okna pro zalamování řádků nechala beze změny."
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid ""
+"Whether the window's line-break task leaves alone a subtitle with few enough "
+"lines."
+msgstr "Zda úloha okna pro zalamování řádků nechává beze změny titulek s dostatečně malým počtem řádků."
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid ""
+"Most lines a subtitle may have and still be left alone by the window's line-"
+"break task."
+msgstr "Nejvyšší počet řádků, který titulek může mít, aby ho úloha okna pro zalamování řádků nechala beze změny."
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "Whether the window ticks the join/split-words task."
+msgstr "Zda okno zaškrtává úlohu spojování a dělení slov."
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "Whether the window's join/split-words task joins words."
+msgstr "Zda úloha okna pro spojování a dělení slov slova spojuje."
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "Whether the window's join/split-words task splits words."
+msgstr "Zda úloha okna pro spojování a dělení slov slova dělí."
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "Dictionary the window's join/split-words task checks words by."
+msgstr "Slovník, podle kterého úloha okna pro spojování a dělení slov kontroluje slova."
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid ""
+"a locale code, two lower-case letters, then optionally _ and two upper-case, "
+"then optionally @ and a script: fr, en_US, sr@Latn"
+msgstr "kód jazykové verze: dvě malá písmena, poté volitelně _ a dvě velká, poté volitelně @ a písmo: fr, en_US, sr@Latn"
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid ""
+"Remove the subtitles the correction empties, instead of leaving them empty."
+msgstr "Odstranit titulky, které oprava vyprázdní, místo aby zůstaly prázdné."
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "%1 is managed by the window; use --enable/--disable on correct"
+msgstr "%1 spravuje okno; u příkazu correct použijte --enable/--disable"
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "%1 is a display preference; set it in the window"
+msgstr "%1 je předvolba zobrazení; nastavte ji v okně"
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "unknown setting %1; subedit-cli config list names them"
+msgstr "neznámé nastavení %1; subedit-cli config list je vypisuje"
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "cannot read '%1' for %2; subedit-cli config list says what it accepts"
+msgstr "nelze přečíst „%1“ pro %2; subedit-cli config list říká, co přijímá"
+
+#: src/lib/subedit/core/format/lrc_reader.cpp
+#: src/lib/subedit/core/format/tm_player_reader.cpp
+msgid "no timed line"
+msgstr "žádný řádek s časem"
+
+#: src/lib/subedit/core/format/micro_dvd_reader.cpp
+msgid "no braced line"
+msgstr "žádný řádek ve složených závorkách"
+
+#: src/lib/subedit/core/format/mpl2_reader.cpp
+msgid "no bracketed line"
+msgstr "žádný řádek v hranatých závorkách"
+
+#: src/lib/subedit/core/format/sub_rip_reader.cpp
+#: src/lib/subedit/core/format/sub_viewer2_reader.cpp
+msgid "no timestamp line"
+msgstr "žádný řádek s časovou značkou"
+
+#: src/lib/subedit/core/format/sub_station_alpha_reader.cpp
+msgid "no dialogue line"
+msgstr "žádný řádek dialogu"
+
+#: src/lib/subedit/core/format/subtitle_file.cpp
+msgid "no format recognised"
+msgstr "žádný formát nebyl rozpoznán"
+
+#: src/lib/subedit/core/format/web_vtt_reader.cpp
+msgid "no WEBVTT signature"
+msgstr "chybí signatura WEBVTT"
+
+#: src/lib/subedit/core/format/web_vtt_reader.cpp
+msgid "no cue"
+msgstr "žádný titulek (cue)"
+
+#: src/lib/subedit/core/io/real_file_system.cpp
+msgid "could not be opened for reading"
+msgstr "nepodařilo se otevřít ke čtení"
+
+#: src/lib/subedit/core/io/real_file_system.cpp
+msgid "reading was interrupted"
+msgstr "čtení bylo přerušeno"
+
+#: src/lib/subedit/core/io/real_file_system.cpp
+msgid "could not be opened for writing"
+msgstr "nepodařilo se otevřít k zápisu"
+
+#: src/lib/subedit/core/io/real_file_system.cpp
+msgid "writing was interrupted"
+msgstr "zápis byl přerušen"
+
+#: src/lib/subedit/core/io/real_file_system.cpp
+msgid "no such file"
+msgstr "soubor neexistuje"
+
+#: src/lib/subedit/core/process/start_process.cpp
+msgid "could not prepare the launch"
+msgstr "nepodařilo se připravit spuštění"
+
+#: src/lib/subedit/core/process/start_process.cpp
+msgid "could not redirect the output"
+msgstr "nepodařilo se přesměrovat výstup"
+
+#: src/lib/subedit/core/process/start_process.cpp
+msgid "could not be started"
+msgstr "nepodařilo se spustit"
+
+#: src/lib/subedit/core/process/start_process.cpp
+msgid "could not open a pipe"
+msgstr "nepodařilo se otevřít rouru"
+
+#: src/lib/subedit/core/text/capitalization.cpp
+#: src/lib/subedit/core/text/common_errors.cpp
+#: src/lib/subedit/core/text/hearing_impaired_correction.cpp
+#: src/lib/subedit/core/text/line_breaking.cpp
+msgid "the search was given up"
+msgstr "hledání bylo vzdáno"
+
+#: src/lib/subedit/core/text/common_errors.cpp
+#: src/lib/subedit/core/text/hearing_impaired_correction.cpp
+msgid "the text outgrew a subtitle"
+msgstr "text přerostl titulek"
+
+#: src/lib/subedit/core/text/common_errors.cpp
+msgid "the text still changed after %1 passes"
+msgstr "text se po %1 průchodech stále měnil"
+
+#: src/lib/subedit/core/text/icu_pattern_engine.cpp
+msgid "%1 at %2"
+msgstr "%1 na pozici %2"
+
+#: src/lib/subedit/core/text/python_regex_syntax.cpp
+msgid "an unterminated group name"
+msgstr "neukončený název skupiny"
+
+#: src/lib/subedit/core/text/python_regex_syntax.cpp
+msgid "the group name '%1' is not letters and digits, which is all ICU accepts"
+msgstr "název skupiny „%1“ nejsou písmena a číslice, což je vše, co ICU přijímá"
+
+#: src/lib/subedit/core/text/python_regex_syntax.cpp
+msgid "a backslash ends the expression"
+msgstr "zpětné lomítko ukončuje výraz"
+
+#: src/lib/subedit/core/text/replacement_template.cpp
+msgid "invalid group reference %1"
+msgstr "neplatný odkaz na skupinu %1"
+
+#: src/lib/subedit/core/text/replacement_template.cpp
+msgid "a backslash ends the replacement"
+msgstr "zpětné lomítko ukončuje náhradu"
+
+#: src/lib/subedit/core/text/replacement_template.cpp
+msgid "bad escape \\%1"
+msgstr "chybná escape sekvence \\%1"
+
+#: src/lib/subedit/core/text/replacement_template.cpp
+msgid "octal escape value out of range"
+msgstr "osmičková escape hodnota je mimo rozsah"
+
+#: src/lib/subedit/core/text/replacement_template.cpp
+msgid "missing < after \\g"
+msgstr "za \\g chybí <"
+
+#: src/lib/subedit/core/text/replacement_template.cpp
+msgid "missing > after \\g<"
+msgstr "za \\g< chybí >"
+
+#: src/lib/subedit/core/text/replacement_template.cpp
+msgid "missing group name"
+msgstr "chybí název skupiny"
+
+#: src/lib/subedit/core/text/replacement_template.cpp
+msgid "unknown group name '%1'"
+msgstr "neznámý název skupiny „%1“"
 
 #: src/lib/subedit/core/wording/analysis.cpp
 msgid "ends before it starts"

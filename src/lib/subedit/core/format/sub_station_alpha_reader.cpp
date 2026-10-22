@@ -3,6 +3,7 @@
 #include <subedit/core/format/read_result.hpp>
 #include <subedit/core/format/sub_station_alpha_reader.hpp>
 #include <subedit/core/format/sub_station_alpha_syntax.hpp>
+#include <subedit/core/i18n/messages.hpp>
 #include <subedit/core/model/file_extras.hpp>
 #include <subedit/core/model/format_extras.hpp>
 #include <subedit/core/model/subtitle.hpp>
@@ -249,7 +250,7 @@ std::expected<ReadResult, ReadError> SubStationAlphaReader::read(std::string_vie
     if (result.subtitles.empty())
         return std::unexpected(ReadError{
             .kind = ReadErrorKind::NoSubtitleFound,
-            .detail = "no dialogue line",
+            .detail = std::string{translate("no dialogue line")},
         });
 
     return result;

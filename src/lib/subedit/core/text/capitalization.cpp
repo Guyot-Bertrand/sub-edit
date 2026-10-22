@@ -1,3 +1,4 @@
+#include <subedit/core/i18n/messages.hpp>
 #include <subedit/core/model/subtitle_format.hpp>
 #include <subedit/core/text/capitalization.hpp>
 #include <subedit/core/text/correction_pattern.hpp>
@@ -218,7 +219,10 @@ CorrectedTexts correctCapitalization(const PatternEngine& engine,
             if (const std::optional<FailureKind> gaveUp =
                     capitalizeMatches(*one.matcher, one.at, attempt, attemptCapNext)) {
                 result.failures.push_back(
-                    failureOf(*gaveUp, *one.pattern, index, "the search was given up"));
+                    failureOf(*gaveUp,
+                              *one.pattern,
+                              index,
+                              std::string{translate("the search was given up")}));
             } else {
                 parser = std::move(attempt);
                 capNext = attemptCapNext;

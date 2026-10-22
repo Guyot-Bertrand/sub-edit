@@ -1,40 +1,40 @@
 name: fedora
 
-# Le `.rpm`, installé sur une vraie Fedora — issue #266.
+# The `.rpm`, installed on a real Fedora — issue #266.
 #
-# **Ce que ce workflow apporte et que rien d'autre n'a.** Le développement se
-# fait sur Ubuntu : `rpmbuild` y produit un `.rpm` et `rpm` n'y installe rien.
-# Trois lignes du tableau de l'ADR 0023 restaient donc vides, dont la plus
-# coûteuse — que les noms de dépendances existent chez Fedora. Ils sont écrits à
-# la main dans `cmake/Packaging.cmake`, CPack ne sachant rien de Fedora, et un
-# nom erroné produit un paquet parfaitement valide qui refuse de s'installer.
+# **What this workflow brings that nothing else has.** Development happens on
+# Ubuntu: `rpmbuild` produces an `.rpm` there and `rpm` installs nothing.
+# Three rows of the ADR 0023 table therefore stayed empty, including the most
+# costly one — that the dependency names exist at Fedora. They are written by
+# hand in `cmake/Packaging.cmake`, CPack knowing nothing about Fedora, and a
+# wrong name produces a perfectly valid package that refuses to install.
 #
-# Le premier passage a trouvé un défaut, et ce n'étaient pas les dépendances :
-# le paquet revendiquait huit répertoires de la distribution, et `dnf` refusait
-# la transaction. Voir `src/scripts/check-rpm.sh`.
+# The first run found a defect, and it was not the dependencies: the package
+# claimed eight directories of the distribution, and `dnf` refused the
+# transaction. See `src/scripts/check-rpm.sh`.
 #
-# **Hebdomadaire, et pas par pull request.** Le quota d'Actions du dépôt a déjà
-# été épuisé une fois (#232, #233) ; un conteneur qui télécharge Qt à chaque
-# pull request n'est pas gratuit, et ce qu'il éprouve ne bouge qu'avec
-# l'empaquetage. Ce qui garde les pull requests entre-temps est local et
-# gratuit : `check-installation.sh` refuse un `.rpm` qui possède un répertoire
-# qui n'est pas à lui, c'est-à-dire la cause du défaut ci-dessus.
+# **Weekly, and not per pull request.** The repository's Actions quota has
+# already been exhausted once (#232, #233); a container that downloads Qt on
+# every pull request is not free, and what it exercises only moves with the
+# packaging. What guards pull requests in the meantime is local and free:
+# `check-installation.sh` refuses an `.rpm` that owns a directory that is not
+# its own, that is, the cause of the defect above.
 #
-# La règle elle-même n'est pas ici mais dans `src/scripts/check-rpm.sh` : un
-# script se lance en local, un bloc de YAML non. C'est la même raison qui a
-# sorti la sélection de l'élagueur de `elagage.yml`.
+# The rule itself is not here but in `src/scripts/check-rpm.sh`: a script can
+# be run locally, a block of YAML cannot. It is the same reason that took the
+# pruner's selection out of `elagage.yml`.
 
 on:
-  # Mardi, pour ne pas se mettre en travers du lundi — l'analyse complète de
-  # `ci.yml` à 4 h et l'élagueur à 6 h. Rien ici n'a de raison d'être le même
-  # jour qu'eux, et deux tâches longues sur le même créneau font attendre pour
-  # rien.
+  # Tuesday, so as not to get in the way of Monday — the full analysis of
+  # `ci.yml` at 4:00 and the pruner at 6:00. Nothing here has a reason to be on
+  # the same day as them, and two long jobs on the same slot make things wait
+  # for nothing.
   schedule:
     - cron: '0 4 * * 2'
 
-  # Le bouton, pour le jour où l'empaquetage change : c'est le seul moment où
-  # attendre mardi n'a pas de sens. Il n'apparaît dans l'interface que si ce
-  # fichier est sur la branche par défaut, contrainte de GitHub.
+  # The button, for the day the packaging changes: it is the only moment when
+  # waiting for Tuesday makes no sense. It only appears in the interface if this
+  # file is on the default branch, a GitHub constraint.
   workflow_dispatch:
 
 permissions:
@@ -42,35 +42,34 @@ permissions:
 
 jobs:
   rpm:
-    name: le .rpm sur Fedora
+    name: the .rpm on Fedora
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v7
 
-      # La chaîne d'outils complète, et non un sous-ensemble : `check-rpm.sh`
-      # a besoin du `.rpm`, donc de `cpack` et de `rpmbuild`, donc de tout ce
-      # qui construit les binaires. La liste vient de setup-toolchain.sh et
-      # n'est pas recopiée ici — une seconde liste divergerait au premier
-      # paquet ajouté.
-      - name: Paquets de la chaîne d'outils
+      # The full toolchain, not a subset: `check-rpm.sh` needs the `.rpm`, so
+      # `cpack` and `rpmbuild`, so everything that builds the binaries. The list
+      # comes from setup-toolchain.sh and is not copied here — a second list
+      # would diverge at the first package added.
+      - name: Toolchain packages
         id: paquets
         run: echo "liste=$(./src/scripts/setup-toolchain.sh --list-packages | tr '\n' ' ')" >> "$GITHUB_OUTPUT"
 
-      - name: Cache des paquets
+      - name: Packages cache
         uses: awalsh128/cache-apt-pkgs-action@v1.6.3
         with:
           packages: ${{ steps.paquets.outputs.liste }}
           version: 1
 
-      - name: Chaîne d'outils
+      - name: Toolchain
         run: ./src/scripts/setup-toolchain.sh
 
-      - name: Cache de compilation
+      - name: Compilation cache
         uses: hendrikmuhs/ccache-action@v1
         with:
           key: ${{ github.job }}
 
-      # Docker est présent d'origine sur les coureurs GitHub ; le script prend
-      # podman s'il le trouve d'abord, ce qu'une Fedora a. Rien à installer.
+      # Docker is present out of the box on GitHub runners; the script takes
+      # podman if it finds it first, which a Fedora has. Nothing to install.
       - name: make rpm-check
         run: make rpm-check JOBS=$(nproc)

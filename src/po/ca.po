@@ -1322,7 +1322,6 @@ msgstr "%1 = %2   [fitxer]   (per defecte %3)"
 msgid "%1 = %2   [default]"
 msgstr "%1 = %2   [per defecte]"
 
-#. TRANSLATORS: %1 is what a settings key accepts, as « true or false ».
 #: src/lib/subedit/cli/configuring.cpp
 msgid "Accepts: %1"
 msgstr "Accepta: %1"
@@ -1332,7 +1331,6 @@ msgstr "Accepta: %1"
 msgid "Default: %1"
 msgstr "Per defecte: %1"
 
-#. TRANSLATORS: %1 lists the commands and window actions that read a settings key.
 #: src/lib/subedit/cli/configuring.cpp
 msgid "Used by: %1"
 msgstr "Utilitzat per: %1"
@@ -2123,6 +2121,366 @@ msgstr "--quiet i -v demanen coses oposades; indiqueu-ne l'una o l'altra"
 #: src/lib/subedit/cli/writing.cpp
 msgid "%1: %2, %3, %4 line endings kept"
 msgstr "%1: %2, %3, s'han conservat els finals de línia %4"
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "true or false"
+msgstr "cert o fals"
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "a whole number of milliseconds, 0 or more"
+msgstr "un nombre enter de mil·lisegons, 0 o més"
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid ""
+"a pattern code, Script[-language[-COUNTRY]], not empty: Zyyy, Latn, Latn-en, "
+"Latn-en-US"
+msgstr "un codi de patrons, Script[-language[-COUNTRY]], no buit: Zyyy, Latn, Latn-en, Latn-en-US"
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "a number above 0, decimals allowed: 24, 42.5"
+msgstr "un nombre superior a 0, es permeten decimals: 24, 42.5"
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "a whole number from 1 to 1000: 2, 3"
+msgstr "un nombre enter de l'1 al 1000: 2, 3"
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "subedit-cli adjust; Adjust Durations…"
+msgstr "subedit-cli adjust; Ajusta les durades…"
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "subedit-cli correct; Correct Texts…"
+msgstr "subedit-cli correct; Corregeix els textos…"
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "Correct Texts… (window only; correct takes --tasks instead)"
+msgstr "Corregeix els textos… (només a la finestra; correct usa --tasks)"
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "Correct Texts… (window only; correct takes --code instead)"
+msgstr "Corregeix els textos… (només a la finestra; correct usa --code)"
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "Correct Texts… (window only; correct takes --enable/--disable instead)"
+msgstr "Corregeix els textos… (només a la finestra; correct usa --enable/--disable)"
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "Correct Texts… (window only; correct takes --max-length instead)"
+msgstr "Corregeix els textos… (només a la finestra; correct usa --max-length)"
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "Correct Texts… (window only; correct takes --skip-length instead)"
+msgstr "Corregeix els textos… (només a la finestra; correct usa --skip-length)"
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "Correct Texts… (window only; correct takes --skip-lines instead)"
+msgstr "Corregeix els textos… (només a la finestra; correct usa --skip-lines)"
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "Correct Texts… (window only; correct takes --language instead)"
+msgstr "Corregeix els textos… (només a la finestra; correct usa --language)"
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "Reading speed the durations are brought to."
+msgstr "Velocitat de lectura a la qual s'ajusten les durades."
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "a number of characters per second, above 0, decimals allowed"
+msgstr "un nombre de caràcters per segon, superior a 0, es permeten decimals"
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "Let the reading speed move an end later."
+msgstr "Permet que la velocitat de lectura endarrereixi un final."
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "Let the reading speed move an end earlier."
+msgstr "Permet que la velocitat de lectura avanci un final."
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "Whether a shortest duration is enforced."
+msgstr "Si s'imposa una durada mínima."
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "Shortest duration of a subtitle."
+msgstr "Durada més curta d'un subtítol."
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "Whether a longest duration is enforced."
+msgstr "Si s'imposa una durada màxima."
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "Longest duration of a subtitle."
+msgstr "Durada més llarga d'un subtítol."
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "Whether a least gap before the next subtitle is enforced."
+msgstr "Si s'imposa un interval mínim abans del subtítol següent."
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "Least time left before the next subtitle."
+msgstr "Temps mínim que es deixa abans del subtítol següent."
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "Whether the window ticks the hearing-impaired task."
+msgstr "Si la finestra marca la tasca per a persones amb discapacitat auditiva."
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "Pattern code the window reads for the hearing-impaired task."
+msgstr "Codi de patrons que la finestra llegeix per a la tasca per a persones amb discapacitat auditiva."
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "Whether the window ticks the common-errors task."
+msgstr "Si la finestra marca la tasca d'errors habituals."
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "Pattern code the window reads for the common-errors task."
+msgstr "Codi de patrons que la finestra llegeix per a la tasca d'errors habituals."
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "Whether the window ticks the capitalization task."
+msgstr "Si la finestra marca la tasca de majúscules."
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "Pattern code the window reads for the capitalization task."
+msgstr "Codi de patrons que la finestra llegeix per a la tasca de majúscules."
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "Whether the window ticks the line-break task."
+msgstr "Si la finestra marca la tasca de salts de línia."
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "Pattern code the window reads for the line-break task."
+msgstr "Codi de patrons que la finestra llegeix per a la tasca de salts de línia."
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "Apply the patterns of human-made errors."
+msgstr "Aplica els patrons d'errors humans."
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "Apply the patterns of recognition (OCR) errors."
+msgstr "Aplica els patrons d'errors de reconeixement (OCR)."
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "Whether the window's hearing-impaired task acts on text in brackets."
+msgstr "Si la tasca per a persones amb discapacitat auditiva de la finestra actua sobre el text entre claudàtors."
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "Whether the window's hearing-impaired task acts on text in parentheses."
+msgstr "Si la tasca per a persones amb discapacitat auditiva de la finestra actua sobre el text entre parèntesis."
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid ""
+"Longest line the window's line-break task aims at, in the unit in-ems names."
+msgstr "Línia més llarga que pretén la tasca de salts de línia de la finestra, en la unitat que indica in-ems."
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "Most lines a subtitle is broken into."
+msgstr "Nombre màxim de línies en què es divideix un subtítol."
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "Whether the window measures lines in ems rather than characters."
+msgstr "Si la finestra mesura les línies en ems en lloc de caràcters."
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid ""
+"Whether the window's line-break task leaves alone a subtitle whose lines are "
+"short enough."
+msgstr "Si la tasca de salts de línia de la finestra deixa intacte un subtítol les línies del qual són prou curtes."
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid ""
+"Longest line a subtitle may have and still be left alone by the window's "
+"line-break task."
+msgstr "Línia més llarga que pot tenir un subtítol perquè la tasca de salts de línia de la finestra el deixi intacte."
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid ""
+"Whether the window's line-break task leaves alone a subtitle with few enough "
+"lines."
+msgstr "Si la tasca de salts de línia de la finestra deixa intacte un subtítol amb prou poques línies."
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid ""
+"Most lines a subtitle may have and still be left alone by the window's line-"
+"break task."
+msgstr "Nombre màxim de línies que pot tenir un subtítol perquè la tasca de salts de línia de la finestra el deixi intacte."
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "Whether the window ticks the join/split-words task."
+msgstr "Si la finestra marca la tasca d'unir i separar paraules."
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "Whether the window's join/split-words task joins words."
+msgstr "Si la tasca d'unir i separar paraules de la finestra uneix paraules."
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "Whether the window's join/split-words task splits words."
+msgstr "Si la tasca d'unir i separar paraules de la finestra separa paraules."
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "Dictionary the window's join/split-words task checks words by."
+msgstr "Diccionari amb què la tasca d'unir i separar paraules de la finestra comprova les paraules."
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid ""
+"a locale code, two lower-case letters, then optionally _ and two upper-case, "
+"then optionally @ and a script: fr, en_US, sr@Latn"
+msgstr "un codi de configuració regional: dues lletres minúscules, després opcionalment _ i dues majúscules, i després opcionalment @ i una escriptura: fr, en_US, sr@Latn"
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid ""
+"Remove the subtitles the correction empties, instead of leaving them empty."
+msgstr "Elimina els subtítols que la correcció buida, en lloc de deixar-los buits."
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "%1 is managed by the window; use --enable/--disable on correct"
+msgstr "%1 el gestiona la finestra; useu --enable/--disable amb correct"
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "%1 is a display preference; set it in the window"
+msgstr "%1 és una preferència de visualització; definiu-la a la finestra"
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "unknown setting %1; subedit-cli config list names them"
+msgstr "paràmetre desconegut %1; subedit-cli config list els enumera"
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "cannot read '%1' for %2; subedit-cli config list says what it accepts"
+msgstr "no es pot llegir «%1» per a %2; subedit-cli config list indica què accepta"
+
+#: src/lib/subedit/core/format/lrc_reader.cpp
+#: src/lib/subedit/core/format/tm_player_reader.cpp
+msgid "no timed line"
+msgstr "cap línia amb temps"
+
+#: src/lib/subedit/core/format/micro_dvd_reader.cpp
+msgid "no braced line"
+msgstr "cap línia entre claus"
+
+#: src/lib/subedit/core/format/mpl2_reader.cpp
+msgid "no bracketed line"
+msgstr "cap línia entre claudàtors"
+
+#: src/lib/subedit/core/format/sub_rip_reader.cpp
+#: src/lib/subedit/core/format/sub_viewer2_reader.cpp
+msgid "no timestamp line"
+msgstr "cap línia amb marca de temps"
+
+#: src/lib/subedit/core/format/sub_station_alpha_reader.cpp
+msgid "no dialogue line"
+msgstr "cap línia de diàleg"
+
+#: src/lib/subedit/core/format/subtitle_file.cpp
+msgid "no format recognised"
+msgstr "no s'ha reconegut cap format"
+
+#: src/lib/subedit/core/format/web_vtt_reader.cpp
+msgid "no WEBVTT signature"
+msgstr "sense signatura WEBVTT"
+
+#: src/lib/subedit/core/format/web_vtt_reader.cpp
+msgid "no cue"
+msgstr "cap rètol"
+
+#: src/lib/subedit/core/io/real_file_system.cpp
+msgid "could not be opened for reading"
+msgstr "no s'ha pogut obrir per llegir"
+
+#: src/lib/subedit/core/io/real_file_system.cpp
+msgid "reading was interrupted"
+msgstr "s'ha interromput la lectura"
+
+#: src/lib/subedit/core/io/real_file_system.cpp
+msgid "could not be opened for writing"
+msgstr "no s'ha pogut obrir per escriure"
+
+#: src/lib/subedit/core/io/real_file_system.cpp
+msgid "writing was interrupted"
+msgstr "s'ha interromput l'escriptura"
+
+#: src/lib/subedit/core/io/real_file_system.cpp
+msgid "no such file"
+msgstr "no existeix el fitxer"
+
+#: src/lib/subedit/core/process/start_process.cpp
+msgid "could not prepare the launch"
+msgstr "no s'ha pogut preparar l'inici"
+
+#: src/lib/subedit/core/process/start_process.cpp
+msgid "could not redirect the output"
+msgstr "no s'ha pogut redirigir la sortida"
+
+#: src/lib/subedit/core/process/start_process.cpp
+msgid "could not be started"
+msgstr "no s'ha pogut iniciar"
+
+#: src/lib/subedit/core/process/start_process.cpp
+msgid "could not open a pipe"
+msgstr "no s'ha pogut obrir un conducte"
+
+#: src/lib/subedit/core/text/capitalization.cpp
+#: src/lib/subedit/core/text/common_errors.cpp
+#: src/lib/subedit/core/text/hearing_impaired_correction.cpp
+#: src/lib/subedit/core/text/line_breaking.cpp
+msgid "the search was given up"
+msgstr "s'ha abandonat la cerca"
+
+#: src/lib/subedit/core/text/common_errors.cpp
+#: src/lib/subedit/core/text/hearing_impaired_correction.cpp
+msgid "the text outgrew a subtitle"
+msgstr "el text ha excedit la mida d'un subtítol"
+
+#: src/lib/subedit/core/text/common_errors.cpp
+msgid "the text still changed after %1 passes"
+msgstr "el text encara canviava després de %1 passades"
+
+#: src/lib/subedit/core/text/icu_pattern_engine.cpp
+msgid "%1 at %2"
+msgstr "%1 a %2"
+
+#: src/lib/subedit/core/text/python_regex_syntax.cpp
+msgid "an unterminated group name"
+msgstr "un nom de grup sense tancar"
+
+#: src/lib/subedit/core/text/python_regex_syntax.cpp
+msgid "the group name '%1' is not letters and digits, which is all ICU accepts"
+msgstr "el nom de grup «%1» no és de lletres i dígits, que és tot el que accepta ICU"
+
+#: src/lib/subedit/core/text/python_regex_syntax.cpp
+msgid "a backslash ends the expression"
+msgstr "una barra inversa acaba l'expressió"
+
+#: src/lib/subedit/core/text/replacement_template.cpp
+msgid "invalid group reference %1"
+msgstr "referència de grup no vàlida %1"
+
+#: src/lib/subedit/core/text/replacement_template.cpp
+msgid "a backslash ends the replacement"
+msgstr "una barra inversa acaba la substitució"
+
+#: src/lib/subedit/core/text/replacement_template.cpp
+msgid "bad escape \\%1"
+msgstr "seqüència d'escapament incorrecta \\%1"
+
+#: src/lib/subedit/core/text/replacement_template.cpp
+msgid "octal escape value out of range"
+msgstr "valor d'escapament octal fora de l'interval"
+
+#: src/lib/subedit/core/text/replacement_template.cpp
+msgid "missing < after \\g"
+msgstr "falta < després de \\g"
+
+#: src/lib/subedit/core/text/replacement_template.cpp
+msgid "missing > after \\g<"
+msgstr "falta > després de \\g<"
+
+#: src/lib/subedit/core/text/replacement_template.cpp
+msgid "missing group name"
+msgstr "falta el nom del grup"
+
+#: src/lib/subedit/core/text/replacement_template.cpp
+msgid "unknown group name '%1'"
+msgstr "nom de grup desconegut «%1»"
 
 #: src/lib/subedit/core/wording/analysis.cpp
 msgid "ends before it starts"

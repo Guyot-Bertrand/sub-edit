@@ -2,6 +2,7 @@
 #include <subedit/core/format/read_error.hpp>
 #include <subedit/core/format/read_result.hpp>
 #include <subedit/core/format/web_vtt_reader.hpp>
+#include <subedit/core/i18n/messages.hpp>
 #include <subedit/core/model/format_extras.hpp>
 #include <subedit/core/model/subtitle.hpp>
 #include <subedit/core/model/subtitle_format.hpp>
@@ -251,7 +252,7 @@ std::expected<ReadResult, ReadError> WebVttReader::read(std::string_view content
     if (firstText == lines.end() || !trimmedBlanks(*firstText).starts_with(kSignature))
         return std::unexpected(ReadError{
             .kind = ReadErrorKind::UnknownFormat,
-            .detail = "no WEBVTT signature",
+            .detail = std::string{translate("no WEBVTT signature")},
         });
 
     Parser parser;
@@ -265,7 +266,7 @@ std::expected<ReadResult, ReadError> WebVttReader::read(std::string_view content
     if (result.subtitles.empty())
         return std::unexpected(ReadError{
             .kind = ReadErrorKind::NoSubtitleFound,
-            .detail = "no cue",
+            .detail = std::string{translate("no cue")},
         });
 
     return result;

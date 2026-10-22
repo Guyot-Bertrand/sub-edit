@@ -1,24 +1,24 @@
 <!--
-Le titre de la pull request suit la grammaire Conventional Commits :
-la CI le vérifie. Exemple : feat(core): lecture des fichiers SubRip
+The pull request title follows the Conventional Commits grammar:
+the CI checks it. Example: feat(core): read SubRip files
 -->
 
-## Ce que fait cette pull request
+## What this pull request does
 
-<!-- En une ou deux phrases. Le détail est dans les commits. -->
+<!-- In a sentence or two. The detail is in the commits. -->
 
-Referme #
+Closes #
 
-## Définition de « terminé »
+## Definition of "done"
 
-- [ ] `make check` passe en local
-- [ ] Tests couvrant le comportement ajouté ou corrigé
-- [ ] Benchmark, si la performance est en jeu
-- [ ] Section de manuel à jour, si le comportement visible change
-- [ ] `make changelog` régénéré
-- [ ] ADR écrite, si une décision coûteuse à revenir dessus a été prise
+- [ ] `make check` passes locally
+- [ ] Tests covering the added or fixed behaviour
+- [ ] Benchmark, if performance is at stake
+- [ ] Manual section up to date, if the visible behaviour changes
+- [ ] `make changelog` regenerated
+- [ ] ADR written, if a decision costly to reverse was taken
 
-## Points d'attention pour la relecture
+## Points to watch in review
 
-<!-- Ce qui mérite un regard : un compromis assumé, une piste écartée,
-     une exclusion clang-tidy ajoutée et sa justification. -->
+<!-- What deserves a look: a deliberate trade-off, a discarded lead,
+     an added clang-tidy exclusion and its justification. -->

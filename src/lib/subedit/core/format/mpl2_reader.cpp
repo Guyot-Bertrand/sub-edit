@@ -3,6 +3,7 @@
 #include <subedit/core/format/mpl2_syntax.hpp>
 #include <subedit/core/format/read_error.hpp>
 #include <subedit/core/format/read_result.hpp>
+#include <subedit/core/i18n/messages.hpp>
 #include <subedit/core/model/subtitle.hpp>
 #include <subedit/core/model/subtitle_format.hpp>
 #include <subedit/core/text/break_marker.hpp>
@@ -47,7 +48,7 @@ std::expected<ReadResult, ReadError> Mpl2Reader::read(std::string_view content) 
     if (result.subtitles.empty())
         return std::unexpected(ReadError{
             .kind = ReadErrorKind::NoSubtitleFound,
-            .detail = "no bracketed line",
+            .detail = std::string{translate("no bracketed line")},
         });
 
     return result;

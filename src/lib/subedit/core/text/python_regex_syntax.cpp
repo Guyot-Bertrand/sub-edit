@@ -1,3 +1,4 @@
+#include <subedit/core/i18n/messages.hpp>
 #include <subedit/core/text/python_regex_syntax.hpp>
 
 #include <algorithm>
@@ -84,13 +85,15 @@ struct NamedGroup {
     const std::size_t nameStart = 4;
     const std::size_t close = rest.find(opens ? '>' : ')', nameStart);
     if (close == std::string_view::npos)
-        return std::unexpected{SyntaxError{.reason = "an unterminated group name"}};
+        return std::unexpected{
+            SyntaxError{.reason = std::string{translate("an unterminated group name")}}};
 
     const std::string_view name = rest.substr(nameStart, close - nameStart);
     if (!isIcuGroupName(name)) {
-        return std::unexpected{
-            SyntaxError{.reason = "the group name '" + std::string{name} +
-                                  "' is not letters and digits, which is all ICU accepts"}};
+        return std::unexpected{SyntaxError{
+            .reason = substitute(translate("the group name '%1' is not letters and digits, "
+                                           "which is all ICU accepts"),
+                                 {name})}};
     }
     if (opens)
         return NamedGroup{.length = close + 1, .icu = "(?<" + std::string{name} + ">"};
@@ -146,7 +149,8 @@ std::expected<std::string, SyntaxError> icuExpressionOf(std::string_view python)
     for (std::size_t at = 0; at < python.size(); ++at) {
         if (python[at] == '\\') {
             if (at + 1 == python.size())
-                return std::unexpected{SyntaxError{.reason = "a backslash ends the expression"}};
+                return std::unexpected{SyntaxError{
+                    .reason = std::string{translate("a backslash ends the expression")}}};
             ++at;
             icu += inClass ? escapeInClass(python[at]) : escapeOutsideClass(python[at]);
         } else if (inClass) {

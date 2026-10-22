@@ -199,7 +199,7 @@ TEST_CASE("shifting a full-length file", "[benchmark]") {
     const Project project = fullLengthProject();
     const Selection everything = Selection::all(project);
 
-    BENCHMARK_ADVANCED("décalage de 4000 sous-titres")(Catch::Benchmark::Chronometer meter) {
+    BENCHMARK_ADVANCED("shifting 4000 subtitles")(Catch::Benchmark::Chronometer meter) {
         std::vector<Project> copies(static_cast<std::size_t>(meter.runs()), project);
         meter.measure([&](int run) {
             ShiftCommand command{everything, Duration::fromMilliseconds(2500)};
@@ -208,7 +208,7 @@ TEST_CASE("shifting a full-length file", "[benchmark]") {
         });
     };
 
-    BENCHMARK_ADVANCED("décalage puis annulation")(Catch::Benchmark::Chronometer meter) {
+    BENCHMARK_ADVANCED("shifting then undoing")(Catch::Benchmark::Chronometer meter) {
         std::vector<Project> copies(static_cast<std::size_t>(meter.runs()), project);
         meter.measure([&](int run) {
             Project& copy = copies[static_cast<std::size_t>(run)];
@@ -225,7 +225,7 @@ TEST_CASE("transforming a full-length file", "[benchmark]") {
     const SubtitleIndex first = SubtitleIndex::fromValue(0);
     const SubtitleIndex last = SubtitleIndex::fromValue(kSubtitleCount - 1);
 
-    BENCHMARK_ADVANCED("transformation de 4000 sous-titres")(Catch::Benchmark::Chronometer meter) {
+    BENCHMARK_ADVANCED("transforming 4000 subtitles")(Catch::Benchmark::Chronometer meter) {
         std::vector<Project> copies(static_cast<std::size_t>(meter.runs()), project);
         meter.measure([&](int run) {
             Project& copy = copies[static_cast<std::size_t>(run)];
@@ -248,7 +248,7 @@ TEST_CASE("converting the frame rate of a full-length file", "[benchmark]") {
     const FrameRate from{StandardFrameRate::Fps25};
     const FrameRate to{StandardFrameRate::Fps23976};
 
-    BENCHMARK_ADVANCED("conversion de fréquence sur 4000 sous-titres")
+    BENCHMARK_ADVANCED("frame rate conversion over 4000 subtitles")
     (Catch::Benchmark::Chronometer meter) {
         std::vector<Project> copies(static_cast<std::size_t>(meter.runs()), project);
         meter.measure([&](int run) {
@@ -267,7 +267,7 @@ TEST_CASE("aligning a full-length file on a frame rate", "[benchmark]") {
     const Project project = fullLengthProject();
     const FrameRate to{StandardFrameRate::Fps25};
 
-    BENCHMARK_ADVANCED("alignement sur 4000 sous-titres")
+    BENCHMARK_ADVANCED("alignment over 4000 subtitles")
     (Catch::Benchmark::Chronometer meter) {
         std::vector<Project> copies(static_cast<std::size_t>(meter.runs()), project);
         meter.measure([&](int run) {
@@ -282,7 +282,7 @@ TEST_CASE("aligning a full-length file on a frame rate", "[benchmark]") {
 TEST_CASE("sorting a full-length file", "[benchmark]") {
     const Project project = reversedProject();
 
-    BENCHMARK_ADVANCED("tri de 4000 sous-titres à l'envers")(Catch::Benchmark::Chronometer meter) {
+    BENCHMARK_ADVANCED("sorting 4000 subtitles in reverse")(Catch::Benchmark::Chronometer meter) {
         std::vector<Project> copies(static_cast<std::size_t>(meter.runs()), project);
         meter.measure([&](int run) {
             Project& copy = copies[static_cast<std::size_t>(run)];
@@ -302,7 +302,7 @@ TEST_CASE("inserting into and removing from a full-length file", "[benchmark]") 
         everyOther.push_back(SubtitleIndex::fromValue(index));
     const Selection halfOfThem = Selection::of(everyOther);
 
-    BENCHMARK_ADVANCED("suppression d'un sous-titre sur deux")
+    BENCHMARK_ADVANCED("removing every other subtitle")
     (Catch::Benchmark::Chronometer meter) {
         std::vector<Project> copies(static_cast<std::size_t>(meter.runs()), project);
         meter.measure([&](int run) {
@@ -315,7 +315,7 @@ TEST_CASE("inserting into and removing from a full-length file", "[benchmark]") 
 
     // The undo of that same removal, and the other half of issue #45: putting
     // the subtitles back one at a time shifts the tail once per subtitle.
-    BENCHMARK_ADVANCED("suppression puis annulation")
+    BENCHMARK_ADVANCED("removal then undo")
     (Catch::Benchmark::Chronometer meter) {
         std::vector<Project> copies(static_cast<std::size_t>(meter.runs()), project);
         meter.measure([&](int run) {
@@ -327,7 +327,7 @@ TEST_CASE("inserting into and removing from a full-length file", "[benchmark]") 
         });
     };
 
-    BENCHMARK_ADVANCED("insertion de 100 sous-titres vides au milieu")
+    BENCHMARK_ADVANCED("inserting 100 empty subtitles in the middle")
     (Catch::Benchmark::Chronometer meter) {
         std::vector<Project> copies(static_cast<std::size_t>(meter.runs()), project);
         meter.measure([&](int run) {
@@ -356,7 +356,7 @@ TEST_CASE("editing one subtitle of a full-length file", "[benchmark]") {
     // spends its life in.
     const SubtitleIndex middle = SubtitleIndex::fromValue(kSubtitleCount / 2);
 
-    BENCHMARK_ADVANCED("modification d'un texte, à travers une session")
+    BENCHMARK_ADVANCED("editing a text, through a session")
     (Catch::Benchmark::Chronometer meter) {
         Session session{fullLengthProject()};
 
@@ -378,7 +378,7 @@ TEST_CASE("removing hearing impaired mentions from a full-length file", "[benchm
     // measure less.
     const Project project = fullLengthProject();
 
-    BENCHMARK_ADVANCED("suppression des mentions sur 4000 sous-titres")
+    BENCHMARK_ADVANCED("removing mentions over 4000 subtitles")
     (Catch::Benchmark::Chronometer meter) {
         std::vector<Project> copies(static_cast<std::size_t>(meter.runs()), project);
         meter.measure([&](int run) {
@@ -399,7 +399,7 @@ TEST_CASE("putting a full-length file in italics", "[benchmark]") {
     // because both are what the button costs.
     const Project project = fullLengthProject();
 
-    BENCHMARK_ADVANCED("mise en italique de 4000 sous-titres")
+    BENCHMARK_ADVANCED("italicising 4000 subtitles")
     (Catch::Benchmark::Chronometer meter) {
         std::vector<Project> copies(static_cast<std::size_t>(meter.runs()), project);
         meter.measure([&](int run) {
@@ -450,7 +450,7 @@ TEST_CASE("replacing a frequent word in a full-length file", "[benchmark]") {
     REQUIRE(replacedInRegex == replacedInPlain);
     REQUIRE(plainProbe.undoableCount() == 1);
 
-    BENCHMARK_ADVANCED("remplacement d'un mot fréquent sur 4000 sous-titres, texte simple")
+    BENCHMARK_ADVANCED("replacing a frequent word over 4000 subtitles, plain text")
     (Catch::Benchmark::Chronometer meter) {
         std::vector<Session> sessions = freshSessions(project, meter.runs());
         meter.measure([&](int run) {
@@ -459,7 +459,7 @@ TEST_CASE("replacing a frequent word in a full-length file", "[benchmark]") {
         });
     };
 
-    BENCHMARK_ADVANCED("remplacement d'un mot fréquent sur 4000 sous-titres, expression régulière")
+    BENCHMARK_ADVANCED("replacing a frequent word over 4000 subtitles, regular expression")
     (Catch::Benchmark::Chronometer meter) {
         std::vector<Session> sessions = freshSessions(project, meter.runs());
         meter.measure([&](int run) {
@@ -495,7 +495,7 @@ TEST_CASE("searching a full-length file for what it does not hold", "[benchmark]
     REQUIRE(probe.has_value());
     REQUIRE_FALSE(findNext(project, everything, Document::Main, *probe, std::nullopt).has_value());
 
-    BENCHMARK("recherche sans résultat sur 4000 sous-titres") {
+    BENCHMARK("search with no result over 4000 subtitles") {
         const auto pattern = SearchPattern::compile(kAbsent, options);
         if (!pattern.has_value())
             return std::optional<TextMatch>{};
@@ -524,7 +524,7 @@ TEST_CASE("adjusting the durations of a full-length file", "[benchmark]") {
     REQUIRE(probe.adjusted > kSubtitleCount / 2);
     REQUIRE(probe.sacrificed.speed > 0);
 
-    BENCHMARK_ADVANCED("ajustement des durées de 4000 sous-titres, quatre contraintes")
+    BENCHMARK_ADVANCED("adjusting the durations of 4000 subtitles, four constraints")
     (Catch::Benchmark::Chronometer meter) {
         std::vector<Session> sessions = freshSessions(project, meter.runs());
         meter.measure([&](int run) {
@@ -551,7 +551,7 @@ TEST_CASE("putting a full-length file in title case", "[benchmark]") {
 
     REQUIRE(setLetterCase(project, everything, Document::Main, LetterCase::Title) != nullptr);
 
-    BENCHMARK_ADVANCED("casse de titre sur 4000 sous-titres")(Catch::Benchmark::Chronometer meter) {
+    BENCHMARK_ADVANCED("title case over 4000 subtitles")(Catch::Benchmark::Chronometer meter) {
         std::vector<Session> sessions = freshSessions(project, meter.runs());
         meter.measure([&](int run) {
             Session& session = sessions[static_cast<std::size_t>(run)];
@@ -589,7 +589,7 @@ TEST_CASE("pasting four thousand texts into a full-length file", "[benchmark]") 
     REQUIRE(probe.command != nullptr);
     REQUIRE(probe.inserted == 0);
 
-    BENCHMARK_ADVANCED("collage de 4000 textes")(Catch::Benchmark::Chronometer meter) {
+    BENCHMARK_ADVANCED("pasting 4000 texts")(Catch::Benchmark::Chronometer meter) {
         std::vector<Session> sessions = freshSessions(project, meter.runs());
         meter.measure([&](int run) {
             Session& session = sessions[static_cast<std::size_t>(run)];
@@ -628,7 +628,7 @@ TEST_CASE("opening a translation of four thousand lines over a full-length file"
     REQUIRE(probe.outcome.attached == kSubtitleCount);
     REQUIRE(probe.outcome.isClean());
 
-    BENCHMARK_ADVANCED("alignement d'une traduction de 4000 lignes, par position")
+    BENCHMARK_ADVANCED("aligning a 4000-line translation, by position")
     (Catch::Benchmark::Chronometer meter) {
         std::vector<Session> sessions = freshSessions(project, meter.runs());
         meter.measure([&](int run) {
@@ -641,7 +641,7 @@ TEST_CASE("opening a translation of four thousand lines over a full-length file"
         });
     };
 
-    BENCHMARK_ADVANCED("alignement d'une traduction de 4000 lignes, par numéro")
+    BENCHMARK_ADVANCED("aligning a 4000-line translation, by number")
     (Catch::Benchmark::Chronometer meter) {
         std::vector<Session> sessions = freshSessions(project, meter.runs());
         meter.measure([&](int run) {

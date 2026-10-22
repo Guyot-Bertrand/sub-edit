@@ -1,25 +1,25 @@
-# Dépôt de référence cloné localement, jamais commité
+# Reference repository cloned locally, never committed
 reference/
 
-# Fichiers de travail.
+# Working files.
 src/data/
 
-# Réglages d'IDE, propres à chaque poste
+# IDE settings, specific to each machine
 .idea/
 .vscode/
 *.swp
 
-# Artefacts de construction
+# Build artefacts
 build/
 
-# Le bytecode que Python laisse à côté d'un script importé. Le dépôt porte cinq
-# scripts Python ; il suffit qu'un outil en importe un pour qu'un __pycache__
-# apparaisse sous src/scripts, où `check-architecture.sh` le prend pour un
-# script non exécutable — c'est arrivé.
+# The bytecode Python leaves next to an imported script. The repository carries
+# five Python scripts; it takes only a tool importing one for a __pycache__ to
+# appear under src/scripts, where `check-architecture.sh` takes it for a
+# non-executable script — it has happened.
 __pycache__/
 *.pyc
 
-# Le journal et les artefacts de l'exécution d'un plan par sous-agents
-# (superpowers:subagent-driven-development) : propres à une session, jamais au
-# dépôt.
+# The log and artefacts of a plan's execution by subagents
+# (superpowers:subagent-driven-development): specific to a session, never to
+# the repository.
 .superpowers/

@@ -616,7 +616,7 @@ The subproject is done when:
 | 1 — toolchain | ✅ | `setup-toolchain.sh` run on the target machine |
 | 2 — end-to-end chain | ✅ | `subedit_core`, its test, its benchmark, `subedit-cli` |
 | 3 — the gates close | ✅ | `make verify-gates`, five defects injected, five failures |
-| 4 — green CI running `make check` | ✅ | workflow `ci`, jobs `porte de qualité` and `messages de commit` |
+| 4 — green CI running `make check` | ✅ | workflow `ci`, jobs `quality gate` and `commit messages` |
 | 5 — git hooks | ✅ | non-conforming message rejected, staging of `reference/` refused |
 | 6 — CHANGELOG | ✅ | `make changelog`, git-cliff 2.10.1 |
 | 7 — ADRs and documentation | ✅ | ADRs 0001 to 0005, `README.md`, `CONTRIBUTING.md` |

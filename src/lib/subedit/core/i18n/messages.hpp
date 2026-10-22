@@ -36,6 +36,14 @@ void installCatalogue(std::shared_ptr<const Catalogue> catalogue);
 [[nodiscard]] std::string_view
 translatePlural(std::string_view singular, std::string_view plural, std::uint64_t n);
 
+/// Marks `text` for the catalogue and returns it as it is: the message of a constant table, which
+/// cannot call `translate` before the catalogue is installed. Whoever shows it calls
+/// `translate` on it then. `update-pot.sh` and the translation scanner read this call as they
+/// read `translate`.
+[[nodiscard]] constexpr std::string_view deferred(std::string_view text) {
+    return text;
+}
+
 /// `%1`..`%9` replaced by the arguments, in one pass: an argument that itself contains `%2`
 /// is not expanded again. A `%` not followed by a digit from 1 to 9, and a number beyond the
 /// arguments, stay as written. Positional so that a translation may reorder them.

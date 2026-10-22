@@ -1,8 +1,8 @@
 ---
-# Le code de test hérite de la configuration racine, avec quatre assouplissements.
+# Test code inherits the root configuration, with four relaxations.
 #
-# Un test n'est pas du code de production : il exprime des cas concrets, donc
-# des valeurs littérales, et Catch2 impose ses propres formes.
+# A test is not production code: it expresses concrete cases, hence literal
+# values, and Catch2 imposes its own forms.
 InheritParentConfig: true
 
 Checks: >
@@ -12,17 +12,17 @@ Checks: >
   -misc-use-anonymous-namespace,
   -bugprone-chained-comparison
 
-# Justification :
+# Justification:
 #
 # readability-magic-numbers, cppcoreguidelines-avoid-magic-numbers
-#   Les valeurs attendues d'un test sont littérales par nature. Les nommer
-#   éloignerait l'attendu de l'assertion, ce qui nuit à la lisibilité.
+#   A test's expected values are literal by nature. Naming them would move
+#   the expectation away from the assertion, which hurts readability.
 # readability-function-cognitive-complexity
-#   Les macros de Catch2 gonflent artificiellement la métrique.
+#   Catch2's macros artificially inflate the metric.
 # misc-use-anonymous-namespace
-#   Les fonctions d'aide locales à un fichier de test sont volontairement
-#   déclarées `static`, forme plus lisible pour un lecteur de test.
+#   Helper functions local to a test file are deliberately declared
+#   `static`, a form more readable to a test reader.
 # bugprone-chained-comparison
-#   Faux positif systématique sur Catch2 : ses macros CHECK et REQUIRE
-#   décomposent l'expression en `Decomposer() <= expr`, ce que la vérification
-#   lit comme une comparaison chaînée. Tout `CHECK(a >= b)` serait signalé.
+#   Systematic false positive on Catch2: its CHECK and REQUIRE macros
+#   decompose the expression into `Decomposer() <= expr`, which the check
+#   reads as a chained comparison. Every `CHECK(a >= b)` would be flagged.

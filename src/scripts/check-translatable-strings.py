@@ -25,7 +25,7 @@ receives it. The rule is pragmatic and written once:
 2. **A candidate is prose when it has a word**: a run of at least two letters. `""`, `", "`,
    `"%1"`, `"\n"` and `":"` have none and are never counted.
 3. **A literal is translated when the call that directly receives it is the translation API**
-   (`translate`, `translateIn`, `translatePlural`, `tr`, `QT_TR_NOOP`, `QT_TRANSLATE_NOOP`).
+   (`translate`, `translateIn`, `translatePlural`, `deferred`, `tr`, `QT_TR_NOOP`, `QT_TRANSLATE_NOOP`).
    Wrappers that only change the type — `QStringLiteral`, `QLatin1String`, `QString`,
    `std::string` and the like — are looked through, so `tr(QStringLiteral("…"))` would count as
    wrapped and `setText(QStringLiteral("…"))` is judged by `setText`.
@@ -106,8 +106,8 @@ CPP = (".cpp", ".hpp", ".h", ".cc")
 GREEN, RED, YELLOW, RESET = "\033[32m", "\033[31m", "\033[33m", "\033[0m"
 
 # The calls whose literal argument is extracted into the catalogue.
-TRANSLATION_API = frozenset({"translate", "translateIn", "translatePlural", "tr", "QT_TR_NOOP",
-                             "QT_TRANSLATE_NOOP"})
+TRANSLATION_API = frozenset({"translate", "translateIn", "translatePlural", "deferred", "tr",
+                             "QT_TR_NOOP", "QT_TRANSLATE_NOOP"})
 # Calls that only change a string's type: the call that receives them decides.
 TRANSPARENT = frozenset({"{", "QStringLiteral", "QLatin1String", "QLatin1StringView", "QString",
                          "QStringView", "QByteArray", "QByteArrayLiteral", "QLatin1Char",

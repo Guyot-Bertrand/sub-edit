@@ -4,6 +4,7 @@
 #include <subedit/core/format/read_result.hpp>
 #include <subedit/core/format/tm_player_reader.hpp>
 #include <subedit/core/format/tm_player_syntax.hpp>
+#include <subedit/core/i18n/messages.hpp>
 #include <subedit/core/model/file_extras.hpp>
 #include <subedit/core/model/subtitle.hpp>
 #include <subedit/core/model/subtitle_format.hpp>
@@ -59,7 +60,7 @@ std::expected<ReadResult, ReadError> TMPlayerReader::read(std::string_view conte
     if (result.subtitles.empty())
         return std::unexpected(ReadError{
             .kind = ReadErrorKind::NoSubtitleFound,
-            .detail = "no timed line",
+            .detail = std::string{translate("no timed line")},
         });
 
     result.extras = shape;

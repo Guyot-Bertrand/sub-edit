@@ -1,192 +1,191 @@
-# Une traduction, et ce qu'on en fait quand on l'ouvre
+# A translation, and what is done with it when it is opened
 
-Huit cas, un même document principal — la scène de [`formats/`](../formats), sans
-l'italique — et huit traductions de lui, écrites chacune pour **séparer les deux
-façons dont Gaupol rattache un fichier de traduction** : par numéro, et par position.
-À côté de chaque traduction, ce que chaque méthode doit en faire.
+Eight cases, one same main document — the scene of [`formats/`](../formats), without
+the italics — and eight translations of it, each written to **separate the two ways in
+which Gaupol attaches a translation file**: by number, and by position.
+Next to each translation, what each method must do with it.
 
-Le modèle porte les deux textes d'un sous-titre depuis la phase 1, et rien ne les
-faisait entrer par un fichier. Ces cas sont ce que la phase 11 pourra confronter à
-ce qu'elle écrit, et ils ont été écrits **avant** — pour la raison de
-[`formats/`](../formats/LISEZMOI.md) : une fixture tirée de la compréhension qu'on a
-d'un algorithme, relue par l'implémentation de ce même algorithme, ne prouve que leur
-accord.
+The model has carried the two texts of a subtitle since phase 1, and nothing made them enter through a file.
+These cases are what phase 11 will be able to check against what it writes, and they were written **before** — for the reason of
+[`formats/`](../formats/LISEZMOI.md): a fixture drawn from one's understanding of
+an algorithm, read back by the implementation of that same algorithm, proves only their
+agreement.
 
-## La scène
+## The scene
 
-Quatre sous-titres, dont deux sur deux lignes. Les positions sont celles de
+Four subtitles, two of them on two lines. The positions are those of
 `formats/scene.srt`.
 
-| # | Début | Fin | Texte |
+| # | Start | End | Text |
 | -: | :--- | :--- | :---- |
 | S1 | 00:00:01,000 | 00:00:03,000 | `The harbour wakes before` ⏎ `the town does.` |
 | S2 | 00:00:04,000 | 00:00:06,000 | `Nothing moves on the water.` |
 | S3 | 00:00:08,000 | 00:00:11,000 | `A gull turns once above the mast` ⏎ `and settles.` |
 | S4 | 00:00:12,000 | 00:00:15,000 | `Then the light comes.` |
 
-**Le principal est en anglais et les traductions en français**, pour qu'on ne prenne
-jamais un texte pour l'autre en lisant un résultat. Chaque ligne de traduction est
-nommée plus bas par le sous-titre qu'elle traduit : `T1` traduit S1, et ainsi de suite.
+**The main document is in English and the translations in French**, so that one never
+takes one text for the other when reading a result. Each translation line is
+named below by the subtitle it translates: `T1` translates S1, and so on.
 
-## Les cas
+## The cases
 
-Huit répertoires, dont chacun tient **six fichiers, ni plus ni moins** :
+Eight directories, each holding **six files, no more, no fewer**:
 
-| Fichier | Ce que c'est |
+| File | What it is |
 | :------ | :----------- |
-| `principal.srt` | le document principal, le même dans les huit cas |
-| `traduction.srt` | le fichier de traduction qu'on ouvre par-dessus |
-| `attendu-numero.principal.srt` `attendu-numero.traduction.srt` | le résultat de l'alignement **par numéro**, écrit deux fois : les textes principaux, puis les traductions |
-| `attendu-position.principal.srt` `attendu-position.traduction.srt` | le résultat de l'alignement **par position**, de même |
+| `principal.srt` | the main document, the same in all eight cases |
+| `traduction.srt` | the translation file opened on top |
+| `attendu-numero.principal.srt` `attendu-numero.traduction.srt` | the result of the alignment **by number**, written twice: the main texts, then the translations |
+| `attendu-position.principal.srt` `attendu-position.traduction.srt` | the result of the alignment **by position**, likewise |
 
-**Un résultat est une seule liste de sous-titres écrite deux fois**, une fois pour
-chacun de ses textes, aux mêmes positions : c'est ce que l'écrivain sait déjà produire
-(`WriteRequest::document`), et un attendu qu'un humain relit dans un diff plutôt
-qu'une table à apprendre. Un sous-titre que personne n'a traduit s'écrit comme un
-bloc sans texte dans le second fichier ; un sous-titre né d'une ligne de traduction,
-comme un bloc sans texte dans le premier. **Un bloc sans texte se lit sans anomalie et
-revient à l'octet** — c'est vérifié, voir plus bas.
+**A result is a single list of subtitles written twice**, once for
+each of its texts, at the same positions: this is what the writer already knows how to produce
+(`WriteRequest::document`), and an expected file that a human rereads in a diff rather
+than a table to learn. A subtitle that nobody translated is written as a block
+without text in the second file; a subtitle born of a translation line,
+as a block without text in the first. **A block without text is read without anomaly and
+comes back byte for byte** — this is verified, see below.
 
-| Cas | La traduction | Par numéro | Par position |
+| Case | The translation | By number | By position |
 | :-- | :------------ | :--------- | :----------- |
-| `temoin` | quatre lignes, aux positions du principal | chaque ligne sur son sous-titre | **la même chose** |
-| `traduction-plus-courte` | trois lignes : celle de S4 manque | S1 à S3 traduits, S4 sans traduction | **la même chose** |
-| `traduction-dans-le-desordre` | les quatre lignes, dans l'ordre 2, 1, 4, 3 du fichier | elle est triée d'abord : comme le témoin | **la même chose** |
-| `une-ligne-de-moins-au-milieu` | trois lignes : celle de S2 manque | **glissement** : S2 reçoit `T3`, S3 reçoit `T4`, S4 reste sans traduction | S2 sans traduction, les trois autres à leur place |
-| `une-ligne-de-plus-a-la-fin` | cinq lignes, la cinquième à 16–18 s | un sous-titre naît à **16–18 s** — les positions de la traduction | **la même chose** — *Gaupol, lui, invente 15–18 s par numéro : voir plus bas* |
-| `une-ligne-dans-un-intervalle-vide` | cinq lignes, une à 6,5–7,5 s, entre S2 et S3 | **glissement** : S3 reçoit cette ligne, S4 reçoit `T3`, et `T4` fait naître un sous-titre à 12–15 s, les siennes | un sous-titre naît à 6,5–7,5 s, entre S2 et S3 ; les quatre autres à leur place |
-| `deux-lignes-dans-un-meme-sous-titre` | S3 traduit en deux lignes, à 8–9,5 s et 9,5–11 s | la seconde glisse sur S4, et `T4` fait naître un sous-titre à 12–15 s, les siennes | la seconde **fait naître** un sous-titre à 9,5–11 s ; S4 garde `T4` |
-| `positions-decalees` | quatre lignes, toutes deux secondes plus tard | les positions sont ignorées : comme le témoin | `T1` tombe sur **S2**, les trois autres font naître un sous-titre chacune ; S1, S3 et S4 restent sans traduction — sept sous-titres |
+| `temoin` | four lines, at the main document's positions | each line on its subtitle | **the same** |
+| `traduction-plus-courte` | three lines: S4's is missing | S1 to S3 translated, S4 without translation | **the same** |
+| `traduction-dans-le-desordre` | the four lines, in the file's order 2, 1, 4, 3 | it is sorted first: like the control case | **the same** |
+| `une-ligne-de-moins-au-milieu` | three lines: S2's is missing | **slip**: S2 receives `T3`, S3 receives `T4`, S4 stays without translation | S2 without translation, the other three in their place |
+| `une-ligne-de-plus-a-la-fin` | five lines, the fifth at 16–18 s | a subtitle is born at **16–18 s** — the translation's positions | **the same** — *Gaupol, for its part, invents 15–18 s by number: see below* |
+| `une-ligne-dans-un-intervalle-vide` | five lines, one at 6.5–7.5 s, between S2 and S3 | **slip**: S3 receives that line, S4 receives `T3`, and `T4` gives birth to a subtitle at 12–15 s, its own | a subtitle is born at 6.5–7.5 s, between S2 and S3; the other four in their place |
+| `deux-lignes-dans-un-meme-sous-titre` | S3 translated in two lines, at 8–9.5 s and 9.5–11 s | the second slips onto S4, and `T4` gives birth to a subtitle at 12–15 s, its own | the second **gives birth** to a subtitle at 9.5–11 s; S4 keeps `T4` |
+| `positions-decalees` | four lines, all two seconds later | the positions are ignored: like the control case | `T1` falls on **S2**, the other three each give birth to a subtitle; S1, S3 and S4 stay without translation — seven subtitles |
 
-**Quatre cas s'accordent et quatre non, et les quatre sont ceux qui comptent** : un cas où
-les deux méthodes rendent la même chose n'apprend rien sur laquelle choisir. Le témoin
-est là pour montrer qu'elles peuvent s'accorder ; les trois autres, pour dire ce qui ne
-sépare pas les méthodes — une traduction plus courte, une traduction désordonnée, et une
-ligne de plus à la fin, **que la décision D4 a fait passer d'un côté à l'autre** : voir
-plus bas.
+**Four cases agree and four do not, and the four are those that matter**: a case where
+the two methods return the same thing teaches nothing about which to choose. The control case
+is there to show that they can agree; the other three, to say what does not
+separate the methods — a shorter translation, a disordered translation, and an
+extra line at the end, **which decision D4 moved from one side to the other**: see
+below.
 
-## Ce que chaque cas demande au cadrage
+## What each case asks of the scoping
 
-Ces cas posent leurs questions avant qu'on implémente, ce qui est leur raison d'être.
-Elles sont versées à #426 (décision 4).
+These cases pose their questions before anything is implemented, which is their reason for being.
+They are carried over to #426 (decision 4).
 
-- **`une-ligne-de-moins-au-milieu`** — laquelle des deux méthodes est le défaut. Par
-  numéro, une seule ligne manquante décale **toutes** les suivantes, sans que rien ne
-  le dise ; par position, une seule reste sans traduction.
-- **`une-ligne-de-plus-a-la-fin`, `une-ligne-dans-un-intervalle-vide`** — quelles
-  positions reçoit un sous-titre né d'une ligne orpheline, et si on le dit. **Tranché par
-  D4 : les siennes, par l'une et l'autre méthode.** Le compte de l'ouverture le dit.
-- **`deux-lignes-dans-un-meme-sous-titre`** — si une traduction qui scinde un
-  sous-titre en deux doit faire naître un sous-titre neuf.
-- **`traduction-dans-le-desordre`** — si le nombre de lignes déplacées par le tri, que
-  Gaupol rend (ici **2**), est dit à l'utilisateur.
-- **`positions-decalees`** — Gaupol n'a aucune détection de décalage : une traduction
-  calée deux secondes trop tard n'est pas reconnue pour ce qu'elle est. À nommer, pas à
-  corriger.
+- **`une-ligne-de-moins-au-milieu`** — which of the two methods is the default. By
+  number, a single missing line shifts **all** the following ones, without anything
+  saying so; by position, only one stays without translation.
+- **`une-ligne-de-plus-a-la-fin`, `une-ligne-dans-un-intervalle-vide`** — which
+  positions a subtitle born of an orphan line receives, and whether this is reported. **Settled by
+  D4: its own, by both methods.** The opening's count says so.
+- **`deux-lignes-dans-un-meme-sous-titre`** — whether a translation that splits a
+  subtitle in two must give birth to a new subtitle.
+- **`traduction-dans-le-desordre`** — whether the number of lines moved by the sort, which
+  Gaupol returns (here **2**), is reported to the user.
+- **`positions-decalees`** — Gaupol has no offset detection: a translation
+  timed two seconds too late is not recognised for what it is. To be named, not
+  fixed.
 
-## Elles s'écrivent à la main, et il n'y aura pas de fabrique
+## They are written by hand, and there will be no factory
 
-Pour la raison de `formats/` : ce qui vérifierait ces fichiers serait le code qui les
-lit et les aligne, et un fichier engendré depuis notre compréhension de l'alignement ne
-prouverait que leur accord.
+For the reason given in `formats/`: what would verify these files would be the code that
+reads and aligns them, and a file generated from our understanding of the alignment would
+prove only their agreement.
 
-**Ce qui tient lieu de tiers est une lecture de `aeidon/agents/open.py`**, de
-`_align_translations_by_number` et `_align_translations_by_position`, et de
-`_insert_blank_subtitles` — la fonction qui invente les trois secondes. Chaque attendu
-a été calculé à la main d'après elle : le pointeur qui n'avance jamais, le milieu de
-chaque ligne comparé aux bornes des sous-titres, la fenêtre de 3 s à la suite du dernier.
+**What stands in for a third party is a reading of `aeidon/agents/open.py`**, of
+`_align_translations_by_number` and `_align_translations_by_position`, and of
+`_insert_blank_subtitles` — the function that invents the three seconds. Each expected file
+was computed by hand from it: the pointer that never advances, the midpoint of
+each line compared with the subtitles' bounds, the 3 s window following the last one.
 
-### Et ils ont été observés, une fois
+### And they were observed, once
 
-Les seize résultats — huit cas, deux méthodes — ont ensuite été confrontés à ce que
-Gaupol fait réellement : le paquet `aeidon` copié **hors** du clone, importé depuis la
-copie, `Project.open_main` puis `open_translation(chemin, encodage, méthode)` sur chaque
-cas. **Les seize concordaient**, et le nombre de lignes déplacées du cas désordonné est
-bien 2 — *à l'écriture de #427* : voir la section suivante pour ce qui a changé depuis.
+The sixteen results — eight cases, two methods — were then checked against what
+Gaupol actually does: the `aeidon` package copied **outside** the clone, imported from
+the copy, `Project.open_main` then `open_translation(path, encoding, method)` on each
+case. **All sixteen agreed**, and the number of lines moved in the disordered case is
+indeed 2 — *at the time of writing #427*: see the next section for what has changed since.
 
-**Cette confrontation est faite à la main et ne se rejoue pas.** Aucun test ne lit le
-clone de Gaupol : il est absent de la CI et d'une machine fraîche. Elle se refait en
-un petit script — copier `aeidon/` ailleurs, l'importer, comparer — et elle n'est pas
-dans le dépôt, parce qu'un script qui dépend du clone serait un test que personne d'autre
-ne peut lancer.
+**This check was done by hand and cannot be replayed.** No test reads the
+Gaupol clone: it is absent from CI and from a fresh machine. It can be redone with
+a small script — copy `aeidon/` elsewhere, import it, compare — and it is not
+in the repository, because a script that depends on the clone would be a test that nobody else
+can run.
 
-### Ce que la décision D4 a changé, et où les attendus ne sont plus ceux de Gaupol
+### What decision D4 changed, and where the expected files are no longer Gaupol's
 
-**Trois des seize attendus par numéro s'écartent de Gaupol, exprès.** Par numéro, Gaupol
-fait naître un sous-titre pour chaque ligne qui dépasse le principal, **aux positions qu'il
-invente** — des durées égales dans la fenêtre qui précède le suivant, trois secondes à la
-suite du dernier. Le cadrage de la phase 11 (D4, [`specs/11-traduction.md`](../../../../docs/specs/11-traduction.md))
-l'écarte : le fichier de traduction **énonce** les positions de sa ligne, et les inventer
-est une perte. Le sous-titre né les garde, par l'une et l'autre méthode.
+**Three of the sixteen expected files by number deviate from Gaupol, on purpose.** By number, Gaupol
+gives birth to a subtitle for each line that exceeds the main document, **at positions it
+invents** — equal durations in the window preceding the next one, three seconds
+following the last. The scoping of phase 11 (D4, [`specs/11-traduction.md`](../../../../docs/specs/11-traduction.md))
+rules this out: the translation file **states** its line's positions, and inventing them
+is a loss. The subtitle born keeps them, by both methods.
 
-Les trois cas concernés, et ce que Gaupol y fait :
+The three cases concerned, and what Gaupol does in them:
 
-| Cas | Ce que Gaupol invente, par numéro | Ce que les fichiers disent maintenant |
+| Case | What Gaupol invents, by number | What the files now say |
 | :-- | :-------------------------------- | :------------------------------------ |
-| `une-ligne-de-plus-a-la-fin` | 15–18 s | 16–18 s, celles de la ligne |
-| `une-ligne-dans-un-intervalle-vide` | 15–18 s | 12–15 s, celles de `T4` |
-| `deux-lignes-dans-un-meme-sous-titre` | 15–18 s | 12–15 s, celles de `T4` |
+| `une-ligne-de-plus-a-la-fin` | 15–18 s | 16–18 s, the line's own |
+| `une-ligne-dans-un-intervalle-vide` | 15–18 s | 12–15 s, those of `T4` |
+| `deux-lignes-dans-un-meme-sous-titre` | 15–18 s | 12–15 s, those of `T4` |
 
-**Les fichiers `attendu-numero.*` de ces trois cas ont été réécrits par #430**, le jour où
-l'implémentation a existé et que le harnais a pu les confronter : ils disaient ce que Gaupol
-fait, et ils devaient dire ce que `subedit` fait. Les treize autres résultats n'ont pas
-changé, et concordent toujours avec Gaupol.
+**The `attendu-numero.*` files of these three cases were rewritten by #430**, the day the
+implementation existed and the harness could check them: they said what Gaupol
+does, and they had to say what `subedit` does. The thirteen other results did not
+change, and still agree with Gaupol.
 
-**Conséquence, et elle a été aperçue par le test de #427 avant tout lecteur** :
-`une-ligne-de-plus-a-la-fin` ne sépare plus les méthodes. Ce cas montrait que Gaupol
-n'en donne pas les mêmes positions ; avec D4, il montre qu'elles s'accordent. Il reste dans le
-répertoire pour cela, et parce qu'il est le seul à faire naître un sous-titre **à la fin**
-sans glissement.
+**Consequence, and it was noticed by the test of #427 before any reader**:
+`une-ligne-de-plus-a-la-fin` no longer separates the methods. This case used to show that Gaupol
+does not give the same positions for them; with D4, it shows that they agree. It stays in the
+directory for that, and because it is the only one to give birth to a subtitle **at the end**
+without a slip.
 
-### Ce que l'observation a corrigé
+### What the observation corrected
 
-**Deux affirmations de l'issue qui a demandé ces fichiers se sont révélées à côté.**
+**Two claims of the issue that asked for these files turned out to be beside the point.**
 
-- Elle écrivait de `positions-decalees` que *« chaque ligne fait naître un sous-titre »*.
-  **Non** : la première ligne, décalée de deux secondes, a son milieu à 4 s, et 4 s
-  tombe **dans** S2 — elle s'y colle. Trois lignes font naître un sous-titre, pas
-  quatre, et S2 reçoit une traduction qui n'est pas la sienne sans que rien ne la
-  distingue d'un rattachement juste.
-- Elle marquait `deux-lignes-dans-un-meme-sous-titre` comme *« lu, pas observé »*. C'est
-  maintenant observé, et c'est bien ce que la lecture de la boucle laissait attendre :
-  la seconde ligne fait naître un sous-titre, le pointeur ayant déjà avancé.
+- It wrote of `positions-decalees` that *"each line gives birth to a subtitle"*.
+  **No**: the first line, shifted by two seconds, has its midpoint at 4 s, and 4 s
+  falls **within** S2 — it sticks to it. Three lines give birth to a subtitle, not
+  four, and S2 receives a translation that is not its own with nothing to tell it
+  apart from a correct attachment.
+- It marked `deux-lignes-dans-un-meme-sous-titre` as *"read, not observed"*. It is
+  now observed, and it is indeed what reading the loop led one to expect:
+  the second line gives birth to a subtitle, the pointer having already advanced.
 
-## Ce que ces fixtures ne portent pas
+## What these fixtures do not carry
 
-- **Ouvrir une traduction sur un projet déjà traduit efface l'ancienne** — Gaupol vide
-  d'abord toutes les traductions. Le cas avait été proposé et il est **écarté** : ce
-  n'est pas une propriété d'une paire de fichiers mais de l'état d'un projet, qu'un
-  fichier ne peut pas porter. Il s'éprouvera par un test sur un `Project` en mémoire,
-  dans l'issue qui écrit l'ouverture.
-- **Le nombre de lignes déplacées par le tri** est une valeur rendue, pas un fichier : il
-  est écrit dans la table ci-dessus, et le test ne peut pas le lire ici.
-- **Aucun de ces cas n'est prélevé.** Ils sont écrits, pas tirés d'un fichier réel.
+- **Opening a translation on an already translated project erases the old one** — Gaupol
+  first empties all translations. The case had been proposed and it is **ruled out**: it
+  is not a property of a pair of files but of a project's state, which a
+  file cannot carry. It will be tested by a test on an in-memory `Project`,
+  in the issue that writes the opening.
+- **The number of lines moved by the sort** is a returned value, not a file: it
+  is written in the table above, and the test cannot read it here.
+- **None of these cases is sampled.** They are written, not drawn from a real file.
 
-## Ce que le harnais leur demande
+## What the harness asks of them
 
-`pairs_corpus_test.cpp`, sous `src/test/unit/core/format/`, ne rattache rien : il
-éprouve **les données**, et ce sont les garde-fous que nul alignement ne peut casser.
+`pairs_corpus_test.cpp`, under `src/test/unit/core/format/`, attaches nothing: it
+tests **the data**, and these are the safeguards that no alignment can break.
 
-- le répertoire et la table du test nomment les mêmes cas, **dans les deux sens** ;
-- chaque cas tient exactement ses six fichiers ;
-- chaque fichier est du SubRip qui se lit sans anomalie et **revient à l'octet** — un
-  bloc sans texte compris ;
-- les huit cas partent du même principal ;
-- les deux fichiers d'un résultat ont les mêmes positions ;
-- un sous-titre né d'une ligne de traduction n'a pas de texte principal, et les quatre
-  textes de la scène survivent, dans leur ordre ;
-- **chaque ligne de traduction atterrit exactement une fois**, quelle que soit la
-  méthode : rien de perdu, rien d'inventé, rien de compté deux fois — ce qu'un attendu
-  écrit à la main peut faire faux sans qu'un lecteur le voie ;
-- les deux méthodes diffèrent **exactement** là où la table le dit ;
-- seul le cas du désordre a une traduction dont les débuts ne sont pas triés.
+- the directory and the test's table name the same cases, **in both directions**;
+- each case holds exactly its six files;
+- each file is SubRip that reads without anomaly and **comes back byte for byte** — a
+  block without text included;
+- the eight cases start from the same main document;
+- the two files of a result have the same positions;
+- a subtitle born of a translation line has no main text, and the four
+  texts of the scene survive, in their order;
+- **each translation line lands exactly once**, whatever the
+  method: nothing lost, nothing invented, nothing counted twice — which a hand-written
+  expected file can get wrong without a reader seeing it;
+- the two methods differ **exactly** where the table says so;
+- only the disordered case has a translation whose starts are not sorted.
 
-La première issue d'implémentation ajoutera ce qui manque : ouvrir chaque traduction
-sur son principal, et comparer le résultat à l'attendu octet pour octet.
+The first implementation issue will add what is missing: open each translation
+on its main document, and compare the result to the expected file byte for byte.
 
-## Pourquoi pas dans `valides/`
+## Why not in `valides/`
 
-Depuis #289, `validFiles()` (`core/format/corpus_test.cpp`) retient **tout fichier
-régulier** de `valides/` et exige qu'il s'ouvre : ce répertoire *est* la liste. Un
-`LISEZMOI.md` y ferait échouer le test, et une traduction sans son principal y serait
-lue comme un document à part entière. Les paires ont leur répertoire, et le leur.
+Since #289, `validFiles()` (`core/format/corpus_test.cpp`) keeps **every regular
+file** of `valides/` and requires that it open: that directory *is* the list. A
+`LISEZMOI.md` there would make the test fail, and a translation without its main document would be
+read there as a full document. The pairs have their directory, and their own.

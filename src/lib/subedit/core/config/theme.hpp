@@ -19,7 +19,7 @@ namespace subedit::core {
 /// dark are palettes we lay down, a test can lay them down too and read what it
 /// gets.
 enum class Theme {
-    System, ///< rien n'est posé : la palette reste celle de la plate-forme
+    System, ///< nothing is set: the palette stays the platform's
     Light,
     Dark,
 };

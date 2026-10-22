@@ -45,7 +45,7 @@ constexpr std::string_view kWebVtt = "WEBVTT\n"
 ReadResult readOrFail(std::string_view content) {
     std::expected<ReadResult, ReadError> result = readSubtitles(content);
     if (!result.has_value()) {
-        FAIL("la lecture a échoué alors qu'elle devait aboutir");
+        FAIL("reading failed although it was meant to succeed");
         return {};
     }
     return *std::move(result);
@@ -55,7 +55,7 @@ ReadResult readOrFail(std::string_view content) {
 std::string writeOrFail(SubtitleFormat format, const WriteRequest& request) {
     std::expected<std::string, subedit::core::WriteError> written = writeSubtitles(format, request);
     if (!written.has_value()) {
-        FAIL("l'écriture a échoué alors qu'elle devait aboutir");
+        FAIL("writing failed although it was meant to succeed");
         return {};
     }
     return *std::move(written);

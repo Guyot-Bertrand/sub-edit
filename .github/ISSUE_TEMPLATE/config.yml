@@ -1,8 +1,8 @@
 blank_issues_enabled: false
 contact_links:
-  - name: Feuille de route
+  - name: Roadmap
     url: https://github.com/Guyot-Bertrand/sub-edit/blob/main/docs/feuille-de-route.md
-    about: Les phases du projet et leur ordre, avant d'ouvrir une issue.
-  - name: Contribution
+    about: The project's phases and their order, before opening an issue.
+  - name: Contributing
     url: https://github.com/Guyot-Bertrand/sub-edit/blob/main/CONTRIBUTING.md
-    about: Le projet n'accepte pas de contributions externes pour l'instant.
+    about: The project does not accept external contributions for now.

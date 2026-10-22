@@ -63,13 +63,13 @@ TEST_CASE("breaking the lines of a full-length file, in characters", "[bench][te
     constexpr double kMaxLength = 40.0;
     constexpr int kMaxLines = 2;
 
-    BENCHMARK("découpage de 4000 sous-titres, sans cache de longueurs") {
+    BENCHMARK("splitting 4000 subtitles, without a length cache") {
         const subedit::core::CharacterLineMeasure measure;
         return subedit::core::breakLines(
             engine, patterns, setup.texts, measure, kMaxLength, kMaxLines);
     };
 
-    BENCHMARK("découpage de 4000 sous-titres, avec cache de longueurs") {
+    BENCHMARK("splitting 4000 subtitles, with a length cache") {
         const subedit::core::CharacterLineMeasure characters;
         const subedit::core::CachedLineMeasure cached{characters};
         return subedit::core::breakLines(

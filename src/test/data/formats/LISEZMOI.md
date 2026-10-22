@@ -1,126 +1,126 @@
-# Une scène, dans neuf formats
+# One scene, in nine formats
 
-Neuf fichiers qui disent **la même chose** : quatre répliques, aux mêmes
-positions, dont deux sur deux lignes et une en italique. Ce qui change d'un
-fichier à l'autre est le format, et lui seul — c'est la discipline
-d'[`encodages/`](../encodages), qui ne fait varier que l'encodage.
+Nine files that say **the same thing**: four lines of dialogue, at the same
+positions, two of them on two lines and one in italics. What changes from one
+file to the next is the format, and only the format — this is the discipline
+of [`encodages/`](../encodages), which varies only the encoding.
 
-C'est ce qui permet de comparer **une lecture à une autre** plutôt que deux
-textes différents, et c'est de là que sort tout ce qu'on peut dire d'une
-conversion.
+This is what allows comparing **one reading with another** rather than two
+different texts, and it is from here that everything that can be said about a
+conversion comes.
 
-## La scène
+## The scene
 
-| # | Début | Fin | Texte |
+| # | Start | End | Text |
 | -: | :--- | :--- | :---- |
 | 1 | 00:00:01,000 | 00:00:03,000 | `The harbour wakes before` ⏎ `the town does.` |
 | 2 | 00:00:04,000 | 00:00:06,000 | `Nothing moves on the water.` |
 | 3 | 00:00:08,000 | 00:00:11,000 | *`A gull turns once above the mast`* ⏎ *`and settles.`* |
 | 4 | 00:00:12,000 | 00:00:15,000 | `Then the light comes.` |
 
-**Les positions tombent toutes sur la seconde**, et c'est une contrainte du plus
-pauvre des neuf : TMPlayer ne compte qu'en secondes entières. Une scène qu'il ne
-saurait pas écrire ne serait plus la même scène chez lui.
+**The positions all fall on the second**, and this is a constraint of the poorest of
+the nine: TMPlayer counts only in whole seconds. A scene it could not
+write would no longer be the same scene for it.
 
-**La grille de MicroDVD est de 25 images par seconde**, exactement quarante
-millisecondes par image — donc les quatre positions tombent aussi sur une image.
-**Le fichier ne le dit pas**, aucun MicroDVD ne le dit, et c'est tout le sujet de
-la promesse conditionnelle ci-dessous.
+**MicroDVD's grid is 25 frames per second**, exactly forty
+milliseconds per frame — so the four positions also fall on a frame.
+**The file does not say so**, no MicroDVD file does, and that is the whole subject of
+the conditional promise below.
 
-## Ce que chaque rendu perd, et c'est le tableau qui compte
+## What each rendering loses, and this is the table that matters
 
-| Fichier | Format | Sauts de ligne | Italique | Fins | Précision |
+| File | Format | Line breaks | Italics | Ends | Precision |
 | :------ | :----- | :------------- | :------- | :--- | :-------- |
-| `scene.srt` | SubRip | ⏎ | `<i>…</i>` | portées | ms |
-| `scene.vtt` | WebVTT | ⏎ | `<i>…</i>` | portées | ms |
-| `scene.subviewer2.sub` | SubViewer 2 | `[br]` | `<i>…</i>` | portées | centième |
-| `scene.ssa` | Sub Station Alpha | `\N` | `{\i1}…{\i0}` | portées | centième |
-| `scene.ass` | Advanced SSA | `\N` | `{\i1}…{\i0}` | portées | centième |
-| `scene.microdvd.sub` | MicroDVD | `\|` | `{Y:i}` | portées, **en images** | image |
-| `scene.mpl2.txt` | MPL2 | `\|` | `/` en tête de ligne | portées | dixième |
-| `scene.tmplayer.txt` | TMPlayer | `\|` | **perdu** | **absentes** | seconde |
-| `scene.lrc` | LRC | **perdus** | **perdu** | **absentes** | centième |
+| `scene.srt` | SubRip | ⏎ | `<i>…</i>` | carried | ms |
+| `scene.vtt` | WebVTT | ⏎ | `<i>…</i>` | carried | ms |
+| `scene.subviewer2.sub` | SubViewer 2 | `[br]` | `<i>…</i>` | carried | hundredth |
+| `scene.ssa` | Sub Station Alpha | `\N` | `{\i1}…{\i0}` | carried | hundredth |
+| `scene.ass` | Advanced SSA | `\N` | `{\i1}…{\i0}` | carried | hundredth |
+| `scene.microdvd.sub` | MicroDVD | `\|` | `{Y:i}` | carried, **in frames** | frame |
+| `scene.mpl2.txt` | MPL2 | `\|` | `/` at line start | carried | tenth |
+| `scene.tmplayer.txt` | TMPlayer | `\|` | **lost** | **absent** | second |
+| `scene.lrc` | LRC | **lost** | **lost** | **absent** | hundredth |
 
-Trois pertes sont visibles à l'œil dans les fichiers eux-mêmes, et c'est fait
-exprès : LRC rend les deux répliques de deux lignes sur une seule, LRC et
-TMPlayer ne portent aucune fin, et ni l'un ni l'autre n'a de vocabulaire pour
-l'italique. **La déclaration complète de ces pertes appartient au relevé de
-conversion** — issue #339 ; ce tableau-ci décrit neuf fichiers, pas
-soixante-douze paires.
+Three losses are visible to the eye in the files themselves, and that is on
+purpose: LRC renders the two two-line lines on a single line, LRC and
+TMPlayer carry no end, and neither has a vocabulary for
+italics. **The full declaration of these losses belongs to the conversion
+report** — issue #339; this table describes nine files, not
+seventy-two pairs.
 
-## Elles s'écrivent à la main, et il n'y aura pas de fabrique
+## They are written by hand, and there will be no factory
 
-C'est tranché en #336, et la raison ne s'invoque pas des deux fabriques
-existantes — elle les distingue.
+This was settled in #336, and the reason is not borrowed from the two existing
+factories — it distinguishes them.
 
-**Ni `encoding-fixtures.py` ni `subtitle-fixtures.py` ne réimplémente ce qu'il
-éprouve.** Le premier appelle le codec de Python, un tiers déterministe ; le
-second pose de l'arithmétique exacte, et la syntaxe SubRip autour tient en trois
-lignes.
+**Neither `encoding-fixtures.py` nor `subtitle-fixtures.py` reimplements what it
+tests.** The first calls Python's codec, a deterministic third party; the
+second lays down exact arithmetic, and the SubRip syntax around it takes three
+lines.
 
-**Un générateur d'ASS n'aurait aucun tiers à appeler.** Les sections, la ligne
-`Format:`, l'ordre des champs, le `\N`, les centièmes sont exactement ce que la
-phase 9 écrit en C++. Un fichier engendré depuis notre compréhension du format,
-relu par notre lecteur du même format, ne prouverait que leur accord — et il en
-aurait l'air d'autre chose, ce qui est pire que rien.
+**An ASS generator would have no third party to call.** The sections, the
+`Format:` line, the order of the fields, the `\N`, the hundredths are exactly what
+phase 9 writes in C++. A file generated from our understanding of the format,
+read back by our reader of the same format, would prove only their agreement — and it would
+look like something else, which is worse than nothing.
 
-**Et un `.ass` se relit dans un diff**, ce qu'un fichier en CP1252 ne sait pas
-faire. L'argument qui a fondé les deux fabriques ne se transporte pas.
+**And an `.ass` can be reread in a diff**, which a CP1252 file cannot
+do. The argument that founded the two factories does not carry over.
 
-## D'où vient la forme
+## Where the form comes from
 
-**Les syntaxes et les en-têtes sont transcrits de fichiers réels** — les
-exemples que Gaupol publie avec son code pour les sept formats, et deux fichiers
-du corpus privé pour MicroDVD et Advanced SSA. Lus par un humain, jamais liés :
-aucun test ne va les chercher là où ils sont, et le corpus privé ne se cite pas.
+**The syntaxes and the headers are transcribed from real files** — the
+examples Gaupol publishes with its code for the seven formats, and two files
+from the private corpus for MicroDVD and Advanced SSA. Read by a human, never linked:
+no test goes to fetch them where they are, and the private corpus is not cited.
 
-**Les mots, en revanche, sont les nôtres.** Le texte d'un fichier réel est du
-contenu, et le dépôt n'en publie pas ; ce qui se transcrit d'un format est sa
-forme.
+**The words, on the other hand, are our own.** The text of a real file is
+content, and the repository does not publish any; what is transcribed from a format is its
+form.
 
-## Ce que la scène ne porte pas, et à qui c'est dû
+## What the scene does not carry, and to whom that is owed
 
-**Un MicroDVD du monde réel s'ouvre souvent sur deux lignes de crédits placées à
-`{1}{1}`** — le nom de l'encodage vidéo, la taille du fichier — qu'un lecteur
-naïf compte pour des répliques. La scène ne les porte pas : neuf rendus d'une
-même scène ne peuvent pas en avoir un dixième. La fixture qui les porte est due
-à l'issue qui écrira le lecteur MicroDVD, et sa place est
+**A real-world MicroDVD file often opens with two lines of credits placed at
+`{1}{1}`** — the name of the video encoding, the file size — which a
+naive reader counts as lines of dialogue. The scene does not carry them: nine renderings of a
+same scene cannot have a tenth. The fixture that carries them is owed
+to the issue that will write the MicroDVD reader, and its place is
 [`malformes/`](../malformes).
 
-## Ce que le harnais leur demande
+## What the harness asks of them
 
-[`format_corpus_test.cpp`](../../unit/core/format/format_corpus_test.cpp) porte
-une **table de promesses**, une ligne par format, et **refuse un fichier de ce
-répertoire qui n'y figure pas** — comme `valides/` refuse depuis #289 une
-fixture qu'aucune liste n'énumère.
+[`format_corpus_test.cpp`](../../unit/core/format/format_corpus_test.cpp) carries
+a **table of promises**, one line per format, and **refuses a file in this
+directory that does not appear in it** — as `valides/` has refused since #289 a
+fixture that no list enumerates.
 
-Trois promesses, et la deuxième est la raison d'être de la table :
+Three promises, and the second is the reason for the table:
 
-- **l'octet, pleinement** — le fichier revient identique, et ça veut dire
-  quelque chose ;
-- **l'octet, mais à vide** — LRC et TMPlayer. La lecture invente des fins,
-  l'écriture ne rend que des débuts : **les octets reviendraient identiques quoi
-  que la lecture ait inventé.** Le test passerait sans rien prouver. Ces deux
-  formats portent donc, dans la table, les fins attendues **écrites à la main** ;
-- **l'octet, sous condition déclarée** — MicroDVD. Il compte en images, le
-  modèle compte en millisecondes ([ADR 0006](../../../../docs/adr/0006-positions-en-millisecondes.md)),
-  et le fichier n'énonce aucune grille.
+- **the byte, fully** — the file comes back identical, and that means
+  something;
+- **the byte, but empty** — LRC and TMPlayer. The reading invents ends,
+  the writing returns only starts: **the bytes would come back identical whatever
+  the reading invented.** The test would pass while proving nothing. These two
+  formats therefore carry, in the table, the expected ends **written by hand**;
+- **the byte, under a declared condition** — MicroDVD. It counts in frames,
+  the model counts in milliseconds ([ADR 0006](../../../../docs/adr/0006-positions-en-millisecondes.md)),
+  and the file states no grid.
 
-## Pourquoi pas dans `valides/`
+## Why not in `valides/`
 
-Deux raisons, et la seconde est un piège vérifié.
+Two reasons, and the second is a verified trap.
 
-**Sept des neuf ne s'ouvraient pas encore.** `valides/` est le corpus de ce qui
-s'ouvre et revient octet pour octet ; un `.ass` déposé là avant qu'un lecteur
-d'ASS existe aurait rendu la porte rouge pendant toute la phase. Les neuf
-s'ouvrent aujourd'hui, mais deux ne peuvent toujours pas y aller : `valides/`
-ne demande que les octets, et sur TMPlayer et LRC les octets ne prouvent rien.
-C'est la table de promesses qui a ce qu'il faut.
+**Seven of the nine did not yet open.** `valides/` is the corpus of what
+opens and comes back byte for byte; an `.ass` dropped there before an ASS
+reader existed would have turned the gate red for the whole phase. All nine
+open today, but two still cannot go there: `valides/`
+asks only for the bytes, and on TMPlayer and LRC the bytes prove nothing.
+It is the table of promises that has what it takes.
 
-**Et `valides/` ne tolère aucun fichier qui ne soit pas un sous-titre.** Depuis
-#289 le répertoire *est* la liste : `validFiles()` retient tout fichier régulier
-et le premier cas exige qu'il s'ouvre. Ce `LISEZMOI.md`, déposé là, ferait
-échouer le test. Ici il est exempté nommément, ce qui se lit dans le harnais.
+**And `valides/` tolerates no file that is not a subtitle.** Since
+#289 the directory *is* the list: `validFiles()` keeps every regular file
+and the first case requires that it open. This `LISEZMOI.md`, dropped there, would make
+the test fail. Here it is exempted by name, which can be read in the harness.
 
-**Un format livré ne déménage pas pour autant.** Son rendu reste ici, où la
-scène est ; ce qui change est la ligne de la table qui le concerne.
+**A shipped format does not move out for all that.** Its rendering stays here, where the
+scene is; what changes is the line of the table that concerns it.

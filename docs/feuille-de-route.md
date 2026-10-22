@@ -1404,6 +1404,15 @@ The settings file gets an operation part, which the command line reads by defaul
 display part, which stays the window's; `subedit-cli config list|show|set|unset` documents, shows and changes the
 operation part. Its decisions are S1 to S8 of the [phase spec](specs/15-internationalisation.md).
 
+**Closed in 0.16.0, on 2026-10-21** ([#684](https://github.com/Guyot-Bertrand/sub-edit/issues/684)). The review found the
+two ratchets of the phase not yet at zero, and the closure brought them there: the 142 untranslated literals of 28 files
+(reader and file failures, the text engine's reasons, the settings table of `config list`) went through the translation
+API, the rest being exempted with a reason each (`deferred()` marks a message of a constant table, translated when it is
+shown); the 61 files of `.french-allowlist` were translated, the list is empty, and the benchmark names were translated in
+the code and in the journal together, so that the records still compare. The 85 new messages are translated into the
+twenty installed languages. **The cost of translation at start-up**, measured in Release at 0.16.0 (load 1.49): reading a
+shipped catalogue takes 338 µs for French and 359 µs for Russian, and finding a message in it 45.5 ns.
+
 # Part three — beyond Gaupol
 
 These phases are no longer feature parity: they add what Gaupol

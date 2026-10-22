@@ -135,3 +135,21 @@ file      src/lib/subedit/core/i18n/language_names.cpp
 
 [spelling-data] What the spell checker matches in the subtitles' own text: English ordinal suffixes and contractions, data of the language checked and not of the interface.
 file      src/lib/subedit/core/text/spell_checker.cpp \S+
+
+[contract] The message of an exception thrown when a caller broke a precondition: a defect of the program, read by a developer in a crash report, never by the user (#684).
+text      splitProject: nothing would stay, or nothing would leave
+file      src/lib/subedit/core/model/project.cpp subtitle index | in a project of |restoring | subtitles at | destinations
+
+[catalogue-loading] Why a message catalogue was refused. The catalogue is the very thing that failed to load, so it cannot say it in the user's language; the reason is read by the translator who wrote the file, in a test or a debugger, and `installedLanguage` drops it (#684).
+file      src/lib/subedit/core/i18n/catalogue.cpp
+file      src/lib/subedit/core/i18n/plural_expression.cpp
+
+[setting-value] The words a value of the settings file is written with, and the sections that file's comments name: the user types or reads them as written, in every language (#684).
+file      src/lib/subedit/core/config/settings.cpp em|characters|selection|main|translation|system|light|dark|above|below|number|start|end|duration|true|false
+file      src/lib/subedit/core/config/settings.cpp #.*
+
+[format-field] A name in a subtitle format or a pattern file: the style every Sub Station Alpha file declares, the fields and attributes a pattern file is read by, the file extension of a pattern kind, the marker a format writes for a line break (#684).
+text      Default
+text      \[br\]
+file      src/lib/subedit/core/text/correction_pattern.cpp capitalization
+file      src/lib/subedit/core/text/pattern_catalogue.cpp Group|Penalty|name|enabled|true

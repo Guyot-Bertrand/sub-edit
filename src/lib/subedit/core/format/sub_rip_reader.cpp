@@ -2,6 +2,7 @@
 #include <subedit/core/format/read_error.hpp>
 #include <subedit/core/format/read_result.hpp>
 #include <subedit/core/format/sub_rip_reader.hpp>
+#include <subedit/core/i18n/messages.hpp>
 #include <subedit/core/model/format_extras.hpp>
 #include <subedit/core/model/subtitle.hpp>
 #include <subedit/core/model/subtitle_format.hpp>
@@ -281,7 +282,7 @@ std::expected<ReadResult, ReadError> SubRipReader::read(std::string_view content
     if (result.subtitles.empty())
         return std::unexpected(ReadError{
             .kind = ReadErrorKind::NoSubtitleFound,
-            .detail = "no timestamp line",
+            .detail = std::string{translate("no timestamp line")},
         });
 
     return result;

@@ -3,6 +3,7 @@
 #include <subedit/core/format/micro_dvd_syntax.hpp>
 #include <subedit/core/format/read_error.hpp>
 #include <subedit/core/format/read_result.hpp>
+#include <subedit/core/i18n/messages.hpp>
 #include <subedit/core/model/file_extras.hpp>
 #include <subedit/core/model/subtitle.hpp>
 #include <subedit/core/model/subtitle_format.hpp>
@@ -56,7 +57,7 @@ std::expected<ReadResult, ReadError> MicroDvdReader::read(std::string_view conte
     if (result.subtitles.empty())
         return std::unexpected(ReadError{
             .kind = ReadErrorKind::NoSubtitleFound,
-            .detail = "no braced line",
+            .detail = std::string{translate("no braced line")},
         });
 
     // **Said only when nobody said it.** A rate the caller chose is not news;

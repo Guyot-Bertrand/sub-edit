@@ -1,27 +1,27 @@
-name: Amélioration
-description: Une évolution d'un comportement existant
+name: Enhancement
+description: A change to an existing behaviour
 labels: ["type:enhancement"]
 body:
   - type: textarea
     id: current
     attributes:
-      label: Situation actuelle
-      description: Ce que fait le projet aujourd'hui.
+      label: Current situation
+      description: What the project does today.
     validations:
       required: true
 
   - type: textarea
     id: proposal
     attributes:
-      label: Amélioration proposée
-      description: Ce qui changerait, et le gain attendu.
+      label: Proposed enhancement
+      description: What would change, and the expected gain.
     validations:
       required: true
 
   - type: textarea
     id: measurement
     attributes:
-      label: Mesure
+      label: Measurement
       description: >
-        S'il s'agit de performance : le benchmark qui l'établit. Aucun chiffre
-        n'est annoncé sans mesure à l'appui.
+        If it is about performance: the benchmark that establishes it. No figure
+        is announced without a measurement to back it.

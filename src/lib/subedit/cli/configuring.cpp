@@ -123,13 +123,17 @@ ExitCode listSettingKeys(const Reporter& reporter) {
             continue;
         }
         text += std::string{key.key} + '\n';
-        text += "    " + std::string{key.description} + '\n';
+        text += "    " + std::string{core::translate(key.description)} + '\n';
         // TRANSLATORS: %1 is what a settings key accepts, as « true or false ».
-        text += "    " + core::substitute(core::translate("Accepts: %1"), {key.accepts}) + '\n';
+        text += "    " +
+                core::substitute(core::translate("Accepts: %1"), {core::translate(key.accepts)}) +
+                '\n';
         // TRANSLATORS: %1 is the default value of a settings key.
         text += "    " + core::substitute(core::translate("Default: %1"), {fallback}) + '\n';
         // TRANSLATORS: %1 lists the commands and window actions that read a settings key.
-        text += "    " + core::substitute(core::translate("Used by: %1"), {key.usedBy}) + '\n';
+        text += "    " +
+                core::substitute(core::translate("Used by: %1"), {core::translate(key.usedBy)}) +
+                '\n';
     }
     reporter.result(text);
     return ExitCode::Success;

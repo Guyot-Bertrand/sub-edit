@@ -167,7 +167,7 @@ deleting their run.
 ### 8. Pruning runs
 
 `.github/workflows/elagage.yml`, every Monday at 6:00, and by hand through
-*Actions → élagage → Run workflow*.
+*Actions → pruning → Run workflow*.
 
 **The rule:** for each workflow, keep the thirty most recent runs, plus the most
 recent one whose branch is `main` if it is not already among them; delete the

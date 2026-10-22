@@ -17,7 +17,7 @@
     {
       "name": "dev",
       "inherits": "base",
-      "displayName": "Développement — debug, warnings en erreurs",
+      "displayName": "Development — debug, warnings as errors",
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Debug"
       }
@@ -25,7 +25,7 @@
     {
       "name": "tidy",
       "inherits": "dev",
-      "displayName": "Analyse statique — clang-tidy à la compilation de chaque source",
+      "displayName": "Static analysis — clang-tidy at the compilation of each source",
       "cacheVariables": {
         "SUBEDIT_TIDY": "ON"
       }
@@ -43,7 +43,7 @@
     {
       "name": "coverage",
       "inherits": "base",
-      "displayName": "Couverture — instrumentation gcov",
+      "displayName": "Coverage — gcov instrumentation",
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Debug",
         "SUBEDIT_COVERAGE": "ON"
@@ -52,7 +52,7 @@
     {
       "name": "release",
       "inherits": "base",
-      "displayName": "Release — optimisé, LTO",
+      "displayName": "Release — optimised, LTO",
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Release",
         "CMAKE_INTERPROCEDURAL_OPTIMIZATION": "ON",

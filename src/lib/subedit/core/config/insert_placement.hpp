@@ -15,8 +15,8 @@ namespace subedit::core {
 /// configuration file carries words rather than a `true` nobody can guess what
 /// it is true of.
 enum class InsertPlacement {
-    Above, ///< avant la sélection
-    Below, ///< après elle, ce qui est le défaut
+    Above, ///< before the selection
+    Below, ///< after it, which is the default
 };
 
 } // namespace subedit::core

@@ -12,7 +12,7 @@ indent_size = 4
 indent_size = 2
 
 [*.md]
-# Deux espaces en fin de ligne sont un retour à la ligne en Markdown.
+# Two trailing spaces are a line break in Markdown.
 trim_trailing_whitespace = false
 max_line_length = 80
 

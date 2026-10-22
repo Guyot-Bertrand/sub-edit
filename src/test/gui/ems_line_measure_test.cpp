@@ -33,7 +33,7 @@ using subedit::gui::EmsLineMeasure;
 QFont dejaVuSansOrSkip() {
     const QFont font{QStringLiteral("DejaVu Sans"), 10};
     if (QFontInfo{font}.family() != QStringLiteral("DejaVu Sans"))
-        SKIP("la police DejaVu Sans est absente (paquet fonts-dejavu-core)");
+        SKIP("the DejaVu Sans font is missing (package fonts-dejavu-core)");
     return font;
 }
 

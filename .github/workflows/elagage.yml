@@ -1,57 +1,55 @@
-name: élagage
+name: pruning
 
-# Les exécutions d'Actions s'accumulaient sans que rien ne les efface : 146 en
-# dix jours au moment d'écrire ceci, dont 47 héritées du déclencheur `push` sur
-# `main` supprimé à la #106. GitHub sait fixer une durée de rétention, pas un
-# nombre — et sa durée n'efface que les journaux et les artefacts, en laissant
-# la ligne d'exécution dans la liste. Il faut donc supprimer, une par une, par
-# l'API.
+# Actions runs were piling up without anything deleting them: 146 in ten days
+# at the time of writing, 47 of them inherited from the `push` trigger on
+# `main` removed in #106. GitHub can set a retention duration, not a count —
+# and its duration only deletes the logs and artefacts, leaving the run line in
+# the list. They must therefore be deleted, one by one, through the API.
 #
-# **Un workflow, et non un script qu'on lance à la main.** C'est le point
-# technique qui décide de la forme, et il a été vérifié : un jeton personnel
-# reçoit `403 Resource not accessible by personal access token` sur les
-# Actions. Seul le `GITHUB_TOKEN` d'un workflow peut supprimer une exécution,
-# et seulement si `permissions: actions: write` le lui accorde.
+# **A workflow, and not a script run by hand.** This is the technical point
+# that decides the form, and it was verified: a personal token gets
+# `403 Resource not accessible by personal access token` on Actions. Only a
+# workflow's `GITHUB_TOKEN` can delete a run, and only if
+# `permissions: actions: write` grants it.
 #
-# La règle elle-même n'est pas ici mais dans `src/scripts/prune-runs.sh` : un
-# script se teste en local, un bloc de YAML non. `verify-gates.sh` prouve que
-# sa sélection traite les cinq cas qui la décident, sur une liste écrite à la
-# main plutôt que contre GitHub — une preuve qui dépendrait du réseau serait
-# rouge un jour de panne, pour une raison étrangère au dépôt.
+# The rule itself is not here but in `src/scripts/prune-runs.sh`: a script can
+# be tested locally, a block of YAML cannot. `verify-gates.sh` proves that its
+# selection handles the five cases that decide it, on a hand-written list
+# rather than against GitHub — a proof that depended on the network would be
+# red on an outage day, for a reason foreign to the repository.
 
 on:
-  # Lundi, **deux heures après** l'analyse complète de `ci.yml` (`0 4 * * 1`,
-  # qui dure un quart d'heure). L'ordre compte : l'élagueur épargne la plus
-  # récente exécution sur `main`, et il faut donc que celle de la semaine
-  # existe déjà quand il regarde, sinon il épargnerait celle d'avant et la
-  # nouvelle prendrait sa place sans que personne n'y gagne.
+  # Monday, **two hours after** the full analysis of `ci.yml` (`0 4 * * 1`,
+  # which takes a quarter of an hour). The order matters: the pruner spares the
+  # most recent run on `main`, so the week's one must already exist when it
+  # looks, otherwise it would spare the previous one and the new one would take
+  # its place with nobody gaining anything.
   schedule:
     - cron: '0 6 * * 1'
 
-  # C'est par lui qu'est passé le premier nettoyage, celui du passif : les 146
-  # exécutions accumulées ne se rattrapaient pas toutes seules. Le bouton
-  # n'apparaît dans l'interface que si ce fichier est sur la branche par
-  # défaut, contrainte de GitHub.
+  # The first cleaning went through it, the backlog one: the 146 accumulated
+  # runs would not catch themselves up. The button only appears in the
+  # interface if this file is on the default branch, a GitHub constraint.
   workflow_dispatch:
 
-# Le strict nécessaire. `actions: write` est ce sans quoi rien ne fonctionne ;
-# `contents: read` sert au checkout, qui n'est là que pour lire le script.
+# The bare minimum. `actions: write` is what nothing works without;
+# `contents: read` serves the checkout, which is only there to read the script.
 permissions:
   actions: write
   contents: read
 
 jobs:
   elagage:
-    name: élaguer les exécutions
+    name: prune the runs
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v7
 
-      # Pas de setup-toolchain.sh : ce travail ne compile rien, et les deux
-      # outils dont le script a besoin — gh et jq — sont préinstallés sur les
-      # machines GitHub. Installer la chaîne complète coûterait plusieurs
-      # minutes pour quelques appels d'API.
-      - name: Élaguer
+      # No setup-toolchain.sh: this job compiles nothing, and the two tools the
+      # script needs — gh and jq — are preinstalled on GitHub's machines.
+      # Installing the full toolchain would cost several minutes for a few API
+      # calls.
+      - name: Prune
         env:
           GH_TOKEN: ${{ github.token }}
         run: ./src/scripts/prune-runs.sh

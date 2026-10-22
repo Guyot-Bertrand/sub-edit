@@ -310,7 +310,7 @@ TEST_CASE("a dialog names the selection, and not the file", "[gui][GUI-SHIFT-01]
 TEST_CASE("giving up on a dialog applies nothing", "[gui][GUI-SHIFT-01]") {
     InMemoryFileSystem files = withFour();
     FakePrompts prompts;
-    prompts.nextRun = false; // l'utilisateur a fermé la boîte
+    prompts.nextRun = false; // the user closed the dialog
     prompts.fill = [](QDialog& dialog) {
         dynamic_cast<ShiftDialog&>(dialog).setTyped(QStringLiteral("00:00:01,000"));
     };

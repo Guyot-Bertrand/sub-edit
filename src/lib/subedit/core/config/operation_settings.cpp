@@ -1,5 +1,6 @@
 #include <subedit/core/config/operation_settings.hpp>
 #include <subedit/core/config/settings.hpp>
+#include <subedit/core/i18n/messages.hpp>
 
 #include <algorithm>
 #include <array>
@@ -15,29 +16,29 @@ namespace subedit::core {
 
 namespace {
 
-constexpr std::string_view kTrueFalse = "true or false";
-constexpr std::string_view kMilliseconds = "a whole number of milliseconds, 0 or more";
-constexpr std::string_view kPatternCode =
-    "a pattern code, Script[-language[-COUNTRY]], not empty: Zyyy, Latn, Latn-en, Latn-en-US";
-constexpr std::string_view kLength = "a number above 0, decimals allowed: 24, 42.5";
-constexpr std::string_view kLineCount = "a whole number from 1 to 1000: 2, 3";
+constexpr std::string_view kTrueFalse = deferred("true or false");
+constexpr std::string_view kMilliseconds = deferred("a whole number of milliseconds, 0 or more");
+constexpr std::string_view kPatternCode = deferred(
+    "a pattern code, Script[-language[-COUNTRY]], not empty: Zyyy, Latn, Latn-en, Latn-en-US");
+constexpr std::string_view kLength = deferred("a number above 0, decimals allowed: 24, 42.5");
+constexpr std::string_view kLineCount = deferred("a whole number from 1 to 1000: 2, 3");
 
-constexpr std::string_view kAdjust = "subedit-cli adjust; Adjust Durations…";
-constexpr std::string_view kCorrect = "subedit-cli correct; Correct Texts…";
+constexpr std::string_view kAdjust = deferred("subedit-cli adjust; Adjust Durations…");
+constexpr std::string_view kCorrect = deferred("subedit-cli correct; Correct Texts…");
 constexpr std::string_view kWindowTasks =
-    "Correct Texts… (window only; correct takes --tasks instead)";
+    deferred("Correct Texts… (window only; correct takes --tasks instead)");
 constexpr std::string_view kWindowCode =
-    "Correct Texts… (window only; correct takes --code instead)";
+    deferred("Correct Texts… (window only; correct takes --code instead)");
 constexpr std::string_view kWindowEnable =
-    "Correct Texts… (window only; correct takes --enable/--disable instead)";
+    deferred("Correct Texts… (window only; correct takes --enable/--disable instead)");
 constexpr std::string_view kWindowMaxLength =
-    "Correct Texts… (window only; correct takes --max-length instead)";
+    deferred("Correct Texts… (window only; correct takes --max-length instead)");
 constexpr std::string_view kWindowSkipLength =
-    "Correct Texts… (window only; correct takes --skip-length instead)";
+    deferred("Correct Texts… (window only; correct takes --skip-length instead)");
 constexpr std::string_view kWindowSkipLines =
-    "Correct Texts… (window only; correct takes --skip-lines instead)";
+    deferred("Correct Texts… (window only; correct takes --skip-lines instead)");
 constexpr std::string_view kWindowLanguage =
-    "Correct Texts… (window only; correct takes --language instead)";
+    deferred("Correct Texts… (window only; correct takes --language instead)");
 
 constexpr SettingSurface kBoth = SettingSurface::Both;
 constexpr SettingSurface kWindow = SettingSurface::WindowOnly;
@@ -46,181 +47,185 @@ constexpr SettingSurface kWindow = SettingSurface::WindowOnly;
 // set equal to what it writes.
 constexpr std::array kCatalogue{
     SettingKey{.key = "duration-adjust.speed",
-               .description = "Reading speed the durations are brought to.",
-               .accepts = "a number of characters per second, above 0, decimals allowed",
+               .description = deferred("Reading speed the durations are brought to."),
+               .accepts = deferred("a number of characters per second, above 0, decimals allowed"),
                .usedBy = kAdjust,
                .surface = kBoth},
     SettingKey{.key = "duration-adjust.lengthen",
-               .description = "Let the reading speed move an end later.",
+               .description = deferred("Let the reading speed move an end later."),
                .accepts = kTrueFalse,
                .usedBy = kAdjust,
                .surface = kBoth},
     SettingKey{.key = "duration-adjust.shorten",
-               .description = "Let the reading speed move an end earlier.",
+               .description = deferred("Let the reading speed move an end earlier."),
                .accepts = kTrueFalse,
                .usedBy = kAdjust,
                .surface = kBoth},
     SettingKey{.key = "duration-adjust.minimum-enabled",
-               .description = "Whether a shortest duration is enforced.",
+               .description = deferred("Whether a shortest duration is enforced."),
                .accepts = kTrueFalse,
                .usedBy = kAdjust,
                .surface = kBoth},
     SettingKey{.key = "duration-adjust.minimum-ms",
-               .description = "Shortest duration of a subtitle.",
+               .description = deferred("Shortest duration of a subtitle."),
                .accepts = kMilliseconds,
                .usedBy = kAdjust,
                .surface = kBoth},
     SettingKey{.key = "duration-adjust.maximum-enabled",
-               .description = "Whether a longest duration is enforced.",
+               .description = deferred("Whether a longest duration is enforced."),
                .accepts = kTrueFalse,
                .usedBy = kAdjust,
                .surface = kBoth},
     SettingKey{.key = "duration-adjust.maximum-ms",
-               .description = "Longest duration of a subtitle.",
+               .description = deferred("Longest duration of a subtitle."),
                .accepts = kMilliseconds,
                .usedBy = kAdjust,
                .surface = kBoth},
     SettingKey{.key = "duration-adjust.gap-enabled",
-               .description = "Whether a least gap before the next subtitle is enforced.",
+               .description = deferred("Whether a least gap before the next subtitle is enforced."),
                .accepts = kTrueFalse,
                .usedBy = kAdjust,
                .surface = kBoth},
     SettingKey{.key = "duration-adjust.gap-ms",
-               .description = "Least time left before the next subtitle.",
+               .description = deferred("Least time left before the next subtitle."),
                .accepts = kMilliseconds,
                .usedBy = kAdjust,
                .surface = kBoth},
     SettingKey{.key = "correction.mentions.enabled",
-               .description = "Whether the window ticks the hearing-impaired task.",
+               .description = deferred("Whether the window ticks the hearing-impaired task."),
                .accepts = kTrueFalse,
                .usedBy = kWindowTasks,
                .surface = kWindow},
     SettingKey{.key = "correction.mentions.code",
-               .description = "Pattern code the window reads for the hearing-impaired task.",
+               .description =
+                   deferred("Pattern code the window reads for the hearing-impaired task."),
                .accepts = kPatternCode,
                .usedBy = kWindowCode,
                .surface = kWindow},
     SettingKey{.key = "correction.common-errors.enabled",
-               .description = "Whether the window ticks the common-errors task.",
+               .description = deferred("Whether the window ticks the common-errors task."),
                .accepts = kTrueFalse,
                .usedBy = kWindowTasks,
                .surface = kWindow},
     SettingKey{.key = "correction.common-errors.code",
-               .description = "Pattern code the window reads for the common-errors task.",
+               .description = deferred("Pattern code the window reads for the common-errors task."),
                .accepts = kPatternCode,
                .usedBy = kWindowCode,
                .surface = kWindow},
     SettingKey{.key = "correction.capitalization.enabled",
-               .description = "Whether the window ticks the capitalization task.",
+               .description = deferred("Whether the window ticks the capitalization task."),
                .accepts = kTrueFalse,
                .usedBy = kWindowTasks,
                .surface = kWindow},
     SettingKey{.key = "correction.capitalization.code",
-               .description = "Pattern code the window reads for the capitalization task.",
+               .description =
+                   deferred("Pattern code the window reads for the capitalization task."),
                .accepts = kPatternCode,
                .usedBy = kWindowCode,
                .surface = kWindow},
     SettingKey{.key = "correction.line-break.enabled",
-               .description = "Whether the window ticks the line-break task.",
+               .description = deferred("Whether the window ticks the line-break task."),
                .accepts = kTrueFalse,
                .usedBy = kWindowTasks,
                .surface = kWindow},
     SettingKey{.key = "correction.line-break.code",
-               .description = "Pattern code the window reads for the line-break task.",
+               .description = deferred("Pattern code the window reads for the line-break task."),
                .accepts = kPatternCode,
                .usedBy = kWindowCode,
                .surface = kWindow},
     SettingKey{.key = "correction.human",
-               .description = "Apply the patterns of human-made errors.",
+               .description = deferred("Apply the patterns of human-made errors."),
                .accepts = kTrueFalse,
                .usedBy = kCorrect,
                .surface = kBoth},
     SettingKey{.key = "correction.ocr",
-               .description = "Apply the patterns of recognition (OCR) errors.",
+               .description = deferred("Apply the patterns of recognition (OCR) errors."),
                .accepts = kTrueFalse,
                .usedBy = kCorrect,
                .surface = kBoth},
     SettingKey{.key = "correction.sound-in-brackets",
                .description =
-                   "Whether the window's hearing-impaired task acts on text in brackets.",
+                   deferred("Whether the window's hearing-impaired task acts on text in brackets."),
                .accepts = kTrueFalse,
                .usedBy = kWindowEnable,
                .surface = kWindow},
     SettingKey{.key = "correction.sound-in-parentheses",
-               .description =
-                   "Whether the window's hearing-impaired task acts on text in parentheses.",
+               .description = deferred(
+                   "Whether the window's hearing-impaired task acts on text in parentheses."),
                .accepts = kTrueFalse,
                .usedBy = kWindowEnable,
                .surface = kWindow},
     SettingKey{.key = "correction.line-break.max-length",
-               .description =
-                   "Longest line the window's line-break task aims at, in the unit in-ems names.",
+               .description = deferred(
+                   "Longest line the window's line-break task aims at, in the unit in-ems names."),
                .accepts = kLength,
                .usedBy = kWindowMaxLength,
                .surface = kWindow},
     SettingKey{.key = "correction.line-break.max-lines",
-               .description = "Most lines a subtitle is broken into.",
+               .description = deferred("Most lines a subtitle is broken into."),
                .accepts = kLineCount,
                .usedBy = kCorrect,
                .surface = kBoth},
     SettingKey{.key = "correction.line-break.in-ems",
-               .description = "Whether the window measures lines in ems rather than characters.",
+               .description =
+                   deferred("Whether the window measures lines in ems rather than characters."),
                .accepts = kTrueFalse,
                .usedBy = kWindowMaxLength,
                .surface = kWindow},
     SettingKey{.key = "correction.line-break.skip-on-length",
-               .description =
+               .description = deferred(
                    "Whether the window's line-break task leaves alone a subtitle whose lines are "
-                   "short enough.",
+                   "short enough."),
                .accepts = kTrueFalse,
                .usedBy = kWindowSkipLength,
                .surface = kWindow},
     SettingKey{.key = "correction.line-break.skip-max-length",
-               .description =
+               .description = deferred(
                    "Longest line a subtitle may have and still be left alone by the window's "
-                   "line-break task.",
+                   "line-break task."),
                .accepts = kLength,
                .usedBy = kWindowSkipLength,
                .surface = kWindow},
     SettingKey{.key = "correction.line-break.skip-on-lines",
-               .description =
+               .description = deferred(
                    "Whether the window's line-break task leaves alone a subtitle with few enough "
-                   "lines.",
+                   "lines."),
                .accepts = kTrueFalse,
                .usedBy = kWindowSkipLines,
                .surface = kWindow},
     SettingKey{.key = "correction.line-break.skip-max-lines",
-               .description =
+               .description = deferred(
                    "Most lines a subtitle may have and still be left alone by the window's "
-                   "line-break task.",
+                   "line-break task."),
                .accepts = kLineCount,
                .usedBy = kWindowSkipLines,
                .surface = kWindow},
     SettingKey{.key = "correction.join-split.enabled",
-               .description = "Whether the window ticks the join/split-words task.",
+               .description = deferred("Whether the window ticks the join/split-words task."),
                .accepts = kTrueFalse,
                .usedBy = kWindowTasks,
                .surface = kWindow},
     SettingKey{.key = "correction.join-split.join",
-               .description = "Whether the window's join/split-words task joins words.",
+               .description = deferred("Whether the window's join/split-words task joins words."),
                .accepts = kTrueFalse,
                .usedBy = kWindowTasks,
                .surface = kWindow},
     SettingKey{.key = "correction.join-split.split",
-               .description = "Whether the window's join/split-words task splits words.",
+               .description = deferred("Whether the window's join/split-words task splits words."),
                .accepts = kTrueFalse,
                .usedBy = kWindowTasks,
                .surface = kWindow},
-    SettingKey{.key = "correction.join-split.language",
-               .description = "Dictionary the window's join/split-words task checks words by.",
-               .accepts =
-                   "a locale code, two lower-case letters, then optionally _ and two upper-case, "
-                   "then optionally @ and a script: fr, en_US, sr@Latn",
-               .usedBy = kWindowLanguage,
-               .surface = kWindow},
+    SettingKey{
+        .key = "correction.join-split.language",
+        .description = deferred("Dictionary the window's join/split-words task checks words by."),
+        .accepts =
+            deferred("a locale code, two lower-case letters, then optionally _ and two upper-case, "
+                     "then optionally @ and a script: fr, en_US, sr@Latn"),
+        .usedBy = kWindowLanguage,
+        .surface = kWindow},
     SettingKey{.key = "correction.remove-blank",
-               .description =
-                   "Remove the subtitles the correction empties, instead of leaving them empty.",
+               .description = deferred(
+                   "Remove the subtitles the correction empties, instead of leaving them empty."),
                .accepts = kTrueFalse,
                .usedBy = kCorrect,
                .surface = kBoth},
@@ -270,20 +275,22 @@ renderedOptionsOf(std::string_view text) {
     if (findOperationKey(key) != nullptr)
         return {};
     if (key == kActivationsKey)
-        return std::unexpected{std::string{key} +
-                               " is managed by the window; use --enable/--disable on correct"};
+        return std::unexpected{substitute(
+            translate("%1 is managed by the window; use --enable/--disable on correct"), {key})};
     if (renderedOptionsOf(renderSettings(Settings{})).contains(key))
-        return std::unexpected{std::string{key} + " is a display preference; set it in the window"};
-    return std::unexpected{"unknown setting " + std::string{key} +
-                           "; subedit-cli config list names them"};
+        return std::unexpected{
+            substitute(translate("%1 is a display preference; set it in the window"), {key})};
+    return std::unexpected{
+        substitute(translate("unknown setting %1; subedit-cli config list names them"), {key})};
 }
 
 /// Writes `value` for `key` with the file's own reader, or says it cannot.
 [[nodiscard]] std::expected<void, std::string>
 applyChecked(Settings& settings, std::string_view key, std::string_view value) {
     if (applySettingText(settings, key, value).has_value())
-        return std::unexpected{"cannot read '" + std::string{value} + "' for " + std::string{key} +
-                               "; subedit-cli config list says what it accepts"};
+        return std::unexpected{substitute(
+            translate("cannot read '%1' for %2; subedit-cli config list says what it accepts"),
+            {value, key})};
     return {};
 }
 
