@@ -639,7 +639,7 @@ per language (decision of 2026-10-13), join them there.
 | | [#683](https://github.com/Guyot-Bertrand/sub-edit/issues/683) | the `man` pages | #671, #672 | L |
 | 6 — shared settings | [#699](https://github.com/Guyot-Bertrand/sub-edit/issues/699) | the settings file shared by the window and the command line, the `config` commands; ADR 0045 | — | L |
 | 7 — every language | [#720](https://github.com/Guyot-Bertrand/sub-edit/issues/720)–[#738](https://github.com/Guyot-Bertrand/sub-edit/issues/738) | one per language: `ca` `cs` `de` `es` `fi` `gl` `he` `hu` `ie` `is` `it_IT` `nl` `pl` `pt` `pt_BR` `ru` `sr` `tr` `zh_CN` — catalogue and manuals completed, machine-translated and marked "not reviewed by a reader of the language", then installed (D5) | #667, #670, #671, #672 | M each |
-| 8 — closure | [#684](https://github.com/Guyot-Bertrand/sub-edit/issues/684) | review of the phase, then 0.16.0 — requires every language of slice 7 | all | M |
+| 8 — closure | [#684](https://github.com/Guyot-Bertrand/sub-edit/issues/684) | review of the phase, then 1.0.0 — requires every language of slice 7 | all | M |
 
 The documentation slice does not depend on the code slices and can interleave with them; the batches of ADRs, specs and
 scripts are independent of one another.
