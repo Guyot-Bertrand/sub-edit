@@ -176,7 +176,7 @@ code=1
 <!-- example: subedit-cli --version | head -n 1 -->
 ```console
 $ subedit-cli --version | head -n 1
-subedit 1.0.5
+subedit 1.0.6
 ```
 
 הפלט במלואו, במחשב עם ICU 74.2 ו-Enchant 2.3.3 — המספרים הם של המחשב:

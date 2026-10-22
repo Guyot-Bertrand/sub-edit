@@ -355,6 +355,53 @@ check_sound_only() {
     done
 }
 
+# The command that extracts one audio track for a transcription engine (#771), written once:
+# the first track is `0`, the result is 16 kHz, mono, 16-bit PCM in a WAV file — what
+# whisper.cpp reads without converting. Phase 22 builds the same line, and this is where it is
+# held against real files.
+extract_audio() {
+    local video="$1" track="$2" target="$3"
+    ffmpeg -v error -y -i "${video}" -map "0:a:${track}" -vn -ac 1 -ar 16000 -c:a pcm_s16le "${target}"
+}
+
+# What the extraction must give for each fixture that carries sound: one WAV per track, of the
+# fixture's own duration, and a refusal for a track that is not there. The tracks of the fixtures
+# carry the same tone, so which track was taken is shown by the refusal beyond the last one, and
+# not by the content.
+check_extraction() {
+    local entry name tracks maximum path count index target actual duration before scratch
+    scratch="$(mktemp -d)"
+    for entry in "${AUDIO[@]}" "${SOUND_ONLY[@]}"; do
+        IFS='|' read -r name tracks maximum <<<"${entry}"
+        path="${FIXTURE_DIR}/${name}"
+        before="${failures}"
+        [[ -f "${path}" ]] || continue
+
+        count="$(ffprobe -v error -select_streams a -show_entries stream=index -of csv=p=0 "${path}" \
+            2>/dev/null | wc -l || true)"
+        for ((index = 0; index < count; index++)); do
+            target="${scratch}/${name}.${index}.wav"
+            extract_audio "${path}" "${index}" "${target}" 2>/dev/null \
+                || { ko "${name} — track ${index} cannot be extracted"; continue; }
+            actual="$(ffprobe -v error -select_streams a:0 \
+                -show_entries stream=codec_name,sample_rate,channels -of csv=p=0 "${target}" 2>/dev/null || true)"
+            [[ "${actual}" == "pcm_s16le,16000,1" ]] \
+                || ko "${name} track ${index} — ${actual:-unreadable}, expected pcm_s16le,16000,1"
+            duration="$(ffprobe -v error -show_entries format=duration \
+                -of default=noprint_wrappers=1:nokey=1 "${target}" 2>/dev/null || true)"
+            awk -v d="${duration:-0}" -v e="${FIXTURE_SECONDS}" 'BEGIN { exit !(d > e - 0.2 && d < e + 0.2) }' \
+                || ko "${name} track ${index} — ${duration:-unreadable} s, expected about ${FIXTURE_SECONDS}"
+        done
+        if extract_audio "${path}" "${count}" "${scratch}/beyond.wav" 2>/dev/null; then
+            ko "${name} — track ${count} does not exist and was extracted"
+        fi
+
+        [[ "${failures}" == "${before}" ]] \
+            && ok "${name} — ${count} track(s) extracted as 16 kHz mono PCM, the next one refused"
+    done
+    rm -rf "${scratch}"
+}
+
 check() {
     require ffprobe
     local entry name rate duration maximum path size actual before
@@ -393,6 +440,7 @@ check() {
     check_numbered
     check_audio
     check_sound_only
+    check_extraction
 
     (( failures == 0 )) || die "${failures} difference(s) between the fixtures and the table."
     printf '  total weight: %s bytes\n' "$(weight)"
