@@ -224,7 +224,7 @@ non viene eseguito, e `-q` e `-v` non cambiano nulla.
 <!-- example: subedit-cli --version | head -n 1 -->
 ```console
 $ subedit-cli --version | head -n 1
-subedit 1.0.4
+subedit 1.0.5
 ```
 
 L'insieme, su una macchina con ICU 74.2 ed Enchant 2.3.3 — i numeri sono quelli della macchina:

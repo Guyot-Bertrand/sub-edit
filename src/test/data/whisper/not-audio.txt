@@ -1,0 +1,3 @@
+exit code 11
+error: failed to read audio file 'not-audio.txt'
+error: 1 input file(s) failed
