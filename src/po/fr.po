@@ -2444,11 +2444,11 @@ msgstr "aucun format reconnu"
 
 #: src/lib/subedit/core/format/web_vtt_reader.cpp
 msgid "no WEBVTT signature"
-msgstr "pas de signature WEBVTT"
+msgstr "aucune signature WEBVTT"
 
 #: src/lib/subedit/core/format/web_vtt_reader.cpp
 msgid "no cue"
-msgstr "aucun repère"
+msgstr "aucun cue"
 
 #: src/lib/subedit/core/io/real_file_system.cpp
 msgid "could not be opened for reading"

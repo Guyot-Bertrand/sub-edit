@@ -16,6 +16,7 @@ do not edit it by hand.
 ### Fixed
 
 - **i18n** — Reword the Serbian escape-sequence messages
+- **i18n** — Correct two French messages of phase 15
 
 ## 1.0.0 — 2026-10-22
 
