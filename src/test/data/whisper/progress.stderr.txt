@@ -1,0 +1,5 @@
+whisper_full_with_state: auto-detected language: en
+whisper_print_progress_callback: progress =  25%
+whisper_print_progress_callback: progress =  50%
+whisper_print_progress_callback: progress =  75%
+whisper_print_progress_callback: progress = 100%
