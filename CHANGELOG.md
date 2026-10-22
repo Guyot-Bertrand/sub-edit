@@ -18,6 +18,10 @@ do not edit it by hand.
 - **i18n** — Reword the Serbian escape-sequence messages
 - **i18n** — Correct two French messages of phase 15
 
+### Tests
+
+- **test** — Add a fake transcriber program for the process tests
+
 ## 1.0.0 — 2026-10-22
 
 ### Added
