@@ -9,6 +9,12 @@ do not edit it by hand.
 
 ## Unreleased
 
+### Documentation
+
+- **doc** — Scope phase 22 audio transcription
+
+## 1.0.0 — 2026-10-22
+
 ### Added
 
 - **i18n** — Bring the untranslated literals to zero
