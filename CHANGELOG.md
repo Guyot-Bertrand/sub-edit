@@ -13,6 +13,10 @@ do not edit it by hand.
 
 - **doc** — Scope phase 22 audio transcription
 
+### Fixed
+
+- **i18n** — Reword the Serbian escape-sequence messages
+
 ## 1.0.0 — 2026-10-22
 
 ### Added
