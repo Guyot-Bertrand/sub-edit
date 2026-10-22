@@ -21,6 +21,7 @@ do not edit it by hand.
 ### Tests
 
 - **test** — Add a fake transcriber program for the process tests
+- **test** — Capture real whisper.cpp output as versioned samples
 
 ## 1.0.0 — 2026-10-22
 
