@@ -112,6 +112,7 @@ add_executable(
     core/io/real_file_system_test.cpp
     core/process/start_process_test.cpp
     core/process/run_and_capture_test.cpp
+    core/process/fake_transcriber_test.cpp
     core/io/file_error_test.cpp
     core/text/lines_test.cpp
     core/text/markup_test.cpp
@@ -176,7 +177,8 @@ target_compile_definitions(
             SUBEDIT_PATTERNS_DIR="${CMAKE_SOURCE_DIR}/packaging/patterns"
             SUBEDIT_COMPILED_I18N_DIR="${CMAKE_CURRENT_BINARY_DIR}/i18n"
             SUBEDIT_LOCAL_DATA_DIR="${CMAKE_SOURCE_DIR}/src/data"
-            SUBEDIT_FAKE_PLAYER_BINARY="$<TARGET_FILE:subedit_fake_player>")
+            SUBEDIT_FAKE_PLAYER_BINARY="$<TARGET_FILE:subedit_fake_player>"
+            SUBEDIT_FAKE_TRANSCRIBER_BINARY="$<TARGET_FILE:subedit_fake_transcriber>")
 
 # The fixture catalogues (#658): the .po files are versioned, the .mo files are compiled at build
 # time by msgfmt, exactly as the shipped translations will be. A test of the reader therefore
@@ -201,7 +203,7 @@ add_dependencies(subedit_core_test subedit_i18n_fixtures)
 
 # $<TARGET_FILE:…> gives a path, not a build order. Without this line,
 # nothing guarantees that the fake player exists when a test starts it.
-add_dependencies(subedit_core_test subedit_fake_player)
+add_dependencies(subedit_core_test subedit_fake_player subedit_fake_transcriber)
 
 subedit_set_warnings(subedit_core_test)
 

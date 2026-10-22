@@ -7,6 +7,10 @@
 add_executable(subedit_fake_player fake_player.cpp)
 subedit_set_warnings(subedit_fake_player)
 
+# Stands in for whisper-cli and for the audio extraction tool — #769.
+add_executable(subedit_fake_transcriber fake_transcriber.cpp)
+subedit_set_warnings(subedit_fake_transcriber)
+
 # The screenshots of the manual — #199.
 #
 # It is here for the same reason as the fake player: nothing that is delivered
