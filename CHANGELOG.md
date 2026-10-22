@@ -22,6 +22,7 @@ do not edit it by hand.
 
 - **test** — Add a fake transcriber program for the process tests
 - **test** — Capture real whisper.cpp output as versioned samples
+- **test** — Check audio track extraction against the video fixtures
 
 ## 1.0.0 — 2026-10-22
 

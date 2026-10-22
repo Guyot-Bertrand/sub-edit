@@ -74,6 +74,12 @@ do not matter here: no frame is read.
 
 `--check` verifies, for each, the language and the title of each track, in order, and the size.
 
+**Extraction for transcription — #771.** `--check` also extracts each track of `audio-1.mkv`, `audio-2.mkv` and
+`sound-only.mkv` with the command phase 22 will use (`extract_audio` in the script: `-map 0:a:N -vn -ac 1 -ar 16000
+-c:a pcm_s16le`), and verifies that each result is 16 kHz mono PCM of the fixture's own duration, and that the track
+after the last one is refused. The tracks carry the same tone, so which track was taken shows in that refusal and not
+in the content. Without `ffmpeg` the script stops as it does for the other fixtures.
+
 ## The bench video — #611
 
 **One last video, which is not in this directory**: `make bench` builds it in the build tree
