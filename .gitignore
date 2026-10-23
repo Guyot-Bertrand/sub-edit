@@ -4,6 +4,9 @@ reference/
 # Working files.
 src/data/
 
+# The maintainer's scratch directory: working files that are never the project's.
+src/tmp/
+
 # IDE settings, specific to each machine
 .idea/
 .vscode/

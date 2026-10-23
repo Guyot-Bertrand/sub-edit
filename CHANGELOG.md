@@ -11,6 +11,12 @@ do not edit it by hand.
 
 ### Added
 
+- **core** — Add audio extraction, the whisper.cpp adapter and assembly
+
+## 1.0.8 — 2026-10-23
+
+### Added
+
 - **core** — Run a program and stream its output, with cancellation
 
 ## 1.0.7 — 2026-10-23

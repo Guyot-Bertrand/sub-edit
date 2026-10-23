@@ -1,0 +1,10 @@
+[STREAM]
+index=1
+TAG:language=fra
+TAG:title=Original
+[/STREAM]
+[STREAM]
+index=2
+TAG:language=eng
+TAG:title=Commentary
+[/STREAM]
