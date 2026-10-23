@@ -53,6 +53,10 @@ return std::unexpected("the pattern file is not valid"); // expect: counted
 // path: src/lib/subedit/core/video/declared_frame_rate.cpp
 return {"error", "stream=r_frame_rate", "default=noprint_wrappers=1:nokey=1"}; // expect: exempt:external-program
 
+// path: src/lib/subedit/core/transcription/whisper_cpp_output.cpp
+const JsonValue* segments = document->find("transcription"); // expect: exempt:tool-output
+return std::unexpected("the transcription is not readable"); // expect: counted
+
 // path: src/lib/subedit/core/text/spell_checker.cpp
 const std::array suffixes{"1st", "2nd", "3rd"}; // expect: exempt:spelling-data
 const std::array contractions{"'ll", "'re", "'ve"}; // expect: exempt:spelling-data

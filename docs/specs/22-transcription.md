@@ -148,7 +148,7 @@ entries:
 
 - it **merges** very close segments that belong to the same sentence — judged by the gap between them, the punctuation
   that closes the first, and the speaker when the engine gives one;
-- it **cuts** those that exceed the duration and line limits, reusing the character-based splitting of phase 12;
+- it **cuts** those that exceed the duration and character limits, at a word boundary (the engine's timed words, or the letters in proportion). Cutting a subtitle into *lines* stays the job of the existing line-breaking task of phase 12, which needs the pattern engine and which the user already runs on any subtitle;
 - its thresholds are settings with defaults. The first defaults are starting points, **tuned on the real output of #770**
   and said so in the pull request of #776.
 

@@ -30,7 +30,10 @@
 //   - `--unfinished-line` ends standard output with a line that has no newline;
 //   - `--detach-streams` closes both standard streams and goes on, which is
 //     a program that is still running and says nothing more;
-//   - `--ignore-term` makes it ignore `SIGTERM`, so that only `SIGKILL` ends it.
+//   - `--ignore-term` makes it ignore `SIGTERM`, so that only `SIGKILL` ends it;
+//   - `--no-echo` keeps it from writing its arguments, and `--stdout-from=FILE`
+//     makes it write FILE to standard output instead: that is `ffprobe`, whose
+//     answer is the only thing it says.
 //
 // It decodes no audio and reads no model: whatever the call names is neither
 // opened nor checked. That is deliberate — a test that needs the adapter to
@@ -46,6 +49,7 @@
 #include <csignal>
 #include <cstdlib>
 #include <filesystem>
+#include <fstream>
 #include <iostream>
 #include <iterator>
 #include <optional>
@@ -67,6 +71,8 @@ constexpr std::string_view kTruncateFlag = "--truncate-output";
 constexpr std::string_view kUnfinishedFlag = "--unfinished-line";
 constexpr std::string_view kDetachFlag = "--detach-streams";
 constexpr std::string_view kIgnoreTermFlag = "--ignore-term";
+constexpr std::string_view kNoEchoFlag = "--no-echo";
+constexpr std::string_view kStdoutFlag = "--stdout-from=";
 constexpr std::string_view kPrefixFlag = "-of";
 
 /// What a transcriber says when it cannot go on. The text matters little; that
@@ -143,8 +149,13 @@ int main(int argc, char** argv) {
     if (has(arguments, kIgnoreTermFlag))
         std::signal(SIGTERM, SIG_IGN);
 
-    for (const std::string& argument : arguments)
-        std::cout << argument << '\n';
+    if (!has(arguments, kNoEchoFlag))
+        for (const std::string& argument : arguments)
+            std::cout << argument << '\n';
+    if (const auto source = valueOf(arguments, kStdoutFlag)) {
+        const std::ifstream file{*source, std::ios::binary};
+        std::cout << file.rdbuf();
+    }
     std::cout.flush();
 
     if (const auto steps = valueOf(arguments, kProgressFlag))

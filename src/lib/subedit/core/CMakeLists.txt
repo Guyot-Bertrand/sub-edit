@@ -70,6 +70,7 @@ add_library(
     model/video_file.cpp
     model/selection.cpp
     io/atomic_write.cpp
+    io/json_reader.cpp
     io/find_executable.cpp
     io/find_video.cpp
     video/declared_frame_rate.cpp
@@ -147,8 +148,12 @@ add_library(
     wording/version.cpp
     wording/video.cpp
     transcription/engine_capabilities.cpp
+    transcription/audio_source.cpp
     transcription/engine_registry.cpp
-    transcription/transcription_engine.cpp)
+    transcription/subtitle_assembly.cpp
+    transcription/transcription_engine.cpp
+    transcription/whisper_cpp_engine.cpp
+    transcription/whisper_cpp_output.cpp)
 add_library(subedit::core ALIAS subedit_core)
 
 # The include root is src/lib/, hence always-qualified includes:
