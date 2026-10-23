@@ -59,6 +59,7 @@ the information that is missing six months later.
 | [0043](0043-english-is-the-language-of-the-repository.md) | Write the whole repository in English; French is a locale | accepted |
 | [0044](0044-one-manual-feeds-the-help-and-the-man-pages.md) | One manual feeds the window's help and the man pages | accepted |
 | [0045](0045-one-settings-file-two-parts.md) | One settings file, an operation part and a display part | accepted |
+| [0046](0046-a-port-for-transcription-engines.md) | A port for transcription engines, with capabilities per engine and model | accepted |
 
 [0011](0011-numero-d-image-en-type-fort.md) complements
 [0006](0006-positions-en-millisecondes.md): it gives a type to the "frame

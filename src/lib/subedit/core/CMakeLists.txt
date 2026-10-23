@@ -145,7 +145,10 @@ add_library(
     wording/settings.cpp
     wording/translation.cpp
     wording/version.cpp
-    wording/video.cpp)
+    wording/video.cpp
+    transcription/engine_capabilities.cpp
+    transcription/engine_registry.cpp
+    transcription/transcription_engine.cpp)
 add_library(subedit::core ALIAS subedit_core)
 
 # The include root is src/lib/, hence always-qualified includes:
