@@ -224,7 +224,7 @@ dilleri, standart çıktıda; araç `0` koduyla durur. Birlikte verilen bir alt 
 <!-- example: subedit-cli --version | head -n 1 -->
 ```console
 $ subedit-cli --version | head -n 1
-subedit 1.0.7
+subedit 1.0.8
 ```
 
 ICU 74.2 ve Enchant 2.3.3 bulunan bir makinede tamamı — sayılar makineninkilerdir:

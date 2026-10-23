@@ -5,8 +5,7 @@ namespace subedit::core {
 std::expected<void, TranscriptionError> checkRequest(const EngineCapabilities& capabilities,
                                                      const TranscriptionRequest& request) {
     if (capabilities.needsModel && !request.model)
-        return std::unexpected(TranscriptionError{.kind = TranscriptionErrorKind::ModelMissing,
-                                                  .detail = "the engine needs a model"});
+        return std::unexpected(TranscriptionError{.kind = TranscriptionErrorKind::ModelMissing});
 
     if (request.language) {
         if (!capabilities.supportsLanguage(*request.language))
@@ -18,8 +17,7 @@ std::expected<void, TranscriptionError> checkRequest(const EngineCapabilities& c
     // No language asked for: detection answers, or the only language there is.
     if (capabilities.languageDetection || capabilities.languages.size() == 1)
         return {};
-    return std::unexpected(TranscriptionError{.kind = TranscriptionErrorKind::LanguageRequired,
-                                              .detail = "the engine cannot detect the language"});
+    return std::unexpected(TranscriptionError{.kind = TranscriptionErrorKind::LanguageRequired});
 }
 
 std::expected<Transcription, TranscriptionError>

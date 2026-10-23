@@ -11,6 +11,12 @@ do not edit it by hand.
 
 ### Added
 
+- **core** — Run a program and stream its output, with cancellation
+
+## 1.0.7 — 2026-10-23
+
+### Added
+
 - **core** — Add the transcription port, types and fake engine
 
 ### Documentation
