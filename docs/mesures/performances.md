@@ -396,7 +396,7 @@ subject of this ticket.
 | versionString | 29.2 ns | 0.5.9 — 2026-08-23 | 55.1 ns | 0.4.4 — 2026-08-17 |
 | parse | 29.9 ns | 0.2.6 — 2026-08-13 | 67.3 ns | 0.9.18 — 2026-09-08 |
 | format | 29.8 ns | 0.3.11 — 2026-08-15 | 68 ns | 0.9.17 — 2026-09-08 |
-| position to frame | 6.32 ns | 0.12.23 — 2026-09-30 | 8.03 ns | 0.10.1 — 2026-09-11 |
+| position to frame | 6.32 ns | 1.0.7 — 2026-10-23 | 8.03 ns | 0.10.1 — 2026-09-11 |
 | frame to position | 6.32 ns | 0.13.25 — 2026-10-05 | 12.7 ns | 0.10.14 — 2026-09-15 |
 | scaling by an exact rational | 6.71 ns | 0.9.19 — 2026-09-08 | 8.3 ns | 0.10.14 — 2026-09-15 |
 | reading 4000 subtitles | 1.99 ms | 1.0.0 — 2026-10-22 | 3.28 ms | 0.5.3 — 2026-08-22 |
@@ -452,15 +452,15 @@ subject of this ticket.
 | step back to frame 248 (720p video) | 69.2 ms | 0.15.45 — 2026-10-20 | 115 ms | 0.15.18 — 2026-10-12 |
 | converting a tagged line for the image | 815 ns | 0.15.5 — 2026-10-09 | 1.17 µs | 0.14.19 — 2026-10-08 |
 | centring a row among 4000 subtitles | 1.06 µs | 0.15.5 — 2026-10-09 | 1.3 µs | 0.14.19 — 2026-10-08 |
-| conversion search over 4000 subtitles | 361 µs | 0.15.5 — 2026-10-09 | 448 µs | 0.15.7 — 2026-10-09 |
-| loading the French catalogue | 309 µs | 1.0.0 — 2026-10-22 | 338 µs | 0.16.0 — 2026-10-21 |
+| conversion search over 4000 subtitles | 361 µs | 0.15.5 — 2026-10-09 | 448 µs | 1.0.7 — 2026-10-23 |
+| loading the French catalogue | 309 µs | 1.0.0 — 2026-10-22 | 359 µs | 1.0.7 — 2026-10-23 |
 | loading the Russian catalogue | 349 µs | 1.0.0 — 2026-10-22 | 359 µs | 0.16.0 — 2026-10-21 |
 | looking a message up in the French catalogue | 41.8 ns | 1.0.0 — 2026-10-22 | 45.5 ns | 0.16.0 — 2026-10-21 |
 
 <!-- versionString min=29.1524 max=55.1 -->
 <!-- parse min=29.9 max=67.348 -->
 <!-- format min=29.8143 max=68.0218 -->
-<!-- position to frame min=6.31843 max=8.0301 -->
+<!-- position to frame min=6.31729 max=8.0301 -->
 <!-- frame to position min=6.31692 max=12.7175 -->
 <!-- scaling by an exact rational min=6.70967 max=8.3022 -->
 <!-- reading 4000 subtitles min=1987840.0 max=3280000.0 -->
@@ -516,8 +516,8 @@ subject of this ticket.
 <!-- step back to frame 248 (720p video) min=69163900.0 max=114941000.0 -->
 <!-- converting a tagged line for the image min=815.476 max=1172.95 -->
 <!-- centring a row among 4000 subtitles min=1064.1 max=1300.8 -->
-<!-- conversion search over 4000 subtitles min=361110.0 max=447822.0 -->
-<!-- loading the French catalogue min=308806.0 max=338186.0 -->
+<!-- conversion search over 4000 subtitles min=361110.0 max=448104.0 -->
+<!-- loading the French catalogue min=308806.0 max=358816.0 -->
 <!-- loading the Russian catalogue min=349225.0 max=359166.0 -->
 <!-- looking a message up in the French catalogue min=41.7997 max=45.4663 -->
 
@@ -527,6 +527,74 @@ One section per version. Records older than a month are pruned; their
 extremes survive in the table above.
 
 <!-- records -->
+
+### 1.0.7 — 2026-10-23 — Release — load 1.38 — pace ×1.00
+
+| Measure | Mean | Standard deviation |
+| :----- | ------: | ---------: |
+| the current line, among 4000 subtitles | 7.09 µs | 2.1 µs |
+| converting a tagged line for the image | 817 ns | 31.8 ns |
+| composing a two-line line | 157 ns | 2.25 ns |
+| opening a video | 219 ms | 1.41 ms |
+| seeking a position | 5.42 ms | 59.6 µs |
+| rendering a frame of 640×360 | 219 µs | 35.5 µs |
+| rendering a frame of 1280×720 | 720 µs | 71.4 µs |
+| rendering a frame of 1920×1080 | 1.36 ms | 145 µs |
+| seeking frame 0 (720p video) | 6.45 ms | 421 µs |
+| seeking frame 100 (720p video) | 37.3 ms | 2.69 ms |
+| seeking frame 249 (720p video) | 81.7 ms | 8.5 ms |
+| step forward to frame 100 (720p video) | 38.2 ms | 4.21 ms |
+| step forward to frame 249 (720p video) | 79.7 ms | 6.51 ms |
+| step back to frame 99 (720p video) | 36.6 ms | 2.61 ms |
+| step back to frame 248 (720p video) | 79.5 ms | 6.15 ms |
+| building the model over 4000 subtitles | 8.48 µs | 2.63 µs |
+| a window of 40 rows, five columns | 18 µs | 2.89 µs |
+| rafraîchir après un shifting 4000 subtitles | 10.4 µs | 7.42 µs |
+| resetting the model after a row is removed | 8.85 µs | 2.28 µs |
+| editing a text cell | 447 ns | 183 ns |
+| editing a position cell | 11.2 µs | 2.73 µs |
+| centring a row among 4000 subtitles | 1.07 µs | 103 ns |
+| splitting 4000 subtitles, in ems, with a length cache | 191 ms | 9.77 ms |
+| versionString | 34.5 ns | 0.232 ns |
+| parse | 37 ns | 4.25 ns |
+| format | 32.9 ns | 0.722 ns |
+| position to frame | 6.32 ns | 0.0516 ns |
+| frame to position | 7.42 ns | 0.0843 ns |
+| scaling by an exact rational | 7.7 ns | 0.0918 ns |
+| splitting 4000 subtitles, without a length cache | 117 ms | 7.23 ms |
+| splitting 4000 subtitles, with a length cache | 122 ms | 8.22 ms |
+| common French errors over 4000 subtitles | 162 ms | 9.2 ms |
+| common English errors over 4000 subtitles | 181 ms | 15.8 ms |
+| loading the French catalogue | 359 µs | 18.7 µs |
+| loading the Russian catalogue | 350 µs | 18.4 µs |
+| looking a message up in the French catalogue | 43.9 ns | 0.468 ns |
+| reading 4000 subtitles | 1.99 ms | 50.8 µs |
+| writing 4000 subtitles | 505 µs | 14.6 µs |
+| shifting 4000 subtitles | 6.88 µs | 2.93 µs |
+| shifting then undoing | 13.2 µs | 3.01 µs |
+| transforming 4000 subtitles | 71.4 µs | 7 µs |
+| frame rate conversion over 4000 subtitles | 72.7 µs | 9.53 µs |
+| alignment over 4000 subtitles | 130 µs | 9.96 µs |
+| sorting 4000 subtitles in reverse | 311 µs | 34 µs |
+| removing every other subtitle | 185 µs | 17.3 µs |
+| removal then undo | 244 µs | 21.9 µs |
+| inserting 100 empty subtitles in the middle | 68 µs | 17.1 µs |
+| editing a text, through a session | 209 ns | 145 ns |
+| removing mentions over 4000 subtitles | 1.19 ms | 61.8 µs |
+| italicising 4000 subtitles | 1.05 ms | 58.5 µs |
+| replacing a frequent word over 4000 subtitles, plain text | 4.62 ms | 303 µs |
+| replacing a frequent word over 4000 subtitles, regular expression | 4.58 ms | 312 µs |
+| search with no result over 4000 subtitles | 2.87 ms | 145 µs |
+| adjusting the durations of 4000 subtitles, four constraints | 1.34 ms | 81.7 µs |
+| title case over 4000 subtitles | 19.2 ms | 1.44 ms |
+| pasting 4000 texts | 1 ms | 40.3 µs |
+| aligning a 4000-line translation, by position | 808 µs | 40.4 µs |
+| aligning a 4000-line translation, by number | 799 µs | 40.9 µs |
+| frame rate deduction over 4000 subtitles | 374 µs | 20 µs |
+| conversion search over 4000 subtitles | 448 µs | 18.3 µs |
+| walk of 200 files in a tree of depth 3 | 555 µs | 16 µs |
+| shift of 200 files of 20 subtitles | 33.6 ms | 2.43 ms |
+| shift of one file of 4000 subtitles | 3.01 ms | 190 µs |
 
 ### 1.0.0 — 2026-10-22 — Release — load 1.44 — pace ×1.00
 
@@ -2953,47 +3021,3 @@ extremes survive in the table above.
 | aligning a 4000-line translation, by position | 860 µs | 113 µs |
 | aligning a 4000-line translation, by number | 855 µs | 61.2 µs |
 | frame rate deduction over 4000 subtitles | 368 µs | 14.5 µs |
-
-### 0.11.7 — 2026-09-21 — Release — load 1.41 — pace ×0.98
-
-| Measure | Mean | Standard deviation |
-| :----- | ------: | ---------: |
-| the current line, among 4000 subtitles | 7.17 µs | 1.85 µs |
-| composing a two-line line | 164 ns | 3.11 ns |
-| opening a video | 9.11 ms | 591 µs |
-| seeking a position | 569 µs | 158 µs |
-| building the model over 4000 subtitles | 7.38 µs | 2.89 µs |
-| a window of 40 rows, five columns | 17.5 µs | 838 ns |
-| rafraîchir après un shifting 4000 subtitles | 8.38 µs | 2.33 µs |
-| resetting the model after a row is removed | 8.38 µs | 2.47 µs |
-| editing a text cell | 419 ns | 194 ns |
-| editing a position cell | 9.33 µs | 667 ns |
-| versionString | 41.3 ns | 12.5 ns |
-| parse | 36.8 ns | 3.18 ns |
-| format | 35.3 ns | 0.58 ns |
-| position to frame | 6.48 ns | 0.0669 ns |
-| frame to position | 6.32 ns | 0.0763 ns |
-| scaling by an exact rational | 7.7 ns | 0.0994 ns |
-| reading 4000 subtitles | 2.23 ms | 182 µs |
-| writing 4000 subtitles | 560 µs | 60 µs |
-| shifting 4000 subtitles | 8.18 µs | 10.8 µs |
-| shifting then undoing | 14.9 µs | 3.4 µs |
-| transforming 4000 subtitles | 72 µs | 9.68 µs |
-| frame rate conversion over 4000 subtitles | 66.2 µs | 8.29 µs |
-| alignment over 4000 subtitles | 126 µs | 10.6 µs |
-| sorting 4000 subtitles in reverse | 270 µs | 29.2 µs |
-| removing every other subtitle | 162 µs | 24.8 µs |
-| removal then undo | 235 µs | 32.9 µs |
-| inserting 100 empty subtitles in the middle | 51.3 µs | 16.6 µs |
-| editing a text, through a session | 200 ns | 23.2 ns |
-| removing mentions over 4000 subtitles | 1.27 ms | 90.3 µs |
-| italicising 4000 subtitles | 983 µs | 63.5 µs |
-| replacing a frequent word over 4000 subtitles, plain text | 4 ms | 260 µs |
-| replacing a frequent word over 4000 subtitles, regular expression | 4.18 ms | 288 µs |
-| search with no result over 4000 subtitles | 2.67 ms | 165 µs |
-| adjusting the durations of 4000 subtitles, four constraints | 1.23 ms | 72 µs |
-| title case over 4000 subtitles | 19.9 ms | 1.78 ms |
-| pasting 4000 texts | 1.13 ms | 69.5 µs |
-| aligning a 4000-line translation, by position | 851 µs | 69.7 µs |
-| aligning a 4000-line translation, by number | 824 µs | 64.9 µs |
-| frame rate deduction over 4000 subtitles | 370 µs | 19 µs |

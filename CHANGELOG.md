@@ -9,6 +9,10 @@ do not edit it by hand.
 
 ## Unreleased
 
+### Added
+
+- **core** — Add the transcription port, types and fake engine
+
 ### Documentation
 
 - **doc** — Scope phase 22 audio transcription

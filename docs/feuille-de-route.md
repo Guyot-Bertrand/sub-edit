@@ -1530,7 +1530,7 @@ without a graphics card; a graphics card only speeds up processing. The models
 weigh from a few hundred MB to several GB: **they are not shipped**, and
 the user fetches them, through a dedicated command or a path to fill in.
 
-**Scoped on 2026-10-22** ([spec](specs/22-transcription.md), issues #767 to #781, ADR 0046 to come):
+**Scoped on 2026-10-22** ([spec](specs/22-transcription.md), issues #767 to #781, ADR 0046):
 
 - **whisper.cpp as an executable** (`whisper-cli`), behind **a port in the core** so that another engine can replace it;
   two ports, transcription now and alignment (phase 23, contract only), with capabilities declared per engine **and

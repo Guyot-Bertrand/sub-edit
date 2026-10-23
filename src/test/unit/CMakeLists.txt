@@ -113,6 +113,7 @@ add_executable(
     core/process/start_process_test.cpp
     core/process/run_and_capture_test.cpp
     core/process/fake_transcriber_test.cpp
+    core/transcription/transcription_engine_test.cpp
     core/io/file_error_test.cpp
     core/text/lines_test.cpp
     core/text/markup_test.cpp
