@@ -486,15 +486,15 @@ which answers the question through the `FakePrompts` double.
 
 ## Record
 
-    total: 73
+    total: 72
 
-Recorded on version 0.15.19, on 2026-10-12.
+Recorded on version 1.0.8, on 2026-10-23.
 
 | Lines | File |
 | ----: | :--- |
 | 50 | `src/lib/subedit/gui/qt_prompts.cpp` |
-| 4 | `src/lib/subedit/core/process/start_process.cpp` |
 | 3 | `src/lib/subedit/core/io/real_file_system.cpp` |
+| 3 | `src/lib/subedit/core/process/start_process.cpp` |
 | 2 | `src/lib/subedit/core/edit/insert_command.cpp` |
 | 2 | `src/lib/subedit/gui/correction_controller.cpp` |
 | 2 | `src/lib/subedit/gui/mpv_player.cpp` |

@@ -26,7 +26,11 @@
 //     argument that is not a knob otherwise, as an extraction tool names its
 //     output;
 //   - `--truncate-output` cuts that result to its first half, which is what a
-//     run killed in the middle of a write leaves behind.
+//     run killed in the middle of a write leaves behind;
+//   - `--unfinished-line` ends standard output with a line that has no newline;
+//   - `--detach-streams` closes both standard streams and goes on, which is
+//     a program that is still running and says nothing more;
+//   - `--ignore-term` makes it ignore `SIGTERM`, so that only `SIGKILL` ends it.
 //
 // It decodes no audio and reads no model: whatever the call names is neither
 // opened nor checked. That is deliberate — a test that needs the adapter to
@@ -39,6 +43,7 @@
 
 #include <algorithm>
 #include <chrono>
+#include <csignal>
 #include <cstdlib>
 #include <filesystem>
 #include <iostream>
@@ -49,6 +54,7 @@
 #include <string_view>
 #include <system_error>
 #include <thread>
+#include <unistd.h>
 #include <vector>
 
 namespace {
@@ -58,6 +64,9 @@ constexpr std::string_view kLingerFlag = "--linger=";
 constexpr std::string_view kProgressFlag = "--progress=";
 constexpr std::string_view kOutputFlag = "--output-from=";
 constexpr std::string_view kTruncateFlag = "--truncate-output";
+constexpr std::string_view kUnfinishedFlag = "--unfinished-line";
+constexpr std::string_view kDetachFlag = "--detach-streams";
+constexpr std::string_view kIgnoreTermFlag = "--ignore-term";
 constexpr std::string_view kPrefixFlag = "-of";
 
 /// What a transcriber says when it cannot go on. The text matters little; that
@@ -131,12 +140,25 @@ void reportProgress(int steps) {
 int main(int argc, char** argv) {
     const Arguments arguments(argv + (argc > 0 ? 1 : 0), argv + argc);
 
+    if (has(arguments, kIgnoreTermFlag))
+        std::signal(SIGTERM, SIG_IGN);
+
     for (const std::string& argument : arguments)
         std::cout << argument << '\n';
     std::cout.flush();
 
     if (const auto steps = valueOf(arguments, kProgressFlag))
         reportProgress(std::atoi(steps->c_str()));
+
+    if (has(arguments, kUnfinishedFlag)) {
+        std::cout << "unfinished";
+        std::cout.flush();
+    }
+
+    if (has(arguments, kDetachFlag)) {
+        ::close(STDOUT_FILENO);
+        ::close(STDERR_FILENO);
+    }
 
     if (const auto seconds = valueOf(arguments, kLingerFlag))
         std::this_thread::sleep_for(std::chrono::seconds(std::atoi(seconds->c_str())));

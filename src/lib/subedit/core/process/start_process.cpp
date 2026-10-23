@@ -3,16 +3,21 @@
 
 #include <array>
 #include <cerrno>
+#include <chrono>
+#include <csignal>
 #include <cstddef>
 #include <expected>
 #include <fcntl.h>
 #include <filesystem>
+#include <functional>
 #include <optional>
+#include <poll.h>
 #include <span>
 #include <spawn.h>
 #include <string>
 #include <string_view>
 #include <sys/wait.h>
+#include <utility>
 #include <vector>
 
 // `environ` is declared by unistd.h on this platform, with _GNU_SOURCE or
@@ -181,6 +186,70 @@ constexpr std::size_t kReadBlockSize = 4096;
     return child;
 }
 
+/// How often a streamed run looks at the cancellation while nothing is written.
+constexpr int kPollMilliseconds = 50;
+
+/// How often it looks at a program that has closed its streams but not ended.
+constexpr int kReapMilliseconds = 10;
+
+/// Cuts what arrives in chunks into lines, keeping the unfinished one.
+class LineBuffer {
+
+public:
+    /// Hands each complete line of `chunk` to `sink`, without its newline.
+    template<typename Sink>
+    void feed(std::string_view chunk, Sink&& sink) {
+        m_pending.append(chunk);
+        std::size_t start = 0;
+        for (std::size_t end = m_pending.find('\n'); end != std::string::npos;
+             end = m_pending.find('\n', start)) {
+            sink(m_pending.substr(start, end - start));
+            start = end + 1;
+        }
+        m_pending.erase(0, start);
+    }
+
+    /// Hands the unfinished line, if there is one, to `sink`.
+    template<typename Sink>
+    void finish(Sink&& sink) {
+        if (!m_pending.empty())
+            sink(std::move(m_pending));
+        m_pending.clear();
+    }
+
+private:
+    std::string m_pending;
+};
+
+/// Waits for a program that has closed its streams to end. Its wait status, or
+/// nothing if the caller asked to stop first.
+[[nodiscard]] std::optional<int> awaitEnd(pid_t child, const std::function<bool()>& stopRequested) {
+    int status = 0;
+    while (::waitpid(child, &status, WNOHANG) == 0) {
+        if (stopRequested())
+            return std::nullopt;
+        ::poll(nullptr, 0, kReapMilliseconds);
+    }
+    return status;
+}
+
+/// Ends a program that was asked to stop: politely first, then for good.
+/// Returns its wait status.
+[[nodiscard]] int terminate(pid_t child, std::chrono::milliseconds grace) {
+    ::kill(child, SIGTERM);
+    const auto deadline = std::chrono::steady_clock::now() + grace;
+    int status = 0;
+    while (std::chrono::steady_clock::now() < deadline) {
+        if (::waitpid(child, &status, WNOHANG) != 0)
+            return status;
+        ::poll(nullptr, 0, kReapMilliseconds);
+    }
+    ::kill(child, SIGKILL);
+    while (::waitpid(child, &status, 0) < 0 && errno == EINTR) {
+    }
+    return status;
+}
+
 } // namespace
 
 std::expected<ProcessHandle, LaunchError> startProcess(const std::filesystem::path& program,
@@ -243,6 +312,88 @@ std::expected<ProgramOutput, LaunchError> runAndCapture(const std::filesystem::p
 
     answer.code = exitCodeOf(status);
     return answer;
+}
+
+std::expected<StreamedRun, LaunchError> runStreaming(const std::filesystem::path& program,
+                                                     std::span<const std::string> arguments,
+                                                     const StreamObserver& observer) {
+    std::array<int, 2> outputEnds{-1, -1};
+    if (::pipe(outputEnds.data()) != 0)
+        return failure(errno, program, translate("could not open a pipe"));
+    Descriptor outputRead{outputEnds[0]};
+    Descriptor outputWrite{outputEnds[1]};
+
+    std::array<int, 2> errorEnds{-1, -1};
+    if (::pipe(errorEnds.data()) != 0)
+        return failure(errno, program, translate("could not open a pipe"));
+    Descriptor errorRead{errorEnds[0]};
+    Descriptor errorWrite{errorEnds[1]};
+
+    SpawnActions actions;
+    actions.addOpen(STDIN_FILENO, "/dev/null", O_RDONLY, 0);
+    actions.addDuplicate(outputWrite.get(), STDOUT_FILENO);
+    actions.addDuplicate(errorWrite.get(), STDERR_FILENO);
+    // None of the four ends is the child's to hold: it writes through the two
+    // standard descriptors it was just given.
+    actions.addClose(outputRead.get());
+    actions.addClose(outputWrite.get());
+    actions.addClose(errorRead.get());
+    actions.addClose(errorWrite.get());
+
+    const std::expected<pid_t, LaunchError> child = spawnWith(actions, program, arguments);
+    if (!child.has_value())
+        return std::unexpected(child.error());
+
+    // **Ours have to go before the reading starts**, for the reason `runAndCapture` gives.
+    outputWrite.close();
+    errorWrite.close();
+
+    LineBuffer outputLines;
+    LineBuffer errorLines;
+    const auto deliver = [&observer](StreamName stream) {
+        return [&observer, stream](std::string line) {
+            if (observer.onLine)
+                observer.onLine(StreamedLine{.stream = stream, .text = std::move(line)});
+        };
+    };
+
+    // Reads what is there on one stream; lets it go when it has ended.
+    const auto pump = [&](Descriptor& descriptor, LineBuffer& lines, StreamName stream) {
+        std::array<char, kReadBlockSize> buffer{};
+        const ssize_t count = ::read(descriptor.get(), buffer.data(), buffer.size());
+        if (count > 0) {
+            lines.feed(std::string_view{buffer.data(), static_cast<std::size_t>(count)},
+                       deliver(stream));
+        } else if (count == 0 || errno != EINTR) {
+            lines.finish(deliver(stream));
+            descriptor.close();
+        }
+    };
+
+    const auto stopRequested = [&observer] { return observer.cancelled && observer.cancelled(); };
+
+    bool cancelled = false;
+    while (outputRead.get() >= 0 || errorRead.get() >= 0) {
+        if (stopRequested()) {
+            cancelled = true;
+            break;
+        }
+        // A closed stream has descriptor -1, which poll leaves alone.
+        std::array<pollfd, 2> watched{{{.fd = outputRead.get(), .events = POLLIN, .revents = 0},
+                                       {.fd = errorRead.get(), .events = POLLIN, .revents = 0}}};
+        ::poll(watched.data(), watched.size(), kPollMilliseconds);
+        if (watched[0].revents != 0)
+            pump(outputRead, outputLines, StreamName::Output);
+        if (watched[1].revents != 0)
+            pump(errorRead, errorLines, StreamName::Error);
+    }
+
+    // Both streams are closed, or the caller stopped: the program may still be
+    // running, and may still be asked to stop.
+    const std::optional<int> ended = cancelled ? std::nullopt : awaitEnd(*child, stopRequested);
+    const int status = ended ? *ended : terminate(*child, observer.grace);
+
+    return StreamedRun{.code = exitCodeOf(status), .cancelled = !ended.has_value()};
 }
 
 std::optional<ProcessOutcome> outcomeOf(ProcessHandle handle) {

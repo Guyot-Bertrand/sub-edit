@@ -1,7 +1,9 @@
 #pragma once
 
+#include <chrono>
 #include <expected>
 #include <filesystem>
+#include <functional>
 #include <optional>
 #include <span>
 #include <string>
@@ -104,6 +106,66 @@ struct ProgramOutput {
 /// Standard input comes from `/dev/null`, for the reason `startProcess` gives.
 [[nodiscard]] std::expected<ProgramOutput, LaunchError>
 runAndCapture(const std::filesystem::path& program, std::span<const std::string> arguments);
+
+/// Which of the two streams of a program a line came from.
+enum class StreamName {
+    Output, ///< standard output
+    Error,  ///< standard error
+};
+
+/// One line a program wrote, without its newline.
+struct StreamedLine {
+    StreamName stream;
+    std::string text;
+
+    friend bool operator==(const StreamedLine&, const StreamedLine&) = default;
+};
+
+/// How a streamed run is watched and stopped. Both are called from the thread
+/// that runs the program.
+/// How long a program asked to stop is given before it is killed.
+inline constexpr std::chrono::milliseconds kDefaultStopGrace{2000};
+
+struct StreamObserver {
+    /// Called for each line, **as soon as the program has written it**, in the
+    /// order they arrive. A last line with no newline is delivered when the
+    /// program closes the stream.
+    std::function<void(const StreamedLine&)> onLine{};
+
+    /// Polled about every fifty milliseconds. When it answers true the program
+    /// is asked to end (`SIGTERM`), then killed (`SIGKILL`) if it has not ended
+    /// within `grace`.
+    std::function<bool()> cancelled{};
+
+    std::chrono::milliseconds grace = kDefaultStopGrace;
+};
+
+/// How a streamed run ended.
+struct StreamedRun {
+    /// Read as `ProcessOutcome::code` is: 128 plus the signal for a program
+    /// that was stopped.
+    int code = 0;
+
+    /// Whether the observer asked to stop. A program that ended by itself at the
+    /// same moment is still reported as cancelled: the caller asked.
+    bool cancelled = false;
+};
+
+/// Runs `program` with `arguments`, **delivers what it writes line by line while
+/// it runs**, and can stop it.
+///
+/// The third way to run a program, for the one the two others do not fit:
+/// `startProcess` returns at once and sends the output to a file, so nothing is
+/// seen while the program runs; `runAndCapture` waits and **discards standard
+/// error**, which is where a transcription engine prints its progress. This one
+/// waits too, but reads both streams as they come, and a caller that wants to
+/// stop gets the program ended and collected, with no zombie left behind.
+///
+/// Standard input comes from `/dev/null`, for the reason `startProcess` gives.
+[[nodiscard]] std::expected<StreamedRun, LaunchError>
+runStreaming(const std::filesystem::path& program,
+             std::span<const std::string> arguments,
+             const StreamObserver& observer);
 
 /// How the process ended, or nothing while it is still running.
 ///
