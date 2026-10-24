@@ -3477,6 +3477,52 @@ msgstr[1] ""
 "Tämän projektin %1 tekstitystä korvataan litteroinnilla. Voit kumota sen."
 
 #: src/lib/subedit/core/wording/transcription.cpp
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "%1: found (%2)"
+msgstr "%1: löytyi (%2)"
+
+# From Gaupol.
+#: src/lib/subedit/core/wording/transcription.cpp
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "%1: not found"
+msgstr "%1: ei löytynyt"
+
+#: src/lib/subedit/core/wording/transcription.cpp
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "ffmpeg: found"
+msgstr "ffmpeg: löytyi"
+
+#: src/lib/subedit/core/wording/transcription.cpp
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "ffmpeg: not found"
+msgstr "ffmpeg: ei löytynyt"
+
+#: src/lib/subedit/core/wording/transcription.cpp
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "Model: none set"
+msgstr "Malli: ei asetettu"
+
+#: src/lib/subedit/core/wording/transcription.cpp
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "Model: not found (%1)"
+msgstr "Malli: ei löytynyt (%1)"
+
+#: src/lib/subedit/core/wording/transcription.cpp
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "Model: not a model (%1)"
+msgstr "Malli: ei ole malli (%1)"
+
+#: src/lib/subedit/core/wording/transcription.cpp
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "Model: English only (%1)"
+msgstr "Malli: vain englanti (%1)"
+
+#: src/lib/subedit/core/wording/transcription.cpp
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "Model: multilingual (%1)"
+msgstr "Malli: monikielinen (%1)"
+
+#: src/lib/subedit/core/wording/transcription.cpp
 msgid "transcribing: %1%"
 msgstr "litterointi: %1 %"
 
@@ -4293,6 +4339,10 @@ msgstr "Näytä rivipituudet muokkaimessa"
 msgid "Decode on the graphics card"
 msgstr "Pura näytönohjaimella"
 
+#: src/lib/subedit/gui/preferences_dialog.cpp
+msgid "Browse…"
+msgstr "Selaa…"
+
 # From Gaupol.
 #: src/lib/subedit/gui/preferences_dialog.cpp
 msgid "Preferences"
@@ -4330,6 +4380,26 @@ msgstr "Kontekstin pituus"
 #: src/lib/subedit/gui/preferences_dialog.cpp
 msgid "Frame step"
 msgstr "Ruutuaskel"
+
+#: src/lib/subedit/gui/preferences_dialog.cpp
+#: src/lib/subedit/gui/preferences_dialog.cpp
+msgid "Searched for on the PATH"
+msgstr "Haetaan PATH-polusta"
+
+#: src/lib/subedit/gui/preferences_dialog.cpp
+#: src/lib/subedit/gui/preferences_dialog.cpp
+msgid "Program"
+msgstr "Ohjelma"
+
+#: src/lib/subedit/gui/preferences_dialog.cpp
+msgid "Model"
+msgstr "Malli"
+
+# From Gaupol.
+#: src/lib/subedit/gui/preferences_dialog.cpp
+#: src/lib/subedit/gui/preferences_dialog.cpp
+msgid "Transcription"
+msgstr "Litterointi"
 
 #: src/lib/subedit/gui/project_files.cpp
 msgid "Save All stopped: %1 of %2 document saved"
@@ -4387,6 +4457,11 @@ msgstr "Valitse video"
 #: src/lib/subedit/gui/qt_prompts.cpp
 msgid "Choose a model"
 msgstr "Valitse malli"
+
+#: src/lib/subedit/gui/qt_prompts.cpp
+#: src/lib/subedit/gui/qt_prompts.cpp
+msgid "Choose the program"
+msgstr "Valitse ohjelma"
 
 #: src/lib/subedit/gui/qt_prompts.cpp
 msgid "Models (*.bin);;All files (*)"
@@ -4700,8 +4775,9 @@ msgid "Main"
 msgstr "Pääasiakirja"
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
-msgid "Browse…"
-msgstr "Selaa…"
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+msgid "Preferences…"
+msgstr "Asetukset…"
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
 #: src/lib/subedit/gui/transcription_runner.cpp
@@ -4713,8 +4789,9 @@ msgid "First audio track"
 msgstr "Ensimmäinen ääniraita"
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
-msgid "Detected"
-msgstr "Tunnistettu"
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+msgid "Detected from the sound"
+msgstr "Tunnistetaan äänestä"
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
 msgid ""
@@ -4723,14 +4800,6 @@ msgid ""
 msgstr ""
 "Kaksikirjaiminen kielikoodi, kuten en tai fr. Jätä kenttä tyhjäksi, jolloin "
 "malli tunnistaa kielen."
-
-#: src/lib/subedit/gui/transcribe_dialog.cpp
-msgid ""
-"The model file the engine reads. It is not shipped with the program: the "
-"manual says where to find one."
-msgstr ""
-"Mallitiedosto, jonka moottori lukee. Sitä ei toimiteta ohjelman mukana: opas "
-"kertoo, mistä sellaisen löytää."
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
 msgid ""
@@ -4750,8 +4819,29 @@ msgid "Language"
 msgstr "Kieli"
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
-msgid "Model"
-msgstr "Malli"
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+msgid "Set them in the preferences."
+msgstr "Aseta ne asetuksissa."
+
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+msgid "This model cannot detect the language: type it."
+msgstr "Tämä malli ei osaa tunnistaa kieltä: kirjoita se."
+
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+msgid "The language you typed is used."
+msgstr "Käytetään kirjoittamaasi kieltä."
+
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+msgid "Proposed from the language the file declares for this track."
+msgstr "Ehdotettu kielestä, jonka tiedosto ilmoittaa tälle raidalle."
+
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+msgid "The file declares no language for this track: the model will detect it from the sound. Type it if you know it."
+msgstr "Tiedosto ei ilmoita tälle raidalle kieltä: malli tunnistaa sen äänestä. Kirjoita se, jos tiedät sen."
 
 #: src/lib/subedit/gui/transcription_runner.cpp
 #: src/lib/subedit/gui/unsaved_documents_dialog.cpp
@@ -5186,3 +5276,13 @@ msgstr "Kursiivi"
 msgctxt "toolbar"
 msgid "Main"
 msgstr "Päätyökalurivi"
+
+#~ msgid "Detected"
+#~ msgstr "Tunnistettu"
+
+#~ msgid ""
+#~ "The model file the engine reads. It is not shipped with the program: the "
+#~ "manual says where to find one."
+#~ msgstr ""
+#~ "Mallitiedosto, jonka moottori lukee. Sitä ei toimiteta ohjelman mukana: "
+#~ "opas kertoo, mistä sellaisen löytää."

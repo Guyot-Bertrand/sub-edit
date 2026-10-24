@@ -186,6 +186,18 @@ Teması zaten koyu olan bir masaüstünde `System` bu nedenle koyu bir pencere v
 
 **Anomali renk tonları her iki palette de okunabilir kalır** — bkz. [Anomaliler](table.md#anomaliler). Bu bir varsayım değildir: metnin her bir tondaki karşıtlığı, her iki arka planda bir testle denetlenir.
 
+## Yazıya dökme
+
+İletişim kutusunun **`Transcription`** grubu, [`Transcribe Audio…`](video.md#sesi-yazıya-dökme) için gereken makineyle ilgili iki bilgiyi
+tutar: motorun **programı** (whisper.cpp, `whisper-cli`) ve okuduğu **model**. İkisinin de bir `Browse…` düğmesi
+vardır. Boş bırakılırsa program `PATH` içinde aranır; modelin varsayılanı yoktur.
+
+Alanların altında **kutu orada ne olduğunu söyler**: motorun bulunup bulunmadığını ve nerede olduğunu, `ffmpeg`'in
+bulunup bulunmadığını ve modeli — ayarlanmamış, bulunamadı, bir model değil, yalnızca İngilizce için ya da çok dilli. Bir şey
+eksik olduğunda, her birinin nerede bulunacağını söyleyen
+[Yazıya dökme araçlarını kurma](../subedit-cli/install-transcription.md) sayfasına yönlendirme ekler.
+İki alan, `transcription.executable` ve `transcription.model` ayarlarıdır.
+
 ## Arayüz dili
 
 `Düzenle ▸ Tercihler…`, temanın altında, pencerenin dilini seçer.

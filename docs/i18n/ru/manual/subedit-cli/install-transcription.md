@@ -20,14 +20,11 @@
 ```bash
 git clone https://github.com/ggml-org/whisper.cpp
 cd whisper.cpp
-cmake -B build
+cmake -B build -DBUILD_SHARED_LIBS=OFF
 cmake --build build -j --config Release
 ```
 
-Программа окажется в `build/bin/whisper-cli`. Поместите её туда, где её найдёт `PATH`, или **укажите её
-путь** в subedit настройкой `transcription.executable`. Сборка для видеокарты делается
-с параметрами, которые даёт её документация; subedit запускает ту, что вы установили, и ничего не выбирает
-за вас.
+Программа окажется в `build/bin/whisper-cli`. Собранная с `-DBUILD_SHARED_LIBS=OFF`, как выше, она представляет собой один файл, которому не нужна рядом никакая библиотека, поэтому её можно скопировать куда угодно. Поместите её туда, где её найдёт `PATH`, или **укажите её путь** в subedit настройкой `transcription.executable` — в окне для этого есть поле в [настройках](../subedit-gui/preferences.md#расшифровка). Сборка для видеокарты добавляет одну опцию в первую строку `cmake`: `-DGGML_CUDA=1` для карты NVIDIA, `-DGGML_VULKAN=1` для большинства остальных; subedit запускает ту, что вы установили, и ничего не выбирает за вас.
 
 ## Модель
 
@@ -41,7 +38,7 @@ sh ./models/download-ggml-model.sh small
 ```
 
 Затем укажите её путь параметром `--model` в командной строке, или настройкой `transcription.model`,
-или в диалоге окна, которое его запоминает.
+или в [настройках](../subedit-gui/preferences.md#расшифровка) окна, которые его запоминают.
 
 ### Какая модель для какого языка
 

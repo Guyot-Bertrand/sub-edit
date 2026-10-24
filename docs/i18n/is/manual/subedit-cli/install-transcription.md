@@ -20,14 +20,11 @@ eins og skjölin hennar segja (C++ þýðandi og CMake nægja):
 ```bash
 git clone https://github.com/ggml-org/whisper.cpp
 cd whisper.cpp
-cmake -B build
+cmake -B build -DBUILD_SHARED_LIBS=OFF
 cmake --build build -j --config Release
 ```
 
-Forritið er þá `build/bin/whisper-cli`. Settu það þar sem `PATH` finnur það, eða **gefðu upp
-slóð þess** til subedit með stillingunni `transcription.executable`. Smíði fyrir skjákort er gerð
-með valkostunum sem skjölin hennar gefa; subedit keyrir það sem þú settir upp og velur ekkert
-fyrir þig.
+Forritið er þá `build/bin/whisper-cli`. Þegar það er smíðað með `-DBUILD_SHARED_LIBS=OFF`, eins og að ofan, er það ein skrá sem þarf ekkert safn við hlið sér, svo þú getur afritað það hvert sem er. Settu það þar sem `PATH` finnur það, eða **gefðu upp slóð þess** til subedit með stillingunni `transcription.executable` — í glugganum hafa [kjörstillingarnar](../subedit-gui/preferences.md#umritun) reit fyrir það. Smíði fyrir skjákort bætir einum valkosti við fyrstu `cmake`-línuna: `-DGGML_CUDA=1` fyrir NVIDIA-kort, `-DGGML_VULKAN=1` fyrir flest önnur; subedit keyrir það sem þú settir upp og velur ekkert fyrir þig.
 
 ## Líkan
 
@@ -41,7 +38,7 @@ sh ./models/download-ggml-model.sh small
 ```
 
 Gefðu síðan upp slóð þess með `--model` á skipanalínunni, eða með stillingunni `transcription.model`,
-eða í glugga forritsins, sem man hana.
+eða í [kjörstillingum](../subedit-gui/preferences.md#umritun) forritsins, sem muna hana.
 
 ### Hvaða líkan fyrir hvaða tungumál
 

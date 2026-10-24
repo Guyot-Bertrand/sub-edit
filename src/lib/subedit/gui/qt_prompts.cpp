@@ -112,11 +112,14 @@ QtPrompts::videoToOpen(const std::filesystem::path& directory) {
                                                videoFilters()));
 }
 
-std::optional<std::filesystem::path> QtPrompts::modelToOpen(const std::filesystem::path& current) {
-    return pathOf(QFileDialog::getOpenFileName(m_owner,
-                                               translate("Choose a model"),
-                                               QString::fromStdString(current.string()),
-                                               translate("Models (*.bin);;All files (*)")));
+std::optional<std::filesystem::path> QtPrompts::fileToChoose(ChosenFile what,
+                                                             const std::filesystem::path& current) {
+    const bool model = what == ChosenFile::Model;
+    return pathOf(QFileDialog::getOpenFileName(
+        m_owner,
+        model ? translate("Choose a model") : translate("Choose the program"),
+        QString::fromStdString(current.string()),
+        model ? translate("Models (*.bin);;All files (*)") : translate("All files (*)")));
 }
 
 std::optional<SaveTarget> QtPrompts::saveTarget(const core::SourceFile& current,

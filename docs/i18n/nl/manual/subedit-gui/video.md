@@ -108,16 +108,24 @@ het [raster dat uit de posities wordt afgeleid](frame-grid.md), wat een ander fe
 is geopend: het is de audio van **de film van het project**, nooit een bestand dat u zou kiezen — om een
 audiobestand te transcriberen gebruikt u [`transcribe`](../subedit-cli/transcribe.md) op de opdrachtregel.
 
-Het dialoogvenster vraagt om drie dingen:
+Het dialoogvenster vraagt om twee dingen en zegt of het kan beginnen:
 
 - **het audiospoor**, opgesomd zoals het menu [`Audio`](#het-audiospoor) ze opsomt, met de taal
   en de titel die het bestand opgeeft;
 - **de taal**, twee letters zoals `en` of `fr`. Ze begint met de taal van het gekozen spoor
   wanneer het bestand er een opgeeft, volgt het spoor zolang u er geen hebt getypt, en
-  leeg gelaten laat ze het model de taal **detecteren**;
-- **het model**, een bestand, met een knop `Browse…`.
+  **een regel onder het veld zegt waar ze vandaan komt**. Geeft het bestand geen taal op voor het spoor,
+  dan zegt de regel dat: het model zal ze dan uit het geluid detecteren, wat alleen een meertalig model
+  kan, en u typt ze het best als u ze kent. Bij een model dat alleen Engels kent, en niets detecteert,
+  zegt de regel dat de taal moet worden getypt.
 
-De keuzes worden voor de volgende keer bewaard. De engine zelf en de grenzen van de ondertitels zijn
+**Het zegt ook wat er ontbreekt.** Drie regels zeggen of de engine, `ffmpeg` en het model er zijn, en
+waar; als er een ontbreekt, blijft `OK` uitgeschakeld en zegt het dialoogvenster dat met de verwijzing naar
+[De transcriptiehulpmiddelen installeren](../subedit-cli/install-transcription.md). Een knop `Preferences…` opent
+de [instellingen](preferences.md#transcriptie), waar het programma en het model worden ingesteld — het zijn feiten
+over de machine, geen keuzes die bij elke transcriptie opnieuw moeten worden gemaakt — en het dialoogvenster kijkt opnieuw wanneer ze sluiten.
+
+De taal wordt voor de volgende keer bewaard. De engine zelf en de grenzen van de ondertitels zijn
 [instellingen](preferences.md) (`transcription.*`).
 
 **Wanneer het project al ondertitels bevat, vraagt het venster of het ze mag vervangen**, en zegt het hoeveel
@@ -131,8 +139,7 @@ inbegrepen. Een transcriptie die mislukt, of die u annuleert, verandert niets �
 gemeld in een venstertje, behalve bij een annulering, die alleen in de statusbalk meldt dat ze is geannuleerd.
 
 **Wat het nodig heeft wordt niet meegeleverd**: een engine (whisper.cpp), een model en `ffmpeg` om de audio uit te pakken.
-Wanneer er iets ontbreekt, zegt het venstertje wat, en verwijst het naar
-[De transcriptiehulpmiddelen installeren](../subedit-cli/install-transcription.md).
+Zie [De transcriptiehulpmiddelen installeren](../subedit-cli/install-transcription.md).
 
 ## Wanneer er geen film is
 

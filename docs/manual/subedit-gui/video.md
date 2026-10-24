@@ -105,16 +105,24 @@ the [grid deduced from the positions](frame-grid.md), which is another one.
 is the audio of **the film of the project**, and never a file you would pick — to transcribe an
 audio file, use [`transcribe`](../subedit-cli/transcribe.md) on the command line.
 
-The dialog asks for three things:
+The dialog asks for two things, and says whether it can start:
 
 - **the audio track**, listed as the [`Audio`](#the-audio-track) menu lists them, with the language
   and the title the file declares;
 - **the language**, two letters such as `en` or `fr`. It starts with the language of the chosen
   track when the file declares one, follows the track as long as you have not typed one, and
-  left empty it lets the model **detect** the language;
-- **the model**, a file, with a `Browse…` button.
+  **a line under the field says where it comes from**. When the file declares no language for the track,
+  the line says so: the model will then detect it from the sound, which only a multilingual model
+  does, and you should type it if you know it. With a model for English alone, which detects
+  nothing, the line says that the language must be typed.
 
-The choices are kept for the next time. The engine itself and the limits of the subtitles are
+**It also says what is missing.** Three lines tell whether the engine, `ffmpeg` and the model are there, and
+where; when one is not, `OK` stays out, and the dialog says so with the pointer to
+[Installing the transcription tools](../subedit-cli/install-transcription.md). A `Preferences…` button opens
+the [preferences](preferences.md#transcription), where the program and the model are set — they are facts
+about the machine, not choices to make again at each transcription — and the dialog looks again when they close.
+
+The language is kept for the next time. The engine itself and the limits of the subtitles are
 [settings](preferences.md) (`transcription.*`).
 
 **When the project already holds subtitles, the window asks before replacing them**, and says how
@@ -128,8 +136,7 @@ texts included. A transcription that fails, or that you cancel, changes nothing 
 said in a box, except for a cancellation, which only says it was cancelled in the status bar.
 
 **What it needs is not shipped**: an engine (whisper.cpp), a model, and `ffmpeg` to extract the audio.
-When one is missing, the box says which, and points to
-[Installing the transcription tools](../subedit-cli/install-transcription.md).
+See [Installing the transcription tools](../subedit-cli/install-transcription.md).
 
 ## When there is no film
 

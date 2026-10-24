@@ -108,16 +108,24 @@ li [grille deducet del positiones](frame-grid.md), quel es un altri.
 li audio del **film del projecte**, e jamais un file quel vu electe — por transcrir un
 file audio, usa [`transcribe`](../subedit-cli/transcribe.md) in li linea de comande.
 
-Li dialog demanda tri cosas:
+Li dialog demanda du cosas, e dit si it posse comensar:
 
 - **li pista audio**, listat quam li menu [`Audio`](#li-pista-audio) les lista, con li lingue
   e li titul quel li file declara;
 - **li lingue**, du líttere quam `en` o `fr`. It comensa con li lingue del pista selectet quande li file
   declara un, seque li pista tam long quam vu ne ha tipat un, e
-  si it resta vacui, it lassa li model **detecter** li lingue;
-- **li model**, un file, con un buton `Browse…`.
+  **un linea sub li camp dit de u it veni**. Quande li file declara null lingue por li pista,
+  li linea dit it: li model detectará it tande del son, quo solmen un model multilingual
+  save far, e vu deve tipar it si vu save it. Con un model solmen por anglesi, quel detecte nequo,
+  li linea dit que li lingue deve esser tipat.
 
-Li selectiones es conservat por li sequent vice. Li motor self e li límites del subtitules es
+**It dit anc quo manca.** Tri lineas dit si li motor, `ffmpeg` e li model es ibi, e
+u; quande un ne es ibi, `OK` resta extint, e li dialog dit it con li indication a
+[Instalar li utensiles de transcription](../subedit-cli/install-transcription.md). Un buton `Preferences…` aperi
+li [preferenties](preferences.md#transcription), u li programma e li model es definit — ples es fattes
+pri li machine, ne selectiones a refar a chascun transcription — e li dialog regarda denov quande les es cludet.
+
+Li lingue es conservat por li sequent vice. Li motor self e li límites del subtitules es
 [parametres](preferences.md) (`transcription.*`).
 
 **Quande li projecte ja contene subtitules, li fenestre demanda ante remplazzar les**, e dit
@@ -131,8 +139,7 @@ de traduction includet. Un transcription quel fallis, o quel vu anulla, changea 
 es dit in un cadre, except por un anullation, quel solmen dit in li barre de statu que it esset anullat.
 
 **Quo it besona ne es livrat con li programma**: un motor (whisper.cpp), un model, e `ffmpeg` por extraer li audio.
-Quande alquo manca, li cadre dit quo, e indica
-[Instalar li utensiles de transcription](../subedit-cli/install-transcription.md).
+Vide [Instalar li utensiles de transcription](../subedit-cli/install-transcription.md).
 
 ## Quande il ne ha film
 

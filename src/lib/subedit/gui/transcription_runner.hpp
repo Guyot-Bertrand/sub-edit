@@ -2,6 +2,7 @@
 
 #include <subedit/core/config/transcription_settings.hpp>
 #include <subedit/core/model/subtitle.hpp>
+#include <subedit/core/transcription/tools_status.hpp>
 
 #include <expected>
 #include <filesystem>
@@ -54,6 +55,11 @@ public:
     [[nodiscard]] virtual std::expected<TranscriptionOutcome, TranscriptionFailure>
     run(const TranscriptionJob& job, QWidget* parent) = 0;
 
+    /// Which of what a transcription needs is there, for the settings given. Asked each time the
+    /// window shows it: the person installs a tool, comes back, and expects the window to know.
+    [[nodiscard]] virtual core::TranscriptionTools
+    tools(const core::TranscriptionSettings& settings) = 0;
+
 protected:
     TranscriptionRunner() = default;
     TranscriptionRunner(const TranscriptionRunner&) = default;
@@ -78,6 +84,9 @@ public:
 
     [[nodiscard]] std::expected<TranscriptionOutcome, TranscriptionFailure>
     run(const TranscriptionJob& job, QWidget* parent) override;
+
+    [[nodiscard]] core::TranscriptionTools
+    tools(const core::TranscriptionSettings& settings) override;
 
 private:
     std::string m_searchPath;

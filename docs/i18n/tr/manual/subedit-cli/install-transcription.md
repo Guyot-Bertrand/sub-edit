@@ -20,14 +20,11 @@ dediği gibi derleyin (bir C++ derleyicisi ve CMake yeterlidir):
 ```bash
 git clone https://github.com/ggml-org/whisper.cpp
 cd whisper.cpp
-cmake -B build
+cmake -B build -DBUILD_SHARED_LIBS=OFF
 cmake --build build -j --config Release
 ```
 
-Program bundan sonra `build/bin/whisper-cli` olur. Onu `PATH` içinde bulunacağı bir yere koyun ya da
-`transcription.executable` ayarıyla subedit'e **yolunu verin**. Bir ekran kartı için derleme, belgelerinin
-verdiği seçeneklerle yapılır; subedit sizin kurduğunuzu çalıştırır ve sizin yerinize hiçbir şey
-seçmez.
+Program bundan sonra `build/bin/whisper-cli` olur. Yukarıdaki gibi `-DBUILD_SHARED_LIBS=OFF` ile derlendiğinde, yanında hiçbir kitaplık gerektirmeyen tek bir dosyadır; bu yüzden onu istediğiniz yere kopyalayabilirsiniz. Onu `PATH` içinde bulunacağı bir yere koyun ya da `transcription.executable` ayarıyla subedit'e **yolunu verin** — pencerede bunun için [tercihlerde](../subedit-gui/preferences.md#yazıya-dökme) bir alan vardır. Bir ekran kartı için derleme, ilk `cmake` satırına tek bir seçenek ekler: NVIDIA kartı için `-DGGML_CUDA=1`, diğerlerinin çoğu için `-DGGML_VULKAN=1`; subedit sizin kurduğunuzu çalıştırır ve sizin yerinize hiçbir şey seçmez.
 
 ## Bir model
 
@@ -41,7 +38,7 @@ sh ./models/download-ggml-model.sh small
 ```
 
 Sonra yolunu komut satırında `--model` ile, ya da `transcription.model` ayarıyla,
-ya da onu hatırlayan pencerenin iletişim kutusunda verin.
+ya da pencerenin, onu hatırlayan [tercihlerinde](../subedit-gui/preferences.md#yazıya-dökme) verin.
 
 ### Hangi dil için hangi model
 

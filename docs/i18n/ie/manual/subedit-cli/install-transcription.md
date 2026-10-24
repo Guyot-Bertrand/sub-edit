@@ -20,14 +20,11 @@ quam su propri documentation dit (un compilator de C++ e CMake sufficte):
 ```bash
 git clone https://github.com/ggml-org/whisper.cpp
 cd whisper.cpp
-cmake -B build
+cmake -B build -DBUILD_SHARED_LIBS=OFF
 cmake --build build -j --config Release
 ```
 
-Li programma es tande `build/bin/whisper-cli`. Pone it u vor `PATH` lo trova, o **dona su
-chemin** a subedit con li parametre `transcription.executable`. Un compilation por un carte graphic es fat
-con li optiones quel su documentation dona; subedit lance li un quel vu ha instalat e selecte nequo
-por vu.
+Li programma es tande `build/bin/whisper-cli`. Compilat con `-DBUILD_SHARED_LIBS=OFF`, quam ci-supra, it es un singul file quel besona null biblioteca apu it, dunc vu posse copiar it u vu vole. Pone it u vor `PATH` lo trova, o **dona su chemin** a subedit con li parametre `transcription.executable` — in li fenestre, li [preferenties](../subedit-gui/preferences.md#transcription) have un camp por to. Un compilation por un carte graphic adde un optione a li unesim linea de `cmake`: `-DGGML_CUDA=1` por un carte NVIDIA, `-DGGML_VULKAN=1` por li plu de them altri; subedit lance li un quel vu ha instalat e selecte nequo por vu.
 
 ## Un model
 
@@ -41,7 +38,7 @@ sh ./models/download-ggml-model.sh small
 ```
 
 Poy dona su chemin con `--model` in li linea de comande, o con li parametre `transcription.model`,
-o in li dialog del fenestre, quel memora it.
+o in li [preferenties](../subedit-gui/preferences.md#transcription) del fenestre, quel memora les.
 
 ### Quel model por quel lingue
 

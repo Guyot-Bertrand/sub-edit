@@ -16,6 +16,7 @@
 #include <functional>
 #include <optional>
 #include <string>
+#include <utility>
 #include <vector>
 
 namespace subedit::test {
@@ -64,14 +65,14 @@ public:
         return nextShiftedReopeningAccepted;
     }
 
-    /// The model the chooser answers, and where it was told to open.
-    std::optional<std::filesystem::path> nextModelToOpen{};
-    std::filesystem::path lastModelStart{};
+    /// What the chooser of a model or of a program answers, and what it was asked.
+    std::optional<std::filesystem::path> nextFileToChoose{};
+    std::vector<std::pair<gui::ChosenFile, std::filesystem::path>> filesChosenFrom{};
 
     [[nodiscard]] std::optional<std::filesystem::path>
-    modelToOpen(const std::filesystem::path& current) override {
-        lastModelStart = current;
-        return nextModelToOpen;
+    fileToChoose(gui::ChosenFile what, const std::filesystem::path& current) override {
+        filesChosenFrom.emplace_back(what, current);
+        return nextFileToChoose;
     }
 
     /// What each confirmation of a replacement said, and whether the next is accepted.

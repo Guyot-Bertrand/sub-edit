@@ -20,14 +20,11 @@ a `whisper-cli`, amely hétköznapi processzoron fut — a videokártya csak gyo
 ```bash
 git clone https://github.com/ggml-org/whisper.cpp
 cd whisper.cpp
-cmake -B build
+cmake -B build -DBUILD_SHARED_LIBS=OFF
 cmake --build build -j --config Release
 ```
 
-A program ezután a `build/bin/whisper-cli`. Tegye oda, ahol a `PATH` megtalálja, vagy **adja meg az
-elérési útját** a subeditnek a `transcription.executable` beállítással. A videokártyához készült építés
-a dokumentációja által megadott kapcsolókkal történik; a subedit azt futtatja, amit telepített, és semmit
-sem választ Ön helyett.
+A program ezután a `build/bin/whisper-cli`. A fentiek szerint `-DBUILD_SHARED_LIBS=OFF` kapcsolóval építve egyetlen fájl, amely mellé nem kell semmilyen programkönyvtár, így bárhová átmásolhatja. Tegye oda, ahol a `PATH` megtalálja, vagy **adja meg az elérési útját** a subeditnek a `transcription.executable` beállítással — az ablakban a [beállításoknak](../subedit-gui/preferences.md#leiratozás) van erre mezőjük. A videokártyához készült építés egy kapcsolóval egészíti ki az első `cmake` sort: `-DGGML_CUDA=1` NVIDIA-kártyához, `-DGGML_VULKAN=1` a legtöbb máshoz; a subedit azt futtatja, amit telepített, és semmit sem választ Ön helyett.
 
 ## Egy modell
 
@@ -41,7 +38,7 @@ sh ./models/download-ggml-model.sh small
 ```
 
 Ezután adja meg az elérési útját az `--model` kapcsolóval a parancssorban, vagy a `transcription.model` beállítással,
-vagy az ablak párbeszédablakában, amely megjegyzi.
+vagy az ablak [beállításaiban](../subedit-gui/preferences.md#leiratozás), amelyek megjegyzik.
 
 ### Melyik modell melyik nyelvhez
 

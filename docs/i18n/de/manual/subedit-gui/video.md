@@ -108,16 +108,24 @@ das [aus den Positionen abgeleitete Raster](frame-grid.md), das eine andere ist.
 das Audio **des Films des Projekts**, nie eine Datei, die Sie auswählen würden — um eine
 Audiodatei zu transkribieren, verwenden Sie [`transcribe`](../subedit-cli/transcribe.md) in der Befehlszeile.
 
-Der Dialog fragt nach drei Dingen:
+Der Dialog fragt nach zwei Dingen und sagt, ob er beginnen kann:
 
 - **der Tonspur**, aufgelistet, wie das Menü [`Audio`](#die-tonspur) sie auflistet, mit der Sprache
   und dem Titel, die die Datei angibt;
 - **der Sprache**, zwei Buchstaben wie `en` oder `fr`. Sie beginnt mit der Sprache der gewählten
   Spur, wenn die Datei eine angibt, folgt der Spur, solange Sie keine eingegeben haben, und
-  leer gelassen überlässt sie dem Modell, die Sprache zu **erkennen**;
-- **dem Modell**, einer Datei, mit einer Schaltfläche `Browse…`.
+  **eine Zeile unter dem Feld sagt, woher sie stammt**. Gibt die Datei für die Spur keine Sprache an,
+  sagt die Zeile das: Das Modell erkennt sie dann aus dem Ton, was nur ein mehrsprachiges Modell
+  kann, und Sie sollten sie eingeben, wenn Sie sie kennen. Bei einem Modell nur für Englisch, das
+  nichts erkennt, sagt die Zeile, dass die Sprache eingegeben werden muss.
 
-Die Auswahl wird für das nächste Mal gemerkt. Die Engine selbst und die Grenzen der Untertitel sind
+**Er sagt auch, was fehlt.** Drei Zeilen sagen, ob die Engine, `ffmpeg` und das Modell vorhanden sind, und
+wo; fehlt eines, bleibt `OK` ausgegraut, und der Dialog sagt es mit dem Verweis auf
+[Die Transkriptionswerkzeuge installieren](../subedit-cli/install-transcription.md). Eine Schaltfläche `Preferences…` öffnet
+die [Einstellungen](preferences.md#transkription), in denen das Programm und das Modell festgelegt werden — das sind Tatsachen
+über den Rechner, keine Entscheidungen, die bei jeder Transkription neu zu treffen wären — und der Dialog prüft erneut, wenn sie geschlossen werden.
+
+Die Sprache wird für das nächste Mal gemerkt. Die Engine selbst und die Grenzen der Untertitel sind
 [Einstellungen](preferences.md) (`transcription.*`).
 
 **Enthält das Projekt bereits Untertitel, fragt das Fenster nach, bevor es sie ersetzt**, und sagt,
@@ -131,8 +139,8 @@ Transkription ersetzt, **als ein einziger Vorgang**: Ein einziges `Undo` gibt zu
 in einem Feld genannt, außer bei einem Abbruch, der in der Statusleiste nur sagt, dass abgebrochen wurde.
 
 **Was sie braucht, wird nicht ausgeliefert**: eine Engine (whisper.cpp), ein Modell und `ffmpeg`, um das Audio zu extrahieren.
-Fehlt eines, sagt das Feld welches und verweist auf
-[Die Transkriptionswerkzeuge installieren](../subedit-cli/install-transcription.md).
+Siehe [Die Transkriptionswerkzeuge installieren](../subedit-cli/install-transcription.md).
+
 ## Wenn es keinen Film gibt
 
 Das Fenster zeigt eine Schaltfläche **`Select Video…`** dort, wo das Bild stünde, statt

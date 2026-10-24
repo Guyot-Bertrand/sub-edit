@@ -17,14 +17,16 @@ as its own documentation says (a C++ compiler and CMake are enough):
 ```bash
 git clone https://github.com/ggml-org/whisper.cpp
 cd whisper.cpp
-cmake -B build
+cmake -B build -DBUILD_SHARED_LIBS=OFF
 cmake --build build -j --config Release
 ```
 
-The program is then `build/bin/whisper-cli`. Put it where your `PATH` finds it, or **give its
-path** to subedit with the setting `transcription.executable`. A build for a graphics card is made
-with the options its documentation gives; subedit runs whichever you installed and chooses nothing
-for you.
+The program is then `build/bin/whisper-cli`. Built with `-DBUILD_SHARED_LIBS=OFF`, as above, it is a
+single file that needs no library beside it, so you can copy it anywhere. Put it where your `PATH` finds it, or
+**give its path** to subedit with the setting `transcription.executable` — in the window, the
+[preferences](../subedit-gui/preferences.md#transcription) have a field for it. A build for a graphics card adds
+one option to the first `cmake` line: `-DGGML_CUDA=1` for an NVIDIA card, `-DGGML_VULKAN=1` for most others;
+subedit runs whichever you installed and chooses nothing for you.
 
 ## A model
 
@@ -38,7 +40,7 @@ sh ./models/download-ggml-model.sh small
 ```
 
 Then give its path with `--model` on the command line, or with the setting `transcription.model`,
-or in the dialog of the window, which remembers it.
+or in the [preferences](../subedit-gui/preferences.md#transcription) of the window, which remember it.
 
 ### Which model for which language
 

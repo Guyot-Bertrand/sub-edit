@@ -280,6 +280,19 @@ glugga; undir ljósu skjáborði, ljósan glugga. `Light` og `Dark` ganga framar
 [Taflan](table.md#frávikin). Það er ekki forsenda: birtuskil
 textans á hverju litbrigði eru athuguð með prófi, á báðum bakgrunnum.
 
+## Umritun
+
+Hópurinn **`Transcription`** í glugganum geymir staðreyndirnar tvær um tölvuna sem
+[`Transcribe Audio…`](video.md#umritun-hljóðsins) þarf: **forrit** vélarinnar (whisper.cpp,
+`whisper-cli`) og **líkanið** sem hún les. Hvort um sig hefur hnapp sem heitir `Browse…`. Sé forritið skilið eftir autt er þess leitað
+að á `PATH`; líkanið hefur ekkert sjálfgefið gildi.
+
+Undir reitunum **segir glugginn hvað er til staðar**: hvort vélin finnst og hvar, hvort `ffmpeg`
+finnst, og líkanið — ekki stillt, fannst ekki, er ekki líkan, fyrir ensku eingöngu, eða fjöltyngt. Þegar eitthvað
+vantar bætir hann við tilvísun á
+[Uppsetning umritunartækjanna](../subedit-cli/install-transcription.md), sem segir hvar finna má
+hvert um sig. Reitirnir tveir eru stillingarnar `transcription.executable` og `transcription.model`.
+
 ## Tungumál viðmótsins
 
 `Breyta ▸ Kjörstillingar…` velur tungumál gluggans, undir þemanu.

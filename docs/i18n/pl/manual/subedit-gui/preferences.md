@@ -279,6 +279,19 @@ bez względu na pulpit.
 [Tabela](table.md#anomalie). To nie założenie: kontrast
 tekstu na każdym z odcieni jest sprawdzany testem, na obu tłach.
 
+## Transkrypcja
+
+Grupa **`Transcription`** okna dialogowego zawiera dwie informacje o maszynie, których potrzebuje
+[`Transcribe Audio…`](video.md#transkrypcja-dźwięku): **program** silnika (whisper.cpp,
+`whisper-cli`) i **model**, który on czyta. Każde z pól ma przycisk `Browse…`. Gdy pole pozostaje puste, program jest szukany
+w `PATH`; model nie ma wartości domyślnej.
+
+Pod polami **okno mówi, co jest na miejscu**: czy silnik został znaleziony i gdzie, czy `ffmpeg`
+został znaleziony, oraz model — nie ustawiony, nie znaleziony, nie jest modelem, tylko dla angielskiego albo wielojęzyczny. Gdy czegoś
+brakuje, dodaje odsyłacz do
+[Instalowanie narzędzi do transkrypcji](../subedit-cli/install-transcription.md), który mówi, gdzie znaleźć
+każde z nich. Te dwa pola to ustawienia `transcription.executable` i `transcription.model`.
+
 ## Język interfejsu
 
 `Edycja ▸ Preferencje…` wybiera język okna, pod motywem.

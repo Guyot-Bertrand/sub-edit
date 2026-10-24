@@ -107,16 +107,24 @@ związany jest ten dokument — a trzecia wzmianka stawiałaby go w jednym rzęd
 dźwięk **filmu projektu**, nigdy plik, który się wybiera — aby transkrybować plik
 dźwiękowy, użyj [`transcribe`](../subedit-cli/transcribe.md) w wierszu poleceń.
 
-Okno dialogowe pyta o trzy rzeczy:
+Okno dialogowe pyta o dwie rzeczy i mówi, czy może zacząć:
 
 - **ścieżkę dźwiękową**, wymienioną tak, jak wymienia ją menu [`Audio`](#ścieżka-dźwiękowa), z językiem
   i tytułem, które deklaruje plik;
 - **język**, dwie litery, takie jak `en` lub `fr`. Zaczyna od języka wybranej ścieżki,
   gdy plik go deklaruje, podąża za ścieżką, dopóki nie wpiszesz własnego, a
-  pozostawiony pusty pozwala modelowi **wykryć** język;
-- **model**, plik, z przyciskiem `Browse…`.
+  **wiersz pod polem mówi, skąd on pochodzi**. Gdy plik nie deklaruje języka dla ścieżki,
+  wiersz to mówi: model wykryje go wtedy z dźwięku, co potrafi tylko model wielojęzyczny,
+  i warto go wpisać, jeśli go znasz. Przy modelu tylko dla angielskiego, który niczego nie wykrywa,
+  wiersz mówi, że język trzeba wpisać.
 
-Wybory są zapamiętywane na następny raz. Sam silnik i limity napisów to
+**Mówi także, czego brakuje.** Trzy wiersze mówią, czy silnik, `ffmpeg` i model są na miejscu, i
+gdzie; gdy któregoś brak, `OK` pozostaje wyłączony, a okno mówi o tym, odsyłając do
+[Instalowanie narzędzi do transkrypcji](../subedit-cli/install-transcription.md). Przycisk `Preferences…` otwiera
+[preferencje](preferences.md#transkrypcja), w których ustawia się program i model — to fakty
+o maszynie, a nie wybory do powtarzania przy każdej transkrypcji — a okno sprawdza ponownie, gdy się zamkną.
+
+Język jest zapamiętywany na następny raz. Sam silnik i limity napisów to
 [ustawienia](preferences.md) (`transcription.*`).
 
 **Gdy projekt zawiera już napisy, okno pyta przed ich zastąpieniem** i mówi, ile ich zniknie.
@@ -130,8 +138,7 @@ tłumaczenia. Transkrypcja, która się nie powiedzie albo którą anulujesz, ni
 podawana w oknie, z wyjątkiem anulowania, które tylko w pasku stanu mówi, że zostało anulowane.
 
 **To, czego potrzebuje, nie jest dostarczane**: silnik (whisper.cpp), model i `ffmpeg` do wyodrębnienia dźwięku.
-Gdy czegoś brakuje, okno mówi czego i odsyła do
-[Instalowanie narzędzi do transkrypcji](../subedit-cli/install-transcription.md).
+Zobacz [Instalowanie narzędzi do transkrypcji](../subedit-cli/install-transcription.md).
 
 ## Gdy nie ma filmu
 

@@ -3426,6 +3426,52 @@ msgstr[1] ""
 "Bu projenin %1 altyazısı yazıya dökmeyle değiştirilecek. Geri alabilirsiniz."
 
 #: src/lib/subedit/core/wording/transcription.cpp
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "%1: found (%2)"
+msgstr "%1: bulundu (%2)"
+
+# From Gaupol.
+#: src/lib/subedit/core/wording/transcription.cpp
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "%1: not found"
+msgstr "%1: bulunamadı"
+
+#: src/lib/subedit/core/wording/transcription.cpp
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "ffmpeg: found"
+msgstr "ffmpeg: bulundu"
+
+#: src/lib/subedit/core/wording/transcription.cpp
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "ffmpeg: not found"
+msgstr "ffmpeg: bulunamadı"
+
+#: src/lib/subedit/core/wording/transcription.cpp
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "Model: none set"
+msgstr "Model: ayarlanmamış"
+
+#: src/lib/subedit/core/wording/transcription.cpp
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "Model: not found (%1)"
+msgstr "Model: bulunamadı (%1)"
+
+#: src/lib/subedit/core/wording/transcription.cpp
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "Model: not a model (%1)"
+msgstr "Model: bu bir model değil (%1)"
+
+#: src/lib/subedit/core/wording/transcription.cpp
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "Model: English only (%1)"
+msgstr "Model: yalnızca İngilizce (%1)"
+
+#: src/lib/subedit/core/wording/transcription.cpp
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "Model: multilingual (%1)"
+msgstr "Model: çok dilli (%1)"
+
+#: src/lib/subedit/core/wording/transcription.cpp
 msgid "transcribing: %1%"
 msgstr "yazıya dökme: %1%"
 
@@ -4226,6 +4272,10 @@ msgstr "Satır uzunluklarını düzenleyicide göster"
 msgid "Decode on the graphics card"
 msgstr "Ekran kartında çöz"
 
+#: src/lib/subedit/gui/preferences_dialog.cpp
+msgid "Browse…"
+msgstr "Gözat…"
+
 # From Gaupol.
 #: src/lib/subedit/gui/preferences_dialog.cpp
 msgid "Preferences"
@@ -4263,6 +4313,26 @@ msgstr "Bağlam uzunluğu"
 #: src/lib/subedit/gui/preferences_dialog.cpp
 msgid "Frame step"
 msgstr "Kare adımı"
+
+#: src/lib/subedit/gui/preferences_dialog.cpp
+#: src/lib/subedit/gui/preferences_dialog.cpp
+msgid "Searched for on the PATH"
+msgstr "PATH içinde aranır"
+
+#: src/lib/subedit/gui/preferences_dialog.cpp
+#: src/lib/subedit/gui/preferences_dialog.cpp
+msgid "Program"
+msgstr "Program"
+
+#: src/lib/subedit/gui/preferences_dialog.cpp
+msgid "Model"
+msgstr "Model"
+
+# From Gaupol.
+#: src/lib/subedit/gui/preferences_dialog.cpp
+#: src/lib/subedit/gui/preferences_dialog.cpp
+msgid "Transcription"
+msgstr "Yazıya dökme"
 
 #: src/lib/subedit/gui/project_files.cpp
 msgid "Save All stopped: %1 of %2 document saved"
@@ -4320,6 +4390,11 @@ msgstr "Video Seç"
 #: src/lib/subedit/gui/qt_prompts.cpp
 msgid "Choose a model"
 msgstr "Model seç"
+
+#: src/lib/subedit/gui/qt_prompts.cpp
+#: src/lib/subedit/gui/qt_prompts.cpp
+msgid "Choose the program"
+msgstr "Programı seç"
 
 #: src/lib/subedit/gui/qt_prompts.cpp
 msgid "Models (*.bin);;All files (*)"
@@ -4624,8 +4699,9 @@ msgid "Main"
 msgstr "Ana"
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
-msgid "Browse…"
-msgstr "Gözat…"
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+msgid "Preferences…"
+msgstr "Tercihler…"
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
 #: src/lib/subedit/gui/transcription_runner.cpp
@@ -4637,8 +4713,9 @@ msgid "First audio track"
 msgstr "İlk ses izi"
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
-msgid "Detected"
-msgstr "Algılandı"
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+msgid "Detected from the sound"
+msgstr "Sesten algılanır"
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
 msgid ""
@@ -4647,14 +4724,6 @@ msgid ""
 msgstr ""
 "en veya fr gibi iki harfli bir dil kodu. Modelin dili algılaması için boş "
 "bırakın."
-
-#: src/lib/subedit/gui/transcribe_dialog.cpp
-msgid ""
-"The model file the engine reads. It is not shipped with the program: the "
-"manual says where to find one."
-msgstr ""
-"Motorun okuduğu model dosyası. Programla birlikte gelmez: kılavuz nerede "
-"bulunacağını söyler."
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
 msgid ""
@@ -4674,8 +4743,29 @@ msgid "Language"
 msgstr "Dil"
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
-msgid "Model"
-msgstr "Model"
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+msgid "Set them in the preferences."
+msgstr "Bunları tercihlerde ayarlayın."
+
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+msgid "This model cannot detect the language: type it."
+msgstr "Bu model dili algılayamaz: dili yazın."
+
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+msgid "The language you typed is used."
+msgstr "Yazdığınız dil kullanılır."
+
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+msgid "Proposed from the language the file declares for this track."
+msgstr "Dosyanın bu iz için bildirdiği dilden önerildi."
+
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+msgid "The file declares no language for this track: the model will detect it from the sound. Type it if you know it."
+msgstr "Dosya bu iz için bir dil bildirmiyor: model dili sesten algılayacak. Biliyorsanız yazın."
 
 #: src/lib/subedit/gui/transcription_runner.cpp
 #: src/lib/subedit/gui/unsaved_documents_dialog.cpp
@@ -5080,3 +5170,13 @@ msgstr "İtalik"
 msgctxt "toolbar"
 msgid "Main"
 msgstr "Ana"
+
+#~ msgid "Detected"
+#~ msgstr "Algılandı"
+
+#~ msgid ""
+#~ "The model file the engine reads. It is not shipped with the program: the "
+#~ "manual says where to find one."
+#~ msgstr ""
+#~ "Motorun okuduğu model dosyası. Programla birlikte gelmez: kılavuz nerede "
+#~ "bulunacağını söyler."

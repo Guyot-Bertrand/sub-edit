@@ -108,16 +108,23 @@ a [grade deducida das posicións](frame-grid.md), que é outro.
 o son da **película do proxecto**, e nunca un ficheiro que escollese — para transcribir un
 ficheiro de son, use [`transcribe`](../subedit-cli/transcribe.md) na liña de ordes.
 
-O diálogo pide tres cousas:
+O diálogo pide dúas cousas, e di se pode comezar:
 
 - **a pista de son**, listada como a lista o menú [`Audio`](#a-pista-de-son), coa lingua
   e o título que declara o ficheiro;
 - **a lingua**, dúas letras como `en` ou `fr`. Comeza coa lingua da pista escollida cando o
   ficheiro a declara, segue a pista mentres non teclee unha, e
-  se se deixa baleira, deixa que o modelo **detecte** a lingua;
-- **o modelo**, un ficheiro, cun botón `Browse…`.
+  **unha liña baixo o campo di de onde vén**. Cando o ficheiro non declara ningunha lingua para a pista,
+  a liña di que o modelo a detectará entón a partir do son, o que só fai un modelo multilingüe, e que
+  debería teclear a lingua se a coñece. Cun modelo só para inglés, que non detecta nada, a liña di que a lingua hai que tecleala.
 
-As escollas consérvanse para a próxima vez. O motor en si e os límites dos subtítulos son
+**Tamén di o que falta.** Tres liñas din se o motor, `ffmpeg` e o modelo están aí, e
+onde; cando algún non está, `OK` queda apagado, e o diálogo dío co enlace a
+[Instalar as ferramentas de transcrición](../subedit-cli/install-transcription.md). Un botón `Preferences…` abre
+as [preferencias](preferences.md#transcrición), onde se definen o programa e o modelo — son feitos
+sobre a máquina, non escollas que haxa que repetir en cada transcrición — e o diálogo mira de novo cando se pechan.
+
+A lingua consérvase para a próxima vez. O motor en si e os límites dos subtítulos son
 [axustes](preferences.md) (`transcription.*`).
 
 **Cando o proxecto xa ten subtítulos, a xanela pregunta antes de substituílos**, e di
@@ -131,8 +138,7 @@ de tradución incluídos. Unha transcrición que falla, ou que cancela, non camb
 dise nunha caixa, salvo nunha cancelación, que só o di na barra de estado.
 
 **O que necesita non vén co programa**: un motor (whisper.cpp), un modelo e `ffmpeg` para extraer o son.
-Cando falta algo, a caixa di o que, e apunta a
-[Instalar as ferramentas de transcrición](../subedit-cli/install-transcription.md).
+Vexa [Instalar as ferramentas de transcrición](../subedit-cli/install-transcription.md).
 
 ## Cando non hai película
 

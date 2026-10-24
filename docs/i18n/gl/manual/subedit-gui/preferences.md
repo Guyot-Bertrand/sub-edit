@@ -279,6 +279,19 @@ sexa cal sexa o escritorio.
 [A táboa](table.md#as-anomalías). Non é unha suposición: o contraste
 do texto sobre cada unha das tinguiduras compróbao unha proba, sobre os dous fondos.
 
+## Transcrición
+
+O grupo **`Transcription`** do diálogo contén os dous datos sobre a máquina que
+[`Transcribe Audio…`](video.md#transcribir-o-son) precisa: **o programa** do motor (whisper.cpp,
+`whisper-cli`) e **o modelo** que le. Cada un ten un botón `Browse…`. Se se deixa baleiro, o programa búscase
+no `PATH`; o modelo non ten valor predeterminado.
+
+Baixo os campos, **o diálogo di o que hai**: se o motor está atopado e onde, se `ffmpeg`
+está atopado, e o modelo — sen definir, non atopado, non é un modelo, só para inglés ou multilingüe. Cando algo
+falta engade o enlace a
+[Instalar as ferramentas de transcrición](../subedit-cli/install-transcription.md), que di onde atopar
+cada un. Os dous campos son os axustes `transcription.executable` e `transcription.model`.
+
 ## A lingua da interface
 
 `Editar ▸ Preferencias…` escolle a lingua da xanela, baixo o tema.

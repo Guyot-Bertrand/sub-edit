@@ -3471,6 +3471,52 @@ msgstr[2] ""
 "поништити."
 
 #: src/lib/subedit/core/wording/transcription.cpp
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "%1: found (%2)"
+msgstr "%1: пронађен (%2)"
+
+# From Gaupol.
+#: src/lib/subedit/core/wording/transcription.cpp
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "%1: not found"
+msgstr "%1: није пронађен"
+
+#: src/lib/subedit/core/wording/transcription.cpp
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "ffmpeg: found"
+msgstr "ffmpeg: пронађен"
+
+#: src/lib/subedit/core/wording/transcription.cpp
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "ffmpeg: not found"
+msgstr "ffmpeg: није пронађен"
+
+#: src/lib/subedit/core/wording/transcription.cpp
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "Model: none set"
+msgstr "Модел: није постављен"
+
+#: src/lib/subedit/core/wording/transcription.cpp
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "Model: not found (%1)"
+msgstr "Модел: није пронађен (%1)"
+
+#: src/lib/subedit/core/wording/transcription.cpp
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "Model: not a model (%1)"
+msgstr "Модел: ово није модел (%1)"
+
+#: src/lib/subedit/core/wording/transcription.cpp
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "Model: English only (%1)"
+msgstr "Модел: само енглески (%1)"
+
+#: src/lib/subedit/core/wording/transcription.cpp
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "Model: multilingual (%1)"
+msgstr "Модел: вишејезични (%1)"
+
+#: src/lib/subedit/core/wording/transcription.cpp
 msgid "transcribing: %1%"
 msgstr "транскрипција: %1 %"
 
@@ -4298,6 +4344,10 @@ msgstr "Прикажи дужине редова у уређивачу"
 msgid "Decode on the graphics card"
 msgstr "Декодирај на графичкој картици"
 
+#: src/lib/subedit/gui/preferences_dialog.cpp
+msgid "Browse…"
+msgstr "Прегледај…"
+
 # From Gaupol.
 #: src/lib/subedit/gui/preferences_dialog.cpp
 msgid "Preferences"
@@ -4335,6 +4385,26 @@ msgstr "Дужина контекста"
 #: src/lib/subedit/gui/preferences_dialog.cpp
 msgid "Frame step"
 msgstr "Корак по сличицама"
+
+#: src/lib/subedit/gui/preferences_dialog.cpp
+#: src/lib/subedit/gui/preferences_dialog.cpp
+msgid "Searched for on the PATH"
+msgstr "Тражи се у PATH-у"
+
+#: src/lib/subedit/gui/preferences_dialog.cpp
+#: src/lib/subedit/gui/preferences_dialog.cpp
+msgid "Program"
+msgstr "Програм"
+
+#: src/lib/subedit/gui/preferences_dialog.cpp
+msgid "Model"
+msgstr "Модел"
+
+# From Gaupol.
+#: src/lib/subedit/gui/preferences_dialog.cpp
+#: src/lib/subedit/gui/preferences_dialog.cpp
+msgid "Transcription"
+msgstr "Транскрипција"
 
 #: src/lib/subedit/gui/project_files.cpp
 msgid "Save All stopped: %1 of %2 document saved"
@@ -4392,6 +4462,11 @@ msgstr "Изабери филм"
 #: src/lib/subedit/gui/qt_prompts.cpp
 msgid "Choose a model"
 msgstr "Изабери модел"
+
+#: src/lib/subedit/gui/qt_prompts.cpp
+#: src/lib/subedit/gui/qt_prompts.cpp
+msgid "Choose the program"
+msgstr "Изабери програм"
 
 #: src/lib/subedit/gui/qt_prompts.cpp
 msgid "Models (*.bin);;All files (*)"
@@ -4695,8 +4770,9 @@ msgid "Main"
 msgstr "Главни"
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
-msgid "Browse…"
-msgstr "Прегледај…"
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+msgid "Preferences…"
+msgstr "Поставке…"
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
 #: src/lib/subedit/gui/transcription_runner.cpp
@@ -4708,8 +4784,9 @@ msgid "First audio track"
 msgstr "Прва звучна нумера"
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
-msgid "Detected"
-msgstr "Откривено"
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+msgid "Detected from the sound"
+msgstr "Открива се по звуку"
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
 msgid ""
@@ -4718,14 +4795,6 @@ msgid ""
 msgstr ""
 "Двословни код језика, као што је en или fr. Оставите празно да модел открије "
 "језик."
-
-#: src/lib/subedit/gui/transcribe_dialog.cpp
-msgid ""
-"The model file the engine reads. It is not shipped with the program: the "
-"manual says where to find one."
-msgstr ""
-"Датотека модела коју мотор чита. Не испоручује се са програмом: приручник "
-"каже где се може наћи."
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
 msgid ""
@@ -4745,8 +4814,29 @@ msgid "Language"
 msgstr "Језик"
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
-msgid "Model"
-msgstr "Модел"
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+msgid "Set them in the preferences."
+msgstr "Поставите их у поставкама."
+
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+msgid "This model cannot detect the language: type it."
+msgstr "Овај модел не уме да открије језик: наведите га."
+
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+msgid "The language you typed is used."
+msgstr "Користи се језик који сте унели."
+
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+msgid "Proposed from the language the file declares for this track."
+msgstr "Предложено према језику који датотека наводи за ову нумеру."
+
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+msgid "The file declares no language for this track: the model will detect it from the sound. Type it if you know it."
+msgstr "Датотека не наводи језик за ову нумеру: модел ће га открити по звуку. Наведите га ако га знате."
 
 #: src/lib/subedit/gui/transcription_runner.cpp
 #: src/lib/subedit/gui/unsaved_documents_dialog.cpp
@@ -5162,3 +5252,13 @@ msgstr "Курзив"
 msgctxt "toolbar"
 msgid "Main"
 msgstr "Главни"
+
+#~ msgid "Detected"
+#~ msgstr "Откривено"
+
+#~ msgid ""
+#~ "The model file the engine reads. It is not shipped with the program: the "
+#~ "manual says where to find one."
+#~ msgstr ""
+#~ "Датотека модела коју мотор чита. Не испоручује се са програмом: приручник "
+#~ "каже где се може наћи."

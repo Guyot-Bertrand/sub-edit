@@ -297,6 +297,19 @@ työpöydästä riippumatta.
 [Taulukko](table.md#poikkeamat). Se ei ole oletus: tekstin kontrasti jokaisella
 sävyllä tarkistetaan testillä molemmilla taustoilla.
 
+## Litterointi
+
+Valintaikkunan ryhmä **`Transcription`** sisältää ne kaksi tietoa koneesta, joita
+[`Transcribe Audio…`](video.md#äänen-litterointi) tarvitsee: moottorin **ohjelman** (whisper.cpp,
+`whisper-cli`) ja **mallin**, jota se lukee. Kummallakin on painike `Browse…`. Jos ohjelma jätetään tyhjäksi, sitä haetaan
+`PATH`-polusta; mallilla ei ole oletusarvoa.
+
+Kenttien alla **valintaikkuna kertoo, mitä on paikalla**: löytyykö moottori ja mistä, löytyykö `ffmpeg`,
+ja malli — ei asetettu, ei löytynyt, ei ole malli, vain englannille tai monikielinen. Kun jotakin
+puuttuu, se lisää viittauksen sivuun
+[Litterointityökalujen asentaminen](../subedit-cli/install-transcription.md), joka kertoo, mistä kukin löytyy.
+Nämä kaksi kenttää ovat asetukset `transcription.executable` ja `transcription.model`.
+
 ## Käyttöliittymän kieli
 
 `Muokkaa ▸ Asetukset…` valitsee ikkunan kielen teeman alapuolella.

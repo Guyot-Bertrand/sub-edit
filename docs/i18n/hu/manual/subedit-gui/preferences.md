@@ -276,6 +276,19 @@ az asztaltól függetlenül.
 [A táblázat](table.md#az-anomáliák). Ez nem feltevés: a szöveg
 kontrasztját minden színezésen egy teszt ellenőrzi, mindkét háttéren.
 
+## Leiratozás
+
+A párbeszédablak **`Transcription`** csoportja azt a két tényt tartalmazza a gépről, amelyre a
+[`Transcribe Audio…`](video.md#a-hang-leiratozása) szüksége van: a motor **programját** (whisper.cpp,
+`whisper-cli`) és a **modellt**, amelyet beolvas. Mindkettőhöz tartozik egy `Browse…` gomb. Üresen hagyva a programot
+a `PATH`-ban keresi; a modellnek nincs alapértéke.
+
+A mezők alatt **az ablak megmondja, mi van meg**: megvan-e a motor és hol, megvan-e az `ffmpeg`,
+és a modell — nincs megadva, nem található, nem modell, csak angolra való, vagy többnyelvű. Ha valami
+hiányzik, hozzáteszi a hivatkozást ide:
+[A leiratozó eszközök telepítése](../subedit-cli/install-transcription.md), amely megmondja, hol található
+mindegyik. A két mező a `transcription.executable` és a `transcription.model` beállítás.
+
 ## A felület nyelve
 
 A `Szerkesztés ▸ Beállítások…` a téma alatt választja ki az ablak nyelvét.

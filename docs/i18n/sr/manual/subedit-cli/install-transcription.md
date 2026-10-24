@@ -20,14 +20,11 @@
 ```bash
 git clone https://github.com/ggml-org/whisper.cpp
 cd whisper.cpp
-cmake -B build
+cmake -B build -DBUILD_SHARED_LIBS=OFF
 cmake --build build -j --config Release
 ```
 
-Програм је потом `build/bin/whisper-cli`. Ставите га тамо где га `PATH` налази, или **наведите његову
-путању** subedit-у поставком `transcription.executable`. Градња за графичку картицу прави се
-опцијама које даје њена документација; subedit покреће ону коју сте инсталирали и ништа не бира
-уместо вас.
+Програм је потом `build/bin/whisper-cli`. Изграђен са `-DBUILD_SHARED_LIBS=OFF`, као изнад, то је једна датотека којој поред себе није потребна никаква библиотека, па је можете копирати где год желите. Ставите га тамо где га `PATH` налази, или **наведите његову путању** subedit-у поставком `transcription.executable` — у прозору за то постоји поље у [поставкама](../subedit-gui/preferences.md#транскрипција). Градња за графичку картицу додаје једну опцију првом реду `cmake`: `-DGGML_CUDA=1` за NVIDIA картицу, `-DGGML_VULKAN=1` за већину осталих; subedit покреће ону коју сте инсталирали и ништа не бира уместо вас.
 
 ## Модел
 
@@ -41,7 +38,7 @@ sh ./models/download-ggml-model.sh small
 ```
 
 Затим наведите његову путању са `--model` у командној линији, или поставком `transcription.model`,
-или у дијалогу прозора, који је памти.
+или у [поставкама](../subedit-gui/preferences.md#транскрипција) прозора, које је памте.
 
 ### Који модел за који језик
 

@@ -108,16 +108,24 @@ staðsetningunum næst.
 hljóð **kvikmyndar verkefnisins**, aldrei skrá sem þú velur — til að umrita
 hljóðskrá skaltu nota [`transcribe`](../subedit-cli/transcribe.md) á skipanalínunni.
 
-Glugginn biður um þrennt:
+Glugginn biður um tvennt og segir hvort hann geti byrjað:
 
 - **hljóðrásina**, taldar upp eins og valmyndin [`Audio`](#hljóðrásin) telur þær upp, með tungumálinu
   og titlinum sem skráin gefur upp;
 - **tungumálið**, tveir stafir eins og `en` eða `fr`. Það byrjar á tungumáli valinnar rásar þegar skráin
   gefur það upp, fylgir rásinni svo lengi sem þú hefur ekki skrifað eitt, og
-  sé það skilið eftir tómt lætur það líkanið **greina** tungumálið;
-- **líkanið**, skrá, með hnappi sem heitir `Browse…`.
+  **lína undir reitnum segir hvaðan það kemur**. Þegar skráin gefur ekkert tungumál upp fyrir rásina
+  segir línan það: líkanið greinir það þá af hljóðinu, sem aðeins fjöltyngt líkan getur, og
+  þú ættir að slá það inn ef þú veist það. Með líkani fyrir ensku eingöngu, sem greinir ekkert,
+  segir línan að slá þurfi tungumálið inn.
 
-Valið er geymt til næsta skiptis. Vélin sjálf og mörk skjátextanna eru
+**Hann segir líka hvað vantar.** Þrjár línur segja hvort vélin, `ffmpeg` og líkanið séu til staðar, og
+hvar; þegar eitthvað vantar helst `OK` óvirkt, og glugginn segir það með tilvísun á
+[Uppsetning umritunartækjanna](../subedit-cli/install-transcription.md). Hnappurinn `Preferences…` opnar
+[kjörstillingarnar](preferences.md#umritun), þar sem forritið og líkanið eru stillt — þetta eru staðreyndir
+um tölvuna, ekki val sem þarf að endurtaka við hverja umritun — og glugginn skoðar aftur þegar þeim er lokað.
+
+Tungumálið er geymt til næsta skiptis. Vélin sjálf og mörk skjátextanna eru
 [stillingar](preferences.md) (`transcription.*`).
 
 **Þegar verkefnið geymir þegar skjátexta spyr glugginn áður en hann skiptir þeim út**, og segir
@@ -131,8 +139,7 @@ meðtöldum. Umritun sem mistekst, eða sem þú hættir við, breytir engu — 
 er sögð í glugga, nema þegar hætt er við, en þá segir aðeins stöðulínan að hætt hafi verið við.
 
 **Það sem hún þarf fylgir ekki forritinu**: vél (whisper.cpp), líkan og `ffmpeg` til að draga hljóðið út.
-Þegar eitthvað vantar segir glugginn hvað, og vísar á
-[Uppsetning umritunartækjanna](../subedit-cli/install-transcription.md).
+Sjá [Uppsetning umritunartækjanna](../subedit-cli/install-transcription.md).
 
 ## Þegar engin kvikmynd er
 

@@ -380,6 +380,13 @@ public:
         return m_window->m_video->audioTracks();
     }
 
+    [[nodiscard]] core::TranscriptionTools
+    transcriptionTools(const core::TranscriptionSettings& settings) override {
+        return m_window->m_transcriber->tools(settings);
+    }
+
+    void openPreferences() override { m_window->openPreferences(); }
+
     [[nodiscard]] std::expected<TranscriptionOutcome, TranscriptionFailure>
     transcribe(const TranscriptionJob& job) override {
         return m_window->m_transcriber->run(job, m_window);
@@ -1876,6 +1883,15 @@ void MainWindow::openPreferences() {
         m_video->settings(),
         LanguageChoice{.chosen = m_interfaceLanguage,
                        .installed = core::availableLanguages(m_localeDirectory)},
+        TranscriptionPreferences{.settings = m_operations->transcriptionSettings(),
+                                 .tools =
+                                     [this](const core::TranscriptionSettings& settings) {
+                                         return m_transcriber->tools(settings);
+                                     },
+                                 .choose =
+                                     [this](ChosenFile what, const std::filesystem::path& current) {
+                                         return m_prompts->fileToChoose(what, current);
+                                     }},
         this};
     if (!m_prompts->run(dialog))
         return;
@@ -1888,6 +1904,10 @@ void MainWindow::openPreferences() {
     // like a preference that was not taken.
     m_theme = dialog.theme();
     applyTheme(m_theme);
+
+    // The program and the model of the transcription: the dialog gave them back with the rest of
+    // the settings it was handed.
+    m_operations->setTranscriptionSettings(dialog.transcription());
 
     // The cells are repainted with what the dialog chose, and the editors that
     // open next follow it. The dialog took the focus, so an editor that was

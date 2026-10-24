@@ -156,6 +156,7 @@ add_library(
     transcription/engine_registry.cpp
     transcription/language_codes.cpp
     transcription/subtitle_assembly.cpp
+    transcription/tools_status.cpp
     transcription/transcribe_media.cpp
     transcription/transcription_engine.cpp
     transcription/whisper_cpp_engine.cpp

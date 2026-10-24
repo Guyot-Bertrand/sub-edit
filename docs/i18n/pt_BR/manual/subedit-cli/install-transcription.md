@@ -20,14 +20,11 @@ como diz a sua própria documentação (basta um compilador de C++ e o CMake):
 ```bash
 git clone https://github.com/ggml-org/whisper.cpp
 cd whisper.cpp
-cmake -B build
+cmake -B build -DBUILD_SHARED_LIBS=OFF
 cmake --build build -j --config Release
 ```
 
-O programa é então `build/bin/whisper-cli`. Coloque-o onde seu `PATH` o encontre, ou **indique o seu
-caminho** ao subedit com a configuração `transcription.executable`. Uma compilação para placa gráfica se faz
-com as opções que a sua documentação indica; o subedit executa o que instalou e não escolhe nada
-por si.
+O programa é então `build/bin/whisper-cli`. Compilado com `-DBUILD_SHARED_LIBS=OFF`, como acima, é um único arquivo que não precisa de nenhuma biblioteca ao lado, de modo que você pode copiá-lo para onde quiser. Coloque-o onde seu `PATH` o encontre, ou **indique o seu caminho** ao subedit com a configuração `transcription.executable` — na janela, as [preferências](../subedit-gui/preferences.md#transcrição) têm um campo para isso. Uma compilação para placa gráfica acrescenta uma opção à primeira linha de `cmake`: `-DGGML_CUDA=1` para uma placa NVIDIA, `-DGGML_VULKAN=1` para a maioria das outras; o subedit executa o que você instalou e não escolhe nada por você.
 
 ## Um modelo
 
@@ -41,7 +38,7 @@ sh ./models/download-ggml-model.sh small
 ```
 
 Depois indique o seu caminho com `--model` na linha de comando, ou com a configuração `transcription.model`,
-ou na caixa de diálogo da janela, que o memoriza.
+ou nas [preferências](../subedit-gui/preferences.md#transcrição) da janela, que o memorizam.
 
 ### Que modelo para que idioma
 

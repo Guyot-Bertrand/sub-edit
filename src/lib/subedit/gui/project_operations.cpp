@@ -392,25 +392,28 @@ void ProjectOperations::adjustDurations(ProjectPage& page) {
     m_prompts->reportOutcome(joinedNotices(account, pastTheEnd));
 }
 
+ToolsView ProjectOperations::currentTools() const {
+    return ToolsView{.settings = m_transcriptionSettings,
+                     .tools = m_view->transcriptionTools(m_transcriptionSettings)};
+}
+
 void ProjectOperations::transcribeAudio(ProjectPage& page) {
     const std::optional<std::filesystem::path> video = m_view->videoOf(page);
     if (!video.has_value())
         return;
 
     const std::vector<core::AudioTrack> tracks = m_view->audioTracksOf(page);
-    TranscribeDialog dialog{
-        tracks,
-        TranscribeChoice{.language = m_transcriptionSettings.language,
-                         .model = m_transcriptionSettings.model},
-        [this](const std::filesystem::path& current) { return m_prompts->modelToOpen(current); },
-        m_view->dialogParent()};
+    TranscribeDialog dialog{tracks,
+                            TranscribeChoice{.language = m_transcriptionSettings.language},
+                            [this] { return currentTools(); },
+                            [this] { m_view->openPreferences(); },
+                            m_view->dialogParent()};
     if (!m_prompts->run(dialog))
         return;
     const TranscribeChoice choice = dialog.choice();
 
     // Kept as asked, even when the transcription then fails: the next one offers it again.
     m_transcriptionSettings.language = choice.language;
-    m_transcriptionSettings.model = choice.model;
 
     // **Asked before the work, not after it**: whoever declines does not wait for a
     // result they will not use. Nothing to ask when there is nothing to lose.
@@ -421,7 +424,7 @@ void ProjectOperations::transcribeAudio(ProjectPage& page) {
     const TranscriptionJob job{.video = *video,
                                .track = choice.track,
                                .language = choice.language,
-                               .model = choice.model,
+                               .model = m_transcriptionSettings.model,
                                .settings = m_transcriptionSettings};
     std::expected<TranscriptionOutcome, TranscriptionFailure> outcome = m_view->transcribe(job);
     if (!outcome) {

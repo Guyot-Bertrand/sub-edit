@@ -105,16 +105,24 @@ la [grille déduite des positions](frame-grid.md), qui en est un autre.
 ouvert : c'est l'audio du **film du projet**, jamais un fichier que l'on choisirait — pour transcrire un
 fichier audio, utilisez [`transcribe`](../subedit-cli/transcribe.md) en ligne de commande.
 
-La boîte de dialogue demande trois choses :
+La boîte de dialogue demande deux choses, et dit si elle peut démarrer :
 
 - **la piste audio**, listée comme le fait le menu [`Audio`](#la-piste-audio), avec la langue
   et le titre que le fichier déclare ;
 - **la langue**, deux lettres comme `en` ou `fr`. Elle commence par la langue de la piste choisie
   quand le fichier en déclare une, suit la piste tant que vous n'en avez pas tapé, et
-  laissée vide elle laisse le modèle **détecter** la langue ;
-- **le modèle**, un fichier, avec un bouton `Browse…`.
+  **une ligne sous le champ dit d'où elle vient**. Quand le fichier ne déclare aucune langue pour la piste,
+  la ligne le dit : le modèle la détectera alors d'après le son, ce que seul un modèle multilingue
+  sait faire, et vous devriez la saisir si vous la connaissez. Avec un modèle pour l'anglais seul, qui ne
+  détecte rien, la ligne dit que la langue doit être saisie.
 
-Les choix sont gardés pour la fois suivante. Le moteur lui-même et les limites des sous-titres sont des
+**Elle dit aussi ce qui manque.** Trois lignes disent si le moteur, `ffmpeg` et le modèle sont là, et
+où ; quand l'un ne l'est pas, `OK` reste éteint, et la boîte le dit avec le renvoi vers
+[Installer les outils de transcription](../subedit-cli/install-transcription.md). Un bouton `Preferences…` ouvre
+les [préférences](preferences.md#transcription), où se règlent le programme et le modèle — ce sont des faits
+sur la machine, pas des choix à refaire à chaque transcription — et la boîte regarde de nouveau quand elles se ferment.
+
+La langue est gardée pour la fois suivante. Le moteur lui-même et les limites des sous-titres sont des
 [réglages](preferences.md) (`transcription.*`).
 
 **Quand le projet contient déjà des sous-titres, la fenêtre demande avant de les remplacer**, et dit
@@ -128,8 +136,7 @@ traduction compris. Une transcription qui échoue, ou que vous annulez, ne chang
 dite dans une boîte, sauf pour une annulation, qui dit seulement dans la barre d'état qu'elle a été annulée.
 
 **Ce dont elle a besoin n'est pas livré** : un moteur (whisper.cpp), un modèle, et `ffmpeg` pour extraire l'audio.
-Quand l'un manque, la boîte dit lequel, et renvoie à
-[Installer les outils de transcription](../subedit-cli/install-transcription.md).
+Voir [Installer les outils de transcription](../subedit-cli/install-transcription.md).
 
 ## Quand il n'y a pas de film
 

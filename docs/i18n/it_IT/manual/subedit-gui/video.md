@@ -111,16 +111,24 @@ la finestra di dialogo mostrava.
 l'audio del **film del progetto**, mai un file che si sceglierebbe — per trascrivere un
 file audio, usa [`transcribe`](../subedit-cli/transcribe.md) da riga di comando.
 
-La finestra di dialogo chiede tre cose:
+La finestra di dialogo chiede due cose e dice se può partire:
 
 - **la traccia audio**, elencata come la elenca il menu [`Audio`](#la-traccia-audio), con la lingua
   e il titolo dichiarati dal file;
 - **la lingua**, due lettere come `en` o `fr`. Parte dalla lingua della traccia scelta
   quando il file ne dichiara una, segue la traccia finché non ne hai digitata una, e
-  lasciata vuota fa **rilevare** la lingua al modello;
-- **il modello**, un file, con un pulsante `Browse…`.
+  **una riga sotto il campo dice da dove viene**. Quando il file non dichiara alcuna lingua per la traccia,
+  la riga lo dice: il modello la rileverà allora dal suono, cosa che solo un modello multilingue
+  sa fare, e conviene digitarla se la conosci. Con un modello solo per l'inglese, che non rileva nulla,
+  la riga dice che la lingua va digitata.
 
-Le scelte vengono conservate per la volta successiva. Il motore stesso e i limiti dei sottotitoli sono
+**Dice anche che cosa manca.** Tre righe dicono se il motore, `ffmpeg` e il modello ci sono, e
+dove; quando uno non c'è, `OK` resta disattivato, e la finestra lo dice con il rimando a
+[Installare gli strumenti di trascrizione](../subedit-cli/install-transcription.md). Un pulsante `Preferences…` apre
+le [preferenze](preferences.md#trascrizione), dove si impostano il programma e il modello — sono fatti
+sulla macchina, non scelte da rifare a ogni trascrizione — e la finestra ricontrolla quando si chiudono.
+
+La lingua viene conservata per la volta successiva. Il motore stesso e i limiti dei sottotitoli sono
 [impostazioni](preferences.md) (`transcription.*`).
 
 **Quando il progetto contiene già dei sottotitoli, la finestra chiede prima di sostituirli**, e dice
@@ -134,8 +142,7 @@ traduzione compresi. Una trascrizione che fallisce, o che annulli, non cambia nu
 detto in una finestra, tranne che per un annullamento, che dice soltanto nella barra di stato che è stato annullato.
 
 **Ciò che serve non è fornito**: un motore (whisper.cpp), un modello e `ffmpeg` per estrarre l'audio.
-Quando ne manca uno, la finestra dice quale, e rimanda a
-[Installare gli strumenti di trascrizione](../subedit-cli/install-transcription.md).
+Vedi [Installare gli strumenti di trascrizione](../subedit-cli/install-transcription.md).
 
 ## Quando non c'è alcun film
 

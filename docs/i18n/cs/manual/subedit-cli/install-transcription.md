@@ -20,14 +20,11 @@ podle jeho vlastní dokumentace (stačí překladač C++ a CMake):
 ```bash
 git clone https://github.com/ggml-org/whisper.cpp
 cd whisper.cpp
-cmake -B build
+cmake -B build -DBUILD_SHARED_LIBS=OFF
 cmake --build build -j --config Release
 ```
 
-Program pak najdete v `build/bin/whisper-cli`. Umístěte ho tam, kde ho najde váš `PATH`, nebo **zadejte jeho
-cestu** subeditu v nastavení `transcription.executable`. Sestavení pro grafickou kartu se provede
-s volbami, které uvádí její dokumentace; subedit spouští to, co jste nainstalovali, a nic za
-vás nevolí.
+Program pak najdete v `build/bin/whisper-cli`. Sestavený s `-DBUILD_SHARED_LIBS=OFF`, jak je uvedeno výše, je to jediný soubor, který vedle sebe nepotřebuje žádnou knihovnu, takže ho můžete zkopírovat kamkoli. Umístěte ho tam, kde ho najde váš `PATH`, nebo **zadejte jeho cestu** subeditu v nastavení `transcription.executable` — v okně pro něj mají [předvolby](../subedit-gui/preferences.md#přepis) pole. Sestavení pro grafickou kartu přidá jednu volbu do prvního řádku `cmake`: `-DGGML_CUDA=1` pro kartu NVIDIA, `-DGGML_VULKAN=1` pro většinu ostatních; subedit spouští to, co jste nainstalovali, a nic za vás nevolí.
 
 ## Model
 
@@ -41,7 +38,7 @@ sh ./models/download-ggml-model.sh small
 ```
 
 Poté zadejte jeho cestu pomocí `--model` v příkazovém řádku nebo nastavením `transcription.model`,
-nebo v dialogu okna, které si ji pamatuje.
+nebo v [předvolbách](../subedit-gui/preferences.md#přepis) okna, které si ji pamatují.
 
 ### Který model pro který jazyk
 

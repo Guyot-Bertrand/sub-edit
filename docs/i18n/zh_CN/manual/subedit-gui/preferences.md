@@ -186,6 +186,12 @@ subedit-gui: /home/vous/.config/subedit/settings.conf: window.geometry: "plus ta
 
 **异常的着色在两种配色中都保持可读**——见[表格](table.md#异常情况)。这不是假设：文本在每一种着色上的对比度，都由一项测试在两种背景上检查过。
 
+## 转录
+
+对话框的 **`Transcription`** 组保存 [`Transcribe Audio…`](video.md#转录音频) 所需的两项机器信息：引擎的**程序**（whisper.cpp，`whisper-cli`）以及它读取的**模型**。每一项都有一个 `Browse…` 按钮。程序留空时，会在 `PATH` 中查找；模型没有默认值。
+
+在这些字段下方，**对话框会说明现有的情况**：是否找到引擎以及在哪里，是否找到 `ffmpeg`，以及模型的情况——未设置、未找到、不是模型、仅限英语，或多语言。有东西缺失时，它会附上指向[安装转录工具](../subedit-cli/install-transcription.md)的提示，那里说明了各项在哪里获得。这两个字段就是设置 `transcription.executable` 和 `transcription.model`。
+
 ## 界面语言
 
 `编辑(E) ▸ 首选项…(E)` 在主题之下选择窗口的语言。

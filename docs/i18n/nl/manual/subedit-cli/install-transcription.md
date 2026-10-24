@@ -20,14 +20,11 @@ zoals de eigen documentatie zegt (een C++-compiler en CMake volstaan):
 ```bash
 git clone https://github.com/ggml-org/whisper.cpp
 cd whisper.cpp
-cmake -B build
+cmake -B build -DBUILD_SHARED_LIBS=OFF
 cmake --build build -j --config Release
 ```
 
-Het programma is dan `build/bin/whisper-cli`. Zet het waar uw `PATH` het vindt, of **geef het pad ervan**
-aan subedit met de instelling `transcription.executable`. Een build voor een grafische kaart wordt gemaakt
-met de opties die de documentatie geeft; subedit voert uit wat u hebt geïnstalleerd en kiest niets
-voor u.
+Het programma is dan `build/bin/whisper-cli`. Gebouwd met `-DBUILD_SHARED_LIBS=OFF`, zoals hierboven, is het één enkel bestand dat geen bibliotheek naast zich nodig heeft, zodat u het overal naartoe kunt kopiëren. Zet het waar uw `PATH` het vindt, of **geef het pad ervan** aan subedit met de instelling `transcription.executable` — in het venster hebben de [instellingen](../subedit-gui/preferences.md#transcriptie) er een veld voor. Een build voor een grafische kaart voegt één optie toe aan de eerste `cmake`-regel: `-DGGML_CUDA=1` voor een NVIDIA-kaart, `-DGGML_VULKAN=1` voor de meeste andere; subedit voert uit wat u hebt geïnstalleerd en kiest niets voor u.
 
 ## Een model
 
@@ -41,7 +38,7 @@ sh ./models/download-ggml-model.sh small
 ```
 
 Geef vervolgens het pad ervan op met `--model` op de opdrachtregel, of met de instelling `transcription.model`,
-of in het dialoogvenster van het venster, dat het onthoudt.
+of in de [instellingen](../subedit-gui/preferences.md#transcriptie) van het venster, die het onthouden.
 
 ### Welk model voor welke taal
 

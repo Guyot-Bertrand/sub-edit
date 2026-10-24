@@ -108,16 +108,24 @@ la [rejilla deducida de las posiciones](frame-grid.md), que es otro.
 el audio de **la película del proyecto**, y nunca un archivo que se elija — para transcribir un
 archivo de audio, use [`transcribe`](../subedit-cli/transcribe.md) en la línea de comandos.
 
-El cuadro de diálogo pide tres cosas:
+El cuadro de diálogo pide dos cosas, y dice si puede empezar:
 
 - **la pista de audio**, enumerada como la enumera el menú [`Audio`](#la-pista-de-audio), con el idioma
   y el título que declara el archivo;
 - **el idioma**, dos letras como `en` o `fr`. Empieza con el idioma de la pista elegida
   cuando el archivo declara uno, sigue la pista mientras no haya escrito ninguno, y
-  si se deja vacío, deja que el modelo **detecte** el idioma;
-- **el modelo**, un archivo, con un botón `Browse…`.
+  **una línea bajo el campo dice de dónde viene**. Cuando el archivo no declara ningún idioma para la pista,
+  la línea lo dice: el modelo lo detectará entonces a partir del sonido, algo que solo hace un modelo
+  multilingüe, y debería escribirlo si lo conoce. Con un modelo solo para inglés, que no
+  detecta nada, la línea dice que hay que escribir el idioma.
 
-Las elecciones se conservan para la próxima vez. El motor mismo y los límites de los subtítulos son
+**También dice lo que falta.** Tres líneas dicen si el motor, `ffmpeg` y el modelo están, y
+dónde; cuando uno no está, `OK` queda apagado, y el cuadro lo dice con la referencia a
+[Instalar las herramientas de transcripción](../subedit-cli/install-transcription.md). Un botón `Preferences…` abre
+las [preferencias](preferences.md#transcripción), donde se definen el programa y el modelo — son hechos
+sobre la máquina, no elecciones que haya que rehacer en cada transcripción — y el cuadro vuelve a mirar cuando se cierran.
+
+El idioma se conserva para la próxima vez. El motor mismo y los límites de los subtítulos son
 [ajustes](preferences.md) (`transcription.*`).
 
 **Cuando el proyecto ya contiene subtítulos, la ventana pregunta antes de sustituirlos**, y dice
@@ -131,8 +139,8 @@ traducción incluidos. Una transcripción que falla, o que usted cancela, no cam
 dice en un cuadro, salvo en una cancelación, que solo dice que se canceló en la barra de estado.
 
 **Lo que necesita no se entrega**: un motor (whisper.cpp), un modelo y `ffmpeg` para extraer el audio.
-Cuando falta uno, el cuadro dice cuál y remite a
-[Instalar las herramientas de transcripción](../subedit-cli/install-transcription.md).
+Véase [Instalar las herramientas de transcripción](../subedit-cli/install-transcription.md).
+
 ## Cuando no hay película
 
 La ventana muestra un botón **`Select Video…`** donde iría la imagen, en lugar de

@@ -20,14 +20,11 @@ sen oman dokumentaation mukaan (C++-kääntäjä ja CMake riittävät):
 ```bash
 git clone https://github.com/ggml-org/whisper.cpp
 cd whisper.cpp
-cmake -B build
+cmake -B build -DBUILD_SHARED_LIBS=OFF
 cmake --build build -j --config Release
 ```
 
-Ohjelma on tämän jälkeen `build/bin/whisper-cli`. Aseta se paikkaan, josta `PATH` sen löytää, tai **anna sen
-polku** subeditille asetuksella `transcription.executable`. Näytönohjainta varten tehty koonti tehdään
-sen dokumentaation antamilla valinnoilla; subedit ajaa sen, minkä olet asentanut, eikä valitse mitään
-puolestasi.
+Ohjelma on tämän jälkeen `build/bin/whisper-cli`. Kun se koostetaan valinnalla `-DBUILD_SHARED_LIBS=OFF`, kuten yllä, se on yksittäinen tiedosto, joka ei tarvitse rinnalleen mitään kirjastoa, joten sen voi kopioida minne tahansa. Aseta se paikkaan, josta `PATH` sen löytää, tai **anna sen polku** subeditille asetuksella `transcription.executable` — ikkunassa sitä varten on [asetuksissa](../subedit-gui/preferences.md#litterointi) kenttä. Näytönohjainta varten tehty koonti lisää ensimmäiselle `cmake`-riville yhden valinnan: `-DGGML_CUDA=1` NVIDIA-kortille, `-DGGML_VULKAN=1` useimmille muille; subedit ajaa sen, minkä olet asentanut, eikä valitse mitään puolestasi.
 
 ## Malli
 
@@ -41,7 +38,7 @@ sh ./models/download-ggml-model.sh small
 ```
 
 Anna sitten sen polku valitsimella `--model` komentorivillä tai asetuksella `transcription.model`
-tai ikkunan valintaikkunassa, joka muistaa sen.
+tai ikkunan [asetuksissa](../subedit-gui/preferences.md#litterointi), jotka muistavat sen.
 
 ### Mikä malli mille kielelle
 

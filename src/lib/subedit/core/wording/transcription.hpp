@@ -5,6 +5,7 @@
 // why it lives in the core. Phase 22, #777.
 
 #include <subedit/core/transcription/audio_source.hpp>
+#include <subedit/core/transcription/tools_status.hpp>
 #include <subedit/core/transcription/transcription_error.hpp>
 
 #include <cstddef>
@@ -37,6 +38,15 @@ namespace subedit::core {
 
 /// Where the engine has got to, in percent.
 [[nodiscard]] std::string transcriptionProgressText(int percent);
+
+/// What there is of what the transcription needs, one line per tool: the engine (and where it
+/// was found), `ffmpeg`, and the model (and what kind of model it is).
+///
+/// What a person looks at before starting, and in the settings where they put right what is
+/// missing; the pointer to the guide is not in it, so that a caller adds it only when something
+/// is missing.
+[[nodiscard]] std::string transcriptionToolsReport(const TranscriptionTools& tools,
+                                                   const TranscriptionSettings& settings);
 
 /// Where to read how to install what the transcription needs.
 [[nodiscard]] std::string installationGuidePointer();

@@ -14,11 +14,11 @@
 ```bash
 git clone https://github.com/ggml-org/whisper.cpp
 cd whisper.cpp
-cmake -B build
+cmake -B build -DBUILD_SHARED_LIBS=OFF
 cmake --build build -j --config Release
 ```
 
-之后程序位于 `build/bin/whisper-cli`。把它放到 `PATH` 能找到的地方，或者用设置 `transcription.executable` 把**它的路径告诉** subedit。针对显卡的构建使用其文档给出的选项；subedit 运行您安装的那个，不会替您选择任何东西。
+之后程序位于 `build/bin/whisper-cli`。如上用 `-DBUILD_SHARED_LIBS=OFF` 构建时，它是一个单独的文件，旁边不需要任何库，因此可以复制到任何地方。把它放到 `PATH` 能找到的地方，或者用设置 `transcription.executable` 把**它的路径告诉** subedit——在窗口中，[首选项](../subedit-gui/preferences.md#转录)里有一个字段用于此。针对显卡的构建会在第一条 `cmake` 命令中增加一个选项：NVIDIA 显卡用 `-DGGML_CUDA=1`，大多数其他显卡用 `-DGGML_VULKAN=1`；subedit 运行您安装的那个，不会替您选择任何东西。
 
 ## 模型
 
@@ -28,7 +28,7 @@ cmake --build build -j --config Release
 sh ./models/download-ggml-model.sh small
 ```
 
-然后在命令行上用 `--model` 给出它的路径，或者用设置 `transcription.model`，或者在窗口的对话框中给出，对话框会记住它。
+然后在命令行上用 `--model` 给出它的路径，或者用设置 `transcription.model`，或者在窗口的[首选项](../subedit-gui/preferences.md#转录)中给出，首选项会记住它。
 
 ### 哪种语言用哪个模型
 

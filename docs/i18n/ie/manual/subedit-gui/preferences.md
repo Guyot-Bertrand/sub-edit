@@ -279,6 +279,19 @@ substitue, quelcunque li table de labor.
 [Li tabelle](table.md#li-anomalies). To ne es un supposition: li contraste
 del textu sur chascun del tintes es verificat per un test, sur ambi fundes.
 
+## Transcription
+
+Li gruppe **`Transcription`** del dialog contene li du fattes pri li machine quel
+[`Transcribe Audio…`](video.md#transcrir-li-audio) besona: **li programma** del motor (whisper.cpp,
+`whisper-cli`) e **li model** quel it leer. Chascun have un buton `Browse…`. Si it resta vacui, li programma es serchat
+in li `PATH`; li model have null predefinit.
+
+Sub li camps, **li dialog dit quo es ibi**: si li motor es trovat e u, si `ffmpeg`
+es trovat, e li model — ne definit, ne trovat, ne un model, solmen por anglesi, o multilingual. Quande alquo
+manca, it adjunte li indication a
+[Instalar li utensiles de transcription](../subedit-cli/install-transcription.md), quel dit u trovar
+chascun. Li du camps es li parametres `transcription.executable` e `transcription.model`.
+
 ## Li lingue del interfacie
 
 `Redacter ▸ Preferenties…` elige li lingue del fenestre, sub li tema.

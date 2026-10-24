@@ -279,6 +279,19 @@ het, wat het bureaublad ook is.
 [De tabel](table.md#de-afwijkingen). Het is geen aanname: het contrast
 van de tekst op elk van de tinten wordt door een test gecontroleerd, op beide achtergronden.
 
+## Transcriptie
+
+De groep **`Transcription`** van het dialoogvenster bevat de twee gegevens over de machine die
+[`Transcribe Audio…`](video.md#de-audio-transcriberen) nodig heeft: **het programma** van de engine (whisper.cpp,
+`whisper-cli`) en **het model** dat het leest. Elk heeft een knop `Browse…`. Als het leeg blijft, wordt het programma
+op het `PATH` gezocht; het model heeft geen standaardwaarde.
+
+Onder de velden **zegt het dialoogvenster wat er is**: of de engine is gevonden en waar, of `ffmpeg`
+is gevonden, en het model — niet ingesteld, niet gevonden, geen model, alleen voor Engels of meertalig. Als er iets
+ontbreekt, voegt het de verwijzing toe naar
+[De transcriptiehulpmiddelen installeren](../subedit-cli/install-transcription.md), die zegt waar u
+elk vindt. De twee velden zijn de instellingen `transcription.executable` en `transcription.model`.
+
 ## De interfacetaal
 
 `Aanpassen ▸ Instellingen…` kiest de taal van het venster, onder het thema.

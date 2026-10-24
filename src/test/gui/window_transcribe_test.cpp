@@ -1,5 +1,6 @@
-// `Transcribe Audio…`, from the window: the dialog, the confirmation before the
-// subtitles are replaced, the background run, and what a failure or a cancellation leaves.
+// `Transcribe Audio…`, from the window: the dialog, what it says of the tools and of the
+// language, the confirmation before the subtitles are replaced, the background run, and what a
+// failure or a cancellation leaves — and the preferences where the program and the model are set.
 //
 // The runner is a seam, like `Prompts`: the real one needs an engine and a model of several
 // hundred megabytes. Its own cases below run it against stand-ins for the engine and
@@ -9,12 +10,15 @@
 #include <subedit/core/model/subtitle.hpp>
 #include <subedit/core/time/timestamp.hpp>
 #include <subedit/gui/main_window.hpp>
+#include <subedit/gui/preferences_dialog.hpp>
 #include <subedit/gui/transcribe_dialog.hpp>
 #include <subedit/gui/transcription_runner.hpp>
 
 #include <QAbstractItemModel>
 #include <QAction>
 #include <QComboBox>
+#include <QDialogButtonBox>
+#include <QLabel>
 #include <QLineEdit>
 #include <QPushButton>
 #include <QStatusBar>
@@ -37,15 +41,22 @@ namespace {
 using Catch::Matchers::ContainsSubstring;
 using subedit::core::AudioTrack;
 using subedit::core::InMemoryFileSystem;
+using subedit::core::ModelState;
 using subedit::core::Subtitle;
 using subedit::core::Timestamp;
+using subedit::core::TranscriptionSettings;
+using subedit::core::TranscriptionTools;
 using subedit::gui::BackgroundTranscriptionRunner;
+using subedit::gui::ChosenFile;
 using subedit::gui::MainWindow;
+using subedit::gui::PreferencesDialog;
+using subedit::gui::ToolsView;
 using subedit::gui::TranscribeChoice;
 using subedit::gui::TranscribeDialog;
 using subedit::gui::TranscriptionFailure;
 using subedit::gui::TranscriptionJob;
 using subedit::gui::TranscriptionOutcome;
+using subedit::gui::TranscriptionPreferences;
 using subedit::gui::TranscriptionRunner;
 using subedit::test::FakePrompts;
 using subedit::test::fileIn;
@@ -59,16 +70,21 @@ constexpr const char* kThree = "1\n00:00:01,000 --> 00:00:02,000\nUn.\n\n"
 
 const std::filesystem::path kFake{SUBEDIT_FAKE_TRANSCRIBER_BINARY};
 
-/// The two tracks of a film with a commentary.
+/// The two tracks of a film with a commentary; the second declares no language.
 const std::vector<AudioTrack> kTracks{
     {.id = 1, .language = "fra", .title = "Original", .selected = true},
-    {.id = 2, .language = "eng", .title = "Commentary", .selected = false}};
+    {.id = 2, .language = "", .title = "Commentary", .selected = false}};
 
-/// A dialog's chooser that is never asked.
-[[nodiscard]] std::optional<std::filesystem::path>
-noChooser(const std::filesystem::path& /*current*/) {
-    return std::nullopt;
+/// Every tool there, and a model that detects the language.
+const TranscriptionTools kReady{.engine = std::filesystem::path{"/usr/bin/whisper-cli"},
+                                .extractor = true,
+                                .model = ModelState::Multilingual};
+
+[[nodiscard]] TranscribeDialog::ToolsProbe probing(const TranscriptionTools& tools) {
+    return [tools] { return ToolsView{.settings = {}, .tools = tools}; };
 }
+
+void nothing() {}
 
 [[nodiscard]] InMemoryFileSystem directoryHolding() {
     InMemoryFileSystem files;
@@ -89,11 +105,16 @@ public:
     std::expected<TranscriptionOutcome, TranscriptionFailure> answer = TranscriptionOutcome{
         .subtitles = {subtitle(0, "Hello."), subtitle(1500, "World.")}, .language = "en"};
     std::vector<TranscriptionJob> asked{};
+    TranscriptionTools there = kReady;
 
     [[nodiscard]] std::expected<TranscriptionOutcome, TranscriptionFailure>
     run(const TranscriptionJob& job, QWidget* /*parent*/) override {
         asked.push_back(job);
         return answer;
+    }
+
+    [[nodiscard]] TranscriptionTools tools(const TranscriptionSettings& /*settings*/) override {
+        return there;
     }
 };
 
@@ -106,7 +127,7 @@ public:
     return texts;
 }
 
-/// A window with a film of two audio tracks and three subtitles, the runner being `runner`.
+/// A window with a film of two audio tracks and three subtitles, the runner being scripted.
 struct Stage {
     InMemoryFileSystem files = directoryHolding();
     FakePrompts prompts;
@@ -130,18 +151,18 @@ struct Stage {
 
 TEST_CASE("the dialog offers the tracks of the film and follows the declared language",
           "[gui][GUI-TRANSCRIBE-01]") {
-    const TranscribeDialog dialog{kTracks, {}, noChooser};
+    const TranscribeDialog dialog{kTracks, {}, probing(kReady), nothing};
 
     CHECK(dialog.trackBox()->count() == 2);
     CHECK(dialog.languageEdit()->text() == "fr");
 
     dialog.trackBox()->setCurrentIndex(1);
-    CHECK(dialog.languageEdit()->text() == "en");
+    CHECK(dialog.languageEdit()->text().isEmpty());
     CHECK(dialog.choice().track == 1);
 }
 
 TEST_CASE("a language that was typed is kept when the track changes", "[gui][GUI-TRANSCRIBE-01]") {
-    const TranscribeDialog dialog{kTracks, {}, noChooser};
+    const TranscribeDialog dialog{kTracks, {}, probing(kReady), nothing};
 
     dialog.languageEdit()->setText("de");
     QMetaObject::invokeMethod(
@@ -151,21 +172,83 @@ TEST_CASE("a language that was typed is kept when the track changes", "[gui][GUI
     CHECK(dialog.choice().language == "de");
 }
 
-TEST_CASE("a language from the settings starts the field, and the model comes with it",
-          "[gui][GUI-TRANSCRIBE-01]") {
+TEST_CASE("a language from the settings starts the field", "[gui][GUI-TRANSCRIBE-01]") {
     const TranscribeDialog dialog{
-        kTracks, {.track = 1, .language = "es", .model = "/models/small.bin"}, noChooser};
+        kTracks, {.track = 1, .language = "es"}, probing(kReady), nothing};
 
-    CHECK(dialog.choice() ==
-          TranscribeChoice{.track = 1, .language = "es", .model = "/models/small.bin"});
+    CHECK(dialog.choice() == TranscribeChoice{.track = 1, .language = "es"});
 }
 
 TEST_CASE("a film without audio tracks still offers the first one", "[gui][GUI-TRANSCRIBE-01]") {
-    const TranscribeDialog dialog{{}, {}, noChooser};
+    const TranscribeDialog dialog{{}, {}, probing(kReady), nothing};
 
     CHECK(dialog.trackBox()->count() == 1);
     CHECK(dialog.choice().track == 0);
     CHECK(dialog.languageEdit()->text().isEmpty());
+}
+
+TEST_CASE("the dialog says where the language comes from, and when it must be given",
+          "[gui][GUI-TRANSCRIBE-01]") {
+    const TranscribeDialog declared{kTracks, {}, probing(kReady), nothing};
+    CHECK_THAT(declared.languageHint()->text().toStdString(),
+               ContainsSubstring("Proposed from the language the file declares"));
+
+    // The second track declares nothing: the model will listen, and the person is told so.
+    declared.trackBox()->setCurrentIndex(1);
+    CHECK_THAT(declared.languageHint()->text().toStdString(),
+               ContainsSubstring("declares no language for this track"));
+    CHECK_THAT(declared.languageHint()->text().toStdString(),
+               ContainsSubstring("detect it from the sound"));
+
+    TranscriptionTools englishOnly = kReady;
+    englishOnly.model = ModelState::EnglishOnly;
+    const TranscribeDialog blind{kTracks, {}, probing(englishOnly), nothing};
+    CHECK_THAT(blind.languageHint()->text().toStdString(),
+               ContainsSubstring("cannot detect the language: type it"));
+
+    const TranscribeDialog typed{kTracks, {.language = "de"}, probing(kReady), nothing};
+    CHECK_THAT(typed.languageHint()->text().toStdString(), ContainsSubstring("you typed is used"));
+}
+
+TEST_CASE("the dialog says which tool is missing, points to the guide, and cannot start",
+          "[gui][GUI-TRANSCRIBE-04]") {
+    const TranscribeDialog dialog{kTracks, {}, probing({}), nothing};
+
+    const std::string said = dialog.toolsLabel()->text().toStdString();
+    CHECK_THAT(said, ContainsSubstring("whisper.cpp: not found"));
+    CHECK_THAT(said, ContainsSubstring("ffmpeg: not found"));
+    CHECK_THAT(said, ContainsSubstring("Model: none set"));
+    CHECK_THAT(said, ContainsSubstring("Set them in the preferences."));
+    CHECK_THAT(said, ContainsSubstring("Installing the transcription tools"));
+    CHECK_FALSE(dialog.buttons()->button(QDialogButtonBox::Ok)->isEnabled());
+}
+
+TEST_CASE("with everything there the dialog can start and does not send the person elsewhere",
+          "[gui][GUI-TRANSCRIBE-04]") {
+    const TranscribeDialog dialog{kTracks, {}, probing(kReady), nothing};
+
+    CHECK(dialog.buttons()->button(QDialogButtonBox::Ok)->isEnabled());
+    CHECK_THAT(dialog.toolsLabel()->text().toStdString(), ContainsSubstring("whisper.cpp: found"));
+    CHECK_FALSE(dialog.toolsLabel()->text().toStdString().find("Installing") != std::string::npos);
+}
+
+TEST_CASE("the Preferences button opens the preferences, and the dialog looks again afterwards",
+          "[gui][GUI-TRANSCRIBE-04]") {
+    TranscriptionTools there{};
+    int opened = 0;
+    const TranscribeDialog dialog{kTracks,
+                                  {},
+                                  [&there] { return ToolsView{.settings = {}, .tools = there}; },
+                                  [&] {
+                                      ++opened;
+                                      there = kReady;
+                                  }};
+    REQUIRE_FALSE(dialog.buttons()->button(QDialogButtonBox::Ok)->isEnabled());
+
+    dialog.preferencesButton()->click();
+
+    CHECK(opened == 1);
+    CHECK(dialog.buttons()->button(QDialogButtonBox::Ok)->isEnabled());
 }
 
 TEST_CASE("the command is out until a film is open and in once it is", "[gui][GUI-TRANSCRIBE-01]") {
@@ -196,15 +279,18 @@ TEST_CASE("the window asks before replacing, and a refusal changes nothing",
     CHECK(textsOf(*stage.window) == std::vector<std::string>{"Un.", "Deux.", "Trois."});
 }
 
-TEST_CASE("once confirmed the subtitles are replaced, and one undo gives them back",
+TEST_CASE("once confirmed the subtitles are replaced with the model of the settings, and one undo "
+          "gives them back",
           "[gui][GUI-TRANSCRIBE-03]") {
     Stage stage;
+    subedit::core::Settings settings;
+    settings.transcription.model = "/models/small.bin";
+    stage.window->applySettings(settings);
     stage.prompts.nextRun = true;
     stage.prompts.nextReplacementAccepted = true;
     stage.prompts.fill = [](QDialog& dialog) {
-        auto& form = dynamic_cast<TranscribeDialog&>(dialog);
-        form.trackBox()->setCurrentIndex(1);
-        form.modelEdit()->setText("/models/small.bin");
+        dynamic_cast<TranscribeDialog&>(dialog).trackBox()->setCurrentIndex(1);
+        dynamic_cast<TranscribeDialog&>(dialog).languageEdit()->setText("en");
     };
 
     stage.window->transcribeAudioAction()->trigger();
@@ -231,9 +317,7 @@ TEST_CASE("a project with nothing in it is not asked about", "[gui][GUI-TRANSCRI
     subedit::core::OpenedFile opened = fileIn(files, "/films/film.fr.srt");
     opened.project.setSubtitles({});
     MainWindow window{files, std::move(opened), prompts, projecting(booth)};
-    auto scripted = std::make_unique<ScriptedRunner>();
-    ScriptedRunner* runner = scripted.get();
-    window.setTranscriptionRunner(std::move(scripted));
+    window.setTranscriptionRunner(std::make_unique<ScriptedRunner>());
     window.show();
     window.selectVideoAction()->trigger();
     prompts.nextRun = true;
@@ -242,7 +326,6 @@ TEST_CASE("a project with nothing in it is not asked about", "[gui][GUI-TRANSCRI
 
     CHECK(prompts.replacements.empty());
     CHECK(textsOf(window) == std::vector<std::string>{"Hello.", "World."});
-    (void)runner;
 }
 
 TEST_CASE("a failure leaves the project as it was and says why", "[gui][GUI-TRANSCRIBE-02]") {
@@ -280,6 +363,138 @@ TEST_CASE("choosing nothing in the dialog does nothing", "[gui][GUI-TRANSCRIBE-0
 
     CHECK(stage.prompts.replacements.empty());
     CHECK(stage.runner->asked.empty());
+}
+
+TEST_CASE("the Preferences button of the dialog opens the preferences of the window, where the "
+          "model is set",
+          "[gui][GUI-TRANSCRIBE-04]") {
+    Stage stage;
+    stage.prompts.nextRun = true;
+    stage.prompts.nextReplacementAccepted = true;
+    stage.prompts.fill = [](QDialog& dialog) {
+        if (auto* transcribe = dynamic_cast<TranscribeDialog*>(&dialog))
+            transcribe->preferencesButton()->click();
+        else if (auto* preferences = dynamic_cast<PreferencesDialog*>(&dialog))
+            preferences->modelEdit()->setText("/models/set-in-preferences.bin");
+    };
+
+    stage.window->transcribeAudioAction()->trigger();
+
+    REQUIRE(stage.runner->asked.size() == 1);
+    CHECK(stage.runner->asked.front().model == "/models/set-in-preferences.bin");
+    CHECK(stage.window->settings().transcription.model == "/models/set-in-preferences.bin");
+}
+
+TEST_CASE(
+    "the Browse button in the preferences of the window asks the chooser, and keeps what it gives",
+    "[gui][GUI-TRANSCRIBE-04]") {
+    Stage stage;
+    stage.prompts.nextRun = true;
+    stage.prompts.nextReplacementAccepted = true;
+    stage.prompts.nextFileToChoose = std::filesystem::path{"/models/chosen.bin"};
+    stage.prompts.fill = [](QDialog& dialog) {
+        if (auto* transcribe = dynamic_cast<TranscribeDialog*>(&dialog))
+            transcribe->preferencesButton()->click();
+        else if (auto* preferences = dynamic_cast<PreferencesDialog*>(&dialog))
+            preferences->modelButton()->click();
+    };
+
+    stage.window->transcribeAudioAction()->trigger();
+
+    REQUIRE(stage.prompts.filesChosenFrom.size() == 1);
+    CHECK(stage.window->settings().transcription.model == "/models/chosen.bin");
+}
+
+// ## The preferences: where the program and the model are set
+
+TEST_CASE("the preferences hold the program and the model, and give them back as edited",
+          "[gui][GUI-TRANSCRIBE-04]") {
+    TranscriptionSettings settings;
+    settings.executable = "/opt/whisper/whisper-cli";
+    settings.model = "/models/small.bin";
+    settings.mergeGapMilliseconds = 250;
+    const PreferencesDialog dialog{
+        subedit::core::Theme::System, {}, {}, {}, TranscriptionPreferences{.settings = settings}};
+
+    CHECK(dialog.programEdit()->text() == "/opt/whisper/whisper-cli");
+    CHECK(dialog.modelEdit()->text() == "/models/small.bin");
+
+    dialog.modelEdit()->setText("/models/medium.bin");
+    CHECK(dialog.transcription().model == "/models/medium.bin");
+    CHECK(dialog.transcription().executable == "/opt/whisper/whisper-cli");
+    // Everything else of the transcription settings is handed back as it was given.
+    CHECK(dialog.transcription().mergeGapMilliseconds == 250);
+}
+
+TEST_CASE("the preferences say what is there of what the fields name, as they are edited",
+          "[gui][GUI-TRANSCRIBE-04]") {
+    const PreferencesDialog dialog{
+        subedit::core::Theme::System,
+        {},
+        {},
+        {},
+        TranscriptionPreferences{
+            .settings = {}, .tools = [](const TranscriptionSettings& settings) {
+                return TranscriptionTools{
+                    .engine = settings.executable.empty() ? std::optional<std::filesystem::path>{}
+                                                          : std::optional{settings.executable},
+                    .extractor = true,
+                    .model = settings.model.empty() ? ModelState::NotSet : ModelState::EnglishOnly};
+            }}};
+    CHECK_THAT(dialog.toolsLabel()->text().toStdString(),
+               ContainsSubstring("whisper.cpp: not found"));
+    CHECK_THAT(dialog.toolsLabel()->text().toStdString(),
+               ContainsSubstring("Installing the transcription tools"));
+
+    dialog.programEdit()->setText("/opt/whisper-cli");
+    dialog.modelEdit()->setText("/models/tiny.en.bin");
+
+    CHECK_THAT(dialog.toolsLabel()->text().toStdString(),
+               ContainsSubstring("whisper.cpp: found (/opt/whisper-cli)"));
+    CHECK_THAT(dialog.toolsLabel()->text().toStdString(),
+               ContainsSubstring("Model: English only (/models/tiny.en.bin)"));
+    CHECK_FALSE(dialog.toolsLabel()->text().toStdString().find("Installing") != std::string::npos);
+}
+
+TEST_CASE("the Browse buttons ask the window for a program and for a model, and keep a refusal out",
+          "[gui][GUI-TRANSCRIBE-04]") {
+    std::vector<std::pair<ChosenFile, std::filesystem::path>> asked;
+    std::optional<std::filesystem::path> answer = std::filesystem::path{"/chosen/file"};
+    const PreferencesDialog dialog{
+        subedit::core::Theme::System,
+        {},
+        {},
+        {},
+        TranscriptionPreferences{
+            .settings = {.model = "/models/old.bin"},
+            .choose = [&](ChosenFile what, const std::filesystem::path& current) {
+                asked.emplace_back(what, current);
+                return answer;
+            }}};
+
+    dialog.programButton()->click();
+    dialog.modelButton()->click();
+    CHECK(dialog.programEdit()->text() == "/chosen/file");
+    CHECK(dialog.modelEdit()->text() == "/chosen/file");
+    REQUIRE(asked.size() == 2);
+    CHECK(asked[0].first == ChosenFile::Program);
+    CHECK(asked[1].first == ChosenFile::Model);
+    CHECK(asked[1].second == "/models/old.bin");
+
+    answer = std::nullopt;
+    dialog.modelEdit()->setText("/kept");
+    dialog.modelButton()->click();
+    CHECK(dialog.modelEdit()->text() == "/kept");
+}
+
+TEST_CASE("a preferences dialog with nothing to ask of the window still opens",
+          "[gui][GUI-TRANSCRIBE-04]") {
+    const PreferencesDialog dialog{subedit::core::Theme::System};
+
+    dialog.programButton()->click();
+
+    CHECK(dialog.programEdit()->text().isEmpty());
+    CHECK(dialog.toolsLabel()->text().isEmpty());
 }
 
 // ## The real runner, against stand-ins for the engine and ffmpeg
@@ -376,25 +591,6 @@ TEST_CASE("an engine nobody registered is named", "[gui][GUI-TRANSCRIBE-04]") {
                ContainsSubstring("no transcription engine is called other"));
 }
 
-TEST_CASE("the Browse button puts the chosen model in the field, and a refusal leaves it",
-          "[gui][GUI-TRANSCRIBE-01]") {
-    std::filesystem::path asked;
-    std::optional<std::filesystem::path> answer = std::filesystem::path{"/models/chosen.bin"};
-    const TranscribeDialog dialog{
-        kTracks, {.model = "/models/old.bin"}, [&](const std::filesystem::path& current) {
-            asked = current;
-            return answer;
-        }};
-
-    dialog.findChild<QPushButton*>()->click();
-    CHECK(asked == "/models/old.bin");
-    CHECK(dialog.modelEdit()->text() == "/models/chosen.bin");
-
-    answer = std::nullopt;
-    dialog.findChild<QPushButton*>()->click();
-    CHECK(dialog.modelEdit()->text() == "/models/chosen.bin");
-}
-
 TEST_CASE("the real runner names the tracks a video has when one is missing",
           "[gui][GUI-TRANSCRIBE-04]") {
     const Tools tools;
@@ -424,18 +620,4 @@ TEST_CASE("stopping during the extraction is a cancellation too", "[gui][GUI-TRA
 
     REQUIRE_FALSE(outcome.has_value());
     CHECK(outcome.error().cancelled);
-}
-
-TEST_CASE("the Browse button of the dialog the window opens asks the prompts for a model",
-          "[gui][GUI-TRANSCRIBE-01]") {
-    Stage stage;
-    stage.prompts.nextRun = true;
-    stage.prompts.nextReplacementAccepted = true;
-    stage.prompts.nextModelToOpen = std::filesystem::path{"/models/browsed.bin"};
-    stage.prompts.fill = [](QDialog& dialog) { dialog.findChild<QPushButton*>()->click(); };
-
-    stage.window->transcribeAudioAction()->trigger();
-
-    REQUIRE(stage.runner->asked.size() == 1);
-    CHECK(stage.runner->asked.front().model == "/models/browsed.bin");
 }

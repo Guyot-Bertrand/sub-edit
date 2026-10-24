@@ -108,16 +108,24 @@ a [grade deduzida das posições](frame-grid.md), que é outra coisa.
 aberto: é o áudio do **filme do projeto**, nunca de um arquivo que se escolheria — para transcrever um
 arquivo de áudio, use [`transcribe`](../subedit-cli/transcribe.md) na linha de comando.
 
-A caixa de diálogo pede três coisas:
+A caixa de diálogo pede duas coisas, e diz se pode começar:
 
 - **a faixa de áudio**, listada como o menu [`Audio`](#a-faixa-de-áudio) as lista, com o idioma
   e o título que o arquivo declara;
 - **o idioma**, duas letras como `en` ou `fr`. Começa pelo idioma da faixa escolhida
-  quando o arquivo declara um, acompanha a faixa enquanto não tiver digitado um, e
-  deixado vazio faz o modelo **detectar** o idioma;
-- **o modelo**, um arquivo, com um botão `Browse…`.
+  quando o arquivo declara um, acompanha a faixa enquanto você não tiver digitado um, e
+  **uma linha sob o campo diz de onde vem**. Quando o arquivo não declara nenhum idioma para a faixa,
+  a linha diz isso: o modelo vai então detectá-lo a partir do som, o que só um modelo multilíngue
+  faz, e você deve digitá-lo se o conhecer. Com um modelo só para inglês, que não detecta nada,
+  a linha diz que o idioma precisa ser digitado.
 
-As escolhas são guardadas para a vez seguinte. O próprio motor e os limites das legendas são
+**Diz também o que falta.** Três linhas dizem se o motor, o `ffmpeg` e o modelo estão presentes, e
+onde; quando um não está, `OK` fica desativado, e a caixa diz isso com o link para
+[Instalar as ferramentas de transcrição](../subedit-cli/install-transcription.md). Um botão `Preferences…` abre
+as [preferências](preferences.md#transcrição), onde se definem o programa e o modelo — são fatos
+sobre a máquina, não escolhas a refazer a cada transcrição — e a caixa verifica de novo quando se fecham.
+
+O idioma é guardado para a vez seguinte. O próprio motor e os limites das legendas são
 [configurações](preferences.md) (`transcription.*`).
 
 **Quando o projeto já contém legendas, a janela pergunta antes de as substituir**, e diz
@@ -131,8 +139,7 @@ tradução. Uma transcrição que falha, ou que você cancela, não altera nada 
 dito numa caixa, exceto em um cancelamento, que apenas diz na barra de status que foi cancelado.
 
 **O que ela precisa não é fornecido**: um motor (whisper.cpp), um modelo e o `ffmpeg` para extrair o áudio.
-Quando falta um, a caixa diz qual, e remete para
-[Instalar as ferramentas de transcrição](../subedit-cli/install-transcription.md).
+Veja [Instalar as ferramentas de transcrição](../subedit-cli/install-transcription.md).
 
 ## Quando não há filme
 

@@ -108,16 +108,24 @@ tento dokument patří — a třetí zmínka by ji postavila na stejnou úroveň
 zvuk **filmu projektu**, nikdy o soubor, který byste vybírali — k přepisu zvukového
 souboru použijte v příkazovém řádku [`transcribe`](../subedit-cli/transcribe.md).
 
-Dialog se ptá na tři věci:
+Dialog se ptá na dvě věci a říká, zda může začít:
 
 - **zvukovou stopu**, uvedenou tak, jak ji uvádí nabídka [`Audio`](#zvuková-stopa), s jazykem
   a názvem, které soubor uvádí;
 - **jazyk**, dvě písmena, například `en` nebo `fr`. Začíná jazykem zvolené
   stopy, když ho soubor uvádí, sleduje stopu, dokud jste žádný nezadali, a
-  ponechán prázdný nechává model jazyk **zjistit**;
-- **model**, soubor, s tlačítkem `Browse…`.
+  **řádek pod polem říká, odkud se vzal**. Když soubor pro stopu žádný jazyk neuvádí,
+  řádek to říká: model ho pak zjistí ze zvuku, což umí jen vícejazyčný model, a
+  měli byste ho zadat, pokud ho znáte. U modelu pouze pro angličtinu, který nezjistí nic,
+  řádek říká, že jazyk je třeba zadat.
 
-Volby se uchovají pro příště. Samotný nástroj a meze titulků jsou
+**Říká také, co chybí.** Tři řádky říkají, zda nástroj, `ffmpeg` a model jsou k dispozici, a
+kde; když něco chybí, `OK` zůstane nedostupné a dialog to oznámí s odkazem na
+[Instalace nástrojů pro přepis](../subedit-cli/install-transcription.md). Tlačítko `Preferences…` otevře
+[předvolby](preferences.md#přepis), kde se nastavují program a model — jsou to skutečnosti
+o počítači, ne volby, které by se měly opakovat při každém přepisu — a dialog se po jejich zavření podívá znovu.
+
+Jazyk se uchová pro příště. Samotný nástroj a meze titulků jsou
 [nastavení](preferences.md) (`transcription.*`).
 
 **Když projekt už obsahuje titulky, okno se před jejich nahrazením zeptá** a řekne,
@@ -131,8 +139,8 @@ překladu. Přepis, který selže nebo který zrušíte, nic nezmění — důvo
 sdělí v okně, kromě zrušení, které ve stavovém řádku jen oznámí, že bylo zrušeno.
 
 **Co je potřeba, se nedodává**: nástroj (whisper.cpp), model a `ffmpeg` k extrakci zvuku.
-Když něco chybí, okno řekne co a odkáže na
-[Instalace nástrojů pro přepis](../subedit-cli/install-transcription.md).
+Viz [Instalace nástrojů pro přepis](../subedit-cli/install-transcription.md).
+
 ## Když není film
 
 Okno ukáže tlačítko **`Select Video…`** tam, kde by byl obraz, místo

@@ -1,6 +1,7 @@
 #include <subedit/core/config/theme.hpp>
 #include <subedit/core/i18n/language.hpp>
 #include <subedit/core/wording/settings.hpp>
+#include <subedit/core/wording/transcription.hpp>
 #include <subedit/gui/messages.hpp>
 #include <subedit/gui/preferences_dialog.hpp>
 
@@ -9,8 +10,12 @@
 #include <QDialogButtonBox>
 #include <QDoubleSpinBox>
 #include <QFormLayout>
+#include <QGroupBox>
+#include <QHBoxLayout>
 #include <QLabel>
+#include <QLineEdit>
 #include <QLocale>
+#include <QPushButton>
 #include <QSpinBox>
 #include <QString>
 #include <QVBoxLayout>
@@ -81,6 +86,7 @@ PreferencesDialog::PreferencesDialog(core::Theme theme,
                                      const core::EditorSettings& editor,
                                      const core::VideoSettings& video,
                                      const LanguageChoice& language,
+                                     const TranscriptionPreferences& transcription,
                                      QWidget* parent)
     : QDialog(parent),
       m_theme(new QComboBox{this}),
@@ -91,7 +97,13 @@ PreferencesDialog::PreferencesDialog(core::Theme theme,
       m_seekLength(new QSpinBox{this}),
       m_contextLength(new QDoubleSpinBox{this}),
       m_stepFrames(new QSpinBox{this}),
-      m_hardwareDecoding(new QCheckBox{translate("Decode on the graphics card"), this}) {
+      m_hardwareDecoding(new QCheckBox{translate("Decode on the graphics card"), this}),
+      m_transcription(transcription),
+      m_program(new QLineEdit{this}),
+      m_model(new QLineEdit{this}),
+      m_programButton(new QPushButton{translate("Browse…"), this}),
+      m_modelButton(new QPushButton{translate("Browse…"), this}),
+      m_tools(new QLabel{this}) {
     setWindowTitle(translate("Preferences"));
 
     for (const core::Theme one : kThemes)
@@ -157,6 +169,34 @@ PreferencesDialog::PreferencesDialog(core::Theme theme,
         this};
     explanation->setWordWrap(true);
 
+    // The audio transcription: where its program and its model are, which is a fact about the
+    // machine and is set once. Under the fields, what is there of what they name.
+    m_program->setText(QString::fromStdString(transcription.settings.executable.string()));
+    m_program->setPlaceholderText(translate("Searched for on the PATH"));
+    m_model->setText(QString::fromStdString(transcription.settings.model.string()));
+    m_tools->setWordWrap(true);
+    connect(m_program, &QLineEdit::textChanged, this, [this] { refreshTools(); });
+    connect(m_model, &QLineEdit::textChanged, this, [this] { refreshTools(); });
+    connect(m_programButton, &QPushButton::clicked, this, [this] {
+        pick(ChosenFile::Program, m_program);
+    });
+    connect(
+        m_modelButton, &QPushButton::clicked, this, [this] { pick(ChosenFile::Model, m_model); });
+
+    auto* programRow = new QHBoxLayout;
+    programRow->addWidget(m_program, 1);
+    programRow->addWidget(m_programButton);
+    auto* modelRow = new QHBoxLayout;
+    modelRow->addWidget(m_model, 1);
+    modelRow->addWidget(m_modelButton);
+    auto* transcriptionFields = new QFormLayout;
+    transcriptionFields->addRow(translate("Program"), programRow);
+    transcriptionFields->addRow(translate("Model"), modelRow);
+    transcriptionFields->addRow(m_tools);
+    auto* transcriptionGroup = new QGroupBox{translate("Transcription"), this};
+    transcriptionGroup->setLayout(transcriptionFields);
+    refreshTools();
+
     auto* buttons = new QDialogButtonBox{QDialogButtonBox::Ok | QDialogButtonBox::Cancel, this};
     connect(buttons, &QDialogButtonBox::accepted, this, &QDialog::accept);
     connect(buttons, &QDialogButtonBox::rejected, this, &QDialog::reject);
@@ -164,7 +204,38 @@ PreferencesDialog::PreferencesDialog(core::Theme theme,
     auto* stack = new QVBoxLayout{this};
     stack->addLayout(fields);
     stack->addWidget(explanation);
+    stack->addWidget(transcriptionGroup);
     stack->addWidget(buttons);
+}
+
+void PreferencesDialog::refreshTools() {
+    if (!m_transcription.tools)
+        return;
+    const core::TranscriptionSettings settings = transcription();
+    const core::TranscriptionTools tools = m_transcription.tools(settings);
+    QString report = QString::fromStdString(core::transcriptionToolsReport(tools, settings));
+    // The pointer to the guide only when something is missing: a person whose tools are all
+    // there has no use for it.
+    if (!tools.ready())
+        report +=
+            QStringLiteral("\n\n%1").arg(QString::fromStdString(core::installationGuidePointer()));
+    m_tools->setText(report);
+}
+
+void PreferencesDialog::pick(ChosenFile what, QLineEdit* field) const {
+    if (!m_transcription.choose)
+        return;
+    const auto chosen =
+        m_transcription.choose(what, std::filesystem::path{field->text().toStdString()});
+    if (chosen)
+        field->setText(QString::fromStdString(chosen->string()));
+}
+
+core::TranscriptionSettings PreferencesDialog::transcription() const {
+    core::TranscriptionSettings settings = m_transcription.settings;
+    settings.executable = std::filesystem::path{m_program->text().trimmed().toStdString()};
+    settings.model = std::filesystem::path{m_model->text().trimmed().toStdString()};
+    return settings;
 }
 
 void PreferencesDialog::refreshLengthUnitState() {

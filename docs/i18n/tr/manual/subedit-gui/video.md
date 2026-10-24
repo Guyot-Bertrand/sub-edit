@@ -100,16 +100,24 @@ eşlik ettiği — ve üçüncü bir ifade onu, başka bir şey olan
 **projenin filminin** sesidir ve asla seçeceğiniz bir dosya değildir — bir ses dosyasını yazıya dökmek için
 komut satırında [`transcribe`](../subedit-cli/transcribe.md) komutunu kullanın.
 
-İletişim kutusu üç şey ister:
+İletişim kutusu iki şey ister ve başlayıp başlayamayacağını söyler:
 
 - **ses izi**, [`Audio`](#ses-izi) menüsünün listelediği gibi listelenir, dosyanın bildirdiği dil
   ve başlıkla birlikte;
 - **dil**, `en` ya da `fr` gibi iki harf. Dosya bildirdiğinde seçilen izin diliyle
   başlar, siz kendiniz bir tane yazmadığınız sürece ize uyar ve
-  boş bırakılırsa modelin dili **algılamasına** izin verir;
-- **model**, bir dosya, bir `Browse…` düğmesiyle.
+  **alanın altındaki bir satır nereden geldiğini söyler**. Dosya iz için bir dil bildirmediğinde
+  satır bunu söyler: model dili o zaman sesten algılar, bunu yalnızca çok dilli bir model yapabilir ve
+  biliyorsanız dili yazmalısınız. Hiçbir şeyi algılamayan, yalnızca İngilizce bir modelle satır,
+  dilin yazılması gerektiğini söyler.
 
-Seçimler bir sonraki sefer için saklanır. Motorun kendisi ve altyazıların sınırları
+**Neyin eksik olduğunu da söyler.** Üç satır motorun, `ffmpeg`'in ve modelin orada olup olmadığını ve
+nerede olduğunu söyler; biri yoksa `OK` kapalı kalır ve kutu bunu
+[Yazıya dökme araçlarını kurma](../subedit-cli/install-transcription.md) sayfasına yönlendirerek söyler. Bir `Preferences…` düğmesi
+[tercihleri](preferences.md#yazıya-dökme) açar; program ve model orada ayarlanır — bunlar makineyle ilgili
+bilgilerdir, her yazıya dökmede yeniden yapılacak seçimler değil — ve kutu, tercihler kapanınca yeniden bakar.
+
+Dil bir sonraki sefer için saklanır. Motorun kendisi ve altyazıların sınırları
 [ayarlardır](preferences.md) (`transcription.*`).
 
 **Proje zaten altyazı içeriyorsa, pencere onları değiştirmeden önce sorar** ve kaç tanesinin gideceğini
@@ -123,8 +131,7 @@ metinleri dahil. Başarısız olan ya da iptal ettiğiniz bir yazıya dökme hi�
 bir kutuda söylenir, yalnızca iptal hariç; iptal sadece durum çubuğunda iptal edildiğini söyler.
 
 **İhtiyaç duyduğu şey birlikte gelmez**: bir motor (whisper.cpp), bir model ve sesi çıkarmak için `ffmpeg`.
-Biri eksik olduğunda kutu hangisi olduğunu söyler ve
-[Yazıya dökme araçlarını kurma](../subedit-cli/install-transcription.md) sayfasına yönlendirir.
+Bkz. [Yazıya dökme araçlarını kurma](../subedit-cli/install-transcription.md).
 
 ## Film olmadığında
 

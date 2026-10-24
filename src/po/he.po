@@ -3391,6 +3391,52 @@ msgstr[1] "%1 כתוביות של הפרויקט הזה יוחלפו בתמלו�
 msgstr[2] "%1 כתוביות של הפרויקט הזה יוחלפו בתמלול. אפשר לבטל."
 
 #: src/lib/subedit/core/wording/transcription.cpp
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "%1: found (%2)"
+msgstr "%1: נמצא (%2)"
+
+# From Gaupol.
+#: src/lib/subedit/core/wording/transcription.cpp
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "%1: not found"
+msgstr "%1: לא נמצא"
+
+#: src/lib/subedit/core/wording/transcription.cpp
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "ffmpeg: found"
+msgstr "ffmpeg: נמצא"
+
+#: src/lib/subedit/core/wording/transcription.cpp
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "ffmpeg: not found"
+msgstr "ffmpeg: לא נמצא"
+
+#: src/lib/subedit/core/wording/transcription.cpp
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "Model: none set"
+msgstr "מודל: לא הוגדר"
+
+#: src/lib/subedit/core/wording/transcription.cpp
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "Model: not found (%1)"
+msgstr "מודל: לא נמצא (%1)"
+
+#: src/lib/subedit/core/wording/transcription.cpp
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "Model: not a model (%1)"
+msgstr "מודל: זה אינו מודל (%1)"
+
+#: src/lib/subedit/core/wording/transcription.cpp
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "Model: English only (%1)"
+msgstr "מודל: לאנגלית בלבד (%1)"
+
+#: src/lib/subedit/core/wording/transcription.cpp
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "Model: multilingual (%1)"
+msgstr "מודל: רב־לשוני (%1)"
+
+#: src/lib/subedit/core/wording/transcription.cpp
 msgid "transcribing: %1%"
 msgstr "תמלול: %1%"
 
@@ -4197,6 +4243,10 @@ msgstr "הצגת אורכי השורות בעורך"
 msgid "Decode on the graphics card"
 msgstr "פענוח בכרטיס המסך"
 
+#: src/lib/subedit/gui/preferences_dialog.cpp
+msgid "Browse…"
+msgstr "עיון…"
+
 # From Gaupol.
 #: src/lib/subedit/gui/preferences_dialog.cpp
 msgid "Preferences"
@@ -4234,6 +4284,25 @@ msgstr "אורך ההקשר"
 #: src/lib/subedit/gui/preferences_dialog.cpp
 msgid "Frame step"
 msgstr "צעד בפריימים"
+
+#: src/lib/subedit/gui/preferences_dialog.cpp
+#: src/lib/subedit/gui/preferences_dialog.cpp
+msgid "Searched for on the PATH"
+msgstr "מחפשים ב־PATH"
+
+#: src/lib/subedit/gui/preferences_dialog.cpp
+#: src/lib/subedit/gui/preferences_dialog.cpp
+msgid "Program"
+msgstr "תוכנה"
+
+#: src/lib/subedit/gui/preferences_dialog.cpp
+msgid "Model"
+msgstr "מודל"
+
+#: src/lib/subedit/gui/preferences_dialog.cpp
+#: src/lib/subedit/gui/preferences_dialog.cpp
+msgid "Transcription"
+msgstr "תמלול"
 
 #: src/lib/subedit/gui/project_files.cpp
 msgid "Save All stopped: %1 of %2 document saved"
@@ -4293,6 +4362,11 @@ msgstr "בחירת וידאו"
 #: src/lib/subedit/gui/qt_prompts.cpp
 msgid "Choose a model"
 msgstr "בחירת מודל"
+
+#: src/lib/subedit/gui/qt_prompts.cpp
+#: src/lib/subedit/gui/qt_prompts.cpp
+msgid "Choose the program"
+msgstr "בחירת התוכנה"
 
 #: src/lib/subedit/gui/qt_prompts.cpp
 msgid "Models (*.bin);;All files (*)"
@@ -4599,8 +4673,9 @@ msgid "Main"
 msgstr "ראשי"
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
-msgid "Browse…"
-msgstr "עיון…"
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+msgid "Preferences…"
+msgstr "העדפות…"
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
 #: src/lib/subedit/gui/transcription_runner.cpp
@@ -4612,8 +4687,9 @@ msgid "First audio track"
 msgstr "רצועת השמע הראשונה"
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
-msgid "Detected"
-msgstr "מזוהה"
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+msgid "Detected from the sound"
+msgstr "מזוהה מתוך הצליל"
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
 msgid ""
@@ -4621,13 +4697,6 @@ msgid ""
 "detect the language."
 msgstr ""
 "קוד שפה בן שתי אותיות, כמו en או fr. השאירו ריק כדי שהמודל יזהה את השפה."
-
-#: src/lib/subedit/gui/transcribe_dialog.cpp
-msgid ""
-"The model file the engine reads. It is not shipped with the program: the "
-"manual says where to find one."
-msgstr ""
-"קובץ המודל שהמנוע קורא. הוא אינו מצורף לתוכנה: המדריך מציין היכן למצוא אחד."
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
 msgid ""
@@ -4647,8 +4716,29 @@ msgid "Language"
 msgstr "שפה"
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
-msgid "Model"
-msgstr "מודל"
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+msgid "Set them in the preferences."
+msgstr "הגדירו אותם בהעדפות."
+
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+msgid "This model cannot detect the language: type it."
+msgstr "המודל הזה אינו יודע לזהות את השפה: הקלידו אותה."
+
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+msgid "The language you typed is used."
+msgstr "נעשה שימוש בשפה שהקלדתם."
+
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+msgid "Proposed from the language the file declares for this track."
+msgstr "מוצעת לפי השפה שהקובץ מצהיר עליה עבור הרצועה הזו."
+
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+msgid "The file declares no language for this track: the model will detect it from the sound. Type it if you know it."
+msgstr "הקובץ אינו מצהיר על שפה עבור הרצועה הזו: המודל יזהה אותה מתוך הצליל. הקלידו אותה אם אתם יודעים אותה."
 
 #: src/lib/subedit/gui/transcription_runner.cpp
 #: src/lib/subedit/gui/unsaved_documents_dialog.cpp
@@ -5069,3 +5159,13 @@ msgstr "נטוי"
 msgctxt "toolbar"
 msgid "Main"
 msgstr "ראשי"
+
+#~ msgid "Detected"
+#~ msgstr "מזוהה"
+
+#~ msgid ""
+#~ "The model file the engine reads. It is not shipped with the program: the "
+#~ "manual says where to find one."
+#~ msgstr ""
+#~ "קובץ המודל שהמנוע קורא. הוא אינו מצורף לתוכנה: המדריך מציין היכן למצוא "
+#~ "אחד."

@@ -20,14 +20,11 @@
 ```bash
 git clone https://github.com/ggml-org/whisper.cpp
 cd whisper.cpp
-cmake -B build
+cmake -B build -DBUILD_SHARED_LIBS=OFF
 cmake --build build -j --config Release
 ```
 
-התוכנה היא אז `build/bin/whisper-cli`. שימו אותה במקום ש-`PATH` שלכם מוצא, או **ציינו את
-הנתיב שלה** ל-subedit בהגדרה `transcription.executable`. בנייה לכרטיס גרפי נעשית
-באפשרויות שהתיעוד שלה נותן; subedit מפעילה את מה שהתקנתם ואינה בוחרת דבר
-במקומכם.
+התוכנה היא אז `build/bin/whisper-cli`. כשבונים אותה עם `-DBUILD_SHARED_LIBS=OFF`, כמו לעיל, היא קובץ יחיד שאינו זקוק לספרייה לצידו, ולכן אפשר להעתיק אותה לכל מקום. שימו אותה במקום ש-`PATH` שלכם מוצא, או **ציינו את הנתיב שלה** ל-subedit בהגדרה `transcription.executable` — בחלון, ל[העדפות](../subedit-gui/preferences.md#תמלול) יש שדה לכך. בנייה לכרטיס גרפי מוסיפה אפשרות אחת לשורת `cmake` הראשונה: `-DGGML_CUDA=1` לכרטיס NVIDIA, `-DGGML_VULKAN=1` לרוב האחרים; subedit מפעילה את מה שהתקנתם ואינה בוחרת דבר במקומכם.
 
 ## מודל
 
@@ -41,7 +38,7 @@ sh ./models/download-ggml-model.sh small
 ```
 
 אחר כך ציינו את הנתיב שלו עם `--model` בשורת הפקודה, או בהגדרה `transcription.model`,
-או בתיבת הדו־שיח של החלון, שזוכרת אותו.
+או ב[העדפות](../subedit-gui/preferences.md#תמלול) של החלון, שזוכרות אותו.
 
 ### איזה מודל לאיזו שפה
 

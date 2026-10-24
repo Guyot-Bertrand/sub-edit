@@ -279,6 +279,19 @@ darüber hinweg, wie auch immer die Arbeitsumgebung ist.
 [Die Tabelle](table.md#die-auffälligkeiten). Das ist keine Annahme: Der Kontrast
 des Textes auf jeder der Tönungen wird von einem Test geprüft, auf beiden Hintergründen.
 
+## Transkription
+
+Die Gruppe **`Transcription`** des Dialogs enthält die beiden Angaben zum Rechner, die
+[`Transcribe Audio…`](video.md#das-audio-transkribieren) braucht: **das Programm** der Engine (whisper.cpp,
+`whisper-cli`) und **das Modell**, das sie liest. Jedes hat eine Schaltfläche `Browse…`. Bleibt es leer, wird das Programm
+im `PATH` gesucht; das Modell hat keinen Standardwert.
+
+Unter den Feldern **sagt der Dialog, was vorhanden ist**: ob die Engine gefunden wird und wo, ob `ffmpeg`
+gefunden wird, und das Modell — nicht festgelegt, nicht gefunden, kein Modell, nur für Englisch oder mehrsprachig. Fehlt etwas,
+fügt er den Verweis auf
+[Die Transkriptionswerkzeuge installieren](../subedit-cli/install-transcription.md) hinzu, der sagt, wo man
+jedes findet. Die beiden Felder sind die Einstellungen `transcription.executable` und `transcription.model`.
+
 ## Die Sprache der Oberfläche
 
 `Bearbeiten ▸ Einstellungen …` wählt die Sprache des Fensters, unter dem Design.

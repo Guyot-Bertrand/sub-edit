@@ -279,6 +279,19 @@ per sobre, sigui quin sigui l'escriptori.
 [La taula](table.md#les-anomalies). No és una suposició: el contrast
 del text sobre cadascun dels tints el comprova una prova, sobre tots dos fons.
 
+## Transcripció
+
+El grup **`Transcription`** del diàleg conté els dos fets sobre la màquina que necessita
+[`Transcribe Audio…`](video.md#transcriure-làudio): **el programa** del motor (whisper.cpp,
+`whisper-cli`) i **el model** que llegeix. Cadascun té un botó `Browse…`. Deixat buit, el programa es cerca
+al `PATH`; el model no té valor per defecte.
+
+Sota els camps, **el diàleg diu què hi ha**: si el motor és trobat i on, si `ffmpeg`
+és trobat, i el model — no indicat, no trobat, no és un model, només per a l'anglès, o multilingüe. Quan hi falta
+alguna cosa, hi afegeix la referència a
+[Instal·lació de les eines de transcripció](../subedit-cli/install-transcription.md), que diu on trobar
+cadascuna. Els dos camps són els paràmetres `transcription.executable` i `transcription.model`.
+
 ## La llengua de la interfície
 
 `Edita ▸ Preferències…` tria la llengua de la finestra, sota el tema.

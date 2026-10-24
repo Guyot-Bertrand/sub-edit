@@ -277,6 +277,19 @@ outre, quel que soit le bureau.
 [La table](table.md#les-anomalies). Ce n'est pas une supposition : le contraste
 du texte sur chacune des teintes est vérifié par un test, sur les deux fonds.
 
+## Transcription
+
+Le groupe **`Transcription`** de la boîte de dialogue porte les deux faits sur la machine dont
+[`Transcribe Audio…`](video.md#transcrire-laudio) a besoin : **le programme** du moteur (whisper.cpp,
+`whisper-cli`) et **le modèle** qu'il lit. Chacun a un bouton `Browse…`. Laissé vide, le programme est cherché
+dans le `PATH` ; le modèle n'a pas de défaut.
+
+Sous les champs, **la boîte dit ce qui est là** : si le moteur est trouvé et où, si `ffmpeg`
+est trouvé, et le modèle — non réglé, introuvable, ce n'est pas un modèle, pour l'anglais seul, ou multilingue. Quand quelque chose
+manque, elle ajoute le renvoi vers
+[Installer les outils de transcription](../subedit-cli/install-transcription.md), qui dit où trouver
+chacun. Les deux champs sont les réglages `transcription.executable` et `transcription.model`.
+
 ## La langue de l'interface
 
 `Édition ▸ Préférences…` choisit la langue de la fenêtre, sous le thème.

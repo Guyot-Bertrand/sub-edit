@@ -92,6 +92,12 @@ std::string searchPathOfProcess() {
 BackgroundTranscriptionRunner::BackgroundTranscriptionRunner(std::string searchPath)
     : m_searchPath(std::move(searchPath)) {}
 
+core::TranscriptionTools
+BackgroundTranscriptionRunner::tools(const core::TranscriptionSettings& settings) {
+    const core::RealFileSystem files;
+    return core::inspectTranscriptionTools(files, m_searchPath, settings);
+}
+
 Result BackgroundTranscriptionRunner::run(const TranscriptionJob& job, QWidget* parent) {
     std::atomic<int> percent{0};
     std::atomic<bool> cancelled{false};

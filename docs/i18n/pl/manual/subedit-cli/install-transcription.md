@@ -20,14 +20,11 @@ tak, jak mówi jego własna dokumentacja (wystarczą kompilator C++ i CMake):
 ```bash
 git clone https://github.com/ggml-org/whisper.cpp
 cd whisper.cpp
-cmake -B build
+cmake -B build -DBUILD_SHARED_LIBS=OFF
 cmake --build build -j --config Release
 ```
 
-Programem jest wtedy `build/bin/whisper-cli`. Umieść go tam, gdzie znajdzie go `PATH`, albo **podaj jego
-ścieżkę** programowi subedit w ustawieniu `transcription.executable`. Wersję dla karty graficznej buduje się
-z opcjami podanymi w jego dokumentacji; subedit uruchamia to, co zainstalowałeś, i niczego nie wybiera
-za ciebie.
+Programem jest wtedy `build/bin/whisper-cli`. Zbudowany z `-DBUILD_SHARED_LIBS=OFF`, jak powyżej, jest pojedynczym plikiem, który nie potrzebuje obok siebie żadnej biblioteki, więc możesz go skopiować gdziekolwiek. Umieść go tam, gdzie znajdzie go `PATH`, albo **podaj jego ścieżkę** programowi subedit w ustawieniu `transcription.executable` — w oknie [preferencje](../subedit-gui/preferences.md#transkrypcja) mają na to pole. Wersja dla karty graficznej dodaje jedną opcję do pierwszej linii `cmake`: `-DGGML_CUDA=1` dla karty NVIDIA, `-DGGML_VULKAN=1` dla większości pozostałych; subedit uruchamia to, co zainstalowałeś, i niczego nie wybiera za ciebie.
 
 ## Model
 
@@ -41,7 +38,7 @@ sh ./models/download-ggml-model.sh small
 ```
 
 Następnie podaj jego ścieżkę w `--model` w wierszu poleceń albo w ustawieniu `transcription.model`,
-albo w oknie dialogowym, które ją zapamiętuje.
+albo w [preferencjach](../subedit-gui/preferences.md#transkrypcja) okna, które ją zapamiętują.
 
 ### Który model dla którego języka
 

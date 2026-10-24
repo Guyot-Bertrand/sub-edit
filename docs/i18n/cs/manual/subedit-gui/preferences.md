@@ -279,6 +279,19 @@ přepíší, ať je pracovní prostředí jakékoli.
 [Tabulka](table.md#anomálie). Není to předpoklad: kontrast
 textu na každém ze zabarvení ověřuje test, na obou pozadích.
 
+## Přepis
+
+Skupina **`Transcription`** v dialogu obsahuje dvě skutečnosti o počítači, které
+[`Transcribe Audio…`](video.md#přepis-zvuku) potřebuje: **program** nástroje (whisper.cpp,
+`whisper-cli`) a **model**, který čte. Každé pole má tlačítko `Browse…`. Pokud zůstane prázdné, program se hledá
+v `PATH`; model nemá výchozí hodnotu.
+
+Pod poli **dialog říká, co je k dispozici**: zda je nástroj nalezen a kde, zda je nalezen `ffmpeg`
+a jaký je model — není nastaven, nenalezen, není to model, pouze pro angličtinu, nebo vícejazyčný. Když něco
+chybí, přidá odkaz na
+[Instalace nástrojů pro přepis](../subedit-cli/install-transcription.md), který říká, kde to které najít.
+Obě pole jsou nastavení `transcription.executable` a `transcription.model`.
+
 ## Jazyk rozhraní
 
 `Úpravy ▸ Předvolby…` volí jazyk okna, pod motivem.

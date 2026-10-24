@@ -106,16 +106,24 @@ A **`Transcribe Audio…`** a film beszédét írja ki feliratként. Addig nem e
 a **projekt filmjének** hangja, és soha nem egy fájl, amelyet kiválasztana — egy hangfájl leiratozásához
 használja a [`transcribe`](../subedit-cli/transcribe.md) parancsot a parancssorban.
 
-A párbeszédablak három dolgot kér:
+A párbeszédablak két dolgot kér, és megmondja, el tud-e indulni:
 
 - **a hangsávot**, úgy felsorolva, ahogy az [`Audio`](#a-hangsáv) menü felsorolja, a fájl által
   megadott nyelvvel és címmel;
 - **a nyelvet**, két betű, például `en` vagy `fr`. A kiválasztott hangsáv nyelvével indul, ha a fájl
   megadja, követi a hangsávot, amíg Ön nem írt be egyet, és
-  üresen hagyva a modellre bízza a nyelv **felismerését**;
-- **a modellt**, egy fájl, egy `Browse…` gombbal.
+  **a mező alatti sor megmondja, honnan származik**. Ha a fájl nem ad meg nyelvet a hangsávhoz,
+  a sor ezt mondja: a modell ekkor a hangból fogja felismerni, amit csak a többnyelvű modell
+  tud, és ha ismeri, írja be. Csak angolra való modellnél, amely semmit sem ismer fel,
+  a sor azt mondja, hogy a nyelvet be kell írni.
 
-A választások megmaradnak a következő alkalomra. Maga a motor és a feliratok korlátai
+**Azt is megmondja, mi hiányzik.** Három sor megmondja, megvan-e a motor, az `ffmpeg` és a modell, és
+hol; ha valamelyik nincs meg, az `OK` kikapcsolva marad, és az ablak ezt a következőre mutató hivatkozással mondja meg:
+[A leiratozó eszközök telepítése](../subedit-cli/install-transcription.md). A `Preferences…` gomb megnyitja
+a [beállításokat](preferences.md#leiratozás), ahol a program és a modell megadható — ezek a gépre
+vonatkozó tények, nem olyan választások, amelyeket minden leiratozásnál újra meg kell tenni — és az ablak újra megnézi, amikor bezárulnak.
+
+A nyelv megmarad a következő alkalomra. Maga a motor és a feliratok korlátai
 [beállítások](preferences.md) (`transcription.*`).
 
 **Ha a projekt már tartalmaz feliratokat, az ablak a lecserélésük előtt rákérdez**, és megmondja,
@@ -129,8 +137,7 @@ szövegekkel együtt. Egy sikertelen vagy általa megszakított leiratozás nem 
 egy ablak mondja meg, kivéve a megszakítást, amelyet csak az állapotsor jelez.
 
 **Amire szüksége van, azt nem szállítja a program**: egy motor (whisper.cpp), egy modell, és az `ffmpeg` a hang kinyeréséhez.
-Ha valamelyik hiányzik, az ablak megmondja, melyik, és a következőre mutat:
-[A leiratozó eszközök telepítése](../subedit-cli/install-transcription.md).
+Lásd: [A leiratozó eszközök telepítése](../subedit-cli/install-transcription.md).
 
 ## Ha nincs film
 

@@ -280,6 +280,19 @@ sovrascrivono, qualunque sia il desktop.
 [La tabella](table.md#le-anomalie). Non è un'ipotesi: il contrasto
 del testo su ciascuna delle colorazioni è verificato da un test, su entrambi gli sfondi.
 
+## Trascrizione
+
+Il gruppo **`Transcription`** della finestra di dialogo contiene i due dati sulla macchina di cui
+[`Transcribe Audio…`](video.md#trascrivere-laudio) ha bisogno: **il programma** del motore (whisper.cpp,
+`whisper-cli`) e **il modello** che legge. Ognuno ha un pulsante `Browse…`. Se resta vuoto, il programma viene cercato
+nel `PATH`; il modello non ha un valore predefinito.
+
+Sotto i campi, **la finestra dice che cosa c'è**: se il motore è stato trovato e dove, se `ffmpeg`
+è stato trovato, e il modello — non impostato, non trovato, non è un modello, solo per l'inglese o multilingue. Quando manca
+qualcosa, aggiunge il rimando a
+[Installare gli strumenti di trascrizione](../subedit-cli/install-transcription.md), che dice dove trovare
+ciascuno. I due campi sono le impostazioni `transcription.executable` e `transcription.model`.
+
 ## La lingua dell'interfaccia
 
 `Modifica ▸ Preferenze…` sceglie la lingua della finestra, sotto il tema.

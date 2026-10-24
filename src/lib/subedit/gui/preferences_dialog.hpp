@@ -2,10 +2,15 @@
 
 #include <subedit/core/config/editor_settings.hpp>
 #include <subedit/core/config/theme.hpp>
+#include <subedit/core/config/transcription_settings.hpp>
 #include <subedit/core/config/video_settings.hpp>
+#include <subedit/core/transcription/tools_status.hpp>
+#include <subedit/gui/prompts.hpp>
 
 #include <QDialog>
 
+#include <filesystem>
+#include <functional>
 #include <optional>
 #include <string>
 #include <vector>
@@ -13,6 +18,9 @@
 class QCheckBox;
 class QComboBox;
 class QDoubleSpinBox;
+class QLabel;
+class QLineEdit;
+class QPushButton;
 class QSpinBox;
 class QWidget;
 
@@ -26,6 +34,19 @@ struct LanguageChoice {
     /// The languages installed beside the program, as `core::availableLanguages` finds them.
     /// English is offered whatever this holds: it is the source.
     std::vector<std::string> installed{};
+};
+
+/// What the transcription group of the dialog starts from, and what it asks of the window.
+struct TranscriptionPreferences {
+    /// The settings; only the program and the model are changed here.
+    core::TranscriptionSettings settings{};
+
+    /// Looks at what the settings name, to say what is there. Without it the group says nothing.
+    std::function<core::TranscriptionTools(const core::TranscriptionSettings&)> tools{};
+
+    /// Asks which file to take, from where the field stands.
+    std::function<std::optional<std::filesystem::path>(ChosenFile, const std::filesystem::path&)>
+        choose{};
 };
 
 /// What is set by no gesture other than setting it.
@@ -55,6 +76,7 @@ public:
                                const core::EditorSettings& editor = {},
                                const core::VideoSettings& video = {},
                                const LanguageChoice& language = {},
+                               const TranscriptionPreferences& transcription = {},
                                QWidget* parent = nullptr);
 
     /// The theme chosen, whether or not it was accepted — the caller looks at
@@ -76,6 +98,21 @@ public:
     /// The interface language chosen, nothing for `System default`, whether or not it was
     /// accepted.
     [[nodiscard]] std::optional<std::string> interfaceLanguage() const;
+
+    /// The settings of the transcription as they stand in the dialog: the ones it was given, with
+    /// the program and the model the fields hold.
+    [[nodiscard]] core::TranscriptionSettings transcription() const;
+
+    /// The fields of the transcription group, so that a test fills them without clicking.
+    [[nodiscard]] QLineEdit* programEdit() const { return m_program; }
+
+    [[nodiscard]] QLineEdit* modelEdit() const { return m_model; }
+
+    [[nodiscard]] QLabel* toolsLabel() const { return m_tools; }
+
+    [[nodiscard]] QPushButton* programButton() const { return m_programButton; }
+
+    [[nodiscard]] QPushButton* modelButton() const { return m_modelButton; }
 
     /// The list of languages, so that a test picks without clicking.
     [[nodiscard]] QComboBox* languageBox() const { return m_language; }
@@ -100,6 +137,12 @@ private:
     /// than left to be set to no effect.
     void refreshLengthUnitState();
 
+    /// Says what is there of what the program and the model fields name.
+    void refreshTools();
+
+    /// Fills `field` with the file the person picks for `what`.
+    void pick(ChosenFile what, QLineEdit* field) const;
+
     QComboBox* m_theme;
     QComboBox* m_language;
     QComboBox* m_lengthUnit;
@@ -109,6 +152,13 @@ private:
     QDoubleSpinBox* m_contextLength;
     QSpinBox* m_stepFrames;
     QCheckBox* m_hardwareDecoding;
+
+    TranscriptionPreferences m_transcription;
+    QLineEdit* m_program;
+    QLineEdit* m_model;
+    QPushButton* m_programButton;
+    QPushButton* m_modelButton;
+    QLabel* m_tools;
 };
 
 } // namespace subedit::gui

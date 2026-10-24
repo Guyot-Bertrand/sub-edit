@@ -43,6 +43,12 @@ struct ModifiedDocument {
     bool missing = false;
 };
 
+/// What a transcription asks the person to point at.
+enum class ChosenFile {
+    Model,   ///< the model file the engine reads
+    Program, ///< the engine's program
+};
+
 /// What to do about a document that differs from its file.
 enum class UnsavedChoice {
     Save,    ///< write it, then go on
@@ -126,10 +132,10 @@ public:
     /// since nothing has gone wrong that the user did not already see.
     [[nodiscard]] virtual bool proposeShiftedReopening(const std::string& message) = 0;
 
-    /// Which model file to give a transcription, from where the field stands, or nothing if the
-    /// person changed their mind.
+    /// Which file to give a transcription — its model, or the program that runs it — from where
+    /// the field stands, or nothing if the person changed their mind.
     [[nodiscard]] virtual std::optional<std::filesystem::path>
-    modelToOpen(const std::filesystem::path& current) = 0;
+    fileToChoose(ChosenFile what, const std::filesystem::path& current) = 0;
 
     /// Whether to go on with an operation that will replace what the project holds:
     /// `message` says what goes. The default answer is the safe one, to keep it.

@@ -99,6 +99,37 @@ std::string noticeOfReplacement(std::size_t subtitles) {
         {std::to_string(subtitles)});
 }
 
+std::string transcriptionToolsReport(const TranscriptionTools& tools,
+                                     const TranscriptionSettings& settings) {
+    const std::string engine =
+        tools.engine
+            ? substitute(translate("%1: found (%2)"), {settings.engine, tools.engine->string()})
+            : substitute(translate("%1: not found"), {settings.engine});
+    const std::string extractor =
+        std::string{tools.extractor ? translate("ffmpeg: found") : translate("ffmpeg: not found")};
+
+    const std::string model = settings.model.string();
+    std::string state;
+    switch (tools.model) {
+    case ModelState::NotSet:
+        state = std::string{translate("Model: none set")};
+        break;
+    case ModelState::NotFound:
+        state = substitute(translate("Model: not found (%1)"), {model});
+        break;
+    case ModelState::NotAModel:
+        state = substitute(translate("Model: not a model (%1)"), {model});
+        break;
+    case ModelState::EnglishOnly:
+        state = substitute(translate("Model: English only (%1)"), {model});
+        break;
+    case ModelState::Multilingual:
+        state = substitute(translate("Model: multilingual (%1)"), {model});
+        break;
+    }
+    return engine + "\n" + extractor + "\n" + state;
+}
+
 std::string transcriptionProgressText(int percent) {
     return substitute(translate("transcribing: %1%"), {std::to_string(percent)});
 }

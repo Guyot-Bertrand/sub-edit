@@ -276,6 +276,19 @@ it, whatever the desktop.
 [The table](table.md#the-anomalies). It is not an assumption: the contrast
 of the text on each of the tints is checked by a test, on both backgrounds.
 
+## Transcription
+
+The group **`Transcription`** of the dialog holds the two facts about the machine that
+[`Transcribe Audio…`](video.md#transcribing-the-audio) needs: **the program** of the engine (whisper.cpp,
+`whisper-cli`) and **the model** it reads. Each has a `Browse…` button. Left empty, the program is searched for
+on the `PATH`; the model has no default.
+
+Under the fields, **the dialog says what is there**: whether the engine is found and where, whether `ffmpeg`
+is found, and the model — not set, not found, not a model, for English alone, or multilingual. When something is
+missing it adds the pointer to
+[Installing the transcription tools](../subedit-cli/install-transcription.md), which says where to find
+each. The two fields are the settings `transcription.executable` and `transcription.model`.
+
 ## The interface language
 
 `Edit ▸ Preferences…` chooses the language of the window, under the theme.

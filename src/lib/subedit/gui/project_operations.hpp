@@ -115,6 +115,14 @@ public:
         [[nodiscard]] virtual std::vector<core::AudioTrack>
         audioTracksOf(const ProjectPage& page) const = 0;
 
+        /// What there is of what a transcription needs, for these settings.
+        [[nodiscard]] virtual core::TranscriptionTools
+        transcriptionTools(const core::TranscriptionSettings& settings) = 0;
+
+        /// Opens the preferences, where the program and the model are set. The window keeps
+        /// what is accepted, including the transcription settings the operations hold.
+        virtual void openPreferences() = 0;
+
         /// Runs a transcription, with a box that shows how far it has got and lets the
         /// person stop it. Returns when it is over.
         [[nodiscard]] virtual std::expected<TranscriptionOutcome, TranscriptionFailure>
@@ -275,6 +283,9 @@ public:
     }
 
 private:
+    /// What the transcription dialog shows of the tools, looked at afresh at each call.
+    [[nodiscard]] ToolsView currentTools() const;
+
     /// `Convert Frame Rate…`, its fields filled with `proposed` when there is one.
     void convertFrameRateFrom(ProjectPage& page,
                               const std::optional<core::RateConversion>& proposed);
