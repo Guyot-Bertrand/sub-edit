@@ -24,6 +24,7 @@ do not edit it by hand.
 ### Fixed
 
 - **gui** — Warn on a wrong language, fix the box, ask HH:MM:SS
+- **gui** — Fix the time left, keep the position above the text
 
 ## 1.0.9 — 2026-10-23
 
