@@ -136,6 +136,12 @@ suivante.
 | `correction.join-split.join`, `correction.join-split.split` | `true` ou `false` — recoller, scinder | `true`, `false` |
 | `correction.join-split.language` | un code de locale — `fr`, `en_US`, `sr@Latn` — ; vide : la langue du système | vide |
 | `correction.remove-blank` | `true` ou `false` — `Remove all blank subtitles` | `true` |
+| `transcription.engine` | le nom du moteur : lettres minuscules, chiffres, `.`, `-` et `_` | `whisper.cpp` |
+| `transcription.executable`, `transcription.model` | un chemin absolu ; vide : le moteur est cherché dans le `PATH`, et aucun modèle n'est réglé | vide |
+| `transcription.language` | deux lettres minuscules, un code ISO 639-1 ; vide : la langue est détectée | vide |
+| `transcription.merge-gap-ms` | les morceaux d'une même phrase plus proches que cela sont joints, en millisecondes, nombre entier non négatif | `400` |
+| `transcription.max-duration-ms` | la durée maximale d'un sous-titre transcrit à l'écran, en millisecondes, de 1 à 3600000 | `7000` |
+| `transcription.max-characters` | le nombre maximal de caractères d'un sous-titre transcrit, de 1 à 1000 | `84` |
 | `correction.activations` | les cases de motifs que l'utilisateur a changées, `<type>:<code>:<name>:<0\|1>`, séparées par des virgules ; **une virgule ou une barre oblique inverse dans un nom s'écrit précédée d'une barre oblique inverse** (`\,` et `\\`), et une entrée illisible ne fait perdre que son propre réglage — elle est signalée, les autres sont gardées | vide |
 | `spell-check.language` | un code de locale, tel que `fr_FR` ; vide : la langue du système | vide |
 | `spell-check.target` | `selection`, `current-project` ou `all-projects` | `current-project` |

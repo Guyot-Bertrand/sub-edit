@@ -1,11 +1,12 @@
 # The associated video
 
-The **Video** menu carries first two commands, and the gestures that drive the film
+The **Video** menu carries first three commands, and the gestures that drive the film
 — see [The player](player.md#moving-through-the-film).
 
 | Command | Shortcut | What it does |
 | :------ | :------- | :----------- |
 | Select Video… | none | chooses the video file the document goes with |
+| Transcribe Audio… | none | transcribes the audio of the film into subtitles that replace the project's — see [Transcribing the audio](#transcribing-the-audio) |
 | Play / Pause | `Ctrl+P` | plays or stops the video — see [The player](player.md#playing-and-stopping) |
 
 The associated video is **a property of the open document**, not a setting of
@@ -98,6 +99,38 @@ positions next.
 this document goes with — and a third mention would put it on the same rank as
 the [grid deduced from the positions](frame-grid.md), which is another one.
 
+## Transcribing the audio
+
+**`Transcribe Audio…`** writes the speech of the film as subtitles. It is out until a film is open: it
+is the audio of **the film of the project**, and never a file you would pick — to transcribe an
+audio file, use [`transcribe`](../subedit-cli/transcribe.md) on the command line.
+
+The dialog asks for three things:
+
+- **the audio track**, listed as the [`Audio`](#the-audio-track) menu lists them, with the language
+  and the title the file declares;
+- **the language**, two letters such as `en` or `fr`. It starts with the language of the chosen
+  track when the file declares one, follows the track as long as you have not typed one, and
+  left empty it lets the model **detect** the language;
+- **the model**, a file, with a `Browse…` button.
+
+The choices are kept for the next time. The engine itself and the limits of the subtitles are
+[settings](preferences.md) (`transcription.*`).
+
+**When the project already holds subtitles, the window asks before replacing them**, and says how
+many go. It asks before the work, so that declining costs nothing. When the project is empty there
+is nothing to ask.
+
+The work runs **in the background**, with a box that shows how far the engine has got and a `Cancel`
+button; the window stays usable around it. When it ends, the subtitles of the project are replaced
+by the transcription **as a single operation**: one `Undo` gives back what was there, translation
+texts included. A transcription that fails, or that you cancel, changes nothing — the reason is
+said in a box, except for a cancellation, which only says it was cancelled in the status bar.
+
+**What it needs is not shipped**: an engine (whisper.cpp), a model, and `ffmpeg` to extract the audio.
+When one is missing, the box says which, and points to
+[Installing the transcription tools](../subedit-cli/install-transcription.md).
+
 ## When there is no film
 
 The window shows a **`Select Video…`** button where the picture would go, rather than
@@ -131,6 +164,9 @@ per film, when it is associated.
 does not need `ffprobe` at all: it relies on `libmpv`, which is a
 build dependency. The film's duration, the one used to report what
 goes past the end, comes from the player and not from `ffprobe`.
+
+**The transcription is the one thing that does need `ffmpeg`**: it extracts the audio of the film. See
+[Installing the transcription tools](../subedit-cli/install-transcription.md).
 
 It is therefore not a degraded mode but **the normal operation** of a machine
 that has never installed `ffmpeg`: the data comes from the user, and `ffprobe`

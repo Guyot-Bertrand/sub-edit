@@ -89,6 +89,16 @@ std::string noticeOfTranscription(std::size_t subtitles, std::string_view langua
                       {std::to_string(subtitles), language});
 }
 
+std::string noticeOfReplacement(std::size_t subtitles) {
+    return substitute(
+        translatePlural("The %1 subtitle of this project will be replaced by the transcription. "
+                        "You can undo it.",
+                        "The %1 subtitles of this project will be replaced by the transcription. "
+                        "You can undo it.",
+                        subtitles),
+        {std::to_string(subtitles)});
+}
+
 std::string transcriptionProgressText(int percent) {
     return substitute(translate("transcribing: %1%"), {std::to_string(percent)});
 }

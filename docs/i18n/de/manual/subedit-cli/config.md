@@ -107,7 +107,7 @@ Er listet **33 Schlüssel** auf:
 <!-- example: subedit-cli config list | grep -c '^[a-z]' -->
 ```console
 $ subedit-cli config list | grep -c '^[a-z]'
-33
+40
 ```
 
 **Dreizehn davon werden von der Befehlszeile gelesen**; die zwanzig anderen liest nur das Fenster,
@@ -210,6 +210,7 @@ duration-adjust.gap-ms = 100
 # Display preferences: the window's own, the command line never reads them.
 duration-adjust.gap-ms reset to its default (0)
 #duration-adjust.gap-ms = 0
+#transcription.merge-gap-ms = 400
 ```
 
 ## Exit-Codes

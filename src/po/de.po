@@ -1108,6 +1108,49 @@ msgstr ""
 "--head und --tail gehören zusammen: geben Sie beide an, oder keines mit --"
 "dry-run"
 
+#: src/exe/cli/commands/transcribe.cpp
+msgid "Write the speech of a video or an audio file as subtitles"
+msgstr ""
+
+#: src/exe/cli/commands/transcribe.cpp
+msgid "Video or audio file to transcribe"
+msgstr ""
+
+#: src/exe/cli/commands/transcribe.cpp
+#, fuzzy
+msgid "Subtitle file to write"
+msgstr "Zu sortierende Untertiteldateien"
+
+#: src/exe/cli/commands/transcribe.cpp
+msgid "Format to write; the one the extension of --output says by default"
+msgstr ""
+
+#: src/exe/cli/commands/transcribe.cpp
+msgid "Audio track of a video, counted from 0; the first by default"
+msgstr ""
+
+#: src/exe/cli/commands/transcribe.cpp
+#, fuzzy
+msgid "Language of the speech: fr, en; detected by default"
+msgstr "Kodierung, in der die Dateien gelesen werden; standardmäßig erkannt"
+
+#: src/exe/cli/commands/transcribe.cpp
+msgid "Model file; the transcription.model setting by default"
+msgstr ""
+
+#: src/exe/cli/commands/transcribe.cpp
+msgid "Engine; the transcription.engine setting by default"
+msgstr ""
+
+#: src/exe/cli/commands/transcribe.cpp
+#, fuzzy
+msgid "Keep the extracted audio in this file"
+msgstr "die Rate der Datei"
+
+#: src/exe/cli/commands/transcribe.cpp
+msgid "Write the segments as the engine cut them"
+msgstr ""
+
 #: src/exe/cli/commands/transform.cpp
 msgid "Correct every position from two points known to be right"
 msgstr ""
@@ -1980,7 +2023,7 @@ msgid "%1: %2 (dry run, nothing written)"
 msgstr "%1: %2 (Probelauf, nichts geschrieben)"
 
 #. TRANSLATORS: %1 is a file, %2 what was done to it, %3 the file written.
-#: src/lib/subedit/cli/rewriting.cpp
+#: src/lib/subedit/cli/rewriting.cpp src/lib/subedit/cli/transcribing.cpp
 msgid "%1: %2 -> %3"
 msgstr "%1: %2 -> %3"
 
@@ -2186,7 +2229,9 @@ msgstr "eine ganze Zahl von Millisekunden, 0 oder mehr"
 msgid ""
 "a pattern code, Script[-language[-COUNTRY]], not empty: Zyyy, Latn, Latn-en, "
 "Latn-en-US"
-msgstr "ein Mustercode, Script[-language[-COUNTRY]], nicht leer: Zyyy, Latn, Latn-en, Latn-en-US"
+msgstr ""
+"ein Mustercode, Script[-language[-COUNTRY]], nicht leer: Zyyy, Latn, Latn-"
+"en, Latn-en-US"
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "a number above 0, decimals allowed: 24, 42.5"
@@ -2195,6 +2240,33 @@ msgstr "eine Zahl größer als 0, Dezimalstellen erlaubt: 24, 42.5"
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "a whole number from 1 to 1000: 2, 3"
 msgstr "eine ganze Zahl von 1 bis 1000: 2, 3"
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "the name of an engine: lower-case letters, digits, '.', '-' or '_'"
+msgstr ""
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "an absolute path; empty for none"
+msgstr ""
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "two lower-case letters, an ISO 639-1 code: en, fr; empty to detect it"
+msgstr ""
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+#, fuzzy
+msgid "a whole number of milliseconds, 1 to 3600000"
+msgstr "eine ganze Zahl von Millisekunden, 0 oder mehr"
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+#, fuzzy
+msgid "a whole number from 1 to 1000"
+msgstr "eine ganze Zahl von 1 bis 1000: 2, 3"
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+#, fuzzy
+msgid "subedit-cli transcribe; Transcribe Audio…"
+msgstr "subedit-cli correct; Texte korrigieren …"
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "subedit-cli adjust; Adjust Durations…"
@@ -2206,7 +2278,8 @@ msgstr "subedit-cli correct; Texte korrigieren …"
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "Correct Texts… (window only; correct takes --tasks instead)"
-msgstr "Texte korrigieren … (nur im Fenster; correct nimmt stattdessen --tasks)"
+msgstr ""
+"Texte korrigieren … (nur im Fenster; correct nimmt stattdessen --tasks)"
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "Correct Texts… (window only; correct takes --code instead)"
@@ -2214,23 +2287,29 @@ msgstr "Texte korrigieren … (nur im Fenster; correct nimmt stattdessen --code)
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "Correct Texts… (window only; correct takes --enable/--disable instead)"
-msgstr "Texte korrigieren … (nur im Fenster; correct nimmt stattdessen --enable/--disable)"
+msgstr ""
+"Texte korrigieren … (nur im Fenster; correct nimmt stattdessen --enable/--"
+"disable)"
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "Correct Texts… (window only; correct takes --max-length instead)"
-msgstr "Texte korrigieren … (nur im Fenster; correct nimmt stattdessen --max-length)"
+msgstr ""
+"Texte korrigieren … (nur im Fenster; correct nimmt stattdessen --max-length)"
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "Correct Texts… (window only; correct takes --skip-length instead)"
-msgstr "Texte korrigieren … (nur im Fenster; correct nimmt stattdessen --skip-length)"
+msgstr ""
+"Texte korrigieren … (nur im Fenster; correct nimmt stattdessen --skip-length)"
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "Correct Texts… (window only; correct takes --skip-lines instead)"
-msgstr "Texte korrigieren … (nur im Fenster; correct nimmt stattdessen --skip-lines)"
+msgstr ""
+"Texte korrigieren … (nur im Fenster; correct nimmt stattdessen --skip-lines)"
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "Correct Texts… (window only; correct takes --language instead)"
-msgstr "Texte korrigieren … (nur im Fenster; correct nimmt stattdessen --language)"
+msgstr ""
+"Texte korrigieren … (nur im Fenster; correct nimmt stattdessen --language)"
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "Reading speed the durations are brought to."
@@ -2294,7 +2373,9 @@ msgstr "Ob das Fenster die Aufgabe für die Groß- und Kleinschreibung ankreuzt.
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "Pattern code the window reads for the capitalization task."
-msgstr "Mustercode, den das Fenster für die Aufgabe für die Groß- und Kleinschreibung liest."
+msgstr ""
+"Mustercode, den das Fenster für die Aufgabe für die Groß- und "
+"Kleinschreibung liest."
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "Whether the window ticks the line-break task."
@@ -2302,7 +2383,8 @@ msgstr "Ob das Fenster die Aufgabe für den Zeilenumbruch ankreuzt."
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "Pattern code the window reads for the line-break task."
-msgstr "Mustercode, den das Fenster für die Aufgabe für den Zeilenumbruch liest."
+msgstr ""
+"Mustercode, den das Fenster für die Aufgabe für den Zeilenumbruch liest."
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "Apply the patterns of human-made errors."
@@ -2314,16 +2396,22 @@ msgstr "Die Muster von Erkennungsfehlern (OCR) anwenden."
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "Whether the window's hearing-impaired task acts on text in brackets."
-msgstr "Ob die Aufgabe des Fensters für Hörgeschädigte auf Text in eckigen Klammern wirkt."
+msgstr ""
+"Ob die Aufgabe des Fensters für Hörgeschädigte auf Text in eckigen Klammern "
+"wirkt."
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "Whether the window's hearing-impaired task acts on text in parentheses."
-msgstr "Ob die Aufgabe des Fensters für Hörgeschädigte auf Text in runden Klammern wirkt."
+msgstr ""
+"Ob die Aufgabe des Fensters für Hörgeschädigte auf Text in runden Klammern "
+"wirkt."
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid ""
 "Longest line the window's line-break task aims at, in the unit in-ems names."
-msgstr "Längste Zeile, die die Zeilenumbruch-Aufgabe des Fensters anstrebt, in der Einheit, die in-ems festlegt."
+msgstr ""
+"Längste Zeile, die die Zeilenumbruch-Aufgabe des Fensters anstrebt, in der "
+"Einheit, die in-ems festlegt."
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "Most lines a subtitle is broken into."
@@ -2337,25 +2425,33 @@ msgstr "Ob das Fenster Zeilen in Em statt in Zeichen misst."
 msgid ""
 "Whether the window's line-break task leaves alone a subtitle whose lines are "
 "short enough."
-msgstr "Ob die Zeilenumbruch-Aufgabe des Fensters einen Untertitel unverändert lässt, dessen Zeilen kurz genug sind."
+msgstr ""
+"Ob die Zeilenumbruch-Aufgabe des Fensters einen Untertitel unverändert "
+"lässt, dessen Zeilen kurz genug sind."
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid ""
 "Longest line a subtitle may have and still be left alone by the window's "
 "line-break task."
-msgstr "Längste Zeile, die ein Untertitel haben darf, damit ihn die Zeilenumbruch-Aufgabe des Fensters unverändert lässt."
+msgstr ""
+"Längste Zeile, die ein Untertitel haben darf, damit ihn die Zeilenumbruch-"
+"Aufgabe des Fensters unverändert lässt."
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid ""
 "Whether the window's line-break task leaves alone a subtitle with few enough "
 "lines."
-msgstr "Ob die Zeilenumbruch-Aufgabe des Fensters einen Untertitel mit wenig genug Zeilen unverändert lässt."
+msgstr ""
+"Ob die Zeilenumbruch-Aufgabe des Fensters einen Untertitel mit wenig genug "
+"Zeilen unverändert lässt."
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid ""
 "Most lines a subtitle may have and still be left alone by the window's line-"
 "break task."
-msgstr "Höchste Zeilenzahl, die ein Untertitel haben darf, damit ihn die Zeilenumbruch-Aufgabe des Fensters unverändert lässt."
+msgstr ""
+"Höchste Zeilenzahl, die ein Untertitel haben darf, damit ihn die "
+"Zeilenumbruch-Aufgabe des Fensters unverändert lässt."
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "Whether the window ticks the join/split-words task."
@@ -2363,30 +2459,67 @@ msgstr "Ob das Fenster die Aufgabe zum Verbinden/Trennen von Wörtern ankreuzt."
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "Whether the window's join/split-words task joins words."
-msgstr "Ob die Aufgabe des Fensters zum Verbinden/Trennen von Wörtern Wörter verbindet."
+msgstr ""
+"Ob die Aufgabe des Fensters zum Verbinden/Trennen von Wörtern Wörter "
+"verbindet."
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "Whether the window's join/split-words task splits words."
-msgstr "Ob die Aufgabe des Fensters zum Verbinden/Trennen von Wörtern Wörter trennt."
+msgstr ""
+"Ob die Aufgabe des Fensters zum Verbinden/Trennen von Wörtern Wörter trennt."
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "Dictionary the window's join/split-words task checks words by."
-msgstr "Wörterbuch, anhand dessen die Aufgabe des Fensters zum Verbinden/Trennen von Wörtern die Wörter prüft."
+msgstr ""
+"Wörterbuch, anhand dessen die Aufgabe des Fensters zum Verbinden/Trennen von "
+"Wörtern die Wörter prüft."
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid ""
 "a locale code, two lower-case letters, then optionally _ and two upper-case, "
 "then optionally @ and a script: fr, en_US, sr@Latn"
-msgstr "ein Gebietsschemacode, zwei Kleinbuchstaben, dann optional _ und zwei Großbuchstaben, dann optional @ und eine Schrift: fr, en_US, sr@Latn"
+msgstr ""
+"ein Gebietsschemacode, zwei Kleinbuchstaben, dann optional _ und zwei "
+"Großbuchstaben, dann optional @ und eine Schrift: fr, en_US, sr@Latn"
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid ""
 "Remove the subtitles the correction empties, instead of leaving them empty."
-msgstr "Die Untertitel entfernen, die die Korrektur leert, statt sie leer zu lassen."
+msgstr ""
+"Die Untertitel entfernen, die die Korrektur leert, statt sie leer zu lassen."
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "The engine that transcribes the audio."
+msgstr ""
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "The engine's program; searched for when empty."
+msgstr ""
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "The model file the engine reads."
+msgstr ""
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "The language of the audio; detected when empty."
+msgstr ""
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "Pieces of one sentence closer than this are joined."
+msgstr ""
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "Longest a transcribed subtitle stays on screen."
+msgstr ""
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "Most characters a transcribed subtitle holds."
+msgstr ""
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "%1 is managed by the window; use --enable/--disable on correct"
-msgstr "%1 wird vom Fenster verwaltet; bei correct --enable/--disable verwenden"
+msgstr ""
+"%1 wird vom Fenster verwaltet; bei correct --enable/--disable verwenden"
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "%1 is a display preference; set it in the window"
@@ -2398,7 +2531,9 @@ msgstr "unbekannte Einstellung %1; subedit-cli config list nennt sie"
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "cannot read '%1' for %2; subedit-cli config list says what it accepts"
-msgstr "„%1“ für %2 kann nicht gelesen werden; subedit-cli config list sagt, was akzeptiert wird"
+msgstr ""
+"„%1“ für %2 kann nicht gelesen werden; subedit-cli config list sagt, was "
+"akzeptiert wird"
 
 #: src/lib/subedit/core/format/lrc_reader.cpp
 #: src/lib/subedit/core/format/tm_player_reader.cpp
@@ -2496,7 +2631,9 @@ msgstr "ein nicht abgeschlossener Gruppenname"
 
 #: src/lib/subedit/core/text/python_regex_syntax.cpp
 msgid "the group name '%1' is not letters and digits, which is all ICU accepts"
-msgstr "der Gruppenname „%1“ besteht nicht aus Buchstaben und Ziffern, was ICU allein akzeptiert"
+msgstr ""
+"der Gruppenname „%1“ besteht nicht aus Buchstaben und Ziffern, was ICU "
+"allein akzeptiert"
 
 #: src/lib/subedit/core/text/python_regex_syntax.cpp
 msgid "a backslash ends the expression"
@@ -2733,6 +2870,10 @@ msgstr "Überschneidungsfreimachen der Bereiche"
 #: src/lib/subedit/core/wording/analysis.cpp
 msgid "joining repeated subtitles"
 msgstr "Zusammenfassen wiederholter Untertitel"
+
+#: src/lib/subedit/core/wording/analysis.cpp
+msgid "transcribing the audio"
+msgstr ""
 
 #. TRANSLATORS: how well the positions fall on a frame-rate grid: clean,
 #. partial, or none at all.
@@ -3286,6 +3427,105 @@ msgstr "nicht lesbar, Standardwert beibehalten"
 #: src/lib/subedit/core/wording/settings.cpp
 msgid "settings could not be written"
 msgstr "die Einstellungen konnten nicht geschrieben werden"
+
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid ""
+"See the manual page \"Installing the transcription tools\" (install-"
+"transcription)."
+msgstr ""
+
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "the transcription engine was not found"
+msgstr ""
+
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "no model was given, or the model file is not there"
+msgstr ""
+
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "the model cannot transcribe the language %1"
+msgstr ""
+
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "the model cannot detect the language: give one"
+msgstr ""
+
+#: src/lib/subedit/core/wording/transcription.cpp
+#, fuzzy
+msgid "the audio could not be read"
+msgstr "%1 konnte nicht gelesen werden."
+
+# From Gaupol.
+#: src/lib/subedit/core/wording/transcription.cpp
+#, fuzzy
+msgid "the transcription failed"
+msgstr "Traditionelles Chinesisch"
+
+#: src/lib/subedit/core/wording/transcription.cpp
+#, fuzzy
+msgid "the transcription failed: %1"
+msgstr "Übersetzung: %1"
+
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "the transcription was cancelled"
+msgstr ""
+
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "ffmpeg was not found, so the audio of a video cannot be extracted"
+msgstr ""
+
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "the video has no audio track %1"
+msgstr ""
+
+#: src/lib/subedit/core/wording/transcription.cpp
+#, fuzzy
+msgid "the audio could not be extracted"
+msgstr "der Videoplayer konnte nicht gestartet werden"
+
+#: src/lib/subedit/core/wording/transcription.cpp
+#, fuzzy
+msgid "the audio could not be extracted: %1"
+msgstr "der Videoplayer konnte nicht gestartet werden"
+
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "the video has no audio track"
+msgstr ""
+
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "no language or title"
+msgstr ""
+
+#: src/lib/subedit/core/wording/transcription.cpp
+#, fuzzy
+msgid "audio track %1: %2"
+msgstr "Untertitel – %1: %2"
+
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "no transcription engine is called %1"
+msgstr ""
+
+#: src/lib/subedit/core/wording/transcription.cpp
+#, fuzzy
+msgid "%1 subtitle transcribed, language: %2"
+msgid_plural "%1 subtitles transcribed, language: %2"
+msgstr[0] "%1 Untertitel auf %2 und %3 transformiert"
+msgstr[1] "%1 Untertitel auf %2 und %3 transformiert"
+
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid ""
+"The %1 subtitle of this project will be replaced by the transcription. You "
+"can undo it."
+msgid_plural ""
+"The %1 subtitles of this project will be replaced by the transcription. You "
+"can undo it."
+msgstr[0] ""
+msgstr[1] ""
+
+#: src/lib/subedit/core/wording/transcription.cpp
+#, fuzzy
+msgid "transcribing: %1%"
+msgstr "Übersetzung: %1"
 
 #: src/lib/subedit/core/wording/translation.cpp
 msgid "translation: the file holds no line"
@@ -4236,6 +4476,11 @@ msgstr ""
 "\n"
 "Am neuen Ort erneut öffnen?"
 
+#: src/lib/subedit/gui/qt_prompts.cpp
+#, fuzzy
+msgid "Replace the subtitles?"
+msgstr "Untertitel reparieren"
+
 # From Gaupol.
 #: src/lib/subedit/gui/save_shape.cpp
 msgid "Western"
@@ -4504,6 +4749,74 @@ msgstr "Die Übersetzung neben dem Text anzeigen"
 msgid "Main"
 msgstr "Haupttext"
 
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+msgid "Browse…"
+msgstr ""
+
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+#: src/lib/subedit/gui/transcription_runner.cpp
+msgid "Transcribe audio"
+msgstr ""
+
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+msgid "First audio track"
+msgstr ""
+
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+#, fuzzy
+msgid "Detected"
+msgstr "%1, erkannt"
+
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+msgid ""
+"A two-letter language code such as en or fr. Leave it empty to let the model "
+"detect the language."
+msgstr ""
+
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+msgid ""
+"The model file the engine reads. It is not shipped with the program: the "
+"manual says where to find one."
+msgstr ""
+
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+msgid ""
+"The audio of the film open in this window is transcribed into subtitles that "
+"replace the ones of the project. The work runs in the background and can be "
+"cancelled."
+msgstr ""
+
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+msgid "Audio track"
+msgstr ""
+
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+#, fuzzy
+msgid "Language"
+msgstr "Sprache:"
+
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+msgid "Model"
+msgstr ""
+
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+msgid "Choose a model"
+msgstr ""
+
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+#, fuzzy
+msgid "Models (*.bin);;All files (*)"
+msgstr "Alle Dateien (*)"
+
+#: src/lib/subedit/gui/transcription_runner.cpp
+#: src/lib/subedit/gui/unsaved_documents_dialog.cpp
+msgid "Cancel"
+msgstr "Abbrechen"
+
+#: src/lib/subedit/gui/transcription_runner.cpp
+msgid "Transcribing the audio…"
+msgstr ""
+
 #: src/lib/subedit/gui/transform_dialog.cpp
 msgid "Transform positions"
 msgstr "Positionen transformieren"
@@ -4550,10 +4863,6 @@ msgstr "S&peichern"
 #: src/lib/subedit/gui/unsaved_documents_dialog.cpp
 msgid "Close &Without Saving"
 msgstr "&Ohne Speichern schließen"
-
-#: src/lib/subedit/gui/unsaved_documents_dialog.cpp
-msgid "Cancel"
-msgstr "Abbrechen"
 
 #: src/lib/subedit/gui/unsaved_documents_dialog.cpp
 msgid ""
@@ -4663,6 +4972,10 @@ msgstr "&Einstellungen …"
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "Positions in &Frames"
 msgstr "Positionen in &Bildern"
+
+#: src/lib/subedit/gui/window_actions.cpp
+msgid "Transcribe Audio…"
+msgstr ""
 
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "Play / Pause"

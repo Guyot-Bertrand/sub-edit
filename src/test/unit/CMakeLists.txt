@@ -88,6 +88,7 @@ add_executable(
     core/edit/transform_command_test.cpp
     core/edit/convert_frame_rate_command_test.cpp
     core/edit/remove_command_test.cpp
+    core/edit/replace_subtitles_test.cpp
     core/edit/set_position_command_test.cpp
     core/edit/set_duration_command_test.cpp
     core/edit/snap_command_test.cpp

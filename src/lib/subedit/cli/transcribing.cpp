@@ -3,10 +3,10 @@
 #include <subedit/cli/transcribing.hpp>
 #include <subedit/cli/writing.hpp>
 #include <subedit/core/i18n/messages.hpp>
-#include <subedit/core/io/temporary_directory.hpp>
 #include <subedit/core/model/subtitle.hpp>
 #include <subedit/core/transcription/audio_source.hpp>
 #include <subedit/core/transcription/subtitle_assembly.hpp>
+#include <subedit/core/transcription/transcribe_media.hpp>
 #include <subedit/core/wording/formats.hpp>
 #include <subedit/core/wording/transcription.hpp>
 
@@ -24,16 +24,6 @@ namespace subedit::cli {
 namespace {
 
 using core::TranscriptionErrorKind;
-
-/// The audio containers an engine reads as they are, when `ffmpeg` is not there.
-constexpr std::array kReadableAudio{".wav", ".mp3", ".flac", ".ogg"};
-
-[[nodiscard]] bool isReadableAudio(const std::filesystem::path& path) {
-    std::string extension = path.extension().string();
-    std::ranges::transform(
-        extension, extension.begin(), [](unsigned char letter) { return std::tolower(letter); });
-    return std::ranges::find(kReadableAudio, extension) != kReadableAudio.end();
-}
 
 [[nodiscard]] std::string_view idOf(TranscriptionErrorKind kind) {
     switch (kind) {
@@ -92,16 +82,18 @@ constexpr std::array kReadableAudio{".wav", ".mp3", ".flac", ".ogg"};
     return subtitles;
 }
 
-/// What the audio preparation said, with the tracks the video has when it was a track that
-/// was missing.
-[[nodiscard]] Failure preparationFailure(const core::AudioPreparationError& error,
-                                         const std::string& tracks) {
-    return Failure{idOf(error.kind), [&] {
-                       std::string text = core::audioPreparationErrorText(error);
-                       if (!tracks.empty())
-                           text += "\n" + tracks;
-                       return text;
-                   }};
+/// What a transcription that came to nothing said: the words for the surface, and for the
+/// record the identifier a script can test.
+[[nodiscard]] Failure failureOf(const core::MediaTranscriptionError& error) {
+    if (const auto* audio = std::get_if<core::AudioPreparationError>(&error.cause))
+        return Failure{idOf(audio->kind), [&] {
+                           std::string text = core::audioPreparationErrorText(*audio);
+                           if (audio->kind == core::AudioPreparationErrorKind::NoSuchTrack)
+                               text += "\n" + core::audioTracksText(error.tracks);
+                           return text;
+                       }};
+    const auto& engine = std::get<core::TranscriptionError>(error.cause);
+    return Failure{idOf(engine.kind), [&] { return core::transcriptionErrorText(engine); }};
 }
 
 } // namespace
@@ -119,54 +111,24 @@ ExitCode transcribeFile(core::FileSystem& files,
         return ExitCode::Usage;
     }
 
-    const core::TemporaryDirectory work{"subedit-transcribe"};
-    const std::filesystem::path extracted = options.keepAudio.empty()
-                                                ? work.path() / "audio.wav"
-                                                : std::filesystem::path{options.keepAudio};
-
-    // Where the files go is made if it is not there yet: writing is part of it. A directory that
-    // cannot be made is told by the write that follows.
-    if (!options.keepAudio.empty())
-        (void)files.createDirectories(extracted.parent_path());
-
-    std::filesystem::path audio = extracted;
-    if (const auto prepared =
-            core::extractAudio(files, searchPath, options.input, options.audioTrack, extracted);
-        !prepared) {
-        const bool usableAsIs =
-            prepared.error().kind == core::AudioPreparationErrorKind::ToolMissing &&
-            !options.audioTrack && isReadableAudio(options.input);
-        if (!usableAsIs) {
-            std::string tracks;
-            if (prepared.error().kind == core::AudioPreparationErrorKind::NoSuchTrack)
-                tracks =
-                    core::audioTracksText(core::readAudioTracks(files, searchPath, options.input)
-                                              .value_or(std::vector<core::ContainerAudioTrack>{}));
-            reportFailure(reporter, options.input, preparationFailure(prepared.error(), tracks));
-            return ExitCode::AllFailed;
-        }
-        audio = options.input;
-    }
-
-    core::TranscriptionRequest request{.audio = audio};
     const std::string& languageName =
         options.language.empty() ? settings.language : options.language;
-    if (!languageName.empty())
-        request.language = languageName;
     const std::filesystem::path& modelPath =
         options.model.empty() ? settings.model : std::filesystem::path{options.model};
+
+    core::MediaTranscriptionRequest request{
+        .input = options.input, .audioTrack = options.audioTrack, .keepAudio = options.keepAudio};
+    if (!languageName.empty())
+        request.language = languageName;
     if (!modelPath.empty())
         request.model = modelPath;
 
     const core::TranscriptionObserver observer{.progress = [&reporter](double fraction) {
         reporter.say(2, core::transcriptionProgressText(static_cast<int>(fraction * 100)));
     }};
-    const auto transcribed = engine->transcribe(request, observer);
+    const auto transcribed = core::transcribeMedia(files, *engine, searchPath, request, observer);
     if (!transcribed) {
-        reportFailure(reporter, options.input, Failure{idOf(transcribed.error().kind), [&] {
-                                                           return core::transcriptionErrorText(
-                                                               transcribed.error());
-                                                       }});
+        reportFailure(reporter, options.input, failureOf(transcribed.error()));
         return ExitCode::AllFailed;
     }
 

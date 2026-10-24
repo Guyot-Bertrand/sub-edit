@@ -39,6 +39,7 @@ enum class CommandKind {
     CorrectTexts,
     MakeDisjoint,
     JoinRepeats,
+    Transcribe,
 };
 
 } // namespace subedit::core

@@ -93,6 +93,8 @@ public:
 
     [[nodiscard]] bool proposeShiftedReopening(const std::string& message) override;
 
+    [[nodiscard]] bool confirmReplacement(const std::string& message) override;
+
     [[nodiscard]] bool run(QDialog& dialog) override;
 
     void reportFailure(const std::string& message) override;

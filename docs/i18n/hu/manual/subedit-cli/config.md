@@ -102,7 +102,7 @@ duration-adjust.lengthen
 <!-- example: subedit-cli config list | grep -c '^[a-z]' -->
 ```console
 $ subedit-cli config list | grep -c '^[a-z]'
-33
+40
 ```
 **Tizenhármat közülük a parancssor olvas**; a másik húszat csak az ablak olvassa,
 és a `Used by:` soruk ezt mondja, megadva a `correct` azon kapcsolóját, amely a helyükre lép:
@@ -198,6 +198,7 @@ duration-adjust.gap-ms = 100
 # Display preferences: the window's own, the command line never reads them.
 duration-adjust.gap-ms reset to its default (0)
 #duration-adjust.gap-ms = 0
+#transcription.merge-gap-ms = 400
 ```
 ## Kilépési kódok
 

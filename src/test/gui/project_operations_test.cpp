@@ -116,6 +116,22 @@ public:
     void selectRows(int first, int last) override { selected.emplace_back(first, last); }
 
     void openAside(Project project) override { aside.push_back(std::move(project)); }
+
+    [[nodiscard]] std::optional<std::filesystem::path>
+    videoOf(const ProjectPage& /*page*/) const override {
+        return std::nullopt;
+    }
+
+    [[nodiscard]] std::vector<subedit::core::AudioTrack>
+    audioTracksOf(const ProjectPage& /*page*/) const override {
+        return {};
+    }
+
+    [[nodiscard]] std::expected<subedit::gui::TranscriptionOutcome,
+                                subedit::gui::TranscriptionFailure>
+    transcribe(const subedit::gui::TranscriptionJob& /*job*/) override {
+        return subedit::gui::TranscriptionOutcome{};
+    }
 };
 
 /// A page on four subtitles, the operations over it, and what answers them.

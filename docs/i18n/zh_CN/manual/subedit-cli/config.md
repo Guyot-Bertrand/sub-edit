@@ -95,7 +95,7 @@ duration-adjust.lengthen
 <!-- example: subedit-cli config list | grep -c '^[a-z]' -->
 ```console
 $ subedit-cli config list | grep -c '^[a-z]'
-33
+40
 ```
 
 **其中十三个由命令行读取**；其余二十个只由窗口读取，它们的 `Used by:` 行会这样说明，并给出取代它们的 `correct` 选项：
@@ -173,6 +173,7 @@ duration-adjust.gap-ms = 100
 # Display preferences: the window's own, the command line never reads them.
 duration-adjust.gap-ms reset to its default (0)
 #duration-adjust.gap-ms = 0
+#transcription.merge-gap-ms = 400
 ```
 
 ## 退出码

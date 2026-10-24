@@ -1036,6 +1036,50 @@ msgstr ""
 msgid "--head and --tail go together: give both, or neither with --dry-run"
 msgstr "--head og --tail fara saman: gefðu bæði, eða hvorugt með --dry-run"
 
+#: src/exe/cli/commands/transcribe.cpp
+msgid "Write the speech of a video or an audio file as subtitles"
+msgstr ""
+
+#: src/exe/cli/commands/transcribe.cpp
+msgid "Video or audio file to transcribe"
+msgstr ""
+
+#: src/exe/cli/commands/transcribe.cpp
+#, fuzzy
+msgid "Subtitle file to write"
+msgstr "Skjátextaskrár til að raða"
+
+#: src/exe/cli/commands/transcribe.cpp
+msgid "Format to write; the one the extension of --output says by default"
+msgstr ""
+
+#: src/exe/cli/commands/transcribe.cpp
+msgid "Audio track of a video, counted from 0; the first by default"
+msgstr ""
+
+#: src/exe/cli/commands/transcribe.cpp
+#, fuzzy
+msgid "Language of the speech: fr, en; detected by default"
+msgstr ""
+"Stafakóðun sem skrárnar eru lesnar í; sjálfgefið er hún greind sjálfkrafa"
+
+#: src/exe/cli/commands/transcribe.cpp
+msgid "Model file; the transcription.model setting by default"
+msgstr ""
+
+#: src/exe/cli/commands/transcribe.cpp
+msgid "Engine; the transcription.engine setting by default"
+msgstr ""
+
+#: src/exe/cli/commands/transcribe.cpp
+#, fuzzy
+msgid "Keep the extracted audio in this file"
+msgstr "rammatíðni skrárinnar"
+
+#: src/exe/cli/commands/transcribe.cpp
+msgid "Write the segments as the engine cut them"
+msgstr ""
+
 #: src/exe/cli/commands/transform.cpp
 msgid "Correct every position from two points known to be right"
 msgstr ""
@@ -1896,7 +1940,7 @@ msgid "%1: %2 (dry run, nothing written)"
 msgstr "%1: %2 (þurrkeyrsla, ekkert skrifað)"
 
 #. TRANSLATORS: %1 is a file, %2 what was done to it, %3 the file written.
-#: src/lib/subedit/cli/rewriting.cpp
+#: src/lib/subedit/cli/rewriting.cpp src/lib/subedit/cli/transcribing.cpp
 msgid "%1: %2 -> %3"
 msgstr "%1: %2 -> %3"
 
@@ -2098,7 +2142,9 @@ msgstr "heiltala millisekúndna, 0 eða meira"
 msgid ""
 "a pattern code, Script[-language[-COUNTRY]], not empty: Zyyy, Latn, Latn-en, "
 "Latn-en-US"
-msgstr "mynstrakóði, Script[-language[-COUNTRY]], ekki tómur: Zyyy, Latn, Latn-en, Latn-en-US"
+msgstr ""
+"mynstrakóði, Script[-language[-COUNTRY]], ekki tómur: Zyyy, Latn, Latn-en, "
+"Latn-en-US"
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "a number above 0, decimals allowed: 24, 42.5"
@@ -2107,6 +2153,33 @@ msgstr "tala yfir 0, tugabrot leyfð: 24, 42.5"
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "a whole number from 1 to 1000: 2, 3"
 msgstr "heiltala frá 1 til 1000: 2, 3"
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "the name of an engine: lower-case letters, digits, '.', '-' or '_'"
+msgstr ""
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "an absolute path; empty for none"
+msgstr ""
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "two lower-case letters, an ISO 639-1 code: en, fr; empty to detect it"
+msgstr ""
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+#, fuzzy
+msgid "a whole number of milliseconds, 1 to 3600000"
+msgstr "heiltala millisekúndna, 0 eða meira"
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+#, fuzzy
+msgid "a whole number from 1 to 1000"
+msgstr "heiltala frá 1 til 1000: 2, 3"
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+#, fuzzy
+msgid "subedit-cli transcribe; Transcribe Audio…"
+msgstr "subedit-cli correct; Leiðrétta texta…"
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "subedit-cli adjust; Adjust Durations…"
@@ -2126,23 +2199,29 @@ msgstr "Leiðrétta texta… (aðeins í glugganum; correct tekur --code í sta�
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "Correct Texts… (window only; correct takes --enable/--disable instead)"
-msgstr "Leiðrétta texta… (aðeins í glugganum; correct tekur --enable/--disable í staðinn)"
+msgstr ""
+"Leiðrétta texta… (aðeins í glugganum; correct tekur --enable/--disable í "
+"staðinn)"
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "Correct Texts… (window only; correct takes --max-length instead)"
-msgstr "Leiðrétta texta… (aðeins í glugganum; correct tekur --max-length í staðinn)"
+msgstr ""
+"Leiðrétta texta… (aðeins í glugganum; correct tekur --max-length í staðinn)"
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "Correct Texts… (window only; correct takes --skip-length instead)"
-msgstr "Leiðrétta texta… (aðeins í glugganum; correct tekur --skip-length í staðinn)"
+msgstr ""
+"Leiðrétta texta… (aðeins í glugganum; correct tekur --skip-length í staðinn)"
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "Correct Texts… (window only; correct takes --skip-lines instead)"
-msgstr "Leiðrétta texta… (aðeins í glugganum; correct tekur --skip-lines í staðinn)"
+msgstr ""
+"Leiðrétta texta… (aðeins í glugganum; correct tekur --skip-lines í staðinn)"
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "Correct Texts… (window only; correct takes --language instead)"
-msgstr "Leiðrétta texta… (aðeins í glugganum; correct tekur --language í staðinn)"
+msgstr ""
+"Leiðrétta texta… (aðeins í glugganum; correct tekur --language í staðinn)"
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "Reading speed the durations are brought to."
@@ -2226,7 +2305,8 @@ msgstr "Beita mynstrum fyrir villur í textagreiningu (OCR)."
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "Whether the window's hearing-impaired task acts on text in brackets."
-msgstr "Hvort verkefni gluggans fyrir heyrnarskerta verkar á texta í hornklofum."
+msgstr ""
+"Hvort verkefni gluggans fyrir heyrnarskerta verkar á texta í hornklofum."
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "Whether the window's hearing-impaired task acts on text in parentheses."
@@ -2235,7 +2315,9 @@ msgstr "Hvort verkefni gluggans fyrir heyrnarskerta verkar á texta í svigum."
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid ""
 "Longest line the window's line-break task aims at, in the unit in-ems names."
-msgstr "Lengsta lína sem línuskilaverkefni gluggans stefnir að, í þeirri einingu sem in-ems tilgreinir."
+msgstr ""
+"Lengsta lína sem línuskilaverkefni gluggans stefnir að, í þeirri einingu sem "
+"in-ems tilgreinir."
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "Most lines a subtitle is broken into."
@@ -2249,25 +2331,33 @@ msgstr "Hvort glugginn mælir línur í ems frekar en stöfum."
 msgid ""
 "Whether the window's line-break task leaves alone a subtitle whose lines are "
 "short enough."
-msgstr "Hvort línuskilaverkefni gluggans lætur skjátexta í friði ef línur hans eru nógu stuttar."
+msgstr ""
+"Hvort línuskilaverkefni gluggans lætur skjátexta í friði ef línur hans eru "
+"nógu stuttar."
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid ""
 "Longest line a subtitle may have and still be left alone by the window's "
 "line-break task."
-msgstr "Lengsta lína sem skjátexti má hafa og samt verið látinn í friði af línuskilaverkefni gluggans."
+msgstr ""
+"Lengsta lína sem skjátexti má hafa og samt verið látinn í friði af "
+"línuskilaverkefni gluggans."
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid ""
 "Whether the window's line-break task leaves alone a subtitle with few enough "
 "lines."
-msgstr "Hvort línuskilaverkefni gluggans lætur skjátexta í friði ef línurnar eru nógu fáar."
+msgstr ""
+"Hvort línuskilaverkefni gluggans lætur skjátexta í friði ef línurnar eru "
+"nógu fáar."
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid ""
 "Most lines a subtitle may have and still be left alone by the window's line-"
 "break task."
-msgstr "Flestar línur sem skjátexti má hafa og samt verið látinn í friði af línuskilaverkefni gluggans."
+msgstr ""
+"Flestar línur sem skjátexti má hafa og samt verið látinn í friði af "
+"línuskilaverkefni gluggans."
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "Whether the window ticks the join/split-words task."
@@ -2283,18 +2373,52 @@ msgstr "Hvort verkefni gluggans um að sameina/skipta orðum skiptir orðum."
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "Dictionary the window's join/split-words task checks words by."
-msgstr "Orðabók sem verkefni gluggans um að sameina/skipta orðum notar til að athuga orð."
+msgstr ""
+"Orðabók sem verkefni gluggans um að sameina/skipta orðum notar til að athuga "
+"orð."
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid ""
 "a locale code, two lower-case letters, then optionally _ and two upper-case, "
 "then optionally @ and a script: fr, en_US, sr@Latn"
-msgstr "tungumálakóði, tveir lágstafir, síðan valfrjálst _ og tveir hástafir, síðan valfrjálst @ og skrift: fr, en_US, sr@Latn"
+msgstr ""
+"tungumálakóði, tveir lágstafir, síðan valfrjálst _ og tveir hástafir, síðan "
+"valfrjálst @ og skrift: fr, en_US, sr@Latn"
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid ""
 "Remove the subtitles the correction empties, instead of leaving them empty."
-msgstr "Fjarlægja skjátextana sem leiðréttingin tæmir, í stað þess að skilja þá eftir tóma."
+msgstr ""
+"Fjarlægja skjátextana sem leiðréttingin tæmir, í stað þess að skilja þá "
+"eftir tóma."
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "The engine that transcribes the audio."
+msgstr ""
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "The engine's program; searched for when empty."
+msgstr ""
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "The model file the engine reads."
+msgstr ""
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "The language of the audio; detected when empty."
+msgstr ""
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "Pieces of one sentence closer than this are joined."
+msgstr ""
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "Longest a transcribed subtitle stays on screen."
+msgstr ""
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "Most characters a transcribed subtitle holds."
+msgstr ""
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "%1 is managed by the window; use --enable/--disable on correct"
@@ -2310,7 +2434,9 @@ msgstr "óþekkt stilling %1; subedit-cli config list telur þær upp"
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "cannot read '%1' for %2; subedit-cli config list says what it accepts"
-msgstr "get ekki lesið '%1' fyrir %2; subedit-cli config list segir hvað er tekið gilt"
+msgstr ""
+"get ekki lesið '%1' fyrir %2; subedit-cli config list segir hvað er tekið "
+"gilt"
 
 #: src/lib/subedit/core/format/lrc_reader.cpp
 #: src/lib/subedit/core/format/tm_player_reader.cpp
@@ -2408,7 +2534,9 @@ msgstr "óendað hópheiti"
 
 #: src/lib/subedit/core/text/python_regex_syntax.cpp
 msgid "the group name '%1' is not letters and digits, which is all ICU accepts"
-msgstr "hópheitið '%1' er ekki bókstafir og tölustafir, sem er allt sem ICU tekur gilt"
+msgstr ""
+"hópheitið '%1' er ekki bókstafir og tölustafir, sem er allt sem ICU tekur "
+"gilt"
 
 #: src/lib/subedit/core/text/python_regex_syntax.cpp
 msgid "a backslash ends the expression"
@@ -2645,6 +2773,10 @@ msgstr "afnám skörunar tímabila"
 #: src/lib/subedit/core/wording/analysis.cpp
 msgid "joining repeated subtitles"
 msgstr "sameining endurtekinna skjátexta"
+
+#: src/lib/subedit/core/wording/analysis.cpp
+msgid "transcribing the audio"
+msgstr ""
 
 #. TRANSLATORS: how well the positions fall on a frame-rate grid: clean,
 #. partial, or none at all.
@@ -3193,6 +3325,105 @@ msgstr "ekki hægt að lesa, sjálfgildi haldið"
 #: src/lib/subedit/core/wording/settings.cpp
 msgid "settings could not be written"
 msgstr "ekki tókst að skrifa stillingarnar"
+
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid ""
+"See the manual page \"Installing the transcription tools\" (install-"
+"transcription)."
+msgstr ""
+
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "the transcription engine was not found"
+msgstr ""
+
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "no model was given, or the model file is not there"
+msgstr ""
+
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "the model cannot transcribe the language %1"
+msgstr ""
+
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "the model cannot detect the language: give one"
+msgstr ""
+
+#: src/lib/subedit/core/wording/transcription.cpp
+#, fuzzy
+msgid "the audio could not be read"
+msgstr "Ekki var hægt að lesa %1."
+
+# From Gaupol.
+#: src/lib/subedit/core/wording/transcription.cpp
+#, fuzzy
+msgid "the transcription failed"
+msgstr "Hefðbundin kínverska"
+
+#: src/lib/subedit/core/wording/transcription.cpp
+#, fuzzy
+msgid "the transcription failed: %1"
+msgstr "þýðing: %1"
+
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "the transcription was cancelled"
+msgstr ""
+
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "ffmpeg was not found, so the audio of a video cannot be extracted"
+msgstr ""
+
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "the video has no audio track %1"
+msgstr ""
+
+#: src/lib/subedit/core/wording/transcription.cpp
+#, fuzzy
+msgid "the audio could not be extracted"
+msgstr "ekki tókst að ræsa myndskeiðsspilarann"
+
+#: src/lib/subedit/core/wording/transcription.cpp
+#, fuzzy
+msgid "the audio could not be extracted: %1"
+msgstr "ekki tókst að ræsa myndskeiðsspilarann"
+
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "the video has no audio track"
+msgstr ""
+
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "no language or title"
+msgstr ""
+
+#: src/lib/subedit/core/wording/transcription.cpp
+#, fuzzy
+msgid "audio track %1: %2"
+msgstr "skjátexti %1: %2"
+
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "no transcription engine is called %1"
+msgstr ""
+
+#: src/lib/subedit/core/wording/transcription.cpp
+#, fuzzy
+msgid "%1 subtitle transcribed, language: %2"
+msgid_plural "%1 subtitles transcribed, language: %2"
+msgstr[0] "Ummyndaður skjátexti: %1, á %2 og %3"
+msgstr[1] "Ummyndaðir skjátextar: %1, á %2 og %3"
+
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid ""
+"The %1 subtitle of this project will be replaced by the transcription. You "
+"can undo it."
+msgid_plural ""
+"The %1 subtitles of this project will be replaced by the transcription. You "
+"can undo it."
+msgstr[0] ""
+msgstr[1] ""
+
+#: src/lib/subedit/core/wording/transcription.cpp
+#, fuzzy
+msgid "transcribing: %1%"
+msgstr "þýðing: %1"
 
 #: src/lib/subedit/core/wording/translation.cpp
 msgid "translation: the file holds no line"
@@ -4130,6 +4361,11 @@ msgstr ""
 "\n"
 "Opna það aftur af nýjum stað?"
 
+#: src/lib/subedit/gui/qt_prompts.cpp
+#, fuzzy
+msgid "Replace the subtitles?"
+msgstr "Lagfæra skjátexta"
+
 # From Gaupol.
 #: src/lib/subedit/gui/save_shape.cpp
 msgid "Western"
@@ -4398,6 +4634,74 @@ msgstr "Sýna þýðinguna við hlið textans"
 msgid "Main"
 msgstr "Aðal"
 
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+msgid "Browse…"
+msgstr ""
+
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+#: src/lib/subedit/gui/transcription_runner.cpp
+msgid "Transcribe audio"
+msgstr ""
+
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+msgid "First audio track"
+msgstr ""
+
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+#, fuzzy
+msgid "Detected"
+msgstr "%1, greint"
+
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+msgid ""
+"A two-letter language code such as en or fr. Leave it empty to let the model "
+"detect the language."
+msgstr ""
+
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+msgid ""
+"The model file the engine reads. It is not shipped with the program: the "
+"manual says where to find one."
+msgstr ""
+
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+msgid ""
+"The audio of the film open in this window is transcribed into subtitles that "
+"replace the ones of the project. The work runs in the background and can be "
+"cancelled."
+msgstr ""
+
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+msgid "Audio track"
+msgstr ""
+
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+#, fuzzy
+msgid "Language"
+msgstr "Tungumál:"
+
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+msgid "Model"
+msgstr ""
+
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+msgid "Choose a model"
+msgstr ""
+
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+#, fuzzy
+msgid "Models (*.bin);;All files (*)"
+msgstr "Allar skrár (*)"
+
+#: src/lib/subedit/gui/transcription_runner.cpp
+#: src/lib/subedit/gui/unsaved_documents_dialog.cpp
+msgid "Cancel"
+msgstr "Hætta við"
+
+#: src/lib/subedit/gui/transcription_runner.cpp
+msgid "Transcribing the audio…"
+msgstr ""
+
 #: src/lib/subedit/gui/transform_dialog.cpp
 msgid "Transform positions"
 msgstr "Ummynda tímasetningar"
@@ -4444,10 +4748,6 @@ msgstr "Vi&sta"
 #: src/lib/subedit/gui/unsaved_documents_dialog.cpp
 msgid "Close &Without Saving"
 msgstr "Loka án þess að &vista"
-
-#: src/lib/subedit/gui/unsaved_documents_dialog.cpp
-msgid "Cancel"
-msgstr "Hætta við"
 
 #: src/lib/subedit/gui/unsaved_documents_dialog.cpp
 msgid ""
@@ -4555,6 +4855,10 @@ msgstr "&Kjörstillingar…"
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "Positions in &Frames"
 msgstr "Tímasetningar í &römmum"
+
+#: src/lib/subedit/gui/window_actions.cpp
+msgid "Transcribe Audio…"
+msgstr ""
 
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "Play / Pause"

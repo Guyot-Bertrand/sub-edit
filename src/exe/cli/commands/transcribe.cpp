@@ -48,32 +48,35 @@ describeTranscribe(CLI::App& app, std::string_view name, TranscribeCommandOption
         ->required()
         ->option_text("FILE");
     transcribe
-        ->add_option(
-            "--to",
-            options.request.format,
-            std::string{core::translate("Format to write; the one the extension of --output says")})
+        ->add_option("--to",
+                     options.request.format,
+                     std::string{core::translate(
+                         "Format to write; the one the extension of --output says by default")})
         ->check(CLI::IsMember(formatOptionNames()));
     transcribe
-        ->add_option(
-            "--audio-track",
-            options.audioTrack,
-            std::string{core::translate("Audio track of a video, counted from 0; the first")})
+        ->add_option("--audio-track",
+                     options.audioTrack,
+                     std::string{core::translate(
+                         "Audio track of a video, counted from 0; the first by default")})
         ->check(CLI::NonNegativeNumber)
         ->option_text("N");
     transcribe
-        ->add_option("--language",
-                     options.request.language,
-                     std::string{core::translate("Language of the speech: fr, en; detected")})
+        ->add_option(
+            "--language",
+            options.request.language,
+            std::string{core::translate("Language of the speech: fr, en; detected by default")})
         ->option_text("CODE");
     transcribe
-        ->add_option("--model",
-                     options.request.model,
-                     std::string{core::translate("Model file; the transcription.model setting")})
+        ->add_option(
+            "--model",
+            options.request.model,
+            std::string{core::translate("Model file; the transcription.model setting by default")})
         ->option_text("FILE");
     transcribe
-        ->add_option("--engine",
-                     options.request.engine,
-                     std::string{core::translate("Engine; the transcription.engine setting")})
+        ->add_option(
+            "--engine",
+            options.request.engine,
+            std::string{core::translate("Engine; the transcription.engine setting by default")})
         ->option_text("NAME");
     transcribe
         ->add_option("--keep-audio",

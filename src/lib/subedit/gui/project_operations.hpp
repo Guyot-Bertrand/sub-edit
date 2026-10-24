@@ -2,9 +2,12 @@
 
 #include <subedit/core/analysis/grid_repair.hpp>
 #include <subedit/core/config/duration_adjustment_settings.hpp>
+#include <subedit/core/config/transcription_settings.hpp>
 #include <subedit/core/format/project_file.hpp>
 #include <subedit/core/time/duration.hpp>
 #include <subedit/gui/disjoint_dialog.hpp>
+#include <subedit/gui/transcribe_dialog.hpp>
+#include <subedit/gui/transcription_runner.hpp>
 
 #include <expected>
 #include <filesystem>
@@ -12,6 +15,7 @@
 #include <optional>
 #include <span>
 #include <string>
+#include <vector>
 
 class QWidget;
 
@@ -101,6 +105,20 @@ public:
         /// Opens `project` in a tab of its own, as holding subtitles no file
         /// has: closing it must ask.
         virtual void openAside(core::Project project) = 0;
+
+        /// The film `page` is watched against, when one is open — what a
+        /// transcription listens to.
+        [[nodiscard]] virtual std::optional<std::filesystem::path>
+        videoOf(const ProjectPage& page) const = 0;
+
+        /// The audio tracks of that film, in the order the file lists them.
+        [[nodiscard]] virtual std::vector<core::AudioTrack>
+        audioTracksOf(const ProjectPage& page) const = 0;
+
+        /// Runs a transcription, with a box that shows how far it has got and lets the
+        /// person stop it. Returns when it is over.
+        [[nodiscard]] virtual std::expected<TranscriptionOutcome, TranscriptionFailure>
+        transcribe(const TranscriptionJob& job) = 0;
 
     protected:
         View() = default;
@@ -200,6 +218,24 @@ public:
     /// `Remove Hearing-Impaired Mentions…`.
     void removeHearingImpaired(ProjectPage& page);
 
+    /// `Transcribe Audio…`: asks for the audio track, the language and the model, **asks
+    /// before replacing** what the project holds when it holds something, then has the
+    /// film's audio transcribed and puts the result in place of every subtitle, as one
+    /// entry of the history.
+    ///
+    /// A transcription that fails, or that the person stops, changes nothing: the project
+    /// is as it was and the reason is said in a box. The choices are kept as settings.
+    void transcribeAudio(ProjectPage& page);
+
+    /// What the last transcription asked for, and what the settings say.
+    [[nodiscard]] const core::TranscriptionSettings& transcriptionSettings() const {
+        return m_transcriptionSettings;
+    }
+
+    void setTranscriptionSettings(const core::TranscriptionSettings& settings) {
+        m_transcriptionSettings = settings;
+    }
+
     /// Puts the target in italics, or takes its italics out.
     ///
     /// **One entry and not two**, as in Gaupol: which of the two it does is
@@ -271,6 +307,9 @@ private:
 
     /// What the last `Make Ranges Disjoint…` asked for, offered again.
     DisjointChoice m_disjointChoice;
+
+    /// The audio transcription's settings: the window changes the model and the language.
+    core::TranscriptionSettings m_transcriptionSettings;
 };
 
 } // namespace subedit::gui

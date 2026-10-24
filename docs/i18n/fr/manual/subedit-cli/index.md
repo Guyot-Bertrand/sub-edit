@@ -42,4 +42,6 @@ l'autre programme et pour savoir par où commencer, voir
 | [`append`](append.md) | mettre des fichiers à la suite du premier, dans un seul fichier |
 | [`split-file`](split-file.md) | couper un fichier en deux, la queue ramenée à l'origine |
 | [`pair`](pair.md) | écrire une traduction aux positions de son principal, et dire comment ses lignes se sont posées |
+| [`transcribe`](transcribe.md) | écrire la parole d'une vidéo ou d'un fichier audio sous forme de sous-titres |
+| [Installer les outils de transcription](install-transcription.md) | le moteur, le modèle et `ffmpeg`, que le programme ne livre pas |
 | [`config`](config.md) | lister, montrer et changer les réglages des opérations partagés avec la fenêtre |

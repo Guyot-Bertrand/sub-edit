@@ -28,6 +28,7 @@ add_library(
     edit/split_project.cpp
     edit/video_bounds.cpp
     edit/remove_command.cpp
+    edit/replace_subtitles.cpp
     edit/rewrite_texts.cpp
     edit/session.cpp
     edit/snap_command.cpp
@@ -153,7 +154,9 @@ add_library(
     transcription/audio_source.cpp
     transcription/default_engines.cpp
     transcription/engine_registry.cpp
+    transcription/language_codes.cpp
     transcription/subtitle_assembly.cpp
+    transcription/transcribe_media.cpp
     transcription/transcription_engine.cpp
     transcription/whisper_cpp_engine.cpp
     transcription/whisper_cpp_output.cpp)

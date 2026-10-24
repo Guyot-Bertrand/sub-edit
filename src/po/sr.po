@@ -1045,6 +1045,49 @@ msgstr ""
 msgid "--head and --tail go together: give both, or neither with --dry-run"
 msgstr "--head и --tail иду заједно: задајте обе, или ниједну уз --dry-run"
 
+#: src/exe/cli/commands/transcribe.cpp
+msgid "Write the speech of a video or an audio file as subtitles"
+msgstr ""
+
+#: src/exe/cli/commands/transcribe.cpp
+msgid "Video or audio file to transcribe"
+msgstr ""
+
+#: src/exe/cli/commands/transcribe.cpp
+#, fuzzy
+msgid "Subtitle file to write"
+msgstr "Титл датотеке за сређивање"
+
+#: src/exe/cli/commands/transcribe.cpp
+msgid "Format to write; the one the extension of --output says by default"
+msgstr ""
+
+#: src/exe/cli/commands/transcribe.cpp
+msgid "Audio track of a video, counted from 0; the first by default"
+msgstr ""
+
+#: src/exe/cli/commands/transcribe.cpp
+#, fuzzy
+msgid "Language of the speech: fr, en; detected by default"
+msgstr "Кодирање у ком се датотеке читају; подразумевано се открива"
+
+#: src/exe/cli/commands/transcribe.cpp
+msgid "Model file; the transcription.model setting by default"
+msgstr ""
+
+#: src/exe/cli/commands/transcribe.cpp
+msgid "Engine; the transcription.engine setting by default"
+msgstr ""
+
+#: src/exe/cli/commands/transcribe.cpp
+#, fuzzy
+msgid "Keep the extracted audio in this file"
+msgstr "брзина датотеке"
+
+#: src/exe/cli/commands/transcribe.cpp
+msgid "Write the segments as the engine cut them"
+msgstr ""
+
 #: src/exe/cli/commands/transform.cpp
 msgid "Correct every position from two points known to be right"
 msgstr "Исправите сваки положај на основу две тачке за које се зна да су тачне"
@@ -1927,7 +1970,7 @@ msgid "%1: %2 (dry run, nothing written)"
 msgstr "%1: %2 (пробни рад, ништа није записано)"
 
 #. TRANSLATORS: %1 is a file, %2 what was done to it, %3 the file written.
-#: src/lib/subedit/cli/rewriting.cpp
+#: src/lib/subedit/cli/rewriting.cpp src/lib/subedit/cli/transcribing.cpp
 msgid "%1: %2 -> %3"
 msgstr "%1: %2 -> %3"
 
@@ -2130,7 +2173,9 @@ msgstr "цео број милисекунди, 0 или више"
 msgid ""
 "a pattern code, Script[-language[-COUNTRY]], not empty: Zyyy, Latn, Latn-en, "
 "Latn-en-US"
-msgstr "код образаца, Script[-language[-COUNTRY]], не празан: Zyyy, Latn, Latn-en, Latn-en-US"
+msgstr ""
+"код образаца, Script[-language[-COUNTRY]], не празан: Zyyy, Latn, Latn-en, "
+"Latn-en-US"
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "a number above 0, decimals allowed: 24, 42.5"
@@ -2139,6 +2184,33 @@ msgstr "број већи од 0, децимале су дозвољене: 24, 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "a whole number from 1 to 1000: 2, 3"
 msgstr "цео број од 1 до 1000: 2, 3"
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "the name of an engine: lower-case letters, digits, '.', '-' or '_'"
+msgstr ""
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "an absolute path; empty for none"
+msgstr ""
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "two lower-case letters, an ISO 639-1 code: en, fr; empty to detect it"
+msgstr ""
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+#, fuzzy
+msgid "a whole number of milliseconds, 1 to 3600000"
+msgstr "цео број милисекунди, 0 или више"
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+#, fuzzy
+msgid "a whole number from 1 to 1000"
+msgstr "цео број од 1 до 1000: 2, 3"
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+#, fuzzy
+msgid "subedit-cli transcribe; Transcribe Audio…"
+msgstr "subedit-cli correct; Исправи текстове…"
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "subedit-cli adjust; Adjust Durations…"
@@ -2158,23 +2230,29 @@ msgstr "Исправи текстове… (само у прозору; correct 
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "Correct Texts… (window only; correct takes --enable/--disable instead)"
-msgstr "Исправи текстове… (само у прозору; correct уместо тога узима --enable/--disable)"
+msgstr ""
+"Исправи текстове… (само у прозору; correct уместо тога узима --enable/--"
+"disable)"
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "Correct Texts… (window only; correct takes --max-length instead)"
-msgstr "Исправи текстове… (само у прозору; correct уместо тога узима --max-length)"
+msgstr ""
+"Исправи текстове… (само у прозору; correct уместо тога узима --max-length)"
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "Correct Texts… (window only; correct takes --skip-length instead)"
-msgstr "Исправи текстове… (само у прозору; correct уместо тога узима --skip-length)"
+msgstr ""
+"Исправи текстове… (само у прозору; correct уместо тога узима --skip-length)"
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "Correct Texts… (window only; correct takes --skip-lines instead)"
-msgstr "Исправи текстове… (само у прозору; correct уместо тога узима --skip-lines)"
+msgstr ""
+"Исправи текстове… (само у прозору; correct уместо тога узима --skip-lines)"
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "Correct Texts… (window only; correct takes --language instead)"
-msgstr "Исправи текстове… (само у прозору; correct уместо тога узима --language)"
+msgstr ""
+"Исправи текстове… (само у прозору; correct уместо тога узима --language)"
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "Reading speed the durations are brought to."
@@ -2267,7 +2345,9 @@ msgstr "Да ли задатак прозора за наглуве делује
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid ""
 "Longest line the window's line-break task aims at, in the unit in-ems names."
-msgstr "Најдужи ред коме тежи задатак преламања редова прозора, у јединици коју одређује in-ems."
+msgstr ""
+"Најдужи ред коме тежи задатак преламања редова прозора, у јединици коју "
+"одређује in-ems."
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "Most lines a subtitle is broken into."
@@ -2281,25 +2361,33 @@ msgstr "Да ли прозор мери редове у емовима а не �
 msgid ""
 "Whether the window's line-break task leaves alone a subtitle whose lines are "
 "short enough."
-msgstr "Да ли задатак преламања редова прозора оставља нетакнут титл чији су редови довољно кратки."
+msgstr ""
+"Да ли задатак преламања редова прозора оставља нетакнут титл чији су редови "
+"довољно кратки."
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid ""
 "Longest line a subtitle may have and still be left alone by the window's "
 "line-break task."
-msgstr "Најдужи ред који титл може имати а да га задатак преламања редова прозора ипак остави нетакнутим."
+msgstr ""
+"Најдужи ред који титл може имати а да га задатак преламања редова прозора "
+"ипак остави нетакнутим."
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid ""
 "Whether the window's line-break task leaves alone a subtitle with few enough "
 "lines."
-msgstr "Да ли задатак преламања редова прозора оставља нетакнут титл са довољно мало редова."
+msgstr ""
+"Да ли задатак преламања редова прозора оставља нетакнут титл са довољно мало "
+"редова."
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid ""
 "Most lines a subtitle may have and still be left alone by the window's line-"
 "break task."
-msgstr "Највише редова које титл може имати а да га задатак преламања редова прозора ипак остави нетакнутим."
+msgstr ""
+"Највише редова које титл може имати а да га задатак преламања редова прозора "
+"ипак остави нетакнутим."
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "Whether the window ticks the join/split-words task."
@@ -2321,12 +2409,42 @@ msgstr "Речник по коме задатак спајања/раздвај�
 msgid ""
 "a locale code, two lower-case letters, then optionally _ and two upper-case, "
 "then optionally @ and a script: fr, en_US, sr@Latn"
-msgstr "код локалитета, два мала слова, па опционо _ и два велика, па опционо @ и писмо: fr, en_US, sr@Latn"
+msgstr ""
+"код локалитета, два мала слова, па опционо _ и два велика, па опционо @ и "
+"писмо: fr, en_US, sr@Latn"
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid ""
 "Remove the subtitles the correction empties, instead of leaving them empty."
 msgstr "Уклони титлове које исправљање испразни, уместо да их остави празне."
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "The engine that transcribes the audio."
+msgstr ""
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "The engine's program; searched for when empty."
+msgstr ""
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "The model file the engine reads."
+msgstr ""
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "The language of the audio; detected when empty."
+msgstr ""
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "Pieces of one sentence closer than this are joined."
+msgstr ""
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "Longest a transcribed subtitle stays on screen."
+msgstr ""
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "Most characters a transcribed subtitle holds."
+msgstr ""
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "%1 is managed by the window; use --enable/--disable on correct"
@@ -2342,7 +2460,8 @@ msgstr "непознато подешавање %1; subedit-cli config list их
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "cannot read '%1' for %2; subedit-cli config list says what it accepts"
-msgstr "не може да се прочита '%1' за %2; subedit-cli config list каже шта прихвата"
+msgstr ""
+"не може да се прочита '%1' за %2; subedit-cli config list каже шта прихвата"
 
 #: src/lib/subedit/core/format/lrc_reader.cpp
 #: src/lib/subedit/core/format/tm_player_reader.cpp
@@ -2677,6 +2796,10 @@ msgstr "раздвајање распона"
 #: src/lib/subedit/core/wording/analysis.cpp
 msgid "joining repeated subtitles"
 msgstr "спајање поновљених титлова"
+
+#: src/lib/subedit/core/wording/analysis.cpp
+msgid "transcribing the audio"
+msgstr ""
 
 #. TRANSLATORS: how well the positions fall on a frame-rate grid: clean,
 #. partial, or none at all.
@@ -3254,6 +3377,107 @@ msgstr "не може се прочитати, задржава се подра�
 #: src/lib/subedit/core/wording/settings.cpp
 msgid "settings could not be written"
 msgstr "поставке се нису могле записати"
+
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid ""
+"See the manual page \"Installing the transcription tools\" (install-"
+"transcription)."
+msgstr ""
+
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "the transcription engine was not found"
+msgstr ""
+
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "no model was given, or the model file is not there"
+msgstr ""
+
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "the model cannot transcribe the language %1"
+msgstr ""
+
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "the model cannot detect the language: give one"
+msgstr ""
+
+#: src/lib/subedit/core/wording/transcription.cpp
+#, fuzzy
+msgid "the audio could not be read"
+msgstr "%1 се није могло прочитати."
+
+# From Gaupol.
+#: src/lib/subedit/core/wording/transcription.cpp
+#, fuzzy
+msgid "the transcription failed"
+msgstr "Кинески традиционални"
+
+#: src/lib/subedit/core/wording/transcription.cpp
+#, fuzzy
+msgid "the transcription failed: %1"
+msgstr "превод: %1"
+
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "the transcription was cancelled"
+msgstr ""
+
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "ffmpeg was not found, so the audio of a video cannot be extracted"
+msgstr ""
+
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "the video has no audio track %1"
+msgstr ""
+
+#: src/lib/subedit/core/wording/transcription.cpp
+#, fuzzy
+msgid "the audio could not be extracted"
+msgstr "плејер филмова се није могао покренути"
+
+#: src/lib/subedit/core/wording/transcription.cpp
+#, fuzzy
+msgid "the audio could not be extracted: %1"
+msgstr "плејер филмова се није могао покренути"
+
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "the video has no audio track"
+msgstr ""
+
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "no language or title"
+msgstr ""
+
+#: src/lib/subedit/core/wording/transcription.cpp
+#, fuzzy
+msgid "audio track %1: %2"
+msgstr "титл %1: %2"
+
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "no transcription engine is called %1"
+msgstr ""
+
+#: src/lib/subedit/core/wording/transcription.cpp
+#, fuzzy
+msgid "%1 subtitle transcribed, language: %2"
+msgid_plural "%1 subtitles transcribed, language: %2"
+msgstr[0] "Титлова преображених на %2 и %3: %1"
+msgstr[1] "Титлова преображених на %2 и %3: %1"
+msgstr[2] "Титлова преображених на %2 и %3: %1"
+
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid ""
+"The %1 subtitle of this project will be replaced by the transcription. You "
+"can undo it."
+msgid_plural ""
+"The %1 subtitles of this project will be replaced by the transcription. You "
+"can undo it."
+msgstr[0] ""
+msgstr[1] ""
+msgstr[2] ""
+
+#: src/lib/subedit/core/wording/transcription.cpp
+#, fuzzy
+msgid "transcribing: %1%"
+msgstr "превод: %1"
 
 #: src/lib/subedit/core/wording/translation.cpp
 msgid "translation: the file holds no line"
@@ -4205,6 +4429,11 @@ msgstr ""
 "\n"
 "Отворити поново, премештено?"
 
+#: src/lib/subedit/gui/qt_prompts.cpp
+#, fuzzy
+msgid "Replace the subtitles?"
+msgstr "Поправи титлове"
+
 # From Gaupol.
 #: src/lib/subedit/gui/save_shape.cpp
 msgid "Western"
@@ -4463,6 +4692,74 @@ msgstr "Прикажи превод поред текста"
 msgid "Main"
 msgstr "Главни"
 
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+msgid "Browse…"
+msgstr ""
+
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+#: src/lib/subedit/gui/transcription_runner.cpp
+msgid "Transcribe audio"
+msgstr ""
+
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+msgid "First audio track"
+msgstr ""
+
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+#, fuzzy
+msgid "Detected"
+msgstr "%1, откривено"
+
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+msgid ""
+"A two-letter language code such as en or fr. Leave it empty to let the model "
+"detect the language."
+msgstr ""
+
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+msgid ""
+"The model file the engine reads. It is not shipped with the program: the "
+"manual says where to find one."
+msgstr ""
+
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+msgid ""
+"The audio of the film open in this window is transcribed into subtitles that "
+"replace the ones of the project. The work runs in the background and can be "
+"cancelled."
+msgstr ""
+
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+msgid "Audio track"
+msgstr ""
+
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+#, fuzzy
+msgid "Language"
+msgstr "Језик:"
+
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+msgid "Model"
+msgstr ""
+
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+msgid "Choose a model"
+msgstr ""
+
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+#, fuzzy
+msgid "Models (*.bin);;All files (*)"
+msgstr "Све датотеке (*)"
+
+#: src/lib/subedit/gui/transcription_runner.cpp
+#: src/lib/subedit/gui/unsaved_documents_dialog.cpp
+msgid "Cancel"
+msgstr "Откажи"
+
+#: src/lib/subedit/gui/transcription_runner.cpp
+msgid "Transcribing the audio…"
+msgstr ""
+
 #: src/lib/subedit/gui/transform_dialog.cpp
 msgid "Transform positions"
 msgstr "Преобрази положаје"
@@ -4509,10 +4806,6 @@ msgstr "&Сачувај"
 #: src/lib/subedit/gui/unsaved_documents_dialog.cpp
 msgid "Close &Without Saving"
 msgstr "Затвори &без чувања"
-
-#: src/lib/subedit/gui/unsaved_documents_dialog.cpp
-msgid "Cancel"
-msgstr "Откажи"
 
 #: src/lib/subedit/gui/unsaved_documents_dialog.cpp
 msgid ""
@@ -4618,6 +4911,10 @@ msgstr "&Поставке…"
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "Positions in &Frames"
 msgstr "Положаји у с&личицама"
+
+#: src/lib/subedit/gui/window_actions.cpp
+msgid "Transcribe Audio…"
+msgstr ""
 
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "Play / Pause"

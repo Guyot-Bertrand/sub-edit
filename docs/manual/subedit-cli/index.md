@@ -42,4 +42,6 @@ where to begin, see
 | [`append`](append.md) | put files after the first one, into a single file |
 | [`split-file`](split-file.md) | cut a file in two, the tail brought back to the origin |
 | [`pair`](pair.md) | write a translation at the positions of its main file, and say how its lines lined up |
+| [`transcribe`](transcribe.md) | write the speech of a video or an audio file as subtitles |
+| [Installing the transcription tools](install-transcription.md) | the engine, the model and `ffmpeg`, which the program does not ship |
 | [`config`](config.md) | list, show and change the operation settings shared with the window |

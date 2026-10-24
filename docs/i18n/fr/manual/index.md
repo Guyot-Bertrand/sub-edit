@@ -36,6 +36,7 @@ fichier ouvert puis enregistré sans modification ne bouge pas d'un octet.
 | couper un film en deux parties | [`Split Project…`](subedit-gui/operations.md#split-project), ou [`split-file`](subedit-cli/split-file.md) |
 | changer la casse, l'italique ou les tirets de dialogue de tout un fichier | [Les opérations](subedit-gui/operations.md#italic), ou [`case`](subedit-cli/case.md), [`italics`](subedit-cli/italics.md), [`dialogue-dashes`](subedit-cli/dialogue-dashes.md) |
 | chercher un mot et le remplacer, sans casser les balises | [Rechercher et remplacer](subedit-gui/find-and-replace.md), ou [`replace`](subedit-cli/replace.md) |
+| écrire la parole d'un film sous forme de sous-titres | [`Transcribe Audio…`](subedit-gui/video.md#transcrire-laudio), ou [`transcribe`](subedit-cli/transcribe.md) — après [l'installation des outils](subedit-cli/install-transcription.md) |
 | traduire en regard du texte d'origine | [Ouvrir une traduction](subedit-gui/files.md#ouvrir-une-traduction), ou [`pair`](subedit-cli/pair.md) pour la recaler sur le principal |
 | traiter cent fichiers d'un coup | [Traiter un arbre](subedit-cli/lots.md), puis [Invocation](subedit-cli/invocation.md) |
 

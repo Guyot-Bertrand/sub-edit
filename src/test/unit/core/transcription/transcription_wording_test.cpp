@@ -1,5 +1,6 @@
 // What both surfaces say of a transcription.
 
+#include <subedit/core/transcription/language_codes.hpp>
 #include <subedit/core/wording/transcription.hpp>
 
 #include <catch2/catch_test_macros.hpp>
@@ -76,4 +77,24 @@ TEST_CASE("the result and the progress are counted", "[wording][transcription]")
           "12 subtitles transcribed, language: fr");
     CHECK(subedit::core::transcriptionProgressText(40) == "transcribing: 40%");
     CHECK(subedit::core::noSuchTranscriptionEngine("x") == "no transcription engine is called x");
+}
+
+// ## The language a container declares
+
+TEST_CASE("a container's language becomes the code an engine takes", "[transcription][language]") {
+    using subedit::core::twoLetterCodeOf;
+
+    CHECK(twoLetterCodeOf("fra") == "fr");
+    CHECK(twoLetterCodeOf("fre") == "fr");
+    CHECK(twoLetterCodeOf("ENG") == "en");
+    CHECK(twoLetterCodeOf("de") == "de");
+    CHECK(twoLetterCodeOf("zho") == "zh");
+}
+
+TEST_CASE("a tag that names no language of the table gives nothing", "[transcription][language]") {
+    using subedit::core::twoLetterCodeOf;
+
+    CHECK_FALSE(twoLetterCodeOf("und").has_value());
+    CHECK_FALSE(twoLetterCodeOf("").has_value());
+    CHECK_FALSE(twoLetterCodeOf("xx").has_value());
 }

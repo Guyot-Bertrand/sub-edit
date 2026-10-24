@@ -10,6 +10,7 @@
 #include <subedit/core/edit/italics_command.hpp>
 #include <subedit/core/edit/join_repeats.hpp>
 #include <subedit/core/edit/letter_case_command.hpp>
+#include <subedit/core/edit/replace_subtitles.hpp>
 #include <subedit/core/edit/rewrite_texts.hpp>
 #include <subedit/core/edit/session.hpp>
 #include <subedit/core/edit/shift_command.hpp>
@@ -31,6 +32,7 @@
 #include <subedit/core/wording/conversion.hpp>
 #include <subedit/core/wording/counts.hpp>
 #include <subedit/core/wording/editing.hpp>
+#include <subedit/core/wording/transcription.hpp>
 #include <subedit/gui/disjoint_dialog.hpp>
 #include <subedit/gui/duration_adjust_dialog.hpp>
 #include <subedit/gui/frame_rate_dialog.hpp>
@@ -388,6 +390,55 @@ void ProjectOperations::adjustDurations(ProjectPage& page) {
         pastTheEnd = applyQuietly(page, std::move(adjustment.command), target);
 
     m_prompts->reportOutcome(joinedNotices(account, pastTheEnd));
+}
+
+void ProjectOperations::transcribeAudio(ProjectPage& page) {
+    const std::optional<std::filesystem::path> video = m_view->videoOf(page);
+    if (!video.has_value())
+        return;
+
+    const std::vector<core::AudioTrack> tracks = m_view->audioTracksOf(page);
+    TranscribeDialog dialog{tracks,
+                            TranscribeChoice{.language = m_transcriptionSettings.language,
+                                             .model = m_transcriptionSettings.model},
+                            m_view->dialogParent()};
+    if (!m_prompts->run(dialog))
+        return;
+    const TranscribeChoice choice = dialog.choice();
+
+    // Kept as asked, even when the transcription then fails: the next one offers it again.
+    m_transcriptionSettings.language = choice.language;
+    m_transcriptionSettings.model = choice.model;
+
+    // **Asked before the work, not after it**: whoever declines does not wait for a
+    // result they will not use. Nothing to ask when there is nothing to lose.
+    const std::size_t held = page.session->project().count();
+    if (held > 0 && !m_prompts->confirmReplacement(core::noticeOfReplacement(held)))
+        return;
+
+    const TranscriptionJob job{.video = *video,
+                               .track = choice.track,
+                               .language = choice.language,
+                               .model = choice.model,
+                               .settings = m_transcriptionSettings};
+    std::expected<TranscriptionOutcome, TranscriptionFailure> outcome = m_view->transcribe(job);
+    if (!outcome) {
+        if (outcome.error().cancelled)
+            m_view->announce(
+                core::transcriptionErrorText({.kind = core::TranscriptionErrorKind::Cancelled}));
+        else
+            m_prompts->reportFailure(outcome.error().message);
+        return;
+    }
+
+    const std::size_t made = outcome->subtitles.size();
+    std::unique_ptr<core::Command> command =
+        core::replaceAllSubtitles(page.session->project(), std::move(outcome->subtitles));
+    if (command != nullptr) {
+        const core::Selection everything = core::Selection::all(page.session->project());
+        apply(page, std::move(command), everything);
+    }
+    m_view->announce(core::noticeOfTranscription(made, outcome->language));
 }
 
 void ProjectOperations::appendFile(ProjectPage& page) {
