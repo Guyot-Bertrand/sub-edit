@@ -20,6 +20,14 @@ cmake --build build -j --config Release
 
 之后程序位于 `build/bin/whisper-cli`。如上用 `-DBUILD_SHARED_LIBS=OFF` 构建时，它是一个单独的文件，旁边不需要任何库，因此可以复制到任何地方。把它放到 `PATH` 能找到的地方，或者用设置 `transcription.executable` 把**它的路径告诉** subedit——在窗口中，[首选项](../subedit-gui/preferences.md#转录)里有一个字段用于此。针对显卡的构建会在第一条 `cmake` 命令中增加一个选项：NVIDIA 显卡用 `-DGGML_CUDA=1`，大多数其他显卡用 `-DGGML_VULKAN=1`；subedit 运行您安装的那个，不会替您选择任何东西。
 
+若只想保留程序，请**安装**它，然后删除克隆：
+
+```bash
+cmake --install build --prefix ~/.local
+```
+
+`--prefix` 指定安装位置。`~/.local` 不需要管理员权限，其 `bin` 目录必须在您的 `PATH` 中；不加该选项时默认是 `/usr/local`，需要 `sudo`。`whisper-cli` 会落在该前缀的 `bin` 目录中，与 subedit 不使用的工具放在一起；它到位之后，克隆及其 `build` 目录即可删除。
+
 ## 模型
 
 引擎读取一个**模型**，那是一个几百兆字节到几吉字节的文件，只需下载一次。官方模型列在 [huggingface.co/ggerganov/whisper.cpp](https://huggingface.co/ggerganov/whisper.cpp)，引擎的仓库里有一个脚本可以获取其中一个：

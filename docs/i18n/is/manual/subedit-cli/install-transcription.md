@@ -26,6 +26,14 @@ cmake --build build -j --config Release
 
 Forritið er þá `build/bin/whisper-cli`. Þegar það er smíðað með `-DBUILD_SHARED_LIBS=OFF`, eins og að ofan, er það ein skrá sem þarf ekkert safn við hlið sér, svo þú getur afritað það hvert sem er. Settu það þar sem `PATH` finnur það, eða **gefðu upp slóð þess** til subedit með stillingunni `transcription.executable` — í glugganum hafa [kjörstillingarnar](../subedit-gui/preferences.md#umritun) reit fyrir það. Smíði fyrir skjákort bætir einum valkosti við fyrstu `cmake`-línuna: `-DGGML_CUDA=1` fyrir NVIDIA-kort, `-DGGML_VULKAN=1` fyrir flest önnur; subedit keyrir það sem þú settir upp og velur ekkert fyrir þig.
 
+Til að halda aðeins forritinu skaltu **setja það upp** og eyða klóninu:
+
+```bash
+cmake --install build --prefix ~/.local
+```
+
+`--prefix` segir hvert. `~/.local` krefst engra stjórnandaréttinda, og `bin` möppan þar þarf að vera í `PATH` hjá þér; án valkostsins er sjálfgefið `/usr/local`, sem biður um `sudo`. `whisper-cli` lendir í `bin` möppu þess forskeytis, við hlið verkfæra sem subedit notar ekki; þegar það er komið þangað má fjarlægja klónið og `build` möppuna þess.
+
 ## Líkan
 
 Vélin les **líkan**, skrá sem er nokkur hundruð megabæti upp í nokkur gígabæti og þú

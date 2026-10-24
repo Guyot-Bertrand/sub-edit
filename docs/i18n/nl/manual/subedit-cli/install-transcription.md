@@ -26,6 +26,14 @@ cmake --build build -j --config Release
 
 Het programma is dan `build/bin/whisper-cli`. Gebouwd met `-DBUILD_SHARED_LIBS=OFF`, zoals hierboven, is het één enkel bestand dat geen bibliotheek naast zich nodig heeft, zodat u het overal naartoe kunt kopiëren. Zet het waar uw `PATH` het vindt, of **geef het pad ervan** aan subedit met de instelling `transcription.executable` — in het venster hebben de [instellingen](../subedit-gui/preferences.md#transcriptie) er een veld voor. Een build voor een grafische kaart voegt één optie toe aan de eerste `cmake`-regel: `-DGGML_CUDA=1` voor een NVIDIA-kaart, `-DGGML_VULKAN=1` voor de meeste andere; subedit voert uit wat u hebt geïnstalleerd en kiest niets voor u.
 
+Om alleen het programma te bewaren, **installeert u het** en verwijdert u de kloon:
+
+```bash
+cmake --install build --prefix ~/.local
+```
+
+`--prefix` zegt waar. `~/.local` vraagt geen beheerdersrechten, en de map `bin` ervan moet in uw `PATH` staan; zonder de optie is de standaard `/usr/local`, dat om `sudo` vraagt. `whisper-cli` komt in de map `bin` van dat voorvoegsel terecht, naast hulpmiddelen die subedit niet gebruikt; zodra het daar staat, kunnen de kloon en de map `build` ervan weg.
+
 ## Een model
 
 De engine leest een **model**, een bestand van enkele honderden megabytes tot enkele gigabytes dat u

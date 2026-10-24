@@ -26,6 +26,14 @@ cmake --build build -j --config Release
 
 Ohjelma on tämän jälkeen `build/bin/whisper-cli`. Kun se koostetaan valinnalla `-DBUILD_SHARED_LIBS=OFF`, kuten yllä, se on yksittäinen tiedosto, joka ei tarvitse rinnalleen mitään kirjastoa, joten sen voi kopioida minne tahansa. Aseta se paikkaan, josta `PATH` sen löytää, tai **anna sen polku** subeditille asetuksella `transcription.executable` — ikkunassa sitä varten on [asetuksissa](../subedit-gui/preferences.md#litterointi) kenttä. Näytönohjainta varten tehty koonti lisää ensimmäiselle `cmake`-riville yhden valinnan: `-DGGML_CUDA=1` NVIDIA-kortille, `-DGGML_VULKAN=1` useimmille muille; subedit ajaa sen, minkä olet asentanut, eikä valitse mitään puolestasi.
 
+Jos haluat säilyttää vain ohjelman, **asenna** se ja poista klooni:
+
+```bash
+cmake --install build --prefix ~/.local
+```
+
+`--prefix` kertoo, minne. `~/.local` ei vaadi järjestelmänvalvojan oikeuksia, ja sen `bin`-hakemiston on oltava `PATH`-polullasi; ilman valitsinta oletus on `/usr/local`, joka vaatii `sudo`:n. `whisper-cli` päätyy tämän etuliitteen `bin`-hakemistoon muiden työkalujen viereen, joita subedit ei käytä; kun se on siellä, klooni ja sen `build`-hakemisto voi poistaa.
+
 ## Malli
 
 Moottori lukee **mallin**, tiedoston, jonka koko on muutamasta sadasta megatavusta muutamaan gigatavuun ja jonka

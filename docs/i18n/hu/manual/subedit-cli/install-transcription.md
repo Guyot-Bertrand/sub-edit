@@ -26,6 +26,14 @@ cmake --build build -j --config Release
 
 A program ezután a `build/bin/whisper-cli`. A fentiek szerint `-DBUILD_SHARED_LIBS=OFF` kapcsolóval építve egyetlen fájl, amely mellé nem kell semmilyen programkönyvtár, így bárhová átmásolhatja. Tegye oda, ahol a `PATH` megtalálja, vagy **adja meg az elérési útját** a subeditnek a `transcription.executable` beállítással — az ablakban a [beállításoknak](../subedit-gui/preferences.md#leiratozás) van erre mezőjük. A videokártyához készült építés egy kapcsolóval egészíti ki az első `cmake` sort: `-DGGML_CUDA=1` NVIDIA-kártyához, `-DGGML_VULKAN=1` a legtöbb máshoz; a subedit azt futtatja, amit telepített, és semmit sem választ Ön helyett.
 
+Hogy csak a program maradjon meg, **telepítse** azt, és törölje a klónt:
+
+```bash
+cmake --install build --prefix ~/.local
+```
+
+A `--prefix` megmondja, hová. A `~/.local` nem igényel rendszergazdai jogot, és a `bin` könyvtárának szerepelnie kell a `PATH`-ban; az opció nélkül az alapértelmezés a `/usr/local`, amely `sudo`-t kér. A `whisper-cli` az adott előtag `bin` könyvtárába kerül, olyan eszközök mellé, amelyeket a subedit nem használ; ha ott van, a klón és a `build` könyvtára mehet.
+
 ## Egy modell
 
 A motor egy **modellt** olvas be, egy több száz megabájtos vagy néhány gigabájtos fájlt, amelyet

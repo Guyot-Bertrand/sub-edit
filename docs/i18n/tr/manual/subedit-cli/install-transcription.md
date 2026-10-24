@@ -26,6 +26,14 @@ cmake --build build -j --config Release
 
 Program bundan sonra `build/bin/whisper-cli` olur. Yukarıdaki gibi `-DBUILD_SHARED_LIBS=OFF` ile derlendiğinde, yanında hiçbir kitaplık gerektirmeyen tek bir dosyadır; bu yüzden onu istediğiniz yere kopyalayabilirsiniz. Onu `PATH` içinde bulunacağı bir yere koyun ya da `transcription.executable` ayarıyla subedit'e **yolunu verin** — pencerede bunun için [tercihlerde](../subedit-gui/preferences.md#yazıya-dökme) bir alan vardır. Bir ekran kartı için derleme, ilk `cmake` satırına tek bir seçenek ekler: NVIDIA kartı için `-DGGML_CUDA=1`, diğerlerinin çoğu için `-DGGML_VULKAN=1`; subedit sizin kurduğunuzu çalıştırır ve sizin yerinize hiçbir şey seçmez.
 
+Yalnızca programı tutmak için onu **kurun** ve klonu silin:
+
+```bash
+cmake --install build --prefix ~/.local
+```
+
+`--prefix` nereye olduğunu söyler. `~/.local` yönetici hakları gerektirmez ve `bin` dizini `PATH` içinde olmalıdır; seçenek olmadan varsayılan `/usr/local`'dir ve `sudo` ister. `whisper-cli`, o önekin `bin` dizinine, subedit'in kullanmadığı araçların yanına yerleşir; oraya geldikten sonra klon ve `build` dizini silinebilir.
+
 ## Bir model
 
 Motor, bir kez indirdiğiniz, birkaç yüz megabayttan birkaç gigabayta kadar bir dosya olan bir **model** okur. Resmî

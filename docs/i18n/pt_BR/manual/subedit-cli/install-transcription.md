@@ -26,6 +26,14 @@ cmake --build build -j --config Release
 
 O programa é então `build/bin/whisper-cli`. Compilado com `-DBUILD_SHARED_LIBS=OFF`, como acima, é um único arquivo que não precisa de nenhuma biblioteca ao lado, de modo que você pode copiá-lo para onde quiser. Coloque-o onde seu `PATH` o encontre, ou **indique o seu caminho** ao subedit com a configuração `transcription.executable` — na janela, as [preferências](../subedit-gui/preferences.md#transcrição) têm um campo para isso. Uma compilação para placa gráfica acrescenta uma opção à primeira linha de `cmake`: `-DGGML_CUDA=1` para uma placa NVIDIA, `-DGGML_VULKAN=1` para a maioria das outras; o subedit executa o que você instalou e não escolhe nada por você.
 
+Para guardar apenas o programa, **instale-o** e apague o clone:
+
+```bash
+cmake --install build --prefix ~/.local
+```
+
+`--prefix` diz onde. `~/.local` não exige direitos de administrador, e o seu diretório `bin` precisa estar no seu `PATH`; sem a opção, o padrão é `/usr/local`, que pede `sudo`. O `whisper-cli` fica no diretório `bin` desse prefixo, ao lado de ferramentas que o subedit não usa; depois que ele estiver lá, o clone e o seu diretório `build` podem ir embora.
+
 ## Um modelo
 
 O motor lê um **modelo**, um arquivo de várias centenas de megabytes a alguns gigabytes que

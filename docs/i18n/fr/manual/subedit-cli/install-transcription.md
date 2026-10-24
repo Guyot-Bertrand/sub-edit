@@ -28,6 +28,16 @@ un seul fichier qui n'a besoin d'aucune bibliothèque à côté de lui, et que v
 une option à la première ligne `cmake` : `-DGGML_CUDA=1` pour une carte NVIDIA, `-DGGML_VULKAN=1` pour la plupart des autres ;
 subedit lance celle que vous avez installée et ne choisit rien à votre place.
 
+Pour ne garder que le programme, **installez-le** puis supprimez le clone :
+
+```bash
+cmake --install build --prefix ~/.local
+```
+
+`--prefix` dit où. `~/.local` n'exige aucun droit d'administrateur, et son répertoire `bin` doit être dans votre `PATH` ;
+sans l'option, le défaut est `/usr/local`, qui demande `sudo`. `whisper-cli` se retrouve dans le répertoire `bin`
+de ce préfixe, à côté d'outils que subedit n'utilise pas ; une fois qu'il y est, le clone et son répertoire `build` peuvent partir.
+
 ## Un modèle
 
 Le moteur lit un **modèle**, un fichier de plusieurs centaines de mégaoctets à quelques gigaoctets que vous

@@ -26,6 +26,14 @@ cmake --build build -j --config Release
 
 Program pak najdete v `build/bin/whisper-cli`. Sestavený s `-DBUILD_SHARED_LIBS=OFF`, jak je uvedeno výše, je to jediný soubor, který vedle sebe nepotřebuje žádnou knihovnu, takže ho můžete zkopírovat kamkoli. Umístěte ho tam, kde ho najde váš `PATH`, nebo **zadejte jeho cestu** subeditu v nastavení `transcription.executable` — v okně pro něj mají [předvolby](../subedit-gui/preferences.md#přepis) pole. Sestavení pro grafickou kartu přidá jednu volbu do prvního řádku `cmake`: `-DGGML_CUDA=1` pro kartu NVIDIA, `-DGGML_VULKAN=1` pro většinu ostatních; subedit spouští to, co jste nainstalovali, a nic za vás nevolí.
 
+Chcete-li si ponechat jen program, **nainstalujte** ho a klon smažte:
+
+```bash
+cmake --install build --prefix ~/.local
+```
+
+`--prefix` říká kam. `~/.local` nevyžaduje práva správce a jeho adresář `bin` musí být ve vaší proměnné `PATH`; bez této volby je výchozí `/usr/local`, které žádá o `sudo`. `whisper-cli` skončí v adresáři `bin` tohoto prefixu, vedle nástrojů, které subedit nepoužívá; jakmile tam je, klon i jeho adresář `build` můžete smazat.
+
 ## Model
 
 Nástroj čte **model**, soubor o velikosti několika set megabajtů až několika gigabajtů, který

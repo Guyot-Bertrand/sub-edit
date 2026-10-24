@@ -26,6 +26,14 @@ cmake --build build -j --config Release
 
 Li programma es tande `build/bin/whisper-cli`. Compilat con `-DBUILD_SHARED_LIBS=OFF`, quam ci-supra, it es un singul file quel besona null biblioteca apu it, dunc vu posse copiar it u vu vole. Pone it u vor `PATH` lo trova, o **dona su chemin** a subedit con li parametre `transcription.executable` — in li fenestre, li [preferenties](../subedit-gui/preferences.md#transcription) have un camp por to. Un compilation por un carte graphic adde un optione a li unesim linea de `cmake`: `-DGGML_CUDA=1` por un carte NVIDIA, `-DGGML_VULKAN=1` por li plu de them altri; subedit lance li un quel vu ha instalat e selecte nequo por vu.
 
+Por conservar solmen li programma, **installa** it e deleta li clon:
+
+```bash
+cmake --install build --prefix ~/.local
+```
+
+`--prefix` dit u. `~/.local` besona null jure de administrator, e su fólder `bin` deve esser in vor `PATH`; sin li optione, li predefinition es `/usr/local`, quel demanda `sudo`. `whisper-cli` arrive in li fólder `bin` de ti prefix, apu utensiles quel subedit ne usa; quande it es ta, li clon e su fólder `build` posse partir.
+
 ## Un model
 
 Li motor leer un **model**, un file de plu centenes de megabytes til un poc gigabytes quel vu
