@@ -8,6 +8,7 @@ subedit-cli transcribe --output FILE
                        [--to FORMAT]
                        [--audio-track N]
                        [--language CODE]
+                       [--start TIME] [--end TIME]
                        [--model FILE]
                        [--engine NAME]
                        [--keep-audio FILE]
@@ -33,6 +34,9 @@ termina con un código distinto de cero.
 - **El idioma se detecta** a menos que `--language` lo fuerce, y se dice el idioma empleado. Un
   modelo hecho solo para inglés no detecta nada y no transcribe nada más: un idioma que no puede
   aceptar se rechaza *antes* de empezar cualquier trabajo, indicando el límite del modelo.
+- **Se puede transcribir una parte de la película sola**, con `--start` y `--end` — véase
+  [Transcribir una parte](#transcribir-una-parte). Así se prueba un modelo en dos minutos antes de ejecutarlo en
+  dos horas.
 - **Los segmentos se fusionan y se cortan** según los límites de los ajustes (`transcription.merge-gap-ms`,
   `transcription.max-duration-ms`, `transcription.max-characters`): dos fragmentos de una misma frase que están
   próximos forman un solo subtítulo, y un fragmento demasiado largo o demasiado ancho se corta en una palabra. **`--raw`
@@ -54,6 +58,8 @@ Options:
   --to TEXT:{srt,vtt,subviewer2,ssa,ass,microdvd,mpl2,tmplayer,lrc}
                               Format to write; the one the extension of --output says by default
   --audio-track N             Audio track of a video, counted from 0; the first by default
+  --start TIME                Where to begin, as 2:00, 1:02:03 or seconds; the beginning by default
+  --end TIME                  Where to stop, as 2:00, 1:02:03 or seconds; the end by default
   --language CODE             Language of the speech: fr, en; detected by default
   --model FILE                Model file; the transcription.model setting by default
   --engine NAME               Engine; the transcription.engine setting by default
@@ -70,6 +76,8 @@ Options:
 | `--to` | no | el nombre corto de un formato: `srt`, `vtt`, `subviewer2`, `ssa`, `ass`, `microdvd`, `mpl2`, `tmplayer`, `lrc` | el formato que indica la extensión de `--output`, si no `srt` |
 | `--audio-track` | no | un número entero desde 0: la posición entre las pistas de audio del vídeo | `0`, la primera |
 | `--language` | no | dos letras minúsculas, un código ISO 639-1: `en`, `fr` | el ajuste `transcription.language`; vacío: se detecta |
+| `--start` | no | un tiempo: `2:00`, `1:02:03`, `2:00.5`, o un número de segundos, `90` | el principio del audio |
+| `--end` | no | un tiempo, escrito como para `--start`; debe ir después de `--start` | el final del audio |
 | `--model` | no | el archivo de modelo | el ajuste `transcription.model` |
 | `--engine` | no | el nombre de un motor: `whisper.cpp` | el ajuste `transcription.engine` |
 | `--keep-audio` | no | un archivo donde conservar el audio extraído, como PCM mono de 16 kHz y 16 bits en un archivo WAV; su directorio se crea si falta | el audio no se conserva en ningún sitio |
@@ -105,6 +113,27 @@ audio track 0: fra, Original
 audio track 1: eng, Commentary
 ```
 
+## Transcribir una parte
+
+`--start` y `--end` restringen el trabajo a la parte de la película que hay entre ambos. Se puede dar solo uno: un
+`--start` solo llega hasta el final, un `--end` solo empieza por el principio.
+
+```bash
+subedit-cli transcribe --start 2:00 --end 3:30 --output test.srt --model large-v3.bin film.mkv
+```
+
+- **Un tiempo se escribe `M:SS`, `H:MM:SS`, ambos con una parte decimal tras un punto (`2:00.5`), o como un número de
+  segundos (`90`, `90.5`)**. Una coma se rechaza, como en toda la herramienta.
+- **Los subtítulos conservan el tiempo de la película**: la frase dicha en 2:10 de la película se escribe en `00:02:10`, no
+  en `00:00:10`. El archivo se puede superponer tal cual a toda la película.
+- **Los bordes son aproximados**: el motor trabaja con ventanas de treinta segundos, de modo que lo que devuelve se recorta
+  después al intervalo; una frase a caballo de un borde se corta en él.
+- **No empieza nada si el intervalo no se puede usar**: un límite que no es un tiempo, o un `--end` que no va después de
+  `--start`, es un error de uso que nombra el problema, no escribe nada y no ejecuta ni `ffmpeg` ni el
+  motor.
+
+El audio de toda la película se extrae igualmente: lo que el intervalo ahorra es la transcripción, mucho más larga.
+
 ## Salida
 
 **Salida estándar** — nada: el resultado es el archivo escrito.
@@ -112,7 +141,15 @@ audio track 1: eng, Commentary
 | Nivel | Lo que se añade en la salida de error |
 | :---- | :-------------------------------- |
 | 1 | `<input>: N subtitles transcribed, language: xx -> <output>` |
-| 2 | el progreso del motor, `transcribing: 25%`, tal como lo informa — a intervalos de unos treinta segundos de audio |
+| 2 | el paso y el progreso, una línea por cada por ciento: `extracting the audio…`, luego `transcribing…`, luego `transcribing: 25%, 0:12:30 of 0:50:00, about 38 min left` — el por ciento, la posición alcanzada en el audio y el tiempo restante |
+| 3 | y cada texto nuevo que obtiene el motor, `last text: …` |
+
+**El por ciento es la posición del motor en el audio, no un recuento de sus ventanas**: el motor escribe lo que ha
+transcrito a medida que avanza, y el comando lee hasta dónde ha llegado, de modo que la cifra se mueve desde el primer
+minuto. (El progreso propio del motor llega en pasos del 5 % del audio, una vez hecha una ventana de treinta segundos:
+por sí solo, puede quedarse en 0 % durante un cuarto de hora en una película larga con un modelo grande en un procesador.) **El
+tiempo restante calla al principio**: se da cuando se ha hecho trabajo suficiente para extrapolar, y sigue la velocidad del
+último minuto, no el promedio de toda la ejecución.
 
 ### En JSON
 
@@ -125,7 +162,7 @@ subtítulos escritos) y `counts.segments` (los fragmentos del motor a partir de 
 
 Los de la herramienta: `0` si se escribió el archivo, `2` si no se pudo — una herramienta o un modelo que falta, un
 idioma que el modelo no puede aceptar, una extracción o una transcripción fallida —, `1` en un error de uso, como
-un motor que nadie ha registrado.
+un motor que nadie ha registrado o un intervalo que no se puede usar.
 
 ## Errores
 
@@ -138,6 +175,8 @@ un motor que nadie ha registrado.
 | un idioma que el modelo no puede transcribir | `the model cannot transcribe the language xx` |
 | ningún idioma, y un modelo que no puede detectar ninguno | `the model cannot detect the language: give one` |
 | un motor que nadie ha registrado | `no transcription engine is called NAME` |
+| un límite del intervalo que no es un tiempo | `"TEXT" is not a time: write it as 2:00, 1:02:03 or 2:00.5, or in seconds` |
+| `--end` no posterior a `--start` | `the end of the range must come after its start` |
 | cualquier otro fallo | `the transcription failed`, con lo que dijo el motor |
 
 La referencia a la guía es `See the manual page "Installing the transcription tools"

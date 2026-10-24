@@ -108,7 +108,7 @@ staðsetningunum næst.
 hljóð **kvikmyndar verkefnisins**, aldrei skrá sem þú velur — til að umrita
 hljóðskrá skaltu nota [`transcribe`](../subedit-cli/transcribe.md) á skipanalínunni.
 
-Glugginn biður um tvennt og segir hvort hann geti byrjað:
+Glugginn biður um þrennt og segir hvort hann geti byrjað:
 
 - **hljóðrásina**, taldar upp eins og valmyndin [`Audio`](#hljóðrásin) telur þær upp, með tungumálinu
   og titlinum sem skráin gefur upp;
@@ -117,7 +117,9 @@ Glugginn biður um tvennt og segir hvort hann geti byrjað:
   **lína undir reitnum segir hvaðan það kemur**. Þegar skráin gefur ekkert tungumál upp fyrir rásina
   segir línan það: líkanið greinir það þá af hljóðinu, sem aðeins fjöltyngt líkan getur, og
   þú ættir að slá það inn ef þú veist það. Með líkani fyrir ensku eingöngu, sem greinir ekkert,
-  segir línan að slá þurfi tungumálið inn.
+  segir línan að slá þurfi tungumálið inn;
+- **hluta kvikmyndarinnar**, frá einum tíma til annars — sjá [Að prófa hluta fyrst](#að-prófa-hluta-fyrst). Séu báðir reitirnir
+  tómir er átt við alla kvikmyndina.
 
 **Hann segir líka hvað vantar.** Þrjár línur segja hvort vélin, `ffmpeg` og líkanið séu til staðar, og
 hvar; þegar eitthvað vantar helst `OK` óvirkt, og glugginn segir það með tilvísun á
@@ -132,11 +134,33 @@ Tungumálið er geymt til næsta skiptis. Vélin sjálf og mörk skjátextanna e
 hversu margir fara. Hann spyr áður en vinnan hefst, svo að það kosti ekkert að hafna. Þegar verkefnið er tómt er
 engu að spyrja um.
 
-Vinnan fer fram **í bakgrunni**, með glugga sem sýnir hversu langt vélin er komin og hnappi sem heitir `Cancel`;
-glugginn er áfram nothæfur í kringum hana. Þegar henni lýkur er skjátextum verkefnisins skipt út
+Vinnan fer fram **í bakgrunni**, með glugga og hnappi sem heitir `Cancel`; glugginn er áfram nothæfur í kringum hana. **Glugginn
+segir hvar vinnan er stödd**, svo að þú vitir að hún lifir og hve lengi hún tekur:
+
+- **skrefið**: fyrst „Dreg út hljóðið…“ — glugginn er þá upptekinn, án tölu, því útdráttur segir ekkert um hve langt er komið —,
+  síðan „Umrita hljóðið…“, með stiku;
+- **staðan**: „0:12:30 af 0:50:00“, hve langt inn í kvikmyndina vélin er komin, um leið og hún hefur skilað fyrsta textanum sínum;
+- **tíminn sem eftir er**, „um 38 mín. eftir“: fjarverandi í upphafi, birtur þegar nóg hefur verið unnið til að framreikna, og
+  reiknaður út frá hraða síðustu mínútu; nákvæmnin er nokkrar mínútur, ekki loforð;
+- **síðasti textinn** sem fékkst, svo að þú sjáir að vinnan er skynsamleg.
+
+Á langri kvikmynd með stóru líkani á örgjörva geta fyrstu mínúturnar verið langar: vélin er að hlaða og vinna í fyrstu
+þrjátíu sekúndna gluggunum sínum. Staðan og síðasti textinn hreyfast á undan eigin prósentu vélarinnar, sem kemur aðeins í skrefum
+upp á 5 % af kvikmyndinni. Þegar henni lýkur er skjátextum verkefnisins skipt út
 fyrir umritunina **í einni aðgerð**: ein `Undo` skilar því sem var, þýðingartextum
 meðtöldum. Umritun sem mistekst, eða sem þú hættir við, breytir engu — ástæðan
 er sögð í glugga, nema þegar hætt er við, en þá segir aðeins stöðulínan að hætt hafi verið við.
+
+### Að prófa hluta fyrst
+
+Bil gerir umritunina að **prófun**, til að meta líkan eða tungumál á tveimur mínútum áður en lagt er í
+tvær klukkustundir. Reitirnir „Hluti kvikmyndarinnar“ taka upphaf og endi, hvort um sig skrifað `2:00`, `1:02:03`, `2:00.5` eða fjöldi
+sekúndna, `90`; nóg er að fylla út annan (þaðan til enda, eða frá upphafi þangað). `OK` helst óvirkt meðan reitur
+er ekki tími eða endirinn kemur ekki á eftir upphafinu, og lína undir reitunum segir hvor það er.
+
+- **Skjátextarnir halda tíma kvikmyndarinnar**: það sem sagt er á 2:10 er á `0:02:10` í niðurstöðunni.
+- **Engu er skipt út og ekkert er spurt um.** Niðurstaðan opnast sem **sérstakt verkefni**, í nýjum flipa, án
+  skráar; verkefnið sem hún kom úr, og skjátextar þess, eru eins og áður. Vistaðu hana, eða lokaðu henni.
 
 **Það sem hún þarf fylgir ekki forritinu**: vél (whisper.cpp), líkan og `ffmpeg` til að draga hljóðið út.
 Sjá [Uppsetning umritunartækjanna](../subedit-cli/install-transcription.md).

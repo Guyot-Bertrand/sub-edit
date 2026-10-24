@@ -2,11 +2,17 @@
 
 #include <subedit/core/config/transcription_settings.hpp>
 #include <subedit/core/model/subtitle.hpp>
+#include <subedit/core/time/timestamp.hpp>
 #include <subedit/core/transcription/tools_status.hpp>
+#include <subedit/core/transcription/transcription_progress.hpp>
 
+#include <QString>
+
+#include <chrono>
 #include <expected>
 #include <filesystem>
 #include <functional>
+#include <optional>
 #include <string>
 #include <vector>
 
@@ -28,6 +34,10 @@ struct TranscriptionJob {
     std::filesystem::path model{};
 
     core::TranscriptionSettings settings{};
+
+    /// The part of the film to transcribe; all of it when not given.
+    std::optional<core::Timestamp> start{};
+    std::optional<core::Timestamp> end{};
 };
 
 /// What it came to: the subtitles, and the language they are in.
@@ -92,6 +102,11 @@ private:
     std::string m_searchPath;
     std::function<bool()> m_cancelProbe{};
 };
+
+/// What the progress box says of where the work stands: the step, the position in the film,
+/// the time left and the last text obtained, each when it is known.
+[[nodiscard]] QString transcriptionBoxLabel(const core::TranscriptionProgress& progress,
+                                            std::optional<std::chrono::seconds> left);
 
 /// The `PATH` of the process, empty when it has none.
 [[nodiscard]] std::string searchPathOfProcess();

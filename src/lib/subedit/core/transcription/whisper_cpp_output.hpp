@@ -4,6 +4,7 @@
 
 #include <cstddef>
 #include <optional>
+#include <string>
 #include <string_view>
 
 namespace subedit::core {
@@ -37,6 +38,27 @@ struct WhisperOutput {
 /// The progress, from 0 to 1, that a line of standard error reports — nothing
 /// for any other line. The tool writes `progress =  25%` and the like.
 [[nodiscard]] std::optional<double> readWhisperProgress(std::string_view line);
+
+/// A piece of speech as the tool prints it while it works.
+struct WhisperSegmentLine {
+    Timestamp start;
+    Timestamp end;
+    std::string text;
+};
+
+/// A line of standard output of the form `[00:01:00.000 --> 00:01:17.000]   And so…`, read —
+/// nothing for any other line.
+///
+/// **This is what tells how far the tool is**, long before its own progress does: the tool
+/// reports the progress by steps of 5 % of the audio and only once a window of thirty
+/// seconds is done, which on a long film and a large model on a processor is a quarter of
+/// an hour of silence at 0 %. The segments come as they are decoded.
+[[nodiscard]] std::optional<WhisperSegmentLine> readWhisperSegmentLine(std::string_view line);
+
+/// The length of the audio that the line the tool prints when it starts —
+/// `main: processing 'f.wav' (176000 samples, 11.0 sec), …` — gives, or nothing for any
+/// other line.
+[[nodiscard]] std::optional<Timestamp> readWhisperAudioLength(std::string_view line);
 
 /// Whether the model whose first bytes are `header` is multilingual — nothing
 /// when they are not those of a model.

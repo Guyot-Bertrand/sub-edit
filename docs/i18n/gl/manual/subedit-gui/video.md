@@ -108,7 +108,7 @@ a [grade deducida das posicións](frame-grid.md), que é outro.
 o son da **película do proxecto**, e nunca un ficheiro que escollese — para transcribir un
 ficheiro de son, use [`transcribe`](../subedit-cli/transcribe.md) na liña de ordes.
 
-O diálogo pide dúas cousas, e di se pode comezar:
+O diálogo pide tres cousas, e di se pode comezar:
 
 - **a pista de son**, listada como a lista o menú [`Audio`](#a-pista-de-son), coa lingua
   e o título que declara o ficheiro;
@@ -116,7 +116,9 @@ O diálogo pide dúas cousas, e di se pode comezar:
   ficheiro a declara, segue a pista mentres non teclee unha, e
   **unha liña baixo o campo di de onde vén**. Cando o ficheiro non declara ningunha lingua para a pista,
   a liña di que o modelo a detectará entón a partir do son, o que só fai un modelo multilingüe, e que
-  debería teclear a lingua se a coñece. Cun modelo só para inglés, que non detecta nada, a liña di que a lingua hai que tecleala.
+  debería teclear a lingua se a coñece. Cun modelo só para inglés, que non detecta nada, a liña di que a lingua hai que tecleala;
+- **a parte da película**, desde un tempo ata outro — véxase [Probar primeiro unha parte](#probar-primeiro-unha-parte). Cos dous campos
+  baleiros, é toda a película.
 
 **Tamén di o que falta.** Tres liñas din se o motor, `ffmpeg` e o modelo están aí, e
 onde; cando algún non está, `OK` queda apagado, e o diálogo dío co enlace a
@@ -131,11 +133,33 @@ A lingua consérvase para a próxima vez. O motor en si e os límites dos subtí
 cantos se van. Pregunta antes do traballo, para que rexeitar non custe nada. Cando o proxecto está baleiro non hai
 nada que preguntar.
 
-O traballo faise **en segundo plano**, cunha caixa que mostra ata onde chegou o motor e un botón `Cancel`;
-a xanela segue sendo utilizable arredor. Cando remata, os subtítulos do proxecto substitúense
+O traballo faise **en segundo plano**, cunha caixa e un botón `Cancel`; a xanela segue sendo utilizable arredor. **A caixa
+di en que punto está o traballo**, para que saiba que está vivo e canto vai tardar:
+
+- **o paso**: primeiro “Extraendo o son…” — a caixa está entón ocupada, sen cifra, porque extraer non di nada de ata onde chegou —,
+  despois “Transcribindo o son…”, cunha barra;
+- **a posición**: “0:12:30 de 0:50:00”, ata onde chegou o motor na película, en canto produciu o seu primeiro texto;
+- **o tempo que queda**, “quedan uns 38 min”: ausente ao principio, mostrado cando hai traballo feito dabondo para extrapolar, e calculado
+  coa velocidade do último minuto; é unha precisión de poucos minutos, non unha promesa;
+- **o último texto** obtido, para ver que o traballo ten sentido.
+
+Nunha película longa cun modelo grande nun procesador, os primeiros minutos poden ser longos: o motor está cargando e traballando nas súas primeiras
+xanelas de trinta segundos. A posición e o último texto móvense antes que o por cento propio do motor, que só vén a pasos
+do 5 % da película. Cando remata, os subtítulos do proxecto substitúense
 pola transcrición **nunha única operación**: un `Undo` devolve o que había, textos
 de tradución incluídos. Unha transcrición que falla, ou que cancela, non cambia nada — o motivo
 dise nunha caixa, salvo nunha cancelación, que só o di na barra de estado.
+
+### Probar primeiro unha parte
+
+Un intervalo converte a transcrición nunha **proba**, para xulgar un modelo ou unha lingua en dous minutos antes de comprometerse con
+dúas horas. Os campos “Parte da película” toman un comezo e un final, cada un escrito `2:00`, `1:02:03`, `2:00.5` ou un número
+de segundos, `90`; permítese só un (desde aí ata o final, ou desde o principio ata aí). `OK` queda apagado mentres un campo non
+é un tempo ou o final non vén despois do comezo, e unha liña baixo os campos di cal.
+
+- **Os subtítulos conservan o tempo da película**: o que se di aos 2:10 está en `0:02:10` no resultado.
+- **Non se substitúe nada e non se pregunta nada.** O resultado ábrese como **un proxecto propio**, nunha pestana nova, sen
+  ficheiro; o proxecto de onde vén, e os seus subtítulos, quedan como estaban. Gárdeo, ou péchao.
 
 **O que necesita non vén co programa**: un motor (whisper.cpp), un modelo e `ffmpeg` para extraer o son.
 Vexa [Instalar as ferramentas de transcrición](../subedit-cli/install-transcription.md).

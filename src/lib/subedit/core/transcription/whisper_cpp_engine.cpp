@@ -4,6 +4,8 @@
 #include <subedit/core/transcription/whisper_cpp_engine.hpp>
 #include <subedit/core/transcription/whisper_cpp_output.hpp>
 
+#include <algorithm>
+#include <cstdint>
 #include <fstream>
 #include <iterator>
 #include <string>
@@ -40,6 +42,103 @@ constexpr int kNotAudio = 11;
         return error(TranscriptionErrorKind::AudioUnreadable, std::move(lastError));
     default:
         return error(TranscriptionErrorKind::Failed, std::move(lastError));
+    }
+}
+
+/// What a run has learnt of how far it is.
+///
+/// **The tool's own progress comes in steps of 5 % and after a window of thirty seconds**, so
+/// that a long film on a large model stays at 0 % for a long while. The segments it prints
+/// as it decodes them are the finer clock, and the two are folded into one fraction that
+/// only goes up.
+class RunProgress {
+public:
+    RunProgress(const TranscriptionRequest& request, const TranscriptionObserver& observer)
+        : m_observer(observer),
+          m_start(request.start.value_or(Timestamp::origin())),
+          m_end(request.end) {}
+
+    void audioLength(Timestamp length) {
+        m_total = m_end ? std::min(*m_end, length) : length;
+        m_state.total = m_total;
+    }
+
+    void segment(const WhisperSegmentLine& line) {
+        m_state.position = m_total ? std::min(line.end, *m_total) : line.end;
+        m_state.lastText = line.text;
+        if (const std::optional<double> done = fractionAt(line.end))
+            raise(std::min(*done, kBeforeTheEnd));
+        publish();
+    }
+
+    void windowDone(double fraction) {
+        raise(fraction);
+        publish();
+    }
+
+    void begin() { publish(); }
+
+    void finish() {
+        m_state.fraction = 1.0;
+        publish();
+    }
+
+private:
+    /// What a position inside the range stands for, once the end of the range is known.
+    [[nodiscard]] std::optional<double> fractionAt(Timestamp position) const {
+        if (!m_total || m_total->milliseconds() <= m_start.milliseconds())
+            return std::nullopt;
+        const auto span = static_cast<double>(m_total->milliseconds() - m_start.milliseconds());
+        const auto done = static_cast<double>(position.milliseconds() - m_start.milliseconds());
+        return std::clamp(done / span, 0.0, 1.0);
+    }
+
+    void raise(double fraction) {
+        m_state.fraction = std::max(m_state.fraction.value_or(0.0), fraction);
+    }
+
+    void publish() const { m_observer.advance(m_state); }
+
+    /// A fraction taken from the segments never reaches 1: only the end of the run says so.
+    static constexpr double kBeforeTheEnd = 0.99;
+
+    const TranscriptionObserver& m_observer;
+    Timestamp m_start;
+    std::optional<Timestamp> m_end;
+    std::optional<Timestamp> m_total{};
+    TranscriptionProgress m_state{.stage = TranscriptionStage::Transcribing};
+};
+
+/// The arguments that restrict the tool to the range of `request`.
+void addRange(const TranscriptionRequest& request, std::vector<std::string>& arguments) {
+    const std::int64_t start = request.start ? request.start->milliseconds() : 0;
+    if (start > 0) {
+        arguments.emplace_back("-ot");
+        arguments.push_back(std::to_string(start));
+    }
+    if (request.end) {
+        arguments.emplace_back("-d");
+        arguments.push_back(std::to_string(request.end->milliseconds() - start));
+    }
+}
+
+/// Keeps what lies inside the range. **The tool decodes whole windows**, so that its last
+/// segment can run past the end that was asked for.
+void clipToRange(const TranscriptionRequest& request, std::vector<TranscribedSegment>& segments) {
+    if (!request.end && !request.start)
+        return;
+    const Timestamp from = request.start.value_or(Timestamp::origin());
+    std::erase_if(segments, [&](const TranscribedSegment& segment) {
+        return segment.end <= from || (request.end && segment.start >= *request.end);
+    });
+    if (!request.end)
+        return;
+    for (TranscribedSegment& segment : segments) {
+        segment.end = std::min(segment.end, *request.end);
+        std::erase_if(segment.words,
+                      [&](const TimedWord& word) { return word.start >= *request.end; });
+        for (TimedWord& word : segment.words)
+            word.end = std::min(word.end, *request.end);
     }
 }
 
@@ -90,30 +189,38 @@ WhisperCppEngine::run(const TranscriptionRequest& request,
         return std::unexpected(error(TranscriptionErrorKind::Failed));
     const std::filesystem::path prefix = work.path() / "out";
 
-    const std::vector<std::string> arguments{
-        "-m",
-        request.model.value_or(std::filesystem::path{}).string(),
-        "-f",
-        request.audio.string(),
-        "-l",
-        request.language.value_or("auto"),
-        "-pp",
-        "-oj",
-        "-ojf",
-        "-of",
-        prefix.string()};
+    const std::vector<std::string> fixed{"-m",
+                                         request.model.value_or(std::filesystem::path{}).string(),
+                                         "-f",
+                                         request.audio.string(),
+                                         "-l",
+                                         request.language.value_or("auto"),
+                                         "-pp",
+                                         "-oj",
+                                         "-ojf",
+                                         "-of",
+                                         prefix.string()};
+    std::vector<std::string> arguments = fixed;
+    addRange(request, arguments);
 
+    RunProgress progress{request, observer};
     std::string lastError;
     StreamObserver streamed;
     streamed.cancelled = [&observer] { return observer.isCancelled(); };
     streamed.onLine = [&](const StreamedLine& line) {
-        if (line.stream != StreamName::Error)
+        if (line.stream == StreamName::Output) {
+            if (const std::optional<WhisperSegmentLine> segment = readWhisperSegmentLine(line.text))
+                progress.segment(*segment);
             return;
-        if (const std::optional<double> progress = readWhisperProgress(line.text))
-            observer.report(*progress);
+        }
+        if (const std::optional<double> done = readWhisperProgress(line.text))
+            progress.windowDone(*done);
+        else if (const std::optional<Timestamp> length = readWhisperAudioLength(line.text))
+            progress.audioLength(*length);
         else if (line.text.starts_with("error:"))
             lastError = line.text;
     };
+    progress.begin();
 
     const std::expected<StreamedRun, LaunchError> ran =
         runStreaming(m_executable, arguments, streamed);
@@ -131,7 +238,8 @@ WhisperCppEngine::run(const TranscriptionRequest& request,
     if (!output)
         return std::unexpected(error(TranscriptionErrorKind::Failed));
 
-    observer.report(1.0);
+    clipToRange(request, output->transcription.segments);
+    progress.finish();
     return std::move(output->transcription);
 }
 

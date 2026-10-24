@@ -158,8 +158,8 @@ text      \[br\]
 file      src/lib/subedit/core/text/correction_pattern.cpp capitalization
 file      src/lib/subedit/core/text/pattern_catalogue.cpp Group|Penalty|name|enabled|true
 
-[tool-output] What an external tool writes and the program reads, and the values it is given: the keys of whisper.cpp's JSON, the marker of its progress lines, the magic number of a model, the tags of `ffprobe`, the keywords of JSON itself. The tool's syntax, not words for a reader (#774, #775, #776).
+[tool-output] What an external tool writes and the program reads, and the values it is given: the keys of whisper.cpp's JSON, the marker of its progress lines and the banner and segment lines it prints, the magic number of a model, the tags of `ffprobe`, the keywords of JSON itself. The tool's syntax, not words for a reader (#774, #775, #776).
 file      src/lib/subedit/core/transcription/audio_source.cpp \S+
-file      src/lib/subedit/core/transcription/whisper_cpp_output.cpp progress =|\S+
+file      src/lib/subedit/core/transcription/whisper_cpp_output.cpp progress =| --> |main: processing| samples, | sec|\S+
 file      src/lib/subedit/core/transcription/whisper_cpp_engine.cpp en|auto
 file      src/lib/subedit/core/io/json_reader.cpp true|false|null|bfnrt

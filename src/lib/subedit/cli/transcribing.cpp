@@ -6,7 +6,9 @@
 #include <subedit/core/io/atomic_write.hpp>
 #include <subedit/core/model/subtitle.hpp>
 #include <subedit/core/transcription/audio_source.hpp>
+#include <subedit/core/transcription/remaining_time.hpp>
 #include <subedit/core/transcription/subtitle_assembly.hpp>
+#include <subedit/core/transcription/time_range.hpp>
 #include <subedit/core/transcription/transcribe_media.hpp>
 #include <subedit/core/wording/formats.hpp>
 #include <subedit/core/wording/transcription.hpp>
@@ -27,6 +29,43 @@ namespace {
 using core::TranscriptionErrorKind;
 
 constexpr double kPercent = 100.0;
+
+/// Says how the work goes, as it goes: **one line per percent and per step** at the second
+/// level of detail, and each new text at the third. The time left is worked out from the
+/// fractions it sees.
+class ProgressNarration {
+public:
+    explicit ProgressNarration(const Reporter& reporter) : m_reporter(reporter) {}
+
+    void operator()(const core::TranscriptionProgress& progress) {
+        const auto now = core::RemainingTime::Clock::now();
+        if (progress.fraction)
+            m_remaining.note(*progress.fraction, now);
+
+        const int percent =
+            progress.fraction ? static_cast<int>(*progress.fraction * kPercent) : -1;
+        const bool changed =
+            !m_shown || m_shown->first != progress.stage || m_shown->second != percent;
+        if (changed) {
+            m_shown = std::pair{progress.stage, percent};
+            std::string line;
+            for (const std::string& part :
+                 core::transcriptionStatusParts(progress, m_remaining.left(now)))
+                line += (line.empty() ? "" : ", ") + part;
+            m_reporter.say(2, line);
+        }
+        if (!progress.lastText.empty() && progress.lastText != m_lastText) {
+            m_lastText = progress.lastText;
+            m_reporter.say(3, core::lastTextLine(m_lastText));
+        }
+    }
+
+private:
+    const Reporter& m_reporter;
+    core::RemainingTime m_remaining;
+    std::optional<std::pair<core::TranscriptionStage, int>> m_shown{};
+    std::string m_lastText;
+};
 
 [[nodiscard]] std::string_view idOf(TranscriptionErrorKind kind) {
     switch (kind) {
@@ -127,12 +166,28 @@ ExitCode transcribeFile(core::FileSystem& files,
     if (!modelPath.empty())
         request.model = modelPath;
 
+    for (const auto& [text, bound] :
+         {std::pair<const std::string&, std::optional<core::Timestamp>&>{options.start,
+                                                                         request.start},
+          std::pair<const std::string&, std::optional<core::Timestamp>&>{options.end,
+                                                                         request.end}}) {
+        if (text.empty())
+            continue;
+        bound = core::readRangeBound(text);
+        if (!bound) {
+            reporter.failed(core::notATimeInRange(text));
+            return ExitCode::Usage;
+        }
+    }
+    if (!core::isRangePossible(request.start, request.end)) {
+        reporter.failed(core::emptyRange());
+        return ExitCode::Usage;
+    }
+
+    ProgressNarration narration{reporter};
     const core::TranscriptionObserver observer{
-        .progress =
-            [&reporter](double fraction) {
-                reporter.say(
-                    2, core::transcriptionProgressText(static_cast<int>(fraction * kPercent)));
-            },
+        .advanced =
+            [&narration](const core::TranscriptionProgress& progress) { narration(progress); },
         .cancelled = cancelled};
     const auto transcribed = core::transcribeMedia(files, *engine, searchPath, request, observer);
     if (!transcribed) {

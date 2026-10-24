@@ -156,6 +156,8 @@ add_library(
     transcription/engine_registry.cpp
     transcription/language_codes.cpp
     transcription/subtitle_assembly.cpp
+    transcription/remaining_time.cpp
+    transcription/time_range.cpp
     transcription/tools_status.cpp
     transcription/transcribe_media.cpp
     transcription/transcription_engine.cpp

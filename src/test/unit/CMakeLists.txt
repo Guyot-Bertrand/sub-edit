@@ -120,6 +120,7 @@ add_executable(
     core/transcription/json_reader_test.cpp
     core/transcription/subtitle_assembly_test.cpp
     core/transcription/tools_status_test.cpp
+    core/transcription/transcription_progress_test.cpp
     core/transcription/transcription_wording_test.cpp
     core/transcription/whisper_cpp_engine_test.cpp
     core/transcription/whisper_cpp_output_test.cpp

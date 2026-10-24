@@ -15,6 +15,7 @@ do not edit it by hand.
 - **gui** — Add Transcribe Audio… to the window and the manuals
 - **cli** — Transcribe audio from the command line and the window
 - **gui** — Show the transcription tools and set them in preferences
+- **cli** — Show progress, time left and a time range for transcription
 
 ### Documentation
 

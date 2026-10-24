@@ -40,6 +40,11 @@ struct TranscribeOptions {
     /// A file to keep the extracted audio in.
     std::string keepAudio{};
 
+    /// The part of the film to transcribe, as typed (`2:00`, `1:02:03`, seconds); empty for
+    /// no bound.
+    std::string start{};
+    std::string end{};
+
     /// Write the segments as the engine cut them, with no post-processing.
     bool raw = false;
 };

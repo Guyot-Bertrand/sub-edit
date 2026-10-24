@@ -79,8 +79,12 @@ struct World {
     std::filesystem::path video = scratch.write("film.mkv", "video");
     std::filesystem::path output = scratch.file("out/film.srt");
 
+    std::shared_ptr<subedit::core::TranscriptionRequest> seen =
+        std::make_shared<subedit::core::TranscriptionRequest>();
+
     World() {
         FakeEngineScript script;
+        script.seen = seen;
         script.name = "whisper.cpp";
         script.capabilities = {.languageDetection = true, .needsModel = false};
         script.segments = {segment(0, 1500, "I was going to"), segment(1600, 3000, "tell you.")};
@@ -309,4 +313,82 @@ TEST_CASE("a transcription that is stopped fails the file with a cancellation",
     CHECK(code == ExitCode::AllFailed);
     CHECK_THAT(world.records.str(), ContainsSubstring("\"kind\":\"cancelled\""));
     (void)sample;
+}
+
+// ## How far it is, and a range
+
+TEST_CASE("the third level adds the text obtained, once per new text", "[cli][transcribe]") {
+    World world;
+    world.settings.language = "fr";
+    world.settings.model = world.scratch.write("m.bin", "model");
+
+    (void)world.run(
+        TranscribeOptions{.input = world.audio.string(), .output = world.output.string()}, 3);
+
+    const std::string said = world.errors.str();
+    CHECK_THAT(said, ContainsSubstring("last text: I was going to"));
+    // Four reports of the same text, said once.
+    CHECK(said.find("last text:") == said.rfind("last text:"));
+}
+
+TEST_CASE("the second level says each percent once, with the step", "[cli][transcribe]") {
+    World world;
+    world.settings.language = "fr";
+
+    (void)world.run(
+        TranscribeOptions{.input = world.audio.string(), .output = world.output.string()}, 2);
+
+    const std::string said = world.errors.str();
+    CHECK_THAT(said, ContainsSubstring("transcribing: 25%"));
+    CHECK_THAT(said, ContainsSubstring("transcribing: 100%"));
+    CHECK(said.find("transcribing: 50%") == said.rfind("transcribing: 50%"));
+}
+
+TEST_CASE("a range reaches the engine, in the time of the film", "[cli][transcribe][range]") {
+    World world;
+    world.settings.language = "fr";
+
+    const ExitCode code = world.run(TranscribeOptions{.input = world.audio.string(),
+                                                      .output = world.output.string(),
+                                                      .start = "2:00",
+                                                      .end = "210"});
+
+    CHECK(code == ExitCode::Success);
+    CHECK(world.seen->start == subedit::core::Timestamp::fromMilliseconds(120000));
+    CHECK(world.seen->end == subedit::core::Timestamp::fromMilliseconds(210000));
+}
+
+TEST_CASE("no range is no bound", "[cli][transcribe][range]") {
+    World world;
+    world.settings.language = "fr";
+
+    (void)world.run(
+        TranscribeOptions{.input = world.audio.string(), .output = world.output.string()});
+
+    CHECK_FALSE(world.seen->start.has_value());
+    CHECK_FALSE(world.seen->end.has_value());
+}
+
+TEST_CASE("a bound that is no time, or a range with its end first, is a usage error",
+          "[cli][transcribe][range]") {
+    World world;
+    world.settings.language = "fr";
+
+    CHECK(world.run(TranscribeOptions{.input = world.audio.string(),
+                                      .output = world.output.string(),
+                                      .start = "soon"}) == ExitCode::Usage);
+    CHECK_THAT(world.errors.str(), ContainsSubstring("\"soon\" is not a time"));
+
+    CHECK(world.run(TranscribeOptions{.input = world.audio.string(),
+                                      .output = world.output.string(),
+                                      .end = "1:xx"}) == ExitCode::Usage);
+
+    CHECK(world.run(TranscribeOptions{.input = world.audio.string(),
+                                      .output = world.output.string(),
+                                      .start = "3:00",
+                                      .end = "2:00"}) == ExitCode::Usage);
+    CHECK_THAT(world.errors.str(), ContainsSubstring("the end of the range must come after"));
+    // Nothing was written, and the engine was never asked.
+    CHECK_FALSE(std::filesystem::exists(world.output));
+    CHECK(world.seen->audio.empty());
 }

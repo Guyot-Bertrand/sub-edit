@@ -33,7 +33,9 @@
 //   - `--ignore-term` makes it ignore `SIGTERM`, so that only `SIGKILL` ends it;
 //   - `--no-echo` keeps it from writing its arguments, and `--stdout-from=FILE`
 //     makes it write FILE to standard output instead: that is `ffprobe`, whose
-//     answer is the only thing it says.
+//     answer is the only thing it says;
+//   - `--stderr-from=FILE` writes FILE to standard error, before any progress line: the
+//     banner `whisper-cli` prints when it starts.
 //
 // It decodes no audio and reads no model: whatever the call names is neither
 // opened nor checked. That is deliberate — a test that needs the adapter to
@@ -71,8 +73,10 @@ constexpr std::string_view kTruncateFlag = "--truncate-output";
 constexpr std::string_view kUnfinishedFlag = "--unfinished-line";
 constexpr std::string_view kDetachFlag = "--detach-streams";
 constexpr std::string_view kIgnoreTermFlag = "--ignore-term";
+constexpr std::chrono::milliseconds kBannerPause{300};
 constexpr std::string_view kNoEchoFlag = "--no-echo";
 constexpr std::string_view kStdoutFlag = "--stdout-from=";
+constexpr std::string_view kStderrFlag = "--stderr-from=";
 constexpr std::string_view kPrefixFlag = "-of";
 
 /// What a transcriber says when it cannot go on. The text matters little; that
@@ -148,6 +152,15 @@ int main(int argc, char** argv) {
 
     if (has(arguments, kIgnoreTermFlag))
         std::signal(SIGTERM, SIG_IGN);
+
+    // The banner comes first and alone: the two streams are read side by side, and the pause is
+    // what lets a test rely on the order the real tool has.
+    if (const auto source = valueOf(arguments, kStderrFlag)) {
+        const std::ifstream file{*source, std::ios::binary};
+        std::cerr << file.rdbuf();
+        std::cerr.flush();
+        std::this_thread::sleep_for(kBannerPause);
+    }
 
     if (!has(arguments, kNoEchoFlag))
         for (const std::string& argument : arguments)
