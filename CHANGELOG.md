@@ -14,6 +14,7 @@ do not edit it by hand.
 - **cli** — Add the transcribe command and its settings
 - **gui** — Add Transcribe Audio… to the window and the manuals
 - **cli** — Transcribe audio from the command line and the window
+- **gui** — Show the transcription tools and set them in preferences
 
 ## 1.0.9 — 2026-10-23
 
