@@ -15,10 +15,16 @@ do not edit it by hand.
 - **gui** — Add Transcribe Audio… to the window and the manuals
 - **cli** — Transcribe audio from the command line and the window
 - **gui** — Show the transcription tools and set them in preferences
+- **cli** — Show progress, time left and a time range for transcription
 
 ### Documentation
 
 - **doc** — Explain installing whisper-cli with cmake --install
+
+### Fixed
+
+- **gui** — Warn on a wrong language, fix the box, ask HH:MM:SS
+- **gui** — Fix the time left, keep the position above the text
 
 ## 1.0.9 — 2026-10-23
 

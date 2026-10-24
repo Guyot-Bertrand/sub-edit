@@ -1116,8 +1116,20 @@ msgid "Audio track of a video, counted from 0; the first by default"
 msgstr "Ścieżka dźwiękowa filmu, numerowana od 0; domyślnie pierwsza"
 
 #: src/exe/cli/commands/transcribe.cpp
-msgid "Language of the speech: fr, en; detected by default"
-msgstr "Język mowy: fr, en; domyślnie wykrywany"
+msgid "Where to begin, as 2:00, 1:02:03 or seconds; the beginning by default"
+msgstr "Od kiedy zacząć, jako 2:00, 1:02:03 lub sekundy; domyślnie od początku"
+
+#: src/exe/cli/commands/transcribe.cpp
+msgid "Where to stop, as 2:00, 1:02:03 or seconds; the end by default"
+msgstr "Gdzie skończyć, jako 2:00, 1:02:03 lub sekundy; domyślnie na końcu"
+
+#: src/exe/cli/commands/transcribe.cpp
+msgid ""
+"Language of the speech, two letters: fr, en, de; detected from the first 30 "
+"seconds by default"
+msgstr ""
+"Język mowy, dwie litery: fr, en, de; domyślnie wykrywany z pierwszych 30 "
+"sekund"
 
 #: src/exe/cli/commands/transcribe.cpp
 msgid "Model file; the transcription.model setting by default"
@@ -3621,47 +3633,107 @@ msgstr[3] ""
 "%1 napisu tego projektu zostanie zastąpione transkrypcją. Można to cofnąć."
 
 #: src/lib/subedit/core/wording/transcription.cpp
+msgid ""
+"\"%1\" is not a time: write it as 2:00, 1:02:03 or 2:00.5, or in seconds"
+msgstr ""
+"„%1” nie jest czasem: zapisz go jako 2:00, 1:02:03 lub 2:00.5, albo w "
+"sekundach"
+
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid ""
+"%1 of the %2 pieces are only notes in brackets, such as [MUSIC PLAYING]: the "
+"language used (%3) is probably not the one spoken, and the engine may have "
+"translated the speech. Run it again with the language typed."
+msgstr ""
+"%1 z %2 fragmentów to tylko uwagi w nawiasach, takie jak [MUSIC PLAYING]: "
+"użyty język (%3) prawdopodobnie nie jest tym, w którym mówiono, a silnik "
+"mógł przetłumaczyć mowę. Uruchom ponownie, wpisując język."
+
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid ""
+"This model is for English only: whatever language the film speaks, the "
+"result will be English, or notes in brackets. Choose a multilingual model in "
+"the preferences."
+msgstr ""
+"Ten model jest tylko dla angielskiego: niezależnie od języka filmu wynik "
+"będzie po angielsku albo będzie składał się z uwag w nawiasach. Wybierz "
+"model wielojęzyczny w preferencjach."
+
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid ""
+"\"%1\" is not a language code: write two letters, such as fr, en, de or es"
+msgstr "„%1” nie jest kodem języka: wpisz dwie litery, np. fr, en, de lub es"
+
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "the end of the range must come after its start"
+msgstr "koniec zakresu musi następować po jego początku"
+
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "less than a minute left"
+msgstr "zostało mniej niż minuta"
+
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "about %1 min left"
+msgstr "zostało około %1 min"
+
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "about %1 h %2 min left"
+msgstr "zostało około %1 godz. %2 min"
+
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "extracting the audio…"
+msgstr "wyodrębnianie dźwięku…"
+
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "transcribing…"
+msgstr "transkrypcja…"
+
+#: src/lib/subedit/core/wording/transcription.cpp
+#: src/lib/subedit/gui/transcription_runner.cpp
+msgid "%1 of %2"
+msgstr "%1 z %2"
+
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "elapsed: %1"
+msgstr "upłynęło: %1"
+
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "last text: %1"
+msgstr "ostatni tekst: %1"
+
 #: src/lib/subedit/core/wording/transcription.cpp
 msgid "%1: found (%2)"
 msgstr "%1: znaleziono (%2)"
 
 # From Gaupol.
 #: src/lib/subedit/core/wording/transcription.cpp
-#: src/lib/subedit/core/wording/transcription.cpp
 msgid "%1: not found"
 msgstr "%1: nie znaleziono"
 
-#: src/lib/subedit/core/wording/transcription.cpp
 #: src/lib/subedit/core/wording/transcription.cpp
 msgid "ffmpeg: found"
 msgstr "ffmpeg: znaleziono"
 
 #: src/lib/subedit/core/wording/transcription.cpp
-#: src/lib/subedit/core/wording/transcription.cpp
 msgid "ffmpeg: not found"
 msgstr "ffmpeg: nie znaleziono"
 
-#: src/lib/subedit/core/wording/transcription.cpp
 #: src/lib/subedit/core/wording/transcription.cpp
 msgid "Model: none set"
 msgstr "Model: nie ustawiono"
 
 #: src/lib/subedit/core/wording/transcription.cpp
-#: src/lib/subedit/core/wording/transcription.cpp
 msgid "Model: not found (%1)"
 msgstr "Model: nie znaleziono (%1)"
 
-#: src/lib/subedit/core/wording/transcription.cpp
 #: src/lib/subedit/core/wording/transcription.cpp
 msgid "Model: not a model (%1)"
 msgstr "Model: to nie jest model (%1)"
 
 #: src/lib/subedit/core/wording/transcription.cpp
-#: src/lib/subedit/core/wording/transcription.cpp
 msgid "Model: English only (%1)"
 msgstr "Model: tylko angielski (%1)"
 
-#: src/lib/subedit/core/wording/transcription.cpp
 #: src/lib/subedit/core/wording/transcription.cpp
 msgid "Model: multilingual (%1)"
 msgstr "Model: wielojęzyczny (%1)"
@@ -4565,11 +4637,9 @@ msgid "Frame step"
 msgstr "Krok w klatkach"
 
 #: src/lib/subedit/gui/preferences_dialog.cpp
-#: src/lib/subedit/gui/preferences_dialog.cpp
 msgid "Searched for on the PATH"
 msgstr "Szukany w PATH"
 
-#: src/lib/subedit/gui/preferences_dialog.cpp
 #: src/lib/subedit/gui/preferences_dialog.cpp
 msgid "Program"
 msgstr "Program"
@@ -4579,7 +4649,6 @@ msgid "Model"
 msgstr "Model"
 
 # From Gaupol.
-#: src/lib/subedit/gui/preferences_dialog.cpp
 #: src/lib/subedit/gui/preferences_dialog.cpp
 msgid "Transcription"
 msgstr "Transkrypcja"
@@ -4645,7 +4714,6 @@ msgstr "Wybierz plik wideo"
 msgid "Choose a model"
 msgstr "Wybierz model"
 
-#: src/lib/subedit/gui/qt_prompts.cpp
 #: src/lib/subedit/gui/qt_prompts.cpp
 msgid "Choose the program"
 msgstr "Wybierz program"
@@ -4962,7 +5030,6 @@ msgid "Main"
 msgstr "Główny"
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
-#: src/lib/subedit/gui/transcribe_dialog.cpp
 msgid "Preferences…"
 msgstr "Preferencje…"
 
@@ -4976,26 +5043,30 @@ msgid "First audio track"
 msgstr "Pierwsza ścieżka dźwiękowa"
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
-#: src/lib/subedit/gui/transcribe_dialog.cpp
 msgid "Detected from the sound"
 msgstr "Wykrywany z dźwięku"
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
 msgid ""
-"A two-letter language code such as en or fr. Leave it empty to let the model "
-"detect the language."
+"A language code such as fr, en, de, es or it (fra and eng work too). Leave "
+"it empty to let the model detect the language from the first 30 seconds of "
+"sound."
 msgstr ""
-"Dwuliterowy kod języka, taki jak en lub fr. Zostaw puste, aby model wykrył "
-"język."
+"Kod języka, taki jak fr, en, de, es lub it (fra i eng też działają). Zostaw "
+"puste, aby model wykrył język z pierwszych 30 sekund dźwięku."
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
 msgid ""
-"The audio of the film open in this window is transcribed into subtitles that "
-"replace the ones of the project. The work runs in the background and can be "
-"cancelled."
+"A time as HH:MM:SS, for example 00:02:00. Leave both empty to transcribe the "
+"whole film."
 msgstr ""
-"Dźwięk filmu otwartego w tym oknie jest transkrybowany na napisy, które "
-"zastępują napisy projektu. Praca przebiega w tle i można ją anulować."
+"Czas w formacie HH:MM:SS, na przykład 00:02:00. Pozostaw oba puste, aby "
+"transkrybować cały film."
+
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+msgid "The audio of the film open in this window is transcribed into subtitles that replace the ones of the project. The work runs in the background and can be cancelled."
+msgstr "Dźwięk filmu otwartego w tym oknie jest transkrybowany na napisy, które zastępują napisy projektu. Praca przebiega w tle i można ją anulować."
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
 msgid "Audio track"
@@ -5006,38 +5077,53 @@ msgid "Language"
 msgstr "Język"
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
+msgid "to"
+msgstr "do"
+
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+msgid "Part of the film"
+msgstr "Fragment filmu"
+
 #: src/lib/subedit/gui/transcribe_dialog.cpp
 msgid "Set them in the preferences."
 msgstr "Ustaw je w preferencjach."
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
-#: src/lib/subedit/gui/transcribe_dialog.cpp
-msgid "This model cannot detect the language: type it."
-msgstr "Ten model nie potrafi wykryć języka: wpisz go."
-
-#: src/lib/subedit/gui/transcribe_dialog.cpp
-#: src/lib/subedit/gui/transcribe_dialog.cpp
 msgid "The language you typed is used."
 msgstr "Używany jest język, który wpisałeś."
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
-#: src/lib/subedit/gui/transcribe_dialog.cpp
 msgid "Proposed from the language the file declares for this track."
-msgstr "Zaproponowany na podstawie języka, który plik deklaruje dla tej ścieżki."
+msgstr ""
+"Zaproponowany na podstawie języka, który plik deklaruje dla tej ścieżki."
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
-#: src/lib/subedit/gui/transcribe_dialog.cpp
-msgid "The file declares no language for this track: the model will detect it from the sound. Type it if you know it."
-msgstr "Plik nie deklaruje języka dla tej ścieżki: model wykryje go z dźwięku. Wpisz go, jeśli go znasz."
+msgid ""
+"The file declares no language for this track: the model will detect it from "
+"the first 30 seconds of sound. If the film opens with music or silence it "
+"can choose wrongly, and the speech is then translated into that language. "
+"Type the language if you know it."
+msgstr ""
+"Plik nie deklaruje języka tej ścieżki: model wykryje go z pierwszych 30 "
+"sekund dźwięku. Jeśli film zaczyna się muzyką lub ciszą, może się pomylić, a "
+"mowa zostanie wtedy przetłumaczona na ten język. Wpisz język, jeśli go znasz."
+
+#: src/lib/subedit/gui/transcription_runner.cpp
+msgid "Extracting the audio…"
+msgstr "Wyodrębnianie dźwięku…"
+
+#: src/lib/subedit/gui/transcription_runner.cpp
+msgid "Transcribing the audio…"
+msgstr "Transkrypcja dźwięku…"
+
+#: src/lib/subedit/gui/transcription_runner.cpp
+msgid "Last text: %1"
+msgstr "Ostatni tekst: %1"
 
 #: src/lib/subedit/gui/transcription_runner.cpp
 #: src/lib/subedit/gui/unsaved_documents_dialog.cpp
 msgid "Cancel"
 msgstr "Anuluj"
-
-#: src/lib/subedit/gui/transcription_runner.cpp
-msgid "Transcribing the audio…"
-msgstr "Transkrypcja dźwięku…"
 
 #: src/lib/subedit/gui/transform_dialog.cpp
 msgid "Transform positions"
@@ -5458,6 +5544,22 @@ msgstr "Kursywa"
 msgctxt "toolbar"
 msgid "Main"
 msgstr "Główny"
+
+#~ msgid "estimating the time left…"
+#~ msgstr "szacowanie pozostałego czasu…"
+
+#~ msgid "This model cannot detect the language: type it."
+#~ msgstr "Ten model nie potrafi wykryć języka: wpisz go."
+
+#~ msgid ""
+#~ "The file declares no language for this track: the model will detect it "
+#~ "from the sound. Type it if you know it."
+#~ msgstr ""
+#~ "Plik nie deklaruje języka dla tej ścieżki: model wykryje go z dźwięku. "
+#~ "Wpisz go, jeśli go znasz."
+
+#~ msgid "Beginning"
+#~ msgstr "Początek"
 
 #~ msgid "Detected"
 #~ msgstr "Wykryty"

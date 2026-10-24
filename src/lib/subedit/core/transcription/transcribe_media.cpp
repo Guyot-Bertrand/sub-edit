@@ -38,8 +38,12 @@ transcribeMedia(FileSystem& files,
         ensureDirectory(files, extracted.parent_path());
 
     StreamObserver stop;
-    stop.cancelled = [&observer] { return observer.isCancelled(); };
+    stop.cancelled = [&observer] {
+        observer.wait();
+        return observer.isCancelled();
+    };
 
+    observer.advance({.stage = TranscriptionStage::Extracting});
     std::filesystem::path audio = extracted;
     if (const auto prepared =
             extractAudio(files, searchPath, request.input, request.audioTrack, extracted, stop);
@@ -56,8 +60,11 @@ transcribeMedia(FileSystem& files,
         audio = request.input;
     }
 
-    const TranscriptionRequest asked{
-        .audio = audio, .language = request.language, .model = request.model};
+    const TranscriptionRequest asked{.audio = audio,
+                                     .language = request.language,
+                                     .model = request.model,
+                                     .start = request.start,
+                                     .end = request.end};
     auto transcribed = engine.transcribe(asked, observer);
     if (!transcribed)
         return std::unexpected(MediaTranscriptionError{.cause = transcribed.error()});

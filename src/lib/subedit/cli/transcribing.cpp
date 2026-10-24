@@ -5,8 +5,12 @@
 #include <subedit/core/i18n/messages.hpp>
 #include <subedit/core/io/atomic_write.hpp>
 #include <subedit/core/model/subtitle.hpp>
+#include <subedit/core/transcription/annotation_notes.hpp>
 #include <subedit/core/transcription/audio_source.hpp>
+#include <subedit/core/transcription/language_codes.hpp>
+#include <subedit/core/transcription/remaining_time.hpp>
 #include <subedit/core/transcription/subtitle_assembly.hpp>
+#include <subedit/core/transcription/time_range.hpp>
 #include <subedit/core/transcription/transcribe_media.hpp>
 #include <subedit/core/wording/formats.hpp>
 #include <subedit/core/wording/transcription.hpp>
@@ -101,6 +105,51 @@ constexpr double kPercent = 100.0;
 
 } // namespace
 
+ProgressNarration::ProgressNarration(const Reporter& reporter,
+                                     std::function<Clock::time_point()> clock,
+                                     std::chrono::seconds heartbeat)
+    : m_reporter(reporter),
+      m_clock(std::move(clock)),
+      m_heartbeat(heartbeat),
+      m_started(m_clock()),
+      m_lastSaid(m_started) {
+    m_remaining.note(0.0, m_started);
+}
+
+void ProgressNarration::operator()(const core::TranscriptionProgress& progress) {
+    const Clock::time_point now = m_clock();
+    if (progress.fraction)
+        m_remaining.note(*progress.fraction, now);
+    m_last = progress;
+
+    const int percent = progress.fraction ? static_cast<int>(*progress.fraction * kPercent) : -1;
+    if (!m_shown || m_shown->first != progress.stage || m_shown->second != percent) {
+        m_shown = std::pair{progress.stage, percent};
+        say(progress, now);
+    }
+    if (!progress.lastText.empty() && progress.lastText != m_lastText) {
+        m_lastText = progress.lastText;
+        m_reporter.say(3, core::lastTextLine(m_lastText));
+    }
+}
+
+void ProgressNarration::idle() {
+    const Clock::time_point now = m_clock();
+    if (m_last && now - m_lastSaid >= m_heartbeat)
+        say(*m_last, now);
+}
+
+void ProgressNarration::say(const core::TranscriptionProgress& progress, Clock::time_point now) {
+    m_lastSaid = now;
+    std::string line;
+    for (const std::string& part : core::transcriptionStatusParts(
+             progress,
+             m_remaining.left(now),
+             std::chrono::duration_cast<std::chrono::seconds>(now - m_started)))
+        line += (line.empty() ? "" : ", ") + part;
+    m_reporter.say(2, line);
+}
+
 ExitCode transcribeFile(core::FileSystem& files,
                         const core::EngineRegistry& engines,
                         std::string_view searchPath,
@@ -122,23 +171,57 @@ ExitCode transcribeFile(core::FileSystem& files,
 
     core::MediaTranscriptionRequest request{
         .input = options.input, .audioTrack = options.audioTrack, .keepAudio = options.keepAudio};
-    if (!languageName.empty())
-        request.language = languageName;
+    if (!languageName.empty()) {
+        request.language = core::readLanguageCode(languageName);
+        if (!request.language) {
+            reporter.failed(core::notALanguageCode(languageName));
+            return ExitCode::Usage;
+        }
+    }
     if (!modelPath.empty())
         request.model = modelPath;
 
+    for (const auto& [text, bound] :
+         {std::pair<const std::string&, std::optional<core::Timestamp>&>{options.start,
+                                                                         request.start},
+          std::pair<const std::string&, std::optional<core::Timestamp>&>{options.end,
+                                                                         request.end}}) {
+        if (text.empty())
+            continue;
+        bound = core::readRangeBound(text);
+        if (!bound) {
+            reporter.failed(core::notATimeInRange(text));
+            return ExitCode::Usage;
+        }
+    }
+    if (!core::isRangePossible(request.start, request.end)) {
+        reporter.failed(core::emptyRange());
+        return ExitCode::Usage;
+    }
+
+    // A model for English alone writes everything as English: said before the long work, not after.
+    if (const auto capabilities = engine->capabilitiesFor(request.model);
+        capabilities && !capabilities->languageDetection && capabilities->languages.size() == 1 &&
+        capabilities->languages.front() == "en")
+        reporter.say(1, core::noticeOfEnglishOnlyModel());
+
+    ProgressNarration narration{reporter};
     const core::TranscriptionObserver observer{
-        .progress =
-            [&reporter](double fraction) {
-                reporter.say(
-                    2, core::transcriptionProgressText(static_cast<int>(fraction * kPercent)));
-            },
-        .cancelled = cancelled};
+        .advanced =
+            [&narration](const core::TranscriptionProgress& progress) { narration(progress); },
+        .cancelled = cancelled,
+        .waiting = [&narration] { narration.idle(); }};
     const auto transcribed = core::transcribeMedia(files, *engine, searchPath, request, observer);
     if (!transcribed) {
         reportFailure(reporter, options.input, failureOf(transcribed.error()));
         return ExitCode::AllFailed;
     }
+
+    if (const core::NotesShare share = core::notesShare(transcribed->segments);
+        core::looksLikeWrongLanguage(share))
+        reporter.say(1,
+                     core::noticeOfNotes(
+                         share.notes, share.pieces, transcribed->language.value_or(std::string{})));
 
     const std::vector<core::Subtitle> subtitles =
         options.raw ? rawSubtitlesOf(*transcribed)

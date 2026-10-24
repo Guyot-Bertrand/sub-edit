@@ -108,16 +108,19 @@ tento dokument patří — a třetí zmínka by ji postavila na stejnou úroveň
 zvuk **filmu projektu**, nikdy o soubor, který byste vybírali — k přepisu zvukového
 souboru použijte v příkazovém řádku [`transcribe`](../subedit-cli/transcribe.md).
 
-Dialog se ptá na dvě věci a říká, zda může začít:
+Dialog se ptá na tři věci a říká, zda může začít:
 
 - **zvukovou stopu**, uvedenou tak, jak ji uvádí nabídka [`Audio`](#zvuková-stopa), s jazykem
   a názvem, které soubor uvádí;
-- **jazyk**, dvě písmena, například `en` nebo `fr`. Začíná jazykem zvolené
+- **jazyk**, dvě písmena, například `en` nebo `fr` (`fra` se čte jako `fr`). Začíná jazykem zvolené
   stopy, když ho soubor uvádí, sleduje stopu, dokud jste žádný nezadali, a
   **řádek pod polem říká, odkud se vzal**. Když soubor pro stopu žádný jazyk neuvádí,
-  řádek to říká: model ho pak zjistí ze zvuku, což umí jen vícejazyčný model, a
-  měli byste ho zadat, pokud ho znáte. U modelu pouze pro angličtinu, který nezjistí nic,
-  řádek říká, že jazyk je třeba zadat.
+  řádek to říká a varuje: model ho pak zjistí z prvních třiceti sekund zvuku, což umí jen vícejazyčný model, a
+  **film, který začíná hudbou nebo tichem, může být považován za jiný jazyk a jeho řeč pak přeložena do něj**.
+  Zadejte jazyk, pokud ho znáte. U modelu pouze pro angličtinu je pole pevně nastaveno na `en` a nelze ho změnit,
+  a řádek říká, že film vyjde anglicky, ať se v něm mluví jakýmkoli jazykem;
+- **část filmu**, od jednoho času k druhému — viz [Nejprve zkusit část](#nejprve-zkusit-část). Obě pole
+  prázdná znamenají celý film.
 
 **Říká také, co chybí.** Tři řádky říkají, zda nástroj, `ffmpeg` a model jsou k dispozici, a
 kde; když něco chybí, `OK` zůstane nedostupné a dialog to oznámí s odkazem na
@@ -132,11 +135,36 @@ Jazyk se uchová pro příště. Samotný nástroj a meze titulků jsou
 kolik jich zmizí. Ptá se před prací, aby odmítnutí nestálo nic. Když je projekt prázdný,
 není se na co ptát.
 
-Práce probíhá **na pozadí**, s oknem, které ukazuje, kam nástroj došel, a tlačítkem `Cancel`;
-okno zůstává kolem použitelné. Když skončí, titulky projektu se nahradí
+Práce probíhá **na pozadí**, s oknem a tlačítkem `Cancel`; okno zůstává kolem použitelné. **Okno
+říká, v jakém stavu práce je**, abyste věděli, že žije a jak dlouho potrvá:
+
+- **krok**: nejprve “Extrahuje se zvuk…” — okno je pak zaneprázdněné, bez čísla, protože extrakce neříká nic o tom, jak daleko
+  došla —, pak “Přepis zvuku…”, s ukazatelem;
+- **zbývající čas**, “zbývá asi 38 min”: zpočátku chybí, zobrazí se, jakmile nástroj ohlásil dost postupu pro extrapolaci, a počítá se z jeho rychlosti od začátku až do poslední minuty; je to přesnost na několik minut, ne příslib;
+- **uplynulý čas**, “uplynulo: 0:05:12”, který běží, i když se nic jiného nehýbe;
+- **pozice**, “0:12:30 z 0:50:00”: kam ve filmu nástroj došel, jakmile vytvoří první text, zobrazená **těsně nad posledním textem**, ke kterému patří;
+- **poslední získaný text**, abyste viděli, že práce dává smysl.
+
+U dlouhého filmu s velkým modelem na procesoru mohou první minuty trvat dlouho: nástroj načítá model a pracuje na prvních
+oknech po třiceti sekundách. Pozice a poslední text se hýbou dřív než vlastní procento nástroje, které přichází jen v krocích
+po 5 % filmu. Když skončí, titulky projektu se nahradí
 přepisem **jako jedna operace**: jedno `Undo` vrátí, co tam bylo, včetně textů
 překladu. Přepis, který selže nebo který zrušíte, nic nezmění — důvod se
 sdělí v okně, kromě zrušení, které ve stavovém řádku jen oznámí, že bylo zrušeno.
+
+**Když je většina toho, co nástroj zapsal, tvořena poznámkami v hranatých závorkách** — `[MUSIC PLAYING]`, `[SPEAKING FRENCH]` —, okno
+to po práci oznámí: použitý jazyk pravděpodobně není ten, kterým se mluví, a nástroj mohl řeč přeložit. Spusťte přepis znovu se
+zadaným jazykem. Titulky jsou přesto v projektu a jedno `Undo` vrátí, co tam bylo.
+
+### Nejprve zkusit část
+
+Rozsah umožňuje **posoudit model nebo jazyk na dvou minutách, než se zavážete na dvě hodiny**. Pole “Část filmu” berou začátek a konec, každý zapsaný jako `2:00`, `1:02:03`, `2:00.5` nebo počet
+sekund, `90`; jedno samotné je povoleno (odtud do konce, nebo od začátku potud). `OK` zůstane nedostupné, dokud některé pole
+není čas nebo konec nenásleduje po začátku, a řádek pod poli řekne, které.
+
+- **Titulky zachovají čas filmu**: co se říká v 2:10, je ve výsledku na `0:02:10`.
+- **Nahradí titulky projektu jako každý přepis**, po stejné otázce, když nějaké jsou, a jedno `Undo` je vrátí. Chcete-li
+  rozsah zkusit, aniž byste sáhli na svou práci, nejprve uložte, nebo pracujte na kopii.
 
 **Co je potřeba, se nedodává**: nástroj (whisper.cpp), model a `ffmpeg` k extrakci zvuku.
 Viz [Instalace nástrojů pro přepis](../subedit-cli/install-transcription.md).

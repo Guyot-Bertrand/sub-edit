@@ -61,10 +61,23 @@ describeTranscribe(CLI::App& app, std::string_view name, TranscribeCommandOption
         ->check(CLI::NonNegativeNumber)
         ->option_text("N");
     transcribe
-        ->add_option(
-            "--language",
-            options.request.language,
-            std::string{core::translate("Language of the speech: fr, en; detected by default")})
+        ->add_option("--start",
+                     options.request.start,
+                     std::string{core::translate(
+                         "Where to begin, as 2:00, 1:02:03 or seconds; the beginning by default")})
+        ->option_text("TIME");
+    transcribe
+        ->add_option("--end",
+                     options.request.end,
+                     std::string{core::translate(
+                         "Where to stop, as 2:00, 1:02:03 or seconds; the end by default")})
+        ->option_text("TIME");
+    transcribe
+        ->add_option("--language",
+                     options.request.language,
+                     std::string{core::translate(
+                         "Language of the speech, two letters: fr, en, de; detected from the first "
+                         "30 seconds by default")})
         ->option_text("CODE");
     transcribe
         ->add_option(

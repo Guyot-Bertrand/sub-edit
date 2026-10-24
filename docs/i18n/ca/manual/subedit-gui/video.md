@@ -108,16 +108,19 @@ la [graella deduïda de les posicions](frame-grid.md), que és un altre fet.
 l'àudio de **la pel·lícula del projecte**, i mai un fitxer que triaríeu — per transcriure un
 fitxer d'àudio, useu [`transcribe`](../subedit-cli/transcribe.md) a la línia d'ordres.
 
-El diàleg demana dues coses, i diu si pot començar:
+El diàleg demana tres coses, i diu si pot començar:
 
 - **la pista d'àudio**, llistada com la llisten el menú [`Audio`](#la-pista-dàudio), amb la llengua
   i el títol que declara el fitxer;
-- **la llengua**, dues lletres com `en` o `fr`. Comença amb la llengua de la pista triada quan el
+- **la llengua**, dues lletres com `en` o `fr` (`fra` es llegeix com `fr`). Comença amb la llengua de la pista triada quan el
   fitxer en declara una, segueix la pista mentre no n'hàgiu escrit cap, i
   **una línia sota el camp diu d'on ve**. Quan el fitxer no declara cap llengua per a la pista,
-  la línia ho diu: el model la detectarà aleshores a partir del so, cosa que només fa un model
-  multilingüe, i l'hauríeu d'escriure si la coneixeu. Amb un model només per a l'anglès, que no
-  detecta res, la línia diu que cal escriure la llengua.
+  la línia ho diu, i avisa: el model la detectarà aleshores a partir dels primers trenta segons de so, cosa que només fa un model
+  multilingüe, i **una pel·lícula que comença amb música o silenci pot ser presa per una altra llengua i la seva parla
+  traduïda a aquesta**. Escriviu la llengua si la coneixeu. Amb un model només per a l'anglès, el camp
+  queda fix a `en` i no es pot canviar, i la línia diu que la pel·lícula sortirà en anglès sigui quina sigui la llengua que parli;
+- **la part de la pel·lícula**, d'un temps a un altre — vegeu [Provar primer una part](#provar-primer-una-part). Amb els dos
+  camps buits, és tota la pel·lícula.
 
 **També diu què hi falta.** Tres línies diuen si el motor, `ffmpeg` i el model hi són, i
 on; quan un no hi és, `OK` queda apagat, i el diàleg ho diu amb la referència a
@@ -132,11 +135,36 @@ La llengua es conserva per a la vegada següent. El motor mateix i els límits d
 quants se'n van. Pregunta abans de la feina, de manera que declinar no costa res. Quan el projecte és buit no
 hi ha res a preguntar.
 
-La feina s'executa **en segon pla**, amb un quadre que mostra fins on ha arribat el motor i un botó `Cancel`;
-la finestra continua utilitzable al voltant. Quan acaba, els subtítols del projecte se substitueixen
+La feina s'executa **en segon pla**, amb un quadre i un botó `Cancel`; la finestra continua utilitzable al voltant. **El quadre
+diu en quin punt és la feina**, perquè sapigueu que és viva i quant trigarà:
+
+- **el pas**: primer “Extracció de l'àudio…” — el quadre és aleshores ocupat, sense xifra, ja que extreure no diu res de fins on ha
+  arribat —, després “Transcripció de l'àudio…”, amb una barra;
+- **el temps que queda**, “queden uns 38 min”: absent al principi, mostrat quan el motor ha informat prou progrés per extrapolar, i calculat a partir de la seva velocitat des de l'inici fins al darrer minut; és una precisió de pocs minuts, no una promesa;
+- **el temps transcorregut**, “temps transcorregut: 0:05:12”, que avança fins i tot quan res més no es mou;
+- **la posició**, “0:12:30 de 0:50:00”: fins on de la pel·lícula ha arribat el motor, tan bon punt ha produït el seu primer text, mostrada **just a sobre del darrer text** al qual correspon;
+- **el darrer text** obtingut, perquè veieu que la feina té sentit.
+
+En una pel·lícula llarga amb un model gran en un processador, els primers minuts poden ser llargs: el motor carrega el model i treballa en les seves
+primeres finestres de trenta segons. La posició i el darrer text es mouen abans que el tant per cent propi del motor, que només ve a intervals
+del 5 % de la pel·lícula. Quan acaba, els subtítols del projecte se substitueixen
 per la transcripció **com una sola operació**: un sol `Undo` retorna el que hi havia, textos de
 traducció inclosos. Una transcripció que falla, o que cancel·leu, no canvia res — el motiu es
 diu en un quadre, tret d'una cancel·lació, que només diu que s'ha cancel·lat a la barra d'estat.
+
+**Quan la major part del que ha escrit el motor són notes entre claudàtors** — `[MUSIC PLAYING]`, `[SPEAKING FRENCH]` —, un quadre
+ho diu després de la feina: la llengua emprada probablement no és la parlada, i el motor potser ha traduït la parla. Torneu-lo a executar amb la
+llengua escrita. Els subtítols són al projecte igualment, i un `Undo` retorna el que hi havia.
+
+### Provar primer una part
+
+Un interval permet **jutjar un model o una llengua en dos minuts abans de comprometre's amb dues hores**. Els camps “Part de la pel·lícula” accepten un inici i un final, cadascun escrit `2:00`, `1:02:03`, `2:00.5` o un nombre
+de segons, `90`; se'n permet només un (d'allà fins al final, o del principi fins allà). `OK` queda apagat mentre un camp no
+és un temps o el final no ve després de l'inici, i una línia sota els camps diu quin.
+
+- **Els subtítols conserven el temps de la pel·lícula**: el que es diu a 2:10 és a `0:02:10` al resultat.
+- **Substitueix els subtítols del projecte com qualsevol transcripció**, després de la mateixa pregunta quan n'hi ha, i un
+  `Undo` els retorna. Per provar un interval sense tocar la vostra feina, deseu primer, o treballeu sobre una còpia.
 
 **El que necessita no es lliura**: un motor (whisper.cpp), un model, i `ffmpeg` per extreure l'àudio.
 Vegeu [Instal·lació de les eines de transcripció](../subedit-cli/install-transcription.md).

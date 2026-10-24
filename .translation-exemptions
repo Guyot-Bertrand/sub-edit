@@ -30,6 +30,8 @@ text      Zyyy
 # The language the spelling falls back to when the system names none: a code Enchant reads (#665).
 file      src/lib/subedit/gui/join_split_page.cpp en
 # The code of the source language, which Preferences offers whatever is installed (#669).
+# The code of English, which the transcription dialog fixes the language field to for a model that has no other (#792).
+file      src/lib/subedit/gui/transcribe_dialog.cpp en
 file      src/lib/subedit/gui/preferences_dialog.cpp en
 # The code of the source language, first of the installed languages every surface lists (#716).
 file      src/lib/subedit/core/libraries.cpp en
@@ -70,6 +72,8 @@ text      srt|vtt|subviewer2|ssa|ass|microdvd|mpl2|tmplayer|lrc|sub|txt|json|tex
 text      (?:UTF|ISO|KOI8|EUC|CP|IBM)-?[\w-]*(?:,version=\d)?|windows-\d+|Shift_JIS|Big5|GB\d+|Unicode
 
 [constant] An all-capitals token: an environment variable, a keyword of a file format, a placeholder of the syntax. It is a name, not a sentence.
+# The form the time fields of the transcription dialog ask for, shown as their placeholder (#792).
+file      src/lib/subedit/gui/transcribe_dialog.cpp HH:MM:SS
 text      [A-Z][A-Z0-9_]*(?:[ -][A-Z0-9_]+)*
 
 [program] The names of the program, its executables and the programs it drives: a name is not translated.
@@ -158,8 +162,8 @@ text      \[br\]
 file      src/lib/subedit/core/text/correction_pattern.cpp capitalization
 file      src/lib/subedit/core/text/pattern_catalogue.cpp Group|Penalty|name|enabled|true
 
-[tool-output] What an external tool writes and the program reads, and the values it is given: the keys of whisper.cpp's JSON, the marker of its progress lines, the magic number of a model, the tags of `ffprobe`, the keywords of JSON itself. The tool's syntax, not words for a reader (#774, #775, #776).
+[tool-output] What an external tool writes and the program reads, and the values it is given: the keys of whisper.cpp's JSON, the marker of its progress lines and the banner and segment lines it prints, the magic number of a model, the tags of `ffprobe`, the keywords of JSON itself. The tool's syntax, not words for a reader (#774, #775, #776).
 file      src/lib/subedit/core/transcription/audio_source.cpp \S+
-file      src/lib/subedit/core/transcription/whisper_cpp_output.cpp progress =|\S+
+file      src/lib/subedit/core/transcription/whisper_cpp_output.cpp progress =| --> |main: processing| samples, | sec|\S+
 file      src/lib/subedit/core/transcription/whisper_cpp_engine.cpp en|auto
 file      src/lib/subedit/core/io/json_reader.cpp true|false|null|bfnrt

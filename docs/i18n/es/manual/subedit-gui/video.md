@@ -108,16 +108,19 @@ la [rejilla deducida de las posiciones](frame-grid.md), que es otro.
 el audio de **la película del proyecto**, y nunca un archivo que se elija — para transcribir un
 archivo de audio, use [`transcribe`](../subedit-cli/transcribe.md) en la línea de comandos.
 
-El cuadro de diálogo pide dos cosas, y dice si puede empezar:
+El cuadro de diálogo pide tres cosas, y dice si puede empezar:
 
 - **la pista de audio**, enumerada como la enumera el menú [`Audio`](#la-pista-de-audio), con el idioma
   y el título que declara el archivo;
-- **el idioma**, dos letras como `en` o `fr`. Empieza con el idioma de la pista elegida
+- **el idioma**, dos letras como `en` o `fr` (`fra` se lee como `fr`). Empieza con el idioma de la pista elegida
   cuando el archivo declara uno, sigue la pista mientras no haya escrito ninguno, y
   **una línea bajo el campo dice de dónde viene**. Cuando el archivo no declara ningún idioma para la pista,
-  la línea lo dice: el modelo lo detectará entonces a partir del sonido, algo que solo hace un modelo
-  multilingüe, y debería escribirlo si lo conoce. Con un modelo solo para inglés, que no
-  detecta nada, la línea dice que hay que escribir el idioma.
+  la línea lo dice, y advierte: el modelo lo detectará entonces a partir de los primeros treinta segundos de sonido, algo que solo hace un modelo
+  multilingüe, y **una película que empieza con música o silencio puede tomarse por otro idioma y su habla traducirse
+  a él**. Escríbalo si lo conoce. Con un modelo solo para inglés, el campo queda fijo en `en` y no
+  se puede cambiar, y la línea dice que la película saldrá en inglés sea cual sea el idioma que hable;
+- **la parte de la película**, de un tiempo a otro — véase [Probar primero una parte](#probar-primero-una-parte). Con los dos
+  campos vacíos, es toda la película.
 
 **También dice lo que falta.** Tres líneas dicen si el motor, `ffmpeg` y el modelo están, y
 dónde; cuando uno no está, `OK` queda apagado, y el cuadro lo dice con la referencia a
@@ -132,11 +135,36 @@ El idioma se conserva para la próxima vez. El motor mismo y los límites de los
 cuántos desaparecen. Pregunta antes del trabajo, de modo que declinar no cuesta nada. Cuando el proyecto está vacío no
 hay nada que preguntar.
 
-El trabajo se ejecuta **en segundo plano**, con un cuadro que muestra hasta dónde ha llegado el motor y un botón `Cancel`;
-la ventana sigue siendo utilizable alrededor. Cuando termina, los subtítulos del proyecto se sustituyen
+El trabajo se ejecuta **en segundo plano**, con un cuadro y un botón `Cancel`; la ventana sigue siendo utilizable alrededor. **El cuadro
+dice en qué punto está el trabajo**, para que sepa que está vivo y cuánto va a tardar:
+
+- **el paso**: primero “Extrayendo el audio…” — el cuadro está entonces ocupado, sin cifra, pues extraer no dice nada de hasta dónde ha
+  llegado —, luego “Transcribiendo el audio…”, con una barra;
+- **el tiempo restante**, “quedan unos 38 min”: ausente al principio, mostrado cuando el motor ha informado de progreso suficiente para extrapolar, y calculado sobre su velocidad desde el inicio hasta el último minuto; es una precisión de unos minutos, no una promesa;
+- **el tiempo transcurrido**, “transcurrido: 0:05:12”, que avanza incluso cuando nada más se mueve;
+- **la posición**, “0:12:30 de 0:50:00”: hasta dónde de la película ha llegado el motor, en cuanto ha producido su primer texto, mostrada **justo encima del último texto** al que corresponde;
+- **el último texto** obtenido, para que vea que el trabajo tiene sentido.
+
+En una película larga con un modelo grande en un procesador, los primeros minutos pueden ser largos: el motor carga el modelo y trabaja en sus primeras
+ventanas de treinta segundos. La posición y el último texto se mueven antes que el por ciento propio del motor, que solo llega en pasos
+del 5 % de la película. Cuando termina, los subtítulos del proyecto se sustituyen
 por la transcripción **como una sola operación**: un solo `Undo` devuelve lo que había, textos de
 traducción incluidos. Una transcripción que falla, o que usted cancela, no cambia nada — el motivo se
 dice en un cuadro, salvo en una cancelación, que solo dice que se canceló en la barra de estado.
+
+**Cuando la mayor parte de lo que el motor ha escrito son notas entre corchetes** — `[MUSIC PLAYING]`, `[SPEAKING FRENCH]` —, un cuadro
+lo dice después del trabajo: el idioma empleado probablemente no es el que se habla, y el motor puede haber traducido el habla.
+Vuelva a ejecutarlo escribiendo el idioma. Los subtítulos están en el proyecto de todos modos, y un `Undo` devuelve lo que había.
+
+### Probar primero una parte
+
+Un intervalo permite **juzgar un modelo o un idioma en dos minutos antes de comprometerse con dos horas**. Los campos “Parte de la película” admiten un inicio y un final, cada uno escrito `2:00`, `1:02:03`, `2:00.5` o un número
+de segundos, `90`; se permite solo uno (desde ahí hasta el final, o desde el principio hasta ahí). `OK` queda apagado mientras un campo
+no es un tiempo o el final no va después del inicio, y una línea bajo los campos dice cuál.
+
+- **Los subtítulos conservan el tiempo de la película**: lo que se dice en 2:10 está en `0:02:10` en el resultado.
+- **Sustituye los subtítulos del proyecto como cualquier transcripción**, tras la misma pregunta cuando los hay, y un
+  `Undo` los devuelve. Para probar un intervalo sin tocar su trabajo, guarde primero, o trabaje sobre una copia.
 
 **Lo que necesita no se entrega**: un motor (whisper.cpp), un modelo y `ffmpeg` para extraer el audio.
 Véase [Instalar las herramientas de transcripción](../subedit-cli/install-transcription.md).

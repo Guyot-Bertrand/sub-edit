@@ -1033,8 +1033,19 @@ msgid "Audio track of a video, counted from 0; the first by default"
 msgstr "רצועת שמע של סרטון, בספירה מ-0; כברירת מחדל הראשונה"
 
 #: src/exe/cli/commands/transcribe.cpp
-msgid "Language of the speech: fr, en; detected by default"
-msgstr "שפת הדיבור: fr, en; כברירת מחדל מזוהה אוטומטית"
+msgid "Where to begin, as 2:00, 1:02:03 or seconds; the beginning by default"
+msgstr "מאיפה להתחיל, כמו 2:00, 1:02:03 או בשניות; ברירת המחדל היא ההתחלה"
+
+#: src/exe/cli/commands/transcribe.cpp
+msgid "Where to stop, as 2:00, 1:02:03 or seconds; the end by default"
+msgstr "איפה לעצור, כמו 2:00, 1:02:03 או בשניות; ברירת המחדל היא הסוף"
+
+#: src/exe/cli/commands/transcribe.cpp
+msgid ""
+"Language of the speech, two letters: fr, en, de; detected from the first 30 "
+"seconds by default"
+msgstr ""
+"שפת הדיבור, שתי אותיות: fr, en, de; מזוהה כברירת מחדל מתוך 30 השניות הראשונות"
 
 #: src/exe/cli/commands/transcribe.cpp
 msgid "Model file; the transcription.model setting by default"
@@ -3391,47 +3402,104 @@ msgstr[1] "%1 כתוביות של הפרויקט הזה יוחלפו בתמלו�
 msgstr[2] "%1 כתוביות של הפרויקט הזה יוחלפו בתמלול. אפשר לבטל."
 
 #: src/lib/subedit/core/wording/transcription.cpp
+msgid ""
+"\"%1\" is not a time: write it as 2:00, 1:02:03 or 2:00.5, or in seconds"
+msgstr "„%1” אינו זמן: כתבו אותו כ-2:00, 1:02:03 או 2:00.5, או בשניות"
+
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid ""
+"%1 of the %2 pieces are only notes in brackets, such as [MUSIC PLAYING]: the "
+"language used (%3) is probably not the one spoken, and the engine may have "
+"translated the speech. Run it again with the language typed."
+msgstr ""
+"%1 מתוך %2 הקטעים הם הערות בסוגריים מרובעים בלבד, כמו [MUSIC PLAYING]: סביר "
+"שהשפה שנעשה בה שימוש (%3) אינה השפה המדוברת, והמנוע אולי תרגם את הדיבור. "
+"הריצו שוב כשהשפה מוקלדת."
+
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid ""
+"This model is for English only: whatever language the film speaks, the "
+"result will be English, or notes in brackets. Choose a multilingual model in "
+"the preferences."
+msgstr ""
+"מודל זה מיועד לאנגלית בלבד: לא משנה באיזו שפה הסרט מדבר, התוצאה תהיה "
+"באנגלית, או הערות בסוגריים מרובעים. בחרו מודל רב־לשוני בהעדפות."
+
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid ""
+"\"%1\" is not a language code: write two letters, such as fr, en, de or es"
+msgstr "“%1” אינו קוד שפה: כתבו שתי אותיות, כמו fr, en, de או es"
+
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "the end of the range must come after its start"
+msgstr "סוף הטווח חייב לבוא אחרי תחילתו"
+
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "less than a minute left"
+msgstr "נותרה פחות מדקה"
+
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "about %1 min left"
+msgstr "נותרו כ-%1 דקות"
+
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "about %1 h %2 min left"
+msgstr "נותרו כ-%1 שעות ו-%2 דקות"
+
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "extracting the audio…"
+msgstr "מחלץ את השמע…"
+
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "transcribing…"
+msgstr "מתמלל…"
+
+#: src/lib/subedit/core/wording/transcription.cpp
+#: src/lib/subedit/gui/transcription_runner.cpp
+msgid "%1 of %2"
+msgstr "%1 מתוך %2"
+
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "elapsed: %1"
+msgstr "חלף: %1"
+
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "last text: %1"
+msgstr "הטקסט האחרון: %1"
+
 #: src/lib/subedit/core/wording/transcription.cpp
 msgid "%1: found (%2)"
 msgstr "%1: נמצא (%2)"
 
 # From Gaupol.
 #: src/lib/subedit/core/wording/transcription.cpp
-#: src/lib/subedit/core/wording/transcription.cpp
 msgid "%1: not found"
 msgstr "%1: לא נמצא"
 
-#: src/lib/subedit/core/wording/transcription.cpp
 #: src/lib/subedit/core/wording/transcription.cpp
 msgid "ffmpeg: found"
 msgstr "ffmpeg: נמצא"
 
 #: src/lib/subedit/core/wording/transcription.cpp
-#: src/lib/subedit/core/wording/transcription.cpp
 msgid "ffmpeg: not found"
 msgstr "ffmpeg: לא נמצא"
 
-#: src/lib/subedit/core/wording/transcription.cpp
 #: src/lib/subedit/core/wording/transcription.cpp
 msgid "Model: none set"
 msgstr "מודל: לא הוגדר"
 
 #: src/lib/subedit/core/wording/transcription.cpp
-#: src/lib/subedit/core/wording/transcription.cpp
 msgid "Model: not found (%1)"
 msgstr "מודל: לא נמצא (%1)"
 
-#: src/lib/subedit/core/wording/transcription.cpp
 #: src/lib/subedit/core/wording/transcription.cpp
 msgid "Model: not a model (%1)"
 msgstr "מודל: זה אינו מודל (%1)"
 
 #: src/lib/subedit/core/wording/transcription.cpp
-#: src/lib/subedit/core/wording/transcription.cpp
 msgid "Model: English only (%1)"
 msgstr "מודל: לאנגלית בלבד (%1)"
 
-#: src/lib/subedit/core/wording/transcription.cpp
 #: src/lib/subedit/core/wording/transcription.cpp
 msgid "Model: multilingual (%1)"
 msgstr "מודל: רב־לשוני (%1)"
@@ -4286,11 +4354,9 @@ msgid "Frame step"
 msgstr "צעד בפריימים"
 
 #: src/lib/subedit/gui/preferences_dialog.cpp
-#: src/lib/subedit/gui/preferences_dialog.cpp
 msgid "Searched for on the PATH"
 msgstr "מחפשים ב־PATH"
 
-#: src/lib/subedit/gui/preferences_dialog.cpp
 #: src/lib/subedit/gui/preferences_dialog.cpp
 msgid "Program"
 msgstr "תוכנה"
@@ -4299,7 +4365,6 @@ msgstr "תוכנה"
 msgid "Model"
 msgstr "מודל"
 
-#: src/lib/subedit/gui/preferences_dialog.cpp
 #: src/lib/subedit/gui/preferences_dialog.cpp
 msgid "Transcription"
 msgstr "תמלול"
@@ -4363,7 +4428,6 @@ msgstr "בחירת וידאו"
 msgid "Choose a model"
 msgstr "בחירת מודל"
 
-#: src/lib/subedit/gui/qt_prompts.cpp
 #: src/lib/subedit/gui/qt_prompts.cpp
 msgid "Choose the program"
 msgstr "בחירת התוכנה"
@@ -4673,7 +4737,6 @@ msgid "Main"
 msgstr "ראשי"
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
-#: src/lib/subedit/gui/transcribe_dialog.cpp
 msgid "Preferences…"
 msgstr "העדפות…"
 
@@ -4687,25 +4750,30 @@ msgid "First audio track"
 msgstr "רצועת השמע הראשונה"
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
-#: src/lib/subedit/gui/transcribe_dialog.cpp
 msgid "Detected from the sound"
 msgstr "מזוהה מתוך הצליל"
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
 msgid ""
-"A two-letter language code such as en or fr. Leave it empty to let the model "
-"detect the language."
+"A language code such as fr, en, de, es or it (fra and eng work too). Leave "
+"it empty to let the model detect the language from the first 30 seconds of "
+"sound."
 msgstr ""
-"קוד שפה בן שתי אותיות, כמו en או fr. השאירו ריק כדי שהמודל יזהה את השפה."
+"קוד שפה כמו fr, en, de, es או it (גם fra ו-eng עובדים). השאירו ריק כדי "
+"שהמודל יזהה את השפה מתוך 30 השניות הראשונות של הצליל."
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
 msgid ""
-"The audio of the film open in this window is transcribed into subtitles that "
-"replace the ones of the project. The work runs in the background and can be "
-"cancelled."
+"A time as HH:MM:SS, for example 00:02:00. Leave both empty to transcribe the "
+"whole film."
 msgstr ""
-"השמע של הסרט הפתוח בחלון הזה מתומלל לכתוביות שמחליפות את כתוביות הפרויקט. "
-"העבודה מתבצעת ברקע וניתן לבטל אותה."
+"זמן בפורמט HH:MM:SS, למשל 00:02:00. השאירו את שניהם ריקים כדי לתמלל את כל "
+"הסרט."
+
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+msgid "The audio of the film open in this window is transcribed into subtitles that replace the ones of the project. The work runs in the background and can be cancelled."
+msgstr "השמע של הסרט הפתוח בחלון הזה מתומלל לכתוביות שמחליפות את כתוביות הפרויקט. העבודה מתבצעת ברקע וניתן לבטל אותה."
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
 msgid "Audio track"
@@ -4716,38 +4784,52 @@ msgid "Language"
 msgstr "שפה"
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
+msgid "to"
+msgstr "עד"
+
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+msgid "Part of the film"
+msgstr "חלק מהסרט"
+
 #: src/lib/subedit/gui/transcribe_dialog.cpp
 msgid "Set them in the preferences."
 msgstr "הגדירו אותם בהעדפות."
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
-#: src/lib/subedit/gui/transcribe_dialog.cpp
-msgid "This model cannot detect the language: type it."
-msgstr "המודל הזה אינו יודע לזהות את השפה: הקלידו אותה."
-
-#: src/lib/subedit/gui/transcribe_dialog.cpp
-#: src/lib/subedit/gui/transcribe_dialog.cpp
 msgid "The language you typed is used."
 msgstr "נעשה שימוש בשפה שהקלדתם."
 
-#: src/lib/subedit/gui/transcribe_dialog.cpp
 #: src/lib/subedit/gui/transcribe_dialog.cpp
 msgid "Proposed from the language the file declares for this track."
 msgstr "מוצעת לפי השפה שהקובץ מצהיר עליה עבור הרצועה הזו."
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
-#: src/lib/subedit/gui/transcribe_dialog.cpp
-msgid "The file declares no language for this track: the model will detect it from the sound. Type it if you know it."
-msgstr "הקובץ אינו מצהיר על שפה עבור הרצועה הזו: המודל יזהה אותה מתוך הצליל. הקלידו אותה אם אתם יודעים אותה."
+msgid ""
+"The file declares no language for this track: the model will detect it from "
+"the first 30 seconds of sound. If the film opens with music or silence it "
+"can choose wrongly, and the speech is then translated into that language. "
+"Type the language if you know it."
+msgstr ""
+"הקובץ אינו מצהיר על שפה עבור רצועה זו: המודל יזהה אותה מתוך 30 השניות "
+"הראשונות של הצליל. אם הסרט נפתח במוזיקה או בשקט הוא עלול לטעות, והדיבור "
+"יתורגם אז לאותה שפה. הקלידו את השפה אם אתם יודעים אותה."
+
+#: src/lib/subedit/gui/transcription_runner.cpp
+msgid "Extracting the audio…"
+msgstr "מחלץ את השמע…"
+
+#: src/lib/subedit/gui/transcription_runner.cpp
+msgid "Transcribing the audio…"
+msgstr "מתמלל את השמע…"
+
+#: src/lib/subedit/gui/transcription_runner.cpp
+msgid "Last text: %1"
+msgstr "הטקסט האחרון: %1"
 
 #: src/lib/subedit/gui/transcription_runner.cpp
 #: src/lib/subedit/gui/unsaved_documents_dialog.cpp
 msgid "Cancel"
 msgstr "ביטול"
-
-#: src/lib/subedit/gui/transcription_runner.cpp
-msgid "Transcribing the audio…"
-msgstr "מתמלל את השמע…"
 
 #: src/lib/subedit/gui/transform_dialog.cpp
 msgid "Transform positions"
@@ -5159,6 +5241,22 @@ msgstr "נטוי"
 msgctxt "toolbar"
 msgid "Main"
 msgstr "ראשי"
+
+#~ msgid "estimating the time left…"
+#~ msgstr "מעריך את הזמן שנותר…"
+
+#~ msgid "This model cannot detect the language: type it."
+#~ msgstr "המודל הזה אינו יודע לזהות את השפה: הקלידו אותה."
+
+#~ msgid ""
+#~ "The file declares no language for this track: the model will detect it "
+#~ "from the sound. Type it if you know it."
+#~ msgstr ""
+#~ "הקובץ אינו מצהיר על שפה עבור הרצועה הזו: המודל יזהה אותה מתוך הצליל. "
+#~ "הקלידו אותה אם אתם יודעים אותה."
+
+#~ msgid "Beginning"
+#~ msgstr "התחלה"
 
 #~ msgid "Detected"
 #~ msgstr "מזוהה"

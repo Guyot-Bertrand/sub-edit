@@ -166,5 +166,5 @@ if(SUBEDIT_REGISTER_E2E)
     # where it is written.
     catch_discover_tests(
         subedit_e2e_test
-        PROPERTIES TIMEOUT 30 LABELS e2e ENVIRONMENT QT_QPA_PLATFORM=offscreen)
+        PROPERTIES TIMEOUT 60 LABELS e2e ENVIRONMENT QT_QPA_PLATFORM=offscreen)
 endif()

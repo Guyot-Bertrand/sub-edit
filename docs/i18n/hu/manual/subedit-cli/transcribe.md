@@ -8,6 +8,7 @@ subedit-cli transcribe --output FILE
                        [--to FORMAT]
                        [--audio-track N]
                        [--language CODE]
+                       [--start TIME] [--end TIME]
                        [--model FILE]
                        [--engine NAME]
                        [--keep-audio FILE]
@@ -33,6 +34,15 @@ nem tör el semmit**: a parancs megmondja, mi hiányzik, az oldalra mutató hiva
 - **A nyelvet felismeri**, hacsak a `--language` ki nem kényszeríti, és a használt nyelvet kiírja. Egy
   csak angolra készült modell semmit sem ismer fel, és mást nem iratoz le: a nyelvet, amelyet nem tud
   fogadni, *még a munka megkezdése előtt* elutasítja, megnevezve a modell korlátját.
+- **A nyelvet két betűvel kell megadni — `fr`, `en`, `de` —, vagy a fájl által megadott hárombetűs kóddal, `fra`,
+  `eng`, amelyet a kétbetűs kódként olvas.** Minden más elutasításra kerül a munka megkezdése előtt. **A felismerés
+  csak az első harminc másodpercet hallgatja**: egy zenével vagy csenddel kezdődő filmet másik nyelvűnek
+  nézhet, és a motor ekkor a beszédet arra a nyelvre *lefordítva* írja le — egy francia film, amelyet angolnak néz,
+  angolul jön ki, vagy `[SPEAKING FRENCH]` alakban. Ha ismeri a nyelvet, adja meg.
+- **A film egy része külön is leiratozható** a `--start` és az `--end` kapcsolóval — lásd:
+  [Egy rész leiratozása](#egy-rész-leiratozása). Így lehet egy modellt kétperces szakaszon kipróbálni, mielőtt
+  kétórás filmre indítják.
+- **A hangokat nem jegyzetként írja le**: a motor utasítást kap rá, hogy ne tegye (saját kapcsolója a `--suppress-nst`), így a `(Sonnerie de téléphone)` vagy a `[MUSIC PLAYING]` nem kerül a feliratok közé, sem kerek, sem szögletes zárójelben.
 - **A szakaszokat egyesíti és vágja** a beállítások korlátai szerint (`transcription.merge-gap-ms`,
   `transcription.max-duration-ms`, `transcription.max-characters`): egy mondat két közeli darabja
   egy felirat, a túl hosszú vagy túl széles darabot pedig szónál vágja el. **A `--raw`
@@ -54,7 +64,9 @@ Options:
   --to TEXT:{srt,vtt,subviewer2,ssa,ass,microdvd,mpl2,tmplayer,lrc}
                               Format to write; the one the extension of --output says by default
   --audio-track N             Audio track of a video, counted from 0; the first by default
-  --language CODE             Language of the speech: fr, en; detected by default
+  --start TIME                Where to begin, as 2:00, 1:02:03 or seconds; the beginning by default
+  --end TIME                  Where to stop, as 2:00, 1:02:03 or seconds; the end by default
+  --language CODE             Language of the speech, two letters: fr, en, de; detected from the first 30 seconds by default
   --model FILE                Model file; the transcription.model setting by default
   --engine NAME               Engine; the transcription.engine setting by default
   --keep-audio FILE           Keep the extracted audio in this file
@@ -69,7 +81,9 @@ Options:
 | `--output` | igen | a kiírandó feliratfájl; a könyvtára létrejön, ha hiányzik | — |
 | `--to` | nem | egy formátum rövid neve: `srt`, `vtt`, `subviewer2`, `ssa`, `ass`, `microdvd`, `mpl2`, `tmplayer`, `lrc` | az `--output` kiterjesztése által megadott formátum, különben `srt` |
 | `--audio-track` | nem | 0-tól induló egész szám: a hely a videó hangsávjai között | `0`, az első |
-| `--language` | nem | két kisbetű, egy ISO 639-1 kód: `en`, `fr` | a `transcription.language` beállítás; üres: felismeri |
+| `--language` | nem | két betű, egy ISO 639-1 kód: `en`, `fr`; egy hárombetűs kódot, például `fra`-t, `fr`-ként olvas | a `transcription.language` beállítás; üres: felismeri |
+| `--start` | nem | egy időpont: `2:00`, `1:02:03`, `2:00.5`, vagy másodpercek száma, `90` | a hang eleje |
+| `--end` | nem | egy időpont, a `--start`-hoz hasonlóan írva; a `--start` után kell jönnie | a hang vége |
 | `--model` | nem | a modellfájl | a `transcription.model` beállítás |
 | `--engine` | nem | egy motor neve: `whisper.cpp` | a `transcription.engine` beállítás |
 | `--keep-audio` | nem | egy fájl, amelyben a kinyert hang megmarad, 16 kHz-es mono 16 bites PCM-ként egy WAV-fájlban; a könyvtára létrejön, ha hiányzik | a hang sehol sem marad meg |
@@ -105,6 +119,26 @@ audio track 0: fra, Original
 audio track 1: eng, Commentary
 ```
 
+## Egy rész leiratozása
+
+A `--start` és az `--end` a munkát a kettejük közti filmrészre korlátozza. Elég az egyiket megadni: a puszta
+`--start` a végéig tart, a puszta `--end` az elejétől kezdődik.
+
+```bash
+subedit-cli transcribe --start 2:00 --end 3:30 --output test.srt --model large-v3.bin film.mkv
+```
+
+- **Az időpontot `M:SS` vagy `H:MM:SS` alakban kell írni, kívánság szerint ponttal elválasztott törtrésszel (`2:00.5`), vagy
+  másodpercek számaként (`90`, `90.5`)**. A vesszőt elutasítja, mint az eszköz mindenhol.
+- **A feliratok megtartják a film idejét**: a film 2:10-nél elhangzó mondata `00:02:10`-nél áll, nem
+  `00:00:10`-nél. A fájl úgy, ahogy van, ráhelyezhető a teljes filmre.
+- **A szélek hozzávetőlegesek**: a motor harminc másodperces ablakokban dolgozik, ezért amit visszaad, azt utólag
+  a tartományra vágja; a szélen átnyúló mondatot ott vágja el.
+- **Semmi sem indul el, ha a tartomány használhatatlan**: egy határ, amely nem időpont, vagy egy `--end`, amely nem a
+  `--start` után van, használati hiba, amely megnevezi a problémát, nem ír ki semmit, és sem az `ffmpeg`-et, sem a motort nem indítja el.
+
+A teljes film hangja ettől még kinyerődik: a tartomány a leiratozáson spórol, amely sokkal hosszabb.
+
 ## Kimenet
 
 **Szabványos kimenet** — semmi: az eredmény a kiírt fájl.
@@ -112,7 +146,14 @@ audio track 1: eng, Commentary
 | Szint | Mi kerül még a hibakimenetre |
 | :---- | :-------------------------------- |
 | 1 | `<input>: N subtitles transcribed, language: xx -> <output>` |
-| 2 | a motor előrehaladása, `transcribing: 25%`, ahogy jelenti — nagyjából harminc másodpercnyi hangonként |
+| 2 | a lépés és az előrehaladás, százalékonként egy sor: `extracting the audio…`, majd `transcribing…`, majd `transcribing: 25%, 0:12:30 of 0:50:00, about 38 min left, elapsed: 0:05:12` — a százalék, a hangban elért pozíció, a hátralévő idő és az eltelt idő; **a sort tíz másodpercenként újra kiírja, ha semmi új nem érkezett**, hogy a hosszú várakozást ne tekintsék lefagyásnak |
+| 3 | és minden új szöveg, amelyet a motor megkap, `last text: …` |
+
+**A százalék a motor pozíciója a hangban, nem a saját ablakainak száma**: a motor menet közben kiírja, amit leiratozott,
+a parancs pedig kiolvassa, hol tart, így a szám már az első percben mozog. (A motor saját előrehaladása
+a hang 5 %-os lépéseiben érkezik, egy harmincmásodperces ablak elkészülte után: egyedül akár negyedóráig is
+0 %-on maradhat egy hosszú filmnél, nagy modellel, processzoron.) **A hátralévő idő az elején hallgat**: akkor jelenik meg,
+amikor elég munka készült az extrapoláláshoz, és az utolsó perc sebességét követi, nem a teljes futás átlagát.
 
 ### JSON-ban
 
@@ -121,11 +162,23 @@ alparancs előtt írva) a fájl objektuma a használt nyelvet a `language` mező
 (a kiírt feliratok) és a `counts.segments` (a motor darabjai, amelyekből készültek) mezőt, valamint
 az `audio` mezőt hordozza, ha a `--keep-audio` megőrizte a hangot.
 
+## Figyelmeztetések
+
+Két figyelmeztetés hangzik el az első szinten, mert megváltoztatják, mire számítson:
+
+- **A munka előtt, csak angolra való modellnél**: `This model is for English only: whatever language the film
+  speaks, the result will be English, or notes in brackets. Choose a multilingual model in the preferences.` Az a modell
+  ilyen, amelynek a fájlneve `.en`-nel végződik.
+- **A munka után, ha a motor főleg szögletes zárójeles megjegyzéseket írt** — `[MUSIC PLAYING]`, `[SPEAKING FRENCH]` —,
+  darabjainak legalább kétharmadát: `N of the M pieces are only notes in brackets, such as [MUSIC PLAYING]: the
+  language used (xx) is probably not the one spoken, and the engine may have translated the speech. Run it again with
+  the language typed.` A feliratok ettől még megíródnak; a figyelmeztetés azt mondja meg, mire gyanakodjon.
+
 ## Kilépési kódok
 
 Az eszköz kódjai: `0`, ha a fájl kiíródott, `2`, ha nem sikerült — hiányzó eszköz vagy modell, a modell
 által nem fogadható nyelv, sikertelen kinyerés vagy leiratozás —, `1` használati hiba esetén, például
-egy motornál, amelyet senki sem regisztrált.
+egy motornál, amelyet senki sem regisztrált, vagy használhatatlan tartománynál.
 
 ## Hibák
 
@@ -138,6 +191,9 @@ egy motornál, amelyet senki sem regisztrált.
 | a modell által le nem iratozható nyelv | `the model cannot transcribe the language xx` |
 | nincs nyelv, és a modell nem tud felismerni egyet | `the model cannot detect the language: give one` |
 | egy motor, amelyet senki sem regisztrált | `no transcription engine is called NAME` |
+| egy nyelv, amely nem kód | `"TEXT" is not a language code: write two letters, such as fr, en, de or es` |
+| a tartomány egy határa, amely nem időpont | `"TEXT" is not a time: write it as 2:00, 1:02:03 or 2:00.5, or in seconds` |
+| az `--end` nem a `--start` után | `the end of the range must come after its start` |
 | minden más hiba | `the transcription failed`, azzal, amit a motor mondott |
 
 Az útmutatóra mutató hivatkozás: `See the manual page "Installing the transcription tools"

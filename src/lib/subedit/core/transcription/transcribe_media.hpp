@@ -27,6 +27,10 @@ struct MediaTranscriptionRequest {
 
     std::optional<std::string> language{};
     std::optional<std::filesystem::path> model{};
+
+    /// The part of the film to transcribe, in its own time; all of it when not given.
+    std::optional<Timestamp> start{};
+    std::optional<Timestamp> end{};
 };
 
 /// Why it did not come to anything: the audio could not be prepared, or the engine

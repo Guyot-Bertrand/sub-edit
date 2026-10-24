@@ -29,6 +29,7 @@
 #include <subedit/core/model/subtitle.hpp>
 #include <subedit/core/model/subtitle_index.hpp>
 #include <subedit/core/time/timestamp.hpp>
+#include <subedit/core/transcription/annotation_notes.hpp>
 #include <subedit/core/wording/conversion.hpp>
 #include <subedit/core/wording/counts.hpp>
 #include <subedit/core/wording/editing.hpp>
@@ -425,7 +426,9 @@ void ProjectOperations::transcribeAudio(ProjectPage& page) {
                                .track = choice.track,
                                .language = choice.language,
                                .model = m_transcriptionSettings.model,
-                               .settings = m_transcriptionSettings};
+                               .settings = m_transcriptionSettings,
+                               .start = choice.start,
+                               .end = choice.end};
     std::expected<TranscriptionOutcome, TranscriptionFailure> outcome = m_view->transcribe(job);
     if (!outcome) {
         if (outcome.error().cancelled)
@@ -437,6 +440,11 @@ void ProjectOperations::transcribeAudio(ProjectPage& page) {
     }
 
     const std::size_t made = outcome->subtitles.size();
+    const bool suspicious =
+        core::looksLikeWrongLanguage({.notes = outcome->notes, .pieces = outcome->pieces});
+    const std::string suspicion =
+        suspicious ? core::noticeOfNotes(outcome->notes, outcome->pieces, outcome->language)
+                   : std::string{};
     std::unique_ptr<core::Command> command =
         core::replaceAllSubtitles(page.session->project(), std::move(outcome->subtitles));
     if (command != nullptr) {
@@ -444,6 +452,8 @@ void ProjectOperations::transcribeAudio(ProjectPage& page) {
         apply(page, std::move(command), everything);
     }
     m_view->announce(core::noticeOfTranscription(made, outcome->language));
+    if (suspicious)
+        m_prompts->reportOutcome(suspicion);
 }
 
 void ProjectOperations::appendFile(ProjectPage& page) {

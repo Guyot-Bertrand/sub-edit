@@ -8,6 +8,7 @@ subedit-cli transcribe --output FILE
                        [--to FORMAT]
                        [--audio-track N]
                        [--language CODE]
+                       [--start TIME] [--end TIME]
                        [--model FILE]
                        [--engine NAME]
                        [--keep-audio FILE]
@@ -33,6 +34,16 @@ a skončí s nenulovým kódem.
 - **Jazyk se zjistí**, pokud ho `--language` nevynutí, a použitý jazyk se vypíše. Model
   určený jen pro angličtinu nic nezjistí a nepřepíše nic jiného: jazyk, který nemůže přijmout, se odmítne
   *před* zahájením jakékoli práce a uvede se mez modelu.
+- **Jazyk se zapisuje dvěma písmeny — `fr`, `en`, `de` —, nebo třípísmenným kódem, který soubor uvádí, `fra`,
+  `eng`, a ten se čte jako dvoupísmenný.** Cokoli jiného se odmítne před zahájením jakékoli práce. **Zjišťování
+  poslouchá jen prvních třicet sekund**: film, který začíná hudbou nebo tichem, může být považován za
+  jiný jazyk a nástroj pak zapíše řeč *přeloženou* do tohoto jazyka — francouzský film považovaný
+  za anglický vyjde anglicky, nebo jako `[SPEAKING FRENCH]`. Když jazyk znáte, zadejte ho.
+- **Část filmu lze přepsat samostatně** pomocí `--start` a `--end` — viz
+  [Přepis části](#přepis-části). Tak se model vyzkouší na dvou minutách, než se pustí na dvě
+  hodiny.
+- **Zvuky se nezapisují jako poznámky**: nástroj má příkaz to nedělat (jeho vlastní volba je `--suppress-nst`), takže
+  `(Sonnerie de téléphone)` nebo `[MUSIC PLAYING]` se v titulcích neobjeví, ani v závorkách, ani v hranatých závorkách.
 - **Segmenty se sloučí a rozdělí** podle mezí nastavení (`transcription.merge-gap-ms`,
   `transcription.max-duration-ms`, `transcription.max-characters`): dva kusy jedné věty, které jsou
   blízko sebe, tvoří jeden titulek, a kus příliš dlouhý nebo příliš široký se rozdělí u slova. **`--raw`
@@ -54,7 +65,9 @@ Options:
   --to TEXT:{srt,vtt,subviewer2,ssa,ass,microdvd,mpl2,tmplayer,lrc}
                               Format to write; the one the extension of --output says by default
   --audio-track N             Audio track of a video, counted from 0; the first by default
-  --language CODE             Language of the speech: fr, en; detected by default
+  --start TIME                Where to begin, as 2:00, 1:02:03 or seconds; the beginning by default
+  --end TIME                  Where to stop, as 2:00, 1:02:03 or seconds; the end by default
+  --language CODE             Language of the speech, two letters: fr, en, de; detected from the first 30 seconds by default
   --model FILE                Model file; the transcription.model setting by default
   --engine NAME               Engine; the transcription.engine setting by default
   --keep-audio FILE           Keep the extracted audio in this file
@@ -69,7 +82,9 @@ Options:
 | `--output` | ano | soubor titulků k zapsání; jeho adresář se vytvoří, pokud chybí | — |
 | `--to` | ne | krátký název formátu: `srt`, `vtt`, `subviewer2`, `ssa`, `ass`, `microdvd`, `mpl2`, `tmplayer`, `lrc` | formát, který určuje přípona `--output`, jinak `srt` |
 | `--audio-track` | ne | celé číslo od 0: pořadí mezi zvukovými stopami videa | `0`, první |
-| `--language` | ne | dvě malá písmena, kód ISO 639-1: `en`, `fr` | nastavení `transcription.language`; prázdné: zjistí se |
+| `--language` | ne | dvě písmena, kód ISO 639-1: `en`, `fr`; třípísmenný kód, například `fra`, se čte jako `fr` | nastavení `transcription.language`; prázdné: zjistí se |
+| `--start` | no | čas: `2:00`, `1:02:03`, `2:00.5`, nebo počet sekund, `90` | začátek zvuku |
+| `--end` | no | čas zapsaný jako u `--start`; musí následovat po `--start` | konec zvuku |
 | `--model` | ne | soubor modelu | nastavení `transcription.model` |
 | `--engine` | ne | název nástroje: `whisper.cpp` | nastavení `transcription.engine` |
 | `--keep-audio` | ne | soubor, ve kterém se uchová vyextrahovaný zvuk, jako 16bitové mono PCM s frekvencí 16 kHz v souboru WAV; jeho adresář se vytvoří, pokud chybí | zvuk se neuchovává nikde |
@@ -105,6 +120,27 @@ audio track 0: fra, Original
 audio track 1: eng, Commentary
 ```
 
+## Přepis části
+
+`--start` a `--end` omezí práci na část filmu mezi nimi. Lze zadat jen jedno: samotné
+`--start` jde až do konce, samotné `--end` začíná od začátku.
+
+```bash
+subedit-cli transcribe --start 2:00 --end 3:30 --output test.srt --model large-v3.bin film.mkv
+```
+
+- **Čas se píše jako `M:SS`, `H:MM:SS`, obojí s desetinnou částí za tečkou (`2:00.5`), nebo jako počet
+  sekund (`90`, `90.5`)**. Čárka se odmítne, jako všude v nástroji.
+- **Titulky zachovají čas filmu**: věta řečená ve filmu v 2:10 se zapíše na `00:02:10`, ne
+  na `00:00:10`. Soubor lze přiložit na celý film tak, jak je.
+- **Okraje jsou přibližné**: nástroj pracuje s okny po třiceti sekundách, takže to, co vrátí, se
+  poté ořízne na rozsah; věta, která přesahuje okraj, se na něm přeřízne.
+- **Nic nezačne, pokud rozsah nelze použít**: mez, která není čas, nebo `--end`, které nenásleduje po
+  `--start`, je chyba použití, která problém pojmenuje, nic nezapíše a nespustí ani `ffmpeg`, ani
+  nástroj.
+
+Zvuk celého filmu se stále extrahuje: rozsah ušetří přepis, který je mnohem delší.
+
 ## Výstup
 
 **Standardní výstup** — nic: výsledkem je zapsaný soubor.
@@ -112,7 +148,15 @@ audio track 1: eng, Commentary
 | Úroveň | Co se přidá na chybový výstup |
 | :---- | :-------------------------------- |
 | 1 | `<input>: N subtitles transcribed, language: xx -> <output>` |
-| 2 | průběh práce nástroje, `transcribing: 25%`, tak jak ho hlásí — v krocích zhruba třiceti sekund zvuku |
+| 2 | krok a průběh, jeden řádek na každé procento: `extracting the audio…`, pak `transcribing…`, pak `transcribing: 25%, 0:12:30 of 0:50:00, about 38 min left, elapsed: 0:05:12` — procento, dosažená pozice ve zvuku, zbývající čas a uplynulý čas; **řádek se zopakuje každých deset sekund, když nepřišlo nic nového**, aby dlouhé čekání nebylo považováno za zamrznutí |
+| 3 | a každý nový text, který nástroj získá, `last text: …` |
+
+**Procento je pozice nástroje ve zvuku, ne počet jeho oken**: nástroj průběžně zapisuje, co
+přepsal, a příkaz čte, kam to došlo, takže číslo se hýbe od první
+minuty. (Vlastní průběh nástroje přichází v krocích po 5 % zvuku, po dokončení okna o třiceti sekundách:
+samotný může u dlouhého filmu s velkým modelem na procesoru zůstat na 0 % čtvrt hodiny.) **Zbývající
+čas zpočátku mlčí**: uvede se, jakmile je hotovo dost práce pro extrapolaci, a řídí se rychlostí
+poslední minuty, ne průměrem celého běhu.
 
 ### Ve formátu JSON
 
@@ -121,11 +165,23 @@ podpříkazem) nese objekt souboru použitý jazyk v `language`, `counts.subtitl
 titulky) a `counts.segments` (kusy nástroje, z nichž vznikly) a `audio`, když
 `--keep-audio` zvuk uchoval.
 
+## Upozornění
+
+Dvě upozornění se vypisují na první úrovni, protože mění, co lze čekat:
+
+- **Před prací, s modelem jen pro angličtinu**: `This model is for English only: whatever language the film
+  speaks, the result will be English, or notes in brackets. Choose a multilingual model in the preferences.` Takovým
+  modelem je ten, jehož název souboru končí na `.en`.
+- **Po práci, když nástroj zapsal převážně poznámky v hranatých závorkách** — `[MUSIC PLAYING]`, `[SPEAKING FRENCH]` —,
+  alespoň dvě a třetinu jeho částí: `N of the M pieces are only notes in brackets, such as [MUSIC PLAYING]: the
+  language used (xx) is probably not the one spoken, and the engine may have translated the speech. Run it again with
+  the language typed.` Titulky se přesto zapíšou; upozornění říká, co podezírat.
+
 ## Návratové kódy
 
 Kódy nástroje: `0`, pokud byl soubor zapsán, `2`, pokud se zapsat nepodařilo — chybí nástroj nebo model,
 jazyk, který model nepřijme, selhala extrakce nebo přepis —, `1` při chybě použití, například u
-nástroje, který nikdo nezaregistroval.
+nástroje, který nikdo nezaregistroval, nebo u rozsahu, který nelze použít.
 
 ## Chyby
 
@@ -138,6 +194,9 @@ nástroje, který nikdo nezaregistroval.
 | jazyk, který model neumí přepisovat | `the model cannot transcribe the language xx` |
 | žádný jazyk a model, který žádný nezjistí | `the model cannot detect the language: give one` |
 | nástroj, který nikdo nezaregistroval | `no transcription engine is called NAME` |
+| jazyk, který není kód | `"TEXT" is not a language code: write two letters, such as fr, en, de or es` |
+| mez rozsahu, která není čas | `"TEXT" is not a time: write it as 2:00, 1:02:03 or 2:00.5, or in seconds` |
+| `--end` nenásleduje po `--start` | `the end of the range must come after its start` |
 | jakékoli jiné selhání | `the transcription failed`, s tím, co nástroj řekl |
 
 Odkaz na průvodce je `See the manual page "Installing the transcription tools"

@@ -1058,8 +1058,22 @@ msgid "Audio track of a video, counted from 0; the first by default"
 msgstr "Hljóðrás myndskeiðs, talin frá 0; sjálfgefið sú fyrsta"
 
 #: src/exe/cli/commands/transcribe.cpp
-msgid "Language of the speech: fr, en; detected by default"
-msgstr "Tungumál talsins: fr, en; sjálfgefið greint sjálfkrafa"
+msgid "Where to begin, as 2:00, 1:02:03 or seconds; the beginning by default"
+msgstr ""
+"Hvar á að byrja, til dæmis 2:00, 1:02:03 eða í sekúndum; upphafið sjálfgefið"
+
+#: src/exe/cli/commands/transcribe.cpp
+msgid "Where to stop, as 2:00, 1:02:03 or seconds; the end by default"
+msgstr ""
+"Hvar á að hætta, til dæmis 2:00, 1:02:03 eða í sekúndum; endirinn sjálfgefið"
+
+#: src/exe/cli/commands/transcribe.cpp
+msgid ""
+"Language of the speech, two letters: fr, en, de; detected from the first 30 "
+"seconds by default"
+msgstr ""
+"Tungumál talmálsins, tveir stafir: fr, en, de; greint af fyrstu 30 "
+"sekúndunum sjálfgefið"
 
 #: src/exe/cli/commands/transcribe.cpp
 msgid "Model file; the transcription.model setting by default"
@@ -3415,46 +3429,106 @@ msgstr[1] ""
 "afturkallað það."
 
 #: src/lib/subedit/core/wording/transcription.cpp
+msgid ""
+"\"%1\" is not a time: write it as 2:00, 1:02:03 or 2:00.5, or in seconds"
+msgstr ""
+"„%1“ er ekki tími: skrifaðu hann sem 2:00, 1:02:03 eða 2:00.5, eða í sekúndum"
+
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid ""
+"%1 of the %2 pieces are only notes in brackets, such as [MUSIC PLAYING]: the "
+"language used (%3) is probably not the one spoken, and the engine may have "
+"translated the speech. Run it again with the language typed."
+msgstr ""
+"%1 af %2 hlutum eru aðeins athugasemdir í hornklofum, eins og [MUSIC "
+"PLAYING]: tungumálið sem var notað (%3) er líklega ekki það sem er talað, og "
+"vélin kann að hafa þýtt talmálið. Keyrðu aftur með tungumálið skrifað inn."
+
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid ""
+"This model is for English only: whatever language the film speaks, the "
+"result will be English, or notes in brackets. Choose a multilingual model in "
+"the preferences."
+msgstr ""
+"Þetta líkan er eingöngu fyrir ensku: hvaða tungumál sem kvikmyndin talar "
+"verður niðurstaðan enska, eða athugasemdir í hornklofum. Veldu fjöltyngt "
+"líkan í stillingunum."
+
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid ""
+"\"%1\" is not a language code: write two letters, such as fr, en, de or es"
+msgstr ""
+"„%1“ er ekki tungumálskóði: skrifaðu tvo stafi, eins og fr, en, de eða es"
+
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "the end of the range must come after its start"
+msgstr "endir bilsins verður að koma á eftir upphafi þess"
+
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "less than a minute left"
+msgstr "innan við mínúta eftir"
+
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "about %1 min left"
+msgstr "um %1 mín. eftir"
+
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "about %1 h %2 min left"
+msgstr "um %1 klst. %2 mín. eftir"
+
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "extracting the audio…"
+msgstr "dreg út hljóðið…"
+
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "transcribing…"
+msgstr "umrita…"
+
+#: src/lib/subedit/core/wording/transcription.cpp
+#: src/lib/subedit/gui/transcription_runner.cpp
+msgid "%1 of %2"
+msgstr "%1 af %2"
+
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "elapsed: %1"
+msgstr "liðið: %1"
+
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "last text: %1"
+msgstr "síðasti texti: %1"
+
 #: src/lib/subedit/core/wording/transcription.cpp
 msgid "%1: found (%2)"
 msgstr "%1: fannst (%2)"
 
 #: src/lib/subedit/core/wording/transcription.cpp
-#: src/lib/subedit/core/wording/transcription.cpp
 msgid "%1: not found"
 msgstr "%1: fannst ekki"
 
-#: src/lib/subedit/core/wording/transcription.cpp
 #: src/lib/subedit/core/wording/transcription.cpp
 msgid "ffmpeg: found"
 msgstr "ffmpeg: fannst"
 
 #: src/lib/subedit/core/wording/transcription.cpp
-#: src/lib/subedit/core/wording/transcription.cpp
 msgid "ffmpeg: not found"
 msgstr "ffmpeg: fannst ekki"
 
-#: src/lib/subedit/core/wording/transcription.cpp
 #: src/lib/subedit/core/wording/transcription.cpp
 msgid "Model: none set"
 msgstr "Líkan: ekkert stillt"
 
 #: src/lib/subedit/core/wording/transcription.cpp
-#: src/lib/subedit/core/wording/transcription.cpp
 msgid "Model: not found (%1)"
 msgstr "Líkan: fannst ekki (%1)"
 
-#: src/lib/subedit/core/wording/transcription.cpp
 #: src/lib/subedit/core/wording/transcription.cpp
 msgid "Model: not a model (%1)"
 msgstr "Líkan: er ekki líkan (%1)"
 
 #: src/lib/subedit/core/wording/transcription.cpp
-#: src/lib/subedit/core/wording/transcription.cpp
 msgid "Model: English only (%1)"
 msgstr "Líkan: aðeins ensku (%1)"
 
-#: src/lib/subedit/core/wording/transcription.cpp
 #: src/lib/subedit/core/wording/transcription.cpp
 msgid "Model: multilingual (%1)"
 msgstr "Líkan: fjöltyngt (%1)"
@@ -4316,11 +4390,9 @@ msgid "Frame step"
 msgstr "Rammaskref"
 
 #: src/lib/subedit/gui/preferences_dialog.cpp
-#: src/lib/subedit/gui/preferences_dialog.cpp
 msgid "Searched for on the PATH"
 msgstr "Leitað á PATH"
 
-#: src/lib/subedit/gui/preferences_dialog.cpp
 #: src/lib/subedit/gui/preferences_dialog.cpp
 msgid "Program"
 msgstr "Forrit"
@@ -4330,7 +4402,6 @@ msgid "Model"
 msgstr "Líkan"
 
 # From Gaupol.
-#: src/lib/subedit/gui/preferences_dialog.cpp
 #: src/lib/subedit/gui/preferences_dialog.cpp
 msgid "Transcription"
 msgstr "Umritun"
@@ -4392,7 +4463,6 @@ msgstr "Veldu myndskeið"
 msgid "Choose a model"
 msgstr "Velja líkan"
 
-#: src/lib/subedit/gui/qt_prompts.cpp
 #: src/lib/subedit/gui/qt_prompts.cpp
 msgid "Choose the program"
 msgstr "Velja forritið"
@@ -4709,7 +4779,6 @@ msgid "Main"
 msgstr "Aðal"
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
-#: src/lib/subedit/gui/transcribe_dialog.cpp
 msgid "Preferences…"
 msgstr "Kjörstillingar…"
 
@@ -4723,27 +4792,31 @@ msgid "First audio track"
 msgstr "Fyrsta hljóðrás"
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
-#: src/lib/subedit/gui/transcribe_dialog.cpp
 msgid "Detected from the sound"
 msgstr "Greint af hljóðinu"
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
 msgid ""
-"A two-letter language code such as en or fr. Leave it empty to let the model "
-"detect the language."
+"A language code such as fr, en, de, es or it (fra and eng work too). Leave "
+"it empty to let the model detect the language from the first 30 seconds of "
+"sound."
 msgstr ""
-"Tveggja stafa tungumálskóði eins og en eða fr. Skildu það eftir tómt til að "
-"láta líkanið greina tungumálið."
+"Tungumálskóði eins og fr, en, de, es eða it (fra og eng virka líka). Hafðu "
+"hann tóman til að láta líkanið greina tungumálið af fyrstu 30 sekúndum "
+"hljóðsins."
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
 msgid ""
-"The audio of the film open in this window is transcribed into subtitles that "
-"replace the ones of the project. The work runs in the background and can be "
-"cancelled."
+"A time as HH:MM:SS, for example 00:02:00. Leave both empty to transcribe the "
+"whole film."
 msgstr ""
-"Hljóð kvikmyndarinnar sem er opin í þessum glugga er umritað í skjátexta sem "
-"koma í stað skjátexta verkefnisins. Vinnslan fer fram í bakgrunni og hægt er "
-"að hætta við hana."
+"Tími á sniðinu HH:MM:SS, til dæmis 00:02:00. Skildu bæði eftir tóm til að "
+"umrita alla kvikmyndina."
+
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+msgid "The audio of the film open in this window is transcribed into subtitles that replace the ones of the project. The work runs in the background and can be cancelled."
+msgstr "Hljóð kvikmyndarinnar sem er opin í þessum glugga er umritað í skjátexta sem koma í stað skjátexta verkefnisins. Vinnslan fer fram í bakgrunni og hægt er að hætta við hana."
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
 msgid "Audio track"
@@ -4754,38 +4827,53 @@ msgid "Language"
 msgstr "Tungumál"
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
+msgid "to"
+msgstr "til"
+
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+msgid "Part of the film"
+msgstr "Hluti kvikmyndarinnar"
+
 #: src/lib/subedit/gui/transcribe_dialog.cpp
 msgid "Set them in the preferences."
 msgstr "Stilltu þau í kjörstillingunum."
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
-#: src/lib/subedit/gui/transcribe_dialog.cpp
-msgid "This model cannot detect the language: type it."
-msgstr "Þetta líkan getur ekki greint tungumálið: sláðu það inn."
-
-#: src/lib/subedit/gui/transcribe_dialog.cpp
-#: src/lib/subedit/gui/transcribe_dialog.cpp
 msgid "The language you typed is used."
 msgstr "Tungumálið sem þú slóst inn er notað."
 
-#: src/lib/subedit/gui/transcribe_dialog.cpp
 #: src/lib/subedit/gui/transcribe_dialog.cpp
 msgid "Proposed from the language the file declares for this track."
 msgstr "Lagt til út frá tungumálinu sem skráin gefur upp fyrir þessa hljóðrás."
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
-#: src/lib/subedit/gui/transcribe_dialog.cpp
-msgid "The file declares no language for this track: the model will detect it from the sound. Type it if you know it."
-msgstr "Skráin gefur ekki upp tungumál fyrir þessa hljóðrás: líkanið greinir það af hljóðinu. Sláðu það inn ef þú veist það."
+msgid ""
+"The file declares no language for this track: the model will detect it from "
+"the first 30 seconds of sound. If the film opens with music or silence it "
+"can choose wrongly, and the speech is then translated into that language. "
+"Type the language if you know it."
+msgstr ""
+"Skráin gefur ekkert tungumál upp fyrir þessa rás: líkanið greinir það af "
+"fyrstu 30 sekúndum hljóðsins. Ef kvikmyndin byrjar á tónlist eða þögn getur "
+"það valið rangt, og talmálið er þá þýtt yfir á það tungumál. Sláðu "
+"tungumálið inn ef þú veist það."
+
+#: src/lib/subedit/gui/transcription_runner.cpp
+msgid "Extracting the audio…"
+msgstr "Dreg út hljóðið…"
+
+#: src/lib/subedit/gui/transcription_runner.cpp
+msgid "Transcribing the audio…"
+msgstr "Umrita hljóðið…"
+
+#: src/lib/subedit/gui/transcription_runner.cpp
+msgid "Last text: %1"
+msgstr "Síðasti texti: %1"
 
 #: src/lib/subedit/gui/transcription_runner.cpp
 #: src/lib/subedit/gui/unsaved_documents_dialog.cpp
 msgid "Cancel"
 msgstr "Hætta við"
-
-#: src/lib/subedit/gui/transcription_runner.cpp
-msgid "Transcribing the audio…"
-msgstr "Umrita hljóðið…"
 
 #: src/lib/subedit/gui/transform_dialog.cpp
 msgid "Transform positions"
@@ -5203,6 +5291,22 @@ msgstr "Skáletur"
 msgctxt "toolbar"
 msgid "Main"
 msgstr "Aðalstika"
+
+#~ msgid "estimating the time left…"
+#~ msgstr "áætla tímann sem eftir er…"
+
+#~ msgid "This model cannot detect the language: type it."
+#~ msgstr "Þetta líkan getur ekki greint tungumálið: sláðu það inn."
+
+#~ msgid ""
+#~ "The file declares no language for this track: the model will detect it "
+#~ "from the sound. Type it if you know it."
+#~ msgstr ""
+#~ "Skráin gefur ekki upp tungumál fyrir þessa hljóðrás: líkanið greinir það "
+#~ "af hljóðinu. Sláðu það inn ef þú veist það."
+
+#~ msgid "Beginning"
+#~ msgstr "Upphaf"
 
 #~ msgid "Detected"
 #~ msgstr "Greint"
