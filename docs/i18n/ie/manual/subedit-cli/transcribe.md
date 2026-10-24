@@ -8,6 +8,7 @@ subedit-cli transcribe --output FILE
                        [--to FORMAT]
                        [--audio-track N]
                        [--language CODE]
+                       [--start TIME] [--end TIME]
                        [--model FILE]
                        [--engine NAME]
                        [--keep-audio FILE]
@@ -33,6 +34,9 @@ e exeunte con un code ne-zero.
 - **Li lingue es detectet** si `--language` ne fortia it, e li lingue usat es dit. Un
   model fat solmen por anglesi ne detecte nequo e ne transcrive altri cosa: un lingue quel it ne posse
   acceptar es refusat *ante* que qualcunc labor comencea, nominante li límite del model.
+- **On posse transcrir solmen un parte del film**, con `--start` e `--end` — vide
+  [Transcrir un parte](#transcrir-un-parte). It es li manie de provar un model sur du minutes ante lansar it sur
+  du hores.
 - **Li segmentes es fusionat e tallit** secun li límites del parametres (`transcription.merge-gap-ms`,
   `transcription.max-duration-ms`, `transcription.max-characters`): du fragmentes de un sam frase quel es
   proxim es un subtitul, e un fragment tro long o tro large es tallit a un parol. **`--raw`
@@ -54,6 +58,8 @@ Options:
   --to TEXT:{srt,vtt,subviewer2,ssa,ass,microdvd,mpl2,tmplayer,lrc}
                               Format to write; the one the extension of --output says by default
   --audio-track N             Audio track of a video, counted from 0; the first by default
+  --start TIME                Where to begin, as 2:00, 1:02:03 or seconds; the beginning by default
+  --end TIME                  Where to stop, as 2:00, 1:02:03 or seconds; the end by default
   --language CODE             Language of the speech: fr, en; detected by default
   --model FILE                Model file; the transcription.model setting by default
   --engine NAME               Engine; the transcription.engine setting by default
@@ -70,6 +76,8 @@ Options:
 | `--to` | no | li curt nómine de un formate: `srt`, `vtt`, `subviewer2`, `ssa`, `ass`, `microdvd`, `mpl2`, `tmplayer`, `lrc` | li formate quel li extension de `--output` indica, altrimen `srt` |
 | `--audio-track` | no | un númere integri ex 0: li position inter li pistas audio del video | `0`, li unesim |
 | `--language` | no | du líttere minuscul, un code ISO 639-1: `en`, `fr` | li parametre `transcription.language`; vacui: detectet |
+| `--start` | no | un témpor: `2:00`, `1:02:03`, `2:00.5`, o un númere de secondes, `90` | li comense del audio |
+| `--end` | no | un témpor, scrit quam por `--start`; it deve venir pos `--start` | li fine del audio |
 | `--model` | no | li file de model | li parametre `transcription.model` |
 | `--engine` | no | li nómine de un motor: `whisper.cpp` | li parametre `transcription.engine` |
 | `--keep-audio` | no | un file in quel conservar li audio extraet, quam PCM mono de 16 bits a 16 kHz in un file WAV; su dossier es creat si it manca | li audio ne es conservat in null loc |
@@ -105,6 +113,26 @@ audio track 0: fra, Original
 audio track 1: eng, Commentary
 ```
 
+## Transcrir un parte
+
+`--start` e `--end` limita li labor al parte del film inter ambi. On posse dar solmen un: un `--start` sol va
+til li fine, un `--end` sol comensa ye li comense.
+
+```bash
+subedit-cli transcribe --start 2:00 --end 3:30 --output test.srt --model large-v3.bin film.mkv
+```
+
+- **Un témpor es scrit `M:SS` o `H:MM:SS`, si on vole con un parte decimal pos un punctu (`2:00.5`), o quam un númere de
+  secondes (`90`, `90.5`)**. Un comma es refusat, quam omnicubi in li instrument.
+- **Li subtitules conserva li témpor del film**: li frase dit a 2:10 del film es scrit a `00:02:10`, ne a
+  `00:00:10`. Li file posse esser posit talmen sur li tot film.
+- **Li bordes es aproximativ**: li motor labora per fenestres de trenta secondes, dunc quo it retorna es tallit
+  al interval pos: un frase quel transpassa un bord es tallit ibi.
+- **Nequo comensa si li interval ne posse esser usat**: un límite quel ne es un témpor, o un `--end` quel ne es pos
+  `--start`, es un errore de usation quel nomina li problema, scri nequo e lansa ni `ffmpeg` ni li motor.
+
+Li audio del tot film es tamen extraet: li transcription, mult plu long, es quo li interval economisa.
+
 ## Output
 
 **Exeunte standard** — nequo: li resultate es li file scrit.
@@ -112,7 +140,14 @@ audio track 1: eng, Commentary
 | Nivelle | Quo es adjuntet al exeunte de error |
 | :---- | :-------------------------------- |
 | 1 | `<input>: N subtitles transcribed, language: xx -> <output>` |
-| 2 | li progress del motor, `transcribing: 25%`, quam it lo reporta — per passus de circa trenta secondes de audio |
+| 2 | li pass e li progress, un linea per procent: `extracting the audio…`, pois `transcribing…`, pois `transcribing: 25%, 0:12:30 of 0:50:00, about 38 min left` — li procent, li position atinget in li audio, e li témpor restant |
+| 3 | e chascun nov textu quel li motor obtene, `last text: …` |
+
+**Li procent es li position del motor in li audio, ne un conte de su proprie fenestres**: li motor scri quo it ha
+transcrit durant que it labora, e li comande lee u it es, tal que li númere move ja del prim minute. (Li progress
+propri del motor veni per passus de 5 % del audio, pos que un fenestre de trenta secondes es finit: sol, it posse restar
+a 0 % un quart de hora sur un long film con un grand model sur un processor.) **Li témpor restant es mutu in li comense**: it es dat
+quande suficent labor es fat por extrapolar, e it seque li rapiditá del ultim minute, ne li mediana del tot execution.
 
 ### In JSON
 
@@ -125,7 +160,7 @@ subtitules scrit) e `counts.segments` (li fragmentes del motor ex quel ili esset
 
 Ti del instrument: `0` si li file esset scrit, `2` si it ne posset esser — un instrument o un model mancant, un
 lingue quel li model ne posse acceptar, un extraction o un transcription fallit —, `1` pro un errore de usation, quam un
-motor quel nequi ha registrat.
+motor quel nequi ha registrat o un interval quel ne posse esser usat.
 
 ## Errores
 
@@ -138,6 +173,8 @@ motor quel nequi ha registrat.
 | un lingue quel li model ne posse transcrir | `the model cannot transcribe the language xx` |
 | null lingue, e un model quel ne posse detecter un | `the model cannot detect the language: give one` |
 | un motor quel nequi ha registrat | `no transcription engine is called NAME` |
+| un límite del interval quel ne es un témpor | `"TEXT" is not a time: write it as 2:00, 1:02:03 or 2:00.5, or in seconds` |
+| `--end` ne pos `--start` | `the end of the range must come after its start` |
 | qualcunc altri fallimentu | `the transcription failed`, con quo li motor ha dit |
 
 Li indication al guide es `See the manual page "Installing the transcription tools"

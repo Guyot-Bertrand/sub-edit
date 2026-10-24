@@ -107,7 +107,7 @@ związany jest ten dokument — a trzecia wzmianka stawiałaby go w jednym rzęd
 dźwięk **filmu projektu**, nigdy plik, który się wybiera — aby transkrybować plik
 dźwiękowy, użyj [`transcribe`](../subedit-cli/transcribe.md) w wierszu poleceń.
 
-Okno dialogowe pyta o dwie rzeczy i mówi, czy może zacząć:
+Okno dialogowe pyta o trzy rzeczy i mówi, czy może zacząć:
 
 - **ścieżkę dźwiękową**, wymienioną tak, jak wymienia ją menu [`Audio`](#ścieżka-dźwiękowa), z językiem
   i tytułem, które deklaruje plik;
@@ -116,7 +116,9 @@ Okno dialogowe pyta o dwie rzeczy i mówi, czy może zacząć:
   **wiersz pod polem mówi, skąd on pochodzi**. Gdy plik nie deklaruje języka dla ścieżki,
   wiersz to mówi: model wykryje go wtedy z dźwięku, co potrafi tylko model wielojęzyczny,
   i warto go wpisać, jeśli go znasz. Przy modelu tylko dla angielskiego, który niczego nie wykrywa,
-  wiersz mówi, że język trzeba wpisać.
+  wiersz mówi, że język trzeba wpisać;
+- **fragment filmu**, od jednego czasu do drugiego — zobacz [Najpierw wypróbuj fragment](#najpierw-wypróbuj-fragment). Oba pola
+  puste oznaczają cały film.
 
 **Mówi także, czego brakuje.** Trzy wiersze mówią, czy silnik, `ffmpeg` i model są na miejscu, i
 gdzie; gdy któregoś brak, `OK` pozostaje wyłączony, a okno mówi o tym, odsyłając do
@@ -131,11 +133,33 @@ Język jest zapamiętywany na następny raz. Sam silnik i limity napisów to
 Pyta przed pracą, aby odmowa nic nie kosztowała. Gdy projekt jest pusty, nie ma
 o co pytać.
 
-Praca przebiega **w tle**, z oknem pokazującym, jak daleko doszedł silnik, i przyciskiem `Cancel`;
-okno główne pozostaje używalne. Gdy praca się kończy, napisy projektu są zastępowane
+Praca przebiega **w tle**, z oknem i przyciskiem `Cancel`; okno główne pozostaje używalne. **Okno
+mówi, na jakim etapie jest praca**, abyś wiedział, że żyje, i ile potrwa:
+
+- **etap**: najpierw „Wyodrębnianie dźwięku…” — okno jest wtedy zajęte, bez liczby, bo wyodrębnianie nic nie mówi o tym, jak daleko
+  doszło —, potem „Transkrypcja dźwięku…”, z paskiem;
+- **pozycja**: „0:12:30 z 0:50:00”, jak daleko w filmie doszedł silnik, gdy tylko wytworzy pierwszy tekst;
+- **pozostały czas**, „zostało około 38 min”: na początku nieobecny, pokazywany, gdy zrobiono dość pracy, by ekstrapolować, i
+  liczony z tempa ostatniej minuty; to dokładność rzędu kilku minut, nie obietnica;
+- **ostatni tekst**, który uzyskano, abyś widział, że praca ma sens.
+
+Na długim filmie z dużym modelem na procesorze pierwsze minuty mogą być długie: silnik ładuje model i pracuje nad pierwszymi
+oknami po trzydzieści sekund. Pozycja i ostatni tekst ruszają, zanim ruszy własny procent silnika, który przychodzi tylko co 5 % filmu.
+Gdy praca się kończy, napisy projektu są zastępowane
 transkrypcją **jedną operacją**: jedno `Undo` przywraca to, co było, łącznie z tekstami
 tłumaczenia. Transkrypcja, która się nie powiedzie albo którą anulujesz, niczego nie zmienia — przyczyna jest
 podawana w oknie, z wyjątkiem anulowania, które tylko w pasku stanu mówi, że zostało anulowane.
+
+### Najpierw wypróbuj fragment
+
+Zakres zmienia transkrypcję w **próbę**, aby ocenić model lub język na dwóch minutach, zanim zobowiąże się do dwóch
+godzin. Pola „Fragment filmu” przyjmują początek i koniec, każdy zapisany jako `2:00`, `1:02:03`, `2:00.5` lub liczba
+sekund, `90`; dozwolone jest tylko jedno (stąd do końca albo od początku do tego miejsca). `OK` pozostaje wyłączony, dopóki pole
+nie jest czasem lub koniec nie następuje po początku, a wiersz pod polami mówi, które.
+
+- **Napisy zachowują czas filmu**: to, co powiedziano w 2:10, jest w wyniku w `0:02:10`.
+- **Nic nie jest zastępowane i o nic się nie pyta.** Wynik otwiera się jako **osobny projekt**, w nowej karcie, bez pliku;
+  projekt, z którego pochodzi, i jego napisy pozostają, jak były. Zapisz go lub zamknij.
 
 **To, czego potrzebuje, nie jest dostarczane**: silnik (whisper.cpp), model i `ffmpeg` do wyodrębnienia dźwięku.
 Zobacz [Instalowanie narzędzi do transkrypcji](../subedit-cli/install-transcription.md).

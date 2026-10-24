@@ -22,11 +22,14 @@
 #include <QLineEdit>
 #include <QPushButton>
 #include <QStatusBar>
+#include <QTabBar>
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/matchers/catch_matchers_string.hpp>
 
+#include <chrono>
 #include <filesystem>
 #include <fstream>
+#include <iterator>
 #include <memory>
 #include <string>
 #include <utility>
@@ -405,6 +408,121 @@ TEST_CASE(
     CHECK(stage.window->settings().transcription.model == "/models/chosen.bin");
 }
 
+// ## A range of the film
+
+TEST_CASE("the dialog takes a range, and gives it back as moments of the film",
+          "[gui][GUI-TRANSCRIBE-06]") {
+    const TranscribeDialog dialog{
+        kTracks, {}, [] { return ToolsView{.tools = kReady}; }, [] {}, nullptr};
+    CHECK_FALSE(dialog.choice().start.has_value());
+    CHECK_FALSE(dialog.choice().end.has_value());
+    CHECK(dialog.buttons()->button(QDialogButtonBox::Ok)->isEnabled());
+
+    dialog.startEdit()->setText("2:00");
+    dialog.endEdit()->setText("3:30");
+
+    CHECK(dialog.choice().start == Timestamp::fromMilliseconds(120000));
+    CHECK(dialog.choice().end == Timestamp::fromMilliseconds(210000));
+    CHECK(dialog.rangeHint()->text().isEmpty());
+    CHECK(dialog.buttons()->button(QDialogButtonBox::Ok)->isEnabled());
+}
+
+TEST_CASE("a range given to the dialog starts in its fields", "[gui][GUI-TRANSCRIBE-06]") {
+    const TranscribeDialog dialog{kTracks,
+                                  TranscribeChoice{.start = Timestamp::fromMilliseconds(120000),
+                                                   .end = Timestamp::fromMilliseconds(210000)},
+                                  probing(kReady),
+                                  nothing};
+
+    CHECK(dialog.startEdit()->text() == "0:02:00");
+    CHECK(dialog.endEdit()->text() == "0:03:30");
+    CHECK(dialog.choice().start == Timestamp::fromMilliseconds(120000));
+}
+
+TEST_CASE("a range that cannot be used says why and keeps OK out", "[gui][GUI-TRANSCRIBE-06]") {
+    const TranscribeDialog dialog{
+        kTracks, {}, [] { return ToolsView{.tools = kReady}; }, [] {}, nullptr};
+    const auto* ok = dialog.buttons()->button(QDialogButtonBox::Ok);
+
+    dialog.startEdit()->setText("soon");
+    CHECK_FALSE(ok->isEnabled());
+    CHECK(dialog.rangeHint()->text().contains("\"soon\" is not a time"));
+
+    dialog.startEdit()->setText("");
+    dialog.endEdit()->setText("later");
+    CHECK_FALSE(ok->isEnabled());
+    CHECK(dialog.rangeHint()->text().contains("\"later\" is not a time"));
+
+    dialog.startEdit()->setText("3:00");
+    dialog.endEdit()->setText("2:00");
+    CHECK_FALSE(ok->isEnabled());
+    CHECK(dialog.rangeHint()->text().contains("must come after"));
+
+    dialog.endEdit()->setText("4:00");
+    CHECK(ok->isEnabled());
+    CHECK(dialog.rangeHint()->text().isEmpty());
+
+    // A range does not make up for tools that are missing.
+    const TranscribeDialog bare{kTracks, {}, [] { return ToolsView{}; }, [] {}, nullptr};
+    bare.startEdit()->setText("1:00");
+    CHECK_FALSE(bare.buttons()->button(QDialogButtonBox::Ok)->isEnabled());
+}
+
+TEST_CASE("with a range nothing is replaced and nothing is asked: the result opens as a project",
+          "[gui][GUI-TRANSCRIBE-06]") {
+    Stage stage;
+    stage.prompts.nextRun = true;
+    stage.prompts.nextReplacementAccepted = false;
+    stage.prompts.fill = [](QDialog& dialog) {
+        dynamic_cast<TranscribeDialog&>(dialog).startEdit()->setText("0:30");
+        dynamic_cast<TranscribeDialog&>(dialog).endEdit()->setText("1:00");
+    };
+    const int before = stage.window->tabBar()->count();
+
+    stage.window->transcribeAudioAction()->trigger();
+
+    REQUIRE(stage.runner->asked.size() == 1);
+    CHECK(stage.runner->asked.front().start == Timestamp::fromMilliseconds(30000));
+    CHECK(stage.runner->asked.front().end == Timestamp::fromMilliseconds(60000));
+    CHECK(stage.prompts.replacements.empty());
+    CHECK(stage.window->tabBar()->count() == before + 1);
+    // The subtitles of the first project are as they were.
+    stage.window->tabBar()->setCurrentIndex(0);
+    CHECK(textsOf(*stage.window) == std::vector<std::string>{"Un.", "Deux.", "Trois."});
+    CHECK_FALSE(stage.window->undoAction()->isEnabled());
+}
+
+// ## The box
+
+TEST_CASE("the box says the step, then where it is, the time left and the last text",
+          "[gui][GUI-TRANSCRIBE-05]") {
+    using subedit::core::TranscriptionProgress;
+    using subedit::core::TranscriptionStage;
+    using subedit::gui::transcriptionBoxLabel;
+    using namespace std::chrono_literals;
+
+    CHECK(transcriptionBoxLabel({.stage = TranscriptionStage::Extracting}, std::nullopt) ==
+          "Extracting the audio…");
+    CHECK(transcriptionBoxLabel({}, std::nullopt) == "Transcribing the audio…");
+
+    const QString full = transcriptionBoxLabel({.fraction = 0.5,
+                                                .position = Timestamp::fromMilliseconds(60000),
+                                                .total = Timestamp::fromMilliseconds(120000),
+                                                .lastText = "And so, my fellow Americans"},
+                                               150s);
+    CHECK(full.split('\n') == QStringList{"Transcribing the audio…",
+                                          "0:01:00 of 0:02:00",
+                                          "about 2 min left",
+                                          "Last text: And so, my fellow Americans"});
+}
+
+TEST_CASE("a long text is cut so that the box does not widen", "[gui][GUI-TRANSCRIBE-05]") {
+    const QString label =
+        subedit::gui::transcriptionBoxLabel({.lastText = std::string(300, 'x')}, std::nullopt);
+
+    CHECK(label.size() < 140);
+}
+
 // ## The preferences: where the program and the model are set
 
 TEST_CASE("the preferences hold the program and the model, and give them back as edited",
@@ -620,4 +738,48 @@ TEST_CASE("stopping during the extraction is a cancellation too", "[gui][GUI-TRA
 
     REQUIRE_FALSE(outcome.has_value());
     CHECK(outcome.error().cancelled);
+}
+
+TEST_CASE("the real runner hands the range to the engine", "[gui][GUI-TRANSCRIBE-06]") {
+    const Tools tools;
+    const auto log = tools.scratch.file("arguments");
+    (void)tools.scratch.standIn("whisper-cli", kFake, "--output-from='" + tools.sample + "'");
+    // A spy in front of the stand-in keeps the arguments the engine was given.
+    const auto spy =
+        tools.scratch.write("whisper-cli-spy",
+                            "#!/bin/sh\nprintf '%s\\n' \"$@\" > '" + log.string() + "'\nexec '" +
+                                tools.scratch.file("whisper-cli").string() + "' \"$@\"\n");
+    std::filesystem::permissions(
+        spy, std::filesystem::perms::owner_all, std::filesystem::perm_options::add);
+    const auto audio = tools.scratch.write("audio.wav", "pcm");
+    (void)tools.scratch.standIn("ffmpeg", kFake, "--output-from='" + audio.string() + "'");
+    TranscriptionJob job = tools.job();
+    job.settings.executable = tools.scratch.file("whisper-cli-spy");
+    job.start = Timestamp::fromMilliseconds(30000);
+    job.end = Timestamp::fromMilliseconds(90000);
+    BackgroundTranscriptionRunner runner{tools.scratch.path().string()};
+
+    const auto outcome = runner.run(job, nullptr);
+
+    REQUIRE(outcome.has_value());
+    std::ifstream written{log};
+    const std::string arguments{std::istreambuf_iterator<char>{written},
+                                std::istreambuf_iterator<char>{}};
+    CHECK(arguments.find("-ot\n30000\n") != std::string::npos);
+    CHECK(arguments.find("-d\n60000\n") != std::string::npos);
+}
+
+TEST_CASE("the box follows the engine while it works", "[gui][GUI-TRANSCRIBE-05]") {
+    const Tools tools;
+    // The progress comes at once and the result a second later: the box has time to read it.
+    (void)tools.scratch.standIn(
+        "whisper-cli", kFake, "--progress=2 --linger=1 --output-from='" + tools.sample + "'");
+    const auto audio = tools.scratch.write("audio.wav", "pcm");
+    (void)tools.scratch.standIn("ffmpeg", kFake, "--output-from='" + audio.string() + "'");
+    BackgroundTranscriptionRunner runner{tools.scratch.path().string()};
+
+    const auto outcome = runner.run(tools.job(), nullptr);
+
+    REQUIRE(outcome.has_value());
+    CHECK(outcome->subtitles.size() >= 2);
 }

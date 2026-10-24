@@ -111,7 +111,7 @@ la finestra di dialogo mostrava.
 l'audio del **film del progetto**, mai un file che si sceglierebbe — per trascrivere un
 file audio, usa [`transcribe`](../subedit-cli/transcribe.md) da riga di comando.
 
-La finestra di dialogo chiede due cose e dice se può partire:
+La finestra di dialogo chiede tre cose e dice se può partire:
 
 - **la traccia audio**, elencata come la elenca il menu [`Audio`](#la-traccia-audio), con la lingua
   e il titolo dichiarati dal file;
@@ -120,7 +120,9 @@ La finestra di dialogo chiede due cose e dice se può partire:
   **una riga sotto il campo dice da dove viene**. Quando il file non dichiara alcuna lingua per la traccia,
   la riga lo dice: il modello la rileverà allora dal suono, cosa che solo un modello multilingue
   sa fare, e conviene digitarla se la conosci. Con un modello solo per l'inglese, che non rileva nulla,
-  la riga dice che la lingua va digitata.
+  la riga dice che la lingua va digitata;
+- **la parte del film**, da un tempo a un altro — vedi [Provare prima una parte](#provare-prima-una-parte). Con entrambi i campi
+  vuoti si trascrive l'intero film.
 
 **Dice anche che cosa manca.** Tre righe dicono se il motore, `ffmpeg` e il modello ci sono, e
 dove; quando uno non c'è, `OK` resta disattivato, e la finestra lo dice con il rimando a
@@ -135,11 +137,33 @@ La lingua viene conservata per la volta successiva. Il motore stesso e i limiti 
 quanti ne vanno persi. Chiede prima del lavoro, in modo che rifiutare non costi nulla. Quando il progetto è vuoto non c'è
 nulla da chiedere.
 
-Il lavoro si svolge **in background**, con una finestra che mostra a che punto è il motore e un pulsante `Cancel`;
-la finestra principale resta utilizzabile. Quando termina, i sottotitoli del progetto vengono sostituiti
+Il lavoro si svolge **in background**, con una finestra e un pulsante `Cancel`; la finestra principale resta utilizzabile. **La finestra
+dice a che punto è il lavoro**, in modo che tu sappia che è vivo e quanto tempo richiederà:
+
+- **la fase**: prima “Estrazione dell'audio…” — la finestra è allora occupata, senza cifre, perché l'estrazione non dice nulla
+  del suo avanzamento —, poi “Trascrizione dell'audio…”, con una barra;
+- **la posizione**: “0:12:30 di 0:50:00”, fino a dove nel film è arrivato il motore, non appena ha prodotto il suo primo testo;
+- **il tempo rimanente**, “circa 38 min rimanenti”: assente all'inizio, mostrato quando è stato fatto abbastanza lavoro per
+  estrapolare, e calcolato sulla velocità dell'ultimo minuto; ha una precisione di qualche minuto, non è una promessa;
+- **l'ultimo testo** ottenuto, in modo che tu possa vedere che il lavoro ha senso.
+
+Su un film lungo con un modello grande su processore, i primi minuti possono essere lunghi: il motore sta caricando il modello e
+lavorando sulle sue prime finestre di trenta secondi. La posizione e l'ultimo testo si muovono prima del percento proprio del
+motore, che arriva solo a passi del 5 % del film. Quando termina, i sottotitoli del progetto vengono sostituiti
 dalla trascrizione **in una sola operazione**: un solo `Undo` restituisce ciò che c'era, testi di
 traduzione compresi. Una trascrizione che fallisce, o che annulli, non cambia nulla — il motivo viene
 detto in una finestra, tranne che per un annullamento, che dice soltanto nella barra di stato che è stato annullato.
+
+### Provare prima una parte
+
+Un intervallo trasforma la trascrizione in una **prova**, per giudicare un modello o una lingua su due minuti prima di impegnarsi su
+due ore. I campi “Parte del film” accettano un inizio e una fine, ciascuno scritto `2:00`, `1:02:03`, `2:00.5` o un numero
+di secondi, `90`; ne è ammesso uno solo (da lì alla fine, o dall'inizio fino a lì). `OK` resta disattivato finché un campo non
+è un tempo o la fine non viene dopo l'inizio, e una riga sotto i campi dice quale.
+
+- **I sottotitoli mantengono il tempo del film**: ciò che è detto a 2:10 si trova a `0:02:10` nel risultato.
+- **Nulla viene sostituito e nulla viene chiesto.** Il risultato si apre come **un progetto a sé**, in una nuova scheda, senza
+  file; il progetto da cui proviene, e i suoi sottotitoli, restano come prima. Salvalo, o chiudilo.
 
 **Ciò che serve non è fornito**: un motore (whisper.cpp), un modello e `ffmpeg` per estrarre l'audio.
 Vedi [Installare gli strumenti di trascrizione](../subedit-cli/install-transcription.md).

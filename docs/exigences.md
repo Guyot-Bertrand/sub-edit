@@ -351,3 +351,7 @@ longer prove anything.
 | `GUI-TRANSCRIBE-02` | the transcription runs in the background with a progress indicator and can be cancelled, a cancelled or failed run leaving the project unchanged | 22 | implemented |
 | `GUI-TRANSCRIBE-03` | when the subtitle section is not empty the window asks for confirmation before replacing it, and one undo restores it | 22 | implemented |
 | `GUI-TRANSCRIBE-04` | without the executable, the model or the extraction tool the command explains what is missing and where to read how to install it, and the rest of the window is unaffected | 22 | implemented |
+| `CLI-TRANSCRIBE-09` | `--start` and `--end` restrict the transcription to a part of the film, the subtitles keep the time of the film, and a bound that is no time or a range whose end comes first is refused before any work | 22 | implemented |
+| `CLI-TRANSCRIBE-10` | while it runs the command says the step, the percent, the position in the film and the time left, and at the third level the text last obtained | 22 | implemented |
+| `GUI-TRANSCRIBE-05` | the progress box says the step, the position in the film, the time left and the last text obtained, and is busy rather than at 0 % while nothing says how far it is | 22 | implemented |
+| `GUI-TRANSCRIBE-06` | the dialog takes a range of the film; with one, the result opens as a project of its own and the subtitles already there are left alone | 22 | implemented |

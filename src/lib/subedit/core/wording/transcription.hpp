@@ -7,8 +7,11 @@
 #include <subedit/core/transcription/audio_source.hpp>
 #include <subedit/core/transcription/tools_status.hpp>
 #include <subedit/core/transcription/transcription_error.hpp>
+#include <subedit/core/transcription/transcription_progress.hpp>
 
+#include <chrono>
 #include <cstddef>
+#include <optional>
 #include <string>
 #include <string_view>
 #include <vector>
@@ -38,6 +41,30 @@ namespace subedit::core {
 
 /// Where the engine has got to, in percent.
 [[nodiscard]] std::string transcriptionProgressText(int percent);
+
+/// What is wrong with a bound of the range that could not be read.
+[[nodiscard]] std::string notATimeInRange(std::string_view text);
+
+/// The end of the range does not come after its start.
+[[nodiscard]] std::string emptyRange();
+
+/// A position as a clock, `H:MM:SS`, for a person to read where the work stands.
+[[nodiscard]] std::string clockText(Timestamp position);
+
+/// How long is left, roughly: `about 12 min left`, `about 1 h 05 min left`, and
+/// `less than a minute left` below a minute. **Never more precise than a minute**: the
+/// figure moves, and seconds that jump are noise.
+[[nodiscard]] std::string remainingTimeText(std::chrono::seconds left);
+
+/// Where a transcription stands, in the pieces a line or a box is made of, each
+/// present only when it is known: the step or the percent, the position in what is being
+/// transcribed, and the time left.
+[[nodiscard]] std::vector<std::string>
+transcriptionStatusParts(const TranscriptionProgress& progress,
+                         std::optional<std::chrono::seconds> left);
+
+/// The last text the engine obtained, for the line that shows it.
+[[nodiscard]] std::string lastTextLine(std::string_view text);
 
 /// What there is of what the transcription needs, one line per tool: the engine (and where it
 /// was found), `ffmpeg`, and the model (and what kind of model it is).

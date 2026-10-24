@@ -1,12 +1,14 @@
 #pragma once
 
 #include <subedit/core/config/transcription_settings.hpp>
+#include <subedit/core/time/timestamp.hpp>
 #include <subedit/core/transcription/tools_status.hpp>
 #include <subedit/core/video/video_player.hpp>
 
 #include <QDialog>
 
 #include <functional>
+#include <optional>
 #include <span>
 #include <string>
 #include <vector>
@@ -28,6 +30,12 @@ struct TranscribeChoice {
 
     /// An ISO 639-1 code, or empty to let the model detect it.
     std::string language{};
+
+    /// The part of the film to transcribe; all of it when neither is given. **A range is a
+    /// trial**: the result opens as a project of its own and the subtitles already there are
+    /// left alone.
+    std::optional<core::Timestamp> start{};
+    std::optional<core::Timestamp> end{};
 
     friend bool operator==(const TranscribeChoice&, const TranscribeChoice&) = default;
 };
@@ -82,6 +90,14 @@ public:
     /// The line under the language field.
     [[nodiscard]] QLabel* languageHint() const { return m_hint; }
 
+    /// The fields of the range, empty for the whole film.
+    [[nodiscard]] QLineEdit* startEdit() const { return m_start; }
+
+    [[nodiscard]] QLineEdit* endEdit() const { return m_end; }
+
+    /// What is wrong with the range, or nothing.
+    [[nodiscard]] QLabel* rangeHint() const { return m_rangeHint; }
+
     [[nodiscard]] QPushButton* preferencesButton() const { return m_preferences; }
 
     [[nodiscard]] QDialogButtonBox* buttons() const { return m_buttons; }
@@ -96,11 +112,17 @@ private:
     /// Says where the language comes from, or that it must be given.
     void explainLanguage();
 
+    /// Says what is wrong with the range, if anything, and whether `OK` may be pressed.
+    void checkRange();
+
     std::vector<core::AudioTrack> m_tracks;
     ToolsProbe m_probe;
     core::TranscriptionTools m_current{};
     QComboBox* m_track;
     QLineEdit* m_language;
+    QLineEdit* m_start;
+    QLineEdit* m_end;
+    QLabel* m_rangeHint;
     QLabel* m_hint;
     QLabel* m_tools;
     QPushButton* m_preferences;
@@ -108,6 +130,9 @@ private:
 
     /// Whether the person typed a language, which a change of track must then respect.
     bool m_languageChosen = false;
+
+    /// Whether the range, as typed, can be used.
+    bool m_rangeValid = true;
 };
 
 } // namespace subedit::gui

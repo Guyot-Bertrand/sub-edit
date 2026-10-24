@@ -1,4 +1,5 @@
 #include <subedit/core/io/json_reader.hpp>
+#include <subedit/core/transcription/time_range.hpp>
 #include <subedit/core/transcription/whisper_cpp_output.hpp>
 
 #include <charconv>
@@ -149,6 +150,58 @@ std::optional<double> readWhisperProgress(std::string_view line) {
     if (parsed.ec != std::errc{} || parsed.ptr == rest.data() + rest.size() || *parsed.ptr != '%')
         return std::nullopt;
     return static_cast<double>(percent) / 100.0;
+}
+
+namespace {
+
+constexpr std::string_view kSamplesMarker = " samples, ";
+
+/// `HH:MM:SS.mmm` at the start of `text`, which is moved past it.
+[[nodiscard]] std::optional<Timestamp> takeClock(std::string_view& text) {
+    constexpr std::size_t kClockSize = 12;
+    if (text.size() < kClockSize)
+        return std::nullopt;
+    const std::optional<Timestamp> clock = Timestamp::parse(text.substr(0, kClockSize));
+    if (clock)
+        text.remove_prefix(kClockSize);
+    return clock;
+}
+
+} // namespace
+
+std::optional<WhisperSegmentLine> readWhisperSegmentLine(std::string_view line) {
+    constexpr std::string_view kArrow = " --> ";
+    if (!line.starts_with('['))
+        return std::nullopt;
+    line.remove_prefix(1);
+    const std::optional<Timestamp> start = takeClock(line);
+    if (!start || !line.starts_with(kArrow))
+        return std::nullopt;
+    line.remove_prefix(kArrow.size());
+    const std::optional<Timestamp> end = takeClock(line);
+    if (!end || !line.starts_with(']'))
+        return std::nullopt;
+    line.remove_prefix(1);
+    const std::size_t first = line.find_first_not_of(' ');
+    return WhisperSegmentLine{
+        .start = *start,
+        .end = *end,
+        .text =
+            std::string{first == std::string_view::npos ? std::string_view{} : line.substr(first)}};
+}
+
+std::optional<Timestamp> readWhisperAudioLength(std::string_view line) {
+    const std::size_t marker = line.rfind(kSamplesMarker);
+    if (marker == std::string_view::npos || !line.starts_with("main: processing"))
+        return std::nullopt;
+    const std::string_view rest = line.substr(marker + kSamplesMarker.size());
+    double seconds = 0;
+    const std::from_chars_result parsed =
+        std::from_chars(rest.data(), rest.data() + rest.size(), seconds);
+    if (parsed.ec != std::errc{} ||
+        !std::string_view{parsed.ptr, rest.data() + rest.size()}.starts_with(" sec"))
+        return std::nullopt;
+    return timestampFromSeconds(seconds);
 }
 
 std::optional<bool> readModelIsMultilingual(std::string_view header) {

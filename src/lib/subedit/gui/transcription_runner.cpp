@@ -1,5 +1,6 @@
 #include <subedit/core/io/real_file_system.hpp>
 #include <subedit/core/transcription/default_engines.hpp>
+#include <subedit/core/transcription/remaining_time.hpp>
 #include <subedit/core/transcription/subtitle_assembly.hpp>
 #include <subedit/core/transcription/transcribe_media.hpp>
 #include <subedit/core/wording/transcription.hpp>
@@ -14,7 +15,9 @@
 #include <QtConcurrent/QtConcurrentRun>
 
 #include <atomic>
+#include <chrono>
 #include <cstdlib>
+#include <mutex>
 #include <utility>
 
 namespace subedit::gui {
@@ -27,6 +30,28 @@ constexpr int kPollMilliseconds = 100;
 constexpr int kPercent = 100;
 
 using Result = std::expected<TranscriptionOutcome, TranscriptionFailure>;
+
+/// The longest a text is shown in the box, which would otherwise widen to hold it.
+constexpr qsizetype kLastTextWidth = 80;
+
+/// Where the worker leaves how far it is, and where the box picks it up: the worker writes at
+/// the pace of the engine, the box reads every tenth of a second.
+class SharedProgress {
+public:
+    void set(const core::TranscriptionProgress& progress) {
+        const std::scoped_lock lock{m_mutex};
+        m_progress = progress;
+    }
+
+    [[nodiscard]] core::TranscriptionProgress get() const {
+        const std::scoped_lock lock{m_mutex};
+        return m_progress;
+    }
+
+private:
+    mutable std::mutex m_mutex;
+    core::TranscriptionProgress m_progress{.stage = core::TranscriptionStage::Extracting};
+};
 
 [[nodiscard]] TranscriptionFailure failed(std::string message) {
     return TranscriptionFailure{.message = std::move(message)};
@@ -51,7 +76,7 @@ using Result = std::expected<TranscriptionOutcome, TranscriptionFailure>;
 /// The whole work, on whichever thread calls it. Touches nothing of Qt.
 [[nodiscard]] Result work(const TranscriptionJob& job,
                           const std::string& searchPath,
-                          std::atomic<int>& percent,
+                          SharedProgress& progress,
                           const std::atomic<bool>& cancelled) {
     core::RealFileSystem files;
     const core::TranscriptionSettings& settings = job.settings;
@@ -68,10 +93,11 @@ using Result = std::expected<TranscriptionOutcome, TranscriptionFailure>;
         request.language = job.language;
     if (!job.model.empty())
         request.model = job.model;
+    request.start = job.start;
+    request.end = job.end;
 
     const core::TranscriptionObserver observer{
-        .progress =
-            [&percent](double fraction) { percent = static_cast<int>(fraction * kPercent); },
+        .advanced = [&progress](const core::TranscriptionProgress& state) { progress.set(state); },
         .cancelled = [&cancelled] { return cancelled.load(); }};
     auto transcribed = core::transcribeMedia(files, *engine, searchPath, request, observer);
     if (!transcribed)
@@ -83,6 +109,25 @@ using Result = std::expected<TranscriptionOutcome, TranscriptionFailure>;
 }
 
 } // namespace
+
+QString transcriptionBoxLabel(const core::TranscriptionProgress& progress,
+                              std::optional<std::chrono::seconds> left) {
+    if (progress.stage == core::TranscriptionStage::Extracting)
+        return translate("Extracting the audio…");
+
+    QString label = translate("Transcribing the audio…");
+    if (progress.position && progress.total)
+        label += QStringLiteral("\n%1").arg(QString::fromStdString(core::substitute(
+            core::translate("%1 of %2"),
+            {core::clockText(*progress.position), core::clockText(*progress.total)})));
+    if (left)
+        label += QStringLiteral("\n%1").arg(QString::fromStdString(core::remainingTimeText(*left)));
+    if (!progress.lastText.empty())
+        label += QStringLiteral("\n%1").arg(
+            substitute(translate("Last text: %1"),
+                       QString::fromStdString(progress.lastText).left(kLastTextWidth)));
+    return label;
+}
 
 std::string searchPathOfProcess() {
     const char* const path = std::getenv("PATH");
@@ -99,7 +144,8 @@ BackgroundTranscriptionRunner::tools(const core::TranscriptionSettings& settings
 }
 
 Result BackgroundTranscriptionRunner::run(const TranscriptionJob& job, QWidget* parent) {
-    std::atomic<int> percent{0};
+    SharedProgress progress;
+    core::RemainingTime remaining;
     std::atomic<bool> cancelled{false};
 
     QProgressDialog box{
@@ -109,18 +155,27 @@ Result BackgroundTranscriptionRunner::run(const TranscriptionJob& job, QWidget* 
     box.setMinimumDuration(0);
     box.setAutoClose(false);
     box.setAutoReset(false);
-    box.setValue(0);
+    // Busy until something says how far it is: an extraction has no figure to give.
+    box.setRange(0, 0);
 
     QFutureWatcher<Result> watcher;
     QEventLoop loop;
     QObject::connect(&watcher, &QFutureWatcher<Result>::finished, &loop, &QEventLoop::quit);
-    watcher.setFuture(QtConcurrent::run([this, &job, &percent, &cancelled] {
-        return work(job, m_searchPath, percent, cancelled);
+    watcher.setFuture(QtConcurrent::run([this, &job, &progress, &cancelled] {
+        return work(job, m_searchPath, progress, cancelled);
     }));
 
     QTimer poll;
     QObject::connect(&poll, &QTimer::timeout, &loop, [&] {
-        box.setValue(percent.load());
+        const core::TranscriptionProgress state = progress.get();
+        const auto now = core::RemainingTime::Clock::now();
+        if (state.fraction)
+            remaining.note(*state.fraction, now);
+        if (state.fraction && state.stage == core::TranscriptionStage::Transcribing) {
+            box.setRange(0, kPercent);
+            box.setValue(static_cast<int>(*state.fraction * kPercent));
+        }
+        box.setLabelText(transcriptionBoxLabel(state, remaining.left(now)));
         if (box.wasCanceled() || (m_cancelProbe && m_cancelProbe()))
             cancelled = true;
     });

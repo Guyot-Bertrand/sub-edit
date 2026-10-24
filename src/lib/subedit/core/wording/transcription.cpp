@@ -99,6 +99,57 @@ std::string noticeOfReplacement(std::size_t subtitles) {
         {std::to_string(subtitles)});
 }
 
+std::string notATimeInRange(std::string_view text) {
+    return substitute(
+        translate("\"%1\" is not a time: write it as 2:00, 1:02:03 or 2:00.5, or in seconds"),
+        {text});
+}
+
+std::string emptyRange() {
+    return std::string{translate("the end of the range must come after its start")};
+}
+
+std::string clockText(Timestamp position) {
+    return position.format(DecimalMark::Period, HourField::Unpadded, Decimals::Seconds);
+}
+
+std::string remainingTimeText(std::chrono::seconds left) {
+    constexpr long kMinutesPerHour = 60;
+    const long minutes = std::chrono::duration_cast<std::chrono::minutes>(left).count();
+    if (minutes < 1)
+        return std::string{translate("less than a minute left")};
+    if (minutes < kMinutesPerHour)
+        return substitute(translate("about %1 min left"), {std::to_string(minutes)});
+    const std::string rest = std::to_string(minutes % kMinutesPerHour);
+    return substitute(
+        translate("about %1 h %2 min left"),
+        {std::to_string(minutes / kMinutesPerHour), rest.size() < 2 ? "0" + rest : rest});
+}
+
+std::vector<std::string> transcriptionStatusParts(const TranscriptionProgress& progress,
+                                                  std::optional<std::chrono::seconds> left) {
+    std::vector<std::string> parts;
+    if (progress.stage == TranscriptionStage::Extracting)
+        return {std::string{translate("extracting the audio…")}};
+
+    constexpr double kPercent = 100.0;
+    parts.push_back(progress.fraction
+                        ? transcriptionProgressText(static_cast<int>(*progress.fraction * kPercent))
+                        : std::string{translate("transcribing…")});
+    if (progress.position && progress.total)
+        parts.push_back(substitute(translate("%1 of %2"),
+                                   {clockText(*progress.position), clockText(*progress.total)}));
+    else if (progress.position)
+        parts.push_back(clockText(*progress.position));
+    if (left)
+        parts.push_back(remainingTimeText(*left));
+    return parts;
+}
+
+std::string lastTextLine(std::string_view text) {
+    return substitute(translate("last text: %1"), {text});
+}
+
 std::string transcriptionToolsReport(const TranscriptionTools& tools,
                                      const TranscriptionSettings& settings) {
     const std::string engine =

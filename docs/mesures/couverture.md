@@ -510,9 +510,9 @@ that keep the answer) is covered through `FakePrompts`.
 
 ## Record
 
-    total: 82
+    total: 81
 
-Recorded on version 1.0.10, on 2026-10-24.
+Recorded on version 1.0.11, on 2026-10-24.
 
 | Lines | File |
 | ----: | :--- |
@@ -522,7 +522,6 @@ Recorded on version 1.0.10, on 2026-10-24.
 | 2 | `src/lib/subedit/core/edit/insert_command.cpp` |
 | 2 | `src/lib/subedit/gui/correction_controller.cpp` |
 | 2 | `src/lib/subedit/gui/mpv_player.cpp` |
-| 1 | `src/lib/subedit/cli/transcribing.cpp` |
 | 1 | `src/lib/subedit/core/text/correction_run.cpp` |
 | 1 | `src/lib/subedit/core/text/hearing_impaired_correction.cpp` |
 | 1 | `src/lib/subedit/core/text/line_breaking.cpp` |

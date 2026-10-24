@@ -105,7 +105,7 @@ the [grid deduced from the positions](frame-grid.md), which is another one.
 is the audio of **the film of the project**, and never a file you would pick — to transcribe an
 audio file, use [`transcribe`](../subedit-cli/transcribe.md) on the command line.
 
-The dialog asks for two things, and says whether it can start:
+The dialog asks for three things, and says whether it can start:
 
 - **the audio track**, listed as the [`Audio`](#the-audio-track) menu lists them, with the language
   and the title the file declares;
@@ -114,7 +114,9 @@ The dialog asks for two things, and says whether it can start:
   **a line under the field says where it comes from**. When the file declares no language for the track,
   the line says so: the model will then detect it from the sound, which only a multilingual model
   does, and you should type it if you know it. With a model for English alone, which detects
-  nothing, the line says that the language must be typed.
+  nothing, the line says that the language must be typed;
+- **the part of the film**, from one time to another — see [Trying a part first](#trying-a-part-first). Both fields
+  empty is the whole film.
 
 **It also says what is missing.** Three lines tell whether the engine, `ffmpeg` and the model are there, and
 where; when one is not, `OK` stays out, and the dialog says so with the pointer to
@@ -129,11 +131,33 @@ The language is kept for the next time. The engine itself and the limits of the 
 many go. It asks before the work, so that declining costs nothing. When the project is empty there
 is nothing to ask.
 
-The work runs **in the background**, with a box that shows how far the engine has got and a `Cancel`
-button; the window stays usable around it. When it ends, the subtitles of the project are replaced
+The work runs **in the background**, with a box and a `Cancel` button; the window stays usable around it. **The box
+tells where the work stands**, so that you know it is alive and how long it will take:
+
+- **the step**: “Extracting the audio…” first — the box is then busy, with no figure, since extracting says nothing of how far it
+  has got —, then “Transcribing the audio…”, with a bar;
+- **the position**: “0:12:30 of 0:50:00”, how far into the film the engine has got, as soon as it has produced its first text;
+- **the time left**, “about 38 min left”: absent at first, shown once enough is done to extrapolate from, and worked out from the
+  speed of the last minute; it is a few minutes' accuracy, not a promise;
+- **the last text** obtained, so that you can see the work is making sense.
+
+On a long film with a large model on a processor, the first minutes can be long: the engine is loading and working on its first
+windows of thirty seconds. The position and the last text move before the engine's own percent does, which only comes in steps
+of 5 % of the film. When it ends, the subtitles of the project are replaced
 by the transcription **as a single operation**: one `Undo` gives back what was there, translation
 texts included. A transcription that fails, or that you cancel, changes nothing — the reason is
 said in a box, except for a cancellation, which only says it was cancelled in the status bar.
+
+### Trying a part first
+
+A range turns the transcription into a **trial**, to judge a model or a language on two minutes before committing to
+two hours. The fields “Part of the film” take a beginning and an end, each written as `2:00`, `1:02:03`, `2:00.5` or a number
+of seconds, `90`; one alone is allowed (from there to the end, or from the start to there). `OK` stays out while a field is
+not a time or the end does not come after the beginning, and a line under the fields says which.
+
+- **The subtitles keep the time of the film**: what is said at 2:10 is at `0:02:10` in the result.
+- **Nothing is replaced and nothing is asked.** The result opens as **a project of its own**, in a new tab, with no file; the
+  project it was made from, and its subtitles, are as they were. Save it, or close it.
 
 **What it needs is not shipped**: an engine (whisper.cpp), a model, and `ffmpeg` to extract the audio.
 See [Installing the transcription tools](../subedit-cli/install-transcription.md).

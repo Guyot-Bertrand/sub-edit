@@ -68,6 +68,23 @@ struct Stands {
                    " --output-from='" + sample + "' \"$@\"");
     }
 
+    /// `whisper-cli` that prints the banner it starts with and three segments as it goes,
+    /// as the real tool does, before it writes its result.
+    void whisperPrinting() {
+        const std::string banner =
+            writeFile(scratch,
+                      "banner",
+                      "main: processing 'a.wav' (1600000 samples, 100.0 sec), 4 threads\n");
+        const std::string printed = writeFile(scratch,
+                                              "printed",
+                                              "[00:00:00.000 --> 00:00:20.000]   First words.\n"
+                                              "[00:00:20.000 --> 00:00:50.000]   Then more.\n"
+                                              "[00:00:50.000 --> 00:01:20.000]   And the last.\n");
+        script("whisper-cli",
+               "exec '" + kFake + "' --no-echo --stderr-from='" + banner + "' --stdout-from='" +
+                   printed + "' --output-from='" + kData + "/whisper/jfk.full.json' \"$@\"");
+    }
+
     void ffprobe() {
         script("ffprobe",
                "exec '" + kFake + "' --no-echo --stdout-from='" + kData +
@@ -275,4 +292,61 @@ TEST_CASE("with --format json the command writes one record with the language, t
     CHECK_THAT(run.output, ContainsSubstring("\"segments\":1"));
     CHECK_THAT(run.output, ContainsSubstring("\"audio\":\"" + audio + "\""));
     CHECK_THAT(run.output, ContainsSubstring("\"destination\":\"" + out + "\""));
+}
+
+TEST_CASE("a range is handed to the engine, and a bad one is refused before any work",
+          "[e2e][CLI-TRANSCRIBE-09]") {
+    Stands stands;
+    stands.everything();
+    const std::string out = stands.scratch.of("out/film.srt");
+
+    const CliRun fine = stands.run(
+        {stands.video, "--output", out, "--model", stands.model, "--start", "1:00", "--end", "90"});
+
+    REQUIRE(fine.exitCode == 0);
+    CHECK_THAT(contentOf(stands.argumentLog), ContainsSubstring("-ot\n60000\n"));
+    CHECK_THAT(contentOf(stands.argumentLog), ContainsSubstring("-d\n30000\n"));
+
+    std::filesystem::remove(stands.argumentLog);
+    const std::string refused = stands.scratch.of("out/refused.srt");
+    const CliRun backwards = stands.run({stands.video,
+                                         "--output",
+                                         refused,
+                                         "--model",
+                                         stands.model,
+                                         "--start",
+                                         "2:00",
+                                         "--end",
+                                         "1:00"});
+
+    CHECK(backwards.exitCode != 0);
+    CHECK_THAT(backwards.errors, ContainsSubstring("the end of the range must come after"));
+    CHECK_FALSE(std::filesystem::exists(stands.argumentLog));
+    CHECK_FALSE(std::filesystem::exists(refused));
+
+    const CliRun nonsense = stands.run(
+        {stands.video, "--output", refused, "--model", stands.model, "--start", "later"});
+    CHECK(nonsense.exitCode != 0);
+    CHECK_THAT(nonsense.errors, ContainsSubstring("\"later\" is not a time"));
+}
+
+TEST_CASE("the command says the step, how far it is, and the text last obtained",
+          "[e2e][CLI-TRANSCRIBE-10]") {
+    Stands stands;
+    stands.whisperPrinting();
+    stands.ffprobe();
+    stands.ffmpeg();
+    const std::string out = stands.scratch.of("out/film.srt");
+
+    const CliRun run = invokeWithSearchPath(
+        stands.directory,
+        {"-vvv", "transcribe", stands.video, "--output", out, "--model", stands.model});
+
+    REQUIRE(run.exitCode == 0);
+    CHECK_THAT(run.errors, ContainsSubstring("extracting the audio…"));
+    CHECK_THAT(run.errors, ContainsSubstring("transcribing…"));
+    CHECK_THAT(run.errors, ContainsSubstring("transcribing: 20%, 0:00:20 of 0:01:40"));
+    CHECK_THAT(run.errors, ContainsSubstring("transcribing: 80%, 0:01:20 of 0:01:40"));
+    CHECK_THAT(run.errors, ContainsSubstring("last text: Then more."));
+    CHECK_THAT(run.errors, ContainsSubstring("transcribing: 100%"));
 }

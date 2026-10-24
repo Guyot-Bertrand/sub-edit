@@ -106,7 +106,7 @@ A **`Transcribe Audio…`** a film beszédét írja ki feliratként. Addig nem e
 a **projekt filmjének** hangja, és soha nem egy fájl, amelyet kiválasztana — egy hangfájl leiratozásához
 használja a [`transcribe`](../subedit-cli/transcribe.md) parancsot a parancssorban.
 
-A párbeszédablak két dolgot kér, és megmondja, el tud-e indulni:
+A párbeszédablak három dolgot kér, és megmondja, el tud-e indulni:
 
 - **a hangsávot**, úgy felsorolva, ahogy az [`Audio`](#a-hangsáv) menü felsorolja, a fájl által
   megadott nyelvvel és címmel;
@@ -115,7 +115,9 @@ A párbeszédablak két dolgot kér, és megmondja, el tud-e indulni:
   **a mező alatti sor megmondja, honnan származik**. Ha a fájl nem ad meg nyelvet a hangsávhoz,
   a sor ezt mondja: a modell ekkor a hangból fogja felismerni, amit csak a többnyelvű modell
   tud, és ha ismeri, írja be. Csak angolra való modellnél, amely semmit sem ismer fel,
-  a sor azt mondja, hogy a nyelvet be kell írni.
+  a sor azt mondja, hogy a nyelvet be kell írni;
+- **a film egy része**, egyik időponttól a másikig — lásd: [Előbb egy rész kipróbálása](#előbb-egy-rész-kipróbálása). Ha mindkét mező
+  üres, az a teljes film.
 
 **Azt is megmondja, mi hiányzik.** Három sor megmondja, megvan-e a motor, az `ffmpeg` és a modell, és
 hol; ha valamelyik nincs meg, az `OK` kikapcsolva marad, és az ablak ezt a következőre mutató hivatkozással mondja meg:
@@ -130,11 +132,33 @@ A nyelv megmarad a következő alkalomra. Maga a motor és a feliratok korlátai
 hányat érint. A munka előtt kérdez, hogy az elutasítás semmibe se kerüljön. Ha a projekt üres, nincs
 mit kérdezni.
 
-A munka **a háttérben** fut, egy ablakkal, amely mutatja, meddig jutott a motor, és egy `Cancel`
-gombbal; az ablak körülötte használható marad. Amikor véget ér, a projekt feliratait
+A munka **a háttérben** fut, egy ablakkal és egy `Cancel` gombbal; az ablak körülötte használható marad. **Az ablak
+megmutatja, hol tart a munka**, hogy tudja, él, és mennyi ideig fog tartani:
+
+- **a lépés**: először „A hang kinyerése…” — az ablak ilyenkor foglalt, szám nélkül, mert a kinyerés semmit sem mond arról, meddig jutott —,
+  majd „A hang leiratozása…”, egy sávval;
+- **a pozíció**: „0:12:30 / 0:50:00”, hogy a motor meddig jutott a filmben, amint előállította az első szövegét;
+- **a hátralévő idő**, „körülbelül 38 perc van hátra”: az elején nincs, akkor jelenik meg, amikor elég munka készült az extrapoláláshoz, és
+  az utolsó perc sebességéből számolódik; néhány perces pontosság, nem ígéret;
+- **az utolsó szöveg**, amelyet megkapott, hogy lássa, a munkának van értelme.
+
+Egy hosszú filmnél, nagy modellel, processzoron az első percek hosszúak lehetnek: a motor betölt, és az első harmincmásodperces
+ablakain dolgozik. A pozíció és az utolsó szöveg előbb mozdul, mint a motor saját százaléka, amely csak a film 5 %-os
+lépéseiben érkezik. Amikor véget ér, a projekt feliratait
 a leirat váltja fel **egyetlen műveletként**: egy `Undo` visszaadja, ami volt, a fordítási
 szövegekkel együtt. Egy sikertelen vagy általa megszakított leiratozás nem változtat semmin — az okot
 egy ablak mondja meg, kivéve a megszakítást, amelyet csak az állapotsor jelez.
+
+### Előbb egy rész kipróbálása
+
+Egy tartomány a leiratozást **próbává** teszi, hogy egy modellt vagy nyelvet kétperces szakaszon lehessen megítélni, mielőtt
+kétórásra vállalkoznak. A „A film egy része” mezők egy kezdetet és egy véget kapnak, mindegyiket `2:00`, `1:02:03`, `2:00.5` vagy
+másodpercek számaként, `90`, írva; elég az egyik (onnantól a végéig, vagy az elejétől odáig). Az `OK` kikapcsolt marad, amíg egy mező
+nem időpont, vagy a vég nem a kezdet után van, és a mezők alatti sor megmondja, melyik.
+
+- **A feliratok megtartják a film idejét**: ami 2:10-nél hangzik el, az az eredményben `0:02:10`-nél áll.
+- **Semmi sem cserélődik le, és semmit sem kérdez.** Az eredmény **önálló projektként** nyílik meg, új lapon, fájl
+  nélkül; az a projekt, amelyből készült, és a feliratai úgy maradnak, ahogy voltak. Mentse el, vagy zárja be.
 
 **Amire szüksége van, azt nem szállítja a program**: egy motor (whisper.cpp), egy modell, és az `ffmpeg` a hang kinyeréséhez.
 Lásd: [A leiratozó eszközök telepítése](../subedit-cli/install-transcription.md).

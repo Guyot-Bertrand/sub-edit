@@ -13,6 +13,7 @@
 #include <subedit/core/transcription/transcription_engine.hpp>
 
 #include <filesystem>
+#include <memory>
 #include <string>
 #include <utility>
 #include <vector>
@@ -28,6 +29,9 @@ struct FakeEngineScript {
 
     /// The language reported when none is asked for.
     std::string detectedLanguage = "en";
+
+    /// Where the last request received is left, when a test wants to read it.
+    std::shared_ptr<core::TranscriptionRequest> seen{};
 };
 
 class FakeTranscriptionEngine final : public core::TranscriptionEngine {
@@ -52,12 +56,18 @@ protected:
                 core::TranscriptionError{.kind = core::TranscriptionErrorKind::AudioUnreadable,
                                          .detail = request.audio.string()});
 
+        if (m_script.seen)
+            *m_script.seen = request;
+
         constexpr int kSteps = 4;
         for (int step = 1; step <= kSteps; ++step) {
             if (observer.isCancelled())
                 return std::unexpected(
                     core::TranscriptionError{.kind = core::TranscriptionErrorKind::Cancelled});
-            observer.report(static_cast<double>(step) / kSteps);
+            observer.advance({.fraction = static_cast<double>(step) / kSteps,
+                              .lastText = m_script.segments.empty()
+                                              ? std::string{}
+                                              : m_script.segments.front().text});
         }
 
         return core::Transcription{.segments = m_script.segments,

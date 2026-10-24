@@ -1061,6 +1061,16 @@ msgid "Audio track of a video, counted from 0; the first by default"
 msgstr "Egy videó hangsávja, 0-tól számolva; alapértelmezés szerint az első"
 
 #: src/exe/cli/commands/transcribe.cpp
+#: src/exe/cli/commands/transcribe.cpp
+msgid "Where to begin, as 2:00, 1:02:03 or seconds; the beginning by default"
+msgstr "Honnan induljon, pl. 2:00, 1:02:03 vagy másodpercben; alapértelmezés szerint az eleje"
+
+#: src/exe/cli/commands/transcribe.cpp
+#: src/exe/cli/commands/transcribe.cpp
+msgid "Where to stop, as 2:00, 1:02:03 or seconds; the end by default"
+msgstr "Hol álljon meg, pl. 2:00, 1:02:03 vagy másodpercben; alapértelmezés szerint a vége"
+
+#: src/exe/cli/commands/transcribe.cpp
 msgid "Language of the speech: fr, en; detected by default"
 msgstr "A beszéd nyelve: fr, en; alapértelmezés szerint felismeri"
 
@@ -3438,45 +3448,83 @@ msgstr[1] "A projekt %1 feliratát a leirat váltja fel. Visszavonhatja."
 
 #: src/lib/subedit/core/wording/transcription.cpp
 #: src/lib/subedit/core/wording/transcription.cpp
+msgid "\"%1\" is not a time: write it as 2:00, 1:02:03 or 2:00.5, or in seconds"
+msgstr "A(z) „%1” nem időpont: írja így: 2:00, 1:02:03 vagy 2:00.5, vagy másodpercben"
+
+#: src/lib/subedit/core/wording/transcription.cpp
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "the end of the range must come after its start"
+msgstr "a tartomány végének a kezdete után kell jönnie"
+
+#: src/lib/subedit/core/wording/transcription.cpp
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "less than a minute left"
+msgstr "kevesebb mint egy perc van hátra"
+
+#: src/lib/subedit/core/wording/transcription.cpp
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "about %1 min left"
+msgstr "körülbelül %1 perc van hátra"
+
+#: src/lib/subedit/core/wording/transcription.cpp
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "about %1 h %2 min left"
+msgstr "körülbelül %1 óra %2 perc van hátra"
+
+#: src/lib/subedit/core/wording/transcription.cpp
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "extracting the audio…"
+msgstr "a hang kinyerése…"
+
+#: src/lib/subedit/core/wording/transcription.cpp
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "transcribing…"
+msgstr "leiratozás…"
+
+#: src/lib/subedit/core/wording/transcription.cpp
+#: src/lib/subedit/gui/transcription_runner.cpp
+#: src/lib/subedit/core/wording/transcription.cpp
+#: src/lib/subedit/gui/transcription_runner.cpp
+msgid "%1 of %2"
+msgstr "%1 / %2"
+
+#: src/lib/subedit/core/wording/transcription.cpp
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "last text: %1"
+msgstr "utolsó szöveg: %1"
+
+#: src/lib/subedit/core/wording/transcription.cpp
 msgid "%1: found (%2)"
 msgstr "%1: megtalálva (%2)"
 
-#: src/lib/subedit/core/wording/transcription.cpp
 #: src/lib/subedit/core/wording/transcription.cpp
 msgid "%1: not found"
 msgstr "%1: nem található"
 
 #: src/lib/subedit/core/wording/transcription.cpp
-#: src/lib/subedit/core/wording/transcription.cpp
 msgid "ffmpeg: found"
 msgstr "ffmpeg: megtalálva"
 
-#: src/lib/subedit/core/wording/transcription.cpp
 #: src/lib/subedit/core/wording/transcription.cpp
 msgid "ffmpeg: not found"
 msgstr "ffmpeg: nem található"
 
 #: src/lib/subedit/core/wording/transcription.cpp
-#: src/lib/subedit/core/wording/transcription.cpp
 msgid "Model: none set"
 msgstr "Modell: nincs megadva"
 
-#: src/lib/subedit/core/wording/transcription.cpp
 #: src/lib/subedit/core/wording/transcription.cpp
 msgid "Model: not found (%1)"
 msgstr "Modell: nem található (%1)"
 
 #: src/lib/subedit/core/wording/transcription.cpp
-#: src/lib/subedit/core/wording/transcription.cpp
 msgid "Model: not a model (%1)"
 msgstr "Modell: nem modell (%1)"
 
 #: src/lib/subedit/core/wording/transcription.cpp
-#: src/lib/subedit/core/wording/transcription.cpp
 msgid "Model: English only (%1)"
 msgstr "Modell: csak angolra (%1)"
 
-#: src/lib/subedit/core/wording/transcription.cpp
 #: src/lib/subedit/core/wording/transcription.cpp
 msgid "Model: multilingual (%1)"
 msgstr "Modell: többnyelvű (%1)"
@@ -4340,11 +4388,9 @@ msgid "Frame step"
 msgstr "Léptetés képkockában"
 
 #: src/lib/subedit/gui/preferences_dialog.cpp
-#: src/lib/subedit/gui/preferences_dialog.cpp
 msgid "Searched for on the PATH"
 msgstr "Keresés a PATH-ban"
 
-#: src/lib/subedit/gui/preferences_dialog.cpp
 #: src/lib/subedit/gui/preferences_dialog.cpp
 msgid "Program"
 msgstr "Program"
@@ -4354,7 +4400,6 @@ msgid "Model"
 msgstr "Modell"
 
 # From Gaupol.
-#: src/lib/subedit/gui/preferences_dialog.cpp
 #: src/lib/subedit/gui/preferences_dialog.cpp
 msgid "Transcription"
 msgstr "Leiratozás"
@@ -4416,7 +4461,6 @@ msgstr "Videó kiválasztása"
 msgid "Choose a model"
 msgstr "Modell kiválasztása"
 
-#: src/lib/subedit/gui/qt_prompts.cpp
 #: src/lib/subedit/gui/qt_prompts.cpp
 msgid "Choose the program"
 msgstr "A program kiválasztása"
@@ -4687,6 +4731,7 @@ msgstr "Kezdet (képkocka)"
 
 # From Gaupol.
 #: src/lib/subedit/gui/subtitle_table_model.cpp
+#: src/lib/subedit/gui/transcribe_dialog.cpp
 msgid "End"
 msgstr "Vég"
 
@@ -4733,7 +4778,6 @@ msgid "Main"
 msgstr "Fő"
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
-#: src/lib/subedit/gui/transcribe_dialog.cpp
 msgid "Preferences…"
 msgstr "Beállítások…"
 
@@ -4747,7 +4791,6 @@ msgid "First audio track"
 msgstr "Első hangsáv"
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
-#: src/lib/subedit/gui/transcribe_dialog.cpp
 msgid "Detected from the sound"
 msgstr "A hangból felismerve"
 
@@ -4760,13 +4803,19 @@ msgstr ""
 "fel a nyelvet."
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
-msgid ""
-"The audio of the film open in this window is transcribed into subtitles that "
-"replace the ones of the project. The work runs in the background and can be "
-"cancelled."
-msgstr ""
-"Az ebben az ablakban megnyitott film hangja feliratokká alakul, amelyek "
-"felváltják a projekt feliratait. A munka a háttérben fut, és megszakítható."
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+msgid "Beginning"
+msgstr "Kezdet"
+
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+msgid "A time such as 2:00, 1:02:03 or 90 (seconds). Leave both empty to transcribe the whole film."
+msgstr "Időpont, például 2:00, 1:02:03 vagy 90 (másodperc). Hagyja mindkettőt üresen a teljes film leiratozásához."
+
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+msgid "The audio of the film open in this window is transcribed into subtitles that replace the ones of the project. Give a range to try a part of the film first: the result then opens as a project of its own and nothing is replaced. The work runs in the background and can be cancelled."
+msgstr "Az ebben az ablakban megnyitott film hangját a program feliratokká írja le, amelyek lecserélik a projekt feliratait. Adjon meg egy tartományt, ha előbb a film egy részét szeretné kipróbálni: az eredmény ekkor önálló projektként nyílik meg, és semmi sem cserélődik le. A munka a háttérben fut, és megszakítható."
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
 msgid "Audio track"
@@ -4778,37 +4827,56 @@ msgstr "Nyelv"
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
 #: src/lib/subedit/gui/transcribe_dialog.cpp
+msgid "to"
+msgstr "–"
+
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+msgid "Part of the film"
+msgstr "A film egy része"
+
+#: src/lib/subedit/gui/transcribe_dialog.cpp
 msgid "Set them in the preferences."
 msgstr "Állítsa be őket a beállításokban."
 
-#: src/lib/subedit/gui/transcribe_dialog.cpp
 #: src/lib/subedit/gui/transcribe_dialog.cpp
 msgid "This model cannot detect the language: type it."
 msgstr "Ez a modell nem tudja felismerni a nyelvet: adja meg."
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
-#: src/lib/subedit/gui/transcribe_dialog.cpp
 msgid "The language you typed is used."
 msgstr "A beírt nyelv lesz használva."
 
-#: src/lib/subedit/gui/transcribe_dialog.cpp
 #: src/lib/subedit/gui/transcribe_dialog.cpp
 msgid "Proposed from the language the file declares for this track."
 msgstr "A fájl által ehhez a sávhoz megadott nyelv alapján javasolva."
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
-#: src/lib/subedit/gui/transcribe_dialog.cpp
-msgid "The file declares no language for this track: the model will detect it from the sound. Type it if you know it."
-msgstr "A fájl nem ad meg nyelvet ehhez a sávhoz: a modell a hangból fogja felismerni. Adja meg, ha ismeri."
+msgid ""
+"The file declares no language for this track: the model will detect it from "
+"the sound. Type it if you know it."
+msgstr ""
+"A fájl nem ad meg nyelvet ehhez a sávhoz: a modell a hangból fogja "
+"felismerni. Adja meg, ha ismeri."
+
+#: src/lib/subedit/gui/transcription_runner.cpp
+#: src/lib/subedit/gui/transcription_runner.cpp
+msgid "Extracting the audio…"
+msgstr "A hang kinyerése…"
+
+#: src/lib/subedit/gui/transcription_runner.cpp
+msgid "Transcribing the audio…"
+msgstr "A hang leiratozása…"
+
+#: src/lib/subedit/gui/transcription_runner.cpp
+#: src/lib/subedit/gui/transcription_runner.cpp
+msgid "Last text: %1"
+msgstr "Utolsó szöveg: %1"
 
 #: src/lib/subedit/gui/transcription_runner.cpp
 #: src/lib/subedit/gui/unsaved_documents_dialog.cpp
 msgid "Cancel"
 msgstr "Mégse"
-
-#: src/lib/subedit/gui/transcription_runner.cpp
-msgid "Transcribing the audio…"
-msgstr "A hang leiratozása…"
 
 #: src/lib/subedit/gui/transform_dialog.cpp
 msgid "Transform positions"

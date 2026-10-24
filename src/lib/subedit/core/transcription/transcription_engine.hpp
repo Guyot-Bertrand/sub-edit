@@ -3,6 +3,7 @@
 #include <subedit/core/transcription/engine_capabilities.hpp>
 #include <subedit/core/transcription/transcript.hpp>
 #include <subedit/core/transcription/transcription_error.hpp>
+#include <subedit/core/transcription/transcription_progress.hpp>
 
 #include <expected>
 #include <filesystem>
@@ -23,6 +24,12 @@ struct TranscriptionRequest {
 
     /// The model, for an engine that needs one.
     std::optional<std::filesystem::path> model{};
+
+    /// The part of the audio to transcribe, in the time of the film; the whole of it
+    /// when nothing is given. The segments come back in that same time, and none
+    /// begins before `start` or after `end`.
+    std::optional<Timestamp> start{};
+    std::optional<Timestamp> end{};
 };
 
 /// How a run is watched and stopped.
@@ -34,11 +41,23 @@ struct TranscriptionRequest {
 /// `TranscriptionErrorKind::Cancelled`.
 struct TranscriptionObserver {
     std::function<void(double fraction)> progress{};
+
+    /// Called each time something is learnt: the step changes, a piece of speech is
+    /// obtained, the engine reports a window done.
+    std::function<void(const TranscriptionProgress&)> advanced{};
     std::function<bool()> cancelled{};
 
     void report(double fraction) const {
         if (progress)
             progress(fraction);
+    }
+
+    /// Reports `state`, and its fraction too when it has one.
+    void advance(const TranscriptionProgress& state) const {
+        if (advanced)
+            advanced(state);
+        if (state.fraction)
+            report(*state.fraction);
     }
 
     [[nodiscard]] bool isCancelled() const { return cancelled && cancelled(); }

@@ -100,7 +100,7 @@ eşlik ettiği — ve üçüncü bir ifade onu, başka bir şey olan
 **projenin filminin** sesidir ve asla seçeceğiniz bir dosya değildir — bir ses dosyasını yazıya dökmek için
 komut satırında [`transcribe`](../subedit-cli/transcribe.md) komutunu kullanın.
 
-İletişim kutusu iki şey ister ve başlayıp başlayamayacağını söyler:
+İletişim kutusu üç şey ister ve başlayıp başlayamayacağını söyler:
 
 - **ses izi**, [`Audio`](#ses-izi) menüsünün listelediği gibi listelenir, dosyanın bildirdiği dil
   ve başlıkla birlikte;
@@ -109,7 +109,8 @@ komut satırında [`transcribe`](../subedit-cli/transcribe.md) komutunu kullanı
   **alanın altındaki bir satır nereden geldiğini söyler**. Dosya iz için bir dil bildirmediğinde
   satır bunu söyler: model dili o zaman sesten algılar, bunu yalnızca çok dilli bir model yapabilir ve
   biliyorsanız dili yazmalısınız. Hiçbir şeyi algılamayan, yalnızca İngilizce bir modelle satır,
-  dilin yazılması gerektiğini söyler.
+  dilin yazılması gerektiğini söyler;
+- **filmin bölümü**, bir zamandan bir başkasına — bkz. [Önce bir bölümü denemek](#önce-bir-bölümü-denemek). İki alan da boşsa filmin tamamı demektir.
 
 **Neyin eksik olduğunu da söyler.** Üç satır motorun, `ffmpeg`'in ve modelin orada olup olmadığını ve
 nerede olduğunu söyler; biri yoksa `OK` kapalı kalır ve kutu bunu
@@ -124,11 +125,24 @@ Dil bir sonraki sefer için saklanır. Motorun kendisi ve altyazıların sınır
 söyler. İşten önce sorar, böylece vazgeçmenin bir maliyeti olmaz. Proje boşsa
 sorulacak bir şey yoktur.
 
-İş **arka planda** çalışır, motorun ne kadar ilerlediğini gösteren bir kutu ve bir `Cancel`
-düğmesiyle; pencere çevresinde kullanılabilir kalır. Bittiğinde projenin altyazıları
+İş **arka planda** çalışır, bir kutu ve bir `Cancel` düğmesiyle; pencere çevresinde kullanılabilir kalır. **Kutu işin nerede olduğunu söyler**, böylece canlı olduğunu ve ne kadar süreceğini bilirsiniz:
+
+- **adım**: önce “Ses çıkarılıyor…” — kutu o sırada meşguldür, rakam göstermez, çünkü çıkarma ne kadar ilerlediğini söylemez —, sonra “Ses yazıya dökülüyor…”, bir çubukla;
+- **konum**: “0:12:30 / 0:50:00”, motorun filmde ne kadar ilerlediği; ilk metnini üretir üretmez görünür;
+- **kalan süre**, “yaklaşık 38 dk kaldı”: başta yoktur, tahmin yürütmeye yetecek kadar iş yapıldığında görünür ve son dakikanın hızından hesaplanır; birkaç dakikalık bir doğruluktur, bir söz değil;
+- **elde edilen son metin**, işin anlamlı gittiğini görmeniz için.
+
+Büyük bir modelle işlemcide çalışan uzun bir filmde ilk dakikalar uzun olabilir: motor modeli yüklüyor ve ilk otuz saniyelik pencereleri üzerinde çalışıyor. Konum ve son metin, motorun yalnızca filmin %5'lik adımlarıyla gelen kendi yüzdesinden önce hareket eder. Bittiğinde projenin altyazıları
 yazıya dökmeyle **tek bir işlem olarak** değiştirilir: bir `Undo` orada olanı geri verir, çeviri
 metinleri dahil. Başarısız olan ya da iptal ettiğiniz bir yazıya dökme hiçbir şeyi değiştirmez — neden
 bir kutuda söylenir, yalnızca iptal hariç; iptal sadece durum çubuğunda iptal edildiğini söyler.
+
+### Önce bir bölümü denemek
+
+Bir aralık, yazıya dökmeyi bir **denemeye** çevirir: iki saate girişmeden önce bir modeli ya da bir dili iki dakikada değerlendirmek için. “Filmin bir bölümü” alanları bir başlangıç ve bir bitiş alır, her biri `2:00`, `1:02:03`, `2:00.5` ya da bir saniye sayısı, `90` olarak yazılır; yalnızca biri de olabilir (oradan sona kadar ya da baştan oraya kadar). Bir alan süre olmadığı ya da bitiş başlangıçtan sonra gelmediği sürece `OK` kapalı kalır ve alanların altındaki bir satır hangisi olduğunu söyler.
+
+- **Altyazılar filmin zamanını korur**: 2:10'da söylenen şey sonuçta `0:02:10` konumundadır.
+- **Hiçbir şey değiştirilmez ve hiçbir şey sorulmaz.** Sonuç, dosyasız, yeni bir sekmede **kendi başına bir proje** olarak açılır; çıkarıldığı proje ve altyazıları olduğu gibi kalır. Kaydedin ya da kapatın.
 
 **İhtiyaç duyduğu şey birlikte gelmez**: bir motor (whisper.cpp), bir model ve sesi çıkarmak için `ffmpeg`.
 Bkz. [Yazıya dökme araçlarını kurma](../subedit-cli/install-transcription.md).

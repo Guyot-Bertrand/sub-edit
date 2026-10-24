@@ -108,7 +108,7 @@ das [aus den Positionen abgeleitete Raster](frame-grid.md), das eine andere ist.
 das Audio **des Films des Projekts**, nie eine Datei, die Sie auswählen würden — um eine
 Audiodatei zu transkribieren, verwenden Sie [`transcribe`](../subedit-cli/transcribe.md) in der Befehlszeile.
 
-Der Dialog fragt nach zwei Dingen und sagt, ob er beginnen kann:
+Der Dialog fragt nach drei Dingen und sagt, ob er beginnen kann:
 
 - **der Tonspur**, aufgelistet, wie das Menü [`Audio`](#die-tonspur) sie auflistet, mit der Sprache
   und dem Titel, die die Datei angibt;
@@ -117,7 +117,9 @@ Der Dialog fragt nach zwei Dingen und sagt, ob er beginnen kann:
   **eine Zeile unter dem Feld sagt, woher sie stammt**. Gibt die Datei für die Spur keine Sprache an,
   sagt die Zeile das: Das Modell erkennt sie dann aus dem Ton, was nur ein mehrsprachiges Modell
   kann, und Sie sollten sie eingeben, wenn Sie sie kennen. Bei einem Modell nur für Englisch, das
-  nichts erkennt, sagt die Zeile, dass die Sprache eingegeben werden muss.
+  nichts erkennt, sagt die Zeile, dass die Sprache eingegeben werden muss;
+- **dem Teil des Films**, von einer Zeitangabe bis zu einer anderen — siehe [Zuerst einen Teil ausprobieren](#zuerst-einen-teil-ausprobieren). Beide Felder
+  leer bedeuten den ganzen Film.
 
 **Er sagt auch, was fehlt.** Drei Zeilen sagen, ob die Engine, `ffmpeg` und das Modell vorhanden sind, und
 wo; fehlt eines, bleibt `OK` ausgegraut, und der Dialog sagt es mit dem Verweis auf
@@ -132,11 +134,33 @@ Die Sprache wird für das nächste Mal gemerkt. Die Engine selbst und die Grenze
 wie viele verschwinden. Es fragt vor der Arbeit, damit das Ablehnen nichts kostet. Ist das Projekt leer, gibt es
 nichts zu fragen.
 
-Die Arbeit läuft **im Hintergrund**, mit einem Feld, das zeigt, wie weit die Engine gekommen ist, und einer Schaltfläche `Cancel`;
-das Fenster bleibt drumherum benutzbar. Wenn sie endet, werden die Untertitel des Projekts durch die
+Die Arbeit läuft **im Hintergrund**, mit einem Feld und einer Schaltfläche `Cancel`; das Fenster bleibt drumherum benutzbar. **Das Feld
+zeigt, wo die Arbeit steht**, damit Sie wissen, dass sie lebt und wie lange sie dauern wird:
+
+- **der Schritt**: zuerst “Audio wird extrahiert …” — das Feld ist dann beschäftigt, ohne Zahl, da das Extrahieren nichts darüber sagt, wie weit es
+  gekommen ist —, dann “Audio wird transkribiert …”, mit einem Balken;
+- **die Position**: “0:12:30 von 0:50:00”, wie weit im Film die Engine gekommen ist, sobald sie ihren ersten Text erzeugt hat;
+- **die verbleibende Zeit**, “noch etwa 38 Min.”: zu Beginn nicht vorhanden, angezeigt, sobald genug erledigt ist, um zu extrapolieren, und aus der
+  Geschwindigkeit der letzten Minute berechnet; sie ist auf wenige Minuten genau, kein Versprechen;
+- **der zuletzt erhaltene Text**, damit Sie sehen, dass die Arbeit sinnvoll ist.
+
+Bei einem langen Film mit einem großen Modell auf einem Prozessor können die ersten Minuten lang sein: Die Engine lädt das Modell und arbeitet an ihren ersten
+Fenstern von dreißig Sekunden. Die Position und der letzte Text bewegen sich vor dem eigenen Prozentwert der Engine, der nur in Schritten
+von 5 % des Films kommt. Wenn sie endet, werden die Untertitel des Projekts durch die
 Transkription ersetzt, **als ein einziger Vorgang**: Ein einziges `Undo` gibt zurück, was da war, die Texte der
 Übersetzung eingeschlossen. Eine Transkription, die fehlschlägt oder die Sie abbrechen, ändert nichts — der Grund wird
 in einem Feld genannt, außer bei einem Abbruch, der in der Statusleiste nur sagt, dass abgebrochen wurde.
+
+### Zuerst einen Teil ausprobieren
+
+Ein Bereich macht aus der Transkription einen **Versuch**, um ein Modell oder eine Sprache an zwei Minuten zu beurteilen, bevor man sich auf
+zwei Stunden festlegt. Die Felder “Teil des Films” nehmen einen Anfang und ein Ende, jeweils geschrieben als `2:00`, `1:02:03`, `2:00.5` oder als Anzahl
+Sekunden, `90`; eines allein ist erlaubt (von dort bis zum Ende, oder vom Anfang bis dorthin). `OK` bleibt ausgegraut, solange ein Feld
+keine Zeitangabe ist oder das Ende nicht nach dem Anfang liegt, und eine Zeile unter den Feldern sagt, welches.
+
+- **Die Untertitel behalten die Zeit des Films**: Was bei 2:10 gesagt wird, steht im Ergebnis bei `0:02:10`.
+- **Nichts wird ersetzt, und nichts wird gefragt.** Das Ergebnis öffnet sich als **eigenes Projekt**, in einem neuen Tab, ohne
+  Datei; das Projekt, aus dem es stammt, und seine Untertitel bleiben, wie sie waren. Speichern Sie es oder schließen Sie es.
 
 **Was sie braucht, wird nicht ausgeliefert**: eine Engine (whisper.cpp), ein Modell und `ffmpeg`, um das Audio zu extrahieren.
 Siehe [Die Transkriptionswerkzeuge installieren](../subedit-cli/install-transcription.md).

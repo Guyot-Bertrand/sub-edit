@@ -8,6 +8,7 @@ subedit-cli transcribe --output FILE
                        [--to FORMAT]
                        [--audio-track N]
                        [--language CODE]
+                       [--start TIME] [--end TIME]
                        [--model FILE]
                        [--engine NAME]
                        [--keep-audio FILE]
@@ -33,6 +34,8 @@ ve sıfırdan farklı bir kodla çıkar.
 - **Dil algılanır**, `--language` zorlamadıkça, ve kullanılan dil söylenir. Yalnızca İngilizce için
   yapılmış bir model hiçbir şey algılamaz ve başka hiçbir şeyi yazıya dökmez: alamayacağı bir dil,
   herhangi bir iş başlamadan *önce*, modelin sınırı belirtilerek reddedilir.
+- **Filmin yalnızca bir bölümü yazıya dökülebilir**, `--start` ve `--end` ile — bkz.
+  [Filmin bir bölümünü yazıya dökme](#filmin-bir-bölümünü-yazıya-dökme). Bir model iki saatte çalıştırılmadan önce iki dakikada böyle denenir.
 - **Parçalar birleştirilir ve kesilir**, ayarların sınırlarına göre (`transcription.merge-gap-ms`,
   `transcription.max-duration-ms`, `transcription.max-characters`): bir cümlenin birbirine yakın iki
   parçası tek bir altyazı olur, çok uzun ya da çok geniş bir parça ise bir sözcükten kesilir. **`--raw`
@@ -54,6 +57,8 @@ Options:
   --to TEXT:{srt,vtt,subviewer2,ssa,ass,microdvd,mpl2,tmplayer,lrc}
                               Format to write; the one the extension of --output says by default
   --audio-track N             Audio track of a video, counted from 0; the first by default
+  --start TIME                Where to begin, as 2:00, 1:02:03 or seconds; the beginning by default
+  --end TIME                  Where to stop, as 2:00, 1:02:03 or seconds; the end by default
   --language CODE             Language of the speech: fr, en; detected by default
   --model FILE                Model file; the transcription.model setting by default
   --engine NAME               Engine; the transcription.engine setting by default
@@ -70,6 +75,8 @@ Options:
 | `--to` | hayır | bir biçimin kısa adı: `srt`, `vtt`, `subviewer2`, `ssa`, `ass`, `microdvd`, `mpl2`, `tmplayer`, `lrc` | `--output` uzantısının belirttiği biçim, yoksa `srt` |
 | `--audio-track` | hayır | 0'dan başlayan bir tam sayı: videonun ses izleri arasındaki konum | `0`, ilki |
 | `--language` | hayır | iki küçük harf, bir ISO 639-1 kodu: `en`, `fr` | `transcription.language` ayarı; boşsa: algılanır |
+| `--start` | hayır | bir süre: `2:00`, `1:02:03`, `2:00.5` ya da bir saniye sayısı, `90` | sesin başı |
+| `--end` | hayır | `--start` için olduğu gibi yazılmış bir süre; `--start` değerinden sonra gelmelidir | sesin sonu |
 | `--model` | hayır | model dosyası | `transcription.model` ayarı |
 | `--engine` | hayır | bir motorun adı: `whisper.cpp` | `transcription.engine` ayarı |
 | `--keep-audio` | hayır | çıkarılan sesin saklanacağı dosya, bir WAV dosyasında 16 kHz mono 16 bit PCM olarak; dizini yoksa oluşturulur | ses hiçbir yerde saklanmaz |
@@ -105,6 +112,21 @@ audio track 0: fra, Original
 audio track 1: eng, Commentary
 ```
 
+## Filmin bir bölümünü yazıya dökme
+
+`--start` ve `--end`, işi aralarındaki film bölümüyle sınırlar. İkisinden biri tek başına verilebilir: tek başına bir `--start` sona kadar gider, tek başına bir `--end` baştan başlar.
+
+```bash
+subedit-cli transcribe --start 2:00 --end 3:30 --output test.srt --model large-v3.bin film.mkv
+```
+
+- **Bir süre `M:SS` ya da `H:MM:SS` olarak, gerekirse bir noktadan sonra ondalık bölümle (`2:00.5`), ya da bir saniye sayısı olarak (`90`, `90.5`) yazılır**. Virgül, aracın her yerinde olduğu gibi reddedilir.
+- **Altyazılar filmin zamanını korur**: filmin 2:10'unda söylenen cümle `00:02:10` olarak yazılır, `00:00:10` olarak değil. Dosya olduğu gibi filmin tamamının üzerine konabilir.
+- **Kenarlar yaklaşık değerlerdir**: motor otuz saniyelik pencerelerle çalışır, bu yüzden döndürdüğü şey sonradan aralığa göre kesilir; bir kenara taşan cümle orada kesilir.
+- **Aralık kullanılamıyorsa hiçbir şey başlamaz**: bir süre olmayan bir sınır ya da `--start` değerinden sonra gelmeyen bir `--end`, sorunu adlandıran bir kullanım hatasıdır; hiçbir şey yazmaz ve ne `ffmpeg` ne de motoru çalıştırır.
+
+Tüm filmin sesi yine de çıkarılır: aralığın kazandırdığı, çok daha uzun süren yazıya dökmedir.
+
 ## Çıktı
 
 **Standart çıktı** — boş: sonuç yazılan dosyadır.
@@ -112,7 +134,10 @@ audio track 1: eng, Commentary
 | Düzey | Hata çıktısına eklenenler |
 | :----- | :------------------------------------- |
 | 1 | `<input>: N subtitles transcribed, language: xx -> <output>` |
-| 2 | motorun ilerleyişi, `transcribing: 25%`, kendisinin bildirdiği gibi — yaklaşık otuz saniyelik ses adımlarıyla |
+| 2 | adım ve ilerleme, her yüzde için bir satır: `extracting the audio…`, sonra `transcribing…`, sonra `transcribing: 25%, 0:12:30 of 0:50:00, about 38 min left` — yüzde, seste ulaşılan konum ve kalan süre |
+| 3 | ve motorun elde ettiği her yeni metin, `last text: …` |
+
+**Yüzde, motorun seste bulunduğu konumdur, kendi pencerelerinin sayısı değil**: motor yazıya döktüğünü ilerledikçe yazar, komut da ne kadar ilerlediğini okur; böylece rakam ilk dakikadan itibaren hareket eder. (Motorun kendi ilerlemesi, otuz saniyelik bir pencere bittikten sonra, sesin %5'lik adımlarıyla gelir: tek başına, bir işlemcide büyük bir modelle uzun bir filmde çeyrek saat boyunca %0'da kalabilir.) **Kalan süre başlangıçta sessizdir**: tahmin yürütmeye yetecek kadar iş yapıldığında verilir ve tüm çalışmanın ortalamasını değil, son dakikanın hızını izler.
 
 ### JSON biçiminde
 
@@ -125,7 +150,7 @@ dosyanın nesnesi `language` içinde kullanılan dili, `counts.subtitles` (yazı
 
 Aracın genel kodları: dosya yazıldıysa `0`, yazılamadıysa `2` — eksik bir araç ya da model, modelin alamayacağı bir dil,
 başarısız bir çıkarma ya da yazıya dökme —, bir kullanım hatasında `1`, örneğin kimsenin kaydetmediği
-bir motor.
+bir motor ya da kullanılamayan bir aralık.
 
 ## Hatalar
 
@@ -138,6 +163,8 @@ bir motor.
 | modelin yazıya dökemediği bir dil | `the model cannot transcribe the language xx` |
 | dil yok ve dili algılayamayan bir model | `the model cannot detect the language: give one` |
 | kimsenin kaydetmediği bir motor | `no transcription engine is called NAME` |
+| bir süre olmayan bir aralık sınırı | `"TEXT" is not a time: write it as 2:00, 1:02:03 or 2:00.5, or in seconds` |
+| `--end`, `--start` değerinden sonra değil | `the end of the range must come after its start` |
 | diğer her başarısızlık | `the transcription failed`, motorun söylediğiyle birlikte |
 
 Kılavuza yönlendirme şudur: `See the manual page "Installing the transcription tools"

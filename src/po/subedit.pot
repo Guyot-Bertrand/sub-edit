@@ -960,6 +960,14 @@ msgid "Audio track of a video, counted from 0; the first by default"
 msgstr ""
 
 #: src/exe/cli/commands/transcribe.cpp
+msgid "Where to begin, as 2:00, 1:02:03 or seconds; the beginning by default"
+msgstr ""
+
+#: src/exe/cli/commands/transcribe.cpp
+msgid "Where to stop, as 2:00, 1:02:03 or seconds; the end by default"
+msgstr ""
+
+#: src/exe/cli/commands/transcribe.cpp
 msgid "Language of the speech: fr, en; detected by default"
 msgstr ""
 
@@ -3187,6 +3195,44 @@ msgstr[0] ""
 msgstr[1] ""
 
 #: src/lib/subedit/core/wording/transcription.cpp
+msgid ""
+"\"%1\" is not a time: write it as 2:00, 1:02:03 or 2:00.5, or in seconds"
+msgstr ""
+
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "the end of the range must come after its start"
+msgstr ""
+
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "less than a minute left"
+msgstr ""
+
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "about %1 min left"
+msgstr ""
+
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "about %1 h %2 min left"
+msgstr ""
+
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "extracting the audio…"
+msgstr ""
+
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "transcribing…"
+msgstr ""
+
+#: src/lib/subedit/core/wording/transcription.cpp
+#: src/lib/subedit/gui/transcription_runner.cpp
+msgid "%1 of %2"
+msgstr ""
+
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "last text: %1"
+msgstr ""
+
+#: src/lib/subedit/core/wording/transcription.cpp
 msgid "%1: found (%2)"
 msgstr ""
 
@@ -4348,6 +4394,7 @@ msgid "Start (frames)"
 msgstr ""
 
 #: src/lib/subedit/gui/subtitle_table_model.cpp
+#: src/lib/subedit/gui/transcribe_dialog.cpp
 msgid "End"
 msgstr ""
 
@@ -4411,10 +4458,21 @@ msgid ""
 msgstr ""
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
+msgid "Beginning"
+msgstr ""
+
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+msgid ""
+"A time such as 2:00, 1:02:03 or 90 (seconds). Leave both empty to transcribe "
+"the whole film."
+msgstr ""
+
+#: src/lib/subedit/gui/transcribe_dialog.cpp
 msgid ""
 "The audio of the film open in this window is transcribed into subtitles that "
-"replace the ones of the project. The work runs in the background and can be "
-"cancelled."
+"replace the ones of the project. Give a range to try a part of the film "
+"first: the result then opens as a project of its own and nothing is "
+"replaced. The work runs in the background and can be cancelled."
 msgstr ""
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
@@ -4423,6 +4481,14 @@ msgstr ""
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
 msgid "Language"
+msgstr ""
+
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+msgid "to"
+msgstr ""
+
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+msgid "Part of the film"
 msgstr ""
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
@@ -4448,12 +4514,20 @@ msgid ""
 msgstr ""
 
 #: src/lib/subedit/gui/transcription_runner.cpp
-#: src/lib/subedit/gui/unsaved_documents_dialog.cpp
-msgid "Cancel"
+msgid "Extracting the audio…"
 msgstr ""
 
 #: src/lib/subedit/gui/transcription_runner.cpp
 msgid "Transcribing the audio…"
+msgstr ""
+
+#: src/lib/subedit/gui/transcription_runner.cpp
+msgid "Last text: %1"
+msgstr ""
+
+#: src/lib/subedit/gui/transcription_runner.cpp
+#: src/lib/subedit/gui/unsaved_documents_dialog.cpp
+msgid "Cancel"
 msgstr ""
 
 #: src/lib/subedit/gui/transform_dialog.cpp

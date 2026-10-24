@@ -108,7 +108,7 @@ li [grille deducet del positiones](frame-grid.md), quel es un altri.
 li audio del **film del projecte**, e jamais un file quel vu electe — por transcrir un
 file audio, usa [`transcribe`](../subedit-cli/transcribe.md) in li linea de comande.
 
-Li dialog demanda du cosas, e dit si it posse comensar:
+Li dialog demanda tre cosas, e dit si it posse comensar:
 
 - **li pista audio**, listat quam li menu [`Audio`](#li-pista-audio) les lista, con li lingue
   e li titul quel li file declara;
@@ -117,7 +117,9 @@ Li dialog demanda du cosas, e dit si it posse comensar:
   **un linea sub li camp dit de u it veni**. Quande li file declara null lingue por li pista,
   li linea dit it: li model detectará it tande del son, quo solmen un model multilingual
   save far, e vu deve tipar it si vu save it. Con un model solmen por anglesi, quel detecte nequo,
-  li linea dit que li lingue deve esser tipat.
+  li linea dit que li lingue deve esser tipat;
+- **li parte del film**, de un témpor til un altri — vide [Provar un parte ante](#provar-un-parte-ante). Con ambi campes
+  vacui, it es li tot film.
 
 **It dit anc quo manca.** Tri lineas dit si li motor, `ffmpeg` e li model es ibi, e
 u; quande un ne es ibi, `OK` resta extint, e li dialog dit it con li indication a
@@ -132,11 +134,33 @@ Li lingue es conservat por li sequent vice. Li motor self e li límites del subt
 quant va partir. It demanda ante li labor, por que refusar costa nequo. Quande li projecte es vacui, il ne ha
 nequo a demandar.
 
-Li labor funde **in li fon**, con un cadre quel monstra til u li motor ha arrivat e un buton `Cancel`;
-li fenestre resta usabil circum it. Quande it fini, li subtitules del projecte es remplazzat
+Li labor funde **in li fon**, con un cadre e un buton `Cancel`; li fenestre resta usabil circum it. **Li cadre
+dit u li labor es**, por que vu save que it vive e quant de témpor it va prender:
+
+- **li pass**: unesim “Extraction del audio…” — li cadre es tande occupat, sin númere, nam extraer dit nequo pri quant es fat —,
+  pois “Transcription del audio…”, con un barre;
+- **li position**: “0:12:30 de 0:50:00”, til u in li film li motor ha arrivat, tam rapid quam it ha producet su prim textu;
+- **li témpor restant**, “resta circa 38 min”: absent in li comense, monstrat quande suficent labor es fat por extrapolar, e calculat
+  secun li rapiditá del ultim minute; it es un precision de qualque minutes, ne un promission;
+- **li ultim textu** obtenet, por que vu vide que li labor ha sens.
+
+Sur un long film con un grand model sur un processor, li prim minutes posse esser longi: li motor carga e labora sur su prim
+fenestres de trenta secondes. Li position e li ultim textu move ante li procent propri del motor, quel veni solmen per passus
+de 5 % del film. Quande it fini, li subtitules del projecte es remplazzat
 per li transcription **in un singul operation**: un `Undo` redona quo esset ibi, textus
 de traduction includet. Un transcription quel fallis, o quel vu anulla, changea nequo — li motive
 es dit in un cadre, except por un anullation, quel solmen dit in li barre de statu que it esset anullat.
+
+### Provar un parte ante
+
+Un interval fa del transcription un **prova**, por jugar un model o un lingue sur du minutes ante engagear se por
+du hores. Li campes “Parte del film” prende un comense e un fine, chascun scrit `2:00`, `1:02:03`, `2:00.5` o un númere
+de secondes, `90`; solmen un es permisset (de ibi til li fine, o del comense til ibi). `OK` resta extinct til un camp
+ne es un témpor o li fine ne es pos li comense, e un linea sub li campes dit quel.
+
+- **Li subtitules conserva li témpor del film**: quo es dit a 2:10 es a `0:02:10` in li resultate.
+- **Nequo es remplazzat e nequo es demandat.** Li resultate se aperi quam **un projecte propri**, in un nov tab, sin
+  file; li projecte de quel it veni, e su subtitules, resta quam ili esset. Gardar it, o cluder it.
 
 **Quo it besona ne es livrat con li programma**: un motor (whisper.cpp), un model, e `ffmpeg` por extraer li audio.
 Vide [Instalar li utensiles de transcription](../subedit-cli/install-transcription.md).
