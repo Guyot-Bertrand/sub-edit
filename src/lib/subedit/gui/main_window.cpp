@@ -372,9 +372,7 @@ public:
 
     [[nodiscard]] std::optional<std::filesystem::path>
     videoOf(const ProjectPage& page) const override {
-        if (!page.watching)
-            return std::nullopt;
-        return page.associated;
+        return page.watching ? std::optional{page.associated} : std::nullopt;
     }
 
     [[nodiscard]] std::vector<core::AudioTrack>

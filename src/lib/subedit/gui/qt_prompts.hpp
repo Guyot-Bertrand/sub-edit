@@ -93,6 +93,9 @@ public:
 
     [[nodiscard]] bool proposeShiftedReopening(const std::string& message) override;
 
+    [[nodiscard]] std::optional<std::filesystem::path>
+    modelToOpen(const std::filesystem::path& current) override;
+
     [[nodiscard]] bool confirmReplacement(const std::string& message) override;
 
     [[nodiscard]] bool run(QDialog& dialog) override;

@@ -3,12 +3,13 @@
 <!-- machine-translated -->
 > Questa pagina è una traduzione automatica e non è ancora stata rivista da un lettore della lingua.
 
-Il menu **Video** porta anzitutto due comandi, e poi i gesti che guidano il film
+Il menu **Video** porta anzitutto tre comandi, e poi i gesti che guidano il film
 — vedi [Il lettore video](player.md#spostarsi-nel-film).
 
 | Comando | Scorciatoia | Che cosa fa |
 | :------ | :------- | :----------- |
 | Seleziona video… | nessuna | sceglie il file video a cui il documento è associato |
+| Trascrivi audio… | nessuna | trascrive l'audio del film in sottotitoli che sostituiscono quelli del progetto — vedi [Trascrivere l'audio](#trascrivere-laudio) |
 | Riproduci / Pausa | `Ctrl+P` | riproduce o ferma il video — vedi [Il lettore video](player.md#riprodurre-e-fermare) |
 
 Il video associato è **una proprietà del documento aperto**, non un'impostazione
@@ -104,6 +105,38 @@ posizioni.
 spingerebbe fuori tutto il resto dalla barra; il percorso completo è quello che
 la finestra di dialogo mostrava.
 
+## Trascrivere l'audio
+
+**`Transcribe Audio…`** scrive il parlato del film come sottotitoli. È disattivato finché non è aperto un film: è
+l'audio del **film del progetto**, mai un file che si sceglierebbe — per trascrivere un
+file audio, usa [`transcribe`](../subedit-cli/transcribe.md) da riga di comando.
+
+La finestra di dialogo chiede tre cose:
+
+- **la traccia audio**, elencata come la elenca il menu [`Audio`](#la-traccia-audio), con la lingua
+  e il titolo dichiarati dal file;
+- **la lingua**, due lettere come `en` o `fr`. Parte dalla lingua della traccia scelta
+  quando il file ne dichiara una, segue la traccia finché non ne hai digitata una, e
+  lasciata vuota fa **rilevare** la lingua al modello;
+- **il modello**, un file, con un pulsante `Browse…`.
+
+Le scelte vengono conservate per la volta successiva. Il motore stesso e i limiti dei sottotitoli sono
+[impostazioni](preferences.md) (`transcription.*`).
+
+**Quando il progetto contiene già dei sottotitoli, la finestra chiede prima di sostituirli**, e dice
+quanti ne vanno persi. Chiede prima del lavoro, in modo che rifiutare non costi nulla. Quando il progetto è vuoto non c'è
+nulla da chiedere.
+
+Il lavoro si svolge **in background**, con una finestra che mostra a che punto è il motore e un pulsante `Cancel`;
+la finestra principale resta utilizzabile. Quando termina, i sottotitoli del progetto vengono sostituiti
+dalla trascrizione **in una sola operazione**: un solo `Undo` restituisce ciò che c'era, testi di
+traduzione compresi. Una trascrizione che fallisce, o che annulli, non cambia nulla — il motivo viene
+detto in una finestra, tranne che per un annullamento, che dice soltanto nella barra di stato che è stato annullato.
+
+**Ciò che serve non è fornito**: un motore (whisper.cpp), un modello e `ffmpeg` per estrarre l'audio.
+Quando ne manca uno, la finestra dice quale, e rimanda a
+[Installare gli strumenti di trascrizione](../subedit-cli/install-transcription.md).
+
 ## Quando non c'è alcun film
 
 La finestra mostra un pulsante **`Select Video…`** dove andrebbe l'immagine, anziché
@@ -133,6 +166,9 @@ per film, al momento dell'associazione.
 non ha affatto bisogno di `ffprobe`: si appoggia a `libmpv`, che è una
 dipendenza di compilazione. La durata del film, quella usata per segnalare ciò che
 supera la fine, proviene dal lettore e non da `ffprobe`.
+
+**La trascrizione è l'unica cosa che ha bisogno di `ffmpeg`**: estrae l'audio del film. Vedi
+[Installare gli strumenti di trascrizione](../subedit-cli/install-transcription.md).
 
 Non è quindi una modalità degradata ma **il funzionamento normale** di una macchina
 che non ha mai installato `ffmpeg`: il dato viene dall'utente, e `ffprobe`

@@ -88,25 +88,35 @@ UnsavedChoice choiceOf(int button) {
     }
 }
 
-std::optional<std::filesystem::path> QtPrompts::fileToOpen(const std::filesystem::path& directory) {
-    const QString chosen = QFileDialog::getOpenFileName(
-        m_owner, translate("Open"), QString::fromStdString(directory.string()), subtitleFilters());
+namespace {
+
+/// What a file chooser answered: the path, or nothing when it was closed.
+[[nodiscard]] std::optional<std::filesystem::path> pathOf(const QString& chosen) {
     if (chosen.isEmpty())
         return std::nullopt;
-
     return std::filesystem::path{chosen.toStdString()};
+}
+
+} // namespace
+
+std::optional<std::filesystem::path> QtPrompts::fileToOpen(const std::filesystem::path& directory) {
+    return pathOf(QFileDialog::getOpenFileName(
+        m_owner, translate("Open"), QString::fromStdString(directory.string()), subtitleFilters()));
 }
 
 std::optional<std::filesystem::path>
 QtPrompts::videoToOpen(const std::filesystem::path& directory) {
-    const QString chosen = QFileDialog::getOpenFileName(m_owner,
-                                                        translate("Select Video"),
-                                                        QString::fromStdString(directory.string()),
-                                                        videoFilters());
-    if (chosen.isEmpty())
-        return std::nullopt;
+    return pathOf(QFileDialog::getOpenFileName(m_owner,
+                                               translate("Select Video"),
+                                               QString::fromStdString(directory.string()),
+                                               videoFilters()));
+}
 
-    return std::filesystem::path{chosen.toStdString()};
+std::optional<std::filesystem::path> QtPrompts::modelToOpen(const std::filesystem::path& current) {
+    return pathOf(QFileDialog::getOpenFileName(m_owner,
+                                               translate("Choose a model"),
+                                               QString::fromStdString(current.string()),
+                                               translate("Models (*.bin);;All files (*)")));
 }
 
 std::optional<SaveTarget> QtPrompts::saveTarget(const core::SourceFile& current,

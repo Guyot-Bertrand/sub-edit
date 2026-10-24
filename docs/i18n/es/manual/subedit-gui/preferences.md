@@ -138,6 +138,12 @@ existieran los dos bloques se lee sin cambios, y se reescribe en dos bloques en 
 | `correction.join-split.join`, `correction.join-split.split` | `true` o `false` — unir, separar | `true`, `false` |
 | `correction.join-split.language` | un código de configuración regional — `fr`, `en_US`, `sr@Latn` —; vacío: el idioma del sistema | vacío |
 | `correction.remove-blank` | `true` o `false` — `Remove all blank subtitles` | `true` |
+| `transcription.engine` | el nombre del motor: letras minúsculas, cifras, `.`, `-` y `_` | `whisper.cpp` |
+| `transcription.executable`, `transcription.model` | una ruta absoluta; vacío: el motor se busca en el `PATH` y no hay ningún modelo definido | vacío |
+| `transcription.language` | dos letras minúsculas, un código ISO 639-1; vacío: el idioma se detecta | vacío |
+| `transcription.merge-gap-ms` | los fragmentos de una misma frase más próximos que esto se unen, en milisegundos, entero y no negativo | `400` |
+| `transcription.max-duration-ms` | la duración máxima de un subtítulo transcrito en pantalla, en milisegundos, de 1 a 3600000 | `7000` |
+| `transcription.max-characters` | el máximo de caracteres de un subtítulo transcrito, de 1 a 1000 | `84` |
 | `correction.activations` | las casillas de patrones que el usuario ha cambiado, `<type>:<code>:<name>:<0\|1>`, separadas por comas; **una coma o una barra invertida en un nombre se escribe precedida de una barra invertida** (`\,` y `\\`), y una entrada ilegible solo pierde su propio ajuste — se señala, las demás se conservan | vacío |
 | `spell-check.language` | un código de configuración regional, como `fr_FR`; vacío: el idioma del sistema | vacío |
 | `spell-check.target` | `selection`, `current-project` o `all-projects` | `current-project` |

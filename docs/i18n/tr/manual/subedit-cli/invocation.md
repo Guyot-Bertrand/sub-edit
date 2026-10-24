@@ -225,7 +225,7 @@ dilleri, standart çıktıda; araç `0` koduyla durur. Birlikte verilen bir alt 
 <!-- example: subedit-cli --version | head -n 1 -->
 ```console
 $ subedit-cli --version | head -n 1
-subedit 1.0.9
+subedit 1.0.10
 ```
 
 ICU 74.2 ve Enchant 2.3.3 bulunan bir makinede tamamı — sayılar makineninkilerdir:
@@ -369,14 +369,16 @@ sessizlik değildir.
 | [`append`](append.md) | ilkinden sonraki dosyaları **tek bir** dosyaya ekler | evet |
 | [`split-file`](split-file.md) | bir dosyayı **iki** parçaya böler: baş ve kuyruk | evet |
 | [`pair`](pair.md) | bir çeviriyi ana dosyasının konumlarına yazar ve satırlarının nasıl hizalandığını söyler | evet |
+| [`transcribe`](transcribe.md) | bir videonun ya da ses dosyasının konuşmasını altyazı olarak yazar | evet — kendi hedefi, `--output` |
 | [`config`](config.md) | ayar dosyasının işlem ayarlarını listeler, gösterir ve değiştirir | yalnızca ayar dosyası |
 
-Yirmi birinin hepsi buradadır; aracın yardımı onları aynı sırayla listeler.
+Yirmi ikisinin hepsi buradadır; aracın yardımı onları aynı sırayla listeler.
 
 **Yalnızca biri hiçbir şeye dokunmaz**, o da sağ sütundur: `inspect` okur ve
-bildirir. Diğer on dokuzu yazar ve izleyenler onlardan on yedisi için geçerlidir:
+bildirir. Diğer yirmisi yazar ve izleyenler onlardan on yedisi için geçerlidir:
 [`append`](append.md) ve [`split-file`](split-file.md) alt komutlarının her birinin kendi girdi sayısı vardır — **bir** sonuç için N dosya,
-**iki** sonuç için bir dosya — ve dolayısıyla kendi hedefleri, sayfalarında anlattıkları.
+**iki** sonuç için bir dosya — ve dolayısıyla kendi hedefleri, sayfalarında anlattıkları;
+[`transcribe`](transcribe.md) bir video ya da ses dosyasından yeni bir dosya yapar ve yalnızca `--output` alır.
 [`config`](config.md) hiçbir altyazı dosyası yazmaz: ayar dosyasını okur ve değiştirir ve
 izleyenlerin hiçbiri ona uygulanmaz.
 

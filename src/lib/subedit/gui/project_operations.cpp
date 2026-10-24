@@ -398,10 +398,12 @@ void ProjectOperations::transcribeAudio(ProjectPage& page) {
         return;
 
     const std::vector<core::AudioTrack> tracks = m_view->audioTracksOf(page);
-    TranscribeDialog dialog{tracks,
-                            TranscribeChoice{.language = m_transcriptionSettings.language,
-                                             .model = m_transcriptionSettings.model},
-                            m_view->dialogParent()};
+    TranscribeDialog dialog{
+        tracks,
+        TranscribeChoice{.language = m_transcriptionSettings.language,
+                         .model = m_transcriptionSettings.model},
+        [this](const std::filesystem::path& current) { return m_prompts->modelToOpen(current); },
+        m_view->dialogParent()};
     if (!m_prompts->run(dialog))
         return;
     const TranscribeChoice choice = dialog.choice();

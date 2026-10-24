@@ -1,3 +1,4 @@
+#include <subedit/core/io/atomic_write.hpp>
 #include <subedit/core/io/temporary_directory.hpp>
 #include <subedit/core/process/start_process.hpp>
 #include <subedit/core/transcription/transcribe_media.hpp>
@@ -34,7 +35,7 @@ transcribeMedia(FileSystem& files,
     const std::filesystem::path extracted =
         request.keepAudio.empty() ? work.path() / "audio.wav" : request.keepAudio;
     if (!request.keepAudio.empty())
-        (void)files.createDirectories(extracted.parent_path());
+        ensureDirectory(files, extracted.parent_path());
 
     StreamObserver stop;
     stop.cancelled = [&observer] { return observer.isCancelled(); };

@@ -110,7 +110,7 @@ $ subedit-cli config list | grep -c '^[a-z]'
 40
 ```
 
-**La línea de comandos lee trece de ellas**; las otras veinte solo las lee la ventana,
+**La línea de comandos lee veinte de ellas**; las otras veinte solo las lee la ventana,
 y su línea `Used by:` lo dice, con la opción de `correct` que ocupa su lugar:
 
 | Clave | Leída por |
@@ -122,6 +122,7 @@ y su línea `Used by:` lo dice, con la opción de `correct` que ocupa su lugar:
 | `correction.human`, `correction.ocr` | [`correct`](correct.md) y `Correct Texts…` |
 | `correction.remove-blank` | `correct` y `Correct Texts…` |
 | `correction.line-break.max-lines` | `correct` y `Correct Texts…` |
+| `transcription.engine`, `transcription.executable`, `transcription.model`, `transcription.language`, `transcription.merge-gap-ms`, `transcription.max-duration-ms`, `transcription.max-characters` | [`transcribe`](transcribe.md) y `Transcribe Audio…` |
 | cualquier otra clave `correction.*` | solo `Correct Texts…`; `correct` toma `--tasks`, `--code`, `--max-length`, `--skip-length`, `--skip-lines`, `--language`, `--enable` y `--disable` de su propia línea |
 
 Los números de líneas, `correction.line-break.max-lines` y `correction.line-break.skip-max-lines`,

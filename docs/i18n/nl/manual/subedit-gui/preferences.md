@@ -138,6 +138,12 @@ twee blokken bestonden, wordt ongewijzigd gelezen, en bij de volgende sluiting i
 | `correction.join-split.join`, `correction.join-split.split` | `true` of `false` — samenvoegen, splitsen | `true`, `false` |
 | `correction.join-split.language` | een taalcode — `fr`, `en_US`, `sr@Latn` —; leeg: de taal van het systeem | leeg |
 | `correction.remove-blank` | `true` of `false` — `Remove all blank subtitles` | `true` |
+| `transcription.engine` | de naam van de engine: kleine letters, cijfers, `.`, `-` en `_` | `whisper.cpp` |
+| `transcription.executable`, `transcription.model` | een absoluut pad; leeg: de engine wordt in het `PATH` gezocht, en er is geen model ingesteld | leeg |
+| `transcription.language` | twee kleine letters, een ISO 639-1-code; leeg: de taal wordt gedetecteerd | leeg |
+| `transcription.merge-gap-ms` | stukken van één zin die dichter bij elkaar liggen dan dit worden samengevoegd, in milliseconden, geheel en niet-negatief | `400` |
+| `transcription.max-duration-ms` | de maximale tijd dat een getranscribeerde ondertitel in beeld blijft, in milliseconden, van 1 tot 3600000 | `7000` |
+| `transcription.max-characters` | het maximale aantal tekens van een getranscribeerde ondertitel, van 1 tot 1000 | `84` |
 | `correction.activations` | de patroonselectievakjes die de gebruiker heeft gewijzigd, `<type>:<code>:<name>:<0\|1>`, gescheiden door komma's; **een komma of een backslash in een naam wordt geschreven met een backslash ervoor** (`\,` en `\\`), en een onleesbaar item verliest alleen zijn eigen instelling — het wordt gemeld, de andere blijven behouden | leeg |
 | `spell-check.language` | een taalcode, zoals `fr_FR`; leeg: de taal van het systeem | leeg |
 | `spell-check.target` | `selection`, `current-project` of `all-projects` | `current-project` |

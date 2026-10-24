@@ -126,6 +126,11 @@ public:
     /// since nothing has gone wrong that the user did not already see.
     [[nodiscard]] virtual bool proposeShiftedReopening(const std::string& message) = 0;
 
+    /// Which model file to give a transcription, from where the field stands, or nothing if the
+    /// person changed their mind.
+    [[nodiscard]] virtual std::optional<std::filesystem::path>
+    modelToOpen(const std::filesystem::path& current) = 0;
+
     /// Whether to go on with an operation that will replace what the project holds:
     /// `message` says what goes. The default answer is the safe one, to keep it.
     [[nodiscard]] virtual bool confirmReplacement(const std::string& message) = 0;

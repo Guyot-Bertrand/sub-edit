@@ -138,6 +138,12 @@ pojawiły się dwa bloki, jest czytany bez zmian i przepisany w dwóch blokach p
 | `correction.join-split.join`, `correction.join-split.split` | `true` lub `false` — łącz, dziel | `true`, `false` |
 | `correction.join-split.language` | kod ustawień regionalnych — `fr`, `en_US`, `sr@Latn` —; puste: język systemu | puste |
 | `correction.remove-blank` | `true` lub `false` — `Remove all blank subtitles` | `true` |
+| `transcription.engine` | nazwa silnika: małe litery, cyfry, `.`, `-` i `_` | `whisper.cpp` |
+| `transcription.executable`, `transcription.model` | ścieżka bezwzględna; puste: silnik jest szukany w `PATH`, a model nie jest ustawiony | puste |
+| `transcription.language` | dwie małe litery, kod ISO 639-1; puste: język jest wykrywany | puste |
+| `transcription.merge-gap-ms` | fragmenty jednego zdania położone bliżej niż ta wartość są łączone, w milisekundach, liczba całkowita nieujemna | `400` |
+| `transcription.max-duration-ms` | najdłuższy czas, przez jaki przetranskrybowany napis pozostaje na ekranie, w milisekundach, od 1 do 3600000 | `7000` |
+| `transcription.max-characters` | największa liczba znaków przetranskrybowanego napisu, od 1 do 1000 | `84` |
 | `correction.activations` | pola wyboru wzorców, które użytkownik zmienił, `<type>:<code>:<name>:<0\|1>`, oddzielone przecinkami; **przecinek lub ukośnik odwrotny w nazwie jest zapisywany z poprzedzającym ukośnikiem odwrotnym** (`\,` i `\\`), a nieczytelny wpis traci tylko własne ustawienie — jest zgłaszany, pozostałe zostają zachowane | puste |
 | `spell-check.language` | kod ustawień regionalnych, taki jak `fr_FR`; puste: język systemu | puste |
 | `spell-check.target` | `selection`, `current-project` lub `all-projects` | `current-project` |

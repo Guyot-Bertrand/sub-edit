@@ -113,7 +113,7 @@ audio track 1: eng, Commentary
 
 ### En JSON
 
-Avec [`--format json`](invocation.md#une-sortie-quun-script-peut-lire) (l'option globale, écrite avant la
+Avec [`--format json`](invocation.md#sortie-lisible-par-un-script) (l'option globale, écrite avant la
 sous-commande), l'objet du fichier porte la langue employée dans `language`, `counts.subtitles` (les
 sous-titres écrits) et `counts.segments` (les morceaux du moteur dont ils sont faits), et `audio` quand
 `--keep-audio` a gardé l'audio.

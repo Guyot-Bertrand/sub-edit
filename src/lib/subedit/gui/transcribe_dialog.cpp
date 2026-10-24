@@ -5,7 +5,6 @@
 
 #include <QComboBox>
 #include <QDialogButtonBox>
-#include <QFileDialog>
 #include <QFormLayout>
 #include <QHBoxLayout>
 #include <QLabel>
@@ -20,9 +19,11 @@ namespace subedit::gui {
 
 TranscribeDialog::TranscribeDialog(std::vector<core::AudioTrack> tracks,
                                    const TranscribeChoice& initial,
+                                   ModelChooser chooser,
                                    QWidget* parent)
     : QDialog(parent),
       m_tracks(std::move(tracks)),
+      m_chooser(std::move(chooser)),
       m_track(new QComboBox{this}),
       m_language(new QLineEdit{this}),
       m_model(new QLineEdit{this}),
@@ -96,12 +97,9 @@ void TranscribeDialog::followTrack() {
 }
 
 void TranscribeDialog::chooseModel() {
-    const QString chosen = QFileDialog::getOpenFileName(this,
-                                                        translate("Choose a model"),
-                                                        m_model->text(),
-                                                        translate("Models (*.bin);;All files (*)"));
-    if (!chosen.isEmpty())
-        m_model->setText(chosen);
+    const auto chosen = m_chooser(std::filesystem::path{m_model->text().toStdString()});
+    if (chosen)
+        m_model->setText(QString::fromStdString(chosen->string()));
 }
 
 } // namespace subedit::gui

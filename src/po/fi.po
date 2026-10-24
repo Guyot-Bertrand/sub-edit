@@ -1092,46 +1092,44 @@ msgstr ""
 
 #: src/exe/cli/commands/transcribe.cpp
 msgid "Write the speech of a video or an audio file as subtitles"
-msgstr ""
+msgstr "Kirjoittaa videon tai äänitiedoston puheen tekstityksenä"
 
 #: src/exe/cli/commands/transcribe.cpp
 msgid "Video or audio file to transcribe"
-msgstr ""
+msgstr "Litteroitava video- tai äänitiedosto"
 
 #: src/exe/cli/commands/transcribe.cpp
-#, fuzzy
 msgid "Subtitle file to write"
-msgstr "Järjestettävät tekstitystiedostot"
+msgstr "Kirjoitettava tekstitystiedosto"
 
 #: src/exe/cli/commands/transcribe.cpp
 msgid "Format to write; the one the extension of --output says by default"
 msgstr ""
+"Kirjoitettava muoto; oletuksena se, jonka --output-tiedoston pääte kertoo"
 
 #: src/exe/cli/commands/transcribe.cpp
 msgid "Audio track of a video, counted from 0; the first by default"
-msgstr ""
+msgstr "Videon ääniraita, laskettuna nollasta; oletuksena ensimmäinen"
 
 #: src/exe/cli/commands/transcribe.cpp
-#, fuzzy
 msgid "Language of the speech: fr, en; detected by default"
-msgstr "Merkistökoodaus, jolla tiedostot luetaan; oletuksena tunnistetaan"
+msgstr "Puheen kieli: fr, en; oletuksena tunnistetaan"
 
 #: src/exe/cli/commands/transcribe.cpp
 msgid "Model file; the transcription.model setting by default"
-msgstr ""
+msgstr "Mallitiedosto; oletuksena asetus transcription.model"
 
 #: src/exe/cli/commands/transcribe.cpp
 msgid "Engine; the transcription.engine setting by default"
-msgstr ""
+msgstr "Moottori; oletuksena asetus transcription.engine"
 
 #: src/exe/cli/commands/transcribe.cpp
-#, fuzzy
 msgid "Keep the extracted audio in this file"
-msgstr "tiedoston ruutunopeus"
+msgstr "Säilytä purettu ääni tässä tiedostossa"
 
 #: src/exe/cli/commands/transcribe.cpp
 msgid "Write the segments as the engine cut them"
-msgstr ""
+msgstr "Kirjoita segmentit sellaisina kuin moottori ne leikkasi"
 
 #: src/exe/cli/commands/transform.cpp
 msgid "Correct every position from two points known to be right"
@@ -2210,30 +2208,29 @@ msgstr "kokonaisluku väliltä 1–1000: 2, 3"
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "the name of an engine: lower-case letters, digits, '.', '-' or '_'"
-msgstr ""
+msgstr "moottorin nimi: pieniä kirjaimia, numeroita, ”.”, ”-” tai ”_”"
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "an absolute path; empty for none"
-msgstr ""
+msgstr "absoluuttinen polku; tyhjä tarkoittaa ei mitään"
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "two lower-case letters, an ISO 639-1 code: en, fr; empty to detect it"
 msgstr ""
+"kaksi pientä kirjainta, ISO 639-1 -koodi: en, fr; tyhjä, jolloin kieli "
+"tunnistetaan"
 
 #: src/lib/subedit/core/config/operation_settings.cpp
-#, fuzzy
 msgid "a whole number of milliseconds, 1 to 3600000"
-msgstr "kokonaisluku millisekunteja, 0 tai enemmän"
+msgstr "kokonaisluku millisekunteja, 1–3600000"
 
 #: src/lib/subedit/core/config/operation_settings.cpp
-#, fuzzy
 msgid "a whole number from 1 to 1000"
-msgstr "kokonaisluku väliltä 1–1000: 2, 3"
+msgstr "kokonaisluku 1–1000"
 
 #: src/lib/subedit/core/config/operation_settings.cpp
-#, fuzzy
 msgid "subedit-cli transcribe; Transcribe Audio…"
-msgstr "subedit-cli correct; Korjaa tekstejä…"
+msgstr "subedit-cli transcribe; Litteroi ääni…"
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "subedit-cli adjust; Adjust Durations…"
@@ -2457,31 +2454,31 @@ msgstr ""
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "The engine that transcribes the audio."
-msgstr ""
+msgstr "Moottori, joka litteroi äänen."
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "The engine's program; searched for when empty."
-msgstr ""
+msgstr "Moottorin ohjelma; haetaan PATH-polusta, kun kenttä on tyhjä."
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "The model file the engine reads."
-msgstr ""
+msgstr "Mallitiedosto, jonka moottori lukee."
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "The language of the audio; detected when empty."
-msgstr ""
+msgstr "Äänen kieli; tunnistetaan, kun kenttä on tyhjä."
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "Pieces of one sentence closer than this are joined."
-msgstr ""
+msgstr "Saman lauseen osat, jotka ovat tätä lähempänä toisiaan, yhdistetään."
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "Longest a transcribed subtitle stays on screen."
-msgstr ""
+msgstr "Pisin aika, jonka litteroitu tekstitys pysyy näytöllä."
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "Most characters a transcribed subtitle holds."
-msgstr ""
+msgstr "Litteroidun tekstityksen merkkien enimmäismäärä."
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "%1 is managed by the window; use --enable/--disable on correct"
@@ -2841,7 +2838,7 @@ msgstr "toistuvien kappaleiden yhdistäminen"
 
 #: src/lib/subedit/core/wording/analysis.cpp
 msgid "transcribing the audio"
-msgstr ""
+msgstr "äänen litterointi"
 
 #. TRANSLATORS: how well the positions fall on a frame-rate grid: clean,
 #. partial, or none at all.
@@ -3393,84 +3390,79 @@ msgid ""
 "See the manual page \"Installing the transcription tools\" (install-"
 "transcription)."
 msgstr ""
+"Katso oppaan sivu ”Litterointityökalujen asentaminen” (install-"
+"transcription)."
 
 #: src/lib/subedit/core/wording/transcription.cpp
 msgid "the transcription engine was not found"
-msgstr ""
+msgstr "litterointimoottoria ei löytynyt"
 
 #: src/lib/subedit/core/wording/transcription.cpp
 msgid "no model was given, or the model file is not there"
-msgstr ""
+msgstr "mallia ei annettu tai mallitiedostoa ei ole"
 
 #: src/lib/subedit/core/wording/transcription.cpp
 msgid "the model cannot transcribe the language %1"
-msgstr ""
+msgstr "malli ei osaa litteroida kieltä %1"
 
 #: src/lib/subedit/core/wording/transcription.cpp
 msgid "the model cannot detect the language: give one"
-msgstr ""
+msgstr "malli ei osaa tunnistaa kieltä: anna kieli"
 
 #: src/lib/subedit/core/wording/transcription.cpp
-#, fuzzy
 msgid "the audio could not be read"
-msgstr "%1: ei voitu lukea."
+msgstr "ääntä ei voitu lukea"
 
 # From Gaupol.
 #: src/lib/subedit/core/wording/transcription.cpp
-#, fuzzy
 msgid "the transcription failed"
-msgstr "Kiina, perinteinen"
+msgstr "litterointi epäonnistui"
 
 #: src/lib/subedit/core/wording/transcription.cpp
-#, fuzzy
 msgid "the transcription failed: %1"
-msgstr "käännös: %1"
+msgstr "litterointi epäonnistui: %1"
 
 #: src/lib/subedit/core/wording/transcription.cpp
 msgid "the transcription was cancelled"
-msgstr ""
+msgstr "litterointi peruttiin"
 
 #: src/lib/subedit/core/wording/transcription.cpp
 msgid "ffmpeg was not found, so the audio of a video cannot be extracted"
-msgstr ""
+msgstr "ffmpegiä ei löytynyt, joten videon ääntä ei voida purkaa"
 
 #: src/lib/subedit/core/wording/transcription.cpp
 msgid "the video has no audio track %1"
-msgstr ""
+msgstr "videolla ei ole ääniraitaa %1"
 
 #: src/lib/subedit/core/wording/transcription.cpp
-#, fuzzy
 msgid "the audio could not be extracted"
-msgstr "videosoitinta ei voitu käynnistää"
+msgstr "ääntä ei voitu purkaa"
 
 #: src/lib/subedit/core/wording/transcription.cpp
-#, fuzzy
 msgid "the audio could not be extracted: %1"
-msgstr "videosoitinta ei voitu käynnistää"
+msgstr "ääntä ei voitu purkaa: %1"
 
 #: src/lib/subedit/core/wording/transcription.cpp
 msgid "the video has no audio track"
-msgstr ""
+msgstr "videolla ei ole ääniraitaa"
 
 #: src/lib/subedit/core/wording/transcription.cpp
 msgid "no language or title"
-msgstr ""
+msgstr "ei kieltä eikä nimeä"
 
 #: src/lib/subedit/core/wording/transcription.cpp
-#, fuzzy
 msgid "audio track %1: %2"
-msgstr "kappale %1: %2"
+msgstr "ääniraita %1: %2"
 
 #: src/lib/subedit/core/wording/transcription.cpp
 msgid "no transcription engine is called %1"
-msgstr ""
+msgstr "mikään litterointimoottori ei ole nimeltään %1"
 
 #: src/lib/subedit/core/wording/transcription.cpp
-#, fuzzy
 msgid "%1 subtitle transcribed, language: %2"
 msgid_plural "%1 subtitles transcribed, language: %2"
-msgstr[0] "%1 kappale muunnettu viitekohtiin %2 ja %3"
-msgstr[1] "%1 kappaletta muunnettu viitekohtiin %2 ja %3"
+msgstr[0] "%1 tekstitys litteroitu, kieli: %2"
+msgstr[1] "%1 tekstitystä litteroitu, kieli: %2"
 
 #: src/lib/subedit/core/wording/transcription.cpp
 msgid ""
@@ -3480,12 +3472,13 @@ msgid_plural ""
 "The %1 subtitles of this project will be replaced by the transcription. You "
 "can undo it."
 msgstr[0] ""
+"Tämän projektin %1 tekstitys korvataan litteroinnilla. Voit kumota sen."
 msgstr[1] ""
+"Tämän projektin %1 tekstitystä korvataan litteroinnilla. Voit kumota sen."
 
 #: src/lib/subedit/core/wording/transcription.cpp
-#, fuzzy
 msgid "transcribing: %1%"
-msgstr "käännös: %1"
+msgstr "litterointi: %1 %"
 
 #: src/lib/subedit/core/wording/translation.cpp
 msgid "translation: the file holds no line"
@@ -4392,6 +4385,14 @@ msgid "Select Video"
 msgstr "Valitse video"
 
 #: src/lib/subedit/gui/qt_prompts.cpp
+msgid "Choose a model"
+msgstr "Valitse malli"
+
+#: src/lib/subedit/gui/qt_prompts.cpp
+msgid "Models (*.bin);;All files (*)"
+msgstr "Mallit (*.bin);;Kaikki tiedostot (*)"
+
+#: src/lib/subedit/gui/qt_prompts.cpp
 msgid "The translation is no longer where it was read from."
 msgstr "Käännös ei ole enää siellä, mistä se luettiin."
 
@@ -4427,9 +4428,8 @@ msgstr ""
 "Avataanko se uudelleen siirrettynä?"
 
 #: src/lib/subedit/gui/qt_prompts.cpp
-#, fuzzy
 msgid "Replace the subtitles?"
-msgstr "Korjaa kappaleet"
+msgstr "Korvataanko tekstitykset?"
 
 # From Gaupol.
 #: src/lib/subedit/gui/save_shape.cpp
@@ -4701,33 +4701,36 @@ msgstr "Pääasiakirja"
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
 msgid "Browse…"
-msgstr ""
+msgstr "Selaa…"
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
 #: src/lib/subedit/gui/transcription_runner.cpp
 msgid "Transcribe audio"
-msgstr ""
+msgstr "Litteroi ääni"
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
 msgid "First audio track"
-msgstr ""
+msgstr "Ensimmäinen ääniraita"
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
-#, fuzzy
 msgid "Detected"
-msgstr "%1, tunnistettu"
+msgstr "Tunnistettu"
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
 msgid ""
 "A two-letter language code such as en or fr. Leave it empty to let the model "
 "detect the language."
 msgstr ""
+"Kaksikirjaiminen kielikoodi, kuten en tai fr. Jätä kenttä tyhjäksi, jolloin "
+"malli tunnistaa kielen."
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
 msgid ""
 "The model file the engine reads. It is not shipped with the program: the "
 "manual says where to find one."
 msgstr ""
+"Mallitiedosto, jonka moottori lukee. Sitä ei toimiteta ohjelman mukana: opas "
+"kertoo, mistä sellaisen löytää."
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
 msgid ""
@@ -4735,28 +4738,20 @@ msgid ""
 "replace the ones of the project. The work runs in the background and can be "
 "cancelled."
 msgstr ""
+"Tässä ikkunassa avoinna olevan elokuvan ääni litteroidaan tekstitykseksi, "
+"joka korvaa projektin tekstitykset. Työ tehdään taustalla, ja sen voi perua."
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
 msgid "Audio track"
-msgstr ""
+msgstr "Ääniraita"
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
-#, fuzzy
 msgid "Language"
-msgstr "Kieli:"
+msgstr "Kieli"
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
 msgid "Model"
-msgstr ""
-
-#: src/lib/subedit/gui/transcribe_dialog.cpp
-msgid "Choose a model"
-msgstr ""
-
-#: src/lib/subedit/gui/transcribe_dialog.cpp
-#, fuzzy
-msgid "Models (*.bin);;All files (*)"
-msgstr "Kaikki tiedostot (*)"
+msgstr "Malli"
 
 #: src/lib/subedit/gui/transcription_runner.cpp
 #: src/lib/subedit/gui/unsaved_documents_dialog.cpp
@@ -4765,7 +4760,7 @@ msgstr "Peru"
 
 #: src/lib/subedit/gui/transcription_runner.cpp
 msgid "Transcribing the audio…"
-msgstr ""
+msgstr "Litteroidaan ääntä…"
 
 #: src/lib/subedit/gui/transform_dialog.cpp
 msgid "Transform positions"
@@ -4925,7 +4920,7 @@ msgstr "&Kohdat ruutuina"
 
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "Transcribe Audio…"
-msgstr ""
+msgstr "Litteroi ääni…"
 
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "Play / Pause"

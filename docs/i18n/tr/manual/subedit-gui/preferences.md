@@ -97,6 +97,12 @@ Okuyucu anahtarları herhangi bir sırayla, başlıklarla ya da başlıksız al�
 | `correction.join-split.join`, `correction.join-split.split` | `true` ya da `false` — birleştir, böl | `true`, `false` |
 | `correction.join-split.language` | bir yerel ayar kodu — `fr`, `en_US`, `sr@Latn` —; boş: sistemin dili | boş |
 | `correction.remove-blank` | `true` ya da `false` — `Remove all blank subtitles` | `true` |
+| `transcription.engine` | motorun adı: küçük harfler, rakamlar, `.`, `-` ve `_` | `whisper.cpp` |
+| `transcription.executable`, `transcription.model` | mutlak bir yol; boşsa: motor `PATH` içinde aranır ve hiçbir model ayarlanmamıştır | boş |
+| `transcription.language` | iki küçük harf, bir ISO 639-1 kodu; boşsa: dil algılanır | boş |
+| `transcription.merge-gap-ms` | bir cümlenin bundan daha yakın parçaları birleştirilir, milisaniye cinsinden, tam ve negatif olmayan | `400` |
+| `transcription.max-duration-ms` | yazıya dökülmüş bir altyazının ekranda kalabileceği en uzun süre, milisaniye cinsinden, 1 ile 3600000 arasında | `7000` |
+| `transcription.max-characters` | yazıya dökülmüş bir altyazının taşıyabileceği en fazla karakter, 1 ile 1000 arasında | `84` |
 | `correction.activations` | kullanıcının değiştirdiği desen onay kutuları, `<type>:<code>:<name>:<0\|1>`, virgülle ayrılmış; **bir addaki virgül ya da ters eğik çizgi, önüne bir ters eğik çizgi konarak yazılır** (`\,` ve `\\`) ve okunamayan bir girdi yalnızca kendi ayarını kaybettirir — bildirilir, ötekiler korunur | boş |
 | `spell-check.language` | `fr_FR` gibi bir yerel ayar kodu; boş: sistemin dili | boş |
 | `spell-check.target` | `selection`, `current-project` ya da `all-projects` | `current-project` |

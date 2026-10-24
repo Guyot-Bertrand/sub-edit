@@ -282,6 +282,15 @@ says. All are in milestone 22, written in English.
 | 4 — documentation | [#780](https://github.com/Guyot-Bertrand/sub-edit/issues/780) | the installation guide | #775 | M |
 | 5 — closure | [#781](https://github.com/Guyot-Bertrand/sub-edit/issues/781) | review of the phase, then the version the maintainer decides | all | M |
 
+## Delivered by #777 to #780
+
+One pull request carried the four: the settings (`transcription.*`, seven keys of the shared catalogue), the
+`core/wording/transcription` family, the `transcribe` command, `Transcribe Audio…` in the `Video` menu, and the
+installation guide. The pipeline both surfaces run is `transcribeMedia` (`core/transcription/`), so they cannot
+differ; the window replaces the project's subtitles with `replaceAllSubtitles`, one entry of the history
+(`CommandKind::Transcribe`), after a confirmation that is asked **before** the work. The command's subtitle format
+is chosen with `--to`, since `--format` is the global option that selects JSON output.
+
 ## Open points
 
 1. **The name of phase 23's command.** `align` already snaps a file to a frame grid. The scoping of phase 23 names the new

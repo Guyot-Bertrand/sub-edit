@@ -45,4 +45,8 @@ writeAtomically(FileSystem& files, const std::filesystem::path& path, std::strin
     return {};
 }
 
+bool ensureDirectory(FileSystem& files, const std::filesystem::path& directory) {
+    return files.createDirectories(directory).has_value();
+}
+
 } // namespace subedit::core

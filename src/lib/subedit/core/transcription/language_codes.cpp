@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <array>
+#include <cstddef>
 
 namespace subedit::core {
 
@@ -9,11 +10,11 @@ namespace {
 
 /// One language: its two-letter code, and the three-letter codes a container uses — the
 /// bibliographic and the terminological one differ for some (`fre` and `fra`).
-struct Language {
-    std::string_view two;
-    std::string_view bibliographic;
-    std::string_view terminological;
-};
+using Language = std::array<std::string_view, 3>;
+
+constexpr std::size_t kTwoLetters = 0;
+constexpr std::size_t kBibliographic = 1;
+constexpr std::size_t kTerminological = 2;
 
 constexpr std::array kLanguages{
     Language{"ar", "ara", "ara"}, Language{"ca", "cat", "cat"}, Language{"cs", "cze", "ces"},
@@ -39,13 +40,13 @@ constexpr std::array kLanguages{
 
 std::optional<std::string> twoLetterCodeOf(std::string_view tag) {
     const std::string wanted = lowered(tag);
-    const auto found = std::ranges::find_if(kLanguages, [&wanted](const Language& language) {
-        return wanted == language.two || wanted == language.bibliographic ||
-               wanted == language.terminological;
+    const auto* const found = std::ranges::find_if(kLanguages, [&wanted](const Language& language) {
+        return wanted == language[kTwoLetters] || wanted == language[kBibliographic] ||
+               wanted == language[kTerminological];
     });
     if (found == kLanguages.end())
         return std::nullopt;
-    return std::string{found->two};
+    return std::string{(*found)[kTwoLetters]};
 }
 
 } // namespace subedit::core

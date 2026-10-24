@@ -102,7 +102,7 @@ duration-adjust.lengthen
     Used by: subedit-cli adjust; Adjust Durations…
 ```
 
-It lista **33 claves**:
+It lista **40 claves**:
 
 <!-- example: subedit-cli config list | grep -c '^[a-z]' -->
 ```console
@@ -110,7 +110,7 @@ $ subedit-cli config list | grep -c '^[a-z]'
 40
 ```
 
-**Tredece de ili es leet per li linea de comande**; li vinte altres es leet solmen del fenestre,
+**Vint de ili es leet per li linea de comande**; li vinte altres es leet solmen del fenestre,
 e lor linea `Used by:` di it, con li option de `correct` quel prende lor loc:
 
 | Clave | Leet per |
@@ -122,6 +122,7 @@ e lor linea `Used by:` di it, con li option de `correct` quel prende lor loc:
 | `correction.human`, `correction.ocr` | [`correct`](correct.md) e `Correct Texts…` |
 | `correction.remove-blank` | `correct` e `Correct Texts…` |
 | `correction.line-break.max-lines` | `correct` e `Correct Texts…` |
+| `transcription.engine`, `transcription.executable`, `transcription.model`, `transcription.language`, `transcription.merge-gap-ms`, `transcription.max-duration-ms`, `transcription.max-characters` | [`transcribe`](transcribe.md) e `Transcribe Audio…` |
 | chascun altri clave `correction.*` | `Correct Texts…` solmen — `correct` prende `--tasks`, `--code`, `--max-length`, `--skip-length`, `--skip-lines`, `--language`, `--enable` e `--disable` de su propri linea |
 
 Li númeres de lineas, `correction.line-break.max-lines` e `correction.line-break.skip-max-lines`,

@@ -3,12 +3,13 @@
 <!-- machine-translated -->
 > Deze pagina is een machinevertaling en is nog niet nagelezen door een lezer van de taal.
 
-Het menu **Video** bevat eerst twee commando's, en daarna de gebaren die de film aansturen
+Het menu **Video** bevat eerst drie commando's, en daarna de gebaren die de film aansturen
 — zie [De speler](player.md#door-de-film-navigeren).
 
 | Commando | Sneltoets | Wat het doet |
 | :------- | :-------- | :----------- |
 | Video kiezen… | geen | kiest het videobestand waarbij het document hoort |
+| Audio transcriberen… | geen | transcribeert de audio van de film tot ondertitels die die van het project vervangen — zie [De audio transcriberen](#de-audio-transcriberen) |
 | Afspelen / Pauzeren | `Ctrl+P` | speelt de video af of stopt haar — zie [De speler](player.md#afspelen-en-stoppen) |
 
 De gekoppelde video is **een eigenschap van het geopende document**, geen instelling van
@@ -101,6 +102,38 @@ posities wordt afgeleid daarna.
 dit document hoort — en een derde vermelding zou haar op dezelfde rang plaatsen als
 het [raster dat uit de posities wordt afgeleid](frame-grid.md), wat een ander feit is.
 
+## De audio transcriberen
+
+**`Transcribe Audio…`** schrijft de gesproken tekst van de film als ondertitels. Het is uitgeschakeld zolang er geen film
+is geopend: het is de audio van **de film van het project**, nooit een bestand dat u zou kiezen — om een
+audiobestand te transcriberen gebruikt u [`transcribe`](../subedit-cli/transcribe.md) op de opdrachtregel.
+
+Het dialoogvenster vraagt om drie dingen:
+
+- **het audiospoor**, opgesomd zoals het menu [`Audio`](#het-audiospoor) ze opsomt, met de taal
+  en de titel die het bestand opgeeft;
+- **de taal**, twee letters zoals `en` of `fr`. Ze begint met de taal van het gekozen spoor
+  wanneer het bestand er een opgeeft, volgt het spoor zolang u er geen hebt getypt, en
+  leeg gelaten laat ze het model de taal **detecteren**;
+- **het model**, een bestand, met een knop `Browse…`.
+
+De keuzes worden voor de volgende keer bewaard. De engine zelf en de grenzen van de ondertitels zijn
+[instellingen](preferences.md) (`transcription.*`).
+
+**Wanneer het project al ondertitels bevat, vraagt het venster of het ze mag vervangen**, en zegt het hoeveel
+er verdwijnen. Het vraagt vóór het werk, zodat weigeren niets kost. Wanneer het project leeg is, valt er
+niets te vragen.
+
+Het werk draait **op de achtergrond**, met een venstertje dat toont hoe ver de engine is en een knop `Cancel`;
+het venster blijft eromheen bruikbaar. Wanneer het klaar is, worden de ondertitels van het project vervangen
+door de transcriptie **in één bewerking**: één `Undo` geeft terug wat er stond, vertaalteksten
+inbegrepen. Een transcriptie die mislukt, of die u annuleert, verandert niets — de reden wordt
+gemeld in een venstertje, behalve bij een annulering, die alleen in de statusbalk meldt dat ze is geannuleerd.
+
+**Wat het nodig heeft wordt niet meegeleverd**: een engine (whisper.cpp), een model en `ffmpeg` om de audio uit te pakken.
+Wanneer er iets ontbreekt, zegt het venstertje wat, en verwijst het naar
+[De transcriptiehulpmiddelen installeren](../subedit-cli/install-transcription.md).
+
 ## Wanneer er geen film is
 
 Het venster toont een knop **`Select Video…`** waar het beeld zou komen, in plaats van
@@ -134,6 +167,9 @@ per film gelezen, wanneer die wordt gekoppeld.
 `ffprobe` helemaal niet nodig: hij steunt op `libmpv`, dat een
 afhankelijkheid bij het bouwen is. De duur van de film, die waarmee wordt gemeld wat
 voorbij het einde komt, komt van de speler en niet van `ffprobe`.
+
+**De transcriptie is het enige dat wel `ffmpeg` nodig heeft**: het haalt de audio van de film eruit. Zie
+[De transcriptiehulpmiddelen installeren](../subedit-cli/install-transcription.md).
 
 Het is dus geen verminderde modus maar **de normale werking** van een machine
 waarop `ffmpeg` nooit is geïnstalleerd: het gegeven komt van de gebruiker, en `ffprobe`

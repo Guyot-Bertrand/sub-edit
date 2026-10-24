@@ -3,12 +3,13 @@
 <!-- machine-translated -->
 > Esta páxina é unha tradución automática e aínda non a revisou ningún lector da lingua.
 
-O menú **Vídeo** leva primeiro dúas ordes, e despois os xestos que manexan a película
+O menú **Vídeo** leva primeiro tres ordes, e despois os xestos que manexan a película
 — véxase [O reprodutor](player.md#moverse-pola-película).
 
 | Orde | Atallo | O que fai |
 | :------ | :------- | :----------- |
 | Seleccionar vídeo… | ningún | escolle o ficheiro de vídeo ao que corresponde o documento |
+| Transcribir o son… | ningún | transcribe o son da película en subtítulos que substitúen os do proxecto — véxase [Transcribir o son](#transcribir-o-son) |
 | Reproducir / Pausa | `Ctrl+P` | reproduce ou detén o vídeo — véxase [O reprodutor](player.md#reproducir-e-deter) |
 
 O vídeo asociado é **unha propiedade do documento aberto**, non un axuste da
@@ -101,6 +102,38 @@ posicións.
 corresponde este documento — e unha terceira mención poñeríaa no mesmo nivel que
 a [grade deducida das posicións](frame-grid.md), que é outro.
 
+## Transcribir o son
+
+**`Transcribe Audio…`** escribe a fala da película como subtítulos. Está desactivada ata que se abre unha película: é
+o son da **película do proxecto**, e nunca un ficheiro que escollese — para transcribir un
+ficheiro de son, use [`transcribe`](../subedit-cli/transcribe.md) na liña de ordes.
+
+O diálogo pide tres cousas:
+
+- **a pista de son**, listada como a lista o menú [`Audio`](#a-pista-de-son), coa lingua
+  e o título que declara o ficheiro;
+- **a lingua**, dúas letras como `en` ou `fr`. Comeza coa lingua da pista escollida cando o
+  ficheiro a declara, segue a pista mentres non teclee unha, e
+  se se deixa baleira, deixa que o modelo **detecte** a lingua;
+- **o modelo**, un ficheiro, cun botón `Browse…`.
+
+As escollas consérvanse para a próxima vez. O motor en si e os límites dos subtítulos son
+[axustes](preferences.md) (`transcription.*`).
+
+**Cando o proxecto xa ten subtítulos, a xanela pregunta antes de substituílos**, e di
+cantos se van. Pregunta antes do traballo, para que rexeitar non custe nada. Cando o proxecto está baleiro non hai
+nada que preguntar.
+
+O traballo faise **en segundo plano**, cunha caixa que mostra ata onde chegou o motor e un botón `Cancel`;
+a xanela segue sendo utilizable arredor. Cando remata, os subtítulos do proxecto substitúense
+pola transcrición **nunha única operación**: un `Undo` devolve o que había, textos
+de tradución incluídos. Unha transcrición que falla, ou que cancela, non cambia nada — o motivo
+dise nunha caixa, salvo nunha cancelación, que só o di na barra de estado.
+
+**O que necesita non vén co programa**: un motor (whisper.cpp), un modelo e `ffmpeg` para extraer o son.
+Cando falta algo, a caixa di o que, e apunta a
+[Instalar as ferramentas de transcrición](../subedit-cli/install-transcription.md).
+
 ## Cando non hai película
 
 A xanela mostra un botón **`Select Video…`** onde iría a imaxe, en lugar de
@@ -134,6 +167,9 @@ por película, cando se asocia.
 non necesita `ffprobe` en absoluto: apóiase en `libmpv`, que é unha
 dependencia de compilación. A duración da película, a que se usa para indicar o que
 pasa do final, vén do reprodutor e non de `ffprobe`.
+
+**A transcrición é a única cousa que si necesita `ffmpeg`**: extrae o son da película. Véxase
+[Instalar as ferramentas de transcrición](../subedit-cli/install-transcription.md).
 
 Non é polo tanto un modo degradado senón **o funcionamento normal** dunha máquina
 que nunca instalou `ffmpeg`: o dato vén do usuario, e `ffprobe`

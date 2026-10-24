@@ -45,4 +45,6 @@ hvar á að byrja, sjá
 | [`append`](append.md) | setja skrár á eftir þeirri fyrstu, í eina skrá |
 | [`split-file`](split-file.md) | skipta skrá í tvennt, með halann fluttan aftur að upphafspunkti |
 | [`pair`](pair.md) | skrifa þýðingu á staðsetningar aðalskrárinnar og segja hvernig línur hennar röðuðust saman |
+| [`transcribe`](transcribe.md) | skrifa tal myndskeiðs eða hljóðskrár sem skjátexta |
+| [Uppsetning umritunartækjanna](install-transcription.md) | vélin, líkanið og `ffmpeg`, sem forritið fylgir ekki með |
 | [`config`](config.md) | telja upp, sýna og breyta stillingum aðgerða sem eru sameiginlegar með glugganum |

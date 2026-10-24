@@ -225,7 +225,7 @@ nespustí a `-q` ani `-v` nic nemění.
 <!-- example: subedit-cli --version | head -n 1 -->
 ```console
 $ subedit-cli --version | head -n 1
-subedit 1.0.9
+subedit 1.0.10
 ```
 
 Celý výstup na počítači s ICU 74.2 a Enchant 2.3.3 — čísla jsou čísla daného počítače:
@@ -369,14 +369,16 @@ tím, co bylo provedeno, není zamlčen.
 | [`append`](append.md) | připojí soubory za první, do **jediného** souboru | ano |
 | [`split-file`](split-file.md) | rozdělí soubor na **dvě** části: první a druhou | ano |
 | [`pair`](pair.md) | zapíše překlad na pozice jeho hlavního souboru a sdělí, jak se jeho řádky zarovnaly | ano |
+| [`transcribe`](transcribe.md) | zapíše řeč videa nebo zvukového souboru jako titulky | ano — vlastní cíl zápisu, `--output` |
 | [`config`](config.md) | vypíše, zobrazí a změní nastavení operací v souboru nastavení | jen soubor nastavení |
 
-Je jich všech dvacet jedna; nápověda nástroje je uvádí ve stejném pořadí.
+Je jich všech dvacet dva; nápověda nástroje je uvádí ve stejném pořadí.
 
 **Jen jeden se ničeho nedotkne**, a to ukazuje pravý sloupec: `inspect` čte a
-podává zprávu. Ostatních devatenáct zapisuje a to, co následuje, platí pro sedmnáct z nich:
+podává zprávu. Ostatních dvacet zapisuje a to, co následuje, platí pro sedmnáct z nich:
 [`append`](append.md) a [`split-file`](split-file.md) mají každý vlastní aritu — N souborů pro
-**jeden** výsledek, jeden soubor pro **dva** — a tedy i vlastní cíl zápisu, který popisují na své stránce.
+**jeden** výsledek, jeden soubor pro **dva** — a tedy i vlastní cíl zápisu, který popisují na své stránce;
+[`transcribe`](transcribe.md) vytváří nový soubor z videa nebo zvukového souboru a bere jen `--output`.
 [`config`](config.md) nezapisuje žádný soubor titulků: čte a mění soubor nastavení a
 nic z toho, co následuje, se na něj nevztahuje.
 

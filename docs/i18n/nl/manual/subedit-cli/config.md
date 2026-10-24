@@ -102,7 +102,7 @@ duration-adjust.lengthen
     Used by: subedit-cli adjust; Adjust Durations…
 ```
 
-Het somt **33 sleutels** op:
+Het somt **40 sleutels** op:
 
 <!-- example: subedit-cli config list | grep -c '^[a-z]' -->
 ```console
@@ -110,7 +110,7 @@ $ subedit-cli config list | grep -c '^[a-z]'
 40
 ```
 
-**Dertien ervan worden door de opdrachtregel gelezen**; de twintig andere worden alleen door het venster gelezen,
+**Twintig ervan worden door de opdrachtregel gelezen**; de twintig andere worden alleen door het venster gelezen,
 en hun regel `Used by:` zegt het, met de optie van `correct` die hun plaats inneemt:
 
 | Sleutel | Gelezen door |
@@ -122,6 +122,7 @@ en hun regel `Used by:` zegt het, met de optie van `correct` die hun plaats inne
 | `correction.human`, `correction.ocr` | [`correct`](correct.md) en `Correct Texts…` |
 | `correction.remove-blank` | `correct` en `Correct Texts…` |
 | `correction.line-break.max-lines` | `correct` en `Correct Texts…` |
+| `transcription.engine`, `transcription.executable`, `transcription.model`, `transcription.language`, `transcription.merge-gap-ms`, `transcription.max-duration-ms`, `transcription.max-characters` | [`transcribe`](transcribe.md) en `Transcribe Audio…` |
 | elke andere sleutel `correction.*` | alleen `Correct Texts…` — `correct` neemt `--tasks`, `--code`, `--max-length`, `--skip-length`, `--skip-lines`, `--language`, `--enable` en `--disable` van zijn eigen regel |
 
 De aantallen regels, `correction.line-break.max-lines` en `correction.line-break.skip-max-lines`,

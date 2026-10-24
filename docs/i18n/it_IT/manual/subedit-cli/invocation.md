@@ -225,7 +225,7 @@ non viene eseguito, e `-q` e `-v` non cambiano nulla.
 <!-- example: subedit-cli --version | head -n 1 -->
 ```console
 $ subedit-cli --version | head -n 1
-subedit 1.0.9
+subedit 1.0.10
 ```
 
 L'insieme, su una macchina con ICU 74.2 ed Enchant 2.3.3 — i numeri sono quelli della macchina:
@@ -369,14 +369,16 @@ ciò che è stato fatto non è un silenzio.
 | [`append`](append.md) | accoda i file al primo, in **un unico** file | sì |
 | [`split-file`](split-file.md) | taglia un file in **due**: una testa e una coda | sì |
 | [`pair`](pair.md) | scrive una traduzione alle posizioni del suo file principale, e dice come le sue righe si sono allineate | sì |
+| [`transcribe`](transcribe.md) | scrive il parlato di un video o di un file audio come sottotitoli | sì — la propria destinazione, `--output` |
 | [`config`](config.md) | elenca, mostra e cambia le impostazioni delle operazioni del file delle impostazioni | solo il file delle impostazioni |
 
-Ci sono tutti e ventuno; la guida dello strumento li elenca nello stesso ordine.
+Ci sono tutti e ventidue; la guida dello strumento li elenca nello stesso ordine.
 
 **Solo uno non tocca nulla**, ed è la colonna di destra: `inspect` legge e
-riferisce. Gli altri diciannove scrivono, e ciò che segue vale per diciassette di essi:
+riferisce. Gli altri venti scrivono, e ciò che segue vale per diciassette di essi:
 [`append`](append.md) e [`split-file`](split-file.md) hanno ciascuno una propria arità — N file per
-**un** risultato, un file per **due** — e quindi una propria destinazione, che descrivono nella loro pagina.
+**un** risultato, un file per **due** — e quindi una propria destinazione, che descrivono nella loro pagina;
+[`transcribe`](transcribe.md) crea un nuovo file a partire da un video o da un file audio, e accetta solo `--output`.
 [`config`](config.md) non scrive alcun file di sottotitoli: legge e cambia il file delle impostazioni, e
 nulla di ciò che segue si applica a esso.
 

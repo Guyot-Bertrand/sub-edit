@@ -64,7 +64,7 @@ struct Stands {
     /// `whisper-cli` that logs its arguments and writes `sample` as its result.
     void whisper(const std::string& sample, const std::string& knobs = "--progress=4") {
         script("whisper-cli",
-               "printf '%s\\n' \"$@\" > '" + argumentLog + "'\nexec '" + kFake + "' " + knobs +
+               R"(printf '%s\n' "$@" > ')" + argumentLog + "'\nexec '" + kFake + "' " + knobs +
                    " --output-from='" + sample + "' \"$@\"");
     }
 
@@ -85,7 +85,7 @@ struct Stands {
         ffmpeg();
     }
 
-    CliRun run(std::vector<std::string> arguments) const {
+    [[nodiscard]] CliRun run(std::vector<std::string> arguments) const {
         std::vector<std::string> all{"transcribe"};
         all.insert(all.end(), arguments.begin(), arguments.end());
         return invokeWithSearchPath(directory, all);
@@ -112,7 +112,8 @@ TEST_CASE("a video is transcribed into a subtitle file in the format its name sa
     CHECK_THAT(written, ContainsSubstring(" --> 00:00:10,500\n"));
 }
 
-TEST_CASE("--to writes another format than the extension says", "[e2e][CLI-TRANSCRIBE-01]") {
+TEST_CASE("the option --to writes another format than the extension says",
+          "[e2e][CLI-TRANSCRIBE-01]") {
     Stands stands;
     stands.everything();
     const std::string out = stands.scratch.of("out/film.txt");
@@ -124,7 +125,8 @@ TEST_CASE("--to writes another format than the extension says", "[e2e][CLI-TRANS
     CHECK_THAT(contentOf(out), ContainsSubstring("WEBVTT"));
 }
 
-TEST_CASE("--audio-track picks a track, and a track the video lacks is refused with those it has",
+TEST_CASE("the option --audio-track picks a track, and a track the video lacks is refused with "
+          "those it has",
           "[e2e][CLI-TRANSCRIBE-02]") {
     Stands stands;
     stands.everything();
@@ -162,7 +164,7 @@ TEST_CASE("the language is detected unless --language forces it, and the one use
     CHECK_THAT(contentOf(stands.argumentLog), ContainsSubstring("-l\nfr\n"));
 }
 
-TEST_CASE("--keep-audio writes the extracted audio to the file it names",
+TEST_CASE("the option --keep-audio writes the extracted audio to the file it names",
           "[e2e][CLI-TRANSCRIBE-04]") {
     Stands stands;
     stands.everything();
@@ -176,7 +178,7 @@ TEST_CASE("--keep-audio writes the extracted audio to the file it names",
     CHECK(contentOf(audio) == "pcm");
 }
 
-TEST_CASE("--raw writes the segments of the engine and nothing is merged",
+TEST_CASE("the option --raw writes the segments of the engine and nothing is merged",
           "[e2e][CLI-TRANSCRIBE-05]") {
     Stands stands;
     stands.everything();
@@ -246,7 +248,8 @@ TEST_CASE("a language the model cannot transcribe is refused before any work sta
     CHECK_FALSE(std::filesystem::exists(out));
 }
 
-TEST_CASE("--format json writes one record with the language, the counts and the files written",
+TEST_CASE("with --format json the command writes one record with the language, the counts and the "
+          "files written",
           "[e2e][CLI-TRANSCRIBE-08]") {
     Stands stands;
     stands.everything();

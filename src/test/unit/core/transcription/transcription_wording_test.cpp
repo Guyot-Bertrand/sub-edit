@@ -12,11 +12,14 @@
 namespace {
 
 using Catch::Matchers::ContainsSubstring;
-using subedit::core::AudioPreparationError;
 using subedit::core::AudioPreparationErrorKind;
 using subedit::core::ContainerAudioTrack;
-using subedit::core::TranscriptionError;
 using subedit::core::TranscriptionErrorKind;
+
+ContainerAudioTrack track(int position, std::string language, std::string title) {
+    return ContainerAudioTrack{
+        .position = position, .language = std::move(language), .title = std::move(title)};
+}
 
 std::string said(TranscriptionErrorKind kind, std::string detail = {}) {
     return subedit::core::transcriptionErrorText({.kind = kind, .detail = std::move(detail)});
@@ -64,8 +67,10 @@ TEST_CASE("the tracks of a video are listed with what the file says of them",
           "[wording][transcription]") {
     CHECK(subedit::core::audioTracksText({}) == "the video has no audio track");
 
-    const std::vector<ContainerAudioTrack> tracks{
-        {0, "fra", "Original"}, {1, "eng", ""}, {2, "", "Commentary"}, {3, "", ""}};
+    const std::vector<ContainerAudioTrack> tracks{track(0, "fra", "Original"),
+                                                  track(1, "eng", ""),
+                                                  track(2, "", "Commentary"),
+                                                  track(3, "", "")};
     CHECK(subedit::core::audioTracksText(tracks) ==
           "audio track 0: fra, Original\naudio track 1: eng\naudio track 2: Commentary\n"
           "audio track 3: no language or title");

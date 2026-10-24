@@ -3,12 +3,13 @@
 <!-- machine-translated -->
 > Esta página é uma tradução automática e ainda não foi revista por nenhum leitor do idioma.
 
-O menu **Vídeo** traz primeiro dois comandos, e depois os gestos que conduzem o filme
+O menu **Vídeo** traz primeiro três comandos, e depois os gestos que conduzem o filme
 — ver [O reprodutor](player.md#percorrer-o-filme).
 
 | Comando | Atalho | O que faz |
 | :------ | :----- | :-------- |
 | Selecionar vídeo… | nenhum | escolhe o ficheiro de vídeo a que o documento está associado |
+| Transcrever áudio… | nenhum | transcreve o áudio do filme em legendas que substituem as do projeto — ver [Transcrever o áudio](#transcrever-o-áudio) |
 | Reproduzir / Pausa | `Ctrl+P` | reproduz ou pára o vídeo — ver [O reprodutor](player.md#reproduzir-e-parar) |
 
 O vídeo associado é **uma propriedade do documento aberto**, não uma definição
@@ -101,6 +102,38 @@ posições a seguir.
 este documento está associado — e uma terceira menção colocá-la-ia ao mesmo nível que
 a [grelha deduzida das posições](frame-grid.md), que é outra coisa.
 
+## Transcrever o áudio
+
+**`Transcribe Audio…`** escreve a fala do filme como legendas. Fica desativado enquanto não houver um filme
+aberto: é o áudio do **filme do projeto**, nunca de um ficheiro que se escolheria — para transcrever um
+ficheiro de áudio, use [`transcribe`](../subedit-cli/transcribe.md) na linha de comandos.
+
+A caixa de diálogo pede três coisas:
+
+- **a faixa de áudio**, listada como o menu [`Audio`](#a-faixa-de-áudio) as lista, com o idioma
+  e o título que o ficheiro declara;
+- **o idioma**, duas letras como `en` ou `fr`. Começa pelo idioma da faixa escolhida
+  quando o ficheiro declara um, acompanha a faixa enquanto não tiver digitado um, e
+  deixada vazia faz o modelo **detetar** o idioma;
+- **o modelo**, um ficheiro, com um botão `Browse…`.
+
+As escolhas são guardadas para a vez seguinte. O próprio motor e os limites das legendas são
+[definições](preferences.md) (`transcription.*`).
+
+**Quando o projeto já contém legendas, a janela pergunta antes de as substituir**, e diz
+quantas se perdem. Pergunta antes do trabalho, para que recusar não custe nada. Quando o projeto está vazio, não há
+nada a perguntar.
+
+O trabalho decorre **em segundo plano**, com uma caixa que mostra até onde o motor chegou e um botão `Cancel`;
+a janela continua utilizável à volta. Quando termina, as legendas do projeto são substituídas
+pela transcrição **numa só operação**: um `Undo` devolve o que lá estava, incluindo os textos de
+tradução. Uma transcrição que falha, ou que cancela, não altera nada — o motivo é
+dito numa caixa, exceto num cancelamento, que apenas diz na barra de estado que foi cancelado.
+
+**O que ela necessita não é fornecido**: um motor (whisper.cpp), um modelo e o `ffmpeg` para extrair o áudio.
+Quando falta um, a caixa diz qual, e remete para
+[Instalar as ferramentas de transcrição](../subedit-cli/install-transcription.md).
+
 ## Quando não há filme
 
 A janela mostra um botão **`Select Video…`** onde estaria a imagem, em vez de
@@ -134,6 +167,9 @@ por filme, quando este é associado.
 não precisa de `ffprobe` de todo: apoia-se na `libmpv`, que é uma
 dependência de compilação. A duração do filme, a que serve para comunicar o que
 passa do fim, vem do reprodutor e não do `ffprobe`.
+
+**A transcrição é a única coisa que precisa do `ffmpeg`**: ele extrai o áudio do filme. Ver
+[Instalar as ferramentas de transcrição](../subedit-cli/install-transcription.md).
 
 Não se trata, portanto, de um modo degradado, mas do **funcionamento normal** de uma máquina
 que nunca instalou o `ffmpeg`: o dado vem do utilizador, e o `ffprobe`

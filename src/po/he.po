@@ -1014,46 +1014,43 @@ msgstr "--head ו־--tail הולכים יחד: ציינו את שניהם, או 
 
 #: src/exe/cli/commands/transcribe.cpp
 msgid "Write the speech of a video or an audio file as subtitles"
-msgstr ""
+msgstr "כתיבת הדיבור של סרטון או של קובץ שמע ככתוביות"
 
 #: src/exe/cli/commands/transcribe.cpp
 msgid "Video or audio file to transcribe"
-msgstr ""
+msgstr "קובץ וידאו או שמע לתמלול"
 
 #: src/exe/cli/commands/transcribe.cpp
-#, fuzzy
 msgid "Subtitle file to write"
-msgstr "קובצי הכתוביות למיון"
+msgstr "קובץ כתוביות לכתיבה"
 
 #: src/exe/cli/commands/transcribe.cpp
 msgid "Format to write; the one the extension of --output says by default"
-msgstr ""
+msgstr "הפורמט לכתיבה; כברירת מחדל זה שהסיומת של --output מורה עליו"
 
 #: src/exe/cli/commands/transcribe.cpp
 msgid "Audio track of a video, counted from 0; the first by default"
-msgstr ""
+msgstr "רצועת שמע של סרטון, בספירה מ-0; כברירת מחדל הראשונה"
 
 #: src/exe/cli/commands/transcribe.cpp
-#, fuzzy
 msgid "Language of the speech: fr, en; detected by default"
-msgstr "הקידוד לקריאת הקבצים; מזוהה כברירת מחדל"
+msgstr "שפת הדיבור: fr, en; כברירת מחדל מזוהה אוטומטית"
 
 #: src/exe/cli/commands/transcribe.cpp
 msgid "Model file; the transcription.model setting by default"
-msgstr ""
+msgstr "קובץ מודל; כברירת מחדל ההגדרה transcription.model"
 
 #: src/exe/cli/commands/transcribe.cpp
 msgid "Engine; the transcription.engine setting by default"
-msgstr ""
+msgstr "מנוע; כברירת מחדל ההגדרה transcription.engine"
 
 #: src/exe/cli/commands/transcribe.cpp
-#, fuzzy
 msgid "Keep the extracted audio in this file"
-msgstr "הקצב של הקובץ"
+msgstr "שמירת השמע שחולץ בקובץ זה"
 
 #: src/exe/cli/commands/transcribe.cpp
 msgid "Write the segments as the engine cut them"
-msgstr ""
+msgstr "כתיבת הקטעים כפי שהמנוע חתך אותם"
 
 #: src/exe/cli/commands/transform.cpp
 msgid "Correct every position from two points known to be right"
@@ -2125,30 +2122,27 @@ msgstr "מספר שלם מ־1 עד 1000: 2, 3"
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "the name of an engine: lower-case letters, digits, '.', '-' or '_'"
-msgstr ""
+msgstr "שם של מנוע: אותיות קטנות, ספרות, '.', '-' או '_'"
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "an absolute path; empty for none"
-msgstr ""
+msgstr "נתיב מוחלט; ריק לציון שאין"
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "two lower-case letters, an ISO 639-1 code: en, fr; empty to detect it"
-msgstr ""
+msgstr "שתי אותיות קטנות, קוד ISO 639-1: en, fr; ריק לזיהוי אוטומטי"
 
 #: src/lib/subedit/core/config/operation_settings.cpp
-#, fuzzy
 msgid "a whole number of milliseconds, 1 to 3600000"
-msgstr "מספר שלם של אלפיות שנייה, 0 או יותר"
+msgstr "מספר שלם של אלפיות שנייה, מ-1 עד 3600000"
 
 #: src/lib/subedit/core/config/operation_settings.cpp
-#, fuzzy
 msgid "a whole number from 1 to 1000"
-msgstr "מספר שלם מ־1 עד 1000: 2, 3"
+msgstr "מספר שלם מ-1 עד 1000"
 
 #: src/lib/subedit/core/config/operation_settings.cpp
-#, fuzzy
 msgid "subedit-cli transcribe; Transcribe Audio…"
-msgstr "subedit-cli correct; תיקון הטקסטים…"
+msgstr "subedit-cli transcribe; תמלול שמע…"
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "subedit-cli adjust; Adjust Durations…"
@@ -2354,31 +2348,31 @@ msgstr "הסרת הכתוביות שהתיקון מרוקן, במקום להשא
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "The engine that transcribes the audio."
-msgstr ""
+msgstr "המנוע שמתמלל את השמע."
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "The engine's program; searched for when empty."
-msgstr ""
+msgstr "תוכנית המנוע; נחפשת ב-PATH כשהשדה ריק."
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "The model file the engine reads."
-msgstr ""
+msgstr "קובץ המודל שהמנוע קורא."
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "The language of the audio; detected when empty."
-msgstr ""
+msgstr "שפת השמע; מזוהה אוטומטית כשהשדה ריק."
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "Pieces of one sentence closer than this are joined."
-msgstr ""
+msgstr "חלקים של אותו משפט שהמרחק ביניהם קטן מזה מחוברים."
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "Longest a transcribed subtitle stays on screen."
-msgstr ""
+msgstr "משך ההצגה המרבי של כתובית מתומללת על המסך."
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "Most characters a transcribed subtitle holds."
-msgstr ""
+msgstr "מספר התווים המרבי בכתובית מתומללת."
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "%1 is managed by the window; use --enable/--disable on correct"
@@ -2732,7 +2726,7 @@ msgstr "איחוד כתוביות חוזרות"
 
 #: src/lib/subedit/core/wording/analysis.cpp
 msgid "transcribing the audio"
-msgstr ""
+msgstr "תמלול השמע"
 
 #. TRANSLATORS: how well the positions fall on a frame-rate grid: clean,
 #. partial, or none at all.
@@ -3311,86 +3305,79 @@ msgstr "לא ניתן היה לכתוב את ההגדרות"
 msgid ""
 "See the manual page \"Installing the transcription tools\" (install-"
 "transcription)."
-msgstr ""
+msgstr "ראו את דף המדריך „התקנת כלי התמלול” (install-transcription)."
 
 #: src/lib/subedit/core/wording/transcription.cpp
 msgid "the transcription engine was not found"
-msgstr ""
+msgstr "מנוע התמלול לא נמצא"
 
 #: src/lib/subedit/core/wording/transcription.cpp
 msgid "no model was given, or the model file is not there"
-msgstr ""
+msgstr "לא ניתן מודל, או שקובץ המודל אינו קיים"
 
 #: src/lib/subedit/core/wording/transcription.cpp
 msgid "the model cannot transcribe the language %1"
-msgstr ""
+msgstr "המודל אינו יודע לתמלל את השפה %1"
 
 #: src/lib/subedit/core/wording/transcription.cpp
 msgid "the model cannot detect the language: give one"
-msgstr ""
+msgstr "המודל אינו יודע לזהות את השפה: ציינו שפה"
 
 #: src/lib/subedit/core/wording/transcription.cpp
-#, fuzzy
 msgid "the audio could not be read"
-msgstr "לא ניתן היה לקרוא את %1."
+msgstr "לא ניתן היה לקרוא את השמע"
 
 # From Gaupol.
 #: src/lib/subedit/core/wording/transcription.cpp
-#, fuzzy
 msgid "the transcription failed"
-msgstr "סינית מסורתית"
+msgstr "התמלול נכשל"
 
 #: src/lib/subedit/core/wording/transcription.cpp
-#, fuzzy
 msgid "the transcription failed: %1"
-msgstr "תרגום: %1"
+msgstr "התמלול נכשל: %1"
 
 #: src/lib/subedit/core/wording/transcription.cpp
 msgid "the transcription was cancelled"
-msgstr ""
+msgstr "התמלול בוטל"
 
 #: src/lib/subedit/core/wording/transcription.cpp
 msgid "ffmpeg was not found, so the audio of a video cannot be extracted"
-msgstr ""
+msgstr "ffmpeg לא נמצא, ולכן אי אפשר לחלץ את השמע של סרטון"
 
 #: src/lib/subedit/core/wording/transcription.cpp
 msgid "the video has no audio track %1"
-msgstr ""
+msgstr "לסרטון אין רצועת שמע %1"
 
 #: src/lib/subedit/core/wording/transcription.cpp
-#, fuzzy
 msgid "the audio could not be extracted"
-msgstr "לא ניתן היה להפעיל את נגן הווידאו"
+msgstr "לא ניתן היה לחלץ את השמע"
 
 #: src/lib/subedit/core/wording/transcription.cpp
-#, fuzzy
 msgid "the audio could not be extracted: %1"
-msgstr "לא ניתן היה להפעיל את נגן הווידאו"
+msgstr "לא ניתן היה לחלץ את השמע: %1"
 
 #: src/lib/subedit/core/wording/transcription.cpp
 msgid "the video has no audio track"
-msgstr ""
+msgstr "לסרטון אין רצועת שמע"
 
 #: src/lib/subedit/core/wording/transcription.cpp
 msgid "no language or title"
-msgstr ""
+msgstr "ללא שפה או כותרת"
 
 #: src/lib/subedit/core/wording/transcription.cpp
-#, fuzzy
 msgid "audio track %1: %2"
-msgstr "כתובית ש%1: %2"
+msgstr "רצועת שמע %1: %2"
 
 #: src/lib/subedit/core/wording/transcription.cpp
 msgid "no transcription engine is called %1"
-msgstr ""
+msgstr "אין מנוע תמלול בשם %1"
 
 #: src/lib/subedit/core/wording/transcription.cpp
-#, fuzzy
 msgid "%1 subtitle transcribed, language: %2"
 msgid_plural "%1 subtitles transcribed, language: %2"
-msgstr[0] "%1 כתובית הותמרה אל %2 ו־%3"
-msgstr[1] "%1 כתוביות הותמרו אל %2 ו־%3"
-msgstr[2] "%1 כתוביות הותמרו אל %2 ו־%3"
+msgstr[0] "כתובית %1 תומללה, שפה: %2"
+msgstr[1] "%1 כתוביות תומללו, שפה: %2"
+msgstr[2] "%1 כתוביות תומללו, שפה: %2"
 
 #: src/lib/subedit/core/wording/transcription.cpp
 msgid ""
@@ -3399,14 +3386,13 @@ msgid ""
 msgid_plural ""
 "The %1 subtitles of this project will be replaced by the transcription. You "
 "can undo it."
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
+msgstr[0] "כתובית %1 של הפרויקט הזה תוחלף בתמלול. אפשר לבטל."
+msgstr[1] "%1 כתוביות של הפרויקט הזה יוחלפו בתמלול. אפשר לבטל."
+msgstr[2] "%1 כתוביות של הפרויקט הזה יוחלפו בתמלול. אפשר לבטל."
 
 #: src/lib/subedit/core/wording/transcription.cpp
-#, fuzzy
 msgid "transcribing: %1%"
-msgstr "תרגום: %1"
+msgstr "תמלול: %1%"
 
 #: src/lib/subedit/core/wording/translation.cpp
 msgid "translation: the file holds no line"
@@ -4305,6 +4291,14 @@ msgid "Select Video"
 msgstr "בחירת וידאו"
 
 #: src/lib/subedit/gui/qt_prompts.cpp
+msgid "Choose a model"
+msgstr "בחירת מודל"
+
+#: src/lib/subedit/gui/qt_prompts.cpp
+msgid "Models (*.bin);;All files (*)"
+msgstr "מודלים (*.bin);;כל הקבצים (*)"
+
+#: src/lib/subedit/gui/qt_prompts.cpp
 msgid "The translation is no longer where it was read from."
 msgstr "התרגום כבר אינו במקום שממנו נקרא."
 
@@ -4340,9 +4334,8 @@ msgstr ""
 "לפתוח אותו שוב, במקומו החדש?"
 
 #: src/lib/subedit/gui/qt_prompts.cpp
-#, fuzzy
 msgid "Replace the subtitles?"
-msgstr "תיקון הכתוביות"
+msgstr "להחליף את הכתוביות?"
 
 # From Gaupol.
 #: src/lib/subedit/gui/save_shape.cpp
@@ -4607,33 +4600,34 @@ msgstr "ראשי"
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
 msgid "Browse…"
-msgstr ""
+msgstr "עיון…"
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
 #: src/lib/subedit/gui/transcription_runner.cpp
 msgid "Transcribe audio"
-msgstr ""
+msgstr "תמלול שמע"
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
 msgid "First audio track"
-msgstr ""
+msgstr "רצועת השמע הראשונה"
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
-#, fuzzy
 msgid "Detected"
-msgstr "%1, זוהה"
+msgstr "מזוהה"
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
 msgid ""
 "A two-letter language code such as en or fr. Leave it empty to let the model "
 "detect the language."
 msgstr ""
+"קוד שפה בן שתי אותיות, כמו en או fr. השאירו ריק כדי שהמודל יזהה את השפה."
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
 msgid ""
 "The model file the engine reads. It is not shipped with the program: the "
 "manual says where to find one."
 msgstr ""
+"קובץ המודל שהמנוע קורא. הוא אינו מצורף לתוכנה: המדריך מציין היכן למצוא אחד."
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
 msgid ""
@@ -4641,28 +4635,20 @@ msgid ""
 "replace the ones of the project. The work runs in the background and can be "
 "cancelled."
 msgstr ""
+"השמע של הסרט הפתוח בחלון הזה מתומלל לכתוביות שמחליפות את כתוביות הפרויקט. "
+"העבודה מתבצעת ברקע וניתן לבטל אותה."
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
 msgid "Audio track"
-msgstr ""
+msgstr "רצועת שמע"
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
-#, fuzzy
 msgid "Language"
-msgstr "שפה:"
+msgstr "שפה"
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
 msgid "Model"
-msgstr ""
-
-#: src/lib/subedit/gui/transcribe_dialog.cpp
-msgid "Choose a model"
-msgstr ""
-
-#: src/lib/subedit/gui/transcribe_dialog.cpp
-#, fuzzy
-msgid "Models (*.bin);;All files (*)"
-msgstr "כל הקבצים (*)"
+msgstr "מודל"
 
 #: src/lib/subedit/gui/transcription_runner.cpp
 #: src/lib/subedit/gui/unsaved_documents_dialog.cpp
@@ -4671,7 +4657,7 @@ msgstr "ביטול"
 
 #: src/lib/subedit/gui/transcription_runner.cpp
 msgid "Transcribing the audio…"
-msgstr ""
+msgstr "מתמלל את השמע…"
 
 #: src/lib/subedit/gui/transform_dialog.cpp
 msgid "Transform positions"
@@ -4831,7 +4817,7 @@ msgstr "מיקומים ב&פריימים"
 
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "Transcribe Audio…"
-msgstr ""
+msgstr "תמלול שמע…"
 
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "Play / Pause"

@@ -1065,46 +1065,43 @@ msgstr ""
 
 #: src/exe/cli/commands/transcribe.cpp
 msgid "Write the speech of a video or an audio file as subtitles"
-msgstr ""
+msgstr "Записать речь видео или аудиофайла в виде субтитров"
 
 #: src/exe/cli/commands/transcribe.cpp
 msgid "Video or audio file to transcribe"
-msgstr ""
+msgstr "Видео или аудиофайл для расшифровки"
 
 #: src/exe/cli/commands/transcribe.cpp
-#, fuzzy
 msgid "Subtitle file to write"
-msgstr "Файлы субтитров для упорядочивания"
+msgstr "Файл субтитров для записи"
 
 #: src/exe/cli/commands/transcribe.cpp
 msgid "Format to write; the one the extension of --output says by default"
-msgstr ""
+msgstr "Формат записи; по умолчанию тот, который указывает расширение --output"
 
 #: src/exe/cli/commands/transcribe.cpp
 msgid "Audio track of a video, counted from 0; the first by default"
-msgstr ""
+msgstr "Звуковая дорожка видео, считая с 0; по умолчанию первая"
 
 #: src/exe/cli/commands/transcribe.cpp
-#, fuzzy
 msgid "Language of the speech: fr, en; detected by default"
-msgstr "Кодировка чтения файлов; по умолчанию определяется автоматически"
+msgstr "Язык речи: fr, en; по умолчанию определяется автоматически"
 
 #: src/exe/cli/commands/transcribe.cpp
 msgid "Model file; the transcription.model setting by default"
-msgstr ""
+msgstr "Файл модели; по умолчанию настройка transcription.model"
 
 #: src/exe/cli/commands/transcribe.cpp
 msgid "Engine; the transcription.engine setting by default"
-msgstr ""
+msgstr "Движок; по умолчанию настройка transcription.engine"
 
 #: src/exe/cli/commands/transcribe.cpp
-#, fuzzy
 msgid "Keep the extracted audio in this file"
-msgstr "частота файла"
+msgstr "Сохранить извлечённый звук в этот файл"
 
 #: src/exe/cli/commands/transcribe.cpp
 msgid "Write the segments as the engine cut them"
-msgstr ""
+msgstr "Записать сегменты так, как их разрезал движок"
 
 #: src/exe/cli/commands/transform.cpp
 msgid "Correct every position from two points known to be right"
@@ -2264,30 +2261,29 @@ msgstr "целое число от 1 до 1000: 2, 3"
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "the name of an engine: lower-case letters, digits, '.', '-' or '_'"
-msgstr ""
+msgstr "название движка: строчные буквы, цифры, «.», «-» или «_»"
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "an absolute path; empty for none"
-msgstr ""
+msgstr "абсолютный путь; пусто — не задан"
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "two lower-case letters, an ISO 639-1 code: en, fr; empty to detect it"
 msgstr ""
+"две строчные буквы, код ISO 639-1: en, fr; пусто — определять язык "
+"автоматически"
 
 #: src/lib/subedit/core/config/operation_settings.cpp
-#, fuzzy
 msgid "a whole number of milliseconds, 1 to 3600000"
-msgstr "целое число миллисекунд, 0 или больше"
+msgstr "целое число миллисекунд, от 1 до 3600000"
 
 #: src/lib/subedit/core/config/operation_settings.cpp
-#, fuzzy
 msgid "a whole number from 1 to 1000"
-msgstr "целое число от 1 до 1000: 2, 3"
+msgstr "целое число от 1 до 1000"
 
 #: src/lib/subedit/core/config/operation_settings.cpp
-#, fuzzy
 msgid "subedit-cli transcribe; Transcribe Audio…"
-msgstr "subedit-cli correct; Исправить тексты…"
+msgstr "subedit-cli transcribe; Расшифровать аудио…"
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "subedit-cli adjust; Adjust Durations…"
@@ -2508,31 +2504,33 @@ msgstr ""
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "The engine that transcribes the audio."
-msgstr ""
+msgstr "Движок, который расшифровывает звук."
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "The engine's program; searched for when empty."
-msgstr ""
+msgstr "Программа движка; если пусто, ищется в PATH."
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "The model file the engine reads."
-msgstr ""
+msgstr "Файл модели, который читает движок."
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "The language of the audio; detected when empty."
-msgstr ""
+msgstr "Язык звука; если пусто, определяется автоматически."
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "Pieces of one sentence closer than this are joined."
 msgstr ""
+"Части одного предложения, расстояние между которыми меньше этого значения, "
+"объединяются."
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "Longest a transcribed subtitle stays on screen."
-msgstr ""
+msgstr "Наибольшая длительность показа расшифрованного субтитра на экране."
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "Most characters a transcribed subtitle holds."
-msgstr ""
+msgstr "Наибольшее число символов в расшифрованном субтитре."
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "%1 is managed by the window; use --enable/--disable on correct"
@@ -2889,7 +2887,7 @@ msgstr "объединение повторяющихся субтитров"
 
 #: src/lib/subedit/core/wording/analysis.cpp
 msgid "transcribing the audio"
-msgstr ""
+msgstr "расшифровка звука"
 
 #. TRANSLATORS: how well the positions fall on a frame-rate grid: clean,
 #. partial, or none at all.
@@ -3509,86 +3507,81 @@ msgid ""
 "See the manual page \"Installing the transcription tools\" (install-"
 "transcription)."
 msgstr ""
+"См. страницу руководства «Установка инструментов расшифровки» (install-"
+"transcription)."
 
 #: src/lib/subedit/core/wording/transcription.cpp
 msgid "the transcription engine was not found"
-msgstr ""
+msgstr "движок расшифровки не найден"
 
 #: src/lib/subedit/core/wording/transcription.cpp
 msgid "no model was given, or the model file is not there"
-msgstr ""
+msgstr "модель не указана или файл модели отсутствует"
 
 #: src/lib/subedit/core/wording/transcription.cpp
 msgid "the model cannot transcribe the language %1"
-msgstr ""
+msgstr "модель не умеет расшифровывать язык %1"
 
 #: src/lib/subedit/core/wording/transcription.cpp
 msgid "the model cannot detect the language: give one"
-msgstr ""
+msgstr "модель не умеет определять язык: укажите его"
 
 #: src/lib/subedit/core/wording/transcription.cpp
-#, fuzzy
 msgid "the audio could not be read"
-msgstr "Не удалось прочитать %1."
+msgstr "не удалось прочитать звук"
 
 # From Gaupol.
 #: src/lib/subedit/core/wording/transcription.cpp
-#, fuzzy
 msgid "the transcription failed"
-msgstr "Китайская традиционная"
+msgstr "расшифровка не удалась"
 
 #: src/lib/subedit/core/wording/transcription.cpp
-#, fuzzy
 msgid "the transcription failed: %1"
-msgstr "перевод: %1"
+msgstr "расшифровка не удалась: %1"
 
 #: src/lib/subedit/core/wording/transcription.cpp
 msgid "the transcription was cancelled"
-msgstr ""
+msgstr "расшифровка отменена"
 
 #: src/lib/subedit/core/wording/transcription.cpp
 msgid "ffmpeg was not found, so the audio of a video cannot be extracted"
-msgstr ""
+msgstr "ffmpeg не найден, поэтому звук видео извлечь нельзя"
 
 #: src/lib/subedit/core/wording/transcription.cpp
 msgid "the video has no audio track %1"
-msgstr ""
+msgstr "в видео нет звуковой дорожки %1"
 
 #: src/lib/subedit/core/wording/transcription.cpp
-#, fuzzy
 msgid "the audio could not be extracted"
-msgstr "не удалось запустить видеоплеер"
+msgstr "не удалось извлечь звук"
 
 #: src/lib/subedit/core/wording/transcription.cpp
-#, fuzzy
 msgid "the audio could not be extracted: %1"
-msgstr "не удалось запустить видеоплеер"
+msgstr "не удалось извлечь звук: %1"
 
 #: src/lib/subedit/core/wording/transcription.cpp
 msgid "the video has no audio track"
-msgstr ""
+msgstr "в видео нет звуковых дорожек"
 
 #: src/lib/subedit/core/wording/transcription.cpp
 msgid "no language or title"
-msgstr ""
+msgstr "ни языка, ни названия"
 
 #: src/lib/subedit/core/wording/transcription.cpp
-#, fuzzy
 msgid "audio track %1: %2"
-msgstr "субтитр %1: %2"
+msgstr "звуковая дорожка %1: %2"
 
 #: src/lib/subedit/core/wording/transcription.cpp
 msgid "no transcription engine is called %1"
-msgstr ""
+msgstr "движка расшифровки с именем %1 нет"
 
 #: src/lib/subedit/core/wording/transcription.cpp
-#, fuzzy
 msgid "%1 subtitle transcribed, language: %2"
 msgid_plural "%1 subtitles transcribed, language: %2"
-msgstr[0] "Преобразовано субтитров: %1 (по точкам %2 и %3)"
-msgstr[1] "Преобразовано субтитров: %1 (по точкам %2 и %3)"
-msgstr[2] "Преобразовано субтитров: %1 (по точкам %2 и %3)"
-msgstr[3] "Преобразовано субтитров: %1 (по точкам %2 и %3)"
+msgstr[0] "Расшифровано субтитров: %1, язык: %2"
+msgstr[1] "Расшифровано субтитров: %1, язык: %2"
+msgstr[2] "Расшифровано субтитров: %1, язык: %2"
+msgstr[3] "Расшифровано субтитров: %1, язык: %2"
 
 #: src/lib/subedit/core/wording/transcription.cpp
 msgid ""
@@ -3598,14 +3591,21 @@ msgid_plural ""
 "The %1 subtitles of this project will be replaced by the transcription. You "
 "can undo it."
 msgstr[0] ""
+"Субтитров этого проекта, которые будут заменены расшифровкой: %1. Это можно "
+"отменить."
 msgstr[1] ""
+"Субтитров этого проекта, которые будут заменены расшифровкой: %1. Это можно "
+"отменить."
 msgstr[2] ""
+"Субтитров этого проекта, которые будут заменены расшифровкой: %1. Это можно "
+"отменить."
 msgstr[3] ""
+"Субтитров этого проекта, которые будут заменены расшифровкой: %1. Это можно "
+"отменить."
 
 #: src/lib/subedit/core/wording/transcription.cpp
-#, fuzzy
 msgid "transcribing: %1%"
-msgstr "перевод: %1"
+msgstr "расшифровка: %1 %"
 
 #: src/lib/subedit/core/wording/translation.cpp
 msgid "translation: the file holds no line"
@@ -4548,6 +4548,14 @@ msgid "Select Video"
 msgstr "Выберите видеофайл"
 
 #: src/lib/subedit/gui/qt_prompts.cpp
+msgid "Choose a model"
+msgstr "Выбрать модель"
+
+#: src/lib/subedit/gui/qt_prompts.cpp
+msgid "Models (*.bin);;All files (*)"
+msgstr "Модели (*.bin);;Все файлы (*)"
+
+#: src/lib/subedit/gui/qt_prompts.cpp
 msgid "The translation is no longer where it was read from."
 msgstr "Перевода больше нет там, откуда он был прочитан."
 
@@ -4583,9 +4591,8 @@ msgstr ""
 "Открыть его снова — в новом месте?"
 
 #: src/lib/subedit/gui/qt_prompts.cpp
-#, fuzzy
 msgid "Replace the subtitles?"
-msgstr "Восстановить субтитры"
+msgstr "Заменить субтитры?"
 
 # From Gaupol.
 #: src/lib/subedit/gui/save_shape.cpp
@@ -4851,33 +4858,36 @@ msgstr "Основной"
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
 msgid "Browse…"
-msgstr ""
+msgstr "Обзор…"
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
 #: src/lib/subedit/gui/transcription_runner.cpp
 msgid "Transcribe audio"
-msgstr ""
+msgstr "Расшифровка звука"
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
 msgid "First audio track"
-msgstr ""
+msgstr "Первая звуковая дорожка"
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
-#, fuzzy
 msgid "Detected"
-msgstr "%1, определена автоматически"
+msgstr "Определяется автоматически"
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
 msgid ""
 "A two-letter language code such as en or fr. Leave it empty to let the model "
 "detect the language."
 msgstr ""
+"Двухбуквенный код языка, например en или fr. Оставьте поле пустым, чтобы "
+"модель определила язык сама."
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
 msgid ""
 "The model file the engine reads. It is not shipped with the program: the "
 "manual says where to find one."
 msgstr ""
+"Файл модели, который читает движок. Он не входит в состав программы: в "
+"руководстве сказано, где его взять."
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
 msgid ""
@@ -4885,28 +4895,20 @@ msgid ""
 "replace the ones of the project. The work runs in the background and can be "
 "cancelled."
 msgstr ""
+"Звук фильма, открытого в этом окне, расшифровывается в субтитры, которые "
+"заменяют субтитры проекта. Работа идёт в фоновом режиме, и её можно отменить."
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
 msgid "Audio track"
-msgstr ""
+msgstr "Звуковая дорожка"
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
-#, fuzzy
 msgid "Language"
-msgstr "Язык:"
+msgstr "Язык"
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
 msgid "Model"
-msgstr ""
-
-#: src/lib/subedit/gui/transcribe_dialog.cpp
-msgid "Choose a model"
-msgstr ""
-
-#: src/lib/subedit/gui/transcribe_dialog.cpp
-#, fuzzy
-msgid "Models (*.bin);;All files (*)"
-msgstr "Все файлы (*)"
+msgstr "Модель"
 
 #: src/lib/subedit/gui/transcription_runner.cpp
 #: src/lib/subedit/gui/unsaved_documents_dialog.cpp
@@ -4915,7 +4917,7 @@ msgstr "Отмена"
 
 #: src/lib/subedit/gui/transcription_runner.cpp
 msgid "Transcribing the audio…"
-msgstr ""
+msgstr "Расшифровка звука…"
 
 #: src/lib/subedit/gui/transform_dialog.cpp
 msgid "Transform positions"
@@ -5074,7 +5076,7 @@ msgstr "Позиции в &кадрах"
 
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "Transcribe Audio…"
-msgstr ""
+msgstr "Расшифровать аудио…"
 
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "Play / Pause"

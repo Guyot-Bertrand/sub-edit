@@ -64,6 +64,16 @@ public:
         return nextShiftedReopeningAccepted;
     }
 
+    /// The model the chooser answers, and where it was told to open.
+    std::optional<std::filesystem::path> nextModelToOpen{};
+    std::filesystem::path lastModelStart{};
+
+    [[nodiscard]] std::optional<std::filesystem::path>
+    modelToOpen(const std::filesystem::path& current) override {
+        lastModelStart = current;
+        return nextModelToOpen;
+    }
+
     /// What each confirmation of a replacement said, and whether the next is accepted.
     /// **Refused by default, as the question of the film is**: the case one forgets is the
     /// one that keeps what is there.

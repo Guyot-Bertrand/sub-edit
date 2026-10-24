@@ -226,7 +226,7 @@ no s'executa, i `-q` i `-v` no hi canvien res.
 <!-- example: subedit-cli --version | head -n 1 -->
 ```console
 $ subedit-cli --version | head -n 1
-subedit 1.0.9
+subedit 1.0.10
 ```
 
 La sortida sencera, en una màquina amb ICU 74.2 i Enchant 2.3.3 — els números són els de la màquina:
@@ -370,14 +370,16 @@ el que s'ha fet no és un silenci.
 | [`append`](append.md) | posa fitxers després del primer, en **un sol** fitxer | sí |
 | [`split-file`](split-file.md) | talla un fitxer en **dos**: un cap i una cua | sí |
 | [`pair`](pair.md) | escriu una traducció a les posicions del seu fitxer principal, i diu com s'han alineat les seves línies | sí |
+| [`transcribe`](transcribe.md) | escriu la parla d'un vídeo o d'un fitxer d'àudio en forma de subtítols | sí — la seva pròpia destinació, `--output` |
 | [`config`](config.md) | llista, mostra i canvia la configuració de les operacions del fitxer de configuració | només el fitxer de configuració |
 
-Hi són totes vint-i-una; l'ajuda de l'eina les llista en el mateix ordre.
+Hi són totes vint-i-dues; l'ajuda de l'eina les llista en el mateix ordre.
 
 **Només una no toca res**, i és la columna de la dreta: `inspect` llegeix i
-informa. Les altres dinou escriuen, i el que segueix val per a disset d'elles:
+informa. Les altres vint escriuen, i el que segueix val per a disset d'elles:
 [`append`](append.md) i [`split-file`](split-file.md) tenen cadascuna una aritat pròpia — N fitxers per a
-**un** resultat, un fitxer per a **dos** — i per tant la seva pròpia destinació, que descriuen a la seva pàgina.
+**un** resultat, un fitxer per a **dos** — i per tant la seva pròpia destinació, que descriuen a la seva pàgina;
+[`transcribe`](transcribe.md) fa un fitxer nou a partir d'un vídeo o d'un fitxer d'àudio, i només pren `--output`.
 [`config`](config.md) no escriu cap fitxer de subtítols: llegeix i canvia el fitxer de configuració, i
 no se li aplica res del que segueix.
 

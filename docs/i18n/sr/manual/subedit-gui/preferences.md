@@ -138,6 +138,12 @@
 | `correction.join-split.join`, `correction.join-split.split` | `true` или `false` — спојити, поделити | `true`, `false` |
 | `correction.join-split.language` | шифра локалитета — `fr`, `en_US`, `sr@Latn` —; празно: језик система | празно |
 | `correction.remove-blank` | `true` или `false` — `Remove all blank subtitles` | `true` |
+| `transcription.engine` | назив мотора: мала слова, цифре, `.`, `-` и `_` | `whisper.cpp` |
+| `transcription.executable`, `transcription.model` | апсолутна путања; празно: мотор се тражи у `PATH`, а модел није задат | празно |
+| `transcription.language` | два мала слова, ISO 639-1 код; празно: језик се открива | празно |
+| `transcription.merge-gap-ms` | делови једне реченице ближи од овога спајају се, у милисекундама, цео број који није негативан | `400` |
+| `transcription.max-duration-ms` | најдуже време које транскрибовани титл остаје на екрану, у милисекундама, од 1 до 3600000 | `7000` |
+| `transcription.max-characters` | највише знакова које транскрибовани титл садржи, од 1 до 1000 | `84` |
 | `correction.activations` | поља за потврду образаца која је корисник променио, `<type>:<code>:<name>:<0\|1>`, раздвојена зарезима; **зарез или обрнута коса црта у имену пишу се са обрнутом косом цртом испред** (`\,` и `\\`), а нечитљив унос губи само своју поставку — јавља се, остали се задржавају | празно |
 | `spell-check.language` | шифра локалитета, као `fr_FR`; празно: језик система | празно |
 | `spell-check.target` | `selection`, `current-project` или `all-projects` | `current-project` |

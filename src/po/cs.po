@@ -1075,46 +1075,43 @@ msgstr "--head a --tail patří k sobě: zadejte obě, nebo žádnou s --dry-run
 
 #: src/exe/cli/commands/transcribe.cpp
 msgid "Write the speech of a video or an audio file as subtitles"
-msgstr ""
+msgstr "Zapíše řeč videa nebo zvukového souboru jako titulky"
 
 #: src/exe/cli/commands/transcribe.cpp
 msgid "Video or audio file to transcribe"
-msgstr ""
+msgstr "Video nebo zvukový soubor k přepisu"
 
 #: src/exe/cli/commands/transcribe.cpp
-#, fuzzy
 msgid "Subtitle file to write"
-msgstr "Soubory titulků k seřazení"
+msgstr "Soubor titulků k zapsání"
 
 #: src/exe/cli/commands/transcribe.cpp
 msgid "Format to write; the one the extension of --output says by default"
-msgstr ""
+msgstr "Formát k zapsání; ve výchozím stavu ten, který určuje přípona --output"
 
 #: src/exe/cli/commands/transcribe.cpp
 msgid "Audio track of a video, counted from 0; the first by default"
-msgstr ""
+msgstr "Zvuková stopa videa, číslovaná od 0; ve výchozím stavu první"
 
 #: src/exe/cli/commands/transcribe.cpp
-#, fuzzy
 msgid "Language of the speech: fr, en; detected by default"
-msgstr "Kódování, ve kterém soubory číst; ve výchozím stavu se zjistí"
+msgstr "Jazyk řeči: fr, en; ve výchozím stavu se zjistí"
 
 #: src/exe/cli/commands/transcribe.cpp
 msgid "Model file; the transcription.model setting by default"
-msgstr ""
+msgstr "Soubor modelu; ve výchozím stavu nastavení transcription.model"
 
 #: src/exe/cli/commands/transcribe.cpp
 msgid "Engine; the transcription.engine setting by default"
-msgstr ""
+msgstr "Nástroj; ve výchozím stavu nastavení transcription.engine"
 
 #: src/exe/cli/commands/transcribe.cpp
-#, fuzzy
 msgid "Keep the extracted audio in this file"
-msgstr "frekvence souboru"
+msgstr "Uchovat vyextrahovaný zvuk v tomto souboru"
 
 #: src/exe/cli/commands/transcribe.cpp
 msgid "Write the segments as the engine cut them"
-msgstr ""
+msgstr "Zapsat segmenty tak, jak je nástroj rozdělil"
 
 #: src/exe/cli/commands/transform.cpp
 msgid "Correct every position from two points known to be right"
@@ -2215,30 +2212,27 @@ msgstr "celé číslo od 1 do 1000: 2, 3"
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "the name of an engine: lower-case letters, digits, '.', '-' or '_'"
-msgstr ""
+msgstr "název nástroje: malá písmena, číslice, „.“, „-“ nebo „_“"
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "an absolute path; empty for none"
-msgstr ""
+msgstr "absolutní cesta; prázdná znamená žádná"
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "two lower-case letters, an ISO 639-1 code: en, fr; empty to detect it"
-msgstr ""
+msgstr "dvě malá písmena, kód ISO 639-1: en, fr; prázdné pro zjištění jazyka"
 
 #: src/lib/subedit/core/config/operation_settings.cpp
-#, fuzzy
 msgid "a whole number of milliseconds, 1 to 3600000"
-msgstr "celé číslo milisekund, 0 nebo více"
+msgstr "celé číslo milisekund, od 1 do 3600000"
 
 #: src/lib/subedit/core/config/operation_settings.cpp
-#, fuzzy
 msgid "a whole number from 1 to 1000"
-msgstr "celé číslo od 1 do 1000: 2, 3"
+msgstr "celé číslo od 1 do 1000"
 
 #: src/lib/subedit/core/config/operation_settings.cpp
-#, fuzzy
 msgid "subedit-cli transcribe; Transcribe Audio…"
-msgstr "subedit-cli correct; Opravit texty…"
+msgstr "subedit-cli transcribe; Přepsat zvuk…"
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "subedit-cli adjust; Adjust Durations…"
@@ -2447,31 +2441,31 @@ msgstr "Odstranit titulky, které oprava vyprázdní, místo aby zůstaly prázd
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "The engine that transcribes the audio."
-msgstr ""
+msgstr "Nástroj, který přepisuje zvuk."
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "The engine's program; searched for when empty."
-msgstr ""
+msgstr "Program nástroje; je-li prázdný, hledá se v PATH."
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "The model file the engine reads."
-msgstr ""
+msgstr "Soubor modelu, který nástroj čte."
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "The language of the audio; detected when empty."
-msgstr ""
+msgstr "Jazyk zvuku; je-li prázdný, zjistí se."
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "Pieces of one sentence closer than this are joined."
-msgstr ""
+msgstr "Části jedné věty, které jsou blíže než tato doba, se spojí."
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "Longest a transcribed subtitle stays on screen."
-msgstr ""
+msgstr "Nejdelší doba, po kterou přepsaný titulek zůstává na obrazovce."
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "Most characters a transcribed subtitle holds."
-msgstr ""
+msgstr "Největší počet znaků přepsaného titulku."
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "%1 is managed by the window; use --enable/--disable on correct"
@@ -2826,7 +2820,7 @@ msgstr "spojení opakovaných titulků"
 
 #: src/lib/subedit/core/wording/analysis.cpp
 msgid "transcribing the audio"
-msgstr ""
+msgstr "přepis zvuku"
 
 #. TRANSLATORS: how well the positions fall on a frame-rate grid: clean,
 #. partial, or none at all.
@@ -3409,85 +3403,79 @@ msgid ""
 "See the manual page \"Installing the transcription tools\" (install-"
 "transcription)."
 msgstr ""
+"Viz stránka příručky „Instalace nástrojů pro přepis“ (install-transcription)."
 
 #: src/lib/subedit/core/wording/transcription.cpp
 msgid "the transcription engine was not found"
-msgstr ""
+msgstr "nástroj pro přepis nebyl nalezen"
 
 #: src/lib/subedit/core/wording/transcription.cpp
 msgid "no model was given, or the model file is not there"
-msgstr ""
+msgstr "nebyl zadán žádný model, nebo soubor modelu neexistuje"
 
 #: src/lib/subedit/core/wording/transcription.cpp
 msgid "the model cannot transcribe the language %1"
-msgstr ""
+msgstr "model neumí přepisovat jazyk %1"
 
 #: src/lib/subedit/core/wording/transcription.cpp
 msgid "the model cannot detect the language: give one"
-msgstr ""
+msgstr "model neumí zjistit jazyk: zadejte ho"
 
 #: src/lib/subedit/core/wording/transcription.cpp
-#, fuzzy
 msgid "the audio could not be read"
-msgstr "%1 nelze přečíst."
+msgstr "zvuk se nepodařilo přečíst"
 
 # From Gaupol.
 #: src/lib/subedit/core/wording/transcription.cpp
-#, fuzzy
 msgid "the transcription failed"
-msgstr "Čínské tradiční"
+msgstr "přepis se nezdařil"
 
 #: src/lib/subedit/core/wording/transcription.cpp
-#, fuzzy
 msgid "the transcription failed: %1"
-msgstr "překlad: %1"
+msgstr "přepis se nezdařil: %1"
 
 #: src/lib/subedit/core/wording/transcription.cpp
 msgid "the transcription was cancelled"
-msgstr ""
+msgstr "přepis byl zrušen"
 
 #: src/lib/subedit/core/wording/transcription.cpp
 msgid "ffmpeg was not found, so the audio of a video cannot be extracted"
-msgstr ""
+msgstr "ffmpeg nebyl nalezen, zvuk videa proto nelze extrahovat"
 
 #: src/lib/subedit/core/wording/transcription.cpp
 msgid "the video has no audio track %1"
-msgstr ""
+msgstr "video nemá zvukovou stopu %1"
 
 #: src/lib/subedit/core/wording/transcription.cpp
-#, fuzzy
 msgid "the audio could not be extracted"
-msgstr "přehrávač videa nelze spustit"
+msgstr "zvuk se nepodařilo extrahovat"
 
 #: src/lib/subedit/core/wording/transcription.cpp
-#, fuzzy
 msgid "the audio could not be extracted: %1"
-msgstr "přehrávač videa nelze spustit"
+msgstr "zvuk se nepodařilo extrahovat: %1"
 
 #: src/lib/subedit/core/wording/transcription.cpp
 msgid "the video has no audio track"
-msgstr ""
+msgstr "video nemá žádnou zvukovou stopu"
 
 #: src/lib/subedit/core/wording/transcription.cpp
 msgid "no language or title"
-msgstr ""
+msgstr "žádný jazyk ani název"
 
 #: src/lib/subedit/core/wording/transcription.cpp
-#, fuzzy
 msgid "audio track %1: %2"
-msgstr "titulek, který %1: %2"
+msgstr "zvuková stopa %1: %2"
 
 #: src/lib/subedit/core/wording/transcription.cpp
 msgid "no transcription engine is called %1"
-msgstr ""
+msgstr "žádný nástroj pro přepis se nejmenuje %1"
 
 #: src/lib/subedit/core/wording/transcription.cpp
-#, fuzzy
 msgid "%1 subtitle transcribed, language: %2"
 msgid_plural "%1 subtitles transcribed, language: %2"
-msgstr[0] "%1 titulek transformován podle %2 a %3"
-msgstr[1] "%1 titulky transformovány podle %2 a %3"
-msgstr[2] "%1 titulků transformováno podle %2 a %3"
+msgstr[0] "%1 titulek přepsán, jazyk: %2"
+msgstr[1] "%1 titulky přepsány, jazyk: %2"
+msgstr[2] "%1 titulků přepsáno, jazyk: %2"
 
 #: src/lib/subedit/core/wording/transcription.cpp
 msgid ""
@@ -3497,13 +3485,15 @@ msgid_plural ""
 "The %1 subtitles of this project will be replaced by the transcription. You "
 "can undo it."
 msgstr[0] ""
+"%1 titulek tohoto projektu bude nahrazen přepisem. Můžete to vrátit zpět."
 msgstr[1] ""
+"%1 titulky tohoto projektu budou nahrazeny přepisem. Můžete to vrátit zpět."
 msgstr[2] ""
+"%1 titulků tohoto projektu bude nahrazeno přepisem. Můžete to vrátit zpět."
 
 #: src/lib/subedit/core/wording/transcription.cpp
-#, fuzzy
 msgid "transcribing: %1%"
-msgstr "překlad: %1"
+msgstr "přepis: %1%"
 
 #: src/lib/subedit/core/wording/translation.cpp
 msgid "translation: the file holds no line"
@@ -4428,6 +4418,14 @@ msgid "Select Video"
 msgstr "Vybrat video"
 
 #: src/lib/subedit/gui/qt_prompts.cpp
+msgid "Choose a model"
+msgstr "Zvolte model"
+
+#: src/lib/subedit/gui/qt_prompts.cpp
+msgid "Models (*.bin);;All files (*)"
+msgstr "Modely (*.bin);;Všechny soubory (*)"
+
+#: src/lib/subedit/gui/qt_prompts.cpp
 msgid "The translation is no longer where it was read from."
 msgstr "Překlad už není tam, odkud byl načten."
 
@@ -4463,9 +4461,8 @@ msgstr ""
 "Otevřít jej znovu z nového umístění?"
 
 #: src/lib/subedit/gui/qt_prompts.cpp
-#, fuzzy
 msgid "Replace the subtitles?"
-msgstr "Spravit titulky"
+msgstr "Nahradit titulky?"
 
 # From Gaupol.
 #: src/lib/subedit/gui/save_shape.cpp
@@ -4738,33 +4735,36 @@ msgstr "Hlavní"
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
 msgid "Browse…"
-msgstr ""
+msgstr "Procházet…"
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
 #: src/lib/subedit/gui/transcription_runner.cpp
 msgid "Transcribe audio"
-msgstr ""
+msgstr "Přepis zvuku"
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
 msgid "First audio track"
-msgstr ""
+msgstr "První zvuková stopa"
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
-#, fuzzy
 msgid "Detected"
-msgstr "%1, zjištěno"
+msgstr "Zjištěný"
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
 msgid ""
 "A two-letter language code such as en or fr. Leave it empty to let the model "
 "detect the language."
 msgstr ""
+"Dvoupísmenný kód jazyka, například en nebo fr. Nechte pole prázdné, aby "
+"jazyk zjistil model."
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
 msgid ""
 "The model file the engine reads. It is not shipped with the program: the "
 "manual says where to find one."
 msgstr ""
+"Soubor modelu, který nástroj čte. S programem se nedodává: příručka říká, "
+"kde ho získat."
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
 msgid ""
@@ -4772,28 +4772,20 @@ msgid ""
 "replace the ones of the project. The work runs in the background and can be "
 "cancelled."
 msgstr ""
+"Zvuk filmu otevřeného v tomto okně se přepíše na titulky, které nahradí "
+"titulky projektu. Práce probíhá na pozadí a lze ji zrušit."
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
 msgid "Audio track"
-msgstr ""
+msgstr "Zvuková stopa"
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
-#, fuzzy
 msgid "Language"
-msgstr "Jazyk:"
+msgstr "Jazyk"
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
 msgid "Model"
-msgstr ""
-
-#: src/lib/subedit/gui/transcribe_dialog.cpp
-msgid "Choose a model"
-msgstr ""
-
-#: src/lib/subedit/gui/transcribe_dialog.cpp
-#, fuzzy
-msgid "Models (*.bin);;All files (*)"
-msgstr "Všechny soubory (*)"
+msgstr "Model"
 
 #: src/lib/subedit/gui/transcription_runner.cpp
 #: src/lib/subedit/gui/unsaved_documents_dialog.cpp
@@ -4802,7 +4794,7 @@ msgstr "Zrušit"
 
 #: src/lib/subedit/gui/transcription_runner.cpp
 msgid "Transcribing the audio…"
-msgstr ""
+msgstr "Přepis zvuku…"
 
 #: src/lib/subedit/gui/transform_dialog.cpp
 msgid "Transform positions"
@@ -4962,7 +4954,7 @@ msgstr "Pozice ve sní&mcích"
 
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "Transcribe Audio…"
-msgstr ""
+msgstr "Přepsat zvuk…"
 
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "Play / Pause"

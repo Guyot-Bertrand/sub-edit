@@ -137,6 +137,12 @@
 | `correction.join-split.join`, `correction.join-split.split` | `true` או `false` — צירוף, פיצול | `true`, `false` |
 | `correction.join-split.language` | קוד לוקאל — `fr`, `en_US`, `sr@Latn` —; ריק: שפת המערכת | ריק |
 | `correction.remove-blank` | `true` או `false` — `Remove all blank subtitles` | `true` |
+| `transcription.engine` | שם המנוע: אותיות קטנות, ספרות, `.`, `-` ו-`_` | `whisper.cpp` |
+| `transcription.executable`, `transcription.model` | נתיב מוחלט; ריק: המנוע נחפש ב-`PATH`, ולא נקבע מודל | ריק |
+| `transcription.language` | שתי אותיות קטנות, קוד ISO 639-1; ריק: השפה מזוהה אוטומטית | ריק |
+| `transcription.merge-gap-ms` | חלקים של אותו משפט שקרובים זה לזה מערך זה מחוברים, באלפיות שנייה, מספר שלם לא שלילי | `400` |
+| `transcription.max-duration-ms` | משך ההצגה המרבי של כתובית מתומללת על המסך, באלפיות שנייה, מ-1 עד 3600000 | `7000` |
+| `transcription.max-characters` | מספר התווים המרבי בכתובית מתומללת, מ-1 עד 1000 | `84` |
 | `correction.activations` | תיבות הסימון של התבניות שהמשתמש שינה, `<type>:<code>:<name>:<0\|1>`, מופרדות בפסיקים; **פסיק או לוכסן הפוך בשם נכתבים עם לוכסן הפוך לפניהם** (`\,` ו-`\\`), ופריט שאינו קריא מאבד רק את ההגדרה שלו — הוא מדווח, האחרים נשמרים | ריק |
 | `spell-check.language` | קוד לוקאל, כמו `fr_FR`; ריק: שפת המערכת | ריק |
 | `spell-check.target` | `selection`, `current-project` או `all-projects` | `current-project` |

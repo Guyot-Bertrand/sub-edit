@@ -1026,46 +1026,43 @@ msgstr "--head 和 --tail 须同时使用：两个都给出，或在使用 --dry
 
 #: src/exe/cli/commands/transcribe.cpp
 msgid "Write the speech of a video or an audio file as subtitles"
-msgstr ""
+msgstr "把视频或音频文件中的语音写成字幕"
 
 #: src/exe/cli/commands/transcribe.cpp
 msgid "Video or audio file to transcribe"
-msgstr ""
+msgstr "要转录的视频或音频文件"
 
 #: src/exe/cli/commands/transcribe.cpp
-#, fuzzy
 msgid "Subtitle file to write"
-msgstr "要排序的字幕文件"
+msgstr "要写入的字幕文件"
 
 #: src/exe/cli/commands/transcribe.cpp
 msgid "Format to write; the one the extension of --output says by default"
-msgstr ""
+msgstr "要写入的格式；默认为 --output 的扩展名所指的格式"
 
 #: src/exe/cli/commands/transcribe.cpp
 msgid "Audio track of a video, counted from 0; the first by default"
-msgstr ""
+msgstr "视频的音轨，从 0 开始计数；默认为第一条"
 
 #: src/exe/cli/commands/transcribe.cpp
-#, fuzzy
 msgid "Language of the speech: fr, en; detected by default"
-msgstr "读取文件时使用的编码；默认自动检测"
+msgstr "语音的语言：fr、en；默认自动检测"
 
 #: src/exe/cli/commands/transcribe.cpp
 msgid "Model file; the transcription.model setting by default"
-msgstr ""
+msgstr "模型文件；默认为 transcription.model 设置"
 
 #: src/exe/cli/commands/transcribe.cpp
 msgid "Engine; the transcription.engine setting by default"
-msgstr ""
+msgstr "引擎；默认为 transcription.engine 设置"
 
 #: src/exe/cli/commands/transcribe.cpp
-#, fuzzy
 msgid "Keep the extracted audio in this file"
-msgstr "文件的帧率"
+msgstr "把提取出的音频保存到此文件"
 
 #: src/exe/cli/commands/transcribe.cpp
 msgid "Write the segments as the engine cut them"
-msgstr ""
+msgstr "按引擎切分的方式写入各片段"
 
 #: src/exe/cli/commands/transform.cpp
 msgid "Correct every position from two points known to be right"
@@ -2058,30 +2055,27 @@ msgstr "1 到 1000 之间的整数：2、3"
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "the name of an engine: lower-case letters, digits, '.', '-' or '_'"
-msgstr ""
+msgstr "引擎的名称：小写字母、数字、“.”、“-”或“_”"
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "an absolute path; empty for none"
-msgstr ""
+msgstr "绝对路径；留空表示没有"
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "two lower-case letters, an ISO 639-1 code: en, fr; empty to detect it"
-msgstr ""
+msgstr "两个小写字母，ISO 639-1 代码：en、fr；留空则自动检测"
 
 #: src/lib/subedit/core/config/operation_settings.cpp
-#, fuzzy
 msgid "a whole number of milliseconds, 1 to 3600000"
-msgstr "毫秒数，一个大于等于 0 的整数"
+msgstr "毫秒的整数，1 到 3600000"
 
 #: src/lib/subedit/core/config/operation_settings.cpp
-#, fuzzy
 msgid "a whole number from 1 to 1000"
-msgstr "1 到 1000 之间的整数：2、3"
+msgstr "1 到 1000 之间的整数"
 
 #: src/lib/subedit/core/config/operation_settings.cpp
-#, fuzzy
 msgid "subedit-cli transcribe; Transcribe Audio…"
-msgstr "subedit-cli correct；更正文本…"
+msgstr "subedit-cli transcribe；转录音频…"
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "subedit-cli adjust; Adjust Durations…"
@@ -2275,31 +2269,31 @@ msgstr "删除因更正而变空的字幕，而不是保留为空。"
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "The engine that transcribes the audio."
-msgstr ""
+msgstr "转录音频的引擎。"
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "The engine's program; searched for when empty."
-msgstr ""
+msgstr "引擎的程序；留空时会去查找。"
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "The model file the engine reads."
-msgstr ""
+msgstr "引擎读取的模型文件。"
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "The language of the audio; detected when empty."
-msgstr ""
+msgstr "音频的语言；留空时自动检测。"
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "Pieces of one sentence closer than this are joined."
-msgstr ""
+msgstr "同一句话中间隔小于此值的片段会被合并。"
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "Longest a transcribed subtitle stays on screen."
-msgstr ""
+msgstr "转录出的字幕在屏幕上停留的最长时间。"
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "Most characters a transcribed subtitle holds."
-msgstr ""
+msgstr "转录出的字幕所含的最多字符数。"
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "%1 is managed by the window; use --enable/--disable on correct"
@@ -2653,7 +2647,7 @@ msgstr "合并重复字幕"
 
 #: src/lib/subedit/core/wording/analysis.cpp
 msgid "transcribing the audio"
-msgstr ""
+msgstr "转录音频"
 
 #. TRANSLATORS: how well the positions fall on a frame-rate grid: clean,
 #. partial, or none at all.
@@ -3158,84 +3152,77 @@ msgstr "无法写入设置"
 msgid ""
 "See the manual page \"Installing the transcription tools\" (install-"
 "transcription)."
-msgstr ""
+msgstr "参见手册页“安装转录工具”（install-transcription）。"
 
 #: src/lib/subedit/core/wording/transcription.cpp
 msgid "the transcription engine was not found"
-msgstr ""
+msgstr "未找到转录引擎"
 
 #: src/lib/subedit/core/wording/transcription.cpp
 msgid "no model was given, or the model file is not there"
-msgstr ""
+msgstr "未指定模型，或模型文件不存在"
 
 #: src/lib/subedit/core/wording/transcription.cpp
 msgid "the model cannot transcribe the language %1"
-msgstr ""
+msgstr "模型无法转录 %1 语言"
 
 #: src/lib/subedit/core/wording/transcription.cpp
 msgid "the model cannot detect the language: give one"
-msgstr ""
+msgstr "模型无法检测语言：请指定一种"
 
 #: src/lib/subedit/core/wording/transcription.cpp
-#, fuzzy
 msgid "the audio could not be read"
-msgstr "无法读取 %1。"
+msgstr "无法读取音频"
 
 # From Gaupol.
 #: src/lib/subedit/core/wording/transcription.cpp
-#, fuzzy
 msgid "the transcription failed"
-msgstr "繁体中文"
+msgstr "转录失败"
 
 #: src/lib/subedit/core/wording/transcription.cpp
-#, fuzzy
 msgid "the transcription failed: %1"
-msgstr "翻译：%1"
+msgstr "转录失败：%1"
 
 #: src/lib/subedit/core/wording/transcription.cpp
 msgid "the transcription was cancelled"
-msgstr ""
+msgstr "转录已取消"
 
 #: src/lib/subedit/core/wording/transcription.cpp
 msgid "ffmpeg was not found, so the audio of a video cannot be extracted"
-msgstr ""
+msgstr "未找到 ffmpeg，因此无法提取视频的音频"
 
 #: src/lib/subedit/core/wording/transcription.cpp
 msgid "the video has no audio track %1"
-msgstr ""
+msgstr "视频没有音轨 %1"
 
 #: src/lib/subedit/core/wording/transcription.cpp
-#, fuzzy
 msgid "the audio could not be extracted"
-msgstr "无法启动视频播放器"
+msgstr "无法提取音频"
 
 #: src/lib/subedit/core/wording/transcription.cpp
-#, fuzzy
 msgid "the audio could not be extracted: %1"
-msgstr "无法启动视频播放器"
+msgstr "无法提取音频：%1"
 
 #: src/lib/subedit/core/wording/transcription.cpp
 msgid "the video has no audio track"
-msgstr ""
+msgstr "视频没有任何音轨"
 
 #: src/lib/subedit/core/wording/transcription.cpp
 msgid "no language or title"
-msgstr ""
+msgstr "没有语言和标题"
 
 #: src/lib/subedit/core/wording/transcription.cpp
-#, fuzzy
 msgid "audio track %1: %2"
-msgstr "第 %1 条字幕：%2"
+msgstr "音轨 %1：%2"
 
 #: src/lib/subedit/core/wording/transcription.cpp
 msgid "no transcription engine is called %1"
-msgstr ""
+msgstr "没有名为 %1 的转录引擎"
 
 #: src/lib/subedit/core/wording/transcription.cpp
-#, fuzzy
 msgid "%1 subtitle transcribed, language: %2"
 msgid_plural "%1 subtitles transcribed, language: %2"
-msgstr[0] "%1 条字幕已变换到 %2 和 %3"
+msgstr[0] "已转录 %1 条字幕，语言：%2"
 
 #: src/lib/subedit/core/wording/transcription.cpp
 msgid ""
@@ -3244,12 +3231,11 @@ msgid ""
 msgid_plural ""
 "The %1 subtitles of this project will be replaced by the transcription. You "
 "can undo it."
-msgstr[0] ""
+msgstr[0] "此项目的 %1 条字幕将被转录结果替换。您可以撤销。"
 
 #: src/lib/subedit/core/wording/transcription.cpp
-#, fuzzy
 msgid "transcribing: %1%"
-msgstr "翻译：%1"
+msgstr "转录：%1%"
 
 #: src/lib/subedit/core/wording/translation.cpp
 msgid "translation: the file holds no line"
@@ -4109,6 +4095,14 @@ msgid "Select Video"
 msgstr "选择视频"
 
 #: src/lib/subedit/gui/qt_prompts.cpp
+msgid "Choose a model"
+msgstr "选择模型"
+
+#: src/lib/subedit/gui/qt_prompts.cpp
+msgid "Models (*.bin);;All files (*)"
+msgstr "模型 (*.bin);;所有文件 (*)"
+
+#: src/lib/subedit/gui/qt_prompts.cpp
 msgid "The translation is no longer where it was read from."
 msgstr "翻译已不在读取它的位置。"
 
@@ -4144,9 +4138,8 @@ msgstr ""
 "是否在新位置重新打开？"
 
 #: src/lib/subedit/gui/qt_prompts.cpp
-#, fuzzy
 msgid "Replace the subtitles?"
-msgstr "修复字幕"
+msgstr "要替换字幕吗？"
 
 # From Gaupol.
 #: src/lib/subedit/gui/save_shape.cpp
@@ -4415,33 +4408,32 @@ msgstr "主文档"
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
 msgid "Browse…"
-msgstr ""
+msgstr "浏览…"
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
 #: src/lib/subedit/gui/transcription_runner.cpp
 msgid "Transcribe audio"
-msgstr ""
+msgstr "转录音频"
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
 msgid "First audio track"
-msgstr ""
+msgstr "第一条音轨"
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
-#, fuzzy
 msgid "Detected"
-msgstr "%1，自动检测"
+msgstr "已检测"
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
 msgid ""
 "A two-letter language code such as en or fr. Leave it empty to let the model "
 "detect the language."
-msgstr ""
+msgstr "两个字母的语言代码，如 en 或 fr。留空则由模型检测语言。"
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
 msgid ""
 "The model file the engine reads. It is not shipped with the program: the "
 "manual says where to find one."
-msgstr ""
+msgstr "引擎读取的模型文件。它不随程序一起提供：手册会说明在哪里可以找到。"
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
 msgid ""
@@ -4449,28 +4441,20 @@ msgid ""
 "replace the ones of the project. The work runs in the background and can be "
 "cancelled."
 msgstr ""
+"此窗口中打开的影片的音频会被转录为字幕，并替换项目中的字幕。该工作在后台运"
+"行，可以取消。"
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
 msgid "Audio track"
-msgstr ""
+msgstr "音轨"
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
-#, fuzzy
 msgid "Language"
-msgstr "语言："
+msgstr "语言"
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
 msgid "Model"
-msgstr ""
-
-#: src/lib/subedit/gui/transcribe_dialog.cpp
-msgid "Choose a model"
-msgstr ""
-
-#: src/lib/subedit/gui/transcribe_dialog.cpp
-#, fuzzy
-msgid "Models (*.bin);;All files (*)"
-msgstr "所有文件 (*)"
+msgstr "模型"
 
 #: src/lib/subedit/gui/transcription_runner.cpp
 #: src/lib/subedit/gui/unsaved_documents_dialog.cpp
@@ -4479,7 +4463,7 @@ msgstr "取消"
 
 #: src/lib/subedit/gui/transcription_runner.cpp
 msgid "Transcribing the audio…"
-msgstr ""
+msgstr "正在转录音频…"
 
 #: src/lib/subedit/gui/transform_dialog.cpp
 msgid "Transform positions"
@@ -4639,7 +4623,7 @@ msgstr "以帧显示位置(&F)"
 
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "Transcribe Audio…"
-msgstr ""
+msgstr "转录音频…"
 
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "Play / Pause"

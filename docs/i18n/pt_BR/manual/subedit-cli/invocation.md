@@ -225,7 +225,7 @@ de interface instalados, na saída padrão; a ferramenta para, com o código `0`
 <!-- example: subedit-cli --version | head -n 1 -->
 ```console
 $ subedit-cli --version | head -n 1
-subedit 1.0.9
+subedit 1.0.10
 ```
 
 O conjunto completo, em uma máquina com ICU 74.2 e Enchant 2.3.3 — os números são os da máquina:
@@ -369,14 +369,16 @@ foi feito não é um silêncio.
 | [`append`](append.md) | coloca arquivos depois do primeiro, em **um único** arquivo | sim |
 | [`split-file`](split-file.md) | corta um arquivo em **dois**: uma cabeça e uma cauda | sim |
 | [`pair`](pair.md) | grava uma tradução nas posições de seu arquivo principal, e diz como suas linhas se alinharam | sim |
+| [`transcribe`](transcribe.md) | grava a fala de um vídeo ou de um arquivo de áudio como legendas | sim — seu próprio destino, `--output` |
 | [`config`](config.md) | lista, mostra e altera as configurações de operação do arquivo de configurações | somente o arquivo de configurações |
 
-Todos os vinte e um estão ali; a ajuda da ferramenta os lista na mesma ordem.
+Todos os vinte e dois estão ali; a ajuda da ferramenta os lista na mesma ordem.
 
 **Apenas um não toca em nada**, e é a coluna da direita: `inspect` lê e
-relata. Os outros dezenove gravam, e o que se segue vale para dezessete deles:
+relata. Os outros vinte gravam, e o que se segue vale para dezessete deles:
 [`append`](append.md) e [`split-file`](split-file.md) têm cada um uma aridade própria — N arquivos para
-**um** resultado, um arquivo para **dois** — e portanto seu próprio destino, que descrevem em sua página.
+**um** resultado, um arquivo para **dois** — e portanto seu próprio destino, que descrevem em sua página;
+[`transcribe`](transcribe.md) cria um novo arquivo a partir de um vídeo ou de um arquivo de áudio, e aceita somente `--output`.
 [`config`](config.md) não grava nenhum arquivo de legendas: ele lê e altera o arquivo de configurações, e
 nada do que se segue se aplica a ele.
 

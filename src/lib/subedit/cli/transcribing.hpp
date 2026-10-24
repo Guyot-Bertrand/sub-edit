@@ -6,6 +6,7 @@
 #include <subedit/core/config/transcription_settings.hpp>
 #include <subedit/core/transcription/engine_registry.hpp>
 
+#include <functional>
 #include <optional>
 #include <string>
 #include <string_view>
@@ -50,6 +51,8 @@ struct TranscribeOptions {
 /// nothing is written. An audio file is still read without `ffmpeg`. A language
 /// the model cannot transcribe is refused before any work starts.
 ///
+/// `cancelled`, when given, is asked while the work goes on: a true stops it and fails the file.
+///
 /// `searchPath` is where `ffmpeg` and `ffprobe` are looked for, a parameter for the
 /// reason `findExecutable` gives.
 [[nodiscard]] ExitCode transcribeFile(subedit::core::FileSystem& files,
@@ -57,6 +60,7 @@ struct TranscribeOptions {
                                       std::string_view searchPath,
                                       const TranscribeOptions& options,
                                       const subedit::core::TranscriptionSettings& settings,
-                                      const Reporter& reporter);
+                                      const Reporter& reporter,
+                                      const std::function<bool()>& cancelled = {});
 
 } // namespace subedit::cli

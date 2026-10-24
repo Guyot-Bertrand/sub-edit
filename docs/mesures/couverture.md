@@ -484,20 +484,39 @@ two shifts are equally good — a case built so that each one cleans the opening
 on its own, which is what makes the refusal the right answer —, and the window,
 which answers the question through the `FakePrompts` double.
 
+## Nine more lines in `qt_prompts.cpp`, in phase 22 (#779)
+
+`Transcribe Audio…` adds two questions to `Prompts`, and their production implementations are **modal boxes**,
+which `exec()` makes untestable, exactly like `aboutLoss` and `proposeShiftedReopening` beside them:
+
+- `confirmReplacement`, the question asked before the subtitles of a project are replaced by a transcription
+  (`QMessageBox::warning`);
+- `modelToOpen`, the file chooser behind the `Browse…` button of the dialog (`QFileDialog::getOpenFileName`).
+
+The nine lines are the headers, the texts, the answers and the calls of these two. **What lets the total rise by
+no more** is a refactoring in the same diff: the three file choosers of the file now share one `pathOf`, which took
+the lines of `fileToOpen` and `videoToOpen` down by about as many as the new chooser costs.
+
+**What is covered rather than counted**, in the same diff: everything the questions are about — the dialog, which
+asks the chooser through the `FakePrompts` double; the confirmation asked before the work and not after, and the
+refusal that leaves the project as it was; the replacement as one undoable entry; the cancellation during the
+extraction and during the transcription; the tools missing; the whole pipeline both surfaces share.
+
 ## Record
 
-    total: 72
+    total: 81
 
-Recorded on version 1.0.8, on 2026-10-23.
+Recorded on version 1.0.10, on 2026-10-24.
 
 | Lines | File |
 | ----: | :--- |
-| 50 | `src/lib/subedit/gui/qt_prompts.cpp` |
+| 58 | `src/lib/subedit/gui/qt_prompts.cpp` |
 | 3 | `src/lib/subedit/core/io/real_file_system.cpp` |
 | 3 | `src/lib/subedit/core/process/start_process.cpp` |
 | 2 | `src/lib/subedit/core/edit/insert_command.cpp` |
 | 2 | `src/lib/subedit/gui/correction_controller.cpp` |
 | 2 | `src/lib/subedit/gui/mpv_player.cpp` |
+| 1 | `src/lib/subedit/cli/transcribing.cpp` |
 | 1 | `src/lib/subedit/core/text/correction_run.cpp` |
 | 1 | `src/lib/subedit/core/text/hearing_impaired_correction.cpp` |
 | 1 | `src/lib/subedit/core/text/line_breaking.cpp` |

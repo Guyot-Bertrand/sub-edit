@@ -45,4 +45,6 @@ waar u moet beginnen, zie
 | [`append`](append.md) | bestanden na het eerste zetten, in één enkel bestand |
 | [`split-file`](split-file.md) | een bestand in tweeën knippen, waarbij de staart naar de oorsprong wordt teruggebracht |
 | [`pair`](pair.md) | een vertaling op de posities van haar hoofdbestand schrijven, en zeggen hoe haar regels zijn gekoppeld |
+| [`transcribe`](transcribe.md) | de gesproken tekst van een video of een audiobestand als ondertitels schrijven |
+| [De transcriptiehulpmiddelen installeren](install-transcription.md) | de engine, het model en `ffmpeg`, die het programma niet meelevert |
 | [`config`](config.md) | de bewerkingsinstellingen die met het venster worden gedeeld tonen, weergeven en wijzigen |

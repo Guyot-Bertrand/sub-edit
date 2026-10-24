@@ -390,3 +390,12 @@ TEST_CASE("the corrections offered at opening say nothing of what they could not
     bench.operations.fixAtOpening(*page, false, false, false);
     CHECK(bench.desk.announced.empty());
 }
+
+TEST_CASE("transcribing with no film open asks nothing", "[gui][GUI-TRANSCRIBE-01]") {
+    Bench bench;
+
+    bench.operations.transcribeAudio(*bench.page);
+
+    CHECK(bench.prompts.runAsked == 0);
+    CHECK(bench.prompts.replacements.empty());
+}

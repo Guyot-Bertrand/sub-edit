@@ -97,6 +97,12 @@
 | `correction.join-split.join`, `correction.join-split.split` | `true` 或 `false`——连接、拆分 | `true`、`false` |
 | `correction.join-split.language` | 区域设置代码——`fr`、`en_US`、`sr@Latn`——；为空：系统的语言 | 空 |
 | `correction.remove-blank` | `true` 或 `false`——`Remove all blank subtitles` | `true` |
+| `transcription.engine` | 引擎的名称：小写字母、数字、`.`、`-` 和 `_` | `whisper.cpp` |
+| `transcription.executable`, `transcription.model` | 绝对路径；为空：在 `PATH` 中查找引擎，且未设置模型 | 空 |
+| `transcription.language` | 两个小写字母，ISO 639-1 代码；为空：自动检测语言 | 空 |
+| `transcription.merge-gap-ms` | 同一句话中间隔小于此值的片段会被合并，单位为毫秒，非负整数 | `400` |
+| `transcription.max-duration-ms` | 转录出的字幕在屏幕上停留的最长时间，单位为毫秒，1 到 3600000 | `7000` |
+| `transcription.max-characters` | 转录出的字幕所含的最多字符数，1 到 1000 | `84` |
 | `correction.activations` | 用户更改过的模式复选框，`<type>:<code>:<name>:<0\|1>`，以逗号分隔；**名称中的逗号或反斜杠前要加一个反斜杠**（`\,` 和 `\\`），无法读取的条目只会丢失它自己的设置——它会被报告，其他的则保留 | 空 |
 | `spell-check.language` | 区域设置代码，例如 `fr_FR`；为空：系统的语言 | 空 |
 | `spell-check.target` | `selection`、`current-project` 或 `all-projects` | `current-project` |

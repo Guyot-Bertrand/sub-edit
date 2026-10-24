@@ -1036,46 +1036,44 @@ msgstr ""
 
 #: src/exe/cli/commands/transcribe.cpp
 msgid "Write the speech of a video or an audio file as subtitles"
-msgstr ""
+msgstr "Bir videonun veya ses dosyasının konuşmasını altyazı olarak yaz"
 
 #: src/exe/cli/commands/transcribe.cpp
 msgid "Video or audio file to transcribe"
-msgstr ""
+msgstr "Yazıya dökülecek video veya ses dosyası"
 
 #: src/exe/cli/commands/transcribe.cpp
-#, fuzzy
 msgid "Subtitle file to write"
-msgstr "Sıralanacak altyazı dosyaları"
+msgstr "Yazılacak altyazı dosyası"
 
 #: src/exe/cli/commands/transcribe.cpp
 msgid "Format to write; the one the extension of --output says by default"
 msgstr ""
+"Yazılacak biçim; varsayılan olarak --output uzantısının belirttiği biçim"
 
 #: src/exe/cli/commands/transcribe.cpp
 msgid "Audio track of a video, counted from 0; the first by default"
-msgstr ""
+msgstr "Bir videonun ses izi, 0'dan başlayarak sayılır; varsayılan olarak ilki"
 
 #: src/exe/cli/commands/transcribe.cpp
-#, fuzzy
 msgid "Language of the speech: fr, en; detected by default"
-msgstr "Dosyaların okunacağı kodlama; varsayılan olarak algılanır"
+msgstr "Konuşmanın dili: fr, en; varsayılan olarak algılanır"
 
 #: src/exe/cli/commands/transcribe.cpp
 msgid "Model file; the transcription.model setting by default"
-msgstr ""
+msgstr "Model dosyası; varsayılan olarak transcription.model ayarı"
 
 #: src/exe/cli/commands/transcribe.cpp
 msgid "Engine; the transcription.engine setting by default"
-msgstr ""
+msgstr "Motor; varsayılan olarak transcription.engine ayarı"
 
 #: src/exe/cli/commands/transcribe.cpp
-#, fuzzy
 msgid "Keep the extracted audio in this file"
-msgstr "dosyanın hızı"
+msgstr "Çıkarılan sesi bu dosyada tut"
 
 #: src/exe/cli/commands/transcribe.cpp
 msgid "Write the segments as the engine cut them"
-msgstr ""
+msgstr "Parçaları motorun kestiği gibi yaz"
 
 #: src/exe/cli/commands/transform.cpp
 msgid "Correct every position from two points known to be right"
@@ -2154,30 +2152,28 @@ msgstr "1 ile 1000 arasında bir tam sayı: 2, 3"
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "the name of an engine: lower-case letters, digits, '.', '-' or '_'"
-msgstr ""
+msgstr "bir motorun adı: küçük harfler, rakamlar, '.', '-' veya '_'"
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "an absolute path; empty for none"
-msgstr ""
+msgstr "mutlak bir yol; boşsa yok"
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "two lower-case letters, an ISO 639-1 code: en, fr; empty to detect it"
 msgstr ""
+"iki küçük harf, bir ISO 639-1 kodu: en, fr; algılatmak için boş bırakın"
 
 #: src/lib/subedit/core/config/operation_settings.cpp
-#, fuzzy
 msgid "a whole number of milliseconds, 1 to 3600000"
-msgstr "milisaniye cinsinden bir tam sayı, 0 veya daha büyük"
+msgstr "milisaniye cinsinden bir tam sayı, 1 ile 3600000 arasında"
 
 #: src/lib/subedit/core/config/operation_settings.cpp
-#, fuzzy
 msgid "a whole number from 1 to 1000"
-msgstr "1 ile 1000 arasında bir tam sayı: 2, 3"
+msgstr "1 ile 1000 arasında bir tam sayı"
 
 #: src/lib/subedit/core/config/operation_settings.cpp
-#, fuzzy
 msgid "subedit-cli transcribe; Transcribe Audio…"
-msgstr "subedit-cli correct; Metinleri Düzelt…"
+msgstr "subedit-cli transcribe; Sesi Yazıya Dök…"
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "subedit-cli adjust; Adjust Durations…"
@@ -2403,31 +2399,31 @@ msgstr "Düzeltmenin boşalttığı altyazıları boş bırakmak yerine kaldır.
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "The engine that transcribes the audio."
-msgstr ""
+msgstr "Sesi yazıya döken motor."
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "The engine's program; searched for when empty."
-msgstr ""
+msgstr "Motorun programı; boşsa aranır."
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "The model file the engine reads."
-msgstr ""
+msgstr "Motorun okuduğu model dosyası."
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "The language of the audio; detected when empty."
-msgstr ""
+msgstr "Sesin dili; boşsa algılanır."
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "Pieces of one sentence closer than this are joined."
-msgstr ""
+msgstr "Bir cümlenin bundan daha yakın parçaları birleştirilir."
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "Longest a transcribed subtitle stays on screen."
-msgstr ""
+msgstr "Yazıya dökülmüş bir altyazının ekranda kalabileceği en uzun süre."
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "Most characters a transcribed subtitle holds."
-msgstr ""
+msgstr "Yazıya dökülmüş bir altyazının taşıyabileceği en fazla karakter."
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "%1 is managed by the window; use --enable/--disable on correct"
@@ -2785,7 +2781,7 @@ msgstr "yinelenen altyazıları birleştirme"
 
 #: src/lib/subedit/core/wording/analysis.cpp
 msgid "transcribing the audio"
-msgstr ""
+msgstr "sesin yazıya dökülmesi"
 
 #. TRANSLATORS: how well the positions fall on a frame-rate grid: clean,
 #. partial, or none at all.
@@ -3343,84 +3339,79 @@ msgid ""
 "See the manual page \"Installing the transcription tools\" (install-"
 "transcription)."
 msgstr ""
+"\"Yazıya dökme araçlarını kurma\" kılavuz sayfasına bakın (install-"
+"transcription)."
 
 #: src/lib/subedit/core/wording/transcription.cpp
 msgid "the transcription engine was not found"
-msgstr ""
+msgstr "yazıya dökme motoru bulunamadı"
 
 #: src/lib/subedit/core/wording/transcription.cpp
 msgid "no model was given, or the model file is not there"
-msgstr ""
+msgstr "model verilmedi veya model dosyası yok"
 
 #: src/lib/subedit/core/wording/transcription.cpp
 msgid "the model cannot transcribe the language %1"
-msgstr ""
+msgstr "model %1 dilini yazıya dökemiyor"
 
 #: src/lib/subedit/core/wording/transcription.cpp
 msgid "the model cannot detect the language: give one"
-msgstr ""
+msgstr "model dili algılayamıyor: bir dil verin"
 
 #: src/lib/subedit/core/wording/transcription.cpp
-#, fuzzy
 msgid "the audio could not be read"
-msgstr "%1 okunamadı."
+msgstr "ses okunamadı"
 
 # From Gaupol.
 #: src/lib/subedit/core/wording/transcription.cpp
-#, fuzzy
 msgid "the transcription failed"
-msgstr "Çince (Geleneksel)"
+msgstr "yazıya dökme başarısız oldu"
 
 #: src/lib/subedit/core/wording/transcription.cpp
-#, fuzzy
 msgid "the transcription failed: %1"
-msgstr "çeviri: %1"
+msgstr "yazıya dökme başarısız oldu: %1"
 
 #: src/lib/subedit/core/wording/transcription.cpp
 msgid "the transcription was cancelled"
-msgstr ""
+msgstr "yazıya dökme iptal edildi"
 
 #: src/lib/subedit/core/wording/transcription.cpp
 msgid "ffmpeg was not found, so the audio of a video cannot be extracted"
-msgstr ""
+msgstr "ffmpeg bulunamadı, bu yüzden bir videonun sesi çıkarılamıyor"
 
 #: src/lib/subedit/core/wording/transcription.cpp
 msgid "the video has no audio track %1"
-msgstr ""
+msgstr "videoda %1 numaralı ses izi yok"
 
 #: src/lib/subedit/core/wording/transcription.cpp
-#, fuzzy
 msgid "the audio could not be extracted"
-msgstr "video oynatıcı başlatılamadı"
+msgstr "ses çıkarılamadı"
 
 #: src/lib/subedit/core/wording/transcription.cpp
-#, fuzzy
 msgid "the audio could not be extracted: %1"
-msgstr "video oynatıcı başlatılamadı"
+msgstr "ses çıkarılamadı: %1"
 
 #: src/lib/subedit/core/wording/transcription.cpp
 msgid "the video has no audio track"
-msgstr ""
+msgstr "videoda hiç ses izi yok"
 
 #: src/lib/subedit/core/wording/transcription.cpp
 msgid "no language or title"
-msgstr ""
+msgstr "dil veya başlık yok"
 
 #: src/lib/subedit/core/wording/transcription.cpp
-#, fuzzy
 msgid "audio track %1: %2"
-msgstr "altyazı %1: %2"
+msgstr "ses izi %1: %2"
 
 #: src/lib/subedit/core/wording/transcription.cpp
 msgid "no transcription engine is called %1"
-msgstr ""
+msgstr "%1 adlı bir yazıya dökme motoru yok"
 
 #: src/lib/subedit/core/wording/transcription.cpp
-#, fuzzy
 msgid "%1 subtitle transcribed, language: %2"
 msgid_plural "%1 subtitles transcribed, language: %2"
-msgstr[0] "%1 altyazı %2 ve %3 üzerine dönüştürüldü"
-msgstr[1] "%1 altyazı %2 ve %3 üzerine dönüştürüldü"
+msgstr[0] "%1 altyazı yazıya döküldü, dil: %2"
+msgstr[1] "%1 altyazı yazıya döküldü, dil: %2"
 
 #: src/lib/subedit/core/wording/transcription.cpp
 msgid ""
@@ -3430,12 +3421,13 @@ msgid_plural ""
 "The %1 subtitles of this project will be replaced by the transcription. You "
 "can undo it."
 msgstr[0] ""
+"Bu projenin %1 altyazısı yazıya dökmeyle değiştirilecek. Geri alabilirsiniz."
 msgstr[1] ""
+"Bu projenin %1 altyazısı yazıya dökmeyle değiştirilecek. Geri alabilirsiniz."
 
 #: src/lib/subedit/core/wording/transcription.cpp
-#, fuzzy
 msgid "transcribing: %1%"
-msgstr "çeviri: %1"
+msgstr "yazıya dökme: %1%"
 
 #: src/lib/subedit/core/wording/translation.cpp
 msgid "translation: the file holds no line"
@@ -4326,6 +4318,14 @@ msgid "Select Video"
 msgstr "Video Seç"
 
 #: src/lib/subedit/gui/qt_prompts.cpp
+msgid "Choose a model"
+msgstr "Model seç"
+
+#: src/lib/subedit/gui/qt_prompts.cpp
+msgid "Models (*.bin);;All files (*)"
+msgstr "Modeller (*.bin);;Tüm dosyalar (*)"
+
+#: src/lib/subedit/gui/qt_prompts.cpp
 msgid "The translation is no longer where it was read from."
 msgstr "Çeviri artık okunduğu yerde değil."
 
@@ -4361,9 +4361,8 @@ msgstr ""
 "Yeniden açılsın mı, taşınmış olabilir?"
 
 #: src/lib/subedit/gui/qt_prompts.cpp
-#, fuzzy
 msgid "Replace the subtitles?"
-msgstr "Altyazıları onar"
+msgstr "Altyazılar değiştirilsin mi?"
 
 #: src/lib/subedit/gui/save_shape.cpp
 msgid "Western"
@@ -4626,33 +4625,36 @@ msgstr "Ana"
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
 msgid "Browse…"
-msgstr ""
+msgstr "Gözat…"
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
 #: src/lib/subedit/gui/transcription_runner.cpp
 msgid "Transcribe audio"
-msgstr ""
+msgstr "Sesi yazıya dök"
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
 msgid "First audio track"
-msgstr ""
+msgstr "İlk ses izi"
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
-#, fuzzy
 msgid "Detected"
-msgstr "%1, algılandı"
+msgstr "Algılandı"
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
 msgid ""
 "A two-letter language code such as en or fr. Leave it empty to let the model "
 "detect the language."
 msgstr ""
+"en veya fr gibi iki harfli bir dil kodu. Modelin dili algılaması için boş "
+"bırakın."
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
 msgid ""
 "The model file the engine reads. It is not shipped with the program: the "
 "manual says where to find one."
 msgstr ""
+"Motorun okuduğu model dosyası. Programla birlikte gelmez: kılavuz nerede "
+"bulunacağını söyler."
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
 msgid ""
@@ -4660,28 +4662,20 @@ msgid ""
 "replace the ones of the project. The work runs in the background and can be "
 "cancelled."
 msgstr ""
+"Bu pencerede açık olan filmin sesi, projenin altyazılarının yerine geçen "
+"altyazılara dönüştürülür. İş arka planda çalışır ve iptal edilebilir."
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
 msgid "Audio track"
-msgstr ""
+msgstr "Ses izi"
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
-#, fuzzy
 msgid "Language"
-msgstr "Dil:"
+msgstr "Dil"
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
 msgid "Model"
-msgstr ""
-
-#: src/lib/subedit/gui/transcribe_dialog.cpp
-msgid "Choose a model"
-msgstr ""
-
-#: src/lib/subedit/gui/transcribe_dialog.cpp
-#, fuzzy
-msgid "Models (*.bin);;All files (*)"
-msgstr "Tüm dosyalar (*)"
+msgstr "Model"
 
 #: src/lib/subedit/gui/transcription_runner.cpp
 #: src/lib/subedit/gui/unsaved_documents_dialog.cpp
@@ -4690,7 +4684,7 @@ msgstr "İptal"
 
 #: src/lib/subedit/gui/transcription_runner.cpp
 msgid "Transcribing the audio…"
-msgstr ""
+msgstr "Ses yazıya dökülüyor…"
 
 #: src/lib/subedit/gui/transform_dialog.cpp
 msgid "Transform positions"
@@ -4845,7 +4839,7 @@ msgstr "Konumlar &Karelerle"
 
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "Transcribe Audio…"
-msgstr ""
+msgstr "Sesi Yazıya Dök…"
 
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "Play / Pause"

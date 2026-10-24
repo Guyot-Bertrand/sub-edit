@@ -3,12 +3,13 @@
 <!-- machine-translated -->
 > Diese Seite ist eine maschinelle Übersetzung und wurde noch von keiner Leserin und keinem Leser dieser Sprache geprüft.
 
-Das Menü **Video** enthält zunächst zwei Befehle, und die Handgriffe, die den Film steuern
+Das Menü **Video** enthält zunächst drei Befehle, und die Handgriffe, die den Film steuern
 — siehe [Der Player](player.md#sich-im-film-bewegen).
 
 | Befehl | Tastenkürzel | Was er tut |
 | :------ | :------- | :----------- |
 | Video auswählen … | keines | wählt die Videodatei, zu der das Dokument gehört |
+| Audio transkribieren … | keines | transkribiert das Audio des Films in Untertitel, die die des Projekts ersetzen — siehe [Das Audio transkribieren](#das-audio-transkribieren) |
 | Wiedergabe / Pause | `Ctrl+P` | spielt das Video ab oder hält es an — siehe [Der Player](player.md#abspielen-und-anhalten) |
 
 Das verknüpfte Video ist **eine Eigenschaft des geöffneten Dokuments**, keine Einstellung
@@ -101,6 +102,37 @@ danach.
 dieses Dokument gehört —, und eine dritte Angabe würde sie auf dieselbe Stufe stellen wie
 das [aus den Positionen abgeleitete Raster](frame-grid.md), das eine andere ist.
 
+## Das Audio transkribieren
+
+**`Transcribe Audio…`** schreibt die Sprache des Films als Untertitel. Der Befehl ist ausgeschaltet, bis ein Film geöffnet ist: Es ist
+das Audio **des Films des Projekts**, nie eine Datei, die Sie auswählen würden — um eine
+Audiodatei zu transkribieren, verwenden Sie [`transcribe`](../subedit-cli/transcribe.md) in der Befehlszeile.
+
+Der Dialog fragt nach drei Dingen:
+
+- **der Tonspur**, aufgelistet, wie das Menü [`Audio`](#die-tonspur) sie auflistet, mit der Sprache
+  und dem Titel, die die Datei angibt;
+- **der Sprache**, zwei Buchstaben wie `en` oder `fr`. Sie beginnt mit der Sprache der gewählten
+  Spur, wenn die Datei eine angibt, folgt der Spur, solange Sie keine eingegeben haben, und
+  leer gelassen überlässt sie dem Modell, die Sprache zu **erkennen**;
+- **dem Modell**, einer Datei, mit einer Schaltfläche `Browse…`.
+
+Die Auswahl wird für das nächste Mal gemerkt. Die Engine selbst und die Grenzen der Untertitel sind
+[Einstellungen](preferences.md) (`transcription.*`).
+
+**Enthält das Projekt bereits Untertitel, fragt das Fenster nach, bevor es sie ersetzt**, und sagt,
+wie viele verschwinden. Es fragt vor der Arbeit, damit das Ablehnen nichts kostet. Ist das Projekt leer, gibt es
+nichts zu fragen.
+
+Die Arbeit läuft **im Hintergrund**, mit einem Feld, das zeigt, wie weit die Engine gekommen ist, und einer Schaltfläche `Cancel`;
+das Fenster bleibt drumherum benutzbar. Wenn sie endet, werden die Untertitel des Projekts durch die
+Transkription ersetzt, **als ein einziger Vorgang**: Ein einziges `Undo` gibt zurück, was da war, die Texte der
+Übersetzung eingeschlossen. Eine Transkription, die fehlschlägt oder die Sie abbrechen, ändert nichts — der Grund wird
+in einem Feld genannt, außer bei einem Abbruch, der in der Statusleiste nur sagt, dass abgebrochen wurde.
+
+**Was sie braucht, wird nicht ausgeliefert**: eine Engine (whisper.cpp), ein Modell und `ffmpeg`, um das Audio zu extrahieren.
+Fehlt eines, sagt das Feld welches und verweist auf
+[Die Transkriptionswerkzeuge installieren](../subedit-cli/install-transcription.md).
 ## Wenn es keinen Film gibt
 
 Das Fenster zeigt eine Schaltfläche **`Select Video…`** dort, wo das Bild stünde, statt
@@ -135,6 +167,8 @@ braucht `ffprobe` überhaupt nicht: Er stützt sich auf `libmpv`, das eine
 Abhängigkeit des Builds ist. Die Dauer des Films, die verwendet wird, um zu melden, was
 über das Ende hinausgeht, kommt vom Player und nicht von `ffprobe`.
 
+**Die Transkription ist das Einzige, was `ffmpeg` braucht**: Es extrahiert das Audio des Films. Siehe
+[Die Transkriptionswerkzeuge installieren](../subedit-cli/install-transcription.md).
 Es ist daher kein eingeschränkter Modus, sondern **der normale Betrieb** eines Rechners,
 der `ffmpeg` nie installiert hat: Die Angabe kommt vom Benutzer, und `ffprobe`
 schlägt sie vor, wenn es vorhanden ist.

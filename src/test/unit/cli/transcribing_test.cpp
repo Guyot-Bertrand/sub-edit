@@ -8,6 +8,7 @@
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/matchers/catch_matchers_string.hpp>
 
+#include <array>
 #include <filesystem>
 #include <fstream>
 #include <iterator>
@@ -206,13 +207,13 @@ TEST_CASE("the format comes from --to, else from the extension, else SubRip", "[
 }
 
 TEST_CASE("each way an engine can fail has an identifier a script can test", "[cli][transcribe]") {
-    const std::pair<TranscriptionErrorKind, std::string> kinds[] = {
+    const std::array<std::pair<TranscriptionErrorKind, std::string>, 5> kinds{{
         {TranscriptionErrorKind::EngineMissing, "engine-missing"},
         {TranscriptionErrorKind::ModelMissing, "model-missing"},
         {TranscriptionErrorKind::AudioUnreadable, "audio-unreadable"},
         {TranscriptionErrorKind::Failed, "failed"},
         {TranscriptionErrorKind::Cancelled, "cancelled"},
-    };
+    }};
     for (const auto& [kind, identifier] : kinds) {
         World world;
         world.engines = EngineRegistry{};
@@ -286,4 +287,26 @@ TEST_CASE("the extracted audio is kept where --keep-audio says, directories made
     CHECK(code == ExitCode::Success);
     CHECK(std::filesystem::exists(kept));
     CHECK_THAT(world.records.str(), ContainsSubstring("\"audio\":\"" + kept.string() + "\""));
+}
+
+TEST_CASE("a transcription that is stopped fails the file with a cancellation",
+          "[cli][transcribe]") {
+    World world;
+    const auto sample = world.scratch.write("sample.wav", "pcm");
+    (void)world.scratch.standIn("ffmpeg", kFake, "--linger=30");
+    const Reporter reporter =
+        Reporter{world.errors, 1}.withRecords(world.records).forCommand("transcribe");
+
+    const ExitCode code = subedit::cli::transcribeFile(
+        world.files,
+        world.engines,
+        world.scratch.path().string(),
+        TranscribeOptions{.input = world.video.string(), .output = world.output.string()},
+        world.settings,
+        reporter,
+        [] { return true; });
+
+    CHECK(code == ExitCode::AllFailed);
+    CHECK_THAT(world.records.str(), ContainsSubstring("\"kind\":\"cancelled\""));
+    (void)sample;
 }

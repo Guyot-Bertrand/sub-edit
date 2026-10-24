@@ -139,6 +139,12 @@ seguinte.
 | `correction.join-split.join`, `correction.join-split.split` | `true` ou `false` — unir, dividir | `true`, `false` |
 | `correction.join-split.language` | um código de localização — `fr`, `en_US`, `sr@Latn` —; vazio: o idioma do sistema | vazio |
 | `correction.remove-blank` | `true` ou `false` — `Remove all blank subtitles` | `true` |
+| `transcription.engine` | o nome do motor: letras minúsculas, algarismos, `.`, `-` e `_` | `whisper.cpp` |
+| `transcription.executable`, `transcription.model` | um caminho absoluto; vazio: o motor é procurado no `PATH`, e nenhum modelo é definido | vazio |
+| `transcription.language` | duas letras minúsculas, um código ISO 639-1; vazio: o idioma é detetado | vazio |
+| `transcription.merge-gap-ms` | os pedaços de uma mesma frase mais próximos do que este valor são unidos, em milissegundos, inteiro e não negativo | `400` |
+| `transcription.max-duration-ms` | o tempo máximo que uma legenda transcrita fica no ecrã, em milissegundos, de 1 a 3600000 | `7000` |
+| `transcription.max-characters` | o número máximo de carateres de uma legenda transcrita, de 1 a 1000 | `84` |
 | `correction.activations` | as caixas de seleção dos padrões que o utilizador alterou, `<type>:<code>:<name>:<0\|1>`, separadas por vírgulas; **uma vírgula ou uma barra invertida num nome escreve-se precedida de uma barra invertida** (`\,` e `\\`), e uma entrada ilegível só perde a sua própria definição — é comunicada, as outras são mantidas | vazio |
 | `spell-check.language` | um código de localização, como `fr_FR`; vazio: o idioma do sistema | vazio |
 | `spell-check.target` | `selection`, `current-project` ou `all-projects` | `current-project` |

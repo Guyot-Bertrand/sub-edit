@@ -5,6 +5,8 @@
 #include <QDialog>
 
 #include <filesystem>
+#include <functional>
+#include <optional>
 #include <span>
 #include <string>
 #include <vector>
@@ -40,10 +42,15 @@ class TranscribeDialog final : public QDialog {
     Q_OBJECT
 
 public:
+    /// Asks which model to take, from where the field stands.
+    using ModelChooser =
+        std::function<std::optional<std::filesystem::path>(const std::filesystem::path& current)>;
+
     /// `tracks` are the film's, in order; there may be none, and the box then offers the
     /// first track all the same, which is the one ffmpeg takes.
     TranscribeDialog(std::vector<core::AudioTrack> tracks,
                      const TranscribeChoice& initial,
+                     ModelChooser chooser,
                      QWidget* parent = nullptr);
 
     /// The form as the fields say it.
@@ -62,6 +69,7 @@ private:
     void chooseModel();
 
     std::vector<core::AudioTrack> m_tracks;
+    ModelChooser m_chooser;
     QComboBox* m_track;
     QLineEdit* m_language;
     QLineEdit* m_model;

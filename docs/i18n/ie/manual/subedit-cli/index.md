@@ -45,4 +45,6 @@ u comensar, vide
 | [`append`](append.md) | mettre files pos li unesim, in un sol file |
 | [`split-file`](split-file.md) | separar un file in du, li cauda reportat al origine |
 | [`pair`](pair.md) | scrir un traduction a li positiones de su file principal, e dir qualmen su lineas esset alliniat |
+| [`transcribe`](transcribe.md) | scrir li parol de un video o de un file audio quam subtitules |
+| [Instalar li utensiles de transcription](install-transcription.md) | li motor, li model e `ffmpeg`, quel li programma ne livra |
 | [`config`](config.md) | listar, monstrar e changear li parametres de operation partit con li fenestre |

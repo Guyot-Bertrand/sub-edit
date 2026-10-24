@@ -3,6 +3,7 @@
 #include <subedit/cli/transcribing.hpp>
 #include <subedit/cli/writing.hpp>
 #include <subedit/core/i18n/messages.hpp>
+#include <subedit/core/io/atomic_write.hpp>
 #include <subedit/core/model/subtitle.hpp>
 #include <subedit/core/transcription/audio_source.hpp>
 #include <subedit/core/transcription/subtitle_assembly.hpp>
@@ -24,6 +25,8 @@ namespace subedit::cli {
 namespace {
 
 using core::TranscriptionErrorKind;
+
+constexpr double kPercent = 100.0;
 
 [[nodiscard]] std::string_view idOf(TranscriptionErrorKind kind) {
     switch (kind) {
@@ -103,7 +106,8 @@ ExitCode transcribeFile(core::FileSystem& files,
                         std::string_view searchPath,
                         const TranscribeOptions& options,
                         const core::TranscriptionSettings& settings,
-                        const Reporter& reporter) {
+                        const Reporter& reporter,
+                        const std::function<bool()>& cancelled) {
     const std::string engineName = options.engine.empty() ? settings.engine : options.engine;
     const core::TranscriptionEngine* const engine = engines.find(engineName);
     if (engine == nullptr) {
@@ -123,9 +127,13 @@ ExitCode transcribeFile(core::FileSystem& files,
     if (!modelPath.empty())
         request.model = modelPath;
 
-    const core::TranscriptionObserver observer{.progress = [&reporter](double fraction) {
-        reporter.say(2, core::transcriptionProgressText(static_cast<int>(fraction * 100)));
-    }};
+    const core::TranscriptionObserver observer{
+        .progress =
+            [&reporter](double fraction) {
+                reporter.say(
+                    2, core::transcriptionProgressText(static_cast<int>(fraction * kPercent)));
+            },
+        .cancelled = cancelled};
     const auto transcribed = core::transcribeMedia(files, *engine, searchPath, request, observer);
     if (!transcribed) {
         reportFailure(reporter, options.input, failureOf(transcribed.error()));
@@ -136,7 +144,7 @@ ExitCode transcribeFile(core::FileSystem& files,
         options.raw ? rawSubtitlesOf(*transcribed)
                     : core::assembleSubtitles(transcribed->segments, core::assemblyOf(settings));
 
-    (void)files.createDirectories(std::filesystem::path{options.output}.parent_path());
+    core::ensureDirectory(files, std::filesystem::path{options.output}.parent_path());
     const core::SubtitleFormat format = formatToWrite(options);
     const auto written = writeSubtitlesTo(files, options.output, format, {.subtitles = subtitles});
     if (!written) {

@@ -138,6 +138,12 @@ die zwei Blöcke gab, wird unverändert gelesen und beim nächsten Schließen in
 | `correction.join-split.join`, `correction.join-split.split` | `true` oder `false` — zusammenfügen, trennen | `true`, `false` |
 | `correction.join-split.language` | ein Locale-Code — `fr`, `en_US`, `sr@Latn` —; leer: die Sprache des Systems | leer |
 | `correction.remove-blank` | `true` oder `false` — `Remove all blank subtitles` | `true` |
+| `transcription.engine` | der Name der Engine: Kleinbuchstaben, Ziffern, `.`, `-` und `_` | `whisper.cpp` |
+| `transcription.executable`, `transcription.model` | ein absoluter Pfad; leer: Die Engine wird im `PATH` gesucht, und es ist kein Modell gesetzt | leer |
+| `transcription.language` | zwei Kleinbuchstaben, ein ISO-639-1-Code; leer: Die Sprache wird erkannt | leer |
+| `transcription.merge-gap-ms` | Teile eines Satzes, die näher beieinander liegen, werden zusammengefügt, in Millisekunden, ganz und nicht negativ | `400` |
+| `transcription.max-duration-ms` | die längste Dauer, die ein transkribierter Untertitel auf dem Bildschirm bleibt, in Millisekunden, von 1 bis 3600000 | `7000` |
+| `transcription.max-characters` | die höchste Zeichenzahl eines transkribierten Untertitels, von 1 bis 1000 | `84` |
 | `correction.activations` | die Kontrollkästchen der Muster, die der Benutzer geändert hat, `<type>:<code>:<name>:<0\|1>`, durch Kommas getrennt; **ein Komma oder ein Backslash in einem Namen wird mit vorangestelltem Backslash geschrieben** (`\,` und `\\`), und ein unlesbarer Eintrag verliert nur seine eigene Einstellung — er wird gemeldet, die anderen bleiben erhalten | leer |
 | `spell-check.language` | ein Locale-Code, etwa `fr_FR`; leer: die Sprache des Systems | leer |
 | `spell-check.target` | `selection`, `current-project` oder `all-projects` | `current-project` |

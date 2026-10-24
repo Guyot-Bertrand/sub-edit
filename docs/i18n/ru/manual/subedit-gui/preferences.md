@@ -138,6 +138,12 @@
 | `correction.join-split.join`, `correction.join-split.split` | `true` или `false` — объединять, разделять | `true`, `false` |
 | `correction.join-split.language` | код локали — `fr`, `en_US`, `sr@Latn` —; пусто: язык системы | пусто |
 | `correction.remove-blank` | `true` или `false` — `Remove all blank subtitles` | `true` |
+| `transcription.engine` | название движка: строчные буквы, цифры, `.`, `-` и `_` | `whisper.cpp` |
+| `transcription.executable`, `transcription.model` | абсолютный путь; пусто: движок ищется в `PATH`, а модель не задана | пусто |
+| `transcription.language` | две строчные буквы, код ISO 639-1; пусто: язык определяется автоматически | пусто |
+| `transcription.merge-gap-ms` | части одного предложения, расстояние между которыми меньше этого значения, объединяются; в миллисекундах, целое неотрицательное число | `400` |
+| `transcription.max-duration-ms` | наибольшая длительность показа расшифрованного субтитра на экране, в миллисекундах, от 1 до 3600000 | `7000` |
+| `transcription.max-characters` | наибольшее число символов в расшифрованном субтитре, от 1 до 1000 | `84` |
 | `correction.activations` | флажки шаблонов, которые изменил пользователь, `<type>:<code>:<name>:<0\|1>`, через запятую; **запятая или обратная косая черта в названии записывается с обратной косой чертой перед ней** (`\,` и `\\`), а нечитаемая запись теряет только свою настройку — о ней сообщается, остальные сохраняются | пусто |
 | `spell-check.language` | код локали, например `fr_FR`; пусто: язык системы | пусто |
 | `spell-check.target` | `selection`, `current-project` или `all-projects` | `current-project` |

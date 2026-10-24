@@ -1068,46 +1068,44 @@ msgstr "--head i --tail van junts: indiqueu-los tots dos, o cap amb --dry-run"
 
 #: src/exe/cli/commands/transcribe.cpp
 msgid "Write the speech of a video or an audio file as subtitles"
-msgstr ""
+msgstr "Escriu la parla d'un vídeo o d'un fitxer d'àudio en forma de subtítols"
 
 #: src/exe/cli/commands/transcribe.cpp
 msgid "Video or audio file to transcribe"
-msgstr ""
+msgstr "Vídeo o fitxer d'àudio que cal transcriure"
 
 #: src/exe/cli/commands/transcribe.cpp
-#, fuzzy
 msgid "Subtitle file to write"
-msgstr "Fitxers de subtítols que cal ordenar"
+msgstr "Fitxer de subtítols que cal escriure"
 
 #: src/exe/cli/commands/transcribe.cpp
 msgid "Format to write; the one the extension of --output says by default"
 msgstr ""
+"Format que cal escriure; per defecte, el que diu l'extensió de --output"
 
 #: src/exe/cli/commands/transcribe.cpp
 msgid "Audio track of a video, counted from 0; the first by default"
-msgstr ""
+msgstr "Pista d'àudio d'un vídeo, comptada des de 0; per defecte, la primera"
 
 #: src/exe/cli/commands/transcribe.cpp
-#, fuzzy
 msgid "Language of the speech: fr, en; detected by default"
-msgstr "Codificació amb què es llegeixen els fitxers; detectada per defecte"
+msgstr "Llengua de la parla: fr, en; detectada per defecte"
 
 #: src/exe/cli/commands/transcribe.cpp
 msgid "Model file; the transcription.model setting by default"
-msgstr ""
+msgstr "Fitxer de model; per defecte, el paràmetre transcription.model"
 
 #: src/exe/cli/commands/transcribe.cpp
 msgid "Engine; the transcription.engine setting by default"
-msgstr ""
+msgstr "Motor; per defecte, el paràmetre transcription.engine"
 
 #: src/exe/cli/commands/transcribe.cpp
-#, fuzzy
 msgid "Keep the extracted audio in this file"
-msgstr "la freqüència del fitxer"
+msgstr "Conserva l'àudio extret en aquest fitxer"
 
 #: src/exe/cli/commands/transcribe.cpp
 msgid "Write the segments as the engine cut them"
-msgstr ""
+msgstr "Escriu els segments tal com el motor els ha tallat"
 
 #: src/exe/cli/commands/transform.cpp
 msgid "Correct every position from two points known to be right"
@@ -2191,30 +2189,28 @@ msgstr "un nombre enter de l'1 al 1000: 2, 3"
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "the name of an engine: lower-case letters, digits, '.', '-' or '_'"
-msgstr ""
+msgstr "el nom d'un motor: lletres minúscules, xifres, «.», «-» o «_»"
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "an absolute path; empty for none"
-msgstr ""
+msgstr "un camí absolut; buit per a cap"
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "two lower-case letters, an ISO 639-1 code: en, fr; empty to detect it"
 msgstr ""
+"dues lletres minúscules, un codi ISO 639-1: en, fr; buit per detectar-la"
 
 #: src/lib/subedit/core/config/operation_settings.cpp
-#, fuzzy
 msgid "a whole number of milliseconds, 1 to 3600000"
-msgstr "un nombre enter de mil·lisegons, 0 o més"
+msgstr "un nombre enter de mil·lisegons, d'1 a 3600000"
 
 #: src/lib/subedit/core/config/operation_settings.cpp
-#, fuzzy
 msgid "a whole number from 1 to 1000"
-msgstr "un nombre enter de l'1 al 1000: 2, 3"
+msgstr "un nombre enter d'1 a 1000"
 
 #: src/lib/subedit/core/config/operation_settings.cpp
-#, fuzzy
 msgid "subedit-cli transcribe; Transcribe Audio…"
-msgstr "subedit-cli correct; Corregeix els textos…"
+msgstr "subedit-cli transcribe; Transcriu l'àudio…"
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "subedit-cli adjust; Adjust Durations…"
@@ -2432,31 +2428,32 @@ msgstr ""
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "The engine that transcribes the audio."
-msgstr ""
+msgstr "El motor que transcriu l'àudio."
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "The engine's program; searched for when empty."
-msgstr ""
+msgstr "El programa del motor; es cerca al PATH quan és buit."
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "The model file the engine reads."
-msgstr ""
+msgstr "El fitxer de model que llegeix el motor."
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "The language of the audio; detected when empty."
-msgstr ""
+msgstr "La llengua de l'àudio; es detecta quan és buida."
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "Pieces of one sentence closer than this are joined."
 msgstr ""
+"Els trossos d'una mateixa frase més propers que aquesta durada s'uneixen."
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "Longest a transcribed subtitle stays on screen."
-msgstr ""
+msgstr "Durada màxima d'un subtítol transcrit a la pantalla."
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "Most characters a transcribed subtitle holds."
-msgstr ""
+msgstr "Nombre màxim de caràcters d'un subtítol transcrit."
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "%1 is managed by the window; use --enable/--disable on correct"
@@ -2812,7 +2809,7 @@ msgstr "unió dels subtítols repetits"
 
 #: src/lib/subedit/core/wording/analysis.cpp
 msgid "transcribing the audio"
-msgstr ""
+msgstr "la transcripció de l'àudio"
 
 #. TRANSLATORS: how well the positions fall on a frame-rate grid: clean,
 #. partial, or none at all.
@@ -3365,84 +3362,80 @@ msgid ""
 "See the manual page \"Installing the transcription tools\" (install-"
 "transcription)."
 msgstr ""
+"Vegeu la pàgina del manual «Instal·lació de les eines de "
+"transcripció» (install-transcription)."
 
 #: src/lib/subedit/core/wording/transcription.cpp
 msgid "the transcription engine was not found"
-msgstr ""
+msgstr "no s'ha trobat el motor de transcripció"
 
 #: src/lib/subedit/core/wording/transcription.cpp
 msgid "no model was given, or the model file is not there"
-msgstr ""
+msgstr "no s'ha donat cap model, o el fitxer de model no hi és"
 
 #: src/lib/subedit/core/wording/transcription.cpp
 msgid "the model cannot transcribe the language %1"
-msgstr ""
+msgstr "el model no pot transcriure la llengua %1"
 
 #: src/lib/subedit/core/wording/transcription.cpp
 msgid "the model cannot detect the language: give one"
-msgstr ""
+msgstr "el model no pot detectar la llengua: indiqueu-ne una"
 
 #: src/lib/subedit/core/wording/transcription.cpp
-#, fuzzy
 msgid "the audio could not be read"
-msgstr "No s'ha pogut llegir %1."
+msgstr "no s'ha pogut llegir l'àudio"
 
 # From Gaupol.
 #: src/lib/subedit/core/wording/transcription.cpp
-#, fuzzy
 msgid "the transcription failed"
-msgstr "Xinès tradicional"
+msgstr "la transcripció ha fallat"
 
 #: src/lib/subedit/core/wording/transcription.cpp
-#, fuzzy
 msgid "the transcription failed: %1"
-msgstr "traducció: %1"
+msgstr "la transcripció ha fallat: %1"
 
 #: src/lib/subedit/core/wording/transcription.cpp
 msgid "the transcription was cancelled"
-msgstr ""
+msgstr "la transcripció s'ha cancel·lat"
 
 #: src/lib/subedit/core/wording/transcription.cpp
 msgid "ffmpeg was not found, so the audio of a video cannot be extracted"
 msgstr ""
+"no s'ha trobat ffmpeg, de manera que no es pot extreure l'àudio d'un vídeo"
 
 #: src/lib/subedit/core/wording/transcription.cpp
 msgid "the video has no audio track %1"
-msgstr ""
+msgstr "el vídeo no té la pista d'àudio %1"
 
 #: src/lib/subedit/core/wording/transcription.cpp
-#, fuzzy
 msgid "the audio could not be extracted"
-msgstr "no s'ha pogut iniciar el reproductor de vídeo"
+msgstr "no s'ha pogut extreure l'àudio"
 
 #: src/lib/subedit/core/wording/transcription.cpp
-#, fuzzy
 msgid "the audio could not be extracted: %1"
-msgstr "no s'ha pogut iniciar el reproductor de vídeo"
+msgstr "no s'ha pogut extreure l'àudio: %1"
 
 #: src/lib/subedit/core/wording/transcription.cpp
 msgid "the video has no audio track"
-msgstr ""
+msgstr "el vídeo no té cap pista d'àudio"
 
 #: src/lib/subedit/core/wording/transcription.cpp
 msgid "no language or title"
-msgstr ""
+msgstr "ni llengua ni títol"
 
 #: src/lib/subedit/core/wording/transcription.cpp
-#, fuzzy
 msgid "audio track %1: %2"
-msgstr "subtítol que %1: %2"
+msgstr "pista d'àudio %1: %2"
 
 #: src/lib/subedit/core/wording/transcription.cpp
 msgid "no transcription engine is called %1"
-msgstr ""
+msgstr "cap motor de transcripció es diu %1"
 
 #: src/lib/subedit/core/wording/transcription.cpp
-#, fuzzy
 msgid "%1 subtitle transcribed, language: %2"
 msgid_plural "%1 subtitles transcribed, language: %2"
-msgstr[0] "%1 subtítol transformat sobre %2 i %3"
-msgstr[1] "%1 subtítols transformats sobre %2 i %3"
+msgstr[0] "%1 subtítol transcrit, llengua: %2"
+msgstr[1] "%1 subtítols transcrits, llengua: %2"
 
 #: src/lib/subedit/core/wording/transcription.cpp
 msgid ""
@@ -3452,12 +3445,15 @@ msgid_plural ""
 "The %1 subtitles of this project will be replaced by the transcription. You "
 "can undo it."
 msgstr[0] ""
+"El %1 subtítol d'aquest projecte serà substituït per la transcripció. Ho "
+"podeu desfer."
 msgstr[1] ""
+"Els %1 subtítols d'aquest projecte seran substituïts per la transcripció. Ho "
+"podeu desfer."
 
 #: src/lib/subedit/core/wording/transcription.cpp
-#, fuzzy
 msgid "transcribing: %1%"
-msgstr "traducció: %1"
+msgstr "transcripció: %1%"
 
 #: src/lib/subedit/core/wording/translation.cpp
 msgid "translation: the file holds no line"
@@ -4360,6 +4356,14 @@ msgid "Select Video"
 msgstr "Selecciona un vídeo"
 
 #: src/lib/subedit/gui/qt_prompts.cpp
+msgid "Choose a model"
+msgstr "Trieu un model"
+
+#: src/lib/subedit/gui/qt_prompts.cpp
+msgid "Models (*.bin);;All files (*)"
+msgstr "Models (*.bin);;Tots els fitxers (*)"
+
+#: src/lib/subedit/gui/qt_prompts.cpp
 msgid "The translation is no longer where it was read from."
 msgstr "La traducció ja no és on es va llegir."
 
@@ -4395,9 +4399,8 @@ msgstr ""
 "Voleu tornar-lo a obrir a la nova ubicació?"
 
 #: src/lib/subedit/gui/qt_prompts.cpp
-#, fuzzy
 msgid "Replace the subtitles?"
-msgstr "Repara els subtítols"
+msgstr "Voleu substituir els subtítols?"
 
 # From Gaupol.
 #: src/lib/subedit/gui/save_shape.cpp
@@ -4666,33 +4669,36 @@ msgstr "Principal"
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
 msgid "Browse…"
-msgstr ""
+msgstr "Explora…"
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
 #: src/lib/subedit/gui/transcription_runner.cpp
 msgid "Transcribe audio"
-msgstr ""
+msgstr "Transcriu l'àudio"
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
 msgid "First audio track"
-msgstr ""
+msgstr "Primera pista d'àudio"
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
-#, fuzzy
 msgid "Detected"
-msgstr "%1, detectada"
+msgstr "Detectada"
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
 msgid ""
 "A two-letter language code such as en or fr. Leave it empty to let the model "
 "detect the language."
 msgstr ""
+"Un codi de llengua de dues lletres, com en o fr. Deixeu-lo buit perquè el "
+"model detecti la llengua."
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
 msgid ""
 "The model file the engine reads. It is not shipped with the program: the "
 "manual says where to find one."
 msgstr ""
+"El fitxer de model que llegeix el motor. No es lliura amb el programa: el "
+"manual diu on trobar-ne un."
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
 msgid ""
@@ -4700,28 +4706,21 @@ msgid ""
 "replace the ones of the project. The work runs in the background and can be "
 "cancelled."
 msgstr ""
+"L'àudio de la pel·lícula oberta en aquesta finestra es transcriu en "
+"subtítols que substitueixen els del projecte. La feina es fa en segon pla i "
+"es pot cancel·lar."
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
 msgid "Audio track"
-msgstr ""
+msgstr "Pista d'àudio"
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
-#, fuzzy
 msgid "Language"
-msgstr "Llengua:"
+msgstr "Llengua"
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
 msgid "Model"
-msgstr ""
-
-#: src/lib/subedit/gui/transcribe_dialog.cpp
-msgid "Choose a model"
-msgstr ""
-
-#: src/lib/subedit/gui/transcribe_dialog.cpp
-#, fuzzy
-msgid "Models (*.bin);;All files (*)"
-msgstr "Tots els fitxers (*)"
+msgstr "Model"
 
 #: src/lib/subedit/gui/transcription_runner.cpp
 #: src/lib/subedit/gui/unsaved_documents_dialog.cpp
@@ -4730,7 +4729,7 @@ msgstr "Cancel·la"
 
 #: src/lib/subedit/gui/transcription_runner.cpp
 msgid "Transcribing the audio…"
-msgstr ""
+msgstr "Transcripció de l'àudio…"
 
 #: src/lib/subedit/gui/transform_dialog.cpp
 msgid "Transform positions"
@@ -4890,7 +4889,7 @@ msgstr "Posicions en &fotogrames"
 
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "Transcribe Audio…"
-msgstr ""
+msgstr "Transcriu l'àudio…"
 
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "Play / Pause"

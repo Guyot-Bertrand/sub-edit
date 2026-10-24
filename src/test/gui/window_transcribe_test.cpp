@@ -16,6 +16,7 @@
 #include <QAction>
 #include <QComboBox>
 #include <QLineEdit>
+#include <QPushButton>
 #include <QStatusBar>
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/matchers/catch_matchers_string.hpp>
@@ -62,6 +63,12 @@ const std::filesystem::path kFake{SUBEDIT_FAKE_TRANSCRIBER_BINARY};
 const std::vector<AudioTrack> kTracks{
     {.id = 1, .language = "fra", .title = "Original", .selected = true},
     {.id = 2, .language = "eng", .title = "Commentary", .selected = false}};
+
+/// A dialog's chooser that is never asked.
+[[nodiscard]] std::optional<std::filesystem::path>
+noChooser(const std::filesystem::path& /*current*/) {
+    return std::nullopt;
+}
 
 [[nodiscard]] InMemoryFileSystem directoryHolding() {
     InMemoryFileSystem files;
@@ -123,7 +130,7 @@ struct Stage {
 
 TEST_CASE("the dialog offers the tracks of the film and follows the declared language",
           "[gui][GUI-TRANSCRIBE-01]") {
-    TranscribeDialog dialog{kTracks, {}};
+    const TranscribeDialog dialog{kTracks, {}, noChooser};
 
     CHECK(dialog.trackBox()->count() == 2);
     CHECK(dialog.languageEdit()->text() == "fr");
@@ -134,7 +141,7 @@ TEST_CASE("the dialog offers the tracks of the film and follows the declared lan
 }
 
 TEST_CASE("a language that was typed is kept when the track changes", "[gui][GUI-TRANSCRIBE-01]") {
-    TranscribeDialog dialog{kTracks, {}};
+    const TranscribeDialog dialog{kTracks, {}, noChooser};
 
     dialog.languageEdit()->setText("de");
     QMetaObject::invokeMethod(
@@ -146,14 +153,15 @@ TEST_CASE("a language that was typed is kept when the track changes", "[gui][GUI
 
 TEST_CASE("a language from the settings starts the field, and the model comes with it",
           "[gui][GUI-TRANSCRIBE-01]") {
-    TranscribeDialog dialog{kTracks, {.track = 1, .language = "es", .model = "/models/small.bin"}};
+    const TranscribeDialog dialog{
+        kTracks, {.track = 1, .language = "es", .model = "/models/small.bin"}, noChooser};
 
     CHECK(dialog.choice() ==
           TranscribeChoice{.track = 1, .language = "es", .model = "/models/small.bin"});
 }
 
 TEST_CASE("a film without audio tracks still offers the first one", "[gui][GUI-TRANSCRIBE-01]") {
-    TranscribeDialog dialog{{}, {}};
+    const TranscribeDialog dialog{{}, {}, noChooser};
 
     CHECK(dialog.trackBox()->count() == 1);
     CHECK(dialog.choice().track == 0);
@@ -286,7 +294,7 @@ struct Tools {
     std::filesystem::path model =
         scratch.write("model.bin", std::string{"lmgg\x99\xca\x00\x00", 8} + std::string(8, '\0'));
 
-    void everything() {
+    void everything() const {
         (void)scratch.standIn("whisper-cli", kFake, "--progress=2 --output-from='" + sample + "'");
         const auto audio = scratch.write("audio.wav", "pcm");
         (void)scratch.standIn("ffmpeg", kFake, "--output-from='" + audio.string() + "'");
@@ -300,7 +308,7 @@ struct Tools {
 } // namespace
 
 TEST_CASE("the real runner transcribes through the tools it finds", "[gui][GUI-TRANSCRIBE-02]") {
-    Tools tools;
+    const Tools tools;
     tools.everything();
     BackgroundTranscriptionRunner runner{tools.scratch.path().string()};
 
@@ -313,7 +321,7 @@ TEST_CASE("the real runner transcribes through the tools it finds", "[gui][GUI-T
 }
 
 TEST_CASE("the real runner can be stopped, and says it was", "[gui][GUI-TRANSCRIBE-02]") {
-    Tools tools;
+    const Tools tools;
     (void)tools.scratch.standIn(
         "whisper-cli", kFake, "--linger=30 --output-from='" + tools.sample + "'");
     const auto audio = tools.scratch.write("audio.wav", "pcm");
@@ -329,7 +337,7 @@ TEST_CASE("the real runner can be stopped, and says it was", "[gui][GUI-TRANSCRI
 
 TEST_CASE("without the tools the real runner says what is missing and where to read",
           "[gui][GUI-TRANSCRIBE-04]") {
-    Tools tools;
+    const Tools tools;
     BackgroundTranscriptionRunner runner{tools.scratch.path().string()};
 
     const auto outcome = runner.run(tools.job(), nullptr);
@@ -342,7 +350,7 @@ TEST_CASE("without the tools the real runner says what is missing and where to r
 
 TEST_CASE("an engine that is not installed is said with the guide, the window unaffected",
           "[gui][GUI-TRANSCRIBE-04]") {
-    Tools tools;
+    const Tools tools;
     const auto audio = tools.scratch.write("audio.wav", "pcm");
     (void)tools.scratch.standIn("ffmpeg", kFake, "--output-from='" + audio.string() + "'");
     BackgroundTranscriptionRunner runner{tools.scratch.path().string()};
@@ -356,7 +364,7 @@ TEST_CASE("an engine that is not installed is said with the guide, the window un
 }
 
 TEST_CASE("an engine nobody registered is named", "[gui][GUI-TRANSCRIBE-04]") {
-    Tools tools;
+    const Tools tools;
     BackgroundTranscriptionRunner runner{tools.scratch.path().string()};
     TranscriptionJob job = tools.job();
     job.settings.engine = "other";
@@ -366,4 +374,68 @@ TEST_CASE("an engine nobody registered is named", "[gui][GUI-TRANSCRIBE-04]") {
     REQUIRE_FALSE(outcome.has_value());
     CHECK_THAT(outcome.error().message,
                ContainsSubstring("no transcription engine is called other"));
+}
+
+TEST_CASE("the Browse button puts the chosen model in the field, and a refusal leaves it",
+          "[gui][GUI-TRANSCRIBE-01]") {
+    std::filesystem::path asked;
+    std::optional<std::filesystem::path> answer = std::filesystem::path{"/models/chosen.bin"};
+    const TranscribeDialog dialog{
+        kTracks, {.model = "/models/old.bin"}, [&](const std::filesystem::path& current) {
+            asked = current;
+            return answer;
+        }};
+
+    dialog.findChild<QPushButton*>()->click();
+    CHECK(asked == "/models/old.bin");
+    CHECK(dialog.modelEdit()->text() == "/models/chosen.bin");
+
+    answer = std::nullopt;
+    dialog.findChild<QPushButton*>()->click();
+    CHECK(dialog.modelEdit()->text() == "/models/chosen.bin");
+}
+
+TEST_CASE("the real runner names the tracks a video has when one is missing",
+          "[gui][GUI-TRANSCRIBE-04]") {
+    const Tools tools;
+    (void)tools.scratch.standIn("ffprobe",
+                                kFake,
+                                "--no-echo --stdout-from='" + std::string{SUBEDIT_TEST_DATA_DIR} +
+                                    "/audio-tracks/ffprobe.audio-2.txt'");
+    (void)tools.scratch.standIn("ffmpeg", kFake, "");
+    BackgroundTranscriptionRunner runner{tools.scratch.path().string()};
+    TranscriptionJob job = tools.job();
+    job.track = 5;
+
+    const auto outcome = runner.run(job, nullptr);
+
+    REQUIRE_FALSE(outcome.has_value());
+    CHECK_THAT(outcome.error().message, ContainsSubstring("the video has no audio track 5"));
+    CHECK_THAT(outcome.error().message, ContainsSubstring("audio track 1: eng, Commentary"));
+}
+
+TEST_CASE("stopping during the extraction is a cancellation too", "[gui][GUI-TRANSCRIBE-02]") {
+    const Tools tools;
+    (void)tools.scratch.standIn("ffmpeg", kFake, "--linger=30");
+    BackgroundTranscriptionRunner runner{tools.scratch.path().string()};
+    runner.setCancelProbe([] { return true; });
+
+    const auto outcome = runner.run(tools.job(), nullptr);
+
+    REQUIRE_FALSE(outcome.has_value());
+    CHECK(outcome.error().cancelled);
+}
+
+TEST_CASE("the Browse button of the dialog the window opens asks the prompts for a model",
+          "[gui][GUI-TRANSCRIBE-01]") {
+    Stage stage;
+    stage.prompts.nextRun = true;
+    stage.prompts.nextReplacementAccepted = true;
+    stage.prompts.nextModelToOpen = std::filesystem::path{"/models/browsed.bin"};
+    stage.prompts.fill = [](QDialog& dialog) { dialog.findChild<QPushButton*>()->click(); };
+
+    stage.window->transcribeAudioAction()->trigger();
+
+    REQUIRE(stage.runner->asked.size() == 1);
+    CHECK(stage.runner->asked.front().model == "/models/browsed.bin");
 }

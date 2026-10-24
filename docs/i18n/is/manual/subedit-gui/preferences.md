@@ -139,6 +139,12 @@ lokun.
 | `correction.join-split.join`, `correction.join-split.split` | `true` eða `false` — sameina, skipta | `true`, `false` |
 | `correction.join-split.language` | staðarkóði — `fr`, `en_US`, `sr@Latn` —; tómt: tungumál kerfisins | tómt |
 | `correction.remove-blank` | `true` eða `false` — `Remove all blank subtitles` | `true` |
+| `transcription.engine` | heiti vélarinnar: lágstafir, tölustafir, `.`, `-` og `_` | `whisper.cpp` |
+| `transcription.executable`, `transcription.model` | altæk slóð; tómt: leitað er að vélinni í `PATH` og ekkert líkan er stillt | tómt |
+| `transcription.language` | tveir lágstafir, ISO 639-1 kóði; tómt: tungumálið er greint sjálfkrafa | tómt |
+| `transcription.merge-gap-ms` | bútar úr einni setningu sem eru nær hver öðrum en þetta eru sameinaðir, í millisekúndum, heil tala sem er ekki neikvæð | `400` |
+| `transcription.max-duration-ms` | lengsti tími sem umritaður skjátexti er á skjánum, í millisekúndum, frá 1 til 3600000 | `7000` |
+| `transcription.max-characters` | flestir stafir sem umritaður skjátexti rúmar, frá 1 til 1000 | `84` |
 | `correction.activations` | gátreitir mynstranna sem notandinn breytti, `<type>:<code>:<name>:<0\|1>`, aðgreindir með kommum; **kommu eða bakskástrik í heiti er skrifað með bakskástriki á undan** (`\,` og `\\`), og færsla sem ekki er hægt að lesa tapar aðeins sinni eigin stillingu — hún er tilkynnt, hinar haldast | tómt |
 | `spell-check.language` | staðarkóði, eins og `fr_FR`; tómt: tungumál kerfisins | tómt |
 | `spell-check.target` | `selection`, `current-project` eða `all-projects` | `current-project` |
