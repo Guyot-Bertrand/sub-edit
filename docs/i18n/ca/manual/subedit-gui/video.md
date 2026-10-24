@@ -140,10 +140,9 @@ diu en quin punt és la feina**, perquè sapigueu que és viva i quant trigarà:
 
 - **el pas**: primer “Extracció de l'àudio…” — el quadre és aleshores ocupat, sense xifra, ja que extreure no diu res de fins on ha
   arribat —, després “Transcripció de l'àudio…”, amb una barra;
-- **la posició**: “0:12:30 de 0:50:00”, fins on de la pel·lícula ha arribat el motor, tan bon punt ha produït el seu primer text;
-- **el temps que queda**, “queden uns 38 min”: “estimació del temps que queda…” al principi, substituït quan s'ha fet prou feina per extrapolar, i calculat a partir de la
-  velocitat del darrer minut; és una precisió de pocs minuts, no una promesa;
+- **el temps que queda**, “queden uns 38 min”: absent al principi, mostrat quan el motor ha informat prou progrés per extrapolar, i calculat a partir de la seva velocitat des de l'inici fins al darrer minut; és una precisió de pocs minuts, no una promesa;
 - **el temps transcorregut**, “temps transcorregut: 0:05:12”, que avança fins i tot quan res més no es mou;
+- **la posició**, “0:12:30 de 0:50:00”: fins on de la pel·lícula ha arribat el motor, tan bon punt ha produït el seu primer text, mostrada **just a sobre del darrer text** al qual correspon;
 - **el darrer text** obtingut, perquè veieu que la feina té sentit.
 
 En una pel·lícula llarga amb un model gran en un processador, els primers minuts poden ser llargs: el motor carrega el model i treballa en les seves
@@ -159,14 +158,13 @@ llengua escrita. Els subtítols són al projecte igualment, i un `Undo` retorna 
 
 ### Provar primer una part
 
-Un interval converteix la transcripció en una **prova**, per jutjar un model o una llengua en dos minuts abans de comprometre's amb
-dues hores. Els camps “Part de la pel·lícula” accepten un inici i un final, cadascun escrit `2:00`, `1:02:03`, `2:00.5` o un nombre
+Un interval permet **jutjar un model o una llengua en dos minuts abans de comprometre's amb dues hores**. Els camps “Part de la pel·lícula” accepten un inici i un final, cadascun escrit `2:00`, `1:02:03`, `2:00.5` o un nombre
 de segons, `90`; se'n permet només un (d'allà fins al final, o del principi fins allà). `OK` queda apagat mentre un camp no
 és un temps o el final no ve després de l'inici, i una línia sota els camps diu quin.
 
 - **Els subtítols conserven el temps de la pel·lícula**: el que es diu a 2:10 és a `0:02:10` al resultat.
-- **No se substitueix res i no es pregunta res.** El resultat s'obre com **un projecte a part**, en una pestanya nova, sense
-  fitxer; el projecte del qual ve, i els seus subtítols, queden com abans. Deseu-lo, o tanqueu-lo.
+- **Substitueix els subtítols del projecte com qualsevol transcripció**, després de la mateixa pregunta quan n'hi ha, i un
+  `Undo` els retorna. Per provar un interval sense tocar la vostra feina, deseu primer, o treballeu sobre una còpia.
 
 **El que necessita no es lliura**: un motor (whisper.cpp), un model, i `ffmpeg` per extreure l'àudio.
 Vegeu [Instal·lació de les eines de transcripció](../subedit-cli/install-transcription.md).

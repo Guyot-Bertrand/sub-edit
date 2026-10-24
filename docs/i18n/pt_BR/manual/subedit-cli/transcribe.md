@@ -42,6 +42,8 @@ termina com um código diferente de zero.
 - **Pode-se transcrever só uma parte do filme**, com `--start` e `--end` — veja
   [Transcrever uma parte](#transcrever-uma-parte). É assim que se experimenta um modelo em dois minutos antes de o lançar
   em duas horas.
+- **Os sons não são escritos como notas**: o motor recebe ordem de não fazer isso (a opção própria dele é `--suppress-nst`), de modo
+  que `(Sonnerie de téléphone)` ou `[MUSIC PLAYING]` não apareçam nas legendas, entre parênteses como entre colchetes.
 - **Os segmentos são unidos e cortados** segundo os limites das configurações (`transcription.merge-gap-ms`,
   `transcription.max-duration-ms`, `transcription.max-characters`): dois pedaços de uma mesma frase que estão
   próximos formam uma só legenda, e um pedaço demasiado longo ou demasiado largo é cortado numa palavra. **`--raw`
@@ -146,7 +148,7 @@ O áudio do filme inteiro é extraído na mesma: é a transcrição, muito mais 
 | Nível | O que se acrescenta na saída de erro |
 | :----- | :------------------------------------- |
 | 1 | `<input>: N subtitles transcribed, language: xx -> <output>` |
-| 2 | a etapa e o progresso, uma linha por cento: `extracting the audio…`, depois `transcribing…`, depois `transcribing: 25%, 0:12:30 of 0:50:00, about 38 min left, elapsed: 0:05:12` — a porcentagem, a posição atingida no áudio, o tempo que falta (`estimating the time left…` enquanto não puder ser calculado) e o tempo decorrido; **a linha é dita de novo a cada dez segundos quando nada de novo chegou**, para que uma espera longa não seja tomada por um bloqueio |
+| 2 | a etapa e o progresso, uma linha por cento: `extracting the audio…`, depois `transcribing…`, depois `transcribing: 25%, 0:12:30 of 0:50:00, about 38 min left, elapsed: 0:05:12` — a porcentagem, a posição atingida no áudio, o tempo que falta e o tempo decorrido; **a linha é dita de novo a cada dez segundos quando nada de novo chegou**, para que uma espera longa não seja tomada por um bloqueio |
 | 3 | e cada novo texto que o motor obtém, `last text: …` |
 
 **A porcentagem é a posição do motor no áudio, não uma contagem das suas próprias janelas**: o motor escreve o que transcreveu à medida que avança, e o comando lê até onde isso chegou, de modo que o valor se mexe desde o primeiro minuto. (O progresso próprio do motor vem em passos de 5 % do áudio, depois de uma janela de trinta segundos: sozinho, pode ficar a 0 % durante um quarto de hora num filme longo com um modelo grande num processador.) **O tempo que falta fica mudo no início**: é dado quando há trabalho feito que chegue para extrapolar, e segue a velocidade do último minuto, não a média de toda a execução.

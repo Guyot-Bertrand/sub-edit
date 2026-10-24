@@ -17,7 +17,10 @@ constexpr std::chrono::seconds kMinimumSpan{5};
 } // namespace
 
 void RemainingTime::note(double fraction, Clock::time_point now) {
-    if (!m_samples.empty() && fraction < m_samples.back().fraction)
+    // Only progress is a sample. Noting the same fraction again would fill the window with points
+    // that say nothing, and an engine that reports once a minute would leave the last minute with
+    // no gain.
+    if (!m_samples.empty() && fraction <= m_samples.back().fraction)
         return;
     m_samples.push_back({.at = now, .fraction = fraction});
     // Keeps one sample older than the window, as the origin of the speed.
@@ -32,9 +35,8 @@ std::optional<std::chrono::seconds> RemainingTime::left(Clock::time_point now) c
     const Sample& first = m_samples.front();
     if (last.fraction < kMinimumFraction || last.at - first.at < kMinimumSpan)
         return std::nullopt;
+    // Only progress is noted, so that two samples always differ: the gain is positive.
     const double gained = last.fraction - first.fraction;
-    if (gained <= 0.0)
-        return std::nullopt;
 
     const double span = std::chrono::duration<double>(last.at - first.at).count();
     const double perUnit = span / gained;

@@ -42,6 +42,7 @@ og lýkur með kóða sem er ekki núll.
 - **Hægt er að umrita bara hluta kvikmyndarinnar**, með `--start` og `--end` — sjá
   [Að umrita hluta](#að-umrita-hluta). Þannig er líkan prófað á tveimur mínútum áður en það er keyrt á
   tveimur klukkustundum.
+- **Hljóð eru ekki skrifuð sem athugasemdir**: vélinni er sagt að gera það ekki (valkostur hennar er `--suppress-nst`), svo að `(Sonnerie de téléphone)` eða `[MUSIC PLAYING]` komi ekki upp í skjátextunum, hvorki innan sviga né hornklofa.
 - **Bútarnir eru sameinaðir og skornir** samkvæmt mörkum stillinganna (`transcription.merge-gap-ms`,
   `transcription.max-duration-ms`, `transcription.max-characters`): tveir bútar úr einni setningu sem eru
   nálægt hvor öðrum verða einn skjátexti, og bútur sem er of langur eða of breiður er skorinn við orð. **`--raw`
@@ -145,7 +146,7 @@ Hljóð allrar kvikmyndarinnar er samt dregið út: það sem bilið sparar er u
 | Stig | Hvað bætist við á villuúttakið |
 | :---- | :-------------------------------- |
 | 1 | `<input>: N subtitles transcribed, language: xx -> <output>` |
-| 2 | skrefið og framvindan, ein lína fyrir hvert prósent: `extracting the audio…`, síðan `transcribing…`, síðan `transcribing: 25%, 0:12:30 of 0:50:00, about 38 min left, elapsed: 0:05:12` — prósentan, staðan sem náðst hefur í hljóðinu, tíminn sem eftir er (`estimating the time left…` á meðan ekki er hægt að reikna hann) og tíminn sem liðinn er; **línan er sögð aftur á tíu sekúndna fresti þegar ekkert nýtt hefur borist**, svo að löng bið sé ekki tekin fyrir frost |
+| 2 | skrefið og framvindan, ein lína fyrir hvert prósent: `extracting the audio…`, síðan `transcribing…`, síðan `transcribing: 25%, 0:12:30 of 0:50:00, about 38 min left, elapsed: 0:05:12` — prósentan, staðan sem náðst hefur í hljóðinu, tíminn sem eftir er og tíminn sem liðinn er; **línan er sögð aftur á tíu sekúndna fresti þegar ekkert nýtt hefur borist**, svo að löng bið sé ekki tekin fyrir frost |
 | 3 | og hver nýr texti sem vélin fær, `last text: …` |
 
 **Prósentan er staða vélarinnar í hljóðinu, ekki talning á hennar eigin gluggum**: vélin skrifar það sem hún hefur

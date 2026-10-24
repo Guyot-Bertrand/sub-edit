@@ -478,28 +478,28 @@ TEST_CASE("a range that cannot be used says why and keeps OK out", "[gui][GUI-TR
     CHECK_FALSE(bare.buttons()->button(QDialogButtonBox::Ok)->isEnabled());
 }
 
-TEST_CASE("with a range nothing is replaced and nothing is asked: the result opens as a project",
+TEST_CASE("a range replaces the subtitles like any transcription, after the same question",
           "[gui][GUI-TRANSCRIBE-06]") {
     Stage stage;
     stage.prompts.nextRun = true;
-    stage.prompts.nextReplacementAccepted = false;
+    stage.prompts.nextReplacementAccepted = true;
     stage.prompts.fill = [](QDialog& dialog) {
         dynamic_cast<TranscribeDialog&>(dialog).startEdit()->setText("0:30");
         dynamic_cast<TranscribeDialog&>(dialog).endEdit()->setText("1:00");
     };
-    const int before = stage.window->tabBar()->count();
+    const int tabs = stage.window->tabBar()->count();
 
     stage.window->transcribeAudioAction()->trigger();
 
     REQUIRE(stage.runner->asked.size() == 1);
     CHECK(stage.runner->asked.front().start == Timestamp::fromMilliseconds(30000));
     CHECK(stage.runner->asked.front().end == Timestamp::fromMilliseconds(60000));
-    CHECK(stage.prompts.replacements.empty());
-    CHECK(stage.window->tabBar()->count() == before + 1);
-    // The subtitles of the first project are as they were.
-    stage.window->tabBar()->setCurrentIndex(0);
+    // The question was asked, the project replaced, no tab opened.
+    CHECK(stage.prompts.replacements.size() == 1);
+    CHECK(stage.window->tabBar()->count() == tabs);
+    CHECK(textsOf(*stage.window) == std::vector<std::string>{"Hello.", "World."});
+    stage.window->undoAction()->trigger();
     CHECK(textsOf(*stage.window) == std::vector<std::string>{"Un.", "Deux.", "Trois."});
-    CHECK_FALSE(stage.window->undoAction()->isEnabled());
 }
 
 // ## The box
@@ -514,16 +514,17 @@ TEST_CASE("the box says the step, then where it is, the time left and the last t
     CHECK(transcriptionBoxLabel({.stage = TranscriptionStage::Extracting}, std::nullopt) ==
           "Extracting the audio…");
     CHECK(transcriptionBoxLabel({}, std::nullopt).split('\n') ==
-          QStringList{"Transcribing the audio…", "estimating the time left…"});
+          QStringList{"Transcribing the audio…"});
 
     const QString full = transcriptionBoxLabel({.fraction = 0.5,
                                                 .position = Timestamp::fromMilliseconds(60000),
                                                 .total = Timestamp::fromMilliseconds(120000),
                                                 .lastText = "And so, my fellow Americans"},
                                                150s);
+    // The step, the time left, the position **just above** the last text.
     CHECK(full.split('\n') == QStringList{"Transcribing the audio…",
-                                          "0:01:00 of 0:02:00",
                                           "about 2 min left",
+                                          "0:01:00 of 0:02:00",
                                           "Last text: And so, my fellow Americans"});
 
     const QString timed =
@@ -889,11 +890,12 @@ TEST_CASE("a few notes among the speech are no cause for a warning", "[gui][GUI-
     CHECK(stage.prompts.outcomes.empty());
 }
 
-TEST_CASE("a trial made of notes in brackets says so too", "[gui][GUI-TRANSCRIBE-05]") {
+TEST_CASE("a range made of notes in brackets says so too", "[gui][GUI-TRANSCRIBE-05]") {
     Stage stage;
     stage.runner->answer = TranscriptionOutcome{
         .subtitles = {subtitle(0, "[MUSIC PLAYING]")}, .language = "en", .notes = 4, .pieces = 6};
     stage.prompts.nextRun = true;
+    stage.prompts.nextReplacementAccepted = true;
     stage.prompts.fill = [](QDialog& dialog) {
         dynamic_cast<TranscribeDialog&>(dialog).startEdit()->setText("00:01:00");
     };

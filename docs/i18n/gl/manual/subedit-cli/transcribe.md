@@ -42,6 +42,7 @@ e sae cun código distinto de cero.
 - **Pódese transcribir só unha parte da película**, con `--start` e `--end` — véxase
   [Transcribir unha parte](#transcribir-unha-parte). Así se proba un modelo en dous minutos antes de lanzalo sobre
   dúas horas.
+- **Os sons non se escriben como notas**: ao motor dáselle a orde de non facelo (a súa propia opción é `--suppress-nst`), de modo que `(Sonnerie de téléphone)` ou `[MUSIC PLAYING]` non aparecen nos subtítulos, nin entre parénteses nin entre corchetes.
 - **Os segmentos únense e córtanse** segundo os límites dos axustes (`transcription.merge-gap-ms`,
   `transcription.max-duration-ms`, `transcription.max-characters`): dous anacos dunha mesma frase que están
   próximos son un só subtítulo, e un anaco demasiado longo ou demasiado ancho córtase nunha palabra. **`--raw`
@@ -145,7 +146,7 @@ O son de toda a película extráese igualmente: o que o intervalo aforra é a tr
 | Nivel | O que se engade na saída de erro |
 | :---- | :-------------------------------- |
 | 1 | `<input>: N subtitles transcribed, language: xx -> <output>` |
-| 2 | o paso e o progreso, unha liña por cada por cento: `extracting the audio…`, despois `transcribing…`, despois `transcribing: 25%, 0:12:30 of 0:50:00, about 38 min left, elapsed: 0:05:12` — o por cento, a posición alcanzada no son, o tempo que queda (`estimating the time left…` mentres non se pode calcular) e o tempo transcorrido; **a liña repítese cada dez segundos cando non chegou nada novo**, para que unha espera longa non se tome por un bloqueo |
+| 2 | o paso e o progreso, unha liña por cada por cento: `extracting the audio…`, despois `transcribing…`, despois `transcribing: 25%, 0:12:30 of 0:50:00, about 38 min left, elapsed: 0:05:12` — o por cento, a posición alcanzada no son, o tempo que queda e o tempo transcorrido; **a liña repítese cada dez segundos cando non chegou nada novo**, para que unha espera longa non se tome por un bloqueo |
 | 3 | e cada texto novo que obtén o motor, `last text: …` |
 
 **O por cento é a posición do motor no son, non unha conta das súas propias xanelas**: o motor escribe o que

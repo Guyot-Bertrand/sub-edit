@@ -39,6 +39,8 @@ sort avec un code non nul.
 - **On peut transcrire une partie du film seule**, avec `--start` et `--end` — voir
   [Transcrire une partie](#transcrire-une-partie). C'est ainsi qu'on essaie un modèle sur deux minutes avant de le
   lancer sur deux heures.
+- **Les sons ne sont pas écrits comme des notes** : le moteur a ordre de ne pas le faire (son option est `--suppress-nst`), de sorte
+  que `(Sonnerie de téléphone)` ou `[MUSIC PLAYING]` ne remontent pas dans les sous-titres, entre parenthèses comme entre crochets.
 - **Les segments sont fusionnés et coupés** selon les limites des réglages (`transcription.merge-gap-ms`,
   `transcription.max-duration-ms`, `transcription.max-characters`) : deux morceaux d'une même phrase qui sont
   proches font un seul sous-titre, et un morceau trop long ou trop large est coupé à un mot. **`--raw`
@@ -142,7 +144,7 @@ L'audio du film entier est quand même extrait : c'est la transcription, bien pl
 | Niveau | Ce qui s'ajoute sur la sortie d'erreur |
 | :----- | :------------------------------------- |
 | 1 | `<input>: N subtitles transcribed, language: xx -> <output>` |
-| 2 | l'étape et la progression, une ligne par pour cent : `extracting the audio…`, puis `transcribing…`, puis `transcribing: 25%, 0:12:30 of 0:50:00, about 38 min left, elapsed: 0:05:12` — le pour cent, la position atteinte dans l'audio, le temps restant (`estimating the time left…` tant qu'il ne peut être calculé), et le temps écoulé ; **la ligne est redite toutes les dix secondes quand rien de neuf n'est venu**, pour qu'une longue attente ne soit pas prise pour un blocage |
+| 2 | l'étape et la progression, une ligne par pour cent : `extracting the audio…`, puis `transcribing…`, puis `transcribing: 25%, 0:12:30 of 0:50:00, about 38 min left, elapsed: 0:05:12` — le pour cent, la position atteinte dans l'audio, le temps restant, et le temps écoulé ; **la ligne est redite toutes les dix secondes quand rien de neuf n'est venu**, pour qu'une longue attente ne soit pas prise pour un blocage |
 | 3 | et chaque nouveau texte que le moteur obtient, `last text: …` |
 
 **Le pour cent est la position du moteur dans l'audio, non un compte de ses propres fenêtres** : le moteur écrit ce qu'il a

@@ -140,10 +140,10 @@ diz em que ponto está o trabalho**, para que você saiba que está vivo e quant
 
 - **a etapa**: primeiro “Extraindo o áudio…” — a caixa fica então ocupada, sem valor, porque extrair não diz nada sobre o progresso —,
   depois “Transcrevendo o áudio…”, com uma barra;
-- **a posição**: “0:12:30 de 0:50:00”, até onde no filme o motor chegou, assim que produziu o seu primeiro texto;
-- **o tempo que falta**, “faltam cerca de 38 min”: “estimando o tempo restante…” no início, substituído quando há trabalho feito que chegue para extrapolar, e
-  calculado a partir da velocidade do último minuto; é uma precisão de alguns minutos, não uma promessa;
+- **o tempo que falta**, “faltam cerca de 38 min”: ausente no início, mostrado quando o motor informou progresso suficiente para extrapolar, e
+  calculado a partir da sua velocidade desde o início, até o último minuto; é uma precisão de alguns minutos, não uma promessa;
 - **o tempo decorrido**, “decorrido: 0:05:12”, que avança mesmo quando mais nada se mexe;
+- **a posição**, “0:12:30 de 0:50:00”: até onde no filme o motor chegou, assim que produziu o seu primeiro texto, mostrada **logo acima do último texto** a que corresponde;
 - **o último texto** obtido, para que você possa ver que o trabalho faz sentido.
 
 Num filme longo com um modelo grande num processador, os primeiros minutos podem ser longos: o motor carrega o modelo e trabalha nas suas primeiras
@@ -159,14 +159,13 @@ Execute de novo com o idioma informado. As legendas ficam mesmo assim no projeto
 
 ### Experimentar primeiro uma parte
 
-Um intervalo faz da transcrição uma **experiência**, para avaliar um modelo ou um idioma em dois minutos antes de se comprometer com
-duas horas. Os campos “Parte do filme” recebem um início e um fim, cada um escrito `2:00`, `1:02:03`, `2:00.5` ou um número de
+Um intervalo permite **avaliar um modelo ou um idioma em dois minutos antes de se comprometer com duas horas**. Os campos “Parte do filme” recebem um início e um fim, cada um escrito `2:00`, `1:02:03`, `2:00.5` ou um número de
 segundos, `90`; um só é permitido (dali até o fim, ou do início até ali). `OK` fica desativado enquanto um campo não
 for um tempo ou o fim não vier depois do início, e uma linha sob os campos diz qual.
 
 - **As legendas mantêm o tempo do filme**: o que é dito aos 2:10 fica em `0:02:10` no resultado.
-- **Nada é substituído e nada é perguntado.** O resultado se abre como **um projeto próprio**, numa nova aba, sem
-  arquivo; o projeto de onde vem, e as legendas dele, ficam como estavam. Salve-o, ou feche-o.
+- **Substitui as legendas do projeto como qualquer transcrição**, depois da mesma pergunta quando há legendas, e um só
+  `Undo` as devolve. Para experimentar um intervalo sem mexer no seu trabalho, salve primeiro, ou trabalhe numa cópia.
 
 **O que ela precisa não é fornecido**: um motor (whisper.cpp), um modelo e o `ffmpeg` para extrair o áudio.
 Veja [Instalar as ferramentas de transcrição](../subedit-cli/install-transcription.md).

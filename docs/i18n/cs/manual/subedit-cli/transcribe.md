@@ -42,6 +42,8 @@ a skončí s nenulovým kódem.
 - **Část filmu lze přepsat samostatně** pomocí `--start` a `--end` — viz
   [Přepis části](#přepis-části). Tak se model vyzkouší na dvou minutách, než se pustí na dvě
   hodiny.
+- **Zvuky se nezapisují jako poznámky**: nástroj má příkaz to nedělat (jeho vlastní volba je `--suppress-nst`), takže
+  `(Sonnerie de téléphone)` nebo `[MUSIC PLAYING]` se v titulcích neobjeví, ani v závorkách, ani v hranatých závorkách.
 - **Segmenty se sloučí a rozdělí** podle mezí nastavení (`transcription.merge-gap-ms`,
   `transcription.max-duration-ms`, `transcription.max-characters`): dva kusy jedné věty, které jsou
   blízko sebe, tvoří jeden titulek, a kus příliš dlouhý nebo příliš široký se rozdělí u slova. **`--raw`
@@ -146,7 +148,7 @@ Zvuk celého filmu se stále extrahuje: rozsah ušetří přepis, který je mnoh
 | Úroveň | Co se přidá na chybový výstup |
 | :---- | :-------------------------------- |
 | 1 | `<input>: N subtitles transcribed, language: xx -> <output>` |
-| 2 | krok a průběh, jeden řádek na každé procento: `extracting the audio…`, pak `transcribing…`, pak `transcribing: 25%, 0:12:30 of 0:50:00, about 38 min left, elapsed: 0:05:12` — procento, dosažená pozice ve zvuku, zbývající čas (`estimating the time left…`, dokud ho nelze spočítat) a uplynulý čas; **řádek se zopakuje každých deset sekund, když nepřišlo nic nového**, aby dlouhé čekání nebylo považováno za zamrznutí |
+| 2 | krok a průběh, jeden řádek na každé procento: `extracting the audio…`, pak `transcribing…`, pak `transcribing: 25%, 0:12:30 of 0:50:00, about 38 min left, elapsed: 0:05:12` — procento, dosažená pozice ve zvuku, zbývající čas a uplynulý čas; **řádek se zopakuje každých deset sekund, když nepřišlo nic nového**, aby dlouhé čekání nebylo považováno za zamrznutí |
 | 3 | a každý nový text, který nástroj získá, `last text: …` |
 
 **Procento je pozice nástroje ve zvuku, ne počet jeho oken**: nástroj průběžně zapisuje, co

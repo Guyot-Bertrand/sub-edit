@@ -42,6 +42,7 @@ e exeunte con un code ne-zero.
 - **On posse transcrir solmen un parte del film**, con `--start` e `--end` — vide
   [Transcrir un parte](#transcrir-un-parte). It es li manie de provar un model sur du minutes ante lansar it sur
   du hores.
+- **Li sones ne es scrit quam notes**: li motor ha li ordine de ne far it (su propri option es `--suppress-nst`), por que `(Sonnerie de téléphone)` o `[MUSIC PLAYING]` ne veni in li subtitules, ni inter parentheses ni inter crochetes.
 - **Li segmentes es fusionat e tallit** secun li límites del parametres (`transcription.merge-gap-ms`,
   `transcription.max-duration-ms`, `transcription.max-characters`): du fragmentes de un sam frase quel es
   proxim es un subtitul, e un fragment tro long o tro large es tallit a un parol. **`--raw`
@@ -145,7 +146,7 @@ Li audio del tot film es tamen extraet: li transcription, mult plu long, es quo 
 | Nivelle | Quo es adjuntet al exeunte de error |
 | :---- | :-------------------------------- |
 | 1 | `<input>: N subtitles transcribed, language: xx -> <output>` |
-| 2 | li pass e li progress, un linea per procent: `extracting the audio…`, pois `transcribing…`, pois `transcribing: 25%, 0:12:30 of 0:50:00, about 38 min left, elapsed: 0:05:12` — li procent, li position atinget in li audio, li témpor restant (`estimating the time left…` til que it ne posse esser calculat), e li témpor passat; **li linea es dit denov chascun dece secondes quande nequo nov ha venit**, por que un long atende ne esset prenet por un blocage |
+| 2 | li pass e li progress, un linea per procent: `extracting the audio…`, pois `transcribing…`, pois `transcribing: 25%, 0:12:30 of 0:50:00, about 38 min left, elapsed: 0:05:12` — li procent, li position atinget in li audio, li témpor restant, e li témpor passat; **li linea es dit denov chascun dece secondes quande nequo nov ha venit**, por que un long atende ne esset prenet por un blocage |
 | 3 | e chascun nov textu quel li motor obtene, `last text: …` |
 
 **Li procent es li position del motor in li audio, ne un conte de su proprie fenestres**: li motor scri quo it ha

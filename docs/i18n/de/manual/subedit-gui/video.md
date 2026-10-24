@@ -140,10 +140,9 @@ zeigt, wo die Arbeit steht**, damit Sie wissen, dass sie lebt und wie lange sie 
 
 - **der Schritt**: zuerst “Audio wird extrahiert …” — das Feld ist dann beschäftigt, ohne Zahl, da das Extrahieren nichts darüber sagt, wie weit es
   gekommen ist —, dann “Audio wird transkribiert …”, mit einem Balken;
-- **die Position**: “0:12:30 von 0:50:00”, wie weit im Film die Engine gekommen ist, sobald sie ihren ersten Text erzeugt hat;
-- **die verbleibende Zeit**, “noch etwa 38 Min.”: zu Beginn “verbleibende Zeit wird geschätzt …”, ersetzt, sobald genug erledigt ist, um zu extrapolieren, und aus der
-  Geschwindigkeit der letzten Minute berechnet; sie ist auf wenige Minuten genau, kein Versprechen;
+- **die verbleibende Zeit**, “noch etwa 38 Min.”: zu Beginn nicht vorhanden, angezeigt, sobald die Engine genug Fortschritt gemeldet hat, um zu extrapolieren, und aus ihrer Geschwindigkeit seit dem Start bis zur letzten Minute berechnet; sie ist auf wenige Minuten genau, kein Versprechen;
 - **die vergangene Zeit**, “vergangen: 0:05:12”, die weiterläuft, auch wenn sich sonst nichts bewegt;
+- **die Position**, “0:12:30 von 0:50:00”: wie weit im Film die Engine gekommen ist, sobald sie ihren ersten Text erzeugt hat, **direkt über dem letzten Text** angezeigt, zu dem sie gehört;
 - **der zuletzt erhaltene Text**, damit Sie sehen, dass die Arbeit sinnvoll ist.
 
 Bei einem langen Film mit einem großen Modell auf einem Prozessor können die ersten Minuten lang sein: Die Engine lädt das Modell und arbeitet an ihren ersten
@@ -159,14 +158,13 @@ Starten Sie erneut mit eingegebener Sprache. Die Untertitel sind trotzdem im Pro
 
 ### Zuerst einen Teil ausprobieren
 
-Ein Bereich macht aus der Transkription einen **Versuch**, um ein Modell oder eine Sprache an zwei Minuten zu beurteilen, bevor man sich auf
-zwei Stunden festlegt. Die Felder “Teil des Films” nehmen einen Anfang und ein Ende, jeweils geschrieben als `2:00`, `1:02:03`, `2:00.5` oder als Anzahl
+Ein Bereich lässt Sie **ein Modell oder eine Sprache an zwei Minuten beurteilen, bevor Sie sich auf zwei Stunden festlegen**. Die Felder “Teil des Films” nehmen einen Anfang und ein Ende, jeweils geschrieben als `2:00`, `1:02:03`, `2:00.5` oder als Anzahl
 Sekunden, `90`; eines allein ist erlaubt (von dort bis zum Ende, oder vom Anfang bis dorthin). `OK` bleibt ausgegraut, solange ein Feld
 keine Zeitangabe ist oder das Ende nicht nach dem Anfang liegt, und eine Zeile unter den Feldern sagt, welches.
 
 - **Die Untertitel behalten die Zeit des Films**: Was bei 2:10 gesagt wird, steht im Ergebnis bei `0:02:10`.
-- **Nichts wird ersetzt, und nichts wird gefragt.** Das Ergebnis öffnet sich als **eigenes Projekt**, in einem neuen Tab, ohne
-  Datei; das Projekt, aus dem es stammt, und seine Untertitel bleiben, wie sie waren. Speichern Sie es oder schließen Sie es.
+- **Er ersetzt die Untertitel des Projekts wie jede Transkription**, nach derselben Frage, wenn es welche gibt, und ein
+  `Undo` gibt sie zurück. Um einen Bereich auszuprobieren, ohne Ihre Arbeit anzutasten, speichern Sie zuerst oder arbeiten Sie an einer Kopie.
 
 **Was sie braucht, wird nicht ausgeliefert**: eine Engine (whisper.cpp), ein Modell und `ffmpeg`, um das Audio zu extrahieren.
 Siehe [Die Transkriptionswerkzeuge installieren](../subedit-cli/install-transcription.md).

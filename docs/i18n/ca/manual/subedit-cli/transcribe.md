@@ -42,6 +42,8 @@ surt amb un codi diferent de zero.
 - **Es pot transcriure una part de la pel·lícula tota sola**, amb `--start` i `--end` — vegeu
   [Transcriure una part](#transcriure-una-part). Així es prova un model en dos minuts abans d'executar-lo en
   dues hores.
+- **Els sons no s'escriuen com a notes**: el motor té l'ordre de no fer-ho (la seva opció és `--suppress-nst`), de manera que
+  `(Sonnerie de téléphone)` o `[MUSIC PLAYING]` no surten als subtítols, ni entre parèntesis ni entre claudàtors.
 - **Els segments es fusionen i es tallen** segons els límits dels paràmetres (`transcription.merge-gap-ms`,
   `transcription.max-duration-ms`, `transcription.max-characters`): dos trossos d'una mateixa frase que són
   propers fan un sol subtítol, i un tros massa llarg o massa ample es talla en una paraula. **`--raw`
@@ -146,7 +148,7 @@ L'àudio de tota la pel·lícula s'extreu igualment: és la transcripció, molt 
 | Nivell | Què s'afegeix a la sortida d'error |
 | :---- | :-------------------------------- |
 | 1 | `<input>: N subtitles transcribed, language: xx -> <output>` |
-| 2 | el pas i el progrés, una línia per cada tant per cent: `extracting the audio…`, després `transcribing…`, després `transcribing: 25%, 0:12:30 of 0:50:00, about 38 min left, elapsed: 0:05:12` — el tant per cent, la posició assolida a l'àudio, el temps que queda (`estimating the time left…` mentre no es pot calcular) i el temps transcorregut; **la línia es torna a dir cada deu segons quan no ha arribat res de nou**, perquè una espera llarga no es prengui per un bloqueig |
+| 2 | el pas i el progrés, una línia per cada tant per cent: `extracting the audio…`, després `transcribing…`, després `transcribing: 25%, 0:12:30 of 0:50:00, about 38 min left, elapsed: 0:05:12` — el tant per cent, la posició assolida a l'àudio, el temps que queda i el temps transcorregut; **la línia es torna a dir cada deu segons quan no ha arribat res de nou**, perquè una espera llarga no es prengui per un bloqueig |
 | 3 | i cada text nou que obté el motor, `last text: …` |
 
 **El tant per cent és la posició del motor a l'àudio, no un recompte de les seves finestres**: el motor escriu el que ha

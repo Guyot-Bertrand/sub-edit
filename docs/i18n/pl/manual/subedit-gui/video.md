@@ -139,10 +139,10 @@ mówi, na jakim etapie jest praca**, abyś wiedział, że żyje, i ile potrwa:
 
 - **etap**: najpierw „Wyodrębnianie dźwięku…” — okno jest wtedy zajęte, bez liczby, bo wyodrębnianie nic nie mówi o tym, jak daleko
   doszło —, potem „Transkrypcja dźwięku…”, z paskiem;
-- **pozycja**: „0:12:30 z 0:50:00”, jak daleko w filmie doszedł silnik, gdy tylko wytworzy pierwszy tekst;
-- **pozostały czas**, „zostało około 38 min”: na początku „szacowanie pozostałego czasu…”, zastępowane, gdy zrobiono dość pracy, by ekstrapolować, i
-  liczony z tempa ostatniej minuty; to dokładność rzędu kilku minut, nie obietnica;
+- **pozostały czas**, „zostało około 38 min”: na początku nieobecny, pokazywany, gdy silnik zgłosił dość postępu, by ekstrapolować, i
+  liczony z jego tempa od początku, aż do ostatniej minuty; to dokładność rzędu kilku minut, nie obietnica;
 - **upłynięty czas**, „upłynęło: 0:05:12”, który biegnie, nawet gdy nic innego się nie rusza;
+- **pozycja**, „0:12:30 z 0:50:00”: jak daleko w filmie doszedł silnik, gdy tylko wytworzy pierwszy tekst, pokazana **tuż nad ostatnim tekstem**, któremu odpowiada;
 - **ostatni tekst**, który uzyskano, abyś widział, że praca ma sens.
 
 Na długim filmie z dużym modelem na procesorze pierwsze minuty mogą być długie: silnik ładuje model i pracuje nad pierwszymi
@@ -158,14 +158,13 @@ Uruchom ponownie, wpisując język. Napisy i tak są w projekcie, a jedno `Undo`
 
 ### Najpierw wypróbuj fragment
 
-Zakres zmienia transkrypcję w **próbę**, aby ocenić model lub język na dwóch minutach, zanim zobowiąże się do dwóch
-godzin. Pola „Fragment filmu” przyjmują początek i koniec, każdy zapisany jako `2:00`, `1:02:03`, `2:00.5` lub liczba
+Zakres pozwala **ocenić model lub język na dwóch minutach, zanim zobowiążesz się do dwóch godzin**. Pola „Fragment filmu” przyjmują początek i koniec, każdy zapisany jako `2:00`, `1:02:03`, `2:00.5` lub liczba
 sekund, `90`; dozwolone jest tylko jedno (stąd do końca albo od początku do tego miejsca). `OK` pozostaje wyłączony, dopóki pole
 nie jest czasem lub koniec nie następuje po początku, a wiersz pod polami mówi, które.
 
 - **Napisy zachowują czas filmu**: to, co powiedziano w 2:10, jest w wyniku w `0:02:10`.
-- **Nic nie jest zastępowane i o nic się nie pyta.** Wynik otwiera się jako **osobny projekt**, w nowej karcie, bez pliku;
-  projekt, z którego pochodzi, i jego napisy pozostają, jak były. Zapisz go lub zamknij.
+- **Zastępuje napisy projektu jak każda transkrypcja**, po tym samym pytaniu, gdy jakieś są, a jedno `Undo` je przywraca.
+  Aby wypróbować zakres, nie ruszając swojej pracy, najpierw zapisz albo pracuj na kopii.
 
 **To, czego potrzebuje, nie jest dostarczane**: silnik (whisper.cpp), model i `ffmpeg` do wyodrębnienia dźwięku.
 Zobacz [Instalowanie narzędzi do transkrypcji](../subedit-cli/install-transcription.md).

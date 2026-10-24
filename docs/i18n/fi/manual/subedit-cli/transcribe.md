@@ -42,6 +42,8 @@ päättyy nollasta poikkeavaan koodiin.
 - **Elokuvan osan voi litteroida yksinään** valitsimilla `--start` ja `--end` — katso
   [Osan litterointi](#osan-litterointi). Näin mallia kokeillaan kahdella minuutilla ennen kuin se ajetaan
   kahdelle tunnille.
+- **Äänet eivät kirjoitu muistiinpanoina**: moottorille on annettu käsky olla tekemättä niin (sen oma valitsin on `--suppress-nst`), jotta
+  `(Sonnerie de téléphone)` tai `[MUSIC PLAYING]` eivät nouse tekstityksiin, ei sulkeissa eikä hakasulkeissa.
 - **Segmentit yhdistetään ja leikataan** asetusten rajojen mukaan (`transcription.merge-gap-ms`,
   `transcription.max-duration-ms`, `transcription.max-characters`): kaksi saman lauseen palaa, jotka ovat
   lähellä toisiaan, muodostavat yhden tekstityksen, ja liian pitkä tai liian leveä pala leikataan sanan kohdalta. **`--raw`
@@ -146,7 +148,7 @@ Koko elokuvan ääni puretaan edelleen: alue säästää litteroinnin, joka kest
 | Taso | Mitä virhetulosteeseen lisätään |
 | :---- | :-------------------------------- |
 | 1 | `<input>: N subtitles transcribed, language: xx -> <output>` |
-| 2 | vaihe ja eteneminen, yksi rivi jokaista prosenttia kohti: `extracting the audio…`, sitten `transcribing…`, sitten `transcribing: 25%, 0:12:30 of 0:50:00, about 38 min left, elapsed: 0:05:12` — prosentti, äänessä saavutettu kohta, jäljellä oleva aika (`estimating the time left…`, kunnes sitä ei voi laskea) ja kulunut aika; **rivi sanotaan uudelleen kymmenen sekunnin välein, kun mitään uutta ei ole tullut**, jotta pitkää odotusta ei luulla jumiutumiseksi |
+| 2 | vaihe ja eteneminen, yksi rivi jokaista prosenttia kohti: `extracting the audio…`, sitten `transcribing…`, sitten `transcribing: 25%, 0:12:30 of 0:50:00, about 38 min left, elapsed: 0:05:12` — prosentti, äänessä saavutettu kohta, jäljellä oleva aika ja kulunut aika; **rivi sanotaan uudelleen kymmenen sekunnin välein, kun mitään uutta ei ole tullut**, jotta pitkää odotusta ei luulla jumiutumiseksi |
 | 3 | ja jokainen uusi teksti, jonka moottori saa, `last text: …` |
 
 **Prosentti on moottorin kohta äänessä, ei sen omien ikkunoiden laskuri**: moottori kirjoittaa litteroimansa

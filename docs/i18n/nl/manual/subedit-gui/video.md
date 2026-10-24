@@ -140,10 +140,10 @@ zegt hoe ver het werk is**, zodat u weet dat het leeft en hoe lang het zal duren
 
 - **de stap**: eerst “De audio uitpakken…” — het venstertje is dan bezig, zonder getal, want uitpakken zegt niets over hoe ver het
   is —, dan “De audio transcriberen…”, met een balk;
-- **de positie**: “0:12:30 van 0:50:00”, hoe ver in de film de engine is, zodra hij zijn eerste tekst heeft geproduceerd;
-- **de resterende tijd**, “nog ongeveer 38 min”: eerst “de resterende tijd schatten…”, vervangen zodra er genoeg werk is gedaan om uit te extrapoleren, en
-  berekend uit de snelheid van de laatste minuut; het is een nauwkeurigheid van enkele minuten, geen belofte;
+- **de resterende tijd**, “nog ongeveer 38 min”: eerst afwezig, getoond zodra de engine genoeg voortgang heeft gemeld om uit te extrapoleren, en
+  berekend uit zijn snelheid sinds het begin, tot de laatste minuut; het is een nauwkeurigheid van enkele minuten, geen belofte;
 - **de verstreken tijd**, “verstreken: 0:05:12”, die doorloopt ook als niets anders beweegt;
+- **de positie**, “0:12:30 van 0:50:00”: hoe ver in de film de engine is, zodra hij zijn eerste tekst heeft geproduceerd, getoond **net boven de laatste tekst** waarbij ze hoort;
 - **de laatste tekst** die is verkregen, zodat u kunt zien dat het werk zinvol is.
 
 Bij een lange film met een groot model op een processor kunnen de eerste minuten lang zijn: de engine laadt het model en werkt aan zijn eerste
@@ -159,14 +159,13 @@ Voer het opnieuw uit met de taal ingevuld. De ondertitels staan toch in het proj
 
 ### Eerst een deel proberen
 
-Een bereik maakt van de transcriptie een **proef**, om een model of een taal op twee minuten te beoordelen voordat u zich aan
-twee uur verbindt. De velden “Deel van de film” nemen een begin en een einde, elk geschreven als `2:00`, `1:02:03`, `2:00.5` of een aantal
+Met een bereik kunt u **een model of een taal op twee minuten beoordelen voordat u zich aan twee uur verbindt**. De velden “Deel van de film” nemen een begin en een einde, elk geschreven als `2:00`, `1:02:03`, `2:00.5` of een aantal
 seconden, `90`; een van beide alleen is toegestaan (van daar tot het einde, of van het begin tot daar). `OK` blijft uitgeschakeld zolang een veld
 geen tijd is of het einde niet na het begin komt, en een regel onder de velden zegt welke.
 
 - **De ondertitels behouden de tijd van de film**: wat op 2:10 wordt gezegd, staat in het resultaat op `0:02:10`.
-- **Er wordt niets vervangen en er wordt niets gevraagd.** Het resultaat wordt geopend als **een eigen project**, in een nieuw tabblad, zonder
-  bestand; het project waaruit het komt, en zijn ondertitels, zijn zoals ze waren. Bewaar het, of sluit het.
+- **Het vervangt de ondertitels van het project zoals elke transcriptie**, na dezelfde vraag als er ondertitels zijn, en één
+  `Undo` geeft ze terug. Om een bereik te proberen zonder uw werk aan te raken, bewaar eerst, of werk op een kopie.
 
 **Wat het nodig heeft wordt niet meegeleverd**: een engine (whisper.cpp), een model en `ffmpeg` om de audio uit te pakken.
 Zie [De transcriptiehulpmiddelen installeren](../subedit-cli/install-transcription.md).

@@ -42,6 +42,8 @@ esce con un codice diverso da zero.
 - **Si può trascrivere solo una parte del film**, con `--start` e `--end` — vedi
   [Trascrivere una parte](#trascrivere-una-parte). È il modo per provare un modello su due minuti prima di lanciarlo su
   due ore.
+- **I suoni non vengono scritti come note**: al motore è ordinato di non farlo (la sua opzione è `--suppress-nst`), in modo
+  che `(Sonnerie de téléphone)` o `[MUSIC PLAYING]` non compaiano nei sottotitoli, tra parentesi tonde come tra quadre.
 - **I segmenti vengono uniti e tagliati** secondo i limiti delle impostazioni (`transcription.merge-gap-ms`,
   `transcription.max-duration-ms`, `transcription.max-characters`): due pezzi di una stessa frase che sono
   vicini formano un solo sottotitolo, e un pezzo troppo lungo o troppo largo viene tagliato a una parola. **`--raw`
@@ -146,7 +148,7 @@ L'audio dell'intero film viene comunque estratto: è la trascrizione, molto più
 | Livello | Che cosa si aggiunge sull'output di errore |
 | :----- | :------------------------------------- |
 | 1 | `<input>: N subtitles transcribed, language: xx -> <output>` |
-| 2 | la fase e l'avanzamento, una riga per ogni percento: `extracting the audio…`, poi `transcribing…`, poi `transcribing: 25%, 0:12:30 of 0:50:00, about 38 min left, elapsed: 0:05:12` — il percento, la posizione raggiunta nell'audio, il tempo rimanente (`estimating the time left…` finché non può essere calcolato) e il tempo trascorso; **la riga viene ripetuta ogni dieci secondi quando non è arrivato nulla di nuovo**, in modo che una lunga attesa non sia scambiata per un blocco |
+| 2 | la fase e l'avanzamento, una riga per ogni percento: `extracting the audio…`, poi `transcribing…`, poi `transcribing: 25%, 0:12:30 of 0:50:00, about 38 min left, elapsed: 0:05:12` — il percento, la posizione raggiunta nell'audio, il tempo rimanente e il tempo trascorso; **la riga viene ripetuta ogni dieci secondi quando non è arrivato nulla di nuovo**, in modo che una lunga attesa non sia scambiata per un blocco |
 | 3 | e ogni nuovo testo ottenuto dal motore, `last text: …` |
 
 **Il percento è la posizione del motore nell'audio, non un conteggio delle sue finestre**: il motore scrive ciò che ha

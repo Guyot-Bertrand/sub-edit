@@ -1075,9 +1075,12 @@ msgid "Where to stop, as 2:00, 1:02:03 or seconds; the end by default"
 msgstr "Где стати: 2:00, 1:02:03 или секунде; подразумевано до краја"
 
 #: src/exe/cli/commands/transcribe.cpp
-#: src/exe/cli/commands/transcribe.cpp
-msgid "Language of the speech, two letters: fr, en, de; detected from the first 30 seconds by default"
-msgstr "Језик говора, два слова: fr, en, de; подразумевано се открива из првих 30 секунди"
+msgid ""
+"Language of the speech, two letters: fr, en, de; detected from the first 30 "
+"seconds by default"
+msgstr ""
+"Језик говора, два слова: fr, en, de; подразумевано се открива из првих 30 "
+"секунди"
 
 #: src/exe/cli/commands/transcribe.cpp
 msgid "Model file; the transcription.model setting by default"
@@ -3486,18 +3489,28 @@ msgstr ""
 "„%1“ није време: упишите га као 2:00, 1:02:03 или 2:00.5, или у секундама"
 
 #: src/lib/subedit/core/wording/transcription.cpp
-#: src/lib/subedit/core/wording/transcription.cpp
-msgid "%1 of the %2 pieces are only notes in brackets, such as [MUSIC PLAYING]: the language used (%3) is probably not the one spoken, and the engine may have translated the speech. Run it again with the language typed."
-msgstr "%1 од %2 делова су само напомене у заградама, као [MUSIC PLAYING]: употребљени језик (%3) вероватно није онај којим се говори, а мотор је можда превео говор. Покрените поново уз унет језик."
+msgid ""
+"%1 of the %2 pieces are only notes in brackets, such as [MUSIC PLAYING]: the "
+"language used (%3) is probably not the one spoken, and the engine may have "
+"translated the speech. Run it again with the language typed."
+msgstr ""
+"%1 од %2 делова су само напомене у заградама, као [MUSIC PLAYING]: "
+"употребљени језик (%3) вероватно није онај којим се говори, а мотор је можда "
+"превео говор. Покрените поново уз унет језик."
 
 #: src/lib/subedit/core/wording/transcription.cpp
-#: src/lib/subedit/core/wording/transcription.cpp
-msgid "This model is for English only: whatever language the film speaks, the result will be English, or notes in brackets. Choose a multilingual model in the preferences."
-msgstr "Овај модел је само за енглески: ма којим језиком да се у филму говори, резултат ће бити на енглеском или напомене у заградама. Изаберите вишејезични модел у поставкама."
+msgid ""
+"This model is for English only: whatever language the film speaks, the "
+"result will be English, or notes in brackets. Choose a multilingual model in "
+"the preferences."
+msgstr ""
+"Овај модел је само за енглески: ма којим језиком да се у филму говори, "
+"резултат ће бити на енглеском или напомене у заградама. Изаберите "
+"вишејезични модел у поставкама."
 
 #: src/lib/subedit/core/wording/transcription.cpp
-#: src/lib/subedit/core/wording/transcription.cpp
-msgid "\"%1\" is not a language code: write two letters, such as fr, en, de or es"
+msgid ""
+"\"%1\" is not a language code: write two letters, such as fr, en, de or es"
 msgstr "„%1“ није кôд језика: упишите два слова, као fr, en, de или es"
 
 #: src/lib/subedit/core/wording/transcription.cpp
@@ -3528,13 +3541,6 @@ msgstr "транскрипција…"
 #: src/lib/subedit/gui/transcription_runner.cpp
 msgid "%1 of %2"
 msgstr "%1 од %2"
-
-#: src/lib/subedit/core/wording/transcription.cpp
-#: src/lib/subedit/gui/transcription_runner.cpp
-#: src/lib/subedit/core/wording/transcription.cpp
-#: src/lib/subedit/gui/transcription_runner.cpp
-msgid "estimating the time left…"
-msgstr "процењује се преостало време…"
 
 #: src/lib/subedit/core/wording/transcription.cpp
 msgid "elapsed: %1"
@@ -4848,9 +4854,13 @@ msgid "Detected from the sound"
 msgstr "Открива се по звуку"
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
-#: src/lib/subedit/gui/transcribe_dialog.cpp
-msgid "A language code such as fr, en, de, es or it (fra and eng work too). Leave it empty to let the model detect the language from the first 30 seconds of sound."
-msgstr "Кôд језика, као fr, en, de, es или it (раде и fra и eng). Оставите празно да модел сам открије језик из првих 30 секунди звука."
+msgid ""
+"A language code such as fr, en, de, es or it (fra and eng work too). Leave "
+"it empty to let the model detect the language from the first 30 seconds of "
+"sound."
+msgstr ""
+"Кôд језика, као fr, en, de, es или it (раде и fra и eng). Оставите празно да "
+"модел сам открије језик из првих 30 секунди звука."
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
 msgid ""
@@ -4861,16 +4871,9 @@ msgstr ""
 "транскрибује цео филм."
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
-msgid ""
-"The audio of the film open in this window is transcribed into subtitles that "
-"replace the ones of the project. Give a range to try a part of the film "
-"first: the result then opens as a project of its own and nothing is "
-"replaced. The work runs in the background and can be cancelled."
-msgstr ""
-"Звук филма отвореног у овом прозору транскрибује се у титлове који замењују "
-"титлове пројекта. Наведите опсег да прво испробате део филма: резултат се "
-"тада отвара као посебан пројекат и ништа се не замењује. Рад се одвија у "
-"позадини и може се отказати."
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+msgid "The audio of the film open in this window is transcribed into subtitles that replace the ones of the project. The work runs in the background and can be cancelled."
+msgstr "Звук филма отвореног у овом прозору транскрибује се у титлове који замењују титлове пројекта. Рад се одвија у позадини и може се отказати."
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
 msgid "Audio track"
@@ -4901,9 +4904,15 @@ msgid "Proposed from the language the file declares for this track."
 msgstr "Предложено према језику који датотека наводи за ову нумеру."
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
-#: src/lib/subedit/gui/transcribe_dialog.cpp
-msgid "The file declares no language for this track: the model will detect it from the first 30 seconds of sound. If the film opens with music or silence it can choose wrongly, and the speech is then translated into that language. Type the language if you know it."
-msgstr "Датотека не наводи језик ове траке: модел ће га открити из првих 30 секунди звука. Ако филм почиње музиком или тишином, може погрешно изабрати, а говор се тада преводи на тај језик. Упишите језик ако га знате."
+msgid ""
+"The file declares no language for this track: the model will detect it from "
+"the first 30 seconds of sound. If the film opens with music or silence it "
+"can choose wrongly, and the speech is then translated into that language. "
+"Type the language if you know it."
+msgstr ""
+"Датотека не наводи језик ове траке: модел ће га открити из првих 30 секунди "
+"звука. Ако филм почиње музиком или тишином, може погрешно изабрати, а говор "
+"се тада преводи на тај језик. Упишите језик ако га знате."
 
 #: src/lib/subedit/gui/transcription_runner.cpp
 msgid "Extracting the audio…"
@@ -5327,6 +5336,9 @@ msgstr "Курзив"
 msgctxt "toolbar"
 msgid "Main"
 msgstr "Главни"
+
+#~ msgid "estimating the time left…"
+#~ msgstr "процењује се преостало време…"
 
 #~ msgid "This model cannot detect the language: type it."
 #~ msgstr "Овај модел не уме да открије језик: наведите га."

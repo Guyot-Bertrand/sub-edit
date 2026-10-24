@@ -140,10 +140,9 @@ kertoo, missä työ on**, jotta tiedät sen elävän ja kuinka kauan se kestää
 
 - **vaihe**: ensin “Puretaan ääntä…” — ruutu on silloin varattu, ilman lukua, sillä purku ei kerro, kuinka pitkällä se
   on —, sitten “Litteroidaan ääntä…”, palkin kanssa;
-- **kohta**: “0:12:30 / 0:50:00”, kuinka pitkälle elokuvaa moottori on päässyt, heti kun se on tuottanut ensimmäisen tekstinsä;
-- **jäljellä oleva aika**, “noin 38 min jäljellä”: aluksi “arvioidaan jäljellä olevaa aikaa…”, korvataan, kun työtä on tehty riittävästi ekstrapoloitavaksi, ja laskettu viimeisen
-  minuutin nopeudesta; se on muutaman minuutin tarkkuudella, ei lupaus;
+- **jäljellä oleva aika**, “noin 38 min jäljellä”: aluksi puuttuu, näytetään, kun moottori on raportoinut riittävästi edistymistä ekstrapoloitavaksi, ja laskettu sen nopeudesta alusta viimeiseen minuuttiin asti; se on muutaman minuutin tarkkuudella, ei lupaus;
 - **kulunut aika**, “kulunut: 0:05:12”, joka kulkee silloinkin, kun mikään muu ei liiku;
+- **kohta**, “0:12:30 / 0:50:00”: kuinka pitkälle elokuvaa moottori on päässyt, heti kun se on tuottanut ensimmäisen tekstinsä, näytetään **heti sen viimeisimmän tekstin yläpuolella**, jota se vastaa;
 - **viimeisin saatu teksti**, jotta näet työn olevan järkevää.
 
 Pitkällä elokuvalla, jossa on suuri malli prosessorilla, ensimmäiset minuutit voivat olla pitkiä: moottori lataa mallia ja työstää ensimmäisiä
@@ -159,14 +158,13 @@ kirjoittamalla kieli. Tekstitykset ovat silti projektissa, ja yksi `Undo` palaut
 
 ### Kokeile ensin osaa
 
-Alue tekee litteroinnista **kokeen**, jotta voit arvioida mallia tai kieltä kahdella minuutilla ennen kuin sitoudut
-kahteen tuntiin. Kentät “Elokuvan osa” ottavat alun ja lopun, kumpikin kirjoitettuna `2:00`, `1:02:03`, `2:00.5` tai sekuntimääränä,
+Alueen avulla voit **arvioida mallia tai kieltä kahdella minuutilla ennen kuin sitoudut kahteen tuntiin**. Kentät “Elokuvan osa” ottavat alun ja lopun, kumpikin kirjoitettuna `2:00`, `1:02:03`, `2:00.5` tai sekuntimääränä,
 `90`; yksi yksinään on sallittu (sieltä loppuun tai alusta sinne). `OK` pysyy harmaana, kunnes kenttä
 on aika ja loppu on alun jälkeen, ja kenttien alla oleva rivi kertoo, mikä on vialla.
 
 - **Tekstitykset säilyttävät elokuvan ajan**: se, mikä sanotaan kohdassa 2:10, on tuloksessa kohdassa `0:02:10`.
-- **Mitään ei korvata, eikä mitään kysytä.** Tulos avautuu **omana projektinaan**, uudelle välilehdelle, ilman
-  tiedostoa; projekti, josta se tehtiin, ja sen tekstitykset ovat ennallaan. Tallenna se tai sulje se.
+- **Se korvaa projektin tekstitykset kuten mikä tahansa litterointi**, saman kysymyksen jälkeen, kun tekstityksiä on, ja yksi
+  `Undo` palauttaa ne. Jos haluat kokeilla aluetta koskematta työhösi, tallenna ensin tai työskentele kopiolla.
 
 **Sitä, mitä se tarvitsee, ei toimiteta**: moottori (whisper.cpp), malli ja `ffmpeg` äänen purkamiseen.
 Katso [Litterointityökalujen asentaminen](../subedit-cli/install-transcription.md).

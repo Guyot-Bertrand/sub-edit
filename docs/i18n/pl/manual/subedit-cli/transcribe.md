@@ -42,6 +42,8 @@ kończy się niezerowym kodem.
 - **Można transkrybować sam fragment filmu**, za pomocą `--start` i `--end` — zobacz
   [Transkrypcja fragmentu](#transkrypcja-fragmentu). Tak próbuje się model na dwóch minutach, zanim uruchomi się go na
   dwóch godzinach.
+- **Dźwięki nie są zapisywane jako uwagi**: silnik ma polecenie, by tego nie robić (jego własna opcja to `--suppress-nst`), tak że
+  `(Sonnerie de téléphone)` lub `[MUSIC PLAYING]` nie pojawiają się w napisach, ani w nawiasach okrągłych, ani w kwadratowych.
 - **Segmenty są łączone i cięte** zgodnie z limitami z ustawień (`transcription.merge-gap-ms`,
   `transcription.max-duration-ms`, `transcription.max-characters`): dwa fragmenty jednego zdania, które leżą
   blisko siebie, tworzą jeden napis, a fragment zbyt długi lub zbyt szeroki jest cięty na słowie. **`--raw`
@@ -146,7 +148,7 @@ Dźwięk całego filmu i tak jest wyodrębniany: oszczędza się transkrypcję, 
 | Poziom | Co jest dodawane na wyjściu błędów |
 | :----- | :------------------------------------- |
 | 1 | `<input>: N subtitles transcribed, language: xx -> <output>` |
-| 2 | etap i postęp, jeden wiersz na każdy procent: `extracting the audio…`, potem `transcribing…`, potem `transcribing: 25%, 0:12:30 of 0:50:00, about 38 min left, elapsed: 0:05:12` — procent, osiągnięta pozycja w dźwięku, pozostały czas (`estimating the time left…`, dopóki nie da się go obliczyć) i upłynięty czas; **wiersz jest powtarzany co dziesięć sekund, gdy nie nadeszło nic nowego**, aby długiego oczekiwania nie wziąć za zawieszenie |
+| 2 | etap i postęp, jeden wiersz na każdy procent: `extracting the audio…`, potem `transcribing…`, potem `transcribing: 25%, 0:12:30 of 0:50:00, about 38 min left, elapsed: 0:05:12` — procent, osiągnięta pozycja w dźwięku, pozostały czas i upłynięty czas; **wiersz jest powtarzany co dziesięć sekund, gdy nie nadeszło nic nowego**, aby długiego oczekiwania nie wziąć za zawieszenie |
 | 3 | oraz każdy nowy tekst, który silnik otrzymuje, `last text: …` |
 
 **Procent to pozycja silnika w dźwięku, a nie liczba jego własnych okien**: silnik zapisuje to, co przetranskrybował, na bieżąco,

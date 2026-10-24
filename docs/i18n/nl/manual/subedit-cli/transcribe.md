@@ -42,6 +42,8 @@ eindigt met een code die niet nul is.
 - **Een deel van de film kan alleen worden getranscribeerd**, met `--start` en `--end` — zie
   [Een deel transcriberen](#een-deel-transcriberen). Zo probeert u een model op twee minuten voordat u het op
   twee uur loslaat.
+- **Geluiden worden niet als notities geschreven**: de engine krijgt de opdracht dat niet te doen (zijn eigen optie is `--suppress-nst`), zodat
+  `(Sonnerie de téléphone)` of `[MUSIC PLAYING]` niet in de ondertitels opduiken, tussen ronde haakjes zoals tussen vierkante.
 - **De segmenten worden samengevoegd en geknipt** volgens de grenzen van de instellingen (`transcription.merge-gap-ms`,
   `transcription.max-duration-ms`, `transcription.max-characters`): twee stukken van één zin die dicht bij
   elkaar liggen worden één ondertitel, en een stuk dat te lang of te breed is wordt bij een woord geknipt. **`--raw`
@@ -146,7 +148,7 @@ De audio van de hele film wordt toch uitgepakt: het is de transcriptie, veel lan
 | Niveau | Wat er op de foutuitvoer wordt toegevoegd |
 | :----- | :------------------------------------- |
 | 1 | `<input>: N subtitles transcribed, language: xx -> <output>` |
-| 2 | de stap en de voortgang, een regel per procent: `extracting the audio…`, dan `transcribing…`, dan `transcribing: 25%, 0:12:30 of 0:50:00, about 38 min left, elapsed: 0:05:12` — het procent, de bereikte positie in de audio, de resterende tijd (`estimating the time left…` zolang die niet kan worden berekend) en de verstreken tijd; **de regel wordt elke tien seconden herhaald als er niets nieuws is gekomen**, zodat een lange wachttijd niet voor een vastloper wordt gehouden |
+| 2 | de stap en de voortgang, een regel per procent: `extracting the audio…`, dan `transcribing…`, dan `transcribing: 25%, 0:12:30 of 0:50:00, about 38 min left, elapsed: 0:05:12` — het procent, de bereikte positie in de audio, de resterende tijd en de verstreken tijd; **de regel wordt elke tien seconden herhaald als er niets nieuws is gekomen**, zodat een lange wachttijd niet voor een vastloper wordt gehouden |
 | 3 | en elke nieuwe tekst die de engine krijgt, `last text: …` |
 
 **Het procent is de positie van de engine in de audio, niet een telling van zijn eigen vensters**: de engine schrijft wat hij

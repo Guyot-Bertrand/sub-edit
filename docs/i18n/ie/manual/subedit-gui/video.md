@@ -140,10 +140,9 @@ dit u li labor es**, por que vu save que it vive e quant de témpor it va prende
 
 - **li pass**: unesim “Extraction del audio…” — li cadre es tande occupat, sin númere, nam extraer dit nequo pri quant es fat —,
   pois “Transcription del audio…”, con un barre;
-- **li position**: “0:12:30 de 0:50:00”, til u in li film li motor ha arrivat, tam rapid quam it ha producet su prim textu;
-- **li témpor restant**, “resta circa 38 min”: “estimation del témpor restant…” in li comense, remplazzat quande suficent labor es fat por extrapolar, e calculat
-  secun li rapiditá del ultim minute; it es un precision de qualque minutes, ne un promission;
+- **li témpor restant**, “resta circa 38 min”: absent in li comense, monstrat quande li motor ha raportat suficent progress por extrapolar, e calculat secun su rapiditá desde li comense til li ultim minute; it es un precision de qualque minutes, ne un promission;
 - **li témpor passat**, “passat: 0:05:12”, quel avansa mem quande nequo altri ne move;
+- **li position**, “0:12:30 de 0:50:00”: til u in li film li motor ha arrivat, tam rapid quam it ha producet su prim textu, monstrat **just super li ultim textu** al quel it corresponde;
 - **li ultim textu** obtenet, por que vu vide que li labor ha sens.
 
 Sur un long film con un grand model sur un processor, li prim minutes posse esser longi: li motor carga e labora sur su prim
@@ -159,14 +158,12 @@ li lingue tipat. Li subtitules es tamen in li projecte, e un `Undo` rende li quo
 
 ### Provar un parte ante
 
-Un interval fa del transcription un **prova**, por jugar un model o un lingue sur du minutes ante engagear se por
-du hores. Li campes “Parte del film” prende un comense e un fine, chascun scrit `2:00`, `1:02:03`, `2:00.5` o un númere
+Un interval permisse **jugar un model o un lingue sur du minutes ante engagear se por du hores**. Li campes “Parte del film” prende un comense e un fine, chascun scrit `2:00`, `1:02:03`, `2:00.5` o un númere
 de secondes, `90`; solmen un es permisset (de ibi til li fine, o del comense til ibi). `OK` resta extinct til un camp
 ne es un témpor o li fine ne es pos li comense, e un linea sub li campes dit quel.
 
 - **Li subtitules conserva li témpor del film**: quo es dit a 2:10 es a `0:02:10` in li resultate.
-- **Nequo es remplazzat e nequo es demandat.** Li resultate se aperi quam **un projecte propri**, in un nov tab, sin
-  file; li projecte de quel it veni, e su subtitules, resta quam ili esset. Gardar it, o cluder it.
+- **It remplazza li subtitules del projecte quam omni transcription**, pos li sam question quande il hay, e un `Undo` redona les. Por provar un interval sin tangeer vor labor, gardar unesim, o laborar sur un copie.
 
 **Quo it besona ne es livrat con li programma**: un motor (whisper.cpp), un model, e `ffmpeg` por extraer li audio.
 Vide [Instalar li utensiles de transcription](../subedit-cli/install-transcription.md).

@@ -166,8 +166,8 @@ std::vector<std::string> transcriptionStatusParts(const TranscriptionProgress& p
                                    {clockText(*progress.position), clockText(*progress.total)}));
     else if (progress.position)
         parts.push_back(clockText(*progress.position));
-    parts.push_back(left ? remainingTimeText(*left)
-                         : std::string{translate("estimating the time left…")});
+    if (left)
+        parts.push_back(remainingTimeText(*left));
     if (elapsed)
         parts.push_back(elapsedTimeText(*elapsed));
     return parts;

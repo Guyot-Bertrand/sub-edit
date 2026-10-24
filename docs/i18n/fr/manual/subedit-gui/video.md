@@ -137,10 +137,10 @@ dit où en est le travail**, pour que vous sachiez qu'il est vivant et combien d
 
 - **l'étape** : « Extraction de l'audio… » d'abord — la boîte est alors occupée, sans chiffre, car extraire ne dit rien de
   l'avancement —, puis « Transcription de l'audio… », avec une barre ;
-- **la position** : « 0:12:30 sur 0:50:00 », jusqu'où dans le film le moteur est arrivé, dès qu'il a produit son premier texte ;
-- **le temps restant**, « environ 38 min restantes » : « estimating the time left… » au début, remplacé quand assez de travail est fait pour extrapoler, et
-  calculé sur la vitesse de la dernière minute ; c'est une précision de quelques minutes, pas une promesse ;
+- **le temps restant**, « environ 38 min restantes » : absent au début, montré quand le moteur a rapporté assez de progression pour extrapoler, et
+  calculé sur sa vitesse depuis le début, jusqu'à la dernière minute ; c'est une précision de quelques minutes, pas une promesse ;
 - **le temps écoulé**, « elapsed: 0:05:12 », qui avance même quand rien d'autre ne bouge ;
+- **la position** : « 0:12:30 sur 0:50:00 », jusqu'où dans le film le moteur est arrivé, dès qu'il a produit son premier texte, montrée **juste au-dessus du dernier texte** auquel elle correspond ;
 - **le dernier texte** obtenu, pour voir que le travail a du sens.
 
 Sur un long film avec un grand modèle sur processeur, les premières minutes peuvent être longues : le moteur charge le modèle et
@@ -156,14 +156,13 @@ Relancez avec la langue saisie. Les sous-titres sont quand même dans le projet,
 
 ### Essayer une partie d'abord
 
-Une plage fait de la transcription un **essai**, pour juger un modèle ou une langue sur deux minutes avant de s'engager sur
-deux heures. Les champs « Partie du film » prennent un début et une fin, chacun écrit `2:00`, `1:02:03`, `2:00.5` ou un nombre
+Une plage permet de **juger un modèle ou une langue sur deux minutes avant de s'engager sur deux heures**. Les champs « Partie du film » prennent un début et une fin, chacun écrit `2:00`, `1:02:03`, `2:00.5` ou un nombre
 de secondes, `90` ; un seul est permis (de là jusqu'à la fin, ou du début jusque-là). `OK` reste éteint tant qu'un champ n'est
 pas une durée ou que la fin ne vient pas après le début, et une ligne sous les champs dit lequel.
 
 - **Les sous-titres gardent le temps du film** : ce qui est dit à 2:10 est à `0:02:10` dans le résultat.
-- **Rien n'est remplacé et rien n'est demandé.** Le résultat s'ouvre comme **un projet à part**, dans un nouvel onglet, sans
-  fichier ; le projet dont il vient, et ses sous-titres, sont comme avant. Enregistrez-le, ou fermez-le.
+- **Elle remplace les sous-titres du projet comme toute transcription**, après la même question quand il y en a, et un
+  `Undo` les rend. Pour essayer une plage sans toucher à votre travail, enregistrez d'abord, ou travaillez sur une copie.
 
 **Ce dont elle a besoin n'est pas livré** : un moteur (whisper.cpp), un modèle, et `ffmpeg` pour extraire l'audio.
 Voir [Installer les outils de transcription](../subedit-cli/install-transcription.md).

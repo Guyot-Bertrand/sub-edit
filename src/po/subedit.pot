@@ -3250,11 +3250,6 @@ msgid "%1 of %2"
 msgstr ""
 
 #: src/lib/subedit/core/wording/transcription.cpp
-#: src/lib/subedit/gui/transcription_runner.cpp
-msgid "estimating the time left…"
-msgstr ""
-
-#: src/lib/subedit/core/wording/transcription.cpp
 msgid "elapsed: %1"
 msgstr ""
 
@@ -4496,9 +4491,8 @@ msgstr ""
 #: src/lib/subedit/gui/transcribe_dialog.cpp
 msgid ""
 "The audio of the film open in this window is transcribed into subtitles that "
-"replace the ones of the project. Give a range to try a part of the film "
-"first: the result then opens as a project of its own and nothing is "
-"replaced. The work runs in the background and can be cancelled."
+"replace the ones of the project. The work runs in the background and can be "
+"cancelled."
 msgstr ""
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp

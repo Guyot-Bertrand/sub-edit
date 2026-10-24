@@ -39,6 +39,8 @@ exits with a non-zero code.
 - **A part of the film can be transcribed alone**, with `--start` and `--end` — see
   [Transcribing a part](#transcribing-a-part). It is how to try a model on two minutes before running it on
   two hours.
+- **Sounds are not written as notes**: the engine is told not to (its own option is `--suppress-nst`), so
+  that `(Sonnerie de téléphone)` or `[MUSIC PLAYING]` do not come up in the subtitles, in parentheses as in brackets.
 - **The segments are merged and cut** to the limits of the settings (`transcription.merge-gap-ms`,
   `transcription.max-duration-ms`, `transcription.max-characters`): two pieces of one sentence that are
   close are one subtitle, and a piece that is too long or too wide is cut at a word. **`--raw`
@@ -143,7 +145,7 @@ The audio of the whole film is still extracted: it is the transcription, much lo
 | Level | What is added on the error output |
 | :---- | :-------------------------------- |
 | 1 | `<input>: N subtitles transcribed, language: xx -> <output>` |
-| 2 | the step and the progress, one line for each percent: `extracting the audio…`, then `transcribing…`, then `transcribing: 25%, 0:12:30 of 0:50:00, about 38 min left, elapsed: 0:05:12` — the percent, the position reached in the audio, the time left (`estimating the time left…` until it can be worked out), and the time spent; **the line is said again every ten seconds when nothing new has come**, so that a long wait is not taken for a freeze |
+| 2 | the step and the progress, one line for each percent: `extracting the audio…`, then `transcribing…`, then `transcribing: 25%, 0:12:30 of 0:50:00, about 38 min left, elapsed: 0:05:12` — the percent, the position reached in the audio, the time left, and the time spent; **the line is said again every ten seconds when nothing new has come**, so that a long wait is not taken for a freeze |
 | 3 | and each new text the engine obtains, `last text: …` |
 
 **The percent is the engine's position in the audio, not a count of its own windows**: the engine writes what it

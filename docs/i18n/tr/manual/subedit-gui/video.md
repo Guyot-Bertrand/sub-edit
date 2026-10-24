@@ -128,9 +128,9 @@ sorulacak bir şey yoktur.
 İş **arka planda** çalışır, bir kutu ve bir `Cancel` düğmesiyle; pencere çevresinde kullanılabilir kalır. **Kutu işin nerede olduğunu söyler**, böylece canlı olduğunu ve ne kadar süreceğini bilirsiniz:
 
 - **adım**: önce “Ses çıkarılıyor…” — kutu o sırada meşguldür, rakam göstermez, çünkü çıkarma ne kadar ilerlediğini söylemez —, sonra “Ses yazıya dökülüyor…”, bir çubukla;
-- **konum**: “0:12:30 / 0:50:00”, motorun filmde ne kadar ilerlediği; ilk metnini üretir üretmez görünür;
-- **kalan süre**, “yaklaşık 38 dk kaldı”: başta “kalan süre tahmin ediliyor…”, tahmin yürütmeye yetecek kadar iş yapıldığında yerini alır ve son dakikanın hızından hesaplanır; birkaç dakikalık bir doğruluktur, bir söz değil;
+- **kalan süre**, “yaklaşık 38 dk kaldı”: başta yoktur, motor tahmin yürütmeye yetecek kadar ilerleme bildirdiğinde görünür ve başlangıçtan son dakikaya kadarki hızından hesaplanır; birkaç dakikalık bir doğruluktur, bir söz değil;
 - **geçen süre**, “geçen: 0:05:12”, başka hiçbir şey kıpırdamadığında bile ilerler;
+- **konum**, “0:12:30 / 0:50:00”: motorun filmde ne kadar ilerlediği; ilk metnini üretir üretmez görünür ve karşılık geldiği **son metnin hemen üstünde** gösterilir;
 - **elde edilen son metin**, işin anlamlı gittiğini görmeniz için.
 
 Büyük bir modelle işlemcide çalışan uzun bir filmde ilk dakikalar uzun olabilir: motor modeli yüklüyor ve ilk otuz saniyelik pencereleri üzerinde çalışıyor. Konum ve son metin, motorun yalnızca filmin %5'lik adımlarıyla gelen kendi yüzdesinden önce hareket eder. Bittiğinde projenin altyazıları
@@ -144,10 +144,10 @@ Altyazılar yine de projededir ve bir `Undo` orada olanı geri verir.
 
 ### Önce bir bölümü denemek
 
-Bir aralık, yazıya dökmeyi bir **denemeye** çevirir: iki saate girişmeden önce bir modeli ya da bir dili iki dakikada değerlendirmek için. “Filmin bir bölümü” alanları bir başlangıç ve bir bitiş alır, her biri `2:00`, `1:02:03`, `2:00.5` ya da bir saniye sayısı, `90` olarak yazılır; yalnızca biri de olabilir (oradan sona kadar ya da baştan oraya kadar). Bir alan süre olmadığı ya da bitiş başlangıçtan sonra gelmediği sürece `OK` kapalı kalır ve alanların altındaki bir satır hangisi olduğunu söyler.
+Bir aralık, **iki saate girişmeden önce bir modeli ya da bir dili iki dakikada değerlendirmenizi** sağlar. “Filmin bir bölümü” alanları bir başlangıç ve bir bitiş alır, her biri `2:00`, `1:02:03`, `2:00.5` ya da bir saniye sayısı, `90` olarak yazılır; yalnızca biri de olabilir (oradan sona kadar ya da baştan oraya kadar). Bir alan süre olmadığı ya da bitiş başlangıçtan sonra gelmediği sürece `OK` kapalı kalır ve alanların altındaki bir satır hangisi olduğunu söyler.
 
 - **Altyazılar filmin zamanını korur**: 2:10'da söylenen şey sonuçta `0:02:10` konumundadır.
-- **Hiçbir şey değiştirilmez ve hiçbir şey sorulmaz.** Sonuç, dosyasız, yeni bir sekmede **kendi başına bir proje** olarak açılır; çıkarıldığı proje ve altyazıları olduğu gibi kalır. Kaydedin ya da kapatın.
+- **Projenin altyazılarını her yazıya dökme gibi değiştirir**, varsa aynı sorudan sonra, ve bir `Undo` onları geri verir. Çalışmanıza dokunmadan bir aralığı denemek için önce kaydedin ya da bir kopya üzerinde çalışın.
 
 **İhtiyaç duyduğu şey birlikte gelmez**: bir motor (whisper.cpp), bir model ve sesi çıkarmak için `ffmpeg`.
 Bkz. [Yazıya dökme araçlarını kurma](../subedit-cli/install-transcription.md).

@@ -127,15 +127,16 @@ QString transcriptionBoxLabel(const core::TranscriptionProgress& progress,
     if (progress.stage == core::TranscriptionStage::Extracting)
         return translate("Extracting the audio…") + spent;
 
+    // The time left and the time spent, then where the engine is in the film, **just above the last
+    // text**: the position and the text it stands for read together.
     QString label = translate("Transcribing the audio…");
+    if (left)
+        label += QStringLiteral("\n%1").arg(QString::fromStdString(core::remainingTimeText(*left)));
+    label += spent;
     if (progress.position && progress.total)
         label += QStringLiteral("\n%1").arg(QString::fromStdString(core::substitute(
             core::translate("%1 of %2"),
             {core::clockText(*progress.position), core::clockText(*progress.total)})));
-    label +=
-        QStringLiteral("\n%1").arg(left ? QString::fromStdString(core::remainingTimeText(*left))
-                                        : translate("estimating the time left…"));
-    label += spent;
     if (!progress.lastText.empty())
         label += QStringLiteral("\n%1").arg(
             substitute(translate("Last text: %1"),
@@ -161,6 +162,7 @@ Result BackgroundTranscriptionRunner::run(const TranscriptionJob& job, QWidget* 
     SharedProgress progress;
     core::RemainingTime remaining;
     const auto started = core::RemainingTime::Clock::now();
+    remaining.note(0.0, started);
     std::atomic<bool> cancelled{false};
 
     QProgressDialog box{

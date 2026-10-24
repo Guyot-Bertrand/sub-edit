@@ -414,8 +414,7 @@ TEST_CASE("a line every ten seconds says the work goes on when nothing new has c
     // Ten seconds on: the same state, with the time spent.
     now += std::chrono::seconds{1};
     narration.idle();
-    CHECK_THAT(errors.str(),
-               ContainsSubstring("transcribing: 25%, estimating the time left…, elapsed: 0:00:10"));
+    CHECK_THAT(errors.str(), ContainsSubstring("transcribing: 25%, elapsed: 0:00:10"));
 
     // And the next one waits ten more.
     const std::string second = errors.str();

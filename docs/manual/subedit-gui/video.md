@@ -138,10 +138,10 @@ tells where the work stands**, so that you know it is alive and how long it will
 
 - **the step**: “Extracting the audio…” first — the box is then busy, with no figure, since extracting says nothing of how far it
   has got —, then “Transcribing the audio…”, with a bar;
-- **the position**: “0:12:30 of 0:50:00”, how far into the film the engine has got, as soon as it has produced its first text;
-- **the time left**, “about 38 min left”: “estimating the time left…” at first, replaced once enough is done to extrapolate from, and worked out from the
-  speed of the last minute; it is a few minutes' accuracy, not a promise;
+- **the time left**, “about 38 min left”: absent at first, shown once the engine has reported enough progress to extrapolate from, and worked
+  out from its speed since the start, up to the last minute; it is a few minutes' accuracy, not a promise;
 - **the time spent**, “elapsed: 0:05:12”, which moves even when nothing else does;
+- **the position**, “0:12:30 of 0:50:00”: how far into the film the engine has got, as soon as it has produced its first text, shown **just above the last text** it stands for;
 - **the last text** obtained, so that you can see the work is making sense.
 
 On a long film with a large model on a processor, the first minutes can be long: the engine is loading and working on its first
@@ -157,14 +157,13 @@ language typed. The subtitles are in the project all the same, and one `Undo` gi
 
 ### Trying a part first
 
-A range turns the transcription into a **trial**, to judge a model or a language on two minutes before committing to
-two hours. The fields “Part of the film” take a beginning and an end, each written as `2:00`, `1:02:03`, `2:00.5` or a number
+A range lets you **judge a model or a language on two minutes before committing to two hours**. The fields “Part of the film” take a beginning and an end, each written as `2:00`, `1:02:03`, `2:00.5` or a number
 of seconds, `90`; one alone is allowed (from there to the end, or from the start to there). `OK` stays out while a field is
 not a time or the end does not come after the beginning, and a line under the fields says which.
 
 - **The subtitles keep the time of the film**: what is said at 2:10 is at `0:02:10` in the result.
-- **Nothing is replaced and nothing is asked.** The result opens as **a project of its own**, in a new tab, with no file; the
-  project it was made from, and its subtitles, are as they were. Save it, or close it.
+- **It replaces the subtitles of the project like any transcription**, after the same question when there are some, and
+  one `Undo` gives them back. To try a range without touching your work, save first, or work on a copy.
 
 **What it needs is not shipped**: an engine (whisper.cpp), a model, and `ffmpeg` to extract the audio.
 See [Installing the transcription tools](../subedit-cli/install-transcription.md).

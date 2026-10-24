@@ -264,7 +264,7 @@ what was missing: `CLI-TRANSCRIBE-09`, `CLI-TRANSCRIBE-10`, `GUI-TRANSCRIBE-05` 
 | `CLI-TRANSCRIBE-09` | `--start` and `--end` restrict the transcription to a part of the film, the subtitles keep the time of the film, and a bound that is no time or a range whose end comes first is refused before any work |
 | `CLI-TRANSCRIBE-10` | while it runs the command says the step, the percent, the position in the film and the time left, and at the third level the text last obtained |
 | `GUI-TRANSCRIBE-05` | the progress box says the step, the position in the film, the time left and the last text obtained, and is busy rather than at 0 % while nothing says how far it is |
-| `GUI-TRANSCRIBE-06` | the dialog takes a range of the film; with one, the result opens as a project of its own and the subtitles already there are left alone |
+| `GUI-TRANSCRIBE-06` | the dialog takes a range of the film and transcribes only that part, the result replacing the subtitles of the project like any transcription, after the same question |
 
 ## Split
 

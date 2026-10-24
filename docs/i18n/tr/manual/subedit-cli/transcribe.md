@@ -41,6 +41,7 @@ ve sıfırdan farklı bir kodla çıkar.
   `[SPEAKING FRENCH]` olarak. Dili biliyorsanız verin.
 - **Filmin yalnızca bir bölümü yazıya dökülebilir**, `--start` ve `--end` ile — bkz.
   [Filmin bir bölümünü yazıya dökme](#filmin-bir-bölümünü-yazıya-dökme). Bir model iki saatte çalıştırılmadan önce iki dakikada böyle denenir.
+- **Sesler not olarak yazılmaz**: motora bunu yapmaması söylenir (kendi seçeneği `--suppress-nst`), böylece `(Sonnerie de téléphone)` ya da `[MUSIC PLAYING]` altyazılara çıkmaz, ne parantez içinde ne köşeli parantez içinde.
 - **Parçalar birleştirilir ve kesilir**, ayarların sınırlarına göre (`transcription.merge-gap-ms`,
   `transcription.max-duration-ms`, `transcription.max-characters`): bir cümlenin birbirine yakın iki
   parçası tek bir altyazı olur, çok uzun ya da çok geniş bir parça ise bir sözcükten kesilir. **`--raw`
@@ -139,7 +140,7 @@ Tüm filmin sesi yine de çıkarılır: aralığın kazandırdığı, çok daha 
 | Düzey | Hata çıktısına eklenenler |
 | :----- | :------------------------------------- |
 | 1 | `<input>: N subtitles transcribed, language: xx -> <output>` |
-| 2 | adım ve ilerleme, her yüzde için bir satır: `extracting the audio…`, sonra `transcribing…`, sonra `transcribing: 25%, 0:12:30 of 0:50:00, about 38 min left, elapsed: 0:05:12` — yüzde, seste ulaşılan konum, kalan süre (hesaplanabilene kadar `estimating the time left…`) ve geçen süre; **yeni bir şey gelmediğinde satır her on saniyede bir yeniden söylenir**, uzun bir bekleme donma sanılmasın diye |
+| 2 | adım ve ilerleme, her yüzde için bir satır: `extracting the audio…`, sonra `transcribing…`, sonra `transcribing: 25%, 0:12:30 of 0:50:00, about 38 min left, elapsed: 0:05:12` — yüzde, seste ulaşılan konum, kalan süre ve geçen süre; **yeni bir şey gelmediğinde satır her on saniyede bir yeniden söylenir**, uzun bir bekleme donma sanılmasın diye |
 | 3 | ve motorun elde ettiği her yeni metin, `last text: …` |
 
 **Yüzde, motorun seste bulunduğu konumdur, kendi pencerelerinin sayısı değil**: motor yazıya döktüğünü ilerledikçe yazar, komut da ne kadar ilerlediğini okur; böylece rakam ilk dakikadan itibaren hareket eder. (Motorun kendi ilerlemesi, otuz saniyelik bir pencere bittikten sonra, sesin %5'lik adımlarıyla gelir: tek başına, bir işlemcide büyük bir modelle uzun bir filmde çeyrek saat boyunca %0'da kalabilir.) **Kalan süre başlangıçta sessizdir**: tahmin yürütmeye yetecek kadar iş yapıldığında verilir ve tüm çalışmanın ortalamasını değil, son dakikanın hızını izler.

@@ -122,6 +122,30 @@ TEST_CASE("no speed, no estimate: a run that has not moved says nothing",
     CHECK_FALSE(remaining.left(kOrigin + 60s).has_value());
 }
 
+TEST_CASE("an engine that reports once in a long while still gives an estimate",
+          "[transcription][progress]") {
+    RemainingTime remaining;
+    remaining.note(0.0, kOrigin);
+    // The first report comes after two minutes, and the next will come two minutes after: nothing
+    // happens in the last minute, and the estimate must not depend on what happens in it.
+    remaining.note(0.05, kOrigin + 120s);
+
+    // 5 % in 2 minutes: 38 minutes to go, less the 30 seconds since the report.
+    CHECK(remaining.left(kOrigin + 150s) == 2250s);
+    CHECK(remaining.left(kOrigin + 200s).has_value());
+}
+
+TEST_CASE("the same fraction said again adds nothing", "[transcription][progress]") {
+    RemainingTime remaining;
+    remaining.note(0.0, kOrigin);
+    remaining.note(0.10, kOrigin + 100s);
+    for (int tick = 1; tick <= 50; ++tick)
+        remaining.note(0.10, kOrigin + 100s + std::chrono::seconds{tick * 10});
+
+    // A hundred seconds for a tenth: nine hundred to go, less the five hundred since the report.
+    CHECK(remaining.left(kOrigin + 600s) == 400s);
+}
+
 TEST_CASE("a fraction that goes back is ignored", "[transcription][progress]") {
     RemainingTime remaining;
     remaining.note(0.0, kOrigin);
@@ -200,13 +224,12 @@ TEST_CASE("the status says what is known and is silent about the rest",
 
     CHECK(transcriptionStatusParts({.stage = TranscriptionStage::Extracting}, std::nullopt) ==
           std::vector<std::string>{"extracting the audio…"});
-    CHECK(transcriptionStatusParts({}, std::nullopt) ==
-          std::vector<std::string>{"transcribing…", "estimating the time left…"});
+    CHECK(transcriptionStatusParts({}, std::nullopt) == std::vector<std::string>{"transcribing…"});
     CHECK(transcriptionStatusParts({.fraction = 0.5, .position = at(60000), .total = at(120000)},
                                    150s) ==
           std::vector<std::string>{"transcribing: 50%", "0:01:00 of 0:02:00", "about 2 min left"});
     CHECK(transcriptionStatusParts({.fraction = 0.1, .position = at(60000)}, std::nullopt) ==
-          std::vector<std::string>{"transcribing: 10%", "0:01:00", "estimating the time left…"});
+          std::vector<std::string>{"transcribing: 10%", "0:01:00"});
     CHECK(subedit::core::lastTextLine("hello") == "last text: hello");
 }
 

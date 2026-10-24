@@ -196,6 +196,10 @@ WhisperCppEngine::run(const TranscriptionRequest& request,
                                          "-l",
                                          request.language.value_or("auto"),
                                          "-pp",
+                                         // No sound written as a note, `(Sonnerie de téléphone)` or
+                                         // `[MUSIC PLAYING]`: the decoder is forbidden the symbols
+                                         // they are made of, in the parentheses as in the brackets.
+                                         "-sns",
                                          "-oj",
                                          "-ojf",
                                          "-of",

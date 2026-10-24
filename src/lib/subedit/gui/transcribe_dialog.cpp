@@ -94,9 +94,8 @@ TranscribeDialog::TranscribeDialog(std::vector<core::AudioTrack> tracks,
 
     auto* explanation = new QLabel{
         translate("The audio of the film open in this window is transcribed into subtitles "
-                  "that replace the ones of the project. Give a range to try a part of the "
-                  "film first: the result then opens as a project of its own and nothing is "
-                  "replaced. The work runs in the background and can be cancelled."),
+                  "that replace the ones of the project. The work runs in the background and "
+                  "can be cancelled."),
         this};
     explanation->setWordWrap(true);
 

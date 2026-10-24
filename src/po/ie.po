@@ -1083,9 +1083,12 @@ msgid "Where to stop, as 2:00, 1:02:03 or seconds; the end by default"
 msgstr "Ube haltar, quam 2:00, 1:02:03 o in secondes; li fine per defsault"
 
 #: src/exe/cli/commands/transcribe.cpp
-#: src/exe/cli/commands/transcribe.cpp
-msgid "Language of the speech, two letters: fr, en, de; detected from the first 30 seconds by default"
-msgstr "Lingue del parlada, du líttere: fr, en, de; detectet del prim 30 secondes per defecte"
+msgid ""
+"Language of the speech, two letters: fr, en, de; detected from the first 30 "
+"seconds by default"
+msgstr ""
+"Lingue del parlada, du líttere: fr, en, de; detectet del prim 30 secondes "
+"per defecte"
 
 #: src/exe/cli/commands/transcribe.cpp
 msgid "Model file; the transcription.model setting by default"
@@ -3435,18 +3438,28 @@ msgstr ""
 "«%1» ne es un témpor: scrir it quam 2:00, 1:02:03 o 2:00.5, o in secondes"
 
 #: src/lib/subedit/core/wording/transcription.cpp
-#: src/lib/subedit/core/wording/transcription.cpp
-msgid "%1 of the %2 pieces are only notes in brackets, such as [MUSIC PLAYING]: the language used (%3) is probably not the one spoken, and the engine may have translated the speech. Run it again with the language typed."
-msgstr "%1 de %2 fragmentes es solmen notes in crochetes, quam [MUSIC PLAYING]: li lingue usat (%3) probabilmen ne es li parlat, e li motor possibilmen ha tradutet li parlada. Reexecutez con li lingue tipat."
+msgid ""
+"%1 of the %2 pieces are only notes in brackets, such as [MUSIC PLAYING]: the "
+"language used (%3) is probably not the one spoken, and the engine may have "
+"translated the speech. Run it again with the language typed."
+msgstr ""
+"%1 de %2 fragmentes es solmen notes in crochetes, quam [MUSIC PLAYING]: li "
+"lingue usat (%3) probabilmen ne es li parlat, e li motor possibilmen ha "
+"tradutet li parlada. Reexecutez con li lingue tipat."
 
 #: src/lib/subedit/core/wording/transcription.cpp
-#: src/lib/subedit/core/wording/transcription.cpp
-msgid "This model is for English only: whatever language the film speaks, the result will be English, or notes in brackets. Choose a multilingual model in the preferences."
-msgstr "Ti model es solmen por anglesi: quelcunc lingue li film parla, li resultate va esser anglesi, o notes in crochetes. Selecte un model multilingual in li preferenties."
+msgid ""
+"This model is for English only: whatever language the film speaks, the "
+"result will be English, or notes in brackets. Choose a multilingual model in "
+"the preferences."
+msgstr ""
+"Ti model es solmen por anglesi: quelcunc lingue li film parla, li resultate "
+"va esser anglesi, o notes in crochetes. Selecte un model multilingual in li "
+"preferenties."
 
 #: src/lib/subedit/core/wording/transcription.cpp
-#: src/lib/subedit/core/wording/transcription.cpp
-msgid "\"%1\" is not a language code: write two letters, such as fr, en, de or es"
+msgid ""
+"\"%1\" is not a language code: write two letters, such as fr, en, de or es"
 msgstr "«%1» ne es un code de lingue: scrit du líttere, quam fr, en, de o es"
 
 #: src/lib/subedit/core/wording/transcription.cpp
@@ -3477,13 +3490,6 @@ msgstr "transcription…"
 #: src/lib/subedit/gui/transcription_runner.cpp
 msgid "%1 of %2"
 msgstr "%1 de %2"
-
-#: src/lib/subedit/core/wording/transcription.cpp
-#: src/lib/subedit/gui/transcription_runner.cpp
-#: src/lib/subedit/core/wording/transcription.cpp
-#: src/lib/subedit/gui/transcription_runner.cpp
-msgid "estimating the time left…"
-msgstr "estimation del témpor restant…"
 
 #: src/lib/subedit/core/wording/transcription.cpp
 msgid "elapsed: %1"
@@ -4791,9 +4797,13 @@ msgid "Detected from the sound"
 msgstr "Detectet del son"
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
-#: src/lib/subedit/gui/transcribe_dialog.cpp
-msgid "A language code such as fr, en, de, es or it (fra and eng work too). Leave it empty to let the model detect the language from the first 30 seconds of sound."
-msgstr "Un code de lingue quam fr, en, de, es o it (fra e eng functiona anc). Lassa it vacui por que li model detecte li lingue del prim 30 secondes de son."
+msgid ""
+"A language code such as fr, en, de, es or it (fra and eng work too). Leave "
+"it empty to let the model detect the language from the first 30 seconds of "
+"sound."
+msgstr ""
+"Un code de lingue quam fr, en, de, es o it (fra e eng functiona anc). Lassa "
+"it vacui por que li model detecte li lingue del prim 30 secondes de son."
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
 msgid ""
@@ -4804,16 +4814,9 @@ msgstr ""
 "por transcrir li tot film."
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
-msgid ""
-"The audio of the film open in this window is transcribed into subtitles that "
-"replace the ones of the project. Give a range to try a part of the film "
-"first: the result then opens as a project of its own and nothing is "
-"replaced. The work runs in the background and can be cancelled."
-msgstr ""
-"Li audio del film aperit in ti fenestre es transcrit in subtitules queles "
-"substitue ti del projecte. Dar un interval por provar ante un parte del "
-"film: li resultate se aperi tande quam un projecte propri e nullcos es "
-"substituet. Li labor eveni in li fonde e posse esser anullat."
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+msgid "The audio of the film open in this window is transcribed into subtitles that replace the ones of the project. The work runs in the background and can be cancelled."
+msgstr "Li audio del film aperit in ti fenestre es transcrit in subtitules quel remplazza ti del projecte. Li labor funde in li fon e posse esser anullat."
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
 msgid "Audio track"
@@ -4844,9 +4847,15 @@ msgid "Proposed from the language the file declares for this track."
 msgstr "Proposit del lingue quel li file declara por ti-ci pista."
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
-#: src/lib/subedit/gui/transcribe_dialog.cpp
-msgid "The file declares no language for this track: the model will detect it from the first 30 seconds of sound. If the film opens with music or silence it can choose wrongly, and the speech is then translated into that language. Type the language if you know it."
-msgstr "Li file declara null lingue por ti pista: li model detectará it del prim 30 secondes de son. Si li film comensa con musica o silentie it posse errar, e li parlada es tande tradutet in ti lingue. Tipa li lingue si vu save it."
+msgid ""
+"The file declares no language for this track: the model will detect it from "
+"the first 30 seconds of sound. If the film opens with music or silence it "
+"can choose wrongly, and the speech is then translated into that language. "
+"Type the language if you know it."
+msgstr ""
+"Li file declara null lingue por ti pista: li model detectará it del prim 30 "
+"secondes de son. Si li film comensa con musica o silentie it posse errar, e "
+"li parlada es tande tradutet in ti lingue. Tipa li lingue si vu save it."
 
 #: src/lib/subedit/gui/transcription_runner.cpp
 msgid "Extracting the audio…"
@@ -5277,6 +5286,9 @@ msgstr "Italic"
 msgctxt "toolbar"
 msgid "Main"
 msgstr "Principal"
+
+#~ msgid "estimating the time left…"
+#~ msgstr "estimation del témpor restant…"
 
 #~ msgid "This model cannot detect the language: type it."
 #~ msgstr "Ti model ne save detecter li lingue: scri it."

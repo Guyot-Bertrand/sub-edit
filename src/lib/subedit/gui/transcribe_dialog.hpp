@@ -31,9 +31,8 @@ struct TranscribeChoice {
     /// An ISO 639-1 code, or empty to let the model detect it.
     std::string language{};
 
-    /// The part of the film to transcribe; all of it when neither is given. **A range is a
-    /// trial**: the result opens as a project of its own and the subtitles already there are
-    /// left alone.
+    /// The part of the film to transcribe; all of it when neither is given. The result replaces the
+    /// subtitles of the project like any other, after the same question.
     std::optional<core::Timestamp> start{};
     std::optional<core::Timestamp> end{};
 

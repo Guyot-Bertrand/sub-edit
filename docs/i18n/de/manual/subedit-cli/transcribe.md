@@ -42,6 +42,8 @@ endet mit einem Code ungleich null.
 - **Ein Teil des Films kann allein transkribiert werden**, mit `--start` und `--end` — siehe
   [Einen Teil transkribieren](#einen-teil-transkribieren). So probiert man ein Modell an zwei Minuten aus, bevor man es auf
   zwei Stunden anwendet.
+- **Geräusche werden nicht als Anmerkungen geschrieben**: Die Engine bekommt die Anweisung, es nicht zu tun (ihre eigene Option heißt `--suppress-nst`), sodass
+  `(Sonnerie de téléphone)` oder `[MUSIC PLAYING]` nicht in den Untertiteln auftauchen, weder in runden noch in eckigen Klammern.
 - **Die Segmente werden zusammengefügt und geschnitten** nach den Grenzen der Einstellungen (`transcription.merge-gap-ms`,
   `transcription.max-duration-ms`, `transcription.max-characters`): Zwei nahe beieinander liegende Stücke eines
   Satzes ergeben einen Untertitel, und ein zu langes oder zu breites Stück wird an einem Wort geschnitten. **`--raw`
@@ -146,7 +148,7 @@ Das Audio des ganzen Films wird weiterhin extrahiert: Eingespart wird die Transk
 | Stufe | Was auf der Fehlerausgabe hinzukommt |
 | :---- | :-------------------------------- |
 | 1 | `<input>: N subtitles transcribed, language: xx -> <output>` |
-| 2 | der Schritt und der Fortschritt, eine Zeile pro Prozent: `extracting the audio…`, dann `transcribing…`, dann `transcribing: 25%, 0:12:30 of 0:50:00, about 38 min left, elapsed: 0:05:12` — das Prozent, die erreichte Position im Audio, die verbleibende Zeit (`estimating the time left…`, solange sie nicht berechnet werden kann) und die vergangene Zeit; **die Zeile wird alle zehn Sekunden wiederholt, wenn nichts Neues gekommen ist**, damit ein langes Warten nicht für ein Einfrieren gehalten wird |
+| 2 | der Schritt und der Fortschritt, eine Zeile pro Prozent: `extracting the audio…`, dann `transcribing…`, dann `transcribing: 25%, 0:12:30 of 0:50:00, about 38 min left, elapsed: 0:05:12` — das Prozent, die erreichte Position im Audio, die verbleibende Zeit und die vergangene Zeit; **die Zeile wird alle zehn Sekunden wiederholt, wenn nichts Neues gekommen ist**, damit ein langes Warten nicht für ein Einfrieren gehalten wird |
 | 3 | und jeder neue Text, den die Engine erhält, `last text: …` |
 
 **Das Prozent ist die Position der Engine im Audio, nicht eine Zählung ihrer eigenen Fenster**: Die Engine schreibt, was sie

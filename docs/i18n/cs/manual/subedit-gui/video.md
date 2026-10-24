@@ -140,10 +140,9 @@ Práce probíhá **na pozadí**, s oknem a tlačítkem `Cancel`; okno zůstává
 
 - **krok**: nejprve “Extrahuje se zvuk…” — okno je pak zaneprázdněné, bez čísla, protože extrakce neříká nic o tom, jak daleko
   došla —, pak “Přepis zvuku…”, s ukazatelem;
-- **pozice**: “0:12:30 z 0:50:00”, kam ve filmu nástroj došel, jakmile vytvoří první text;
-- **zbývající čas**, “zbývá asi 38 min”: zpočátku “odhaduje se zbývající čas…”, nahradí se, jakmile je hotovo dost práce pro extrapolaci, a počítá se z
-  rychlosti poslední minuty; je to přesnost na několik minut, ne příslib;
+- **zbývající čas**, “zbývá asi 38 min”: zpočátku chybí, zobrazí se, jakmile nástroj ohlásil dost postupu pro extrapolaci, a počítá se z jeho rychlosti od začátku až do poslední minuty; je to přesnost na několik minut, ne příslib;
 - **uplynulý čas**, “uplynulo: 0:05:12”, který běží, i když se nic jiného nehýbe;
+- **pozice**, “0:12:30 z 0:50:00”: kam ve filmu nástroj došel, jakmile vytvoří první text, zobrazená **těsně nad posledním textem**, ke kterému patří;
 - **poslední získaný text**, abyste viděli, že práce dává smysl.
 
 U dlouhého filmu s velkým modelem na procesoru mohou první minuty trvat dlouho: nástroj načítá model a pracuje na prvních
@@ -159,14 +158,13 @@ zadaným jazykem. Titulky jsou přesto v projektu a jedno `Undo` vrátí, co tam
 
 ### Nejprve zkusit část
 
-Rozsah změní přepis na **zkoušku**, abyste posoudili model nebo jazyk na dvou minutách, než se zavážete na
-dvě hodiny. Pole “Část filmu” berou začátek a konec, každý zapsaný jako `2:00`, `1:02:03`, `2:00.5` nebo počet
+Rozsah umožňuje **posoudit model nebo jazyk na dvou minutách, než se zavážete na dvě hodiny**. Pole “Část filmu” berou začátek a konec, každý zapsaný jako `2:00`, `1:02:03`, `2:00.5` nebo počet
 sekund, `90`; jedno samotné je povoleno (odtud do konce, nebo od začátku potud). `OK` zůstane nedostupné, dokud některé pole
 není čas nebo konec nenásleduje po začátku, a řádek pod poli řekne, které.
 
 - **Titulky zachovají čas filmu**: co se říká v 2:10, je ve výsledku na `0:02:10`.
-- **Nic se nenahradí a na nic se neptá.** Výsledek se otevře jako **samostatný projekt**, na nové kartě, bez
-  souboru; projekt, z něhož vznikl, a jeho titulky zůstanou, jak byly. Uložte jej, nebo zavřete.
+- **Nahradí titulky projektu jako každý přepis**, po stejné otázce, když nějaké jsou, a jedno `Undo` je vrátí. Chcete-li
+  rozsah zkusit, aniž byste sáhli na svou práci, nejprve uložte, nebo pracujte na kopii.
 
 **Co je potřeba, se nedodává**: nástroj (whisper.cpp), model a `ffmpeg` k extrakci zvuku.
 Viz [Instalace nástrojů pro přepis](../subedit-cli/install-transcription.md).

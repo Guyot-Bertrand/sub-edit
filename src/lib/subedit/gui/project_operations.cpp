@@ -418,12 +418,8 @@ void ProjectOperations::transcribeAudio(ProjectPage& page) {
 
     // **Asked before the work, not after it**: whoever declines does not wait for a
     // result they will not use. Nothing to ask when there is nothing to lose.
-    //
-    // **A range is a trial**: nothing is replaced, so nothing is asked, and the result opens
-    // as a project of its own.
-    const bool trial = choice.start.has_value() || choice.end.has_value();
     const std::size_t held = page.session->project().count();
-    if (!trial && held > 0 && !m_prompts->confirmReplacement(core::noticeOfReplacement(held)))
+    if (held > 0 && !m_prompts->confirmReplacement(core::noticeOfReplacement(held)))
         return;
 
     const TranscriptionJob job{.video = *video,
@@ -449,15 +445,6 @@ void ProjectOperations::transcribeAudio(ProjectPage& page) {
     const std::string suspicion =
         suspicious ? core::noticeOfNotes(outcome->notes, outcome->pieces, outcome->language)
                    : std::string{};
-    if (trial) {
-        core::Project aside;
-        aside.setSubtitles(std::move(outcome->subtitles));
-        m_view->openAside(std::move(aside));
-        m_view->announce(core::noticeOfTranscription(made, outcome->language));
-        if (suspicious)
-            m_prompts->reportOutcome(suspicion);
-        return;
-    }
     std::unique_ptr<core::Command> command =
         core::replaceAllSubtitles(page.session->project(), std::move(outcome->subtitles));
     if (command != nullptr) {

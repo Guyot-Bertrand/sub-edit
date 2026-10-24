@@ -139,10 +139,9 @@ di en que punto está o traballo**, para que saiba que está vivo e canto vai ta
 
 - **o paso**: primeiro “Extraendo o son…” — a caixa está entón ocupada, sen cifra, porque extraer non di nada de ata onde chegou —,
   despois “Transcribindo o son…”, cunha barra;
-- **a posición**: “0:12:30 de 0:50:00”, ata onde chegou o motor na película, en canto produciu o seu primeiro texto;
-- **o tempo que queda**, “quedan uns 38 min”: “estimando o tempo que queda…” ao principio, substituído cando hai traballo feito dabondo para extrapolar, e calculado
-  coa velocidade do último minuto; é unha precisión de poucos minutos, non unha promesa;
+- **o tempo que queda**, “quedan uns 38 min”: ausente ao principio, mostrado cando o motor informou de progreso dabondo para extrapolar, e calculado coa súa velocidade desde o comezo ata o último minuto; é unha precisión de poucos minutos, non unha promesa;
 - **o tempo transcorrido**, “transcorrido: 0:05:12”, que avanza mesmo cando nada máis se move;
+- **a posición**, “0:12:30 de 0:50:00”: ata onde chegou o motor na película, en canto produciu o seu primeiro texto, mostrada **xusto enriba do último texto** ao que corresponde;
 - **o último texto** obtido, para ver que o traballo ten sentido.
 
 Nunha película longa cun modelo grande nun procesador, os primeiros minutos poden ser longos: o motor está cargando e traballando nas súas primeiras
@@ -158,14 +157,12 @@ tecleada. Os subtítulos están igualmente no proxecto, e un `Undo` devolve o qu
 
 ### Probar primeiro unha parte
 
-Un intervalo converte a transcrición nunha **proba**, para xulgar un modelo ou unha lingua en dous minutos antes de comprometerse con
-dúas horas. Os campos “Parte da película” toman un comezo e un final, cada un escrito `2:00`, `1:02:03`, `2:00.5` ou un número
+Un intervalo permite **xulgar un modelo ou unha lingua en dous minutos antes de comprometerse con dúas horas**. Os campos “Parte da película” toman un comezo e un final, cada un escrito `2:00`, `1:02:03`, `2:00.5` ou un número
 de segundos, `90`; permítese só un (desde aí ata o final, ou desde o principio ata aí). `OK` queda apagado mentres un campo non
 é un tempo ou o final non vén despois do comezo, e unha liña baixo os campos di cal.
 
 - **Os subtítulos conservan o tempo da película**: o que se di aos 2:10 está en `0:02:10` no resultado.
-- **Non se substitúe nada e non se pregunta nada.** O resultado ábrese como **un proxecto propio**, nunha pestana nova, sen
-  ficheiro; o proxecto de onde vén, e os seus subtítulos, quedan como estaban. Gárdeo, ou péchao.
+- **Substitúe os subtítulos do proxecto como calquera transcrición**, despois da mesma pregunta cando os hai, e un `Undo` devólveos. Para probar un intervalo sen tocar o seu traballo, garde primeiro, ou traballe sobre unha copia.
 
 **O que necesita non vén co programa**: un motor (whisper.cpp), un modelo e `ffmpeg` para extraer o son.
 Vexa [Instalar as ferramentas de transcrición](../subedit-cli/install-transcription.md).

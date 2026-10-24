@@ -140,10 +140,9 @@ segir hvar vinnan er stödd**, svo að þú vitir að hún lifir og hve lengi h�
 
 - **skrefið**: fyrst „Dreg út hljóðið…“ — glugginn er þá upptekinn, án tölu, því útdráttur segir ekkert um hve langt er komið —,
   síðan „Umrita hljóðið…“, með stiku;
-- **staðan**: „0:12:30 af 0:50:00“, hve langt inn í kvikmyndina vélin er komin, um leið og hún hefur skilað fyrsta textanum sínum;
-- **tíminn sem eftir er**, „um 38 mín. eftir“: „áætla tímann sem eftir er…“ í upphafi, skipt út þegar nóg hefur verið unnið til að framreikna, og
-  reiknaður út frá hraða síðustu mínútu; nákvæmnin er nokkrar mínútur, ekki loforð;
+- **tíminn sem eftir er**, „um 38 mín. eftir“: fjarverandi í upphafi, birtist þegar vélin hefur skilað nægri framvindu til að framreikna út frá, og reiknaður út frá hraða hennar frá byrjun og fram að síðustu mínútu; nákvæmnin er nokkrar mínútur, ekki loforð;
 - **tíminn sem liðinn er**, „liðið: 0:05:12“, sem líður jafnvel þegar ekkert annað hreyfist;
+- **staðan**, „0:12:30 af 0:50:00“: hve langt inn í kvikmyndina vélin er komin, um leið og hún hefur skilað fyrsta textanum sínum, birt **rétt fyrir ofan síðasta textann** sem hún á við;
 - **síðasti textinn** sem fékkst, svo að þú sjáir að vinnan er skynsamleg.
 
 Á langri kvikmynd með stóru líkani á örgjörva geta fyrstu mínúturnar verið langar: vélin er að hlaða og vinna í fyrstu
@@ -159,14 +158,12 @@ tungumálið skrifað inn. Skjátextarnir eru samt í verkefninu, og eitt `Undo`
 
 ### Að prófa hluta fyrst
 
-Bil gerir umritunina að **prófun**, til að meta líkan eða tungumál á tveimur mínútum áður en lagt er í
-tvær klukkustundir. Reitirnir „Hluti kvikmyndarinnar“ taka upphaf og endi, hvort um sig skrifað `2:00`, `1:02:03`, `2:00.5` eða fjöldi
+Bil gerir þér kleift að **meta líkan eða tungumál á tveimur mínútum áður en lagt er í tvær klukkustundir**. Reitirnir „Hluti kvikmyndarinnar“ taka upphaf og endi, hvort um sig skrifað `2:00`, `1:02:03`, `2:00.5` eða fjöldi
 sekúndna, `90`; nóg er að fylla út annan (þaðan til enda, eða frá upphafi þangað). `OK` helst óvirkt meðan reitur
 er ekki tími eða endirinn kemur ekki á eftir upphafinu, og lína undir reitunum segir hvor það er.
 
 - **Skjátextarnir halda tíma kvikmyndarinnar**: það sem sagt er á 2:10 er á `0:02:10` í niðurstöðunni.
-- **Engu er skipt út og ekkert er spurt um.** Niðurstaðan opnast sem **sérstakt verkefni**, í nýjum flipa, án
-  skráar; verkefnið sem hún kom úr, og skjátextar þess, eru eins og áður. Vistaðu hana, eða lokaðu henni.
+- **Það skiptir út skjátextum verkefnisins eins og hver umritun**, eftir sömu spurningu þegar þeir eru til, og ein `Undo` skilar þeim. Til að prófa bil án þess að snerta vinnuna þína skaltu vista fyrst, eða vinna á afriti.
 
 **Það sem hún þarf fylgir ekki forritinu**: vél (whisper.cpp), líkan og `ffmpeg` til að draga hljóðið út.
 Sjá [Uppsetning umritunartækjanna](../subedit-cli/install-transcription.md).

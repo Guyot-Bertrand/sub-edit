@@ -143,10 +143,10 @@ dice a che punto è il lavoro**, in modo che tu sappia che è vivo e quanto temp
 
 - **la fase**: prima “Estrazione dell'audio…” — la finestra è allora occupata, senza cifre, perché l'estrazione non dice nulla
   del suo avanzamento —, poi “Trascrizione dell'audio…”, con una barra;
-- **la posizione**: “0:12:30 di 0:50:00”, fino a dove nel film è arrivato il motore, non appena ha prodotto il suo primo testo;
-- **il tempo rimanente**, “circa 38 min rimanenti”: “stima del tempo rimanente…” all'inizio, sostituito quando è stato fatto abbastanza lavoro per
-  estrapolare, e calcolato sulla velocità dell'ultimo minuto; ha una precisione di qualche minuto, non è una promessa;
+- **il tempo rimanente**, “circa 38 min rimanenti”: assente all'inizio, mostrato quando il motore ha riferito abbastanza avanzamento per estrapolare, e
+  calcolato sulla sua velocità dall'inizio fino all'ultimo minuto; ha una precisione di qualche minuto, non è una promessa;
 - **il tempo trascorso**, “trascorso: 0:05:12”, che avanza anche quando nient'altro si muove;
+- **la posizione**, “0:12:30 di 0:50:00”: fino a dove nel film è arrivato il motore, non appena ha prodotto il suo primo testo, mostrata **subito sopra l'ultimo testo** a cui corrisponde;
 - **l'ultimo testo** ottenuto, in modo che tu possa vedere che il lavoro ha senso.
 
 Su un film lungo con un modello grande su processore, i primi minuti possono essere lunghi: il motore sta caricando il modello e
@@ -162,14 +162,13 @@ Riesegui indicando la lingua. I sottotitoli sono comunque nel progetto, e un `Un
 
 ### Provare prima una parte
 
-Un intervallo trasforma la trascrizione in una **prova**, per giudicare un modello o una lingua su due minuti prima di impegnarsi su
-due ore. I campi “Parte del film” accettano un inizio e una fine, ciascuno scritto `2:00`, `1:02:03`, `2:00.5` o un numero
+Un intervallo permette di **giudicare un modello o una lingua su due minuti prima di impegnarsi su due ore**. I campi “Parte del film” accettano un inizio e una fine, ciascuno scritto `2:00`, `1:02:03`, `2:00.5` o un numero
 di secondi, `90`; ne è ammesso uno solo (da lì alla fine, o dall'inizio fino a lì). `OK` resta disattivato finché un campo non
 è un tempo o la fine non viene dopo l'inizio, e una riga sotto i campi dice quale.
 
 - **I sottotitoli mantengono il tempo del film**: ciò che è detto a 2:10 si trova a `0:02:10` nel risultato.
-- **Nulla viene sostituito e nulla viene chiesto.** Il risultato si apre come **un progetto a sé**, in una nuova scheda, senza
-  file; il progetto da cui proviene, e i suoi sottotitoli, restano come prima. Salvalo, o chiudilo.
+- **Sostituisce i sottotitoli del progetto come ogni trascrizione**, dopo la stessa domanda quando ce ne sono, e un solo
+  `Undo` li restituisce. Per provare un intervallo senza toccare il tuo lavoro, salva prima, oppure lavora su una copia.
 
 **Ciò che serve non è fornito**: un motore (whisper.cpp), un modello e `ffmpeg` per estrarre l'audio.
 Vedi [Installare gli strumenti di trascrizione](../subedit-cli/install-transcription.md).

@@ -112,7 +112,9 @@ ProgressNarration::ProgressNarration(const Reporter& reporter,
       m_clock(std::move(clock)),
       m_heartbeat(heartbeat),
       m_started(m_clock()),
-      m_lastSaid(m_started) {}
+      m_lastSaid(m_started) {
+    m_remaining.note(0.0, m_started);
+}
 
 void ProgressNarration::operator()(const core::TranscriptionProgress& progress) {
     const Clock::time_point now = m_clock();

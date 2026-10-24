@@ -144,7 +144,7 @@ TEST_CASE("the command line is the one the tool expects", "[whisper][engine]") {
     std::ifstream file{setup.scratch.file("arguments")};
     for (std::string line; std::getline(file, line);)
         arguments.push_back(line);
-    REQUIRE(arguments.size() == 11);
+    REQUIRE(arguments.size() == 12);
     CHECK(arguments[0] == "-m");
     CHECK(arguments[1] == setup.multilingual.string());
     CHECK(arguments[2] == "-f");
@@ -152,10 +152,11 @@ TEST_CASE("the command line is the one the tool expects", "[whisper][engine]") {
     CHECK(arguments[4] == "-l");
     CHECK(arguments[5] == "fr");
     CHECK(arguments[6] == "-pp");
-    CHECK(arguments[7] == "-oj");
-    CHECK(arguments[8] == "-ojf");
-    CHECK(arguments[9] == "-of");
-    CHECK(arguments[10].ends_with("/out"));
+    CHECK(arguments[7] == "-sns");
+    CHECK(arguments[8] == "-oj");
+    CHECK(arguments[9] == "-ojf");
+    CHECK(arguments[10] == "-of");
+    CHECK(arguments[11].ends_with("/out"));
 }
 
 TEST_CASE("the exit codes of the tool become the errors of the port", "[whisper][engine]") {
@@ -357,6 +358,8 @@ TEST_CASE("a range is handed to the tool as an offset and a duration", "[whisper
     const std::string arguments{std::istreambuf_iterator<char>{written},
                                 std::istreambuf_iterator<char>{}};
     CHECK(arguments.find("-ot\n30000\n") != std::string::npos);
+    // Sounds are not written as notes, in parentheses or in brackets.
+    CHECK(arguments.find("-sns\n") != std::string::npos);
     CHECK(arguments.find("-d\n60000\n") != std::string::npos);
 
     // Without a range, neither is passed.

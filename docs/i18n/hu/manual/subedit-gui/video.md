@@ -138,10 +138,9 @@ megmutatja, hol tart a munka**, hogy tudja, él, és mennyi ideig fog tartani:
 
 - **a lépés**: először „A hang kinyerése…” — az ablak ilyenkor foglalt, szám nélkül, mert a kinyerés semmit sem mond arról, meddig jutott —,
   majd „A hang leiratozása…”, egy sávval;
-- **a pozíció**: „0:12:30 / 0:50:00”, hogy a motor meddig jutott a filmben, amint előállította az első szövegét;
-- **a hátralévő idő**, „körülbelül 38 perc van hátra”: az elején „a hátralévő idő becslése…”, majd akkor cserélődik le, amikor elég munka készült az extrapoláláshoz, és
-  az utolsó perc sebességéből számolódik; néhány perces pontosság, nem ígéret;
+- **a hátralévő idő**, „körülbelül 38 perc van hátra”: eleinte hiányzik, és akkor jelenik meg, amikor a motor elég előrehaladást jelentett az extrapoláláshoz, és a motor sebességéből számolódik az indulástól az utolsó percig; néhány perces pontosság, nem ígéret;
 - **az eltelt idő**, „eltelt: 0:05:12”, amely akkor is halad, ha semmi más nem mozdul;
+- **a pozíció**, „0:12:30 / 0:50:00”: hogy a motor meddig jutott a filmben, amint előállította az első szövegét; **közvetlenül az utolsó szöveg fölött** látszik, amelyhez tartozik;
 - **az utolsó szöveg**, amelyet megkapott, hogy lássa, a munkának van értelme.
 
 Egy hosszú filmnél, nagy modellel, processzoron az első percek hosszúak lehetnek: a motor betölt, és az első harmincmásodperces
@@ -157,14 +156,12 @@ Futtassa újra a nyelv megadásával. A feliratok ettől még a projektben vanna
 
 ### Előbb egy rész kipróbálása
 
-Egy tartomány a leiratozást **próbává** teszi, hogy egy modellt vagy nyelvet kétperces szakaszon lehessen megítélni, mielőtt
-kétórásra vállalkoznak. A „A film egy része” mezők egy kezdetet és egy véget kapnak, mindegyiket `2:00`, `1:02:03`, `2:00.5` vagy
+Egy tartomány lehetővé teszi, hogy **egy modellt vagy nyelvet kétperces szakaszon ítéljen meg, mielőtt kétórásra vállalkozna**. A „A film egy része” mezők egy kezdetet és egy véget kapnak, mindegyiket `2:00`, `1:02:03`, `2:00.5` vagy
 másodpercek számaként, `90`, írva; elég az egyik (onnantól a végéig, vagy az elejétől odáig). Az `OK` kikapcsolt marad, amíg egy mező
 nem időpont, vagy a vég nem a kezdet után van, és a mezők alatti sor megmondja, melyik.
 
 - **A feliratok megtartják a film idejét**: ami 2:10-nél hangzik el, az az eredményben `0:02:10`-nél áll.
-- **Semmi sem cserélődik le, és semmit sem kérdez.** Az eredmény **önálló projektként** nyílik meg, új lapon, fájl
-  nélkül; az a projekt, amelyből készült, és a feliratai úgy maradnak, ahogy voltak. Mentse el, vagy zárja be.
+- **Lecseréli a projekt feliratait, mint bármely leiratozás**, ugyanazon kérdés után, ha vannak, és egy `Undo` visszaadja őket. Ha úgy akar tartományt kipróbálni, hogy ne nyúljon a munkájához, előbb mentsen, vagy dolgozzon másolaton.
 
 **Amire szüksége van, azt nem szállítja a program**: egy motor (whisper.cpp), egy modell, és az `ffmpeg` a hang kinyeréséhez.
 Lásd: [A leiratozó eszközök telepítése](../subedit-cli/install-transcription.md).

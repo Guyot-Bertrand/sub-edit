@@ -42,6 +42,7 @@ nem tör el semmit**: a parancs megmondja, mi hiányzik, az oldalra mutató hiva
 - **A film egy része külön is leiratozható** a `--start` és az `--end` kapcsolóval — lásd:
   [Egy rész leiratozása](#egy-rész-leiratozása). Így lehet egy modellt kétperces szakaszon kipróbálni, mielőtt
   kétórás filmre indítják.
+- **A hangokat nem jegyzetként írja le**: a motor utasítást kap rá, hogy ne tegye (saját kapcsolója a `--suppress-nst`), így a `(Sonnerie de téléphone)` vagy a `[MUSIC PLAYING]` nem kerül a feliratok közé, sem kerek, sem szögletes zárójelben.
 - **A szakaszokat egyesíti és vágja** a beállítások korlátai szerint (`transcription.merge-gap-ms`,
   `transcription.max-duration-ms`, `transcription.max-characters`): egy mondat két közeli darabja
   egy felirat, a túl hosszú vagy túl széles darabot pedig szónál vágja el. **A `--raw`
@@ -145,7 +146,7 @@ A teljes film hangja ettől még kinyerődik: a tartomány a leiratozáson spór
 | Szint | Mi kerül még a hibakimenetre |
 | :---- | :-------------------------------- |
 | 1 | `<input>: N subtitles transcribed, language: xx -> <output>` |
-| 2 | a lépés és az előrehaladás, százalékonként egy sor: `extracting the audio…`, majd `transcribing…`, majd `transcribing: 25%, 0:12:30 of 0:50:00, about 38 min left, elapsed: 0:05:12` — a százalék, a hangban elért pozíció, a hátralévő idő (`estimating the time left…`, amíg nem számítható ki) és az eltelt idő; **a sort tíz másodpercenként újra kiírja, ha semmi új nem érkezett**, hogy a hosszú várakozást ne tekintsék lefagyásnak |
+| 2 | a lépés és az előrehaladás, százalékonként egy sor: `extracting the audio…`, majd `transcribing…`, majd `transcribing: 25%, 0:12:30 of 0:50:00, about 38 min left, elapsed: 0:05:12` — a százalék, a hangban elért pozíció, a hátralévő idő és az eltelt idő; **a sort tíz másodpercenként újra kiírja, ha semmi új nem érkezett**, hogy a hosszú várakozást ne tekintsék lefagyásnak |
 | 3 | és minden új szöveg, amelyet a motor megkap, `last text: …` |
 
 **A százalék a motor pozíciója a hangban, nem a saját ablakainak száma**: a motor menet közben kiírja, amit leiratozott,

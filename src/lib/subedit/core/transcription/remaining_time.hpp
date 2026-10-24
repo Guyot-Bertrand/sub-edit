@@ -19,8 +19,9 @@ class RemainingTime {
 public:
     using Clock = std::chrono::steady_clock;
 
-    /// Notes that `fraction` of the work (0 to 1) was done at `now`. A fraction lower than the
-    /// last is ignored: progress does not go back.
+    /// Notes that `fraction` of the work (0 to 1) was done at `now`. A fraction that is not above
+    /// the last is ignored: only progress counts. **Noting 0 when the work begins** gives the first
+    /// real report something to be measured from.
     void note(double fraction, Clock::time_point now);
 
     /// The time left if the work goes on as it has, or nothing while it cannot be said.
