@@ -45,4 +45,6 @@ kde začít, viz
 | [`append`](append.md) | připojit soubory za první, do jediného souboru |
 | [`split-file`](split-file.md) | rozdělit soubor na dvě části, druhou vrácenou na počátek |
 | [`pair`](pair.md) | zapsat překlad na pozice jeho hlavního souboru a sdělit, jak se jeho řádky zarovnaly |
+| [`transcribe`](transcribe.md) | zapsat řeč videa nebo zvukového souboru jako titulky |
+| [Instalace nástrojů pro přepis](install-transcription.md) | nástroj, model a `ffmpeg`, které program nedodává |
 | [`config`](config.md) | vypsat, zobrazit a změnit nastavení operací sdílená s oknem |

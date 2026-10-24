@@ -102,15 +102,15 @@ duration-adjust.lengthen
     Used by: subedit-cli adjust; Adjust Durations…
 ```
 
-Исписује **33 кључа**:
+Исписује **40 кључева**:
 
 <!-- example: subedit-cli config list | grep -c '^[a-z]' -->
 ```console
 $ subedit-cli config list | grep -c '^[a-z]'
-33
+40
 ```
 
-**Тринаест њих чита командна линија**; осталих двадесет чита само прозор,
+**Двадесет њих чита командна линија**; осталих двадесет чита само прозор,
 и њихов ред `Used by:` то каже, уз опцију подкоманде `correct` која их замењује:
 
 | Кључ | Ко чита |
@@ -122,6 +122,7 @@ $ subedit-cli config list | grep -c '^[a-z]'
 | `correction.human`, `correction.ocr` | [`correct`](correct.md) и `Correct Texts…` |
 | `correction.remove-blank` | `correct` и `Correct Texts…` |
 | `correction.line-break.max-lines` | `correct` и `Correct Texts…` |
+| `transcription.engine`, `transcription.executable`, `transcription.model`, `transcription.language`, `transcription.merge-gap-ms`, `transcription.max-duration-ms`, `transcription.max-characters` | [`transcribe`](transcribe.md) и `Transcribe Audio…` |
 | сваки други кључ `correction.*` | само `Correct Texts…` — `correct` узима `--tasks`, `--code`, `--max-length`, `--skip-length`, `--skip-lines`, `--language`, `--enable` и `--disable` из своје линије |
 
 Бројеви редова, `correction.line-break.max-lines` и `correction.line-break.skip-max-lines`,
@@ -209,6 +210,7 @@ duration-adjust.gap-ms = 100
 # Display preferences: the window's own, the command line never reads them.
 duration-adjust.gap-ms reset to its default (0)
 #duration-adjust.gap-ms = 0
+#transcription.merge-gap-ms = 400
 ```
 
 ## Излазни кодови

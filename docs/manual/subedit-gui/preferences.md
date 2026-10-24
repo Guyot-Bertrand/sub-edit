@@ -135,6 +135,12 @@ two blocks existed is read unchanged, and rewritten in two blocks at the next cl
 | `correction.join-split.join`, `correction.join-split.split` | `true` or `false` — join, split | `true`, `false` |
 | `correction.join-split.language` | a locale code — `fr`, `en_US`, `sr@Latn` —; empty: the system's language | empty |
 | `correction.remove-blank` | `true` or `false` — `Remove all blank subtitles` | `true` |
+| `transcription.engine` | the name of the engine: lower-case letters, digits, `.`, `-` and `_` | `whisper.cpp` |
+| `transcription.executable`, `transcription.model` | an absolute path; empty: the engine is searched for on `PATH`, and no model is set | empty |
+| `transcription.language` | two lower-case letters, an ISO 639-1 code; empty: the language is detected | empty |
+| `transcription.merge-gap-ms` | pieces of one sentence closer than this are joined, in milliseconds, whole and non-negative | `400` |
+| `transcription.max-duration-ms` | the longest a transcribed subtitle stays on screen, in milliseconds, from 1 to 3600000 | `7000` |
+| `transcription.max-characters` | the most characters a transcribed subtitle holds, from 1 to 1000 | `84` |
 | `correction.activations` | the pattern check boxes the user changed, `<type>:<code>:<name>:<0\|1>`, separated by commas; **a comma or a backslash in a name is written preceded by a backslash** (`\,` and `\\`), and an unreadable entry loses only its own setting — it is reported, the others are kept | empty |
 | `spell-check.language` | a locale code, such as `fr_FR`; empty: the system's language | empty |
 | `spell-check.target` | `selection`, `current-project` or `all-projects` | `current-project` |
@@ -269,6 +275,19 @@ it, whatever the desktop.
 **The anomaly tints stay readable in both palettes** — see
 [The table](table.md#the-anomalies). It is not an assumption: the contrast
 of the text on each of the tints is checked by a test, on both backgrounds.
+
+## Transcription
+
+The group **`Transcription`** of the dialog holds the two facts about the machine that
+[`Transcribe Audio…`](video.md#transcribing-the-audio) needs: **the program** of the engine (whisper.cpp,
+`whisper-cli`) and **the model** it reads. Each has a `Browse…` button. Left empty, the program is searched for
+on the `PATH`; the model has no default.
+
+Under the fields, **the dialog says what is there**: whether the engine is found and where, whether `ffmpeg`
+is found, and the model — not set, not found, not a model, for English alone, or multilingual. When something is
+missing it adds the pointer to
+[Installing the transcription tools](../subedit-cli/install-transcription.md), which says where to find
+each. The two fields are the settings `transcription.executable` and `transcription.model`.
 
 ## The interface language
 

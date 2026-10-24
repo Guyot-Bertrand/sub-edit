@@ -42,6 +42,10 @@ file      src/lib/subedit/cli/inspection.cpp lf|crlf|cr|clean|partial|silent|ask
 file      src/lib/subedit/cli/pairing.cpp position|number
 file      src/lib/subedit/cli/changes.cpp main|translation
 file      src/lib/subedit/cli/configuring.cpp both
+# The identifiers and keys of the record of `transcribe` (#778), one word each.
+file      src/lib/subedit/cli/transcribing.cpp [a-z]+(?:-[a-z]+)*
+# The ISO 639 codes of the languages an engine takes: names the container and the engine write (#779).
+file      src/lib/subedit/core/transcription/language_codes.cpp [a-z]{2,3}
 
 [json] The `--format json` output is a contract: its keys and values are the same in every language (D3).
 statement \.set\(

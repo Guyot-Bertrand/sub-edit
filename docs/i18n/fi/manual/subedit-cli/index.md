@@ -45,4 +45,6 @@ mistä aloittaa, kertoo
 | [`append`](append.md) | liittää tiedostot ensimmäisen perään yhdeksi tiedostoksi |
 | [`split-file`](split-file.md) | leikkaa tiedoston kahtia, ja loppuosa siirretään alkamaan nollasta |
 | [`pair`](pair.md) | kirjoittaa käännöksen päätiedostonsa kohtiin ja kertoo, miten sen rivit asettuivat kohdakkain |
+| [`transcribe`](transcribe.md) | kirjoittaa videon tai äänitiedoston puheen tekstitykseksi |
+| [Litterointityökalujen asentaminen](install-transcription.md) | moottori, malli ja `ffmpeg`, joita ohjelma ei toimita |
 | [`config`](config.md) | luettelee, näyttää ja muuttaa ikkunan kanssa yhteisiä toimintojen asetuksia |

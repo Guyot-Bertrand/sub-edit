@@ -3,12 +3,13 @@
 <!-- machine-translated -->
 > Ca págine es un traduction machinal e it ancor ne ha esset revidet de un lector del lingue.
 
-Li menu **Video** porta prim du comandes, e li gestes quel condui li film
+Li menu **Video** porta prim tri comandes, e li gestes quel condui li film
 — vide [Li reproductor](player.md#mover-se-tra-li-film).
 
 | Comande | Via rapid | Quo it fa |
 | :------ | :------- | :----------- |
 | Selecter video… | null | elige li file de video con quel li document vade |
+| Transcrir audio… | null | transcrive li audio del film in subtitules quel remplazza ti del projecte — vide [Transcrir li audio](#transcrir-li-audio) |
 | Reproducter / Pausa | `Ctrl+P` | reproducte o halta li video — vide [Li reproductor](player.md#reproducter-e-halter) |
 
 Li video associat es **un proprietá del document aperit**, ne un parametre de
@@ -101,6 +102,45 @@ positiones seque.
 ca document vade — e un tertie mention vell metter it sur li sam rang quam
 li [grille deducet del positiones](frame-grid.md), quel es un altri.
 
+## Transcrir li audio
+
+**`Transcribe Audio…`** scri li parol del film quam subtitules. It es desactivat til que un film es aperit: it es
+li audio del **film del projecte**, e jamais un file quel vu electe — por transcrir un
+file audio, usa [`transcribe`](../subedit-cli/transcribe.md) in li linea de comande.
+
+Li dialog demanda du cosas, e dit si it posse comensar:
+
+- **li pista audio**, listat quam li menu [`Audio`](#li-pista-audio) les lista, con li lingue
+  e li titul quel li file declara;
+- **li lingue**, du líttere quam `en` o `fr`. It comensa con li lingue del pista selectet quande li file
+  declara un, seque li pista tam long quam vu ne ha tipat un, e
+  **un linea sub li camp dit de u it veni**. Quande li file declara null lingue por li pista,
+  li linea dit it: li model detectará it tande del son, quo solmen un model multilingual
+  save far, e vu deve tipar it si vu save it. Con un model solmen por anglesi, quel detecte nequo,
+  li linea dit que li lingue deve esser tipat.
+
+**It dit anc quo manca.** Tri lineas dit si li motor, `ffmpeg` e li model es ibi, e
+u; quande un ne es ibi, `OK` resta extint, e li dialog dit it con li indication a
+[Instalar li utensiles de transcription](../subedit-cli/install-transcription.md). Un buton `Preferences…` aperi
+li [preferenties](preferences.md#transcription), u li programma e li model es definit — ples es fattes
+pri li machine, ne selectiones a refar a chascun transcription — e li dialog regarda denov quande les es cludet.
+
+Li lingue es conservat por li sequent vice. Li motor self e li límites del subtitules es
+[parametres](preferences.md) (`transcription.*`).
+
+**Quande li projecte ja contene subtitules, li fenestre demanda ante remplazzar les**, e dit
+quant va partir. It demanda ante li labor, por que refusar costa nequo. Quande li projecte es vacui, il ne ha
+nequo a demandar.
+
+Li labor funde **in li fon**, con un cadre quel monstra til u li motor ha arrivat e un buton `Cancel`;
+li fenestre resta usabil circum it. Quande it fini, li subtitules del projecte es remplazzat
+per li transcription **in un singul operation**: un `Undo` redona quo esset ibi, textus
+de traduction includet. Un transcription quel fallis, o quel vu anulla, changea nequo — li motive
+es dit in un cadre, except por un anullation, quel solmen dit in li barre de statu que it esset anullat.
+
+**Quo it besona ne es livrat con li programma**: un motor (whisper.cpp), un model, e `ffmpeg` por extraer li audio.
+Vide [Instalar li utensiles de transcription](../subedit-cli/install-transcription.md).
+
 ## Quande il ne ha film
 
 Li fenestre monstra un buton **`Select Video…`** u li image esset, vice
@@ -134,6 +174,9 @@ per film, quande it es associat.
 ne besona `ffprobe` del tot: it se basa sur `libmpv`, quel es un
 dependentie de compilation. Li duration del film, ti usat por reportar quo
 passa ultra li fin, vene del reproductor e ne de `ffprobe`.
+
+**Li transcription es li sol cosa quel besona vermen `ffmpeg`**: it extrae li audio del film. Vide
+[Instalar li utensiles de transcription](../subedit-cli/install-transcription.md).
 
 It es dunc ne un modo degradat ma **li functionament normal** de un machina
 quel nequande ha installat `ffmpeg`: li data vene del usator, e `ffprobe`

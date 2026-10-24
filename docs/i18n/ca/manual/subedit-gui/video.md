@@ -3,12 +3,13 @@
 <!-- machine-translated -->
 > Aquesta pàgina és una traducció automàtica i encara no l'ha revisada cap lector de la llengua.
 
-El menú **Vídeo** porta primer dues ordres, i els gestos que condueixen la pel·lícula
+El menú **Vídeo** porta primer tres ordres, i els gestos que condueixen la pel·lícula
 — vegeu [El reproductor](player.md#desplaçar-se-per-la-pellícula).
 
 | Ordre | Drecera | Què fa |
 | :------ | :------- | :----------- |
 | Selecciona un vídeo… | cap | tria el fitxer de vídeo amb què va el document |
+| Transcriu l'àudio… | cap | transcriu l'àudio de la pel·lícula en subtítols que substitueixen els del projecte — vegeu [Transcriure l'àudio](#transcriure-làudio) |
 | Reprodueix / Pausa | `Ctrl+P` | reprodueix o atura el vídeo — vegeu [El reproductor](player.md#reproduir-i-aturar) |
 
 El vídeo associat és **una propietat del document obert**, no un paràmetre de
@@ -101,6 +102,45 @@ posicions després.
 va aquest document — i una tercera menció la posaria al mateix rang que
 la [graella deduïda de les posicions](frame-grid.md), que és un altre fet.
 
+## Transcriure l'àudio
+
+**`Transcribe Audio…`** escriu la parla de la pel·lícula en forma de subtítols. Està desactivada fins que s'obre una pel·lícula: és
+l'àudio de **la pel·lícula del projecte**, i mai un fitxer que triaríeu — per transcriure un
+fitxer d'àudio, useu [`transcribe`](../subedit-cli/transcribe.md) a la línia d'ordres.
+
+El diàleg demana dues coses, i diu si pot començar:
+
+- **la pista d'àudio**, llistada com la llisten el menú [`Audio`](#la-pista-dàudio), amb la llengua
+  i el títol que declara el fitxer;
+- **la llengua**, dues lletres com `en` o `fr`. Comença amb la llengua de la pista triada quan el
+  fitxer en declara una, segueix la pista mentre no n'hàgiu escrit cap, i
+  **una línia sota el camp diu d'on ve**. Quan el fitxer no declara cap llengua per a la pista,
+  la línia ho diu: el model la detectarà aleshores a partir del so, cosa que només fa un model
+  multilingüe, i l'hauríeu d'escriure si la coneixeu. Amb un model només per a l'anglès, que no
+  detecta res, la línia diu que cal escriure la llengua.
+
+**També diu què hi falta.** Tres línies diuen si el motor, `ffmpeg` i el model hi són, i
+on; quan un no hi és, `OK` queda apagat, i el diàleg ho diu amb la referència a
+[Instal·lació de les eines de transcripció](../subedit-cli/install-transcription.md). Un botó `Preferences…` obre
+les [preferències](preferences.md#transcripció), on s'indiquen el programa i el model — són fets
+sobre la màquina, no eleccions que calgui refer a cada transcripció — i el diàleg torna a mirar quan es tanquen.
+
+La llengua es conserva per a la vegada següent. El motor mateix i els límits dels subtítols són
+[paràmetres](preferences.md) (`transcription.*`).
+
+**Quan el projecte ja conté subtítols, la finestra pregunta abans de substituir-los**, i diu
+quants se'n van. Pregunta abans de la feina, de manera que declinar no costa res. Quan el projecte és buit no
+hi ha res a preguntar.
+
+La feina s'executa **en segon pla**, amb un quadre que mostra fins on ha arribat el motor i un botó `Cancel`;
+la finestra continua utilitzable al voltant. Quan acaba, els subtítols del projecte se substitueixen
+per la transcripció **com una sola operació**: un sol `Undo` retorna el que hi havia, textos de
+traducció inclosos. Una transcripció que falla, o que cancel·leu, no canvia res — el motiu es
+diu en un quadre, tret d'una cancel·lació, que només diu que s'ha cancel·lat a la barra d'estat.
+
+**El que necessita no es lliura**: un motor (whisper.cpp), un model, i `ffmpeg` per extreure l'àudio.
+Vegeu [Instal·lació de les eines de transcripció](../subedit-cli/install-transcription.md).
+
 ## Quan no hi ha pel·lícula
 
 La finestra mostra un botó **`Select Video…`** allà on aniria la imatge, en lloc de
@@ -135,6 +175,8 @@ no necessita gens `ffprobe`: es basa en `libmpv`, que és una
 dependència de compilació. La durada de la pel·lícula, la que serveix per indicar el que
 va més enllà del final, ve del reproductor i no de `ffprobe`.
 
+**La transcripció és l'única cosa que sí que necessita `ffmpeg`**: n'extreu l'àudio de la pel·lícula. Vegeu
+[Instal·lació de les eines de transcripció](../subedit-cli/install-transcription.md).
 No és, per tant, un mode degradat sinó **el funcionament normal** d'una màquina
 que no ha instal·lat mai `ffmpeg`: la dada ve de l'usuari, i `ffprobe`
 la proposa quan hi és.

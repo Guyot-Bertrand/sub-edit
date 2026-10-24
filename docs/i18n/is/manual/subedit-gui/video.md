@@ -3,12 +3,13 @@
 <!-- machine-translated -->
 > Þessi síða er vélþýðing sem enginn lesandi tungumálsins hefur enn farið yfir.
 
-Í valmyndinni **Myndskeið** eru fyrst tvær skipanir, og aðgerðirnar sem stýra
+Í valmyndinni **Myndskeið** eru fyrst þrjár skipanir, og aðgerðirnar sem stýra
 kvikmyndinni — sjá [Spilarinn](player.md#að-fara-um-kvikmyndina).
 
 | Skipun | Flýtilykill | Hvað hún gerir |
 | :----- | :---------- | :------------- |
 | Velja myndskeið… | enginn | velur myndskeiðsskrána sem skjalið fylgir |
+| Umrita hljóð… | enginn | umritar hljóð kvikmyndarinnar í skjátexta sem koma í stað skjátexta verkefnisins — sjá [Umritun hljóðsins](#umritun-hljóðsins) |
 | Spila / Hlé | `Ctrl+P` | spilar eða stöðvar myndskeiðið — sjá [Spilarinn](player.md#spilun-og-stöðvun) |
 
 Tengda myndskeiðið er **eiginleiki opna skjalsins**, ekki stilling
@@ -101,6 +102,45 @@ staðsetningunum næst.
 þetta skjal fylgir — og þriðja tilvísunin myndi setja hana í sama sæti og
 [netið sem er dregið af staðsetningunum](frame-grid.md), sem er önnur.
 
+## Umritun hljóðsins
+
+**`Transcribe Audio…`** skrifar tal kvikmyndarinnar sem skjátexta. Hún er óvirk þar til kvikmynd er opin: hún umritar
+hljóð **kvikmyndar verkefnisins**, aldrei skrá sem þú velur — til að umrita
+hljóðskrá skaltu nota [`transcribe`](../subedit-cli/transcribe.md) á skipanalínunni.
+
+Glugginn biður um tvennt og segir hvort hann geti byrjað:
+
+- **hljóðrásina**, taldar upp eins og valmyndin [`Audio`](#hljóðrásin) telur þær upp, með tungumálinu
+  og titlinum sem skráin gefur upp;
+- **tungumálið**, tveir stafir eins og `en` eða `fr`. Það byrjar á tungumáli valinnar rásar þegar skráin
+  gefur það upp, fylgir rásinni svo lengi sem þú hefur ekki skrifað eitt, og
+  **lína undir reitnum segir hvaðan það kemur**. Þegar skráin gefur ekkert tungumál upp fyrir rásina
+  segir línan það: líkanið greinir það þá af hljóðinu, sem aðeins fjöltyngt líkan getur, og
+  þú ættir að slá það inn ef þú veist það. Með líkani fyrir ensku eingöngu, sem greinir ekkert,
+  segir línan að slá þurfi tungumálið inn.
+
+**Hann segir líka hvað vantar.** Þrjár línur segja hvort vélin, `ffmpeg` og líkanið séu til staðar, og
+hvar; þegar eitthvað vantar helst `OK` óvirkt, og glugginn segir það með tilvísun á
+[Uppsetning umritunartækjanna](../subedit-cli/install-transcription.md). Hnappurinn `Preferences…` opnar
+[kjörstillingarnar](preferences.md#umritun), þar sem forritið og líkanið eru stillt — þetta eru staðreyndir
+um tölvuna, ekki val sem þarf að endurtaka við hverja umritun — og glugginn skoðar aftur þegar þeim er lokað.
+
+Tungumálið er geymt til næsta skiptis. Vélin sjálf og mörk skjátextanna eru
+[stillingar](preferences.md) (`transcription.*`).
+
+**Þegar verkefnið geymir þegar skjátexta spyr glugginn áður en hann skiptir þeim út**, og segir
+hversu margir fara. Hann spyr áður en vinnan hefst, svo að það kosti ekkert að hafna. Þegar verkefnið er tómt er
+engu að spyrja um.
+
+Vinnan fer fram **í bakgrunni**, með glugga sem sýnir hversu langt vélin er komin og hnappi sem heitir `Cancel`;
+glugginn er áfram nothæfur í kringum hana. Þegar henni lýkur er skjátextum verkefnisins skipt út
+fyrir umritunina **í einni aðgerð**: ein `Undo` skilar því sem var, þýðingartextum
+meðtöldum. Umritun sem mistekst, eða sem þú hættir við, breytir engu — ástæðan
+er sögð í glugga, nema þegar hætt er við, en þá segir aðeins stöðulínan að hætt hafi verið við.
+
+**Það sem hún þarf fylgir ekki forritinu**: vél (whisper.cpp), líkan og `ffmpeg` til að draga hljóðið út.
+Sjá [Uppsetning umritunartækjanna](../subedit-cli/install-transcription.md).
+
 ## Þegar engin kvikmynd er
 
 Glugginn sýnir hnappinn **`Select Video…`** þar sem myndin væri, frekar en
@@ -134,6 +174,9 @@ fyrir hverja kvikmynd, þegar hún er tengd.
 þarf aftur á móti alls ekki á `ffprobe` að halda: hann reiðir sig á `libmpv`, sem er
 háð við smíði. Lengd kvikmyndarinnar, sú sem er notuð til að tilkynna það sem
 fer út fyrir endann, kemur frá spilaranum en ekki frá `ffprobe`.
+
+**Umritunin er það eina sem þarf í raun `ffmpeg`**: það dregur út hljóð kvikmyndarinnar. Sjá
+[Uppsetning umritunartækjanna](../subedit-cli/install-transcription.md).
 
 Þetta er því ekki skert ástand heldur **eðlileg virkni** á vél
 sem hefur aldrei sett upp `ffmpeg`: gögnin koma frá notandanum og `ffprobe`

@@ -88,25 +88,38 @@ UnsavedChoice choiceOf(int button) {
     }
 }
 
-std::optional<std::filesystem::path> QtPrompts::fileToOpen(const std::filesystem::path& directory) {
-    const QString chosen = QFileDialog::getOpenFileName(
-        m_owner, translate("Open"), QString::fromStdString(directory.string()), subtitleFilters());
+namespace {
+
+/// What a file chooser answered: the path, or nothing when it was closed.
+[[nodiscard]] std::optional<std::filesystem::path> pathOf(const QString& chosen) {
     if (chosen.isEmpty())
         return std::nullopt;
-
     return std::filesystem::path{chosen.toStdString()};
+}
+
+} // namespace
+
+std::optional<std::filesystem::path> QtPrompts::fileToOpen(const std::filesystem::path& directory) {
+    return pathOf(QFileDialog::getOpenFileName(
+        m_owner, translate("Open"), QString::fromStdString(directory.string()), subtitleFilters()));
 }
 
 std::optional<std::filesystem::path>
 QtPrompts::videoToOpen(const std::filesystem::path& directory) {
-    const QString chosen = QFileDialog::getOpenFileName(m_owner,
-                                                        translate("Select Video"),
-                                                        QString::fromStdString(directory.string()),
-                                                        videoFilters());
-    if (chosen.isEmpty())
-        return std::nullopt;
+    return pathOf(QFileDialog::getOpenFileName(m_owner,
+                                               translate("Select Video"),
+                                               QString::fromStdString(directory.string()),
+                                               videoFilters()));
+}
 
-    return std::filesystem::path{chosen.toStdString()};
+std::optional<std::filesystem::path> QtPrompts::fileToChoose(ChosenFile what,
+                                                             const std::filesystem::path& current) {
+    const bool model = what == ChosenFile::Model;
+    return pathOf(QFileDialog::getOpenFileName(
+        m_owner,
+        model ? translate("Choose a model") : translate("Choose the program"),
+        QString::fromStdString(current.string()),
+        model ? translate("Models (*.bin);;All files (*)") : translate("All files (*)")));
 }
 
 std::optional<SaveTarget> QtPrompts::saveTarget(const core::SourceFile& current,
@@ -165,6 +178,16 @@ bool QtPrompts::proposeShiftedReopening(const std::string& message) {
     const auto chosen =
         QMessageBox::question(m_owner, QStringLiteral("subedit"), text, answers, QMessageBox::No);
     return chosen == QMessageBox::Yes;
+}
+
+bool QtPrompts::confirmReplacement(const std::string& message) {
+    // **A warning, with the safe answer by default**, as the loss of a save is: what is
+    // there will be replaced, and a return key pressed without reading keeps it.
+    return QMessageBox::warning(m_owner,
+                                translate("Replace the subtitles?"),
+                                QString::fromStdString(message),
+                                QMessageBox::Yes | QMessageBox::Cancel,
+                                QMessageBox::Cancel) == QMessageBox::Yes;
 }
 
 bool QtPrompts::run(QDialog& dialog) {

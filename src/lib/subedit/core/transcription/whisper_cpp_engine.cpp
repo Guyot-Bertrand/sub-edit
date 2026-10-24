@@ -1,13 +1,12 @@
 #include <subedit/core/io/find_executable.hpp>
+#include <subedit/core/io/temporary_directory.hpp>
 #include <subedit/core/process/start_process.hpp>
 #include <subedit/core/transcription/whisper_cpp_engine.hpp>
 #include <subedit/core/transcription/whisper_cpp_output.hpp>
 
-#include <cstdlib>
 #include <fstream>
 #include <iterator>
 #include <string>
-#include <system_error>
 #include <utility>
 #include <vector>
 
@@ -21,44 +20,6 @@ constexpr std::string_view kExecutableName = "whisper-cli";
 constexpr int kMissingInput = 2;
 constexpr int kMissingModel = 3;
 constexpr int kNotAudio = 11;
-
-/// A directory that goes away with the run, so that a failure leaves nothing.
-///
-/// **Made by `mkdtemp`**: created in one step, readable by the user alone, and
-/// refused if it already exists. A name worked out from the clock would be
-/// guessable, in a temporary directory that other users share, and a directory
-/// already there could be somebody else's. Empty when it could not be made.
-class WorkDirectory {
-
-public:
-    WorkDirectory() {
-        std::error_code error;
-        const std::filesystem::path parent = std::filesystem::temp_directory_path(error);
-        if (error)
-            return;
-        std::string pattern = (parent / "subedit-whisper-XXXXXX").string();
-        if (::mkdtemp(pattern.data()) != nullptr)
-            m_path = pattern;
-    }
-
-    WorkDirectory(const WorkDirectory&) = delete;
-    WorkDirectory(WorkDirectory&&) = delete;
-    WorkDirectory& operator=(const WorkDirectory&) = delete;
-    WorkDirectory& operator=(WorkDirectory&&) = delete;
-
-    ~WorkDirectory() {
-        std::error_code ignored;
-        if (!m_path.empty())
-            std::filesystem::remove_all(m_path, ignored);
-    }
-
-    [[nodiscard]] bool made() const { return !m_path.empty(); }
-
-    [[nodiscard]] const std::filesystem::path& path() const { return m_path; }
-
-private:
-    std::filesystem::path m_path;
-};
 
 [[nodiscard]] std::string readAll(const std::filesystem::path& path) {
     std::ifstream file{path, std::ios::binary};
@@ -124,7 +85,7 @@ WhisperCppEngine::run(const TranscriptionRequest& request,
         return std::unexpected(
             error(TranscriptionErrorKind::AudioUnreadable, request.audio.string()));
 
-    const WorkDirectory work;
+    const TemporaryDirectory work{"subedit-whisper"};
     if (!work.made())
         return std::unexpected(error(TranscriptionErrorKind::Failed));
     const std::filesystem::path prefix = work.path() / "out";

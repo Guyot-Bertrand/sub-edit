@@ -838,3 +838,19 @@ msgstr "Местоимение первого лица"
 
 msgid "Capitalize the first person pronoun \"I\""
 msgstr "Писать местоимение первого лица «I» с прописной"
+
+# The transcription group of the preferences (#779)
+msgid "Transcription"
+msgstr "Расшифровка"
+
+msgid "Program"
+msgstr "Программа"
+
+msgid "Model"
+msgstr "Модель"
+
+msgid "Browse…"
+msgstr "Обзор…"
+
+msgid "Searched for on the PATH"
+msgstr "Ищется в PATH"

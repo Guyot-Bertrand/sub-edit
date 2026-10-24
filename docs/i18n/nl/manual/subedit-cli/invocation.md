@@ -48,6 +48,7 @@ Subcommands:
   append                      Put subtitle files one after another into a single file
   split-file                  Cut a subtitle file in two, a head and a tail
   pair                        Write a translation at the positions of its main file, and say how it lined up
+  transcribe                  Write the speech of a video or an audio file as subtitles
   config                      List, show and change the operation settings
 ```
 
@@ -224,7 +225,7 @@ wordt niet uitgevoerd, en `-q` en `-v` veranderen niets.
 <!-- example: subedit-cli --version | head -n 1 -->
 ```console
 $ subedit-cli --version | head -n 1
-subedit 1.0.9
+subedit 1.0.10
 ```
 
 Het geheel, op een machine met ICU 74.2 en Enchant 2.3.3 — de nummers zijn die van de machine:
@@ -368,14 +369,16 @@ wat is gedaan geen stilte.
 | [`append`](append.md) | zet bestanden achter het eerste, in **één enkel** bestand | ja |
 | [`split-file`](split-file.md) | knipt een bestand in **twee**: een kop en een staart | ja |
 | [`pair`](pair.md) | schrijft een vertaling op de posities van haar hoofdbestand, en zegt hoe haar regels zijn uitgelijnd | ja |
+| [`transcribe`](transcribe.md) | schrijft de gesproken tekst van een video of een audiobestand als ondertitels | ja — een eigen bestemming, `--output` |
 | [`config`](config.md) | somt de bewerkingsinstellingen van het instellingenbestand op, toont en wijzigt ze | alleen het instellingenbestand |
 
-Alle eenentwintig staan erin; de hulp van het hulpprogramma somt ze in dezelfde volgorde op.
+Alle tweeëntwintig staan erin; de hulp van het hulpprogramma somt ze in dezelfde volgorde op.
 
 **Slechts één raakt niets aan**, en dat is de rechterkolom: `inspect` leest en
-meldt. De andere negentien schrijven, en wat volgt geldt voor zeventien ervan:
+meldt. De andere twintig schrijven, en wat volgt geldt voor zeventien ervan:
 [`append`](append.md) en [`split-file`](split-file.md) hebben elk een eigen arity — N bestanden voor
-**één** resultaat, één bestand voor **twee** — en dus een eigen bestemming, die ze op hun pagina beschrijven.
+**één** resultaat, één bestand voor **twee** — en dus een eigen bestemming, die ze op hun pagina beschrijven;
+[`transcribe`](transcribe.md) maakt een nieuw bestand van een video of een audiobestand, en neemt alleen `--output`.
 [`config`](config.md) schrijft geen ondertitelbestand: het leest en wijzigt het instellingenbestand, en
 niets van wat volgt is erop van toepassing.
 

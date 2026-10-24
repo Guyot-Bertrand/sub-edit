@@ -86,6 +86,9 @@ enum class OrderPolicy {
     // They rewrite texts, and read no position.
     case CommandKind::Replace:
     case CommandKind::ReplaceAll:
+    // The segments of an engine come in the order they are said, and they replace
+    // every subtitle that was there.
+    case CommandKind::Transcribe:
     // It moves ends, and only ends.
     case CommandKind::AdjustDurations:
     // It moves starts, and it is still the only such operation that cannot

@@ -1,11 +1,12 @@
 # La vidéo associée
 
-Le menu **Vidéo** porte d'abord deux commandes, et les gestes qui pilotent le film
+Le menu **Vidéo** porte d'abord trois commandes, et les gestes qui pilotent le film
 — voir [Le lecteur](player.md#se-déplacer-dans-le-film).
 
 | Commande | Raccourci | Ce qu'elle fait |
 | :------- | :-------- | :-------------- |
 | Choisir une vidéo… | aucun | choisit le fichier vidéo que le document accompagne |
+| Transcrire l'audio… | aucun | transcrit l'audio du film en sous-titres qui remplacent ceux du projet — voir [Transcrire l'audio](#transcrire-laudio) |
 | Lecture / Pause | `Ctrl+P` | joue ou arrête la vidéo — voir [Le lecteur](player.md#jouer-et-arrêter) |
 
 La vidéo associée est **une propriété du document ouvert**, pas un réglage de
@@ -98,6 +99,45 @@ positions ensuite.
 ce document accompagne — et une troisième mention la mettrait au même rang que
 la [grille déduite des positions](frame-grid.md), qui en est un autre.
 
+## Transcrire l'audio
+
+**`Transcribe Audio…`** écrit la parole du film sous forme de sous-titres. Elle est éteinte tant qu'aucun film n'est
+ouvert : c'est l'audio du **film du projet**, jamais un fichier que l'on choisirait — pour transcrire un
+fichier audio, utilisez [`transcribe`](../subedit-cli/transcribe.md) en ligne de commande.
+
+La boîte de dialogue demande deux choses, et dit si elle peut démarrer :
+
+- **la piste audio**, listée comme le fait le menu [`Audio`](#la-piste-audio), avec la langue
+  et le titre que le fichier déclare ;
+- **la langue**, deux lettres comme `en` ou `fr`. Elle commence par la langue de la piste choisie
+  quand le fichier en déclare une, suit la piste tant que vous n'en avez pas tapé, et
+  **une ligne sous le champ dit d'où elle vient**. Quand le fichier ne déclare aucune langue pour la piste,
+  la ligne le dit : le modèle la détectera alors d'après le son, ce que seul un modèle multilingue
+  sait faire, et vous devriez la saisir si vous la connaissez. Avec un modèle pour l'anglais seul, qui ne
+  détecte rien, la ligne dit que la langue doit être saisie.
+
+**Elle dit aussi ce qui manque.** Trois lignes disent si le moteur, `ffmpeg` et le modèle sont là, et
+où ; quand l'un ne l'est pas, `OK` reste éteint, et la boîte le dit avec le renvoi vers
+[Installer les outils de transcription](../subedit-cli/install-transcription.md). Un bouton `Preferences…` ouvre
+les [préférences](preferences.md#transcription), où se règlent le programme et le modèle — ce sont des faits
+sur la machine, pas des choix à refaire à chaque transcription — et la boîte regarde de nouveau quand elles se ferment.
+
+La langue est gardée pour la fois suivante. Le moteur lui-même et les limites des sous-titres sont des
+[réglages](preferences.md) (`transcription.*`).
+
+**Quand le projet contient déjà des sous-titres, la fenêtre demande avant de les remplacer**, et dit
+combien partent. Elle demande avant le travail, pour que refuser ne coûte rien. Quand le projet est vide, il n'y a
+rien à demander.
+
+Le travail se fait **en arrière-plan**, avec une boîte qui montre où en est le moteur et un bouton `Cancel` ;
+la fenêtre reste utilisable autour. Quand il s'achève, les sous-titres du projet sont remplacés
+par la transcription **en une seule opération** : un `Undo` rend ce qui était là, textes de
+traduction compris. Une transcription qui échoue, ou que vous annulez, ne change rien — la raison est
+dite dans une boîte, sauf pour une annulation, qui dit seulement dans la barre d'état qu'elle a été annulée.
+
+**Ce dont elle a besoin n'est pas livré** : un moteur (whisper.cpp), un modèle, et `ffmpeg` pour extraire l'audio.
+Voir [Installer les outils de transcription](../subedit-cli/install-transcription.md).
+
 ## Quand il n'y a pas de film
 
 La fenêtre montre un bouton **`Select Video…`** là où l'image irait, plutôt que
@@ -131,6 +171,9 @@ par film, au moment où il est associé.
 n'a pas besoin de `ffprobe` du tout : il s'appuie sur `libmpv`, qui est une
 dépendance de compilation. La durée du film, celle qui sert à signaler ce qui
 dépasse la fin, vient du lecteur et non de `ffprobe`.
+
+**La transcription est la seule chose qui ait besoin de `ffmpeg`** : il extrait l'audio du film. Voir
+[Installer les outils de transcription](../subedit-cli/install-transcription.md).
 
 Ce n'est donc pas un mode dégradé mais **le fonctionnement normal** d'une machine
 qui n'a jamais installé `ffmpeg` : la donnée vient de l'utilisateur, et `ffprobe`

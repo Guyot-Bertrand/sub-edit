@@ -45,6 +45,7 @@ Subcommands:
   append                      Put subtitle files one after another into a single file
   split-file                  Cut a subtitle file in two, a head and a tail
   pair                        Write a translation at the positions of its main file, and say how it lined up
+  transcribe                  Write the speech of a video or an audio file as subtitles
   config                      List, show and change the operation settings
 ```
 
@@ -221,7 +222,7 @@ not run, and `-q` and `-v` change nothing.
 <!-- example: subedit-cli --version | head -n 1 -->
 ```console
 $ subedit-cli --version | head -n 1
-subedit 1.0.9
+subedit 1.0.10
 ```
 
 The whole of it, on a machine with ICU 74.2 and Enchant 2.3.3 — the numbers are the machine's:
@@ -365,14 +366,16 @@ what was done is not a silence.
 | [`append`](append.md) | puts files after the first one, into **a single** file | yes |
 | [`split-file`](split-file.md) | cuts a file in **two**: a head and a tail | yes |
 | [`pair`](pair.md) | writes a translation at the positions of its main file, and says how its lines lined up | yes |
+| [`transcribe`](transcribe.md) | writes the speech of a video or an audio file as subtitles | yes — its own destination, `--output` |
 | [`config`](config.md) | lists, shows and changes the operation settings of the settings file | the settings file only |
 
-All twenty-one are there; the tool's help lists them in the same order.
+All twenty-two are there; the tool's help lists them in the same order.
 
 **Only one touches nothing**, and that is the right-hand column: `inspect` reads and
-reports. The other nineteen write, and what follows holds for seventeen of them:
+reports. The other twenty write, and what follows holds for seventeen of them:
 [`append`](append.md) and [`split-file`](split-file.md) each have an arity of their own — N files for
-**one** result, one file for **two** — and so their own destination, which they describe on their page.
+**one** result, one file for **two** — and so their own destination, which they describe on their page;
+[`transcribe`](transcribe.md) makes a new file from a video or an audio file, and takes `--output` alone.
 [`config`](config.md) writes no subtitle file: it reads and changes the settings file, and
 nothing of what follows applies to it.
 

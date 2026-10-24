@@ -138,6 +138,12 @@ existovaly dva bloky, se přečte beze změny a při příštím zavření se p�
 | `correction.join-split.join`, `correction.join-split.split` | `true` nebo `false` — spojovat, rozdělovat | `true`, `false` |
 | `correction.join-split.language` | kód národního prostředí — `fr`, `en_US`, `sr@Latn` —; prázdný: jazyk systému | prázdný |
 | `correction.remove-blank` | `true` nebo `false` — `Remove all blank subtitles` | `true` |
+| `transcription.engine` | název nástroje: malá písmena, číslice, `.`, `-` a `_` | `whisper.cpp` |
+| `transcription.executable`, `transcription.model` | absolutní cesta; prázdná: nástroj se hledá v `PATH` a žádný model není nastaven | prázdná |
+| `transcription.language` | dvě malá písmena, kód ISO 639-1; prázdný: jazyk se zjistí | prázdný |
+| `transcription.merge-gap-ms` | části jedné věty bližší než tato doba se spojí, v milisekundách, celé nezáporné číslo | `400` |
+| `transcription.max-duration-ms` | nejdelší doba, po kterou přepsaný titulek zůstává na obrazovce, v milisekundách, od 1 do 3600000 | `7000` |
+| `transcription.max-characters` | největší počet znaků přepsaného titulku, od 1 do 1000 | `84` |
 | `correction.activations` | zaškrtávací políčka vzorů, která uživatel změnil, `<type>:<code>:<name>:<0\|1>`, oddělená čárkami; **čárka nebo zpětné lomítko v názvu se zapíše s předřazeným zpětným lomítkem** (`\,` a `\\`) a nečitelná položka ztratí jen své vlastní nastavení — ohlásí se, ostatní se zachovají | prázdné |
 | `spell-check.language` | kód národního prostředí, například `fr_FR`; prázdný: jazyk systému | prázdný |
 | `spell-check.target` | `selection`, `current-project` nebo `all-projects` | `current-project` |
@@ -272,6 +278,19 @@ přepíší, ať je pracovní prostředí jakékoli.
 **Zabarvení anomálií zůstávají čitelná v obou paletách** — viz
 [Tabulka](table.md#anomálie). Není to předpoklad: kontrast
 textu na každém ze zabarvení ověřuje test, na obou pozadích.
+
+## Přepis
+
+Skupina **`Transcription`** v dialogu obsahuje dvě skutečnosti o počítači, které
+[`Transcribe Audio…`](video.md#přepis-zvuku) potřebuje: **program** nástroje (whisper.cpp,
+`whisper-cli`) a **model**, který čte. Každé pole má tlačítko `Browse…`. Pokud zůstane prázdné, program se hledá
+v `PATH`; model nemá výchozí hodnotu.
+
+Pod poli **dialog říká, co je k dispozici**: zda je nástroj nalezen a kde, zda je nalezen `ffmpeg`
+a jaký je model — není nastaven, nenalezen, není to model, pouze pro angličtinu, nebo vícejazyčný. Když něco
+chybí, přidá odkaz na
+[Instalace nástrojů pro přepis](../subedit-cli/install-transcription.md), který říká, kde to které najít.
+Obě pole jsou nastavení `transcription.executable` a `transcription.model`.
 
 ## Jazyk rozhraní
 

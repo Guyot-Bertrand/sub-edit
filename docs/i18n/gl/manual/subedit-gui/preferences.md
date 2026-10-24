@@ -138,6 +138,12 @@ existisen os dous bloques lese sen cambios, e reescríbese en dous bloques no se
 | `correction.join-split.join`, `correction.join-split.split` | `true` ou `false` — unir, dividir | `true`, `false` |
 | `correction.join-split.language` | un código de configuración rexional — `fr`, `en_US`, `sr@Latn` —; baleiro: a lingua do sistema | baleiro |
 | `correction.remove-blank` | `true` ou `false` — `Remove all blank subtitles` | `true` |
+| `transcription.engine` | o nome do motor: letras minúsculas, díxitos, `.`, `-` e `_` | `whisper.cpp` |
+| `transcription.executable`, `transcription.model` | unha ruta absoluta; baleiro: o motor búscase no `PATH`, e non se fixa ningún modelo | baleiro |
+| `transcription.language` | dúas letras minúsculas, un código ISO 639-1; baleiro: a lingua detéctase | baleiro |
+| `transcription.merge-gap-ms` | os anacos dunha mesma frase máis próximos ca isto únense, en milisegundos, enteiro e non negativo | `400` |
+| `transcription.max-duration-ms` | o máximo que un subtítulo transcrito permanece en pantalla, en milisegundos, de 1 a 3600000 | `7000` |
+| `transcription.max-characters` | o máximo de caracteres dun subtítulo transcrito, de 1 a 1000 | `84` |
 | `correction.activations` | as caixas de verificación de padróns que o usuario cambiou, `<type>:<code>:<name>:<0\|1>`, separadas por comas; **unha coma ou unha barra invertida nun nome escríbese precedida dunha barra invertida** (`\,` e `\\`), e unha entrada ilexible só perde o seu propio axuste — indícase, e as demais consérvanse | baleiro |
 | `spell-check.language` | un código de configuración rexional, como `fr_FR`; baleiro: a lingua do sistema | baleiro |
 | `spell-check.target` | `selection`, `current-project` ou `all-projects` | `current-project` |
@@ -272,6 +278,19 @@ sexa cal sexa o escritorio.
 **As tinguiduras das anomalías seguen sendo lexibles nas dúas paletas** — véxase
 [A táboa](table.md#as-anomalías). Non é unha suposición: o contraste
 do texto sobre cada unha das tinguiduras compróbao unha proba, sobre os dous fondos.
+
+## Transcrición
+
+O grupo **`Transcription`** do diálogo contén os dous datos sobre a máquina que
+[`Transcribe Audio…`](video.md#transcribir-o-son) precisa: **o programa** do motor (whisper.cpp,
+`whisper-cli`) e **o modelo** que le. Cada un ten un botón `Browse…`. Se se deixa baleiro, o programa búscase
+no `PATH`; o modelo non ten valor predeterminado.
+
+Baixo os campos, **o diálogo di o que hai**: se o motor está atopado e onde, se `ffmpeg`
+está atopado, e o modelo — sen definir, non atopado, non é un modelo, só para inglés ou multilingüe. Cando algo
+falta engade o enlace a
+[Instalar as ferramentas de transcrición](../subedit-cli/install-transcription.md), que di onde atopar
+cada un. Os dous campos son os axustes `transcription.executable` e `transcription.model`.
 
 ## A lingua da interface
 

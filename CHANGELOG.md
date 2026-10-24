@@ -11,6 +11,19 @@ do not edit it by hand.
 
 ### Added
 
+- **cli** — Add the transcribe command and its settings
+- **gui** — Add Transcribe Audio… to the window and the manuals
+- **cli** — Transcribe audio from the command line and the window
+- **gui** — Show the transcription tools and set them in preferences
+
+### Documentation
+
+- **doc** — Explain installing whisper-cli with cmake --install
+
+## 1.0.9 — 2026-10-23
+
+### Added
+
 - **core** — Add audio extraction, the whisper.cpp adapter and assembly
 
 ## 1.0.8 — 2026-10-23

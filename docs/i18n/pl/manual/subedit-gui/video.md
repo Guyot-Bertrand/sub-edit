@@ -3,12 +3,13 @@
 <!-- machine-translated -->
 > Ta strona jest tłumaczeniem maszynowym i nie została jeszcze sprawdzona przez osobę władającą tym językiem.
 
-Menu **Wideo** zawiera najpierw dwa polecenia oraz gesty sterujące filmem
+Menu **Wideo** zawiera najpierw trzy polecenia oraz gesty sterujące filmem
 — zobacz [Odtwarzacz](player.md#poruszanie-się-po-filmie).
 
 | Polecenie | Skrót | Co robi |
 | :-------- | :---- | :------ |
 | Wybierz wideo… | brak | wybiera plik wideo, z którym związany jest dokument |
+| Transkrybuj dźwięk… | brak | transkrybuje dźwięk filmu na napisy, które zastępują napisy projektu — zobacz [Transkrypcja dźwięku](#transkrypcja-dźwięku) |
 | Odtwórz / Pauza | `Ctrl+P` | odtwarza lub zatrzymuje wideo — zobacz [Odtwarzacz](player.md#odtwarzanie-i-zatrzymywanie) |
 
 Powiązane wideo jest **właściwością otwartego dokumentu**, a nie ustawieniem
@@ -100,6 +101,45 @@ pozycji.
 związany jest ten dokument — a trzecia wzmianka stawiałaby go w jednym rzędzie z
 [siatką wywnioskowaną z pozycji](frame-grid.md), która jest czym innym.
 
+## Transkrypcja dźwięku
+
+**`Transcribe Audio…`** zapisuje mowę z filmu jako napisy. Jest wyłączone, dopóki film nie zostanie otwarty: to
+dźwięk **filmu projektu**, nigdy plik, który się wybiera — aby transkrybować plik
+dźwiękowy, użyj [`transcribe`](../subedit-cli/transcribe.md) w wierszu poleceń.
+
+Okno dialogowe pyta o dwie rzeczy i mówi, czy może zacząć:
+
+- **ścieżkę dźwiękową**, wymienioną tak, jak wymienia ją menu [`Audio`](#ścieżka-dźwiękowa), z językiem
+  i tytułem, które deklaruje plik;
+- **język**, dwie litery, takie jak `en` lub `fr`. Zaczyna od języka wybranej ścieżki,
+  gdy plik go deklaruje, podąża za ścieżką, dopóki nie wpiszesz własnego, a
+  **wiersz pod polem mówi, skąd on pochodzi**. Gdy plik nie deklaruje języka dla ścieżki,
+  wiersz to mówi: model wykryje go wtedy z dźwięku, co potrafi tylko model wielojęzyczny,
+  i warto go wpisać, jeśli go znasz. Przy modelu tylko dla angielskiego, który niczego nie wykrywa,
+  wiersz mówi, że język trzeba wpisać.
+
+**Mówi także, czego brakuje.** Trzy wiersze mówią, czy silnik, `ffmpeg` i model są na miejscu, i
+gdzie; gdy któregoś brak, `OK` pozostaje wyłączony, a okno mówi o tym, odsyłając do
+[Instalowanie narzędzi do transkrypcji](../subedit-cli/install-transcription.md). Przycisk `Preferences…` otwiera
+[preferencje](preferences.md#transkrypcja), w których ustawia się program i model — to fakty
+o maszynie, a nie wybory do powtarzania przy każdej transkrypcji — a okno sprawdza ponownie, gdy się zamkną.
+
+Język jest zapamiętywany na następny raz. Sam silnik i limity napisów to
+[ustawienia](preferences.md) (`transcription.*`).
+
+**Gdy projekt zawiera już napisy, okno pyta przed ich zastąpieniem** i mówi, ile ich zniknie.
+Pyta przed pracą, aby odmowa nic nie kosztowała. Gdy projekt jest pusty, nie ma
+o co pytać.
+
+Praca przebiega **w tle**, z oknem pokazującym, jak daleko doszedł silnik, i przyciskiem `Cancel`;
+okno główne pozostaje używalne. Gdy praca się kończy, napisy projektu są zastępowane
+transkrypcją **jedną operacją**: jedno `Undo` przywraca to, co było, łącznie z tekstami
+tłumaczenia. Transkrypcja, która się nie powiedzie albo którą anulujesz, niczego nie zmienia — przyczyna jest
+podawana w oknie, z wyjątkiem anulowania, które tylko w pasku stanu mówi, że zostało anulowane.
+
+**To, czego potrzebuje, nie jest dostarczane**: silnik (whisper.cpp), model i `ffmpeg` do wyodrębnienia dźwięku.
+Zobacz [Instalowanie narzędzi do transkrypcji](../subedit-cli/install-transcription.md).
+
 ## Gdy nie ma filmu
 
 Okno pokazuje przycisk **`Select Video…`** tam, gdzie byłby obraz, zamiast
@@ -133,6 +173,9 @@ na film, przy jego powiązaniu.
 w ogóle nie potrzebuje `ffprobe`: opiera się na `libmpv`, która jest
 zależnością czasu budowania. Czas trwania filmu, ten używany do zgłaszania tego, co
 wykracza poza koniec, pochodzi z odtwarzacza, a nie z `ffprobe`.
+
+**Transkrypcja jest jedyną rzeczą, która potrzebuje `ffmpeg`**: wyodrębnia dźwięk filmu. Zobacz
+[Instalowanie narzędzi do transkrypcji](../subedit-cli/install-transcription.md).
 
 Nie jest to więc tryb ograniczony, lecz **normalne działanie** komputera,
 na którym nigdy nie zainstalowano `ffmpeg`: dane pochodzą od użytkownika, a `ffprobe`

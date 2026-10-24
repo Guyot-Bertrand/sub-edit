@@ -36,6 +36,7 @@ file opened then saved without a change does not move by a byte.
 | cut a film in two parts | [`Split Project…`](subedit-gui/operations.md#split-project), or [`split-file`](subedit-cli/split-file.md) |
 | change the case, the italics or the dialogue dashes of a whole file | [The operations](subedit-gui/operations.md#italic), or [`case`](subedit-cli/case.md), [`italics`](subedit-cli/italics.md), [`dialogue-dashes`](subedit-cli/dialogue-dashes.md) |
 | look for a word and replace it, without breaking the tags | [Find and replace](subedit-gui/find-and-replace.md), or [`replace`](subedit-cli/replace.md) |
+| write the speech of a film as subtitles | [`Transcribe Audio…`](subedit-gui/video.md#transcribing-the-audio), or [`transcribe`](subedit-cli/transcribe.md) — after [installing the tools](subedit-cli/install-transcription.md) |
 | translate alongside the original text | [Opening a translation](subedit-gui/files.md#opening-a-translation), or [`pair`](subedit-cli/pair.md) to re-time it on the main file |
 | process a hundred files at once | [Processing a tree](subedit-cli/lots.md), then [Invocation](subedit-cli/invocation.md) |
 

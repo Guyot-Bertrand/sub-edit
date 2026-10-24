@@ -3,12 +3,13 @@
 <!-- machine-translated -->
 > Tämä sivu on konekäännös, eikä kukaan tämän kielen lukija ole vielä tarkistanut sitä.
 
-Valikossa **Video** on ensin kaksi komentoa ja sitten toiminnot, joilla elokuvaa ohjataan
+Valikossa **Video** on ensin kolme komentoa ja sitten toiminnot, joilla elokuvaa ohjataan
 — katso [Soitin](player.md#elokuvassa-liikkuminen).
 
 | Komento | Pikanäppäin | Mitä se tekee |
 | :------ | :------- | :----------- |
 | Valitse video… | ei ole | valitsee videotiedoston, johon asiakirja liittyy |
+| Litteroi ääni… | ei ole | litteroi elokuvan äänen tekstityksiksi, jotka korvaavat projektin tekstitykset — katso [Äänen litterointi](#äänen-litterointi) |
 | Toista / tauko | `Ctrl+P` | toistaa tai pysäyttää videon — katso [Soitin](player.md#toistaminen-ja-pysäyttäminen) |
 
 Liitetty video on **avoimen asiakirjan ominaisuus** eikä sovelluksen
@@ -101,6 +102,45 @@ sen jälkeen.
 tämä asiakirja liittyy —, ja kolmas maininta asettaisi sen samalle tasolle kuin
 [kohdista päätellyn ruudukon](frame-grid.md), joka on eri tieto.
 
+## Äänen litterointi
+
+**`Transcribe Audio…`** kirjoittaa elokuvan puheen tekstitykseksi. Komento on pois käytöstä, kunnes elokuva on avattu: se koskee
+**projektin elokuvan** ääntä eikä koskaan tiedostoa, jonka valitsisit — litteroidaksesi
+äänitiedoston käytä komentoriviltä komentoa [`transcribe`](../subedit-cli/transcribe.md).
+
+Valintaikkuna kysyy kaksi asiaa ja kertoo, voiko se aloittaa:
+
+- **ääniraidan**, luetteloituna samoin kuin valikko [`Audio`](#ääniraita) ne luettelee, kielineen
+  ja nimineen sellaisina kuin tiedosto ne ilmoittaa;
+- **kielen**, kaksi kirjainta kuten `en` tai `fr`. Se alkaa valitun raidan kielellä,
+  kun tiedosto ilmoittaa sellaisen, seuraa raitaa niin kauan kuin et ole kirjoittanut omaa, ja
+  **kentän alla oleva rivi kertoo, mistä se tulee**. Kun tiedosto ei ilmoita raidalle kieltä,
+  rivi kertoo sen: malli tunnistaa kielen silloin äänestä, minkä vain monikielinen malli
+  osaa, ja se kannattaa kirjoittaa, jos sen tietää. Pelkälle englannille tarkoitetun mallin kohdalla, joka ei
+  tunnista mitään, rivi kertoo, että kieli on kirjoitettava.
+
+**Se kertoo myös, mitä puuttuu.** Kolme riviä kertoo, ovatko moottori, `ffmpeg` ja malli paikalla, ja
+missä; kun jokin ei ole, `OK` pysyy harmaana, ja valintaikkuna kertoo sen viittauksella sivuun
+[Litterointityökalujen asentaminen](../subedit-cli/install-transcription.md). Painike `Preferences…` avaa
+[asetukset](preferences.md#litterointi), joissa ohjelma ja malli asetetaan — ne ovat tietoja
+koneesta, eivät valintoja, jotka pitäisi tehdä uudelleen jokaisella litteroinnilla — ja valintaikkuna katsoo uudelleen, kun ne suljetaan.
+
+Kieli muistetaan seuraavaa kertaa varten. Moottori itse ja tekstitysten rajat ovat
+[asetuksia](preferences.md) (`transcription.*`).
+
+**Kun projektissa on jo tekstityksiä, ikkuna kysyy ennen niiden korvaamista** ja kertoo,
+montako poistuu. Se kysyy ennen työtä, jotta kieltäytyminen ei maksa mitään. Kun projekti on tyhjä,
+ei ole mitään kysyttävää.
+
+Työ tehdään **taustalla**, ja ruudussa näkyy, kuinka pitkälle moottori on päässyt, sekä painike `Cancel`;
+ikkuna pysyy käytettävänä sen ympärillä. Kun työ päättyy, projektin tekstitykset korvataan
+litteroinnilla **yhtenä toimintona**: yksi `Undo` palauttaa sen, mitä siellä oli, käännöstekstit
+mukaan lukien. Litterointi, joka epäonnistuu tai jonka perut, ei muuta mitään — syy kerrotaan
+ruudussa, paitsi peruutuksen kohdalla, joka vain kertoo tilarivillä, että se peruttiin.
+
+**Sitä, mitä se tarvitsee, ei toimiteta**: moottori (whisper.cpp), malli ja `ffmpeg` äänen purkamiseen.
+Katso [Litterointityökalujen asentaminen](../subedit-cli/install-transcription.md).
+
 ## Kun elokuvaa ei ole
 
 Ikkuna näyttää kuvan paikalla painikkeen **`Select Video…`** sen sijaan, että
@@ -135,6 +175,8 @@ ei tarvitse ohjelmaa `ffprobe` lainkaan: se käyttää kirjastoa `libmpv`, joka 
 käännösaikainen riippuvuus. Elokuvan kesto, jota käytetään ilmoittamaan siitä, mikä
 menee lopun yli, tulee soittimelta eikä ohjelmalta `ffprobe`.
 
+**Litterointi on ainoa asia, joka tarvitsee `ffmpeg`in**: se purkaa elokuvan äänen. Katso
+[Litterointityökalujen asentaminen](../subedit-cli/install-transcription.md).
 Kyse ei siis ole heikennetystä tilasta vaan **normaalista toiminnasta** koneella,
 jolle `ffmpeg` ei ole koskaan asennettu: tieto tulee käyttäjältä, ja `ffprobe`
 ehdottaa sitä, kun se on saatavilla.

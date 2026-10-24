@@ -22,6 +22,7 @@
 #include "snap.hpp"
 #include "sort.hpp"
 #include "split_file.hpp"
+#include "transcribe.hpp"
 #include "transform.hpp"
 
 namespace subedit::cli {
@@ -48,6 +49,7 @@ std::span<const Command> commands() {
         Command{.name = "append", .declare = declareAppend},
         Command{.name = "split-file", .declare = declareSplitFile},
         Command{.name = "pair", .declare = declarePair},
+        Command{.name = "transcribe", .declare = declareTranscribe},
         Command{.name = "config", .declare = declareConfig},
     };
     return kTable;

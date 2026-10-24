@@ -1089,6 +1089,49 @@ msgstr ""
 "--head en --tail horen bij elkaar: geef beide op, of geen van beide met --"
 "dry-run"
 
+#: src/exe/cli/commands/transcribe.cpp
+msgid "Write the speech of a video or an audio file as subtitles"
+msgstr ""
+"De gesproken tekst van een video of audiobestand als ondertitels schrijven"
+
+#: src/exe/cli/commands/transcribe.cpp
+msgid "Video or audio file to transcribe"
+msgstr "Video- of audiobestand om te transcriberen"
+
+#: src/exe/cli/commands/transcribe.cpp
+msgid "Subtitle file to write"
+msgstr "Ondertitelbestand om te schrijven"
+
+#: src/exe/cli/commands/transcribe.cpp
+msgid "Format to write; the one the extension of --output says by default"
+msgstr ""
+"Te schrijven formaat; standaard het formaat dat de extensie van --output "
+"aangeeft"
+
+#: src/exe/cli/commands/transcribe.cpp
+msgid "Audio track of a video, counted from 0; the first by default"
+msgstr "Audiospoor van een video, geteld vanaf 0; standaard het eerste"
+
+#: src/exe/cli/commands/transcribe.cpp
+msgid "Language of the speech: fr, en; detected by default"
+msgstr "Taal van de gesproken tekst: fr, en; standaard gedetecteerd"
+
+#: src/exe/cli/commands/transcribe.cpp
+msgid "Model file; the transcription.model setting by default"
+msgstr "Modelbestand; standaard de instelling transcription.model"
+
+#: src/exe/cli/commands/transcribe.cpp
+msgid "Engine; the transcription.engine setting by default"
+msgstr "Engine; standaard de instelling transcription.engine"
+
+#: src/exe/cli/commands/transcribe.cpp
+msgid "Keep the extracted audio in this file"
+msgstr "De uitgepakte audio in dit bestand bewaren"
+
+#: src/exe/cli/commands/transcribe.cpp
+msgid "Write the segments as the engine cut them"
+msgstr "De segmenten schrijven zoals de engine ze heeft geknipt"
+
 #: src/exe/cli/commands/transform.cpp
 msgid "Correct every position from two points known to be right"
 msgstr ""
@@ -1961,7 +2004,7 @@ msgid "%1: %2 (dry run, nothing written)"
 msgstr "%1: %2 (proefrun, niets geschreven)"
 
 #. TRANSLATORS: %1 is a file, %2 what was done to it, %3 the file written.
-#: src/lib/subedit/cli/rewriting.cpp
+#: src/lib/subedit/cli/rewriting.cpp src/lib/subedit/cli/transcribing.cpp
 msgid "%1: %2 -> %3"
 msgstr "%1: %2 -> %3"
 
@@ -2170,7 +2213,9 @@ msgstr "een geheel aantal milliseconden, 0 of meer"
 msgid ""
 "a pattern code, Script[-language[-COUNTRY]], not empty: Zyyy, Latn, Latn-en, "
 "Latn-en-US"
-msgstr "een patrooncode, Script[-language[-COUNTRY]], niet leeg: Zyyy, Latn, Latn-en, Latn-en-US"
+msgstr ""
+"een patrooncode, Script[-language[-COUNTRY]], niet leeg: Zyyy, Latn, Latn-"
+"en, Latn-en-US"
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "a number above 0, decimals allowed: 24, 42.5"
@@ -2179,6 +2224,32 @@ msgstr "een getal boven 0, decimalen toegestaan: 24, 42.5"
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "a whole number from 1 to 1000: 2, 3"
 msgstr "een geheel getal van 1 tot 1000: 2, 3"
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "the name of an engine: lower-case letters, digits, '.', '-' or '_'"
+msgstr "de naam van een engine: kleine letters, cijfers, '.', '-' of '_'"
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "an absolute path; empty for none"
+msgstr "een absoluut pad; leeg voor geen"
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "two lower-case letters, an ISO 639-1 code: en, fr; empty to detect it"
+msgstr ""
+"twee kleine letters, een ISO 639-1-code: en, fr; leeg om de taal te "
+"detecteren"
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "a whole number of milliseconds, 1 to 3600000"
+msgstr "een geheel aantal milliseconden, van 1 tot 3600000"
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "a whole number from 1 to 1000"
+msgstr "een geheel getal van 1 tot 1000"
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "subedit-cli transcribe; Transcribe Audio…"
+msgstr "subedit-cli transcribe; Audio transcriberen…"
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "subedit-cli adjust; Adjust Durations…"
@@ -2190,31 +2261,45 @@ msgstr "subedit-cli correct; Teksten corrigeren…"
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "Correct Texts… (window only; correct takes --tasks instead)"
-msgstr "Teksten corrigeren… (alleen in het venster; correct gebruikt in plaats daarvan --tasks)"
+msgstr ""
+"Teksten corrigeren… (alleen in het venster; correct gebruikt in plaats "
+"daarvan --tasks)"
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "Correct Texts… (window only; correct takes --code instead)"
-msgstr "Teksten corrigeren… (alleen in het venster; correct gebruikt in plaats daarvan --code)"
+msgstr ""
+"Teksten corrigeren… (alleen in het venster; correct gebruikt in plaats "
+"daarvan --code)"
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "Correct Texts… (window only; correct takes --enable/--disable instead)"
-msgstr "Teksten corrigeren… (alleen in het venster; correct gebruikt in plaats daarvan --enable/--disable)"
+msgstr ""
+"Teksten corrigeren… (alleen in het venster; correct gebruikt in plaats "
+"daarvan --enable/--disable)"
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "Correct Texts… (window only; correct takes --max-length instead)"
-msgstr "Teksten corrigeren… (alleen in het venster; correct gebruikt in plaats daarvan --max-length)"
+msgstr ""
+"Teksten corrigeren… (alleen in het venster; correct gebruikt in plaats "
+"daarvan --max-length)"
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "Correct Texts… (window only; correct takes --skip-length instead)"
-msgstr "Teksten corrigeren… (alleen in het venster; correct gebruikt in plaats daarvan --skip-length)"
+msgstr ""
+"Teksten corrigeren… (alleen in het venster; correct gebruikt in plaats "
+"daarvan --skip-length)"
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "Correct Texts… (window only; correct takes --skip-lines instead)"
-msgstr "Teksten corrigeren… (alleen in het venster; correct gebruikt in plaats daarvan --skip-lines)"
+msgstr ""
+"Teksten corrigeren… (alleen in het venster; correct gebruikt in plaats "
+"daarvan --skip-lines)"
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "Correct Texts… (window only; correct takes --language instead)"
-msgstr "Teksten corrigeren… (alleen in het venster; correct gebruikt in plaats daarvan --language)"
+msgstr ""
+"Teksten corrigeren… (alleen in het venster; correct gebruikt in plaats "
+"daarvan --language)"
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "Reading speed the durations are brought to."
@@ -2250,7 +2335,8 @@ msgstr "Langste duur van een ondertitel."
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "Whether a least gap before the next subtitle is enforced."
-msgstr "Of een minimale tussenruimte vóór de volgende ondertitel wordt afgedwongen."
+msgstr ""
+"Of een minimale tussenruimte vóór de volgende ondertitel wordt afgedwongen."
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "Least time left before the next subtitle."
@@ -2270,7 +2356,8 @@ msgstr "Of het venster de taak voor veelvoorkomende fouten aanvinkt."
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "Pattern code the window reads for the common-errors task."
-msgstr "Patrooncode die het venster leest voor de taak voor veelvoorkomende fouten."
+msgstr ""
+"Patrooncode die het venster leest voor de taak voor veelvoorkomende fouten."
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "Whether the window ticks the capitalization task."
@@ -2298,16 +2385,21 @@ msgstr "Pas de patronen voor herkenningsfouten (OCR) toe."
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "Whether the window's hearing-impaired task acts on text in brackets."
-msgstr "Of de taak voor slechthorenden van het venster werkt op tekst tussen rechte haken."
+msgstr ""
+"Of de taak voor slechthorenden van het venster werkt op tekst tussen rechte "
+"haken."
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "Whether the window's hearing-impaired task acts on text in parentheses."
-msgstr "Of de taak voor slechthorenden van het venster werkt op tekst tussen haakjes."
+msgstr ""
+"Of de taak voor slechthorenden van het venster werkt op tekst tussen haakjes."
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid ""
 "Longest line the window's line-break task aims at, in the unit in-ems names."
-msgstr "Langste regel waarop de regeleindetaak van het venster mikt, in de eenheid die in-ems aangeeft."
+msgstr ""
+"Langste regel waarop de regeleindetaak van het venster mikt, in de eenheid "
+"die in-ems aangeeft."
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "Most lines a subtitle is broken into."
@@ -2321,25 +2413,33 @@ msgstr "Of het venster regels in em meet in plaats van in tekens."
 msgid ""
 "Whether the window's line-break task leaves alone a subtitle whose lines are "
 "short enough."
-msgstr "Of de regeleindetaak van het venster een ondertitel met voldoende korte regels met rust laat."
+msgstr ""
+"Of de regeleindetaak van het venster een ondertitel met voldoende korte "
+"regels met rust laat."
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid ""
 "Longest line a subtitle may have and still be left alone by the window's "
 "line-break task."
-msgstr "Langste regel die een ondertitel mag hebben en toch met rust wordt gelaten door de regeleindetaak van het venster."
+msgstr ""
+"Langste regel die een ondertitel mag hebben en toch met rust wordt gelaten "
+"door de regeleindetaak van het venster."
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid ""
 "Whether the window's line-break task leaves alone a subtitle with few enough "
 "lines."
-msgstr "Of de regeleindetaak van het venster een ondertitel met voldoende weinig regels met rust laat."
+msgstr ""
+"Of de regeleindetaak van het venster een ondertitel met voldoende weinig "
+"regels met rust laat."
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid ""
 "Most lines a subtitle may have and still be left alone by the window's line-"
 "break task."
-msgstr "Maximaal aantal regels dat een ondertitel mag hebben en toch met rust wordt gelaten door de regeleindetaak van het venster."
+msgstr ""
+"Maximaal aantal regels dat een ondertitel mag hebben en toch met rust wordt "
+"gelaten door de regeleindetaak van het venster."
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "Whether the window ticks the join/split-words task."
@@ -2347,30 +2447,71 @@ msgstr "Of het venster de taak voor woorden samenvoegen/splitsen aanvinkt."
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "Whether the window's join/split-words task joins words."
-msgstr "Of de taak voor woorden samenvoegen/splitsen van het venster woorden samenvoegt."
+msgstr ""
+"Of de taak voor woorden samenvoegen/splitsen van het venster woorden "
+"samenvoegt."
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "Whether the window's join/split-words task splits words."
-msgstr "Of de taak voor woorden samenvoegen/splitsen van het venster woorden splitst."
+msgstr ""
+"Of de taak voor woorden samenvoegen/splitsen van het venster woorden splitst."
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "Dictionary the window's join/split-words task checks words by."
-msgstr "Woordenboek waarmee de taak voor woorden samenvoegen/splitsen van het venster woorden controleert."
+msgstr ""
+"Woordenboek waarmee de taak voor woorden samenvoegen/splitsen van het "
+"venster woorden controleert."
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid ""
 "a locale code, two lower-case letters, then optionally _ and two upper-case, "
 "then optionally @ and a script: fr, en_US, sr@Latn"
-msgstr "een taalcode, twee kleine letters, dan optioneel _ en twee hoofdletters, dan optioneel @ en een schrift: fr, en_US, sr@Latn"
+msgstr ""
+"een taalcode, twee kleine letters, dan optioneel _ en twee hoofdletters, dan "
+"optioneel @ en een schrift: fr, en_US, sr@Latn"
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid ""
 "Remove the subtitles the correction empties, instead of leaving them empty."
-msgstr "Verwijder de ondertitels die de correctie leegmaakt, in plaats van ze leeg te laten."
+msgstr ""
+"Verwijder de ondertitels die de correctie leegmaakt, in plaats van ze leeg "
+"te laten."
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "The engine that transcribes the audio."
+msgstr "De engine die de audio transcribeert."
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "The engine's program; searched for when empty."
+msgstr ""
+"Het programma van de engine; wordt in het PATH gezocht als het leeg is."
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "The model file the engine reads."
+msgstr "Het modelbestand dat de engine leest."
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "The language of the audio; detected when empty."
+msgstr "De taal van de audio; gedetecteerd als het leeg is."
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "Pieces of one sentence closer than this are joined."
+msgstr ""
+"Stukken van één zin die dichter bij elkaar liggen dan dit worden "
+"samengevoegd."
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "Longest a transcribed subtitle stays on screen."
+msgstr "Maximale tijd dat een getranscribeerde ondertitel in beeld blijft."
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "Most characters a transcribed subtitle holds."
+msgstr "Maximaal aantal tekens van een getranscribeerde ondertitel."
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "%1 is managed by the window; use --enable/--disable on correct"
-msgstr "%1 wordt beheerd door het venster; gebruik --enable/--disable bij correct"
+msgstr ""
+"%1 wordt beheerd door het venster; gebruik --enable/--disable bij correct"
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "%1 is a display preference; set it in the window"
@@ -2382,7 +2523,9 @@ msgstr "onbekende instelling %1; subedit-cli config list noemt ze"
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "cannot read '%1' for %2; subedit-cli config list says what it accepts"
-msgstr "kan '%1' niet lezen voor %2; subedit-cli config list vermeldt wat wordt geaccepteerd"
+msgstr ""
+"kan '%1' niet lezen voor %2; subedit-cli config list vermeldt wat wordt "
+"geaccepteerd"
 
 #: src/lib/subedit/core/format/lrc_reader.cpp
 #: src/lib/subedit/core/format/tm_player_reader.cpp
@@ -2480,7 +2623,9 @@ msgstr "een niet-afgesloten groepsnaam"
 
 #: src/lib/subedit/core/text/python_regex_syntax.cpp
 msgid "the group name '%1' is not letters and digits, which is all ICU accepts"
-msgstr "de groepsnaam '%1' bestaat niet uit letters en cijfers, het enige wat ICU accepteert"
+msgstr ""
+"de groepsnaam '%1' bestaat niet uit letters en cijfers, het enige wat ICU "
+"accepteert"
 
 #: src/lib/subedit/core/text/python_regex_syntax.cpp
 msgid "a backslash ends the expression"
@@ -2718,6 +2863,10 @@ msgstr "de bereiken niet-overlappend maken"
 #: src/lib/subedit/core/wording/analysis.cpp
 msgid "joining repeated subtitles"
 msgstr "herhaalde ondertitels samenvoegen"
+
+#: src/lib/subedit/core/wording/analysis.cpp
+msgid "transcribing the audio"
+msgstr "het transcriberen van de audio"
 
 #. TRANSLATORS: how well the positions fall on a frame-rate grid: clean,
 #. partial, or none at all.
@@ -3267,6 +3416,149 @@ msgstr "kan niet worden gelezen, de standaardwaarde blijft behouden"
 #: src/lib/subedit/core/wording/settings.cpp
 msgid "settings could not be written"
 msgstr "de instellingen konden niet worden geschreven"
+
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid ""
+"See the manual page \"Installing the transcription tools\" (install-"
+"transcription)."
+msgstr ""
+"Zie de handleidingspagina \"De transcriptiehulpmiddelen "
+"installeren\" (install-transcription)."
+
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "the transcription engine was not found"
+msgstr "de transcriptie-engine is niet gevonden"
+
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "no model was given, or the model file is not there"
+msgstr "er is geen model opgegeven, of het modelbestand bestaat niet"
+
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "the model cannot transcribe the language %1"
+msgstr "het model kan de taal %1 niet transcriberen"
+
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "the model cannot detect the language: give one"
+msgstr "het model kan de taal niet detecteren: geef er een op"
+
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "the audio could not be read"
+msgstr "de audio kon niet worden gelezen"
+
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "the transcription failed"
+msgstr "de transcriptie is mislukt"
+
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "the transcription failed: %1"
+msgstr "de transcriptie is mislukt: %1"
+
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "the transcription was cancelled"
+msgstr "de transcriptie is geannuleerd"
+
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "ffmpeg was not found, so the audio of a video cannot be extracted"
+msgstr ""
+"ffmpeg is niet gevonden, dus de audio van een video kan niet worden uitgepakt"
+
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "the video has no audio track %1"
+msgstr "de video heeft geen audiospoor %1"
+
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "the audio could not be extracted"
+msgstr "de audio kon niet worden uitgepakt"
+
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "the audio could not be extracted: %1"
+msgstr "de audio kon niet worden uitgepakt: %1"
+
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "the video has no audio track"
+msgstr "de video heeft geen enkel audiospoor"
+
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "no language or title"
+msgstr "geen taal of titel"
+
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "audio track %1: %2"
+msgstr "audiospoor %1: %2"
+
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "no transcription engine is called %1"
+msgstr "er is geen transcriptie-engine met de naam %1"
+
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "%1 subtitle transcribed, language: %2"
+msgid_plural "%1 subtitles transcribed, language: %2"
+msgstr[0] "%1 ondertitel getranscribeerd, taal: %2"
+msgstr[1] "%1 ondertitels getranscribeerd, taal: %2"
+
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid ""
+"The %1 subtitle of this project will be replaced by the transcription. You "
+"can undo it."
+msgid_plural ""
+"The %1 subtitles of this project will be replaced by the transcription. You "
+"can undo it."
+msgstr[0] ""
+"De ondertitel (%1) van dit project wordt vervangen door de transcriptie. U "
+"kunt dit ongedaan maken."
+msgstr[1] ""
+"De %1 ondertitels van dit project worden vervangen door de transcriptie. U "
+"kunt dit ongedaan maken."
+
+#: src/lib/subedit/core/wording/transcription.cpp
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "%1: found (%2)"
+msgstr "%1: gevonden (%2)"
+
+# From Gaupol.
+#: src/lib/subedit/core/wording/transcription.cpp
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "%1: not found"
+msgstr "%1: niet gevonden"
+
+#: src/lib/subedit/core/wording/transcription.cpp
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "ffmpeg: found"
+msgstr "ffmpeg: gevonden"
+
+#: src/lib/subedit/core/wording/transcription.cpp
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "ffmpeg: not found"
+msgstr "ffmpeg: niet gevonden"
+
+#: src/lib/subedit/core/wording/transcription.cpp
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "Model: none set"
+msgstr "Model: geen ingesteld"
+
+#: src/lib/subedit/core/wording/transcription.cpp
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "Model: not found (%1)"
+msgstr "Model: niet gevonden (%1)"
+
+#: src/lib/subedit/core/wording/transcription.cpp
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "Model: not a model (%1)"
+msgstr "Model: geen model (%1)"
+
+#: src/lib/subedit/core/wording/transcription.cpp
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "Model: English only (%1)"
+msgstr "Model: alleen Engels (%1)"
+
+#: src/lib/subedit/core/wording/transcription.cpp
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "Model: multilingual (%1)"
+msgstr "Model: meertalig (%1)"
+
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "transcribing: %1%"
+msgstr "transcriberen: %1%"
 
 #: src/lib/subedit/core/wording/translation.cpp
 msgid "translation: the file holds no line"
@@ -4089,6 +4381,10 @@ msgstr "Regellengtes in de editor tonen"
 msgid "Decode on the graphics card"
 msgstr "Decoderen op de grafische kaart"
 
+#: src/lib/subedit/gui/preferences_dialog.cpp
+msgid "Browse…"
+msgstr "Bladeren…"
+
 # From Gaupol.
 #: src/lib/subedit/gui/preferences_dialog.cpp
 msgid "Preferences"
@@ -4126,6 +4422,26 @@ msgstr "Contextlengte"
 #: src/lib/subedit/gui/preferences_dialog.cpp
 msgid "Frame step"
 msgstr "Framestap"
+
+#: src/lib/subedit/gui/preferences_dialog.cpp
+#: src/lib/subedit/gui/preferences_dialog.cpp
+msgid "Searched for on the PATH"
+msgstr "Gezocht op het PATH"
+
+#: src/lib/subedit/gui/preferences_dialog.cpp
+#: src/lib/subedit/gui/preferences_dialog.cpp
+msgid "Program"
+msgstr "Programma"
+
+#: src/lib/subedit/gui/preferences_dialog.cpp
+msgid "Model"
+msgstr "Model"
+
+# From Gaupol.
+#: src/lib/subedit/gui/preferences_dialog.cpp
+#: src/lib/subedit/gui/preferences_dialog.cpp
+msgid "Transcription"
+msgstr "Transcriptie"
 
 #: src/lib/subedit/gui/project_files.cpp
 msgid "Save All stopped: %1 of %2 document saved"
@@ -4181,6 +4497,19 @@ msgid "Select Video"
 msgstr "Video kiezen"
 
 #: src/lib/subedit/gui/qt_prompts.cpp
+msgid "Choose a model"
+msgstr "Een model kiezen"
+
+#: src/lib/subedit/gui/qt_prompts.cpp
+#: src/lib/subedit/gui/qt_prompts.cpp
+msgid "Choose the program"
+msgstr "Het programma kiezen"
+
+#: src/lib/subedit/gui/qt_prompts.cpp
+msgid "Models (*.bin);;All files (*)"
+msgstr "Modellen (*.bin);;Alle bestanden (*)"
+
+#: src/lib/subedit/gui/qt_prompts.cpp
 msgid "The translation is no longer where it was read from."
 msgstr "De vertaling staat niet meer op de plek waar ze is gelezen."
 
@@ -4214,6 +4543,10 @@ msgstr ""
 "%1\n"
 "\n"
 "Opnieuw openen, op de nieuwe plek?"
+
+#: src/lib/subedit/gui/qt_prompts.cpp
+msgid "Replace the subtitles?"
+msgstr "De ondertitels vervangen?"
 
 # From Gaupol.
 #: src/lib/subedit/gui/save_shape.cpp
@@ -4480,6 +4813,85 @@ msgstr "De vertaling naast de tekst tonen"
 msgid "Main"
 msgstr "Hoofd"
 
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+msgid "Preferences…"
+msgstr "Instellingen…"
+
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+#: src/lib/subedit/gui/transcription_runner.cpp
+msgid "Transcribe audio"
+msgstr "Audio transcriberen"
+
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+msgid "First audio track"
+msgstr "Eerste audiospoor"
+
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+msgid "Detected from the sound"
+msgstr "Gedetecteerd uit het geluid"
+
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+msgid ""
+"A two-letter language code such as en or fr. Leave it empty to let the model "
+"detect the language."
+msgstr ""
+"Een taalcode van twee letters, zoals en of fr. Laat het leeg om het model de "
+"taal te laten detecteren."
+
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+msgid ""
+"The audio of the film open in this window is transcribed into subtitles that "
+"replace the ones of the project. The work runs in the background and can be "
+"cancelled."
+msgstr ""
+"De audio van de film die in dit venster is geopend, wordt getranscribeerd "
+"tot ondertitels die die van het project vervangen. Het werk draait op de "
+"achtergrond en kan worden geannuleerd."
+
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+msgid "Audio track"
+msgstr "Audiospoor"
+
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+msgid "Language"
+msgstr "Taal"
+
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+msgid "Set them in the preferences."
+msgstr "Stel ze in bij de instellingen."
+
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+msgid "This model cannot detect the language: type it."
+msgstr "Dit model kan de taal niet detecteren: typ ze."
+
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+msgid "The language you typed is used."
+msgstr "De taal die u hebt getypt wordt gebruikt."
+
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+msgid "Proposed from the language the file declares for this track."
+msgstr "Voorgesteld op basis van de taal die het bestand voor dit spoor opgeeft."
+
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+msgid "The file declares no language for this track: the model will detect it from the sound. Type it if you know it."
+msgstr "Het bestand geeft geen taal op voor dit spoor: het model detecteert ze uit het geluid. Typ ze als u ze kent."
+
+#: src/lib/subedit/gui/transcription_runner.cpp
+#: src/lib/subedit/gui/unsaved_documents_dialog.cpp
+msgid "Cancel"
+msgstr "Annuleren"
+
+#: src/lib/subedit/gui/transcription_runner.cpp
+msgid "Transcribing the audio…"
+msgstr "De audio transcriberen…"
+
 #: src/lib/subedit/gui/transform_dialog.cpp
 msgid "Transform positions"
 msgstr "Posities transformeren"
@@ -4525,10 +4937,6 @@ msgstr "Op&slaan"
 #: src/lib/subedit/gui/unsaved_documents_dialog.cpp
 msgid "Close &Without Saving"
 msgstr "Sl&uiten zonder opslaan"
-
-#: src/lib/subedit/gui/unsaved_documents_dialog.cpp
-msgid "Cancel"
-msgstr "Annuleren"
 
 #: src/lib/subedit/gui/unsaved_documents_dialog.cpp
 msgid ""
@@ -4636,6 +5044,10 @@ msgstr "&Instellingen…"
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "Positions in &Frames"
 msgstr "Posities in &frames"
+
+#: src/lib/subedit/gui/window_actions.cpp
+msgid "Transcribe Audio…"
+msgstr "Audio transcriberen…"
 
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "Play / Pause"
@@ -4888,3 +5300,13 @@ msgstr "Cursief"
 msgctxt "toolbar"
 msgid "Main"
 msgstr "Hoofdwerkbalk"
+
+#~ msgid "Detected"
+#~ msgstr "Gedetecteerd"
+
+#~ msgid ""
+#~ "The model file the engine reads. It is not shipped with the program: the "
+#~ "manual says where to find one."
+#~ msgstr ""
+#~ "Het modelbestand dat de engine leest. Het wordt niet met het programma "
+#~ "meegeleverd: de handleiding zegt waar u er een vindt."

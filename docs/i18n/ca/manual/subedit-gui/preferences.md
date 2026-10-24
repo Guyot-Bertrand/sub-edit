@@ -138,6 +138,12 @@ existissin els dos blocs es llegeix sense canvis, i es reescriu en dos blocs en 
 | `correction.join-split.join`, `correction.join-split.split` | `true` o `false` — unir, separar | `true`, `false` |
 | `correction.join-split.language` | un codi de configuració regional — `fr`, `en_US`, `sr@Latn` —; buit: la llengua del sistema | buit |
 | `correction.remove-blank` | `true` o `false` — `Remove all blank subtitles` | `true` |
+| `transcription.engine` | el nom del motor: lletres minúscules, xifres, `.`, `-` i `_` | `whisper.cpp` |
+| `transcription.executable`, `transcription.model` | un camí absolut; buit: el motor es cerca al `PATH`, i no s'ha definit cap model | buit |
+| `transcription.language` | dues lletres minúscules, un codi ISO 639-1; buit: la llengua es detecta | buit |
+| `transcription.merge-gap-ms` | els trossos d'una mateixa frase més propers que això s'uneixen, en mil·lisegons, enter i no negatiu | `400` |
+| `transcription.max-duration-ms` | el màxim que un subtítol transcrit es queda a la pantalla, en mil·lisegons, d'1 a 3600000 | `7000` |
+| `transcription.max-characters` | el màxim de caràcters d'un subtítol transcrit, d'1 a 1000 | `84` |
 | `correction.activations` | les caselles dels patrons que l'usuari ha canviat, `<type>:<code>:<name>:<0\|1>`, separades per comes; **una coma o una barra inversa en un nom s'escriu precedida d'una barra inversa** (`\,` i `\\`), i una entrada il·legible només perd el seu propi paràmetre — se'n dona avís, les altres es conserven | buit |
 | `spell-check.language` | un codi de configuració regional, com ara `fr_FR`; buit: la llengua del sistema | buit |
 | `spell-check.target` | `selection`, `current-project` o `all-projects` | `current-project` |
@@ -272,6 +278,19 @@ per sobre, sigui quin sigui l'escriptori.
 **Els tints de les anomalies continuen sent llegibles en totes dues paletes** — vegeu
 [La taula](table.md#les-anomalies). No és una suposició: el contrast
 del text sobre cadascun dels tints el comprova una prova, sobre tots dos fons.
+
+## Transcripció
+
+El grup **`Transcription`** del diàleg conté els dos fets sobre la màquina que necessita
+[`Transcribe Audio…`](video.md#transcriure-làudio): **el programa** del motor (whisper.cpp,
+`whisper-cli`) i **el model** que llegeix. Cadascun té un botó `Browse…`. Deixat buit, el programa es cerca
+al `PATH`; el model no té valor per defecte.
+
+Sota els camps, **el diàleg diu què hi ha**: si el motor és trobat i on, si `ffmpeg`
+és trobat, i el model — no indicat, no trobat, no és un model, només per a l'anglès, o multilingüe. Quan hi falta
+alguna cosa, hi afegeix la referència a
+[Instal·lació de les eines de transcripció](../subedit-cli/install-transcription.md), que diu on trobar
+cadascuna. Els dos camps són els paràmetres `transcription.executable` i `transcription.model`.
 
 ## La llengua de la interfície
 

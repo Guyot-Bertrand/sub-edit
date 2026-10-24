@@ -611,6 +611,18 @@ CliRun invokeIn(const Locale& locale, const std::vector<std::string>& args) {
     return run(SUBEDIT_TRANSLATED_CLI_BINARY, args, std::nullopt, childEnvironment(locale));
 }
 
+CliRun invokeWithSearchPath(const std::string& directory, const std::vector<std::string>& args) {
+    std::vector<std::string> environment;
+    for (const std::string& variable : childEnvironment()) {
+        if (!defines(variable, "PATH"))
+            environment.push_back(variable);
+    }
+    const char* const original = std::getenv("PATH");
+    environment.push_back("PATH=" + directory +
+                          (original != nullptr ? ":" + std::string{original} : ""));
+    return run(SUBEDIT_CLI_BINARY, args, std::nullopt, environment);
+}
+
 CliRun invokeShipped(const Locale& locale, const std::vector<std::string>& args) {
     return run(SUBEDIT_CLI_BINARY, args, std::nullopt, childEnvironment(locale));
 }

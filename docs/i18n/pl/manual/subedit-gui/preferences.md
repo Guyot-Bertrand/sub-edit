@@ -138,6 +138,12 @@ pojawiły się dwa bloki, jest czytany bez zmian i przepisany w dwóch blokach p
 | `correction.join-split.join`, `correction.join-split.split` | `true` lub `false` — łącz, dziel | `true`, `false` |
 | `correction.join-split.language` | kod ustawień regionalnych — `fr`, `en_US`, `sr@Latn` —; puste: język systemu | puste |
 | `correction.remove-blank` | `true` lub `false` — `Remove all blank subtitles` | `true` |
+| `transcription.engine` | nazwa silnika: małe litery, cyfry, `.`, `-` i `_` | `whisper.cpp` |
+| `transcription.executable`, `transcription.model` | ścieżka bezwzględna; puste: silnik jest szukany w `PATH`, a model nie jest ustawiony | puste |
+| `transcription.language` | dwie małe litery, kod ISO 639-1; puste: język jest wykrywany | puste |
+| `transcription.merge-gap-ms` | fragmenty jednego zdania położone bliżej niż ta wartość są łączone, w milisekundach, liczba całkowita nieujemna | `400` |
+| `transcription.max-duration-ms` | najdłuższy czas, przez jaki przetranskrybowany napis pozostaje na ekranie, w milisekundach, od 1 do 3600000 | `7000` |
+| `transcription.max-characters` | największa liczba znaków przetranskrybowanego napisu, od 1 do 1000 | `84` |
 | `correction.activations` | pola wyboru wzorców, które użytkownik zmienił, `<type>:<code>:<name>:<0\|1>`, oddzielone przecinkami; **przecinek lub ukośnik odwrotny w nazwie jest zapisywany z poprzedzającym ukośnikiem odwrotnym** (`\,` i `\\`), a nieczytelny wpis traci tylko własne ustawienie — jest zgłaszany, pozostałe zostają zachowane | puste |
 | `spell-check.language` | kod ustawień regionalnych, taki jak `fr_FR`; puste: język systemu | puste |
 | `spell-check.target` | `selection`, `current-project` lub `all-projects` | `current-project` |
@@ -272,6 +278,19 @@ bez względu na pulpit.
 **Odcienie anomalii pozostają czytelne w obu paletach** — zob.
 [Tabela](table.md#anomalie). To nie założenie: kontrast
 tekstu na każdym z odcieni jest sprawdzany testem, na obu tłach.
+
+## Transkrypcja
+
+Grupa **`Transcription`** okna dialogowego zawiera dwie informacje o maszynie, których potrzebuje
+[`Transcribe Audio…`](video.md#transkrypcja-dźwięku): **program** silnika (whisper.cpp,
+`whisper-cli`) i **model**, który on czyta. Każde z pól ma przycisk `Browse…`. Gdy pole pozostaje puste, program jest szukany
+w `PATH`; model nie ma wartości domyślnej.
+
+Pod polami **okno mówi, co jest na miejscu**: czy silnik został znaleziony i gdzie, czy `ffmpeg`
+został znaleziony, oraz model — nie ustawiony, nie znaleziony, nie jest modelem, tylko dla angielskiego albo wielojęzyczny. Gdy czegoś
+brakuje, dodaje odsyłacz do
+[Instalowanie narzędzi do transkrypcji](../subedit-cli/install-transcription.md), który mówi, gdzie znaleźć
+każde z nich. Te dwa pola to ustawienia `transcription.executable` i `transcription.model`.
 
 ## Język interfejsu
 

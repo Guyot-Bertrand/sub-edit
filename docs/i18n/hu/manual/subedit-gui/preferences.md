@@ -137,6 +137,12 @@ két blokk létezése előtt írt fájl változtatás nélkül olvasható, és a
 | `correction.join-split.join`, `correction.join-split.split` | `true` vagy `false` — egyesítés, szétválasztás | `true`, `false` |
 | `correction.join-split.language` | területi kód — `fr`, `en_US`, `sr@Latn` —; üres: a rendszer nyelve | üres |
 | `correction.remove-blank` | `true` vagy `false` — `Remove all blank subtitles` | `true` |
+| `transcription.engine` | a motor neve: kisbetűk, számjegyek, `.`, `-` és `_` | `whisper.cpp` |
+| `transcription.executable`, `transcription.model` | abszolút elérési út; üres: a motort a `PATH`-ban keresi, és nincs beállított modell | üres |
+| `transcription.language` | két kisbetű, egy ISO 639-1 kód; üres: a nyelvet felismeri | üres |
+| `transcription.merge-gap-ms` | egy mondat ennél közelebbi darabjai egyesülnek, ezredmásodpercben, nemnegatív egész | `400` |
+| `transcription.max-duration-ms` | a leghosszabb idő, amíg egy leiratozott felirat a képernyőn marad, ezredmásodpercben, 1-től 3600000-ig | `7000` |
+| `transcription.max-characters` | egy leiratozott felirat legtöbb karaktere, 1-től 1000-ig | `84` |
 | `correction.activations` | a minták jelölőnégyzetei, amelyeket a felhasználó módosított, `<type>:<code>:<name>:<0\|1>`, vesszővel elválasztva; **a névben lévő vessző vagy fordított perjel elé fordított perjel kerül** (`\,` és `\\`), és az olvashatatlan bejegyzés csak a saját beállítását veszíti el — jelzik, a többit megtartják | üres |
 | `spell-check.language` | területi kód, például `fr_FR`; üres: a rendszer nyelve | üres |
 | `spell-check.target` | `selection`, `current-project` vagy `all-projects` | `current-project` |
@@ -269,6 +275,19 @@ az asztaltól függetlenül.
 **Az anomáliák színezése mindkét palettán olvasható marad** — lásd:
 [A táblázat](table.md#az-anomáliák). Ez nem feltevés: a szöveg
 kontrasztját minden színezésen egy teszt ellenőrzi, mindkét háttéren.
+
+## Leiratozás
+
+A párbeszédablak **`Transcription`** csoportja azt a két tényt tartalmazza a gépről, amelyre a
+[`Transcribe Audio…`](video.md#a-hang-leiratozása) szüksége van: a motor **programját** (whisper.cpp,
+`whisper-cli`) és a **modellt**, amelyet beolvas. Mindkettőhöz tartozik egy `Browse…` gomb. Üresen hagyva a programot
+a `PATH`-ban keresi; a modellnek nincs alapértéke.
+
+A mezők alatt **az ablak megmondja, mi van meg**: megvan-e a motor és hol, megvan-e az `ffmpeg`,
+és a modell — nincs megadva, nem található, nem modell, csak angolra való, vagy többnyelvű. Ha valami
+hiányzik, hozzáteszi a hivatkozást ide:
+[A leiratozó eszközök telepítése](../subedit-cli/install-transcription.md), amely megmondja, hol található
+mindegyik. A két mező a `transcription.executable` és a `transcription.model` beállítás.
 
 ## A felület nyelve
 

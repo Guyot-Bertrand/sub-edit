@@ -139,6 +139,12 @@ lokun.
 | `correction.join-split.join`, `correction.join-split.split` | `true` eða `false` — sameina, skipta | `true`, `false` |
 | `correction.join-split.language` | staðarkóði — `fr`, `en_US`, `sr@Latn` —; tómt: tungumál kerfisins | tómt |
 | `correction.remove-blank` | `true` eða `false` — `Remove all blank subtitles` | `true` |
+| `transcription.engine` | heiti vélarinnar: lágstafir, tölustafir, `.`, `-` og `_` | `whisper.cpp` |
+| `transcription.executable`, `transcription.model` | altæk slóð; tómt: leitað er að vélinni í `PATH` og ekkert líkan er stillt | tómt |
+| `transcription.language` | tveir lágstafir, ISO 639-1 kóði; tómt: tungumálið er greint sjálfkrafa | tómt |
+| `transcription.merge-gap-ms` | bútar úr einni setningu sem eru nær hver öðrum en þetta eru sameinaðir, í millisekúndum, heil tala sem er ekki neikvæð | `400` |
+| `transcription.max-duration-ms` | lengsti tími sem umritaður skjátexti er á skjánum, í millisekúndum, frá 1 til 3600000 | `7000` |
+| `transcription.max-characters` | flestir stafir sem umritaður skjátexti rúmar, frá 1 til 1000 | `84` |
 | `correction.activations` | gátreitir mynstranna sem notandinn breytti, `<type>:<code>:<name>:<0\|1>`, aðgreindir með kommum; **kommu eða bakskástrik í heiti er skrifað með bakskástriki á undan** (`\,` og `\\`), og færsla sem ekki er hægt að lesa tapar aðeins sinni eigin stillingu — hún er tilkynnt, hinar haldast | tómt |
 | `spell-check.language` | staðarkóði, eins og `fr_FR`; tómt: tungumál kerfisins | tómt |
 | `spell-check.target` | `selection`, `current-project` eða `all-projects` | `current-project` |
@@ -273,6 +279,19 @@ glugga; undir ljósu skjáborði, ljósan glugga. `Light` og `Dark` ganga framar
 **Litbrigði frávikanna haldast læsileg í báðum litapalettunum** — sjá
 [Taflan](table.md#frávikin). Það er ekki forsenda: birtuskil
 textans á hverju litbrigði eru athuguð með prófi, á báðum bakgrunnum.
+
+## Umritun
+
+Hópurinn **`Transcription`** í glugganum geymir staðreyndirnar tvær um tölvuna sem
+[`Transcribe Audio…`](video.md#umritun-hljóðsins) þarf: **forrit** vélarinnar (whisper.cpp,
+`whisper-cli`) og **líkanið** sem hún les. Hvort um sig hefur hnapp sem heitir `Browse…`. Sé forritið skilið eftir autt er þess leitað
+að á `PATH`; líkanið hefur ekkert sjálfgefið gildi.
+
+Undir reitunum **segir glugginn hvað er til staðar**: hvort vélin finnst og hvar, hvort `ffmpeg`
+finnst, og líkanið — ekki stillt, fannst ekki, er ekki líkan, fyrir ensku eingöngu, eða fjöltyngt. Þegar eitthvað
+vantar bætir hann við tilvísun á
+[Uppsetning umritunartækjanna](../subedit-cli/install-transcription.md), sem segir hvar finna má
+hvert um sig. Reitirnir tveir eru stillingarnar `transcription.executable` og `transcription.model`.
 
 ## Tungumál viðmótsins
 

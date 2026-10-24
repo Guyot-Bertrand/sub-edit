@@ -58,6 +58,7 @@ class QTimer;
 namespace subedit::gui {
 
 class SearchDialog;
+class TranscriptionRunner;
 
 class DiagnosticsButton;
 class ManualWindow;
@@ -109,6 +110,10 @@ public:
                QWidget* parent = nullptr);
 
     ~MainWindow() override;
+
+    /// Puts another runner in place of the one that runs the transcriptions, which tests
+    /// do: the real one needs an engine and a model of several hundred megabytes.
+    void setTranscriptionRunner(std::unique_ptr<TranscriptionRunner> runner);
 
     MainWindow(const MainWindow&) = delete;
     MainWindow& operator=(const MainWindow&) = delete;
@@ -284,6 +289,8 @@ public:
     [[nodiscard]] QAction* preferencesAction() const { return m_actions->preferences; }
 
     [[nodiscard]] QAction* selectVideoAction() const { return m_actions->selectVideo; }
+
+    [[nodiscard]] QAction* transcribeAudioAction() const { return m_actions->transcribeAudio; }
 
     [[nodiscard]] QAction* playPauseAction() const { return m_actions->playPause; }
 
@@ -860,6 +867,9 @@ private:
     class OperationsSide;
     std::unique_ptr<OperationsSide> m_operationsSide;
     std::unique_ptr<ProjectOperations> m_operations;
+
+    /// Who runs the transcriptions: the real one unless a test says otherwise.
+    std::unique_ptr<TranscriptionRunner> m_transcriber;
 
     /// What the correction assistant asks of the window, and the assistant
     /// itself — issue #505.

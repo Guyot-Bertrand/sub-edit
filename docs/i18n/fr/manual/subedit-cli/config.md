@@ -101,15 +101,15 @@ duration-adjust.lengthen
     Used by: subedit-cli adjust; Adjust Durations…
 ```
 
-Elle liste **33 clés** :
+Elle liste **40 clés** :
 
 <!-- example: subedit-cli config list | grep -c '^[a-z]' -->
 ```console
 $ subedit-cli config list | grep -c '^[a-z]'
-33
+40
 ```
 
-**Treize d'entre elles sont lues par la ligne de commande** ; les vingt autres ne sont lues que par
+**Vingt d'entre elles sont lues par la ligne de commande** ; les vingt autres ne sont lues que par
 la fenêtre, et leur ligne `Used by:` le dit, avec l'option de `correct` qui en tient lieu :
 
 | Clé | Lue par |
@@ -121,6 +121,7 @@ la fenêtre, et leur ligne `Used by:` le dit, avec l'option de `correct` qui en 
 | `correction.human`, `correction.ocr` | [`correct`](correct.md) et `Correct Texts…` |
 | `correction.remove-blank` | `correct` et `Correct Texts…` |
 | `correction.line-break.max-lines` | `correct` et `Correct Texts…` |
+| `transcription.engine`, `transcription.executable`, `transcription.model`, `transcription.language`, `transcription.merge-gap-ms`, `transcription.max-duration-ms`, `transcription.max-characters` | [`transcribe`](transcribe.md) et `Transcribe Audio…` |
 | toute autre clé `correction.*` | `Correct Texts…` seulement — `correct` prend `--tasks`, `--code`, `--max-length`, `--skip-length`, `--skip-lines`, `--language`, `--enable` et `--disable` sur sa propre ligne |
 
 Les nombres de lignes, `correction.line-break.max-lines` et `correction.line-break.skip-max-lines`,
@@ -213,6 +214,7 @@ duration-adjust.gap-ms = 100
 # Display preferences: the window's own, the command line never reads them.
 duration-adjust.gap-ms reset to its default (0)
 #duration-adjust.gap-ms = 0
+#transcription.merge-gap-ms = 400
 ```
 
 ## Codes de retour

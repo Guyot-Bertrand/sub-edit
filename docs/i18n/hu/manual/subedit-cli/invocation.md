@@ -48,6 +48,7 @@ Subcommands:
   append                      Put subtitle files one after another into a single file
   split-file                  Cut a subtitle file in two, a head and a tail
   pair                        Write a translation at the positions of its main file, and say how it lined up
+  transcribe                  Write the speech of a video or an audio file as subtitles
   config                      List, show and change the operation settings
 ```
 
@@ -176,7 +177,7 @@ code=1
 <!-- example: subedit-cli --version | head -n 1 -->
 ```console
 $ subedit-cli --version | head -n 1
-subedit 1.0.9
+subedit 1.0.10
 ```
 
 Az egész, egy ICU 74.2 és Enchant 2.3.3 verziójú gépen — a számok a gép számai:
@@ -284,11 +285,12 @@ Ezt teszi a Gaupol is — a jelölő kódolásával újrakezdi az olvasást —,
 | [`append`](append.md) | az első fájl után fűz fájlokat **egyetlen** fájlba | igen |
 | [`split-file`](split-file.md) | a fájlt **kettéhasítja**: egy elejére és egy végére | igen |
 | [`pair`](pair.md) | a fordítást a főfájl pozícióin írja meg, és közli, hogyan illeszkedtek a sorai | igen |
+| [`transcribe`](transcribe.md) | egy videó vagy egy hangfájl beszédét írja ki feliratként | igen — saját cél, az `--output` |
 | [`config`](config.md) | felsorolja, megmutatja és módosítja a beállításfájl műveleti beállításait | csak a beállításfájlt |
 
-Mind a huszonegy itt van; az eszköz súgója ugyanebben a sorrendben sorolja fel őket.
+Mind a huszonkettő itt van; az eszköz súgója ugyanebben a sorrendben sorolja fel őket.
 
-**Csak egy nem érint semmit**, és ez a jobb oldali oszlop: az `inspect` olvas és jelent. A másik tizenkilenc ír, és ami következik, az tizenhétre érvényes közülük: az [`append`](append.md) és a [`split-file`](split-file.md) saját számosságú — N fájl **egy** eredményhez, egy fájl **kettőhöz** — és ezért saját célú, amelyet az oldaluk ír le. A [`config`](config.md) nem ír feliratfájlt: a beállításfájlt olvassa és módosítja, és semmi sem érvényes rá abból, ami következik.
+**Csak egy nem érint semmit**, és ez a jobb oldali oszlop: az `inspect` olvas és jelent. A másik húsz ír, és ami következik, az tizenhétre érvényes közülük: az [`append`](append.md) és a [`split-file`](split-file.md) saját számosságú — N fájl **egy** eredményhez, egy fájl **kettőhöz** — és ezért saját célú, amelyet az oldaluk ír le; a [`transcribe`](transcribe.md) új fájlt készít egy videóból vagy egy hangfájlból, és csak az `--output` kapcsolót fogadja el. A [`config`](config.md) nem ír feliratfájlt: a beállításfájlt olvassa és módosítja, és semmi sem érvényes rá abból, ami következik.
 
 ## A cél
 

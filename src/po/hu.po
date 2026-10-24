@@ -1038,6 +1038,48 @@ msgstr ""
 "a --head és a --tail összetartozik: adja meg mindkettőt, vagy egyiket sem a "
 "--dry-run mellett"
 
+#: src/exe/cli/commands/transcribe.cpp
+msgid "Write the speech of a video or an audio file as subtitles"
+msgstr "Egy videó vagy hangfájl beszédének kiírása feliratként"
+
+#: src/exe/cli/commands/transcribe.cpp
+msgid "Video or audio file to transcribe"
+msgstr "Leiratozandó videó- vagy hangfájl"
+
+#: src/exe/cli/commands/transcribe.cpp
+msgid "Subtitle file to write"
+msgstr "Kiírandó feliratfájl"
+
+#: src/exe/cli/commands/transcribe.cpp
+msgid "Format to write; the one the extension of --output says by default"
+msgstr ""
+"Kiírandó formátum; alapértelmezés szerint az, amelyet az --output "
+"kiterjesztése megad"
+
+#: src/exe/cli/commands/transcribe.cpp
+msgid "Audio track of a video, counted from 0; the first by default"
+msgstr "Egy videó hangsávja, 0-tól számolva; alapértelmezés szerint az első"
+
+#: src/exe/cli/commands/transcribe.cpp
+msgid "Language of the speech: fr, en; detected by default"
+msgstr "A beszéd nyelve: fr, en; alapértelmezés szerint felismeri"
+
+#: src/exe/cli/commands/transcribe.cpp
+msgid "Model file; the transcription.model setting by default"
+msgstr "Modellfájl; alapértelmezés szerint a transcription.model beállítás"
+
+#: src/exe/cli/commands/transcribe.cpp
+msgid "Engine; the transcription.engine setting by default"
+msgstr "Motor; alapértelmezés szerint a transcription.engine beállítás"
+
+#: src/exe/cli/commands/transcribe.cpp
+msgid "Keep the extracted audio in this file"
+msgstr "A kinyert hang megőrzése ebben a fájlban"
+
+#: src/exe/cli/commands/transcribe.cpp
+msgid "Write the segments as the engine cut them"
+msgstr "A szakaszok kiírása úgy, ahogy a motor felvágta őket"
+
 #: src/exe/cli/commands/transform.cpp
 msgid "Correct every position from two points known to be right"
 msgstr "Minden pozíció javítása két ismerten helyes pont alapján"
@@ -1908,7 +1950,7 @@ msgid "%1: %2 (dry run, nothing written)"
 msgstr "%1: %2 (próbafuttatás, nem íródott semmi)"
 
 #. TRANSLATORS: %1 is a file, %2 what was done to it, %3 the file written.
-#: src/lib/subedit/cli/rewriting.cpp
+#: src/lib/subedit/cli/rewriting.cpp src/lib/subedit/cli/transcribing.cpp
 msgid "%1: %2 -> %3"
 msgstr "%1: %2 -> %3"
 
@@ -2113,7 +2155,9 @@ msgstr "egész számú ezredmásodperc, 0 vagy több"
 msgid ""
 "a pattern code, Script[-language[-COUNTRY]], not empty: Zyyy, Latn, Latn-en, "
 "Latn-en-US"
-msgstr "mintakód, Script[-language[-COUNTRY]], nem üres: Zyyy, Latn, Latn-en, Latn-en-US"
+msgstr ""
+"mintakód, Script[-language[-COUNTRY]], nem üres: Zyyy, Latn, Latn-en, Latn-"
+"en-US"
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "a number above 0, decimals allowed: 24, 42.5"
@@ -2122,6 +2166,30 @@ msgstr "0-nál nagyobb szám, tizedesekkel is: 24, 42.5"
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "a whole number from 1 to 1000: 2, 3"
 msgstr "egész szám 1-től 1000-ig: 2, 3"
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "the name of an engine: lower-case letters, digits, '.', '-' or '_'"
+msgstr "egy motor neve: kisbetűk, számjegyek, „.”, „-” vagy „_”"
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "an absolute path; empty for none"
+msgstr "abszolút elérési út; üres, ha nincs"
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "two lower-case letters, an ISO 639-1 code: en, fr; empty to detect it"
+msgstr "két kisbetű, egy ISO 639-1 kód: en, fr; üresen felismeri"
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "a whole number of milliseconds, 1 to 3600000"
+msgstr "egész számú ezredmásodperc, 1-től 3600000-ig"
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "a whole number from 1 to 1000"
+msgstr "egész szám 1-től 1000-ig"
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "subedit-cli transcribe; Transcribe Audio…"
+msgstr "subedit-cli transcribe; Hang leiratozása…"
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "subedit-cli adjust; Adjust Durations…"
@@ -2133,31 +2201,45 @@ msgstr "subedit-cli correct; Szövegek javítása…"
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "Correct Texts… (window only; correct takes --tasks instead)"
-msgstr "Szövegek javítása… (csak az ablakban; a correct helyette a --tasks kapcsolót használja)"
+msgstr ""
+"Szövegek javítása… (csak az ablakban; a correct helyette a --tasks kapcsolót "
+"használja)"
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "Correct Texts… (window only; correct takes --code instead)"
-msgstr "Szövegek javítása… (csak az ablakban; a correct helyette a --code kapcsolót használja)"
+msgstr ""
+"Szövegek javítása… (csak az ablakban; a correct helyette a --code kapcsolót "
+"használja)"
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "Correct Texts… (window only; correct takes --enable/--disable instead)"
-msgstr "Szövegek javítása… (csak az ablakban; a correct helyette a --enable/--disable kapcsolót használja)"
+msgstr ""
+"Szövegek javítása… (csak az ablakban; a correct helyette a --enable/--"
+"disable kapcsolót használja)"
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "Correct Texts… (window only; correct takes --max-length instead)"
-msgstr "Szövegek javítása… (csak az ablakban; a correct helyette a --max-length kapcsolót használja)"
+msgstr ""
+"Szövegek javítása… (csak az ablakban; a correct helyette a --max-length "
+"kapcsolót használja)"
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "Correct Texts… (window only; correct takes --skip-length instead)"
-msgstr "Szövegek javítása… (csak az ablakban; a correct helyette a --skip-length kapcsolót használja)"
+msgstr ""
+"Szövegek javítása… (csak az ablakban; a correct helyette a --skip-length "
+"kapcsolót használja)"
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "Correct Texts… (window only; correct takes --skip-lines instead)"
-msgstr "Szövegek javítása… (csak az ablakban; a correct helyette a --skip-lines kapcsolót használja)"
+msgstr ""
+"Szövegek javítása… (csak az ablakban; a correct helyette a --skip-lines "
+"kapcsolót használja)"
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "Correct Texts… (window only; correct takes --language instead)"
-msgstr "Szövegek javítása… (csak az ablakban; a correct helyette a --language kapcsolót használja)"
+msgstr ""
+"Szövegek javítása… (csak az ablakban; a correct helyette a --language "
+"kapcsolót használja)"
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "Reading speed the durations are brought to."
@@ -2241,16 +2323,21 @@ msgstr "A felismerési (OCR) hibák mintáinak alkalmazása."
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "Whether the window's hearing-impaired task acts on text in brackets."
-msgstr "A hallássérültek ablakbeli feladata szögletes zárójelben lévő szövegen is dolgozik-e."
+msgstr ""
+"A hallássérültek ablakbeli feladata szögletes zárójelben lévő szövegen is "
+"dolgozik-e."
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "Whether the window's hearing-impaired task acts on text in parentheses."
-msgstr "A hallássérültek ablakbeli feladata zárójelben lévő szövegen is dolgozik-e."
+msgstr ""
+"A hallássérültek ablakbeli feladata zárójelben lévő szövegen is dolgozik-e."
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid ""
 "Longest line the window's line-break task aims at, in the unit in-ems names."
-msgstr "A leghosszabb sor, amelyet az ablak sortörés-feladata céloz, az in-ems által megnevezett egységben."
+msgstr ""
+"A leghosszabb sor, amelyet az ablak sortörés-feladata céloz, az in-ems által "
+"megnevezett egységben."
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "Most lines a subtitle is broken into."
@@ -2264,29 +2351,38 @@ msgstr "Az ablak em-ben méri-e a sorokat karakterek helyett."
 msgid ""
 "Whether the window's line-break task leaves alone a subtitle whose lines are "
 "short enough."
-msgstr "Az ablak sortörés-feladata békén hagyja-e azt a feliratot, amelynek sorai elég rövidek."
+msgstr ""
+"Az ablak sortörés-feladata békén hagyja-e azt a feliratot, amelynek sorai "
+"elég rövidek."
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid ""
 "Longest line a subtitle may have and still be left alone by the window's "
 "line-break task."
-msgstr "A leghosszabb sor, amelyet egy felirat tartalmazhat úgy, hogy az ablak sortörés-feladata még békén hagyja."
+msgstr ""
+"A leghosszabb sor, amelyet egy felirat tartalmazhat úgy, hogy az ablak "
+"sortörés-feladata még békén hagyja."
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid ""
 "Whether the window's line-break task leaves alone a subtitle with few enough "
 "lines."
-msgstr "Az ablak sortörés-feladata békén hagyja-e azt a feliratot, amelynek elég kevés sora van."
+msgstr ""
+"Az ablak sortörés-feladata békén hagyja-e azt a feliratot, amelynek elég "
+"kevés sora van."
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid ""
 "Most lines a subtitle may have and still be left alone by the window's line-"
 "break task."
-msgstr "A legtöbb sor, amelyet egy felirat tartalmazhat úgy, hogy az ablak sortörés-feladata még békén hagyja."
+msgstr ""
+"A legtöbb sor, amelyet egy felirat tartalmazhat úgy, hogy az ablak sortörés-"
+"feladata még békén hagyja."
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "Whether the window ticks the join/split-words task."
-msgstr "Bejelöli-e az ablak a szavak összevonásának/szétválasztásának feladatát."
+msgstr ""
+"Bejelöli-e az ablak a szavak összevonásának/szétválasztásának feladatát."
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "Whether the window's join/split-words task joins words."
@@ -2298,22 +2394,58 @@ msgstr "Az ablak szóösszevonó/szétválasztó feladata szétválaszt-e szavak
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "Dictionary the window's join/split-words task checks words by."
-msgstr "A szótár, amely alapján az ablak szóösszevonó/szétválasztó feladata ellenőrzi a szavakat."
+msgstr ""
+"A szótár, amely alapján az ablak szóösszevonó/szétválasztó feladata "
+"ellenőrzi a szavakat."
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid ""
 "a locale code, two lower-case letters, then optionally _ and two upper-case, "
 "then optionally @ and a script: fr, en_US, sr@Latn"
-msgstr "területi kód, két kisbetű, majd opcionálisan _ és két nagybetű, majd opcionálisan @ és egy írásrendszer: fr, en_US, sr@Latn"
+msgstr ""
+"területi kód, két kisbetű, majd opcionálisan _ és két nagybetű, majd "
+"opcionálisan @ és egy írásrendszer: fr, en_US, sr@Latn"
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid ""
 "Remove the subtitles the correction empties, instead of leaving them empty."
-msgstr "A javítás által kiürített feliratok eltávolítása, ahelyett hogy üresen maradnának."
+msgstr ""
+"A javítás által kiürített feliratok eltávolítása, ahelyett hogy üresen "
+"maradnának."
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "The engine that transcribes the audio."
+msgstr "A hangot leiratozó motor."
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "The engine's program; searched for when empty."
+msgstr "A motor programja; üresen a PATH-ban keresi."
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "The model file the engine reads."
+msgstr "A modellfájl, amelyet a motor beolvas."
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "The language of the audio; detected when empty."
+msgstr "A hang nyelve; üresen felismeri."
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "Pieces of one sentence closer than this are joined."
+msgstr "Egy mondat ennél közelebbi darabjai egyesülnek."
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "Longest a transcribed subtitle stays on screen."
+msgstr "A leiratozott felirat legfeljebb ennyi ideig marad a képernyőn."
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "Most characters a transcribed subtitle holds."
+msgstr "A leiratozott felirat legfeljebb ennyi karaktert tartalmaz."
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "%1 is managed by the window; use --enable/--disable on correct"
-msgstr "A(z) %1 beállítást az ablak kezeli; használja a --enable/--disable kapcsolót a correct parancsnál"
+msgstr ""
+"A(z) %1 beállítást az ablak kezeli; használja a --enable/--disable kapcsolót "
+"a correct parancsnál"
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "%1 is a display preference; set it in the window"
@@ -2325,7 +2457,9 @@ msgstr "ismeretlen beállítás: %1; a subedit-cli config list felsorolja őket"
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "cannot read '%1' for %2; subedit-cli config list says what it accepts"
-msgstr "a(z) '%1' nem olvasható be ehhez: %2; a subedit-cli config list megmondja, mit fogad el"
+msgstr ""
+"a(z) '%1' nem olvasható be ehhez: %2; a subedit-cli config list megmondja, "
+"mit fogad el"
 
 #: src/lib/subedit/core/format/lrc_reader.cpp
 #: src/lib/subedit/core/format/tm_player_reader.cpp
@@ -2423,7 +2557,9 @@ msgstr "lezáratlan csoportnév"
 
 #: src/lib/subedit/core/text/python_regex_syntax.cpp
 msgid "the group name '%1' is not letters and digits, which is all ICU accepts"
-msgstr "a(z) '%1' csoportnév nem betűkből és számjegyekből áll, az ICU csak ezeket fogadja el"
+msgstr ""
+"a(z) '%1' csoportnév nem betűkből és számjegyekből áll, az ICU csak ezeket "
+"fogadja el"
 
 #: src/lib/subedit/core/text/python_regex_syntax.cpp
 msgid "a backslash ends the expression"
@@ -2660,6 +2796,10 @@ msgstr "tartományok szétválasztása"
 #: src/lib/subedit/core/wording/analysis.cpp
 msgid "joining repeated subtitles"
 msgstr "ismétlődő feliratok egyesítése"
+
+#: src/lib/subedit/core/wording/analysis.cpp
+msgid "transcribing the audio"
+msgstr "a hang leiratozása"
 
 #. TRANSLATORS: how well the positions fall on a frame-rate grid: clean,
 #. partial, or none at all.
@@ -3206,6 +3346,144 @@ msgstr "nem olvasható, az alapérték marad"
 #: src/lib/subedit/core/wording/settings.cpp
 msgid "settings could not be written"
 msgstr "a beállításokat nem sikerült kiírni"
+
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid ""
+"See the manual page \"Installing the transcription tools\" (install-"
+"transcription)."
+msgstr ""
+"Lásd a kézikönyv „A leiratozó eszközök telepítése” oldalát (install-"
+"transcription)."
+
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "the transcription engine was not found"
+msgstr "a leiratozó motor nem található"
+
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "no model was given, or the model file is not there"
+msgstr "nincs megadva modell, vagy a modellfájl nem létezik"
+
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "the model cannot transcribe the language %1"
+msgstr "a modell nem tudja leiratozni a(z) %1 nyelvet"
+
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "the model cannot detect the language: give one"
+msgstr "a modell nem tudja felismerni a nyelvet: adjon meg egyet"
+
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "the audio could not be read"
+msgstr "a hangot nem sikerült beolvasni"
+
+# From Gaupol.
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "the transcription failed"
+msgstr "a leiratozás sikertelen volt"
+
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "the transcription failed: %1"
+msgstr "a leiratozás sikertelen volt: %1"
+
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "the transcription was cancelled"
+msgstr "a leiratozást megszakították"
+
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "ffmpeg was not found, so the audio of a video cannot be extracted"
+msgstr "az ffmpeg nem található, ezért a videó hangja nem nyerhető ki"
+
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "the video has no audio track %1"
+msgstr "a videónak nincs %1. hangsávja"
+
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "the audio could not be extracted"
+msgstr "a hangot nem sikerült kinyerni"
+
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "the audio could not be extracted: %1"
+msgstr "a hangot nem sikerült kinyerni: %1"
+
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "the video has no audio track"
+msgstr "a videónak nincs hangsávja"
+
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "no language or title"
+msgstr "nincs nyelv vagy cím"
+
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "audio track %1: %2"
+msgstr "%1. hangsáv: %2"
+
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "no transcription engine is called %1"
+msgstr "nincs %1 nevű leiratozó motor"
+
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "%1 subtitle transcribed, language: %2"
+msgid_plural "%1 subtitles transcribed, language: %2"
+msgstr[0] "%1 felirat leiratozva, nyelv: %2"
+msgstr[1] "%1 felirat leiratozva, nyelv: %2"
+
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid ""
+"The %1 subtitle of this project will be replaced by the transcription. You "
+"can undo it."
+msgid_plural ""
+"The %1 subtitles of this project will be replaced by the transcription. You "
+"can undo it."
+msgstr[0] "A projekt %1 feliratát a leirat váltja fel. Visszavonhatja."
+msgstr[1] "A projekt %1 feliratát a leirat váltja fel. Visszavonhatja."
+
+#: src/lib/subedit/core/wording/transcription.cpp
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "%1: found (%2)"
+msgstr "%1: megtalálva (%2)"
+
+#: src/lib/subedit/core/wording/transcription.cpp
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "%1: not found"
+msgstr "%1: nem található"
+
+#: src/lib/subedit/core/wording/transcription.cpp
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "ffmpeg: found"
+msgstr "ffmpeg: megtalálva"
+
+#: src/lib/subedit/core/wording/transcription.cpp
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "ffmpeg: not found"
+msgstr "ffmpeg: nem található"
+
+#: src/lib/subedit/core/wording/transcription.cpp
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "Model: none set"
+msgstr "Modell: nincs megadva"
+
+#: src/lib/subedit/core/wording/transcription.cpp
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "Model: not found (%1)"
+msgstr "Modell: nem található (%1)"
+
+#: src/lib/subedit/core/wording/transcription.cpp
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "Model: not a model (%1)"
+msgstr "Modell: nem modell (%1)"
+
+#: src/lib/subedit/core/wording/transcription.cpp
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "Model: English only (%1)"
+msgstr "Modell: csak angolra (%1)"
+
+#: src/lib/subedit/core/wording/transcription.cpp
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "Model: multilingual (%1)"
+msgstr "Modell: többnyelvű (%1)"
+
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "transcribing: %1%"
+msgstr "leiratozás: %1%"
 
 #: src/lib/subedit/core/wording/translation.cpp
 msgid "translation: the file holds no line"
@@ -4021,6 +4299,10 @@ msgid "Decode on the graphics card"
 msgstr "Dekódolás a grafikus kártyán"
 
 #: src/lib/subedit/gui/preferences_dialog.cpp
+msgid "Browse…"
+msgstr "Tallózás…"
+
+#: src/lib/subedit/gui/preferences_dialog.cpp
 msgid "Preferences"
 msgstr "Beállítások"
 
@@ -4056,6 +4338,26 @@ msgstr "Környezet hossza"
 #: src/lib/subedit/gui/preferences_dialog.cpp
 msgid "Frame step"
 msgstr "Léptetés képkockában"
+
+#: src/lib/subedit/gui/preferences_dialog.cpp
+#: src/lib/subedit/gui/preferences_dialog.cpp
+msgid "Searched for on the PATH"
+msgstr "Keresés a PATH-ban"
+
+#: src/lib/subedit/gui/preferences_dialog.cpp
+#: src/lib/subedit/gui/preferences_dialog.cpp
+msgid "Program"
+msgstr "Program"
+
+#: src/lib/subedit/gui/preferences_dialog.cpp
+msgid "Model"
+msgstr "Modell"
+
+# From Gaupol.
+#: src/lib/subedit/gui/preferences_dialog.cpp
+#: src/lib/subedit/gui/preferences_dialog.cpp
+msgid "Transcription"
+msgstr "Leiratozás"
 
 #: src/lib/subedit/gui/project_files.cpp
 msgid "Save All stopped: %1 of %2 document saved"
@@ -4111,6 +4413,19 @@ msgid "Select Video"
 msgstr "Videó kiválasztása"
 
 #: src/lib/subedit/gui/qt_prompts.cpp
+msgid "Choose a model"
+msgstr "Modell kiválasztása"
+
+#: src/lib/subedit/gui/qt_prompts.cpp
+#: src/lib/subedit/gui/qt_prompts.cpp
+msgid "Choose the program"
+msgstr "A program kiválasztása"
+
+#: src/lib/subedit/gui/qt_prompts.cpp
+msgid "Models (*.bin);;All files (*)"
+msgstr "Modellek (*.bin);;Minden fájl (*)"
+
+#: src/lib/subedit/gui/qt_prompts.cpp
 msgid "The translation is no longer where it was read from."
 msgstr "A fordítás már nincs ott, ahonnan beolvasták."
 
@@ -4144,6 +4459,10 @@ msgstr ""
 "%1\n"
 "\n"
 "Megnyitja újra, az új helyén?"
+
+#: src/lib/subedit/gui/qt_prompts.cpp
+msgid "Replace the subtitles?"
+msgstr "Lecseréli a feliratokat?"
 
 # From Gaupol.
 #: src/lib/subedit/gui/save_shape.cpp
@@ -4413,6 +4732,84 @@ msgstr "A fordítás megjelenítése a szöveg mellett"
 msgid "Main"
 msgstr "Fő"
 
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+msgid "Preferences…"
+msgstr "Beállítások…"
+
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+#: src/lib/subedit/gui/transcription_runner.cpp
+msgid "Transcribe audio"
+msgstr "Hang leiratozása"
+
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+msgid "First audio track"
+msgstr "Első hangsáv"
+
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+msgid "Detected from the sound"
+msgstr "A hangból felismerve"
+
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+msgid ""
+"A two-letter language code such as en or fr. Leave it empty to let the model "
+"detect the language."
+msgstr ""
+"Kétbetűs nyelvkód, például en vagy fr. Hagyja üresen, hogy a modell ismerje "
+"fel a nyelvet."
+
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+msgid ""
+"The audio of the film open in this window is transcribed into subtitles that "
+"replace the ones of the project. The work runs in the background and can be "
+"cancelled."
+msgstr ""
+"Az ebben az ablakban megnyitott film hangja feliratokká alakul, amelyek "
+"felváltják a projekt feliratait. A munka a háttérben fut, és megszakítható."
+
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+msgid "Audio track"
+msgstr "Hangsáv"
+
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+msgid "Language"
+msgstr "Nyelv"
+
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+msgid "Set them in the preferences."
+msgstr "Állítsa be őket a beállításokban."
+
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+msgid "This model cannot detect the language: type it."
+msgstr "Ez a modell nem tudja felismerni a nyelvet: adja meg."
+
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+msgid "The language you typed is used."
+msgstr "A beírt nyelv lesz használva."
+
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+msgid "Proposed from the language the file declares for this track."
+msgstr "A fájl által ehhez a sávhoz megadott nyelv alapján javasolva."
+
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+msgid "The file declares no language for this track: the model will detect it from the sound. Type it if you know it."
+msgstr "A fájl nem ad meg nyelvet ehhez a sávhoz: a modell a hangból fogja felismerni. Adja meg, ha ismeri."
+
+#: src/lib/subedit/gui/transcription_runner.cpp
+#: src/lib/subedit/gui/unsaved_documents_dialog.cpp
+msgid "Cancel"
+msgstr "Mégse"
+
+#: src/lib/subedit/gui/transcription_runner.cpp
+msgid "Transcribing the audio…"
+msgstr "A hang leiratozása…"
+
 #: src/lib/subedit/gui/transform_dialog.cpp
 msgid "Transform positions"
 msgstr "Pozíciók átalakítása"
@@ -4458,10 +4855,6 @@ msgstr "&Mentés"
 #: src/lib/subedit/gui/unsaved_documents_dialog.cpp
 msgid "Close &Without Saving"
 msgstr "Bezárás m&entés nélkül"
-
-#: src/lib/subedit/gui/unsaved_documents_dialog.cpp
-msgid "Cancel"
-msgstr "Mégse"
 
 #: src/lib/subedit/gui/unsaved_documents_dialog.cpp
 msgid ""
@@ -4566,6 +4959,10 @@ msgstr "Be&állítások…"
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "Positions in &Frames"
 msgstr "Pozíciók &képkockában"
+
+#: src/lib/subedit/gui/window_actions.cpp
+msgid "Transcribe Audio…"
+msgstr "Hang leiratozása…"
 
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "Play / Pause"
@@ -4822,3 +5219,13 @@ msgstr "Dőlt betű"
 msgctxt "toolbar"
 msgid "Main"
 msgstr "Fő"
+
+#~ msgid "Detected"
+#~ msgstr "Felismerve"
+
+#~ msgid ""
+#~ "The model file the engine reads. It is not shipped with the program: the "
+#~ "manual says where to find one."
+#~ msgstr ""
+#~ "A modellfájl, amelyet a motor beolvas. A program nem tartalmazza: a "
+#~ "kézikönyv megmondja, hol található egy."

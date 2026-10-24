@@ -102,15 +102,15 @@ duration-adjust.lengthen
     Used by: subedit-cli adjust; Adjust Durations…
 ```
 
-**33 anahtar** listeler:
+**40 anahtar** listeler:
 
 <!-- example: subedit-cli config list | grep -c '^[a-z]' -->
 ```console
 $ subedit-cli config list | grep -c '^[a-z]'
-33
+40
 ```
 
-**On üçünü komut satırı okur**; diğer yirmisini yalnızca pencere okur
+**Yirmisini komut satırı okur**; diğer yirmisini yalnızca pencere okur
 ve `Used by:` satırları bunu, yerlerini alan `correct` seçeneğiyle birlikte söyler:
 
 | Anahtar | Okuyan |
@@ -122,6 +122,7 @@ ve `Used by:` satırları bunu, yerlerini alan `correct` seçeneğiyle birlikte 
 | `correction.human`, `correction.ocr` | [`correct`](correct.md) ve `Correct Texts…` |
 | `correction.remove-blank` | `correct` ve `Correct Texts…` |
 | `correction.line-break.max-lines` | `correct` ve `Correct Texts…` |
+| `transcription.engine`, `transcription.executable`, `transcription.model`, `transcription.language`, `transcription.merge-gap-ms`, `transcription.max-duration-ms`, `transcription.max-characters` | [`transcribe`](transcribe.md) ve `Transcribe Audio…` |
 | diğer her `correction.*` anahtarı | yalnızca `Correct Texts…` — `correct`, `--tasks`, `--code`, `--max-length`, `--skip-length`, `--skip-lines`, `--language`, `--enable` ve `--disable` değerlerini kendi satırından alır |
 
 Satır sayıları, `correction.line-break.max-lines` ve `correction.line-break.skip-max-lines`,
@@ -210,6 +211,7 @@ duration-adjust.gap-ms = 100
 # Display preferences: the window's own, the command line never reads them.
 duration-adjust.gap-ms reset to its default (0)
 #duration-adjust.gap-ms = 0
+#transcription.merge-gap-ms = 400
 ```
 
 ## Çıkış kodları

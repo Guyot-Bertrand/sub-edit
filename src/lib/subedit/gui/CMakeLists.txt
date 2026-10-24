@@ -24,7 +24,7 @@ add_library(
                        insert_dialog.cpp split_project_dialog.cpp save_shape.cpp
                        frame_rate_box.cpp frame_rate_dialog.cpp hearing_impaired_dialog.cpp
                        grid_analysis_dialog.cpp snap_dialog.cpp fixes_proposal_dialog.cpp disjoint_dialog.cpp
-    duration_adjust_dialog.cpp
+    duration_adjust_dialog.cpp transcribe_dialog.cpp transcription_runner.cpp
     search_dialog.cpp about_dialog.cpp
     open_translation_dialog.cpp unsaved_documents_dialog.cpp
                        mpv_player.cpp video_surface.cpp play_bar.cpp audio_track_menu.cpp player_factory.cpp project_page.cpp table_columns.cpp project_search.cpp project_files.cpp window_actions.cpp video_pane.cpp status_line.cpp project_operations.cpp main_window.cpp)

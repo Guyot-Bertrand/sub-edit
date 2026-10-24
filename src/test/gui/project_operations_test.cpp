@@ -27,10 +27,12 @@
 #include <subedit/gui/shift_dialog.hpp>
 #include <subedit/gui/split_project_dialog.hpp>
 #include <subedit/gui/subtitle_table_model.hpp>
+#include <subedit/gui/transcribe_dialog.hpp>
 
 #include <QCheckBox>
 #include <QDialog>
 #include <QItemSelectionModel>
+#include <QPushButton>
 #include <QSpinBox>
 #include <QString>
 #include <QWidget>
@@ -73,6 +75,9 @@ public:
     InMemoryFileSystem files;
     Document aimed = Document::Main;
     std::optional<Duration> length;
+    std::optional<std::filesystem::path> film;
+    std::size_t preferencesOpened = 0;
+    std::size_t toolsAsked = 0;
     std::optional<std::filesystem::path> toAppend;
     std::vector<std::string> announced;
     std::vector<std::pair<int, int>> selected;
@@ -116,6 +121,30 @@ public:
     void selectRows(int first, int last) override { selected.emplace_back(first, last); }
 
     void openAside(Project project) override { aside.push_back(std::move(project)); }
+
+    [[nodiscard]] std::optional<std::filesystem::path>
+    videoOf(const ProjectPage& /*page*/) const override {
+        return film;
+    }
+
+    [[nodiscard]] std::vector<subedit::core::AudioTrack>
+    audioTracksOf(const ProjectPage& /*page*/) const override {
+        return {};
+    }
+
+    [[nodiscard]] subedit::core::TranscriptionTools
+    transcriptionTools(const subedit::core::TranscriptionSettings& /*settings*/) override {
+        ++toolsAsked;
+        return {};
+    }
+
+    void openPreferences() override { ++preferencesOpened; }
+
+    [[nodiscard]] std::expected<subedit::gui::TranscriptionOutcome,
+                                subedit::gui::TranscriptionFailure>
+    transcribe(const subedit::gui::TranscriptionJob& /*job*/) override {
+        return subedit::gui::TranscriptionOutcome{};
+    }
 };
 
 /// A page on four subtitles, the operations over it, and what answers them.
@@ -373,4 +402,30 @@ TEST_CASE("the corrections offered at opening say nothing of what they could not
     // And asked for nothing at all, nothing happens.
     bench.operations.fixAtOpening(*page, false, false, false);
     CHECK(bench.desk.announced.empty());
+}
+
+TEST_CASE("transcribing with no film open asks nothing", "[gui][GUI-TRANSCRIBE-01]") {
+    Bench bench;
+
+    bench.operations.transcribeAudio(*bench.page);
+
+    CHECK(bench.prompts.runAsked == 0);
+    CHECK(bench.prompts.replacements.empty());
+}
+
+TEST_CASE("the transcription dialog looks at the tools, and its Preferences button asks the "
+          "window for the preferences",
+          "[gui][GUI-TRANSCRIBE-04]") {
+    Bench bench;
+    bench.desk.film = "/films/a.mkv";
+    bench.prompts.nextRun = false;
+    bench.prompts.fill = [](QDialog& dialog) {
+        if (auto* transcribe = dynamic_cast<subedit::gui::TranscribeDialog*>(&dialog))
+            transcribe->preferencesButton()->click();
+    };
+
+    bench.operations.transcribeAudio(*bench.page);
+
+    CHECK(bench.desk.preferencesOpened == 1);
+    CHECK(bench.desk.toolsAsked >= 2);
 }

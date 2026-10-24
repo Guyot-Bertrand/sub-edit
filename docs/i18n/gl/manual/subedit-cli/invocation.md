@@ -48,6 +48,7 @@ Subcommands:
   append                      Put subtitle files one after another into a single file
   split-file                  Cut a subtitle file in two, a head and a tail
   pair                        Write a translation at the positions of its main file, and say how it lined up
+  transcribe                  Write the speech of a video or an audio file as subtitles
   config                      List, show and change the operation settings
 ```
 
@@ -224,7 +225,7 @@ non se executa, e `-q` e `-v` non cambian nada.
 <!-- example: subedit-cli --version | head -n 1 -->
 ```console
 $ subedit-cli --version | head -n 1
-subedit 1.0.9
+subedit 1.0.10
 ```
 
 Completa, nunha máquina con ICU 74.2 e Enchant 2.3.3 — os números son os da máquina:
@@ -368,14 +369,16 @@ o que se fixo non é un silencio.
 | [`append`](append.md) | pon ficheiros despois do primeiro, nun **único** ficheiro | si |
 | [`split-file`](split-file.md) | corta un ficheiro en **dous**: unha cabeza e unha cola | si |
 | [`pair`](pair.md) | escribe unha tradución nas posicións do seu ficheiro principal, e di como se aliñaron as súas liñas | si |
+| [`transcribe`](transcribe.md) | escribe a fala dun vídeo ou dun ficheiro de son como subtítulos | si — o seu propio destino, `--output` |
 | [`config`](config.md) | enumera, mostra e cambia a configuración das operacións do ficheiro de configuración | só o ficheiro de configuración |
 
-Están as vinte e unha; a axuda da ferramenta enuméraas na mesma orde.
+Están as vinte e dúas; a axuda da ferramenta enuméraas na mesma orde.
 
 **Só unha non toca nada**, e iso é a columna da dereita: `inspect` le e
-informa. As outras dezanove escriben, e o que segue vale para dezasete delas:
+informa. As outras vinte escriben, e o que segue vale para dezasete delas:
 [`append`](append.md) e [`split-file`](split-file.md) teñen cada unha unha aridade propia — N ficheiros para
-**un** resultado, un ficheiro para **dous** — e polo tanto o seu propio destino, que describen na súa páxina.
+**un** resultado, un ficheiro para **dous** — e polo tanto o seu propio destino, que describen na súa páxina;
+[`transcribe`](transcribe.md) fai un ficheiro novo a partir dun vídeo ou dun ficheiro de son, e toma só `--output`.
 [`config`](config.md) non escribe ningún ficheiro de subtítulos: le e cambia o ficheiro de configuración, e
 nada do que segue se lle aplica.
 

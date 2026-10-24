@@ -22,6 +22,16 @@ constexpr std::string_view kPatternCode = deferred(
     "a pattern code, Script[-language[-COUNTRY]], not empty: Zyyy, Latn, Latn-en, Latn-en-US");
 constexpr std::string_view kLength = deferred("a number above 0, decimals allowed: 24, 42.5");
 constexpr std::string_view kLineCount = deferred("a whole number from 1 to 1000: 2, 3");
+constexpr std::string_view kEngineName =
+    deferred("the name of an engine: lower-case letters, digits, '.', '-' or '_'");
+constexpr std::string_view kAbsolutePath = deferred("an absolute path; empty for none");
+constexpr std::string_view kLanguageCode =
+    deferred("two lower-case letters, an ISO 639-1 code: en, fr; empty to detect it");
+constexpr std::string_view kDurationLimit =
+    deferred("a whole number of milliseconds, 1 to 3600000");
+constexpr std::string_view kCharacterLimit = deferred("a whole number from 1 to 1000");
+
+constexpr std::string_view kTranscribe = deferred("subedit-cli transcribe; Transcribe Audio…");
 
 constexpr std::string_view kAdjust = deferred("subedit-cli adjust; Adjust Durations…");
 constexpr std::string_view kCorrect = deferred("subedit-cli correct; Correct Texts…");
@@ -229,6 +239,41 @@ constexpr std::array kCatalogue{
                .accepts = kTrueFalse,
                .usedBy = kCorrect,
                .surface = kBoth},
+    SettingKey{.key = "transcription.engine",
+               .description = deferred("The engine that transcribes the audio."),
+               .accepts = kEngineName,
+               .usedBy = kTranscribe,
+               .surface = kBoth},
+    SettingKey{.key = "transcription.executable",
+               .description = deferred("The engine's program; searched for when empty."),
+               .accepts = kAbsolutePath,
+               .usedBy = kTranscribe,
+               .surface = kBoth},
+    SettingKey{.key = "transcription.model",
+               .description = deferred("The model file the engine reads."),
+               .accepts = kAbsolutePath,
+               .usedBy = kTranscribe,
+               .surface = kBoth},
+    SettingKey{.key = "transcription.language",
+               .description = deferred("The language of the audio; detected when empty."),
+               .accepts = kLanguageCode,
+               .usedBy = kTranscribe,
+               .surface = kBoth},
+    SettingKey{.key = "transcription.merge-gap-ms",
+               .description = deferred("Pieces of one sentence closer than this are joined."),
+               .accepts = kMilliseconds,
+               .usedBy = kTranscribe,
+               .surface = kBoth},
+    SettingKey{.key = "transcription.max-duration-ms",
+               .description = deferred("Longest a transcribed subtitle stays on screen."),
+               .accepts = kDurationLimit,
+               .usedBy = kTranscribe,
+               .surface = kBoth},
+    SettingKey{.key = "transcription.max-characters",
+               .description = deferred("Most characters a transcribed subtitle holds."),
+               .accepts = kCharacterLimit,
+               .usedBy = kTranscribe,
+               .surface = kBoth},
 };
 
 // A key of the file, in the correction family, that is not in the catalogue:
@@ -310,7 +355,9 @@ OperationSettingsRead readOperationSettings(const FileSystem& files,
 }
 
 OperationSettings operationPartOf(const Settings& settings) {
-    return {.durationAdjustment = settings.durationAdjustment, .correction = settings.correction};
+    return {.durationAdjustment = settings.durationAdjustment,
+            .correction = settings.correction,
+            .transcription = settings.transcription};
 }
 
 std::span<const SettingKey> operationKeys() {
@@ -356,6 +403,7 @@ std::expected<void, std::string> unsetOperationOption(Settings& settings, std::s
     // read back from what the file would write for it.
     Settings rebuilt = settings;
     rebuilt.durationAdjustment = {};
+    rebuilt.transcription = {};
     rebuilt.correction =
         CorrectionSettings{.patternActivations = std::move(rebuilt.correction.patternActivations)};
     for (const SettingEntry& entry : describeOperationSettings(settings)) {

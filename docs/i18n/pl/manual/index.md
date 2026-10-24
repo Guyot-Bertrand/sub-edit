@@ -39,6 +39,7 @@ otwarty, a następnie zapisany bez zmian, nie zmienia się nawet o jeden bajt.
 | podzielić film na dwie części | [`Split Project…`](subedit-gui/operations.md#split-project) lub [`split-file`](subedit-cli/split-file.md) |
 | zmienić wielkość liter, kursywę lub myślniki dialogowe w całym pliku | [Operacje](subedit-gui/operations.md#italic) lub [`case`](subedit-cli/case.md), [`italics`](subedit-cli/italics.md), [`dialogue-dashes`](subedit-cli/dialogue-dashes.md) |
 | znaleźć wyraz i go zastąpić, nie psując znaczników | [Znajdowanie i zastępowanie](subedit-gui/find-and-replace.md) lub [`replace`](subedit-cli/replace.md) |
+| zapisać mowę z filmu jako napisy | [`Transcribe Audio…`](subedit-gui/video.md#transkrypcja-dźwięku) lub [`transcribe`](subedit-cli/transcribe.md) — po [zainstalowaniu narzędzi](subedit-cli/install-transcription.md) |
 | tłumaczyć obok tekstu oryginalnego | [Otwieranie tłumaczenia](subedit-gui/files.md#otwieranie-tłumaczenia) lub [`pair`](subedit-cli/pair.md), aby zmienić jego synchronizację według pliku głównego |
 | przetworzyć sto plików naraz | [Przetwarzanie drzewa katalogów](subedit-cli/lots.md), a następnie [Uruchamianie](subedit-cli/invocation.md) |
 

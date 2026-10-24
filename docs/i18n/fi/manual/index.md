@@ -39,6 +39,7 @@ joka avataan ja tallennetaan muuttamatta, ei muutu tavuakaan.
 | leikata elokuvan kahteen osaan | [`Split Project…`](subedit-gui/operations.md#split-project) tai [`split-file`](subedit-cli/split-file.md) |
 | muuttaa koko tiedoston kirjainkokoa, kursiivia tai vuoropuheluviivoja | [Toiminnot](subedit-gui/operations.md#italic) tai [`case`](subedit-cli/case.md), [`italics`](subedit-cli/italics.md), [`dialogue-dashes`](subedit-cli/dialogue-dashes.md) |
 | etsiä sanaa ja korvata sen rikkomatta tageja | [Etsi ja korvaa](subedit-gui/find-and-replace.md) tai [`replace`](subedit-cli/replace.md) |
+| kirjoittaa elokuvan puhe tekstitykseksi | [`Transcribe Audio…`](subedit-gui/video.md#äänen-litterointi) tai [`transcribe`](subedit-cli/transcribe.md) — [työkalujen asentamisen](subedit-cli/install-transcription.md) jälkeen |
 | kääntää alkuperäisen tekstin rinnalla | [Käännöksen avaaminen](subedit-gui/files.md#käännöksen-avaaminen) tai [`pair`](subedit-cli/pair.md), jolla käännös ajoitetaan uudelleen päätiedoston mukaan |
 | käsitellä sata tiedostoa kerralla | [Hakemistopuun käsittely](subedit-cli/lots.md), sitten [Käynnistys](subedit-cli/invocation.md) |
 

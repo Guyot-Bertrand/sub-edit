@@ -136,6 +136,12 @@ void split(const Piece& piece, const AssemblySettings& settings, std::vector<Sub
 
 } // namespace
 
+AssemblySettings assemblyOf(const TranscriptionSettings& settings) {
+    return {.maxGap = Duration::fromMilliseconds(settings.mergeGapMilliseconds),
+            .maxDuration = Duration::fromMilliseconds(settings.maxDurationMilliseconds),
+            .maxCharacters = static_cast<std::size_t>(settings.maxCharacters)};
+}
+
 std::vector<Subtitle> assembleSubtitles(std::span<const TranscribedSegment> segments,
                                         const AssemblySettings& settings) {
     std::vector<Piece> pieces;

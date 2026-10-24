@@ -48,6 +48,7 @@ Subcommands:
   append                      Put subtitle files one after another into a single file
   split-file                  Cut a subtitle file in two, a head and a tail
   pair                        Write a translation at the positions of its main file, and say how it lined up
+  transcribe                  Write the speech of a video or an audio file as subtitles
   config                      List, show and change the operation settings
 ```
 
@@ -224,7 +225,7 @@ ekki keyrð, og `-q` og `-v` breyta engu.
 <!-- example: subedit-cli --version | head -n 1 -->
 ```console
 $ subedit-cli --version | head -n 1
-subedit 1.0.9
+subedit 1.0.10
 ```
 
 Allt úttakið, á vél með ICU 74.2 og Enchant 2.3.3 — tölurnar eru vélarinnar:
@@ -368,14 +369,16 @@ merkisins — en án þess að segja frá því; hér er bilið milli þess sem 
 | [`append`](append.md) | setur skrár aftan við þá fyrstu, í **eina** skrá | já |
 | [`split-file`](split-file.md) | skiptir skrá í **tvær**: haus og hala | já |
 | [`pair`](pair.md) | skrifar þýðingu á staðsetningar aðalskrár hennar og segir hvernig línur hennar röðuðust | já |
+| [`transcribe`](transcribe.md) | skrifar tal myndskeiðs eða hljóðskrár sem skjátexta | já — sinn eigin áfangastað, `--output` |
 | [`config`](config.md) | telur upp, sýnir og breytir aðgerðastillingum stillingaskrárinnar | aðeins stillingaskrána |
 
-Þær tuttugu og ein eru allar hér; hjálp tólsins telur þær upp í sömu röð.
+Þær tuttugu og tvær eru allar hér; hjálp tólsins telur þær upp í sömu röð.
 
 **Aðeins ein snertir ekkert**, og það er hægri dálkurinn: `inspect` les og
-tilkynnir. Hinar nítján skrifa, og það sem á eftir fer gildir um sautján þeirra:
+tilkynnir. Hinar tuttugu skrifa, og það sem á eftir fer gildir um sautján þeirra:
 [`append`](append.md) og [`split-file`](split-file.md) hafa hvor sína eigin fjölda — N skrár fyrir
-**eina** niðurstöðu, ein skrá fyrir **tvær** — og þar með sinn eigin áfangastað, sem þær lýsa á sinni síðu.
+**eina** niðurstöðu, ein skrá fyrir **tvær** — og þar með sinn eigin áfangastað, sem þær lýsa á sinni síðu;
+[`transcribe`](transcribe.md) býr til nýja skrá úr myndskeiði eða hljóðskrá og tekur aðeins `--output`.
 [`config`](config.md) skrifar enga skjátextaskrá: hún les og breytir stillingaskránni og
 ekkert af því sem á eftir fer á við um hana.
 

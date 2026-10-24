@@ -97,6 +97,12 @@
 | `correction.join-split.join`, `correction.join-split.split` | `true` 或 `false`——连接、拆分 | `true`、`false` |
 | `correction.join-split.language` | 区域设置代码——`fr`、`en_US`、`sr@Latn`——；为空：系统的语言 | 空 |
 | `correction.remove-blank` | `true` 或 `false`——`Remove all blank subtitles` | `true` |
+| `transcription.engine` | 引擎的名称：小写字母、数字、`.`、`-` 和 `_` | `whisper.cpp` |
+| `transcription.executable`, `transcription.model` | 绝对路径；为空：在 `PATH` 中查找引擎，且未设置模型 | 空 |
+| `transcription.language` | 两个小写字母，ISO 639-1 代码；为空：自动检测语言 | 空 |
+| `transcription.merge-gap-ms` | 同一句话中间隔小于此值的片段会被合并，单位为毫秒，非负整数 | `400` |
+| `transcription.max-duration-ms` | 转录出的字幕在屏幕上停留的最长时间，单位为毫秒，1 到 3600000 | `7000` |
+| `transcription.max-characters` | 转录出的字幕所含的最多字符数，1 到 1000 | `84` |
 | `correction.activations` | 用户更改过的模式复选框，`<type>:<code>:<name>:<0\|1>`，以逗号分隔；**名称中的逗号或反斜杠前要加一个反斜杠**（`\,` 和 `\\`），无法读取的条目只会丢失它自己的设置——它会被报告，其他的则保留 | 空 |
 | `spell-check.language` | 区域设置代码，例如 `fr_FR`；为空：系统的语言 | 空 |
 | `spell-check.target` | `selection`、`current-project` 或 `all-projects` | `current-project` |
@@ -179,6 +185,12 @@ subedit-gui: /home/vous/.config/subedit/settings.conf: window.geometry: "plus ta
 因此，在主题已经是深色的桌面上，`System` 得到深色窗口；在浅色桌面上，则得到浅色窗口。`Light` 和 `Dark` 会覆盖它，不论桌面是什么。
 
 **异常的着色在两种配色中都保持可读**——见[表格](table.md#异常情况)。这不是假设：文本在每一种着色上的对比度，都由一项测试在两种背景上检查过。
+
+## 转录
+
+对话框的 **`Transcription`** 组保存 [`Transcribe Audio…`](video.md#转录音频) 所需的两项机器信息：引擎的**程序**（whisper.cpp，`whisper-cli`）以及它读取的**模型**。每一项都有一个 `Browse…` 按钮。程序留空时，会在 `PATH` 中查找；模型没有默认值。
+
+在这些字段下方，**对话框会说明现有的情况**：是否找到引擎以及在哪里，是否找到 `ffmpeg`，以及模型的情况——未设置、未找到、不是模型、仅限英语，或多语言。有东西缺失时，它会附上指向[安装转录工具](../subedit-cli/install-transcription.md)的提示，那里说明了各项在哪里获得。这两个字段就是设置 `transcription.executable` 和 `transcription.model`。
 
 ## 界面语言
 

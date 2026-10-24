@@ -20,4 +20,10 @@ namespace subedit::core {
 [[nodiscard]] std::expected<void, FileError>
 writeAtomically(FileSystem& files, const std::filesystem::path& path, std::string_view content);
 
+/// Makes `directory` and every missing parent, and says whether it is there afterwards.
+///
+/// For a caller that makes room before writing and has nothing to do about a refusal: the
+/// write that follows says why it could not.
+bool ensureDirectory(FileSystem& files, const std::filesystem::path& directory);
+
 } // namespace subedit::core

@@ -139,6 +139,12 @@ successiva.
 | `correction.join-split.join`, `correction.join-split.split` | `true` o `false` — unire, dividere | `true`, `false` |
 | `correction.join-split.language` | un codice di locale — `fr`, `en_US`, `sr@Latn` —; vuoto: la lingua del sistema | vuoto |
 | `correction.remove-blank` | `true` o `false` — `Remove all blank subtitles` | `true` |
+| `transcription.engine` | il nome del motore: lettere minuscole, cifre, `.`, `-` e `_` | `whisper.cpp` |
+| `transcription.executable`, `transcription.model` | un percorso assoluto; vuoto: il motore viene cercato nel `PATH`, e nessun modello è impostato | vuoto |
+| `transcription.language` | due lettere minuscole, un codice ISO 639-1; vuoto: la lingua viene rilevata | vuoto |
+| `transcription.merge-gap-ms` | i pezzi di una stessa frase più vicini di questo valore vengono uniti, in millisecondi, intero e non negativo | `400` |
+| `transcription.max-duration-ms` | la durata massima di un sottotitolo trascritto sullo schermo, in millisecondi, da 1 a 3600000 | `7000` |
+| `transcription.max-characters` | il numero massimo di caratteri di un sottotitolo trascritto, da 1 a 1000 | `84` |
 | `correction.activations` | le caselle dei modelli che l'utente ha cambiato, `<type>:<code>:<name>:<0\|1>`, separate da virgole; **una virgola o una barra rovesciata in un nome si scrive preceduta da una barra rovesciata** (`\,` e `\\`), e una voce illeggibile perde solo la propria impostazione — viene segnalata, le altre vengono conservate | vuoto |
 | `spell-check.language` | un codice di locale, come `fr_FR`; vuoto: la lingua del sistema | vuoto |
 | `spell-check.target` | `selection`, `current-project` o `all-projects` | `current-project` |
@@ -273,6 +279,19 @@ sovrascrivono, qualunque sia il desktop.
 **Le colorazioni delle anomalie restano leggibili in entrambe le tavolozze** — vedi
 [La tabella](table.md#le-anomalie). Non è un'ipotesi: il contrasto
 del testo su ciascuna delle colorazioni è verificato da un test, su entrambi gli sfondi.
+
+## Trascrizione
+
+Il gruppo **`Transcription`** della finestra di dialogo contiene i due dati sulla macchina di cui
+[`Transcribe Audio…`](video.md#trascrivere-laudio) ha bisogno: **il programma** del motore (whisper.cpp,
+`whisper-cli`) e **il modello** che legge. Ognuno ha un pulsante `Browse…`. Se resta vuoto, il programma viene cercato
+nel `PATH`; il modello non ha un valore predefinito.
+
+Sotto i campi, **la finestra dice che cosa c'è**: se il motore è stato trovato e dove, se `ffmpeg`
+è stato trovato, e il modello — non impostato, non trovato, non è un modello, solo per l'inglese o multilingue. Quando manca
+qualcosa, aggiunge il rimando a
+[Installare gli strumenti di trascrizione](../subedit-cli/install-transcription.md), che dice dove trovare
+ciascuno. I due campi sono le impostazioni `transcription.executable` e `transcription.model`.
 
 ## La lingua dell'interfaccia
 

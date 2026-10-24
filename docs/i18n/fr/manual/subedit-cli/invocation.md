@@ -45,6 +45,7 @@ Subcommands:
   append                      Put subtitle files one after another into a single file
   split-file                  Cut a subtitle file in two, a head and a tail
   pair                        Write a translation at the positions of its main file, and say how it lined up
+  transcribe                  Write the speech of a video or an audio file as subtitles
   config                      List, show and change the operation settings
 ```
 
@@ -229,7 +230,7 @@ code `0`. Une sous-commande donnée en plus n'est pas exécutée, et `-q` et `-v
 <!-- example: subedit-cli --version | head -n 1 -->
 ```console
 $ subedit-cli --version | head -n 1
-subedit 1.0.9
+subedit 1.0.10
 ```
 
 Le tout, sur une machine qui a ICU 74.2 et Enchant 2.3.3 — les numéros sont ceux de la machine :
@@ -374,14 +375,16 @@ marque — mais sans le dire ; ici l'écart entre ce qui a été demandé et ce 
 | [`append`](append.md) | met des fichiers à la suite du premier, dans **un seul** fichier | oui |
 | [`split-file`](split-file.md) | coupe un fichier en **deux** : une tête et une queue | oui |
 | [`pair`](pair.md) | écrit une traduction aux positions de son principal, et dit comment ses lignes se sont posées | oui |
+| [`transcribe`](transcribe.md) | écrit la parole d'une vidéo ou d'un fichier audio sous forme de sous-titres | oui — sa propre destination, `--output` |
 | [`config`](config.md) | liste, montre et change les réglages des opérations du fichier de réglages | le fichier de réglages seulement |
 
-Les vingt et une sont là ; l'aide de l'outil les énumère dans le même ordre.
+Les vingt-deux sont là ; l'aide de l'outil les énumère dans le même ordre.
 
 **Une seule ne touche à rien**, et c'est la colonne de droite : `inspect` lit et
-rapporte. Les dix-neuf autres écrivent, et ce qui suit vaut pour dix-sept d'entre elles :
+rapporte. Les vingt autres écrivent, et ce qui suit vaut pour dix-sept d'entre elles :
 [`append`](append.md) et [`split-file`](split-file.md) ont chacune une arité à elles — N fichiers pour
-**un** résultat, un fichier pour **deux** — et donc leur propre destination, qu'elles décrivent sur leur page.
+**un** résultat, un fichier pour **deux** — et donc leur propre destination, qu'elles décrivent sur leur page ;
+[`transcribe`](transcribe.md) fait un nouveau fichier à partir d'une vidéo ou d'un fichier audio, et ne prend que `--output`.
 [`config`](config.md) n'écrit aucun fichier de sous-titres : elle lit et change le fichier de
 réglages, et rien de ce qui suit ne s'applique à elle.
 

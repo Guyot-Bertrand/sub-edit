@@ -66,6 +66,7 @@
 #include <subedit/gui/table_columns.hpp>
 #include <subedit/gui/target.hpp>
 #include <subedit/gui/theme.hpp>
+#include <subedit/gui/transcription_runner.hpp>
 #include <subedit/gui/video_pane.hpp>
 #include <subedit/gui/window_actions.hpp>
 
@@ -369,6 +370,28 @@ public:
 
     void selectRows(int first, int last) override { m_window->selectRows(first, last); }
 
+    [[nodiscard]] std::optional<std::filesystem::path>
+    videoOf(const ProjectPage& page) const override {
+        return page.watching ? std::optional{page.associated} : std::nullopt;
+    }
+
+    [[nodiscard]] std::vector<core::AudioTrack>
+    audioTracksOf(const ProjectPage& /*page*/) const override {
+        return m_window->m_video->audioTracks();
+    }
+
+    [[nodiscard]] core::TranscriptionTools
+    transcriptionTools(const core::TranscriptionSettings& settings) override {
+        return m_window->m_transcriber->tools(settings);
+    }
+
+    void openPreferences() override { m_window->openPreferences(); }
+
+    [[nodiscard]] std::expected<TranscriptionOutcome, TranscriptionFailure>
+    transcribe(const TranscriptionJob& job) override {
+        return m_window->m_transcriber->run(job, m_window);
+    }
+
     void openAside(core::Project project) override {
         m_window->openOn(std::move(project), {});
         // Born holding subtitles no file has: closing it must ask, as it does
@@ -461,6 +484,7 @@ public:
     void playable(bool playable) override {
         m_window->m_playable = playable;
         m_window->m_actions->playPause->setEnabled(playable);
+        m_window->m_actions->transcribeAudio->setEnabled(playable);
         m_window->refreshVideoGestures();
         m_window->refreshAudioTracks();
     }
@@ -677,6 +701,10 @@ MainWindow::MainWindow(core::FileSystem& files,
             &QAction::triggered,
             this,
             operate(&ProjectOperations::removeHearingImpaired));
+    connect(act.transcribeAudio,
+            &QAction::triggered,
+            this,
+            operateCommitted(&ProjectOperations::transcribeAudio));
     connect(act.joinRepeats,
             &QAction::triggered,
             this,
@@ -785,6 +813,7 @@ MainWindow::MainWindow(core::FileSystem& files,
     m_projectFiles = std::make_unique<ProjectFiles>(*m_files, *m_prompts, *m_filesSide);
     m_operationsSide = std::make_unique<OperationsSide>(*this);
     m_operations = std::make_unique<ProjectOperations>(*m_prompts, *m_operationsSide);
+    m_transcriber = std::make_unique<BackgroundTranscriptionRunner>(searchPathOfProcess());
     m_correctionSide = std::make_unique<CorrectionSide>(*this);
     m_correction = std::make_unique<CorrectionController>(*m_prompts, *m_correctionSide);
     connect(act.correctTexts, &QAction::triggered, this, [this] { m_correction->open(); });
@@ -1854,6 +1883,15 @@ void MainWindow::openPreferences() {
         m_video->settings(),
         LanguageChoice{.chosen = m_interfaceLanguage,
                        .installed = core::availableLanguages(m_localeDirectory)},
+        TranscriptionPreferences{.settings = m_operations->transcriptionSettings(),
+                                 .tools =
+                                     [this](const core::TranscriptionSettings& settings) {
+                                         return m_transcriber->tools(settings);
+                                     },
+                                 .choose =
+                                     [this](ChosenFile what, const std::filesystem::path& current) {
+                                         return m_prompts->fileToChoose(what, current);
+                                     }},
         this};
     if (!m_prompts->run(dialog))
         return;
@@ -1866,6 +1904,10 @@ void MainWindow::openPreferences() {
     // like a preference that was not taken.
     m_theme = dialog.theme();
     applyTheme(m_theme);
+
+    // The program and the model of the transcription: the dialog gave them back with the rest of
+    // the settings it was handed.
+    m_operations->setTranscriptionSettings(dialog.transcription());
 
     // The cells are repainted with what the dialog chose, and the editors that
     // open next follow it. The dialog took the focus, so an editor that was
@@ -1927,6 +1969,7 @@ void MainWindow::applySettings(const core::Settings& settings) {
 
     m_insertPlacement = settings.insertPlacement;
     m_operations->setDurationSettings(settings.durationAdjustment);
+    m_operations->setTranscriptionSettings(settings.transcription);
     m_correction->setSettings(settings.correction);
     m_spellCheck->setSettings(settings.spellCheck);
     refreshSpellCheckAction();
@@ -1934,6 +1977,10 @@ void MainWindow::applySettings(const core::Settings& settings) {
     m_search->setOptions(settings.search);
     m_page->writeEncoding = settings.writeEncoding;
     m_video->setSettings(settings.video);
+}
+
+void MainWindow::setTranscriptionRunner(std::unique_ptr<TranscriptionRunner> runner) {
+    m_transcriber = std::move(runner);
 }
 
 core::Settings MainWindow::settings() const {
@@ -1968,6 +2015,7 @@ core::Settings MainWindow::settings() const {
     settings.insertPlacement = m_insertPlacement;
     settings.search = m_search->options();
     settings.durationAdjustment = m_operations->durationSettings();
+    settings.transcription = m_operations->transcriptionSettings();
     settings.correction = m_correction->settings();
     settings.spellCheck = m_spellCheck->settings();
     settings.writeEncoding = m_page->writeEncoding;

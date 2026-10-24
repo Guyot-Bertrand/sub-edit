@@ -152,6 +152,12 @@ sellaisenaan ja kirjoitetaan kahtena lohkona seuraavalla sulkemiskerralla.
 | `correction.join-split.join`, `correction.join-split.split` | `true` tai `false` — yhdistäminen, jakaminen | `true`, `false` |
 | `correction.join-split.language` | kieliasetuksen koodi — `fr`, `en_US`, `sr@Latn` —; tyhjä: järjestelmän kieli | tyhjä |
 | `correction.remove-blank` | `true` tai `false` — `Remove all blank subtitles` | `true` |
+| `transcription.engine` | moottorin nimi: pieniä kirjaimia, numeroita, `.`, `-` ja `_` | `whisper.cpp` |
+| `transcription.executable`, `transcription.model` | absoluuttinen polku; tyhjä: moottori haetaan `PATH`-polusta, eikä mallia ole asetettu | tyhjä |
+| `transcription.language` | kaksi pientä kirjainta, ISO 639-1 -koodi; tyhjä: kieli tunnistetaan | tyhjä |
+| `transcription.merge-gap-ms` | saman lauseen palat, jotka ovat tätä lähempänä toisiaan, yhdistetään, millisekunteina, kokonaisluku, ei negatiivinen | `400` |
+| `transcription.max-duration-ms` | pisin aika, jonka litteroitu tekstitys pysyy näytöllä, millisekunteina, 1–3600000 | `7000` |
+| `transcription.max-characters` | litteroidun tekstityksen merkkien enimmäismäärä, 1–1000 | `84` |
 | `correction.activations` | käyttäjän muuttamat lausekkeiden valintaruudut, `<type>:<code>:<name>:<0\|1>`, pilkuilla erotettuina; **nimessä oleva pilkku tai kenoviiva kirjoitetaan kenoviivan jälkeen** (`\,` ja `\\`), ja lukukelvoton merkintä menettää vain oman asetuksensa — siitä ilmoitetaan, ja muut säilytetään | tyhjä |
 | `spell-check.language` | kieliasetuksen koodi, esimerkiksi `fr_FR`; tyhjä: järjestelmän kieli | tyhjä |
 | `spell-check.target` | `selection`, `current-project` tai `all-projects` | `current-project` |
@@ -290,6 +296,19 @@ työpöydästä riippumatta.
 **Poikkeamien sävyt pysyvät luettavina molemmilla paleteilla** — katso
 [Taulukko](table.md#poikkeamat). Se ei ole oletus: tekstin kontrasti jokaisella
 sävyllä tarkistetaan testillä molemmilla taustoilla.
+
+## Litterointi
+
+Valintaikkunan ryhmä **`Transcription`** sisältää ne kaksi tietoa koneesta, joita
+[`Transcribe Audio…`](video.md#äänen-litterointi) tarvitsee: moottorin **ohjelman** (whisper.cpp,
+`whisper-cli`) ja **mallin**, jota se lukee. Kummallakin on painike `Browse…`. Jos ohjelma jätetään tyhjäksi, sitä haetaan
+`PATH`-polusta; mallilla ei ole oletusarvoa.
+
+Kenttien alla **valintaikkuna kertoo, mitä on paikalla**: löytyykö moottori ja mistä, löytyykö `ffmpeg`,
+ja malli — ei asetettu, ei löytynyt, ei ole malli, vain englannille tai monikielinen. Kun jotakin
+puuttuu, se lisää viittauksen sivuun
+[Litterointityökalujen asentaminen](../subedit-cli/install-transcription.md), joka kertoo, mistä kukin löytyy.
+Nämä kaksi kenttää ovat asetukset `transcription.executable` ja `transcription.model`.
 
 ## Käyttöliittymän kieli
 

@@ -45,4 +45,6 @@ por onde começar, veja
 | [`append`](append.md) | colocar arquivos após o primeiro, em um único arquivo |
 | [`split-file`](split-file.md) | cortar um arquivo em dois, com a segunda parte trazida de volta à origem |
 | [`pair`](pair.md) | gravar uma tradução nas posições de seu arquivo principal e dizer como suas linhas se alinharam |
+| [`transcribe`](transcribe.md) | escrever a fala de um vídeo ou de um arquivo de áudio como legendas |
+| [Instalar as ferramentas de transcrição](install-transcription.md) | o motor, o modelo e o `ffmpeg`, que o programa não fornece |
 | [`config`](config.md) | listar, mostrar e alterar as configurações das operações compartilhadas com a janela |

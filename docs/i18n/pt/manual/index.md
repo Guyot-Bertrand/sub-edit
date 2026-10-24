@@ -39,6 +39,7 @@ ficheiro aberto e depois guardado sem alterações não se move um único byte.
 | cortar um filme em duas partes | [`Split Project…`](subedit-gui/operations.md#split-project), ou [`split-file`](subedit-cli/split-file.md) |
 | alterar as maiúsculas e minúsculas, o itálico ou os hífens de diálogo de um ficheiro inteiro | [As operações](subedit-gui/operations.md#italic), ou [`case`](subedit-cli/case.md), [`italics`](subedit-cli/italics.md), [`dialogue-dashes`](subedit-cli/dialogue-dashes.md) |
 | procurar uma palavra e substituí-la, sem quebrar as etiquetas | [Localizar e substituir](subedit-gui/find-and-replace.md), ou [`replace`](subedit-cli/replace.md) |
+| escrever a fala de um filme como legendas | [`Transcribe Audio…`](subedit-gui/video.md#transcrever-o-áudio) ou [`transcribe`](subedit-cli/transcribe.md) — depois de [instalar as ferramentas](subedit-cli/install-transcription.md) |
 | traduzir ao lado do texto original | [Abrir uma tradução](subedit-gui/files.md#abrir-uma-tradução), ou [`pair`](subedit-cli/pair.md) para a resincronizar pelo ficheiro principal |
 | processar uma centena de ficheiros de uma só vez | [Processar uma árvore de pastas](subedit-cli/lots.md), depois [Invocação](subedit-cli/invocation.md) |
 

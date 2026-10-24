@@ -138,6 +138,12 @@ du blocs existeva es leet sin change, e rescrit in du blocs al sequent clusion.
 | `correction.join-split.join`, `correction.join-split.split` | `true` o `false` — unir, separar | `true`, `false` |
 | `correction.join-split.language` | un code de locale — `fr`, `en_US`, `sr@Latn` —; vacui: li lingue del sistema | vacui |
 | `correction.remove-blank` | `true` o `false` — `Remove all blank subtitles` | `true` |
+| `transcription.engine` | li nómine del motor: líttere minuscul, cifres, `.`, `-` e `_` | `whisper.cpp` |
+| `transcription.executable`, `transcription.model` | un chemin absolut; vacui: li motor es serchat in `PATH`, e null model es definit | vacui |
+| `transcription.language` | du líttere minuscul, un code ISO 639-1; vacui: li lingue es detectet | vacui |
+| `transcription.merge-gap-ms` | fragmentes de un sam frase plu proxim ca to es junit, in millisecondes, integri e ne negativ | `400` |
+| `transcription.max-duration-ms` | li max long duration quel un subtitul transcrit resta sur li ecran, in millisecondes, de 1 til 3600000 | `7000` |
+| `transcription.max-characters` | li max númere de characteres de un subtitul transcrit, de 1 til 1000 | `84` |
 | `correction.activations` | li casses a marcar de patrones quel li usator ha changeat, `<type>:<code>:<name>:<0\|1>`, separat per commas; **un comma o un backslash in un nómine es scrit precedet de un backslash** (`\,` e `\\`), e un entrata ineleibil perde solmen su propri parametre — it es raportat, li altris es conservat | vacui |
 | `spell-check.language` | un code de locale, quam `fr_FR`; vacui: li lingue del sistema | vacui |
 | `spell-check.target` | `selection`, `current-project` o `all-projects` | `current-project` |
@@ -272,6 +278,19 @@ substitue, quelcunque li table de labor.
 **Li tintes de anomalie resta leibil in ambi palettas** — vide
 [Li tabelle](table.md#li-anomalies). To ne es un supposition: li contraste
 del textu sur chascun del tintes es verificat per un test, sur ambi fundes.
+
+## Transcription
+
+Li gruppe **`Transcription`** del dialog contene li du fattes pri li machine quel
+[`Transcribe Audio…`](video.md#transcrir-li-audio) besona: **li programma** del motor (whisper.cpp,
+`whisper-cli`) e **li model** quel it leer. Chascun have un buton `Browse…`. Si it resta vacui, li programma es serchat
+in li `PATH`; li model have null predefinit.
+
+Sub li camps, **li dialog dit quo es ibi**: si li motor es trovat e u, si `ffmpeg`
+es trovat, e li model — ne definit, ne trovat, ne un model, solmen por anglesi, o multilingual. Quande alquo
+manca, it adjunte li indication a
+[Instalar li utensiles de transcription](../subedit-cli/install-transcription.md), quel dit u trovar
+chascun. Li du camps es li parametres `transcription.executable` e `transcription.model`.
 
 ## Li lingue del interfacie
 

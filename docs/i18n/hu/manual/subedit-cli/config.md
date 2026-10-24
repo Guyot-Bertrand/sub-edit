@@ -97,14 +97,14 @@ duration-adjust.lengthen
     Default: true
     Used by: subedit-cli adjust; Adjust Durations…
 ```
-**33 kulcsot** listáz:
+**40 kulcsot** listáz:
 
 <!-- example: subedit-cli config list | grep -c '^[a-z]' -->
 ```console
 $ subedit-cli config list | grep -c '^[a-z]'
-33
+40
 ```
-**Tizenhármat közülük a parancssor olvas**; a másik húszat csak az ablak olvassa,
+**Húszat közülük a parancssor olvas**; a másik húszat csak az ablak olvassa,
 és a `Used by:` soruk ezt mondja, megadva a `correct` azon kapcsolóját, amely a helyükre lép:
 
 | Kulcs | Ki olvassa |
@@ -116,6 +116,7 @@ $ subedit-cli config list | grep -c '^[a-z]'
 | `correction.human`, `correction.ocr` | [`correct`](correct.md) és `Correct Texts…` |
 | `correction.remove-blank` | `correct` és `Correct Texts…` |
 | `correction.line-break.max-lines` | `correct` és `Correct Texts…` |
+| `transcription.engine`, `transcription.executable`, `transcription.model`, `transcription.language`, `transcription.merge-gap-ms`, `transcription.max-duration-ms`, `transcription.max-characters` | [`transcribe`](transcribe.md) és `Transcribe Audio…` |
 | minden más `correction.*` kulcs | csak a `Correct Texts…` — a `correct` a `--tasks`, `--code`, `--max-length`, `--skip-length`, `--skip-lines`, `--language`, `--enable` és `--disable` kapcsolót a saját parancssorából veszi |
 
 A sorok számai, a `correction.line-break.max-lines` és a `correction.line-break.skip-max-lines`,
@@ -198,6 +199,7 @@ duration-adjust.gap-ms = 100
 # Display preferences: the window's own, the command line never reads them.
 duration-adjust.gap-ms reset to its default (0)
 #duration-adjust.gap-ms = 0
+#transcription.merge-gap-ms = 400
 ```
 ## Kilépési kódok
 

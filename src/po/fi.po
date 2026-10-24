@@ -1090,6 +1090,47 @@ msgstr ""
 "--head ja --tail kuuluvat yhteen: anna molemmat tai --dry-run-valitsimen "
 "kanssa ei kumpaakaan"
 
+#: src/exe/cli/commands/transcribe.cpp
+msgid "Write the speech of a video or an audio file as subtitles"
+msgstr "Kirjoittaa videon tai äänitiedoston puheen tekstityksenä"
+
+#: src/exe/cli/commands/transcribe.cpp
+msgid "Video or audio file to transcribe"
+msgstr "Litteroitava video- tai äänitiedosto"
+
+#: src/exe/cli/commands/transcribe.cpp
+msgid "Subtitle file to write"
+msgstr "Kirjoitettava tekstitystiedosto"
+
+#: src/exe/cli/commands/transcribe.cpp
+msgid "Format to write; the one the extension of --output says by default"
+msgstr ""
+"Kirjoitettava muoto; oletuksena se, jonka --output-tiedoston pääte kertoo"
+
+#: src/exe/cli/commands/transcribe.cpp
+msgid "Audio track of a video, counted from 0; the first by default"
+msgstr "Videon ääniraita, laskettuna nollasta; oletuksena ensimmäinen"
+
+#: src/exe/cli/commands/transcribe.cpp
+msgid "Language of the speech: fr, en; detected by default"
+msgstr "Puheen kieli: fr, en; oletuksena tunnistetaan"
+
+#: src/exe/cli/commands/transcribe.cpp
+msgid "Model file; the transcription.model setting by default"
+msgstr "Mallitiedosto; oletuksena asetus transcription.model"
+
+#: src/exe/cli/commands/transcribe.cpp
+msgid "Engine; the transcription.engine setting by default"
+msgstr "Moottori; oletuksena asetus transcription.engine"
+
+#: src/exe/cli/commands/transcribe.cpp
+msgid "Keep the extracted audio in this file"
+msgstr "Säilytä purettu ääni tässä tiedostossa"
+
+#: src/exe/cli/commands/transcribe.cpp
+msgid "Write the segments as the engine cut them"
+msgstr "Kirjoita segmentit sellaisina kuin moottori ne leikkasi"
+
 #: src/exe/cli/commands/transform.cpp
 msgid "Correct every position from two points known to be right"
 msgstr "Korjaa jokainen kohta kahden oikeaksi tiedetyn pisteen avulla"
@@ -1954,7 +1995,7 @@ msgid "%1: %2 (dry run, nothing written)"
 msgstr "%1: %2 (koeajo, mitään ei kirjoitettu)"
 
 #. TRANSLATORS: %1 is a file, %2 what was done to it, %3 the file written.
-#: src/lib/subedit/cli/rewriting.cpp
+#: src/lib/subedit/cli/rewriting.cpp src/lib/subedit/cli/transcribing.cpp
 msgid "%1: %2 -> %3"
 msgstr "%1: %2 -> %3"
 
@@ -2153,7 +2194,9 @@ msgstr "kokonaisluku millisekunteja, 0 tai enemmän"
 msgid ""
 "a pattern code, Script[-language[-COUNTRY]], not empty: Zyyy, Latn, Latn-en, "
 "Latn-en-US"
-msgstr "lausekekoodi, Script[-language[-COUNTRY]], ei tyhjä: Zyyy, Latn, Latn-en, Latn-en-US"
+msgstr ""
+"lausekekoodi, Script[-language[-COUNTRY]], ei tyhjä: Zyyy, Latn, Latn-en, "
+"Latn-en-US"
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "a number above 0, decimals allowed: 24, 42.5"
@@ -2162,6 +2205,32 @@ msgstr "luku, joka on suurempi kuin 0, desimaalit sallittu: 24, 42.5"
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "a whole number from 1 to 1000: 2, 3"
 msgstr "kokonaisluku väliltä 1–1000: 2, 3"
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "the name of an engine: lower-case letters, digits, '.', '-' or '_'"
+msgstr "moottorin nimi: pieniä kirjaimia, numeroita, ”.”, ”-” tai ”_”"
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "an absolute path; empty for none"
+msgstr "absoluuttinen polku; tyhjä tarkoittaa ei mitään"
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "two lower-case letters, an ISO 639-1 code: en, fr; empty to detect it"
+msgstr ""
+"kaksi pientä kirjainta, ISO 639-1 -koodi: en, fr; tyhjä, jolloin kieli "
+"tunnistetaan"
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "a whole number of milliseconds, 1 to 3600000"
+msgstr "kokonaisluku millisekunteja, 1–3600000"
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "a whole number from 1 to 1000"
+msgstr "kokonaisluku 1–1000"
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "subedit-cli transcribe; Transcribe Audio…"
+msgstr "subedit-cli transcribe; Litteroi ääni…"
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "subedit-cli adjust; Adjust Durations…"
@@ -2173,31 +2242,45 @@ msgstr "subedit-cli correct; Korjaa tekstejä…"
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "Correct Texts… (window only; correct takes --tasks instead)"
-msgstr "Korjaa tekstejä… (vain ikkunassa; correct käyttää sen sijaan valitsinta --tasks)"
+msgstr ""
+"Korjaa tekstejä… (vain ikkunassa; correct käyttää sen sijaan valitsinta --"
+"tasks)"
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "Correct Texts… (window only; correct takes --code instead)"
-msgstr "Korjaa tekstejä… (vain ikkunassa; correct käyttää sen sijaan valitsinta --code)"
+msgstr ""
+"Korjaa tekstejä… (vain ikkunassa; correct käyttää sen sijaan valitsinta --"
+"code)"
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "Correct Texts… (window only; correct takes --enable/--disable instead)"
-msgstr "Korjaa tekstejä… (vain ikkunassa; correct käyttää sen sijaan valitsimia --enable/--disable)"
+msgstr ""
+"Korjaa tekstejä… (vain ikkunassa; correct käyttää sen sijaan valitsimia --"
+"enable/--disable)"
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "Correct Texts… (window only; correct takes --max-length instead)"
-msgstr "Korjaa tekstejä… (vain ikkunassa; correct käyttää sen sijaan valitsinta --max-length)"
+msgstr ""
+"Korjaa tekstejä… (vain ikkunassa; correct käyttää sen sijaan valitsinta --"
+"max-length)"
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "Correct Texts… (window only; correct takes --skip-length instead)"
-msgstr "Korjaa tekstejä… (vain ikkunassa; correct käyttää sen sijaan valitsinta --skip-length)"
+msgstr ""
+"Korjaa tekstejä… (vain ikkunassa; correct käyttää sen sijaan valitsinta --"
+"skip-length)"
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "Correct Texts… (window only; correct takes --skip-lines instead)"
-msgstr "Korjaa tekstejä… (vain ikkunassa; correct käyttää sen sijaan valitsinta --skip-lines)"
+msgstr ""
+"Korjaa tekstejä… (vain ikkunassa; correct käyttää sen sijaan valitsinta --"
+"skip-lines)"
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "Correct Texts… (window only; correct takes --language instead)"
-msgstr "Korjaa tekstejä… (vain ikkunassa; correct käyttää sen sijaan valitsinta --language)"
+msgstr ""
+"Korjaa tekstejä… (vain ikkunassa; correct käyttää sen sijaan valitsinta --"
+"language)"
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "Reading speed the durations are brought to."
@@ -2261,7 +2344,8 @@ msgstr "Valitseeko ikkuna isojen alkukirjainten tehtävän."
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "Pattern code the window reads for the capitalization task."
-msgstr "Lausekekoodi, jonka ikkuna lukee isojen alkukirjainten tehtävää varten."
+msgstr ""
+"Lausekekoodi, jonka ikkuna lukee isojen alkukirjainten tehtävää varten."
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "Whether the window ticks the line-break task."
@@ -2281,7 +2365,8 @@ msgstr "Käytä tunnistusvirheiden (OCR) lausekkeita."
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "Whether the window's hearing-impaired task acts on text in brackets."
-msgstr "Käsitteleekö ikkunan kuulovammaisten tehtävä hakasulkeissa olevaa tekstiä."
+msgstr ""
+"Käsitteleekö ikkunan kuulovammaisten tehtävä hakasulkeissa olevaa tekstiä."
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "Whether the window's hearing-impaired task acts on text in parentheses."
@@ -2290,7 +2375,9 @@ msgstr "Käsitteleekö ikkunan kuulovammaisten tehtävä sulkeissa olevaa teksti
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid ""
 "Longest line the window's line-break task aims at, in the unit in-ems names."
-msgstr "Pisin rivi, jota ikkunan rivinkatkaisutehtävä tavoittelee, valitsimen in-ems nimeämässä yksikössä."
+msgstr ""
+"Pisin rivi, jota ikkunan rivinkatkaisutehtävä tavoittelee, valitsimen in-ems "
+"nimeämässä yksikössä."
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "Most lines a subtitle is broken into."
@@ -2304,25 +2391,33 @@ msgstr "Mittaako ikkuna rivit em-yksiköinä merkkien sijaan."
 msgid ""
 "Whether the window's line-break task leaves alone a subtitle whose lines are "
 "short enough."
-msgstr "Jättääkö ikkunan rivinkatkaisutehtävä rauhaan kappaleen, jonka rivit ovat riittävän lyhyitä."
+msgstr ""
+"Jättääkö ikkunan rivinkatkaisutehtävä rauhaan kappaleen, jonka rivit ovat "
+"riittävän lyhyitä."
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid ""
 "Longest line a subtitle may have and still be left alone by the window's "
 "line-break task."
-msgstr "Pisin rivi, joka kappaleella voi olla, jotta ikkunan rivinkatkaisutehtävä jättää sen rauhaan."
+msgstr ""
+"Pisin rivi, joka kappaleella voi olla, jotta ikkunan rivinkatkaisutehtävä "
+"jättää sen rauhaan."
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid ""
 "Whether the window's line-break task leaves alone a subtitle with few enough "
 "lines."
-msgstr "Jättääkö ikkunan rivinkatkaisutehtävä rauhaan kappaleen, jossa on riittävän vähän rivejä."
+msgstr ""
+"Jättääkö ikkunan rivinkatkaisutehtävä rauhaan kappaleen, jossa on riittävän "
+"vähän rivejä."
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid ""
 "Most lines a subtitle may have and still be left alone by the window's line-"
 "break task."
-msgstr "Suurin määrä rivejä, jotka kappaleella voi olla, jotta ikkunan rivinkatkaisutehtävä jättää sen rauhaan."
+msgstr ""
+"Suurin määrä rivejä, jotka kappaleella voi olla, jotta ikkunan "
+"rivinkatkaisutehtävä jättää sen rauhaan."
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "Whether the window ticks the join/split-words task."
@@ -2338,22 +2433,58 @@ msgstr "Jakaako ikkunan sanojen yhdistämisen ja jakamisen tehtävä sanoja."
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "Dictionary the window's join/split-words task checks words by."
-msgstr "Sanakirja, jonka mukaan ikkunan sanojen yhdistämisen ja jakamisen tehtävä tarkistaa sanat."
+msgstr ""
+"Sanakirja, jonka mukaan ikkunan sanojen yhdistämisen ja jakamisen tehtävä "
+"tarkistaa sanat."
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid ""
 "a locale code, two lower-case letters, then optionally _ and two upper-case, "
 "then optionally @ and a script: fr, en_US, sr@Latn"
-msgstr "kielialuekoodi: kaksi pientä kirjainta, sitten valinnaisesti _ ja kaksi isoa kirjainta, sitten valinnaisesti @ ja kirjoitusjärjestelmä: fr, en_US, sr@Latn"
+msgstr ""
+"kielialuekoodi: kaksi pientä kirjainta, sitten valinnaisesti _ ja kaksi isoa "
+"kirjainta, sitten valinnaisesti @ ja kirjoitusjärjestelmä: fr, en_US, sr@Latn"
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid ""
 "Remove the subtitles the correction empties, instead of leaving them empty."
-msgstr "Poista kappaleet, jotka korjaus tyhjentää, sen sijaan että ne jätettäisiin tyhjiksi."
+msgstr ""
+"Poista kappaleet, jotka korjaus tyhjentää, sen sijaan että ne jätettäisiin "
+"tyhjiksi."
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "The engine that transcribes the audio."
+msgstr "Moottori, joka litteroi äänen."
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "The engine's program; searched for when empty."
+msgstr "Moottorin ohjelma; haetaan PATH-polusta, kun kenttä on tyhjä."
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "The model file the engine reads."
+msgstr "Mallitiedosto, jonka moottori lukee."
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "The language of the audio; detected when empty."
+msgstr "Äänen kieli; tunnistetaan, kun kenttä on tyhjä."
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "Pieces of one sentence closer than this are joined."
+msgstr "Saman lauseen osat, jotka ovat tätä lähempänä toisiaan, yhdistetään."
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "Longest a transcribed subtitle stays on screen."
+msgstr "Pisin aika, jonka litteroitu tekstitys pysyy näytöllä."
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "Most characters a transcribed subtitle holds."
+msgstr "Litteroidun tekstityksen merkkien enimmäismäärä."
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "%1 is managed by the window; use --enable/--disable on correct"
-msgstr "%1 on ikkunan hallinnoima; käytä correct-komennolla valitsimia --enable/--disable"
+msgstr ""
+"%1 on ikkunan hallinnoima; käytä correct-komennolla valitsimia --enable/--"
+"disable"
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "%1 is a display preference; set it in the window"
@@ -2365,7 +2496,9 @@ msgstr "tuntematon asetus %1; subedit-cli config list luettelee ne"
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "cannot read '%1' for %2; subedit-cli config list says what it accepts"
-msgstr "arvoa ”%1” ei voi lukea asetukselle %2; subedit-cli config list kertoo, mitä se hyväksyy"
+msgstr ""
+"arvoa ”%1” ei voi lukea asetukselle %2; subedit-cli config list kertoo, mitä "
+"se hyväksyy"
 
 #: src/lib/subedit/core/format/lrc_reader.cpp
 #: src/lib/subedit/core/format/tm_player_reader.cpp
@@ -2463,7 +2596,8 @@ msgstr "päättämätön ryhmän nimi"
 
 #: src/lib/subedit/core/text/python_regex_syntax.cpp
 msgid "the group name '%1' is not letters and digits, which is all ICU accepts"
-msgstr "ryhmän nimi ”%1” ei koostu kirjaimista ja numeroista, mitä ICU yksin hyväksyy"
+msgstr ""
+"ryhmän nimi ”%1” ei koostu kirjaimista ja numeroista, mitä ICU yksin hyväksyy"
 
 #: src/lib/subedit/core/text/python_regex_syntax.cpp
 msgid "a backslash ends the expression"
@@ -2701,6 +2835,10 @@ msgstr "aikavälien päällekkäisyyksien poistaminen"
 #: src/lib/subedit/core/wording/analysis.cpp
 msgid "joining repeated subtitles"
 msgstr "toistuvien kappaleiden yhdistäminen"
+
+#: src/lib/subedit/core/wording/analysis.cpp
+msgid "transcribing the audio"
+msgstr "äänen litterointi"
 
 #. TRANSLATORS: how well the positions fall on a frame-rate grid: clean,
 #. partial, or none at all.
@@ -3246,6 +3384,147 @@ msgstr "ei voi lukea, oletus säilytetty"
 #: src/lib/subedit/core/wording/settings.cpp
 msgid "settings could not be written"
 msgstr "asetuksia ei voitu kirjoittaa"
+
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid ""
+"See the manual page \"Installing the transcription tools\" (install-"
+"transcription)."
+msgstr ""
+"Katso oppaan sivu ”Litterointityökalujen asentaminen” (install-"
+"transcription)."
+
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "the transcription engine was not found"
+msgstr "litterointimoottoria ei löytynyt"
+
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "no model was given, or the model file is not there"
+msgstr "mallia ei annettu tai mallitiedostoa ei ole"
+
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "the model cannot transcribe the language %1"
+msgstr "malli ei osaa litteroida kieltä %1"
+
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "the model cannot detect the language: give one"
+msgstr "malli ei osaa tunnistaa kieltä: anna kieli"
+
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "the audio could not be read"
+msgstr "ääntä ei voitu lukea"
+
+# From Gaupol.
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "the transcription failed"
+msgstr "litterointi epäonnistui"
+
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "the transcription failed: %1"
+msgstr "litterointi epäonnistui: %1"
+
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "the transcription was cancelled"
+msgstr "litterointi peruttiin"
+
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "ffmpeg was not found, so the audio of a video cannot be extracted"
+msgstr "ffmpegiä ei löytynyt, joten videon ääntä ei voida purkaa"
+
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "the video has no audio track %1"
+msgstr "videolla ei ole ääniraitaa %1"
+
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "the audio could not be extracted"
+msgstr "ääntä ei voitu purkaa"
+
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "the audio could not be extracted: %1"
+msgstr "ääntä ei voitu purkaa: %1"
+
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "the video has no audio track"
+msgstr "videolla ei ole ääniraitaa"
+
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "no language or title"
+msgstr "ei kieltä eikä nimeä"
+
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "audio track %1: %2"
+msgstr "ääniraita %1: %2"
+
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "no transcription engine is called %1"
+msgstr "mikään litterointimoottori ei ole nimeltään %1"
+
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "%1 subtitle transcribed, language: %2"
+msgid_plural "%1 subtitles transcribed, language: %2"
+msgstr[0] "%1 tekstitys litteroitu, kieli: %2"
+msgstr[1] "%1 tekstitystä litteroitu, kieli: %2"
+
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid ""
+"The %1 subtitle of this project will be replaced by the transcription. You "
+"can undo it."
+msgid_plural ""
+"The %1 subtitles of this project will be replaced by the transcription. You "
+"can undo it."
+msgstr[0] ""
+"Tämän projektin %1 tekstitys korvataan litteroinnilla. Voit kumota sen."
+msgstr[1] ""
+"Tämän projektin %1 tekstitystä korvataan litteroinnilla. Voit kumota sen."
+
+#: src/lib/subedit/core/wording/transcription.cpp
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "%1: found (%2)"
+msgstr "%1: löytyi (%2)"
+
+# From Gaupol.
+#: src/lib/subedit/core/wording/transcription.cpp
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "%1: not found"
+msgstr "%1: ei löytynyt"
+
+#: src/lib/subedit/core/wording/transcription.cpp
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "ffmpeg: found"
+msgstr "ffmpeg: löytyi"
+
+#: src/lib/subedit/core/wording/transcription.cpp
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "ffmpeg: not found"
+msgstr "ffmpeg: ei löytynyt"
+
+#: src/lib/subedit/core/wording/transcription.cpp
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "Model: none set"
+msgstr "Malli: ei asetettu"
+
+#: src/lib/subedit/core/wording/transcription.cpp
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "Model: not found (%1)"
+msgstr "Malli: ei löytynyt (%1)"
+
+#: src/lib/subedit/core/wording/transcription.cpp
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "Model: not a model (%1)"
+msgstr "Malli: ei ole malli (%1)"
+
+#: src/lib/subedit/core/wording/transcription.cpp
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "Model: English only (%1)"
+msgstr "Malli: vain englanti (%1)"
+
+#: src/lib/subedit/core/wording/transcription.cpp
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "Model: multilingual (%1)"
+msgstr "Malli: monikielinen (%1)"
+
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "transcribing: %1%"
+msgstr "litterointi: %1 %"
 
 #: src/lib/subedit/core/wording/translation.cpp
 msgid "translation: the file holds no line"
@@ -4060,6 +4339,10 @@ msgstr "Näytä rivipituudet muokkaimessa"
 msgid "Decode on the graphics card"
 msgstr "Pura näytönohjaimella"
 
+#: src/lib/subedit/gui/preferences_dialog.cpp
+msgid "Browse…"
+msgstr "Selaa…"
+
 # From Gaupol.
 #: src/lib/subedit/gui/preferences_dialog.cpp
 msgid "Preferences"
@@ -4097,6 +4380,26 @@ msgstr "Kontekstin pituus"
 #: src/lib/subedit/gui/preferences_dialog.cpp
 msgid "Frame step"
 msgstr "Ruutuaskel"
+
+#: src/lib/subedit/gui/preferences_dialog.cpp
+#: src/lib/subedit/gui/preferences_dialog.cpp
+msgid "Searched for on the PATH"
+msgstr "Haetaan PATH-polusta"
+
+#: src/lib/subedit/gui/preferences_dialog.cpp
+#: src/lib/subedit/gui/preferences_dialog.cpp
+msgid "Program"
+msgstr "Ohjelma"
+
+#: src/lib/subedit/gui/preferences_dialog.cpp
+msgid "Model"
+msgstr "Malli"
+
+# From Gaupol.
+#: src/lib/subedit/gui/preferences_dialog.cpp
+#: src/lib/subedit/gui/preferences_dialog.cpp
+msgid "Transcription"
+msgstr "Litterointi"
 
 #: src/lib/subedit/gui/project_files.cpp
 msgid "Save All stopped: %1 of %2 document saved"
@@ -4152,6 +4455,19 @@ msgid "Select Video"
 msgstr "Valitse video"
 
 #: src/lib/subedit/gui/qt_prompts.cpp
+msgid "Choose a model"
+msgstr "Valitse malli"
+
+#: src/lib/subedit/gui/qt_prompts.cpp
+#: src/lib/subedit/gui/qt_prompts.cpp
+msgid "Choose the program"
+msgstr "Valitse ohjelma"
+
+#: src/lib/subedit/gui/qt_prompts.cpp
+msgid "Models (*.bin);;All files (*)"
+msgstr "Mallit (*.bin);;Kaikki tiedostot (*)"
+
+#: src/lib/subedit/gui/qt_prompts.cpp
 msgid "The translation is no longer where it was read from."
 msgstr "Käännös ei ole enää siellä, mistä se luettiin."
 
@@ -4185,6 +4501,10 @@ msgstr ""
 "%1\n"
 "\n"
 "Avataanko se uudelleen siirrettynä?"
+
+#: src/lib/subedit/gui/qt_prompts.cpp
+msgid "Replace the subtitles?"
+msgstr "Korvataanko tekstitykset?"
 
 # From Gaupol.
 #: src/lib/subedit/gui/save_shape.cpp
@@ -4454,6 +4774,84 @@ msgstr "Näytä käännös tekstin vieressä"
 msgid "Main"
 msgstr "Pääasiakirja"
 
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+msgid "Preferences…"
+msgstr "Asetukset…"
+
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+#: src/lib/subedit/gui/transcription_runner.cpp
+msgid "Transcribe audio"
+msgstr "Litteroi ääni"
+
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+msgid "First audio track"
+msgstr "Ensimmäinen ääniraita"
+
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+msgid "Detected from the sound"
+msgstr "Tunnistetaan äänestä"
+
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+msgid ""
+"A two-letter language code such as en or fr. Leave it empty to let the model "
+"detect the language."
+msgstr ""
+"Kaksikirjaiminen kielikoodi, kuten en tai fr. Jätä kenttä tyhjäksi, jolloin "
+"malli tunnistaa kielen."
+
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+msgid ""
+"The audio of the film open in this window is transcribed into subtitles that "
+"replace the ones of the project. The work runs in the background and can be "
+"cancelled."
+msgstr ""
+"Tässä ikkunassa avoinna olevan elokuvan ääni litteroidaan tekstitykseksi, "
+"joka korvaa projektin tekstitykset. Työ tehdään taustalla, ja sen voi perua."
+
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+msgid "Audio track"
+msgstr "Ääniraita"
+
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+msgid "Language"
+msgstr "Kieli"
+
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+msgid "Set them in the preferences."
+msgstr "Aseta ne asetuksissa."
+
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+msgid "This model cannot detect the language: type it."
+msgstr "Tämä malli ei osaa tunnistaa kieltä: kirjoita se."
+
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+msgid "The language you typed is used."
+msgstr "Käytetään kirjoittamaasi kieltä."
+
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+msgid "Proposed from the language the file declares for this track."
+msgstr "Ehdotettu kielestä, jonka tiedosto ilmoittaa tälle raidalle."
+
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+msgid "The file declares no language for this track: the model will detect it from the sound. Type it if you know it."
+msgstr "Tiedosto ei ilmoita tälle raidalle kieltä: malli tunnistaa sen äänestä. Kirjoita se, jos tiedät sen."
+
+#: src/lib/subedit/gui/transcription_runner.cpp
+#: src/lib/subedit/gui/unsaved_documents_dialog.cpp
+msgid "Cancel"
+msgstr "Peru"
+
+#: src/lib/subedit/gui/transcription_runner.cpp
+msgid "Transcribing the audio…"
+msgstr "Litteroidaan ääntä…"
+
 #: src/lib/subedit/gui/transform_dialog.cpp
 msgid "Transform positions"
 msgstr "Muunna kohdat"
@@ -4500,10 +4898,6 @@ msgstr "&Tallenna"
 #: src/lib/subedit/gui/unsaved_documents_dialog.cpp
 msgid "Close &Without Saving"
 msgstr "&Sulje tallentamatta"
-
-#: src/lib/subedit/gui/unsaved_documents_dialog.cpp
-msgid "Cancel"
-msgstr "Peru"
 
 #: src/lib/subedit/gui/unsaved_documents_dialog.cpp
 msgid ""
@@ -4613,6 +5007,10 @@ msgstr "&Asetukset…"
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "Positions in &Frames"
 msgstr "&Kohdat ruutuina"
+
+#: src/lib/subedit/gui/window_actions.cpp
+msgid "Transcribe Audio…"
+msgstr "Litteroi ääni…"
 
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "Play / Pause"
@@ -4878,3 +5276,13 @@ msgstr "Kursiivi"
 msgctxt "toolbar"
 msgid "Main"
 msgstr "Päätyökalurivi"
+
+#~ msgid "Detected"
+#~ msgstr "Tunnistettu"
+
+#~ msgid ""
+#~ "The model file the engine reads. It is not shipped with the program: the "
+#~ "manual says where to find one."
+#~ msgstr ""
+#~ "Mallitiedosto, jonka moottori lukee. Sitä ei toimiteta ohjelman mukana: "
+#~ "opas kertoo, mistä sellaisen löytää."

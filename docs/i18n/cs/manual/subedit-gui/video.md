@@ -3,12 +3,13 @@
 <!-- machine-translated -->
 > Tato stránka je strojovým překladem a dosud ji nezkontroloval žádný čtenář tohoto jazyka.
 
-Nabídka **Video** nese nejprve dva příkazy a pak úkony, které ovládají film
+Nabídka **Video** nese nejprve tři příkazy a pak úkony, které ovládají film
 — viz [Přehrávač](player.md#pohyb-filmem).
 
 | Příkaz | Zkratka | Co dělá |
 | :------ | :------- | :----------- |
 | Vybrat video… | žádná | zvolí soubor videa, ke kterému dokument patří |
+| Přepsat zvuk… | žádná | přepíše zvuk filmu na titulky, které nahradí titulky projektu — viz [Přepis zvuku](#přepis-zvuku) |
 | Přehrát / pozastavit | `Ctrl+P` | přehraje nebo zastaví video — viz [Přehrávač](player.md#přehrávání-a-zastavení) |
 
 Přidružené video je **vlastností otevřeného dokumentu**, nikoli nastavením
@@ -101,6 +102,45 @@ pozic následuje.
 tento dokument patří — a třetí zmínka by ji postavila na stejnou úroveň jako
 [mřížku odvozenou z pozic](frame-grid.md), která je údajem jiným.
 
+## Přepis zvuku
+
+**`Transcribe Audio…`** zapíše řeč filmu jako titulky. Je vypnutý, dokud není otevřen film: jde o
+zvuk **filmu projektu**, nikdy o soubor, který byste vybírali — k přepisu zvukového
+souboru použijte v příkazovém řádku [`transcribe`](../subedit-cli/transcribe.md).
+
+Dialog se ptá na dvě věci a říká, zda může začít:
+
+- **zvukovou stopu**, uvedenou tak, jak ji uvádí nabídka [`Audio`](#zvuková-stopa), s jazykem
+  a názvem, které soubor uvádí;
+- **jazyk**, dvě písmena, například `en` nebo `fr`. Začíná jazykem zvolené
+  stopy, když ho soubor uvádí, sleduje stopu, dokud jste žádný nezadali, a
+  **řádek pod polem říká, odkud se vzal**. Když soubor pro stopu žádný jazyk neuvádí,
+  řádek to říká: model ho pak zjistí ze zvuku, což umí jen vícejazyčný model, a
+  měli byste ho zadat, pokud ho znáte. U modelu pouze pro angličtinu, který nezjistí nic,
+  řádek říká, že jazyk je třeba zadat.
+
+**Říká také, co chybí.** Tři řádky říkají, zda nástroj, `ffmpeg` a model jsou k dispozici, a
+kde; když něco chybí, `OK` zůstane nedostupné a dialog to oznámí s odkazem na
+[Instalace nástrojů pro přepis](../subedit-cli/install-transcription.md). Tlačítko `Preferences…` otevře
+[předvolby](preferences.md#přepis), kde se nastavují program a model — jsou to skutečnosti
+o počítači, ne volby, které by se měly opakovat při každém přepisu — a dialog se po jejich zavření podívá znovu.
+
+Jazyk se uchová pro příště. Samotný nástroj a meze titulků jsou
+[nastavení](preferences.md) (`transcription.*`).
+
+**Když projekt už obsahuje titulky, okno se před jejich nahrazením zeptá** a řekne,
+kolik jich zmizí. Ptá se před prací, aby odmítnutí nestálo nic. Když je projekt prázdný,
+není se na co ptát.
+
+Práce probíhá **na pozadí**, s oknem, které ukazuje, kam nástroj došel, a tlačítkem `Cancel`;
+okno zůstává kolem použitelné. Když skončí, titulky projektu se nahradí
+přepisem **jako jedna operace**: jedno `Undo` vrátí, co tam bylo, včetně textů
+překladu. Přepis, který selže nebo který zrušíte, nic nezmění — důvod se
+sdělí v okně, kromě zrušení, které ve stavovém řádku jen oznámí, že bylo zrušeno.
+
+**Co je potřeba, se nedodává**: nástroj (whisper.cpp), model a `ffmpeg` k extrakci zvuku.
+Viz [Instalace nástrojů pro přepis](../subedit-cli/install-transcription.md).
+
 ## Když není film
 
 Okno ukáže tlačítko **`Select Video…`** tam, kde by byl obraz, místo
@@ -135,6 +175,8 @@ naopak `ffprobe` vůbec nepotřebuje: opírá se o `libmpv`, který je
 závislostí sestavení. Doba trvání filmu, ta, podle které se hlásí, co
 přesahuje konec, pochází z přehrávače, a ne z `ffprobe`.
 
+**Přepis je jediná věc, která `ffmpeg` potřebuje**: vyextrahuje z něj zvuk filmu. Viz
+[Instalace nástrojů pro přepis](../subedit-cli/install-transcription.md).
 Nejde tedy o omezený režim, ale o **běžný provoz** počítače,
 na kterém nikdy nebyl nainstalován `ffmpeg`: údaj pochází od uživatele a `ffprobe`
 ho navrhne, když je k dispozici.

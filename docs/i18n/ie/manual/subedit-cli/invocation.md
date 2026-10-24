@@ -48,6 +48,7 @@ Subcommands:
   append                      Put subtitle files one after another into a single file
   split-file                  Cut a subtitle file in two, a head and a tail
   pair                        Write a translation at the positions of its main file, and say how it lined up
+  transcribe                  Write the speech of a video or an audio file as subtitles
   config                      List, show and change the operation settings
 ```
 
@@ -224,7 +225,7 @@ ne es executet, e `-q` e `-v` changea nequo.
 <!-- example: subedit-cli --version | head -n 1 -->
 ```console
 $ subedit-cli --version | head -n 1
-subedit 1.0.9
+subedit 1.0.10
 ```
 
 Li tot, sur un machine con ICU 74.2 e Enchant 2.3.3 — li númeres es ti del machine:
@@ -368,14 +369,16 @@ quo esset fat ne es un silentie.
 | [`append`](append.md) | mette files pos li prim, in **un sol** file | yes |
 | [`split-file`](split-file.md) | separa un file in **du**: un cap e un cauda | yes |
 | [`pair`](pair.md) | scri un traduction a-presso li positiones de su file principal, e di qualmen su lineas se alliniat | yes |
+| [`transcribe`](transcribe.md) | scri li parol de un video o de un file audio quam subtitules | yes — su propri destination, `--output` |
 | [`config`](config.md) | lista, monstra e changea li parametres de operation del file de parametres | solmen li file de parametres |
 
-Omni vint-un es ci; li auxilie del instrument les lista in li sam órdine.
+Omni vint-du es ci; li auxilie del instrument les lista in li sam órdine.
 
 **Solmen un tange nequo**, e to es li columne a dextre: `inspect` leer e
-reporta. Li altri dece-nin scri, e quo seque vale por dece-sett de les:
+reporta. Li altri vint scri, e quo seque vale por dece-sett de les:
 [`append`](append.md) e [`split-file`](split-file.md) have chascun un aritá propri — N files por
-**un** resultate, un file por **du** — e dunc lor propri destination, quel ili descrie sur lor págine.
+**un** resultate, un file por **du** — e dunc lor propri destination, quel ili descrie sur lor págine;
+[`transcribe`](transcribe.md) fa un nov file ex un video o un file audio, e prende solmen `--output`.
 [`config`](config.md) scri null file de subtitules: it leer e changea li file de parametres, e
 nequo de quo seque aplica a it.
 

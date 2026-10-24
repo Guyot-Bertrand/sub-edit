@@ -3,12 +3,13 @@
 <!-- machine-translated -->
 > Bu sayfa makine çevirisidir ve henüz dili bilen bir okuyucu tarafından gözden geçirilmemiştir.
 
-**Video** menüsü önce iki komut ve filmi yöneten hareketleri taşır
+**Video** menüsü önce üç komut ve filmi yöneten hareketleri taşır
 — bkz. [Oynatıcı](player.md#filmde-gezinme).
 
 | Komut | Kısayol | Ne yapar |
 | :---- | :------ | :------- |
 | Video Seç… | yok | belgenin eşlik ettiği video dosyasını seçer |
+| Sesi Yazıya Dök… | yok | filmin sesini, projenin altyazılarının yerine geçen altyazılara dönüştürür — bkz. [Sesi yazıya dökme](#sesi-yazıya-dökme) |
 | Oynat / Duraklat | `Ctrl+P` | videoyu oynatır ya da durdurur — bkz. [Oynatıcı](player.md#oynatma-ve-durdurma) |
 
 Bağlı video **açık belgenin bir özelliğidir**, uygulamanın bir ayarı değil: başka bir altyazı
@@ -93,6 +94,45 @@ okunan dosyanın [kodlaması](files.md#durum-çubuğundaki-kodlama) gelir, ardı
 eşlik ettiği — ve üçüncü bir ifade onu, başka bir şey olan
 [konumlardan çıkarılan ızgara](frame-grid.md) ile aynı sıraya koyardı.
 
+## Sesi yazıya dökme
+
+**`Transcribe Audio…`** filmin konuşmasını altyazı olarak yazar. Bir film açılana kadar devre dışıdır: bu,
+**projenin filminin** sesidir ve asla seçeceğiniz bir dosya değildir — bir ses dosyasını yazıya dökmek için
+komut satırında [`transcribe`](../subedit-cli/transcribe.md) komutunu kullanın.
+
+İletişim kutusu iki şey ister ve başlayıp başlayamayacağını söyler:
+
+- **ses izi**, [`Audio`](#ses-izi) menüsünün listelediği gibi listelenir, dosyanın bildirdiği dil
+  ve başlıkla birlikte;
+- **dil**, `en` ya da `fr` gibi iki harf. Dosya bildirdiğinde seçilen izin diliyle
+  başlar, siz kendiniz bir tane yazmadığınız sürece ize uyar ve
+  **alanın altındaki bir satır nereden geldiğini söyler**. Dosya iz için bir dil bildirmediğinde
+  satır bunu söyler: model dili o zaman sesten algılar, bunu yalnızca çok dilli bir model yapabilir ve
+  biliyorsanız dili yazmalısınız. Hiçbir şeyi algılamayan, yalnızca İngilizce bir modelle satır,
+  dilin yazılması gerektiğini söyler.
+
+**Neyin eksik olduğunu da söyler.** Üç satır motorun, `ffmpeg`'in ve modelin orada olup olmadığını ve
+nerede olduğunu söyler; biri yoksa `OK` kapalı kalır ve kutu bunu
+[Yazıya dökme araçlarını kurma](../subedit-cli/install-transcription.md) sayfasına yönlendirerek söyler. Bir `Preferences…` düğmesi
+[tercihleri](preferences.md#yazıya-dökme) açar; program ve model orada ayarlanır — bunlar makineyle ilgili
+bilgilerdir, her yazıya dökmede yeniden yapılacak seçimler değil — ve kutu, tercihler kapanınca yeniden bakar.
+
+Dil bir sonraki sefer için saklanır. Motorun kendisi ve altyazıların sınırları
+[ayarlardır](preferences.md) (`transcription.*`).
+
+**Proje zaten altyazı içeriyorsa, pencere onları değiştirmeden önce sorar** ve kaç tanesinin gideceğini
+söyler. İşten önce sorar, böylece vazgeçmenin bir maliyeti olmaz. Proje boşsa
+sorulacak bir şey yoktur.
+
+İş **arka planda** çalışır, motorun ne kadar ilerlediğini gösteren bir kutu ve bir `Cancel`
+düğmesiyle; pencere çevresinde kullanılabilir kalır. Bittiğinde projenin altyazıları
+yazıya dökmeyle **tek bir işlem olarak** değiştirilir: bir `Undo` orada olanı geri verir, çeviri
+metinleri dahil. Başarısız olan ya da iptal ettiğiniz bir yazıya dökme hiçbir şeyi değiştirmez — neden
+bir kutuda söylenir, yalnızca iptal hariç; iptal sadece durum çubuğunda iptal edildiğini söyler.
+
+**İhtiyaç duyduğu şey birlikte gelmez**: bir motor (whisper.cpp), bir model ve sesi çıkarmak için `ffmpeg`.
+Bkz. [Yazıya dökme araçlarını kurma](../subedit-cli/install-transcription.md).
+
 ## Film olmadığında
 
 Pencere, görüntünün yerine hiçbir şey koymak yerine bir **`Select Video…`** düğmesi gösterir. Bu,
@@ -121,6 +161,9 @@ iletişim kutusunun gösterdiğidir.
 **Başka hiçbir şey ona bağlı değildir ve hiçbir işlem reddetmez.** Oynatıcı ise `ffprobe`
 programına hiç ihtiyaç duymaz: bir derleme bağımlılığı olan `libmpv` kitaplığına dayanır. Filmin
 süresi, sonun ötesine geçeni bildirmek için kullanılan süre, `ffprobe` değil oynatıcıdan gelir.
+
+**Yazıya dökme, `ffmpeg` programına gerçekten ihtiyaç duyan tek şeydir**: filmin sesini çıkarır. Bkz.
+[Yazıya dökme araçlarını kurma](../subedit-cli/install-transcription.md).
 
 Bu nedenle bir bozulmuş kip değil, `ffmpeg` kurmamış bir makinenin **normal işleyişidir**: veri
 kullanıcıdan gelir ve `ffprobe` varsa onu önerir.

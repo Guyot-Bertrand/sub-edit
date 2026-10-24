@@ -107,10 +107,10 @@ Er listet **33 Schlüssel** auf:
 <!-- example: subedit-cli config list | grep -c '^[a-z]' -->
 ```console
 $ subedit-cli config list | grep -c '^[a-z]'
-33
+40
 ```
 
-**Dreizehn davon werden von der Befehlszeile gelesen**; die zwanzig anderen liest nur das Fenster,
+**Zwanzig davon werden von der Befehlszeile gelesen**; die zwanzig anderen liest nur das Fenster,
 und ihre Zeile `Used by:` sagt es, zusammen mit der Option von `correct`, die an ihre Stelle tritt:
 
 | Schlüssel | Gelesen von |
@@ -122,6 +122,7 @@ und ihre Zeile `Used by:` sagt es, zusammen mit der Option von `correct`, die an
 | `correction.human`, `correction.ocr` | [`correct`](correct.md) und `Correct Texts…` |
 | `correction.remove-blank` | `correct` und `Correct Texts…` |
 | `correction.line-break.max-lines` | `correct` und `Correct Texts…` |
+| `transcription.engine`, `transcription.executable`, `transcription.model`, `transcription.language`, `transcription.merge-gap-ms`, `transcription.max-duration-ms`, `transcription.max-characters` | [`transcribe`](transcribe.md) und `Transcribe Audio…` |
 | jeder andere Schlüssel `correction.*` | nur `Correct Texts…` — `correct` nimmt `--tasks`, `--code`, `--max-length`, `--skip-length`, `--skip-lines`, `--language`, `--enable` und `--disable` aus seiner eigenen Zeile |
 
 Die Zeilenzahlen, `correction.line-break.max-lines` und `correction.line-break.skip-max-lines`,
@@ -210,6 +211,7 @@ duration-adjust.gap-ms = 100
 # Display preferences: the window's own, the command line never reads them.
 duration-adjust.gap-ms reset to its default (0)
 #duration-adjust.gap-ms = 0
+#transcription.merge-gap-ms = 400
 ```
 
 ## Exit-Codes

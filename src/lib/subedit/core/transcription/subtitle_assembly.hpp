@@ -1,7 +1,9 @@
 #pragma once
 
+#include <subedit/core/config/transcription_settings.hpp>
 #include <subedit/core/model/subtitle.hpp>
 #include <subedit/core/time/duration.hpp>
+#include <subedit/core/transcription/assembly_limits.hpp>
 #include <subedit/core/transcription/transcript.hpp>
 
 #include <cstddef>
@@ -10,12 +12,6 @@
 #include <vector>
 
 namespace subedit::core {
-
-/// The defaults of `AssemblySettings`, starting points tuned on the output of a
-/// model of real size.
-inline constexpr std::int64_t kDefaultMergeGapMilliseconds = 400;
-inline constexpr std::int64_t kDefaultMaxDurationMilliseconds = 7000;
-inline constexpr std::size_t kDefaultMaxCharacters = 84;
 
 /// The limits the post-processing holds a subtitle to. The defaults are starting
 /// points, to be tuned on the output of a model of real size; they are settings
@@ -33,6 +29,9 @@ struct AssemblySettings {
     /// job, which already exists.
     std::size_t maxCharacters = kDefaultMaxCharacters;
 };
+
+/// The limits the post-processing is held to, from the settings.
+[[nodiscard]] AssemblySettings assemblyOf(const TranscriptionSettings& settings);
 
 /// Turns what an engine cut into subtitles.
 ///

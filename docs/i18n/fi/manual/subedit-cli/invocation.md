@@ -48,6 +48,7 @@ Subcommands:
   append                      Put subtitle files one after another into a single file
   split-file                  Cut a subtitle file in two, a head and a tail
   pair                        Write a translation at the positions of its main file, and say how it lined up
+  transcribe                  Write the speech of a video or an audio file as subtitles
   config                      List, show and change the operation settings
 ```
 
@@ -224,7 +225,7 @@ ei ajeta, eivätkä `-q` ja `-v` muuta mitään.
 <!-- example: subedit-cli --version | head -n 1 -->
 ```console
 $ subedit-cli --version | head -n 1
-subedit 1.0.9
+subedit 1.0.10
 ```
 
 Koko tuloste koneella, jossa on ICU 74.2 ja Enchant 2.3.3 — numerot ovat koneen omia:
@@ -368,14 +369,16 @@ mitä tehtiin, ei ole vaikenemista.
 | [`append`](append.md) | liittää tiedostot ensimmäisen perään **yhdeksi** tiedostoksi | kyllä |
 | [`split-file`](split-file.md) | leikkaa tiedoston **kahtia**: alkuosaan ja loppuosaan | kyllä |
 | [`pair`](pair.md) | kirjoittaa käännöksen päätiedostonsa kohtiin ja kertoo, miten sen rivit asettuivat kohdakkain | kyllä |
+| [`transcribe`](transcribe.md) | kirjoittaa videon tai äänitiedoston puheen tekstitykseksi | kyllä — oma kohteensa, `--output` |
 | [`config`](config.md) | luettelee, näyttää ja muuttaa asetustiedoston toimintojen asetuksia | vain asetustiedostoon |
 
-Kaikki kaksikymmentäyksi ovat mukana; työkalun ohje luettelee ne samassa järjestyksessä.
+Kaikki kaksikymmentäkaksi ovat mukana; työkalun ohje luettelee ne samassa järjestyksessä.
 
 **Vain yksi ei koske mihinkään**, ja sen kertoo oikeanpuoleinen sarake: `inspect` lukee ja
-raportoi. Muut yhdeksäntoista kirjoittavat, ja seuraava koskee seitsemäätoista niistä:
+raportoi. Muut kaksikymmentä kirjoittavat, ja seuraava koskee seitsemäätoista niistä:
 [`append`](append.md) ja [`split-file`](split-file.md) ottavat kumpikin omanlaisensa määrän tiedostoja — N tiedostoa
-**yhteen** tulokseen, yksi tiedosto **kahteen** — ja siksi niillä on oma kohteensa, jonka ne kuvaavat sivullaan.
+**yhteen** tulokseen, yksi tiedosto **kahteen** — ja siksi niillä on oma kohteensa, jonka ne kuvaavat sivullaan;
+[`transcribe`](transcribe.md) tekee videosta tai äänitiedostosta uuden tiedoston ja ottaa vain `--output`in.
 [`config`](config.md) ei kirjoita tekstitystiedostoa: se lukee ja muuttaa asetustiedostoa, eikä
 mikään seuraavasta koske sitä.
 

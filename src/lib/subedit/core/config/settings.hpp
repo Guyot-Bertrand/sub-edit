@@ -12,6 +12,7 @@
 #include <subedit/core/config/duration_adjustment_settings.hpp>
 #include <subedit/core/config/editor_settings.hpp>
 #include <subedit/core/config/spell_check_settings.hpp>
+#include <subedit/core/config/transcription_settings.hpp>
 #include <subedit/core/config/video_settings.hpp>
 
 #include <cstddef>
@@ -187,6 +188,9 @@ struct Settings {
     /// What `Check Spelling…` retains — issue #509: language, target and
     /// which text, kept from one session to the next.
     SpellCheckSettings spellCheck{};
+
+    /// What the audio transcription retains — phase 22, #777.
+    TranscriptionSettings transcription{};
 
     /// What the table and its editor show of a line's length — issue #526.
     EditorSettings editor{};

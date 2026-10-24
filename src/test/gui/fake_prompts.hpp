@@ -16,6 +16,7 @@
 #include <functional>
 #include <optional>
 #include <string>
+#include <utility>
 #include <vector>
 
 namespace subedit::test {
@@ -62,6 +63,27 @@ public:
     [[nodiscard]] bool proposeShiftedReopening(const std::string& message) override {
         shiftedReopenings.push_back(message);
         return nextShiftedReopeningAccepted;
+    }
+
+    /// What the chooser of a model or of a program answers, and what it was asked.
+    std::optional<std::filesystem::path> nextFileToChoose{};
+    std::vector<std::pair<gui::ChosenFile, std::filesystem::path>> filesChosenFrom{};
+
+    [[nodiscard]] std::optional<std::filesystem::path>
+    fileToChoose(gui::ChosenFile what, const std::filesystem::path& current) override {
+        filesChosenFrom.emplace_back(what, current);
+        return nextFileToChoose;
+    }
+
+    /// What each confirmation of a replacement said, and whether the next is accepted.
+    /// **Refused by default, as the question of the film is**: the case one forgets is the
+    /// one that keeps what is there.
+    std::vector<std::string> replacements{};
+    bool nextReplacementAccepted = false;
+
+    [[nodiscard]] bool confirmReplacement(const std::string& message) override {
+        replacements.push_back(message);
+        return nextReplacementAccepted;
     }
 
     [[nodiscard]] std::optional<std::filesystem::path>

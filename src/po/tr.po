@@ -1034,6 +1034,47 @@ msgstr ""
 "--head ve --tail birlikte verilir: ikisini de verin, ya da --dry-run ile "
 "hiçbirini vermeyin"
 
+#: src/exe/cli/commands/transcribe.cpp
+msgid "Write the speech of a video or an audio file as subtitles"
+msgstr "Bir videonun veya ses dosyasının konuşmasını altyazı olarak yaz"
+
+#: src/exe/cli/commands/transcribe.cpp
+msgid "Video or audio file to transcribe"
+msgstr "Yazıya dökülecek video veya ses dosyası"
+
+#: src/exe/cli/commands/transcribe.cpp
+msgid "Subtitle file to write"
+msgstr "Yazılacak altyazı dosyası"
+
+#: src/exe/cli/commands/transcribe.cpp
+msgid "Format to write; the one the extension of --output says by default"
+msgstr ""
+"Yazılacak biçim; varsayılan olarak --output uzantısının belirttiği biçim"
+
+#: src/exe/cli/commands/transcribe.cpp
+msgid "Audio track of a video, counted from 0; the first by default"
+msgstr "Bir videonun ses izi, 0'dan başlayarak sayılır; varsayılan olarak ilki"
+
+#: src/exe/cli/commands/transcribe.cpp
+msgid "Language of the speech: fr, en; detected by default"
+msgstr "Konuşmanın dili: fr, en; varsayılan olarak algılanır"
+
+#: src/exe/cli/commands/transcribe.cpp
+msgid "Model file; the transcription.model setting by default"
+msgstr "Model dosyası; varsayılan olarak transcription.model ayarı"
+
+#: src/exe/cli/commands/transcribe.cpp
+msgid "Engine; the transcription.engine setting by default"
+msgstr "Motor; varsayılan olarak transcription.engine ayarı"
+
+#: src/exe/cli/commands/transcribe.cpp
+msgid "Keep the extracted audio in this file"
+msgstr "Çıkarılan sesi bu dosyada tut"
+
+#: src/exe/cli/commands/transcribe.cpp
+msgid "Write the segments as the engine cut them"
+msgstr "Parçaları motorun kestiği gibi yaz"
+
 #: src/exe/cli/commands/transform.cpp
 msgid "Correct every position from two points known to be right"
 msgstr "Doğru olduğu bilinen iki noktadan yola çıkarak her konumu düzelt"
@@ -1895,7 +1936,7 @@ msgid "%1: %2 (dry run, nothing written)"
 msgstr "%1: %2 (deneme çalıştırması, hiçbir şey yazılmadı)"
 
 #. TRANSLATORS: %1 is a file, %2 what was done to it, %3 the file written.
-#: src/lib/subedit/cli/rewriting.cpp
+#: src/lib/subedit/cli/rewriting.cpp src/lib/subedit/cli/transcribing.cpp
 msgid "%1: %2 -> %3"
 msgstr "%1: %2 -> %3"
 
@@ -2097,7 +2138,9 @@ msgstr "milisaniye cinsinden bir tam sayı, 0 veya daha büyük"
 msgid ""
 "a pattern code, Script[-language[-COUNTRY]], not empty: Zyyy, Latn, Latn-en, "
 "Latn-en-US"
-msgstr "boş olmayan bir desen kodu, Script[-language[-COUNTRY]]: Zyyy, Latn, Latn-en, Latn-en-US"
+msgstr ""
+"boş olmayan bir desen kodu, Script[-language[-COUNTRY]]: Zyyy, Latn, Latn-"
+"en, Latn-en-US"
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "a number above 0, decimals allowed: 24, 42.5"
@@ -2106,6 +2149,31 @@ msgstr "0'dan büyük bir sayı, ondalıklara izin verilir: 24, 42.5"
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "a whole number from 1 to 1000: 2, 3"
 msgstr "1 ile 1000 arasında bir tam sayı: 2, 3"
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "the name of an engine: lower-case letters, digits, '.', '-' or '_'"
+msgstr "bir motorun adı: küçük harfler, rakamlar, '.', '-' veya '_'"
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "an absolute path; empty for none"
+msgstr "mutlak bir yol; boşsa yok"
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "two lower-case letters, an ISO 639-1 code: en, fr; empty to detect it"
+msgstr ""
+"iki küçük harf, bir ISO 639-1 kodu: en, fr; algılatmak için boş bırakın"
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "a whole number of milliseconds, 1 to 3600000"
+msgstr "milisaniye cinsinden bir tam sayı, 1 ile 3600000 arasında"
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "a whole number from 1 to 1000"
+msgstr "1 ile 1000 arasında bir tam sayı"
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "subedit-cli transcribe; Transcribe Audio…"
+msgstr "subedit-cli transcribe; Sesi Yazıya Dök…"
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "subedit-cli adjust; Adjust Durations…"
@@ -2117,31 +2185,42 @@ msgstr "subedit-cli correct; Metinleri Düzelt…"
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "Correct Texts… (window only; correct takes --tasks instead)"
-msgstr "Metinleri Düzelt… (yalnızca pencerede; correct bunun yerine --tasks alır)"
+msgstr ""
+"Metinleri Düzelt… (yalnızca pencerede; correct bunun yerine --tasks alır)"
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "Correct Texts… (window only; correct takes --code instead)"
-msgstr "Metinleri Düzelt… (yalnızca pencerede; correct bunun yerine --code alır)"
+msgstr ""
+"Metinleri Düzelt… (yalnızca pencerede; correct bunun yerine --code alır)"
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "Correct Texts… (window only; correct takes --enable/--disable instead)"
-msgstr "Metinleri Düzelt… (yalnızca pencerede; correct bunun yerine --enable/--disable alır)"
+msgstr ""
+"Metinleri Düzelt… (yalnızca pencerede; correct bunun yerine --enable/--"
+"disable alır)"
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "Correct Texts… (window only; correct takes --max-length instead)"
-msgstr "Metinleri Düzelt… (yalnızca pencerede; correct bunun yerine --max-length alır)"
+msgstr ""
+"Metinleri Düzelt… (yalnızca pencerede; correct bunun yerine --max-length "
+"alır)"
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "Correct Texts… (window only; correct takes --skip-length instead)"
-msgstr "Metinleri Düzelt… (yalnızca pencerede; correct bunun yerine --skip-length alır)"
+msgstr ""
+"Metinleri Düzelt… (yalnızca pencerede; correct bunun yerine --skip-length "
+"alır)"
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "Correct Texts… (window only; correct takes --skip-lines instead)"
-msgstr "Metinleri Düzelt… (yalnızca pencerede; correct bunun yerine --skip-lines alır)"
+msgstr ""
+"Metinleri Düzelt… (yalnızca pencerede; correct bunun yerine --skip-lines "
+"alır)"
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "Correct Texts… (window only; correct takes --language instead)"
-msgstr "Metinleri Düzelt… (yalnızca pencerede; correct bunun yerine --language alır)"
+msgstr ""
+"Metinleri Düzelt… (yalnızca pencerede; correct bunun yerine --language alır)"
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "Reading speed the durations are brought to."
@@ -2225,16 +2304,22 @@ msgstr "Tanıma (OCR) hatalarının desenlerini uygula."
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "Whether the window's hearing-impaired task acts on text in brackets."
-msgstr "Pencerenin işitme engelliler görevinin köşeli parantez içindeki metne uygulanıp uygulanmadığı."
+msgstr ""
+"Pencerenin işitme engelliler görevinin köşeli parantez içindeki metne "
+"uygulanıp uygulanmadığı."
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "Whether the window's hearing-impaired task acts on text in parentheses."
-msgstr "Pencerenin işitme engelliler görevinin parantez içindeki metne uygulanıp uygulanmadığı."
+msgstr ""
+"Pencerenin işitme engelliler görevinin parantez içindeki metne uygulanıp "
+"uygulanmadığı."
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid ""
 "Longest line the window's line-break task aims at, in the unit in-ems names."
-msgstr "Pencerenin satır bölme görevinin hedeflediği en uzun satır, in-ems'in belirttiği birimle."
+msgstr ""
+"Pencerenin satır bölme görevinin hedeflediği en uzun satır, in-ems'in "
+"belirttiği birimle."
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "Most lines a subtitle is broken into."
@@ -2248,47 +2333,64 @@ msgstr "Pencerenin satırları karakter yerine em cinsinden ölçüp ölçmediğ
 msgid ""
 "Whether the window's line-break task leaves alone a subtitle whose lines are "
 "short enough."
-msgstr "Pencerenin satır bölme görevinin, satırları yeterince kısa olan bir altyazıya dokunmayıp dokunmadığı."
+msgstr ""
+"Pencerenin satır bölme görevinin, satırları yeterince kısa olan bir "
+"altyazıya dokunmayıp dokunmadığı."
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid ""
 "Longest line a subtitle may have and still be left alone by the window's "
 "line-break task."
-msgstr "Bir altyazının sahip olabileceği ve pencerenin satır bölme görevinin yine de dokunmayacağı en uzun satır."
+msgstr ""
+"Bir altyazının sahip olabileceği ve pencerenin satır bölme görevinin yine de "
+"dokunmayacağı en uzun satır."
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid ""
 "Whether the window's line-break task leaves alone a subtitle with few enough "
 "lines."
-msgstr "Pencerenin satır bölme görevinin, yeterince az satırı olan bir altyazıya dokunmayıp dokunmadığı."
+msgstr ""
+"Pencerenin satır bölme görevinin, yeterince az satırı olan bir altyazıya "
+"dokunmayıp dokunmadığı."
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid ""
 "Most lines a subtitle may have and still be left alone by the window's line-"
 "break task."
-msgstr "Bir altyazının sahip olabileceği ve pencerenin satır bölme görevinin yine de dokunmayacağı en çok satır sayısı."
+msgstr ""
+"Bir altyazının sahip olabileceği ve pencerenin satır bölme görevinin yine de "
+"dokunmayacağı en çok satır sayısı."
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "Whether the window ticks the join/split-words task."
-msgstr "Pencerenin sözcükleri birleştirme/ayırma görevini işaretleyip işaretlemediği."
+msgstr ""
+"Pencerenin sözcükleri birleştirme/ayırma görevini işaretleyip işaretlemediği."
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "Whether the window's join/split-words task joins words."
-msgstr "Pencerenin sözcükleri birleştirme/ayırma görevinin sözcükleri birleştirip birleştirmediği."
+msgstr ""
+"Pencerenin sözcükleri birleştirme/ayırma görevinin sözcükleri birleştirip "
+"birleştirmediği."
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "Whether the window's join/split-words task splits words."
-msgstr "Pencerenin sözcükleri birleştirme/ayırma görevinin sözcükleri ayırıp ayırmadığı."
+msgstr ""
+"Pencerenin sözcükleri birleştirme/ayırma görevinin sözcükleri ayırıp "
+"ayırmadığı."
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "Dictionary the window's join/split-words task checks words by."
-msgstr "Pencerenin sözcükleri birleştirme/ayırma görevinin sözcükleri denetlediği sözlük."
+msgstr ""
+"Pencerenin sözcükleri birleştirme/ayırma görevinin sözcükleri denetlediği "
+"sözlük."
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid ""
 "a locale code, two lower-case letters, then optionally _ and two upper-case, "
 "then optionally @ and a script: fr, en_US, sr@Latn"
-msgstr "bir yerel ayar kodu, iki küçük harf, ardından isteğe bağlı olarak _ ve iki büyük harf, ardından isteğe bağlı olarak @ ve bir betik: fr, en_US, sr@Latn"
+msgstr ""
+"bir yerel ayar kodu, iki küçük harf, ardından isteğe bağlı olarak _ ve iki "
+"büyük harf, ardından isteğe bağlı olarak @ ve bir betik: fr, en_US, sr@Latn"
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid ""
@@ -2296,8 +2398,37 @@ msgid ""
 msgstr "Düzeltmenin boşalttığı altyazıları boş bırakmak yerine kaldır."
 
 #: src/lib/subedit/core/config/operation_settings.cpp
+msgid "The engine that transcribes the audio."
+msgstr "Sesi yazıya döken motor."
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "The engine's program; searched for when empty."
+msgstr "Motorun programı; boşsa aranır."
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "The model file the engine reads."
+msgstr "Motorun okuduğu model dosyası."
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "The language of the audio; detected when empty."
+msgstr "Sesin dili; boşsa algılanır."
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "Pieces of one sentence closer than this are joined."
+msgstr "Bir cümlenin bundan daha yakın parçaları birleştirilir."
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "Longest a transcribed subtitle stays on screen."
+msgstr "Yazıya dökülmüş bir altyazının ekranda kalabileceği en uzun süre."
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "Most characters a transcribed subtitle holds."
+msgstr "Yazıya dökülmüş bir altyazının taşıyabileceği en fazla karakter."
+
+#: src/lib/subedit/core/config/operation_settings.cpp
 msgid "%1 is managed by the window; use --enable/--disable on correct"
-msgstr "%1 pencere tarafından yönetilir; correct üzerinde --enable/--disable kullanın"
+msgstr ""
+"%1 pencere tarafından yönetilir; correct üzerinde --enable/--disable kullanın"
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "%1 is a display preference; set it in the window"
@@ -2309,7 +2440,9 @@ msgstr "bilinmeyen ayar %1; subedit-cli config list bunları listeler"
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "cannot read '%1' for %2; subedit-cli config list says what it accepts"
-msgstr "%2 için '%1' okunamıyor; subedit-cli config list neyin kabul edildiğini söyler"
+msgstr ""
+"%2 için '%1' okunamıyor; subedit-cli config list neyin kabul edildiğini "
+"söyler"
 
 #: src/lib/subedit/core/format/lrc_reader.cpp
 #: src/lib/subedit/core/format/tm_player_reader.cpp
@@ -2407,7 +2540,8 @@ msgstr "sonlandırılmamış bir grup adı"
 
 #: src/lib/subedit/core/text/python_regex_syntax.cpp
 msgid "the group name '%1' is not letters and digits, which is all ICU accepts"
-msgstr "'%1' grup adı harf ve rakamlardan oluşmuyor, ICU yalnızca bunları kabul eder"
+msgstr ""
+"'%1' grup adı harf ve rakamlardan oluşmuyor, ICU yalnızca bunları kabul eder"
 
 #: src/lib/subedit/core/text/python_regex_syntax.cpp
 msgid "a backslash ends the expression"
@@ -2644,6 +2778,10 @@ msgstr "aralıkları ayrık yapma"
 #: src/lib/subedit/core/wording/analysis.cpp
 msgid "joining repeated subtitles"
 msgstr "yinelenen altyazıları birleştirme"
+
+#: src/lib/subedit/core/wording/analysis.cpp
+msgid "transcribing the audio"
+msgstr "sesin yazıya dökülmesi"
 
 #. TRANSLATORS: how well the positions fall on a frame-rate grid: clean,
 #. partial, or none at all.
@@ -3195,6 +3333,147 @@ msgstr "okunamıyor, varsayılan korunuyor"
 #: src/lib/subedit/core/wording/settings.cpp
 msgid "settings could not be written"
 msgstr "ayarlar yazılamadı"
+
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid ""
+"See the manual page \"Installing the transcription tools\" (install-"
+"transcription)."
+msgstr ""
+"\"Yazıya dökme araçlarını kurma\" kılavuz sayfasına bakın (install-"
+"transcription)."
+
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "the transcription engine was not found"
+msgstr "yazıya dökme motoru bulunamadı"
+
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "no model was given, or the model file is not there"
+msgstr "model verilmedi veya model dosyası yok"
+
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "the model cannot transcribe the language %1"
+msgstr "model %1 dilini yazıya dökemiyor"
+
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "the model cannot detect the language: give one"
+msgstr "model dili algılayamıyor: bir dil verin"
+
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "the audio could not be read"
+msgstr "ses okunamadı"
+
+# From Gaupol.
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "the transcription failed"
+msgstr "yazıya dökme başarısız oldu"
+
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "the transcription failed: %1"
+msgstr "yazıya dökme başarısız oldu: %1"
+
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "the transcription was cancelled"
+msgstr "yazıya dökme iptal edildi"
+
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "ffmpeg was not found, so the audio of a video cannot be extracted"
+msgstr "ffmpeg bulunamadı, bu yüzden bir videonun sesi çıkarılamıyor"
+
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "the video has no audio track %1"
+msgstr "videoda %1 numaralı ses izi yok"
+
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "the audio could not be extracted"
+msgstr "ses çıkarılamadı"
+
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "the audio could not be extracted: %1"
+msgstr "ses çıkarılamadı: %1"
+
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "the video has no audio track"
+msgstr "videoda hiç ses izi yok"
+
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "no language or title"
+msgstr "dil veya başlık yok"
+
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "audio track %1: %2"
+msgstr "ses izi %1: %2"
+
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "no transcription engine is called %1"
+msgstr "%1 adlı bir yazıya dökme motoru yok"
+
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "%1 subtitle transcribed, language: %2"
+msgid_plural "%1 subtitles transcribed, language: %2"
+msgstr[0] "%1 altyazı yazıya döküldü, dil: %2"
+msgstr[1] "%1 altyazı yazıya döküldü, dil: %2"
+
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid ""
+"The %1 subtitle of this project will be replaced by the transcription. You "
+"can undo it."
+msgid_plural ""
+"The %1 subtitles of this project will be replaced by the transcription. You "
+"can undo it."
+msgstr[0] ""
+"Bu projenin %1 altyazısı yazıya dökmeyle değiştirilecek. Geri alabilirsiniz."
+msgstr[1] ""
+"Bu projenin %1 altyazısı yazıya dökmeyle değiştirilecek. Geri alabilirsiniz."
+
+#: src/lib/subedit/core/wording/transcription.cpp
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "%1: found (%2)"
+msgstr "%1: bulundu (%2)"
+
+# From Gaupol.
+#: src/lib/subedit/core/wording/transcription.cpp
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "%1: not found"
+msgstr "%1: bulunamadı"
+
+#: src/lib/subedit/core/wording/transcription.cpp
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "ffmpeg: found"
+msgstr "ffmpeg: bulundu"
+
+#: src/lib/subedit/core/wording/transcription.cpp
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "ffmpeg: not found"
+msgstr "ffmpeg: bulunamadı"
+
+#: src/lib/subedit/core/wording/transcription.cpp
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "Model: none set"
+msgstr "Model: ayarlanmamış"
+
+#: src/lib/subedit/core/wording/transcription.cpp
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "Model: not found (%1)"
+msgstr "Model: bulunamadı (%1)"
+
+#: src/lib/subedit/core/wording/transcription.cpp
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "Model: not a model (%1)"
+msgstr "Model: bu bir model değil (%1)"
+
+#: src/lib/subedit/core/wording/transcription.cpp
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "Model: English only (%1)"
+msgstr "Model: yalnızca İngilizce (%1)"
+
+#: src/lib/subedit/core/wording/transcription.cpp
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "Model: multilingual (%1)"
+msgstr "Model: çok dilli (%1)"
+
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "transcribing: %1%"
+msgstr "yazıya dökme: %1%"
 
 #: src/lib/subedit/core/wording/translation.cpp
 msgid "translation: the file holds no line"
@@ -3993,6 +4272,10 @@ msgstr "Satır uzunluklarını düzenleyicide göster"
 msgid "Decode on the graphics card"
 msgstr "Ekran kartında çöz"
 
+#: src/lib/subedit/gui/preferences_dialog.cpp
+msgid "Browse…"
+msgstr "Gözat…"
+
 # From Gaupol.
 #: src/lib/subedit/gui/preferences_dialog.cpp
 msgid "Preferences"
@@ -4030,6 +4313,26 @@ msgstr "Bağlam uzunluğu"
 #: src/lib/subedit/gui/preferences_dialog.cpp
 msgid "Frame step"
 msgstr "Kare adımı"
+
+#: src/lib/subedit/gui/preferences_dialog.cpp
+#: src/lib/subedit/gui/preferences_dialog.cpp
+msgid "Searched for on the PATH"
+msgstr "PATH içinde aranır"
+
+#: src/lib/subedit/gui/preferences_dialog.cpp
+#: src/lib/subedit/gui/preferences_dialog.cpp
+msgid "Program"
+msgstr "Program"
+
+#: src/lib/subedit/gui/preferences_dialog.cpp
+msgid "Model"
+msgstr "Model"
+
+# From Gaupol.
+#: src/lib/subedit/gui/preferences_dialog.cpp
+#: src/lib/subedit/gui/preferences_dialog.cpp
+msgid "Transcription"
+msgstr "Yazıya dökme"
 
 #: src/lib/subedit/gui/project_files.cpp
 msgid "Save All stopped: %1 of %2 document saved"
@@ -4085,6 +4388,19 @@ msgid "Select Video"
 msgstr "Video Seç"
 
 #: src/lib/subedit/gui/qt_prompts.cpp
+msgid "Choose a model"
+msgstr "Model seç"
+
+#: src/lib/subedit/gui/qt_prompts.cpp
+#: src/lib/subedit/gui/qt_prompts.cpp
+msgid "Choose the program"
+msgstr "Programı seç"
+
+#: src/lib/subedit/gui/qt_prompts.cpp
+msgid "Models (*.bin);;All files (*)"
+msgstr "Modeller (*.bin);;Tüm dosyalar (*)"
+
+#: src/lib/subedit/gui/qt_prompts.cpp
 msgid "The translation is no longer where it was read from."
 msgstr "Çeviri artık okunduğu yerde değil."
 
@@ -4118,6 +4434,10 @@ msgstr ""
 "%1\n"
 "\n"
 "Yeniden açılsın mı, taşınmış olabilir?"
+
+#: src/lib/subedit/gui/qt_prompts.cpp
+msgid "Replace the subtitles?"
+msgstr "Altyazılar değiştirilsin mi?"
 
 #: src/lib/subedit/gui/save_shape.cpp
 msgid "Western"
@@ -4378,6 +4698,84 @@ msgstr "Çeviriyi metnin yanında göster"
 msgid "Main"
 msgstr "Ana"
 
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+msgid "Preferences…"
+msgstr "Tercihler…"
+
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+#: src/lib/subedit/gui/transcription_runner.cpp
+msgid "Transcribe audio"
+msgstr "Sesi yazıya dök"
+
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+msgid "First audio track"
+msgstr "İlk ses izi"
+
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+msgid "Detected from the sound"
+msgstr "Sesten algılanır"
+
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+msgid ""
+"A two-letter language code such as en or fr. Leave it empty to let the model "
+"detect the language."
+msgstr ""
+"en veya fr gibi iki harfli bir dil kodu. Modelin dili algılaması için boş "
+"bırakın."
+
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+msgid ""
+"The audio of the film open in this window is transcribed into subtitles that "
+"replace the ones of the project. The work runs in the background and can be "
+"cancelled."
+msgstr ""
+"Bu pencerede açık olan filmin sesi, projenin altyazılarının yerine geçen "
+"altyazılara dönüştürülür. İş arka planda çalışır ve iptal edilebilir."
+
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+msgid "Audio track"
+msgstr "Ses izi"
+
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+msgid "Language"
+msgstr "Dil"
+
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+msgid "Set them in the preferences."
+msgstr "Bunları tercihlerde ayarlayın."
+
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+msgid "This model cannot detect the language: type it."
+msgstr "Bu model dili algılayamaz: dili yazın."
+
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+msgid "The language you typed is used."
+msgstr "Yazdığınız dil kullanılır."
+
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+msgid "Proposed from the language the file declares for this track."
+msgstr "Dosyanın bu iz için bildirdiği dilden önerildi."
+
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+msgid "The file declares no language for this track: the model will detect it from the sound. Type it if you know it."
+msgstr "Dosya bu iz için bir dil bildirmiyor: model dili sesten algılayacak. Biliyorsanız yazın."
+
+#: src/lib/subedit/gui/transcription_runner.cpp
+#: src/lib/subedit/gui/unsaved_documents_dialog.cpp
+msgid "Cancel"
+msgstr "İptal"
+
+#: src/lib/subedit/gui/transcription_runner.cpp
+msgid "Transcribing the audio…"
+msgstr "Ses yazıya dökülüyor…"
+
 #: src/lib/subedit/gui/transform_dialog.cpp
 msgid "Transform positions"
 msgstr "Konumları dönüştür"
@@ -4423,10 +4821,6 @@ msgstr "&Kaydet"
 #: src/lib/subedit/gui/unsaved_documents_dialog.cpp
 msgid "Close &Without Saving"
 msgstr "Kaydetmeden Ka&pat"
-
-#: src/lib/subedit/gui/unsaved_documents_dialog.cpp
-msgid "Cancel"
-msgstr "İptal"
 
 #: src/lib/subedit/gui/unsaved_documents_dialog.cpp
 msgid ""
@@ -4532,6 +4926,10 @@ msgstr "Terci&hler…"
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "Positions in &Frames"
 msgstr "Konumlar &Karelerle"
+
+#: src/lib/subedit/gui/window_actions.cpp
+msgid "Transcribe Audio…"
+msgstr "Sesi Yazıya Dök…"
 
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "Play / Pause"
@@ -4772,3 +5170,13 @@ msgstr "İtalik"
 msgctxt "toolbar"
 msgid "Main"
 msgstr "Ana"
+
+#~ msgid "Detected"
+#~ msgstr "Algılandı"
+
+#~ msgid ""
+#~ "The model file the engine reads. It is not shipped with the program: the "
+#~ "manual says where to find one."
+#~ msgstr ""
+#~ "Motorun okuduğu model dosyası. Programla birlikte gelmez: kılavuz nerede "
+#~ "bulunacağını söyler."

@@ -39,6 +39,7 @@ Datei, die geöffnet und ohne Änderung gespeichert wird, ändert sich um kein e
 | einen Film in zwei Teile schneiden | [`Split Project…`](subedit-gui/operations.md#split-project) oder [`split-file`](subedit-cli/split-file.md) |
 | die Schreibweise, die Kursivschrift oder die Dialogstriche einer ganzen Datei ändern | [Die Operationen](subedit-gui/operations.md#italic) oder [`case`](subedit-cli/case.md), [`italics`](subedit-cli/italics.md), [`dialogue-dashes`](subedit-cli/dialogue-dashes.md) |
 | ein Wort suchen und ersetzen, ohne die Tags zu zerstören | [Suchen und Ersetzen](subedit-gui/find-and-replace.md) oder [`replace`](subedit-cli/replace.md) |
+| die Sprache eines Films als Untertitel schreiben | [`Transcribe Audio…`](subedit-gui/video.md#das-audio-transkribieren), oder [`transcribe`](subedit-cli/transcribe.md) — nach der [Installation der Werkzeuge](subedit-cli/install-transcription.md) |
 | neben dem Originaltext übersetzen | [Öffnen einer Übersetzung](subedit-gui/files.md#öffnen-einer-übersetzung) oder [`pair`](subedit-cli/pair.md), um sie zeitlich an die Hauptdatei anzupassen |
 | hundert Dateien auf einmal verarbeiten | [Einen Verzeichnisbaum verarbeiten](subedit-cli/lots.md), dann [Aufruf](subedit-cli/invocation.md) |
 

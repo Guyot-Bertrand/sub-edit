@@ -138,6 +138,12 @@ twee blokken bestonden, wordt ongewijzigd gelezen, en bij de volgende sluiting i
 | `correction.join-split.join`, `correction.join-split.split` | `true` of `false` — samenvoegen, splitsen | `true`, `false` |
 | `correction.join-split.language` | een taalcode — `fr`, `en_US`, `sr@Latn` —; leeg: de taal van het systeem | leeg |
 | `correction.remove-blank` | `true` of `false` — `Remove all blank subtitles` | `true` |
+| `transcription.engine` | de naam van de engine: kleine letters, cijfers, `.`, `-` en `_` | `whisper.cpp` |
+| `transcription.executable`, `transcription.model` | een absoluut pad; leeg: de engine wordt in het `PATH` gezocht, en er is geen model ingesteld | leeg |
+| `transcription.language` | twee kleine letters, een ISO 639-1-code; leeg: de taal wordt gedetecteerd | leeg |
+| `transcription.merge-gap-ms` | stukken van één zin die dichter bij elkaar liggen dan dit worden samengevoegd, in milliseconden, geheel en niet-negatief | `400` |
+| `transcription.max-duration-ms` | de maximale tijd dat een getranscribeerde ondertitel in beeld blijft, in milliseconden, van 1 tot 3600000 | `7000` |
+| `transcription.max-characters` | het maximale aantal tekens van een getranscribeerde ondertitel, van 1 tot 1000 | `84` |
 | `correction.activations` | de patroonselectievakjes die de gebruiker heeft gewijzigd, `<type>:<code>:<name>:<0\|1>`, gescheiden door komma's; **een komma of een backslash in een naam wordt geschreven met een backslash ervoor** (`\,` en `\\`), en een onleesbaar item verliest alleen zijn eigen instelling — het wordt gemeld, de andere blijven behouden | leeg |
 | `spell-check.language` | een taalcode, zoals `fr_FR`; leeg: de taal van het systeem | leeg |
 | `spell-check.target` | `selection`, `current-project` of `all-projects` | `current-project` |
@@ -272,6 +278,19 @@ het, wat het bureaublad ook is.
 **De kleuren van de afwijkingen blijven leesbaar in beide paletten** — zie
 [De tabel](table.md#de-afwijkingen). Het is geen aanname: het contrast
 van de tekst op elk van de tinten wordt door een test gecontroleerd, op beide achtergronden.
+
+## Transcriptie
+
+De groep **`Transcription`** van het dialoogvenster bevat de twee gegevens over de machine die
+[`Transcribe Audio…`](video.md#de-audio-transcriberen) nodig heeft: **het programma** van de engine (whisper.cpp,
+`whisper-cli`) en **het model** dat het leest. Elk heeft een knop `Browse…`. Als het leeg blijft, wordt het programma
+op het `PATH` gezocht; het model heeft geen standaardwaarde.
+
+Onder de velden **zegt het dialoogvenster wat er is**: of de engine is gevonden en waar, of `ffmpeg`
+is gevonden, en het model — niet ingesteld, niet gevonden, geen model, alleen voor Engels of meertalig. Als er iets
+ontbreekt, voegt het de verwijzing toe naar
+[De transcriptiehulpmiddelen installeren](../subedit-cli/install-transcription.md), die zegt waar u
+elk vindt. De twee velden zijn de instellingen `transcription.executable` en `transcription.model`.
 
 ## De interfacetaal
 
