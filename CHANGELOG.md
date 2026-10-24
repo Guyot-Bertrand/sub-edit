@@ -16,6 +16,10 @@ do not edit it by hand.
 - **cli** — Transcribe audio from the command line and the window
 - **gui** — Show the transcription tools and set them in preferences
 
+### Documentation
+
+- **doc** — Explain installing whisper-cli with cmake --install
+
 ## 1.0.9 — 2026-10-23
 
 ### Added
