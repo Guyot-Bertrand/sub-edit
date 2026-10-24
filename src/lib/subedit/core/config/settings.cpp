@@ -58,6 +58,16 @@ constexpr std::string_view kDurationMaximumKey = "duration-adjust.maximum-ms";
 constexpr std::string_view kDurationGapEnabledKey = "duration-adjust.gap-enabled";
 constexpr std::string_view kDurationGapKey = "duration-adjust.gap-ms";
 
+// The audio transcription, seven keys under one prefix — phase 22, #777.
+constexpr std::string_view kTranscriptionPrefix = "transcription.";
+constexpr std::string_view kTranscriptionEngineKey = "transcription.engine";
+constexpr std::string_view kTranscriptionExecutableKey = "transcription.executable";
+constexpr std::string_view kTranscriptionModelKey = "transcription.model";
+constexpr std::string_view kTranscriptionLanguageKey = "transcription.language";
+constexpr std::string_view kTranscriptionMergeGapKey = "transcription.merge-gap-ms";
+constexpr std::string_view kTranscriptionMaxDurationKey = "transcription.max-duration-ms";
+constexpr std::string_view kTranscriptionMaxCharactersKey = "transcription.max-characters";
+
 // `Correct Texts…`, twenty-five keys under one prefix — decision D8, issue #504.
 constexpr std::string_view kCorrectionPrefix = "correction.";
 constexpr std::string_view kCorrectionMentionsEnabledKey = "correction.mentions.enabled";
@@ -531,6 +541,33 @@ void keepOption(
     return std::string{text};
 }
 
+/// The name of an engine as the registry knows it: lower-case letters, digits and
+/// the three marks `.`, `-` and `_` — `whisper.cpp`.
+[[nodiscard]] std::optional<std::string> engineNameOf(std::string_view text) {
+    const auto allowed = [](char letter) {
+        return (letter >= 'a' && letter <= 'z') || (letter >= '0' && letter <= '9') ||
+               letter == '.' || letter == '-' || letter == '_';
+    };
+    if (text.empty() || !std::ranges::all_of(text, allowed))
+        return std::nullopt;
+    return std::string{text};
+}
+
+/// An ISO 639-1 code: two lower-case letters. Nothing else names a language an
+/// engine can be asked for.
+[[nodiscard]] std::optional<std::string> languageCodeOf(std::string_view text) {
+    const auto lower = [](char letter) { return letter >= 'a' && letter <= 'z'; };
+    if (text.size() != 2 || !std::ranges::all_of(text, lower))
+        return std::nullopt;
+    return std::string{text};
+}
+
+/// The longest a subtitle may stay on screen: a second to an hour.
+constexpr int kLongestTranscribedSubtitleMilliseconds = 3'600'000;
+
+/// The most characters a transcribed subtitle may hold.
+constexpr int kMostTranscribedCharacters = 1000;
+
 /// The name a pattern's own file gives its kind — `fileExtensionOf`, read
 /// backwards.
 [[nodiscard]] std::optional<PatternKind> patternKindOf(std::string_view text) {
@@ -807,6 +844,30 @@ void applyDurationAdjustmentOption(SettingsRead& read,
         take(millisecondsOf(value), form.gapMilliseconds);
 }
 
+/// Keeps one of the seven options of the audio transcription.
+void applyTranscriptionOption(SettingsRead& read, std::string_view key, std::string_view value) {
+    const auto take = [&read, key, value](auto parsed, auto& field) {
+        keepOption(read, key, value, std::move(parsed), field);
+    };
+
+    TranscriptionSettings& form = read.settings.transcription;
+    if (key == kTranscriptionEngineKey)
+        take(engineNameOf(value), form.engine);
+    else if (key == kTranscriptionExecutableKey)
+        take(directoryOf(value), form.executable);
+    else if (key == kTranscriptionModelKey)
+        take(directoryOf(value), form.model);
+    else if (key == kTranscriptionLanguageKey)
+        take(languageCodeOf(value), form.language);
+    else if (key == kTranscriptionMergeGapKey)
+        take(millisecondsOf(value), form.mergeGapMilliseconds);
+    else if (key == kTranscriptionMaxDurationKey)
+        take(boundedIntegerOf(value, 1, kLongestTranscribedSubtitleMilliseconds),
+             form.maxDurationMilliseconds);
+    else if (key == kTranscriptionMaxCharactersKey)
+        take(boundedIntegerOf(value, 1, kMostTranscribedCharacters), form.maxCharacters);
+}
+
 /// Keeps an option, or reports the value that could not be read.
 ///
 /// **An unknown key is ignored, without a word**: a file written by a version
@@ -864,6 +925,8 @@ void applyOption(SettingsRead& read,
         applyDurationAdjustmentOption(read, key, value);
     else if (key.starts_with(kCorrectionPrefix))
         applyCorrectionOption(read, key, value);
+    else if (key.starts_with(kTranscriptionPrefix))
+        applyTranscriptionOption(read, key, value);
     else if (key.starts_with(kSpellCheckPrefix))
         applySpellCheckOption(read, key, value);
     else if (key.starts_with(kEditorPrefix))
@@ -926,6 +989,31 @@ void renderDurationAdjustment(std::string& out, const DurationAdjustmentSettings
                 kDurationGapKey,
                 std::to_string(form.gapMilliseconds),
                 form.gapMilliseconds == defaults.gapMilliseconds);
+}
+
+/// The seven options of the audio transcription, each written bare when it
+/// differs from the default and commented out when it does not.
+void renderTranscription(std::string& out, const TranscriptionSettings& form) {
+    const TranscriptionSettings defaults;
+    writeOption(out, kTranscriptionEngineKey, form.engine, form.engine == defaults.engine);
+    writeOption(out,
+                kTranscriptionExecutableKey,
+                form.executable.string(),
+                form.executable == defaults.executable);
+    writeOption(out, kTranscriptionModelKey, form.model.string(), form.model == defaults.model);
+    writeOption(out, kTranscriptionLanguageKey, form.language, form.language == defaults.language);
+    writeOption(out,
+                kTranscriptionMergeGapKey,
+                std::to_string(form.mergeGapMilliseconds),
+                form.mergeGapMilliseconds == defaults.mergeGapMilliseconds);
+    writeOption(out,
+                kTranscriptionMaxDurationKey,
+                std::to_string(form.maxDurationMilliseconds),
+                form.maxDurationMilliseconds == defaults.maxDurationMilliseconds);
+    writeOption(out,
+                kTranscriptionMaxCharactersKey,
+                std::to_string(form.maxCharacters),
+                form.maxCharacters == defaults.maxCharacters);
 }
 
 [[nodiscard]] std::string activationsText(const std::vector<PatternActivation>& activations) {
@@ -1173,6 +1261,8 @@ void renderOperationBlock(std::string& out, const Settings& settings) {
     renderDurationAdjustment(out, settings.durationAdjustment);
 
     renderCorrectionSettings(out, settings.correction);
+
+    renderTranscription(out, settings.transcription);
 }
 
 void renderDisplayBlock(std::string& out, const Settings& settings) {

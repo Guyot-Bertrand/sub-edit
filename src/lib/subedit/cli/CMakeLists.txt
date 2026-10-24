@@ -45,6 +45,7 @@ add_library(
     shifting.cpp
     splitting.cpp
     sorting.cpp
+    transcribing.cpp
     disjoining.cpp
     joining.cpp
     text_rewriting.cpp

@@ -56,6 +56,7 @@ using subedit::core::SpellCheckDocument;
 using subedit::core::SpellCheckSettings;
 using subedit::core::SpellCheckTarget;
 using subedit::core::Theme;
+using subedit::core::TranscriptionSettings;
 using subedit::core::VideoSettings;
 using subedit::core::WindowGeometry;
 using subedit::core::writeSettings;
@@ -1143,4 +1144,62 @@ TEST_CASE("settings are written to a bare file name without making a directory",
     CHECK(files.directoriesAsked().empty());
     CHECK(files.contentOf(bare).has_value());
     CHECK(readSettings(files, bare).diagnostics.empty());
+}
+
+// ## The audio transcription — phase 22, #777
+
+TEST_CASE("the transcription options at their defaults are written commented out", "[config]") {
+    const std::string written = renderSettings(Settings{});
+
+    CHECK_THAT(written, ContainsSubstring("#transcription.engine = whisper.cpp\n"));
+    CHECK_THAT(written, ContainsSubstring("#transcription.executable = \n"));
+    CHECK_THAT(written, ContainsSubstring("#transcription.model = \n"));
+    CHECK_THAT(written, ContainsSubstring("#transcription.language = \n"));
+    CHECK_THAT(written, ContainsSubstring("#transcription.merge-gap-ms = 400\n"));
+    CHECK_THAT(written, ContainsSubstring("#transcription.max-duration-ms = 7000\n"));
+    CHECK_THAT(written, ContainsSubstring("#transcription.max-characters = 84\n"));
+}
+
+TEST_CASE("the transcription options are read, written back and read again", "[config]") {
+    const SettingsRead read = readOf("transcription.engine = other-engine\n"
+                                     "transcription.executable = /opt/whisper/whisper-cli\n"
+                                     "transcription.model = /models/ggml-small.bin\n"
+                                     "transcription.language = fr\n"
+                                     "transcription.merge-gap-ms = 250\n"
+                                     "transcription.max-duration-ms = 5000\n"
+                                     "transcription.max-characters = 70\n");
+
+    const TranscriptionSettings& form = read.settings.transcription;
+    CHECK(read.diagnostics.empty());
+    CHECK(form.engine == "other-engine");
+    CHECK(form.executable == "/opt/whisper/whisper-cli");
+    CHECK(form.model == "/models/ggml-small.bin");
+    CHECK(form.language == "fr");
+    CHECK(form.mergeGapMilliseconds == 250);
+    CHECK(form.maxDurationMilliseconds == 5000);
+    CHECK(form.maxCharacters == 70);
+
+    InMemoryFileSystem files;
+    REQUIRE(writeSettings(files, kPath, read.settings).has_value());
+    CHECK(readSettings(files, kPath).settings.transcription == form);
+}
+
+TEST_CASE("a transcription value that cannot be read leaves its default", "[config]") {
+    for (const char* line : {"transcription.engine = \n",
+                             "transcription.engine = Whisper CPP\n",
+                             "transcription.executable = whisper-cli\n",
+                             "transcription.model = models/small.bin\n",
+                             "transcription.language = fra\n",
+                             "transcription.language = FR\n",
+                             "transcription.merge-gap-ms = -1\n",
+                             "transcription.max-duration-ms = 0\n",
+                             "transcription.max-duration-ms = 3600001\n",
+                             "transcription.max-characters = 0\n",
+                             "transcription.max-characters = 1001\n",
+                             "transcription.max-characters = many\n"}) {
+        const SettingsRead read = readOf(line);
+
+        CHECK(read.settings.transcription == TranscriptionSettings{});
+        CHECK(read.diagnostics.size() == 1);
+    }
 }

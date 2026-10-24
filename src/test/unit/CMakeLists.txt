@@ -118,6 +118,7 @@ add_executable(
     core/transcription/audio_source_test.cpp
     core/transcription/json_reader_test.cpp
     core/transcription/subtitle_assembly_test.cpp
+    core/transcription/transcription_wording_test.cpp
     core/transcription/whisper_cpp_engine_test.cpp
     core/transcription/whisper_cpp_output_test.cpp
     core/io/file_error_test.cpp
@@ -255,6 +256,7 @@ add_executable(
     cli/shared_settings_test.cpp
     cli/shifting_test.cpp
     cli/sorting_test.cpp
+    cli/transcribing_test.cpp
     cli/disjoining_test.cpp
     cli/joining_test.cpp
     cli/language_test.cpp
@@ -274,10 +276,11 @@ target_link_libraries(subedit_cli_test PRIVATE subedit::cli Catch2::Catch2WithMa
 target_include_directories(subedit_cli_test PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 target_compile_definitions(
     subedit_cli_test PRIVATE SUBEDIT_TEST_DATA_DIR="${CMAKE_SOURCE_DIR}/src/test/data"
+                             SUBEDIT_FAKE_TRANSCRIBER_BINARY="$<TARGET_FILE:subedit_fake_transcriber>"
                              SUBEDIT_COMPILED_I18N_DIR="${CMAKE_CURRENT_BINARY_DIR}/i18n")
 
 # The fixture catalogue of the command line (#663), compiled with the others above.
-add_dependencies(subedit_cli_test subedit_i18n_fixtures)
+add_dependencies(subedit_cli_test subedit_i18n_fixtures subedit_fake_transcriber)
 
 subedit_set_warnings(subedit_cli_test)
 

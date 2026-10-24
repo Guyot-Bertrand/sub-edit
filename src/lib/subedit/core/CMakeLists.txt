@@ -133,6 +133,7 @@ add_library(
     format/web_vtt_reader.cpp
     format/web_vtt_writer.cpp
     io/real_file_system.cpp
+    io/temporary_directory.cpp
     libraries.cpp
     process/start_process.cpp
     time/timestamp.cpp
@@ -144,11 +145,13 @@ add_library(
     wording/editing.cpp
     wording/formats.cpp
     wording/settings.cpp
+    wording/transcription.cpp
     wording/translation.cpp
     wording/version.cpp
     wording/video.cpp
     transcription/engine_capabilities.cpp
     transcription/audio_source.cpp
+    transcription/default_engines.cpp
     transcription/engine_registry.cpp
     transcription/subtitle_assembly.cpp
     transcription/transcription_engine.cpp

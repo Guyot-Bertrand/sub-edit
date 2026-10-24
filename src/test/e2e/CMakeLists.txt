@@ -32,6 +32,7 @@ add_executable(
     cli/snap_test.cpp
     cli/split_file_test.cpp
     cli/sort_test.cpp
+    cli/transcribe_test.cpp
     cli/disjoint_test.cpp
     cli/join_test.cpp
     cli/text_rewriting_test.cpp
@@ -60,12 +61,13 @@ target_compile_definitions(
                              SUBEDIT_GUI_BINARY="$<TARGET_FILE:subedit-gui>"
                              SUBEDIT_PATTERNS_DIR="${CMAKE_SOURCE_DIR}/packaging/patterns"
                              SUBEDIT_PATTERN_CATALOGUE_BINARY="$<TARGET_FILE:subedit_pattern_catalogue>"
+                             SUBEDIT_FAKE_TRANSCRIBER_BINARY="$<TARGET_FILE:subedit_fake_transcriber>"
                              SUBEDIT_TEST_DATA_DIR="${CMAKE_SOURCE_DIR}/src/test/data"
                              SUBEDIT_SOURCE_DIR="${CMAKE_SOURCE_DIR}")
 
 # $<TARGET_FILE:…> gives a path, not a build order. Without this line,
 # nothing guarantees that the binary exists when the test starts it.
-add_dependencies(subedit_e2e_test subedit-cli subedit-gui subedit_pattern_catalogue)
+add_dependencies(subedit_e2e_test subedit-cli subedit-gui subedit_pattern_catalogue subedit_fake_transcriber)
 
 # **The command line under a second language** (#663, spec 15 D4): a prefix of the
 # tests' own, laid out as an installation is — `bin/subedit-cli`, a copy of the
