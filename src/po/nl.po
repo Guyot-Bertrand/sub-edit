@@ -1113,18 +1113,17 @@ msgid "Audio track of a video, counted from 0; the first by default"
 msgstr "Audiospoor van een video, geteld vanaf 0; standaard het eerste"
 
 #: src/exe/cli/commands/transcribe.cpp
-#: src/exe/cli/commands/transcribe.cpp
 msgid "Where to begin, as 2:00, 1:02:03 or seconds; the beginning by default"
 msgstr "Waar te beginnen, als 2:00, 1:02:03 of seconden; standaard het begin"
 
-#: src/exe/cli/commands/transcribe.cpp
 #: src/exe/cli/commands/transcribe.cpp
 msgid "Where to stop, as 2:00, 1:02:03 or seconds; the end by default"
 msgstr "Waar te stoppen, als 2:00, 1:02:03 of seconden; standaard het einde"
 
 #: src/exe/cli/commands/transcribe.cpp
-msgid "Language of the speech: fr, en; detected by default"
-msgstr "Taal van de gesproken tekst: fr, en; standaard gedetecteerd"
+#: src/exe/cli/commands/transcribe.cpp
+msgid "Language of the speech, two letters: fr, en, de; detected from the first 30 seconds by default"
+msgstr "Taal van de spraak, twee letters: fr, en, de; standaard herkend aan de eerste 30 seconden"
 
 #: src/exe/cli/commands/transcribe.cpp
 msgid "Model file; the transcription.model setting by default"
@@ -3521,48 +3520,66 @@ msgstr[1] ""
 "kunt dit ongedaan maken."
 
 #: src/lib/subedit/core/wording/transcription.cpp
-#: src/lib/subedit/core/wording/transcription.cpp
-msgid "\"%1\" is not a time: write it as 2:00, 1:02:03 or 2:00.5, or in seconds"
-msgstr "\"%1\" is geen tijd: schrijf het als 2:00, 1:02:03 of 2:00.5, of in seconden"
+msgid ""
+"\"%1\" is not a time: write it as 2:00, 1:02:03 or 2:00.5, or in seconds"
+msgstr ""
+"\"%1\" is geen tijd: schrijf het als 2:00, 1:02:03 of 2:00.5, of in seconden"
 
 #: src/lib/subedit/core/wording/transcription.cpp
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "%1 of the %2 pieces are only notes in brackets, such as [MUSIC PLAYING]: the language used (%3) is probably not the one spoken, and the engine may have translated the speech. Run it again with the language typed."
+msgstr "%1 van de %2 stukken zijn alleen notities tussen haakjes, zoals [MUSIC PLAYING]: de gebruikte taal (%3) is waarschijnlijk niet de gesproken taal, en de engine heeft de spraak mogelijk vertaald. Voer het opnieuw uit met de taal ingevuld."
+
+#: src/lib/subedit/core/wording/transcription.cpp
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "This model is for English only: whatever language the film speaks, the result will be English, or notes in brackets. Choose a multilingual model in the preferences."
+msgstr "Dit model is alleen voor Engels: welke taal de film ook spreekt, het resultaat is Engels, of notities tussen haakjes. Kies een meertalig model in de voorkeuren."
+
+#: src/lib/subedit/core/wording/transcription.cpp
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "\"%1\" is not a language code: write two letters, such as fr, en, de or es"
+msgstr "‘%1’ is geen taalcode: schrijf twee letters, zoals fr, en, de of es"
+
 #: src/lib/subedit/core/wording/transcription.cpp
 msgid "the end of the range must come after its start"
 msgstr "het einde van het bereik moet na het begin komen"
 
 #: src/lib/subedit/core/wording/transcription.cpp
-#: src/lib/subedit/core/wording/transcription.cpp
 msgid "less than a minute left"
 msgstr "nog minder dan een minuut"
 
-#: src/lib/subedit/core/wording/transcription.cpp
 #: src/lib/subedit/core/wording/transcription.cpp
 msgid "about %1 min left"
 msgstr "nog ongeveer %1 min"
 
 #: src/lib/subedit/core/wording/transcription.cpp
-#: src/lib/subedit/core/wording/transcription.cpp
 msgid "about %1 h %2 min left"
 msgstr "nog ongeveer %1 u %2 min"
 
 #: src/lib/subedit/core/wording/transcription.cpp
-#: src/lib/subedit/core/wording/transcription.cpp
 msgid "extracting the audio…"
 msgstr "de audio uitpakken…"
 
-#: src/lib/subedit/core/wording/transcription.cpp
 #: src/lib/subedit/core/wording/transcription.cpp
 msgid "transcribing…"
 msgstr "transcriberen…"
 
 #: src/lib/subedit/core/wording/transcription.cpp
 #: src/lib/subedit/gui/transcription_runner.cpp
-#: src/lib/subedit/core/wording/transcription.cpp
-#: src/lib/subedit/gui/transcription_runner.cpp
 msgid "%1 of %2"
 msgstr "%1 van %2"
 
 #: src/lib/subedit/core/wording/transcription.cpp
+#: src/lib/subedit/gui/transcription_runner.cpp
+#: src/lib/subedit/core/wording/transcription.cpp
+#: src/lib/subedit/gui/transcription_runner.cpp
+msgid "estimating the time left…"
+msgstr "de resterende tijd schatten…"
+
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "elapsed: %1"
+msgstr "verstreken: %1"
+
 #: src/lib/subedit/core/wording/transcription.cpp
 msgid "last text: %1"
 msgstr "laatste tekst: %1"
@@ -4812,7 +4829,6 @@ msgstr "Begin (frames)"
 
 # From Gaupol.
 #: src/lib/subedit/gui/subtitle_table_model.cpp
-#: src/lib/subedit/gui/transcribe_dialog.cpp
 msgid "End"
 msgstr "Einde"
 
@@ -4876,27 +4892,30 @@ msgid "Detected from the sound"
 msgstr "Gedetecteerd uit het geluid"
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+msgid "A language code such as fr, en, de, es or it (fra and eng work too). Leave it empty to let the model detect the language from the first 30 seconds of sound."
+msgstr "Een taalcode zoals fr, en, de, es of it (fra en eng werken ook). Laat leeg om het model de taal te laten herkennen aan de eerste 30 seconden geluid."
+
+#: src/lib/subedit/gui/transcribe_dialog.cpp
 msgid ""
-"A two-letter language code such as en or fr. Leave it empty to let the model "
-"detect the language."
+"A time as HH:MM:SS, for example 00:02:00. Leave both empty to transcribe the "
+"whole film."
 msgstr ""
-"Een taalcode van twee letters, zoals en of fr. Laat het leeg om het model de "
-"taal te laten detecteren."
+"Een tijd als HH:MM:SS, bijvoorbeeld 00:02:00. Laat beide leeg om de hele "
+"film te transcriberen."
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
-#: src/lib/subedit/gui/transcribe_dialog.cpp
-msgid "Beginning"
-msgstr "Begin"
-
-#: src/lib/subedit/gui/transcribe_dialog.cpp
-#: src/lib/subedit/gui/transcribe_dialog.cpp
-msgid "A time such as 2:00, 1:02:03 or 90 (seconds). Leave both empty to transcribe the whole film."
-msgstr "Een tijd zoals 2:00, 1:02:03 of 90 (seconden). Laat beide leeg om de hele film te transcriberen."
-
-#: src/lib/subedit/gui/transcribe_dialog.cpp
-#: src/lib/subedit/gui/transcribe_dialog.cpp
-msgid "The audio of the film open in this window is transcribed into subtitles that replace the ones of the project. Give a range to try a part of the film first: the result then opens as a project of its own and nothing is replaced. The work runs in the background and can be cancelled."
-msgstr "De audio van de film die in dit venster is geopend, wordt getranscribeerd tot ondertitels die die van het project vervangen. Geef een bereik op om eerst een deel van de film uit te proberen: het resultaat wordt dan geopend als een eigen project en er wordt niets vervangen. Het werk draait op de achtergrond en kan worden geannuleerd."
+msgid ""
+"The audio of the film open in this window is transcribed into subtitles that "
+"replace the ones of the project. Give a range to try a part of the film "
+"first: the result then opens as a project of its own and nothing is "
+"replaced. The work runs in the background and can be cancelled."
+msgstr ""
+"De audio van de film die in dit venster is geopend, wordt getranscribeerd "
+"tot ondertitels die die van het project vervangen. Geef een bereik op om "
+"eerst een deel van de film uit te proberen: het resultaat wordt dan geopend "
+"als een eigen project en er wordt niets vervangen. Het werk draait op de "
+"achtergrond en kan worden geannuleerd."
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
 msgid "Audio track"
@@ -4907,11 +4926,9 @@ msgid "Language"
 msgstr "Taal"
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
-#: src/lib/subedit/gui/transcribe_dialog.cpp
 msgid "to"
 msgstr "tot"
 
-#: src/lib/subedit/gui/transcribe_dialog.cpp
 #: src/lib/subedit/gui/transcribe_dialog.cpp
 msgid "Part of the film"
 msgstr "Deel van de film"
@@ -4919,10 +4936,6 @@ msgstr "Deel van de film"
 #: src/lib/subedit/gui/transcribe_dialog.cpp
 msgid "Set them in the preferences."
 msgstr "Stel ze in bij de instellingen."
-
-#: src/lib/subedit/gui/transcribe_dialog.cpp
-msgid "This model cannot detect the language: type it."
-msgstr "Dit model kan de taal niet detecteren: typ ze."
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
 msgid "The language you typed is used."
@@ -4934,14 +4947,10 @@ msgstr ""
 "Voorgesteld op basis van de taal die het bestand voor dit spoor opgeeft."
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
-msgid ""
-"The file declares no language for this track: the model will detect it from "
-"the sound. Type it if you know it."
-msgstr ""
-"Het bestand geeft geen taal op voor dit spoor: het model detecteert ze uit "
-"het geluid. Typ ze als u ze kent."
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+msgid "The file declares no language for this track: the model will detect it from the first 30 seconds of sound. If the film opens with music or silence it can choose wrongly, and the speech is then translated into that language. Type the language if you know it."
+msgstr "Het bestand geeft geen taal op voor dit spoor: het model herkent die aan de eerste 30 seconden geluid. Als de film begint met muziek of stilte kan het verkeerd kiezen, en de spraak wordt dan in die taal vertaald. Vul de taal in als je die weet."
 
-#: src/lib/subedit/gui/transcription_runner.cpp
 #: src/lib/subedit/gui/transcription_runner.cpp
 msgid "Extracting the audio…"
 msgstr "De audio uitpakken…"
@@ -4950,7 +4959,6 @@ msgstr "De audio uitpakken…"
 msgid "Transcribing the audio…"
 msgstr "De audio transcriberen…"
 
-#: src/lib/subedit/gui/transcription_runner.cpp
 #: src/lib/subedit/gui/transcription_runner.cpp
 msgid "Last text: %1"
 msgstr "Laatste tekst: %1"
@@ -5368,6 +5376,19 @@ msgstr "Cursief"
 msgctxt "toolbar"
 msgid "Main"
 msgstr "Hoofdwerkbalk"
+
+#~ msgid "This model cannot detect the language: type it."
+#~ msgstr "Dit model kan de taal niet detecteren: typ ze."
+
+#~ msgid ""
+#~ "The file declares no language for this track: the model will detect it "
+#~ "from the sound. Type it if you know it."
+#~ msgstr ""
+#~ "Het bestand geeft geen taal op voor dit spoor: het model detecteert ze "
+#~ "uit het geluid. Typ ze als u ze kent."
+
+#~ msgid "Beginning"
+#~ msgstr "Begin"
 
 #~ msgid "Detected"
 #~ msgstr "Gedetecteerd"

@@ -34,6 +34,11 @@ endet mit einem Code ungleich null.
 - **Die Sprache wird erkannt**, es sei denn, `--language` erzwingt sie, und die verwendete Sprache wird genannt. Ein
   Modell, das nur für Englisch gemacht ist, erkennt nichts und transkribiert nichts anderes: Eine Sprache, die es nicht
   verarbeiten kann, wird *vor* jeder Arbeit abgelehnt, unter Nennung der Grenze des Modells.
+- **Eine Sprache wird mit zwei Buchstaben eingegeben — `fr`, `en`, `de` — oder mit dem dreibuchstabigen Code, den eine Datei angibt, `fra`,
+  `eng`, der wie der zweibuchstabige gelesen wird.** Alles andere wird vor jeder Arbeit abgelehnt. **Die Erkennung
+  hört nur die ersten dreißig Sekunden ab**: Ein Film, der mit Musik oder Stille beginnt, kann für eine
+  andere Sprache gehalten werden, und die Engine schreibt die Sprache dann *übersetzt* in diese Sprache — ein französischer Film, der
+  für englisch gehalten wird, kommt auf Englisch heraus oder als `[SPEAKING FRENCH]`. Wenn Sie die Sprache kennen, geben Sie sie an.
 - **Ein Teil des Films kann allein transkribiert werden**, mit `--start` und `--end` — siehe
   [Einen Teil transkribieren](#einen-teil-transkribieren). So probiert man ein Modell an zwei Minuten aus, bevor man es auf
   zwei Stunden anwendet.
@@ -60,7 +65,7 @@ Options:
   --audio-track N             Audio track of a video, counted from 0; the first by default
   --start TIME                Where to begin, as 2:00, 1:02:03 or seconds; the beginning by default
   --end TIME                  Where to stop, as 2:00, 1:02:03 or seconds; the end by default
-  --language CODE             Language of the speech: fr, en; detected by default
+  --language CODE             Language of the speech, two letters: fr, en, de; detected from the first 30 seconds by default
   --model FILE                Model file; the transcription.model setting by default
   --engine NAME               Engine; the transcription.engine setting by default
   --keep-audio FILE           Keep the extracted audio in this file
@@ -75,7 +80,7 @@ Options:
 | `--output` | ja | die zu schreibende Untertiteldatei; ihr Verzeichnis wird angelegt, wenn es fehlt | — |
 | `--to` | nein | der Kurzname eines Formats: `srt`, `vtt`, `subviewer2`, `ssa`, `ass`, `microdvd`, `mpl2`, `tmplayer`, `lrc` | das Format, das die Endung von `--output` angibt, sonst `srt` |
 | `--audio-track` | nein | eine ganze Zahl ab 0: die Position unter den Tonspuren des Videos | `0`, die erste |
-| `--language` | nein | zwei Kleinbuchstaben, ein ISO-639-1-Code: `en`, `fr` | die Einstellung `transcription.language`; leer: erkannt |
+| `--language` | nein | zwei Buchstaben, ein ISO-639-1-Code: `en`, `fr`; ein dreibuchstabiger Code wie `fra` wird als `fr` gelesen | die Einstellung `transcription.language`; leer: erkannt |
 | `--start` | no | eine Zeitangabe: `2:00`, `1:02:03`, `2:00.5` oder eine Anzahl Sekunden, `90` | der Anfang des Audios |
 | `--end` | no | eine Zeitangabe, geschrieben wie bei `--start`; sie muss nach `--start` liegen | das Ende des Audios |
 | `--model` | nein | die Modelldatei | die Einstellung `transcription.model` |
@@ -141,7 +146,7 @@ Das Audio des ganzen Films wird weiterhin extrahiert: Eingespart wird die Transk
 | Stufe | Was auf der Fehlerausgabe hinzukommt |
 | :---- | :-------------------------------- |
 | 1 | `<input>: N subtitles transcribed, language: xx -> <output>` |
-| 2 | der Schritt und der Fortschritt, eine Zeile pro Prozent: `extracting the audio…`, dann `transcribing…`, dann `transcribing: 25%, 0:12:30 of 0:50:00, about 38 min left` — das Prozent, die erreichte Position im Audio und die verbleibende Zeit |
+| 2 | der Schritt und der Fortschritt, eine Zeile pro Prozent: `extracting the audio…`, dann `transcribing…`, dann `transcribing: 25%, 0:12:30 of 0:50:00, about 38 min left, elapsed: 0:05:12` — das Prozent, die erreichte Position im Audio, die verbleibende Zeit (`estimating the time left…`, solange sie nicht berechnet werden kann) und die vergangene Zeit; **die Zeile wird alle zehn Sekunden wiederholt, wenn nichts Neues gekommen ist**, damit ein langes Warten nicht für ein Einfrieren gehalten wird |
 | 3 | und jeder neue Text, den die Engine erhält, `last text: …` |
 
 **Das Prozent ist die Position der Engine im Audio, nicht eine Zählung ihrer eigenen Fenster**: Die Engine schreibt, was sie
@@ -157,6 +162,18 @@ Mit [`--format json`](invocation.md#ausgabe-die-ein-skript-lesen-kann) (die glob
 Unterbefehl geschrieben) enthält das Objekt der Datei die verwendete Sprache in `language`, `counts.subtitles` (die
 geschriebenen Untertitel) und `counts.segments` (die Stücke der Engine, aus denen sie gemacht wurden), sowie `audio`, wenn
 `--keep-audio` das Audio behalten hat.
+
+## Hinweise
+
+Zwei Hinweise werden auf der ersten Stufe ausgegeben, weil sie ändern, was zu erwarten ist:
+
+- **Vor der Arbeit, mit einem Modell nur für Englisch**: `This model is for English only: whatever language the film
+  speaks, the result will be English, or notes in brackets. Choose a multilingual model in the preferences.` Ein Modell,
+  dessen Dateiname auf `.en` endet, ist eines.
+- **Nach der Arbeit, wenn die Engine hauptsächlich Anmerkungen in eckigen Klammern geschrieben hat** — `[MUSIC PLAYING]`, `[SPEAKING FRENCH]` —,
+  mindestens zwei und ein Drittel ihrer Stücke: `N of the M pieces are only notes in brackets, such as [MUSIC PLAYING]: the
+  language used (xx) is probably not the one spoken, and the engine may have translated the speech. Run it again with
+  the language typed.` Die Untertitel werden trotzdem geschrieben; der Hinweis sagt, was zu vermuten ist.
 
 ## Exit-Codes
 
@@ -175,6 +192,7 @@ einer Engine, die niemand registriert hat, oder einem Bereich, der nicht verwend
 | eine Sprache, die das Modell nicht transkribieren kann | `the model cannot transcribe the language xx` |
 | keine Sprache, und ein Modell, das keine erkennen kann | `the model cannot detect the language: give one` |
 | eine Engine, die niemand registriert hat | `no transcription engine is called NAME` |
+| eine Sprache, die kein Code ist | `"TEXT" is not a language code: write two letters, such as fr, en, de or es` |
 | eine Grenze des Bereichs, die keine Zeitangabe ist | `"TEXT" is not a time: write it as 2:00, 1:02:03 or 2:00.5, or in seconds` |
 | `--end` nicht nach `--start` | `the end of the range must come after its start` |
 | jeder andere Fehler | `the transcription failed`, mit dem, was die Engine gesagt hat |

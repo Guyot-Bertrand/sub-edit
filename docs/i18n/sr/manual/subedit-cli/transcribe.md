@@ -34,6 +34,11 @@ subedit-cli transcribe --output FILE
 - **Језик се открива** осим ако га `--language` не наметне, и употребљени језик се јавља. Модел
   направљен само за енглески не открива ништа и не транскрибује ништа друго: језик који не
   може да прими одбија се *пре* почетка било каквог рада, уз навођење границе модела.
+- **Језик се куца са два слова — `fr`, `en`, `de` — или као трословни кôд који датотека декларише, `fra`,
+  `eng`, а он се чита као двословни.** Све остало се одбија пре почетка било каквог рада. **Откривање слуша само
+  првих тридесет секунди**: филм који почиње музиком или тишином може бити узет за други језик, а мотор тада
+  записује говор *преведен* на тај језик — француски филм узет за енглески испада на енглеском или као
+  `[SPEAKING FRENCH]`. Када знате језик, наведите га.
 - **Може се транскрибовати само део филма** помоћу `--start` и `--end` — видите
   [Транскрипција дела филма](#транскрипција-дела-филма). Тако се модел проба на два минута пре него што се покрене на два сата.
 - **Сегменти се спајају и секу** према границама поставки (`transcription.merge-gap-ms`,
@@ -59,7 +64,7 @@ Options:
   --audio-track N             Audio track of a video, counted from 0; the first by default
   --start TIME                Where to begin, as 2:00, 1:02:03 or seconds; the beginning by default
   --end TIME                  Where to stop, as 2:00, 1:02:03 or seconds; the end by default
-  --language CODE             Language of the speech: fr, en; detected by default
+  --language CODE             Language of the speech, two letters: fr, en, de; detected from the first 30 seconds by default
   --model FILE                Model file; the transcription.model setting by default
   --engine NAME               Engine; the transcription.engine setting by default
   --keep-audio FILE           Keep the extracted audio in this file
@@ -74,7 +79,7 @@ Options:
 | `--output` | да | датотека титлова за писање; њен директоријум се ствара ако не постоји | — |
 | `--to` | не | кратки назив формата: `srt`, `vtt`, `subviewer2`, `ssa`, `ass`, `microdvd`, `mpl2`, `tmplayer`, `lrc` | формат који каже наставак датотеке `--output`, иначе `srt` |
 | `--audio-track` | не | цео број од 0: положај међу звучним нумерама филма | `0`, прва |
-| `--language` | не | два мала слова, ISO 639-1 код: `en`, `fr` | поставка `transcription.language`; празно: језик се открива |
+| `--language` | не | два слова, ISO 639-1 кôд: `en`, `fr`; трословни кôд као `fra` чита се као `fr` | поставка `transcription.language`; празно: језик се открива |
 | `--start` | не | време: `2:00`, `1:02:03`, `2:00.5` или број секунди, `90` | почетак звука |
 | `--end` | не | време, написано као за `--start`; мора доћи после `--start` | крај звука |
 | `--model` | не | датотека модела | поставка `transcription.model` |
@@ -134,7 +139,7 @@ subedit-cli transcribe --start 2:00 --end 3:30 --output test.srt --model large-v
 | Ниво | Шта се додаје на стандардној грешци |
 | :----- | :------------------------------------- |
 | 1 | `<input>: N subtitles transcribed, language: xx -> <output>` |
-| 2 | корак и напредак, по један ред за сваки проценат: `extracting the audio…`, затим `transcribing…`, затим `transcribing: 25%, 0:12:30 of 0:50:00, about 38 min left` — проценат, достигнута позиција у звуку и преостало време |
+| 2 | корак и напредак, по један ред за сваки проценат: `extracting the audio…`, затим `transcribing…`, затим `transcribing: 25%, 0:12:30 of 0:50:00, about 38 min left, elapsed: 0:05:12` — проценат, достигнута позиција у звуку, преостало време (`estimating the time left…` док се не може израчунати) и протекло време; **ред се понавља сваких десет секунди када ништа ново није стигло**, да се дуго чекање не схвати као заглављивање |
 | 3 | и сваки нови текст који мотор добије, `last text: …` |
 
 **Проценат је позиција мотора у звуку, а не бројање његових прозора**: мотор записује оно што је транскрибовао док ради, а команда чита докле је стигао, па се број помера од прве минуте. (Сопствени напредак мотора стиже у корацима од 5 % звука, пошто се заврши прозор од тридесет секунди: сам по себи може остати на 0 % четврт сата на дугом филму са великим моделом на процесору.) **Преостало време је у почетку нечујно**: даје се када је урађено довољно за екстраполацију и прати брзину последње минуте, а не просек читавог прогона.
@@ -145,6 +150,18 @@ subedit-cli transcribe --start 2:00 --end 3:30 --output test.srt --model large-v
 подкоманде) објекат датотеке носи употребљени језик у `language`, `counts.subtitles` (записани
 титлови) и `counts.segments` (делови мотора од којих су направљени), као и `audio` када је
 `--keep-audio` задржао звук.
+
+## Напомене
+
+Две напомене се јављају на првом нивоу, јер мењају шта треба очекивати:
+
+- **Пре рада, са моделом само за енглески**: `This model is for English only: whatever language the film
+  speaks, the result will be English, or notes in brackets. Choose a multilingual model in the preferences.` Такав је модел
+  чије се име датотеке завршава са `.en`.
+- **После рада, када је мотор записао углавном напомене у заградама** — `[MUSIC PLAYING]`, `[SPEAKING FRENCH]` —,
+  најмање две и трећину његових делова: `N of the M pieces are only notes in brackets, such as [MUSIC PLAYING]: the
+  language used (xx) is probably not the one spoken, and the engine may have translated the speech. Run it again with
+  the language typed.` Титлови се ипак записују; напомена каже шта треба посумњати.
 
 ## Излазни кодови
 
@@ -163,6 +180,7 @@ subedit-cli transcribe --start 2:00 --end 3:30 --output test.srt --model large-v
 | језик који модел не може да транскрибује | `the model cannot transcribe the language xx` |
 | нема језика, а модел не уме да га открије | `the model cannot detect the language: give one` |
 | мотор који нико није регистровао | `no transcription engine is called NAME` |
+| језик који није кôд | `"TEXT" is not a language code: write two letters, such as fr, en, de or es` |
 | граница опсега која није време | `"TEXT" is not a time: write it as 2:00, 1:02:03 or 2:00.5, or in seconds` |
 | `--end` није после `--start` | `the end of the range must come after its start` |
 | било који други квар | `the transcription failed`, са оним што је мотор рекао |

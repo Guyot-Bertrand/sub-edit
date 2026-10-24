@@ -112,11 +112,12 @@ O diálogo pide tres cousas, e di se pode comezar:
 
 - **a pista de son**, listada como a lista o menú [`Audio`](#a-pista-de-son), coa lingua
   e o título que declara o ficheiro;
-- **a lingua**, dúas letras como `en` ou `fr`. Comeza coa lingua da pista escollida cando o
+- **a lingua**, dúas letras como `en` ou `fr` (`fra` lese como `fr`). Comeza coa lingua da pista escollida cando o
   ficheiro a declara, segue a pista mentres non teclee unha, e
   **unha liña baixo o campo di de onde vén**. Cando o ficheiro non declara ningunha lingua para a pista,
-  a liña di que o modelo a detectará entón a partir do son, o que só fai un modelo multilingüe, e que
-  debería teclear a lingua se a coñece. Cun modelo só para inglés, que non detecta nada, a liña di que a lingua hai que tecleala;
+  a liña di isto, e avisa: o modelo detectaraa entón a partir dos primeiros trinta segundos de son, o que só fai un modelo multilingüe, e
+  **unha película que comeza con música ou silencio pode tomarse por outra lingua e a súa fala traducirse a ela**.
+  Teclee a lingua se a coñece. Cun modelo só para inglés, o campo queda fixado en `en` e non se pode cambiar, e a liña di que a película sairá en inglés sexa cal for a súa lingua;
 - **a parte da película**, desde un tempo ata outro — véxase [Probar primeiro unha parte](#probar-primeiro-unha-parte). Cos dous campos
   baleiros, é toda a película.
 
@@ -139,8 +140,9 @@ di en que punto está o traballo**, para que saiba que está vivo e canto vai ta
 - **o paso**: primeiro “Extraendo o son…” — a caixa está entón ocupada, sen cifra, porque extraer non di nada de ata onde chegou —,
   despois “Transcribindo o son…”, cunha barra;
 - **a posición**: “0:12:30 de 0:50:00”, ata onde chegou o motor na película, en canto produciu o seu primeiro texto;
-- **o tempo que queda**, “quedan uns 38 min”: ausente ao principio, mostrado cando hai traballo feito dabondo para extrapolar, e calculado
+- **o tempo que queda**, “quedan uns 38 min”: “estimando o tempo que queda…” ao principio, substituído cando hai traballo feito dabondo para extrapolar, e calculado
   coa velocidade do último minuto; é unha precisión de poucos minutos, non unha promesa;
+- **o tempo transcorrido**, “transcorrido: 0:05:12”, que avanza mesmo cando nada máis se move;
 - **o último texto** obtido, para ver que o traballo ten sentido.
 
 Nunha película longa cun modelo grande nun procesador, os primeiros minutos poden ser longos: o motor está cargando e traballando nas súas primeiras
@@ -149,6 +151,10 @@ do 5 % da película. Cando remata, os subtítulos do proxecto substitúense
 pola transcrición **nunha única operación**: un `Undo` devolve o que había, textos
 de tradución incluídos. Unha transcrición que falla, ou que cancela, non cambia nada — o motivo
 dise nunha caixa, salvo nunha cancelación, que só o di na barra de estado.
+
+**Cando a maior parte do que escribiu o motor son notas entre corchetes** — `[MUSIC PLAYING]`, `[SPEAKING FRENCH]` —, unha caixa
+dío despois do traballo: a lingua empregada probablemente non é a falada, e o motor puido traducir a fala. Execute de novo coa lingua
+tecleada. Os subtítulos están igualmente no proxecto, e un `Undo` devolve o que había.
 
 ### Probar primeiro unha parte
 

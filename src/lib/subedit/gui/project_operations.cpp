@@ -29,6 +29,7 @@
 #include <subedit/core/model/subtitle.hpp>
 #include <subedit/core/model/subtitle_index.hpp>
 #include <subedit/core/time/timestamp.hpp>
+#include <subedit/core/transcription/annotation_notes.hpp>
 #include <subedit/core/wording/conversion.hpp>
 #include <subedit/core/wording/counts.hpp>
 #include <subedit/core/wording/editing.hpp>
@@ -443,11 +444,18 @@ void ProjectOperations::transcribeAudio(ProjectPage& page) {
     }
 
     const std::size_t made = outcome->subtitles.size();
+    const bool suspicious =
+        core::looksLikeWrongLanguage({.notes = outcome->notes, .pieces = outcome->pieces});
+    const std::string suspicion =
+        suspicious ? core::noticeOfNotes(outcome->notes, outcome->pieces, outcome->language)
+                   : std::string{};
     if (trial) {
         core::Project aside;
         aside.setSubtitles(std::move(outcome->subtitles));
         m_view->openAside(std::move(aside));
         m_view->announce(core::noticeOfTranscription(made, outcome->language));
+        if (suspicious)
+            m_prompts->reportOutcome(suspicion);
         return;
     }
     std::unique_ptr<core::Command> command =
@@ -457,6 +465,8 @@ void ProjectOperations::transcribeAudio(ProjectPage& page) {
         apply(page, std::move(command), everything);
     }
     m_view->announce(core::noticeOfTranscription(made, outcome->language));
+    if (suspicious)
+        m_prompts->reportOutcome(suspicion);
 }
 
 void ProjectOperations::appendFile(ProjectPage& page) {

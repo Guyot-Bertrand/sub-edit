@@ -206,7 +206,10 @@ WhisperCppEngine::run(const TranscriptionRequest& request,
     RunProgress progress{request, observer};
     std::string lastError;
     StreamObserver streamed;
-    streamed.cancelled = [&observer] { return observer.isCancelled(); };
+    streamed.cancelled = [&observer] {
+        observer.wait();
+        return observer.isCancelled();
+    };
     streamed.onLine = [&](const StreamedLine& line) {
         if (line.stream == StreamName::Output) {
             if (const std::optional<WhisperSegmentLine> segment = readWhisperSegmentLine(line.text))

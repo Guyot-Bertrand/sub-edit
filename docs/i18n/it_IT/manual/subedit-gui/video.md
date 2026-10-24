@@ -115,12 +115,13 @@ La finestra di dialogo chiede tre cose e dice se può partire:
 
 - **la traccia audio**, elencata come la elenca il menu [`Audio`](#la-traccia-audio), con la lingua
   e il titolo dichiarati dal file;
-- **la lingua**, due lettere come `en` o `fr`. Parte dalla lingua della traccia scelta
+- **la lingua**, due lettere come `en` o `fr` (`fra` è letto come `fr`). Parte dalla lingua della traccia scelta
   quando il file ne dichiara una, segue la traccia finché non ne hai digitata una, e
   **una riga sotto il campo dice da dove viene**. Quando il file non dichiara alcuna lingua per la traccia,
-  la riga lo dice: il modello la rileverà allora dal suono, cosa che solo un modello multilingue
-  sa fare, e conviene digitarla se la conosci. Con un modello solo per l'inglese, che non rileva nulla,
-  la riga dice che la lingua va digitata;
+  la riga lo dice, e avverte: il modello la rileverà allora dai primi trenta secondi di suono, cosa che solo un modello
+  multilingue sa fare, e **un film che si apre con musica o silenzio può essere scambiato per un'altra lingua e il suo parlato
+  tradotto in quella**. Digita la lingua se la conosci. Con un modello solo per l'inglese il campo è fissato su `en` e non
+  si può cambiare, e la riga dice che il film uscirà in inglese qualunque lingua parli;
 - **la parte del film**, da un tempo a un altro — vedi [Provare prima una parte](#provare-prima-una-parte). Con entrambi i campi
   vuoti si trascrive l'intero film.
 
@@ -143,8 +144,9 @@ dice a che punto è il lavoro**, in modo che tu sappia che è vivo e quanto temp
 - **la fase**: prima “Estrazione dell'audio…” — la finestra è allora occupata, senza cifre, perché l'estrazione non dice nulla
   del suo avanzamento —, poi “Trascrizione dell'audio…”, con una barra;
 - **la posizione**: “0:12:30 di 0:50:00”, fino a dove nel film è arrivato il motore, non appena ha prodotto il suo primo testo;
-- **il tempo rimanente**, “circa 38 min rimanenti”: assente all'inizio, mostrato quando è stato fatto abbastanza lavoro per
+- **il tempo rimanente**, “circa 38 min rimanenti”: “stima del tempo rimanente…” all'inizio, sostituito quando è stato fatto abbastanza lavoro per
   estrapolare, e calcolato sulla velocità dell'ultimo minuto; ha una precisione di qualche minuto, non è una promessa;
+- **il tempo trascorso**, “trascorso: 0:05:12”, che avanza anche quando nient'altro si muove;
 - **l'ultimo testo** ottenuto, in modo che tu possa vedere che il lavoro ha senso.
 
 Su un film lungo con un modello grande su processore, i primi minuti possono essere lunghi: il motore sta caricando il modello e
@@ -153,6 +155,10 @@ motore, che arriva solo a passi del 5 % del film. Quando termina, i sottotitoli 
 dalla trascrizione **in una sola operazione**: un solo `Undo` restituisce ciò che c'era, testi di
 traduzione compresi. Una trascrizione che fallisce, o che annulli, non cambia nulla — il motivo viene
 detto in una finestra, tranne che per un annullamento, che dice soltanto nella barra di stato che è stato annullato.
+
+**Quando la maggior parte di ciò che il motore ha scritto sono note tra parentesi quadre** — `[MUSIC PLAYING]`, `[SPEAKING FRENCH]` —, una finestra
+lo dice dopo il lavoro: la lingua usata probabilmente non è quella parlata, e il motore potrebbe aver tradotto il parlato.
+Riesegui indicando la lingua. I sottotitoli sono comunque nel progetto, e un `Undo` restituisce ciò che c'era.
 
 ### Provare prima una parte
 

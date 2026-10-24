@@ -112,12 +112,13 @@ Het dialoogvenster vraagt om drie dingen en zegt of het kan beginnen:
 
 - **het audiospoor**, opgesomd zoals het menu [`Audio`](#het-audiospoor) ze opsomt, met de taal
   en de titel die het bestand opgeeft;
-- **de taal**, twee letters zoals `en` of `fr`. Ze begint met de taal van het gekozen spoor
+- **de taal**, twee letters zoals `en` of `fr` (`fra` wordt als `fr` gelezen). Ze begint met de taal van het gekozen spoor
   wanneer het bestand er een opgeeft, volgt het spoor zolang u er geen hebt getypt, en
   **een regel onder het veld zegt waar ze vandaan komt**. Geeft het bestand geen taal op voor het spoor,
-  dan zegt de regel dat: het model zal ze dan uit het geluid detecteren, wat alleen een meertalig model
-  kan, en u typt ze het best als u ze kent. Bij een model dat alleen Engels kent, en niets detecteert,
-  zegt de regel dat de taal moet worden getypt;
+  dan zegt de regel dat, en waarschuwt: het model zal ze dan detecteren uit de eerste dertig seconden geluid, wat alleen een
+  meertalig model kan, en **een film die opent met muziek of stilte kan voor een andere taal worden aangezien en zijn spraak
+  dan in die taal vertaald**. Typ de taal als u ze kent. Bij een model dat alleen Engels kent staat het veld vast op `en` en kan
+  het niet worden gewijzigd, en de regel zegt dat de film als Engels uitkomt, welke taal hij ook spreekt;
 - **het deel van de film**, van de ene tijd tot de andere — zie [Eerst een deel proberen](#eerst-een-deel-proberen). Beide velden
   leeg is de hele film.
 
@@ -140,8 +141,9 @@ zegt hoe ver het werk is**, zodat u weet dat het leeft en hoe lang het zal duren
 - **de stap**: eerst “De audio uitpakken…” — het venstertje is dan bezig, zonder getal, want uitpakken zegt niets over hoe ver het
   is —, dan “De audio transcriberen…”, met een balk;
 - **de positie**: “0:12:30 van 0:50:00”, hoe ver in de film de engine is, zodra hij zijn eerste tekst heeft geproduceerd;
-- **de resterende tijd**, “nog ongeveer 38 min”: eerst afwezig, getoond zodra er genoeg werk is gedaan om uit te extrapoleren, en
+- **de resterende tijd**, “nog ongeveer 38 min”: eerst “de resterende tijd schatten…”, vervangen zodra er genoeg werk is gedaan om uit te extrapoleren, en
   berekend uit de snelheid van de laatste minuut; het is een nauwkeurigheid van enkele minuten, geen belofte;
+- **de verstreken tijd**, “verstreken: 0:05:12”, die doorloopt ook als niets anders beweegt;
 - **de laatste tekst** die is verkregen, zodat u kunt zien dat het werk zinvol is.
 
 Bij een lange film met een groot model op een processor kunnen de eerste minuten lang zijn: de engine laadt het model en werkt aan zijn eerste
@@ -150,6 +152,10 @@ van 5 % van de film komt. Wanneer het klaar is, worden de ondertitels van het pr
 door de transcriptie **in één bewerking**: één `Undo` geeft terug wat er stond, vertaalteksten
 inbegrepen. Een transcriptie die mislukt, of die u annuleert, verandert niets — de reden wordt
 gemeld in een venstertje, behalve bij een annulering, die alleen in de statusbalk meldt dat ze is geannuleerd.
+
+**Wanneer het grootste deel van wat de engine heeft geschreven notities tussen haakjes zijn** — `[MUSIC PLAYING]`, `[SPEAKING FRENCH]` —, zegt een venstertje
+dat na het werk: de gebruikte taal is waarschijnlijk niet de gesproken taal, en de engine heeft de spraak mogelijk vertaald.
+Voer het opnieuw uit met de taal ingevuld. De ondertitels staan toch in het project, en één `Undo` geeft terug wat er stond.
 
 ### Eerst een deel proberen
 

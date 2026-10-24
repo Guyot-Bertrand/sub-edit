@@ -34,6 +34,11 @@ ve sıfırdan farklı bir kodla çıkar.
 - **Dil algılanır**, `--language` zorlamadıkça, ve kullanılan dil söylenir. Yalnızca İngilizce için
   yapılmış bir model hiçbir şey algılamaz ve başka hiçbir şeyi yazıya dökmez: alamayacağı bir dil,
   herhangi bir iş başlamadan *önce*, modelin sınırı belirtilerek reddedilir.
+- **Bir dil iki harfle yazılır — `fr`, `en`, `de` — ya da bir dosyanın bildirdiği üç harfli kodla, `fra`,
+  `eng`; bu, iki harfli kod olarak okunur.** Geri kalan her şey herhangi bir iş başlamadan önce reddedilir. **Algılama
+  yalnızca ilk otuz saniyeyi dinler**: müzikle ya da sessizlikle açılan bir film başka bir dil sanılabilir ve
+  motor o zaman konuşmayı o dile *çevrilmiş* olarak yazar — İngilizce sanılan bir Fransızca film İngilizce çıkar ya da
+  `[SPEAKING FRENCH]` olarak. Dili biliyorsanız verin.
 - **Filmin yalnızca bir bölümü yazıya dökülebilir**, `--start` ve `--end` ile — bkz.
   [Filmin bir bölümünü yazıya dökme](#filmin-bir-bölümünü-yazıya-dökme). Bir model iki saatte çalıştırılmadan önce iki dakikada böyle denenir.
 - **Parçalar birleştirilir ve kesilir**, ayarların sınırlarına göre (`transcription.merge-gap-ms`,
@@ -59,7 +64,7 @@ Options:
   --audio-track N             Audio track of a video, counted from 0; the first by default
   --start TIME                Where to begin, as 2:00, 1:02:03 or seconds; the beginning by default
   --end TIME                  Where to stop, as 2:00, 1:02:03 or seconds; the end by default
-  --language CODE             Language of the speech: fr, en; detected by default
+  --language CODE             Language of the speech, two letters: fr, en, de; detected from the first 30 seconds by default
   --model FILE                Model file; the transcription.model setting by default
   --engine NAME               Engine; the transcription.engine setting by default
   --keep-audio FILE           Keep the extracted audio in this file
@@ -74,7 +79,7 @@ Options:
 | `--output` | evet | yazılacak altyazı dosyası; dizini yoksa oluşturulur | — |
 | `--to` | hayır | bir biçimin kısa adı: `srt`, `vtt`, `subviewer2`, `ssa`, `ass`, `microdvd`, `mpl2`, `tmplayer`, `lrc` | `--output` uzantısının belirttiği biçim, yoksa `srt` |
 | `--audio-track` | hayır | 0'dan başlayan bir tam sayı: videonun ses izleri arasındaki konum | `0`, ilki |
-| `--language` | hayır | iki küçük harf, bir ISO 639-1 kodu: `en`, `fr` | `transcription.language` ayarı; boşsa: algılanır |
+| `--language` | hayır | iki harf, bir ISO 639-1 kodu: `en`, `fr`; `fra` gibi üç harfli bir kod `fr` olarak okunur | `transcription.language` ayarı; boşsa: algılanır |
 | `--start` | hayır | bir süre: `2:00`, `1:02:03`, `2:00.5` ya da bir saniye sayısı, `90` | sesin başı |
 | `--end` | hayır | `--start` için olduğu gibi yazılmış bir süre; `--start` değerinden sonra gelmelidir | sesin sonu |
 | `--model` | hayır | model dosyası | `transcription.model` ayarı |
@@ -134,7 +139,7 @@ Tüm filmin sesi yine de çıkarılır: aralığın kazandırdığı, çok daha 
 | Düzey | Hata çıktısına eklenenler |
 | :----- | :------------------------------------- |
 | 1 | `<input>: N subtitles transcribed, language: xx -> <output>` |
-| 2 | adım ve ilerleme, her yüzde için bir satır: `extracting the audio…`, sonra `transcribing…`, sonra `transcribing: 25%, 0:12:30 of 0:50:00, about 38 min left` — yüzde, seste ulaşılan konum ve kalan süre |
+| 2 | adım ve ilerleme, her yüzde için bir satır: `extracting the audio…`, sonra `transcribing…`, sonra `transcribing: 25%, 0:12:30 of 0:50:00, about 38 min left, elapsed: 0:05:12` — yüzde, seste ulaşılan konum, kalan süre (hesaplanabilene kadar `estimating the time left…`) ve geçen süre; **yeni bir şey gelmediğinde satır her on saniyede bir yeniden söylenir**, uzun bir bekleme donma sanılmasın diye |
 | 3 | ve motorun elde ettiği her yeni metin, `last text: …` |
 
 **Yüzde, motorun seste bulunduğu konumdur, kendi pencerelerinin sayısı değil**: motor yazıya döktüğünü ilerledikçe yazar, komut da ne kadar ilerlediğini okur; böylece rakam ilk dakikadan itibaren hareket eder. (Motorun kendi ilerlemesi, otuz saniyelik bir pencere bittikten sonra, sesin %5'lik adımlarıyla gelir: tek başına, bir işlemcide büyük bir modelle uzun bir filmde çeyrek saat boyunca %0'da kalabilir.) **Kalan süre başlangıçta sessizdir**: tahmin yürütmeye yetecek kadar iş yapıldığında verilir ve tüm çalışmanın ortalamasını değil, son dakikanın hızını izler.
@@ -145,6 +150,18 @@ Tüm filmin sesi yine de çıkarılır: aralığın kazandırdığı, çok daha 
 dosyanın nesnesi `language` içinde kullanılan dili, `counts.subtitles` (yazılan altyazılar) ve
 `counts.segments` (bunların yapıldığı motor parçaları) değerlerini taşır; `--keep-audio` sesi sakladıysa
 `audio` da bulunur.
+
+## Uyarılar
+
+İki uyarı ilk düzeyde söylenir, çünkü ne beklenmesi gerektiğini değiştirirler:
+
+- **İşten önce, yalnızca İngilizce bir modelle**: `This model is for English only: whatever language the film
+  speaks, the result will be English, or notes in brackets. Choose a multilingual model in the preferences.` Dosya adı
+  `.en` ile biten bir model böyledir.
+- **İşten sonra, motor çoğunlukla köşeli parantez içinde notlar yazdığında** — `[MUSIC PLAYING]`, `[SPEAKING FRENCH]` —,
+  en az iki ve parçalarının üçte biri: `N of the M pieces are only notes in brackets, such as [MUSIC PLAYING]: the
+  language used (xx) is probably not the one spoken, and the engine may have translated the speech. Run it again with
+  the language typed.` Altyazılar yine de yazılır; uyarı neyden şüphelenileceğini söyler.
 
 ## Çıkış kodları
 
@@ -163,6 +180,7 @@ bir motor ya da kullanılamayan bir aralık.
 | modelin yazıya dökemediği bir dil | `the model cannot transcribe the language xx` |
 | dil yok ve dili algılayamayan bir model | `the model cannot detect the language: give one` |
 | kimsenin kaydetmediği bir motor | `no transcription engine is called NAME` |
+| bir kod olmayan bir dil | `"TEXT" is not a language code: write two letters, such as fr, en, de or es` |
 | bir süre olmayan bir aralık sınırı | `"TEXT" is not a time: write it as 2:00, 1:02:03 or 2:00.5, or in seconds` |
 | `--end`, `--start` değerinden sonra değil | `the end of the range must come after its start` |
 | diğer her başarısızlık | `the transcription failed`, motorun söylediğiyle birlikte |

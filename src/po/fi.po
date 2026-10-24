@@ -1112,18 +1112,19 @@ msgid "Audio track of a video, counted from 0; the first by default"
 msgstr "Videon ääniraita, laskettuna nollasta; oletuksena ensimmäinen"
 
 #: src/exe/cli/commands/transcribe.cpp
-#: src/exe/cli/commands/transcribe.cpp
 msgid "Where to begin, as 2:00, 1:02:03 or seconds; the beginning by default"
-msgstr "Mistä aloitetaan, muodossa 2:00, 1:02:03 tai sekunteina; oletuksena alku"
+msgstr ""
+"Mistä aloitetaan, muodossa 2:00, 1:02:03 tai sekunteina; oletuksena alku"
 
-#: src/exe/cli/commands/transcribe.cpp
 #: src/exe/cli/commands/transcribe.cpp
 msgid "Where to stop, as 2:00, 1:02:03 or seconds; the end by default"
-msgstr "Mihin lopetetaan, muodossa 2:00, 1:02:03 tai sekunteina; oletuksena loppu"
+msgstr ""
+"Mihin lopetetaan, muodossa 2:00, 1:02:03 tai sekunteina; oletuksena loppu"
 
 #: src/exe/cli/commands/transcribe.cpp
-msgid "Language of the speech: fr, en; detected by default"
-msgstr "Puheen kieli: fr, en; oletuksena tunnistetaan"
+#: src/exe/cli/commands/transcribe.cpp
+msgid "Language of the speech, two letters: fr, en, de; detected from the first 30 seconds by default"
+msgstr "Puheen kieli, kaksi kirjainta: fr, en, de; oletuksena tunnistetaan ensimmäisten 30 sekunnin perusteella"
 
 #: src/exe/cli/commands/transcribe.cpp
 msgid "Model file; the transcription.model setting by default"
@@ -3487,48 +3488,67 @@ msgstr[1] ""
 "Tämän projektin %1 tekstitystä korvataan litteroinnilla. Voit kumota sen."
 
 #: src/lib/subedit/core/wording/transcription.cpp
-#: src/lib/subedit/core/wording/transcription.cpp
-msgid "\"%1\" is not a time: write it as 2:00, 1:02:03 or 2:00.5, or in seconds"
-msgstr "”%1” ei ole aika: kirjoita se muodossa 2:00, 1:02:03 tai 2:00.5 tai sekunteina"
+msgid ""
+"\"%1\" is not a time: write it as 2:00, 1:02:03 or 2:00.5, or in seconds"
+msgstr ""
+"”%1” ei ole aika: kirjoita se muodossa 2:00, 1:02:03 tai 2:00.5 tai "
+"sekunteina"
 
 #: src/lib/subedit/core/wording/transcription.cpp
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "%1 of the %2 pieces are only notes in brackets, such as [MUSIC PLAYING]: the language used (%3) is probably not the one spoken, and the engine may have translated the speech. Run it again with the language typed."
+msgstr "%1 / %2 palasta on pelkkiä hakasulkeissa olevia merkintöjä, kuten [MUSIC PLAYING]: käytetty kieli (%3) ei todennäköisesti ole puhuttu kieli, ja moottori on voinut kääntää puheen. Aja se uudelleen kirjoittamalla kieli."
+
+#: src/lib/subedit/core/wording/transcription.cpp
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "This model is for English only: whatever language the film speaks, the result will be English, or notes in brackets. Choose a multilingual model in the preferences."
+msgstr "Tämä malli on tarkoitettu vain englannille: riippumatta elokuvan puhumasta kielestä tulos on englantia tai hakasulkeissa olevia merkintöjä. Valitse asetuksista monikielinen malli."
+
+#: src/lib/subedit/core/wording/transcription.cpp
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "\"%1\" is not a language code: write two letters, such as fr, en, de or es"
+msgstr "”%1” ei ole kielikoodi: kirjoita kaksi kirjainta, kuten fr, en, de tai es"
+
 #: src/lib/subedit/core/wording/transcription.cpp
 msgid "the end of the range must come after its start"
 msgstr "alueen lopun on oltava sen alun jälkeen"
 
 #: src/lib/subedit/core/wording/transcription.cpp
-#: src/lib/subedit/core/wording/transcription.cpp
 msgid "less than a minute left"
 msgstr "alle minuutti jäljellä"
 
-#: src/lib/subedit/core/wording/transcription.cpp
 #: src/lib/subedit/core/wording/transcription.cpp
 msgid "about %1 min left"
 msgstr "noin %1 min jäljellä"
 
 #: src/lib/subedit/core/wording/transcription.cpp
-#: src/lib/subedit/core/wording/transcription.cpp
 msgid "about %1 h %2 min left"
 msgstr "noin %1 h %2 min jäljellä"
 
 #: src/lib/subedit/core/wording/transcription.cpp
-#: src/lib/subedit/core/wording/transcription.cpp
 msgid "extracting the audio…"
 msgstr "puretaan ääntä…"
 
-#: src/lib/subedit/core/wording/transcription.cpp
 #: src/lib/subedit/core/wording/transcription.cpp
 msgid "transcribing…"
 msgstr "litteroidaan…"
 
 #: src/lib/subedit/core/wording/transcription.cpp
 #: src/lib/subedit/gui/transcription_runner.cpp
-#: src/lib/subedit/core/wording/transcription.cpp
-#: src/lib/subedit/gui/transcription_runner.cpp
 msgid "%1 of %2"
 msgstr "%1 / %2"
 
 #: src/lib/subedit/core/wording/transcription.cpp
+#: src/lib/subedit/gui/transcription_runner.cpp
+#: src/lib/subedit/core/wording/transcription.cpp
+#: src/lib/subedit/gui/transcription_runner.cpp
+msgid "estimating the time left…"
+msgstr "arvioidaan jäljellä olevaa aikaa…"
+
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "elapsed: %1"
+msgstr "kulunut: %1"
+
 #: src/lib/subedit/core/wording/transcription.cpp
 msgid "last text: %1"
 msgstr "viimeisin teksti: %1"
@@ -4773,7 +4793,6 @@ msgstr "Alku (ruudut)"
 
 # From Gaupol.
 #: src/lib/subedit/gui/subtitle_table_model.cpp
-#: src/lib/subedit/gui/transcribe_dialog.cpp
 msgid "End"
 msgstr "Loppu"
 
@@ -4837,27 +4856,29 @@ msgid "Detected from the sound"
 msgstr "Tunnistetaan äänestä"
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+msgid "A language code such as fr, en, de, es or it (fra and eng work too). Leave it empty to let the model detect the language from the first 30 seconds of sound."
+msgstr "Kielikoodi, kuten fr, en, de, es tai it (myös fra ja eng käyvät). Jätä tyhjäksi, jotta malli tunnistaa kielen äänen ensimmäisten 30 sekunnin perusteella."
+
+#: src/lib/subedit/gui/transcribe_dialog.cpp
 msgid ""
-"A two-letter language code such as en or fr. Leave it empty to let the model "
-"detect the language."
+"A time as HH:MM:SS, for example 00:02:00. Leave both empty to transcribe the "
+"whole film."
 msgstr ""
-"Kaksikirjaiminen kielikoodi, kuten en tai fr. Jätä kenttä tyhjäksi, jolloin "
-"malli tunnistaa kielen."
+"Aika muodossa HH:MM:SS, esimerkiksi 00:02:00. Jätä molemmat tyhjiksi "
+"litteroidaksesi koko elokuvan."
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
-#: src/lib/subedit/gui/transcribe_dialog.cpp
-msgid "Beginning"
-msgstr "Alku"
-
-#: src/lib/subedit/gui/transcribe_dialog.cpp
-#: src/lib/subedit/gui/transcribe_dialog.cpp
-msgid "A time such as 2:00, 1:02:03 or 90 (seconds). Leave both empty to transcribe the whole film."
-msgstr "Aika, esimerkiksi 2:00, 1:02:03 tai 90 (sekuntia). Jätä molemmat tyhjiksi litteroidaksesi koko elokuvan."
-
-#: src/lib/subedit/gui/transcribe_dialog.cpp
-#: src/lib/subedit/gui/transcribe_dialog.cpp
-msgid "The audio of the film open in this window is transcribed into subtitles that replace the ones of the project. Give a range to try a part of the film first: the result then opens as a project of its own and nothing is replaced. The work runs in the background and can be cancelled."
-msgstr "Tässä ikkunassa avoinna olevan elokuvan ääni litteroidaan tekstityksiksi, jotka korvaavat projektin tekstitykset. Anna alue kokeillaksesi ensin elokuvan osaa: tulos avautuu silloin omana projektinaan eikä mitään korvata. Työ suoritetaan taustalla, ja sen voi perua."
+msgid ""
+"The audio of the film open in this window is transcribed into subtitles that "
+"replace the ones of the project. Give a range to try a part of the film "
+"first: the result then opens as a project of its own and nothing is "
+"replaced. The work runs in the background and can be cancelled."
+msgstr ""
+"Tässä ikkunassa avoinna olevan elokuvan ääni litteroidaan tekstityksiksi, "
+"jotka korvaavat projektin tekstitykset. Anna alue kokeillaksesi ensin "
+"elokuvan osaa: tulos avautuu silloin omana projektinaan eikä mitään korvata. "
+"Työ suoritetaan taustalla, ja sen voi perua."
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
 msgid "Audio track"
@@ -4868,11 +4889,9 @@ msgid "Language"
 msgstr "Kieli"
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
-#: src/lib/subedit/gui/transcribe_dialog.cpp
 msgid "to"
 msgstr "–"
 
-#: src/lib/subedit/gui/transcribe_dialog.cpp
 #: src/lib/subedit/gui/transcribe_dialog.cpp
 msgid "Part of the film"
 msgstr "Elokuvan osa"
@@ -4880,10 +4899,6 @@ msgstr "Elokuvan osa"
 #: src/lib/subedit/gui/transcribe_dialog.cpp
 msgid "Set them in the preferences."
 msgstr "Aseta ne asetuksissa."
-
-#: src/lib/subedit/gui/transcribe_dialog.cpp
-msgid "This model cannot detect the language: type it."
-msgstr "Tämä malli ei osaa tunnistaa kieltä: kirjoita se."
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
 msgid "The language you typed is used."
@@ -4894,14 +4909,10 @@ msgid "Proposed from the language the file declares for this track."
 msgstr "Ehdotettu kielestä, jonka tiedosto ilmoittaa tälle raidalle."
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
-msgid ""
-"The file declares no language for this track: the model will detect it from "
-"the sound. Type it if you know it."
-msgstr ""
-"Tiedosto ei ilmoita tälle raidalle kieltä: malli tunnistaa sen äänestä. "
-"Kirjoita se, jos tiedät sen."
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+msgid "The file declares no language for this track: the model will detect it from the first 30 seconds of sound. If the film opens with music or silence it can choose wrongly, and the speech is then translated into that language. Type the language if you know it."
+msgstr "Tiedosto ei ilmoita tälle raidalle kieltä: malli tunnistaa sen äänen ensimmäisten 30 sekunnin perusteella. Jos elokuva alkaa musiikilla tai hiljaisuudella, se voi valita väärin, ja puhe käännetään silloin tälle kielelle. Kirjoita kieli, jos tiedät sen."
 
-#: src/lib/subedit/gui/transcription_runner.cpp
 #: src/lib/subedit/gui/transcription_runner.cpp
 msgid "Extracting the audio…"
 msgstr "Puretaan ääntä…"
@@ -4910,7 +4921,6 @@ msgstr "Puretaan ääntä…"
 msgid "Transcribing the audio…"
 msgstr "Litteroidaan ääntä…"
 
-#: src/lib/subedit/gui/transcription_runner.cpp
 #: src/lib/subedit/gui/transcription_runner.cpp
 msgid "Last text: %1"
 msgstr "Viimeisin teksti: %1"
@@ -5344,6 +5354,19 @@ msgstr "Kursiivi"
 msgctxt "toolbar"
 msgid "Main"
 msgstr "Päätyökalurivi"
+
+#~ msgid "This model cannot detect the language: type it."
+#~ msgstr "Tämä malli ei osaa tunnistaa kieltä: kirjoita se."
+
+#~ msgid ""
+#~ "The file declares no language for this track: the model will detect it "
+#~ "from the sound. Type it if you know it."
+#~ msgstr ""
+#~ "Tiedosto ei ilmoita tälle raidalle kieltä: malli tunnistaa sen äänestä. "
+#~ "Kirjoita se, jos tiedät sen."
+
+#~ msgid "Beginning"
+#~ msgstr "Alku"
 
 #~ msgid "Detected"
 #~ msgstr "Tunnistettu"

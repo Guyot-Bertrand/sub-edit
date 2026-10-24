@@ -49,4 +49,20 @@ std::optional<std::string> twoLetterCodeOf(std::string_view tag) {
     return std::string{(*found)[kTwoLetters]};
 }
 
+std::optional<std::string> readLanguageCode(std::string_view typed) {
+    const std::size_t first = typed.find_first_not_of(' ');
+    if (first == std::string_view::npos)
+        return std::nullopt;
+    typed = typed.substr(first, typed.find_last_not_of(' ') - first + 1);
+    if (const std::optional<std::string> known = twoLetterCodeOf(typed))
+        return known;
+    constexpr std::size_t kCodeSize = 2;
+    const bool letters = std::ranges::all_of(typed, [](unsigned char letter) {
+        return (letter >= 'a' && letter <= 'z') || (letter >= 'A' && letter <= 'Z');
+    });
+    if (typed.size() == kCodeSize && letters)
+        return lowered(typed);
+    return std::nullopt;
+}
+
 } // namespace subedit::core

@@ -38,7 +38,10 @@ transcribeMedia(FileSystem& files,
         ensureDirectory(files, extracted.parent_path());
 
     StreamObserver stop;
-    stop.cancelled = [&observer] { return observer.isCancelled(); };
+    stop.cancelled = [&observer] {
+        observer.wait();
+        return observer.isCancelled();
+    };
 
     observer.advance({.stage = TranscriptionStage::Extracting});
     std::filesystem::path audio = extracted;

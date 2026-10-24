@@ -47,6 +47,16 @@ struct TranscriptionObserver {
     std::function<void(const TranscriptionProgress&)> advanced{};
     std::function<bool()> cancelled{};
 
+    /// Called each time the work is waited on, many times a second whether or not anything
+    /// was learnt: a surface that wants to say something at its own pace — a line every ten
+    /// seconds — has no other clock to hang it on.
+    std::function<void()> waiting{};
+
+    void wait() const {
+        if (waiting)
+            waiting();
+    }
+
     void report(double fraction) const {
         if (progress)
             progress(fraction);

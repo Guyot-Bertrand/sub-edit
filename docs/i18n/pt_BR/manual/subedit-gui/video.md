@@ -112,12 +112,13 @@ A caixa de diálogo pede três coisas, e diz se pode começar:
 
 - **a faixa de áudio**, listada como o menu [`Audio`](#a-faixa-de-áudio) as lista, com o idioma
   e o título que o arquivo declara;
-- **o idioma**, duas letras como `en` ou `fr`. Começa pelo idioma da faixa escolhida
+- **o idioma**, duas letras como `en` ou `fr` (`fra` é lido como `fr`). Começa pelo idioma da faixa escolhida
   quando o arquivo declara um, acompanha a faixa enquanto você não tiver digitado um, e
   **uma linha sob o campo diz de onde vem**. Quando o arquivo não declara nenhum idioma para a faixa,
-  a linha diz isso: o modelo vai então detectá-lo a partir do som, o que só um modelo multilíngue
-  faz, e você deve digitá-lo se o conhecer. Com um modelo só para inglês, que não detecta nada,
-  a linha diz que o idioma precisa ser digitado;
+  a linha diz isso, e avisa: o modelo vai então detectá-lo a partir dos primeiros trinta segundos de som, o que só um modelo multilíngue
+  faz, e **um filme que abre com música ou silêncio pode ser tomado por outro idioma e a sua fala então traduzida
+  para esse idioma**. Digite o idioma se você o conhecer. Com um modelo só para inglês o campo fica fixo em `en` e não pode ser
+  alterado, e a linha diz que o filme sairá em inglês, qualquer que seja o idioma em que fale;
 - **a parte do filme**, de um tempo a outro — veja [Experimentar primeiro uma parte](#experimentar-primeiro-uma-parte). Os dois campos
   vazios querem dizer o filme inteiro.
 
@@ -140,8 +141,9 @@ diz em que ponto está o trabalho**, para que você saiba que está vivo e quant
 - **a etapa**: primeiro “Extraindo o áudio…” — a caixa fica então ocupada, sem valor, porque extrair não diz nada sobre o progresso —,
   depois “Transcrevendo o áudio…”, com uma barra;
 - **a posição**: “0:12:30 de 0:50:00”, até onde no filme o motor chegou, assim que produziu o seu primeiro texto;
-- **o tempo que falta**, “faltam cerca de 38 min”: ausente no início, mostrado quando há trabalho feito que chegue para extrapolar, e
+- **o tempo que falta**, “faltam cerca de 38 min”: “estimando o tempo restante…” no início, substituído quando há trabalho feito que chegue para extrapolar, e
   calculado a partir da velocidade do último minuto; é uma precisão de alguns minutos, não uma promessa;
+- **o tempo decorrido**, “decorrido: 0:05:12”, que avança mesmo quando mais nada se mexe;
 - **o último texto** obtido, para que você possa ver que o trabalho faz sentido.
 
 Num filme longo com um modelo grande num processador, os primeiros minutos podem ser longos: o motor carrega o modelo e trabalha nas suas primeiras
@@ -150,6 +152,10 @@ de 5 % do filme. Quando termina, as legendas do projeto são substituídas
 pela transcrição **em uma só operação**: um `Undo` devolve o que lá estava, incluindo os textos de
 tradução. Uma transcrição que falha, ou que você cancela, não altera nada — o motivo é
 dito numa caixa, exceto em um cancelamento, que apenas diz na barra de status que foi cancelado.
+
+**Quando a maior parte do que o motor escreveu são notas entre colchetes** — `[MUSIC PLAYING]`, `[SPEAKING FRENCH]` —, uma caixa
+diz isso depois do trabalho: o idioma usado provavelmente não é o falado, e o motor pode ter traduzido a fala.
+Execute de novo com o idioma informado. As legendas ficam mesmo assim no projeto, e um `Undo` devolve o que estava lá.
 
 ### Experimentar primeiro uma parte
 

@@ -112,6 +112,12 @@ private:
     /// Says where the language comes from, or that it must be given.
     void explainLanguage();
 
+    /// The language as typed, as the code an engine takes: `fra` is `fr`.
+    [[nodiscard]] std::string typedLanguage() const;
+
+    /// `OK` is in when the tools are there and the fields can be used.
+    void updateButtons();
+
     /// Says what is wrong with the range, if anything, and whether `OK` may be pressed.
     void checkRange();
 
@@ -133,6 +139,12 @@ private:
 
     /// Whether the range, as typed, can be used.
     bool m_rangeValid = true;
+
+    /// Whether the language, as typed, is a code.
+    bool m_languageValid = true;
+
+    /// Whether the field was set to English by a model that has no other language.
+    bool m_wasEnglishOnly = false;
 };
 
 } // namespace subedit::gui

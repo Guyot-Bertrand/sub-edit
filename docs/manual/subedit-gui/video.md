@@ -109,12 +109,14 @@ The dialog asks for three things, and says whether it can start:
 
 - **the audio track**, listed as the [`Audio`](#the-audio-track) menu lists them, with the language
   and the title the file declares;
-- **the language**, two letters such as `en` or `fr`. It starts with the language of the chosen
+- **the language**, two letters such as `en` or `fr` (`fra` is read as `fr`). It starts with the language of the chosen
   track when the file declares one, follows the track as long as you have not typed one, and
   **a line under the field says where it comes from**. When the file declares no language for the track,
-  the line says so: the model will then detect it from the sound, which only a multilingual model
-  does, and you should type it if you know it. With a model for English alone, which detects
-  nothing, the line says that the language must be typed;
+  the line says so, and warns: the model will then detect it from the first thirty seconds of sound, which only
+  a multilingual model does, and **a film that opens with music or silence can be taken for another language and
+  its speech then translated into it**. Type the language if you know it. With a model for English alone the field
+  is fixed to `en` and cannot be changed, and the line says that the film will come out as English whatever it
+  speaks;
 - **the part of the film**, from one time to another — see [Trying a part first](#trying-a-part-first). Both fields
   empty is the whole film.
 
@@ -137,8 +139,9 @@ tells where the work stands**, so that you know it is alive and how long it will
 - **the step**: “Extracting the audio…” first — the box is then busy, with no figure, since extracting says nothing of how far it
   has got —, then “Transcribing the audio…”, with a bar;
 - **the position**: “0:12:30 of 0:50:00”, how far into the film the engine has got, as soon as it has produced its first text;
-- **the time left**, “about 38 min left”: absent at first, shown once enough is done to extrapolate from, and worked out from the
+- **the time left**, “about 38 min left”: “estimating the time left…” at first, replaced once enough is done to extrapolate from, and worked out from the
   speed of the last minute; it is a few minutes' accuracy, not a promise;
+- **the time spent**, “elapsed: 0:05:12”, which moves even when nothing else does;
 - **the last text** obtained, so that you can see the work is making sense.
 
 On a long film with a large model on a processor, the first minutes can be long: the engine is loading and working on its first
@@ -147,6 +150,10 @@ of 5 % of the film. When it ends, the subtitles of the project are replaced
 by the transcription **as a single operation**: one `Undo` gives back what was there, translation
 texts included. A transcription that fails, or that you cancel, changes nothing — the reason is
 said in a box, except for a cancellation, which only says it was cancelled in the status bar.
+
+**When most of what the engine wrote is notes in brackets** — `[MUSIC PLAYING]`, `[SPEAKING FRENCH]` —, a box says so after
+the work: the language used is probably not the one spoken, and the engine may have translated the speech. Run it again with the
+language typed. The subtitles are in the project all the same, and one `Undo` gives back what was there.
 
 ### Trying a part first
 

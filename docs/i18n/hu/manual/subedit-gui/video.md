@@ -110,12 +110,13 @@ A párbeszédablak három dolgot kér, és megmondja, el tud-e indulni:
 
 - **a hangsávot**, úgy felsorolva, ahogy az [`Audio`](#a-hangsáv) menü felsorolja, a fájl által
   megadott nyelvvel és címmel;
-- **a nyelvet**, két betű, például `en` vagy `fr`. A kiválasztott hangsáv nyelvével indul, ha a fájl
+- **a nyelvet**, két betű, például `en` vagy `fr` (a `fra`-t `fr`-ként olvassa). A kiválasztott hangsáv nyelvével indul, ha a fájl
   megadja, követi a hangsávot, amíg Ön nem írt be egyet, és
   **a mező alatti sor megmondja, honnan származik**. Ha a fájl nem ad meg nyelvet a hangsávhoz,
-  a sor ezt mondja: a modell ekkor a hangból fogja felismerni, amit csak a többnyelvű modell
-  tud, és ha ismeri, írja be. Csak angolra való modellnél, amely semmit sem ismer fel,
-  a sor azt mondja, hogy a nyelvet be kell írni;
+  a sor ezt mondja, és figyelmeztet: a modell ekkor az első harminc másodpercnyi hangból fogja felismerni, amit csak a többnyelvű modell
+  tud, és **egy zenével vagy csenddel kezdődő filmet másik nyelvűnek nézhet, és a beszédét arra fordítja**.
+  Ha ismeri a nyelvet, írja be. Csak angolra való modellnél a mező `en`-re van rögzítve és nem módosítható,
+  a sor pedig azt mondja, hogy a film angolul fog kijönni, bármilyen nyelven szól;
 - **a film egy része**, egyik időponttól a másikig — lásd: [Előbb egy rész kipróbálása](#előbb-egy-rész-kipróbálása). Ha mindkét mező
   üres, az a teljes film.
 
@@ -138,8 +139,9 @@ megmutatja, hol tart a munka**, hogy tudja, él, és mennyi ideig fog tartani:
 - **a lépés**: először „A hang kinyerése…” — az ablak ilyenkor foglalt, szám nélkül, mert a kinyerés semmit sem mond arról, meddig jutott —,
   majd „A hang leiratozása…”, egy sávval;
 - **a pozíció**: „0:12:30 / 0:50:00”, hogy a motor meddig jutott a filmben, amint előállította az első szövegét;
-- **a hátralévő idő**, „körülbelül 38 perc van hátra”: az elején nincs, akkor jelenik meg, amikor elég munka készült az extrapoláláshoz, és
+- **a hátralévő idő**, „körülbelül 38 perc van hátra”: az elején „a hátralévő idő becslése…”, majd akkor cserélődik le, amikor elég munka készült az extrapoláláshoz, és
   az utolsó perc sebességéből számolódik; néhány perces pontosság, nem ígéret;
+- **az eltelt idő**, „eltelt: 0:05:12”, amely akkor is halad, ha semmi más nem mozdul;
 - **az utolsó szöveg**, amelyet megkapott, hogy lássa, a munkának van értelme.
 
 Egy hosszú filmnél, nagy modellel, processzoron az első percek hosszúak lehetnek: a motor betölt, és az első harmincmásodperces
@@ -148,6 +150,10 @@ lépéseiben érkezik. Amikor véget ér, a projekt feliratait
 a leirat váltja fel **egyetlen műveletként**: egy `Undo` visszaadja, ami volt, a fordítási
 szövegekkel együtt. Egy sikertelen vagy általa megszakított leiratozás nem változtat semmin — az okot
 egy ablak mondja meg, kivéve a megszakítást, amelyet csak az állapotsor jelez.
+
+**Ha amit a motor írt, többnyire szögletes zárójeles megjegyzés** — `[MUSIC PLAYING]`, `[SPEAKING FRENCH]` —, egy ablak
+ezt mondja a munka után: a használt nyelv valószínűleg nem az, amelyen beszélnek, és a motor lefordíthatta a beszédet.
+Futtassa újra a nyelv megadásával. A feliratok ettől még a projektben vannak, és egy `Undo` visszaadja, ami volt.
 
 ### Előbb egy rész kipróbálása
 

@@ -34,6 +34,11 @@ eindigt met een code die niet nul is.
 - **De taal wordt gedetecteerd** tenzij `--language` haar afdwingt, en de gebruikte taal wordt vermeld. Een
   model dat alleen voor het Engels is gemaakt detecteert niets en transcribeert niets anders: een taal die het
   niet aankan wordt geweigerd *vóór* enig werk, met vermelding van de grens van het model.
+- **Een taal wordt getypt als twee letters — `fr`, `en`, `de` —, of als de code van drie letters die een bestand opgeeft, `fra`,
+  `eng`, die als die van twee letters wordt gelezen.** Al het andere wordt geweigerd voordat het werk begint. **De detectie
+  luistert alleen naar de eerste dertig seconden**: een film die opent met muziek of stilte kan voor een
+  andere taal worden aangezien, en de engine schrijft de spraak dan *vertaald* in die taal — een Franse film die voor
+  Engels wordt aangezien komt als Engels uit, of als `[SPEAKING FRENCH]`. Geef de taal op als u haar kent.
 - **Een deel van de film kan alleen worden getranscribeerd**, met `--start` en `--end` — zie
   [Een deel transcriberen](#een-deel-transcriberen). Zo probeert u een model op twee minuten voordat u het op
   twee uur loslaat.
@@ -60,7 +65,7 @@ Options:
   --audio-track N             Audio track of a video, counted from 0; the first by default
   --start TIME                Where to begin, as 2:00, 1:02:03 or seconds; the beginning by default
   --end TIME                  Where to stop, as 2:00, 1:02:03 or seconds; the end by default
-  --language CODE             Language of the speech: fr, en; detected by default
+  --language CODE             Language of the speech, two letters: fr, en, de; detected from the first 30 seconds by default
   --model FILE                Model file; the transcription.model setting by default
   --engine NAME               Engine; the transcription.engine setting by default
   --keep-audio FILE           Keep the extracted audio in this file
@@ -75,7 +80,7 @@ Options:
 | `--output` | ja | het ondertitelbestand om te schrijven; de map wordt aangemaakt als die ontbreekt | — |
 | `--to` | nee | de korte naam van een formaat: `srt`, `vtt`, `subviewer2`, `ssa`, `ass`, `microdvd`, `mpl2`, `tmplayer`, `lrc` | het formaat dat de extensie van `--output` aangeeft, anders `srt` |
 | `--audio-track` | nee | een geheel getal vanaf 0: de positie onder de audiosporen van de video | `0`, het eerste |
-| `--language` | nee | twee kleine letters, een ISO 639-1-code: `en`, `fr` | de instelling `transcription.language`; leeg: gedetecteerd |
+| `--language` | nee | twee letters, een ISO 639-1-code: `en`, `fr`; een code van drie letters zoals `fra` wordt als `fr` gelezen | de instelling `transcription.language`; leeg: gedetecteerd |
 | `--start` | nee | een tijd: `2:00`, `1:02:03`, `2:00.5`, of een aantal seconden, `90` | het begin van de audio |
 | `--end` | nee | een tijd, geschreven zoals bij `--start`; hij moet na `--start` komen | het einde van de audio |
 | `--model` | nee | het modelbestand | de instelling `transcription.model` |
@@ -141,7 +146,7 @@ De audio van de hele film wordt toch uitgepakt: het is de transcriptie, veel lan
 | Niveau | Wat er op de foutuitvoer wordt toegevoegd |
 | :----- | :------------------------------------- |
 | 1 | `<input>: N subtitles transcribed, language: xx -> <output>` |
-| 2 | de stap en de voortgang, een regel per procent: `extracting the audio…`, dan `transcribing…`, dan `transcribing: 25%, 0:12:30 of 0:50:00, about 38 min left` — het procent, de bereikte positie in de audio en de resterende tijd |
+| 2 | de stap en de voortgang, een regel per procent: `extracting the audio…`, dan `transcribing…`, dan `transcribing: 25%, 0:12:30 of 0:50:00, about 38 min left, elapsed: 0:05:12` — het procent, de bereikte positie in de audio, de resterende tijd (`estimating the time left…` zolang die niet kan worden berekend) en de verstreken tijd; **de regel wordt elke tien seconden herhaald als er niets nieuws is gekomen**, zodat een lange wachttijd niet voor een vastloper wordt gehouden |
 | 3 | en elke nieuwe tekst die de engine krijgt, `last text: …` |
 
 **Het procent is de positie van de engine in de audio, niet een telling van zijn eigen vensters**: de engine schrijft wat hij
@@ -157,6 +162,18 @@ Met [`--format json`](invocation.md#uitvoer-die-een-script-kan-lezen) (de global
 subcommando geschreven) bevat het object van het bestand de gebruikte taal in `language`, `counts.subtitles` (de
 geschreven ondertitels) en `counts.segments` (de stukken van de engine waaruit ze zijn gemaakt), en `audio` wanneer
 `--keep-audio` de audio heeft bewaard.
+
+## Mededelingen
+
+Twee mededelingen worden op het eerste niveau gedaan, omdat ze veranderen wat u mag verwachten:
+
+- **Vóór het werk, met een model alleen voor Engels**: `This model is for English only: whatever language the film
+  speaks, the result will be English, or notes in brackets. Choose a multilingual model in the preferences.` Een model waarvan de bestandsnaam eindigt op
+  `.en` is er een.
+- **Na het werk, wanneer de engine vooral notities tussen haakjes heeft geschreven** — `[MUSIC PLAYING]`, `[SPEAKING FRENCH]` —,
+  minstens twee en een derde van zijn stukken: `N of the M pieces are only notes in brackets, such as [MUSIC PLAYING]: the
+  language used (xx) is probably not the one spoken, and the engine may have translated the speech. Run it again with
+  the language typed.` De ondertitels worden toch geschreven; de mededeling zegt wat u moet vermoeden.
 
 ## Afsluitcodes
 
@@ -175,6 +192,7 @@ engine die niemand heeft geregistreerd of een bereik dat onbruikbaar is.
 | een taal die het model niet kan transcriberen | `the model cannot transcribe the language xx` |
 | geen taal, en een model dat er geen kan detecteren | `the model cannot detect the language: give one` |
 | een engine die niemand heeft geregistreerd | `no transcription engine is called NAME` |
+| een taal die geen code is | `"TEXT" is not a language code: write two letters, such as fr, en, de or es` |
 | een grens van het bereik die geen tijd is | `"TEXT" is not a time: write it as 2:00, 1:02:03 or 2:00.5, or in seconds` |
 | `--end` niet na `--start` | `the end of the range must come after its start` |
 | elke andere mislukking | `the transcription failed`, met wat de engine zei |

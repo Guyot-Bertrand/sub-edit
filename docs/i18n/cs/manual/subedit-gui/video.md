@@ -112,12 +112,13 @@ Dialog se ptá na tři věci a říká, zda může začít:
 
 - **zvukovou stopu**, uvedenou tak, jak ji uvádí nabídka [`Audio`](#zvuková-stopa), s jazykem
   a názvem, které soubor uvádí;
-- **jazyk**, dvě písmena, například `en` nebo `fr`. Začíná jazykem zvolené
+- **jazyk**, dvě písmena, například `en` nebo `fr` (`fra` se čte jako `fr`). Začíná jazykem zvolené
   stopy, když ho soubor uvádí, sleduje stopu, dokud jste žádný nezadali, a
   **řádek pod polem říká, odkud se vzal**. Když soubor pro stopu žádný jazyk neuvádí,
-  řádek to říká: model ho pak zjistí ze zvuku, což umí jen vícejazyčný model, a
-  měli byste ho zadat, pokud ho znáte. U modelu pouze pro angličtinu, který nezjistí nic,
-  řádek říká, že jazyk je třeba zadat;
+  řádek to říká a varuje: model ho pak zjistí z prvních třiceti sekund zvuku, což umí jen vícejazyčný model, a
+  **film, který začíná hudbou nebo tichem, může být považován za jiný jazyk a jeho řeč pak přeložena do něj**.
+  Zadejte jazyk, pokud ho znáte. U modelu pouze pro angličtinu je pole pevně nastaveno na `en` a nelze ho změnit,
+  a řádek říká, že film vyjde anglicky, ať se v něm mluví jakýmkoli jazykem;
 - **část filmu**, od jednoho času k druhému — viz [Nejprve zkusit část](#nejprve-zkusit-část). Obě pole
   prázdná znamenají celý film.
 
@@ -140,8 +141,9 @@ Práce probíhá **na pozadí**, s oknem a tlačítkem `Cancel`; okno zůstává
 - **krok**: nejprve “Extrahuje se zvuk…” — okno je pak zaneprázdněné, bez čísla, protože extrakce neříká nic o tom, jak daleko
   došla —, pak “Přepis zvuku…”, s ukazatelem;
 - **pozice**: “0:12:30 z 0:50:00”, kam ve filmu nástroj došel, jakmile vytvoří první text;
-- **zbývající čas**, “zbývá asi 38 min”: zpočátku chybí, zobrazí se, jakmile je hotovo dost práce pro extrapolaci, a počítá se z
+- **zbývající čas**, “zbývá asi 38 min”: zpočátku “odhaduje se zbývající čas…”, nahradí se, jakmile je hotovo dost práce pro extrapolaci, a počítá se z
   rychlosti poslední minuty; je to přesnost na několik minut, ne příslib;
+- **uplynulý čas**, “uplynulo: 0:05:12”, který běží, i když se nic jiného nehýbe;
 - **poslední získaný text**, abyste viděli, že práce dává smysl.
 
 U dlouhého filmu s velkým modelem na procesoru mohou první minuty trvat dlouho: nástroj načítá model a pracuje na prvních
@@ -150,6 +152,10 @@ po 5 % filmu. Když skončí, titulky projektu se nahradí
 přepisem **jako jedna operace**: jedno `Undo` vrátí, co tam bylo, včetně textů
 překladu. Přepis, který selže nebo který zrušíte, nic nezmění — důvod se
 sdělí v okně, kromě zrušení, které ve stavovém řádku jen oznámí, že bylo zrušeno.
+
+**Když je většina toho, co nástroj zapsal, tvořena poznámkami v hranatých závorkách** — `[MUSIC PLAYING]`, `[SPEAKING FRENCH]` —, okno
+to po práci oznámí: použitý jazyk pravděpodobně není ten, kterým se mluví, a nástroj mohl řeč přeložit. Spusťte přepis znovu se
+zadaným jazykem. Titulky jsou přesto v projektu a jedno `Undo` vrátí, co tam bylo.
 
 ### Nejprve zkusit část
 

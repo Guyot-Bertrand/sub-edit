@@ -112,12 +112,13 @@ Der Dialog fragt nach drei Dingen und sagt, ob er beginnen kann:
 
 - **der Tonspur**, aufgelistet, wie das Menü [`Audio`](#die-tonspur) sie auflistet, mit der Sprache
   und dem Titel, die die Datei angibt;
-- **der Sprache**, zwei Buchstaben wie `en` oder `fr`. Sie beginnt mit der Sprache der gewählten
+- **der Sprache**, zwei Buchstaben wie `en` oder `fr` (`fra` wird als `fr` gelesen). Sie beginnt mit der Sprache der gewählten
   Spur, wenn die Datei eine angibt, folgt der Spur, solange Sie keine eingegeben haben, und
   **eine Zeile unter dem Feld sagt, woher sie stammt**. Gibt die Datei für die Spur keine Sprache an,
-  sagt die Zeile das: Das Modell erkennt sie dann aus dem Ton, was nur ein mehrsprachiges Modell
-  kann, und Sie sollten sie eingeben, wenn Sie sie kennen. Bei einem Modell nur für Englisch, das
-  nichts erkennt, sagt die Zeile, dass die Sprache eingegeben werden muss;
+  sagt die Zeile das und warnt: Das Modell erkennt sie dann aus den ersten dreißig Sekunden des Tons, was nur ein mehrsprachiges Modell
+  kann, und **ein Film, der mit Musik oder Stille beginnt, kann für eine andere Sprache gehalten und seine Sprache dann in diese
+  übersetzt werden**. Geben Sie die Sprache ein, wenn Sie sie kennen. Bei einem Modell nur für Englisch ist das Feld
+  auf `en` festgelegt und lässt sich nicht ändern, und die Zeile sagt, dass der Film auf Englisch herauskommt, gleich welche Sprache er spricht;
 - **dem Teil des Films**, von einer Zeitangabe bis zu einer anderen — siehe [Zuerst einen Teil ausprobieren](#zuerst-einen-teil-ausprobieren). Beide Felder
   leer bedeuten den ganzen Film.
 
@@ -140,8 +141,9 @@ zeigt, wo die Arbeit steht**, damit Sie wissen, dass sie lebt und wie lange sie 
 - **der Schritt**: zuerst “Audio wird extrahiert …” — das Feld ist dann beschäftigt, ohne Zahl, da das Extrahieren nichts darüber sagt, wie weit es
   gekommen ist —, dann “Audio wird transkribiert …”, mit einem Balken;
 - **die Position**: “0:12:30 von 0:50:00”, wie weit im Film die Engine gekommen ist, sobald sie ihren ersten Text erzeugt hat;
-- **die verbleibende Zeit**, “noch etwa 38 Min.”: zu Beginn nicht vorhanden, angezeigt, sobald genug erledigt ist, um zu extrapolieren, und aus der
+- **die verbleibende Zeit**, “noch etwa 38 Min.”: zu Beginn “verbleibende Zeit wird geschätzt …”, ersetzt, sobald genug erledigt ist, um zu extrapolieren, und aus der
   Geschwindigkeit der letzten Minute berechnet; sie ist auf wenige Minuten genau, kein Versprechen;
+- **die vergangene Zeit**, “vergangen: 0:05:12”, die weiterläuft, auch wenn sich sonst nichts bewegt;
 - **der zuletzt erhaltene Text**, damit Sie sehen, dass die Arbeit sinnvoll ist.
 
 Bei einem langen Film mit einem großen Modell auf einem Prozessor können die ersten Minuten lang sein: Die Engine lädt das Modell und arbeitet an ihren ersten
@@ -150,6 +152,10 @@ von 5 % des Films kommt. Wenn sie endet, werden die Untertitel des Projekts durc
 Transkription ersetzt, **als ein einziger Vorgang**: Ein einziges `Undo` gibt zurück, was da war, die Texte der
 Übersetzung eingeschlossen. Eine Transkription, die fehlschlägt oder die Sie abbrechen, ändert nichts — der Grund wird
 in einem Feld genannt, außer bei einem Abbruch, der in der Statusleiste nur sagt, dass abgebrochen wurde.
+
+**Wenn der größte Teil dessen, was die Engine geschrieben hat, aus Anmerkungen in eckigen Klammern besteht** — `[MUSIC PLAYING]`, `[SPEAKING FRENCH]` —, sagt
+es ein Feld nach der Arbeit: Die verwendete Sprache ist wahrscheinlich nicht die gesprochene, und die Engine hat die Sprache möglicherweise übersetzt.
+Starten Sie erneut mit eingegebener Sprache. Die Untertitel sind trotzdem im Projekt, und ein `Undo` gibt zurück, was da war.
 
 ### Zuerst einen Teil ausprobieren
 

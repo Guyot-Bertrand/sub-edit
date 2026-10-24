@@ -34,6 +34,11 @@ nem tör el semmit**: a parancs megmondja, mi hiányzik, az oldalra mutató hiva
 - **A nyelvet felismeri**, hacsak a `--language` ki nem kényszeríti, és a használt nyelvet kiírja. Egy
   csak angolra készült modell semmit sem ismer fel, és mást nem iratoz le: a nyelvet, amelyet nem tud
   fogadni, *még a munka megkezdése előtt* elutasítja, megnevezve a modell korlátját.
+- **A nyelvet két betűvel kell megadni — `fr`, `en`, `de` —, vagy a fájl által megadott hárombetűs kóddal, `fra`,
+  `eng`, amelyet a kétbetűs kódként olvas.** Minden más elutasításra kerül a munka megkezdése előtt. **A felismerés
+  csak az első harminc másodpercet hallgatja**: egy zenével vagy csenddel kezdődő filmet másik nyelvűnek
+  nézhet, és a motor ekkor a beszédet arra a nyelvre *lefordítva* írja le — egy francia film, amelyet angolnak néz,
+  angolul jön ki, vagy `[SPEAKING FRENCH]` alakban. Ha ismeri a nyelvet, adja meg.
 - **A film egy része külön is leiratozható** a `--start` és az `--end` kapcsolóval — lásd:
   [Egy rész leiratozása](#egy-rész-leiratozása). Így lehet egy modellt kétperces szakaszon kipróbálni, mielőtt
   kétórás filmre indítják.
@@ -60,7 +65,7 @@ Options:
   --audio-track N             Audio track of a video, counted from 0; the first by default
   --start TIME                Where to begin, as 2:00, 1:02:03 or seconds; the beginning by default
   --end TIME                  Where to stop, as 2:00, 1:02:03 or seconds; the end by default
-  --language CODE             Language of the speech: fr, en; detected by default
+  --language CODE             Language of the speech, two letters: fr, en, de; detected from the first 30 seconds by default
   --model FILE                Model file; the transcription.model setting by default
   --engine NAME               Engine; the transcription.engine setting by default
   --keep-audio FILE           Keep the extracted audio in this file
@@ -75,7 +80,7 @@ Options:
 | `--output` | igen | a kiírandó feliratfájl; a könyvtára létrejön, ha hiányzik | — |
 | `--to` | nem | egy formátum rövid neve: `srt`, `vtt`, `subviewer2`, `ssa`, `ass`, `microdvd`, `mpl2`, `tmplayer`, `lrc` | az `--output` kiterjesztése által megadott formátum, különben `srt` |
 | `--audio-track` | nem | 0-tól induló egész szám: a hely a videó hangsávjai között | `0`, az első |
-| `--language` | nem | két kisbetű, egy ISO 639-1 kód: `en`, `fr` | a `transcription.language` beállítás; üres: felismeri |
+| `--language` | nem | két betű, egy ISO 639-1 kód: `en`, `fr`; egy hárombetűs kódot, például `fra`-t, `fr`-ként olvas | a `transcription.language` beállítás; üres: felismeri |
 | `--start` | nem | egy időpont: `2:00`, `1:02:03`, `2:00.5`, vagy másodpercek száma, `90` | a hang eleje |
 | `--end` | nem | egy időpont, a `--start`-hoz hasonlóan írva; a `--start` után kell jönnie | a hang vége |
 | `--model` | nem | a modellfájl | a `transcription.model` beállítás |
@@ -140,7 +145,7 @@ A teljes film hangja ettől még kinyerődik: a tartomány a leiratozáson spór
 | Szint | Mi kerül még a hibakimenetre |
 | :---- | :-------------------------------- |
 | 1 | `<input>: N subtitles transcribed, language: xx -> <output>` |
-| 2 | a lépés és az előrehaladás, százalékonként egy sor: `extracting the audio…`, majd `transcribing…`, majd `transcribing: 25%, 0:12:30 of 0:50:00, about 38 min left` — a százalék, a hangban elért pozíció és a hátralévő idő |
+| 2 | a lépés és az előrehaladás, százalékonként egy sor: `extracting the audio…`, majd `transcribing…`, majd `transcribing: 25%, 0:12:30 of 0:50:00, about 38 min left, elapsed: 0:05:12` — a százalék, a hangban elért pozíció, a hátralévő idő (`estimating the time left…`, amíg nem számítható ki) és az eltelt idő; **a sort tíz másodpercenként újra kiírja, ha semmi új nem érkezett**, hogy a hosszú várakozást ne tekintsék lefagyásnak |
 | 3 | és minden új szöveg, amelyet a motor megkap, `last text: …` |
 
 **A százalék a motor pozíciója a hangban, nem a saját ablakainak száma**: a motor menet közben kiírja, amit leiratozott,
@@ -155,6 +160,18 @@ A [`--format json`](invocation.md#szkript-által-olvasható-kimenet) kapcsolóva
 alparancs előtt írva) a fájl objektuma a használt nyelvet a `language` mezőben, a `counts.subtitles`
 (a kiírt feliratok) és a `counts.segments` (a motor darabjai, amelyekből készültek) mezőt, valamint
 az `audio` mezőt hordozza, ha a `--keep-audio` megőrizte a hangot.
+
+## Figyelmeztetések
+
+Két figyelmeztetés hangzik el az első szinten, mert megváltoztatják, mire számítson:
+
+- **A munka előtt, csak angolra való modellnél**: `This model is for English only: whatever language the film
+  speaks, the result will be English, or notes in brackets. Choose a multilingual model in the preferences.` Az a modell
+  ilyen, amelynek a fájlneve `.en`-nel végződik.
+- **A munka után, ha a motor főleg szögletes zárójeles megjegyzéseket írt** — `[MUSIC PLAYING]`, `[SPEAKING FRENCH]` —,
+  darabjainak legalább kétharmadát: `N of the M pieces are only notes in brackets, such as [MUSIC PLAYING]: the
+  language used (xx) is probably not the one spoken, and the engine may have translated the speech. Run it again with
+  the language typed.` A feliratok ettől még megíródnak; a figyelmeztetés azt mondja meg, mire gyanakodjon.
 
 ## Kilépési kódok
 
@@ -173,6 +190,7 @@ egy motornál, amelyet senki sem regisztrált, vagy használhatatlan tartományn
 | a modell által le nem iratozható nyelv | `the model cannot transcribe the language xx` |
 | nincs nyelv, és a modell nem tud felismerni egyet | `the model cannot detect the language: give one` |
 | egy motor, amelyet senki sem regisztrált | `no transcription engine is called NAME` |
+| egy nyelv, amely nem kód | `"TEXT" is not a language code: write two letters, such as fr, en, de or es` |
 | a tartomány egy határa, amely nem időpont | `"TEXT" is not a time: write it as 2:00, 1:02:03 or 2:00.5, or in seconds` |
 | az `--end` nem a `--start` után | `the end of the range must come after its start` |
 | minden más hiba | `the transcription failed`, azzal, amit a motor mondott |

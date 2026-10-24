@@ -112,12 +112,13 @@ Li dialog demanda tre cosas, e dit si it posse comensar:
 
 - **li pista audio**, listat quam li menu [`Audio`](#li-pista-audio) les lista, con li lingue
   e li titul quel li file declara;
-- **li lingue**, du líttere quam `en` o `fr`. It comensa con li lingue del pista selectet quande li file
+- **li lingue**, du líttere quam `en` o `fr` (`fra` es lect quam `fr`). It comensa con li lingue del pista selectet quande li file
   declara un, seque li pista tam long quam vu ne ha tipat un, e
   **un linea sub li camp dit de u it veni**. Quande li file declara null lingue por li pista,
-  li linea dit it: li model detectará it tande del son, quo solmen un model multilingual
-  save far, e vu deve tipar it si vu save it. Con un model solmen por anglesi, quel detecte nequo,
-  li linea dit que li lingue deve esser tipat;
+  li linea dit it, e avisa: li model detectará it tande del prim triant secondes de son, quo solmen un model multilingual
+  save far, e **un film quel comensa con musica o silentie posse esser prenet por un altri lingue e su parlada tande tradutet in it**.
+  Tipa li lingue si vu save it. Con un model solmen por anglesi, li camp es fixat a `en` e ne posse esser changeat,
+  e li linea dit que li film va ixir in anglesi quelcunc lingue it parla;
 - **li parte del film**, de un témpor til un altri — vide [Provar un parte ante](#provar-un-parte-ante). Con ambi campes
   vacui, it es li tot film.
 
@@ -140,8 +141,9 @@ dit u li labor es**, por que vu save que it vive e quant de témpor it va prende
 - **li pass**: unesim “Extraction del audio…” — li cadre es tande occupat, sin númere, nam extraer dit nequo pri quant es fat —,
   pois “Transcription del audio…”, con un barre;
 - **li position**: “0:12:30 de 0:50:00”, til u in li film li motor ha arrivat, tam rapid quam it ha producet su prim textu;
-- **li témpor restant**, “resta circa 38 min”: absent in li comense, monstrat quande suficent labor es fat por extrapolar, e calculat
+- **li témpor restant**, “resta circa 38 min”: “estimation del témpor restant…” in li comense, remplazzat quande suficent labor es fat por extrapolar, e calculat
   secun li rapiditá del ultim minute; it es un precision de qualque minutes, ne un promission;
+- **li témpor passat**, “passat: 0:05:12”, quel avansa mem quande nequo altri ne move;
 - **li ultim textu** obtenet, por que vu vide que li labor ha sens.
 
 Sur un long film con un grand model sur un processor, li prim minutes posse esser longi: li motor carga e labora sur su prim
@@ -150,6 +152,10 @@ de 5 % del film. Quande it fini, li subtitules del projecte es remplazzat
 per li transcription **in un singul operation**: un `Undo` redona quo esset ibi, textus
 de traduction includet. Un transcription quel fallis, o quel vu anulla, changea nequo — li motive
 es dit in un cadre, except por un anullation, quel solmen dit in li barre de statu que it esset anullat.
+
+**Quande li maxim del quo li motor ha scrit es notes in crochetes** — `[MUSIC PLAYING]`, `[SPEAKING FRENCH]` —, un caxa
+dit it pos li labor: li lingue usat probabilmen ne es li parlat, e li motor possibilmen ha tradutet li parlada. Reexecutez con
+li lingue tipat. Li subtitules es tamen in li projecte, e un `Undo` rende li quo esset ibi.
 
 ### Provar un parte ante
 

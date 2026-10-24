@@ -112,12 +112,13 @@ Glugginn biður um þrennt og segir hvort hann geti byrjað:
 
 - **hljóðrásina**, taldar upp eins og valmyndin [`Audio`](#hljóðrásin) telur þær upp, með tungumálinu
   og titlinum sem skráin gefur upp;
-- **tungumálið**, tveir stafir eins og `en` eða `fr`. Það byrjar á tungumáli valinnar rásar þegar skráin
+- **tungumálið**, tveir stafir eins og `en` eða `fr` (`fra` er lesið sem `fr`). Það byrjar á tungumáli valinnar rásar þegar skráin
   gefur það upp, fylgir rásinni svo lengi sem þú hefur ekki skrifað eitt, og
   **lína undir reitnum segir hvaðan það kemur**. Þegar skráin gefur ekkert tungumál upp fyrir rásina
-  segir línan það: líkanið greinir það þá af hljóðinu, sem aðeins fjöltyngt líkan getur, og
-  þú ættir að slá það inn ef þú veist það. Með líkani fyrir ensku eingöngu, sem greinir ekkert,
-  segir línan að slá þurfi tungumálið inn;
+  segir línan það, og varar við: líkanið greinir það þá af fyrstu þrjátíu sekúndum hljóðsins, sem aðeins fjöltyngt líkan getur, og
+  **kvikmynd sem byrjar á tónlist eða þögn getur verið tekin fyrir annað tungumál og talmálið þá þýtt yfir á það**.
+  Sláðu tungumálið inn ef þú veist það. Með líkani fyrir ensku eingöngu er reiturinn festur á `en` og ekki hægt að breyta honum,
+  og línan segir að kvikmyndin komi út á ensku hvaða tungumál sem hún talar;
 - **hluta kvikmyndarinnar**, frá einum tíma til annars — sjá [Að prófa hluta fyrst](#að-prófa-hluta-fyrst). Séu báðir reitirnir
   tómir er átt við alla kvikmyndina.
 
@@ -140,8 +141,9 @@ segir hvar vinnan er stödd**, svo að þú vitir að hún lifir og hve lengi h�
 - **skrefið**: fyrst „Dreg út hljóðið…“ — glugginn er þá upptekinn, án tölu, því útdráttur segir ekkert um hve langt er komið —,
   síðan „Umrita hljóðið…“, með stiku;
 - **staðan**: „0:12:30 af 0:50:00“, hve langt inn í kvikmyndina vélin er komin, um leið og hún hefur skilað fyrsta textanum sínum;
-- **tíminn sem eftir er**, „um 38 mín. eftir“: fjarverandi í upphafi, birtur þegar nóg hefur verið unnið til að framreikna, og
+- **tíminn sem eftir er**, „um 38 mín. eftir“: „áætla tímann sem eftir er…“ í upphafi, skipt út þegar nóg hefur verið unnið til að framreikna, og
   reiknaður út frá hraða síðustu mínútu; nákvæmnin er nokkrar mínútur, ekki loforð;
+- **tíminn sem liðinn er**, „liðið: 0:05:12“, sem líður jafnvel þegar ekkert annað hreyfist;
 - **síðasti textinn** sem fékkst, svo að þú sjáir að vinnan er skynsamleg.
 
 Á langri kvikmynd með stóru líkani á örgjörva geta fyrstu mínúturnar verið langar: vélin er að hlaða og vinna í fyrstu
@@ -150,6 +152,10 @@ upp á 5 % af kvikmyndinni. Þegar henni lýkur er skjátextum verkefnisins skip
 fyrir umritunina **í einni aðgerð**: ein `Undo` skilar því sem var, þýðingartextum
 meðtöldum. Umritun sem mistekst, eða sem þú hættir við, breytir engu — ástæðan
 er sögð í glugga, nema þegar hætt er við, en þá segir aðeins stöðulínan að hætt hafi verið við.
+
+**Þegar mest af því sem vélin skrifaði eru athugasemdir í hornklofum** — `[MUSIC PLAYING]`, `[SPEAKING FRENCH]` —, segir gluggi
+það eftir vinnuna: tungumálið sem var notað er líklega ekki það sem er talað, og vélin kann að hafa þýtt talmálið. Keyrðu aftur með
+tungumálið skrifað inn. Skjátextarnir eru samt í verkefninu, og eitt `Undo` skilar því sem var.
 
 ### Að prófa hluta fyrst
 

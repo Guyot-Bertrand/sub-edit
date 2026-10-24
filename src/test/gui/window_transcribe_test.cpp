@@ -16,10 +16,12 @@
 
 #include <QAbstractItemModel>
 #include <QAction>
+#include <QApplication>
 #include <QComboBox>
 #include <QDialogButtonBox>
 #include <QLabel>
 #include <QLineEdit>
+#include <QProgressDialog>
 #include <QPushButton>
 #include <QStatusBar>
 #include <QTabBar>
@@ -201,13 +203,17 @@ TEST_CASE("the dialog says where the language comes from, and when it must be gi
     CHECK_THAT(declared.languageHint()->text().toStdString(),
                ContainsSubstring("declares no language for this track"));
     CHECK_THAT(declared.languageHint()->text().toStdString(),
-               ContainsSubstring("detect it from the sound"));
+               ContainsSubstring("first 30 seconds of sound"));
 
     TranscriptionTools englishOnly = kReady;
     englishOnly.model = ModelState::EnglishOnly;
     const TranscribeDialog blind{kTracks, {}, probing(englishOnly), nothing};
     CHECK_THAT(blind.languageHint()->text().toStdString(),
-               ContainsSubstring("cannot detect the language: type it"));
+               ContainsSubstring("This model is for English only"));
+    // And the language is English, and cannot be changed.
+    CHECK(blind.languageEdit()->text() == "en");
+    CHECK(blind.languageEdit()->isReadOnly());
+    CHECK(blind.choice().language == "en");
 
     const TranscribeDialog typed{kTracks, {.language = "de"}, probing(kReady), nothing};
     CHECK_THAT(typed.languageHint()->text().toStdString(), ContainsSubstring("you typed is used"));
@@ -417,6 +423,10 @@ TEST_CASE("the dialog takes a range, and gives it back as moments of the film",
     CHECK_FALSE(dialog.choice().start.has_value());
     CHECK_FALSE(dialog.choice().end.has_value());
     CHECK(dialog.buttons()->button(QDialogButtonBox::Ok)->isEnabled());
+    // The fields ask for the one form: hours, minutes, seconds.
+    CHECK(dialog.startEdit()->placeholderText() == "HH:MM:SS");
+    CHECK(dialog.endEdit()->placeholderText() == "HH:MM:SS");
+    CHECK(dialog.startEdit()->toolTip().contains("HH:MM:SS"));
 
     dialog.startEdit()->setText("2:00");
     dialog.endEdit()->setText("3:30");
@@ -434,8 +444,8 @@ TEST_CASE("a range given to the dialog starts in its fields", "[gui][GUI-TRANSCR
                                   probing(kReady),
                                   nothing};
 
-    CHECK(dialog.startEdit()->text() == "0:02:00");
-    CHECK(dialog.endEdit()->text() == "0:03:30");
+    CHECK(dialog.startEdit()->text() == "00:02:00");
+    CHECK(dialog.endEdit()->text() == "00:03:30");
     CHECK(dialog.choice().start == Timestamp::fromMilliseconds(120000));
 }
 
@@ -503,7 +513,8 @@ TEST_CASE("the box says the step, then where it is, the time left and the last t
 
     CHECK(transcriptionBoxLabel({.stage = TranscriptionStage::Extracting}, std::nullopt) ==
           "Extracting the audio…");
-    CHECK(transcriptionBoxLabel({}, std::nullopt) == "Transcribing the audio…");
+    CHECK(transcriptionBoxLabel({}, std::nullopt).split('\n') ==
+          QStringList{"Transcribing the audio…", "estimating the time left…"});
 
     const QString full = transcriptionBoxLabel({.fraction = 0.5,
                                                 .position = Timestamp::fromMilliseconds(60000),
@@ -514,13 +525,34 @@ TEST_CASE("the box says the step, then where it is, the time left and the last t
                                           "0:01:00 of 0:02:00",
                                           "about 2 min left",
                                           "Last text: And so, my fellow Americans"});
+
+    const QString timed =
+        transcriptionBoxLabel({.stage = TranscriptionStage::Extracting}, std::nullopt, 75s);
+    CHECK(timed.split('\n') == QStringList{"Extracting the audio…", "elapsed: 0:01:15"});
 }
 
 TEST_CASE("a long text is cut so that the box does not widen", "[gui][GUI-TRANSCRIBE-05]") {
     const QString label =
         subedit::gui::transcriptionBoxLabel({.lastText = std::string(300, 'x')}, std::nullopt);
 
-    CHECK(label.size() < 140);
+    CHECK(label.size() < 160);
+}
+
+TEST_CASE("the dialog reads a three-letter code as the two-letter one, and refuses what is no code",
+          "[gui][GUI-TRANSCRIBE-01]") {
+    const TranscribeDialog dialog{kTracks, {}, probing(kReady), nothing};
+    const auto* ok = dialog.buttons()->button(QDialogButtonBox::Ok);
+
+    dialog.languageEdit()->setText("fra");
+    CHECK(dialog.choice().language == "fr");
+    CHECK(ok->isEnabled());
+
+    dialog.languageEdit()->setText("f1");
+    CHECK_FALSE(ok->isEnabled());
+    CHECK(dialog.languageHint()->text().contains("is not a language code"));
+
+    dialog.languageEdit()->setText("");
+    CHECK(ok->isEnabled());
 }
 
 // ## The preferences: where the program and the model are set
@@ -782,4 +814,92 @@ TEST_CASE("the box follows the engine while it works", "[gui][GUI-TRANSCRIBE-05]
 
     REQUIRE(outcome.has_value());
     CHECK(outcome->subtitles.size() >= 2);
+}
+
+TEST_CASE("the box is on screen at once and wide enough for its title",
+          "[gui][GUI-TRANSCRIBE-05]") {
+    const Tools tools;
+    (void)tools.scratch.standIn(
+        "whisper-cli", kFake, "--linger=30 --output-from='" + tools.sample + "'");
+    const auto audio = tools.scratch.write("audio.wav", "pcm");
+    (void)tools.scratch.standIn("ffmpeg", kFake, "--output-from='" + audio.string() + "'");
+    BackgroundTranscriptionRunner runner{tools.scratch.path().string()};
+    bool visible = false;
+    int width = 0;
+    // The first look the box takes at the cancellation is a tenth of a second in: Qt's own delay
+    // before showing a box is several seconds.
+    runner.setCancelProbe([&] {
+        for (QWidget* top : QApplication::topLevelWidgets()) {
+            if (const auto* box = qobject_cast<QProgressDialog*>(top)) {
+                visible = box->isVisible();
+                width = box->width();
+            }
+        }
+        return true;
+    });
+
+    const auto outcome = runner.run(tools.job(), nullptr);
+
+    REQUIRE_FALSE(outcome.has_value());
+    CHECK(visible);
+    CHECK(width >= 520);
+}
+
+TEST_CASE("changing to a model that speaks every language gives the field back",
+          "[gui][GUI-TRANSCRIBE-01]") {
+    TranscriptionTools tools = kReady;
+    tools.model = ModelState::EnglishOnly;
+    const TranscribeDialog dialog{
+        kTracks, {}, [&tools] { return ToolsView{.tools = tools}; }, [] {}, nullptr};
+    REQUIRE(dialog.languageEdit()->isReadOnly());
+
+    tools.model = ModelState::Multilingual;
+    dialog.preferencesButton()->click();
+
+    CHECK_FALSE(dialog.languageEdit()->isReadOnly());
+    // The declared language of the track comes back, as it was before the model was chosen.
+    CHECK(dialog.languageEdit()->text() == "fr");
+}
+
+TEST_CASE("a transcription made of notes in brackets says the language was probably wrong",
+          "[gui][GUI-TRANSCRIBE-05]") {
+    Stage stage;
+    stage.runner->answer = TranscriptionOutcome{
+        .subtitles = {subtitle(0, "[MUSIC PLAYING]")}, .language = "en", .notes = 5, .pieces = 9};
+    stage.prompts.nextRun = true;
+    stage.prompts.nextReplacementAccepted = true;
+
+    stage.window->transcribeAudioAction()->trigger();
+
+    REQUIRE(stage.prompts.outcomes.size() == 1);
+    CHECK_THAT(stage.prompts.outcomes.front(),
+               ContainsSubstring("5 of the 9 pieces are only notes"));
+    CHECK_THAT(stage.prompts.outcomes.front(), ContainsSubstring("language used (en)"));
+}
+
+TEST_CASE("a few notes among the speech are no cause for a warning", "[gui][GUI-TRANSCRIBE-05]") {
+    Stage stage;
+    stage.runner->answer = TranscriptionOutcome{
+        .subtitles = {subtitle(0, "Hello.")}, .language = "en", .notes = 1, .pieces = 20};
+    stage.prompts.nextRun = true;
+    stage.prompts.nextReplacementAccepted = true;
+
+    stage.window->transcribeAudioAction()->trigger();
+
+    CHECK(stage.prompts.outcomes.empty());
+}
+
+TEST_CASE("a trial made of notes in brackets says so too", "[gui][GUI-TRANSCRIBE-05]") {
+    Stage stage;
+    stage.runner->answer = TranscriptionOutcome{
+        .subtitles = {subtitle(0, "[MUSIC PLAYING]")}, .language = "en", .notes = 4, .pieces = 6};
+    stage.prompts.nextRun = true;
+    stage.prompts.fill = [](QDialog& dialog) {
+        dynamic_cast<TranscribeDialog&>(dialog).startEdit()->setText("00:01:00");
+    };
+
+    stage.window->transcribeAudioAction()->trigger();
+
+    REQUIRE(stage.prompts.outcomes.size() == 1);
+    CHECK_THAT(stage.prompts.outcomes.front(), ContainsSubstring("4 of the 6 pieces"));
 }

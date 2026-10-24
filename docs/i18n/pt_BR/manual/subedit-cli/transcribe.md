@@ -34,6 +34,11 @@ termina com um código diferente de zero.
 - **O idioma é detectado** a menos que `--language` o force, e o idioma usado é dito. Um
   modelo feito só para inglês não detecta nada e não transcreve outra coisa: um idioma que não possa
   aceitar é recusado *antes* de qualquer trabalho, indicando o limite do modelo.
+- **Um idioma se digita com duas letras — `fr`, `en`, `de` —, ou com o código de três letras que um arquivo declara, `fra`,
+  `eng`, lido como o de duas letras.** Tudo o resto é recusado antes de qualquer trabalho. **A detecção
+  ouve apenas os primeiros trinta segundos**: um filme que abre com música ou silêncio pode ser tomado por
+  outro idioma, e o motor escreve então a fala *traduzida* para esse idioma — um filme francês tomado
+  por inglês sai em inglês, ou como `[SPEAKING FRENCH]`. Quando você souber o idioma, informe-o.
 - **Pode-se transcrever só uma parte do filme**, com `--start` e `--end` — veja
   [Transcrever uma parte](#transcrever-uma-parte). É assim que se experimenta um modelo em dois minutos antes de o lançar
   em duas horas.
@@ -60,7 +65,7 @@ Options:
   --audio-track N             Audio track of a video, counted from 0; the first by default
   --start TIME                Where to begin, as 2:00, 1:02:03 or seconds; the beginning by default
   --end TIME                  Where to stop, as 2:00, 1:02:03 or seconds; the end by default
-  --language CODE             Language of the speech: fr, en; detected by default
+  --language CODE             Language of the speech, two letters: fr, en, de; detected from the first 30 seconds by default
   --model FILE                Model file; the transcription.model setting by default
   --engine NAME               Engine; the transcription.engine setting by default
   --keep-audio FILE           Keep the extracted audio in this file
@@ -75,7 +80,7 @@ Options:
 | `--output` | sim | o arquivo de legendas a escrever; sua pasta é criada se faltar | — |
 | `--to` | não | o nome curto de um formato: `srt`, `vtt`, `subviewer2`, `ssa`, `ass`, `microdvd`, `mpl2`, `tmplayer`, `lrc` | o formato que a extensão de `--output` indica, senão `srt` |
 | `--audio-track` | não | um número inteiro a partir de 0: a posição entre as faixas de áudio do vídeo | `0`, a primeira |
-| `--language` | não | duas letras minúsculas, um código ISO 639-1: `en`, `fr` | a configuração `transcription.language`; vazia: detectado |
+| `--language` | não | duas letras, um código ISO 639-1: `en`, `fr`; um código de três letras como `fra` é lido como `fr` | a configuração `transcription.language`; vazia: detectado |
 | `--start` | não | um tempo: `2:00`, `1:02:03`, `2:00.5`, ou um número de segundos, `90` | o início do áudio |
 | `--end` | não | um tempo, escrito como para `--start`; precisa vir depois de `--start` | o fim do áudio |
 | `--model` | não | o arquivo do modelo | a configuração `transcription.model` |
@@ -141,7 +146,7 @@ O áudio do filme inteiro é extraído na mesma: é a transcrição, muito mais 
 | Nível | O que se acrescenta na saída de erro |
 | :----- | :------------------------------------- |
 | 1 | `<input>: N subtitles transcribed, language: xx -> <output>` |
-| 2 | a etapa e o progresso, uma linha por cento: `extracting the audio…`, depois `transcribing…`, depois `transcribing: 25%, 0:12:30 of 0:50:00, about 38 min left` — a porcentagem, a posição atingida no áudio e o tempo que falta |
+| 2 | a etapa e o progresso, uma linha por cento: `extracting the audio…`, depois `transcribing…`, depois `transcribing: 25%, 0:12:30 of 0:50:00, about 38 min left, elapsed: 0:05:12` — a porcentagem, a posição atingida no áudio, o tempo que falta (`estimating the time left…` enquanto não puder ser calculado) e o tempo decorrido; **a linha é dita de novo a cada dez segundos quando nada de novo chegou**, para que uma espera longa não seja tomada por um bloqueio |
 | 3 | e cada novo texto que o motor obtém, `last text: …` |
 
 **A porcentagem é a posição do motor no áudio, não uma contagem das suas próprias janelas**: o motor escreve o que transcreveu à medida que avança, e o comando lê até onde isso chegou, de modo que o valor se mexe desde o primeiro minuto. (O progresso próprio do motor vem em passos de 5 % do áudio, depois de uma janela de trinta segundos: sozinho, pode ficar a 0 % durante um quarto de hora num filme longo com um modelo grande num processador.) **O tempo que falta fica mudo no início**: é dado quando há trabalho feito que chegue para extrapolar, e segue a velocidade do último minuto, não a média de toda a execução.
@@ -152,6 +157,18 @@ Com [`--format json`](invocation.md#uma-saída-que-um-script-pode-ler) (a opçã
 subcomando), o objeto do arquivo traz o idioma usado em `language`, `counts.subtitles` (as
 legendas escritas) e `counts.segments` (os pedaços do motor de que foram feitas), e `audio` quando
 `--keep-audio` guardou o áudio.
+
+## Avisos
+
+Dois avisos são ditos no primeiro nível, porque mudam o que esperar:
+
+- **Antes do trabalho, com um modelo só para inglês**: `This model is for English only: whatever language the film
+  speaks, the result will be English, or notes in brackets. Choose a multilingual model in the preferences.` Um modelo cujo nome de arquivo termina
+  em `.en` é um.
+- **Depois do trabalho, quando o motor escreveu sobretudo notas entre colchetes** — `[MUSIC PLAYING]`, `[SPEAKING FRENCH]` —,
+  pelo menos dois e um terço dos seus fragmentos: `N of the M pieces are only notes in brackets, such as [MUSIC PLAYING]: the
+  language used (xx) is probably not the one spoken, and the engine may have translated the speech. Run it again with
+  the language typed.` As legendas são escritas mesmo assim; o aviso diz o que suspeitar.
 
 ## Códigos de saída
 
@@ -170,6 +187,7 @@ motor que ninguém registrou ou um intervalo que não pode ser usado.
 | um idioma que o modelo não sabe transcrever | `the model cannot transcribe the language xx` |
 | nenhum idioma, e um modelo que não sabe detectar um | `the model cannot detect the language: give one` |
 | um motor que ninguém registrou | `no transcription engine is called NAME` |
+| um idioma que não é um código | `"TEXT" is not a language code: write two letters, such as fr, en, de or es` |
 | um limite do intervalo que não é um tempo | `"TEXT" is not a time: write it as 2:00, 1:02:03 or 2:00.5, or in seconds` |
 | `--end` não depois de `--start` | `the end of the range must come after its start` |
 | qualquer outra falha | `the transcription failed`, com o que o motor disse |

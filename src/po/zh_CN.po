@@ -1045,18 +1045,17 @@ msgid "Audio track of a video, counted from 0; the first by default"
 msgstr "视频的音轨，从 0 开始计数；默认为第一条"
 
 #: src/exe/cli/commands/transcribe.cpp
-#: src/exe/cli/commands/transcribe.cpp
 msgid "Where to begin, as 2:00, 1:02:03 or seconds; the beginning by default"
 msgstr "从何处开始，可写为 2:00、1:02:03 或秒数；默认从开头开始"
 
-#: src/exe/cli/commands/transcribe.cpp
 #: src/exe/cli/commands/transcribe.cpp
 msgid "Where to stop, as 2:00, 1:02:03 or seconds; the end by default"
 msgstr "到何处停止，可写为 2:00、1:02:03 或秒数；默认到结尾"
 
 #: src/exe/cli/commands/transcribe.cpp
-msgid "Language of the speech: fr, en; detected by default"
-msgstr "语音的语言：fr、en；默认自动检测"
+#: src/exe/cli/commands/transcribe.cpp
+msgid "Language of the speech, two letters: fr, en, de; detected from the first 30 seconds by default"
+msgstr "语音的语言，两个字母：fr、en、de；默认从前 30 秒检测"
 
 #: src/exe/cli/commands/transcribe.cpp
 msgid "Model file; the transcription.model setting by default"
@@ -3244,48 +3243,65 @@ msgid_plural ""
 msgstr[0] "此项目的 %1 条字幕将被转录结果替换。您可以撤销。"
 
 #: src/lib/subedit/core/wording/transcription.cpp
-#: src/lib/subedit/core/wording/transcription.cpp
-msgid "\"%1\" is not a time: write it as 2:00, 1:02:03 or 2:00.5, or in seconds"
+msgid ""
+"\"%1\" is not a time: write it as 2:00, 1:02:03 or 2:00.5, or in seconds"
 msgstr "“%1”不是时间：请写成 2:00、1:02:03 或 2:00.5，或以秒为单位"
 
 #: src/lib/subedit/core/wording/transcription.cpp
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "%1 of the %2 pieces are only notes in brackets, such as [MUSIC PLAYING]: the language used (%3) is probably not the one spoken, and the engine may have translated the speech. Run it again with the language typed."
+msgstr "%2 个片段中有 %1 个只是方括号里的注释，例如 [MUSIC PLAYING]：所用语言（%3）很可能不是实际说的语言，引擎可能已把语音翻译了。请输入语言后重新运行。"
+
+#: src/lib/subedit/core/wording/transcription.cpp
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "This model is for English only: whatever language the film speaks, the result will be English, or notes in brackets. Choose a multilingual model in the preferences."
+msgstr "此模型仅适用于英语：无论影片说的是什么语言，结果都将是英语或方括号里的注释。请在首选项中选择多语言模型。"
+
+#: src/lib/subedit/core/wording/transcription.cpp
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "\"%1\" is not a language code: write two letters, such as fr, en, de or es"
+msgstr "“%1”不是语言代码：请输入两个字母，例如 fr、en、de 或 es"
+
 #: src/lib/subedit/core/wording/transcription.cpp
 msgid "the end of the range must come after its start"
 msgstr "范围的结束必须在其开始之后"
 
 #: src/lib/subedit/core/wording/transcription.cpp
-#: src/lib/subedit/core/wording/transcription.cpp
 msgid "less than a minute left"
 msgstr "剩余不到一分钟"
 
-#: src/lib/subedit/core/wording/transcription.cpp
 #: src/lib/subedit/core/wording/transcription.cpp
 msgid "about %1 min left"
 msgstr "约剩 %1 分钟"
 
 #: src/lib/subedit/core/wording/transcription.cpp
-#: src/lib/subedit/core/wording/transcription.cpp
 msgid "about %1 h %2 min left"
 msgstr "约剩 %1 小时 %2 分钟"
 
 #: src/lib/subedit/core/wording/transcription.cpp
-#: src/lib/subedit/core/wording/transcription.cpp
 msgid "extracting the audio…"
 msgstr "正在提取音频…"
 
-#: src/lib/subedit/core/wording/transcription.cpp
 #: src/lib/subedit/core/wording/transcription.cpp
 msgid "transcribing…"
 msgstr "正在转录…"
 
 #: src/lib/subedit/core/wording/transcription.cpp
 #: src/lib/subedit/gui/transcription_runner.cpp
-#: src/lib/subedit/core/wording/transcription.cpp
-#: src/lib/subedit/gui/transcription_runner.cpp
 msgid "%1 of %2"
 msgstr "%1 / %2"
 
 #: src/lib/subedit/core/wording/transcription.cpp
+#: src/lib/subedit/gui/transcription_runner.cpp
+#: src/lib/subedit/core/wording/transcription.cpp
+#: src/lib/subedit/gui/transcription_runner.cpp
+msgid "estimating the time left…"
+msgstr "正在估算剩余时间…"
+
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "elapsed: %1"
+msgstr "已用 %1"
+
 #: src/lib/subedit/core/wording/transcription.cpp
 msgid "last text: %1"
 msgstr "最后的文本：%1"
@@ -4480,7 +4496,6 @@ msgstr "开始（帧）"
 
 # From Gaupol.
 #: src/lib/subedit/gui/subtitle_table_model.cpp
-#: src/lib/subedit/gui/transcribe_dialog.cpp
 msgid "End"
 msgstr "结束"
 
@@ -4544,25 +4559,26 @@ msgid "Detected from the sound"
 msgstr "根据声音检测"
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+msgid "A language code such as fr, en, de, es or it (fra and eng work too). Leave it empty to let the model detect the language from the first 30 seconds of sound."
+msgstr "语言代码，例如 fr、en、de、es 或 it（fra 和 eng 也可以）。留空则由模型从前 30 秒的声音中检测语言。"
+
+#: src/lib/subedit/gui/transcribe_dialog.cpp
 msgid ""
-"A two-letter language code such as en or fr. Leave it empty to let the model "
-"detect the language."
-msgstr "两个字母的语言代码，如 en 或 fr。留空则由模型检测语言。"
+"A time as HH:MM:SS, for example 00:02:00. Leave both empty to transcribe the "
+"whole film."
+msgstr "格式为 HH:MM:SS 的时间，例如 00:02:00。两项都留空则转录整部影片。"
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
-#: src/lib/subedit/gui/transcribe_dialog.cpp
-msgid "Beginning"
-msgstr "开始"
-
-#: src/lib/subedit/gui/transcribe_dialog.cpp
-#: src/lib/subedit/gui/transcribe_dialog.cpp
-msgid "A time such as 2:00, 1:02:03 or 90 (seconds). Leave both empty to transcribe the whole film."
-msgstr "时间，如 2:00、1:02:03 或 90（秒）。两项都留空则转录整部影片。"
-
-#: src/lib/subedit/gui/transcribe_dialog.cpp
-#: src/lib/subedit/gui/transcribe_dialog.cpp
-msgid "The audio of the film open in this window is transcribed into subtitles that replace the ones of the project. Give a range to try a part of the film first: the result then opens as a project of its own and nothing is replaced. The work runs in the background and can be cancelled."
-msgstr "此窗口中打开的影片的音频会被转录为字幕，并替换项目中的字幕。可指定一个范围，先试转录影片的一部分：结果将作为独立项目打开，不会替换任何内容。该工作在后台运行，可以取消。"
+msgid ""
+"The audio of the film open in this window is transcribed into subtitles that "
+"replace the ones of the project. Give a range to try a part of the film "
+"first: the result then opens as a project of its own and nothing is "
+"replaced. The work runs in the background and can be cancelled."
+msgstr ""
+"此窗口中打开的影片的音频会被转录为字幕，并替换项目中的字幕。可指定一个范围，"
+"先试转录影片的一部分：结果将作为独立项目打开，不会替换任何内容。该工作在后台"
+"运行，可以取消。"
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
 msgid "Audio track"
@@ -4573,11 +4589,9 @@ msgid "Language"
 msgstr "语言"
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
-#: src/lib/subedit/gui/transcribe_dialog.cpp
 msgid "to"
 msgstr "至"
 
-#: src/lib/subedit/gui/transcribe_dialog.cpp
 #: src/lib/subedit/gui/transcribe_dialog.cpp
 msgid "Part of the film"
 msgstr "影片的一部分"
@@ -4585,10 +4599,6 @@ msgstr "影片的一部分"
 #: src/lib/subedit/gui/transcribe_dialog.cpp
 msgid "Set them in the preferences."
 msgstr "请在首选项中设置。"
-
-#: src/lib/subedit/gui/transcribe_dialog.cpp
-msgid "This model cannot detect the language: type it."
-msgstr "此模型无法检测语言：请输入语言。"
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
 msgid "The language you typed is used."
@@ -4599,12 +4609,10 @@ msgid "Proposed from the language the file declares for this track."
 msgstr "根据文件为此音轨声明的语言给出的建议。"
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
-msgid ""
-"The file declares no language for this track: the model will detect it from "
-"the sound. Type it if you know it."
-msgstr "文件未为此音轨声明语言：模型将根据声音检测。如果您知道,请输入。"
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+msgid "The file declares no language for this track: the model will detect it from the first 30 seconds of sound. If the film opens with music or silence it can choose wrongly, and the speech is then translated into that language. Type the language if you know it."
+msgstr "文件没有声明此音轨的语言：模型将从前 30 秒的声音中检测。如果影片以音乐或静音开头，可能会选错，语音随后会被翻译成该语言。如果知道语言，请输入。"
 
-#: src/lib/subedit/gui/transcription_runner.cpp
 #: src/lib/subedit/gui/transcription_runner.cpp
 msgid "Extracting the audio…"
 msgstr "正在提取音频…"
@@ -4613,7 +4621,6 @@ msgstr "正在提取音频…"
 msgid "Transcribing the audio…"
 msgstr "正在转录音频…"
 
-#: src/lib/subedit/gui/transcription_runner.cpp
 #: src/lib/subedit/gui/transcription_runner.cpp
 msgid "Last text: %1"
 msgstr "最后的文本：%1"
@@ -5047,6 +5054,17 @@ msgstr "斜体"
 msgctxt "toolbar"
 msgid "Main"
 msgstr "主要"
+
+#~ msgid "This model cannot detect the language: type it."
+#~ msgstr "此模型无法检测语言：请输入语言。"
+
+#~ msgid ""
+#~ "The file declares no language for this track: the model will detect it "
+#~ "from the sound. Type it if you know it."
+#~ msgstr "文件未为此音轨声明语言：模型将根据声音检测。如果您知道,请输入。"
+
+#~ msgid "Beginning"
+#~ msgstr "开始"
 
 #~ msgid "Detected"
 #~ msgstr "已检测"

@@ -34,6 +34,11 @@ esce con un codice diverso da zero.
 - **La lingua viene rilevata** a meno che `--language` non la imponga, e la lingua usata viene indicata. Un
   modello fatto solo per l'inglese non rileva nulla e non trascrive altro: una lingua che non può
   gestire viene rifiutata *prima* di qualsiasi lavoro, indicando il limite del modello.
+- **Una lingua si digita con due lettere — `fr`, `en`, `de` —, oppure con il codice di tre lettere che un file dichiara, `fra`,
+  `eng`, letto come quello di due lettere.** Tutto il resto viene rifiutato prima di qualsiasi lavoro. **Il rilevamento
+  ascolta solo i primi trenta secondi**: un film che si apre con musica o silenzio può essere scambiato per
+  un'altra lingua, e il motore scrive allora il parlato *tradotto* in quella lingua — un film francese scambiato
+  per inglese esce in inglese, o come `[SPEAKING FRENCH]`. Quando conosci la lingua, indicala.
 - **Si può trascrivere solo una parte del film**, con `--start` e `--end` — vedi
   [Trascrivere una parte](#trascrivere-una-parte). È il modo per provare un modello su due minuti prima di lanciarlo su
   due ore.
@@ -60,7 +65,7 @@ Options:
   --audio-track N             Audio track of a video, counted from 0; the first by default
   --start TIME                Where to begin, as 2:00, 1:02:03 or seconds; the beginning by default
   --end TIME                  Where to stop, as 2:00, 1:02:03 or seconds; the end by default
-  --language CODE             Language of the speech: fr, en; detected by default
+  --language CODE             Language of the speech, two letters: fr, en, de; detected from the first 30 seconds by default
   --model FILE                Model file; the transcription.model setting by default
   --engine NAME               Engine; the transcription.engine setting by default
   --keep-audio FILE           Keep the extracted audio in this file
@@ -75,7 +80,7 @@ Options:
 | `--output` | sì | il file di sottotitoli da scrivere; la sua cartella viene creata se manca | — |
 | `--to` | no | il nome breve di un formato: `srt`, `vtt`, `subviewer2`, `ssa`, `ass`, `microdvd`, `mpl2`, `tmplayer`, `lrc` | il formato indicato dall'estensione di `--output`, altrimenti `srt` |
 | `--audio-track` | no | un numero intero da 0: la posizione tra le tracce audio del video | `0`, la prima |
-| `--language` | no | due lettere minuscole, un codice ISO 639-1: `en`, `fr` | l'impostazione `transcription.language`; vuota: rilevata |
+| `--language` | no | due lettere, un codice ISO 639-1: `en`, `fr`; un codice di tre lettere come `fra` è letto come `fr` | l'impostazione `transcription.language`; vuota: rilevata |
 | `--start` | no | un tempo: `2:00`, `1:02:03`, `2:00.5`, oppure un numero di secondi, `90` | l'inizio dell'audio |
 | `--end` | no | un tempo, scritto come per `--start`; deve venire dopo `--start` | la fine dell'audio |
 | `--model` | no | il file del modello | l'impostazione `transcription.model` |
@@ -141,7 +146,7 @@ L'audio dell'intero film viene comunque estratto: è la trascrizione, molto più
 | Livello | Che cosa si aggiunge sull'output di errore |
 | :----- | :------------------------------------- |
 | 1 | `<input>: N subtitles transcribed, language: xx -> <output>` |
-| 2 | la fase e l'avanzamento, una riga per ogni percento: `extracting the audio…`, poi `transcribing…`, poi `transcribing: 25%, 0:12:30 of 0:50:00, about 38 min left` — il percento, la posizione raggiunta nell'audio e il tempo rimanente |
+| 2 | la fase e l'avanzamento, una riga per ogni percento: `extracting the audio…`, poi `transcribing…`, poi `transcribing: 25%, 0:12:30 of 0:50:00, about 38 min left, elapsed: 0:05:12` — il percento, la posizione raggiunta nell'audio, il tempo rimanente (`estimating the time left…` finché non può essere calcolato) e il tempo trascorso; **la riga viene ripetuta ogni dieci secondi quando non è arrivato nulla di nuovo**, in modo che una lunga attesa non sia scambiata per un blocco |
 | 3 | e ogni nuovo testo ottenuto dal motore, `last text: …` |
 
 **Il percento è la posizione del motore nell'audio, non un conteggio delle sue finestre**: il motore scrive ciò che ha
@@ -157,6 +162,18 @@ Con [`--format json`](invocation.md#un-output-che-uno-script-può-leggere) (l'op
 sottocomando), l'oggetto del file porta la lingua usata in `language`, `counts.subtitles` (i
 sottotitoli scritti) e `counts.segments` (i pezzi del motore da cui sono stati ricavati), e `audio` quando
 `--keep-audio` ha conservato l'audio.
+
+## Avvisi
+
+Due avvisi vengono detti al primo livello, perché cambiano ciò che c'è da aspettarsi:
+
+- **Prima del lavoro, con un modello solo per l'inglese**: `This model is for English only: whatever language the film
+  speaks, the result will be English, or notes in brackets. Choose a multilingual model in the preferences.` Un modello il cui nome di file termina
+  con `.en` lo è.
+- **Dopo il lavoro, quando il motore ha scritto soprattutto note tra parentesi quadre** — `[MUSIC PLAYING]`, `[SPEAKING FRENCH]` —,
+  almeno due e un terzo dei suoi frammenti: `N of the M pieces are only notes in brackets, such as [MUSIC PLAYING]: the
+  language used (xx) is probably not the one spoken, and the engine may have translated the speech. Run it again with
+  the language typed.` I sottotitoli vengono scritti comunque; l'avviso dice che cosa sospettare.
 
 ## Codici di uscita
 
@@ -175,6 +192,7 @@ motore che nessuno ha registrato o un intervallo inutilizzabile.
 | una lingua che il modello non può trascrivere | `the model cannot transcribe the language xx` |
 | nessuna lingua, e un modello che non sa rilevarne una | `the model cannot detect the language: give one` |
 | un motore che nessuno ha registrato | `no transcription engine is called NAME` |
+| una lingua che non è un codice | `"TEXT" is not a language code: write two letters, such as fr, en, de or es` |
 | un estremo dell'intervallo che non è un tempo | `"TEXT" is not a time: write it as 2:00, 1:02:03 or 2:00.5, or in seconds` |
 | `--end` non dopo `--start` | `the end of the range must come after its start` |
 | qualsiasi altro errore | `the transcription failed`, con ciò che ha detto il motore |

@@ -24,6 +24,7 @@ subedit-cli transcribe --output FILE
 - **输入是视频或音频文件。** 对于视频，`ffmpeg` 会提取一条音轨；没有 `ffmpeg` 时，引擎可直接读取的音频文件（`wav`、`mp3`、`flac`、`ogg`）仍可转录，但视频不行，指定音轨时任何文件都不行。
 - **一次只处理一个文件**，输出位置是 `--output`：没有 `--output-dir` 或 `--in-place`，因为结果是新文件，而不是改写。
 - **语言会被检测**，除非用 `--language` 强制指定，并且会说明所用的语言。只为英语制作的模型不检测任何语言，也不转录其他语言：它无法接受的语言会在任何工作开始*之前*被拒绝，并指出该模型的限制。
+- **语言用两个字母输入——`fr`、`en`、`de`——也可以用文件所声明的三字母代码，`fra`、`eng`，它会被读作对应的两字母代码。** 其他写法都会在任何工作开始之前被拒绝。**检测只听前三十秒**：以音乐或静音开头的影片可能被当成另一种语言，引擎随后会把语音*翻译*成该语言写出——被当成英语的法语影片，输出的是英语，或是 `[SPEAKING FRENCH]`。知道语言时，请直接给出。
 - **可以只转录影片的一部分**，使用 `--start` 和 `--end`——参见[转录影片的一部分](#转录影片的一部分)。这样可以先在两分钟上试用模型，再放到两小时上运行。
 - **片段会被合并和切分**，依据是各项设置的限制（`transcription.merge-gap-ms`、`transcription.max-duration-ms`、`transcription.max-characters`）：同一句话中相距很近的两个片段合为一条字幕，过长或过宽的片段则在词处切开。**`--raw` 按引擎给出的原样写入片段**，每条字幕一个片段，这也是查看合并起了什么作用的办法。
 
@@ -44,7 +45,7 @@ Options:
   --audio-track N             Audio track of a video, counted from 0; the first by default
   --start TIME                Where to begin, as 2:00, 1:02:03 or seconds; the beginning by default
   --end TIME                  Where to stop, as 2:00, 1:02:03 or seconds; the end by default
-  --language CODE             Language of the speech: fr, en; detected by default
+  --language CODE             Language of the speech, two letters: fr, en, de; detected from the first 30 seconds by default
   --model FILE                Model file; the transcription.model setting by default
   --engine NAME               Engine; the transcription.engine setting by default
   --keep-audio FILE           Keep the extracted audio in this file
@@ -59,7 +60,7 @@ Options:
 | `--output` | 是 | 要写入的字幕文件；其目录不存在时会创建 | — |
 | `--to` | 否 | 格式的简称：`srt`、`vtt`、`subviewer2`、`ssa`、`ass`、`microdvd`、`mpl2`、`tmplayer`、`lrc` | `--output` 的扩展名所指的格式，否则为 `srt` |
 | `--audio-track` | 否 | 从 0 开始的整数：在视频各音轨中的位置 | `0`，即第一条 |
-| `--language` | 否 | 两个小写字母，ISO 639-1 代码：`en`、`fr` | 设置 `transcription.language`；为空：自动检测 |
+| `--language` | 否 | 两个字母，ISO 639-1 代码：`en`、`fr`；像 `fra` 这样的三字母代码会被读作 `fr` | 设置 `transcription.language`；为空：自动检测 |
 | `--start` | 否 | 时间：`2:00`、`1:02:03`、`2:00.5`，或秒数，`90` | 音频的开头 |
 | `--end` | 否 | 时间，写法与 `--start` 相同；必须在 `--start` 之后 | 音频的结尾 |
 | `--model` | 否 | 模型文件 | 设置 `transcription.model` |
@@ -115,7 +116,7 @@ subedit-cli transcribe --start 2:00 --end 3:30 --output test.srt --model large-v
 | 级别 | 在标准错误输出上追加的内容 |
 | :----- | :------------------------------------- |
 | 1 | `<input>: N subtitles transcribed, language: xx -> <output>` |
-| 2 | 步骤和进度，每个百分点一行：`extracting the audio…`，然后是 `transcribing…`，再然后是 `transcribing: 25%, 0:12:30 of 0:50:00, about 38 min left`——百分比、在音频中到达的位置和剩余时间 |
+| 2 | 步骤和进度，每个百分点一行：`extracting the audio…`，然后是 `transcribing…`，再然后是 `transcribing: 25%, 0:12:30 of 0:50:00, about 38 min left, elapsed: 0:05:12`——百分比、在音频中到达的位置、剩余时间（在算出之前是 `estimating the time left…`）和已用时间；**没有新内容时，这一行每十秒重复一次**，以免长时间的等待被当成卡死 |
 | 3 | 以及引擎每得到一段新文本，`last text: …` |
 
 **百分比是引擎在音频中的位置，而不是它自己窗口的计数**：引擎边转录边写出已转录的内容，命令读取它进行到哪里，因此数字从第一分钟起就在变化。（引擎自己的进度要在完成一个三十秒窗口之后，以音频的 5 % 为一步到来：单独看，在处理器上用大模型处理长影片时，它可能在 0 % 停留一刻钟。）**剩余时间一开始不显示**：做完足够多的工作、可以外推时才给出，并且依据最后一分钟的速度，而不是整个运行过程的平均值。
@@ -123,6 +124,19 @@ subedit-cli transcribe --start 2:00 --end 3:30 --output test.srt --model large-v
 ### 以 JSON 输出
 
 使用 [`--format json`](invocation.md#脚本可读取的输出)（写在子命令之前的全局选项）时，文件的对象在 `language` 中包含所用的语言，并包含 `counts.subtitles`（写出的字幕）和 `counts.segments`（生成这些字幕所用的引擎片段）；当 `--keep-audio` 保存了音频时，还包含 `audio`。
+
+## 提示
+
+第一级会输出两条提示，因为它们会改变您应有的预期：
+
+- **工作之前，使用只支持英语的模型时**：`This model is for English only: whatever language the film
+  speaks, the result will be English, or notes in brackets. Choose a multilingual model in the preferences.`
+  文件名以 `.en` 结尾的模型就是这样的模型。
+- **工作之后，引擎写出的大多是方括号里的注释时**——`[MUSIC PLAYING]`、`[SPEAKING FRENCH]`——，即至少两个、且达到其片段的三分之一：
+  `N of the M pieces are only notes in brackets, such as [MUSIC PLAYING]: the
+  language used (xx) is probably not the one spoken, and the engine may have translated the speech. Run it again with
+  the language typed.`
+  字幕照样会写出；这条提示说明应当怀疑什么。
 
 ## 退出码
 
@@ -139,6 +153,7 @@ subedit-cli transcribe --start 2:00 --end 3:30 --output test.srt --model large-v
 | 模型无法转录的语言 | `the model cannot transcribe the language xx` |
 | 没有语言，且模型无法检测语言 | `the model cannot detect the language: give one` |
 | 没有人注册过的引擎 | `no transcription engine is called NAME` |
+| 不是代码的语言 | `"TEXT" is not a language code: write two letters, such as fr, en, de or es` |
 | 范围的某个边界不是时间 | `"TEXT" is not a time: write it as 2:00, 1:02:03 or 2:00.5, or in seconds` |
 | `--end` 不在 `--start` 之后 | `the end of the range must come after its start` |
 | 其他任何失败 | `the transcription failed`，附上引擎所说的内容 |

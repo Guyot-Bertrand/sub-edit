@@ -34,6 +34,11 @@ subedit-cli transcribe --output FILE
 - **Язык определяется автоматически**, если его не задаёт `--language`, и использованный язык сообщается. Модель,
   созданная только для английского, ничего не определяет и ничего другого не расшифровывает: язык, который она не
   может принять, отклоняется *до* начала любой работы с указанием предела модели.
+- **Язык вводится двумя буквами — `fr`, `en`, `de` — или трёхбуквенным кодом, который указывает файл, `fra`, `eng`;
+  он читается как двухбуквенный.** Всё остальное отклоняется до начала любой работы. **Определение языка слушает только
+  первые тридцать секунд**: фильм, который начинается с музыки или тишины, могут принять за другой язык, и движок тогда
+  записывает речь, *переведённую* на этот язык — французский фильм, принятый за английский, выходит на английском или в виде
+  `[SPEAKING FRENCH]`. Если вы знаете язык, укажите его.
 - **Можно расшифровать только часть фильма** с помощью `--start` и `--end` — см.
   [Расшифровка части фильма](#расшифровка-части-фильма). Так модель пробуют на двух минутах, прежде чем запускать её на двух часах.
 - **Сегменты объединяются и режутся** по пределам настроек (`transcription.merge-gap-ms`,
@@ -59,7 +64,7 @@ Options:
   --audio-track N             Audio track of a video, counted from 0; the first by default
   --start TIME                Where to begin, as 2:00, 1:02:03 or seconds; the beginning by default
   --end TIME                  Where to stop, as 2:00, 1:02:03 or seconds; the end by default
-  --language CODE             Language of the speech: fr, en; detected by default
+  --language CODE             Language of the speech, two letters: fr, en, de; detected from the first 30 seconds by default
   --model FILE                Model file; the transcription.model setting by default
   --engine NAME               Engine; the transcription.engine setting by default
   --keep-audio FILE           Keep the extracted audio in this file
@@ -74,7 +79,7 @@ Options:
 | `--output` | да | файл субтитров для записи; его каталог создаётся, если отсутствует | — |
 | `--to` | нет | краткое название формата: `srt`, `vtt`, `subviewer2`, `ssa`, `ass`, `microdvd`, `mpl2`, `tmplayer`, `lrc` | формат, который указывает расширение `--output`, иначе `srt` |
 | `--audio-track` | нет | целое число, начиная с 0: место среди звуковых дорожек видео | `0`, первая |
-| `--language` | нет | две строчные буквы, код ISO 639-1: `en`, `fr` | настройка `transcription.language`; пусто: язык определяется автоматически |
+| `--language` | нет | две буквы, код ISO 639-1: `en`, `fr`; трёхбуквенный код, например `fra`, читается как `fr` | настройка `transcription.language`; пусто: язык определяется автоматически |
 | `--start` | нет | время: `2:00`, `1:02:03`, `2:00.5` или число секунд, `90` | начало звука |
 | `--end` | нет | время, записанное так же, как для `--start`; оно должно идти после `--start` | конец звука |
 | `--model` | нет | файл модели | настройка `transcription.model` |
@@ -134,7 +139,7 @@ subedit-cli transcribe --start 2:00 --end 3:30 --output test.srt --model large-v
 | Уровень | Что добавляется в поток ошибок |
 | :----- | :------------------------------------- |
 | 1 | `<input>: N subtitles transcribed, language: xx -> <output>` |
-| 2 | этап и ход работы, по одной строке на каждый процент: `extracting the audio…`, затем `transcribing…`, затем `transcribing: 25%, 0:12:30 of 0:50:00, about 38 min left` — процент, достигнутая позиция в звуке и оставшееся время |
+| 2 | этап и ход работы, по одной строке на каждый процент: `extracting the audio…`, затем `transcribing…`, затем `transcribing: 25%, 0:12:30 of 0:50:00, about 38 min left, elapsed: 0:05:12` — процент, достигнутая позиция в звуке, оставшееся время (`estimating the time left…`, пока его нельзя вычислить) и затраченное время; **строка повторяется каждые десять секунд, если ничего нового не пришло**, чтобы долгое ожидание не приняли за зависание |
 | 3 | и каждый новый текст, полученный движком, `last text: …` |
 
 **Процент — это позиция движка в звуке, а не счёт его собственных окон**: движок записывает расшифрованное по мере работы, а команда читает, докуда он дошёл, поэтому цифра движется с первой минуты. (Собственный ход работы движка приходит шагами по 5 % звука, после того как обработано окно в тридцать секунд: сам по себе он может оставаться на 0 % четверть часа на длинном фильме с большой моделью на процессоре.) **Оставшееся время вначале не показывается**: оно выводится, когда сделано достаточно, чтобы экстраполировать, и следует скорости последней минуты, а не среднему за весь прогон.
@@ -145,6 +150,18 @@ subedit-cli transcribe --start 2:00 --end 3:30 --output test.srt --model large-v
 подкомандой) объект файла содержит использованный язык в `language`, `counts.subtitles` (записанные
 субтитры) и `counts.segments` (части движка, из которых они сделаны), а также `audio`, если
 `--keep-audio` сохранил звук.
+
+## Уведомления
+
+Два уведомления выводятся на первом уровне, потому что они меняют то, чего следует ожидать:
+
+- **До работы, с моделью только для английского**: `This model is for English only: whatever language the film
+  speaks, the result will be English, or notes in brackets. Choose a multilingual model in the preferences.` Такова модель,
+  имя файла которой заканчивается на `.en`.
+- **После работы, когда движок записал в основном примечания в скобках** — `[MUSIC PLAYING]`, `[SPEAKING FRENCH]` —,
+  не менее двух и одной трети его фрагментов: `N of the M pieces are only notes in brackets, such as [MUSIC PLAYING]: the
+  language used (xx) is probably not the one spoken, and the engine may have translated the speech. Run it again with
+  the language typed.` Субтитры всё равно записываются; уведомление говорит, что следует заподозрить.
 
 ## Коды завершения
 
@@ -163,6 +180,7 @@ subedit-cli transcribe --start 2:00 --end 3:30 --output test.srt --model large-v
 | язык, который модель не может расшифровать | `the model cannot transcribe the language xx` |
 | язык не указан, а модель не умеет его определять | `the model cannot detect the language: give one` |
 | движок, который никто не зарегистрировал | `no transcription engine is called NAME` |
+| язык, не являющийся кодом | `"TEXT" is not a language code: write two letters, such as fr, en, de or es` |
 | граница диапазона, не являющаяся временем | `"TEXT" is not a time: write it as 2:00, 1:02:03 or 2:00.5, or in seconds` |
 | `--end` не после `--start` | `the end of the range must come after its start` |
 | любой другой сбой | `the transcription failed`, с тем, что сказал движок |

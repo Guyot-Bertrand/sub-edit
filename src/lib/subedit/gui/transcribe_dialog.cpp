@@ -19,6 +19,16 @@
 
 namespace subedit::gui {
 
+namespace {
+
+/// `00:02:00`, the form the fields ask for.
+[[nodiscard]] std::string paddedClock(core::Timestamp position) {
+    return position.format(
+        core::DecimalMark::Period, core::HourField::Always, core::Decimals::Seconds);
+}
+
+} // namespace
+
 TranscribeDialog::TranscribeDialog(std::vector<core::AudioTrack> tracks,
                                    const TranscribeChoice& initial,
                                    ToolsProbe probe,
@@ -48,25 +58,29 @@ TranscribeDialog::TranscribeDialog(std::vector<core::AudioTrack> tracks,
 
     m_language->setText(QString::fromStdString(initial.language));
     m_language->setPlaceholderText(translate("Detected from the sound"));
-    m_language->setMaxLength(2);
-    m_language->setToolTip(translate("A two-letter language code such as en or fr. Leave it empty "
-                                     "to let the model detect the language."));
+    constexpr int kLongestCode = 3;
+    m_language->setMaxLength(kLongestCode);
+    m_language->setToolTip(
+        translate("A language code such as fr, en, de, es or it (fra and eng work too). Leave it "
+                  "empty to let "
+                  "the model detect the language from the first 30 seconds of sound."));
     connect(m_language, &QLineEdit::textEdited, this, [this] {
         m_languageChosen = true;
         explainLanguage();
     });
+    connect(m_language, &QLineEdit::textChanged, this, [this] { explainLanguage(); });
     connect(m_track, &QComboBox::currentIndexChanged, this, [this] { followTrack(); });
 
-    m_start->setPlaceholderText(translate("Beginning"));
-    m_end->setPlaceholderText(translate("End"));
-    const QString rangeTip = translate("A time such as 2:00, 1:02:03 or 90 (seconds). Leave both "
+    m_start->setPlaceholderText(QStringLiteral("HH:MM:SS"));
+    m_end->setPlaceholderText(QStringLiteral("HH:MM:SS"));
+    const QString rangeTip = translate("A time as HH:MM:SS, for example 00:02:00. Leave both "
                                        "empty to transcribe the whole film.");
     m_start->setToolTip(rangeTip);
     m_end->setToolTip(rangeTip);
     if (initial.start)
-        m_start->setText(QString::fromStdString(core::clockText(*initial.start)));
+        m_start->setText(QString::fromStdString(paddedClock(*initial.start)));
     if (initial.end)
-        m_end->setText(QString::fromStdString(core::clockText(*initial.end)));
+        m_end->setText(QString::fromStdString(paddedClock(*initial.end)));
     connect(m_start, &QLineEdit::textChanged, this, [this] { checkRange(); });
     connect(m_end, &QLineEdit::textChanged, this, [this] { checkRange(); });
     m_rangeHint->setWordWrap(true);
@@ -113,9 +127,14 @@ TranscribeDialog::TranscribeDialog(std::vector<core::AudioTrack> tracks,
     refresh();
 }
 
+std::string TranscribeDialog::typedLanguage() const {
+    const std::string typed = m_language->text().trimmed().toStdString();
+    return core::readLanguageCode(typed).value_or(typed);
+}
+
 TranscribeChoice TranscribeDialog::choice() const {
     return TranscribeChoice{.track = m_track->currentIndex(),
-                            .language = m_language->text().trimmed().toStdString(),
+                            .language = typedLanguage(),
                             .start = core::readRangeBound(m_start->text().toStdString()),
                             .end = core::readRangeBound(m_end->text().toStdString())};
 }
@@ -153,7 +172,12 @@ void TranscribeDialog::checkRange() {
         problem = QString::fromStdString(core::emptyRange());
     m_rangeHint->setText(problem);
     m_rangeValid = problem.isEmpty();
-    m_buttons->button(QDialogButtonBox::Ok)->setEnabled(m_current.ready() && m_rangeValid);
+    updateButtons();
+}
+
+void TranscribeDialog::updateButtons() {
+    m_buttons->button(QDialogButtonBox::Ok)
+        ->setEnabled(m_current.ready() && m_rangeValid && m_languageValid);
 }
 
 void TranscribeDialog::followTrack() {
@@ -171,17 +195,42 @@ void TranscribeDialog::explainLanguage() {
     const bool declared =
         index < m_tracks.size() && core::twoLetterCodeOf(m_tracks[index].language).has_value();
 
+    const std::string typed = m_language->text().trimmed().toStdString();
+    m_languageValid = typed.empty() || core::readLanguageCode(typed).has_value();
+
+    // A model for English alone has one language to offer, and says so rather than let a person
+    // pick another and be handed English.
+    const bool englishOnly = m_current.model == core::ModelState::EnglishOnly;
+    m_language->setReadOnly(englishOnly);
+    if (englishOnly && m_language->text() != QStringLiteral("en")) {
+        m_language->setText(QStringLiteral("en"));
+        m_wasEnglishOnly = true;
+        return;
+    }
+    if (!englishOnly && m_wasEnglishOnly) {
+        m_wasEnglishOnly = false;
+        if (!m_languageChosen) {
+            followTrack();
+            return;
+        }
+    }
+
     QString hint;
-    if (m_current.model == core::ModelState::EnglishOnly)
-        hint = translate("This model cannot detect the language: type it.");
+    if (!m_languageValid)
+        hint = QString::fromStdString(core::notALanguageCode(typed));
+    else if (englishOnly)
+        hint = QString::fromStdString(core::noticeOfEnglishOnlyModel());
     else if (m_languageChosen)
         hint = translate("The language you typed is used.");
     else if (declared)
         hint = translate("Proposed from the language the file declares for this track.");
     else
         hint = translate("The file declares no language for this track: the model will detect it "
-                         "from the sound. Type it if you know it.");
+                         "from the first 30 seconds of sound. If the film opens with music or "
+                         "silence it can choose wrongly, and the speech is then translated into "
+                         "that language. Type the language if you know it.");
     m_hint->setText(hint);
+    updateButtons();
 }
 
 } // namespace subedit::gui

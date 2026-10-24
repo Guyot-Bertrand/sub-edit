@@ -105,6 +105,26 @@ std::string notATimeInRange(std::string_view text) {
         {text});
 }
 
+std::string noticeOfNotes(std::size_t notes, std::size_t pieces, std::string_view language) {
+    return substitute(
+        translate("%1 of the %2 pieces are only notes in brackets, such as [MUSIC PLAYING]: the "
+                  "language used (%3) is probably not the one spoken, and the engine may have "
+                  "translated the speech. Run it again with the language typed."),
+        {std::to_string(notes), std::to_string(pieces), language});
+}
+
+std::string noticeOfEnglishOnlyModel() {
+    return std::string{translate(
+        "This model is for English only: whatever language the film speaks, the result will be "
+        "English, or notes in brackets. Choose a multilingual model in the preferences.")};
+}
+
+std::string notALanguageCode(std::string_view text) {
+    return substitute(
+        translate("\"%1\" is not a language code: write two letters, such as fr, en, de or es"),
+        {text});
+}
+
 std::string emptyRange() {
     return std::string{translate("the end of the range must come after its start")};
 }
@@ -127,10 +147,15 @@ std::string remainingTimeText(std::chrono::seconds left) {
 }
 
 std::vector<std::string> transcriptionStatusParts(const TranscriptionProgress& progress,
-                                                  std::optional<std::chrono::seconds> left) {
+                                                  std::optional<std::chrono::seconds> left,
+                                                  std::optional<std::chrono::seconds> elapsed) {
     std::vector<std::string> parts;
-    if (progress.stage == TranscriptionStage::Extracting)
-        return {std::string{translate("extracting the audio…")}};
+    if (progress.stage == TranscriptionStage::Extracting) {
+        parts.emplace_back(translate("extracting the audio…"));
+        if (elapsed)
+            parts.push_back(elapsedTimeText(*elapsed));
+        return parts;
+    }
 
     constexpr double kPercent = 100.0;
     parts.push_back(progress.fraction
@@ -141,9 +166,18 @@ std::vector<std::string> transcriptionStatusParts(const TranscriptionProgress& p
                                    {clockText(*progress.position), clockText(*progress.total)}));
     else if (progress.position)
         parts.push_back(clockText(*progress.position));
-    if (left)
-        parts.push_back(remainingTimeText(*left));
+    parts.push_back(left ? remainingTimeText(*left)
+                         : std::string{translate("estimating the time left…")});
+    if (elapsed)
+        parts.push_back(elapsedTimeText(*elapsed));
     return parts;
+}
+
+std::string elapsedTimeText(std::chrono::seconds elapsed) {
+    return substitute(
+        translate("elapsed: %1"),
+        {clockText(Timestamp::fromMilliseconds(
+            std::chrono::duration_cast<std::chrono::milliseconds>(elapsed).count()))});
 }
 
 std::string lastTextLine(std::string_view text) {

@@ -968,7 +968,9 @@ msgid "Where to stop, as 2:00, 1:02:03 or seconds; the end by default"
 msgstr ""
 
 #: src/exe/cli/commands/transcribe.cpp
-msgid "Language of the speech: fr, en; detected by default"
+msgid ""
+"Language of the speech, two letters: fr, en, de; detected from the first 30 "
+"seconds by default"
 msgstr ""
 
 #: src/exe/cli/commands/transcribe.cpp
@@ -3200,6 +3202,25 @@ msgid ""
 msgstr ""
 
 #: src/lib/subedit/core/wording/transcription.cpp
+msgid ""
+"%1 of the %2 pieces are only notes in brackets, such as [MUSIC PLAYING]: the "
+"language used (%3) is probably not the one spoken, and the engine may have "
+"translated the speech. Run it again with the language typed."
+msgstr ""
+
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid ""
+"This model is for English only: whatever language the film speaks, the "
+"result will be English, or notes in brackets. Choose a multilingual model in "
+"the preferences."
+msgstr ""
+
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid ""
+"\"%1\" is not a language code: write two letters, such as fr, en, de or es"
+msgstr ""
+
+#: src/lib/subedit/core/wording/transcription.cpp
 msgid "the end of the range must come after its start"
 msgstr ""
 
@@ -3226,6 +3247,15 @@ msgstr ""
 #: src/lib/subedit/core/wording/transcription.cpp
 #: src/lib/subedit/gui/transcription_runner.cpp
 msgid "%1 of %2"
+msgstr ""
+
+#: src/lib/subedit/core/wording/transcription.cpp
+#: src/lib/subedit/gui/transcription_runner.cpp
+msgid "estimating the time left…"
+msgstr ""
+
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "elapsed: %1"
 msgstr ""
 
 #: src/lib/subedit/core/wording/transcription.cpp
@@ -4394,7 +4424,6 @@ msgid "Start (frames)"
 msgstr ""
 
 #: src/lib/subedit/gui/subtitle_table_model.cpp
-#: src/lib/subedit/gui/transcribe_dialog.cpp
 msgid "End"
 msgstr ""
 
@@ -4453,18 +4482,15 @@ msgstr ""
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
 msgid ""
-"A two-letter language code such as en or fr. Leave it empty to let the model "
-"detect the language."
-msgstr ""
-
-#: src/lib/subedit/gui/transcribe_dialog.cpp
-msgid "Beginning"
+"A language code such as fr, en, de, es or it (fra and eng work too). Leave "
+"it empty to let the model detect the language from the first 30 seconds of "
+"sound."
 msgstr ""
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
 msgid ""
-"A time such as 2:00, 1:02:03 or 90 (seconds). Leave both empty to transcribe "
-"the whole film."
+"A time as HH:MM:SS, for example 00:02:00. Leave both empty to transcribe the "
+"whole film."
 msgstr ""
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
@@ -4496,10 +4522,6 @@ msgid "Set them in the preferences."
 msgstr ""
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
-msgid "This model cannot detect the language: type it."
-msgstr ""
-
-#: src/lib/subedit/gui/transcribe_dialog.cpp
 msgid "The language you typed is used."
 msgstr ""
 
@@ -4510,7 +4532,9 @@ msgstr ""
 #: src/lib/subedit/gui/transcribe_dialog.cpp
 msgid ""
 "The file declares no language for this track: the model will detect it from "
-"the sound. Type it if you know it."
+"the first 30 seconds of sound. If the film opens with music or silence it "
+"can choose wrongly, and the speech is then translated into that language. "
+"Type the language if you know it."
 msgstr ""
 
 #: src/lib/subedit/gui/transcription_runner.cpp

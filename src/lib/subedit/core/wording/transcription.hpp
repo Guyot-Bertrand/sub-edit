@@ -45,6 +45,17 @@ namespace subedit::core {
 /// What is wrong with a bound of the range that could not be read.
 [[nodiscard]] std::string notATimeInRange(std::string_view text);
 
+/// A transcription of which a good part is notes in brackets, the language used probably wrong:
+/// says so and what to do. `language` is the one the engine reports.
+[[nodiscard]] std::string
+noticeOfNotes(std::size_t notes, std::size_t pieces, std::string_view language);
+
+/// A model for English alone will write everything as English, whatever the film speaks.
+[[nodiscard]] std::string noticeOfEnglishOnlyModel();
+
+/// What is wrong with a language that could not be read as a code.
+[[nodiscard]] std::string notALanguageCode(std::string_view text);
+
 /// The end of the range does not come after its start.
 [[nodiscard]] std::string emptyRange();
 
@@ -61,7 +72,11 @@ namespace subedit::core {
 /// transcribed, and the time left.
 [[nodiscard]] std::vector<std::string>
 transcriptionStatusParts(const TranscriptionProgress& progress,
-                         std::optional<std::chrono::seconds> left);
+                         std::optional<std::chrono::seconds> left,
+                         std::optional<std::chrono::seconds> elapsed = std::nullopt);
+
+/// How long the work has been going, `elapsed: 0:05:12`, for the surfaces that show it.
+[[nodiscard]] std::string elapsedTimeText(std::chrono::seconds elapsed);
 
 /// The last text the engine obtained, for the line that shows it.
 [[nodiscard]] std::string lastTextLine(std::string_view text);

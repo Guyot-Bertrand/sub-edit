@@ -1,4 +1,5 @@
 #include <subedit/core/io/real_file_system.hpp>
+#include <subedit/core/transcription/annotation_notes.hpp>
 #include <subedit/core/transcription/default_engines.hpp>
 #include <subedit/core/transcription/remaining_time.hpp>
 #include <subedit/core/transcription/subtitle_assembly.hpp>
@@ -28,6 +29,9 @@ namespace {
 constexpr int kPollMilliseconds = 100;
 
 constexpr int kPercent = 100;
+
+/// Wide enough for the title of the window and the longest line of the label.
+constexpr int kBoxWidth = 520;
 
 using Result = std::expected<TranscriptionOutcome, TranscriptionFailure>;
 
@@ -103,25 +107,35 @@ private:
     if (!transcribed)
         return std::unexpected(failureOf(transcribed.error()));
 
+    const core::NotesShare share = core::notesShare(transcribed->segments);
     return TranscriptionOutcome{
         .subtitles = core::assembleSubtitles(transcribed->segments, core::assemblyOf(settings)),
-        .language = transcribed->language.value_or(std::string{})};
+        .language = transcribed->language.value_or(std::string{}),
+        .notes = share.notes,
+        .pieces = share.pieces};
 }
 
 } // namespace
 
 QString transcriptionBoxLabel(const core::TranscriptionProgress& progress,
-                              std::optional<std::chrono::seconds> left) {
+                              std::optional<std::chrono::seconds> left,
+                              std::optional<std::chrono::seconds> elapsed) {
+    const QString spent =
+        elapsed
+            ? QStringLiteral("\n%1").arg(QString::fromStdString(core::elapsedTimeText(*elapsed)))
+            : QString{};
     if (progress.stage == core::TranscriptionStage::Extracting)
-        return translate("Extracting the audio…");
+        return translate("Extracting the audio…") + spent;
 
     QString label = translate("Transcribing the audio…");
     if (progress.position && progress.total)
         label += QStringLiteral("\n%1").arg(QString::fromStdString(core::substitute(
             core::translate("%1 of %2"),
             {core::clockText(*progress.position), core::clockText(*progress.total)})));
-    if (left)
-        label += QStringLiteral("\n%1").arg(QString::fromStdString(core::remainingTimeText(*left)));
+    label +=
+        QStringLiteral("\n%1").arg(left ? QString::fromStdString(core::remainingTimeText(*left))
+                                        : translate("estimating the time left…"));
+    label += spent;
     if (!progress.lastText.empty())
         label += QStringLiteral("\n%1").arg(
             substitute(translate("Last text: %1"),
@@ -146,6 +160,7 @@ BackgroundTranscriptionRunner::tools(const core::TranscriptionSettings& settings
 Result BackgroundTranscriptionRunner::run(const TranscriptionJob& job, QWidget* parent) {
     SharedProgress progress;
     core::RemainingTime remaining;
+    const auto started = core::RemainingTime::Clock::now();
     std::atomic<bool> cancelled{false};
 
     QProgressDialog box{
@@ -157,6 +172,10 @@ Result BackgroundTranscriptionRunner::run(const TranscriptionJob& job, QWidget* 
     box.setAutoReset(false);
     // Busy until something says how far it is: an extraction has no figure to give.
     box.setRange(0, 0);
+    // A box with no value yet is shown after a delay Qt sets by itself, a few seconds: asked for at
+    // once, since the work starts at once and a window that does not answer looks like a freeze.
+    box.setMinimumWidth(kBoxWidth);
+    box.show();
 
     QFutureWatcher<Result> watcher;
     QEventLoop loop;
@@ -175,7 +194,10 @@ Result BackgroundTranscriptionRunner::run(const TranscriptionJob& job, QWidget* 
             box.setRange(0, kPercent);
             box.setValue(static_cast<int>(*state.fraction * kPercent));
         }
-        box.setLabelText(transcriptionBoxLabel(state, remaining.left(now)));
+        box.setLabelText(
+            transcriptionBoxLabel(state,
+                                  remaining.left(now),
+                                  std::chrono::duration_cast<std::chrono::seconds>(now - started)));
         if (box.wasCanceled() || (m_cancelProbe && m_cancelProbe()))
             cancelled = true;
     });

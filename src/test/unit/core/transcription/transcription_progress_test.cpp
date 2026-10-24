@@ -1,12 +1,15 @@
 // How far a transcription is: the lines the tool prints, the time left, the range asked for,
 // and the words that say it.
 
+#include <subedit/core/transcription/annotation_notes.hpp>
+#include <subedit/core/transcription/language_codes.hpp>
 #include <subedit/core/transcription/remaining_time.hpp>
 #include <subedit/core/transcription/time_range.hpp>
 #include <subedit/core/transcription/whisper_cpp_output.hpp>
 #include <subedit/core/wording/transcription.hpp>
 
 #include <catch2/catch_test_macros.hpp>
+#include <catch2/matchers/catch_matchers_string.hpp>
 
 #include <chrono>
 #include <optional>
@@ -197,17 +200,115 @@ TEST_CASE("the status says what is known and is silent about the rest",
 
     CHECK(transcriptionStatusParts({.stage = TranscriptionStage::Extracting}, std::nullopt) ==
           std::vector<std::string>{"extracting the audio…"});
-    CHECK(transcriptionStatusParts({}, std::nullopt) == std::vector<std::string>{"transcribing…"});
+    CHECK(transcriptionStatusParts({}, std::nullopt) ==
+          std::vector<std::string>{"transcribing…", "estimating the time left…"});
     CHECK(transcriptionStatusParts({.fraction = 0.5, .position = at(60000), .total = at(120000)},
                                    150s) ==
           std::vector<std::string>{"transcribing: 50%", "0:01:00 of 0:02:00", "about 2 min left"});
     CHECK(transcriptionStatusParts({.fraction = 0.1, .position = at(60000)}, std::nullopt) ==
-          std::vector<std::string>{"transcribing: 10%", "0:01:00"});
+          std::vector<std::string>{"transcribing: 10%", "0:01:00", "estimating the time left…"});
     CHECK(subedit::core::lastTextLine("hello") == "last text: hello");
+}
+
+TEST_CASE("the time spent is told, and joins the status", "[wording][transcription]") {
+    using subedit::core::TranscriptionProgress;
+    using subedit::core::TranscriptionStage;
+    using subedit::core::transcriptionStatusParts;
+
+    CHECK(subedit::core::elapsedTimeText(312s) == "elapsed: 0:05:12");
+    CHECK(transcriptionStatusParts({.stage = TranscriptionStage::Extracting}, std::nullopt, 5s) ==
+          std::vector<std::string>{"extracting the audio…", "elapsed: 0:00:05"});
+    CHECK(transcriptionStatusParts({.fraction = 0.5}, 60s, 125s) ==
+          std::vector<std::string>{"transcribing: 50%", "about 1 min left", "elapsed: 0:02:05"});
 }
 
 TEST_CASE("the range errors are told", "[wording][transcription]") {
     CHECK(subedit::core::emptyRange() == "the end of the range must come after its start");
     CHECK(subedit::core::notATimeInRange("abc") ==
           "\"abc\" is not a time: write it as 2:00, 1:02:03 or 2:00.5, or in seconds");
+}
+
+// ## The language a person types
+
+TEST_CASE("a language is read from a two-letter code, a three-letter one, or a known case",
+          "[transcription][language]") {
+    using subedit::core::readLanguageCode;
+
+    CHECK(readLanguageCode("fr") == "fr");
+    CHECK(readLanguageCode("FR") == "fr");
+    CHECK(readLanguageCode("fra") == "fr");
+    CHECK(readLanguageCode("fre") == "fr");
+    CHECK(readLanguageCode(" eng ") == "en");
+    CHECK(readLanguageCode("deu") == "de");
+    // Two letters the table lacks are kept.
+    CHECK(readLanguageCode("af") == "af");
+}
+
+TEST_CASE("what is no language code is nothing", "[transcription][language]") {
+    using subedit::core::readLanguageCode;
+
+    CHECK_FALSE(readLanguageCode("").has_value());
+    CHECK_FALSE(readLanguageCode("   ").has_value());
+    CHECK_FALSE(readLanguageCode("f").has_value());
+    CHECK_FALSE(readLanguageCode("f1").has_value());
+    CHECK_FALSE(readLanguageCode("french").has_value());
+    CHECK_FALSE(readLanguageCode("xyz").has_value());
+    CHECK_FALSE(readLanguageCode("fr-FR").has_value());
+}
+
+TEST_CASE("the wording says what is wrong with a language", "[wording][transcription]") {
+    CHECK(subedit::core::notALanguageCode("french") ==
+          "\"french\" is not a language code: write two letters, such as fr, en, de or es");
+}
+
+// ## Notes in brackets
+
+TEST_CASE("a piece that is only notes in brackets is recognised", "[transcription][notes]") {
+    using subedit::core::isNotesOnly;
+
+    CHECK(isNotesOnly("[MUSIC PLAYING]"));
+    CHECK(isNotesOnly("[SPEAKING FRENCH] [MUSIC PLAYING] [SPEAKING FRENCH]"));
+    CHECK(isNotesOnly("  (applause) "));
+    CHECK_FALSE(isNotesOnly(""));
+    CHECK_FALSE(isNotesOnly("   "));
+    CHECK_FALSE(isNotesOnly("[]"));
+    CHECK_FALSE(isNotesOnly("[MUSIC PLAYING] and then he spoke"));
+    CHECK_FALSE(isNotesOnly("He said [no]"));
+    CHECK_FALSE(isNotesOnly("[unclosed"));
+}
+
+TEST_CASE("a transcription of mostly notes looks like the wrong language",
+          "[transcription][notes]") {
+    using subedit::core::looksLikeWrongLanguage;
+    using subedit::core::NotesShare;
+
+    CHECK(looksLikeWrongLanguage(NotesShare{.notes = 5, .pieces = 9}));
+    CHECK(looksLikeWrongLanguage(NotesShare{.notes = 2, .pieces = 6}));
+    // Too few, or too small a share.
+    CHECK_FALSE(looksLikeWrongLanguage(NotesShare{.notes = 1, .pieces = 1}));
+    CHECK_FALSE(looksLikeWrongLanguage(NotesShare{.notes = 2, .pieces = 7}));
+    CHECK_FALSE(looksLikeWrongLanguage(NotesShare{}));
+}
+
+TEST_CASE("the notes are counted over the pieces", "[transcription][notes]") {
+    using subedit::core::TranscribedSegment;
+
+    const std::vector<TranscribedSegment> segments{
+        {.text = "[MUSIC PLAYING]", .start = at(0), .end = at(1000)},
+        {.text = "Bonjour.", .start = at(1000), .end = at(2000)},
+        {.text = "[SPEAKING FRENCH]", .start = at(2000), .end = at(3000)}};
+
+    const auto share = subedit::core::notesShare(segments);
+
+    CHECK(share.notes == 2);
+    CHECK(share.pieces == 3);
+}
+
+TEST_CASE("the notices say what happened and what to do", "[wording][transcription]") {
+    CHECK_THAT(subedit::core::noticeOfNotes(5, 9, "en"),
+               Catch::Matchers::ContainsSubstring("5 of the 9 pieces are only notes in brackets"));
+    CHECK_THAT(subedit::core::noticeOfNotes(5, 9, "en"),
+               Catch::Matchers::ContainsSubstring("Run it again with the language typed"));
+    CHECK_THAT(subedit::core::noticeOfEnglishOnlyModel(),
+               Catch::Matchers::ContainsSubstring("Choose a multilingual model"));
 }

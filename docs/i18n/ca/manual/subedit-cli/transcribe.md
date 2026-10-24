@@ -34,6 +34,11 @@ surt amb un codi diferent de zero.
 - **La llengua es detecta** tret que `--language` la imposi, i es diu la llengua emprada. Un
   model fet només per a l'anglès no detecta res i no transcriu res més: una llengua que no pot
   acceptar es refusa *abans* de començar cap feina, indicant el límit del model.
+- **Una llengua s'escriu amb dues lletres — `fr`, `en`, `de` —, o amb el codi de tres lletres que declara un fitxer, `fra`,
+  `eng`, que es llegeix com el de dues lletres.** Tota la resta es refusa abans de començar cap feina. **La detecció
+  només escolta els primers trenta segons**: una pel·lícula que comença amb música o silenci pot ser presa per
+  una altra llengua, i el motor escriu llavors la parla *traduïda* a aquesta llengua — una pel·lícula francesa presa
+  per anglesa surt en anglès, o com a `[SPEAKING FRENCH]`. Quan coneixeu la llengua, doneu-la.
 - **Es pot transcriure una part de la pel·lícula tota sola**, amb `--start` i `--end` — vegeu
   [Transcriure una part](#transcriure-una-part). Així es prova un model en dos minuts abans d'executar-lo en
   dues hores.
@@ -60,7 +65,7 @@ Options:
   --audio-track N             Audio track of a video, counted from 0; the first by default
   --start TIME                Where to begin, as 2:00, 1:02:03 or seconds; the beginning by default
   --end TIME                  Where to stop, as 2:00, 1:02:03 or seconds; the end by default
-  --language CODE             Language of the speech: fr, en; detected by default
+  --language CODE             Language of the speech, two letters: fr, en, de; detected from the first 30 seconds by default
   --model FILE                Model file; the transcription.model setting by default
   --engine NAME               Engine; the transcription.engine setting by default
   --keep-audio FILE           Keep the extracted audio in this file
@@ -75,7 +80,7 @@ Options:
 | `--output` | sí | el fitxer de subtítols que cal escriure; el seu directori es crea si falta | — |
 | `--to` | no | el nom curt d'un format: `srt`, `vtt`, `subviewer2`, `ssa`, `ass`, `microdvd`, `mpl2`, `tmplayer`, `lrc` | el format que diu l'extensió de `--output`, si no `srt` |
 | `--audio-track` | no | un nombre enter des de 0: el lloc entre les pistes d'àudio del vídeo | `0`, la primera |
-| `--language` | no | dues lletres minúscules, un codi ISO 639-1: `en`, `fr` | el paràmetre `transcription.language`; buit: es detecta |
+| `--language` | no | dues lletres, un codi ISO 639-1: `en`, `fr`; un codi de tres lletres com `fra` es llegeix com `fr` | el paràmetre `transcription.language`; buit: es detecta |
 | `--start` | no | un temps: `2:00`, `1:02:03`, `2:00.5`, o un nombre de segons, `90` | el principi de l'àudio |
 | `--end` | no | un temps, escrit com per a `--start`; ha de venir després de `--start` | el final de l'àudio |
 | `--model` | no | el fitxer de model | el paràmetre `transcription.model` |
@@ -141,7 +146,7 @@ L'àudio de tota la pel·lícula s'extreu igualment: és la transcripció, molt 
 | Nivell | Què s'afegeix a la sortida d'error |
 | :---- | :-------------------------------- |
 | 1 | `<input>: N subtitles transcribed, language: xx -> <output>` |
-| 2 | el pas i el progrés, una línia per cada tant per cent: `extracting the audio…`, després `transcribing…`, després `transcribing: 25%, 0:12:30 of 0:50:00, about 38 min left` — el tant per cent, la posició assolida a l'àudio i el temps que queda |
+| 2 | el pas i el progrés, una línia per cada tant per cent: `extracting the audio…`, després `transcribing…`, després `transcribing: 25%, 0:12:30 of 0:50:00, about 38 min left, elapsed: 0:05:12` — el tant per cent, la posició assolida a l'àudio, el temps que queda (`estimating the time left…` mentre no es pot calcular) i el temps transcorregut; **la línia es torna a dir cada deu segons quan no ha arribat res de nou**, perquè una espera llarga no es prengui per un bloqueig |
 | 3 | i cada text nou que obté el motor, `last text: …` |
 
 **El tant per cent és la posició del motor a l'àudio, no un recompte de les seves finestres**: el motor escriu el que ha
@@ -157,6 +162,18 @@ Amb [`--format json`](invocation.md#sortida-llegible-per-un-script) (l'opció gl
 subordre), l'objecte del fitxer porta la llengua emprada a `language`, `counts.subtitles` (els
 subtítols escrits) i `counts.segments` (els trossos del motor a partir dels quals s'han fet), i `audio` quan
 `--keep-audio` ha conservat l'àudio.
+
+## Avisos
+
+Dos avisos es diuen al primer nivell, perquè canvien el que cal esperar:
+
+- **Abans de la feina, amb un model només per a l'anglès**: `This model is for English only: whatever language the film
+  speaks, the result will be English, or notes in brackets. Choose a multilingual model in the preferences.` Un model
+  el nom de fitxer del qual acaba en `.en` n'és un.
+- **Després de la feina, quan el motor ha escrit sobretot notes entre claudàtors** — `[MUSIC PLAYING]`, `[SPEAKING FRENCH]` —,
+  almenys dos i un terç dels seus trossos: `N of the M pieces are only notes in brackets, such as [MUSIC PLAYING]: the
+  language used (xx) is probably not the one spoken, and the engine may have translated the speech. Run it again with
+  the language typed.` Els subtítols s'escriuen igualment; l'avís diu què cal sospitar.
 
 ## Codis de sortida
 
@@ -175,6 +192,7 @@ un motor que ningú no ha registrat o un interval que no es pot fer servir.
 | una llengua que el model no pot transcriure | `the model cannot transcribe the language xx` |
 | cap llengua, i un model que no en pot detectar cap | `the model cannot detect the language: give one` |
 | un motor que ningú no ha registrat | `no transcription engine is called NAME` |
+| una llengua que no és un codi | `"TEXT" is not a language code: write two letters, such as fr, en, de or es` |
 | un límit de l'interval que no és un temps | `"TEXT" is not a time: write it as 2:00, 1:02:03 or 2:00.5, or in seconds` |
 | `--end` no posterior a `--start` | `the end of the range must come after its start` |
 | qualsevol altre error | `the transcription failed`, amb el que ha dit el motor |

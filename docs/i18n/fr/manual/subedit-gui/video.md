@@ -109,12 +109,13 @@ La boîte de dialogue demande trois choses, et dit si elle peut démarrer :
 
 - **la piste audio**, listée comme le fait le menu [`Audio`](#la-piste-audio), avec la langue
   et le titre que le fichier déclare ;
-- **la langue**, deux lettres comme `en` ou `fr`. Elle commence par la langue de la piste choisie
+- **la langue**, deux lettres comme `en` ou `fr` (`fra` est lu comme `fr`). Elle commence par la langue de la piste choisie
   quand le fichier en déclare une, suit la piste tant que vous n'en avez pas tapé, et
   **une ligne sous le champ dit d'où elle vient**. Quand le fichier ne déclare aucune langue pour la piste,
-  la ligne le dit : le modèle la détectera alors d'après le son, ce que seul un modèle multilingue
-  sait faire, et vous devriez la saisir si vous la connaissez. Avec un modèle pour l'anglais seul, qui ne
-  détecte rien, la ligne dit que la langue doit être saisie ;
+  la ligne le dit, et avertit : le modèle la détectera alors d'après les trente premières secondes de son, ce que seul
+  un modèle multilingue sait faire, et **un film qui s'ouvre sur de la musique ou du silence peut être pris pour une autre
+  langue et sa parole alors traduite dans celle-ci**. Saisissez la langue si vous la connaissez. Avec un modèle pour l'anglais
+  seul, le champ est figé sur `en` et ne peut être changé, et la ligne dit que le film sortira en anglais quelle que soit sa langue ;
 - **la partie du film**, d'une durée à une autre — voir [Essayer une partie d'abord](#essayer-une-partie-dabord). Les deux champs
   vides, c'est le film entier.
 
@@ -137,8 +138,9 @@ dit où en est le travail**, pour que vous sachiez qu'il est vivant et combien d
 - **l'étape** : « Extraction de l'audio… » d'abord — la boîte est alors occupée, sans chiffre, car extraire ne dit rien de
   l'avancement —, puis « Transcription de l'audio… », avec une barre ;
 - **la position** : « 0:12:30 sur 0:50:00 », jusqu'où dans le film le moteur est arrivé, dès qu'il a produit son premier texte ;
-- **le temps restant**, « environ 38 min restantes » : absent au début, montré quand assez de travail est fait pour extrapoler, et
+- **le temps restant**, « environ 38 min restantes » : « estimating the time left… » au début, remplacé quand assez de travail est fait pour extrapoler, et
   calculé sur la vitesse de la dernière minute ; c'est une précision de quelques minutes, pas une promesse ;
+- **le temps écoulé**, « elapsed: 0:05:12 », qui avance même quand rien d'autre ne bouge ;
 - **le dernier texte** obtenu, pour voir que le travail a du sens.
 
 Sur un long film avec un grand modèle sur processeur, les premières minutes peuvent être longues : le moteur charge le modèle et
@@ -147,6 +149,10 @@ moteur, qui ne vient que par pas de 5 % du film. Quand il s'achève, les sous-ti
 par la transcription **en une seule opération** : un `Undo` rend ce qui était là, textes de
 traduction compris. Une transcription qui échoue, ou que vous annulez, ne change rien — la raison est
 dite dans une boîte, sauf pour une annulation, qui dit seulement dans la barre d'état qu'elle a été annulée.
+
+**Quand l'essentiel de ce que le moteur a écrit est fait de notes entre crochets** — `[MUSIC PLAYING]`, `[SPEAKING FRENCH]` —, une boîte
+le dit après le travail : la langue employée n'est probablement pas celle qui est parlée, et le moteur a peut-être traduit la parole.
+Relancez avec la langue saisie. Les sous-titres sont quand même dans le projet, et un `Undo` rend ce qui était là.
 
 ### Essayer une partie d'abord
 

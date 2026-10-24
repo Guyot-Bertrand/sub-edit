@@ -112,12 +112,13 @@ El diàleg demana tres coses, i diu si pot començar:
 
 - **la pista d'àudio**, llistada com la llisten el menú [`Audio`](#la-pista-dàudio), amb la llengua
   i el títol que declara el fitxer;
-- **la llengua**, dues lletres com `en` o `fr`. Comença amb la llengua de la pista triada quan el
+- **la llengua**, dues lletres com `en` o `fr` (`fra` es llegeix com `fr`). Comença amb la llengua de la pista triada quan el
   fitxer en declara una, segueix la pista mentre no n'hàgiu escrit cap, i
   **una línia sota el camp diu d'on ve**. Quan el fitxer no declara cap llengua per a la pista,
-  la línia ho diu: el model la detectarà aleshores a partir del so, cosa que només fa un model
-  multilingüe, i l'hauríeu d'escriure si la coneixeu. Amb un model només per a l'anglès, que no
-  detecta res, la línia diu que cal escriure la llengua;
+  la línia ho diu, i avisa: el model la detectarà aleshores a partir dels primers trenta segons de so, cosa que només fa un model
+  multilingüe, i **una pel·lícula que comença amb música o silenci pot ser presa per una altra llengua i la seva parla
+  traduïda a aquesta**. Escriviu la llengua si la coneixeu. Amb un model només per a l'anglès, el camp
+  queda fix a `en` i no es pot canviar, i la línia diu que la pel·lícula sortirà en anglès sigui quina sigui la llengua que parli;
 - **la part de la pel·lícula**, d'un temps a un altre — vegeu [Provar primer una part](#provar-primer-una-part). Amb els dos
   camps buits, és tota la pel·lícula.
 
@@ -140,8 +141,9 @@ diu en quin punt és la feina**, perquè sapigueu que és viva i quant trigarà:
 - **el pas**: primer “Extracció de l'àudio…” — el quadre és aleshores ocupat, sense xifra, ja que extreure no diu res de fins on ha
   arribat —, després “Transcripció de l'àudio…”, amb una barra;
 - **la posició**: “0:12:30 de 0:50:00”, fins on de la pel·lícula ha arribat el motor, tan bon punt ha produït el seu primer text;
-- **el temps que queda**, “queden uns 38 min”: absent al principi, mostrat quan s'ha fet prou feina per extrapolar, i calculat a partir de la
+- **el temps que queda**, “queden uns 38 min”: “estimació del temps que queda…” al principi, substituït quan s'ha fet prou feina per extrapolar, i calculat a partir de la
   velocitat del darrer minut; és una precisió de pocs minuts, no una promesa;
+- **el temps transcorregut**, “temps transcorregut: 0:05:12”, que avança fins i tot quan res més no es mou;
 - **el darrer text** obtingut, perquè veieu que la feina té sentit.
 
 En una pel·lícula llarga amb un model gran en un processador, els primers minuts poden ser llargs: el motor carrega el model i treballa en les seves
@@ -150,6 +152,10 @@ del 5 % de la pel·lícula. Quan acaba, els subtítols del projecte se substitue
 per la transcripció **com una sola operació**: un sol `Undo` retorna el que hi havia, textos de
 traducció inclosos. Una transcripció que falla, o que cancel·leu, no canvia res — el motiu es
 diu en un quadre, tret d'una cancel·lació, que només diu que s'ha cancel·lat a la barra d'estat.
+
+**Quan la major part del que ha escrit el motor són notes entre claudàtors** — `[MUSIC PLAYING]`, `[SPEAKING FRENCH]` —, un quadre
+ho diu després de la feina: la llengua emprada probablement no és la parlada, i el motor potser ha traduït la parla. Torneu-lo a executar amb la
+llengua escrita. Els subtítols són al projecte igualment, i un `Undo` retorna el que hi havia.
 
 ### Provar primer una part
 

@@ -34,6 +34,11 @@ päättyy nollasta poikkeavaan koodiin.
 - **Kieli tunnistetaan**, ellei `--language` pakota sitä, ja käytetty kieli kerrotaan. Malli,
   joka on tehty vain englannille, ei tunnista mitään eikä litteroi muuta: kieli, jota se ei voi
   käsitellä, hylätään *ennen* työn alkua, ja mallin raja nimetään.
+- **Kieli kirjoitetaan kahdella kirjaimella — `fr`, `en`, `de` — tai kolmikirjaimisella koodilla, jonka tiedosto ilmoittaa, `fra`,
+  `eng`, joka luetaan kaksikirjaimisena.** Kaikki muu hylätään ennen työn alkua. **Tunnistus
+  kuuntelee vain ensimmäiset kolmekymmentä sekuntia**: elokuva, joka alkaa musiikilla tai hiljaisuudella, voidaan ottaa
+  toiseksi kieleksi, ja moottori kirjoittaa silloin puheen *käännettynä* tälle kielelle — englanniksi luultu ranskalainen
+  elokuva tulee ulos englanniksi tai muodossa `[SPEAKING FRENCH]`. Kun tiedät kielen, anna se.
 - **Elokuvan osan voi litteroida yksinään** valitsimilla `--start` ja `--end` — katso
   [Osan litterointi](#osan-litterointi). Näin mallia kokeillaan kahdella minuutilla ennen kuin se ajetaan
   kahdelle tunnille.
@@ -60,7 +65,7 @@ Options:
   --audio-track N             Audio track of a video, counted from 0; the first by default
   --start TIME                Where to begin, as 2:00, 1:02:03 or seconds; the beginning by default
   --end TIME                  Where to stop, as 2:00, 1:02:03 or seconds; the end by default
-  --language CODE             Language of the speech: fr, en; detected by default
+  --language CODE             Language of the speech, two letters: fr, en, de; detected from the first 30 seconds by default
   --model FILE                Model file; the transcription.model setting by default
   --engine NAME               Engine; the transcription.engine setting by default
   --keep-audio FILE           Keep the extracted audio in this file
@@ -75,7 +80,7 @@ Options:
 | `--output` | kyllä | kirjoitettava tekstitystiedosto; sen hakemisto luodaan, jos se puuttuu | — |
 | `--to` | ei | muodon lyhyt nimi: `srt`, `vtt`, `subviewer2`, `ssa`, `ass`, `microdvd`, `mpl2`, `tmplayer`, `lrc` | muoto, jonka `--output`-tiedoston pääte kertoo, muuten `srt` |
 | `--audio-track` | ei | kokonaisluku nollasta: paikka videon ääniraitojen joukossa | `0`, ensimmäinen |
-| `--language` | ei | kaksi pientä kirjainta, ISO 639-1 -koodi: `en`, `fr` | asetus `transcription.language`; tyhjä: tunnistetaan |
+| `--language` | ei | kaksi kirjainta, ISO 639-1 -koodi: `en`, `fr`; kolmikirjaiminen koodi kuten `fra` luetaan muodossa `fr` | asetus `transcription.language`; tyhjä: tunnistetaan |
 | `--start` | no | aika: `2:00`, `1:02:03`, `2:00.5` tai sekuntimäärä, `90` | äänen alku |
 | `--end` | no | aika, kirjoitettuna kuten valitsimelle `--start`; sen on oltava `--start`-arvon jälkeen | äänen loppu |
 | `--model` | ei | mallitiedosto | asetus `transcription.model` |
@@ -141,7 +146,7 @@ Koko elokuvan ääni puretaan edelleen: alue säästää litteroinnin, joka kest
 | Taso | Mitä virhetulosteeseen lisätään |
 | :---- | :-------------------------------- |
 | 1 | `<input>: N subtitles transcribed, language: xx -> <output>` |
-| 2 | vaihe ja eteneminen, yksi rivi jokaista prosenttia kohti: `extracting the audio…`, sitten `transcribing…`, sitten `transcribing: 25%, 0:12:30 of 0:50:00, about 38 min left` — prosentti, äänessä saavutettu kohta ja jäljellä oleva aika |
+| 2 | vaihe ja eteneminen, yksi rivi jokaista prosenttia kohti: `extracting the audio…`, sitten `transcribing…`, sitten `transcribing: 25%, 0:12:30 of 0:50:00, about 38 min left, elapsed: 0:05:12` — prosentti, äänessä saavutettu kohta, jäljellä oleva aika (`estimating the time left…`, kunnes sitä ei voi laskea) ja kulunut aika; **rivi sanotaan uudelleen kymmenen sekunnin välein, kun mitään uutta ei ole tullut**, jotta pitkää odotusta ei luulla jumiutumiseksi |
 | 3 | ja jokainen uusi teksti, jonka moottori saa, `last text: …` |
 
 **Prosentti on moottorin kohta äänessä, ei sen omien ikkunoiden laskuri**: moottori kirjoittaa litteroimansa
@@ -157,6 +162,18 @@ Valitsimella [`--format json`](invocation.md#skriptin-luettava-tuloste) (yleinen
 alikomentoa) tiedoston objektissa on käytetty kieli kentässä `language`, `counts.subtitles` (kirjoitetut
 tekstitykset) ja `counts.segments` (moottorin palat, joista ne tehtiin) sekä `audio`, kun
 `--keep-audio` säilytti äänen.
+
+## Huomautukset
+
+Kaksi huomautusta sanotaan ensimmäisellä tasolla, koska ne muuttavat sitä, mitä on odotettavissa:
+
+- **Ennen työtä, kun malli on vain englannille**: `This model is for English only: whatever language the film
+  speaks, the result will be English, or notes in brackets. Choose a multilingual model in the preferences.` Malli,
+  jonka tiedostonimi päättyy `.en`, on sellainen.
+- **Työn jälkeen, kun moottori on kirjoittanut enimmäkseen hakasulkeissa olevia merkintöjä** — `[MUSIC PLAYING]`, `[SPEAKING FRENCH]` —,
+  vähintään kaksi kolmasosaa sen paloista: `N of the M pieces are only notes in brackets, such as [MUSIC PLAYING]: the
+  language used (xx) is probably not the one spoken, and the engine may have translated the speech. Run it again with
+  the language typed.` Tekstitykset kirjoitetaan silti; huomautus kertoo, mitä epäillä.
 
 ## Paluuarvot
 
@@ -175,6 +192,7 @@ moottorissa, jota kukaan ei ole rekisteröinyt, tai alueessa, jota ei voi käytt
 | kieli, jota malli ei osaa litteroida | `the model cannot transcribe the language xx` |
 | ei kieltä, ja malli, joka ei osaa tunnistaa kieltä | `the model cannot detect the language: give one` |
 | moottori, jota kukaan ei ole rekisteröinyt | `no transcription engine is called NAME` |
+| kieli, joka ei ole koodi | `"TEXT" is not a language code: write two letters, such as fr, en, de or es` |
 | alueen raja, joka ei ole aika | `"TEXT" is not a time: write it as 2:00, 1:02:03 or 2:00.5, or in seconds` |
 | `--end` ei ole `--start`-arvon jälkeen | `the end of the range must come after its start` |
 | mikä tahansa muu virhe | `the transcription failed`, ja se, mitä moottori sanoi |

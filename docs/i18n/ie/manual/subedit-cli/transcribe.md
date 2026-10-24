@@ -34,6 +34,11 @@ e exeunte con un code ne-zero.
 - **Li lingue es detectet** si `--language` ne fortia it, e li lingue usat es dit. Un
   model fat solmen por anglesi ne detecte nequo e ne transcrive altri cosa: un lingue quel it ne posse
   acceptar es refusat *ante* que qualcunc labor comencea, nominante li límite del model.
+- **Un lingue es tipat con du líttere — `fr`, `en`, `de` —, o con li code de tri líttere quel un file declara, `fra`,
+  `eng`, quel es lect quam ti de du líttere.** Omnicos altri es refusat ante que qualcunc labor comencea. **Li detection
+  escuta solmen li prim triant secondes**: un film quel comensa con musica o silentie posse esser prenet por un
+  altri lingue, e li motor scri tande li parlada *tradutet* in ti lingue — un film francesi prenet por anglesi
+  ixe in anglesi, o quam `[SPEAKING FRENCH]`. Quande vu save li lingue, dona it.
 - **On posse transcrir solmen un parte del film**, con `--start` e `--end` — vide
   [Transcrir un parte](#transcrir-un-parte). It es li manie de provar un model sur du minutes ante lansar it sur
   du hores.
@@ -60,7 +65,7 @@ Options:
   --audio-track N             Audio track of a video, counted from 0; the first by default
   --start TIME                Where to begin, as 2:00, 1:02:03 or seconds; the beginning by default
   --end TIME                  Where to stop, as 2:00, 1:02:03 or seconds; the end by default
-  --language CODE             Language of the speech: fr, en; detected by default
+  --language CODE             Language of the speech, two letters: fr, en, de; detected from the first 30 seconds by default
   --model FILE                Model file; the transcription.model setting by default
   --engine NAME               Engine; the transcription.engine setting by default
   --keep-audio FILE           Keep the extracted audio in this file
@@ -75,7 +80,7 @@ Options:
 | `--output` | yes | li file de subtitules a scrir; su dossier es creat si it manca | — |
 | `--to` | no | li curt nómine de un formate: `srt`, `vtt`, `subviewer2`, `ssa`, `ass`, `microdvd`, `mpl2`, `tmplayer`, `lrc` | li formate quel li extension de `--output` indica, altrimen `srt` |
 | `--audio-track` | no | un númere integri ex 0: li position inter li pistas audio del video | `0`, li unesim |
-| `--language` | no | du líttere minuscul, un code ISO 639-1: `en`, `fr` | li parametre `transcription.language`; vacui: detectet |
+| `--language` | no | du líttere, un code ISO 639-1: `en`, `fr`; un code de tri líttere quam `fra` es lect quam `fr` | li parametre `transcription.language`; vacui: detectet |
 | `--start` | no | un témpor: `2:00`, `1:02:03`, `2:00.5`, o un númere de secondes, `90` | li comense del audio |
 | `--end` | no | un témpor, scrit quam por `--start`; it deve venir pos `--start` | li fine del audio |
 | `--model` | no | li file de model | li parametre `transcription.model` |
@@ -140,7 +145,7 @@ Li audio del tot film es tamen extraet: li transcription, mult plu long, es quo 
 | Nivelle | Quo es adjuntet al exeunte de error |
 | :---- | :-------------------------------- |
 | 1 | `<input>: N subtitles transcribed, language: xx -> <output>` |
-| 2 | li pass e li progress, un linea per procent: `extracting the audio…`, pois `transcribing…`, pois `transcribing: 25%, 0:12:30 of 0:50:00, about 38 min left` — li procent, li position atinget in li audio, e li témpor restant |
+| 2 | li pass e li progress, un linea per procent: `extracting the audio…`, pois `transcribing…`, pois `transcribing: 25%, 0:12:30 of 0:50:00, about 38 min left, elapsed: 0:05:12` — li procent, li position atinget in li audio, li témpor restant (`estimating the time left…` til que it ne posse esser calculat), e li témpor passat; **li linea es dit denov chascun dece secondes quande nequo nov ha venit**, por que un long atende ne esset prenet por un blocage |
 | 3 | e chascun nov textu quel li motor obtene, `last text: …` |
 
 **Li procent es li position del motor in li audio, ne un conte de su proprie fenestres**: li motor scri quo it ha
@@ -155,6 +160,18 @@ Con [`--format json`](invocation.md#un-output-quel-un-script-posse-leer) (li opt
 subcomande), li objecte del file porta li lingue usat in `language`, `counts.subtitles` (li
 subtitules scrit) e `counts.segments` (li fragmentes del motor ex quel ili esset fat), e `audio` quande
 `--keep-audio` ha conservat li audio.
+
+## Avisos
+
+Du avisos es dit al prim nivelle, nam ili changea quo on deve atender:
+
+- **Ante li labor, con un model solmen por anglesi**: `This model is for English only: whatever language the film
+  speaks, the result will be English, or notes in brackets. Choose a multilingual model in the preferences.` Un model
+  quel nómine de file fini con `.en` es un tal.
+- **Pos li labor, quande li motor ha scrit principalmen notes in crochetes** — `[MUSIC PLAYING]`, `[SPEAKING FRENCH]` —,
+  minimum du e un triesim de su fragmentes: `N of the M pieces are only notes in brackets, such as [MUSIC PLAYING]: the
+  language used (xx) is probably not the one spoken, and the engine may have translated the speech. Run it again with
+  the language typed.` Li subtitules es scrit tamen; li avise dit quo suspectar.
 
 ## Codes de exeunte
 
@@ -173,6 +190,7 @@ motor quel nequi ha registrat o un interval quel ne posse esser usat.
 | un lingue quel li model ne posse transcrir | `the model cannot transcribe the language xx` |
 | null lingue, e un model quel ne posse detecter un | `the model cannot detect the language: give one` |
 | un motor quel nequi ha registrat | `no transcription engine is called NAME` |
+| un lingue quel ne es un code | `"TEXT" is not a language code: write two letters, such as fr, en, de or es` |
 | un límite del interval quel ne es un témpor | `"TEXT" is not a time: write it as 2:00, 1:02:03 or 2:00.5, or in seconds` |
 | `--end` ne pos `--start` | `the end of the range must come after its start` |
 | qualcunc altri fallimentu | `the transcription failed`, con quo li motor ha dit |

@@ -44,6 +44,11 @@ struct TranscriptionJob {
 struct TranscriptionOutcome {
     std::vector<core::Subtitle> subtitles;
     std::string language{};
+
+    /// How many of the pieces the engine cut are notes in brackets only, out of how many: a large
+    /// share says the language used was probably wrong.
+    std::size_t notes = 0;
+    std::size_t pieces = 0;
 };
 
 /// Why it did not: in the user's words, or that they stopped it.
@@ -104,9 +109,11 @@ private:
 };
 
 /// What the progress box says of where the work stands: the step, the position in the film,
-/// the time left and the last text obtained, each when it is known.
-[[nodiscard]] QString transcriptionBoxLabel(const core::TranscriptionProgress& progress,
-                                            std::optional<std::chrono::seconds> left);
+/// the time left, the time spent and the last text obtained, each when it is known.
+[[nodiscard]] QString
+transcriptionBoxLabel(const core::TranscriptionProgress& progress,
+                      std::optional<std::chrono::seconds> left,
+                      std::optional<std::chrono::seconds> elapsed = std::nullopt);
 
 /// The `PATH` of the process, empty when it has none.
 [[nodiscard]] std::string searchPathOfProcess();

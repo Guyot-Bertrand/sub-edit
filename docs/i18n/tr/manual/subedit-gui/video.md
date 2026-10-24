@@ -104,12 +104,12 @@ komut satırında [`transcribe`](../subedit-cli/transcribe.md) komutunu kullanı
 
 - **ses izi**, [`Audio`](#ses-izi) menüsünün listelediği gibi listelenir, dosyanın bildirdiği dil
   ve başlıkla birlikte;
-- **dil**, `en` ya da `fr` gibi iki harf. Dosya bildirdiğinde seçilen izin diliyle
+- **dil**, `en` ya da `fr` gibi iki harf (`fra`, `fr` olarak okunur). Dosya bildirdiğinde seçilen izin diliyle
   başlar, siz kendiniz bir tane yazmadığınız sürece ize uyar ve
   **alanın altındaki bir satır nereden geldiğini söyler**. Dosya iz için bir dil bildirmediğinde
-  satır bunu söyler: model dili o zaman sesten algılar, bunu yalnızca çok dilli bir model yapabilir ve
-  biliyorsanız dili yazmalısınız. Hiçbir şeyi algılamayan, yalnızca İngilizce bir modelle satır,
-  dilin yazılması gerektiğini söyler;
+  satır bunu söyler ve uyarır: model dili o zaman sesin ilk otuz saniyesinden algılar, bunu yalnızca çok dilli bir model yapabilir ve
+  **müzikle ya da sessizlikle açılan bir film başka bir dil sanılabilir ve konuşması o zaman o dile çevrilir**. Biliyorsanız dili yazın.
+  Yalnızca İngilizce bir modelle alan `en` değerine sabitlenir ve değiştirilemez, satır ise filmin hangi dili konuşursa konuşsun İngilizce çıkacağını söyler;
 - **filmin bölümü**, bir zamandan bir başkasına — bkz. [Önce bir bölümü denemek](#önce-bir-bölümü-denemek). İki alan da boşsa filmin tamamı demektir.
 
 **Neyin eksik olduğunu da söyler.** Üç satır motorun, `ffmpeg`'in ve modelin orada olup olmadığını ve
@@ -129,13 +129,18 @@ sorulacak bir şey yoktur.
 
 - **adım**: önce “Ses çıkarılıyor…” — kutu o sırada meşguldür, rakam göstermez, çünkü çıkarma ne kadar ilerlediğini söylemez —, sonra “Ses yazıya dökülüyor…”, bir çubukla;
 - **konum**: “0:12:30 / 0:50:00”, motorun filmde ne kadar ilerlediği; ilk metnini üretir üretmez görünür;
-- **kalan süre**, “yaklaşık 38 dk kaldı”: başta yoktur, tahmin yürütmeye yetecek kadar iş yapıldığında görünür ve son dakikanın hızından hesaplanır; birkaç dakikalık bir doğruluktur, bir söz değil;
+- **kalan süre**, “yaklaşık 38 dk kaldı”: başta “kalan süre tahmin ediliyor…”, tahmin yürütmeye yetecek kadar iş yapıldığında yerini alır ve son dakikanın hızından hesaplanır; birkaç dakikalık bir doğruluktur, bir söz değil;
+- **geçen süre**, “geçen: 0:05:12”, başka hiçbir şey kıpırdamadığında bile ilerler;
 - **elde edilen son metin**, işin anlamlı gittiğini görmeniz için.
 
 Büyük bir modelle işlemcide çalışan uzun bir filmde ilk dakikalar uzun olabilir: motor modeli yüklüyor ve ilk otuz saniyelik pencereleri üzerinde çalışıyor. Konum ve son metin, motorun yalnızca filmin %5'lik adımlarıyla gelen kendi yüzdesinden önce hareket eder. Bittiğinde projenin altyazıları
 yazıya dökmeyle **tek bir işlem olarak** değiştirilir: bir `Undo` orada olanı geri verir, çeviri
 metinleri dahil. Başarısız olan ya da iptal ettiğiniz bir yazıya dökme hiçbir şeyi değiştirmez — neden
 bir kutuda söylenir, yalnızca iptal hariç; iptal sadece durum çubuğunda iptal edildiğini söyler.
+
+**Motorun yazdığının çoğu köşeli parantez içinde notlardan oluştuğunda** — `[MUSIC PLAYING]`, `[SPEAKING FRENCH]` —, bir kutu bunu
+işten sonra söyler: kullanılan dil büyük olasılıkla konuşulan dil değildir ve motor konuşmayı çevirmiş olabilir. Dili yazarak yeniden çalıştırın.
+Altyazılar yine de projededir ve bir `Undo` orada olanı geri verir.
 
 ### Önce bir bölümü denemek
 

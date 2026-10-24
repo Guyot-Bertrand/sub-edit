@@ -31,6 +31,11 @@ exits with a non-zero code.
 - **The language is detected** unless `--language` forces it, and the language used is said. A
   model made for English alone detects nothing and transcribes nothing else: a language it cannot
   take is refused *before* any work starts, naming the model's limit.
+- **A language is typed as two letters — `fr`, `en`, `de` —, or as the three-letter code a file declares, `fra`,
+  `eng`, which is read as the two-letter one.** Anything else is refused before any work starts. **Detection
+  listens to the first thirty seconds only**: a film that opens with music or silence can be taken for
+  another language, and the engine then writes the speech *translated* into that language — a French film taken
+  for English comes out in English, or as `[SPEAKING FRENCH]`. When you know the language, give it.
 - **A part of the film can be transcribed alone**, with `--start` and `--end` — see
   [Transcribing a part](#transcribing-a-part). It is how to try a model on two minutes before running it on
   two hours.
@@ -57,7 +62,7 @@ Options:
   --audio-track N             Audio track of a video, counted from 0; the first by default
   --start TIME                Where to begin, as 2:00, 1:02:03 or seconds; the beginning by default
   --end TIME                  Where to stop, as 2:00, 1:02:03 or seconds; the end by default
-  --language CODE             Language of the speech: fr, en; detected by default
+  --language CODE             Language of the speech, two letters: fr, en, de; detected from the first 30 seconds by default
   --model FILE                Model file; the transcription.model setting by default
   --engine NAME               Engine; the transcription.engine setting by default
   --keep-audio FILE           Keep the extracted audio in this file
@@ -72,7 +77,7 @@ Options:
 | `--output` | yes | the subtitle file to write; its directory is created when missing | — |
 | `--to` | no | the short name of a format: `srt`, `vtt`, `subviewer2`, `ssa`, `ass`, `microdvd`, `mpl2`, `tmplayer`, `lrc` | the format the extension of `--output` says, else `srt` |
 | `--audio-track` | no | a whole number from 0: the position among the audio tracks of the video | `0`, the first |
-| `--language` | no | two lower-case letters, an ISO 639-1 code: `en`, `fr` | the setting `transcription.language`; empty: detected |
+| `--language` | no | two letters, an ISO 639-1 code: `en`, `fr`; a three-letter code such as `fra` is read as `fr` | the setting `transcription.language`; empty: detected |
 | `--start` | no | a time: `2:00`, `1:02:03`, `2:00.5`, or a number of seconds, `90` | the beginning of the audio |
 | `--end` | no | a time, written as for `--start`; it must come after `--start` | the end of the audio |
 | `--model` | no | the model file | the setting `transcription.model` |
@@ -138,7 +143,7 @@ The audio of the whole film is still extracted: it is the transcription, much lo
 | Level | What is added on the error output |
 | :---- | :-------------------------------- |
 | 1 | `<input>: N subtitles transcribed, language: xx -> <output>` |
-| 2 | the step and the progress, one line for each percent: `extracting the audio…`, then `transcribing…`, then `transcribing: 25%, 0:12:30 of 0:50:00, about 38 min left` — the percent, the position reached in the audio, and the time left |
+| 2 | the step and the progress, one line for each percent: `extracting the audio…`, then `transcribing…`, then `transcribing: 25%, 0:12:30 of 0:50:00, about 38 min left, elapsed: 0:05:12` — the percent, the position reached in the audio, the time left (`estimating the time left…` until it can be worked out), and the time spent; **the line is said again every ten seconds when nothing new has come**, so that a long wait is not taken for a freeze |
 | 3 | and each new text the engine obtains, `last text: …` |
 
 **The percent is the engine's position in the audio, not a count of its own windows**: the engine writes what it
@@ -154,6 +159,18 @@ With [`--format json`](invocation.md#output-a-script-can-read) (the global optio
 subcommand), the object of the file carries the language used in `language`, `counts.subtitles` (the
 subtitles written) and `counts.segments` (the engine's pieces they were made from), and `audio` when
 `--keep-audio` kept the audio.
+
+## Notices
+
+Two notices are said at the first level, because they change what to expect:
+
+- **Before the work, with a model for English alone**: `This model is for English only: whatever language the film
+  speaks, the result will be English, or notes in brackets. Choose a multilingual model in the preferences.` A model
+  whose file name ends in `.en` is one.
+- **After the work, when the engine wrote mostly notes in brackets** — `[MUSIC PLAYING]`, `[SPEAKING FRENCH]` —,
+  at least two and a third of its pieces: `N of the M pieces are only notes in brackets, such as [MUSIC PLAYING]: the
+  language used (xx) is probably not the one spoken, and the engine may have translated the speech. Run it again with
+  the language typed.` The subtitles are written all the same; the notice says what to suspect.
 
 ## Exit codes
 
@@ -172,6 +189,7 @@ engine nobody registered or a range that cannot be used.
 | a language the model cannot transcribe | `the model cannot transcribe the language xx` |
 | no language, and a model that cannot detect one | `the model cannot detect the language: give one` |
 | an engine nobody registered | `no transcription engine is called NAME` |
+| a language that is not a code | `"TEXT" is not a language code: write two letters, such as fr, en, de or es` |
 | a bound of the range that is not a time | `"TEXT" is not a time: write it as 2:00, 1:02:03 or 2:00.5, or in seconds` |
 | `--end` not after `--start` | `the end of the range must come after its start` |
 | any other failure | `the transcription failed`, with what the engine said |
