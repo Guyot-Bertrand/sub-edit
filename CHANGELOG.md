@@ -21,6 +21,10 @@ do not edit it by hand.
 
 - **doc** — Explain installing whisper-cli with cmake --install
 
+### Fixed
+
+- **gui** — Warn on a wrong language, fix the box, ask HH:MM:SS
+
 ## 1.0.9 — 2026-10-23
 
 ### Added
