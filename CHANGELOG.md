@@ -15,6 +15,10 @@ do not edit it by hand.
 - **gui** — Choose the language in a list the engine offers
 - **gui** — Preview the transcription before it replaces the subtitles
 
+### Fixed
+
+- **gui** — Keep the question before the work, with the preview after
+
 ## 1.0.13 — 2026-10-24
 
 ### Added
