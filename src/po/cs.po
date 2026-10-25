@@ -1112,8 +1112,12 @@ msgstr ""
 "30 sekund"
 
 #: src/exe/cli/commands/transcribe.cpp
-msgid "Do not write sounds as notes, such as (phone ringing); the transcription.suppress-notes setting by default"
-msgstr "Nezapisovat zvuky jako poznámky, například (zvonění telefonu); ve výchozím stavu nastavení transcription.suppress-notes"
+msgid ""
+"Do not write sounds as notes, such as (phone ringing); the transcription."
+"suppress-notes setting by default"
+msgstr ""
+"Nezapisovat zvuky jako poznámky, například (zvonění telefonu); ve výchozím "
+"stavu nastavení transcription.suppress-notes"
 
 #: src/exe/cli/commands/transcribe.cpp
 msgid "Write sounds as notes, against the setting"
@@ -1132,7 +1136,8 @@ msgid "Keep the extracted audio in this file"
 msgstr "Uchovat vyextrahovaný zvuk v tomto souboru"
 
 #: src/exe/cli/commands/transcribe.cpp
-msgid "List the languages the engine offers for the model, and transcribe nothing"
+msgid ""
+"List the languages the engine offers for the model, and transcribe nothing"
 msgstr "Vypsat jazyky, které nástroj nabízí pro model, a nic nepřepisovat"
 
 #: src/exe/cli/commands/transcribe.cpp
@@ -3513,6 +3518,20 @@ msgstr[1] "%1 titulky přepsány, jazyk: %2"
 msgstr[2] "%1 titulků přepsáno, jazyk: %2"
 
 #: src/lib/subedit/core/wording/transcription.cpp
+msgid ""
+"The %1 subtitle of this project will be replaced by the transcription. You "
+"can undo it."
+msgid_plural ""
+"The %1 subtitles of this project will be replaced by the transcription. You "
+"can undo it."
+msgstr[0] ""
+"%1 titulek tohoto projektu bude nahrazen přepisem. Můžete to vrátit zpět."
+msgstr[1] ""
+"%1 titulky tohoto projektu budou nahrazeny přepisem. Můžete to vrátit zpět."
+msgstr[2] ""
+"%1 titulků tohoto projektu bude nahrazeno přepisem. Můžete to vrátit zpět."
+
+#: src/lib/subedit/core/wording/transcription.cpp
 msgid "%1 subtitle kept from a partial transcription, up to %2"
 msgid_plural "%1 subtitles kept from a partial transcription, up to %2"
 msgstr[0] "%1 titulek zachován z částečného přepisu, až do %2"
@@ -4514,8 +4533,12 @@ msgstr "Model"
 
 #: src/lib/subedit/gui/preferences_dialog.cpp
 #: src/lib/subedit/gui/transcribe_dialog.cpp
-msgid "Sounds such as (phone ringing) or [MUSIC PLAYING] are not written. Turn it off to keep them, for subtitles for the hard of hearing."
-msgstr "Zvuky jako (zvonění telefonu) nebo [MUSIC PLAYING] se nezapisují. Odškrtněte, chcete-li je ponechat, pro titulky pro neslyšící a nedoslýchavé."
+msgid ""
+"Sounds such as (phone ringing) or [MUSIC PLAYING] are not written. Turn it "
+"off to keep them, for subtitles for the hard of hearing."
+msgstr ""
+"Zvuky jako (zvonění telefonu) nebo [MUSIC PLAYING] se nezapisují. "
+"Odškrtněte, chcete-li je ponechat, pro titulky pro neslyšící a nedoslýchavé."
 
 # From Gaupol.
 #: src/lib/subedit/gui/preferences_dialog.cpp
@@ -4623,6 +4646,10 @@ msgstr ""
 "%1\n"
 "\n"
 "Otevřít jej znovu z nového umístění?"
+
+#: src/lib/subedit/gui/qt_prompts.cpp
+msgid "Replace the subtitles?"
+msgstr "Nahradit titulky?"
 
 # From Gaupol.
 #: src/lib/subedit/gui/save_shape.cpp
@@ -4910,8 +4937,13 @@ msgid "First audio track"
 msgstr "První zvuková stopa"
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
-msgid "Choose the language of the speech. \"Detect\" lets the model find it from the first 30 seconds of sound, which a film that opens with music can get wrong."
-msgstr "Vyberte jazyk řeči. „Zjistit“ nechá model najít jej z prvních 30 sekund zvuku, což film, který začíná hudbou, může zvládnout špatně."
+msgid ""
+"Choose the language of the speech. \"Detect\" lets the model find it from "
+"the first 30 seconds of sound, which a film that opens with music can get "
+"wrong."
+msgstr ""
+"Vyberte jazyk řeči. „Zjistit“ nechá model najít jej z prvních 30 sekund "
+"zvuku, což film, který začíná hudbou, může zvládnout špatně."
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
 msgid ""
@@ -4967,8 +4999,15 @@ msgid "Proposed from the language the file declares for this track."
 msgstr "Navrženo podle jazyka, který soubor uvádí pro tuto stopu."
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
-msgid "The file declares no language for this track: the model will detect it from the first 30 seconds of sound. If the film opens with music or silence it can choose wrongly, and the speech is then translated into that language. Choose the language if you know it."
-msgstr "Soubor pro tuto stopu neuvádí žádný jazyk: model jej zjistí z prvních 30 sekund zvuku. Pokud film začíná hudbou nebo tichem, může se zmýlit a řeč se pak přeloží do tohoto jazyka. Vyberte jazyk, pokud jej znáte."
+msgid ""
+"The file declares no language for this track: the model will detect it from "
+"the first 30 seconds of sound. If the film opens with music or silence it "
+"can choose wrongly, and the speech is then translated into that language. "
+"Choose the language if you know it."
+msgstr ""
+"Soubor pro tuto stopu neuvádí žádný jazyk: model jej zjistí z prvních 30 "
+"sekund zvuku. Pokud film začíná hudbou nebo tichem, může se zmýlit a řeč se "
+"pak přeloží do tohoto jazyka. Vyberte jazyk, pokud jej znáte."
 
 #: src/lib/subedit/gui/transcription_preview_dialog.cpp
 msgid "Apply"
@@ -4980,8 +5019,12 @@ msgid "Transcription preview"
 msgstr "Náhled přepisu"
 
 #: src/lib/subedit/gui/transcription_preview_dialog.cpp
-msgid "Partial result: the work stopped at %1. What was obtained up to there can be applied or ignored."
-msgstr "Částečný výsledek: práce se zastavila na %1. To, co bylo do té doby získáno, lze použít nebo ignorovat."
+msgid ""
+"Partial result: the work stopped at %1. What was obtained up to there can be "
+"applied or ignored."
+msgstr ""
+"Částečný výsledek: práce se zastavila na %1. To, co bylo do té doby získáno, "
+"lze použít nebo ignorovat."
 
 #: src/lib/subedit/gui/transcription_preview_dialog.cpp
 msgid "Select a subtitle on the right to see the pieces it was made from."
@@ -5438,20 +5481,6 @@ msgid "Main"
 msgstr "Hlavní"
 
 #~ msgid ""
-#~ "The %1 subtitle of this project will be replaced by the transcription. "
-#~ "You can undo it."
-#~ msgid_plural ""
-#~ "The %1 subtitles of this project will be replaced by the transcription. "
-#~ "You can undo it."
-#~ msgstr[0] ""
-#~ "%1 titulek tohoto projektu bude nahrazen přepisem. Můžete to vrátit zpět."
-#~ msgstr[1] ""
-#~ "%1 titulky tohoto projektu budou nahrazeny přepisem. Můžete to vrátit "
-#~ "zpět."
-#~ msgstr[2] ""
-#~ "%1 titulků tohoto projektu bude nahrazeno přepisem. Můžete to vrátit zpět."
-
-#~ msgid ""
 #~ "%1 of the %2 pieces are only notes in brackets, such as [MUSIC PLAYING]: "
 #~ "the language used (%3) is probably not the one spoken, and the engine may "
 #~ "have translated the speech. Run it again with the language typed."
@@ -5459,9 +5488,6 @@ msgstr "Hlavní"
 #~ "%1 z %2 částí jsou jen poznámky v hranatých závorkách, například [MUSIC "
 #~ "PLAYING]: použitý jazyk (%3) pravděpodobně není ten, kterým se mluví, a "
 #~ "nástroj mohl řeč přeložit. Spusťte přepis znovu se zadaným jazykem."
-
-#~ msgid "Replace the subtitles?"
-#~ msgstr "Nahradit titulky?"
 
 #~ msgid ""
 #~ "A language code such as fr, en, de, es or it (fra and eng work too). "

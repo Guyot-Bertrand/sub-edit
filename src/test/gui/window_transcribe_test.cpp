@@ -173,6 +173,9 @@ struct Stage {
     std::unique_ptr<MainWindow> window;
 
     Stage() {
+        // The project holds three subtitles, so the question before the work is asked: yes by
+        // default, the cases about the refusal say no.
+        prompts.nextReplacementAccepted = true;
         booth.tracks = kTracks;
         window = std::make_unique<MainWindow>(
             files, fileIn(files, "/films/film.fr.srt"), prompts, projecting(booth));
@@ -304,6 +307,21 @@ TEST_CASE("the command is out until a film is open and in once it is", "[gui][GU
     CHECK(stage.window->transcribeAudioAction()->isEnabled());
 }
 
+TEST_CASE("the window asks before the work, and a refusal costs nothing",
+          "[gui][GUI-TRANSCRIBE-03]") {
+    Stage stage;
+    stage.prompts.nextRun = true;
+    stage.prompts.nextReplacementAccepted = false;
+
+    stage.window->transcribeAudioAction()->trigger();
+
+    // Asked once, with the number of subtitles that would go; refused, nothing was started.
+    REQUIRE(stage.prompts.replacements.size() == 1);
+    CHECK_THAT(stage.prompts.replacements.front(), ContainsSubstring("3 subtitles"));
+    CHECK(stage.runner->asked.empty());
+    CHECK(textsOf(*stage.window) == std::vector<std::string>{"Un.", "Deux.", "Trois."});
+}
+
 TEST_CASE("ignoring the preview changes nothing", "[gui][GUI-TRANSCRIBE-03]") {
     Stage stage;
     stage.prompts.nextRun = true;
@@ -321,7 +339,7 @@ TEST_CASE("ignoring the preview changes nothing", "[gui][GUI-TRANSCRIBE-03]") {
     CHECK_FALSE(stage.window->undoAction()->isEnabled());
 }
 
-TEST_CASE("a project with nothing in it is filled the same way", "[gui][GUI-TRANSCRIBE-03]") {
+TEST_CASE("a project with nothing in it is not asked about", "[gui][GUI-TRANSCRIBE-03]") {
     InMemoryFileSystem files = directoryHolding();
     FakePrompts prompts;
     Projectionist booth;
@@ -336,6 +354,7 @@ TEST_CASE("a project with nothing in it is filled the same way", "[gui][GUI-TRAN
 
     window.transcribeAudioAction()->trigger();
 
+    CHECK(prompts.replacements.empty());
     CHECK(textsOf(window) == std::vector<std::string>{"Hello.", "World."});
 }
 
@@ -370,6 +389,7 @@ TEST_CASE("choosing nothing in the dialog does nothing", "[gui][GUI-TRANSCRIBE-0
 
     stage.window->transcribeAudioAction()->trigger();
 
+    CHECK(stage.prompts.replacements.empty());
     CHECK(stage.runner->asked.empty());
 }
 
@@ -1064,6 +1084,18 @@ TEST_CASE("selecting a subtitle highlights the pieces it was made from and shows
     dialog.subtitlesTable()->setCurrentCell(0, 2);
     CHECK(dialog.piecesTable()->item(expected.front(), 2)->background().style() == Qt::NoBrush);
     CHECK(dialog.highlightedPieces().size() == 1);
+}
+
+TEST_CASE("clearing the selection clears the highlight", "[gui][GUI-TRANSCRIBE-07]") {
+    const auto pieces = std::vector<TranscribedSegment>{piece(0, "Hello."), piece(5000, "World.")};
+    const TranscriptionPreviewDialog dialog{
+        TranscriptionPreview{.pieces = pieces, .assembly = core::assemble(pieces)}};
+    dialog.subtitlesTable()->setCurrentCell(1, 2);
+    REQUIRE(dialog.highlightedPieces().size() == 1);
+
+    dialog.subtitlesTable()->setCurrentCell(-1, -1);
+
+    CHECK(dialog.highlightedPieces().empty());
 }
 
 TEST_CASE("the left side cannot be selected or edited", "[gui][GUI-TRANSCRIBE-07]") {

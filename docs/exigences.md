@@ -349,7 +349,7 @@ longer prove anything.
 | `CLI-TRANSCRIBE-08` | `--format json` writes one record with the language used, the counts and the files written | 22 | implemented |
 | `GUI-TRANSCRIBE-01` | `Transcribe Audio…` opens a dialog offering the audio tracks of the project's video, a language and a model | 22 | implemented |
 | `GUI-TRANSCRIBE-02` | the transcription runs in the background with a progress indicator and can be cancelled, a cancelled or failed run leaving the project unchanged | 22 | implemented |
-| `GUI-TRANSCRIBE-03` | the transcription replaces the subtitles of the project only once the person has applied it from the preview, as one undoable operation | 22 | implemented |
+| `GUI-TRANSCRIBE-03` | when the subtitle section is not empty the window asks for confirmation before the work, and the transcription replaces it only once the person has applied it from the preview, as one undoable operation | 22 | implemented |
 | `GUI-TRANSCRIBE-04` | without the executable, the model or the extraction tool the command explains what is missing and where to read how to install it, and the rest of the window is unaffected | 22 | implemented |
 | `CLI-TRANSCRIBE-09` | `--start` and `--end` restrict the transcription to a part of the film, the subtitles keep the time of the film, and a bound that is no time or a range whose end comes first is refused before any work | 22 | implemented |
 | `CLI-TRANSCRIBE-10` | while it runs the command says the step, the percent, the position in the film and the time left, and at the third level the text last obtained | 22 | implemented |

@@ -3211,6 +3211,16 @@ msgstr[0] ""
 msgstr[1] ""
 
 #: src/lib/subedit/core/wording/transcription.cpp
+msgid ""
+"The %1 subtitle of this project will be replaced by the transcription. You "
+"can undo it."
+msgid_plural ""
+"The %1 subtitles of this project will be replaced by the transcription. You "
+"can undo it."
+msgstr[0] ""
+msgstr[1] ""
+
+#: src/lib/subedit/core/wording/transcription.cpp
 msgid "%1 subtitle kept from a partial transcription, up to %2"
 msgid_plural "%1 subtitles kept from a partial transcription, up to %2"
 msgstr[0] ""
@@ -4239,6 +4249,10 @@ msgid ""
 "%1\n"
 "\n"
 "Open it again, moved?"
+msgstr ""
+
+#: src/lib/subedit/gui/qt_prompts.cpp
+msgid "Replace the subtitles?"
 msgstr ""
 
 #: src/lib/subedit/gui/save_shape.cpp

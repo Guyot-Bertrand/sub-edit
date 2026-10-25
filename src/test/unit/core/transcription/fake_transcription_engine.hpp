@@ -30,6 +30,9 @@ struct FakeEngineScript {
     /// The language reported when none is asked for.
     std::string detectedLanguage = "en";
 
+    /// When set, the engine cannot say what it can do (a program or a model that is not there).
+    std::optional<core::TranscriptionError> capabilitiesError{};
+
     /// Where the last request received is left, when a test wants to read it.
     std::shared_ptr<core::TranscriptionRequest> seen{};
 };
@@ -43,6 +46,8 @@ public:
 
     [[nodiscard]] std::expected<core::EngineCapabilities, core::TranscriptionError>
     capabilitiesFor(const std::optional<std::filesystem::path>& /*model*/) const override {
+        if (m_script.capabilitiesError)
+            return std::unexpected(*m_script.capabilitiesError);
         return m_script.capabilities;
     }
 

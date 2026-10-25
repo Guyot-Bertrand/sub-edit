@@ -1173,8 +1173,12 @@ msgstr ""
 "los primeros 30 segundos"
 
 #: src/exe/cli/commands/transcribe.cpp
-msgid "Do not write sounds as notes, such as (phone ringing); the transcription.suppress-notes setting by default"
-msgstr "No escribir los sonidos como notas, por ejemplo (timbre de teléfono); por defecto, el ajuste transcription.suppress-notes"
+msgid ""
+"Do not write sounds as notes, such as (phone ringing); the transcription."
+"suppress-notes setting by default"
+msgstr ""
+"No escribir los sonidos como notas, por ejemplo (timbre de teléfono); por "
+"defecto, el ajuste transcription.suppress-notes"
 
 #: src/exe/cli/commands/transcribe.cpp
 msgid "Write sounds as notes, against the setting"
@@ -1193,8 +1197,11 @@ msgid "Keep the extracted audio in this file"
 msgstr "Conserva el audio extraído en este archivo"
 
 #: src/exe/cli/commands/transcribe.cpp
-msgid "List the languages the engine offers for the model, and transcribe nothing"
-msgstr "Enumerar los idiomas que el motor ofrece para el modelo, y no transcribir nada"
+msgid ""
+"List the languages the engine offers for the model, and transcribe nothing"
+msgstr ""
+"Enumerar los idiomas que el motor ofrece para el modelo, y no transcribir "
+"nada"
 
 #: src/exe/cli/commands/transcribe.cpp
 msgid "Write the segments as the engine cut them"
@@ -3554,6 +3561,20 @@ msgstr[0] "%1 subtítulo transcrito, idioma: %2"
 msgstr[1] "%1 subtítulos transcritos, idioma: %2"
 
 #: src/lib/subedit/core/wording/transcription.cpp
+msgid ""
+"The %1 subtitle of this project will be replaced by the transcription. You "
+"can undo it."
+msgid_plural ""
+"The %1 subtitles of this project will be replaced by the transcription. You "
+"can undo it."
+msgstr[0] ""
+"El %1 subtítulo de este proyecto se sustituirá por la transcripción. Puede "
+"deshacerlo."
+msgstr[1] ""
+"Los %1 subtítulos de este proyecto se sustituirán por la transcripción. "
+"Puede deshacerlo."
+
+#: src/lib/subedit/core/wording/transcription.cpp
 msgid "%1 subtitle kept from a partial transcription, up to %2"
 msgid_plural "%1 subtitles kept from a partial transcription, up to %2"
 msgstr[0] "%1 subtítulo conservado de una transcripción parcial, hasta %2"
@@ -4547,8 +4568,13 @@ msgstr "Modelo"
 
 #: src/lib/subedit/gui/preferences_dialog.cpp
 #: src/lib/subedit/gui/transcribe_dialog.cpp
-msgid "Sounds such as (phone ringing) or [MUSIC PLAYING] are not written. Turn it off to keep them, for subtitles for the hard of hearing."
-msgstr "Los sonidos como (timbre de teléfono) o [MUSIC PLAYING] no se escriben. Desmarque para conservarlos, para subtítulos para personas sordas o con discapacidad auditiva."
+msgid ""
+"Sounds such as (phone ringing) or [MUSIC PLAYING] are not written. Turn it "
+"off to keep them, for subtitles for the hard of hearing."
+msgstr ""
+"Los sonidos como (timbre de teléfono) o [MUSIC PLAYING] no se escriben. "
+"Desmarque para conservarlos, para subtítulos para personas sordas o con "
+"discapacidad auditiva."
 
 # From Gaupol.
 #: src/lib/subedit/gui/preferences_dialog.cpp
@@ -4654,6 +4680,10 @@ msgstr ""
 "%1\n"
 "\n"
 "¿Volver a abrirlo en su nueva ubicación?"
+
+#: src/lib/subedit/gui/qt_prompts.cpp
+msgid "Replace the subtitles?"
+msgstr "¿Sustituir los subtítulos?"
 
 # From Gaupol.
 #: src/lib/subedit/gui/save_shape.cpp
@@ -4942,8 +4972,14 @@ msgid "First audio track"
 msgstr "Primera pista de audio"
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
-msgid "Choose the language of the speech. \"Detect\" lets the model find it from the first 30 seconds of sound, which a film that opens with music can get wrong."
-msgstr "Elija el idioma del habla. «Detectar» deja que el modelo lo encuentre a partir de los primeros 30 segundos de sonido, algo que una película que empieza con música puede hacer mal."
+msgid ""
+"Choose the language of the speech. \"Detect\" lets the model find it from "
+"the first 30 seconds of sound, which a film that opens with music can get "
+"wrong."
+msgstr ""
+"Elija el idioma del habla. «Detectar» deja que el modelo lo encuentre a "
+"partir de los primeros 30 segundos de sonido, algo que una película que "
+"empieza con música puede hacer mal."
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
 msgid ""
@@ -5000,8 +5036,16 @@ msgid "Proposed from the language the file declares for this track."
 msgstr "Propuesto a partir del idioma que el archivo declara para esta pista."
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
-msgid "The file declares no language for this track: the model will detect it from the first 30 seconds of sound. If the film opens with music or silence it can choose wrongly, and the speech is then translated into that language. Choose the language if you know it."
-msgstr "El archivo no declara ningún idioma para esta pista: el modelo lo detectará a partir de los primeros 30 segundos de sonido. Si la película empieza con música o silencio, puede equivocarse, y el habla se traduce entonces a ese idioma. Elija el idioma si lo conoce."
+msgid ""
+"The file declares no language for this track: the model will detect it from "
+"the first 30 seconds of sound. If the film opens with music or silence it "
+"can choose wrongly, and the speech is then translated into that language. "
+"Choose the language if you know it."
+msgstr ""
+"El archivo no declara ningún idioma para esta pista: el modelo lo detectará "
+"a partir de los primeros 30 segundos de sonido. Si la película empieza con "
+"música o silencio, puede equivocarse, y el habla se traduce entonces a ese "
+"idioma. Elija el idioma si lo conoce."
 
 #: src/lib/subedit/gui/transcription_preview_dialog.cpp
 msgid "Apply"
@@ -5013,12 +5057,18 @@ msgid "Transcription preview"
 msgstr "Vista previa de la transcripción"
 
 #: src/lib/subedit/gui/transcription_preview_dialog.cpp
-msgid "Partial result: the work stopped at %1. What was obtained up to there can be applied or ignored."
-msgstr "Resultado parcial: el trabajo se detuvo en %1. Lo obtenido hasta ahí se puede aplicar o ignorar."
+msgid ""
+"Partial result: the work stopped at %1. What was obtained up to there can be "
+"applied or ignored."
+msgstr ""
+"Resultado parcial: el trabajo se detuvo en %1. Lo obtenido hasta ahí se "
+"puede aplicar o ignorar."
 
 #: src/lib/subedit/gui/transcription_preview_dialog.cpp
 msgid "Select a subtitle on the right to see the pieces it was made from."
-msgstr "Seleccione un subtítulo a la derecha para ver los fragmentos con los que se hizo."
+msgstr ""
+"Seleccione un subtítulo a la derecha para ver los fragmentos con los que se "
+"hizo."
 
 #: src/lib/subedit/gui/transcription_preview_dialog.cpp
 msgid "As the engine wrote it (%1)"
@@ -5470,19 +5520,6 @@ msgid "Main"
 msgstr "Principal"
 
 #~ msgid ""
-#~ "The %1 subtitle of this project will be replaced by the transcription. "
-#~ "You can undo it."
-#~ msgid_plural ""
-#~ "The %1 subtitles of this project will be replaced by the transcription. "
-#~ "You can undo it."
-#~ msgstr[0] ""
-#~ "El %1 subtítulo de este proyecto se sustituirá por la transcripción. "
-#~ "Puede deshacerlo."
-#~ msgstr[1] ""
-#~ "Los %1 subtítulos de este proyecto se sustituirán por la transcripción. "
-#~ "Puede deshacerlo."
-
-#~ msgid ""
 #~ "%1 of the %2 pieces are only notes in brackets, such as [MUSIC PLAYING]: "
 #~ "the language used (%3) is probably not the one spoken, and the engine may "
 #~ "have translated the speech. Run it again with the language typed."
@@ -5491,9 +5528,6 @@ msgstr "Principal"
 #~ "PLAYING]: el idioma empleado (%3) probablemente no es el que se habla, y "
 #~ "el motor puede haber traducido el habla. Vuelva a ejecutarlo escribiendo "
 #~ "el idioma."
-
-#~ msgid "Replace the subtitles?"
-#~ msgstr "¿Sustituir los subtítulos?"
 
 #~ msgid ""
 #~ "A language code such as fr, en, de, es or it (fra and eng work too). "

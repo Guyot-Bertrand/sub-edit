@@ -1074,8 +1074,12 @@ msgstr ""
 "algılanır"
 
 #: src/exe/cli/commands/transcribe.cpp
-msgid "Do not write sounds as notes, such as (phone ringing); the transcription.suppress-notes setting by default"
-msgstr "Sesleri not olarak yazma, örneğin (phone ringing); varsayılan olarak transcription.suppress-notes ayarı"
+msgid ""
+"Do not write sounds as notes, such as (phone ringing); the transcription."
+"suppress-notes setting by default"
+msgstr ""
+"Sesleri not olarak yazma, örneğin (phone ringing); varsayılan olarak "
+"transcription.suppress-notes ayarı"
 
 #: src/exe/cli/commands/transcribe.cpp
 msgid "Write sounds as notes, against the setting"
@@ -1094,7 +1098,8 @@ msgid "Keep the extracted audio in this file"
 msgstr "Çıkarılan sesi bu dosyada tut"
 
 #: src/exe/cli/commands/transcribe.cpp
-msgid "List the languages the engine offers for the model, and transcribe nothing"
+msgid ""
+"List the languages the engine offers for the model, and transcribe nothing"
 msgstr "Motorun model için sunduğu dilleri listele ve hiçbir şeyi yazıya dökme"
 
 #: src/exe/cli/commands/transcribe.cpp
@@ -3449,6 +3454,18 @@ msgstr[0] "%1 altyazı yazıya döküldü, dil: %2"
 msgstr[1] "%1 altyazı yazıya döküldü, dil: %2"
 
 #: src/lib/subedit/core/wording/transcription.cpp
+msgid ""
+"The %1 subtitle of this project will be replaced by the transcription. You "
+"can undo it."
+msgid_plural ""
+"The %1 subtitles of this project will be replaced by the transcription. You "
+"can undo it."
+msgstr[0] ""
+"Bu projenin %1 altyazısı yazıya dökmeyle değiştirilecek. Geri alabilirsiniz."
+msgstr[1] ""
+"Bu projenin %1 altyazısı yazıya dökmeyle değiştirilecek. Geri alabilirsiniz."
+
+#: src/lib/subedit/core/wording/transcription.cpp
 msgid "%1 subtitle kept from a partial transcription, up to %2"
 msgid_plural "%1 subtitles kept from a partial transcription, up to %2"
 msgstr[0] "Kısmi yazıya dökmeden korunan %1 altyazı, %2 konumuna kadar"
@@ -4417,8 +4434,12 @@ msgstr "Model"
 
 #: src/lib/subedit/gui/preferences_dialog.cpp
 #: src/lib/subedit/gui/transcribe_dialog.cpp
-msgid "Sounds such as (phone ringing) or [MUSIC PLAYING] are not written. Turn it off to keep them, for subtitles for the hard of hearing."
-msgstr "(phone ringing) ya da [MUSIC PLAYING] gibi sesler yazılmaz. İşitme engelliler için altyazılarda onları korumak için kapatın."
+msgid ""
+"Sounds such as (phone ringing) or [MUSIC PLAYING] are not written. Turn it "
+"off to keep them, for subtitles for the hard of hearing."
+msgstr ""
+"(phone ringing) ya da [MUSIC PLAYING] gibi sesler yazılmaz. İşitme "
+"engelliler için altyazılarda onları korumak için kapatın."
 
 # From Gaupol.
 #: src/lib/subedit/gui/preferences_dialog.cpp
@@ -4524,6 +4545,10 @@ msgstr ""
 "%1\n"
 "\n"
 "Yeniden açılsın mı, taşınmış olabilir?"
+
+#: src/lib/subedit/gui/qt_prompts.cpp
+msgid "Replace the subtitles?"
+msgstr "Altyazılar değiştirilsin mi?"
 
 #: src/lib/subedit/gui/save_shape.cpp
 msgid "Western"
@@ -4801,8 +4826,13 @@ msgid "First audio track"
 msgstr "İlk ses izi"
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
-msgid "Choose the language of the speech. \"Detect\" lets the model find it from the first 30 seconds of sound, which a film that opens with music can get wrong."
-msgstr "Konuşmanın dilini seçin. “Algıla”, modelin dili sesin ilk 30 saniyesinden bulmasını sağlar; müzikle açılan bir film bunu yanlış yapabilir."
+msgid ""
+"Choose the language of the speech. \"Detect\" lets the model find it from "
+"the first 30 seconds of sound, which a film that opens with music can get "
+"wrong."
+msgstr ""
+"Konuşmanın dilini seçin. “Algıla”, modelin dili sesin ilk 30 saniyesinden "
+"bulmasını sağlar; müzikle açılan bir film bunu yanlış yapabilir."
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
 msgid ""
@@ -4858,8 +4888,15 @@ msgid "Proposed from the language the file declares for this track."
 msgstr "Dosyanın bu iz için bildirdiği dilden önerildi."
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
-msgid "The file declares no language for this track: the model will detect it from the first 30 seconds of sound. If the film opens with music or silence it can choose wrongly, and the speech is then translated into that language. Choose the language if you know it."
-msgstr "Dosya bu iz için bir dil bildirmiyor: model dili sesin ilk 30 saniyesinden algılayacak. Film müzik ya da sessizlikle açılıyorsa yanlış seçebilir ve konuşma o dile çevrilir. Biliyorsanız dili seçin."
+msgid ""
+"The file declares no language for this track: the model will detect it from "
+"the first 30 seconds of sound. If the film opens with music or silence it "
+"can choose wrongly, and the speech is then translated into that language. "
+"Choose the language if you know it."
+msgstr ""
+"Dosya bu iz için bir dil bildirmiyor: model dili sesin ilk 30 saniyesinden "
+"algılayacak. Film müzik ya da sessizlikle açılıyorsa yanlış seçebilir ve "
+"konuşma o dile çevrilir. Biliyorsanız dili seçin."
 
 #: src/lib/subedit/gui/transcription_preview_dialog.cpp
 msgid "Apply"
@@ -4871,8 +4908,12 @@ msgid "Transcription preview"
 msgstr "Yazıya dökme önizlemesi"
 
 #: src/lib/subedit/gui/transcription_preview_dialog.cpp
-msgid "Partial result: the work stopped at %1. What was obtained up to there can be applied or ignored."
-msgstr "Kısmi sonuç: iş %1 konumunda durdu. Oraya kadar elde edilen uygulanabilir ya da yok sayılabilir."
+msgid ""
+"Partial result: the work stopped at %1. What was obtained up to there can be "
+"applied or ignored."
+msgstr ""
+"Kısmi sonuç: iş %1 konumunda durdu. Oraya kadar elde edilen uygulanabilir ya "
+"da yok sayılabilir."
 
 #: src/lib/subedit/gui/transcription_preview_dialog.cpp
 msgid "Select a subtitle on the right to see the pieces it was made from."
@@ -5299,19 +5340,6 @@ msgid "Main"
 msgstr "Ana"
 
 #~ msgid ""
-#~ "The %1 subtitle of this project will be replaced by the transcription. "
-#~ "You can undo it."
-#~ msgid_plural ""
-#~ "The %1 subtitles of this project will be replaced by the transcription. "
-#~ "You can undo it."
-#~ msgstr[0] ""
-#~ "Bu projenin %1 altyazısı yazıya dökmeyle değiştirilecek. Geri "
-#~ "alabilirsiniz."
-#~ msgstr[1] ""
-#~ "Bu projenin %1 altyazısı yazıya dökmeyle değiştirilecek. Geri "
-#~ "alabilirsiniz."
-
-#~ msgid ""
 #~ "%1 of the %2 pieces are only notes in brackets, such as [MUSIC PLAYING]: "
 #~ "the language used (%3) is probably not the one spoken, and the engine may "
 #~ "have translated the speech. Run it again with the language typed."
@@ -5319,9 +5347,6 @@ msgstr "Ana"
 #~ "%2 parçanın %1 tanesi yalnızca [MUSIC PLAYING] gibi köşeli parantez "
 #~ "içindeki notlar: kullanılan dil (%3) büyük olasılıkla konuşulan dil değil "
 #~ "ve motor konuşmayı çevirmiş olabilir. Dili yazarak yeniden çalıştırın."
-
-#~ msgid "Replace the subtitles?"
-#~ msgstr "Altyazılar değiştirilsin mi?"
 
 #~ msgid ""
 #~ "A language code such as fr, en, de, es or it (fra and eng work too). "

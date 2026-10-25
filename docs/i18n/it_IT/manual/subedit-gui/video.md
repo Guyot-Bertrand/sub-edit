@@ -140,6 +140,10 @@ sulla macchina, non scelte da rifare a ogni trascrizione — e la finestra ricon
 La lingua viene conservata per la volta successiva. Il motore stesso e i limiti dei sottotitoli sono
 [impostazioni](preferences.md) (`transcription.*`).
 
+**Quando il progetto contiene già dei sottotitoli, la finestra chiede prima di sostituirli**, e dice
+quanti ne vanno persi. Chiede prima del lavoro, in modo che rifiutare non costi nulla. Quando il progetto è vuoto non c'è
+nulla da chiedere.
+
 Il lavoro si svolge **in background**, con una finestra e un pulsante `Cancel`; la finestra principale resta utilizzabile. **La finestra
 dice a che punto è il lavoro**, in modo che tu sappia che è vivo e quanto tempo richiederà:
 
@@ -169,7 +173,7 @@ Le due non si allineano riga per riga, ed è per questo che ciascuna ha i propri
 è stato fatto**, e scorre il lato sinistro fino a loro; un sottotitolo alla volta, e solo in questa direzione. Nessuna delle due tabelle si può modificare.
 
 Due pulsanti la chiudono. **“Applica”** sostituisce i sottotitoli del progetto **in una sola operazione**: un solo `Undo` restituisce ciò che c'era, testi di
-traduzione compresi. **“Ignora”** scarta il risultato, che va perso. È l'unica conferma — prima del lavoro non viene chiesto nulla. “Applica” è disattivato quando non c'è
+traduzione compresi. **“Ignora”** scarta il risultato, che va perso. “Applica” è disattivato quando non c'è
 nulla da applicare.
 
 **Quando il lavoro è stato interrotto**, la finestra lo dice — “Risultato parziale: il lavoro si è fermato a …” — e offre ciò che era stato ottenuto fino a lì, da applicare

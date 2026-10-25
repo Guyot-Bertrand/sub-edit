@@ -136,6 +136,10 @@ koneesta, eivät valintoja, jotka pitäisi tehdä uudelleen jokaisella litteroin
 Kieli muistetaan seuraavaa kertaa varten. Moottori itse ja tekstitysten rajat ovat
 [asetuksia](preferences.md) (`transcription.*`).
 
+**Kun projektissa on jo tekstityksiä, ikkuna kysyy ennen niiden korvaamista** ja kertoo,
+montako poistuu. Se kysyy ennen työtä, jotta kieltäytyminen ei maksa mitään. Kun projekti on tyhjä,
+ei ole mitään kysyttävää.
+
 Työ tehdään **taustalla**, ja ruudussa on painike `Cancel`; ikkuna pysyy käytettävänä sen ympärillä. **Ruutu
 kertoo, missä työ on**, jotta tiedät sen elävän ja kuinka kauan se kestää:
 
@@ -164,7 +168,7 @@ Nämä kaksi eivät asetu riville riviltä, minkä vuoksi kummallakin on omat ai
 tehtiin**, ja vierittää vasemman puolen niiden kohdalle; yksi tekstitys kerrallaan, vain tähän suuntaan. Kumpaakaan taulukkoa ei voi muokata.
 
 Kaksi painiketta sulkee sen. **“Käytä”** korvaa projektin tekstitykset **yhtenä toimintona**: yksi `Undo` palauttaa sen, mitä siellä oli, käännöstekstit
-mukaan lukien. **“Ohita”** hylkää tuloksen, ja se on menetetty. Se on ainoa vahvistus — ennen työtä ei kysytä mitään. “Käytä” on harmaa, kun
+mukaan lukien. **“Ohita”** hylkää tuloksen, ja se on menetetty. “Käytä” on harmaa, kun
 ei ole mitään käytettävää.
 
 **Kun ajo pysäytettiin**, ikkuna kertoo sen — “Osittainen tulos: työ pysähtyi kohtaan …” — ja tarjoaa sen, mikä oli siihen mennessä saatu, käytettäväksi

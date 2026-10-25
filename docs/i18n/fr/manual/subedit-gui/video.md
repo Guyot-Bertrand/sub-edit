@@ -134,6 +134,10 @@ sur la machine, pas des choix à refaire à chaque transcription — et la boît
 La langue est gardée pour la fois suivante. Le moteur lui-même et les limites des sous-titres sont des
 [réglages](preferences.md) (`transcription.*`).
 
+**Quand le projet contient déjà des sous-titres, la fenêtre demande avant de les remplacer**, et dit
+combien partent. Elle demande avant le travail, pour que refuser ne coûte rien. Quand le projet est vide, il n'y a
+rien à demander.
+
 Le travail se fait **en arrière-plan**, avec une boîte et un bouton `Cancel` ; la fenêtre reste utilisable autour. **La boîte
 dit où en est le travail**, pour que vous sachiez qu'il est vivant et combien de temps il prendra :
 
@@ -163,7 +167,7 @@ Les deux ne se correspondent pas ligne à ligne, d'où des heures propres à cha
 est fait**, et fait défiler la gauche jusqu'à eux ; un sous-titre à la fois, et dans ce sens seulement. Aucun des deux tableaux ne s'édite.
 
 Deux boutons le ferment. **« Appliquer »** remplace les sous-titres du projet **en une seule opération** : un `Undo` rend ce qui était là, textes de traduction
-compris. **« Ignorer »** jette le résultat, qui est perdu. C'est la seule confirmation — rien n'est demandé avant le travail. « Appliquer » est éteint quand il n'y a
+compris. **« Ignorer »** jette le résultat, qui est perdu. « Appliquer » est éteint quand il n'y a
 rien à appliquer.
 
 **Quand le travail a été interrompu**, la fenêtre le dit — « Résultat partiel : le travail s'est arrêté à … » — et offre ce qui avait été obtenu jusque-là, à appliquer

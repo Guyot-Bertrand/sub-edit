@@ -135,6 +135,10 @@ o maszynie, a nie wybory do powtarzania przy każdej transkrypcji — a okno spr
 Język jest zapamiętywany na następny raz. Sam silnik i limity napisów to
 [ustawienia](preferences.md) (`transcription.*`).
 
+**Gdy projekt zawiera już napisy, okno pyta przed ich zastąpieniem** i mówi, ile ich zniknie.
+Pyta przed pracą, aby odmowa nic nie kosztowała. Gdy projekt jest pusty, nie ma
+o co pytać.
+
 Praca przebiega **w tle**, z oknem i przyciskiem `Cancel`; okno główne pozostaje używalne. **Okno
 mówi, na jakim etapie jest praca**, abyś wiedział, że żyje, i ile potrwa:
 
@@ -163,7 +167,7 @@ Obie nie pokrywają się wiersz w wiersz, dlatego każda ma własne czasy. **Zaz
 powstał**, i przewija lewą stronę do nich; jeden napis naraz i tylko w tym kierunku. Żadnej z tabel nie można edytować.
 
 Dwa przyciski zamykają okno. **„Zastosuj”** zastępuje napisy projektu **jedną operacją**: jedno `Undo` przywraca to, co było, łącznie z tekstami
-tłumaczenia. **„Ignoruj”** odrzuca wynik, który jest wtedy stracony. To jedyne potwierdzenie — przed pracą nic nie jest pytane. „Zastosuj” jest wyłączone, gdy nie ma
+tłumaczenia. **„Ignoruj”** odrzuca wynik, który jest wtedy stracony. „Zastosuj” jest wyłączone, gdy nie ma
 czego stosować.
 
 **Gdy pracę przerwano**, okno to mówi — „Wynik częściowy: praca zatrzymała się na …” — i oferuje to, co uzyskano do tego miejsca, do zastosowania

@@ -137,6 +137,10 @@ sobre a máquina, non escollas que haxa que repetir en cada transcrición — e 
 A lingua consérvase para a próxima vez. O motor en si e os límites dos subtítulos son
 [axustes](preferences.md) (`transcription.*`).
 
+**Cando o proxecto xa ten subtítulos, a xanela pregunta antes de substituílos**, e di
+cantos se van. Pregunta antes do traballo, para que rexeitar non custe nada. Cando o proxecto está baleiro non hai
+nada que preguntar.
+
 O traballo faise **en segundo plano**, cunha caixa e un botón `Cancel`; a xanela segue sendo utilizable arredor. **A caixa
 di en que punto está o traballo**, para que saiba que está vivo e canto vai tardar:
 
@@ -165,7 +169,7 @@ As dúas non se aliñan fila a fila, e por iso cada unha ten os seus tempos. **S
 se fixo**, e despraza o lado esquerdo ata elas; un subtítulo de cada vez, e só nese sentido. Ningunha das táboas se pode editar.
 
 Dous botóns pechan a xanela. **“Aplicar”** substitúe os subtítulos do proxecto **nunha única operación**: un `Undo` devolve o que había, textos
-de tradución incluídos. **“Ignorar”** descarta o resultado, e perdese. Esa é a única confirmación — antes do traballo non se pregunta nada. “Aplicar” está apagado cando
+de tradución incluídos. **“Ignorar”** descarta o resultado, e perdese. “Aplicar” está apagado cando
 non hai nada que aplicar.
 
 **Cando se detivo o traballo**, a xanela di isto — “Resultado parcial: o traballo detívose en …” — e ofrece o obtido ata aí, para aplicalo

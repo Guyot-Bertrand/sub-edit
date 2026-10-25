@@ -135,6 +135,10 @@ vonatkozó tények, nem olyan választások, amelyeket minden leiratozásnál ú
 A nyelv megmarad a következő alkalomra. Maga a motor és a feliratok korlátai
 [beállítások](preferences.md) (`transcription.*`).
 
+**Ha a projekt már tartalmaz feliratokat, az ablak a lecserélésük előtt rákérdez**, és megmondja,
+hányat érint. A munka előtt kérdez, hogy az elutasítás semmibe se kerüljön. Ha a projekt üres, nincs
+mit kérdezni.
+
 A munka **a háttérben** fut, egy ablakkal és egy `Cancel` gombbal; az ablak körülötte használható marad. **Az ablak
 megmutatja, hol tart a munka**, hogy tudja, él, és mennyi ideig fog tartani:
 
@@ -163,7 +167,7 @@ A kettő nem sorról sorra illeszkedik, ezért mindkettőnek saját időpontjai 
 készült**, és a bal oldal odagörög; egyszerre egy felirat, és csak ebben az irányban. Egyik táblázat sem szerkeszthető.
 
 Két gomb zárja be. Az **„Alkalmaz”** a projekt feliratait **egyetlen műveletként** váltja fel: egy `Undo` visszaadja, ami volt, a fordítási
-szövegekkel együtt. A **„Kihagyás”** eldobja az eredményt, és az elvész. Ez az egyetlen megerősítés — a munka előtt semmit sem kérdez. Az „Alkalmaz” kikapcsolt, ha
+szövegekkel együtt. A **„Kihagyás”** eldobja az eredményt, és az elvész. Az „Alkalmaz” kikapcsolt, ha
 nincs mit alkalmazni.
 
 **Ha a futást leállították**, az ablak ezt mondja — „Részleges eredmény: a munka itt állt le: …” — és felkínálja, ami addig elkészült, alkalmazásra

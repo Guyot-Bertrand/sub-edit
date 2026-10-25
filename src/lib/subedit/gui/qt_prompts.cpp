@@ -180,6 +180,16 @@ bool QtPrompts::proposeShiftedReopening(const std::string& message) {
     return chosen == QMessageBox::Yes;
 }
 
+bool QtPrompts::confirmReplacement(const std::string& message) {
+    // **A warning, with the safe answer by default**, as the loss of a save is: what is
+    // there will be replaced, and a return key pressed without reading keeps it.
+    return QMessageBox::warning(m_owner,
+                                translate("Replace the subtitles?"),
+                                QString::fromStdString(message),
+                                QMessageBox::Yes | QMessageBox::Cancel,
+                                QMessageBox::Cancel) == QMessageBox::Yes;
+}
+
 bool QtPrompts::run(QDialog& dialog) {
     return dialog.exec() == QDialog::Accepted;
 }

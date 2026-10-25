@@ -137,6 +137,10 @@ sobre la màquina, no eleccions que calgui refer a cada transcripció — i el d
 La llengua es conserva per a la vegada següent. El motor mateix i els límits dels subtítols són
 [paràmetres](preferences.md) (`transcription.*`).
 
+**Quan el projecte ja conté subtítols, la finestra pregunta abans de substituir-los**, i diu
+quants se'n van. Pregunta abans de la feina, de manera que declinar no costa res. Quan el projecte és buit no
+hi ha res a preguntar.
+
 La feina s'executa **en segon pla**, amb un quadre i un botó `Cancel`; la finestra continua utilitzable al voltant. **El quadre
 diu en quin punt és la feina**, perquè sapigueu que és viva i quant trigarà:
 
@@ -165,7 +169,7 @@ Les dues no s'alineen fila per fila, per això cadascuna té els seus temps. **S
 amb què es va fer**, i hi desplaça l'esquerra; un subtítol alhora, només en aquest sentit. Cap de les dues taules no es pot editar.
 
 Dos botons la tanquen. **“Aplica”** substitueix els subtítols del projecte **com una sola operació**: un sol `Undo` retorna el que hi havia, textos de
-traducció inclosos. **“Ignora”** descarta el resultat, i es perd. Aquesta és l'única confirmació — res no es pregunta abans de la feina. “Aplica” és apagat quan
+traducció inclosos. **“Ignora”** descarta el resultat, i es perd. “Aplica” és apagat quan
 no hi ha res a aplicar.
 
 **Quan la feina s'ha aturat**, la finestra ho diu — “Resultat parcial: el treball s'ha aturat a …” — i ofereix el que s'havia obtingut fins aleshores, per aplicar-ho

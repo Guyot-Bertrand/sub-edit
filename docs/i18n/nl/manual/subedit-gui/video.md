@@ -137,6 +137,10 @@ over de machine, geen keuzes die bij elke transcriptie opnieuw moeten worden gem
 De taal wordt voor de volgende keer bewaard. De engine zelf en de grenzen van de ondertitels zijn
 [instellingen](preferences.md) (`transcription.*`).
 
+**Wanneer het project al ondertitels bevat, vraagt het venster of het ze mag vervangen**, en zegt het hoeveel
+er verdwijnen. Het vraagt vóór het werk, zodat weigeren niets kost. Wanneer het project leeg is, valt er
+niets te vragen.
+
 Het werk draait **op de achtergrond**, met een venstertje en een knop `Cancel`; het venster blijft eromheen bruikbaar. **Het venstertje
 zegt hoe ver het werk is**, zodat u weet dat het leeft en hoe lang het zal duren:
 
@@ -166,7 +170,7 @@ De twee komen niet regel voor regel overeen, daarom heeft elk zijn eigen tijden.
 is gemaakt**, en schuift de linkerkant ernaartoe; één ondertitel tegelijk, en alleen in die richting. Geen van beide tabellen kan worden bewerkt.
 
 Twee knoppen sluiten het. **“Toepassen”** vervangt de ondertitels van het project **in één bewerking**: één `Undo` geeft terug wat er stond, vertaalteksten
-inbegrepen. **“Negeren”** gooit het resultaat weg, en het is verloren. Dat is de enige bevestiging — vóór het werk wordt niets gevraagd. “Toepassen” is uitgeschakeld als er
+inbegrepen. **“Negeren”** gooit het resultaat weg, en het is verloren. “Toepassen” is uitgeschakeld als er
 niets toe te passen is.
 
 **Wanneer het werk is gestopt**, zegt het venster dat — “Gedeeltelijk resultaat: het werk is gestopt bij …” — en biedt het aan wat tot dan toe was verkregen, om toe te passen

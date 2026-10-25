@@ -134,6 +134,10 @@ about the machine, not choices to make again at each transcription — and the d
 The language is kept for the next time. The engine itself and the limits of the subtitles are
 [settings](preferences.md) (`transcription.*`).
 
+**When the project already holds subtitles, the window asks before replacing them**, and says how
+many go. It asks before the work, so that declining costs nothing. When the project is empty there
+is nothing to ask.
+
 The work runs **in the background**, with a box and a `Cancel` button; the window stays usable around it. **The box
 tells where the work stands**, so that you know it is alive and how long it will take:
 
@@ -163,7 +167,7 @@ The two do not line up row for row, which is why each has its own times. **Selec
 was made from**, and scrolls the left side to them; one subtitle at a time, in that direction only. Neither table can be edited.
 
 Two buttons close it. **“Apply”** replaces the subtitles of the project **as a single operation**: one `Undo` gives back what was there, translation
-texts included. **“Ignore”** drops the result, and it is lost. That is the only confirmation — nothing is asked before the work. “Apply” is out when there
+texts included. **“Ignore”** drops the result, and it is lost. “Apply” is out when there
 is nothing to apply.
 
 **When the run was stopped**, the window says so — “Partial result: the work stopped at …” — and offers what had been obtained up to there, to apply

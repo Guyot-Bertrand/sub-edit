@@ -137,6 +137,10 @@ sobre la máquina, no elecciones que haya que rehacer en cada transcripción —
 El idioma se conserva para la próxima vez. El motor mismo y los límites de los subtítulos son
 [ajustes](preferences.md) (`transcription.*`).
 
+**Cuando el proyecto ya contiene subtítulos, la ventana pregunta antes de sustituirlos**, y dice
+cuántos desaparecen. Pregunta antes del trabajo, de modo que declinar no cuesta nada. Cuando el proyecto está vacío no
+hay nada que preguntar.
+
 El trabajo se ejecuta **en segundo plano**, con un cuadro y un botón `Cancel`; la ventana sigue siendo utilizable alrededor. **El cuadro
 dice en qué punto está el trabajo**, para que sepa que está vivo y cuánto va a tardar:
 
@@ -165,7 +169,7 @@ Las dos no se alinean fila por fila, por eso cada una tiene sus propios tiempos.
 se hizo**, y desplaza el lado izquierdo hasta ellos; un subtítulo a la vez, solo en ese sentido. Ninguna de las dos tablas se puede editar.
 
 Dos botones la cierran. **“Aplicar”** sustituye los subtítulos del proyecto **como una sola operación**: un solo `Undo` devuelve lo que había, textos de
-traducción incluidos. **“Ignorar”** descarta el resultado, y se pierde. Esa es la única confirmación — nada se pregunta antes del trabajo. “Aplicar” está apagado cuando
+traducción incluidos. **“Ignorar”** descarta el resultado, y se pierde. “Aplicar” está apagado cuando
 no hay nada que aplicar.
 
 **Cuando la ejecución se detuvo**, la ventana lo dice — “Resultado parcial: el trabajo se detuvo en …” — y ofrece lo que se había obtenido hasta ahí, para aplicarlo

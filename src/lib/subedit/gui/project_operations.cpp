@@ -420,6 +420,13 @@ void ProjectOperations::transcribeAudio(ProjectPage& page) {
     m_transcriptionSettings.language = choice.language;
     m_transcriptionSettings.suppressNotes = choice.suppressNotes;
 
+    // **Asked before the work, not after the preview**: an hour of computing is not started by
+    // mistake. Whoever declines does not wait for a result they will not use; the preview shows the
+    // result and asks again what to do with it. Nothing to ask when there is nothing to lose.
+    const std::size_t held = page.session->project().count();
+    if (held > 0 && !m_prompts->confirmReplacement(core::noticeOfReplacement(held)))
+        return;
+
     const TranscriptionJob job{.video = *video,
                                .track = choice.track,
                                .language = choice.language,

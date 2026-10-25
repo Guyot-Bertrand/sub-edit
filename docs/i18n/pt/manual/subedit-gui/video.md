@@ -137,6 +137,10 @@ sobre a máquina, não escolhas a refazer a cada transcrição — e a caixa ver
 O idioma é guardado para a vez seguinte. O próprio motor e os limites das legendas são
 [definições](preferences.md) (`transcription.*`).
 
+**Quando o projeto já contém legendas, a janela pergunta antes de as substituir**, e diz
+quantas se perdem. Pergunta antes do trabalho, para que recusar não custe nada. Quando o projeto está vazio, não há
+nada a perguntar.
+
 O trabalho decorre **em segundo plano**, com uma caixa e um botão `Cancel`; a janela continua utilizável à volta. **A caixa
 diz em que ponto está o trabalho**, para que saiba que está vivo e quanto tempo vai demorar:
 
@@ -166,7 +170,7 @@ As duas não se alinham linha a linha, e é por isso que cada uma tem os seus te
 foi feita**, e desloca o lado esquerdo até eles; uma legenda de cada vez, e só nesse sentido. Nenhuma das tabelas se pode editar.
 
 Dois botões a fecham. **“Aplicar”** substitui as legendas do projeto **numa única operação**: um `Undo` devolve o que lá estava, textos de tradução
-incluídos. **“Ignorar”** descarta o resultado, que se perde. É a única confirmação — antes do trabalho nada é perguntado. “Aplicar” fica desativado quando não há
+incluídos. **“Ignorar”** descarta o resultado, que se perde. “Aplicar” fica desativado quando não há
 nada a aplicar.
 
 **Quando o trabalho foi interrompido**, a janela di-lo — “Resultado parcial: o trabalho parou em …” — e oferece o que tinha sido obtido até aí, para aplicar

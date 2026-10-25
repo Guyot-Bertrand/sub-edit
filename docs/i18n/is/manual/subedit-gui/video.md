@@ -137,6 +137,10 @@ um tölvuna, ekki val sem þarf að endurtaka við hverja umritun — og gluggin
 Tungumálið er geymt til næsta skiptis. Vélin sjálf og mörk skjátextanna eru
 [stillingar](preferences.md) (`transcription.*`).
 
+**Þegar verkefnið geymir þegar skjátexta spyr glugginn áður en hann skiptir þeim út**, og segir
+hversu margir fara. Hann spyr áður en vinnan hefst, svo að það kosti ekkert að hafna. Þegar verkefnið er tómt er
+engu að spyrja um.
+
 Vinnan fer fram **í bakgrunni**, með glugga og hnappi sem heitir `Cancel`; glugginn er áfram nothæfur í kringum hana. **Glugginn
 segir hvar vinnan er stödd**, svo að þú vitir að hún lifir og hve lengi hún tekur:
 
@@ -165,7 +169,7 @@ Töflurnar tvær raðast ekki línu fyrir línu, og þess vegna hefur hvor sína
 auðkenndir til vinstri**, og vinstri hliðin skrunar að þeim; einn skjátexti í einu, og aðeins í þá átt. Hvorug taflan er breytanleg.
 
 Tveir hnappar loka glugganum. **„Virkja“** skiptir út skjátextum verkefnisins **í einni aðgerð**: ein `Undo` skilar því sem var, þýðingartextum
-meðtöldum. **„Hunsa“** hendir niðurstöðunni, og hún glatast. Það er eina staðfestingin — ekkert er spurt áður en vinnan hefst. „Virkja“ er óvirkt þegar
+meðtöldum. **„Hunsa“** hendir niðurstöðunni, og hún glatast. „Virkja“ er óvirkt þegar
 ekkert er til að virkja.
 
 **Þegar keyrslan var stöðvuð** segir glugginn það — „Hlutaniðurstaða: vinnan stöðvaðist við …“ — og býður það sem fékkst fram að því, til að virkja

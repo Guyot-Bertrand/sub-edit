@@ -1081,8 +1081,12 @@ msgstr ""
 "másodpercből ismeri fel"
 
 #: src/exe/cli/commands/transcribe.cpp
-msgid "Do not write sounds as notes, such as (phone ringing); the transcription.suppress-notes setting by default"
-msgstr "Ne írja ki a hangokat megjegyzésként, például (phone ringing); alapértelmezés: a transcription.suppress-notes beállítás"
+msgid ""
+"Do not write sounds as notes, such as (phone ringing); the transcription."
+"suppress-notes setting by default"
+msgstr ""
+"Ne írja ki a hangokat megjegyzésként, például (phone ringing); "
+"alapértelmezés: a transcription.suppress-notes beállítás"
 
 #: src/exe/cli/commands/transcribe.cpp
 msgid "Write sounds as notes, against the setting"
@@ -1101,7 +1105,8 @@ msgid "Keep the extracted audio in this file"
 msgstr "A kinyert hang megőrzése ebben a fájlban"
 
 #: src/exe/cli/commands/transcribe.cpp
-msgid "List the languages the engine offers for the model, and transcribe nothing"
+msgid ""
+"List the languages the engine offers for the model, and transcribe nothing"
 msgstr "A motor által a modellhez kínált nyelvek listázása, leiratozás nélkül"
 
 #: src/exe/cli/commands/transcribe.cpp
@@ -3464,6 +3469,16 @@ msgstr[0] "%1 felirat leiratozva, nyelv: %2"
 msgstr[1] "%1 felirat leiratozva, nyelv: %2"
 
 #: src/lib/subedit/core/wording/transcription.cpp
+msgid ""
+"The %1 subtitle of this project will be replaced by the transcription. You "
+"can undo it."
+msgid_plural ""
+"The %1 subtitles of this project will be replaced by the transcription. You "
+"can undo it."
+msgstr[0] "A projekt %1 feliratát a leirat váltja fel. Visszavonhatja."
+msgstr[1] "A projekt %1 feliratát a leirat váltja fel. Visszavonhatja."
+
+#: src/lib/subedit/core/wording/transcription.cpp
 msgid "%1 subtitle kept from a partial transcription, up to %2"
 msgid_plural "%1 subtitles kept from a partial transcription, up to %2"
 msgstr[0] "%1 felirat megtartva egy részleges leiratból, %2-ig"
@@ -3487,7 +3502,9 @@ msgstr ""
 
 #: src/lib/subedit/core/wording/transcription.cpp
 msgid "the engine %1 cannot be told not to write sounds as notes"
-msgstr "a(z) %1 motornak nem lehet megmondani, hogy ne írja ki a hangokat megjegyzésként"
+msgstr ""
+"a(z) %1 motornak nem lehet megmondani, hogy ne írja ki a hangokat "
+"megjegyzésként"
 
 #: src/lib/subedit/core/wording/transcription.cpp
 msgid ""
@@ -4445,8 +4462,13 @@ msgstr "Modell"
 
 #: src/lib/subedit/gui/preferences_dialog.cpp
 #: src/lib/subedit/gui/transcribe_dialog.cpp
-msgid "Sounds such as (phone ringing) or [MUSIC PLAYING] are not written. Turn it off to keep them, for subtitles for the hard of hearing."
-msgstr "Az olyan hangok, mint a (phone ringing) vagy a [MUSIC PLAYING], nem íródnak ki. Szüntesse meg a jelölést a megtartásukhoz, halláskárosultaknak szóló feliratokhoz."
+msgid ""
+"Sounds such as (phone ringing) or [MUSIC PLAYING] are not written. Turn it "
+"off to keep them, for subtitles for the hard of hearing."
+msgstr ""
+"Az olyan hangok, mint a (phone ringing) vagy a [MUSIC PLAYING], nem íródnak "
+"ki. Szüntesse meg a jelölést a megtartásukhoz, halláskárosultaknak szóló "
+"feliratokhoz."
 
 # From Gaupol.
 #: src/lib/subedit/gui/preferences_dialog.cpp
@@ -4552,6 +4574,10 @@ msgstr ""
 "%1\n"
 "\n"
 "Megnyitja újra, az új helyén?"
+
+#: src/lib/subedit/gui/qt_prompts.cpp
+msgid "Replace the subtitles?"
+msgstr "Lecseréli a feliratokat?"
 
 # From Gaupol.
 #: src/lib/subedit/gui/save_shape.cpp
@@ -4838,8 +4864,13 @@ msgid "First audio track"
 msgstr "Első hangsáv"
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
-msgid "Choose the language of the speech. \"Detect\" lets the model find it from the first 30 seconds of sound, which a film that opens with music can get wrong."
-msgstr "Válassza ki a beszéd nyelvét. Az „Észlelés” hagyja, hogy a modell az első 30 másodpercnyi hangból találja meg, amiben egy zenével kezdődő film tévedhet."
+msgid ""
+"Choose the language of the speech. \"Detect\" lets the model find it from "
+"the first 30 seconds of sound, which a film that opens with music can get "
+"wrong."
+msgstr ""
+"Válassza ki a beszéd nyelvét. Az „Észlelés” hagyja, hogy a modell az első 30 "
+"másodpercnyi hangból találja meg, amiben egy zenével kezdődő film tévedhet."
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
 msgid ""
@@ -4880,7 +4911,9 @@ msgstr "Állítsa be őket a beállításokban."
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
 msgid "This engine cannot be told not to write sounds as notes."
-msgstr "Ennek a motornak nem lehet megmondani, hogy ne írja ki a hangokat megjegyzésként."
+msgstr ""
+"Ennek a motornak nem lehet megmondani, hogy ne írja ki a hangokat "
+"megjegyzésként."
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
 msgid "Detect from the first 30 seconds of sound"
@@ -4895,8 +4928,16 @@ msgid "Proposed from the language the file declares for this track."
 msgstr "A fájl által ehhez a sávhoz megadott nyelv alapján javasolva."
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
-msgid "The file declares no language for this track: the model will detect it from the first 30 seconds of sound. If the film opens with music or silence it can choose wrongly, and the speech is then translated into that language. Choose the language if you know it."
-msgstr "A fájl nem ad meg nyelvet ehhez a hangsávhoz: a modell az első 30 másodpercnyi hangból fogja felismerni. Ha a film zenével vagy csenddel kezdődik, tévedhet, és a beszédet ekkor arra a nyelvre fordítja. Ha ismeri a nyelvet, válassza ki."
+msgid ""
+"The file declares no language for this track: the model will detect it from "
+"the first 30 seconds of sound. If the film opens with music or silence it "
+"can choose wrongly, and the speech is then translated into that language. "
+"Choose the language if you know it."
+msgstr ""
+"A fájl nem ad meg nyelvet ehhez a hangsávhoz: a modell az első 30 "
+"másodpercnyi hangból fogja felismerni. Ha a film zenével vagy csenddel "
+"kezdődik, tévedhet, és a beszédet ekkor arra a nyelvre fordítja. Ha ismeri a "
+"nyelvet, válassza ki."
 
 #: src/lib/subedit/gui/transcription_preview_dialog.cpp
 msgid "Apply"
@@ -4908,12 +4949,17 @@ msgid "Transcription preview"
 msgstr "A leirat előnézete"
 
 #: src/lib/subedit/gui/transcription_preview_dialog.cpp
-msgid "Partial result: the work stopped at %1. What was obtained up to there can be applied or ignored."
-msgstr "Részleges eredmény: a munka itt állt le: %1. Ami addig elkészült, alkalmazható vagy kihagyható."
+msgid ""
+"Partial result: the work stopped at %1. What was obtained up to there can be "
+"applied or ignored."
+msgstr ""
+"Részleges eredmény: a munka itt állt le: %1. Ami addig elkészült, "
+"alkalmazható vagy kihagyható."
 
 #: src/lib/subedit/gui/transcription_preview_dialog.cpp
 msgid "Select a subtitle on the right to see the pieces it was made from."
-msgstr "Válasszon ki egy feliratot jobbra, hogy lássa, mely darabokból készült."
+msgstr ""
+"Válasszon ki egy feliratot jobbra, hogy lássa, mely darabokból készült."
 
 #: src/lib/subedit/gui/transcription_preview_dialog.cpp
 msgid "As the engine wrote it (%1)"
@@ -5351,15 +5397,6 @@ msgid "Main"
 msgstr "Fő"
 
 #~ msgid ""
-#~ "The %1 subtitle of this project will be replaced by the transcription. "
-#~ "You can undo it."
-#~ msgid_plural ""
-#~ "The %1 subtitles of this project will be replaced by the transcription. "
-#~ "You can undo it."
-#~ msgstr[0] "A projekt %1 feliratát a leirat váltja fel. Visszavonhatja."
-#~ msgstr[1] "A projekt %1 feliratát a leirat váltja fel. Visszavonhatja."
-
-#~ msgid ""
 #~ "%1 of the %2 pieces are only notes in brackets, such as [MUSIC PLAYING]: "
 #~ "the language used (%3) is probably not the one spoken, and the engine may "
 #~ "have translated the speech. Run it again with the language typed."
@@ -5367,9 +5404,6 @@ msgstr "Fő"
 #~ "A %2 darabból %1 csupán szögletes zárójeles megjegyzés, például [MUSIC "
 #~ "PLAYING]: a használt nyelv (%3) valószínűleg nem az, amelyen beszélnek, "
 #~ "és a motor lefordíthatta a beszédet. Futtassa újra a nyelv megadásával."
-
-#~ msgid "Replace the subtitles?"
-#~ msgstr "Lecseréli a feliratokat?"
 
 #~ msgid ""
 #~ "A language code such as fr, en, de, es or it (fra and eng work too). "

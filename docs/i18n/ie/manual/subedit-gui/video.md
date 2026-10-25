@@ -137,6 +137,10 @@ pri li machine, ne selectiones a refar a chascun transcription — e li dialog r
 Li lingue es conservat por li sequent vice. Li motor self e li límites del subtitules es
 [parametres](preferences.md) (`transcription.*`).
 
+**Quande li projecte ja contene subtitules, li fenestre demanda ante remplazzar les**, e dit
+quant va partir. It demanda ante li labor, por que refusar costa nequo. Quande li projecte es vacui, il ne ha
+nequo a demandar.
+
 Li labor funde **in li fon**, con un cadre e un buton `Cancel`; li fenestre resta usabil circum it. **Li cadre
 dit u li labor es**, por que vu save que it vive e quant de témpor it va prender:
 
@@ -165,7 +169,7 @@ Li du ne se alinea ne linea per linea, e it es pro to que chascun have su propri
 esset fat**, e fa scrollar li latere sinistre til les; un subtitul a un vice, e solmen in ti direction. Null del tabelles posse esser modificat.
 
 Du butones clude it. **“Aplicar”** remplazza li subtitules del projecte **in un singul operation**: un `Undo` redona quo esset ibi, textus
-de traduction includet. **“Ignorar”** lassa cader li resultate, e it es perdit. Ti es li sol confirmation — ante li labor nequo es demandat. “Aplicar” es extinct quande
+de traduction includet. **“Ignorar”** lassa cader li resultate, e it es perdit. “Aplicar” es extinct quande
 il ne ha nequo a aplicar.
 
 **Quande li execution esset halt**, li fenestre dit it — “Resultate partial: li labor ha halt a …” — e ofri quo esset obtenet til ibi, por aplicar

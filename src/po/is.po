@@ -1076,8 +1076,12 @@ msgstr ""
 "sekúndunum sjálfgefið"
 
 #: src/exe/cli/commands/transcribe.cpp
-msgid "Do not write sounds as notes, such as (phone ringing); the transcription.suppress-notes setting by default"
-msgstr "Ekki skrifa hljóð sem athugasemdir, til dæmis (phone ringing); stillingin transcription.suppress-notes sjálfgefið"
+msgid ""
+"Do not write sounds as notes, such as (phone ringing); the transcription."
+"suppress-notes setting by default"
+msgstr ""
+"Ekki skrifa hljóð sem athugasemdir, til dæmis (phone ringing); stillingin "
+"transcription.suppress-notes sjálfgefið"
 
 #: src/exe/cli/commands/transcribe.cpp
 msgid "Write sounds as notes, against the setting"
@@ -1096,7 +1100,8 @@ msgid "Keep the extracted audio in this file"
 msgstr "Geyma útdregna hljóðið í þessari skrá"
 
 #: src/exe/cli/commands/transcribe.cpp
-msgid "List the languages the engine offers for the model, and transcribe nothing"
+msgid ""
+"List the languages the engine offers for the model, and transcribe nothing"
 msgstr "Telja upp tungumálin sem vélin býður fyrir líkanið, og umrita ekkert"
 
 #: src/exe/cli/commands/transcribe.cpp
@@ -3436,6 +3441,20 @@ msgstr[0] "%1 skjátexti umritaður, tungumál: %2"
 msgstr[1] "%1 skjátextar umritaðir, tungumál: %2"
 
 #: src/lib/subedit/core/wording/transcription.cpp
+msgid ""
+"The %1 subtitle of this project will be replaced by the transcription. You "
+"can undo it."
+msgid_plural ""
+"The %1 subtitles of this project will be replaced by the transcription. You "
+"can undo it."
+msgstr[0] ""
+"%1 skjátexta þessa verkefnis verður skipt út fyrir umritunina. Þú getur "
+"afturkallað það."
+msgstr[1] ""
+"%1 skjátextum þessa verkefnis verður skipt út fyrir umritunina. Þú getur "
+"afturkallað það."
+
+#: src/lib/subedit/core/wording/transcription.cpp
 msgid "%1 subtitle kept from a partial transcription, up to %2"
 msgid_plural "%1 subtitles kept from a partial transcription, up to %2"
 msgstr[0] "%1 skjátexti varðveittur úr hlutaumritun, allt að %2"
@@ -4416,8 +4435,12 @@ msgstr "Líkan"
 
 #: src/lib/subedit/gui/preferences_dialog.cpp
 #: src/lib/subedit/gui/transcribe_dialog.cpp
-msgid "Sounds such as (phone ringing) or [MUSIC PLAYING] are not written. Turn it off to keep them, for subtitles for the hard of hearing."
-msgstr "Hljóð eins og (phone ringing) eða [MUSIC PLAYING] eru ekki skrifuð. Taktu hakið af til að halda þeim, fyrir skjátexta fyrir heyrnarskerta."
+msgid ""
+"Sounds such as (phone ringing) or [MUSIC PLAYING] are not written. Turn it "
+"off to keep them, for subtitles for the hard of hearing."
+msgstr ""
+"Hljóð eins og (phone ringing) eða [MUSIC PLAYING] eru ekki skrifuð. Taktu "
+"hakið af til að halda þeim, fyrir skjátexta fyrir heyrnarskerta."
 
 # From Gaupol.
 #: src/lib/subedit/gui/preferences_dialog.cpp
@@ -4523,6 +4546,10 @@ msgstr ""
 "%1\n"
 "\n"
 "Opna það aftur af nýjum stað?"
+
+#: src/lib/subedit/gui/qt_prompts.cpp
+msgid "Replace the subtitles?"
+msgstr "Skipta skjátextunum út?"
 
 # From Gaupol.
 #: src/lib/subedit/gui/save_shape.cpp
@@ -4809,8 +4836,13 @@ msgid "First audio track"
 msgstr "Fyrsta hljóðrás"
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
-msgid "Choose the language of the speech. \"Detect\" lets the model find it from the first 30 seconds of sound, which a film that opens with music can get wrong."
-msgstr "Veldu tungumál talmálsins. „Greina“ lætur líkanið finna það af fyrstu 30 sekúndum hljóðsins, sem kvikmynd sem byrjar á tónlist getur misskilið."
+msgid ""
+"Choose the language of the speech. \"Detect\" lets the model find it from "
+"the first 30 seconds of sound, which a film that opens with music can get "
+"wrong."
+msgstr ""
+"Veldu tungumál talmálsins. „Greina“ lætur líkanið finna það af fyrstu 30 "
+"sekúndum hljóðsins, sem kvikmynd sem byrjar á tónlist getur misskilið."
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
 msgid ""
@@ -4852,7 +4884,8 @@ msgstr "Stilltu þau í kjörstillingunum."
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
 msgid "This engine cannot be told not to write sounds as notes."
-msgstr "Ekki er hægt að segja þessari vél að skrifa ekki hljóð sem athugasemdir."
+msgstr ""
+"Ekki er hægt að segja þessari vél að skrifa ekki hljóð sem athugasemdir."
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
 msgid "Detect from the first 30 seconds of sound"
@@ -4867,8 +4900,16 @@ msgid "Proposed from the language the file declares for this track."
 msgstr "Lagt til út frá tungumálinu sem skráin gefur upp fyrir þessa hljóðrás."
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
-msgid "The file declares no language for this track: the model will detect it from the first 30 seconds of sound. If the film opens with music or silence it can choose wrongly, and the speech is then translated into that language. Choose the language if you know it."
-msgstr "Skráin gefur ekkert tungumál upp fyrir þessa rás: líkanið greinir það af fyrstu 30 sekúndum hljóðsins. Ef kvikmyndin byrjar á tónlist eða þögn getur það valið rangt, og talmálið er þá þýtt yfir á það tungumál. Veldu tungumálið ef þú veist það."
+msgid ""
+"The file declares no language for this track: the model will detect it from "
+"the first 30 seconds of sound. If the film opens with music or silence it "
+"can choose wrongly, and the speech is then translated into that language. "
+"Choose the language if you know it."
+msgstr ""
+"Skráin gefur ekkert tungumál upp fyrir þessa rás: líkanið greinir það af "
+"fyrstu 30 sekúndum hljóðsins. Ef kvikmyndin byrjar á tónlist eða þögn getur "
+"það valið rangt, og talmálið er þá þýtt yfir á það tungumál. Veldu "
+"tungumálið ef þú veist það."
 
 #: src/lib/subedit/gui/transcription_preview_dialog.cpp
 msgid "Apply"
@@ -4880,8 +4921,12 @@ msgid "Transcription preview"
 msgstr "Forskoðun umritunar"
 
 #: src/lib/subedit/gui/transcription_preview_dialog.cpp
-msgid "Partial result: the work stopped at %1. What was obtained up to there can be applied or ignored."
-msgstr "Hlutaniðurstaða: vinnan stöðvaðist við %1. Það sem fékkst fram að því má virkja eða hunsa."
+msgid ""
+"Partial result: the work stopped at %1. What was obtained up to there can be "
+"applied or ignored."
+msgstr ""
+"Hlutaniðurstaða: vinnan stöðvaðist við %1. Það sem fékkst fram að því má "
+"virkja eða hunsa."
 
 #: src/lib/subedit/gui/transcription_preview_dialog.cpp
 msgid "Select a subtitle on the right to see the pieces it was made from."
@@ -5330,19 +5375,6 @@ msgid "Main"
 msgstr "Aðalstika"
 
 #~ msgid ""
-#~ "The %1 subtitle of this project will be replaced by the transcription. "
-#~ "You can undo it."
-#~ msgid_plural ""
-#~ "The %1 subtitles of this project will be replaced by the transcription. "
-#~ "You can undo it."
-#~ msgstr[0] ""
-#~ "%1 skjátexta þessa verkefnis verður skipt út fyrir umritunina. Þú getur "
-#~ "afturkallað það."
-#~ msgstr[1] ""
-#~ "%1 skjátextum þessa verkefnis verður skipt út fyrir umritunina. Þú getur "
-#~ "afturkallað það."
-
-#~ msgid ""
 #~ "%1 of the %2 pieces are only notes in brackets, such as [MUSIC PLAYING]: "
 #~ "the language used (%3) is probably not the one spoken, and the engine may "
 #~ "have translated the speech. Run it again with the language typed."
@@ -5351,9 +5383,6 @@ msgstr "Aðalstika"
 #~ "PLAYING]: tungumálið sem var notað (%3) er líklega ekki það sem er talað, "
 #~ "og vélin kann að hafa þýtt talmálið. Keyrðu aftur með tungumálið skrifað "
 #~ "inn."
-
-#~ msgid "Replace the subtitles?"
-#~ msgstr "Skipta skjátextunum út?"
 
 #~ msgid ""
 #~ "A language code such as fr, en, de, es or it (fra and eng work too). "

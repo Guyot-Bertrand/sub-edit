@@ -1130,8 +1130,12 @@ msgstr ""
 "ensimmäisten 30 sekunnin perusteella"
 
 #: src/exe/cli/commands/transcribe.cpp
-msgid "Do not write sounds as notes, such as (phone ringing); the transcription.suppress-notes setting by default"
-msgstr "Älä kirjoita ääniä huomautuksina, esimerkiksi (puhelimen soitto); oletuksena asetus transcription.suppress-notes"
+msgid ""
+"Do not write sounds as notes, such as (phone ringing); the transcription."
+"suppress-notes setting by default"
+msgstr ""
+"Älä kirjoita ääniä huomautuksina, esimerkiksi (puhelimen soitto); oletuksena "
+"asetus transcription.suppress-notes"
 
 #: src/exe/cli/commands/transcribe.cpp
 msgid "Write sounds as notes, against the setting"
@@ -1150,8 +1154,10 @@ msgid "Keep the extracted audio in this file"
 msgstr "Säilytä purettu ääni tässä tiedostossa"
 
 #: src/exe/cli/commands/transcribe.cpp
-msgid "List the languages the engine offers for the model, and transcribe nothing"
-msgstr "Luettele kielet, joita moottori tarjoaa mallille, äläkä litteroi mitään"
+msgid ""
+"List the languages the engine offers for the model, and transcribe nothing"
+msgstr ""
+"Luettele kielet, joita moottori tarjoaa mallille, äläkä litteroi mitään"
 
 #: src/exe/cli/commands/transcribe.cpp
 msgid "Write the segments as the engine cut them"
@@ -3500,10 +3506,24 @@ msgstr[0] "%1 tekstitys litteroitu, kieli: %2"
 msgstr[1] "%1 tekstitystä litteroitu, kieli: %2"
 
 #: src/lib/subedit/core/wording/transcription.cpp
+msgid ""
+"The %1 subtitle of this project will be replaced by the transcription. You "
+"can undo it."
+msgid_plural ""
+"The %1 subtitles of this project will be replaced by the transcription. You "
+"can undo it."
+msgstr[0] ""
+"Tämän projektin %1 tekstitys korvataan litteroinnilla. Voit kumota sen."
+msgstr[1] ""
+"Tämän projektin %1 tekstitystä korvataan litteroinnilla. Voit kumota sen."
+
+#: src/lib/subedit/core/wording/transcription.cpp
 msgid "%1 subtitle kept from a partial transcription, up to %2"
 msgid_plural "%1 subtitles kept from a partial transcription, up to %2"
-msgstr[0] "%1 tekstitys säilytetty osittaisesta litteroinnista, kohtaan %2 asti"
-msgstr[1] "%1 tekstitystä säilytetty osittaisesta litteroinnista, kohtaan %2 asti"
+msgstr[0] ""
+"%1 tekstitys säilytetty osittaisesta litteroinnista, kohtaan %2 asti"
+msgstr[1] ""
+"%1 tekstitystä säilytetty osittaisesta litteroinnista, kohtaan %2 asti"
 
 #: src/lib/subedit/core/wording/transcription.cpp
 msgid ""
@@ -4485,8 +4505,12 @@ msgstr "Malli"
 
 #: src/lib/subedit/gui/preferences_dialog.cpp
 #: src/lib/subedit/gui/transcribe_dialog.cpp
-msgid "Sounds such as (phone ringing) or [MUSIC PLAYING] are not written. Turn it off to keep them, for subtitles for the hard of hearing."
-msgstr "Ääniä kuten (puhelimen soitto) tai [MUSIC PLAYING] ei kirjoiteta. Poista valinta, jos haluat säilyttää ne, kuulovammaisten tekstityksiä varten."
+msgid ""
+"Sounds such as (phone ringing) or [MUSIC PLAYING] are not written. Turn it "
+"off to keep them, for subtitles for the hard of hearing."
+msgstr ""
+"Ääniä kuten (puhelimen soitto) tai [MUSIC PLAYING] ei kirjoiteta. Poista "
+"valinta, jos haluat säilyttää ne, kuulovammaisten tekstityksiä varten."
 
 # From Gaupol.
 #: src/lib/subedit/gui/preferences_dialog.cpp
@@ -4592,6 +4616,10 @@ msgstr ""
 "%1\n"
 "\n"
 "Avataanko se uudelleen siirrettynä?"
+
+#: src/lib/subedit/gui/qt_prompts.cpp
+msgid "Replace the subtitles?"
+msgstr "Korvataanko tekstitykset?"
 
 # From Gaupol.
 #: src/lib/subedit/gui/save_shape.cpp
@@ -4878,8 +4906,14 @@ msgid "First audio track"
 msgstr "Ensimmäinen ääniraita"
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
-msgid "Choose the language of the speech. \"Detect\" lets the model find it from the first 30 seconds of sound, which a film that opens with music can get wrong."
-msgstr "Valitse puheen kieli. ”Tunnista” antaa mallin löytää sen elokuvan ensimmäisen 30 sekunnin äänestä, minkä musiikilla alkava elokuva voi tehdä väärin."
+msgid ""
+"Choose the language of the speech. \"Detect\" lets the model find it from "
+"the first 30 seconds of sound, which a film that opens with music can get "
+"wrong."
+msgstr ""
+"Valitse puheen kieli. ”Tunnista” antaa mallin löytää sen elokuvan "
+"ensimmäisen 30 sekunnin äänestä, minkä musiikilla alkava elokuva voi tehdä "
+"väärin."
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
 msgid ""
@@ -4935,8 +4969,16 @@ msgid "Proposed from the language the file declares for this track."
 msgstr "Ehdotettu kielestä, jonka tiedosto ilmoittaa tälle raidalle."
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
-msgid "The file declares no language for this track: the model will detect it from the first 30 seconds of sound. If the film opens with music or silence it can choose wrongly, and the speech is then translated into that language. Choose the language if you know it."
-msgstr "Tiedosto ei ilmoita kieltä tälle raidalle: malli tunnistaa sen ensimmäisen 30 sekunnin äänestä. Jos elokuva alkaa musiikilla tai hiljaisuudella, se voi valita väärin, ja puhe käännetään silloin tälle kielelle. Valitse kieli, jos tiedät sen."
+msgid ""
+"The file declares no language for this track: the model will detect it from "
+"the first 30 seconds of sound. If the film opens with music or silence it "
+"can choose wrongly, and the speech is then translated into that language. "
+"Choose the language if you know it."
+msgstr ""
+"Tiedosto ei ilmoita kieltä tälle raidalle: malli tunnistaa sen ensimmäisen "
+"30 sekunnin äänestä. Jos elokuva alkaa musiikilla tai hiljaisuudella, se voi "
+"valita väärin, ja puhe käännetään silloin tälle kielelle. Valitse kieli, jos "
+"tiedät sen."
 
 #: src/lib/subedit/gui/transcription_preview_dialog.cpp
 msgid "Apply"
@@ -4948,8 +4990,12 @@ msgid "Transcription preview"
 msgstr "Litteroinnin esikatselu"
 
 #: src/lib/subedit/gui/transcription_preview_dialog.cpp
-msgid "Partial result: the work stopped at %1. What was obtained up to there can be applied or ignored."
-msgstr "Osittainen tulos: työ pysähtyi kohtaan %1. Siihen mennessä saatu voidaan ottaa käyttöön tai ohittaa."
+msgid ""
+"Partial result: the work stopped at %1. What was obtained up to there can be "
+"applied or ignored."
+msgstr ""
+"Osittainen tulos: työ pysähtyi kohtaan %1. Siihen mennessä saatu voidaan "
+"ottaa käyttöön tai ohittaa."
 
 #: src/lib/subedit/gui/transcription_preview_dialog.cpp
 msgid "Select a subtitle on the right to see the pieces it was made from."
@@ -5406,17 +5452,6 @@ msgid "Main"
 msgstr "Päätyökalurivi"
 
 #~ msgid ""
-#~ "The %1 subtitle of this project will be replaced by the transcription. "
-#~ "You can undo it."
-#~ msgid_plural ""
-#~ "The %1 subtitles of this project will be replaced by the transcription. "
-#~ "You can undo it."
-#~ msgstr[0] ""
-#~ "Tämän projektin %1 tekstitys korvataan litteroinnilla. Voit kumota sen."
-#~ msgstr[1] ""
-#~ "Tämän projektin %1 tekstitystä korvataan litteroinnilla. Voit kumota sen."
-
-#~ msgid ""
 #~ "%1 of the %2 pieces are only notes in brackets, such as [MUSIC PLAYING]: "
 #~ "the language used (%3) is probably not the one spoken, and the engine may "
 #~ "have translated the speech. Run it again with the language typed."
@@ -5424,9 +5459,6 @@ msgstr "Päätyökalurivi"
 #~ "%1 / %2 palasta on pelkkiä hakasulkeissa olevia merkintöjä, kuten [MUSIC "
 #~ "PLAYING]: käytetty kieli (%3) ei todennäköisesti ole puhuttu kieli, ja "
 #~ "moottori on voinut kääntää puheen. Aja se uudelleen kirjoittamalla kieli."
-
-#~ msgid "Replace the subtitles?"
-#~ msgstr "Korvataanko tekstitykset?"
 
 #~ msgid ""
 #~ "A language code such as fr, en, de, es or it (fra and eng work too). "

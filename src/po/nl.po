@@ -1129,8 +1129,12 @@ msgstr ""
 "eerste 30 seconden"
 
 #: src/exe/cli/commands/transcribe.cpp
-msgid "Do not write sounds as notes, such as (phone ringing); the transcription.suppress-notes setting by default"
-msgstr "Geluiden niet als notities schrijven, bijvoorbeeld (phone ringing); standaard de instelling transcription.suppress-notes"
+msgid ""
+"Do not write sounds as notes, such as (phone ringing); the transcription."
+"suppress-notes setting by default"
+msgstr ""
+"Geluiden niet als notities schrijven, bijvoorbeeld (phone ringing); "
+"standaard de instelling transcription.suppress-notes"
 
 #: src/exe/cli/commands/transcribe.cpp
 msgid "Write sounds as notes, against the setting"
@@ -1149,8 +1153,10 @@ msgid "Keep the extracted audio in this file"
 msgstr "De uitgepakte audio in dit bestand bewaren"
 
 #: src/exe/cli/commands/transcribe.cpp
-msgid "List the languages the engine offers for the model, and transcribe nothing"
-msgstr "De talen opsommen die de engine voor het model biedt, en niets transcriberen"
+msgid ""
+"List the languages the engine offers for the model, and transcribe nothing"
+msgstr ""
+"De talen opsommen die de engine voor het model biedt, en niets transcriberen"
 
 #: src/exe/cli/commands/transcribe.cpp
 msgid "Write the segments as the engine cut them"
@@ -3530,6 +3536,20 @@ msgstr[0] "%1 ondertitel getranscribeerd, taal: %2"
 msgstr[1] "%1 ondertitels getranscribeerd, taal: %2"
 
 #: src/lib/subedit/core/wording/transcription.cpp
+msgid ""
+"The %1 subtitle of this project will be replaced by the transcription. You "
+"can undo it."
+msgid_plural ""
+"The %1 subtitles of this project will be replaced by the transcription. You "
+"can undo it."
+msgstr[0] ""
+"De ondertitel (%1) van dit project wordt vervangen door de transcriptie. U "
+"kunt dit ongedaan maken."
+msgstr[1] ""
+"De %1 ondertitels van dit project worden vervangen door de transcriptie. U "
+"kunt dit ongedaan maken."
+
+#: src/lib/subedit/core/wording/transcription.cpp
 msgid "%1 subtitle kept from a partial transcription, up to %2"
 msgid_plural "%1 subtitles kept from a partial transcription, up to %2"
 msgstr[0] "%1 ondertitel bewaard uit een gedeeltelijke transcriptie, tot %2"
@@ -3553,7 +3573,9 @@ msgstr ""
 
 #: src/lib/subedit/core/wording/transcription.cpp
 msgid "the engine %1 cannot be told not to write sounds as notes"
-msgstr "de engine %1 kan niet worden opgedragen geluiden niet als notities te schrijven"
+msgstr ""
+"de engine %1 kan niet worden opgedragen geluiden niet als notities te "
+"schrijven"
 
 #: src/lib/subedit/core/wording/transcription.cpp
 msgid ""
@@ -4521,8 +4543,13 @@ msgstr "Model"
 
 #: src/lib/subedit/gui/preferences_dialog.cpp
 #: src/lib/subedit/gui/transcribe_dialog.cpp
-msgid "Sounds such as (phone ringing) or [MUSIC PLAYING] are not written. Turn it off to keep them, for subtitles for the hard of hearing."
-msgstr "Geluiden zoals (phone ringing) of [MUSIC PLAYING] worden niet geschreven. Schakel het uit om ze te houden, voor ondertitels voor doven en slechthorenden."
+msgid ""
+"Sounds such as (phone ringing) or [MUSIC PLAYING] are not written. Turn it "
+"off to keep them, for subtitles for the hard of hearing."
+msgstr ""
+"Geluiden zoals (phone ringing) of [MUSIC PLAYING] worden niet geschreven. "
+"Schakel het uit om ze te houden, voor ondertitels voor doven en "
+"slechthorenden."
 
 # From Gaupol.
 #: src/lib/subedit/gui/preferences_dialog.cpp
@@ -4628,6 +4655,10 @@ msgstr ""
 "%1\n"
 "\n"
 "Opnieuw openen, op de nieuwe plek?"
+
+#: src/lib/subedit/gui/qt_prompts.cpp
+msgid "Replace the subtitles?"
+msgstr "De ondertitels vervangen?"
 
 # From Gaupol.
 #: src/lib/subedit/gui/save_shape.cpp
@@ -4911,8 +4942,14 @@ msgid "First audio track"
 msgstr "Eerste audiospoor"
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
-msgid "Choose the language of the speech. \"Detect\" lets the model find it from the first 30 seconds of sound, which a film that opens with music can get wrong."
-msgstr "Kies de taal van de spraak. “Detecteren” laat het model ze vinden uit de eerste 30 seconden geluid, wat een film die met muziek opent verkeerd kan doen."
+msgid ""
+"Choose the language of the speech. \"Detect\" lets the model find it from "
+"the first 30 seconds of sound, which a film that opens with music can get "
+"wrong."
+msgstr ""
+"Kies de taal van de spraak. “Detecteren” laat het model ze vinden uit de "
+"eerste 30 seconden geluid, wat een film die met muziek opent verkeerd kan "
+"doen."
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
 msgid ""
@@ -4954,7 +4991,9 @@ msgstr "Stel ze in bij de instellingen."
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
 msgid "This engine cannot be told not to write sounds as notes."
-msgstr "Deze engine kan niet worden opgedragen geluiden niet als notities te schrijven."
+msgstr ""
+"Deze engine kan niet worden opgedragen geluiden niet als notities te "
+"schrijven."
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
 msgid "Detect from the first 30 seconds of sound"
@@ -4970,8 +5009,16 @@ msgstr ""
 "Voorgesteld op basis van de taal die het bestand voor dit spoor opgeeft."
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
-msgid "The file declares no language for this track: the model will detect it from the first 30 seconds of sound. If the film opens with music or silence it can choose wrongly, and the speech is then translated into that language. Choose the language if you know it."
-msgstr "Het bestand geeft geen taal op voor dit spoor: het model zal ze detecteren uit de eerste 30 seconden geluid. Als de film met muziek of stilte opent, kan het zich vergissen, en de spraak wordt dan in die taal vertaald. Kies de taal als u ze kent."
+msgid ""
+"The file declares no language for this track: the model will detect it from "
+"the first 30 seconds of sound. If the film opens with music or silence it "
+"can choose wrongly, and the speech is then translated into that language. "
+"Choose the language if you know it."
+msgstr ""
+"Het bestand geeft geen taal op voor dit spoor: het model zal ze detecteren "
+"uit de eerste 30 seconden geluid. Als de film met muziek of stilte opent, "
+"kan het zich vergissen, en de spraak wordt dan in die taal vertaald. Kies de "
+"taal als u ze kent."
 
 #: src/lib/subedit/gui/transcription_preview_dialog.cpp
 msgid "Apply"
@@ -4983,12 +5030,17 @@ msgid "Transcription preview"
 msgstr "Voorbeeld van de transcriptie"
 
 #: src/lib/subedit/gui/transcription_preview_dialog.cpp
-msgid "Partial result: the work stopped at %1. What was obtained up to there can be applied or ignored."
-msgstr "Gedeeltelijk resultaat: het werk is gestopt bij %1. Wat tot dan toe was verkregen kan worden toegepast of genegeerd."
+msgid ""
+"Partial result: the work stopped at %1. What was obtained up to there can be "
+"applied or ignored."
+msgstr ""
+"Gedeeltelijk resultaat: het werk is gestopt bij %1. Wat tot dan toe was "
+"verkregen kan worden toegepast of genegeerd."
 
 #: src/lib/subedit/gui/transcription_preview_dialog.cpp
 msgid "Select a subtitle on the right to see the pieces it was made from."
-msgstr "Selecteer rechts een ondertitel om de stukken te zien waaruit hij is gemaakt."
+msgstr ""
+"Selecteer rechts een ondertitel om de stukken te zien waaruit hij is gemaakt."
 
 #: src/lib/subedit/gui/transcription_preview_dialog.cpp
 msgid "As the engine wrote it (%1)"
@@ -5425,19 +5477,6 @@ msgid "Main"
 msgstr "Hoofdwerkbalk"
 
 #~ msgid ""
-#~ "The %1 subtitle of this project will be replaced by the transcription. "
-#~ "You can undo it."
-#~ msgid_plural ""
-#~ "The %1 subtitles of this project will be replaced by the transcription. "
-#~ "You can undo it."
-#~ msgstr[0] ""
-#~ "De ondertitel (%1) van dit project wordt vervangen door de transcriptie. "
-#~ "U kunt dit ongedaan maken."
-#~ msgstr[1] ""
-#~ "De %1 ondertitels van dit project worden vervangen door de transcriptie. "
-#~ "U kunt dit ongedaan maken."
-
-#~ msgid ""
 #~ "%1 of the %2 pieces are only notes in brackets, such as [MUSIC PLAYING]: "
 #~ "the language used (%3) is probably not the one spoken, and the engine may "
 #~ "have translated the speech. Run it again with the language typed."
@@ -5446,9 +5485,6 @@ msgstr "Hoofdwerkbalk"
 #~ "PLAYING]: de gebruikte taal (%3) is waarschijnlijk niet de gesproken "
 #~ "taal, en de engine heeft de spraak mogelijk vertaald. Voer het opnieuw "
 #~ "uit met de taal ingevuld."
-
-#~ msgid "Replace the subtitles?"
-#~ msgstr "De ondertitels vervangen?"
 
 #~ msgid ""
 #~ "A language code such as fr, en, de, es or it (fra and eng work too). "

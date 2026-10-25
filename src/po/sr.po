@@ -1083,8 +1083,12 @@ msgstr ""
 "секунди"
 
 #: src/exe/cli/commands/transcribe.cpp
-msgid "Do not write sounds as notes, such as (phone ringing); the transcription.suppress-notes setting by default"
-msgstr "Не писати звуке као белешке, на пример (phone ringing); подразумевано према поставци transcription.suppress-notes"
+msgid ""
+"Do not write sounds as notes, such as (phone ringing); the transcription."
+"suppress-notes setting by default"
+msgstr ""
+"Не писати звуке као белешке, на пример (phone ringing); подразумевано према "
+"поставци transcription.suppress-notes"
 
 #: src/exe/cli/commands/transcribe.cpp
 msgid "Write sounds as notes, against the setting"
@@ -1103,7 +1107,8 @@ msgid "Keep the extracted audio in this file"
 msgstr "Задржи издвојени звук у овој датотеци"
 
 #: src/exe/cli/commands/transcribe.cpp
-msgid "List the languages the engine offers for the model, and transcribe nothing"
+msgid ""
+"List the languages the engine offers for the model, and transcribe nothing"
 msgstr "Исписати језике које мотор нуди за модел и ништа не транскрибовати"
 
 #: src/exe/cli/commands/transcribe.cpp
@@ -3487,6 +3492,23 @@ msgstr[1] "Транскрибованих титлова: %1, језик: %2"
 msgstr[2] "Транскрибованих титлова: %1, језик: %2"
 
 #: src/lib/subedit/core/wording/transcription.cpp
+msgid ""
+"The %1 subtitle of this project will be replaced by the transcription. You "
+"can undo it."
+msgid_plural ""
+"The %1 subtitles of this project will be replaced by the transcription. You "
+"can undo it."
+msgstr[0] ""
+"Титлова овог пројекта који ће бити замењени транскрипцијом: %1. Можете то "
+"поништити."
+msgstr[1] ""
+"Титлова овог пројекта који ће бити замењени транскрипцијом: %1. Можете то "
+"поништити."
+msgstr[2] ""
+"Титлова овог пројекта који ће бити замењени транскрипцијом: %1. Можете то "
+"поништити."
+
+#: src/lib/subedit/core/wording/transcription.cpp
 msgid "%1 subtitle kept from a partial transcription, up to %2"
 msgid_plural "%1 subtitles kept from a partial transcription, up to %2"
 msgstr[0] "%1 титл сачуван из делимичне транскрипције, до %2"
@@ -4482,8 +4504,12 @@ msgstr "Модел"
 
 #: src/lib/subedit/gui/preferences_dialog.cpp
 #: src/lib/subedit/gui/transcribe_dialog.cpp
-msgid "Sounds such as (phone ringing) or [MUSIC PLAYING] are not written. Turn it off to keep them, for subtitles for the hard of hearing."
-msgstr "Звуци као што су (phone ringing) или [MUSIC PLAYING] се не пишу. Искључите опцију да бисте их задржали, за титлове за наглуве."
+msgid ""
+"Sounds such as (phone ringing) or [MUSIC PLAYING] are not written. Turn it "
+"off to keep them, for subtitles for the hard of hearing."
+msgstr ""
+"Звуци као што су (phone ringing) или [MUSIC PLAYING] се не пишу. Искључите "
+"опцију да бисте их задржали, за титлове за наглуве."
 
 # From Gaupol.
 #: src/lib/subedit/gui/preferences_dialog.cpp
@@ -4589,6 +4615,10 @@ msgstr ""
 "%1\n"
 "\n"
 "Отворити поново, премештено?"
+
+#: src/lib/subedit/gui/qt_prompts.cpp
+msgid "Replace the subtitles?"
+msgstr "Заменити титлове?"
 
 # From Gaupol.
 #: src/lib/subedit/gui/save_shape.cpp
@@ -4865,8 +4895,13 @@ msgid "First audio track"
 msgstr "Прва звучна нумера"
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
-msgid "Choose the language of the speech. \"Detect\" lets the model find it from the first 30 seconds of sound, which a film that opens with music can get wrong."
-msgstr "Изаберите језик говора. „Откриј“ допушта моделу да га пронађе из првих 30 секунди звука, а филм који почиње музиком може да погреши."
+msgid ""
+"Choose the language of the speech. \"Detect\" lets the model find it from "
+"the first 30 seconds of sound, which a film that opens with music can get "
+"wrong."
+msgstr ""
+"Изаберите језик говора. „Откриј“ допушта моделу да га пронађе из првих 30 "
+"секунди звука, а филм који почиње музиком може да погреши."
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
 msgid ""
@@ -4922,8 +4957,15 @@ msgid "Proposed from the language the file declares for this track."
 msgstr "Предложено према језику који датотека наводи за ову нумеру."
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
-msgid "The file declares no language for this track: the model will detect it from the first 30 seconds of sound. If the film opens with music or silence it can choose wrongly, and the speech is then translated into that language. Choose the language if you know it."
-msgstr "Датотека не наводи језик ове нумере: модел ће га открити из првих 30 секунди звука. Ако филм почиње музиком или тишином, може погрешно изабрати, а говор се тада преводи на тај језик. Изаберите језик ако га знате."
+msgid ""
+"The file declares no language for this track: the model will detect it from "
+"the first 30 seconds of sound. If the film opens with music or silence it "
+"can choose wrongly, and the speech is then translated into that language. "
+"Choose the language if you know it."
+msgstr ""
+"Датотека не наводи језик ове нумере: модел ће га открити из првих 30 секунди "
+"звука. Ако филм почиње музиком или тишином, може погрешно изабрати, а говор "
+"се тада преводи на тај језик. Изаберите језик ако га знате."
 
 #: src/lib/subedit/gui/transcription_preview_dialog.cpp
 msgid "Apply"
@@ -4935,8 +4977,12 @@ msgid "Transcription preview"
 msgstr "Преглед транскрипције"
 
 #: src/lib/subedit/gui/transcription_preview_dialog.cpp
-msgid "Partial result: the work stopped at %1. What was obtained up to there can be applied or ignored."
-msgstr "Делимичан резултат: рад је стао на %1. Оно што је до тада добијено може се применити или занемарити."
+msgid ""
+"Partial result: the work stopped at %1. What was obtained up to there can be "
+"applied or ignored."
+msgstr ""
+"Делимичан резултат: рад је стао на %1. Оно што је до тада добијено може се "
+"применити или занемарити."
 
 #: src/lib/subedit/gui/transcription_preview_dialog.cpp
 msgid "Select a subtitle on the right to see the pieces it was made from."
@@ -5374,22 +5420,6 @@ msgid "Main"
 msgstr "Главни"
 
 #~ msgid ""
-#~ "The %1 subtitle of this project will be replaced by the transcription. "
-#~ "You can undo it."
-#~ msgid_plural ""
-#~ "The %1 subtitles of this project will be replaced by the transcription. "
-#~ "You can undo it."
-#~ msgstr[0] ""
-#~ "Титлова овог пројекта који ће бити замењени транскрипцијом: %1. Можете то "
-#~ "поништити."
-#~ msgstr[1] ""
-#~ "Титлова овог пројекта који ће бити замењени транскрипцијом: %1. Можете то "
-#~ "поништити."
-#~ msgstr[2] ""
-#~ "Титлова овог пројекта који ће бити замењени транскрипцијом: %1. Можете то "
-#~ "поништити."
-
-#~ msgid ""
 #~ "%1 of the %2 pieces are only notes in brackets, such as [MUSIC PLAYING]: "
 #~ "the language used (%3) is probably not the one spoken, and the engine may "
 #~ "have translated the speech. Run it again with the language typed."
@@ -5397,9 +5427,6 @@ msgstr "Главни"
 #~ "%1 од %2 делова су само напомене у заградама, као [MUSIC PLAYING]: "
 #~ "употребљени језик (%3) вероватно није онај којим се говори, а мотор је "
 #~ "можда превео говор. Покрените поново уз унет језик."
-
-#~ msgid "Replace the subtitles?"
-#~ msgstr "Заменити титлове?"
 
 #~ msgid ""
 #~ "A language code such as fr, en, de, es or it (fra and eng work too). "

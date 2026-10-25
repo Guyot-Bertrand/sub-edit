@@ -135,6 +135,10 @@ o počítači, ne volby, které by se měly opakovat při každém přepisu — 
 Jazyk se uchová pro příště. Samotný nástroj a meze titulků jsou
 [nastavení](preferences.md) (`transcription.*`).
 
+**Když projekt už obsahuje titulky, okno se před jejich nahrazením zeptá** a řekne,
+kolik jich zmizí. Ptá se před prací, aby odmítnutí nestálo nic. Když je projekt prázdný,
+není se na co ptát.
+
 Práce probíhá **na pozadí**, s oknem a tlačítkem `Cancel`; okno zůstává kolem použitelné. **Okno
 říká, v jakém stavu práce je**, abyste věděli, že žije a jak dlouho potrvá:
 
@@ -163,7 +167,7 @@ Obě se neřadí řádek po řádku, proto má každá vlastní časy. **Výběr
 vždy jeden titulek, jen v tomto směru. Žádnou z tabulek nelze upravovat.
 
 Zavírají ji dvě tlačítka. **„Použít“** nahradí titulky projektu **jako jedna operace**: jedno `Undo` vrátí, co tam bylo, včetně textů
-překladu. **„Ignorovat“** výsledek zahodí a ten je ztracen. To je jediné potvrzení — před prací se neptá nic. „Použít“ je nedostupné, když
+překladu. **„Ignorovat“** výsledek zahodí a ten je ztracen. „Použít“ je nedostupné, když
 není co použít.
 
 **Když byl běh zastaven**, okno to říká — „Částečný výsledek: práce se zastavila na …“ — a nabídne, co se do té doby získalo, k použití

@@ -126,6 +126,10 @@ bilgilerdir, her yazıya dökmede yeniden yapılacak seçimler değil — ve kut
 Dil bir sonraki sefer için saklanır. Motorun kendisi ve altyazıların sınırları
 [ayarlardır](preferences.md) (`transcription.*`).
 
+**Proje zaten altyazı içeriyorsa, pencere onları değiştirmeden önce sorar** ve kaç tanesinin gideceğini
+söyler. İşten önce sorar, böylece vazgeçmenin bir maliyeti olmaz. Proje boşsa
+sorulacak bir şey yoktur.
+
 İş **arka planda** çalışır, bir kutu ve bir `Cancel` düğmesiyle; pencere çevresinde kullanılabilir kalır. **Kutu işin nerede olduğunu söyler**, böylece canlı olduğunu ve ne kadar süreceğini bilirsiniz:
 
 - **adım**: önce “Ses çıkarılıyor…” — kutu o sırada meşguldür, rakam göstermez, çünkü çıkarma ne kadar ilerlediğini söylemez —, sonra “Ses yazıya dökülüyor…”, bir çubukla;
@@ -150,7 +154,7 @@ başarısız olduğunda da — bir pencere sonucu yan yana iki tabloda gösterir
 vurgular** ve sol tarafı onlara kaydırır; bir seferde tek altyazı ve yalnızca bu yönde. Hiçbir tablo düzenlenemez.
 
 İki düğme pencereyi kapatır. **“Uygula”** projenin altyazılarını **tek bir işlem olarak** değiştirir: bir `Undo` orada olanı geri verir, çeviri
-metinleri dahil. **“Yok say”** sonucu atar ve o kaybolur. Tek onay budur — işten önce hiçbir şey sorulmaz. Uygulanacak bir şey olmadığında “Uygula” kapalıdır.
+metinleri dahil. **“Yok say”** sonucu atar ve o kaybolur. Uygulanacak bir şey olmadığında “Uygula” kapalıdır.
 
 **Çalışma durdurulduğunda** pencere bunu söyler — “Kısmi sonuç: iş … konumunda durdu” — ve oraya kadar elde edileni uygulamak
 ya da yok saymak üzere sunar, böylece geç durdurulan uzun bir çalışma emeğini sormadan yitirmez. Bu parçaların zaman damgalı kelimeleri yoktur (motor onları

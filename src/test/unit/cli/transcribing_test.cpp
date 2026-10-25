@@ -639,3 +639,24 @@ TEST_CASE("without listing, an input and an output are needed", "[cli][transcrib
     CHECK(world.run(TranscribeOptions{.input = world.audio.string()}) == ExitCode::Usage);
     CHECK_THAT(world.errors.str(), ContainsSubstring("--output is required"));
 }
+
+TEST_CASE("listing the languages of an engine that cannot say what it offers says why",
+          "[cli][transcribe][languages]") {
+    World world;
+    FakeEngineScript script;
+    script.name = "whisper.cpp";
+    script.capabilitiesError =
+        subedit::core::TranscriptionError{.kind = TranscriptionErrorKind::ModelMissing};
+    world.engines = EngineRegistry{};
+    (void)world.engines.add(std::make_unique<FakeTranscriptionEngine>(script));
+    std::ostringstream listed;
+    const Reporter reporter =
+        Reporter{world.errors, 1}.withTextOutput(listed).forCommand("transcribe");
+
+    const ExitCode code = transcribeFile(
+        world.files, world.engines, "", {.listLanguages = true}, world.settings, reporter);
+
+    CHECK(code == ExitCode::AllFailed);
+    CHECK(listed.str().empty());
+    CHECK_THAT(world.errors.str(), ContainsSubstring("Installing the transcription tools"));
+}

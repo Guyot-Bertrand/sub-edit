@@ -137,6 +137,10 @@ die [Einstellungen](preferences.md#transkription), in denen das Programm und das
 Die Sprache wird für das nächste Mal gemerkt. Die Engine selbst und die Grenzen der Untertitel sind
 [Einstellungen](preferences.md) (`transcription.*`).
 
+**Enthält das Projekt bereits Untertitel, fragt das Fenster nach, bevor es sie ersetzt**, und sagt,
+wie viele verschwinden. Es fragt vor der Arbeit, damit das Ablehnen nichts kostet. Ist das Projekt leer, gibt es
+nichts zu fragen.
+
 Die Arbeit läuft **im Hintergrund**, mit einem Feld und einer Schaltfläche `Cancel`; das Fenster bleibt drumherum benutzbar. **Das Feld
 zeigt, wo die Arbeit steht**, damit Sie wissen, dass sie lebt und wie lange sie dauern wird:
 
@@ -165,7 +169,7 @@ Die beiden richten sich nicht Zeile für Zeile aus, weshalb jede ihre eigenen Ze
 er entstanden ist**, und blättert die linke Seite dorthin; ein Untertitel auf einmal, nur in dieser Richtung. Keine der beiden Tabellen lässt sich bearbeiten.
 
 Zwei Schaltflächen schließen sie. **“Anwenden”** ersetzt die Untertitel des Projekts **als ein einziger Vorgang**: Ein einziges `Undo` gibt zurück, was da war, die Texte der
-Übersetzung eingeschlossen. **“Ignorieren”** verwirft das Ergebnis, und es ist verloren. Das ist die einzige Bestätigung — vor der Arbeit wird nichts gefragt. “Anwenden” ist ausgegraut, wenn
+Übersetzung eingeschlossen. **“Ignorieren”** verwirft das Ergebnis, und es ist verloren. “Anwenden” ist ausgegraut, wenn
 es nichts anzuwenden gibt.
 
 **Wenn der Lauf angehalten wurde**, sagt das Fenster es — “Teilergebnis: Die Arbeit wurde bei … angehalten” — und bietet an, was bis dahin erhalten wurde, zum Anwenden

@@ -36,6 +36,9 @@ namespace subedit::core {
 /// What a transcription came to: how many subtitles, in which language.
 [[nodiscard]] std::string noticeOfTranscription(std::size_t subtitles, std::string_view language);
 
+/// What replacing the subtitles of the project takes away, for the question that asks.
+[[nodiscard]] std::string noticeOfReplacement(std::size_t subtitles);
+
 /// What a run that stopped before its end gave, once the person kept it: how many subtitles, and
 /// how far the work had got.
 [[nodiscard]] std::string noticeOfPartialTranscription(std::size_t subtitles, Timestamp upTo);

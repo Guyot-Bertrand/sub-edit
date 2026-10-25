@@ -259,7 +259,7 @@ what was missing: `CLI-TRANSCRIBE-09`, `CLI-TRANSCRIBE-10`, `GUI-TRANSCRIBE-05` 
 | `CLI-TRANSCRIBE-08` | `--format json` writes one record with the language used, the counts and the files written |
 | `GUI-TRANSCRIBE-01` | `Transcribe Audio…` opens a dialog offering the audio tracks of the project's video, a language and a model |
 | `GUI-TRANSCRIBE-02` | the transcription runs in the background with a progress indicator and can be cancelled, a cancelled or failed run leaving the project unchanged |
-| `GUI-TRANSCRIBE-03` | the transcription replaces the subtitles of the project only once the person has applied it from the preview, as one undoable operation |
+| `GUI-TRANSCRIBE-03` | when the subtitle section is not empty the window asks for confirmation before the work, and the transcription replaces it only once the person has applied it from the preview, as one undoable operation |
 | `GUI-TRANSCRIBE-04` | without the executable, the model or the extraction tool the command explains what is missing and where to read how to install it, and the rest of the window is unaffected |
 | `CLI-TRANSCRIBE-09` | `--start` and `--end` restrict the transcription to a part of the film, the subtitles keep the time of the film, and a bound that is no time or a range whose end comes first is refused before any work |
 | `CLI-TRANSCRIBE-10` | while it runs the command says the step, the percent, the position in the film and the time left, and at the third level the text last obtained |
@@ -335,8 +335,8 @@ the three-letter code of a file.
   engine, are left for later, on purpose.
 - **The preview.** The transcription no longer replaces the subtitles of the project on its own: a dialog shows the pieces of
   the engine on the left and the final subtitles on the right, each with its own times, and the person applies or ignores
-  (and loses) them. **The question that used to be asked before the work is gone**: "Apply" is the confirmation, and the
-  replacement stays one undoable operation. A subtitle selected on the right highlights its sources on the left, which scrolls
+  (and loses) them. **The question asked before the work stays**, when the project holds subtitles: an hour of computing is not started
+  by mistake. "Apply" is the second choice, made once the result is seen, and the replacement stays one undoable operation. A subtitle selected on the right highlights its sources on the left, which scrolls
   to them; one at a time, no editing. **A cancelled or failed run offers what it had obtained** (`TranscriptionError::partial`,
   carried by `MediaTranscriptionError`), titled as partial, so that a long run stopped late does not lose its work unasked.
   The notice of #793 about a transcript "mostly notes in brackets" is removed with it. On the command line, an interrupted run

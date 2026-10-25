@@ -1100,8 +1100,12 @@ msgstr ""
 "секундам"
 
 #: src/exe/cli/commands/transcribe.cpp
-msgid "Do not write sounds as notes, such as (phone ringing); the transcription.suppress-notes setting by default"
-msgstr "Не записывать звуки как заметки, например (phone ringing); по умолчанию — настройка transcription.suppress-notes"
+msgid ""
+"Do not write sounds as notes, such as (phone ringing); the transcription."
+"suppress-notes setting by default"
+msgstr ""
+"Не записывать звуки как заметки, например (phone ringing); по умолчанию — "
+"настройка transcription.suppress-notes"
 
 #: src/exe/cli/commands/transcribe.cpp
 msgid "Write sounds as notes, against the setting"
@@ -1120,8 +1124,11 @@ msgid "Keep the extracted audio in this file"
 msgstr "Сохранить извлечённый звук в этот файл"
 
 #: src/exe/cli/commands/transcribe.cpp
-msgid "List the languages the engine offers for the model, and transcribe nothing"
-msgstr "Перечислить языки, которые движок предлагает для модели, и ничего не расшифровывать"
+msgid ""
+"List the languages the engine offers for the model, and transcribe nothing"
+msgstr ""
+"Перечислить языки, которые движок предлагает для модели, и ничего не "
+"расшифровывать"
 
 #: src/exe/cli/commands/transcribe.cpp
 msgid "Write the segments as the engine cut them"
@@ -3617,6 +3624,26 @@ msgstr[2] "Расшифровано субтитров: %1, язык: %2"
 msgstr[3] "Расшифровано субтитров: %1, язык: %2"
 
 #: src/lib/subedit/core/wording/transcription.cpp
+msgid ""
+"The %1 subtitle of this project will be replaced by the transcription. You "
+"can undo it."
+msgid_plural ""
+"The %1 subtitles of this project will be replaced by the transcription. You "
+"can undo it."
+msgstr[0] ""
+"Субтитров этого проекта, которые будут заменены расшифровкой: %1. Это можно "
+"отменить."
+msgstr[1] ""
+"Субтитров этого проекта, которые будут заменены расшифровкой: %1. Это можно "
+"отменить."
+msgstr[2] ""
+"Субтитров этого проекта, которые будут заменены расшифровкой: %1. Это можно "
+"отменить."
+msgstr[3] ""
+"Субтитров этого проекта, которые будут заменены расшифровкой: %1. Это можно "
+"отменить."
+
+#: src/lib/subedit/core/wording/transcription.cpp
 msgid "%1 subtitle kept from a partial transcription, up to %2"
 msgid_plural "%1 subtitles kept from a partial transcription, up to %2"
 msgstr[0] "%1 субтитр сохранён из частичной расшифровки, до %2"
@@ -4633,8 +4660,12 @@ msgstr "Модель"
 
 #: src/lib/subedit/gui/preferences_dialog.cpp
 #: src/lib/subedit/gui/transcribe_dialog.cpp
-msgid "Sounds such as (phone ringing) or [MUSIC PLAYING] are not written. Turn it off to keep them, for subtitles for the hard of hearing."
-msgstr "Звуки вроде (phone ringing) или [MUSIC PLAYING] не записываются. Снимите флажок, чтобы сохранить их, для субтитров для слабослышащих."
+msgid ""
+"Sounds such as (phone ringing) or [MUSIC PLAYING] are not written. Turn it "
+"off to keep them, for subtitles for the hard of hearing."
+msgstr ""
+"Звуки вроде (phone ringing) или [MUSIC PLAYING] не записываются. Снимите "
+"флажок, чтобы сохранить их, для субтитров для слабослышащих."
 
 # From Gaupol.
 #: src/lib/subedit/gui/preferences_dialog.cpp
@@ -4744,6 +4775,10 @@ msgstr ""
 "%1\n"
 "\n"
 "Открыть его снова — в новом месте?"
+
+#: src/lib/subedit/gui/qt_prompts.cpp
+msgid "Replace the subtitles?"
+msgstr "Заменить субтитры?"
 
 # From Gaupol.
 #: src/lib/subedit/gui/save_shape.cpp
@@ -5024,8 +5059,14 @@ msgid "First audio track"
 msgstr "Первая звуковая дорожка"
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
-msgid "Choose the language of the speech. \"Detect\" lets the model find it from the first 30 seconds of sound, which a film that opens with music can get wrong."
-msgstr "Выберите язык речи. Пункт «Определять» позволяет модели найти его по первым 30 секундам звука, и фильм, который начинается с музыки, она может определить неверно."
+msgid ""
+"Choose the language of the speech. \"Detect\" lets the model find it from "
+"the first 30 seconds of sound, which a film that opens with music can get "
+"wrong."
+msgstr ""
+"Выберите язык речи. Пункт «Определять» позволяет модели найти его по первым "
+"30 секундам звука, и фильм, который начинается с музыки, она может "
+"определить неверно."
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
 msgid ""
@@ -5081,8 +5122,16 @@ msgid "Proposed from the language the file declares for this track."
 msgstr "Предложен по языку, который файл указывает для этой дорожки."
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
-msgid "The file declares no language for this track: the model will detect it from the first 30 seconds of sound. If the film opens with music or silence it can choose wrongly, and the speech is then translated into that language. Choose the language if you know it."
-msgstr "Файл не указывает язык этой дорожки: модель определит его по первым 30 секундам звука. Если фильм начинается с музыки или тишины, она может ошибиться, и речь тогда будет переведена на этот язык. Выберите язык, если знаете его."
+msgid ""
+"The file declares no language for this track: the model will detect it from "
+"the first 30 seconds of sound. If the film opens with music or silence it "
+"can choose wrongly, and the speech is then translated into that language. "
+"Choose the language if you know it."
+msgstr ""
+"Файл не указывает язык этой дорожки: модель определит его по первым 30 "
+"секундам звука. Если фильм начинается с музыки или тишины, она может "
+"ошибиться, и речь тогда будет переведена на этот язык. Выберите язык, если "
+"знаете его."
 
 #: src/lib/subedit/gui/transcription_preview_dialog.cpp
 msgid "Apply"
@@ -5094,12 +5143,17 @@ msgid "Transcription preview"
 msgstr "Предварительный просмотр расшифровки"
 
 #: src/lib/subedit/gui/transcription_preview_dialog.cpp
-msgid "Partial result: the work stopped at %1. What was obtained up to there can be applied or ignored."
-msgstr "Частичный результат: работа остановилась на %1. Полученное до этого места можно применить или пропустить."
+msgid ""
+"Partial result: the work stopped at %1. What was obtained up to there can be "
+"applied or ignored."
+msgstr ""
+"Частичный результат: работа остановилась на %1. Полученное до этого места "
+"можно применить или пропустить."
 
 #: src/lib/subedit/gui/transcription_preview_dialog.cpp
 msgid "Select a subtitle on the right to see the pieces it was made from."
-msgstr "Выберите субтитр справа, чтобы увидеть фрагменты, из которых он составлен."
+msgstr ""
+"Выберите субтитр справа, чтобы увидеть фрагменты, из которых он составлен."
 
 #: src/lib/subedit/gui/transcription_preview_dialog.cpp
 msgid "As the engine wrote it (%1)"
@@ -5539,25 +5593,6 @@ msgid "Main"
 msgstr "Основная"
 
 #~ msgid ""
-#~ "The %1 subtitle of this project will be replaced by the transcription. "
-#~ "You can undo it."
-#~ msgid_plural ""
-#~ "The %1 subtitles of this project will be replaced by the transcription. "
-#~ "You can undo it."
-#~ msgstr[0] ""
-#~ "Субтитров этого проекта, которые будут заменены расшифровкой: %1. Это "
-#~ "можно отменить."
-#~ msgstr[1] ""
-#~ "Субтитров этого проекта, которые будут заменены расшифровкой: %1. Это "
-#~ "можно отменить."
-#~ msgstr[2] ""
-#~ "Субтитров этого проекта, которые будут заменены расшифровкой: %1. Это "
-#~ "можно отменить."
-#~ msgstr[3] ""
-#~ "Субтитров этого проекта, которые будут заменены расшифровкой: %1. Это "
-#~ "можно отменить."
-
-#~ msgid ""
 #~ "%1 of the %2 pieces are only notes in brackets, such as [MUSIC PLAYING]: "
 #~ "the language used (%3) is probably not the one spoken, and the engine may "
 #~ "have translated the speech. Run it again with the language typed."
@@ -5565,9 +5600,6 @@ msgstr "Основная"
 #~ "%1 из %2 фрагментов — лишь примечания в скобках, например [MUSIC "
 #~ "PLAYING]: использованный язык (%3), вероятно, не тот, на котором говорят, "
 #~ "и движок мог перевести речь. Запустите снова, указав язык."
-
-#~ msgid "Replace the subtitles?"
-#~ msgstr "Заменить субтитры?"
 
 #~ msgid ""
 #~ "A language code such as fr, en, de, es or it (fra and eng work too). "
