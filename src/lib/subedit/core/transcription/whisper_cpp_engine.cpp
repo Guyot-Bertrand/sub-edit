@@ -44,6 +44,16 @@ constexpr int kNotAudio = 11;
     return {std::istreambuf_iterator<char>{file}, std::istreambuf_iterator<char>{}};
 }
 
+/// The first `size` bytes of `path`, and no more: a model weighs hundreds of megabytes, and the
+/// windows ask for its capabilities every time they open and at every key typed in its field.
+[[nodiscard]] std::string readHead(const std::filesystem::path& path, std::size_t size) {
+    std::ifstream file{path, std::ios::binary};
+    std::string head(size, '\0');
+    file.read(head.data(), static_cast<std::streamsize>(size));
+    head.resize(static_cast<std::size_t>(file.gcount()));
+    return head;
+}
+
 [[nodiscard]] TranscriptionError error(TranscriptionErrorKind kind, std::string detail = {}) {
     return TranscriptionError{.kind = kind, .detail = std::move(detail)};
 }
@@ -185,7 +195,7 @@ WhisperCppEngine::capabilitiesFor(const std::optional<std::filesystem::path>& mo
     if (!model || !std::filesystem::exists(*model))
         return std::unexpected(error(TranscriptionErrorKind::ModelMissing));
 
-    const std::string header = readAll(*model).substr(0, kModelHeaderSize);
+    const std::string header = readHead(*model, kModelHeaderSize);
     const std::optional<bool> multilingual = readModelIsMultilingual(header);
     if (!multilingual)
         return std::unexpected(error(TranscriptionErrorKind::Failed, model->string()));
