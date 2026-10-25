@@ -101,6 +101,7 @@ PreferencesDialog::PreferencesDialog(core::Theme theme,
       m_transcription(transcription),
       m_program(new QLineEdit{this}),
       m_model(new QLineEdit{this}),
+      m_suppressNotes(new QCheckBox{translate("Do not write sounds as notes"), this}),
       m_programButton(new QPushButton{translate("Browse…"), this}),
       m_modelButton(new QPushButton{translate("Browse…"), this}),
       m_tools(new QLabel{this}) {
@@ -192,6 +193,11 @@ PreferencesDialog::PreferencesDialog(core::Theme theme,
     auto* transcriptionFields = new QFormLayout;
     transcriptionFields->addRow(translate("Program"), programRow);
     transcriptionFields->addRow(translate("Model"), modelRow);
+    m_suppressNotes->setChecked(transcription.settings.suppressNotes);
+    m_suppressNotes->setToolTip(translate(
+        "Sounds such as (phone ringing) or [MUSIC PLAYING] are not written. Turn it off to "
+        "keep them, for subtitles for the hard of hearing."));
+    transcriptionFields->addRow(QString{}, m_suppressNotes);
     transcriptionFields->addRow(m_tools);
     auto* transcriptionGroup = new QGroupBox{translate("Transcription"), this};
     transcriptionGroup->setLayout(transcriptionFields);
@@ -235,6 +241,7 @@ core::TranscriptionSettings PreferencesDialog::transcription() const {
     core::TranscriptionSettings settings = m_transcription.settings;
     settings.executable = std::filesystem::path{m_program->text().trimmed().toStdString()};
     settings.model = std::filesystem::path{m_model->text().trimmed().toStdString()};
+    settings.suppressNotes = m_suppressNotes->isChecked();
     return settings;
 }
 

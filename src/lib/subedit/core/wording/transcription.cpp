@@ -119,6 +119,11 @@ std::string noticeOfEnglishOnlyModel() {
         "English, or notes in brackets. Choose a multilingual model in the preferences.")};
 }
 
+std::string engineCannotSuppressNotes(std::string_view engine) {
+    return substitute(translate("the engine %1 cannot be told not to write sounds as notes"),
+                      {engine});
+}
+
 std::string notALanguageCode(std::string_view text) {
     return substitute(
         translate("\"%1\" is not a language code: write two letters, such as fr, en, de or es"),

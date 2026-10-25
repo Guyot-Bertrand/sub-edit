@@ -404,17 +404,20 @@ void ProjectOperations::transcribeAudio(ProjectPage& page) {
         return;
 
     const std::vector<core::AudioTrack> tracks = m_view->audioTracksOf(page);
-    TranscribeDialog dialog{tracks,
-                            TranscribeChoice{.language = m_transcriptionSettings.language},
-                            [this] { return currentTools(); },
-                            [this] { m_view->openPreferences(); },
-                            m_view->dialogParent()};
+    TranscribeDialog dialog{
+        tracks,
+        TranscribeChoice{.language = m_transcriptionSettings.language,
+                         .suppressNotes = m_transcriptionSettings.suppressNotes},
+        [this] { return currentTools(); },
+        [this] { m_view->openPreferences(); },
+        m_view->dialogParent()};
     if (!m_prompts->run(dialog))
         return;
     const TranscribeChoice choice = dialog.choice();
 
     // Kept as asked, even when the transcription then fails: the next one offers it again.
     m_transcriptionSettings.language = choice.language;
+    m_transcriptionSettings.suppressNotes = choice.suppressNotes;
 
     // **Asked before the work, not after it**: whoever declines does not wait for a
     // result they will not use. Nothing to ask when there is nothing to lose.

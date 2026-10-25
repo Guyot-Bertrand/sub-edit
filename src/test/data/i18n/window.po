@@ -854,3 +854,10 @@ msgstr "Обзор…"
 
 msgid "Searched for on the PATH"
 msgstr "Ищется в PATH"
+
+# The checkbox of the transcription group (#794)
+msgid "Do not write sounds as notes"
+msgstr "Не записывать звуки в виде пометок"
+
+msgid "Sounds such as (phone ringing) or [MUSIC PLAYING] are not written. Turn it off to keep them, for subtitles for the hard of hearing."
+msgstr "Звуки вроде (звонит телефон) или [MUSIC PLAYING] не записываются. Отключите, чтобы сохранить их, для субтитров для слабослышащих."

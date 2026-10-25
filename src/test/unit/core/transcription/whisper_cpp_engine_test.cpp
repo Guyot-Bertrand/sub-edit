@@ -152,11 +152,11 @@ TEST_CASE("the command line is the one the tool expects", "[whisper][engine]") {
     CHECK(arguments[4] == "-l");
     CHECK(arguments[5] == "fr");
     CHECK(arguments[6] == "-pp");
-    CHECK(arguments[7] == "-sns");
-    CHECK(arguments[8] == "-oj");
-    CHECK(arguments[9] == "-ojf");
-    CHECK(arguments[10] == "-of");
-    CHECK(arguments[11].ends_with("/out"));
+    CHECK(arguments[7] == "-oj");
+    CHECK(arguments[8] == "-ojf");
+    CHECK(arguments[9] == "-of");
+    CHECK(arguments[10].ends_with("/out"));
+    CHECK(arguments[11] == "-sns");
 }
 
 TEST_CASE("the exit codes of the tool become the errors of the port", "[whisper][engine]") {

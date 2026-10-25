@@ -86,6 +86,11 @@ struct TranscribeOptions {
     std::string start{};
     std::string end{};
 
+    /// Whether the engine is told not to write sounds as notes, or told it may: the two options,
+    /// which say opposite things, are both refused. Neither given, the setting decides.
+    bool suppressNotes = false;
+    bool keepNotes = false;
+
     /// Write the segments as the engine cut them, with no post-processing.
     bool raw = false;
 };

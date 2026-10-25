@@ -513,3 +513,80 @@ TEST_CASE("a model that speaks every language is not warned about", "[cli][trans
     CHECK_THAT(world.errors.str(), !ContainsSubstring("English only"));
     CHECK_THAT(world.errors.str(), !ContainsSubstring("only notes"));
 }
+
+// ## Sounds written as notes
+
+namespace {
+
+/// A world whose engine can be told not to write sounds as notes.
+struct NotesWorld : World {
+    NotesWorld() {
+        FakeEngineScript script;
+        script.name = "whisper.cpp";
+        script.seen = seen;
+        script.capabilities = {
+            .languageDetection = true, .suppressNotes = true, .needsModel = false};
+        script.segments = {segment(0, 1000, "Hello.")};
+        engines = EngineRegistry{};
+        (void)engines.add(std::make_unique<FakeTranscriptionEngine>(script));
+    }
+};
+
+} // namespace
+
+TEST_CASE("sounds are not written as notes unless the setting or an option says otherwise",
+          "[cli][transcribe][notes]") {
+    NotesWorld world;
+    const auto run = [&world](TranscribeOptions options) {
+        options.input = world.audio.string();
+        options.output = world.output.string();
+        return world.run(options);
+    };
+
+    // The setting is on by default.
+    CHECK(run({}) == ExitCode::Success);
+    CHECK(world.seen->suppressNotes);
+
+    // An option against it wins.
+    CHECK(run({.keepNotes = true}) == ExitCode::Success);
+    CHECK_FALSE(world.seen->suppressNotes);
+
+    // The setting off, and then an option for it.
+    world.settings.suppressNotes = false;
+    CHECK(run({}) == ExitCode::Success);
+    CHECK_FALSE(world.seen->suppressNotes);
+    CHECK(run({.suppressNotes = true}) == ExitCode::Success);
+    CHECK(world.seen->suppressNotes);
+}
+
+TEST_CASE("the two options about notes say opposite things", "[cli][transcribe][notes]") {
+    NotesWorld world;
+
+    const ExitCode code = world.run(TranscribeOptions{.input = world.audio.string(),
+                                                      .output = world.output.string(),
+                                                      .suppressNotes = true,
+                                                      .keepNotes = true});
+
+    CHECK(code == ExitCode::Usage);
+    CHECK_THAT(world.errors.str(),
+               ContainsSubstring("--suppress-notes and --keep-notes say opposite"));
+    CHECK(world.seen->audio.empty());
+}
+
+TEST_CASE("an engine that cannot suppress notes refuses the option by name, not the setting",
+          "[cli][transcribe][notes]") {
+    World world; // its engine cannot
+
+    const ExitCode asked = world.run(TranscribeOptions{
+        .input = world.audio.string(), .output = world.output.string(), .suppressNotes = true});
+    CHECK(asked == ExitCode::Usage);
+    CHECK_THAT(world.errors.str(),
+               ContainsSubstring("cannot be told not to write sounds as notes"));
+    CHECK(world.seen->audio.empty());
+
+    // The setting is on by default and the engine cannot: nothing is said, the work is done.
+    world.settings.language = "fr";
+    const ExitCode quiet = world.run(
+        TranscribeOptions{.input = world.audio.string(), .output = world.output.string()});
+    CHECK(quiet == ExitCode::Success);
+}

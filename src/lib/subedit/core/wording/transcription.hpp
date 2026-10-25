@@ -53,6 +53,9 @@ noticeOfNotes(std::size_t notes, std::size_t pieces, std::string_view language);
 /// A model for English alone will write everything as English, whatever the film speaks.
 [[nodiscard]] std::string noticeOfEnglishOnlyModel();
 
+/// An engine that cannot be told not to write sounds as notes, asked to.
+[[nodiscard]] std::string engineCannotSuppressNotes(std::string_view engine);
+
 /// What is wrong with a language that could not be read as a code.
 [[nodiscard]] std::string notALanguageCode(std::string_view text);
 

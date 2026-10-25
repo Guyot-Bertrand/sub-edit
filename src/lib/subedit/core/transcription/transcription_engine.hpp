@@ -25,6 +25,11 @@ struct TranscriptionRequest {
     /// The model, for an engine that needs one.
     std::optional<std::filesystem::path> model{};
 
+    /// Whether the engine is to avoid writing sounds as notes (`(phone ringing)`, `[MUSIC
+    /// PLAYING]`). Honoured by an engine that declares `EngineCapabilities::suppressNotes`, ignored
+    /// by one that does not.
+    bool suppressNotes = true;
+
     /// The part of the audio to transcribe, in the time of the film; the whole of it
     /// when nothing is given. The segments come back in that same time, and none
     /// begins before `start` or after `end`.

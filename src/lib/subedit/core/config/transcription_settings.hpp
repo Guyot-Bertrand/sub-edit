@@ -32,6 +32,12 @@ struct TranscriptionSettings {
     /// An ISO 639-1 code (`en`, `fr`); empty to let the engine detect it.
     std::string language{};
 
+    /// Whether the engine is told not to write sounds as notes — `(Sonnerie de téléphone)`,
+    /// `[MUSIC PLAYING]`. On by default: such notes are noise in most subtitles. Off for subtitles
+    /// for the hard of hearing, which want them. An intent, not an engine's option: the adapter
+    /// turns it into whatever the engine calls it, and an engine that cannot do it ignores it.
+    bool suppressNotes = true;
+
     /// The limits of the post-processing (`AssemblySettings`).
     std::int64_t mergeGapMilliseconds = kDefaultMergeGapMilliseconds;
     std::int64_t maxDurationMilliseconds = kDefaultMaxDurationMilliseconds;

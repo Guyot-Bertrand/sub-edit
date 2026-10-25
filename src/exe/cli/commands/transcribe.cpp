@@ -79,6 +79,15 @@ describeTranscribe(CLI::App& app, std::string_view name, TranscribeCommandOption
                          "Language of the speech, two letters: fr, en, de; detected from the first "
                          "30 seconds by default")})
         ->option_text("CODE");
+    transcribe->add_flag(
+        "--suppress-notes",
+        options.request.suppressNotes,
+        std::string{core::translate("Do not write sounds as notes, such as (phone ringing); the "
+                                    "transcription.suppress-notes setting by default")});
+    transcribe->add_flag(
+        "--keep-notes",
+        options.request.keepNotes,
+        std::string{core::translate("Write sounds as notes, against the setting")});
     transcribe
         ->add_option(
             "--model",

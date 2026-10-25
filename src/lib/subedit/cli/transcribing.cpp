@@ -171,6 +171,16 @@ ExitCode transcribeFile(core::FileSystem& files,
 
     core::MediaTranscriptionRequest request{
         .input = options.input, .audioTrack = options.audioTrack, .keepAudio = options.keepAudio};
+    if (options.suppressNotes && options.keepNotes) {
+        reporter.failed(core::substitute(
+            // TRANSLATORS: %1 and %2 are two options, such as --shorten and --no-shorten.
+            core::translate("%1 and %2 say opposite things; give one of them"),
+            {"--suppress-notes", "--keep-notes"}));
+        return ExitCode::Usage;
+    }
+    // The setting decides, an option overrides it.
+    request.suppressNotes = options.suppressNotes || (!options.keepNotes && settings.suppressNotes);
+
     if (!languageName.empty()) {
         request.language = core::readLanguageCode(languageName);
         if (!request.language) {
@@ -199,9 +209,21 @@ ExitCode transcribeFile(core::FileSystem& files,
         return ExitCode::Usage;
     }
 
+    const auto capabilities = engine->capabilitiesFor(request.model);
+    // The wildcards of the name of the kept audio are the engine's: the rate it asked for.
+    if (!options.keepAudio.empty())
+        request.keepAudio =
+            core::expandAudioName(options.keepAudio, capabilities ? capabilities->sampleRate : 0);
+    // What the person asked for by name, and the engine cannot do, is refused before any work; what
+    // only a setting says is dropped without a word, since a setting is written for all the
+    // engines.
+    if (options.suppressNotes && capabilities && !capabilities->suppressNotes) {
+        reporter.failed(core::engineCannotSuppressNotes(engineName));
+        return ExitCode::Usage;
+    }
+
     // A model for English alone writes everything as English: said before the long work, not after.
-    if (const auto capabilities = engine->capabilitiesFor(request.model);
-        capabilities && !capabilities->languageDetection && capabilities->languages.size() == 1 &&
+    if (capabilities && !capabilities->languageDetection && capabilities->languages.size() == 1 &&
         capabilities->languages.front() == "en")
         reporter.say(1, core::noticeOfEnglishOnlyModel());
 
@@ -245,7 +267,7 @@ ExitCode transcribeFile(core::FileSystem& files,
     Fields fields;
     fields.emplace_back("language", language);
     if (!options.keepAudio.empty())
-        fields.emplace_back("audio", options.keepAudio);
+        fields.emplace_back("audio", request.keepAudio.string());
     reporter.record(
         writtenRecord(reporter.command(),
                       options.input,

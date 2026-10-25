@@ -5,6 +5,7 @@
 #include <subedit/gui/messages.hpp>
 #include <subedit/gui/transcribe_dialog.hpp>
 
+#include <QCheckBox>
 #include <QComboBox>
 #include <QDialogButtonBox>
 #include <QFormLayout>
@@ -39,6 +40,7 @@ TranscribeDialog::TranscribeDialog(std::vector<core::AudioTrack> tracks,
       m_probe(std::move(probe)),
       m_track(new QComboBox{this}),
       m_language(new QLineEdit{this}),
+      m_suppressNotes(new QCheckBox{translate("Do not write sounds as notes"), this}),
       m_start(new QLineEdit{this}),
       m_end(new QLineEdit{this}),
       m_rangeHint(new QLabel{this}),
@@ -70,6 +72,11 @@ TranscribeDialog::TranscribeDialog(std::vector<core::AudioTrack> tracks,
     });
     connect(m_language, &QLineEdit::textChanged, this, [this] { explainLanguage(); });
     connect(m_track, &QComboBox::currentIndexChanged, this, [this] { followTrack(); });
+
+    m_suppressNotes->setChecked(initial.suppressNotes);
+    m_suppressNotes->setToolTip(translate(
+        "Sounds such as (phone ringing) or [MUSIC PLAYING] are not written. Turn it off to "
+        "keep them, for subtitles for the hard of hearing."));
 
     m_start->setPlaceholderText(QStringLiteral("HH:MM:SS"));
     m_end->setPlaceholderText(QStringLiteral("HH:MM:SS"));
@@ -103,6 +110,7 @@ TranscribeDialog::TranscribeDialog(std::vector<core::AudioTrack> tracks,
     fields->addRow(translate("Audio track"), m_track);
     fields->addRow(translate("Language"), m_language);
     fields->addRow(QString{}, m_hint);
+    fields->addRow(QString{}, m_suppressNotes);
 
     auto* range = new QHBoxLayout;
     range->addWidget(m_start);
@@ -134,6 +142,7 @@ std::string TranscribeDialog::typedLanguage() const {
 TranscribeChoice TranscribeDialog::choice() const {
     return TranscribeChoice{.track = m_track->currentIndex(),
                             .language = typedLanguage(),
+                            .suppressNotes = m_suppressNotes->isChecked(),
                             .start = core::readRangeBound(m_start->text().toStdString()),
                             .end = core::readRangeBound(m_end->text().toStdString())};
 }
@@ -151,6 +160,14 @@ void TranscribeDialog::refresh() {
     m_tools->setText(report);
     explainLanguage();
     checkRange();
+
+    // Greyed, with the reason, for an engine that cannot be told: the checkbox is not removed, so
+    // that the person sees the option exists and why it is out.
+    const bool available = view.tools.suppressNotesAvailable();
+    m_suppressNotes->setEnabled(available);
+    if (!available)
+        m_suppressNotes->setToolTip(
+            translate("This engine cannot be told not to write sounds as notes."));
 }
 
 void TranscribeDialog::checkRange() {

@@ -13,6 +13,7 @@
 #include <string>
 #include <vector>
 
+class QCheckBox;
 class QComboBox;
 class QDialogButtonBox;
 class QLabel;
@@ -30,6 +31,9 @@ struct TranscribeChoice {
 
     /// An ISO 639-1 code, or empty to let the model detect it.
     std::string language{};
+
+    /// Whether the engine is told not to write sounds as notes.
+    bool suppressNotes = true;
 
     /// The part of the film to transcribe; all of it when neither is given. The result replaces the
     /// subtitles of the project like any other, after the same question.
@@ -90,6 +94,9 @@ public:
     [[nodiscard]] QLabel* languageHint() const { return m_hint; }
 
     /// The fields of the range, empty for the whole film.
+    /// The box for not writing sounds as notes; greyed for an engine that cannot.
+    [[nodiscard]] QCheckBox* suppressNotesBox() const { return m_suppressNotes; }
+
     [[nodiscard]] QLineEdit* startEdit() const { return m_start; }
 
     [[nodiscard]] QLineEdit* endEdit() const { return m_end; }
@@ -125,6 +132,7 @@ private:
     core::TranscriptionTools m_current{};
     QComboBox* m_track;
     QLineEdit* m_language;
+    QCheckBox* m_suppressNotes;
     QLineEdit* m_start;
     QLineEdit* m_end;
     QLabel* m_rangeHint;

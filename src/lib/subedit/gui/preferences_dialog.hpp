@@ -16,6 +16,7 @@
 #include <vector>
 
 class QCheckBox;
+class QCheckBox;
 class QComboBox;
 class QDoubleSpinBox;
 class QLabel;
@@ -112,6 +113,8 @@ public:
 
     [[nodiscard]] QPushButton* programButton() const { return m_programButton; }
 
+    [[nodiscard]] QCheckBox* suppressNotesBox() const { return m_suppressNotes; }
+
     [[nodiscard]] QPushButton* modelButton() const { return m_modelButton; }
 
     /// The list of languages, so that a test picks without clicking.
@@ -156,6 +159,7 @@ private:
     TranscriptionPreferences m_transcription;
     QLineEdit* m_program;
     QLineEdit* m_model;
+    QCheckBox* m_suppressNotes;
     QPushButton* m_programButton;
     QPushButton* m_modelButton;
     QLabel* m_tools;

@@ -97,6 +97,7 @@ private:
         request.language = job.language;
     if (!job.model.empty())
         request.model = job.model;
+    request.suppressNotes = settings.suppressNotes;
     request.start = job.start;
     request.end = job.end;
 

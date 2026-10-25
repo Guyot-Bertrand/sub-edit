@@ -18,6 +18,9 @@ namespace {
 
 constexpr std::string_view kExecutableName = "whisper-cli";
 
+/// What whisper.cpp reads without converting: 16 kHz, whatever the file is.
+constexpr int kSampleRate = 16000;
+
 /// What `whisper-cli` exits with, checked on 1.9.5-dev.
 constexpr int kMissingInput = 2;
 constexpr int kMissingModel = 3;
@@ -168,7 +171,8 @@ WhisperCppEngine::capabilitiesFor(const std::optional<std::filesystem::path>& mo
     if (!multilingual)
         return std::unexpected(error(TranscriptionErrorKind::Failed, model->string()));
 
-    EngineCapabilities capabilities{.timedWords = true, .needsModel = true};
+    EngineCapabilities capabilities{
+        .timedWords = true, .suppressNotes = true, .sampleRate = kSampleRate, .needsModel = true};
     if (*multilingual)
         capabilities.languageDetection = true;
     else
@@ -196,15 +200,15 @@ WhisperCppEngine::run(const TranscriptionRequest& request,
                                          "-l",
                                          request.language.value_or("auto"),
                                          "-pp",
-                                         // No sound written as a note, `(Sonnerie de téléphone)` or
-                                         // `[MUSIC PLAYING]`: the decoder is forbidden the symbols
-                                         // they are made of, in the parentheses as in the brackets.
-                                         "-sns",
                                          "-oj",
                                          "-ojf",
                                          "-of",
                                          prefix.string()};
     std::vector<std::string> arguments = fixed;
+    // No sound written as a note, `(Sonnerie de téléphone)` or `[MUSIC PLAYING]`: the decoder is
+    // forbidden the symbols they are made of, in the parentheses as in the brackets.
+    if (request.suppressNotes)
+        arguments.emplace_back("-sns");
     addRange(request, arguments);
 
     RunProgress progress{request, observer};

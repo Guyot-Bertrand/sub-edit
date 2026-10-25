@@ -2,6 +2,7 @@
 
 #include <subedit/core/config/transcription_settings.hpp>
 #include <subedit/core/io/file_system.hpp>
+#include <subedit/core/transcription/engine_capabilities.hpp>
 
 #include <filesystem>
 #include <optional>
@@ -31,6 +32,16 @@ struct TranscriptionTools {
     bool extractor = false;
 
     ModelState model = ModelState::NotSet;
+
+    /// What the engine can do with the model, when both are there and the engine says. The surfaces
+    /// adapt to it: a control for what the engine cannot do is greyed.
+    std::optional<EngineCapabilities> capabilities{};
+
+    /// Whether the person can be offered the choice of not writing sounds as notes: the engine says
+    /// it can, or says nothing yet (no model chosen).
+    [[nodiscard]] bool suppressNotesAvailable() const {
+        return !capabilities.has_value() || capabilities->suppressNotes;
+    }
 
     /// Whether a transcription of a video can start: the three are there.
     [[nodiscard]] bool ready() const {

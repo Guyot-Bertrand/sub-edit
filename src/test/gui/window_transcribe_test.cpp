@@ -9,6 +9,7 @@
 #include <subedit/core/io/in_memory_file_system.hpp>
 #include <subedit/core/model/subtitle.hpp>
 #include <subedit/core/time/timestamp.hpp>
+#include <subedit/core/transcription/engine_capabilities.hpp>
 #include <subedit/gui/main_window.hpp>
 #include <subedit/gui/preferences_dialog.hpp>
 #include <subedit/gui/transcribe_dialog.hpp>
@@ -17,6 +18,7 @@
 #include <QAbstractItemModel>
 #include <QAction>
 #include <QApplication>
+#include <QCheckBox>
 #include <QComboBox>
 #include <QDialogButtonBox>
 #include <QLabel>
@@ -706,12 +708,20 @@ TEST_CASE("without the tools the real runner says what is missing and where to r
     const Tools tools;
     BackgroundTranscriptionRunner runner{tools.scratch.path().string()};
 
+    // The engine is asked first, before any work: with nothing installed it is what is missing.
     const auto outcome = runner.run(tools.job(), nullptr);
-
     REQUIRE_FALSE(outcome.has_value());
     CHECK_FALSE(outcome.error().cancelled);
-    CHECK_THAT(outcome.error().message, ContainsSubstring("ffmpeg was not found"));
+    CHECK_THAT(outcome.error().message,
+               ContainsSubstring("the transcription engine was not found"));
     CHECK_THAT(outcome.error().message, ContainsSubstring("Installing the transcription tools"));
+
+    // With the engine there, `ffmpeg` is what a video lacks.
+    (void)tools.scratch.standIn("whisper-cli", kFake, "");
+    const auto video = runner.run(tools.job(), nullptr);
+    REQUIRE_FALSE(video.has_value());
+    CHECK_THAT(video.error().message, ContainsSubstring("ffmpeg was not found"));
+    CHECK_THAT(video.error().message, ContainsSubstring("Installing the transcription tools"));
 }
 
 TEST_CASE("an engine that is not installed is said with the guide, the window unaffected",
@@ -750,6 +760,7 @@ TEST_CASE("the real runner names the tracks a video has when one is missing",
                                 "--no-echo --stdout-from='" + std::string{SUBEDIT_TEST_DATA_DIR} +
                                     "/audio-tracks/ffprobe.audio-2.txt'");
     (void)tools.scratch.standIn("ffmpeg", kFake, "");
+    (void)tools.scratch.standIn("whisper-cli", kFake, "");
     BackgroundTranscriptionRunner runner{tools.scratch.path().string()};
     TranscriptionJob job = tools.job();
     job.track = 5;
@@ -764,6 +775,7 @@ TEST_CASE("the real runner names the tracks a video has when one is missing",
 TEST_CASE("stopping during the extraction is a cancellation too", "[gui][GUI-TRANSCRIBE-02]") {
     const Tools tools;
     (void)tools.scratch.standIn("ffmpeg", kFake, "--linger=30");
+    (void)tools.scratch.standIn("whisper-cli", kFake, "");
     BackgroundTranscriptionRunner runner{tools.scratch.path().string()};
     runner.setCancelProbe([] { return true; });
 
@@ -904,4 +916,94 @@ TEST_CASE("a range made of notes in brackets says so too", "[gui][GUI-TRANSCRIBE
 
     REQUIRE(stage.prompts.outcomes.size() == 1);
     CHECK_THAT(stage.prompts.outcomes.front(), ContainsSubstring("4 of the 6 pieces"));
+}
+
+// ## Sounds written as notes
+
+TEST_CASE(
+    "the dialog offers not writing sounds as notes, from the setting, and gives the choice back",
+    "[gui][GUI-TRANSCRIBE-01]") {
+    const TranscribeDialog on{kTracks, {}, probing(kReady), nothing};
+    CHECK(on.suppressNotesBox()->isChecked());
+    CHECK(on.suppressNotesBox()->isEnabled());
+    CHECK(on.choice().suppressNotes);
+
+    const TranscribeDialog off{kTracks, {.suppressNotes = false}, probing(kReady), nothing};
+    CHECK_FALSE(off.suppressNotesBox()->isChecked());
+    CHECK_FALSE(off.choice().suppressNotes);
+
+    on.suppressNotesBox()->setChecked(false);
+    CHECK_FALSE(on.choice().suppressNotes);
+}
+
+TEST_CASE("an engine that cannot be told leaves the box grey, with the reason",
+          "[gui][GUI-TRANSCRIBE-01]") {
+    TranscriptionTools tools = kReady;
+    tools.capabilities = subedit::core::EngineCapabilities{.suppressNotes = false};
+    const TranscribeDialog dialog{kTracks, {}, probing(tools), nothing};
+
+    CHECK_FALSE(dialog.suppressNotesBox()->isEnabled());
+    CHECK_THAT(dialog.suppressNotesBox()->toolTip().toStdString(),
+               ContainsSubstring("cannot be told not to write sounds as notes"));
+
+    // One that says it can, or says nothing yet, leaves it free.
+    tools.capabilities = subedit::core::EngineCapabilities{.suppressNotes = true};
+    CHECK(TranscribeDialog{kTracks, {}, probing(tools), nothing}.suppressNotesBox()->isEnabled());
+    CHECK(TranscribeDialog{kTracks, {}, probing(kReady), nothing}.suppressNotesBox()->isEnabled());
+}
+
+TEST_CASE("the choice about notes goes to the runner and is kept for the next time",
+          "[gui][GUI-TRANSCRIBE-01]") {
+    Stage stage;
+    stage.prompts.nextRun = true;
+    stage.prompts.nextReplacementAccepted = true;
+    stage.prompts.fill = [](QDialog& dialog) {
+        dynamic_cast<TranscribeDialog&>(dialog).suppressNotesBox()->setChecked(false);
+    };
+
+    stage.window->transcribeAudioAction()->trigger();
+
+    REQUIRE(stage.runner->asked.size() == 1);
+    CHECK_FALSE(stage.runner->asked.front().settings.suppressNotes);
+    CHECK_FALSE(stage.window->settings().transcription.suppressNotes);
+}
+
+TEST_CASE("the preferences hold the choice about notes", "[gui][GUI-TRANSCRIBE-04]") {
+    TranscriptionSettings settings;
+    const PreferencesDialog dialog{
+        subedit::core::Theme::System, {}, {}, {}, TranscriptionPreferences{.settings = settings}};
+    CHECK(dialog.suppressNotesBox()->isChecked());
+
+    dialog.suppressNotesBox()->setChecked(false);
+    CHECK_FALSE(dialog.transcription().suppressNotes);
+}
+
+TEST_CASE("the real runner tells the engine not to write notes, unless asked not to",
+          "[gui][GUI-TRANSCRIBE-01]") {
+    const Tools tools;
+    const auto log = tools.scratch.file("arguments");
+    (void)tools.scratch.standIn("whisper-cli", kFake, "--output-from='" + tools.sample + "'");
+    const auto spy =
+        tools.scratch.write("whisper-cli-spy",
+                            "#!/bin/sh\nprintf '%s\\n' \"$@\" > '" + log.string() + "'\nexec '" +
+                                tools.scratch.file("whisper-cli").string() + "' \"$@\"\n");
+    std::filesystem::permissions(
+        spy, std::filesystem::perms::owner_all, std::filesystem::perm_options::add);
+    const auto audio = tools.scratch.write("audio.wav", "pcm");
+    (void)tools.scratch.standIn("ffmpeg", kFake, "--output-from='" + audio.string() + "'");
+    BackgroundTranscriptionRunner runner{tools.scratch.path().string()};
+    const auto argumentsOf = [&log] {
+        std::ifstream written{log};
+        return std::string{std::istreambuf_iterator<char>{written},
+                           std::istreambuf_iterator<char>{}};
+    };
+
+    TranscriptionJob job = tools.job();
+    job.settings.executable = spy;
+    REQUIRE(runner.run(job, nullptr).has_value());
+    CHECK(argumentsOf().find("-sns\n") != std::string::npos);
+
+    job.settings.suppressNotes = false;
+    REQUIRE(runner.run(job, nullptr).has_value());
+    CHECK(argumentsOf().find("-sns") == std::string::npos);
 }

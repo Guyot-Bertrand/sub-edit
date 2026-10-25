@@ -350,3 +350,27 @@ TEST_CASE("the command says the step, how far it is, and the text last obtained"
     CHECK_THAT(run.errors, ContainsSubstring("last text: Then more."));
     CHECK_THAT(run.errors, ContainsSubstring("transcribing: 100%"));
 }
+
+TEST_CASE("the name of the kept audio takes the rate the engine asked for",
+          "[e2e][CLI-TRANSCRIBE-04]") {
+    Stands stands;
+    stands.everything();
+    const std::string out = stands.scratch.of("out/film.srt");
+
+    const CliRun run = invokeWithSearchPath(stands.directory,
+                                            {"--format",
+                                             "json",
+                                             "transcribe",
+                                             stands.video,
+                                             "--output",
+                                             out,
+                                             "--model",
+                                             stands.model,
+                                             "--keep-audio",
+                                             stands.scratch.of("out/film.{rate}.wav")});
+
+    REQUIRE(run.exitCode == 0);
+    const std::string kept = stands.scratch.of("out/film.16000.wav");
+    CHECK(contentOf(kept) == "pcm");
+    CHECK_THAT(run.output, ContainsSubstring("\"audio\":\"" + kept + "\""));
+}
