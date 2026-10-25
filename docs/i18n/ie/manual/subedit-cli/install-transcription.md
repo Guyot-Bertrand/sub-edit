@@ -48,6 +48,16 @@ sh ./models/download-ggml-model.sh small
 Poy dona su chemin con `--model` in li linea de comande, o con li parametre `transcription.model`,
 o in li [preferenties](../subedit-gui/preferences.md#transcription) del fenestre, quel memora les.
 
+### Un model de activitá de voce, por comensar u comensa li parol
+
+Optionalmen, un **model de activitá de voce** (Silero) lassa li machine saltar li silentias ante decodar. Sin it, whisper comensa su unesim subtitul a 0, quo ci que veni prim in li film, musica includet, e arrotunda su tempores a tot fenestres; con it, li unesim subtitul comensa u comensa li parol e li altris sequa it. Li deposito del machine have un script quel obtene un:
+
+```bash
+sh ./models/download-vad-model.sh silero-v6.2.0
+```
+
+Dona su chemin con `--vad-model`, con li parametre `transcription.vad-model`, o in li [preferenties](../subedit-gui/preferences.md#transcription) del fenestre.
+
 ### Quel model por quel lingue
 
 Whisper ne changea model unquande it ha trovat li lingue: **li model quel vu dona decide quo it

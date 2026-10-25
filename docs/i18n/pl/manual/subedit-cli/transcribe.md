@@ -11,6 +11,7 @@ subedit-cli transcribe --output FILE
                        [--start TIME] [--end TIME]
                        [--suppress-notes | --keep-notes]
                        [--model FILE]
+                       [--vad-model FILE]
                        [--engine NAME]
                        [--keep-audio FILE]
                        [--raw]
@@ -79,6 +80,7 @@ Options:
   --suppress-notes            Do not write sounds as notes, such as (phone ringing); the transcription.suppress-notes setting by default
   --keep-notes                Write sounds as notes, against the setting
   --model FILE                Model file; the transcription.model setting by default
+  --vad-model FILE            Voice-activity model that skips silences; the transcription.vad-model setting by default
   --engine NAME               Engine; the transcription.engine setting by default
   --keep-audio FILE           Keep the extracted audio in this file
   --list-languages            List the languages the engine offers for the model, and transcribe nothing
@@ -100,6 +102,7 @@ Options:
 | `--start` | nie | czas: `2:00`, `1:02:03`, `2:00.5` lub liczba sekund, `90` | początek dźwięku |
 | `--end` | nie | czas, zapisany jak dla `--start`; musi następować po `--start` | koniec dźwięku |
 | `--model` | nie | plik modelu | ustawienie `transcription.model` |
+| `--vad-model` | nie | model wykrywania mowy (model Silero dla whisper.cpp), który sprawia, że silnik pomija ciszę przed dekodowaniem: jego segmenty podążają wtedy za mową, a pierwszy zaczyna się tam, gdzie zaczyna się mowa, zamiast od 0. Plik musi istnieć, a silnik, który nie może go użyć, odrzuca opcję z podaniem jej nazwy | ustawienie `transcription.vad-model` |
 | `--engine` | nie | nazwa silnika: `whisper.cpp` | ustawienie `transcription.engine` |
 | `--keep-audio` | nie | plik, w którym zachować wyodrębniony dźwięk, jako mono 16-bitowy PCM w pliku WAV, z częstotliwością próbkowania, o którą prosi silnik (16 kHz dla whisper.cpp); jego katalog jest tworzony, gdy go brak, a nazwa może zawierać `{rate}`, zastępowane tą częstotliwością w hercach (`film.{rate}.wav` zapisuje się jako `film.16000.wav`) | dźwięk nie jest nigdzie zachowywany |
 | `--raw` | nie | flaga: zapisuje segmenty silnika bez łączenia i bez cięcia | wyłączona |
@@ -112,6 +115,7 @@ Options:
 | `transcription.engine` | silnik | `whisper.cpp` |
 | `transcription.executable` | program silnika, ścieżka bezwzględna; puste: szukany w `PATH` | puste |
 | `transcription.model` | plik modelu, ścieżka bezwzględna | puste |
+| `transcription.vad-model` | model wykrywania mowy, ścieżka bezwzględna; puste: brak, a cisza nie jest pomijana. Ustawienie, którego silnik nie może użyć, jest odrzucane bez słowa | puste |
 | `transcription.language` | język dźwięku, dwie litery; puste: wykrywany | puste |
 | `transcription.suppress-notes` | nie zapisywać dźwięków jako uwag | `true` |
 | `transcription.merge-gap-ms` | fragmenty jednego zdania położone bliżej niż ta liczba milisekund są łączone | `400` |

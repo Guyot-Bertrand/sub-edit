@@ -48,6 +48,16 @@ sh ./models/download-ggml-model.sh small
 Gefðu síðan upp slóð þess með `--model` á skipanalínunni, eða með stillingunni `transcription.model`,
 eða í [kjörstillingum](../subedit-gui/preferences.md#umritun) forritsins, sem muna hana.
 
+### Raddvirknilíkan, til að byrja þar sem talið byrjar
+
+Valfrjálst gerir **raddvirknilíkan** (Silero) vélinni kleift að sleppa þögnum áður en hún afkóðar. Án þess byrjar whisper fyrsta skjátextann á 0, hvað sem kemur fyrst í myndinni, tónlist meðtalin, og námundar tíma sína að heilum gluggum; með því byrjar fyrsti skjátextinn þar sem talið byrjar og hinir fylgja honum. Í hugbúnaðarsafni vélarinnar er skripta sem sækir eitt slíkt:
+
+```bash
+sh ./models/download-vad-model.sh silero-v6.2.0
+```
+
+Gefðu upp slóð þess með `--vad-model`, með stillingunni `transcription.vad-model` eða í [kjörstillingunum](../subedit-gui/preferences.md#umritun) gluggans.
+
 ### Hvaða líkan fyrir hvaða tungumál
 
 Whisper skiptir ekki um líkan eftir að það hefur fundið tungumálið: **líkanið sem þú gefur ræður hvað það

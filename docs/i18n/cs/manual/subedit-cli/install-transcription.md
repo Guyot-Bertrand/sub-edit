@@ -48,6 +48,16 @@ sh ./models/download-ggml-model.sh small
 Poté zadejte jeho cestu pomocí `--model` v příkazovém řádku nebo nastavením `transcription.model`,
 nebo v [předvolbách](../subedit-gui/preferences.md#přepis) okna, které si ji pamatují.
 
+### Model detekce řeči, aby přepis začínal tam, kde začíná řeč
+
+Volitelně umožní **model detekce řeči** (Silero) enginu přeskočit ticho dříve, než začne dekódovat. Bez něj whisper začne první titulek v čase 0, ať se ve filmu objeví cokoli jako první, hudbu nevyjímaje, a své časy zaokrouhluje na celá okna; s ním první titulek začíná tam, kde začíná řeč, a ostatní ho následují. Repozitář enginu obsahuje skript, který jej stáhne:
+
+```bash
+sh ./models/download-vad-model.sh silero-v6.2.0
+```
+
+Zadejte jeho cestu pomocí `--vad-model`, nastavením `transcription.vad-model` nebo ve [předvolbách](../subedit-gui/preferences.md#přepis) okna.
+
 ### Který model pro který jazyk
 
 Whisper po zjištění jazyka model nemění: **model, který zadáte, určuje, co

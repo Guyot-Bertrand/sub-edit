@@ -401,6 +401,35 @@ TEST_CASE("listing the languages lists what the engine offers for the model, and
     CHECK_THAT(none.errors, ContainsSubstring("Installing the transcription tools"));
 }
 
+TEST_CASE("a voice-activity model is handed to the engine, and a missing file is refused",
+          "[e2e][CLI-TRANSCRIBE-13]") {
+    Stands stands;
+    stands.everything();
+    const std::string out = stands.scratch.of("out/film.srt");
+    const std::string vad = writeFile(stands.scratch, "silero.bin", "model");
+
+    // Without the option, the engine is not asked to skip silences.
+    REQUIRE(stands.run({stands.video, "--output", out, "--model", stands.model}).exitCode == 0);
+    CHECK_THAT(contentOf(stands.argumentLog), !ContainsSubstring("--vad"));
+
+    // With it, the engine gets the flag and the file.
+    REQUIRE(stands.run({stands.video, "--output", out, "--model", stands.model, "--vad-model", vad})
+                .exitCode == 0);
+    CHECK_THAT(contentOf(stands.argumentLog), ContainsSubstring("--vad\n"));
+    CHECK_THAT(contentOf(stands.argumentLog), ContainsSubstring("--vad-model\n" + vad + "\n"));
+
+    // A file that is not there is refused before any work.
+    const CliRun missing = stands.run({stands.video,
+                                       "--output",
+                                       out,
+                                       "--model",
+                                       stands.model,
+                                       "--vad-model",
+                                       stands.scratch.of("absent.bin")});
+    CHECK(missing.exitCode != 0);
+    CHECK_THAT(missing.errors, ContainsSubstring("does not exist"));
+}
+
 TEST_CASE("sounds are not written as notes unless an option or the setting says otherwise",
           "[e2e][CLI-TRANSCRIBE-12]") {
     Stands stands;

@@ -138,7 +138,7 @@
 | `correction.join-split.language` | קוד לוקאל — `fr`, `en_US`, `sr@Latn` —; ריק: שפת המערכת | ריק |
 | `correction.remove-blank` | `true` או `false` — `Remove all blank subtitles` | `true` |
 | `transcription.engine` | שם המנוע: אותיות קטנות, ספרות, `.`, `-` ו-`_` | `whisper.cpp` |
-| `transcription.executable`, `transcription.model` | נתיב מוחלט; ריק: המנוע נחפש ב-`PATH`, ולא נקבע מודל | ריק |
+| `transcription.executable`, `transcription.model`, `transcription.vad-model` | נתיב מוחלט; ריק: המנוע נחפש ב-`PATH`, ולא נקבע מודל, והשתיקות אינן מדולגות | ריק |
 | `transcription.language` | שתי אותיות קטנות, קוד ISO 639-1; ריק: השפה מזוהה אוטומטית | ריק |
 | `transcription.suppress-notes` | `true` או `false` — `Do not write sounds as notes` | `true` |
 | `transcription.merge-gap-ms` | חלקים של אותו משפט שקרובים זה לזה מערך זה מחוברים, באלפיות שנייה, מספר שלם לא שלילי | `400` |
@@ -291,6 +291,8 @@ subedit בנויה אין דרך לשאול את שולחן העבודה אם ה
 חסר היא מוסיפה את ההפניה אל
 [התקנת כלי התמלול](../subedit-cli/install-transcription.md), שאומרת היכן למצוא
 כל אחד. שני השדות הם ההגדרות `transcription.executable` ו-`transcription.model`.
+
+שדה שלישי, **“מודל זיהוי פעילות קולית”**, עם לחצן `Browse…` משלו, מציין מודל שמדלג על השתיקות לפני שהמנוע מפענח (מודל Silero עבור whisper.cpp). עם מודל כזה הכתובית הראשונה מתחילה במקום שבו מתחיל הדיבור והאחרות באות אחריה, במקום חלונות שלמים הנספרים מ-0. כשהשדה נשאר ריק, השתיקות אינן מדולגות. זו ההגדרה `transcription.vad-model`, ואת המודל עליכם לספק בעצמכם, כמו מודל הדיבור: ראו [התקנת כלי התמלול](../subedit-cli/install-transcription.md).
 
 תיבה, **“לא לכתוב צלילים כהערות”**, היא ההגדרה `transcription.suppress-notes` (מסומנת כברירת מחדל): המנוע מקבל הוראה שלא לכתוב צלילים
 כהערות כמו `(phone ringing)`. בטלו את הסימון כדי לשמור אותם, עבור כתוביות לכבדי שמיעה. תיבת הדו־שיח של `Transcribe Audio…` מציעה את אותה תיבה לתמלול הבודד.

@@ -1128,6 +1128,10 @@ msgid "Model file; the transcription.model setting by default"
 msgstr "Soubor modelu; ve výchozím stavu nastavení transcription.model"
 
 #: src/exe/cli/commands/transcribe.cpp
+msgid "Voice-activity model that skips silences; the transcription.vad-model setting by default"
+msgstr "Model detekce řeči, který přeskakuje ticho; ve výchozím stavu nastavení transcription.vad-model"
+
+#: src/exe/cli/commands/transcribe.cpp
 msgid "Engine; the transcription.engine setting by default"
 msgstr "Nástroj; ve výchozím stavu nastavení transcription.engine"
 
@@ -2488,6 +2492,10 @@ msgid "The model file the engine reads."
 msgstr "Soubor modelu, který nástroj čte."
 
 #: src/lib/subedit/core/config/operation_settings.cpp
+msgid "The voice-activity model that skips silences; none when empty."
+msgstr "Model detekce řeči, který přeskakuje ticho; když je prázdné, žádný."
+
+#: src/lib/subedit/core/config/operation_settings.cpp
 msgid "The language of the audio; detected when empty."
 msgstr "Jazyk zvuku; je-li prázdný, zjistí se."
 
@@ -3559,6 +3567,14 @@ msgid "the engine %1 cannot be told not to write sounds as notes"
 msgstr "nástroji %1 nelze říci, aby nezapisoval zvuky jako poznámky"
 
 #: src/lib/subedit/core/wording/transcription.cpp
+msgid "the engine %1 cannot skip silences with a voice-activity model"
+msgstr "nástroj %1 neumí přeskakovat ticho pomocí modelu detekce řeči"
+
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "the voice-activity model %1 does not exist"
+msgstr "model detekce řeči %1 neexistuje"
+
+#: src/lib/subedit/core/wording/transcription.cpp
 msgid ""
 "\"%1\" is not a language code: write two letters, such as fr, en, de or es"
 msgstr ""
@@ -4525,12 +4541,24 @@ msgid "Searched for on the PATH"
 msgstr "Hledá se v PATH"
 
 #: src/lib/subedit/gui/preferences_dialog.cpp
+msgid "None: silences are not skipped"
+msgstr "Žádný: ticho se nepřeskakuje"
+
+#: src/lib/subedit/gui/preferences_dialog.cpp
+msgid "A voice-activity model (Silero) makes the first subtitle begin where the speech does, and the others follow it."
+msgstr "Model detekce řeči (Silero) způsobí, že první titulek začne tam, kde začíná řeč, a ostatní na něj navazují."
+
+#: src/lib/subedit/gui/preferences_dialog.cpp
 msgid "Program"
 msgstr "Program"
 
 #: src/lib/subedit/gui/preferences_dialog.cpp
 msgid "Model"
 msgstr "Model"
+
+#: src/lib/subedit/gui/preferences_dialog.cpp
+msgid "Voice-activity model"
+msgstr "Model detekce řeči"
 
 #: src/lib/subedit/gui/preferences_dialog.cpp
 #: src/lib/subedit/gui/transcribe_dialog.cpp
@@ -4600,6 +4628,10 @@ msgstr "Otevřít"
 #: src/lib/subedit/gui/qt_prompts.cpp
 msgid "Select Video"
 msgstr "Vybrat video"
+
+#: src/lib/subedit/gui/qt_prompts.cpp
+msgid "Choose a voice-activity model"
+msgstr "Zvolte model detekce řeči"
 
 #: src/lib/subedit/gui/qt_prompts.cpp
 msgid "Choose a model"
@@ -5039,7 +5071,9 @@ msgstr "Vyberte vpravo titulek, abyste viděli části, z nichž vznikl."
 msgid ""
 "These values are now the settings of the application (transcription.*). "
 "Closing this window changes nothing more."
-msgstr "Tyto hodnoty jsou nyní nastavením aplikace (transcription.*). Zavření tohoto okna už nic dalšího nemění."
+msgstr ""
+"Tyto hodnoty jsou nyní nastavením aplikace (transcription.*). Zavření tohoto "
+"okna už nic dalšího nemění."
 
 #: src/lib/subedit/gui/transcription_preview_dialog.cpp
 msgid "Merge pieces closer than"

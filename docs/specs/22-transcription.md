@@ -283,6 +283,8 @@ what was missing: `CLI-TRANSCRIBE-09`, `CLI-TRANSCRIBE-10`, `GUI-TRANSCRIBE-05` 
 | `GUI-TRANSCRIBE-06` | the dialog takes a range of the film and transcribes only that part, the result replacing the subtitles of the project like any transcription, after the same question |
 | `GUI-TRANSCRIBE-07` | the transcription is shown in a preview before it replaces the subtitles of the project — the engine's pieces on the left, the final subtitles on the right, each with its own times, a selected subtitle highlighting its sources — and a cancelled or failed run offers what it had obtained, to apply or to ignore |
 | `GUI-TRANSCRIBE-08` | the post-processing is tuned in the preview — the merge gap, the longest subtitle and the most characters — the right-hand side made again at once with the selection kept; the values hold for that transcript only, and one button hands them to the settings of the application |
+| `CLI-TRANSCRIBE-13` | `--vad-model` (over the `transcription.vad-model` setting) gives the engine a voice-activity model that skips the silences, so that its segments follow the speech; an engine that cannot refuses the option by name and drops the setting without a word, and a file that is not there is refused before any work |
+| `GUI-TRANSCRIBE-09` | the Preferences name the voice-activity model with a field and a Browse button, saved as `transcription.vad-model`, and the transcription uses it |
 
 ## Split
 
@@ -373,6 +375,18 @@ the three-letter code of a file.
   after an intro. Voice-activity detection (`--vad`, open point 2) is the lead left; it needs a Silero model, which is not
   installed on the machine of the measure (only the test model of whisper.cpp), so no with/without comparison was made. No other
   setting is added: none was found.
+
+## Delivered by #798
+
+A voice-activity model, as an intent and a capability like the sound notes: `transcription.vad-model` (a path, empty for none),
+`EngineCapabilities::voiceActivity`, `TranscriptionRequest::vadModel`, the `--vad-model` option and a field in the Preferences with
+its Browse button. The whisper.cpp adapter turns it into `--vad --vad-model FILE`; a file that is not there is a missing model, said before
+the tool starts. On the command line, **an option names a file and is refused by name when the engine cannot use it, or when the file is
+missing; a setting is dropped without a word** for an engine that cannot, since a setting is written for all the engines. The model is the
+user's to provide (`models/download-vad-model.sh` of whisper.cpp), as the speech model is; nothing is shipped.
+
+Measured by hand on the first two minutes of a real film (`small` model): without it the first segment begins at 0:00:00,000 and times are
+rounded to whole windows (9.000, 14.000); with it the first begins at 4.930 and the next ones at 9.270 and 14.430.
 
 ## Open points
 

@@ -139,7 +139,7 @@ existissin els dos blocs es llegeix sense canvis, i es reescriu en dos blocs en 
 | `correction.join-split.language` | un codi de configuració regional — `fr`, `en_US`, `sr@Latn` —; buit: la llengua del sistema | buit |
 | `correction.remove-blank` | `true` o `false` — `Remove all blank subtitles` | `true` |
 | `transcription.engine` | el nom del motor: lletres minúscules, xifres, `.`, `-` i `_` | `whisper.cpp` |
-| `transcription.executable`, `transcription.model` | un camí absolut; buit: el motor es cerca al `PATH`, i no s'ha definit cap model | buit |
+| `transcription.executable`, `transcription.model`, `transcription.vad-model` | un camí absolut; buit: el motor es cerca al `PATH`, i no s'ha definit cap model, i els silencis no s'ometen | buit |
 | `transcription.language` | dues lletres minúscules, un codi ISO 639-1; buit: la llengua es detecta | buit |
 | `transcription.suppress-notes` | `true` o `false` — `Do not write sounds as notes` | `true` |
 | `transcription.merge-gap-ms` | els trossos d'una mateixa frase més propers que això s'uneixen, en mil·lisegons, enter i no negatiu | `400` |
@@ -292,6 +292,8 @@ Sota els camps, **el diàleg diu què hi ha**: si el motor és trobat i on, si `
 alguna cosa, hi afegeix la referència a
 [Instal·lació de les eines de transcripció](../subedit-cli/install-transcription.md), que diu on trobar
 cadascuna. Els dos camps són els paràmetres `transcription.executable` i `transcription.model`.
+
+Un tercer camp, **“Model d'activitat de veu”**, amb el seu propi botó `Browse…`, indica un model que omet els silencis abans que el motor descodifiqui (un model Silero per a whisper.cpp). Amb un, el primer subtítol comença on comença la parla i els altres el segueixen, en lloc de finestres senceres comptades des de 0. Si es deixa buit, els silencis no s'ometen. És el paràmetre `transcription.vad-model`, i el model l'heu de proporcionar vós, com el model de parla: vegeu [Instal·lació de les eines de transcripció](../subedit-cli/install-transcription.md).
 
 Un quadre, **“No escriguis els sons com a notes”**, és el paràmetre `transcription.suppress-notes` (marcat per defecte): al motor se li diu que no escrigui els sons
 com a notes, com `(phone ringing)`. Desmarqueu-lo per conservar-les, per a subtítols per a persones sordes o amb dificultats auditives. El diàleg de `Transcribe Audio…` ofereix el mateix quadre per a la transcripció d'una sola vegada.

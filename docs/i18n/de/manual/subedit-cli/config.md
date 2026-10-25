@@ -102,15 +102,15 @@ duration-adjust.lengthen
     Used by: subedit-cli adjust; Adjust Durations…
 ```
 
-Er listet **41 Schlüssel** auf:
+Er listet **42 Schlüssel** auf:
 
 <!-- example: subedit-cli config list | grep -c '^[a-z]' -->
 ```console
 $ subedit-cli config list | grep -c '^[a-z]'
-41
+42
 ```
 
-**Einundzwanzig davon werden von der Befehlszeile gelesen**; die zwanzig anderen liest nur das Fenster,
+**Zweiundzwanzig davon werden von der Befehlszeile gelesen**; die zwanzig anderen liest nur das Fenster,
 und ihre Zeile `Used by:` sagt es, zusammen mit der Option von `correct`, die an ihre Stelle tritt:
 
 | Schlüssel | Gelesen von |
@@ -122,7 +122,7 @@ und ihre Zeile `Used by:` sagt es, zusammen mit der Option von `correct`, die an
 | `correction.human`, `correction.ocr` | [`correct`](correct.md) und `Correct Texts…` |
 | `correction.remove-blank` | `correct` und `Correct Texts…` |
 | `correction.line-break.max-lines` | `correct` und `Correct Texts…` |
-| `transcription.engine`, `transcription.executable`, `transcription.model`, `transcription.language`, `transcription.suppress-notes`, `transcription.merge-gap-ms`, `transcription.max-duration-ms`, `transcription.max-characters` | [`transcribe`](transcribe.md) und `Transcribe Audio…` |
+| `transcription.engine`, `transcription.executable`, `transcription.model`, `transcription.vad-model`, `transcription.language`, `transcription.suppress-notes`, `transcription.merge-gap-ms`, `transcription.max-duration-ms`, `transcription.max-characters` | [`transcribe`](transcribe.md) und `Transcribe Audio…` |
 | jeder andere Schlüssel `correction.*` | nur `Correct Texts…` — `correct` nimmt `--tasks`, `--code`, `--max-length`, `--skip-length`, `--skip-lines`, `--language`, `--enable` und `--disable` aus seiner eigenen Zeile |
 
 Die Zeilenzahlen, `correction.line-break.max-lines` und `correction.line-break.skip-max-lines`,

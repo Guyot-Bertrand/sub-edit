@@ -1075,6 +1075,10 @@ msgid "Model file; the transcription.model setting by default"
 msgstr "模型文件；默认为 transcription.model 设置"
 
 #: src/exe/cli/commands/transcribe.cpp
+msgid "Voice-activity model that skips silences; the transcription.vad-model setting by default"
+msgstr "跳过静音的语音活动模型；默认为 transcription.vad-model 设置"
+
+#: src/exe/cli/commands/transcribe.cpp
 msgid "Engine; the transcription.engine setting by default"
 msgstr "引擎；默认为 transcription.engine 设置"
 
@@ -2312,6 +2316,10 @@ msgid "The model file the engine reads."
 msgstr "引擎读取的模型文件。"
 
 #: src/lib/subedit/core/config/operation_settings.cpp
+msgid "The voice-activity model that skips silences; none when empty."
+msgstr "跳过静音的语音活动模型；为空则不使用。"
+
+#: src/lib/subedit/core/config/operation_settings.cpp
 msgid "The language of the audio; detected when empty."
 msgstr "音频的语言；留空时自动检测。"
 
@@ -3293,6 +3301,14 @@ msgid "the engine %1 cannot be told not to write sounds as notes"
 msgstr "无法要求引擎 %1 不把声音写成注释"
 
 #: src/lib/subedit/core/wording/transcription.cpp
+msgid "the engine %1 cannot skip silences with a voice-activity model"
+msgstr "引擎 %1 无法用语音活动模型跳过静音"
+
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "the voice-activity model %1 does not exist"
+msgstr "语音活动模型 %1 不存在"
+
+#: src/lib/subedit/core/wording/transcription.cpp
 msgid ""
 "\"%1\" is not a language code: write two letters, such as fr, en, de or es"
 msgstr "“%1”不是语言代码：请输入两个字母，例如 fr、en、de 或 es"
@@ -4197,12 +4213,24 @@ msgid "Searched for on the PATH"
 msgstr "在 PATH 中查找"
 
 #: src/lib/subedit/gui/preferences_dialog.cpp
+msgid "None: silences are not skipped"
+msgstr "无：不跳过静音"
+
+#: src/lib/subedit/gui/preferences_dialog.cpp
+msgid "A voice-activity model (Silero) makes the first subtitle begin where the speech does, and the others follow it."
+msgstr "语音活动模型（Silero）使第一条字幕从语音开始处开始，其余字幕随之跟进。"
+
+#: src/lib/subedit/gui/preferences_dialog.cpp
 msgid "Program"
 msgstr "程序"
 
 #: src/lib/subedit/gui/preferences_dialog.cpp
 msgid "Model"
 msgstr "模型"
+
+#: src/lib/subedit/gui/preferences_dialog.cpp
+msgid "Voice-activity model"
+msgstr "语音活动模型"
 
 #: src/lib/subedit/gui/preferences_dialog.cpp
 #: src/lib/subedit/gui/transcribe_dialog.cpp
@@ -4268,6 +4296,10 @@ msgstr "打开"
 #: src/lib/subedit/gui/qt_prompts.cpp
 msgid "Select Video"
 msgstr "选择视频"
+
+#: src/lib/subedit/gui/qt_prompts.cpp
+msgid "Choose a voice-activity model"
+msgstr "选择语音活动模型"
 
 #: src/lib/subedit/gui/qt_prompts.cpp
 msgid "Choose a model"
@@ -4698,7 +4730,8 @@ msgstr "在右侧选择一条字幕，即可看到它由哪些片段组成。"
 msgid ""
 "These values are now the settings of the application (transcription.*). "
 "Closing this window changes nothing more."
-msgstr "这些值现在是应用程序的设置（transcription.*）。关闭此窗口不会再更改任何内容。"
+msgstr ""
+"这些值现在是应用程序的设置（transcription.*）。关闭此窗口不会再更改任何内容。"
 
 #: src/lib/subedit/gui/transcription_preview_dialog.cpp
 msgid "Merge pieces closer than"

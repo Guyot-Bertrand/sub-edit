@@ -988,6 +988,12 @@ msgid "Model file; the transcription.model setting by default"
 msgstr ""
 
 #: src/exe/cli/commands/transcribe.cpp
+msgid ""
+"Voice-activity model that skips silences; the transcription.vad-model "
+"setting by default"
+msgstr ""
+
+#: src/exe/cli/commands/transcribe.cpp
 msgid "Engine; the transcription.engine setting by default"
 msgstr ""
 
@@ -2243,6 +2249,10 @@ msgid "The model file the engine reads."
 msgstr ""
 
 #: src/lib/subedit/core/config/operation_settings.cpp
+msgid "The voice-activity model that skips silences; none when empty."
+msgstr ""
+
+#: src/lib/subedit/core/config/operation_settings.cpp
 msgid "The language of the audio; detected when empty."
 msgstr ""
 
@@ -3243,6 +3253,14 @@ msgid "the engine %1 cannot be told not to write sounds as notes"
 msgstr ""
 
 #: src/lib/subedit/core/wording/transcription.cpp
+msgid "the engine %1 cannot skip silences with a voice-activity model"
+msgstr ""
+
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "the voice-activity model %1 does not exist"
+msgstr ""
+
+#: src/lib/subedit/core/wording/transcription.cpp
 msgid ""
 "\"%1\" is not a language code: write two letters, such as fr, en, de or es"
 msgstr ""
@@ -4139,11 +4157,25 @@ msgid "Searched for on the PATH"
 msgstr ""
 
 #: src/lib/subedit/gui/preferences_dialog.cpp
+msgid "None: silences are not skipped"
+msgstr ""
+
+#: src/lib/subedit/gui/preferences_dialog.cpp
+msgid ""
+"A voice-activity model (Silero) makes the first subtitle begin where the "
+"speech does, and the others follow it."
+msgstr ""
+
+#: src/lib/subedit/gui/preferences_dialog.cpp
 msgid "Program"
 msgstr ""
 
 #: src/lib/subedit/gui/preferences_dialog.cpp
 msgid "Model"
+msgstr ""
+
+#: src/lib/subedit/gui/preferences_dialog.cpp
+msgid "Voice-activity model"
 msgstr ""
 
 #: src/lib/subedit/gui/preferences_dialog.cpp
@@ -4206,6 +4238,10 @@ msgstr ""
 
 #: src/lib/subedit/gui/qt_prompts.cpp
 msgid "Select Video"
+msgstr ""
+
+#: src/lib/subedit/gui/qt_prompts.cpp
+msgid "Choose a voice-activity model"
 msgstr ""
 
 #: src/lib/subedit/gui/qt_prompts.cpp

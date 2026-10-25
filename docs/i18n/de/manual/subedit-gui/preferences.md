@@ -139,7 +139,7 @@ die zwei Blöcke gab, wird unverändert gelesen und beim nächsten Schließen in
 | `correction.join-split.language` | ein Locale-Code — `fr`, `en_US`, `sr@Latn` —; leer: die Sprache des Systems | leer |
 | `correction.remove-blank` | `true` oder `false` — `Remove all blank subtitles` | `true` |
 | `transcription.engine` | der Name der Engine: Kleinbuchstaben, Ziffern, `.`, `-` und `_` | `whisper.cpp` |
-| `transcription.executable`, `transcription.model` | ein absoluter Pfad; leer: Die Engine wird im `PATH` gesucht, und es ist kein Modell gesetzt | leer |
+| `transcription.executable`, `transcription.model`, `transcription.vad-model` | ein absoluter Pfad; leer: Die Engine wird im `PATH` gesucht, und es ist kein Modell gesetzt, und die Stille wird nicht übersprungen | leer |
 | `transcription.language` | zwei Kleinbuchstaben, ein ISO-639-1-Code; leer: Die Sprache wird erkannt | leer |
 | `transcription.suppress-notes` | `true` oder `false` — `Do not write sounds as notes` | `true` |
 | `transcription.merge-gap-ms` | Teile eines Satzes, die näher beieinander liegen, werden zusammengefügt, in Millisekunden, ganz und nicht negativ | `400` |
@@ -292,6 +292,8 @@ gefunden wird, und das Modell — nicht festgelegt, nicht gefunden, kein Modell,
 fügt er den Verweis auf
 [Die Transkriptionswerkzeuge installieren](../subedit-cli/install-transcription.md) hinzu, der sagt, wo man
 jedes findet. Die beiden Felder sind die Einstellungen `transcription.executable` und `transcription.model`.
+
+Ein drittes Feld, **“Modell zur Spracherkennung”**, mit eigener Schaltfläche `Browse…`, nennt ein Modell, das die Stille überspringt, bevor die Engine dekodiert (ein Silero-Modell für whisper.cpp). Mit einem beginnt der erste Untertitel dort, wo die Sprache beginnt, und die übrigen folgen ihm, statt ganzer Fenster, die ab 0 gezählt werden. Bleibt es leer, wird die Stille nicht übersprungen. Es ist die Einstellung `transcription.vad-model`, und das Modell müssen Sie selbst beschaffen, wie das Sprachmodell: siehe [Die Transkriptionswerkzeuge installieren](../subedit-cli/install-transcription.md).
 
 Ein Kästchen, **“Geräusche nicht als Anmerkungen schreiben”**, ist die Einstellung `transcription.suppress-notes` (standardmäßig angekreuzt): Der Engine wird gesagt, Geräusche
 nicht als Anmerkungen zu schreiben, etwa `(phone ringing)`. Deaktivieren Sie es, um sie zu behalten, für Untertitel für Hörgeschädigte. Der Dialog von `Transcribe Audio…` bietet dasselbe Kästchen für die einzelne Transkription.

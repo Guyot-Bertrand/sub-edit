@@ -11,6 +11,7 @@ subedit-cli transcribe --output FILE
                        [--start TIME] [--end TIME]
                        [--suppress-notes | --keep-notes]
                        [--model FILE]
+                       [--vad-model FILE]
                        [--engine NAME]
                        [--keep-audio FILE]
                        [--raw]
@@ -79,6 +80,7 @@ Options:
   --suppress-notes            Do not write sounds as notes, such as (phone ringing); the transcription.suppress-notes setting by default
   --keep-notes                Write sounds as notes, against the setting
   --model FILE                Model file; the transcription.model setting by default
+  --vad-model FILE            Voice-activity model that skips silences; the transcription.vad-model setting by default
   --engine NAME               Engine; the transcription.engine setting by default
   --keep-audio FILE           Keep the extracted audio in this file
   --list-languages            List the languages the engine offers for the model, and transcribe nothing
@@ -100,6 +102,7 @@ Options:
 | `--start` | não | um tempo: `2:00`, `1:02:03`, `2:00.5`, ou um número de segundos, `90` | o início do áudio |
 | `--end` | não | um tempo, escrito como para `--start`; precisa vir depois de `--start` | o fim do áudio |
 | `--model` | não | o arquivo do modelo | a configuração `transcription.model` |
+| `--vad-model` | não | um modelo de atividade de voz (um modelo Silero para o whisper.cpp), que faz o motor ignorar os silêncios antes de decodificar: seus segmentos seguem então a fala, e o primeiro começa onde a fala começa em vez de em 0. O arquivo precisa existir, e um motor que não possa usá-lo recusa a opção pelo nome | a configuração `transcription.vad-model` |
 | `--engine` | não | o nome de um motor: `whisper.cpp` | a configuração `transcription.engine` |
 | `--keep-audio` | não | um arquivo onde salvar o áudio extraído, como PCM mono de 16 bits num arquivo WAV, à taxa de amostragem que o motor pede (16 kHz para whisper.cpp); sua pasta é criada se faltar, e o nome pode levar `{rate}`, substituído por essa taxa em hertz (`film.{rate}.wav` é escrito `film.16000.wav`) | o áudio não é salvo em lugar nenhum |
 | `--raw` | não | um indicador: escrever os segmentos do motor sem união nem corte | desativado |
@@ -112,6 +115,7 @@ As **configurações** são lidas do arquivo de configurações como as de [`adj
 | `transcription.engine` | o motor | `whisper.cpp` |
 | `transcription.executable` | o programa do motor, um caminho absoluto; vazio: procurado no `PATH` | vazio |
 | `transcription.model` | o arquivo do modelo, um caminho absoluto | vazio |
+| `transcription.vad-model` | o modelo de atividade de voz, um caminho absoluto; vazio: nenhum, e os silêncios não são ignorados. Uma configuração que um motor não pode usar é descartada sem uma palavra | vazio |
 | `transcription.language` | o idioma do áudio, duas letras; vazio: detectado | vazio |
 | `transcription.suppress-notes` | não escrever os sons como notas | `true` |
 | `transcription.merge-gap-ms` | os pedaços de uma mesma frase mais próximos do que este número de milissegundos são unidos | `400` |

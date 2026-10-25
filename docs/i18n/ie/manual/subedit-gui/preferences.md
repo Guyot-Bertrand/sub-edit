@@ -139,7 +139,7 @@ du blocs existeva es leet sin change, e rescrit in du blocs al sequent clusion.
 | `correction.join-split.language` | un code de locale — `fr`, `en_US`, `sr@Latn` —; vacui: li lingue del sistema | vacui |
 | `correction.remove-blank` | `true` o `false` — `Remove all blank subtitles` | `true` |
 | `transcription.engine` | li nómine del motor: líttere minuscul, cifres, `.`, `-` e `_` | `whisper.cpp` |
-| `transcription.executable`, `transcription.model` | un chemin absolut; vacui: li motor es serchat in `PATH`, e null model es definit | vacui |
+| `transcription.executable`, `transcription.model`, `transcription.vad-model` | un chemin absolut; vacui: li motor es serchat in `PATH`, e null model es definit, e li silentias ne es salteat | vacui |
 | `transcription.language` | du líttere minuscul, un code ISO 639-1; vacui: li lingue es detectet | vacui |
 | `transcription.suppress-notes` | `true` o `false` — `Do not write sounds as notes` | `true` |
 | `transcription.merge-gap-ms` | fragmentes de un sam frase plu proxim ca to es junit, in millisecondes, integri e ne negativ | `400` |
@@ -292,6 +292,8 @@ es trovat, e li model — ne definit, ne trovat, ne un model, solmen por anglesi
 manca, it adjunte li indication a
 [Instalar li utensiles de transcription](../subedit-cli/install-transcription.md), quel dit u trovar
 chascun. Li du camps es li parametres `transcription.executable` e `transcription.model`.
+
+Un tert camp, **“Model de activitá de voce”**, con su propri botton `Browse…`, designa un model quel saltea li silentias ante que li machine decoda (un model Silero por whisper.cpp). Con un, li unesim subtitul comensa u comensa li parol e li altris sequa it, vice tot fenestres contat ex 0. Si it resta vacui, li silentias ne es salteat. It es li parametre `transcription.vad-model`, e li model es a vu a provider, quam li model de parol: vide [Instalar li utensiles de transcription](../subedit-cli/install-transcription.md).
 
 Un caxa, **“Ne scrir li sones quam notes”**, es li parametre `transcription.suppress-notes` (marcat per defecte): li motor recive li órdine de ne scrir li sones
 quam notes quam `(phone ringing)`. Desmarca it por conservar les, por subtitules por li dur de audition. Li dialog de `Transcribe Audio…` ofri li sam caxa por li transcription singul.

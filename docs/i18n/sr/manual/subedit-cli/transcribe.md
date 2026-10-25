@@ -11,6 +11,7 @@ subedit-cli transcribe --output FILE
                        [--start TIME] [--end TIME]
                        [--suppress-notes | --keep-notes]
                        [--model FILE]
+                       [--vad-model FILE]
                        [--engine NAME]
                        [--keep-audio FILE]
                        [--raw]
@@ -77,6 +78,7 @@ Options:
   --suppress-notes            Do not write sounds as notes, such as (phone ringing); the transcription.suppress-notes setting by default
   --keep-notes                Write sounds as notes, against the setting
   --model FILE                Model file; the transcription.model setting by default
+  --vad-model FILE            Voice-activity model that skips silences; the transcription.vad-model setting by default
   --engine NAME               Engine; the transcription.engine setting by default
   --keep-audio FILE           Keep the extracted audio in this file
   --list-languages            List the languages the engine offers for the model, and transcribe nothing
@@ -98,6 +100,7 @@ Options:
 | `--start` | не | време: `2:00`, `1:02:03`, `2:00.5` или број секунди, `90` | почетак звука |
 | `--end` | не | време, написано као за `--start`; мора доћи после `--start` | крај звука |
 | `--model` | не | датотека модела | поставка `transcription.model` |
+| `--vad-model` | не | модел откривања говора (Silero модел за whisper.cpp), који тера мотор да прескочи тишине пре декодирања: његови сегменти тада прате говор, а први почиње тамо где почиње говор уместо на 0. Датотека мора постојати, а мотор који је не може користити одбија опцију по имену | поставка `transcription.vad-model` |
 | `--engine` | не | назив мотора: `whisper.cpp` | поставка `transcription.engine` |
 | `--keep-audio` | не | датотека у којој се задржава издвојени звук, као моно 16-битни PCM у WAV датотеци, са учесталошћу узорковања коју мотор тражи (16 kHz за whisper.cpp); њен директоријум се ствара ако не постоји, а име може садржати `{rate}`, које се замењује том учесталошћу у херцима (`film.{rate}.wav` се пише као `film.16000.wav`) | звук се нигде не задржава |
 | `--raw` | не | заставица: пише сегменте мотора без спајања и без сечења | искључено |
@@ -110,6 +113,7 @@ Options:
 | `transcription.engine` | мотор | `whisper.cpp` |
 | `transcription.executable` | програм мотора, апсолутна путања; празно: тражи се у `PATH` | празно |
 | `transcription.model` | датотека модела, апсолутна путања | празно |
+| `transcription.vad-model` | модел откривања говора, апсолутна путања; празно: ниједан, и тишине се не прескачу. Поставка коју мотор не може користити одбацује се без речи | празно |
 | `transcription.language` | језик звука, два слова; празно: открива се | празно |
 | `transcription.suppress-notes` | не писати звуке као белешке | `true` |
 | `transcription.merge-gap-ms` | делови једне реченице ближи од толико милисекунди спајају се | `400` |

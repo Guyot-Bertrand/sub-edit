@@ -11,6 +11,7 @@ subedit-cli transcribe --output FILE
                        [--start TIME] [--end TIME]
                        [--suppress-notes | --keep-notes]
                        [--model FILE]
+                       [--vad-model FILE]
                        [--engine NAME]
                        [--keep-audio FILE]
                        [--raw]
@@ -78,6 +79,7 @@ Options:
   --suppress-notes            Do not write sounds as notes, such as (phone ringing); the transcription.suppress-notes setting by default
   --keep-notes                Write sounds as notes, against the setting
   --model FILE                Model file; the transcription.model setting by default
+  --vad-model FILE            Voice-activity model that skips silences; the transcription.vad-model setting by default
   --engine NAME               Engine; the transcription.engine setting by default
   --keep-audio FILE           Keep the extracted audio in this file
   --list-languages            List the languages the engine offers for the model, and transcribe nothing
@@ -99,6 +101,7 @@ Options:
 | `--start` | nei | tími: `2:00`, `1:02:03`, `2:00.5`, eða fjöldi sekúndna, `90` | upphaf hljóðsins |
 | `--end` | nei | tími, skrifaður eins og fyrir `--start`; hann verður að koma á eftir `--start` | endir hljóðsins |
 | `--model` | nei | líkanaskráin | stillingin `transcription.model` |
+| `--vad-model` | nei | raddvirknilíkan (Silero-líkan fyrir whisper.cpp) sem lætur vélina sleppa þögnum áður en hún afkóðar: hlutar hennar fylgja þá talinu og sá fyrsti byrjar þar sem talið byrjar í stað 0. Skráin verður að vera til, og vél sem getur ekki notað hana hafnar valkostinum með nafni | stillingin `transcription.vad-model` |
 | `--engine` | nei | heiti vélar: `whisper.cpp` | stillingin `transcription.engine` |
 | `--keep-audio` | nei | skrá til að geyma útdregna hljóðið í, sem mónó 16 bita PCM í WAV-skrá, á þeirri sýnatökutíðni sem vélin biður um (16 kHz fyrir whisper.cpp); mappan hennar er búin til ef hana vantar, og nafnið má bera `{rate}`, sem er skipt út fyrir þá tíðni í riðum (`film.{rate}.wav` er skrifað `film.16000.wav`) | hljóðið er hvergi geymt |
 | `--raw` | nei | rofi: skrifa búta vélarinnar án sameiningar og án skurðar | slökkt |
@@ -111,6 +114,7 @@ Options:
 | `transcription.engine` | vélin | `whisper.cpp` |
 | `transcription.executable` | forrit vélarinnar, altæk slóð; tómt: leitað að því í `PATH` | tómt |
 | `transcription.model` | líkanaskráin, altæk slóð | tómt |
+| `transcription.vad-model` | raddvirknilíkanið, algild slóð; tómt: ekkert, og þögnum er ekki sleppt. Stilling sem vél getur ekki notað er felld niður þegjandi | tómt |
 | `transcription.language` | tungumál hljóðsins, tveir stafir; tómt: greint sjálfkrafa | tómt |
 | `transcription.suppress-notes` | ekki skrifa hljóð sem athugasemdir | `true` |
 | `transcription.merge-gap-ms` | bútar úr einni setningu sem eru nær hver öðrum en þetta margar millisekúndur eru sameinaðir | `400` |

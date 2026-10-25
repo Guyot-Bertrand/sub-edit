@@ -30,6 +30,10 @@ struct TranscriptionRequest {
     /// by one that does not.
     bool suppressNotes = true;
 
+    /// The voice-activity model, for an engine that declares `EngineCapabilities::voiceActivity`;
+    /// ignored by one that does not. Nothing for none.
+    std::optional<std::filesystem::path> vadModel{};
+
     /// The part of the audio to transcribe, in the time of the film; the whole of it
     /// when nothing is given. The segments come back in that same time, and none
     /// begins before `start` or after `end`.

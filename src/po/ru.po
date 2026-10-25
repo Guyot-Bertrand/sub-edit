@@ -1116,6 +1116,10 @@ msgid "Model file; the transcription.model setting by default"
 msgstr "Файл модели; по умолчанию настройка transcription.model"
 
 #: src/exe/cli/commands/transcribe.cpp
+msgid "Voice-activity model that skips silences; the transcription.vad-model setting by default"
+msgstr "Модель обнаружения речи, пропускающая паузы; по умолчанию настройка transcription.vad-model"
+
+#: src/exe/cli/commands/transcribe.cpp
 msgid "Engine; the transcription.engine setting by default"
 msgstr "Движок; по умолчанию настройка transcription.engine"
 
@@ -2551,6 +2555,10 @@ msgid "The model file the engine reads."
 msgstr "Файл модели, который читает движок."
 
 #: src/lib/subedit/core/config/operation_settings.cpp
+msgid "The voice-activity model that skips silences; none when empty."
+msgstr "Модель обнаружения речи, пропускающая паузы; если пусто, не используется."
+
+#: src/lib/subedit/core/config/operation_settings.cpp
 msgid "The language of the audio; detected when empty."
 msgstr "Язык звука; если пусто, определяется автоматически."
 
@@ -3672,6 +3680,14 @@ msgid "the engine %1 cannot be told not to write sounds as notes"
 msgstr "движку %1 нельзя велеть не записывать звуки как заметки"
 
 #: src/lib/subedit/core/wording/transcription.cpp
+msgid "the engine %1 cannot skip silences with a voice-activity model"
+msgstr "движок %1 не может пропускать паузы с помощью модели обнаружения речи"
+
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "the voice-activity model %1 does not exist"
+msgstr "модель обнаружения речи %1 не существует"
+
+#: src/lib/subedit/core/wording/transcription.cpp
 msgid ""
 "\"%1\" is not a language code: write two letters, such as fr, en, de or es"
 msgstr "«%1» — не код языка: введите две буквы, например fr, en, de или es"
@@ -4652,12 +4668,24 @@ msgid "Searched for on the PATH"
 msgstr "Ищется в PATH"
 
 #: src/lib/subedit/gui/preferences_dialog.cpp
+msgid "None: silences are not skipped"
+msgstr "Нет: паузы не пропускаются"
+
+#: src/lib/subedit/gui/preferences_dialog.cpp
+msgid "A voice-activity model (Silero) makes the first subtitle begin where the speech does, and the others follow it."
+msgstr "Модель обнаружения речи (Silero) заставляет первый субтитр начинаться там, где начинается речь, а остальные следуют за ним."
+
+#: src/lib/subedit/gui/preferences_dialog.cpp
 msgid "Program"
 msgstr "Программа"
 
 #: src/lib/subedit/gui/preferences_dialog.cpp
 msgid "Model"
 msgstr "Модель"
+
+#: src/lib/subedit/gui/preferences_dialog.cpp
+msgid "Voice-activity model"
+msgstr "Модель обнаружения речи"
 
 #: src/lib/subedit/gui/preferences_dialog.cpp
 #: src/lib/subedit/gui/transcribe_dialog.cpp
@@ -4729,6 +4757,10 @@ msgstr "Открыть"
 #: src/lib/subedit/gui/qt_prompts.cpp
 msgid "Select Video"
 msgstr "Выберите видеофайл"
+
+#: src/lib/subedit/gui/qt_prompts.cpp
+msgid "Choose a voice-activity model"
+msgstr "Выбрать модель обнаружения речи"
 
 #: src/lib/subedit/gui/qt_prompts.cpp
 msgid "Choose a model"
@@ -5164,7 +5196,9 @@ msgstr ""
 msgid ""
 "These values are now the settings of the application (transcription.*). "
 "Closing this window changes nothing more."
-msgstr "Эти значения теперь являются настройками приложения (transcription.*). Закрытие этого окна больше ничего не меняет."
+msgstr ""
+"Эти значения теперь являются настройками приложения (transcription.*). "
+"Закрытие этого окна больше ничего не меняет."
 
 #: src/lib/subedit/gui/transcription_preview_dialog.cpp
 msgid "Merge pieces closer than"

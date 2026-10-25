@@ -98,6 +98,8 @@ private:
     if (!job.model.empty())
         request.model = job.model;
     request.suppressNotes = settings.suppressNotes;
+    if (!settings.vadModel.empty())
+        request.vadModel = settings.vadModel;
     request.start = job.start;
     request.end = job.end;
 

@@ -11,6 +11,7 @@ subedit-cli transcribe --output FILE
                        [--start TIME] [--end TIME]
                        [--suppress-notes | --keep-notes]
                        [--model FILE]
+                       [--vad-model FILE]
                        [--engine NAME]
                        [--keep-audio FILE]
                        [--raw]
@@ -79,6 +80,7 @@ Options:
   --suppress-notes            Do not write sounds as notes, such as (phone ringing); the transcription.suppress-notes setting by default
   --keep-notes                Write sounds as notes, against the setting
   --model FILE                Model file; the transcription.model setting by default
+  --vad-model FILE            Voice-activity model that skips silences; the transcription.vad-model setting by default
   --engine NAME               Engine; the transcription.engine setting by default
   --keep-audio FILE           Keep the extracted audio in this file
   --list-languages            List the languages the engine offers for the model, and transcribe nothing
@@ -100,6 +102,7 @@ Options:
 | `--start` | no | un temps: `2:00`, `1:02:03`, `2:00.5`, o un nombre de segons, `90` | el principi de l'àudio |
 | `--end` | no | un temps, escrit com per a `--start`; ha de venir després de `--start` | el final de l'àudio |
 | `--model` | no | el fitxer de model | el paràmetre `transcription.model` |
+| `--vad-model` | no | un model d'activitat de veu (un model Silero per a whisper.cpp), que fa que el motor ometi els silencis abans de descodificar: els seus segments segueixen aleshores la parla, i el primer comença on comença la parla en lloc de a 0. El fitxer ha d'existir, i un motor que no el pot fer servir rebutja l'opció pel seu nom | el paràmetre `transcription.vad-model` |
 | `--engine` | no | el nom d'un motor: `whisper.cpp` | el paràmetre `transcription.engine` |
 | `--keep-audio` | no | un fitxer on conservar l'àudio extret, com a PCM mono de 16 bits en un fitxer WAV, a la freqüència de mostreig que demana el motor (16 kHz per a whisper.cpp); el seu directori es crea si falta, i el nom pot portar `{rate}`, substituït per aquesta freqüència en hertz (`film.{rate}.wav` s'escriu `film.16000.wav`) | l'àudio no es conserva enlloc |
 | `--raw` | no | un indicador: escriu els segments del motor sense fusionar ni tallar | desactivat |
@@ -112,6 +115,7 @@ Els **paràmetres** es llegeixen del fitxer de configuració com els d'[`adjust`
 | `transcription.engine` | el motor | `whisper.cpp` |
 | `transcription.executable` | el programa del motor, un camí absolut; buit: es cerca al `PATH` | buit |
 | `transcription.model` | el fitxer de model, un camí absolut | buit |
+| `transcription.vad-model` | el model d'activitat de veu, un camí absolut; buit: cap, i els silencis no s'ometen. Un paràmetre que un motor no pot fer servir s'ignora sense dir res | buit |
 | `transcription.language` | la llengua de l'àudio, dues lletres; buit: es detecta | buit |
 | `transcription.suppress-notes` | no escriguis els sons com a notes | `true` |
 | `transcription.merge-gap-ms` | els trossos d'una mateixa frase més propers que aquests mil·lisegons s'uneixen | `400` |

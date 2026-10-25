@@ -139,7 +139,7 @@ twee blokken bestonden, wordt ongewijzigd gelezen, en bij de volgende sluiting i
 | `correction.join-split.language` | een taalcode — `fr`, `en_US`, `sr@Latn` —; leeg: de taal van het systeem | leeg |
 | `correction.remove-blank` | `true` of `false` — `Remove all blank subtitles` | `true` |
 | `transcription.engine` | de naam van de engine: kleine letters, cijfers, `.`, `-` en `_` | `whisper.cpp` |
-| `transcription.executable`, `transcription.model` | een absoluut pad; leeg: de engine wordt in het `PATH` gezocht, en er is geen model ingesteld | leeg |
+| `transcription.executable`, `transcription.model`, `transcription.vad-model` | een absoluut pad; leeg: de engine wordt in het `PATH` gezocht, en er is geen model ingesteld, en de stiltes worden niet overgeslagen | leeg |
 | `transcription.language` | twee kleine letters, een ISO 639-1-code; leeg: de taal wordt gedetecteerd | leeg |
 | `transcription.suppress-notes` | `true` of `false` — `Do not write sounds as notes` | `true` |
 | `transcription.merge-gap-ms` | stukken van één zin die dichter bij elkaar liggen dan dit worden samengevoegd, in milliseconden, geheel en niet-negatief | `400` |
@@ -292,6 +292,8 @@ is gevonden, en het model — niet ingesteld, niet gevonden, geen model, alleen 
 ontbreekt, voegt het de verwijzing toe naar
 [De transcriptiehulpmiddelen installeren](../subedit-cli/install-transcription.md), die zegt waar u
 elk vindt. De twee velden zijn de instellingen `transcription.executable` en `transcription.model`.
+
+Een derde veld, **“Spraakactiviteitsmodel”**, met een eigen knop `Browse…`, noemt een model dat de stiltes overslaat voordat de engine decodeert (een Silero-model voor whisper.cpp). Met een model begint de eerste ondertitel waar de spraak begint en volgen de andere, in plaats van hele vensters geteld vanaf 0. Blijft het leeg, dan worden de stiltes niet overgeslagen. Het is de instelling `transcription.vad-model`, en het model moet u zelf aanleveren, zoals het spraakmodel: zie [De transcriptiehulpmiddelen installeren](../subedit-cli/install-transcription.md).
 
 Een vakje, **“Geluiden niet als notities schrijven”**, is de instelling `transcription.suppress-notes` (standaard aangevinkt): de engine krijgt de opdracht geluiden niet als
 notities te schrijven, zoals `(phone ringing)`. Vink het uit om ze te houden, voor ondertitels voor doven en slechthorenden. Het dialoogvenster van `Transcribe Audio…` biedt hetzelfde vakje voor die ene transcriptie.

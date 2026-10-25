@@ -648,7 +648,7 @@ TEST_CASE("the preferences say what is there of what the fields name, as they ar
 }
 
 TEST_CASE("the Browse buttons ask the window for a program and for a model, and keep a refusal out",
-          "[gui][GUI-TRANSCRIBE-04]") {
+          "[gui][GUI-TRANSCRIBE-04][GUI-TRANSCRIBE-09]") {
     std::vector<std::pair<ChosenFile, std::filesystem::path>> asked;
     std::optional<std::filesystem::path> answer = std::filesystem::path{"/chosen/file"};
     const PreferencesDialog dialog{
@@ -671,6 +671,12 @@ TEST_CASE("the Browse buttons ask the window for a program and for a model, and 
     CHECK(asked[0].first == ChosenFile::Program);
     CHECK(asked[1].first == ChosenFile::Model);
     CHECK(asked[1].second == "/models/old.bin");
+
+    dialog.voiceModelButton()->click();
+    CHECK(dialog.voiceModelEdit()->text() == "/chosen/file");
+    CHECK(dialog.transcription().vadModel == "/chosen/file");
+    REQUIRE(asked.size() == 3);
+    CHECK(asked[2].first == ChosenFile::VoiceModel);
 
     answer = std::nullopt;
     dialog.modelEdit()->setText("/kept");

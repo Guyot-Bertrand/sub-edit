@@ -89,6 +89,9 @@ struct TranscribeOptions {
     /// Whether the engine is told not to write sounds as notes, or told it may: the two options,
     /// which say opposite things, are both refused. Neither given, the setting decides.
     bool suppressNotes = false;
+
+    /// `--vad-model`: the voice-activity model, over the setting.
+    std::string vadModel{};
     bool keepNotes = false;
 
     /// Write the segments as the engine cut them, with no post-processing.

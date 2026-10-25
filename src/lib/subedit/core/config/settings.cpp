@@ -63,6 +63,7 @@ constexpr std::string_view kTranscriptionPrefix = "transcription.";
 constexpr std::string_view kTranscriptionEngineKey = "transcription.engine";
 constexpr std::string_view kTranscriptionExecutableKey = "transcription.executable";
 constexpr std::string_view kTranscriptionModelKey = "transcription.model";
+constexpr std::string_view kTranscriptionVadModelKey = "transcription.vad-model";
 constexpr std::string_view kTranscriptionLanguageKey = "transcription.language";
 constexpr std::string_view kTranscriptionSuppressNotesKey = "transcription.suppress-notes";
 constexpr std::string_view kTranscriptionMergeGapKey = "transcription.merge-gap-ms";
@@ -852,6 +853,8 @@ void applyTranscriptionOption(SettingsRead& read, std::string_view key, std::str
         take(directoryOf(value), form.executable);
     else if (key == kTranscriptionModelKey)
         take(directoryOf(value), form.model);
+    else if (key == kTranscriptionVadModelKey)
+        take(directoryOf(value), form.vadModel);
     else if (key == kTranscriptionLanguageKey)
         take(languageCodeOf(value), form.language);
     else if (key == kTranscriptionSuppressNotesKey)
@@ -998,6 +1001,8 @@ void renderTranscription(std::string& out, const TranscriptionSettings& form) {
                 form.executable.string(),
                 form.executable == defaults.executable);
     writeOption(out, kTranscriptionModelKey, form.model.string(), form.model == defaults.model);
+    writeOption(
+        out, kTranscriptionVadModelKey, form.vadModel.string(), form.vadModel == defaults.vadModel);
     writeOption(out, kTranscriptionLanguageKey, form.language, form.language == defaults.language);
     writeOption(out,
                 kTranscriptionSuppressNotesKey,

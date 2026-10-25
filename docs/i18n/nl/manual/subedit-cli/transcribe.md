@@ -11,6 +11,7 @@ subedit-cli transcribe --output FILE
                        [--start TIME] [--end TIME]
                        [--suppress-notes | --keep-notes]
                        [--model FILE]
+                       [--vad-model FILE]
                        [--engine NAME]
                        [--keep-audio FILE]
                        [--raw]
@@ -79,6 +80,7 @@ Options:
   --suppress-notes            Do not write sounds as notes, such as (phone ringing); the transcription.suppress-notes setting by default
   --keep-notes                Write sounds as notes, against the setting
   --model FILE                Model file; the transcription.model setting by default
+  --vad-model FILE            Voice-activity model that skips silences; the transcription.vad-model setting by default
   --engine NAME               Engine; the transcription.engine setting by default
   --keep-audio FILE           Keep the extracted audio in this file
   --list-languages            List the languages the engine offers for the model, and transcribe nothing
@@ -100,6 +102,7 @@ Options:
 | `--start` | nee | een tijd: `2:00`, `1:02:03`, `2:00.5`, of een aantal seconden, `90` | het begin van de audio |
 | `--end` | nee | een tijd, geschreven zoals bij `--start`; hij moet na `--start` komen | het einde van de audio |
 | `--model` | nee | het modelbestand | de instelling `transcription.model` |
+| `--vad-model` | nee | een spraakactiviteitsmodel (een Silero-model voor whisper.cpp), waardoor de engine de stiltes overslaat voordat ze decodeert: haar segmenten volgen dan de spraak, en het eerste begint waar de spraak begint in plaats van bij 0. Het bestand moet bestaan, en een engine die het niet kan gebruiken weigert de optie bij naam | de instelling `transcription.vad-model` |
 | `--engine` | nee | de naam van een engine: `whisper.cpp` | de instelling `transcription.engine` |
 | `--keep-audio` | nee | een bestand om de uitgepakte audio in te bewaren, als mono 16-bits PCM in een WAV-bestand, met de samplefrequentie die de engine vraagt (16 kHz voor whisper.cpp); de map wordt aangemaakt als ze ontbreekt, en de naam mag `{rate}` bevatten, vervangen door die frequentie in hertz (`film.{rate}.wav` wordt geschreven als `film.16000.wav`) | de audio wordt nergens bewaard |
 | `--raw` | nee | een vlag: de segmenten van de engine schrijven zonder samenvoegen en zonder knippen | uit |
@@ -112,6 +115,7 @@ De **instellingen** worden uit het instellingenbestand gelezen zoals die van [`a
 | `transcription.engine` | de engine | `whisper.cpp` |
 | `transcription.executable` | het programma van de engine, een absoluut pad; leeg: gezocht in het `PATH` | leeg |
 | `transcription.model` | het modelbestand, een absoluut pad | leeg |
+| `transcription.vad-model` | het spraakactiviteitsmodel, een absoluut pad; leeg: geen, en de stiltes worden niet overgeslagen. Een instelling die een engine niet kan gebruiken wordt zonder een woord genegeerd | leeg |
 | `transcription.language` | de taal van de audio, twee letters; leeg: gedetecteerd | leeg |
 | `transcription.suppress-notes` | geluiden niet als notities schrijven | `true` |
 | `transcription.merge-gap-ms` | stukken van één zin die dichter bij elkaar liggen dan dit aantal milliseconden worden samengevoegd | `400` |

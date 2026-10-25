@@ -11,6 +11,7 @@ subedit-cli transcribe --output FILE
                        [--start TIME] [--end TIME]
                        [--suppress-notes | --keep-notes]
                        [--model FILE]
+                       [--vad-model FILE]
                        [--engine NAME]
                        [--keep-audio FILE]
                        [--raw]
@@ -77,6 +78,7 @@ Options:
   --suppress-notes            Do not write sounds as notes, such as (phone ringing); the transcription.suppress-notes setting by default
   --keep-notes                Write sounds as notes, against the setting
   --model FILE                Model file; the transcription.model setting by default
+  --vad-model FILE            Voice-activity model that skips silences; the transcription.vad-model setting by default
   --engine NAME               Engine; the transcription.engine setting by default
   --keep-audio FILE           Keep the extracted audio in this file
   --list-languages            List the languages the engine offers for the model, and transcribe nothing
@@ -98,6 +100,7 @@ Options:
 | `--start` | нет | время: `2:00`, `1:02:03`, `2:00.5` или число секунд, `90` | начало звука |
 | `--end` | нет | время, записанное так же, как для `--start`; оно должно идти после `--start` | конец звука |
 | `--model` | нет | файл модели | настройка `transcription.model` |
+| `--vad-model` | нет | модель обнаружения речи (модель Silero для whisper.cpp), которая заставляет движок пропускать паузы перед декодированием: его сегменты тогда следуют за речью, а первый начинается там, где начинается речь, а не с 0. Файл должен существовать, а движок, который не может его использовать, отклоняет параметр по имени | настройка `transcription.vad-model` |
 | `--engine` | нет | название движка: `whisper.cpp` | настройка `transcription.engine` |
 | `--keep-audio` | нет | файл, в котором сохраняется извлечённый звук, как 16-битный моно PCM в файле WAV, с частотой дискретизации, которую запрашивает движок (16 кГц для whisper.cpp); его каталог создаётся, если отсутствует, а имя может содержать `{rate}`, заменяемое этой частотой в герцах (`film.{rate}.wav` записывается как `film.16000.wav`) | звук нигде не сохраняется |
 | `--raw` | нет | флаг: записать сегменты движка без объединения и без нарезки | выключен |
@@ -110,6 +113,7 @@ Options:
 | `transcription.engine` | движок | `whisper.cpp` |
 | `transcription.executable` | программа движка, абсолютный путь; пусто: ищется в `PATH` | пусто |
 | `transcription.model` | файл модели, абсолютный путь | пусто |
+| `transcription.vad-model` | модель обнаружения речи, абсолютный путь; пусто: нет, и паузы не пропускаются. Настройка, которую движок не может использовать, молча отбрасывается | пусто |
 | `transcription.language` | язык звука, две буквы; пусто: определяется автоматически | пусто |
 | `transcription.suppress-notes` | не записывать звуки как заметки | `true` |
 | `transcription.merge-gap-ms` | части одного предложения, расстояние между которыми меньше этого числа миллисекунд, объединяются | `400` |

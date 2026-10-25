@@ -48,6 +48,16 @@ sh ./models/download-ggml-model.sh small
 Geben Sie dann seinen Pfad mit `--model` in der Befehlszeile an, oder mit der Einstellung `transcription.model`,
 oder in den [Einstellungen](../subedit-gui/preferences.md#transkription) des Fensters, die ihn sich merken.
 
+### Ein Modell zur Spracherkennung, um dort zu beginnen, wo die Sprache beginnt
+
+Optional lässt ein **Modell zur Spracherkennung** (Silero) die Engine die Stille überspringen, bevor sie dekodiert. Ohne eines beginnt Whisper seinen ersten Untertitel bei 0, was immer im Film zuerst kommt, Musik eingeschlossen, und rundet seine Zeiten auf ganze Fenster; mit einem beginnt der erste Untertitel dort, wo die Sprache beginnt, und die übrigen folgen ihm. Das Repository der Engine enthält ein Skript, das eines herunterlädt:
+
+```bash
+sh ./models/download-vad-model.sh silero-v6.2.0
+```
+
+Geben Sie seinen Pfad mit `--vad-model` an, mit der Einstellung `transcription.vad-model` oder in den [Einstellungen](../subedit-gui/preferences.md#transkription) des Fensters.
+
 ### Welches Modell für welche Sprache
 
 Whisper wechselt das Modell nicht, sobald es die Sprache gefunden hat: **Das Modell, das Sie angeben, bestimmt, was es

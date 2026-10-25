@@ -140,7 +140,7 @@ fechamento.
 | `correction.join-split.language` | um código de localidade — `fr`, `en_US`, `sr@Latn` —; vazio: o idioma do sistema | vazio |
 | `correction.remove-blank` | `true` ou `false` — `Remove all blank subtitles` | `true` |
 | `transcription.engine` | o nome do motor: letras minúsculas, algarismos, `.`, `-` e `_` | `whisper.cpp` |
-| `transcription.executable`, `transcription.model` | um caminho absoluto; vazio: o motor é procurado no `PATH`, e nenhum modelo é definido | vazio |
+| `transcription.executable`, `transcription.model`, `transcription.vad-model` | um caminho absoluto; vazio: o motor é procurado no `PATH`, e nenhum modelo é definido, e os silêncios não são ignorados | vazio |
 | `transcription.language` | duas letras minúsculas, um código ISO 639-1; vazio: o idioma é detectado | vazio |
 | `transcription.suppress-notes` | `true` ou `false` — `Do not write sounds as notes` | `true` |
 | `transcription.merge-gap-ms` | os pedaços de uma mesma frase mais próximos do que este valor são unidos, em milissegundos, inteiro e não negativo | `400` |
@@ -293,6 +293,8 @@ foi encontrado, e o modelo — não definido, não encontrado, não é um modelo
 algo, acrescenta o link para
 [Instalar as ferramentas de transcrição](../subedit-cli/install-transcription.md), que diz onde encontrar
 cada um. Os dois campos são as configurações `transcription.executable` e `transcription.model`.
+
+Um terceiro campo, **“Modelo de atividade de voz”**, com seu próprio botão `Browse…`, indica um modelo que ignora os silêncios antes de o motor decodificar (um modelo Silero para o whisper.cpp). Com um, a primeira legenda começa onde a fala começa e as outras a seguem, em vez de janelas inteiras contadas desde 0. Deixado vazio, os silêncios não são ignorados. É a configuração `transcription.vad-model`, e o modelo cabe a você fornecer, como o modelo de fala: veja [Instalar as ferramentas de transcrição](../subedit-cli/install-transcription.md).
 
 Uma caixa, **“Não escrever os sons como notas”**, é a configuração `transcription.suppress-notes` (marcada por preconfiguração): o motor recebe a ordem de não escrever os sons
 como notas, como `(phone ringing)`. Desmarque-a para os conservar, para legendas para surdos e ensurdecidos. A caixa de diálogo de `Transcribe Audio…` oferece a mesma caixa para a transcrição de cada vez.

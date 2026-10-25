@@ -101,9 +101,11 @@ PreferencesDialog::PreferencesDialog(core::Theme theme,
       m_transcription(transcription),
       m_program(new QLineEdit{this}),
       m_model(new QLineEdit{this}),
+      m_voiceModel(new QLineEdit{this}),
       m_suppressNotes(new QCheckBox{translate("Do not write sounds as notes"), this}),
       m_programButton(new QPushButton{translate("Browse…"), this}),
       m_modelButton(new QPushButton{translate("Browse…"), this}),
+      m_voiceModelButton(new QPushButton{translate("Browse…"), this}),
       m_tools(new QLabel{this}) {
     setWindowTitle(translate("Preferences"));
 
@@ -175,6 +177,14 @@ PreferencesDialog::PreferencesDialog(core::Theme theme,
     m_program->setText(QString::fromStdString(transcription.settings.executable.string()));
     m_program->setPlaceholderText(translate("Searched for on the PATH"));
     m_model->setText(QString::fromStdString(transcription.settings.model.string()));
+    m_voiceModel->setText(QString::fromStdString(transcription.settings.vadModel.string()));
+    m_voiceModel->setPlaceholderText(translate("None: silences are not skipped"));
+    m_voiceModel->setToolTip(
+        translate("A voice-activity model (Silero) makes the first subtitle begin where the "
+                  "speech does, and the others follow it."));
+    connect(m_voiceModelButton, &QPushButton::clicked, this, [this] {
+        pick(ChosenFile::VoiceModel, m_voiceModel);
+    });
     m_tools->setWordWrap(true);
     connect(m_program, &QLineEdit::textChanged, this, [this] { refreshTools(); });
     connect(m_model, &QLineEdit::textChanged, this, [this] { refreshTools(); });
@@ -190,9 +200,13 @@ PreferencesDialog::PreferencesDialog(core::Theme theme,
     auto* modelRow = new QHBoxLayout;
     modelRow->addWidget(m_model, 1);
     modelRow->addWidget(m_modelButton);
+    auto* voiceModelRow = new QHBoxLayout;
+    voiceModelRow->addWidget(m_voiceModel, 1);
+    voiceModelRow->addWidget(m_voiceModelButton);
     auto* transcriptionFields = new QFormLayout;
     transcriptionFields->addRow(translate("Program"), programRow);
     transcriptionFields->addRow(translate("Model"), modelRow);
+    transcriptionFields->addRow(translate("Voice-activity model"), voiceModelRow);
     m_suppressNotes->setChecked(transcription.settings.suppressNotes);
     m_suppressNotes->setToolTip(translate(
         "Sounds such as (phone ringing) or [MUSIC PLAYING] are not written. Turn it off to "
@@ -241,6 +255,7 @@ core::TranscriptionSettings PreferencesDialog::transcription() const {
     core::TranscriptionSettings settings = m_transcription.settings;
     settings.executable = std::filesystem::path{m_program->text().trimmed().toStdString()};
     settings.model = std::filesystem::path{m_model->text().trimmed().toStdString()};
+    settings.vadModel = std::filesystem::path{m_voiceModel->text().trimmed().toStdString()};
     settings.suppressNotes = m_suppressNotes->isChecked();
     return settings;
 }

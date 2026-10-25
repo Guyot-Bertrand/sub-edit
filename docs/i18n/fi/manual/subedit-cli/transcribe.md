@@ -11,6 +11,7 @@ subedit-cli transcribe --output FILE
                        [--start TIME] [--end TIME]
                        [--suppress-notes | --keep-notes]
                        [--model FILE]
+                       [--vad-model FILE]
                        [--engine NAME]
                        [--keep-audio FILE]
                        [--raw]
@@ -79,6 +80,7 @@ Options:
   --suppress-notes            Do not write sounds as notes, such as (phone ringing); the transcription.suppress-notes setting by default
   --keep-notes                Write sounds as notes, against the setting
   --model FILE                Model file; the transcription.model setting by default
+  --vad-model FILE            Voice-activity model that skips silences; the transcription.vad-model setting by default
   --engine NAME               Engine; the transcription.engine setting by default
   --keep-audio FILE           Keep the extracted audio in this file
   --list-languages            List the languages the engine offers for the model, and transcribe nothing
@@ -100,6 +102,7 @@ Options:
 | `--start` | no | aika: `2:00`, `1:02:03`, `2:00.5` tai sekuntimäärä, `90` | äänen alku |
 | `--end` | no | aika, kirjoitettuna kuten valitsimelle `--start`; sen on oltava `--start`-arvon jälkeen | äänen loppu |
 | `--model` | ei | mallitiedosto | asetus `transcription.model` |
+| `--vad-model` | ei | puheaktiivisuusmalli (Silero-malli whisper.cpp:lle), joka saa moottorin ohittamaan hiljaisuudet ennen dekoodausta: sen segmentit seuraavat silloin puhetta, ja ensimmäinen alkaa siitä, mistä puhe alkaa, eikä kohdasta 0. Tiedoston on oltava olemassa, ja moottori, joka ei voi käyttää sitä, hylkää valitsimen nimeltä | asetus `transcription.vad-model` |
 | `--engine` | ei | moottorin nimi: `whisper.cpp` | asetus `transcription.engine` |
 | `--keep-audio` | ei | tiedosto, johon purettu ääni säilytetään 16-bittisenä mono-PCM:nä WAV-tiedostossa moottorin pyytämällä näytteenottotaajuudella (whisper.cpp:lle 16 kHz); sen hakemisto luodaan, jos se puuttuu, ja nimessä voi olla `{rate}`, joka korvataan tällä taajuudella hertseinä (`film.{rate}.wav` kirjoitetaan `film.16000.wav`) | ääntä ei säilytetä missään |
 | `--raw` | ei | lippu: kirjoittaa moottorin segmentit ilman yhdistämistä ja leikkaamista | pois |
@@ -112,6 +115,7 @@ Options:
 | `transcription.engine` | moottori | `whisper.cpp` |
 | `transcription.executable` | moottorin ohjelma, absoluuttinen polku; tyhjä: haetaan `PATH`-polusta | tyhjä |
 | `transcription.model` | mallitiedosto, absoluuttinen polku | tyhjä |
+| `transcription.vad-model` | puheaktiivisuusmalli, absoluuttinen polku; tyhjä: ei mitään, eikä hiljaisuuksia ohiteta. Asetus, jota moottori ei voi käyttää, jätetään ääneti pois | tyhjä |
 | `transcription.language` | äänen kieli, kaksi kirjainta; tyhjä: tunnistetaan | tyhjä |
 | `transcription.suppress-notes` | älä kirjoita ääniä muistiinpanoina | `true` |
 | `transcription.merge-gap-ms` | saman lauseen palat, jotka ovat näin monta millisekuntia lähempänä toisiaan, yhdistetään | `400` |

@@ -1090,6 +1090,10 @@ msgid "Model file; the transcription.model setting by default"
 msgstr "Model dosyası; varsayılan olarak transcription.model ayarı"
 
 #: src/exe/cli/commands/transcribe.cpp
+msgid "Voice-activity model that skips silences; the transcription.vad-model setting by default"
+msgstr "Sessizlikleri atlayan ses etkinliği modeli; varsayılan olarak transcription.vad-model ayarı"
+
+#: src/exe/cli/commands/transcribe.cpp
 msgid "Engine; the transcription.engine setting by default"
 msgstr "Motor; varsayılan olarak transcription.engine ayarı"
 
@@ -2446,6 +2450,10 @@ msgid "The model file the engine reads."
 msgstr "Motorun okuduğu model dosyası."
 
 #: src/lib/subedit/core/config/operation_settings.cpp
+msgid "The voice-activity model that skips silences; none when empty."
+msgstr "Sessizlikleri atlayan ses etkinliği modeli; boşsa yok."
+
+#: src/lib/subedit/core/config/operation_settings.cpp
 msgid "The language of the audio; detected when empty."
 msgstr "Sesin dili; boşsa algılanır."
 
@@ -3493,6 +3501,14 @@ msgid "the engine %1 cannot be told not to write sounds as notes"
 msgstr "%1 motoruna sesleri not olarak yazmaması söylenemez"
 
 #: src/lib/subedit/core/wording/transcription.cpp
+msgid "the engine %1 cannot skip silences with a voice-activity model"
+msgstr "%1 motoru sessizlikleri bir ses etkinliği modeliyle atlayamaz"
+
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "the voice-activity model %1 does not exist"
+msgstr "%1 ses etkinliği modeli mevcut değil"
+
+#: src/lib/subedit/core/wording/transcription.cpp
 msgid ""
 "\"%1\" is not a language code: write two letters, such as fr, en, de or es"
 msgstr "“%1” bir dil kodu değil: fr, en, de ya da es gibi iki harf yazın"
@@ -4426,12 +4442,24 @@ msgid "Searched for on the PATH"
 msgstr "PATH içinde aranır"
 
 #: src/lib/subedit/gui/preferences_dialog.cpp
+msgid "None: silences are not skipped"
+msgstr "Yok: sessizlikler atlanmaz"
+
+#: src/lib/subedit/gui/preferences_dialog.cpp
+msgid "A voice-activity model (Silero) makes the first subtitle begin where the speech does, and the others follow it."
+msgstr "Bir ses etkinliği modeli (Silero), ilk altyazının konuşmanın başladığı yerde başlamasını sağlar; diğerleri onu izler."
+
+#: src/lib/subedit/gui/preferences_dialog.cpp
 msgid "Program"
 msgstr "Program"
 
 #: src/lib/subedit/gui/preferences_dialog.cpp
 msgid "Model"
 msgstr "Model"
+
+#: src/lib/subedit/gui/preferences_dialog.cpp
+msgid "Voice-activity model"
+msgstr "Ses etkinliği modeli"
 
 #: src/lib/subedit/gui/preferences_dialog.cpp
 #: src/lib/subedit/gui/transcribe_dialog.cpp
@@ -4499,6 +4527,10 @@ msgstr "Aç"
 #: src/lib/subedit/gui/qt_prompts.cpp
 msgid "Select Video"
 msgstr "Video Seç"
+
+#: src/lib/subedit/gui/qt_prompts.cpp
+msgid "Choose a voice-activity model"
+msgstr "Bir ses etkinliği modeli seç"
 
 #: src/lib/subedit/gui/qt_prompts.cpp
 msgid "Choose a model"
@@ -4928,7 +4960,9 @@ msgstr "Hangi parçalardan oluştuğunu görmek için sağdaki bir altyazıyı s
 msgid ""
 "These values are now the settings of the application (transcription.*). "
 "Closing this window changes nothing more."
-msgstr "Bu değerler artık uygulamanın ayarlarıdır (transcription.*). Bu pencereyi kapatmak başka hiçbir şeyi değiştirmez."
+msgstr ""
+"Bu değerler artık uygulamanın ayarlarıdır (transcription.*). Bu pencereyi "
+"kapatmak başka hiçbir şeyi değiştirmez."
 
 #: src/lib/subedit/gui/transcription_preview_dialog.cpp
 msgid "Merge pieces closer than"

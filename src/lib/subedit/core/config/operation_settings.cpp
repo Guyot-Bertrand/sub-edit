@@ -254,6 +254,12 @@ constexpr std::array kCatalogue{
                .accepts = kAbsolutePath,
                .usedBy = kTranscribe,
                .surface = kBoth},
+    SettingKey{.key = "transcription.vad-model",
+               .description =
+                   deferred("The voice-activity model that skips silences; none when empty."),
+               .accepts = kAbsolutePath,
+               .usedBy = kTranscribe,
+               .surface = kBoth},
     SettingKey{.key = "transcription.language",
                .description = deferred("The language of the audio; detected when empty."),
                .accepts = kLanguageCode,

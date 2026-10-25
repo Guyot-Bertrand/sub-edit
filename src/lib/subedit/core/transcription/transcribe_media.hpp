@@ -31,6 +31,9 @@ struct MediaTranscriptionRequest {
     /// See `TranscriptionRequest::suppressNotes`.
     bool suppressNotes = true;
 
+    /// See `TranscriptionRequest::vadModel`.
+    std::optional<std::filesystem::path> vadModel{};
+
     /// The part of the film to transcribe, in its own time; all of it when not given.
     std::optional<Timestamp> start{};
     std::optional<Timestamp> end{};

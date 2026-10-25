@@ -137,7 +137,7 @@ suivante.
 | `correction.join-split.language` | un code de locale — `fr`, `en_US`, `sr@Latn` — ; vide : la langue du système | vide |
 | `correction.remove-blank` | `true` ou `false` — `Remove all blank subtitles` | `true` |
 | `transcription.engine` | le nom du moteur : lettres minuscules, chiffres, `.`, `-` et `_` | `whisper.cpp` |
-| `transcription.executable`, `transcription.model` | un chemin absolu ; vide : le moteur est cherché dans le `PATH`, et aucun modèle n'est réglé | vide |
+| `transcription.executable`, `transcription.model`, `transcription.vad-model` | un chemin absolu ; vide : le moteur est cherché dans le `PATH`, et aucun modèle n'est réglé, et les silences ne sont pas sautés | vide |
 | `transcription.language` | deux lettres minuscules, un code ISO 639-1 ; vide : la langue est détectée | vide |
 | `transcription.suppress-notes` | `true` ou `false` — `Do not write sounds as notes` | `true` |
 | `transcription.merge-gap-ms` | les morceaux d'une même phrase plus proches que cela sont joints, en millisecondes, nombre entier non négatif | `400` |
@@ -290,6 +290,8 @@ est trouvé, et le modèle — non réglé, introuvable, ce n'est pas un modèle
 manque, elle ajoute le renvoi vers
 [Installer les outils de transcription](../subedit-cli/install-transcription.md), qui dit où trouver
 chacun. Les deux champs sont les réglages `transcription.executable` et `transcription.model`.
+
+Un troisième champ, **«Modèle d'activité vocale»**, avec son propre bouton `Browse…`, désigne un modèle qui saute les silences avant que le moteur décode (un modèle Silero pour whisper.cpp). Avec lui, le premier sous-titre commence là où commence la parole et les autres le suivent, au lieu de fenêtres entières comptées depuis 0. Laissé vide, les silences ne sont pas sautés. C'est le réglage `transcription.vad-model`, et le modèle est à vous de le fournir, comme celui de la parole : voir [Installer les outils de transcription](../subedit-cli/install-transcription.md).
 
 Une case, **« Ne pas écrire les sons comme des notes »**, est le réglage `transcription.suppress-notes` (cochée par défaut) : le moteur a ordre de ne pas écrire les sons
 comme des notes, par exemple `(phone ringing)`. Décochez-la pour les garder, pour des sous-titres pour sourds et malentendants. La boîte de `Transcribe Audio…` offre la même case pour la seule transcription.

@@ -29,6 +29,11 @@ struct TranscriptionSettings {
     /// The model file; empty for none.
     std::filesystem::path model{};
 
+    /// The voice-activity-detection model (whisper.cpp: a Silero model); empty for none. With one,
+    /// the engine skips the silences before it decodes, and its segments follow the speech: the
+    /// first one begins where the speech does, and not at 0. Provided by the user, as the model is.
+    std::filesystem::path vadModel{};
+
     /// An ISO 639-1 code (`en`, `fr`); empty to let the engine detect it.
     std::string language{};
 

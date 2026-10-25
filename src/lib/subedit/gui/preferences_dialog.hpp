@@ -109,6 +109,10 @@ public:
 
     [[nodiscard]] QLineEdit* modelEdit() const { return m_model; }
 
+    [[nodiscard]] QLineEdit* voiceModelEdit() const { return m_voiceModel; }
+
+    [[nodiscard]] QPushButton* voiceModelButton() const { return m_voiceModelButton; }
+
     [[nodiscard]] QLabel* toolsLabel() const { return m_tools; }
 
     [[nodiscard]] QPushButton* programButton() const { return m_programButton; }
@@ -159,9 +163,11 @@ private:
     TranscriptionPreferences m_transcription;
     QLineEdit* m_program;
     QLineEdit* m_model;
+    QLineEdit* m_voiceModel;
     QCheckBox* m_suppressNotes;
     QPushButton* m_programButton;
     QPushButton* m_modelButton;
+    QPushButton* m_voiceModelButton;
     QLabel* m_tools;
 };
 

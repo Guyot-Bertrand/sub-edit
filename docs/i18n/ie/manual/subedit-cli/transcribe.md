@@ -11,6 +11,7 @@ subedit-cli transcribe --output FILE
                        [--start TIME] [--end TIME]
                        [--suppress-notes | --keep-notes]
                        [--model FILE]
+                       [--vad-model FILE]
                        [--engine NAME]
                        [--keep-audio FILE]
                        [--raw]
@@ -78,6 +79,7 @@ Options:
   --suppress-notes            Do not write sounds as notes, such as (phone ringing); the transcription.suppress-notes setting by default
   --keep-notes                Write sounds as notes, against the setting
   --model FILE                Model file; the transcription.model setting by default
+  --vad-model FILE            Voice-activity model that skips silences; the transcription.vad-model setting by default
   --engine NAME               Engine; the transcription.engine setting by default
   --keep-audio FILE           Keep the extracted audio in this file
   --list-languages            List the languages the engine offers for the model, and transcribe nothing
@@ -99,6 +101,7 @@ Options:
 | `--start` | no | un témpor: `2:00`, `1:02:03`, `2:00.5`, o un númere de secondes, `90` | li comense del audio |
 | `--end` | no | un témpor, scrit quam por `--start`; it deve venir pos `--start` | li fine del audio |
 | `--model` | no | li file de model | li parametre `transcription.model` |
+| `--vad-model` | no | un model de activitá de voce (un model Silero por whisper.cpp), quel fa que li machine saltea li silentias ante decodar: su segmentes dunc sequa li parol, e li unesim comensa u comensa li parol vice a 0. Li file deve exister, e un machine quel ne posse usar it refusa li optione per su nómine | li parametre `transcription.vad-model` |
 | `--engine` | no | li nómine de un motor: `whisper.cpp` | li parametre `transcription.engine` |
 | `--keep-audio` | no | un file por conservar li audio extraet, quam PCM mono de 16 bit in un file WAV, al frequentie de sampling quel li motor demanda (16 kHz por whisper.cpp); su directoria es creat si it manca, e li nómine posse portar `{rate}`, remplazzat per ti frequentie in hertz (`film.{rate}.wav` es scrit `film.16000.wav`) | li audio ne es conservat in null loc |
 | `--raw` | no | un flag: scrir li segmentes del motor sin fusion e sin talliar | off |
@@ -111,6 +114,7 @@ Li **parametres** es leet del file de parametres quam ti de [`adjust`](adjust.md
 | `transcription.engine` | li motor | `whisper.cpp` |
 | `transcription.executable` | li programma del motor, un chemin absolut; vacui: serchat in `PATH` | vacui |
 | `transcription.model` | li file de model, un chemin absolut | vacui |
+| `transcription.vad-model` | li model de activitá de voce, un chemin absolut; vacui: null, e li silentias ne es salteat. Un parametre quel un machine ne posse usar es lassat sin parol | vacui |
 | `transcription.language` | li lingue del audio, du líttere; vacui: detectet | vacui |
 | `transcription.suppress-notes` | ne scrir li sones quam notes | `true` |
 | `transcription.merge-gap-ms` | fragmentes de un sam frase plu proxim ca ti númere de millisecondes es junit | `400` |

@@ -123,6 +123,15 @@ std::string engineCannotSuppressNotes(std::string_view engine) {
                       {engine});
 }
 
+std::string engineCannotDetectVoice(std::string_view engine) {
+    return substitute(translate("the engine %1 cannot skip silences with a voice-activity model"),
+                      {engine});
+}
+
+std::string voiceModelNotFound(std::string_view path) {
+    return substitute(translate("the voice-activity model %1 does not exist"), {path});
+}
+
 std::string notALanguageCode(std::string_view text) {
     return substitute(
         translate("\"%1\" is not a language code: write two letters, such as fr, en, de or es"),

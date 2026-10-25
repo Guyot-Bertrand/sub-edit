@@ -48,6 +48,16 @@ sh ./models/download-ggml-model.sh small
 Następnie podaj jego ścieżkę w `--model` w wierszu poleceń albo w ustawieniu `transcription.model`,
 albo w [preferencjach](../subedit-gui/preferences.md#transkrypcja) okna, które ją zapamiętują.
 
+### Model wykrywania mowy, aby zacząć tam, gdzie zaczyna się mowa
+
+Opcjonalnie **model wykrywania mowy** (Silero) pozwala silnikowi pominąć ciszę przed dekodowaniem. Bez niego whisper zaczyna pierwszy napis od 0, cokolwiek byłoby w filmie na początku, łącznie z muzyką, i zaokrągla swoje czasy do całych okien; z nim pierwszy napis zaczyna się tam, gdzie zaczyna się mowa, a pozostałe za nim podążają. Repozytorium silnika ma skrypt, który pobiera taki model:
+
+```bash
+sh ./models/download-vad-model.sh silero-v6.2.0
+```
+
+Podaj jego ścieżkę w `--vad-model`, w ustawieniu `transcription.vad-model` albo w [preferencjach](../subedit-gui/preferences.md#transkrypcja) okna.
+
 ### Który model dla którego języka
 
 Whisper nie zmienia modelu po znalezieniu języka: **model, który podasz, decyduje o tym, co

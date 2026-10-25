@@ -11,6 +11,7 @@ subedit-cli transcribe --output FILE
                        [--start TIME] [--end TIME]
                        [--suppress-notes | --keep-notes]
                        [--model FILE]
+                       [--vad-model FILE]
                        [--engine NAME]
                        [--keep-audio FILE]
                        [--raw]
@@ -54,6 +55,7 @@ Options:
   --suppress-notes            Do not write sounds as notes, such as (phone ringing); the transcription.suppress-notes setting by default
   --keep-notes                Write sounds as notes, against the setting
   --model FILE                Model file; the transcription.model setting by default
+  --vad-model FILE            Voice-activity model that skips silences; the transcription.vad-model setting by default
   --engine NAME               Engine; the transcription.engine setting by default
   --keep-audio FILE           Keep the extracted audio in this file
   --list-languages            List the languages the engine offers for the model, and transcribe nothing
@@ -75,6 +77,7 @@ Options:
 | `--start` | 否 | 时间：`2:00`、`1:02:03`、`2:00.5`，或秒数，`90` | 音频的开头 |
 | `--end` | 否 | 时间，写法与 `--start` 相同；必须在 `--start` 之后 | 音频的结尾 |
 | `--model` | 否 | 模型文件 | 设置 `transcription.model` |
+| `--vad-model` | 否 | 一个语音活动模型（适用于 whisper.cpp 的 Silero 模型），让引擎在解码前跳过静音：此时它的片段会跟随语音，第一条从语音开始的地方开始，而不是从 0 开始。文件必须存在，无法使用它的引擎会按名称拒绝该选项 | 设置 `transcription.vad-model` |
 | `--engine` | 否 | 引擎的名称：`whisper.cpp` | 设置 `transcription.engine` |
 | `--keep-audio` | 否 | 保存提取出的音频的文件，格式为 WAV 文件中的单声道 16 位 PCM，采样率为引擎所要求的（whisper.cpp 为 16 kHz）；其目录不存在时会创建，文件名可以包含 `{rate}`，它会被替换为以赫兹为单位的该采样率（`film.{rate}.wav` 会写成 `film.16000.wav`） | 音频不保存在任何地方 |
 | `--raw` | 否 | 开关：写入引擎的片段，不合并也不切分 | 关闭 |
@@ -86,6 +89,7 @@ Options:
 | `transcription.engine` | 引擎 | `whisper.cpp` |
 | `transcription.executable` | 引擎的程序，绝对路径；为空：在 `PATH` 中查找 | 空 |
 | `transcription.model` | 模型文件，绝对路径 | 空 |
+| `transcription.vad-model` | 语音活动模型，绝对路径；空：没有，且不跳过静音。引擎无法使用的设置会被不作声地丢弃 | 空 |
 | `transcription.language` | 音频的语言，两个字母；为空：自动检测 | 空 |
 | `transcription.suppress-notes` | 不把声音写成注释 | `true` |
 | `transcription.merge-gap-ms` | 同一句话中间隔小于这么多毫秒的片段会被合并 | `400` |

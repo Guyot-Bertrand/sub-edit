@@ -540,6 +540,71 @@ TEST_CASE("sounds are not written as notes unless the setting or an option says 
     CHECK(world.seen->suppressNotes);
 }
 
+// ## Voice-activity model
+
+namespace {
+
+/// A world whose engine can skip silences with a voice-activity model.
+struct VoiceWorld : World {
+    explicit VoiceWorld(bool capable) {
+        FakeEngineScript script;
+        script.name = "whisper.cpp";
+        script.seen = seen;
+        script.capabilities = {
+            .languageDetection = true, .voiceActivity = capable, .needsModel = false};
+        script.segments = {segment(0, 1000, "Hello.")};
+        engines = EngineRegistry{};
+        (void)engines.add(std::make_unique<FakeTranscriptionEngine>(script));
+    }
+};
+
+} // namespace
+
+TEST_CASE("the voice-activity model of the setting or of the option reaches the engine",
+          "[cli][transcribe][vad][CLI-TRANSCRIBE-13]") {
+    VoiceWorld world{true};
+    const std::filesystem::path option = world.scratch.write("option.bin", "model");
+    const std::filesystem::path setting = world.scratch.write("setting.bin", "model");
+    const TranscribeOptions base{.input = world.audio.string(), .output = world.output.string()};
+
+    CHECK(world.run(base) == ExitCode::Success);
+    CHECK_FALSE(world.seen->vadModel.has_value());
+
+    world.settings.vadModel = setting;
+    CHECK(world.run(base) == ExitCode::Success);
+    CHECK(world.seen->vadModel == setting);
+
+    TranscribeOptions named = base;
+    named.vadModel = option.string();
+    CHECK(world.run(named) == ExitCode::Success);
+    CHECK(world.seen->vadModel == option);
+}
+
+TEST_CASE("an engine that cannot skip silences refuses the option and drops the setting",
+          "[cli][transcribe][vad][CLI-TRANSCRIBE-13]") {
+    VoiceWorld world{false};
+    const std::filesystem::path model = world.scratch.write("vad.bin", "model");
+    TranscribeOptions options{.input = world.audio.string(), .output = world.output.string()};
+
+    world.settings.vadModel = model;
+    CHECK(world.run(options) == ExitCode::Success);
+    CHECK_FALSE(world.seen->vadModel.has_value());
+
+    options.vadModel = model.string();
+    CHECK(world.run(options) == ExitCode::Usage);
+    CHECK_THAT(world.errors.str(), ContainsSubstring("cannot skip silences"));
+}
+
+TEST_CASE("a voice-activity model that is not there is refused before any work",
+          "[cli][transcribe][vad][CLI-TRANSCRIBE-13]") {
+    VoiceWorld world{true};
+    TranscribeOptions options{.input = world.audio.string(), .output = world.output.string()};
+    options.vadModel = world.scratch.file("absent.bin").string();
+
+    CHECK(world.run(options) == ExitCode::Usage);
+    CHECK_THAT(world.errors.str(), ContainsSubstring("does not exist"));
+}
+
 TEST_CASE("the two options about notes say opposite things", "[cli][transcribe][notes]") {
     NotesWorld world;
 

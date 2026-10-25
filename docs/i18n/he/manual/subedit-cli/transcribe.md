@@ -11,6 +11,7 @@ subedit-cli transcribe --output FILE
                        [--start TIME] [--end TIME]
                        [--suppress-notes | --keep-notes]
                        [--model FILE]
+                       [--vad-model FILE]
                        [--engine NAME]
                        [--keep-audio FILE]
                        [--raw]
@@ -79,6 +80,7 @@ Options:
   --suppress-notes            Do not write sounds as notes, such as (phone ringing); the transcription.suppress-notes setting by default
   --keep-notes                Write sounds as notes, against the setting
   --model FILE                Model file; the transcription.model setting by default
+  --vad-model FILE            Voice-activity model that skips silences; the transcription.vad-model setting by default
   --engine NAME               Engine; the transcription.engine setting by default
   --keep-audio FILE           Keep the extracted audio in this file
   --list-languages            List the languages the engine offers for the model, and transcribe nothing
@@ -100,6 +102,7 @@ Options:
 | `--start` | לא | זמן: `2:00`, `1:02:03`, `2:00.5`, או מספר שניות, `90` | תחילת השמע |
 | `--end` | לא | זמן, הנכתב כמו ב-`--start`; הוא חייב לבוא אחרי `--start` | סוף השמע |
 | `--model` | לא | קובץ המודל | ההגדרה `transcription.model` |
+| `--vad-model` | לא | מודל זיהוי פעילות קולית (מודל Silero עבור whisper.cpp), שגורם למנוע לדלג על השתיקות לפני הפענוח: הקטעים שלו עוקבים אז אחרי הדיבור, והראשון מתחיל במקום שבו מתחיל הדיבור ולא ב-0. הקובץ חייב להתקיים, ומנוע שאינו יכול להשתמש בו דוחה את האפשרות בשמה | ההגדרה `transcription.vad-model` |
 | `--engine` | לא | שם של מנוע: `whisper.cpp` | ההגדרה `transcription.engine` |
 | `--keep-audio` | לא | קובץ לשמירת השמע שחולץ, כ-PCM מונו 16 סיביות בקובץ WAV, בקצב הדגימה שהמנוע מבקש (16 קילו־הרץ עבור whisper.cpp); התיקייה שלו נוצרת אם היא חסרה, והשם יכול לשאת `{rate}`, שמוחלף בקצב הזה בהרץ (`film.{rate}.wav` נכתב `film.16000.wav`) | השמע אינו נשמר בשום מקום |
 | `--raw` | לא | דגל: כתיבת קטעי המנוע בלי מיזוג ובלי חיתוך | כבוי |
@@ -112,6 +115,7 @@ Options:
 | `transcription.engine` | המנוע | `whisper.cpp` |
 | `transcription.executable` | תוכנית המנוע, נתיב מוחלט; ריק: נחפשת ב-`PATH` | ריק |
 | `transcription.model` | קובץ המודל, נתיב מוחלט | ריק |
+| `transcription.vad-model` | מודל זיהוי הפעילות הקולית, נתיב מוחלט; ריק: אין, והשתיקות אינן מדולגות. הגדרה שמנוע אינו יכול להשתמש בה נזרקת בלי מילה | ריק |
 | `transcription.language` | שפת השמע, שתי אותיות; ריק: מזוהה אוטומטית | ריק |
 | `transcription.suppress-notes` | לא לכתוב צלילים כהערות | `true` |
 | `transcription.merge-gap-ms` | חלקים של אותו משפט שקרובים זה לזה מכמות זו של אלפיות שנייה מחוברים | `400` |

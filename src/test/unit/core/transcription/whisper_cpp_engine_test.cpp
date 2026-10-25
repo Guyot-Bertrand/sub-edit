@@ -63,6 +63,7 @@ TEST_CASE("a multilingual model gives detection and every language", "[whisper][
     CHECK(capabilities->languageDetection);
     CHECK(capabilities->needsModel);
     CHECK(capabilities->suppressNotes);
+    CHECK(capabilities->voiceActivity);
     CHECK(capabilities->sampleRate == 16000);
 
     // The closed set of its languages, so that a surface can offer them instead of a free field.
@@ -390,6 +391,27 @@ TEST_CASE("a range is handed to the tool as an offset and a duration", "[whisper
     // Sounds are not written as notes, in parentheses or in brackets.
     CHECK(arguments.find("-sns\n") != std::string::npos);
     CHECK(arguments.find("-d\n60000\n") != std::string::npos);
+
+    // No voice-activity model, none of its arguments.
+    CHECK(arguments.find("--vad") == std::string::npos);
+
+    // With one, the engine is told to skip the silences with it.
+    const std::filesystem::path vad = setup.scratch.write("vad.bin", "model");
+    const auto skipping =
+        engine.transcribe({.audio = setup.audio, .model = setup.multilingual, .vadModel = vad});
+    REQUIRE(skipping.has_value());
+    std::ifstream withVad{log};
+    const std::string vadArguments{std::istreambuf_iterator<char>{withVad},
+                                   std::istreambuf_iterator<char>{}};
+    CHECK(vadArguments.find("--vad\n") != std::string::npos);
+    CHECK(vadArguments.find("--vad-model\n" + vad.string() + "\n") != std::string::npos);
+
+    // One that is not there is a missing model, said before the tool starts.
+    const auto missing = engine.transcribe({.audio = setup.audio,
+                                            .model = setup.multilingual,
+                                            .vadModel = setup.scratch.file("none.bin")});
+    REQUIRE_FALSE(missing.has_value());
+    CHECK(missing.error().kind == TranscriptionErrorKind::ModelMissing);
 
     // Without a range, neither is passed.
     const auto whole = engine.transcribe({.audio = setup.audio, .model = setup.multilingual});
