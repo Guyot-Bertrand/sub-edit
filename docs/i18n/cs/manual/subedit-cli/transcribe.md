@@ -54,7 +54,7 @@ a skončí s nenulovým kódem.
   před slučováním a dělením; `--raw` je ponechá tak, jak kousky nástroje přišly.
 - **Segmenty se sloučí a rozdělí** podle mezí nastavení (`transcription.merge-gap-ms`,
   `transcription.max-duration-ms`, `transcription.max-characters`): dva kusy jedné věty, které jsou
-  blízko sebe, tvoří jeden titulek, a kus příliš dlouhý nebo příliš široký se rozdělí u slova. **`--raw`
+  blízko sebe, tvoří jeden titulek, a kus příliš dlouhý nebo příliš široký se rozdělí — nejprve na konci věty, pak u čárky, středníku nebo dvojtečky a uprostřed věty jen tehdy, když není interpunkce, u které by se dalo dělit —, přičemž se vyhne řezu, který zanechá titulek příliš malý na čtení. Tři kroky probíhají za sebou, každý nad celým přepisem: zahození, sloučení, rozdělení. Titulek, který kousek začíná, si ponechá jeho začátek, a ten, který ho končí, jeho konec. **`--raw`
   zapíše segmenty nástroje tak, jak přišly**, jeden na titulek, což je také způsob, jak vidět, co
   slučování dělá.
 

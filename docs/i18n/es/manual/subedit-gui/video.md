@@ -162,11 +162,16 @@ tras haber producido algo —, una ventana muestra el resultado en dos tablas un
 
 - **a la izquierda, “Tal como lo escribió el motor”**: todo lo que el motor devolvió, tal como lo cortó, sin ningún posprocesamiento — lo que
   escribiría [`--raw`](../subedit-cli/transcribe.md) —, los marcadores de posición (`...`) incluidos;
-- **a la derecha, “Tal como se aplicarán”**: los subtítulos tras el posprocesamiento — marcadores descartados, fragmentos cercanos fusionados, los largos
-  cortados —, exactamente lo que entrará en el proyecto.
+- **a la derecha, “Tal como se aplicarán”**: los subtítulos tras el posprocesamiento, exactamente lo que entrará en el proyecto. Se hace en tres pasos, cada uno sobre toda la transcripción antes de que empiece el siguiente: se descartan los fragmentos sin letra ni dígito (`...`); se fusionan los fragmentos cercanos de una misma frase; se cortan los que son demasiado largos — **primero en un final de frase (`. ? ! …`), luego en una coma, un punto y coma o dos puntos, y en medio de una frase solo cuando no hay puntuación donde cortar**. Se evita un corte que dejaría un subtítulo demasiado pequeño para leerse (unos pocos caracteres, una fracción de segundo) cuando existe otro. Un subtítulo que empieza un fragmento conserva su inicio, y el que lo termina conserva su final: los tiempos de las palabras solo sirven para los cortes dentro de un fragmento.
+
+Encima de las tablas, **“Posprocesamiento (solo esta transcripción)”** contiene los tres límites del posprocesamiento: “Fusionar fragmentos más cercanos que”, “Subtítulo más largo” y “Máximo de caracteres de un subtítulo” — los ajustes `transcription.merge-gap-ms`, `transcription.max-duration-ms` y `transcription.max-characters`. **Cambiar uno rehace al instante la tabla de la derecha**, sin pasar por el motor, y el subtítulo que tenía seleccionado sigue seleccionado. Los valores que escribe valen solo para **esta transcripción**: la aplique o la ignore, los ajustes de la aplicación quedan como estaban. **“Conservar estos valores como ajustes”** entrega los tres valores a los ajustes de la aplicación — los de las [preferencias](preferences.md#transcripción), guardados con ellos —, y la ventana lo dice; cerrar la ventana no lo hace por sí solo.
+
+![La vista previa de una transcripción: los límites del posprocesamiento arriba, los fragmentos del motor a la izquierda, los subtítulos a la derecha, el segundo seleccionado y sus dos fragmentos de origen resaltados.](captures/apercu-transcription.png)
+
+![El mismo cuadro de diálogo con la paleta oscura.](captures/apercu-transcription-sombre.png)
 
 Las dos no se alinean fila por fila, por eso cada una tiene sus propios tiempos. **Seleccionar un subtítulo a la derecha resalta, a la izquierda, los fragmentos con los que
-se hizo**, y desplaza el lado izquierdo hasta ellos; un subtítulo a la vez, solo en ese sentido. Ninguna de las dos tablas se puede editar.
+se hizo**, y desplaza el lado izquierdo hasta ellos; un subtítulo a la vez, solo en ese sentido. Ninguna de las dos tablas se puede editar: lo que ningún ajuste deja bien se edita después, en la tabla del proyecto, como cualquier subtítulo.
 
 Dos botones la cierran. **“Aplicar”** sustituye los subtítulos del proyecto **como una sola operación**: un solo `Undo` devuelve lo que había, textos de
 traducción incluidos. **“Ignorar”** descarta el resultado, y se pierde. “Aplicar” está apagado cuando

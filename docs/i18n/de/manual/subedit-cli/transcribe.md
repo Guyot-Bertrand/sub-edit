@@ -54,7 +54,7 @@ endet mit einem Code ungleich null.
   behält sie, so wie die Stücke der Engine kamen.
 - **Die Segmente werden zusammengefügt und geschnitten** nach den Grenzen der Einstellungen (`transcription.merge-gap-ms`,
   `transcription.max-duration-ms`, `transcription.max-characters`): Zwei nahe beieinander liegende Stücke eines
-  Satzes ergeben einen Untertitel, und ein zu langes oder zu breites Stück wird an einem Wort geschnitten. **`--raw`
+  Satzes ergeben einen Untertitel, und ein zu langes oder zu breites Stück wird geschnitten — zuerst an einem Satzende, dann an einem Komma, Semikolon oder Doppelpunkt, und mitten in einem Satz nur, wenn es keine Satzzeichen zum Schneiden gibt —, wobei ein Schnitt vermieden wird, der einen zu kleinen, nicht mehr lesbaren Untertitel hinterlässt. Die drei Schritte laufen der Reihe nach ab, jeder über die ganze Transkription: verwerfen, zusammenfügen, schneiden. Ein Untertitel, der ein Stück beginnt, behält seinen Anfang, und einer, der es beendet, behält sein Ende. **`--raw`
   schreibt die Segmente der Engine, wie sie kamen**, eines pro Untertitel, und so sieht man auch, was das
   Zusammenfügen bewirkt.
 

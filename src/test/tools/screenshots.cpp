@@ -74,6 +74,7 @@
 #include <subedit/gui/split_project_dialog.hpp>
 #include <subedit/gui/subtitle_table.hpp>
 #include <subedit/gui/theme.hpp>
+#include <subedit/gui/transcription_preview_dialog.hpp>
 #include <subedit/gui/transform_dialog.hpp>
 #include <subedit/gui/unsaved_documents_dialog.hpp>
 #include <subedit/gui/video_surface.hpp>
@@ -103,11 +104,13 @@
 #include <QString>
 #include <QStyleFactory>
 #include <QTableView>
+#include <QTableWidget>
 #include <QWidget>
 #include <QtGlobal>
 
 #include <array>
 #include <chrono>
+#include <cstdint>
 #include <cstdlib>
 #include <filesystem>
 #include <iostream>
@@ -116,6 +119,7 @@
 #include <string>
 #include <string_view>
 #include <utility>
+#include <vector>
 
 namespace {
 
@@ -721,6 +725,31 @@ int main(int argc, char** argv) {
         subedit::gui::PreferencesDialog dialog{subedit::core::Theme::System};
         written = (dark ? capture(dialog, dialog, directory, "preferences-sombre")
                         : capture(dialog, dialog, directory, "preferences")) &&
+                  written;
+    }
+
+    // The preview of a transcription, with the limits of the post-processing above the tables.
+    for (const bool dark : {false, true}) {
+        subedit::gui::applyTheme(dark ? subedit::core::Theme::Dark : subedit::core::Theme::Light);
+        const auto piece = [](std::int64_t start, std::int64_t end, std::string text) {
+            return subedit::core::TranscribedSegment{
+                .text = std::move(text),
+                .start = subedit::core::Timestamp::fromMilliseconds(start),
+                .end = subedit::core::Timestamp::fromMilliseconds(end)};
+        };
+        std::vector<subedit::core::TranscribedSegment> pieces{
+            piece(0, 2400, "When a change comes,"),
+            piece(2500, 9320, "some species feel the urge to migrate."),
+            piece(9400, 12000, "..."),
+            piece(12000, 13500, "They call it"),
+            piece(13600, 16000, "Sukhanruha."),
+            piece(16100, 20500, "It is a scent carried by the wind.")};
+        subedit::core::Assembly assembly = subedit::core::assemble(pieces);
+        subedit::gui::TranscriptionPreviewDialog dialog{subedit::gui::TranscriptionPreview{
+            .pieces = std::move(pieces), .assembly = std::move(assembly)}};
+        dialog.subtitlesTable()->setCurrentCell(1, 2);
+        written = (dark ? capture(dialog, dialog, directory, "apercu-transcription-sombre")
+                        : capture(dialog, dialog, directory, "apercu-transcription")) &&
                   written;
     }
 

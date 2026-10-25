@@ -146,9 +146,23 @@ gives: it leaves the choice of the hardware variant to the user. It:
 An engine cuts where it likes. A step in the core, **independent of the engine**, turns its segments into subtitle
 entries:
 
-- it **merges** very close segments that belong to the same sentence — judged by the gap between them, the punctuation
-  that closes the first, and the speaker when the engine gives one;
-- it **cuts** those that exceed the duration and character limits, at a word boundary (the engine's timed words, or the letters in proportion). Cutting a subtitle into *lines* stays the job of the existing line-breaking task of phase 12, which needs the pattern engine and which the user already runs on any subtitle;
+The steps run **in this order, each over the whole set before the next one starts** (#795) — interleaving them piece by piece
+is what produced a two-word subtitle left after a cut:
+
+1. **drop the notes**: the pieces with no letter and no digit (`...`, `…`, `♪`);
+2. **merge** very close segments that belong to the same sentence — judged by the gap between them, the punctuation that closes the
+   first, and the speaker when the engine gives one — as long as the result respects the limits;
+3. **cut** those that exceed the duration and character limits. **Punctuation first**: the candidates are the ends of words, ranked
+   by the mark they end with — an end of sentence (`. ! ? …`, the ideographic full stop and its full-width forms; a closing quote or
+   bracket after it does not hide it) before a clause (`, ; :` and their ideographic forms) before nothing at all, which is the
+   middle of a sentence and is only taken when no mark is there. Among candidates of the same rank, **the one that makes the two
+   halves the most alike in characters**; the halves are then cut the same way until each fits. A cut that would leave a half **too
+   small** (fewer than 12 characters, or less than 700 ms — constants of the step, not settings) is only taken when every other cut
+   is as bad, so that a one-word subtitle is not left behind. Cutting a subtitle into *lines* stays the job of the existing
+   line-breaking task of phase 12, which needs the pattern engine and which the user already runs on any subtitle;
+- **times are the engine's, never the words'**: a subtitle that begins a piece keeps the start of the piece, and one that ends it
+  keeps its end; the timed words (the engine's, or the letters in proportion) only place the cuts *inside* a piece, where the
+  following subtitle starts at the word it begins with. A piece taken whole, or several merged, keeps the times of its pieces;
 - its thresholds are settings with defaults. The first defaults are starting points, **tuned on the real output of #770**
   and said so in the pull request of #776.
 
@@ -268,6 +282,7 @@ what was missing: `CLI-TRANSCRIBE-09`, `CLI-TRANSCRIBE-10`, `GUI-TRANSCRIBE-05` 
 | `GUI-TRANSCRIBE-05` | the progress box says the step, the position in the film, the time left and the last text obtained, and is busy rather than at 0 % while nothing says how far it is |
 | `GUI-TRANSCRIBE-06` | the dialog takes a range of the film and transcribes only that part, the result replacing the subtitles of the project like any transcription, after the same question |
 | `GUI-TRANSCRIBE-07` | the transcription is shown in a preview before it replaces the subtitles of the project — the engine's pieces on the left, the final subtitles on the right, each with its own times, a selected subtitle highlighting its sources — and a cancelled or failed run offers what it had obtained, to apply or to ignore |
+| `GUI-TRANSCRIBE-08` | the post-processing is tuned in the preview — the merge gap, the longest subtitle and the most characters — the right-hand side made again at once with the selection kept; the values hold for that transcript only, and one button hands them to the settings of the application |
 
 ## Split
 
@@ -341,6 +356,19 @@ the three-letter code of a file.
   carried by `MediaTranscriptionError`), titled as partial, so that a long run stopped late does not lose its work unasked.
   The notice of #793 about a transcript "mostly notes in brackets" is removed with it. On the command line, an interrupted run
   writes nothing, as before.
+
+## Delivered by #795
+
+- **The post-processing is reworked** as D7 now says: drop, merge, cut, each over the whole set; the cut on punctuation first,
+  balanced, avoiding a half too small; the times of the pieces kept (the first subtitle of a piece no longer starts at its first
+  word, which whisper's tokens date approximately). Tested on the two examples of the issue (a comma after "comes", a "the" alone).
+- **The preview is the place to tune it** (`GUI-TRANSCRIBE-08`): the merge gap, the longest subtitle and the most characters are
+  three fields above the tables, bounded as the settings are (`assembly_limits.hpp`, one definition); changing one makes the
+  right-hand side again with `assemble`, a pure function of the pieces and the limits, and the selection follows the piece it was
+  made from. **The values hold for that transcript only**; "Keep these values as settings" hands them to the application's settings
+  (saved with the others) whether the result is then applied or ignored, and says so. Closing the window never does it.
+- **Left for a measure**: point 4 of the issue (the first subtitle that starts too early) — run `whisper-cli` by hand on the
+  extracted audio and compare with the raw column; the VAD leads stay open point 2. No other setting is added: none was found.
 
 ## Open points
 

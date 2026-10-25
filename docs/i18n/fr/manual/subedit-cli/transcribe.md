@@ -51,7 +51,7 @@ sort avec un code non nul.
   `--raw` les garde, tels que les morceaux du moteur sont venus.
 - **Les segments sont fusionnés et coupés** selon les limites des réglages (`transcription.merge-gap-ms`,
   `transcription.max-duration-ms`, `transcription.max-characters`) : deux morceaux d'une même phrase qui sont
-  proches font un seul sous-titre, et un morceau trop long ou trop large est coupé à un mot. **`--raw`
+  proches font un seul sous-titre, et un morceau trop long ou trop large est coupé — à une fin de phrase d'abord, puis à une virgule, un point-virgule ou deux-points, et au milieu d'une phrase seulement quand il n'y a pas de ponctuation où couper —, en évitant une coupe qui laisse un sous-titre trop petit pour être lu. Les trois étapes se font dans l'ordre, chacune sur toute la transcription : écarter, fusionner, couper. Un sous-titre qui commence un morceau garde son début, et celui qui le termine garde sa fin. **`--raw`
   écrit les segments du moteur tels qu'ils sont venus**, un par sous-titre, ce qui est aussi la façon de voir ce
   que fait la fusion.
 

@@ -54,7 +54,7 @@ surt amb un codi diferent de zero.
   abans de fusionar i tallar; `--raw` els conserva, tal com han vingut els trossos del motor.
 - **Els segments es fusionen i es tallen** segons els límits dels paràmetres (`transcription.merge-gap-ms`,
   `transcription.max-duration-ms`, `transcription.max-characters`): dos trossos d'una mateixa frase que són
-  propers fan un sol subtítol, i un tros massa llarg o massa ample es talla en una paraula. **`--raw`
+  propers fan un sol subtítol, i un tros massa llarg o massa ample es talla — primer en un final de frase, després en una coma, un punt i coma o dos punts, i enmig d'una frase només quan no hi ha puntuació on tallar —, evitant un tall que deixi un subtítol massa petit per llegir-se. Els tres passos es fan en ordre, cadascun sobre tota la transcripció: descartar, fusionar, tallar. Un subtítol que comença un tros en conserva l'inici, i el que l'acaba en conserva el final. **`--raw`
   escriu els segments del motor tal com han vingut**, un per subtítol, que és també la manera de veure què
   fa la fusió.
 

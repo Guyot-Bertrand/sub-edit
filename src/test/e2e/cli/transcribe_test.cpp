@@ -122,7 +122,7 @@ TEST_CASE("a video is transcribed into a subtitle file in the format its name sa
 
     REQUIRE(run.exitCode == 0);
     const std::string written = contentOf(out);
-    CHECK_THAT(written, ContainsSubstring("1\n00:00:00,320 --> "));
+    CHECK_THAT(written, ContainsSubstring("1\n00:00:00,000 --> "));
     CHECK_THAT(written, ContainsSubstring("And so, my fellow Americans"));
     CHECK_THAT(written, ContainsSubstring("for your country.\n"));
     // Longer than a subtitle holds, so it came out in more than one.
@@ -289,7 +289,7 @@ TEST_CASE("with --format json the command writes one record with the language, t
     REQUIRE(run.exitCode == 0);
     CHECK_THAT(run.output, ContainsSubstring("\"command\":\"transcribe\""));
     CHECK_THAT(run.output, ContainsSubstring("\"language\":\"en\""));
-    CHECK_THAT(run.output, ContainsSubstring("\"subtitles\":2"));
+    CHECK_THAT(run.output, ContainsSubstring("\"subtitles\":3"));
     CHECK_THAT(run.output, ContainsSubstring("\"segments\":1"));
     CHECK_THAT(run.output, ContainsSubstring("\"audio\":\"" + audio + "\""));
     CHECK_THAT(run.output, ContainsSubstring("\"destination\":\"" + out + "\""));

@@ -160,11 +160,16 @@ avoir produit quelque chose — une fenêtre montre le résultat en deux tableau
 
 - **à gauche, « Tel que le moteur l'a écrit »** : tout ce que le moteur a rendu, comme il l'a découpé, sans aucun post-traitement — ce qu'écrirait
   [`--raw`](../subedit-cli/transcribe.md) —, les marqueurs de remplissage (`...`) compris ;
-- **à droite, « Tels qu'ils seront appliqués »** : les sous-titres après le post-traitement — marqueurs écartés, morceaux proches fusionnés, longs morceaux
-  coupés —, exactement ce qui ira dans le projet.
+- **à droite, « Tels qu'ils seront appliqués »** : les sous-titres après le post-traitement, exactement ce qui ira dans le projet. Il se fait en trois étapes, chacune sur toute la transcription avant que la suivante commence : les morceaux sans lettre ni chiffre (`...`) sont écartés ; les morceaux proches d'une même phrase sont fusionnés ; ceux qui sont trop longs sont coupés — **d'abord à une fin de phrase (`. ? ! …`), puis à une virgule, un point-virgule ou deux-points, et au milieu d'une phrase seulement quand il n'y a pas de ponctuation où couper**. Une coupe qui laisserait un sous-titre trop petit pour être lu (quelques caractères, une fraction de seconde) est évitée quand une autre existe. Un sous-titre qui commence un morceau garde son début, et celui qui le termine garde sa fin : les heures des mots ne servent qu'aux coupes à l'intérieur d'un morceau.
+
+Au-dessus des tableaux, **«Post-traitement (cette transcription seulement)»** porte les trois limites du post-traitement : «Fusionner les morceaux plus proches que», «Sous-titre le plus long» et «Nombre maximal de caractères d'un sous-titre» — les réglages `transcription.merge-gap-ms`, `transcription.max-duration-ms` et `transcription.max-characters`. **En changer une refait aussitôt le tableau de droite**, sans passer par le moteur, et le sous-titre que vous aviez sélectionné reste sélectionné. Les valeurs saisies ne valent que pour **cette transcription** : que vous l'appliquiez ou l'ignoriez, les réglages de l'application restent ce qu'ils étaient. **«Garder ces valeurs comme réglages»** confie les trois valeurs aux réglages de l'application — ceux des [préférences](preferences.md#transcription), enregistrés avec eux —, et la fenêtre le dit ; fermer la fenêtre ne le fait pas à lui seul.
+
+![L'aperçu d'une transcription : les limites du post-traitement au-dessus, les morceaux du moteur à gauche, les sous-titres à droite, le deuxième sélectionné et ses deux morceaux d'origine surlignés.](captures/apercu-transcription.png)
+
+![Le même dialogue sous la palette sombre.](captures/apercu-transcription-sombre.png)
 
 Les deux ne se correspondent pas ligne à ligne, d'où des heures propres à chacun. **Sélectionner un sous-titre à droite surligne, à gauche, les morceaux dont il
-est fait**, et fait défiler la gauche jusqu'à eux ; un sous-titre à la fois, et dans ce sens seulement. Aucun des deux tableaux ne s'édite.
+est fait**, et fait défiler la gauche jusqu'à eux ; un sous-titre à la fois, et dans ce sens seulement. Aucun des deux tableaux ne s'édite : ce qu'aucun réglage ne rend juste se corrige ensuite, dans le tableau du projet, comme n'importe quel sous-titre.
 
 Deux boutons le ferment. **« Appliquer »** remplace les sous-titres du projet **en une seule opération** : un `Undo` rend ce qui était là, textes de traduction
 compris. **« Ignorer »** jette le résultat, qui est perdu. « Appliquer » est éteint quand il n'y a

@@ -162,11 +162,16 @@ nachdem sie etwas erzeugt hat —, zeigt ein Fenster das Ergebnis in zwei Tabell
 
 - **links “Wie die Engine ihn geschrieben hat”**: alles, was die Engine zurückgegeben hat, so wie sie es geschnitten hat, ganz ohne Nachbearbeitung — was
   [`--raw`](../subedit-cli/transcribe.md) schreiben würde —, die Platzhalter (`...`) eingeschlossen;
-- **rechts “Wie sie angewendet werden”**: die Untertitel nach der Nachbearbeitung — Platzhalter verworfen, nahe Stücke verschmolzen, lange
-  geschnitten —, genau das, was ins Projekt kommt.
+- **rechts “Wie sie angewendet werden”**: die Untertitel nach der Nachbearbeitung, genau das, was ins Projekt kommt. Sie läuft in drei Schritten ab, jeder über die ganze Transkription, bevor der nächste beginnt: Stücke ohne Buchstaben und ohne Ziffer (`...`) werden verworfen; nahe Stücke eines Satzes werden verschmolzen; zu lange werden geschnitten — **zuerst an einem Satzende (`. ? ! …`), dann an einem Komma, Semikolon oder Doppelpunkt, und mitten in einem Satz nur, wenn es keine Satzzeichen zum Schneiden gibt**. Ein Schnitt, der einen zu kleinen, nicht mehr lesbaren Untertitel hinterließe (wenige Zeichen, ein Bruchteil einer Sekunde), wird vermieden, wenn es einen anderen gibt. Ein Untertitel, der ein Stück beginnt, behält seinen Anfang, und einer, der es beendet, behält sein Ende: Die Zeiten der Wörter dienen nur den Schnitten innerhalb eines Stücks.
+
+Über den Tabellen enthält **“Nachbearbeitung (nur diese Transkription)”** die drei Grenzen der Nachbearbeitung: “Stücke zusammenfassen, die näher beieinander liegen als”, “Längster Untertitel” und “Höchstzahl an Zeichen eines Untertitels” — die Einstellungen `transcription.merge-gap-ms`, `transcription.max-duration-ms` und `transcription.max-characters`. **Wer eine ändert, lässt die rechte Tabelle sofort neu berechnen**, ohne die Engine, und der Untertitel, den Sie ausgewählt hatten, bleibt ausgewählt. Die eingegebenen Werte gelten nur für **diese Transkription**: Ob Sie sie anwenden oder ignorieren, die Einstellungen der Anwendung bleiben, wie sie waren. **“Diese Werte als Einstellungen übernehmen”** übergibt die drei Werte an die Einstellungen der Anwendung — die der [Einstellungen](preferences.md#transkription), mit ihnen gespeichert —, und das Fenster sagt es; das Fenster zu schließen, tut es nicht von selbst.
+
+![Die Vorschau einer Transkription: oben die Grenzen der Nachbearbeitung, links die Stücke der Engine, rechts die Untertitel, der zweite ausgewählt und seine beiden Ursprungsstücke hervorgehoben.](captures/apercu-transcription.png)
+
+![Derselbe Dialog unter der dunklen Palette.](captures/apercu-transcription-sombre.png)
 
 Die beiden richten sich nicht Zeile für Zeile aus, weshalb jede ihre eigenen Zeiten hat. **Wer rechts einen Untertitel auswählt, hebt links die Stücke hervor, aus denen
-er entstanden ist**, und blättert die linke Seite dorthin; ein Untertitel auf einmal, nur in dieser Richtung. Keine der beiden Tabellen lässt sich bearbeiten.
+er entstanden ist**, und blättert die linke Seite dorthin; ein Untertitel auf einmal, nur in dieser Richtung. Keine der beiden Tabellen lässt sich bearbeiten: Was keine Einstellung richtig hinbekommt, wird danach in der Tabelle des Projekts bearbeitet, wie jeder Untertitel.
 
 Zwei Schaltflächen schließen sie. **“Anwenden”** ersetzt die Untertitel des Projekts **als ein einziger Vorgang**: Ein einziges `Undo` gibt zurück, was da war, die Texte der
 Übersetzung eingeschlossen. **“Ignorieren”** verwirft das Ergebnis, und es ist verloren. “Anwenden” ist ausgegraut, wenn

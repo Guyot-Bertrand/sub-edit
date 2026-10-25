@@ -51,7 +51,10 @@ exits with a non-zero code.
   before it merges and cuts; `--raw` keeps them, as the engine's pieces came.
 - **The segments are merged and cut** to the limits of the settings (`transcription.merge-gap-ms`,
   `transcription.max-duration-ms`, `transcription.max-characters`): two pieces of one sentence that are
-  close are one subtitle, and a piece that is too long or too wide is cut at a word. **`--raw`
+  close are one subtitle, and a piece that is too long or too wide is cut — at a sentence end first, then at a comma, a semicolon or a
+  colon, and in the middle of a sentence only when there is no punctuation to cut at —, avoiding a cut that leaves a subtitle too small to
+  read. The three steps run in order, each over the whole transcript: drop, merge, cut. A subtitle that begins a piece keeps its start, and
+  one that ends it keeps its end. **`--raw`
   writes the engine's segments as they came**, one per subtitle, which is also how to see what the
   merging does.
 

@@ -160,11 +160,26 @@ after producing something — a window shows the result in two tables side by si
 
 - **on the left, “As the engine wrote it”**: everything the engine returned, as it cut it, with no post-processing at all — what
   [`--raw`](../subedit-cli/transcribe.md) would write —, the placeholders (`...`) included;
-- **on the right, “As they will be applied”**: the subtitles after the post-processing — placeholders dropped, close pieces merged, long
-  ones cut —, exactly what will go into the project.
+- **on the right, “As they will be applied”**: the subtitles after the post-processing, exactly what will go into the project. It runs in
+  three steps, each over the whole transcript before the next begins: the pieces with no letter and no digit (`...`) are dropped; the
+  close pieces of one sentence are merged; the ones that are too long are cut — **at a sentence end first (`. ? ! …`), then at a comma, a
+  semicolon or a colon, and in the middle of a sentence only when there is no punctuation to cut at**. A cut that would leave a subtitle too
+  small to read (a few characters, a fraction of a second) is avoided when another exists. A subtitle that begins a piece keeps its start,
+  and one that ends it keeps its end: the times of the words are used only for the cuts inside a piece.
+
+Above the tables, **“Post-processing (this transcript only)”** holds the three limits of the post-processing: “Merge pieces closer than”,
+“Longest subtitle” and “Most characters in a subtitle” — the settings `transcription.merge-gap-ms`, `transcription.max-duration-ms` and
+`transcription.max-characters`. **Changing one makes the right-hand table again at once**, with no engine involved, and the subtitle you had
+selected stays selected. The values you type hold for **this transcript only**: whether you apply or ignore it, the settings of the application are as they were. **“Keep these values as settings”** hands the three
+values to the settings of the application — those of [Preferences](preferences.md), saved with them —, and the window says so; closing the window
+does not do it by itself.
+
+![The preview of a transcription: the post-processing limits above, the engine's pieces on the left, the subtitles on the right, the second one selected and its two source pieces highlighted.](captures/apercu-transcription.png)
+
+![The same dialog under the dark palette.](captures/apercu-transcription-sombre.png)
 
 The two do not line up row for row, which is why each has its own times. **Selecting a subtitle on the right highlights, on the left, the pieces it
-was made from**, and scrolls the left side to them; one subtitle at a time, in that direction only. Neither table can be edited.
+was made from**, and scrolls the left side to them; one subtitle at a time, in that direction only. Neither table can be edited: what no setting gets right is edited afterwards, in the table of the project, like any subtitle.
 
 Two buttons close it. **“Apply”** replaces the subtitles of the project **as a single operation**: one `Undo` gives back what was there, translation
 texts included. **“Ignore”** drops the result, and it is lost. “Apply” is out when there

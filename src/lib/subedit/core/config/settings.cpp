@@ -563,12 +563,6 @@ void keepOption(
     return std::string{text};
 }
 
-/// The longest a subtitle may stay on screen: a second to an hour.
-constexpr int kLongestTranscribedSubtitleMilliseconds = 3'600'000;
-
-/// The most characters a transcribed subtitle may hold.
-constexpr int kMostTranscribedCharacters = 1000;
-
 /// The name a pattern's own file gives its kind — `fileExtensionOf`, read
 /// backwards.
 [[nodiscard]] std::optional<PatternKind> patternKindOf(std::string_view text) {

@@ -52,7 +52,7 @@ ve sıfırdan farklı bir kodla çıkar.
   birleştirmeden ve kesmeden önce; `--raw` onları, motorun parçaları geldiği gibi korur.
 - **Parçalar birleştirilir ve kesilir**, ayarların sınırlarına göre (`transcription.merge-gap-ms`,
   `transcription.max-duration-ms`, `transcription.max-characters`): bir cümlenin birbirine yakın iki
-  parçası tek bir altyazı olur, çok uzun ya da çok geniş bir parça ise bir sözcükten kesilir. **`--raw`
+  parçası tek bir altyazı olur, çok uzun ya da çok geniş bir parça ise kesilir — önce cümle sonundan, sonra virgülden, noktalı virgülden veya iki noktadan, cümlenin ortasından ise yalnızca kesilecek bir noktalama işareti yoksa —, okunamayacak kadar küçük bir altyazı bırakacak bir kesimden kaçınılarak. Üç adım sırayla ilerler, her biri yazının tamamı üzerinde: atma, birleştirme, kesme. Bir parçayı başlatan altyazı onun başlangıcını, bitiren altyazı ise sonunu korur. **`--raw`
   motorun parçalarını geldikleri gibi yazar**, her altyazıya bir parça; birleştirmenin ne yaptığını
   görmenin yolu da budur.
 

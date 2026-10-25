@@ -147,11 +147,16 @@ başarısız olduğunda da — bir pencere sonucu yan yana iki tabloda gösterir
 
 - **solda “Motorun yazdığı gibi”**: motorun döndürdüğü her şey, onu nasıl kestiyse öyle, hiçbir son işleme olmadan — 
   [`--raw`](../subedit-cli/transcribe.md)'ın yazacağı şey —, yer tutucular (`...`) dahil;
-- **sağda “Uygulanacakları gibi”**: son işlemeden sonraki altyazılar — yer tutucular atılmış, yakın parçalar birleştirilmiş, uzun
-  olanlar kesilmiş —, projeye girecek olan tam olarak budur.
+- **sağda “Uygulanacakları gibi”**: son işlemeden sonraki altyazılar, projeye girecek olan tam olarak budur. Üç adımda ilerler, her biri bir sonraki başlamadan önce yazının tamamı üzerinde yapılır: ne harf ne rakam içeren parçalar (`...`) atılır; bir cümlenin yakın parçaları birleştirilir; fazla uzun olanlar kesilir — **önce cümle sonundan (`. ? ! …`), sonra virgülden, noktalı virgülden veya iki noktadan, cümlenin ortasından ise yalnızca kesilecek bir noktalama işareti yoksa**. Okunamayacak kadar küçük bir altyazı bırakacak bir kesimden (birkaç karakter, saniyenin bir kesri), başka bir kesim varsa kaçınılır. Bir parçayı başlatan altyazı onun başlangıcını, bitiren altyazı ise sonunu korur: sözcüklerin zamanları yalnızca bir parça içindeki kesimlerde kullanılır.
+
+Tabloların üstünde **“Son işleme (yalnızca bu yazıya dökme)”** son işlemenin üç sınırını taşır: “Şundan daha yakın parçaları birleştir:”, “En uzun altyazı” ve “Bir altyazıdaki en çok karakter” — `transcription.merge-gap-ms`, `transcription.max-duration-ms` ve `transcription.max-characters` ayarları. **Birini değiştirmek sağdaki tabloyu hemen yeniden yapar**, motor devreye girmeden, ve seçili altyazı seçili kalır. Yazdığınız değerler yalnızca **bu yazıya dökme** için geçerlidir: ister uygulayın ister yok sayın, uygulamanın ayarları olduğu gibi kalır. **“Bu değerleri ayar olarak sakla”** üç değeri uygulamanın ayarlarına, yani [tercihler](preferences.md#yazıya-dökme) içindekilere, onlarla birlikte kaydedilerek aktarır ve pencere bunu söyler; pencereyi kapatmak bunu kendiliğinden yapmaz.
+
+![Bir yazıya dökmenin önizlemesi: üstte son işleme sınırları, solda motorun parçaları, sağda altyazılar, ikincisi seçili ve kaynak olan iki parçası vurgulanmış.](captures/apercu-transcription.png)
+
+![Aynı iletişim kutusu koyu palette.](captures/apercu-transcription-sombre.png)
 
 İkisi satır satır hizalanmaz, bu yüzden her birinin kendi zamanları vardır. **Sağdaki bir altyazıyı seçmek, solda onun oluştuğu parçaları
-vurgular** ve sol tarafı onlara kaydırır; bir seferde tek altyazı ve yalnızca bu yönde. Hiçbir tablo düzenlenemez.
+vurgular** ve sol tarafı onlara kaydırır; bir seferde tek altyazı ve yalnızca bu yönde. Hiçbir tablo düzenlenemez: hiçbir ayarın düzeltemediği şey sonradan, projenin tablosunda, her altyazı gibi düzenlenir.
 
 İki düğme pencereyi kapatır. **“Uygula”** projenin altyazılarını **tek bir işlem olarak** değiştirir: bir `Undo` orada olanı geri verir, çeviri
 metinleri dahil. **“Yok say”** sonucu atar ve o kaybolur. Uygulanacak bir şey olmadığında “Uygula” kapalıdır.

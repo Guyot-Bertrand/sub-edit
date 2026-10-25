@@ -4027,6 +4027,7 @@ msgstr "Spravit titulky"
 
 #. TRANSLATORS: the unit after the number of a spin box, with its space: « 50 ms ».
 #: src/lib/subedit/gui/disjoint_dialog.cpp
+#: src/lib/subedit/gui/transcription_preview_dialog.cpp
 msgid " ms"
 msgstr " ms"
 
@@ -5010,6 +5011,10 @@ msgstr ""
 "pak přeloží do tohoto jazyka. Vyberte jazyk, pokud jej znáte."
 
 #: src/lib/subedit/gui/transcription_preview_dialog.cpp
+msgid "Keep these values as settings"
+msgstr "Ponechat tyto hodnoty jako nastavení"
+
+#: src/lib/subedit/gui/transcription_preview_dialog.cpp
 msgid "Apply"
 msgstr "Použít"
 
@@ -5029,6 +5034,28 @@ msgstr ""
 #: src/lib/subedit/gui/transcription_preview_dialog.cpp
 msgid "Select a subtitle on the right to see the pieces it was made from."
 msgstr "Vyberte vpravo titulek, abyste viděli části, z nichž vznikl."
+
+#: src/lib/subedit/gui/transcription_preview_dialog.cpp
+msgid ""
+"These values are now the settings of the application (transcription.*). "
+"Closing this window changes nothing more."
+msgstr "Tyto hodnoty jsou nyní nastavením aplikace (transcription.*). Zavření tohoto okna už nic dalšího nemění."
+
+#: src/lib/subedit/gui/transcription_preview_dialog.cpp
+msgid "Merge pieces closer than"
+msgstr "Slučovat úseky bližší než"
+
+#: src/lib/subedit/gui/transcription_preview_dialog.cpp
+msgid "Longest subtitle"
+msgstr "Nejdelší titulek"
+
+#: src/lib/subedit/gui/transcription_preview_dialog.cpp
+msgid "Most characters in a subtitle"
+msgstr "Nejvyšší počet znaků titulku"
+
+#: src/lib/subedit/gui/transcription_preview_dialog.cpp
+msgid "Post-processing (this transcript only)"
+msgstr "Následné zpracování (jen tento přepis)"
 
 #: src/lib/subedit/gui/transcription_preview_dialog.cpp
 msgid "As the engine wrote it (%1)"

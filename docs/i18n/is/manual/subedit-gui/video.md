@@ -162,11 +162,16 @@ eftir að hafa skilað einhverju — sýnir gluggi niðurstöðuna í tveimur t�
 
 - **til vinstri, „Eins og vélin skrifaði það“**: allt sem vélin skilaði, eins og hún skar það, án nokkurrar eftirvinnslu — það sem
   [`--raw`](../subedit-cli/transcribe.md) myndi skrifa —, staðgenglar (`...`) meðtaldir;
-- **til hægri, „Eins og þeir verða virkjaðir“**: skjátextarnir eftir eftirvinnsluna — staðgenglar felldir niður, nálægir bútar sameinaðir, langir
-  bútar klipptir —, nákvæmlega það sem fer í verkefnið.
+- **til hægri, „Eins og þeir verða virkjaðir“**: skjátextarnir eftir eftirvinnsluna, nákvæmlega það sem fer í verkefnið. Hún gerist í þremur skrefum, hvert yfir alla umritunina áður en það næsta hefst: bútar án bókstafs og án tölustafs (`...`) eru felldir niður; nálægir bútar úr einni setningu eru sameinaðir; þeir sem eru of langir eru klipptir — **fyrst við setningarlok (`. ? ! …`), síðan við kommu, semíkommu eða tvípunkt, og inni í setningu aðeins þegar ekkert greinarmerki er til að klippa við**. Klippingu sem skildi eftir skjátexta of lítinn til að lesa (fáeinir stafir, brot úr sekúndu) er forðast þegar önnur er til. Skjátexti sem hefur bút heldur upphafi hans, og sá sem lýkur honum heldur endinum: tímar orðanna eru aðeins notaðir við klippingar innan búts.
+
+Fyrir ofan töflurnar geymir **„Eftirvinnsla (aðeins þessi umritun)“** þrjú mörk eftirvinnslunnar: „Sameina búta sem eru nær hver öðrum en“, „Lengsti texti“ og „Hámarksfjöldi stafa í texta“ — stillingarnar `transcription.merge-gap-ms`, `transcription.max-duration-ms` og `transcription.max-characters`. **Þegar eitt þeirra er breytt er hægri taflan gerð aftur strax**, án vélarinnar, og skjátextinn sem þú hafðir valinn er áfram valinn. Gildin sem þú slærð inn gilda aðeins um **þessa umritun**: hvort sem þú virkjar hana eða hunsar, haldast stillingar forritsins eins og þær voru. **„Halda þessum gildum sem stillingum“** færir gildin þrjú yfir í stillingar forritsins — þær í [kjörstillingarnar](preferences.md#umritun), vistaðar með þeim —, og glugginn segir frá því; að loka glugganum gerir það ekki af sjálfu sér.
+
+![Forskoðun umritunar: mörk eftirvinnslunnar efst, bútar vélarinnar til vinstri, skjátextarnir til hægri, sá seinni valinn og báðir upprunabútar hans auðkenndir.](captures/apercu-transcription.png)
+
+![Sami gluggi með dökku litapalettunni.](captures/apercu-transcription-sombre.png)
 
 Töflurnar tvær raðast ekki línu fyrir línu, og þess vegna hefur hvor sína eigin tíma. **Þegar skjátexti til hægri er valinn eru bútarnir sem hann var gerður úr
-auðkenndir til vinstri**, og vinstri hliðin skrunar að þeim; einn skjátexti í einu, og aðeins í þá átt. Hvorug taflan er breytanleg.
+auðkenndir til vinstri**, og vinstri hliðin skrunar að þeim; einn skjátexti í einu, og aðeins í þá átt. Hvorug taflan er breytanleg: það sem engin stilling kemur í lag er breytt á eftir, í töflu verkefnisins, eins og hver annar skjátexti.
 
 Tveir hnappar loka glugganum. **„Virkja“** skiptir út skjátextum verkefnisins **í einni aðgerð**: ein `Undo` skilar því sem var, þýðingartextum
 meðtöldum. **„Hunsa“** hendir niðurstöðunni, og hún glatast. „Virkja“ er óvirkt þegar

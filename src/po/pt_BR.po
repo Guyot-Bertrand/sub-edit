@@ -4028,6 +4028,7 @@ msgstr "Reparar legendas"
 
 #. TRANSLATORS: the unit after the number of a spin box, with its space: « 50 ms ».
 #: src/lib/subedit/gui/disjoint_dialog.cpp
+#: src/lib/subedit/gui/transcription_preview_dialog.cpp
 msgid " ms"
 msgstr " ms"
 
@@ -5016,6 +5017,10 @@ msgstr ""
 "Escolha o idioma se você o conhecer."
 
 #: src/lib/subedit/gui/transcription_preview_dialog.cpp
+msgid "Keep these values as settings"
+msgstr "Manter estes valores como configurações"
+
+#: src/lib/subedit/gui/transcription_preview_dialog.cpp
 msgid "Apply"
 msgstr "Aplicar"
 
@@ -5036,6 +5041,28 @@ msgstr ""
 msgid "Select a subtitle on the right to see the pieces it was made from."
 msgstr ""
 "Selecione uma legenda à direita para ver os pedaços de que ela foi feita."
+
+#: src/lib/subedit/gui/transcription_preview_dialog.cpp
+msgid ""
+"These values are now the settings of the application (transcription.*). "
+"Closing this window changes nothing more."
+msgstr "Estes valores agora são as configurações do aplicativo (transcription.*). Fechar esta janela não altera mais nada."
+
+#: src/lib/subedit/gui/transcription_preview_dialog.cpp
+msgid "Merge pieces closer than"
+msgstr "Juntar trechos mais próximos que"
+
+#: src/lib/subedit/gui/transcription_preview_dialog.cpp
+msgid "Longest subtitle"
+msgstr "Legenda mais longa"
+
+#: src/lib/subedit/gui/transcription_preview_dialog.cpp
+msgid "Most characters in a subtitle"
+msgstr "Máximo de caracteres de uma legenda"
+
+#: src/lib/subedit/gui/transcription_preview_dialog.cpp
+msgid "Post-processing (this transcript only)"
+msgstr "Pós-processamento (somente esta transcrição)"
 
 #: src/lib/subedit/gui/transcription_preview_dialog.cpp
 msgid "As the engine wrote it (%1)"

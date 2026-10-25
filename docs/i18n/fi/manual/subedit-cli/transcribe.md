@@ -54,7 +54,7 @@ päättyy nollasta poikkeavaan koodiin.
   säilyttää ne sellaisina kuin moottorin palat tulivat.
 - **Segmentit yhdistetään ja leikataan** asetusten rajojen mukaan (`transcription.merge-gap-ms`,
   `transcription.max-duration-ms`, `transcription.max-characters`): kaksi saman lauseen palaa, jotka ovat
-  lähellä toisiaan, muodostavat yhden tekstityksen, ja liian pitkä tai liian leveä pala leikataan sanan kohdalta. **`--raw`
+  lähellä toisiaan, muodostavat yhden tekstityksen, ja liian pitkä tai liian leveä pala leikataan — ensin lauseen lopusta, sitten pilkun, puolipisteen tai kaksoispisteen kohdalta, ja lauseen keskeltä vain silloin, kun ei ole välimerkkiä, josta leikata —, välttäen leikkausta, joka jättää liian pienen, lukukelvottoman tekstityksen. Kolme vaihetta tehdään järjestyksessä, kukin koko litteroinnille: pudotus, yhdistäminen, leikkaus. Tekstitys, joka aloittaa palan, säilyttää alkunsa, ja se, joka lopettaa sen, säilyttää loppunsa. **`--raw`
   kirjoittaa moottorin segmentit sellaisina kuin ne tulivat**, yhden tekstitystä kohti, ja siten näkee myös, mitä
   yhdistäminen tekee.
 

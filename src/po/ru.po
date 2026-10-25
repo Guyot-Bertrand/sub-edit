@@ -4147,6 +4147,7 @@ msgstr "Восстановить субтитры"
 
 #. TRANSLATORS: the unit after the number of a spin box, with its space: « 50 ms ».
 #: src/lib/subedit/gui/disjoint_dialog.cpp
+#: src/lib/subedit/gui/transcription_preview_dialog.cpp
 msgid " ms"
 msgstr " мс"
 
@@ -5134,6 +5135,10 @@ msgstr ""
 "знаете его."
 
 #: src/lib/subedit/gui/transcription_preview_dialog.cpp
+msgid "Keep these values as settings"
+msgstr "Сохранить эти значения как настройки"
+
+#: src/lib/subedit/gui/transcription_preview_dialog.cpp
 msgid "Apply"
 msgstr "Применить"
 
@@ -5154,6 +5159,28 @@ msgstr ""
 msgid "Select a subtitle on the right to see the pieces it was made from."
 msgstr ""
 "Выберите субтитр справа, чтобы увидеть фрагменты, из которых он составлен."
+
+#: src/lib/subedit/gui/transcription_preview_dialog.cpp
+msgid ""
+"These values are now the settings of the application (transcription.*). "
+"Closing this window changes nothing more."
+msgstr "Эти значения теперь являются настройками приложения (transcription.*). Закрытие этого окна больше ничего не меняет."
+
+#: src/lib/subedit/gui/transcription_preview_dialog.cpp
+msgid "Merge pieces closer than"
+msgstr "Объединять фрагменты, расположенные ближе чем"
+
+#: src/lib/subedit/gui/transcription_preview_dialog.cpp
+msgid "Longest subtitle"
+msgstr "Самый длинный субтитр"
+
+#: src/lib/subedit/gui/transcription_preview_dialog.cpp
+msgid "Most characters in a subtitle"
+msgstr "Наибольшее число символов в субтитре"
+
+#: src/lib/subedit/gui/transcription_preview_dialog.cpp
+msgid "Post-processing (this transcript only)"
+msgstr "Постобработка (только эта расшифровка)"
 
 #: src/lib/subedit/gui/transcription_preview_dialog.cpp
 msgid "As the engine wrote it (%1)"

@@ -31,7 +31,7 @@ subedit-cli transcribe --list-languages [--model FILE] [--engine NAME]
 - **可以只转录影片的一部分**，使用 `--start` 和 `--end`——参见[转录影片的一部分](#转录影片的一部分)。这样可以先在两分钟上试用模型，再放到两小时上运行。
 - **可以列出引擎提供的语言**，使用 `--list-languages`——参见[列出语言](#列出语言)。
 - **默认情况下声音不会被写成注释**：引擎被告知不要这样做（`--suppress-notes`；它自己的选项是 `--suppress-nst`），因此 `(Sonnerie de téléphone)` 或 `[MUSIC PLAYING]` 不会出现在字幕中，无论是圆括号还是方括号。`--keep-notes` 会写出它们，用于听障人士字幕。注释被禁止时，引擎会为没有语音的段落写出 `...`，而**后处理会丢弃既没有字母也没有数字的片段**——`...`、`…`、`♪`——然后才合并和切分；`--raw` 按引擎片段到来的原样保留它们。
-- **片段会被合并和切分**，依据是各项设置的限制（`transcription.merge-gap-ms`、`transcription.max-duration-ms`、`transcription.max-characters`）：同一句话中相距很近的两个片段合为一条字幕，过长或过宽的片段则在词处切开。**`--raw` 按引擎给出的原样写入片段**，每条字幕一个片段，这也是查看合并起了什么作用的办法。
+- **片段会被合并和切分**，依据是各项设置的限制（`transcription.merge-gap-ms`、`transcription.max-duration-ms`、`transcription.max-characters`）：同一句话中相距很近的两个片段合为一条字幕，过长或过宽的片段则被切开——先在句末切，再在逗号、分号或冒号处切，只有在没有可切的标点时才在句子中间切——，并避开会留下小到无法阅读的字幕的切分。这三步按顺序进行，每一步都处理整个转录：丢弃、合并、切分。开启某个片段的字幕保留该片段的起点，结束该片段的字幕保留它的终点。**`--raw` 按引擎给出的原样写入片段**，每条字幕一个片段，这也是查看合并起了什么作用的办法。
 
 <!-- example: subedit-cli transcribe --help -->
 ```console

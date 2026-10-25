@@ -54,7 +54,7 @@ termina con un código distinto de cero.
   antes de fusionar y cortar; `--raw` los conserva, tal como llegaron los fragmentos del motor.
 - **Los segmentos se fusionan y se cortan** según los límites de los ajustes (`transcription.merge-gap-ms`,
   `transcription.max-duration-ms`, `transcription.max-characters`): dos fragmentos de una misma frase que están
-  próximos forman un solo subtítulo, y un fragmento demasiado largo o demasiado ancho se corta en una palabra. **`--raw`
+  próximos forman un solo subtítulo, y un fragmento demasiado largo o demasiado ancho se corta — primero en un final de frase, luego en una coma, un punto y coma o dos puntos, y en medio de una frase solo cuando no hay puntuación donde cortar —, evitando un corte que deje un subtítulo demasiado pequeño para leerse. Los tres pasos se hacen en orden, cada uno sobre toda la transcripción: descartar, fusionar, cortar. Un subtítulo que empieza un fragmento conserva su inicio, y el que lo termina conserva su final. **`--raw`
   escribe los segmentos del motor tal como llegaron**, uno por subtítulo, que es también la forma de ver lo que
   hace la fusión.
 

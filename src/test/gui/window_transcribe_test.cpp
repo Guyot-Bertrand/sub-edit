@@ -28,6 +28,7 @@
 #include <QProgressDialog>
 #include <QPushButton>
 #include <QScrollBar>
+#include <QSpinBox>
 #include <QStatusBar>
 #include <QTabBar>
 #include <QTableWidget>
@@ -1182,4 +1183,72 @@ TEST_CASE("a cancelled run that had obtained nothing shows no preview",
 
     // The dialog of the transcription, and no preview after it.
     CHECK(stage.prompts.runAsked == 1);
+}
+
+// ## Tuning the post-processing in the preview
+
+TEST_CASE("changing a limit makes the right side again at once, and the selection follows",
+          "[gui][GUI-TRANSCRIBE-08]") {
+    const std::vector<TranscribedSegment> pieces{
+        piece(0, "I was going to"), piece(1100, "tell you."), piece(20000, "Bye.")};
+    const TranscriptionPreviewDialog dialog{
+        TranscriptionPreview{.pieces = pieces, .assembly = core::assemble(pieces)}};
+    REQUIRE(dialog.subtitlesTable()->rowCount() == 2);
+    dialog.subtitlesTable()->setCurrentCell(1, 2);
+    REQUIRE(dialog.highlightedPieces() == std::vector<int>{2});
+
+    // A merge gap of nothing: the first two pieces part.
+    dialog.mergeGapBox()->setValue(0);
+
+    CHECK(dialog.subtitlesTable()->rowCount() == 3);
+    CHECK(dialog.applied().size() == 3);
+    // The subtitle of "Bye." is now the third, and still the one selected.
+    CHECK(dialog.subtitlesTable()->currentRow() == 2);
+    CHECK(dialog.highlightedPieces() == std::vector<int>{2});
+    // The pieces of the engine are what they were.
+    CHECK(dialog.piecesTable()->rowCount() == 3);
+}
+
+TEST_CASE("the limits are tuned for this transcript, and kept only when asked",
+          "[gui][GUI-TRANSCRIBE-08]") {
+    Stage stage;
+    const core::TranscriptionSettings before = stage.window->settings().transcription;
+    stage.prompts.nextRun = true;
+    stage.prompts.fill = [](QDialog& dialog) {
+        if (auto* preview = dynamic_cast<TranscriptionPreviewDialog*>(&dialog))
+            preview->maxCharactersBox()->setValue(10);
+    };
+
+    stage.window->transcribeAudioAction()->trigger();
+
+    const core::TranscriptionSettings& after = stage.window->settings().transcription;
+    CHECK(after.mergeGapMilliseconds == before.mergeGapMilliseconds);
+    CHECK(after.maxDurationMilliseconds == before.maxDurationMilliseconds);
+    CHECK(after.maxCharacters == before.maxCharacters);
+}
+
+TEST_CASE("the keep button hands the tuned limits to the settings, and says so",
+          "[gui][GUI-TRANSCRIBE-08]") {
+    Stage stage;
+    stage.prompts.nextRun = true;
+    QString note;
+    stage.prompts.fill = [&](QDialog& dialog) {
+        if (auto* preview = dynamic_cast<TranscriptionPreviewDialog*>(&dialog)) {
+            preview->mergeGapBox()->setValue(250);
+            preview->maxDurationBox()->setValue(5000);
+            preview->maxCharactersBox()->setValue(60);
+            preview->keepButton()->click();
+            note = preview->keptNote()->text();
+            // Tuned again after: the kept values are those of the click.
+            preview->maxCharactersBox()->setValue(30);
+        }
+    };
+
+    stage.window->transcribeAudioAction()->trigger();
+
+    const core::TranscriptionSettings& kept = stage.window->settings().transcription;
+    CHECK(kept.mergeGapMilliseconds == 250);
+    CHECK(kept.maxDurationMilliseconds == 5000);
+    CHECK(kept.maxCharacters == 60);
+    CHECK_FALSE(note.isEmpty());
 }

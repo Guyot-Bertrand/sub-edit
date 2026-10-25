@@ -162,11 +162,16 @@ després d'haver produït alguna cosa —, una finestra mostra el resultat en du
 
 - **a l'esquerra, “Tal com el motor l'ha escrit”**: tot el que el motor ha retornat, tal com ho ha tallat, sense cap postprocessament — el que
   escriuria [`--raw`](../subedit-cli/transcribe.md) —, els marcadors de posició (`...`) inclosos;
-- **a la dreta, “Tal com s'aplicaran”**: els subtítols després del postprocessament — marcadors descartats, trossos propers fusionats, trossos llargs
-  tallats —, exactament el que entrarà al projecte.
+- **a la dreta, “Tal com s'aplicaran”**: els subtítols després del postprocessament, exactament el que entrarà al projecte. Es fa en tres passos, cadascun sobre tota la transcripció abans que comenci el següent: es descarten els trossos sense lletra ni dígit (`...`); es fusionen els trossos propers d'una mateixa frase; es tallen els que són massa llargs — **primer en un final de frase (`. ? ! …`), després en una coma, un punt i coma o dos punts, i enmig d'una frase només quan no hi ha puntuació on tallar**. S'evita un tall que deixaria un subtítol massa petit per llegir-se (uns pocs caràcters, una fracció de segon) quan n'hi ha un altre. Un subtítol que comença un tros en conserva l'inici, i el que l'acaba en conserva el final: els temps de les paraules només serveixen per als talls dins d'un tros.
+
+Per sobre de les taules, **“Postprocessament (només aquesta transcripció)”** conté els tres límits del postprocessament: “Fusiona els fragments més propers que”, “Subtítol més llarg” i “Màxim de caràcters d'un subtítol” — els paràmetres `transcription.merge-gap-ms`, `transcription.max-duration-ms` i `transcription.max-characters`. **Canviar-ne un refà a l'acte la taula de la dreta**, sense passar pel motor, i el subtítol que teníeu seleccionat continua seleccionat. Els valors que escriviu valen només per a **aquesta transcripció**: l'apliqueu o l'ignoreu, els paràmetres de l'aplicació queden com eren. **“Conserva aquests valors com a paràmetres”** lliura els tres valors als paràmetres de l'aplicació — els de les [preferències](preferences.md#transcripció), desats amb ells —, i la finestra ho diu; tancar la finestra no ho fa per si sol.
+
+![La previsualització d'una transcripció: els límits del postprocessament a dalt, els trossos del motor a l'esquerra, els subtítols a la dreta, el segon seleccionat i els seus dos trossos d'origen ressaltats.](captures/apercu-transcription.png)
+
+![El mateix diàleg amb la paleta fosca.](captures/apercu-transcription-sombre.png)
 
 Les dues no s'alineen fila per fila, per això cadascuna té els seus temps. **Seleccionar un subtítol a la dreta ressalta, a l'esquerra, els trossos
-amb què es va fer**, i hi desplaça l'esquerra; un subtítol alhora, només en aquest sentit. Cap de les dues taules no es pot editar.
+amb què es va fer**, i hi desplaça l'esquerra; un subtítol alhora, només en aquest sentit. Cap de les dues taules no es pot editar: el que cap paràmetre no deixa bé s'edita després, a la taula del projecte, com qualsevol subtítol.
 
 Dos botons la tanquen. **“Aplica”** substitueix els subtítols del projecte **com una sola operació**: un sol `Undo` retorna el que hi havia, textos de
 traducció inclosos. **“Ignora”** descarta el resultat, i es perd. “Aplica” és apagat quan
