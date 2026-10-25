@@ -367,8 +367,12 @@ the three-letter code of a file.
   right-hand side again with `assemble`, a pure function of the pieces and the limits, and the selection follows the piece it was
   made from. **The values hold for that transcript only**; "Keep these values as settings" hands them to the application's settings
   (saved with the others) whether the result is then applied or ignored, and says so. Closing the window never does it.
-- **Left for a measure**: point 4 of the issue (the first subtitle that starts too early) — run `whisper-cli` by hand on the
-  extracted audio and compare with the raw column; the VAD leads stay open point 2. No other setting is added: none was found.
+- **The first subtitle that starts too early is whisper's, not ours** (point 4 of the issue). Measured on a real film, its first
+  two minutes extracted at 16 kHz mono, `whisper-cli` (`small` model, `-sns -osrt`) writes its first segment from 0:00:00,000, the
+  same start as the raw column of the preview: the reading of `offsets.from` is faithful, and whisper starts its first segment at 0
+  after an intro. Voice-activity detection (`--vad`, open point 2) is the lead left; it needs a Silero model, which is not
+  installed on the machine of the measure (only the test model of whisper.cpp), so no with/without comparison was made. No other
+  setting is added: none was found.
 
 ## Open points
 
