@@ -974,6 +974,16 @@ msgid ""
 msgstr ""
 
 #: src/exe/cli/commands/transcribe.cpp
+msgid ""
+"Do not write sounds as notes, such as (phone ringing); the transcription."
+"suppress-notes setting by default"
+msgstr ""
+
+#: src/exe/cli/commands/transcribe.cpp
+msgid "Write sounds as notes, against the setting"
+msgstr ""
+
+#: src/exe/cli/commands/transcribe.cpp
 msgid "Model file; the transcription.model setting by default"
 msgstr ""
 
@@ -983,6 +993,11 @@ msgstr ""
 
 #: src/exe/cli/commands/transcribe.cpp
 msgid "Keep the extracted audio in this file"
+msgstr ""
+
+#: src/exe/cli/commands/transcribe.cpp
+msgid ""
+"List the languages the engine offers for the model, and transcribe nothing"
 msgstr ""
 
 #: src/exe/cli/commands/transcribe.cpp
@@ -1045,6 +1060,7 @@ msgstr ""
 
 #. TRANSLATORS: %1 and %2 are two options, such as --shorten and --no-shorten.
 #: src/lib/subedit/cli/adjusting.cpp src/lib/subedit/cli/correcting.cpp
+#: src/lib/subedit/cli/transcribing.cpp
 msgid "%1 and %2 say opposite things; give one of them"
 msgstr ""
 
@@ -1937,6 +1953,10 @@ msgstr ""
 msgid "expected seconds like 2.999, or a timestamp like 00:00:07.001"
 msgstr ""
 
+#: src/lib/subedit/cli/transcribing.cpp
+msgid "%1 is required"
+msgstr ""
+
 #: src/lib/subedit/cli/transforming.cpp
 msgid "subtitle %1 is past the end: the file holds %2 subtitle"
 msgid_plural "subtitle %1 is past the end: the file holds %2 subtitles"
@@ -2224,6 +2244,10 @@ msgstr ""
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "The language of the audio; detected when empty."
+msgstr ""
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "Do not write sounds as notes, such as (phone ringing)."
 msgstr ""
 
 #: src/lib/subedit/core/config/operation_settings.cpp
@@ -3197,15 +3221,14 @@ msgstr[0] ""
 msgstr[1] ""
 
 #: src/lib/subedit/core/wording/transcription.cpp
-msgid ""
-"\"%1\" is not a time: write it as 2:00, 1:02:03 or 2:00.5, or in seconds"
-msgstr ""
+msgid "%1 subtitle kept from a partial transcription, up to %2"
+msgid_plural "%1 subtitles kept from a partial transcription, up to %2"
+msgstr[0] ""
+msgstr[1] ""
 
 #: src/lib/subedit/core/wording/transcription.cpp
 msgid ""
-"%1 of the %2 pieces are only notes in brackets, such as [MUSIC PLAYING]: the "
-"language used (%3) is probably not the one spoken, and the engine may have "
-"translated the speech. Run it again with the language typed."
+"\"%1\" is not a time: write it as 2:00, 1:02:03 or 2:00.5, or in seconds"
 msgstr ""
 
 #: src/lib/subedit/core/wording/transcription.cpp
@@ -3213,6 +3236,10 @@ msgid ""
 "This model is for English only: whatever language the film speaks, the "
 "result will be English, or notes in brackets. Choose a multilingual model in "
 "the preferences."
+msgstr ""
+
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "the engine %1 cannot be told not to write sounds as notes"
 msgstr ""
 
 #: src/lib/subedit/core/wording/transcription.cpp
@@ -3540,6 +3567,7 @@ msgstr ""
 #: src/lib/subedit/gui/operation_dialog.cpp
 #: src/lib/subedit/gui/spell_check_settings_dialog.cpp
 #: src/lib/subedit/gui/subtitle_table_model.cpp
+#: src/lib/subedit/gui/transcription_preview_dialog.cpp
 #: src/lib/subedit/gui/transform_dialog.cpp
 msgid "Text"
 msgstr ""
@@ -4060,6 +4088,11 @@ msgid "Decode on the graphics card"
 msgstr ""
 
 #: src/lib/subedit/gui/preferences_dialog.cpp
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+msgid "Do not write sounds as notes"
+msgstr ""
+
+#: src/lib/subedit/gui/preferences_dialog.cpp
 msgid "Browse…"
 msgstr ""
 
@@ -4110,6 +4143,13 @@ msgstr ""
 
 #: src/lib/subedit/gui/preferences_dialog.cpp
 msgid "Model"
+msgstr ""
+
+#: src/lib/subedit/gui/preferences_dialog.cpp
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+msgid ""
+"Sounds such as (phone ringing) or [MUSIC PLAYING] are not written. Turn it "
+"off to keep them, for subtitles for the hard of hearing."
 msgstr ""
 
 #: src/lib/subedit/gui/preferences_dialog.cpp
@@ -4344,6 +4384,7 @@ msgid "Add"
 msgstr ""
 
 #: src/lib/subedit/gui/spell_check_dialog.cpp
+#: src/lib/subedit/gui/transcription_preview_dialog.cpp
 msgid "Ignore"
 msgstr ""
 
@@ -4411,6 +4452,7 @@ msgid "Text: %1"
 msgstr ""
 
 #: src/lib/subedit/gui/subtitle_table_model.cpp
+#: src/lib/subedit/gui/transcription_preview_dialog.cpp
 msgid "Start"
 msgstr ""
 
@@ -4419,6 +4461,7 @@ msgid "Start (frames)"
 msgstr ""
 
 #: src/lib/subedit/gui/subtitle_table_model.cpp
+#: src/lib/subedit/gui/transcription_preview_dialog.cpp
 msgid "End"
 msgstr ""
 
@@ -4472,14 +4515,10 @@ msgid "First audio track"
 msgstr ""
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
-msgid "Detected from the sound"
-msgstr ""
-
-#: src/lib/subedit/gui/transcribe_dialog.cpp
 msgid ""
-"A language code such as fr, en, de, es or it (fra and eng work too). Leave "
-"it empty to let the model detect the language from the first 30 seconds of "
-"sound."
+"Choose the language of the speech. \"Detect\" lets the model find it from "
+"the first 30 seconds of sound, which a film that opens with music can get "
+"wrong."
 msgstr ""
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
@@ -4516,7 +4555,15 @@ msgid "Set them in the preferences."
 msgstr ""
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
-msgid "The language you typed is used."
+msgid "This engine cannot be told not to write sounds as notes."
+msgstr ""
+
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+msgid "Detect from the first 30 seconds of sound"
+msgstr ""
+
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+msgid "The language you chose is used."
 msgstr ""
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
@@ -4528,7 +4575,33 @@ msgid ""
 "The file declares no language for this track: the model will detect it from "
 "the first 30 seconds of sound. If the film opens with music or silence it "
 "can choose wrongly, and the speech is then translated into that language. "
-"Type the language if you know it."
+"Choose the language if you know it."
+msgstr ""
+
+#: src/lib/subedit/gui/transcription_preview_dialog.cpp
+msgid "Apply"
+msgstr ""
+
+#: src/lib/subedit/gui/transcription_preview_dialog.cpp
+msgid "Transcription preview"
+msgstr ""
+
+#: src/lib/subedit/gui/transcription_preview_dialog.cpp
+msgid ""
+"Partial result: the work stopped at %1. What was obtained up to there can be "
+"applied or ignored."
+msgstr ""
+
+#: src/lib/subedit/gui/transcription_preview_dialog.cpp
+msgid "Select a subtitle on the right to see the pieces it was made from."
+msgstr ""
+
+#: src/lib/subedit/gui/transcription_preview_dialog.cpp
+msgid "As the engine wrote it (%1)"
+msgstr ""
+
+#: src/lib/subedit/gui/transcription_preview_dialog.cpp
+msgid "As they will be applied (%1)"
 msgstr ""
 
 #: src/lib/subedit/gui/transcription_runner.cpp

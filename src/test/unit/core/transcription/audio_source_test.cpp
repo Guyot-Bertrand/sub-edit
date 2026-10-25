@@ -83,8 +83,8 @@ TEST_CASE("a track is extracted to where it is asked for", "[audio]") {
     const subedit::core::RealFileSystem files;
     const auto destination = scratch.file("audio.wav");
 
-    const auto done =
-        subedit::core::extractAudio(files, scratch.path().string(), "film.mkv", 1, destination);
+    const auto done = subedit::core::extractAudio(
+        files, scratch.path().string(), "film.mkv", 1, destination, 16000);
 
     REQUIRE(done.has_value());
     CHECK(contentOf(destination) == "pcm");
@@ -98,7 +98,7 @@ TEST_CASE("the first track is the default, and the tracks need not be countable"
     const auto destination = scratch.file("audio.wav");
 
     const auto done = subedit::core::extractAudio(
-        files, scratch.path().string(), "voice.mp3", std::nullopt, destination);
+        files, scratch.path().string(), "voice.mp3", std::nullopt, destination, 16000);
 
     REQUIRE(done.has_value());
     CHECK(contentOf(destination) == "pcm");
@@ -109,7 +109,7 @@ TEST_CASE("without ffmpeg the extraction says so", "[audio]") {
     const subedit::core::RealFileSystem files;
 
     const auto done = subedit::core::extractAudio(
-        files, scratch.path().string(), "film.mkv", 0, scratch.file("audio.wav"));
+        files, scratch.path().string(), "film.mkv", 0, scratch.file("audio.wav"), 16000);
 
     REQUIRE_FALSE(done.has_value());
     CHECK(done.error().kind == AudioPreparationErrorKind::ToolMissing);
@@ -123,7 +123,7 @@ TEST_CASE("a track the container does not have is told before anything runs", "[
     const subedit::core::RealFileSystem files;
 
     const auto done = subedit::core::extractAudio(
-        files, scratch.path().string(), "film.mkv", 2, scratch.file("audio.wav"));
+        files, scratch.path().string(), "film.mkv", 2, scratch.file("audio.wav"), 16000);
 
     REQUIRE_FALSE(done.has_value());
     CHECK(done.error().kind == AudioPreparationErrorKind::NoSuchTrack);
@@ -136,8 +136,8 @@ TEST_CASE("a failed extraction says what the tool said and leaves no file", "[au
     const subedit::core::RealFileSystem files;
     const auto destination = scratch.write("audio.wav", "partial");
 
-    const auto done =
-        subedit::core::extractAudio(files, scratch.path().string(), "film.mkv", 0, destination);
+    const auto done = subedit::core::extractAudio(
+        files, scratch.path().string(), "film.mkv", 0, destination, 16000);
 
     REQUIRE_FALSE(done.has_value());
     CHECK(done.error().kind == AudioPreparationErrorKind::Failed);
@@ -154,7 +154,7 @@ TEST_CASE("a tool that cannot be started is a failed extraction", "[audio]") {
     const subedit::core::RealFileSystem files;
 
     const auto done = subedit::core::extractAudio(
-        files, scratch.path().string(), "film.mkv", 0, scratch.file("audio.wav"));
+        files, scratch.path().string(), "film.mkv", 0, scratch.file("audio.wav"), 16000);
 
     REQUIRE_FALSE(done.has_value());
     CHECK(done.error().kind == AudioPreparationErrorKind::Failed);
@@ -170,8 +170,52 @@ TEST_CASE("asking to stop stops the extraction, and the lines are passed on", "[
     observer.onLine = [&lines](const subedit::core::StreamedLine&) { ++lines; };
 
     const auto done = subedit::core::extractAudio(
-        files, scratch.path().string(), "film.mkv", 0, scratch.file("audio.wav"), observer);
+        files, scratch.path().string(), "film.mkv", 0, scratch.file("audio.wav"), 16000, observer);
 
     REQUIRE_FALSE(done.has_value());
     CHECK(done.error().kind == AudioPreparationErrorKind::Cancelled);
+}
+
+// ## The rate is the engine's
+
+TEST_CASE("the audio is extracted at the rate asked, and keeps its own when none is", "[audio]") {
+    const ScratchDirectory scratch;
+    const auto log = scratch.file("arguments");
+    const auto sample = scratch.write("sample.wav", "pcm");
+    std::ignore = scratch.write("ffmpeg",
+                                "#!/bin/sh\nprintf '%s\\n' \"$@\" > '" + log.string() +
+                                    "'\nexec '" + kFake.string() + "' --no-echo --output-from='" +
+                                    sample.string() + "' \"$@\"\n");
+    std::filesystem::permissions(scratch.file("ffmpeg"),
+                                 std::filesystem::perms::owner_all,
+                                 std::filesystem::perm_options::add);
+    const subedit::core::RealFileSystem files;
+    const auto argumentsOf = [&log] {
+        std::ifstream written{log};
+        return std::string{std::istreambuf_iterator<char>{written},
+                           std::istreambuf_iterator<char>{}};
+    };
+
+    REQUIRE(subedit::core::extractAudio(
+                files, scratch.path().string(), "film.mkv", 0, scratch.file("a.wav"), 44100)
+                .has_value());
+    CHECK(argumentsOf().find("-ar\n44100\n") != std::string::npos);
+
+    REQUIRE(subedit::core::extractAudio(
+                files, scratch.path().string(), "film.mkv", 0, scratch.file("b.wav"), 0)
+                .has_value());
+    CHECK(argumentsOf().find("-ar") == std::string::npos);
+    // Mono in any case.
+    CHECK(argumentsOf().find("-ac\n1\n") != std::string::npos);
+}
+
+TEST_CASE("the wildcards of the name of the kept audio are filled in", "[audio]") {
+    using subedit::core::expandAudioName;
+
+    CHECK(expandAudioName("film.{rate}.wav", 16000) == "film.16000.wav");
+    CHECK(expandAudioName("film.{rate}.wav", 0) == "film.source.wav");
+    CHECK(expandAudioName("{rate}/{rate}.wav", 8000) == "8000/8000.wav");
+    CHECK(expandAudioName("film.wav", 16000) == "film.wav");
+    CHECK(expandAudioName("film.{unknown}.wav", 16000) == "film.{unknown}.wav");
+    CHECK(expandAudioName("", 16000).empty());
 }

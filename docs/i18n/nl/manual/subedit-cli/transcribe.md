@@ -9,11 +9,14 @@ subedit-cli transcribe --output FILE
                        [--audio-track N]
                        [--language CODE]
                        [--start TIME] [--end TIME]
+                       [--suppress-notes | --keep-notes]
                        [--model FILE]
                        [--engine NAME]
                        [--keep-audio FILE]
                        [--raw]
                        <input>
+
+subedit-cli transcribe --list-languages [--model FILE] [--engine NAME]
 ```
 
 Schrijft **de gesproken tekst van een video, of van een audiobestand, als ondertitelbestand**. De audio wordt
@@ -42,8 +45,13 @@ eindigt met een code die niet nul is.
 - **Een deel van de film kan alleen worden getranscribeerd**, met `--start` en `--end` — zie
   [Een deel transcriberen](#een-deel-transcriberen). Zo probeert u een model op twee minuten voordat u het op
   twee uur loslaat.
-- **Geluiden worden niet als notities geschreven**: de engine krijgt de opdracht dat niet te doen (zijn eigen optie is `--suppress-nst`), zodat
-  `(Sonnerie de téléphone)` of `[MUSIC PLAYING]` niet in de ondertitels opduiken, tussen ronde haakjes zoals tussen vierkante.
+- **De talen die een engine biedt kunnen worden opgesomd**, met `--list-languages` — zie
+  [De talen opsommen](#de-talen-opsommen).
+- **Geluiden worden standaard niet als notities geschreven**: de engine krijgt de opdracht dat niet te doen (`--suppress-notes`; zijn eigen optie is
+  `--suppress-nst`), zodat `(Sonnerie de téléphone)` of `[MUSIC PLAYING]` niet in de ondertitels opduiken, tussen ronde haakjes zoals tussen vierkante.
+  `--keep-notes` schrijft ze wel, voor ondertitels voor doven en slechthorenden. Als de notities verboden zijn, schrijft de engine `...` voor een passage
+  zonder spraak, en **de nabewerking laat de stukken weg die geen letter en geen cijfer hebben** — `...`, `…`, `♪` — voordat ze samenvoegt en knipt;
+  `--raw` houdt ze, zoals de stukken van de engine zijn gekomen.
 - **De segmenten worden samengevoegd en geknipt** volgens de grenzen van de instellingen (`transcription.merge-gap-ms`,
   `transcription.max-duration-ms`, `transcription.max-characters`): twee stukken van één zin die dicht bij
   elkaar liggen worden één ondertitel, en een stuk dat te lang of te breed is wordt bij een woord geknipt. **`--raw`
@@ -54,10 +62,10 @@ eindigt met een code die niet nul is.
 ```console
 $ subedit-cli transcribe --help
 Write the speech of a video or an audio file as subtitles
-Usage: subedit-cli transcribe [OPTIONS] input
+Usage: subedit-cli transcribe [OPTIONS] [input]
 
 Positionals:
-  input TEXT REQUIRED         Video or audio file to transcribe
+  input TEXT                  Video or audio file to transcribe
 
 Options:
   -h,--help                   Print this help message and exit
@@ -68,9 +76,12 @@ Options:
   --start TIME                Where to begin, as 2:00, 1:02:03 or seconds; the beginning by default
   --end TIME                  Where to stop, as 2:00, 1:02:03 or seconds; the end by default
   --language CODE             Language of the speech, two letters: fr, en, de; detected from the first 30 seconds by default
+  --suppress-notes            Do not write sounds as notes, such as (phone ringing); the transcription.suppress-notes setting by default
+  --keep-notes                Write sounds as notes, against the setting
   --model FILE                Model file; the transcription.model setting by default
   --engine NAME               Engine; the transcription.engine setting by default
   --keep-audio FILE           Keep the extracted audio in this file
+  --list-languages            List the languages the engine offers for the model, and transcribe nothing
   --raw                       Write the segments as the engine cut them
 ```
 
@@ -78,16 +89,19 @@ Options:
 
 | Optie | Verplicht | Waarden | Standaard |
 | :----- | :----- | :------ | :----- |
-| `<input>` | ja | een video of een audiobestand | — |
-| `--output` | ja | het ondertitelbestand om te schrijven; de map wordt aangemaakt als die ontbreekt | — |
+| `<input>` | ja, behalve met `--list-languages` | een video of een audiobestand | — |
+| `--output` | ja, behalve met `--list-languages` | het ondertitelbestand om te schrijven; de map wordt aangemaakt als die ontbreekt | — |
 | `--to` | nee | de korte naam van een formaat: `srt`, `vtt`, `subviewer2`, `ssa`, `ass`, `microdvd`, `mpl2`, `tmplayer`, `lrc` | het formaat dat de extensie van `--output` aangeeft, anders `srt` |
 | `--audio-track` | nee | een geheel getal vanaf 0: de positie onder de audiosporen van de video | `0`, het eerste |
 | `--language` | nee | twee letters, een ISO 639-1-code: `en`, `fr`; een code van drie letters zoals `fra` wordt als `fr` gelezen | de instelling `transcription.language`; leeg: gedetecteerd |
+| `--suppress-notes` | nee | een vlag: geluiden niet als notities schrijven; geweigerd voor een engine waaraan dat niet kan worden opgedragen | de instelling `transcription.suppress-notes` |
+| `--keep-notes` | nee | een vlag: ze wel schrijven, tegen de instelling in; het tegenovergestelde van `--suppress-notes`, en beide samen worden geweigerd | de instelling `transcription.suppress-notes` |
+| `--list-languages` | nee | een vlag: de talen opsommen die de engine voor het model biedt, en niets transcriberen | uit |
 | `--start` | nee | een tijd: `2:00`, `1:02:03`, `2:00.5`, of een aantal seconden, `90` | het begin van de audio |
 | `--end` | nee | een tijd, geschreven zoals bij `--start`; hij moet na `--start` komen | het einde van de audio |
 | `--model` | nee | het modelbestand | de instelling `transcription.model` |
 | `--engine` | nee | de naam van een engine: `whisper.cpp` | de instelling `transcription.engine` |
-| `--keep-audio` | nee | een bestand om de uitgepakte audio in te bewaren, als 16 kHz mono 16-bits PCM in een WAV-bestand; de map wordt aangemaakt als die ontbreekt | de audio wordt nergens bewaard |
+| `--keep-audio` | nee | een bestand om de uitgepakte audio in te bewaren, als mono 16-bits PCM in een WAV-bestand, met de samplefrequentie die de engine vraagt (16 kHz voor whisper.cpp); de map wordt aangemaakt als ze ontbreekt, en de naam mag `{rate}` bevatten, vervangen door die frequentie in hertz (`film.{rate}.wav` wordt geschreven als `film.16000.wav`) | de audio wordt nergens bewaard |
 | `--raw` | nee | een vlag: de segmenten van de engine schrijven zonder samenvoegen en zonder knippen | uit |
 
 De **instellingen** worden uit het instellingenbestand gelezen zoals die van [`adjust`](adjust.md) — zie
@@ -99,6 +113,7 @@ De **instellingen** worden uit het instellingenbestand gelezen zoals die van [`a
 | `transcription.executable` | het programma van de engine, een absoluut pad; leeg: gezocht in het `PATH` | leeg |
 | `transcription.model` | het modelbestand, een absoluut pad | leeg |
 | `transcription.language` | de taal van de audio, twee letters; leeg: gedetecteerd | leeg |
+| `transcription.suppress-notes` | geluiden niet als notities schrijven | `true` |
 | `transcription.merge-gap-ms` | stukken van één zin die dichter bij elkaar liggen dan dit aantal milliseconden worden samengevoegd | `400` |
 | `transcription.max-duration-ms` | de maximale tijd dat een ondertitel in beeld blijft, in milliseconden | `7000` |
 | `transcription.max-characters` | het maximale aantal tekens van een ondertitel, regeleinden niet meegeteld | `84` |
@@ -141,6 +156,26 @@ subedit-cli transcribe --start 2:00 --end 3:30 --output test.srt --model large-v
 
 De audio van de hele film wordt toch uitgepakt: het is de transcriptie, veel langer, die het bereik bespaart.
 
+## De talen opsommen
+
+`--list-languages` schrijft de talen die de engine **voor het model** biedt, één per regel: de code die `--language` neemt, een tab, en de naam
+van de taal in de taal van de interface. Het heeft geen invoer en geen uitvoer nodig, en transcribeert niets.
+
+```bash
+subedit-cli transcribe --list-languages --model ggml-small.bin
+```
+
+```text
+en	English
+zh	Chinese
+de	German
+…
+```
+
+De lijst hangt af van de engine en van het model: ongeveer honderd talen voor een meertalig whisper.cpp-model, alleen `en` voor een model dat alleen
+Engels kent. Een engine die zijn talen niet kan opsommen, somt er geen op. Een model dat niet is opgegeven of er niet is, is een fout, met de verwijzing naar de gids; alleen
+de tekstvorm, er wordt niets geschreven met [`--format json`](invocation.md#uitvoer-die-een-script-kan-lezen).
+
 ## Uitvoer
 
 **Standaarduitvoer** — niets: het resultaat is het geschreven bestand.
@@ -167,15 +202,11 @@ geschreven ondertitels) en `counts.segments` (de stukken van de engine waaruit z
 
 ## Mededelingen
 
-Twee mededelingen worden op het eerste niveau gedaan, omdat ze veranderen wat u mag verwachten:
+Eén mededeling wordt op het eerste niveau gedaan, vóór het werk, omdat ze verandert wat u mag verwachten:
 
-- **Vóór het werk, met een model alleen voor Engels**: `This model is for English only: whatever language the film
+- **Met een model alleen voor Engels**: `This model is for English only: whatever language the film
   speaks, the result will be English, or notes in brackets. Choose a multilingual model in the preferences.` Een model waarvan de bestandsnaam eindigt op
   `.en` is er een.
-- **Na het werk, wanneer de engine vooral notities tussen haakjes heeft geschreven** — `[MUSIC PLAYING]`, `[SPEAKING FRENCH]` —,
-  minstens twee en een derde van zijn stukken: `N of the M pieces are only notes in brackets, such as [MUSIC PLAYING]: the
-  language used (xx) is probably not the one spoken, and the engine may have translated the speech. Run it again with
-  the language typed.` De ondertitels worden toch geschreven; de mededeling zegt wat u moet vermoeden.
 
 ## Afsluitcodes
 
@@ -194,6 +225,9 @@ engine die niemand heeft geregistreerd of een bereik dat onbruikbaar is.
 | een taal die het model niet kan transcriberen | `the model cannot transcribe the language xx` |
 | geen taal, en een model dat er geen kan detecteren | `the model cannot detect the language: give one` |
 | een engine die niemand heeft geregistreerd | `no transcription engine is called NAME` |
+| `<input>` of `--output` ontbreekt | `input is required` of `--output is required` |
+| `--suppress-notes` met `--keep-notes` | `--suppress-notes and --keep-notes say opposite things; give one of them` |
+| `--suppress-notes` voor een engine waaraan dat niet kan worden opgedragen | `the engine NAME cannot be told not to write sounds as notes` |
 | een taal die geen code is | `"TEXT" is not a language code: write two letters, such as fr, en, de or es` |
 | een grens van het bereik die geen tijd is | `"TEXT" is not a time: write it as 2:00, 1:02:03 or 2:00.5, or in seconds` |
 | `--end` niet na `--start` | `the end of the range must come after its start` |

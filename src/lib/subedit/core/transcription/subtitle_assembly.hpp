@@ -33,6 +33,26 @@ struct AssemblySettings {
 /// The limits the post-processing is held to, from the settings.
 [[nodiscard]] AssemblySettings assemblyOf(const TranscriptionSettings& settings);
 
+/// What the post-processing made, and where each subtitle comes from.
+struct Assembly {
+    std::vector<Subtitle> subtitles;
+
+    /// For each subtitle, the indices (in the segments given) of the pieces it was made from, in
+    /// order. A subtitle may come from several pieces, and a piece cut in several subtitles is the
+    /// source of each of them. A piece dropped (see `assemble`) is the source of none.
+    std::vector<std::vector<std::size_t>> sources;
+};
+
+/// Turns what an engine cut into subtitles, and says where each one comes from.
+///
+/// It first **drops the pieces that contain no letter and no digit** — `...`, `…`, `♪`, `-`: what
+/// an engine writes for a passage with no speech when it is forbidden to write notes. They would
+/// be subtitles made of nothing, and would stop their neighbours being merged.
+///
+/// The steps are those of `assembleSubtitles`, whose result is the `subtitles` of this one.
+[[nodiscard]] Assembly assemble(std::span<const TranscribedSegment> segments,
+                                const AssemblySettings& settings = {});
+
 /// Turns what an engine cut into subtitles.
 ///
 /// An engine cuts where it likes. This step, **independent of any engine**,

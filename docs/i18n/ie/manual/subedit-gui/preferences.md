@@ -141,6 +141,7 @@ du blocs existeva es leet sin change, e rescrit in du blocs al sequent clusion.
 | `transcription.engine` | li nómine del motor: líttere minuscul, cifres, `.`, `-` e `_` | `whisper.cpp` |
 | `transcription.executable`, `transcription.model` | un chemin absolut; vacui: li motor es serchat in `PATH`, e null model es definit | vacui |
 | `transcription.language` | du líttere minuscul, un code ISO 639-1; vacui: li lingue es detectet | vacui |
+| `transcription.suppress-notes` | `true` o `false` — `Do not write sounds as notes` | `true` |
 | `transcription.merge-gap-ms` | fragmentes de un sam frase plu proxim ca to es junit, in millisecondes, integri e ne negativ | `400` |
 | `transcription.max-duration-ms` | li max long duration quel un subtitul transcrit resta sur li ecran, in millisecondes, de 1 til 3600000 | `7000` |
 | `transcription.max-characters` | li max númere de characteres de un subtitul transcrit, de 1 til 1000 | `84` |
@@ -291,6 +292,9 @@ es trovat, e li model — ne definit, ne trovat, ne un model, solmen por anglesi
 manca, it adjunte li indication a
 [Instalar li utensiles de transcription](../subedit-cli/install-transcription.md), quel dit u trovar
 chascun. Li du camps es li parametres `transcription.executable` e `transcription.model`.
+
+Un caxa, **“Ne scrir li sones quam notes”**, es li parametre `transcription.suppress-notes` (marcat per defecte): li motor recive li órdine de ne scrir li sones
+quam notes quam `(phone ringing)`. Desmarca it por conservar les, por subtitules por li dur de audition. Li dialog de `Transcribe Audio…` ofri li sam caxa por li transcription singul.
 
 ## Li lingue del interfacie
 

@@ -470,24 +470,6 @@ TEST_CASE("something that is not a language code is a usage error before any wor
     CHECK_FALSE(std::filesystem::exists(world.output));
 }
 
-TEST_CASE("a transcription made of notes in brackets is said to be probably in the wrong language",
-          "[cli][transcribe]") {
-    World world;
-    FakeEngineScript script;
-    script.name = "whisper.cpp";
-    script.capabilities = {.languageDetection = true, .needsModel = false};
-    script.segments = {segment(0, 1000, "[MUSIC PLAYING]"),
-                       segment(1000, 2000, "[SPEAKING FRENCH]"),
-                       segment(2000, 3000, "Hello.")};
-    world.engines = EngineRegistry{};
-    (void)world.engines.add(std::make_unique<FakeTranscriptionEngine>(script));
-
-    (void)world.run(
-        TranscribeOptions{.input = world.audio.string(), .output = world.output.string()});
-
-    CHECK_THAT(world.errors.str(), ContainsSubstring("2 of the 3 pieces are only notes"));
-}
-
 TEST_CASE("a model for English alone is said so before the work", "[cli][transcribe]") {
     World world;
     FakeEngineScript script;
@@ -511,5 +493,170 @@ TEST_CASE("a model that speaks every language is not warned about", "[cli][trans
         TranscribeOptions{.input = world.audio.string(), .output = world.output.string()});
 
     CHECK_THAT(world.errors.str(), !ContainsSubstring("English only"));
-    CHECK_THAT(world.errors.str(), !ContainsSubstring("only notes"));
+}
+
+// ## Sounds written as notes
+
+namespace {
+
+/// A world whose engine can be told not to write sounds as notes.
+struct NotesWorld : World {
+    NotesWorld() {
+        FakeEngineScript script;
+        script.name = "whisper.cpp";
+        script.seen = seen;
+        script.capabilities = {
+            .languageDetection = true, .suppressNotes = true, .needsModel = false};
+        script.segments = {segment(0, 1000, "Hello.")};
+        engines = EngineRegistry{};
+        (void)engines.add(std::make_unique<FakeTranscriptionEngine>(script));
+    }
+};
+
+} // namespace
+
+TEST_CASE("sounds are not written as notes unless the setting or an option says otherwise",
+          "[cli][transcribe][notes][CLI-TRANSCRIBE-12]") {
+    NotesWorld world;
+    const auto run = [&world](TranscribeOptions options) {
+        options.input = world.audio.string();
+        options.output = world.output.string();
+        return world.run(options);
+    };
+
+    // The setting is on by default.
+    CHECK(run({}) == ExitCode::Success);
+    CHECK(world.seen->suppressNotes);
+
+    // An option against it wins.
+    CHECK(run({.keepNotes = true}) == ExitCode::Success);
+    CHECK_FALSE(world.seen->suppressNotes);
+
+    // The setting off, and then an option for it.
+    world.settings.suppressNotes = false;
+    CHECK(run({}) == ExitCode::Success);
+    CHECK_FALSE(world.seen->suppressNotes);
+    CHECK(run({.suppressNotes = true}) == ExitCode::Success);
+    CHECK(world.seen->suppressNotes);
+}
+
+TEST_CASE("the two options about notes say opposite things", "[cli][transcribe][notes]") {
+    NotesWorld world;
+
+    const ExitCode code = world.run(TranscribeOptions{.input = world.audio.string(),
+                                                      .output = world.output.string(),
+                                                      .suppressNotes = true,
+                                                      .keepNotes = true});
+
+    CHECK(code == ExitCode::Usage);
+    CHECK_THAT(world.errors.str(),
+               ContainsSubstring("--suppress-notes and --keep-notes say opposite"));
+    CHECK(world.seen->audio.empty());
+}
+
+TEST_CASE("an engine that cannot suppress notes refuses the option by name, not the setting",
+          "[cli][transcribe][notes]") {
+    World world; // its engine cannot
+
+    const ExitCode asked = world.run(TranscribeOptions{
+        .input = world.audio.string(), .output = world.output.string(), .suppressNotes = true});
+    CHECK(asked == ExitCode::Usage);
+    CHECK_THAT(world.errors.str(),
+               ContainsSubstring("cannot be told not to write sounds as notes"));
+    CHECK(world.seen->audio.empty());
+
+    // The setting is on by default and the engine cannot: nothing is said, the work is done.
+    world.settings.language = "fr";
+    const ExitCode quiet = world.run(
+        TranscribeOptions{.input = world.audio.string(), .output = world.output.string()});
+    CHECK(quiet == ExitCode::Success);
+}
+
+// ## The languages an engine offers
+
+TEST_CASE("the languages of the engine are listed with their names, and nothing is transcribed",
+          "[cli][transcribe][languages]") {
+    World world;
+    FakeEngineScript script;
+    script.name = "whisper.cpp";
+    script.capabilities = {
+        .languageDetection = true, .languages = {"en", "fr", "ja"}, .needsModel = false};
+    script.seen = world.seen;
+    world.engines = EngineRegistry{};
+    (void)world.engines.add(std::make_unique<FakeTranscriptionEngine>(script));
+    std::ostringstream listed;
+    const Reporter reporter =
+        Reporter{world.errors, 1}.withTextOutput(listed).forCommand("transcribe");
+
+    const ExitCode code = transcribeFile(world.files,
+                                         world.engines,
+                                         "",
+                                         TranscribeOptions{.listLanguages = true},
+                                         world.settings,
+                                         reporter);
+
+    CHECK(code == ExitCode::Success);
+    CHECK(listed.str() == "en\tEnglish\nfr\tFrench\nja\tJapanese\n");
+    CHECK(world.seen->audio.empty());
+}
+
+TEST_CASE("an engine that lists no language lists nothing", "[cli][transcribe][languages]") {
+    World world; // its capabilities name none: any
+    std::ostringstream listed;
+    const Reporter reporter =
+        Reporter{world.errors, 1}.withTextOutput(listed).forCommand("transcribe");
+
+    CHECK(transcribeFile(
+              world.files, world.engines, "", {.listLanguages = true}, world.settings, reporter) ==
+          ExitCode::Success);
+    CHECK(listed.str().empty());
+}
+
+TEST_CASE("listing the languages of an engine that is not there says why",
+          "[cli][transcribe][languages]") {
+    World world;
+    std::ostringstream listed;
+    const Reporter reporter =
+        Reporter{world.errors, 1}.withTextOutput(listed).forCommand("transcribe");
+
+    const ExitCode code = transcribeFile(world.files,
+                                         world.engines,
+                                         "",
+                                         {.engine = "nobody", .listLanguages = true},
+                                         world.settings,
+                                         reporter);
+
+    CHECK(code == ExitCode::Usage);
+    CHECK_THAT(world.errors.str(), ContainsSubstring("no transcription engine is called nobody"));
+}
+
+TEST_CASE("without listing, an input and an output are needed", "[cli][transcribe][languages]") {
+    World world;
+
+    CHECK(world.run(TranscribeOptions{.output = world.output.string()}) == ExitCode::Usage);
+    CHECK_THAT(world.errors.str(), ContainsSubstring("input is required"));
+
+    CHECK(world.run(TranscribeOptions{.input = world.audio.string()}) == ExitCode::Usage);
+    CHECK_THAT(world.errors.str(), ContainsSubstring("--output is required"));
+}
+
+TEST_CASE("listing the languages of an engine that cannot say what it offers says why",
+          "[cli][transcribe][languages]") {
+    World world;
+    FakeEngineScript script;
+    script.name = "whisper.cpp";
+    script.capabilitiesError =
+        subedit::core::TranscriptionError{.kind = TranscriptionErrorKind::ModelMissing};
+    world.engines = EngineRegistry{};
+    (void)world.engines.add(std::make_unique<FakeTranscriptionEngine>(script));
+    std::ostringstream listed;
+    const Reporter reporter =
+        Reporter{world.errors, 1}.withTextOutput(listed).forCommand("transcribe");
+
+    const ExitCode code = transcribeFile(
+        world.files, world.engines, "", {.listLanguages = true}, world.settings, reporter);
+
+    CHECK(code == ExitCode::AllFailed);
+    CHECK(listed.str().empty());
+    CHECK_THAT(world.errors.str(), ContainsSubstring("Installing the transcription tools"));
 }

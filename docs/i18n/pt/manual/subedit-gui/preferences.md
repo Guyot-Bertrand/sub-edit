@@ -142,6 +142,7 @@ seguinte.
 | `transcription.engine` | o nome do motor: letras minúsculas, algarismos, `.`, `-` e `_` | `whisper.cpp` |
 | `transcription.executable`, `transcription.model` | um caminho absoluto; vazio: o motor é procurado no `PATH`, e nenhum modelo é definido | vazio |
 | `transcription.language` | duas letras minúsculas, um código ISO 639-1; vazio: o idioma é detetado | vazio |
+| `transcription.suppress-notes` | `true` ou `false` — `Do not write sounds as notes` | `true` |
 | `transcription.merge-gap-ms` | os pedaços de uma mesma frase mais próximos do que este valor são unidos, em milissegundos, inteiro e não negativo | `400` |
 | `transcription.max-duration-ms` | o tempo máximo que uma legenda transcrita fica no ecrã, em milissegundos, de 1 a 3600000 | `7000` |
 | `transcription.max-characters` | o número máximo de carateres de uma legenda transcrita, de 1 a 1000 | `84` |
@@ -292,6 +293,9 @@ foi encontrado, e o modelo — não definido, não encontrado, não é um modelo
 algo, acrescenta a remissão para
 [Instalar as ferramentas de transcrição](../subedit-cli/install-transcription.md), que diz onde encontrar
 cada um. Os dois campos são as definições `transcription.executable` e `transcription.model`.
+
+Uma caixa, **“Não escrever os sons como notas”**, é a definição `transcription.suppress-notes` (marcada por predefinição): o motor recebe a ordem de não escrever os sons
+como notas, como `(phone ringing)`. Desmarque-a para os conservar, para legendas para surdos e deficientes auditivos. A caixa de diálogo de `Transcribe Audio…` oferece a mesma caixa para a transcrição de cada vez.
 
 ## O idioma da interface
 

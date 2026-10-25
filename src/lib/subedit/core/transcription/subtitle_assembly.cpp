@@ -1,5 +1,6 @@
 #include <subedit/core/transcription/subtitle_assembly.hpp>
 
+#include <unicode/uchar.h>
 #include <unicode/unistr.h>
 
 #include <algorithm>
@@ -19,6 +20,9 @@ struct Piece {
     Timestamp end;
     std::optional<std::string> speaker;
     std::vector<TimedWord> words;
+
+    /// The segments (by index) this piece is made of.
+    std::vector<std::size_t> sources;
 };
 
 /// A unit a piece is cut at: a word, with the moment it is said.
@@ -32,6 +36,16 @@ struct Token {
 /// no character.
 [[nodiscard]] std::size_t charactersOf(std::string_view text) {
     return static_cast<std::size_t>(icu::UnicodeString::fromUTF8(text).countChar32());
+}
+
+/// Whether `text` has a letter or a digit anywhere — `u_isalnum` over the whole of Unicode, so that
+/// a Greek or a Chinese text has them too.
+[[nodiscard]] bool hasLetterOrDigit(std::string_view text) {
+    const icu::UnicodeString characters = icu::UnicodeString::fromUTF8(text);
+    for (int32_t at = 0; at < characters.length(); at = characters.moveIndex32(at, 1))
+        if (u_isalnum(characters.char32At(at)) != 0)
+            return true;
+    return false;
 }
 
 [[nodiscard]] bool endsSentence(std::string_view text) {
@@ -54,7 +68,8 @@ canMerge(const Piece& before, const Piece& after, const AssemblySettings& settin
                        .start = before.start,
                        .end = std::max(before.end, after.end),
                        .speaker = {},
-                       .words = {}};
+                       .words = {},
+                       .sources = {}};
     return fits(joined, settings);
 }
 
@@ -64,6 +79,7 @@ void merge(Piece& into, Piece next) {
     into.words.insert(into.words.end(),
                       std::make_move_iterator(next.words.begin()),
                       std::make_move_iterator(next.words.end()));
+    into.sources.insert(into.sources.end(), next.sources.begin(), next.sources.end());
 }
 
 /// The words of a piece with their moments: the engine's when it gave them,
@@ -107,13 +123,14 @@ void merge(Piece& into, Piece next) {
 }
 
 /// Cuts `piece` into subtitles that fit, at word boundaries.
-void split(const Piece& piece, const AssemblySettings& settings, std::vector<Subtitle>& out) {
+void split(const Piece& piece, const AssemblySettings& settings, Assembly& out) {
     std::string text;
     Timestamp start = piece.start;
     Timestamp end = piece.start;
 
     const auto flush = [&] {
-        out.push_back(Subtitle{.start = start, .end = end, .mainText = std::move(text)});
+        out.subtitles.push_back(Subtitle{.start = start, .end = end, .mainText = std::move(text)});
+        out.sources.push_back(piece.sources);
         text.clear();
     };
 
@@ -142,30 +159,40 @@ AssemblySettings assemblyOf(const TranscriptionSettings& settings) {
             .maxCharacters = static_cast<std::size_t>(settings.maxCharacters)};
 }
 
-std::vector<Subtitle> assembleSubtitles(std::span<const TranscribedSegment> segments,
-                                        const AssemblySettings& settings) {
+Assembly assemble(std::span<const TranscribedSegment> segments, const AssemblySettings& settings) {
     std::vector<Piece> pieces;
-    for (const TranscribedSegment& segment : segments) {
+    for (std::size_t index = 0; index < segments.size(); ++index) {
+        const TranscribedSegment& segment = segments[index];
+        if (!hasLetterOrDigit(segment.text))
+            continue;
         Piece next{.text = segment.text,
                    .start = segment.start,
                    .end = segment.end,
                    .speaker = segment.speaker,
-                   .words = segment.words};
+                   .words = segment.words,
+                   .sources = {index}};
         if (!pieces.empty() && canMerge(pieces.back(), next, settings))
             merge(pieces.back(), std::move(next));
         else
             pieces.push_back(std::move(next));
     }
 
-    std::vector<Subtitle> subtitles;
+    Assembly made;
     for (const Piece& piece : pieces) {
-        if (fits(piece, settings))
-            subtitles.push_back(
+        if (fits(piece, settings)) {
+            made.subtitles.push_back(
                 Subtitle{.start = piece.start, .end = piece.end, .mainText = piece.text});
-        else
-            split(piece, settings, subtitles);
+            made.sources.push_back(piece.sources);
+        } else {
+            split(piece, settings, made);
+        }
     }
-    return subtitles;
+    return made;
+}
+
+std::vector<Subtitle> assembleSubtitles(std::span<const TranscribedSegment> segments,
+                                        const AssemblySettings& settings) {
+    return assemble(segments, settings).subtitles;
 }
 
 } // namespace subedit::core

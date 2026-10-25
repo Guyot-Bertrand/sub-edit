@@ -141,6 +141,7 @@ die zwei Blöcke gab, wird unverändert gelesen und beim nächsten Schließen in
 | `transcription.engine` | der Name der Engine: Kleinbuchstaben, Ziffern, `.`, `-` und `_` | `whisper.cpp` |
 | `transcription.executable`, `transcription.model` | ein absoluter Pfad; leer: Die Engine wird im `PATH` gesucht, und es ist kein Modell gesetzt | leer |
 | `transcription.language` | zwei Kleinbuchstaben, ein ISO-639-1-Code; leer: Die Sprache wird erkannt | leer |
+| `transcription.suppress-notes` | `true` oder `false` — `Do not write sounds as notes` | `true` |
 | `transcription.merge-gap-ms` | Teile eines Satzes, die näher beieinander liegen, werden zusammengefügt, in Millisekunden, ganz und nicht negativ | `400` |
 | `transcription.max-duration-ms` | die längste Dauer, die ein transkribierter Untertitel auf dem Bildschirm bleibt, in Millisekunden, von 1 bis 3600000 | `7000` |
 | `transcription.max-characters` | die höchste Zeichenzahl eines transkribierten Untertitels, von 1 bis 1000 | `84` |
@@ -291,6 +292,9 @@ gefunden wird, und das Modell — nicht festgelegt, nicht gefunden, kein Modell,
 fügt er den Verweis auf
 [Die Transkriptionswerkzeuge installieren](../subedit-cli/install-transcription.md) hinzu, der sagt, wo man
 jedes findet. Die beiden Felder sind die Einstellungen `transcription.executable` und `transcription.model`.
+
+Ein Kästchen, **“Geräusche nicht als Anmerkungen schreiben”**, ist die Einstellung `transcription.suppress-notes` (standardmäßig angekreuzt): Der Engine wird gesagt, Geräusche
+nicht als Anmerkungen zu schreiben, etwa `(phone ringing)`. Deaktivieren Sie es, um sie zu behalten, für Untertitel für Hörgeschädigte. Der Dialog von `Transcribe Audio…` bietet dasselbe Kästchen für die einzelne Transkription.
 
 ## Die Sprache der Oberfläche
 

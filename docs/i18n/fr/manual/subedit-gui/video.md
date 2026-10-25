@@ -105,17 +105,23 @@ la [grille déduite des positions](frame-grid.md), qui en est un autre.
 ouvert : c'est l'audio du **film du projet**, jamais un fichier que l'on choisirait — pour transcrire un
 fichier audio, utilisez [`transcribe`](../subedit-cli/transcribe.md) en ligne de commande.
 
-La boîte de dialogue demande trois choses, et dit si elle peut démarrer :
+La boîte de dialogue demande quatre choses, et dit si elle peut démarrer :
 
 - **la piste audio**, listée comme le fait le menu [`Audio`](#la-piste-audio), avec la langue
   et le titre que le fichier déclare ;
-- **la langue**, deux lettres comme `en` ou `fr` (`fra` est lu comme `fr`). Elle commence par la langue de la piste choisie
-  quand le fichier en déclare une, suit la piste tant que vous n'en avez pas tapé, et
-  **une ligne sous le champ dit d'où elle vient**. Quand le fichier ne déclare aucune langue pour la piste,
-  la ligne le dit, et avertit : le modèle la détectera alors d'après les trente premières secondes de son, ce que seul
-  un modèle multilingue sait faire, et **un film qui s'ouvre sur de la musique ou du silence peut être pris pour une autre
-  langue et sa parole alors traduite dans celle-ci**. Saisissez la langue si vous la connaissez. Avec un modèle pour l'anglais
-  seul, le champ est figé sur `en` et ne peut être changé, et la ligne dit que le film sortira en anglais quelle que soit sa langue ;
+- **la langue**, choisie dans une **liste** : d'abord une entrée qui la détecte, « Détecter d'après les 30 premières secondes de son », puis les
+  langues que le moteur offre pour le modèle, par leur nom dans la langue de la fenêtre et suivies de leur code — « français (fr) ». La liste est
+  celle du moteur : une centaine avec un modèle multilingue ; avec un modèle pour l'anglais seul elle a une seule entrée, l'anglais, et ne peut être
+  changée, et une ligne dit que le film sortira en anglais quelle que soit sa langue. La liste commence sur la langue de la piste choisie quand le
+  fichier en déclare une et que le moteur l'offre, suit la piste tant que vous n'en avez pas choisi, et **une ligne dessous dit d'où elle vient**.
+  Quand le fichier ne déclare aucune langue pour la piste, la ligne le dit, et avertit : le modèle la détectera alors d'après les trente premières
+  secondes de son, et **un film qui s'ouvre sur de la musique ou du silence peut être pris pour une autre langue et sa parole alors traduite dans
+  celle-ci**. Choisissez la langue si vous la connaissez ;
+- **les sons écrits comme des notes** : une case, « Ne pas écrire les sons comme des notes », cochée par défaut. Le moteur a alors ordre de ne pas
+  écrire les sons comme des notes, par exemple `(phone ringing)` ou `[MUSIC PLAYING]` ; là où il n'a pas de parole à écrire il écrit `...`, et les morceaux
+  qui n'ont ni lettre ni chiffre sont écartés par le post-traitement. Décochez la case pour garder les notes, pour des sous-titres pour sourds et malentendants.
+  La case est grisée, avec la raison, pour un moteur à qui on ne peut le dire. C'est le réglage `transcription.suppress-notes`, que les
+  [préférences](preferences.md#transcription) tiennent aussi ;
 - **la partie du film**, d'une durée à une autre — voir [Essayer une partie d'abord](#essayer-une-partie-dabord). Les deux champs
   vides, c'est le film entier.
 
@@ -145,24 +151,38 @@ dit où en est le travail**, pour que vous sachiez qu'il est vivant et combien d
 
 Sur un long film avec un grand modèle sur processeur, les premières minutes peuvent être longues : le moteur charge le modèle et
 travaille sur ses premières fenêtres de trente secondes. La position et le dernier texte bougent avant le pour cent propre du
-moteur, qui ne vient que par pas de 5 % du film. Quand il s'achève, les sous-titres du projet sont remplacés
-par la transcription **en une seule opération** : un `Undo` rend ce qui était là, textes de
-traduction compris. Une transcription qui échoue, ou que vous annulez, ne change rien — la raison est
-dite dans une boîte, sauf pour une annulation, qui dit seulement dans la barre d'état qu'elle a été annulée.
+moteur, qui ne vient que par pas de 5 % du film.
 
-**Quand l'essentiel de ce que le moteur a écrit est fait de notes entre crochets** — `[MUSIC PLAYING]`, `[SPEAKING FRENCH]` —, une boîte
-le dit après le travail : la langue employée n'est probablement pas celle qui est parlée, et le moteur a peut-être traduit la parole.
-Relancez avec la langue saisie. Les sous-titres sont quand même dans le projet, et un `Undo` rend ce qui était là.
+### L'aperçu
+
+**Rien ne remplace les sous-titres du projet avant que vous les ayez vus.** Quand le travail s'achève — et aussi quand vous l'annulez, ou qu'il échoue après
+avoir produit quelque chose — une fenêtre montre le résultat en deux tableaux côte à côte, chacun avec **ses propres début et fin** :
+
+- **à gauche, « Tel que le moteur l'a écrit »** : tout ce que le moteur a rendu, comme il l'a découpé, sans aucun post-traitement — ce qu'écrirait
+  [`--raw`](../subedit-cli/transcribe.md) —, les marqueurs de remplissage (`...`) compris ;
+- **à droite, « Tels qu'ils seront appliqués »** : les sous-titres après le post-traitement — marqueurs écartés, morceaux proches fusionnés, longs morceaux
+  coupés —, exactement ce qui ira dans le projet.
+
+Les deux ne se correspondent pas ligne à ligne, d'où des heures propres à chacun. **Sélectionner un sous-titre à droite surligne, à gauche, les morceaux dont il
+est fait**, et fait défiler la gauche jusqu'à eux ; un sous-titre à la fois, et dans ce sens seulement. Aucun des deux tableaux ne s'édite.
+
+Deux boutons le ferment. **« Appliquer »** remplace les sous-titres du projet **en une seule opération** : un `Undo` rend ce qui était là, textes de traduction
+compris. **« Ignorer »** jette le résultat, qui est perdu. « Appliquer » est éteint quand il n'y a
+rien à appliquer.
+
+**Quand le travail a été interrompu**, la fenêtre le dit — « Résultat partiel : le travail s'est arrêté à … » — et offre ce qui avait été obtenu jusque-là, à appliquer
+ou à ignorer, pour qu'une longue course arrêtée tard ne perde pas son travail sans qu'on l'ait demandé. Ces morceaux n'ont pas de mots horodatés (le moteur les écrit à la
+fin), et le post-traitement coupe aux limites propres des morceaux. Un échec est d'abord dit dans une boîte, comme tout échec ; une annulation ne dit rien de tel.
 
 ### Essayer une partie d'abord
 
-Une plage permet de **juger un modèle ou une langue sur deux minutes avant de s'engager sur deux heures**. Les champs « Partie du film » prennent un début et une fin, chacun écrit `2:00`, `1:02:03`, `2:00.5` ou un nombre
-de secondes, `90` ; un seul est permis (de là jusqu'à la fin, ou du début jusque-là). `OK` reste éteint tant qu'un champ n'est
+Une plage permet de **juger un modèle ou une langue sur deux minutes avant de s'engager sur deux heures**. Les champs « Partie du film » prennent un début et une fin, chacun écrit `HH:MM:SS`, comme les champs le disent (`2:00` et un nombre de secondes, `90`,
+sont lus aussi) ; un seul est permis (de là jusqu'à la fin, ou du début jusque-là). `OK` reste éteint tant qu'un champ n'est
 pas une durée ou que la fin ne vient pas après le début, et une ligne sous les champs dit lequel.
 
 - **Les sous-titres gardent le temps du film** : ce qui est dit à 2:10 est à `0:02:10` dans le résultat.
-- **Elle remplace les sous-titres du projet comme toute transcription**, après la même question quand il y en a, et un
-  `Undo` les rend. Pour essayer une plage sans toucher à votre travail, enregistrez d'abord, ou travaillez sur une copie.
+- **Elle passe par l'aperçu comme toute transcription**, et remplace les sous-titres du projet une fois appliquée ; un `Undo` les rend. Pour essayer
+  une plage sans toucher à votre travail, ignorez l'aperçu, ou enregistrez d'abord.
 
 **Ce dont elle a besoin n'est pas livré** : un moteur (whisper.cpp), un modèle, et `ffmpeg` pour extraire l'audio.
 Voir [Installer les outils de transcription](../subedit-cli/install-transcription.md).

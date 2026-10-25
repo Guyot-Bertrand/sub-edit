@@ -102,15 +102,15 @@ duration-adjust.lengthen
     Used by: subedit-cli adjust; Adjust Durations…
 ```
 
-היא מפרטת **40 מפתחות**:
+היא מפרטת **41 מפתחות**:
 
 <!-- example: subedit-cli config list | grep -c '^[a-z]' -->
 ```console
 $ subedit-cli config list | grep -c '^[a-z]'
-40
+41
 ```
 
-**עשרים מהם נקראים בשורת הפקודה**; עשרים האחרים נקראים בחלון בלבד,
+**עשרים ואחד מהם נקראים בשורת הפקודה**; עשרים האחרים נקראים בחלון בלבד,
 ושורת ה-`Used by:` שלהם אומרת זאת, עם האפשרות של `correct` שתופסת את מקומם:
 
 | מפתח | נקרא על ידי |
@@ -122,7 +122,7 @@ $ subedit-cli config list | grep -c '^[a-z]'
 | `correction.human`, `correction.ocr` | [`correct`](correct.md) ו-`Correct Texts…` |
 | `correction.remove-blank` | `correct` ו-`Correct Texts…` |
 | `correction.line-break.max-lines` | `correct` ו-`Correct Texts…` |
-| `transcription.engine`, `transcription.executable`, `transcription.model`, `transcription.language`, `transcription.merge-gap-ms`, `transcription.max-duration-ms`, `transcription.max-characters` | [`transcribe`](transcribe.md) ו-`Transcribe Audio…` |
+| `transcription.engine`, `transcription.executable`, `transcription.model`, `transcription.language`, `transcription.suppress-notes`, `transcription.merge-gap-ms`, `transcription.max-duration-ms`, `transcription.max-characters` | [`transcribe`](transcribe.md) ו-`Transcribe Audio…` |
 | כל מפתח `correction.*` אחר | `Correct Texts…` בלבד — `correct` לוקחת את `--tasks`, `--code`, `--max-length`, `--skip-length`, `--skip-lines`, `--language`, `--enable` ו-`--disable` משורתה שלה |
 
 מספר השורות נקבע במפתח `correction.line-break.max-lines`

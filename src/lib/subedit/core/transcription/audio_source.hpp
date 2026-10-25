@@ -60,12 +60,13 @@ struct AudioPreparationError {
     friend bool operator==(const AudioPreparationError&, const AudioPreparationError&) = default;
 };
 
-/// What the normalised audio is: the format whisper.cpp reads without converting.
-/// 16 kHz, mono, 16-bit PCM in a WAV file — and `src/scripts/video-fixtures.sh`
-/// holds the same command against real files (#771).
+/// What the normalised audio is: mono, 16-bit PCM in a WAV file, at the rate the engine asks for
+/// (`EngineCapabilities::sampleRate`; 16 kHz for whisper.cpp, which reads it without converting) —
+/// and `src/scripts/video-fixtures.sh` holds the same command against real files (#771).
 ///
 /// Extracts the audio track `track` of `source` (the first when nothing is
-/// asked) to `destination`, converting an audio file the same way. **A partial
+/// asked) to `destination` at `sampleRate` hertz (the rate it has when 0), converting an
+/// audio file the same way. **A partial
 /// file is removed** when the run fails or is stopped.
 ///
 /// `ffmpeg` is the external tool of the roadmap's rule: absent, this says so and
@@ -77,6 +78,13 @@ extractAudio(const FileSystem& files,
              const std::filesystem::path& source,
              std::optional<int> track,
              const std::filesystem::path& destination,
+             int sampleRate,
              const StreamObserver& observer = {});
+
+/// The name of the file to keep the audio in, with the wildcards of `pattern` filled in from what
+/// shaped the file: `{rate}` becomes the sampling rate in hertz, or `source` when the audio keeps
+/// its own. A name without a wildcard is returned as it stands; the wildcards are listed in the
+/// manual with `--keep-audio`.
+[[nodiscard]] std::string expandAudioName(std::string_view pattern, int sampleRate);
 
 } // namespace subedit::core

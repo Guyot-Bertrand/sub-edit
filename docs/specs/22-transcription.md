@@ -259,12 +259,15 @@ what was missing: `CLI-TRANSCRIBE-09`, `CLI-TRANSCRIBE-10`, `GUI-TRANSCRIBE-05` 
 | `CLI-TRANSCRIBE-08` | `--format json` writes one record with the language used, the counts and the files written |
 | `GUI-TRANSCRIBE-01` | `Transcribe Audio…` opens a dialog offering the audio tracks of the project's video, a language and a model |
 | `GUI-TRANSCRIBE-02` | the transcription runs in the background with a progress indicator and can be cancelled, a cancelled or failed run leaving the project unchanged |
-| `GUI-TRANSCRIBE-03` | when the subtitle section is not empty the window asks for confirmation before replacing it, and one undo restores it |
+| `GUI-TRANSCRIBE-03` | when the subtitle section is not empty the window asks for confirmation before the work, and the transcription replaces it only once the person has applied it from the preview, as one undoable operation |
 | `GUI-TRANSCRIBE-04` | without the executable, the model or the extraction tool the command explains what is missing and where to read how to install it, and the rest of the window is unaffected |
 | `CLI-TRANSCRIBE-09` | `--start` and `--end` restrict the transcription to a part of the film, the subtitles keep the time of the film, and a bound that is no time or a range whose end comes first is refused before any work |
 | `CLI-TRANSCRIBE-10` | while it runs the command says the step, the percent, the position in the film and the time left, and at the third level the text last obtained |
+| `CLI-TRANSCRIBE-11` | `--list-languages` lists the languages the engine offers for the model, one per line with its name in the language of the interface, and transcribes nothing |
+| `CLI-TRANSCRIBE-12` | `--suppress-notes` and `--keep-notes` decide whether the engine writes sounds as notes, over the setting; both together are refused, and an engine that cannot be told refuses the first by name |
 | `GUI-TRANSCRIBE-05` | the progress box says the step, the position in the film, the time left and the last text obtained, and is busy rather than at 0 % while nothing says how far it is |
 | `GUI-TRANSCRIBE-06` | the dialog takes a range of the film and transcribes only that part, the result replacing the subtitles of the project like any transcription, after the same question |
+| `GUI-TRANSCRIBE-07` | the transcription is shown in a preview before it replaces the subtitles of the project — the engine's pieces on the left, the final subtitles on the right, each with its own times, a selected subtitle highlighting its sources — and a cancelled or failed run offers what it had obtained, to apply or to ignore |
 
 ## Split
 
@@ -293,8 +296,51 @@ One pull request carried the four: the settings (`transcription.*`, seven keys o
 `core/wording/transcription` family, the `transcribe` command, `Transcribe Audio…` in the `Video` menu, and the
 installation guide. The pipeline both surfaces run is `transcribeMedia` (`core/transcription/`), so they cannot
 differ; the window replaces the project's subtitles with `replaceAllSubtitles`, one entry of the history
-(`CommandKind::Transcribe`), after a confirmation that is asked **before** the work. The command's subtitle format
+(`CommandKind::Transcribe`), after a confirmation that is asked **before** the work (replaced by the preview, see below). The command's subtitle format
 is chosen with `--to`, since `--format` is the global option that selects JSON output.
+
+## Delivered by #792 to #794
+
+Run on real films, the first version showed what the spec had not foreseen; three issues followed.
+
+**#792 — progress, time left, a range.** whisper.cpp reports its own progress in steps of 5 % of the audio and only after a
+window of thirty seconds, so a long film on a large model stayed at 0 % for a long while. The adapter reads the pieces the
+engine prints as it decodes them, takes the length of the audio from its banner, and folds both into one fraction that only
+goes up (`TranscriptionProgress`, `TranscriptionObserver::advance`). `RemainingTime` works the time left out of the speed
+since the start, up to the last minute, and is silent until it can. `--start` and `--end` restrict the work to a part of the
+film; the engine's whole windows are cut to the range afterwards. A model for English alone is said so before the work.
+
+**#793 — the window.** The box is shown at once, the time fields ask for `HH:MM:SS`, a language is read as two letters or as
+the three-letter code of a file.
+
+**#794 — options, languages, preview.**
+
+- **What an engine can do is a capability.** `EngineCapabilities` gains `suppressNotes` and `sampleRate`, and `languages` is now
+  the closed set the engine offers for the model (about a hundred for a multilingual whisper.cpp model, English alone for the
+  other) — empty still means any, for an engine that cannot list. The surfaces adapt: the window greys what the engine cannot
+  do, the command line refuses by name an option the engine cannot honour. **What the engine can do with the model is asked
+  before any extraction**, so a request it cannot take — a language, a missing model — is refused before the long work.
+- **Sounds as notes** are an intent, `transcription.suppress-notes` (on by default), with `--suppress-notes` and
+  `--keep-notes`, a checkbox in the dialog and in the preferences; the adapter turns it into `-sns`. Forbidden the symbols
+  notes are made of, whisper writes `...` for a passage with no speech: **the post-processing drops the pieces with no letter
+  and no digit**, and says where each subtitle comes from (`assemble` returns an `Assembly`: the subtitles and, for each, the
+  indices of its source pieces). `--raw` keeps the engine's pieces as they came. A transcript with many of them is not suspect:
+  a film has music and effects almost throughout.
+- **The language** is chosen in the engine's list, named by ICU in the language of the window (`languageDisplayName`;
+  `interfaceLanguageName` is the name of the catalogue installed), with a first entry that detects. `--list-languages` prints
+  the same list, `code<TAB>name`, for the engine and model asked. The front-end speaks in neutral values (an ISO 639-1 code);
+  the adapter turns them into the engine's.
+- **The sampling rate** is the engine's (16 kHz for whisper.cpp); the extraction asks for it. The name of what `--keep-audio`
+  writes takes a `{rate}` wildcard, filled in from the real value. The number of channels, and the speaker options of the
+  engine, are left for later, on purpose.
+- **The preview.** The transcription no longer replaces the subtitles of the project on its own: a dialog shows the pieces of
+  the engine on the left and the final subtitles on the right, each with its own times, and the person applies or ignores
+  (and loses) them. **The question asked before the work stays**, when the project holds subtitles: an hour of computing is not started
+  by mistake. "Apply" is the second choice, made once the result is seen, and the replacement stays one undoable operation. A subtitle selected on the right highlights its sources on the left, which scrolls
+  to them; one at a time, no editing. **A cancelled or failed run offers what it had obtained** (`TranscriptionError::partial`,
+  carried by `MediaTranscriptionError`), titled as partial, so that a long run stopped late does not lose its work unasked.
+  The notice of #793 about a transcript "mostly notes in brackets" is removed with it. On the command line, an interrupted run
+  writes nothing, as before.
 
 ## Open points
 

@@ -139,6 +139,7 @@ suivante.
 | `transcription.engine` | le nom du moteur : lettres minuscules, chiffres, `.`, `-` et `_` | `whisper.cpp` |
 | `transcription.executable`, `transcription.model` | un chemin absolu ; vide : le moteur est cherché dans le `PATH`, et aucun modèle n'est réglé | vide |
 | `transcription.language` | deux lettres minuscules, un code ISO 639-1 ; vide : la langue est détectée | vide |
+| `transcription.suppress-notes` | `true` ou `false` — `Do not write sounds as notes` | `true` |
 | `transcription.merge-gap-ms` | les morceaux d'une même phrase plus proches que cela sont joints, en millisecondes, nombre entier non négatif | `400` |
 | `transcription.max-duration-ms` | la durée maximale d'un sous-titre transcrit à l'écran, en millisecondes, de 1 à 3600000 | `7000` |
 | `transcription.max-characters` | le nombre maximal de caractères d'un sous-titre transcrit, de 1 à 1000 | `84` |
@@ -289,6 +290,9 @@ est trouvé, et le modèle — non réglé, introuvable, ce n'est pas un modèle
 manque, elle ajoute le renvoi vers
 [Installer les outils de transcription](../subedit-cli/install-transcription.md), qui dit où trouver
 chacun. Les deux champs sont les réglages `transcription.executable` et `transcription.model`.
+
+Une case, **« Ne pas écrire les sons comme des notes »**, est le réglage `transcription.suppress-notes` (cochée par défaut) : le moteur a ordre de ne pas écrire les sons
+comme des notes, par exemple `(phone ringing)`. Décochez-la pour les garder, pour des sous-titres pour sourds et malentendants. La boîte de `Transcribe Audio…` offre la même case pour la seule transcription.
 
 ## La langue de l'interface
 

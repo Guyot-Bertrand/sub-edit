@@ -111,17 +111,23 @@ la finestra di dialogo mostrava.
 l'audio del **film del progetto**, mai un file che si sceglierebbe — per trascrivere un
 file audio, usa [`transcribe`](../subedit-cli/transcribe.md) da riga di comando.
 
-La finestra di dialogo chiede tre cose e dice se può partire:
+La finestra di dialogo chiede quattro cose e dice se può partire:
 
 - **la traccia audio**, elencata come la elenca il menu [`Audio`](#la-traccia-audio), con la lingua
   e il titolo dichiarati dal file;
-- **la lingua**, due lettere come `en` o `fr` (`fra` è letto come `fr`). Parte dalla lingua della traccia scelta
-  quando il file ne dichiara una, segue la traccia finché non ne hai digitata una, e
-  **una riga sotto il campo dice da dove viene**. Quando il file non dichiara alcuna lingua per la traccia,
-  la riga lo dice, e avverte: il modello la rileverà allora dai primi trenta secondi di suono, cosa che solo un modello
-  multilingue sa fare, e **un film che si apre con musica o silenzio può essere scambiato per un'altra lingua e il suo parlato
-  tradotto in quella**. Digita la lingua se la conosci. Con un modello solo per l'inglese il campo è fissato su `en` e non
-  si può cambiare, e la riga dice che il film uscirà in inglese qualunque lingua parli;
+- **la lingua**, scelta in un **elenco**: prima una voce che la rileva, “Rileva dai primi 30 secondi di suono”, poi le lingue che
+  il motore offre per il modello, con il loro nome nella lingua della finestra seguito dal codice — “francese (fr)”. L'elenco è quello del
+  motore: un centinaio con un modello multilingue; con un modello solo per l'inglese ha la sola voce, l'inglese, e non si può
+  cambiare, e una riga dice che il film uscirà in inglese qualunque lingua parli. L'elenco parte dalla lingua della traccia
+  scelta quando il file ne dichiara una e il motore la offre, segue la traccia finché non ne hai scelta una, e
+  **una riga sotto dice da dove viene**. Quando il file non dichiara alcuna lingua per la traccia, la riga lo dice, e avverte:
+  il modello la rileverà allora dai primi trenta secondi di suono, e **un film che si apre con musica o silenzio può essere scambiato per
+  un'altra lingua e il suo parlato tradotto in quella**. Scegli la lingua se la conosci;
+- **i suoni scritti come note**: una casella, “Non scrivere i suoni come note”, selezionata per impostazione predefinita. Al motore è allora ordinato di non scrivere i suoni come
+  note, come `(phone ringing)` o `[MUSIC PLAYING]`; dove non ha parlato da scrivere scrive `...`, e i pezzi che non hanno né lettere né cifre
+  vengono scartati dalla post-elaborazione. Deseleziona la casella per conservare le note, per sottotitoli per non udenti. La casella è grigia, con il motivo,
+  per un motore a cui non lo si può dire. È l'impostazione `transcription.suppress-notes`, che anche le [preferenze](preferences.md#trascrizione)
+  contengono;
 - **la parte del film**, da un tempo a un altro — vedi [Provare prima una parte](#provare-prima-una-parte). Con entrambi i campi
   vuoti si trascrive l'intero film.
 
@@ -151,24 +157,38 @@ dice a che punto è il lavoro**, in modo che tu sappia che è vivo e quanto temp
 
 Su un film lungo con un modello grande su processore, i primi minuti possono essere lunghi: il motore sta caricando il modello e
 lavorando sulle sue prime finestre di trenta secondi. La posizione e l'ultimo testo si muovono prima del percento proprio del
-motore, che arriva solo a passi del 5 % del film. Quando termina, i sottotitoli del progetto vengono sostituiti
-dalla trascrizione **in una sola operazione**: un solo `Undo` restituisce ciò che c'era, testi di
-traduzione compresi. Una trascrizione che fallisce, o che annulli, non cambia nulla — il motivo viene
-detto in una finestra, tranne che per un annullamento, che dice soltanto nella barra di stato che è stato annullato.
+motore, che arriva solo a passi del 5 % del film.
 
-**Quando la maggior parte di ciò che il motore ha scritto sono note tra parentesi quadre** — `[MUSIC PLAYING]`, `[SPEAKING FRENCH]` —, una finestra
-lo dice dopo il lavoro: la lingua usata probabilmente non è quella parlata, e il motore potrebbe aver tradotto il parlato.
-Riesegui indicando la lingua. I sottotitoli sono comunque nel progetto, e un `Undo` restituisce ciò che c'era.
+### L'anteprima
+
+**Nulla sostituisce i sottotitoli del progetto finché non li hai visti.** Quando il lavoro termina — e anche quando lo annulli, o fallisce
+dopo aver prodotto qualcosa — una finestra mostra il risultato in due tabelle affiancate, ciascuna con **il proprio inizio e la propria fine**:
+
+- **a sinistra, “Così come l'ha scritto il motore”**: tutto ciò che il motore ha restituito, come l'ha tagliato, senza alcuna post-elaborazione — ciò che
+  scriverebbe [`--raw`](../subedit-cli/transcribe.md) —, segnaposto (`...`) compresi;
+- **a destra, “Così come saranno applicati”**: i sottotitoli dopo la post-elaborazione — segnaposto scartati, pezzi vicini uniti, pezzi
+  lunghi tagliati —, esattamente ciò che entrerà nel progetto.
+
+Le due non si allineano riga per riga, ed è per questo che ciascuna ha i propri tempi. **Selezionare un sottotitolo a destra evidenzia, a sinistra, i pezzi da cui
+è stato fatto**, e scorre il lato sinistro fino a loro; un sottotitolo alla volta, e solo in questa direzione. Nessuna delle due tabelle si può modificare.
+
+Due pulsanti la chiudono. **“Applica”** sostituisce i sottotitoli del progetto **in una sola operazione**: un solo `Undo` restituisce ciò che c'era, testi di
+traduzione compresi. **“Ignora”** scarta il risultato, che va perso. “Applica” è disattivato quando non c'è
+nulla da applicare.
+
+**Quando il lavoro è stato interrotto**, la finestra lo dice — “Risultato parziale: il lavoro si è fermato a …” — e offre ciò che era stato ottenuto fino a lì, da applicare
+o da ignorare, in modo che una lunga esecuzione fermata tardi non perda il suo lavoro senza averlo chiesto. Quei pezzi non hanno parole con tempo (il motore le scrive alla
+fine), e la post-elaborazione taglia ai limiti propri dei pezzi. Un fallimento viene detto prima in una finestra, come ogni fallimento; un annullamento non dice nulla di simile.
 
 ### Provare prima una parte
 
-Un intervallo permette di **giudicare un modello o una lingua su due minuti prima di impegnarsi su due ore**. I campi “Parte del film” accettano un inizio e una fine, ciascuno scritto `2:00`, `1:02:03`, `2:00.5` o un numero
-di secondi, `90`; ne è ammesso uno solo (da lì alla fine, o dall'inizio fino a lì). `OK` resta disattivato finché un campo non
+Un intervallo permette di **giudicare un modello o una lingua su due minuti prima di impegnarsi su due ore**. I campi “Parte del film” accettano un inizio e una fine, ciascuno scritto `HH:MM:SS`, come dicono i campi (`2:00` e un numero di secondi, `90`,
+sono letti anch'essi); ne è ammesso uno solo (da lì alla fine, o dall'inizio fino a lì). `OK` resta disattivato finché un campo non
 è un tempo o la fine non viene dopo l'inizio, e una riga sotto i campi dice quale.
 
 - **I sottotitoli mantengono il tempo del film**: ciò che è detto a 2:10 si trova a `0:02:10` nel risultato.
-- **Sostituisce i sottotitoli del progetto come ogni trascrizione**, dopo la stessa domanda quando ce ne sono, e un solo
-  `Undo` li restituisce. Per provare un intervallo senza toccare il tuo lavoro, salva prima, oppure lavora su una copia.
+- **Passa dall'anteprima come ogni trascrizione**, e sostituisce i sottotitoli del progetto una volta applicata; un solo `Undo` li restituisce.
+  Per provare un intervallo senza toccare il tuo lavoro, ignora l'anteprima, oppure salva prima.
 
 **Ciò che serve non è fornito**: un motore (whisper.cpp), un modello e `ffmpeg` per estrarre l'audio.
 Vedi [Installare gli strumenti di trascrizione](../subedit-cli/install-transcription.md).

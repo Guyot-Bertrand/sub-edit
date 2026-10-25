@@ -26,25 +26,28 @@ constexpr std::string_view kTitleTag = "TAG:title=";
             video.string()};
 }
 
-/// The arguments that extract one track as 16 kHz mono 16-bit PCM.
-[[nodiscard]] std::vector<std::string> extractionArguments(
-    const std::filesystem::path& source, int track, const std::filesystem::path& destination) {
-    return {"-v",
-            "error",
-            "-nostdin",
-            "-y",
-            "-i",
-            source.string(),
-            "-map",
-            "0:a:" + std::to_string(track),
-            "-vn",
-            "-ac",
-            "1",
-            "-ar",
-            "16000",
-            "-c:a",
-            "pcm_s16le",
-            destination.string()};
+/// The arguments that extract one track as mono 16-bit PCM, at `sampleRate` hertz when it is not 0.
+[[nodiscard]] std::vector<std::string> extractionArguments(const std::filesystem::path& source,
+                                                           int track,
+                                                           const std::filesystem::path& destination,
+                                                           int sampleRate) {
+    std::vector<std::string> arguments{"-v",
+                                       "error",
+                                       "-nostdin",
+                                       "-y",
+                                       "-i",
+                                       source.string(),
+                                       "-map",
+                                       "0:a:" + std::to_string(track),
+                                       "-vn",
+                                       "-ac",
+                                       "1"};
+    if (sampleRate > 0) {
+        arguments.emplace_back("-ar");
+        arguments.push_back(std::to_string(sampleRate));
+    }
+    arguments.insert(arguments.end(), {"-c:a", "pcm_s16le", destination.string()});
+    return arguments;
 }
 
 } // namespace
@@ -88,6 +91,7 @@ std::expected<void, AudioPreparationError> extractAudio(const FileSystem& files,
                                                         const std::filesystem::path& source,
                                                         std::optional<int> track,
                                                         const std::filesystem::path& destination,
+                                                        int sampleRate,
                                                         const StreamObserver& observer) {
     const std::optional<std::filesystem::path> extractor =
         findExecutable(files, kExtractorName, searchPath);
@@ -112,8 +116,8 @@ std::expected<void, AudioPreparationError> extractAudio(const FileSystem& files,
             observer.onLine(line);
     };
 
-    const std::expected<StreamedRun, LaunchError> ran =
-        runStreaming(*extractor, extractionArguments(source, wanted, destination), streamed);
+    const std::expected<StreamedRun, LaunchError> ran = runStreaming(
+        *extractor, extractionArguments(source, wanted, destination, sampleRate), streamed);
 
     std::optional<AudioPreparationError> failure;
     if (!ran)
@@ -130,6 +134,16 @@ std::expected<void, AudioPreparationError> extractAudio(const FileSystem& files,
     std::error_code ignored;
     std::filesystem::remove(destination, ignored);
     return std::unexpected(*failure);
+}
+
+std::string expandAudioName(std::string_view pattern, int sampleRate) {
+    constexpr std::string_view kRate = "{rate}";
+    std::string name{pattern};
+    const std::string rate = sampleRate > 0 ? std::to_string(sampleRate) : "source";
+    for (std::size_t at = name.find(kRate); at != std::string::npos;
+         at = name.find(kRate, at + rate.size()))
+        name.replace(at, kRate.size(), rate);
+    return name;
 }
 
 } // namespace subedit::core

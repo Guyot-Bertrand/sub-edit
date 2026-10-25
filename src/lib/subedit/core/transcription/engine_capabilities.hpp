@@ -24,6 +24,16 @@ struct EngineCapabilities {
     /// multilingual model does not list its hundred languages.
     std::vector<std::string> languages{};
 
+    /// Whether it can be told not to write sounds as notes (`TranscriptionRequest::suppressNotes`).
+    /// Greyed in the window, and refused when asked for on the command line, for an engine that
+    /// cannot.
+    bool suppressNotes = false;
+
+    /// The sampling rate, in hertz, of the audio the engine wants: whisper.cpp reads 16 kHz. **The
+    /// rate is the engine's need, not the program's**: the extraction produces what the engine asks
+    /// for. 0 means no preference, and the audio keeps the rate it has.
+    int sampleRate = 0;
+
     /// Whether it tells who speaks.
     bool speakers = false;
 

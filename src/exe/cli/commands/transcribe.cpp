@@ -36,16 +36,13 @@ describeTranscribe(CLI::App& app, std::string_view name, TranscribeCommandOption
     CLI::App* transcribe = app.add_subcommand(
         std::string{name},
         std::string{core::translate("Write the speech of a video or an audio file as subtitles")});
-    transcribe
-        ->add_option("input",
-                     options.request.input,
-                     std::string{core::translate("Video or audio file to transcribe")})
-        ->required();
+    transcribe->add_option("input",
+                           options.request.input,
+                           std::string{core::translate("Video or audio file to transcribe")});
     transcribe
         ->add_option("--output",
                      options.request.output,
                      std::string{core::translate("Subtitle file to write")})
-        ->required()
         ->option_text("FILE");
     transcribe
         ->add_option("--to",
@@ -79,6 +76,15 @@ describeTranscribe(CLI::App& app, std::string_view name, TranscribeCommandOption
                          "Language of the speech, two letters: fr, en, de; detected from the first "
                          "30 seconds by default")})
         ->option_text("CODE");
+    transcribe->add_flag(
+        "--suppress-notes",
+        options.request.suppressNotes,
+        std::string{core::translate("Do not write sounds as notes, such as (phone ringing); the "
+                                    "transcription.suppress-notes setting by default")});
+    transcribe->add_flag(
+        "--keep-notes",
+        options.request.keepNotes,
+        std::string{core::translate("Write sounds as notes, against the setting")});
     transcribe
         ->add_option(
             "--model",
@@ -96,6 +102,11 @@ describeTranscribe(CLI::App& app, std::string_view name, TranscribeCommandOption
                      options.request.keepAudio,
                      std::string{core::translate("Keep the extracted audio in this file")})
         ->option_text("FILE");
+    transcribe->add_flag(
+        "--list-languages",
+        options.request.listLanguages,
+        std::string{core::translate(
+            "List the languages the engine offers for the model, and transcribe nothing")});
     transcribe->add_flag("--raw",
                          options.request.raw,
                          std::string{core::translate("Write the segments as the engine cut them")});

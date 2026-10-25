@@ -1,8 +1,8 @@
 // How far a transcription is: the lines the tool prints, the time left, the range asked for,
 // and the words that say it.
 
-#include <subedit/core/transcription/annotation_notes.hpp>
 #include <subedit/core/transcription/language_codes.hpp>
+#include <subedit/core/transcription/language_display.hpp>
 #include <subedit/core/transcription/remaining_time.hpp>
 #include <subedit/core/transcription/time_range.hpp>
 #include <subedit/core/transcription/whisper_cpp_output.hpp>
@@ -284,54 +284,35 @@ TEST_CASE("the wording says what is wrong with a language", "[wording][transcrip
           "\"french\" is not a language code: write two letters, such as fr, en, de or es");
 }
 
-// ## Notes in brackets
-
-TEST_CASE("a piece that is only notes in brackets is recognised", "[transcription][notes]") {
-    using subedit::core::isNotesOnly;
-
-    CHECK(isNotesOnly("[MUSIC PLAYING]"));
-    CHECK(isNotesOnly("[SPEAKING FRENCH] [MUSIC PLAYING] [SPEAKING FRENCH]"));
-    CHECK(isNotesOnly("  (applause) "));
-    CHECK_FALSE(isNotesOnly(""));
-    CHECK_FALSE(isNotesOnly("   "));
-    CHECK_FALSE(isNotesOnly("[]"));
-    CHECK_FALSE(isNotesOnly("[MUSIC PLAYING] and then he spoke"));
-    CHECK_FALSE(isNotesOnly("He said [no]"));
-    CHECK_FALSE(isNotesOnly("[unclosed"));
-}
-
-TEST_CASE("a transcription of mostly notes looks like the wrong language",
-          "[transcription][notes]") {
-    using subedit::core::looksLikeWrongLanguage;
-    using subedit::core::NotesShare;
-
-    CHECK(looksLikeWrongLanguage(NotesShare{.notes = 5, .pieces = 9}));
-    CHECK(looksLikeWrongLanguage(NotesShare{.notes = 2, .pieces = 6}));
-    // Too few, or too small a share.
-    CHECK_FALSE(looksLikeWrongLanguage(NotesShare{.notes = 1, .pieces = 1}));
-    CHECK_FALSE(looksLikeWrongLanguage(NotesShare{.notes = 2, .pieces = 7}));
-    CHECK_FALSE(looksLikeWrongLanguage(NotesShare{}));
-}
-
-TEST_CASE("the notes are counted over the pieces", "[transcription][notes]") {
-    using subedit::core::TranscribedSegment;
-
-    const std::vector<TranscribedSegment> segments{
-        {.text = "[MUSIC PLAYING]", .start = at(0), .end = at(1000)},
-        {.text = "Bonjour.", .start = at(1000), .end = at(2000)},
-        {.text = "[SPEAKING FRENCH]", .start = at(2000), .end = at(3000)}};
-
-    const auto share = subedit::core::notesShare(segments);
-
-    CHECK(share.notes == 2);
-    CHECK(share.pieces == 3);
-}
-
 TEST_CASE("the notices say what happened and what to do", "[wording][transcription]") {
-    CHECK_THAT(subedit::core::noticeOfNotes(5, 9, "en"),
-               Catch::Matchers::ContainsSubstring("5 of the 9 pieces are only notes in brackets"));
-    CHECK_THAT(subedit::core::noticeOfNotes(5, 9, "en"),
-               Catch::Matchers::ContainsSubstring("Run it again with the language typed"));
     CHECK_THAT(subedit::core::noticeOfEnglishOnlyModel(),
                Catch::Matchers::ContainsSubstring("Choose a multilingual model"));
+    CHECK(subedit::core::noticeOfPartialTranscription(3, Timestamp::fromMilliseconds(750000)) ==
+          "3 subtitles kept from a partial transcription, up to 0:12:30");
+    CHECK(subedit::core::noticeOfPartialTranscription(1, Timestamp::fromMilliseconds(60000)) ==
+          "1 subtitle kept from a partial transcription, up to 0:01:00");
+}
+
+// ## The names of languages
+
+TEST_CASE("a language is named in the language of the reader", "[transcription][language]") {
+    using subedit::core::languageDisplayName;
+
+    CHECK(languageDisplayName("fr", "") == "French");
+    CHECK(languageDisplayName("fr", "fr") == "français");
+    CHECK(languageDisplayName("de", "fr") == "allemand");
+    CHECK(languageDisplayName("fr", "de") == "Französisch");
+    // A catalogue's regional name reads as its language.
+    CHECK(languageDisplayName("de", "pt_BR") == "alemão");
+}
+
+TEST_CASE("the old code of Javanese is read as the modern one", "[transcription][language]") {
+    using subedit::core::languageDisplayName;
+
+    CHECK(languageDisplayName("jw", "") == "Javanese");
+    CHECK(languageDisplayName("yue", "") == "Cantonese");
+}
+
+TEST_CASE("a code with no name is returned as it stands", "[transcription][language]") {
+    CHECK(subedit::core::languageDisplayName("zzz", "") == "zzz");
 }

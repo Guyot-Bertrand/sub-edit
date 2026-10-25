@@ -107,17 +107,22 @@ związany jest ten dokument — a trzecia wzmianka stawiałaby go w jednym rzęd
 dźwięk **filmu projektu**, nigdy plik, który się wybiera — aby transkrybować plik
 dźwiękowy, użyj [`transcribe`](../subedit-cli/transcribe.md) w wierszu poleceń.
 
-Okno dialogowe pyta o trzy rzeczy i mówi, czy może zacząć:
+Okno dialogowe pyta o cztery rzeczy i mówi, czy może zacząć:
 
 - **ścieżkę dźwiękową**, wymienioną tak, jak wymienia ją menu [`Audio`](#ścieżka-dźwiękowa), z językiem
   i tytułem, które deklaruje plik;
-- **język**, dwie litery, takie jak `en` lub `fr` (`fra` jest odczytywany jako `fr`). Zaczyna od języka wybranej ścieżki,
-  gdy plik go deklaruje, podąża za ścieżką, dopóki nie wpiszesz własnego, a
-  **wiersz pod polem mówi, skąd on pochodzi**. Gdy plik nie deklaruje języka dla ścieżki,
-  wiersz to mówi i ostrzega: model wykryje go wtedy z pierwszych trzydziestu sekund dźwięku, co potrafi tylko model
-  wielojęzyczny, a **film, który zaczyna się muzyką lub ciszą, może zostać wzięty za inny język, a jego mowa
-  przetłumaczona na ten język**. Wpisz język, jeśli go znasz. Przy modelu tylko dla angielskiego pole jest ustalone na `en` i nie
-  można go zmienić, a wiersz mówi, że film wyjdzie po angielsku, niezależnie od tego, w jakim języku mówi;
+- **język**, wybierany z **listy**: najpierw pozycja, która go wykrywa, „Wykryj z pierwszych 30 sekund dźwięku”, potem języki, które
+  silnik oferuje dla modelu, pod nazwą w języku okna i z dopiskiem kodu — „francuski (fr)”. Lista jest listą
+  silnika: około stu przy modelu wielojęzycznym; przy modelu tylko dla angielskiego ma jedną pozycję, angielski, i nie można jej
+  zmienić, a wiersz mówi, że film wyjdzie po angielsku, niezależnie od tego, w jakim języku mówi. Lista zaczyna od języka wybranej
+  ścieżki, gdy plik go deklaruje, a silnik go oferuje, podąża za ścieżką, dopóki nie wybierzesz własnego, a
+  **wiersz pod nią mówi, skąd on pochodzi**. Gdy plik nie deklaruje języka dla ścieżki, wiersz to mówi i ostrzega:
+  model wykryje go wtedy z pierwszych trzydziestu sekund dźwięku, a **film, który zaczyna się muzyką lub ciszą, może zostać wzięty za inny język, a jego mowa
+  przetłumaczona na ten język**. Wybierz język, jeśli go znasz;
+- **dźwięki zapisywane jako uwagi**: pole wyboru, „Nie zapisuj dźwięków jako uwag”, domyślnie zaznaczone. Silnik ma wtedy polecenie, by nie zapisywać dźwięków jako
+  uwag, takich jak `(phone ringing)` lub `[MUSIC PLAYING]`; tam, gdzie nie ma mowy do zapisania, zapisuje `...`, a kawałki, które nie mają ani litery, ani cyfry,
+  są odrzucane przez przetwarzanie końcowe. Odznacz pole, aby zachować uwagi, na potrzeby napisów dla niesłyszących. Pole jest wyszarzone, z podaniem przyczyny,
+  dla silnika, któremu nie można tego polecić. To ustawienie `transcription.suppress-notes`, które zawierają także [preferencje](preferences.md#transkrypcja);
 - **fragment filmu**, od jednego czasu do drugiego — zobacz [Najpierw wypróbuj fragment](#najpierw-wypróbuj-fragment). Oba pola
   puste oznaczają cały film.
 
@@ -147,24 +152,37 @@ mówi, na jakim etapie jest praca**, abyś wiedział, że żyje, i ile potrwa:
 
 Na długim filmie z dużym modelem na procesorze pierwsze minuty mogą być długie: silnik ładuje model i pracuje nad pierwszymi
 oknami po trzydzieści sekund. Pozycja i ostatni tekst ruszają, zanim ruszy własny procent silnika, który przychodzi tylko co 5 % filmu.
-Gdy praca się kończy, napisy projektu są zastępowane
-transkrypcją **jedną operacją**: jedno `Undo` przywraca to, co było, łącznie z tekstami
-tłumaczenia. Transkrypcja, która się nie powiedzie albo którą anulujesz, niczego nie zmienia — przyczyna jest
-podawana w oknie, z wyjątkiem anulowania, które tylko w pasku stanu mówi, że zostało anulowane.
 
-**Gdy większość tego, co zapisał silnik, to uwagi w nawiasach** — `[MUSIC PLAYING]`, `[SPEAKING FRENCH]` —, okno
-mówi o tym po pracy: użyty język prawdopodobnie nie jest tym, w którym mówiono, a silnik mógł przetłumaczyć mowę.
-Uruchom ponownie, wpisując język. Napisy i tak są w projekcie, a jedno `Undo` przywraca to, co było.
+### Podgląd
+
+**Nic nie zastępuje napisów projektu, dopóki ich nie zobaczysz.** Gdy praca się kończy — a także gdy ją anulujesz albo gdy się nie powiedzie
+po wytworzeniu czegoś — okno pokazuje wynik w dwóch tabelach obok siebie, każda z **własnym początkiem i końcem**:
+
+- **po lewej „Tak, jak zapisał to silnik”**: wszystko, co zwrócił silnik, tak jak je pociął, bez żadnego przetwarzania końcowego — to, co
+  zapisałoby [`--raw`](../subedit-cli/transcribe.md) —, łącznie z zapychaczami (`...`);
+- **po prawej „Tak, jak zostaną zastosowane”**: napisy po przetwarzaniu końcowym — zapychacze odrzucone, bliskie kawałki scalone, długie
+  pocięte —, dokładnie to, co trafi do projektu.
+
+Obie nie pokrywają się wiersz w wiersz, dlatego każda ma własne czasy. **Zaznaczenie napisu po prawej podświetla po lewej kawałki, z których
+powstał**, i przewija lewą stronę do nich; jeden napis naraz i tylko w tym kierunku. Żadnej z tabel nie można edytować.
+
+Dwa przyciski zamykają okno. **„Zastosuj”** zastępuje napisy projektu **jedną operacją**: jedno `Undo` przywraca to, co było, łącznie z tekstami
+tłumaczenia. **„Ignoruj”** odrzuca wynik, który jest wtedy stracony. „Zastosuj” jest wyłączone, gdy nie ma
+czego stosować.
+
+**Gdy pracę przerwano**, okno to mówi — „Wynik częściowy: praca zatrzymała się na …” — i oferuje to, co uzyskano do tego miejsca, do zastosowania
+lub zignorowania, aby długie uruchomienie zatrzymane późno nie traciło swojej pracy bez pytania. Te kawałki nie mają słów ze znacznikami czasu (silnik zapisuje je na
+końcu), a przetwarzanie końcowe tnie na własnych granicach kawałków. Niepowodzenie jest najpierw podawane w oknie, jak każde niepowodzenie; anulowanie nie mówi nic takiego.
 
 ### Najpierw wypróbuj fragment
 
-Zakres pozwala **ocenić model lub język na dwóch minutach, zanim zobowiążesz się do dwóch godzin**. Pola „Fragment filmu” przyjmują początek i koniec, każdy zapisany jako `2:00`, `1:02:03`, `2:00.5` lub liczba
-sekund, `90`; dozwolone jest tylko jedno (stąd do końca albo od początku do tego miejsca). `OK` pozostaje wyłączony, dopóki pole
+Zakres pozwala **ocenić model lub język na dwóch minutach, zanim zobowiążesz się do dwóch godzin**. Pola „Fragment filmu” przyjmują początek i koniec, każdy zapisany jako `HH:MM:SS`, jak mówią pola (`2:00` i liczba sekund, `90`,
+też są odczytywane); dozwolone jest tylko jedno (stąd do końca albo od początku do tego miejsca). `OK` pozostaje wyłączony, dopóki pole
 nie jest czasem lub koniec nie następuje po początku, a wiersz pod polami mówi, które.
 
 - **Napisy zachowują czas filmu**: to, co powiedziano w 2:10, jest w wyniku w `0:02:10`.
-- **Zastępuje napisy projektu jak każda transkrypcja**, po tym samym pytaniu, gdy jakieś są, a jedno `Undo` je przywraca.
-  Aby wypróbować zakres, nie ruszając swojej pracy, najpierw zapisz albo pracuj na kopii.
+- **Przechodzi przez podgląd jak każda transkrypcja** i zastępuje napisy projektu po zastosowaniu; jedno `Undo` je przywraca.
+  Aby wypróbować zakres, nie ruszając swojej pracy, zignoruj podgląd albo najpierw zapisz.
 
 **To, czego potrzebuje, nie jest dostarczane**: silnik (whisper.cpp), model i `ffmpeg` do wyodrębnienia dźwięku.
 Zobacz [Instalowanie narzędzi do transkrypcji](../subedit-cli/install-transcription.md).

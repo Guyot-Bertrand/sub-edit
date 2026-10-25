@@ -9,11 +9,14 @@ subedit-cli transcribe --output FILE
                        [--audio-track N]
                        [--language CODE]
                        [--start TIME] [--end TIME]
+                       [--suppress-notes | --keep-notes]
                        [--model FILE]
                        [--engine NAME]
                        [--keep-audio FILE]
                        [--raw]
                        <input>
+
+subedit-cli transcribe --list-languages [--model FILE] [--engine NAME]
 ```
 
 Zapisuje **mowę z filmu lub z pliku dźwiękowego jako plik napisów**. Dźwięk jest przygotowywany,
@@ -42,8 +45,13 @@ kończy się niezerowym kodem.
 - **Można transkrybować sam fragment filmu**, za pomocą `--start` i `--end` — zobacz
   [Transkrypcja fragmentu](#transkrypcja-fragmentu). Tak próbuje się model na dwóch minutach, zanim uruchomi się go na
   dwóch godzinach.
-- **Dźwięki nie są zapisywane jako uwagi**: silnik ma polecenie, by tego nie robić (jego własna opcja to `--suppress-nst`), tak że
-  `(Sonnerie de téléphone)` lub `[MUSIC PLAYING]` nie pojawiają się w napisach, ani w nawiasach okrągłych, ani w kwadratowych.
+- **Języki, które oferuje silnik, można wypisać**, za pomocą `--list-languages` — zobacz
+  [Wypisywanie języków](#wypisywanie-języków).
+- **Dźwięki domyślnie nie są zapisywane jako uwagi**: silnik ma polecenie, by tego nie robić (`--suppress-notes`; jego własna opcja to
+  `--suppress-nst`), tak że `(Sonnerie de téléphone)` lub `[MUSIC PLAYING]` nie pojawiają się w napisach, ani w nawiasach okrągłych, ani w kwadratowych.
+  `--keep-notes` je zapisuje, na potrzeby napisów dla niesłyszących. Gdy uwagi są zakazane, silnik zapisuje `...` dla fragmentu bez mowy, a
+  **przetwarzanie końcowe odrzuca kawałki, które nie mają ani litery, ani cyfry** — `...`, `…`, `♪` — zanim scali i potnie; `--raw` je zachowuje,
+  takie, jakie kawałki silnika nadeszły.
 - **Segmenty są łączone i cięte** zgodnie z limitami z ustawień (`transcription.merge-gap-ms`,
   `transcription.max-duration-ms`, `transcription.max-characters`): dwa fragmenty jednego zdania, które leżą
   blisko siebie, tworzą jeden napis, a fragment zbyt długi lub zbyt szeroki jest cięty na słowie. **`--raw`
@@ -54,10 +62,10 @@ kończy się niezerowym kodem.
 ```console
 $ subedit-cli transcribe --help
 Write the speech of a video or an audio file as subtitles
-Usage: subedit-cli transcribe [OPTIONS] input
+Usage: subedit-cli transcribe [OPTIONS] [input]
 
 Positionals:
-  input TEXT REQUIRED         Video or audio file to transcribe
+  input TEXT                  Video or audio file to transcribe
 
 Options:
   -h,--help                   Print this help message and exit
@@ -68,9 +76,12 @@ Options:
   --start TIME                Where to begin, as 2:00, 1:02:03 or seconds; the beginning by default
   --end TIME                  Where to stop, as 2:00, 1:02:03 or seconds; the end by default
   --language CODE             Language of the speech, two letters: fr, en, de; detected from the first 30 seconds by default
+  --suppress-notes            Do not write sounds as notes, such as (phone ringing); the transcription.suppress-notes setting by default
+  --keep-notes                Write sounds as notes, against the setting
   --model FILE                Model file; the transcription.model setting by default
   --engine NAME               Engine; the transcription.engine setting by default
   --keep-audio FILE           Keep the extracted audio in this file
+  --list-languages            List the languages the engine offers for the model, and transcribe nothing
   --raw                       Write the segments as the engine cut them
 ```
 
@@ -78,16 +89,19 @@ Options:
 
 | Opcja | Wymagane | Wartości | Domyślnie |
 | :----- | :----- | :------ | :----- |
-| `<input>` | tak | film lub plik dźwiękowy | — |
-| `--output` | tak | plik napisów do zapisania; jego katalog jest tworzony, gdy go brak | — |
+| `<input>` | tak, z wyjątkiem `--list-languages` | film lub plik dźwiękowy | — |
+| `--output` | tak, z wyjątkiem `--list-languages` | plik napisów do zapisania; jego katalog jest tworzony, gdy go brak | — |
 | `--to` | nie | krótka nazwa formatu: `srt`, `vtt`, `subviewer2`, `ssa`, `ass`, `microdvd`, `mpl2`, `tmplayer`, `lrc` | format wskazany przez rozszerzenie `--output`, w przeciwnym razie `srt` |
 | `--audio-track` | nie | liczba całkowita od 0: pozycja wśród ścieżek dźwiękowych filmu | `0`, pierwsza |
 | `--language` | nie | dwie litery, kod ISO 639-1: `en`, `fr`; kod trzyliterowy, taki jak `fra`, jest odczytywany jako `fr` | ustawienie `transcription.language`; puste: wykrywany |
+| `--suppress-notes` | nie | flaga: nie zapisywać dźwięków jako uwag; odrzucana dla silnika, któremu nie można tego polecić | ustawienie `transcription.suppress-notes` |
+| `--keep-notes` | nie | flaga: zapisać je, wbrew ustawieniu; przeciwieństwo `--suppress-notes`, a oba razem są odrzucane | ustawienie `transcription.suppress-notes` |
+| `--list-languages` | nie | flaga: wypisać języki, które silnik oferuje dla modelu, i niczego nie transkrybować | wyłączona |
 | `--start` | nie | czas: `2:00`, `1:02:03`, `2:00.5` lub liczba sekund, `90` | początek dźwięku |
 | `--end` | nie | czas, zapisany jak dla `--start`; musi następować po `--start` | koniec dźwięku |
 | `--model` | nie | plik modelu | ustawienie `transcription.model` |
 | `--engine` | nie | nazwa silnika: `whisper.cpp` | ustawienie `transcription.engine` |
-| `--keep-audio` | nie | plik, w którym zachować wyodrębniony dźwięk, jako 16-bitowy mono PCM 16 kHz w pliku WAV; jego katalog jest tworzony, gdy go brak | dźwięk nie jest nigdzie zachowywany |
+| `--keep-audio` | nie | plik, w którym zachować wyodrębniony dźwięk, jako mono 16-bitowy PCM w pliku WAV, z częstotliwością próbkowania, o którą prosi silnik (16 kHz dla whisper.cpp); jego katalog jest tworzony, gdy go brak, a nazwa może zawierać `{rate}`, zastępowane tą częstotliwością w hercach (`film.{rate}.wav` zapisuje się jako `film.16000.wav`) | dźwięk nie jest nigdzie zachowywany |
 | `--raw` | nie | flaga: zapisuje segmenty silnika bez łączenia i bez cięcia | wyłączona |
 
 **Ustawienia** są odczytywane z pliku ustawień tak jak ustawienia [`adjust`](adjust.md) — zobacz
@@ -99,6 +113,7 @@ Options:
 | `transcription.executable` | program silnika, ścieżka bezwzględna; puste: szukany w `PATH` | puste |
 | `transcription.model` | plik modelu, ścieżka bezwzględna | puste |
 | `transcription.language` | język dźwięku, dwie litery; puste: wykrywany | puste |
+| `transcription.suppress-notes` | nie zapisywać dźwięków jako uwag | `true` |
 | `transcription.merge-gap-ms` | fragmenty jednego zdania położone bliżej niż ta liczba milisekund są łączone | `400` |
 | `transcription.max-duration-ms` | najdłuższy czas, przez jaki napis pozostaje na ekranie, w milisekundach | `7000` |
 | `transcription.max-characters` | największa liczba znaków napisu, bez liczenia podziałów wierszy | `84` |
@@ -141,6 +156,26 @@ subedit-cli transcribe --start 2:00 --end 3:30 --output test.srt --model large-v
 
 Dźwięk całego filmu i tak jest wyodrębniany: oszczędza się transkrypcję, znacznie dłuższą.
 
+## Wypisywanie języków
+
+`--list-languages` wypisuje języki, które silnik oferuje **dla modelu**, po jednym w wierszu: kod, który przyjmuje `--language`, tabulator i nazwę
+języka w języku interfejsu. Nie wymaga ani wejścia, ani wyjścia i niczego nie transkrybuje.
+
+```bash
+subedit-cli transcribe --list-languages --model ggml-small.bin
+```
+
+```text
+en	English
+zh	Chinese
+de	German
+…
+```
+
+Lista zależy od silnika i od modelu: około stu języków dla wielojęzycznego modelu whisper.cpp, samo `en` dla modelu tylko dla
+angielskiego. Silnik, który nie potrafi wypisać swoich języków, nie wypisuje żadnego. Model niepodany lub nieobecny to błąd, z odesłaniem do przewodnika; tylko
+postać tekstowa, nic nie jest zapisywane z [`--format json`](invocation.md#wynik-czytelny-dla-skryptu).
+
 ## Wynik
 
 **Standardowe wyjście** — nic: wynikiem jest zapisany plik.
@@ -166,15 +201,11 @@ napisy) i `counts.segments` (fragmenty silnika, z których je zrobiono) oraz `au
 
 ## Komunikaty
 
-Dwa komunikaty są podawane na pierwszym poziomie, bo zmieniają to, czego należy się spodziewać:
+Jeden komunikat jest podawany na pierwszym poziomie, przed pracą, bo zmienia to, czego należy się spodziewać:
 
-- **Przed pracą, przy modelu tylko dla angielskiego**: `This model is for English only: whatever language the film
+- **Przy modelu tylko dla angielskiego**: `This model is for English only: whatever language the film
   speaks, the result will be English, or notes in brackets. Choose a multilingual model in the preferences.` Takim modelem jest model, którego nazwa pliku
   kończy się na `.en`.
-- **Po pracy, gdy silnik zapisał głównie uwagi w nawiasach** — `[MUSIC PLAYING]`, `[SPEAKING FRENCH]` —,
-  co najmniej dwie i jedną trzecią swoich fragmentów: `N of the M pieces are only notes in brackets, such as [MUSIC PLAYING]: the
-  language used (xx) is probably not the one spoken, and the engine may have translated the speech. Run it again with
-  the language typed.` Napisy i tak są zapisywane; komunikat mówi, co podejrzewać.
 
 ## Kody wyjścia
 
@@ -193,6 +224,9 @@ silnik, którego nikt nie zarejestrował, lub zakres, którego nie można użyć
 | język, którego model nie może transkrybować | `the model cannot transcribe the language xx` |
 | brak języka i model, który nie potrafi go wykryć | `the model cannot detect the language: give one` |
 | silnik, którego nikt nie zarejestrował | `no transcription engine is called NAME` |
+| brak `<input>` lub `--output` | `input is required` lub `--output is required` |
+| `--suppress-notes` z `--keep-notes` | `--suppress-notes and --keep-notes say opposite things; give one of them` |
+| `--suppress-notes` dla silnika, któremu nie można tego polecić | `the engine NAME cannot be told not to write sounds as notes` |
 | język, który nie jest kodem | `"TEXT" is not a language code: write two letters, such as fr, en, de or es` |
 | granica zakresu, która nie jest czasem | `"TEXT" is not a time: write it as 2:00, 1:02:03 or 2:00.5, or in seconds` |
 | `--end` nie po `--start` | `the end of the range must come after its start` |

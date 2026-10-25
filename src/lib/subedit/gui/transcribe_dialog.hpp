@@ -13,6 +13,7 @@
 #include <string>
 #include <vector>
 
+class QCheckBox;
 class QComboBox;
 class QDialogButtonBox;
 class QLabel;
@@ -30,6 +31,9 @@ struct TranscribeChoice {
 
     /// An ISO 639-1 code, or empty to let the model detect it.
     std::string language{};
+
+    /// Whether the engine is told not to write sounds as notes.
+    bool suppressNotes = true;
 
     /// The part of the film to transcribe; all of it when neither is given. The result replaces the
     /// subtitles of the project like any other, after the same question.
@@ -81,7 +85,7 @@ public:
 
     [[nodiscard]] QComboBox* trackBox() const { return m_track; }
 
-    [[nodiscard]] QLineEdit* languageEdit() const { return m_language; }
+    [[nodiscard]] QComboBox* languageBox() const { return m_language; }
 
     /// The lines that say what is there, and what to do about what is not.
     [[nodiscard]] QLabel* toolsLabel() const { return m_tools; }
@@ -90,6 +94,9 @@ public:
     [[nodiscard]] QLabel* languageHint() const { return m_hint; }
 
     /// The fields of the range, empty for the whole film.
+    /// The box for not writing sounds as notes; greyed for an engine that cannot.
+    [[nodiscard]] QCheckBox* suppressNotesBox() const { return m_suppressNotes; }
+
     [[nodiscard]] QLineEdit* startEdit() const { return m_start; }
 
     [[nodiscard]] QLineEdit* endEdit() const { return m_end; }
@@ -111,8 +118,12 @@ private:
     /// Says where the language comes from, or that it must be given.
     void explainLanguage();
 
-    /// The language as typed, as the code an engine takes: `fra` is `fr`.
-    [[nodiscard]] std::string typedLanguage() const;
+    /// The code of the language chosen in the list, empty for "detect".
+    [[nodiscard]] std::string selectedLanguage() const;
+
+    /// Fills the list of languages with what the engine offers for the model, in the language of
+    /// the window.
+    void fillLanguages();
 
     /// `OK` is in when the tools are there and the fields can be used.
     void updateButtons();
@@ -124,7 +135,8 @@ private:
     ToolsProbe m_probe;
     core::TranscriptionTools m_current{};
     QComboBox* m_track;
-    QLineEdit* m_language;
+    QComboBox* m_language;
+    QCheckBox* m_suppressNotes;
     QLineEdit* m_start;
     QLineEdit* m_end;
     QLabel* m_rangeHint;
@@ -139,11 +151,9 @@ private:
     /// Whether the range, as typed, can be used.
     bool m_rangeValid = true;
 
-    /// Whether the language, as typed, is a code.
-    bool m_languageValid = true;
-
-    /// Whether the field was set to English by a model that has no other language.
-    bool m_wasEnglishOnly = false;
+    /// The code asked for, kept across a refill of the list: the person's choice, the track's, or
+    /// the setting's.
+    std::string m_wantedLanguage;
 };
 
 } // namespace subedit::gui

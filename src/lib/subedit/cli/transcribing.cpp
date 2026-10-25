@@ -5,9 +5,9 @@
 #include <subedit/core/i18n/messages.hpp>
 #include <subedit/core/io/atomic_write.hpp>
 #include <subedit/core/model/subtitle.hpp>
-#include <subedit/core/transcription/annotation_notes.hpp>
 #include <subedit/core/transcription/audio_source.hpp>
 #include <subedit/core/transcription/language_codes.hpp>
+#include <subedit/core/transcription/language_display.hpp>
 #include <subedit/core/transcription/remaining_time.hpp>
 #include <subedit/core/transcription/subtitle_assembly.hpp>
 #include <subedit/core/transcription/time_range.hpp>
@@ -150,6 +150,79 @@ void ProgressNarration::say(const core::TranscriptionProgress& progress, Clock::
     m_reporter.say(2, line);
 }
 
+namespace {
+
+/// `--list-languages`: what the engine offers for the model, one language per line.
+[[nodiscard]] ExitCode listLanguagesOf(const core::TranscriptionEngine& engine,
+                                       const std::filesystem::path& model,
+                                       const Reporter& reporter) {
+    const auto capabilities =
+        engine.capabilitiesFor(model.empty() ? std::nullopt : std::optional{model});
+    if (!capabilities) {
+        reporter.failed(core::transcriptionErrorText(capabilities.error()));
+        return ExitCode::AllFailed;
+    }
+    const std::string reader{core::interfaceLanguageName()};
+    for (const std::string& code : capabilities->languages)
+        reporter.result(code + '\t' + core::languageDisplayName(code, reader) + '\n');
+    return ExitCode::Success;
+}
+
+/// What is missing or contradictory in the arguments, said, as the exit code to leave with.
+[[nodiscard]] std::optional<ExitCode> refusedArguments(const TranscribeOptions& options,
+                                                       const Reporter& reporter) {
+    for (const auto& [value, name] :
+         {std::pair<const std::string&, std::string_view>{options.input, "input"},
+          std::pair<const std::string&, std::string_view>{options.output, "--output"}}) {
+        if (value.empty()) {
+            reporter.failed(core::substitute(core::translate("%1 is required"), {name}));
+            return ExitCode::Usage;
+        }
+    }
+    if (options.suppressNotes && options.keepNotes) {
+        reporter.failed(core::substitute(
+            // TRANSLATORS: %1 and %2 are two options, such as --shorten and --no-shorten.
+            core::translate("%1 and %2 say opposite things; give one of them"),
+            {"--suppress-notes", "--keep-notes"}));
+        return ExitCode::Usage;
+    }
+    return std::nullopt;
+}
+
+/// Reads the language and the range into `request`, or says what cannot be read.
+[[nodiscard]] std::optional<ExitCode> readChoices(const TranscribeOptions& options,
+                                                  const std::string& languageName,
+                                                  core::MediaTranscriptionRequest& request,
+                                                  const Reporter& reporter) {
+    if (!languageName.empty()) {
+        request.language = core::readLanguageCode(languageName);
+        if (!request.language) {
+            reporter.failed(core::notALanguageCode(languageName));
+            return ExitCode::Usage;
+        }
+    }
+    for (const auto& [text, bound] :
+         {std::pair<const std::string&, std::optional<core::Timestamp>&>{options.start,
+                                                                         request.start},
+          std::pair<const std::string&, std::optional<core::Timestamp>&>{options.end,
+                                                                         request.end}}) {
+        if (text.empty())
+            continue;
+        bound = core::readRangeBound(text);
+        if (!bound) {
+            reporter.failed(core::notATimeInRange(text));
+            return ExitCode::Usage;
+        }
+    }
+    if (!core::isRangePossible(request.start, request.end)) {
+        reporter.failed(core::emptyRange());
+        return ExitCode::Usage;
+    }
+    return std::nullopt;
+}
+
+} // namespace
+
 ExitCode transcribeFile(core::FileSystem& files,
                         const core::EngineRegistry& engines,
                         std::string_view searchPath,
@@ -169,39 +242,37 @@ ExitCode transcribeFile(core::FileSystem& files,
     const std::filesystem::path& modelPath =
         options.model.empty() ? settings.model : std::filesystem::path{options.model};
 
+    if (options.listLanguages)
+        return listLanguagesOf(*engine, modelPath, reporter);
+
+    if (const std::optional<ExitCode> refused = refusedArguments(options, reporter))
+        return *refused;
+
     core::MediaTranscriptionRequest request{
         .input = options.input, .audioTrack = options.audioTrack, .keepAudio = options.keepAudio};
-    if (!languageName.empty()) {
-        request.language = core::readLanguageCode(languageName);
-        if (!request.language) {
-            reporter.failed(core::notALanguageCode(languageName));
-            return ExitCode::Usage;
-        }
-    }
+    // The setting decides, an option overrides it.
+    request.suppressNotes = options.suppressNotes || (!options.keepNotes && settings.suppressNotes);
     if (!modelPath.empty())
         request.model = modelPath;
+    if (const std::optional<ExitCode> refused =
+            readChoices(options, languageName, request, reporter))
+        return *refused;
 
-    for (const auto& [text, bound] :
-         {std::pair<const std::string&, std::optional<core::Timestamp>&>{options.start,
-                                                                         request.start},
-          std::pair<const std::string&, std::optional<core::Timestamp>&>{options.end,
-                                                                         request.end}}) {
-        if (text.empty())
-            continue;
-        bound = core::readRangeBound(text);
-        if (!bound) {
-            reporter.failed(core::notATimeInRange(text));
-            return ExitCode::Usage;
-        }
-    }
-    if (!core::isRangePossible(request.start, request.end)) {
-        reporter.failed(core::emptyRange());
+    const auto capabilities = engine->capabilitiesFor(request.model);
+    // The wildcards of the name of the kept audio are the engine's: the rate it asked for.
+    if (!options.keepAudio.empty())
+        request.keepAudio =
+            core::expandAudioName(options.keepAudio, capabilities ? capabilities->sampleRate : 0);
+    // What the person asked for by name, and the engine cannot do, is refused before any work; what
+    // only a setting says is dropped without a word, since a setting is written for all the
+    // engines.
+    if (options.suppressNotes && capabilities && !capabilities->suppressNotes) {
+        reporter.failed(core::engineCannotSuppressNotes(engineName));
         return ExitCode::Usage;
     }
 
     // A model for English alone writes everything as English: said before the long work, not after.
-    if (const auto capabilities = engine->capabilitiesFor(request.model);
-        capabilities && !capabilities->languageDetection && capabilities->languages.size() == 1 &&
+    if (capabilities && !capabilities->languageDetection && capabilities->languages.size() == 1 &&
         capabilities->languages.front() == "en")
         reporter.say(1, core::noticeOfEnglishOnlyModel());
 
@@ -216,12 +287,6 @@ ExitCode transcribeFile(core::FileSystem& files,
         reportFailure(reporter, options.input, failureOf(transcribed.error()));
         return ExitCode::AllFailed;
     }
-
-    if (const core::NotesShare share = core::notesShare(transcribed->segments);
-        core::looksLikeWrongLanguage(share))
-        reporter.say(1,
-                     core::noticeOfNotes(
-                         share.notes, share.pieces, transcribed->language.value_or(std::string{})));
 
     const std::vector<core::Subtitle> subtitles =
         options.raw ? rawSubtitlesOf(*transcribed)
@@ -245,7 +310,7 @@ ExitCode transcribeFile(core::FileSystem& files,
     Fields fields;
     fields.emplace_back("language", language);
     if (!options.keepAudio.empty())
-        fields.emplace_back("audio", options.keepAudio);
+        fields.emplace_back("audio", request.keepAudio.string());
     reporter.record(
         writtenRecord(reporter.command(),
                       options.input,

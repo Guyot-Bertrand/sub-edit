@@ -9,11 +9,14 @@ subedit-cli transcribe --output FILE
                        [--audio-track N]
                        [--language CODE]
                        [--start TIME] [--end TIME]
+                       [--suppress-notes | --keep-notes]
                        [--model FILE]
                        [--engine NAME]
                        [--keep-audio FILE]
                        [--raw]
                        <input>
+
+subedit-cli transcribe --list-languages [--model FILE] [--engine NAME]
 ```
 
 Escriu **la parla d'un vídeo, o d'un fitxer d'àudio, en forma de fitxer de subtítols**. L'àudio es prepara,
@@ -42,8 +45,13 @@ surt amb un codi diferent de zero.
 - **Es pot transcriure una part de la pel·lícula tota sola**, amb `--start` i `--end` — vegeu
   [Transcriure una part](#transcriure-una-part). Així es prova un model en dos minuts abans d'executar-lo en
   dues hores.
-- **Els sons no s'escriuen com a notes**: el motor té l'ordre de no fer-ho (la seva opció és `--suppress-nst`), de manera que
-  `(Sonnerie de téléphone)` o `[MUSIC PLAYING]` no surten als subtítols, ni entre parèntesis ni entre claudàtors.
+- **Les llengües que ofereix un motor es poden llistar**, amb `--list-languages` — vegeu
+  [Llistar les llengües](#llistar-les-llengües).
+- **Els sons no s'escriuen com a notes, per defecte**: al motor se li diu que no ho faci (`--suppress-notes`; la seva opció és
+  `--suppress-nst`), de manera que `(Sonnerie de téléphone)` o `[MUSIC PLAYING]` no surten als subtítols, ni entre parèntesis ni entre claudàtors.
+  `--keep-notes` els escriu, per a subtítols per a persones sordes o amb dificultats auditives. Prohibides les notes, el motor escriu `...` per a un
+  passatge sense parla, i **el postprocessament descarta els trossos que no tenen cap lletra ni cap xifra** — `...`, `…`, `♪` —
+  abans de fusionar i tallar; `--raw` els conserva, tal com han vingut els trossos del motor.
 - **Els segments es fusionen i es tallen** segons els límits dels paràmetres (`transcription.merge-gap-ms`,
   `transcription.max-duration-ms`, `transcription.max-characters`): dos trossos d'una mateixa frase que són
   propers fan un sol subtítol, i un tros massa llarg o massa ample es talla en una paraula. **`--raw`
@@ -54,10 +62,10 @@ surt amb un codi diferent de zero.
 ```console
 $ subedit-cli transcribe --help
 Write the speech of a video or an audio file as subtitles
-Usage: subedit-cli transcribe [OPTIONS] input
+Usage: subedit-cli transcribe [OPTIONS] [input]
 
 Positionals:
-  input TEXT REQUIRED         Video or audio file to transcribe
+  input TEXT                  Video or audio file to transcribe
 
 Options:
   -h,--help                   Print this help message and exit
@@ -68,9 +76,12 @@ Options:
   --start TIME                Where to begin, as 2:00, 1:02:03 or seconds; the beginning by default
   --end TIME                  Where to stop, as 2:00, 1:02:03 or seconds; the end by default
   --language CODE             Language of the speech, two letters: fr, en, de; detected from the first 30 seconds by default
+  --suppress-notes            Do not write sounds as notes, such as (phone ringing); the transcription.suppress-notes setting by default
+  --keep-notes                Write sounds as notes, against the setting
   --model FILE                Model file; the transcription.model setting by default
   --engine NAME               Engine; the transcription.engine setting by default
   --keep-audio FILE           Keep the extracted audio in this file
+  --list-languages            List the languages the engine offers for the model, and transcribe nothing
   --raw                       Write the segments as the engine cut them
 ```
 
@@ -78,16 +89,19 @@ Options:
 
 | Opció | Obligatori | Valors | Per defecte |
 | :----- | :------- | :----- | :------ |
-| `<input>` | sí | un vídeo o un fitxer d'àudio | — |
-| `--output` | sí | el fitxer de subtítols que cal escriure; el seu directori es crea si falta | — |
+| `<input>` | sí, tret de `--list-languages` | un vídeo o un fitxer d'àudio | — |
+| `--output` | sí, tret de `--list-languages` | el fitxer de subtítols que cal escriure; el seu directori es crea si falta | — |
 | `--to` | no | el nom curt d'un format: `srt`, `vtt`, `subviewer2`, `ssa`, `ass`, `microdvd`, `mpl2`, `tmplayer`, `lrc` | el format que diu l'extensió de `--output`, si no `srt` |
 | `--audio-track` | no | un nombre enter des de 0: el lloc entre les pistes d'àudio del vídeo | `0`, la primera |
 | `--language` | no | dues lletres, un codi ISO 639-1: `en`, `fr`; un codi de tres lletres com `fra` es llegeix com `fr` | el paràmetre `transcription.language`; buit: es detecta |
+| `--suppress-notes` | no | un indicador: no escriguis els sons com a notes; refusat per a un motor al qual no se li pot dir | el paràmetre `transcription.suppress-notes` |
+| `--keep-notes` | no | un indicador: escriu-los, contra el paràmetre; el contrari de `--suppress-notes`, i els dos junts es refusen | el paràmetre `transcription.suppress-notes` |
+| `--list-languages` | no | un indicador: llista les llengües que el motor ofereix per al model, i no transcriu res | desactivat |
 | `--start` | no | un temps: `2:00`, `1:02:03`, `2:00.5`, o un nombre de segons, `90` | el principi de l'àudio |
 | `--end` | no | un temps, escrit com per a `--start`; ha de venir després de `--start` | el final de l'àudio |
 | `--model` | no | el fitxer de model | el paràmetre `transcription.model` |
 | `--engine` | no | el nom d'un motor: `whisper.cpp` | el paràmetre `transcription.engine` |
-| `--keep-audio` | no | un fitxer on conservar l'àudio extret, com a PCM mono de 16 kHz i 16 bits en un fitxer WAV; el seu directori es crea si falta | l'àudio no es conserva enlloc |
+| `--keep-audio` | no | un fitxer on conservar l'àudio extret, com a PCM mono de 16 bits en un fitxer WAV, a la freqüència de mostreig que demana el motor (16 kHz per a whisper.cpp); el seu directori es crea si falta, i el nom pot portar `{rate}`, substituït per aquesta freqüència en hertz (`film.{rate}.wav` s'escriu `film.16000.wav`) | l'àudio no es conserva enlloc |
 | `--raw` | no | un indicador: escriu els segments del motor sense fusionar ni tallar | desactivat |
 
 Els **paràmetres** es llegeixen del fitxer de configuració com els d'[`adjust`](adjust.md) — vegeu
@@ -99,6 +113,7 @@ Els **paràmetres** es llegeixen del fitxer de configuració com els d'[`adjust`
 | `transcription.executable` | el programa del motor, un camí absolut; buit: es cerca al `PATH` | buit |
 | `transcription.model` | el fitxer de model, un camí absolut | buit |
 | `transcription.language` | la llengua de l'àudio, dues lletres; buit: es detecta | buit |
+| `transcription.suppress-notes` | no escriguis els sons com a notes | `true` |
 | `transcription.merge-gap-ms` | els trossos d'una mateixa frase més propers que aquests mil·lisegons s'uneixen | `400` |
 | `transcription.max-duration-ms` | el màxim que un subtítol es queda a la pantalla, en mil·lisegons | `7000` |
 | `transcription.max-characters` | el màxim de caràcters d'un subtítol, sense comptar els salts de línia | `84` |
@@ -141,6 +156,25 @@ subedit-cli transcribe --start 2:00 --end 3:30 --output test.srt --model large-v
 
 L'àudio de tota la pel·lícula s'extreu igualment: és la transcripció, molt més llarga, la que l'interval estalvia.
 
+## Llistar les llengües
+
+`--list-languages` escriu les llengües que el motor ofereix **per al model**, una per línia: el codi que pren `--language`, un tabulador, i el nom
+de la llengua en la llengua de la interfície. No necessita ni entrada ni sortida, i no transcriu res.
+
+```bash
+subedit-cli transcribe --list-languages --model ggml-small.bin
+```
+
+```text
+en	English
+zh	Chinese
+de	German
+…
+```
+
+La llista depèn del motor i del model: un centenar de llengües per a un model whisper.cpp multilingüe, només `en` per a un model només per a l'anglès. Un motor que no pot llistar les seves llengües no en llista cap. Un model que no s'ha donat o que no hi és és un error, amb el punter a la guia; només
+en forma de text, no s'escriu res amb [`--format json`](invocation.md#sortida-llegible-per-un-script).
+
 ## Sortida
 
 **Sortida estàndard** — res: el resultat és el fitxer escrit.
@@ -167,15 +201,11 @@ subtítols escrits) i `counts.segments` (els trossos del motor a partir dels qua
 
 ## Avisos
 
-Dos avisos es diuen al primer nivell, perquè canvien el que cal esperar:
+Un avís es diu al primer nivell, abans de la feina, perquè canvia el que cal esperar:
 
-- **Abans de la feina, amb un model només per a l'anglès**: `This model is for English only: whatever language the film
+- **Amb un model només per a l'anglès**: `This model is for English only: whatever language the film
   speaks, the result will be English, or notes in brackets. Choose a multilingual model in the preferences.` Un model
   el nom de fitxer del qual acaba en `.en` n'és un.
-- **Després de la feina, quan el motor ha escrit sobretot notes entre claudàtors** — `[MUSIC PLAYING]`, `[SPEAKING FRENCH]` —,
-  almenys dos i un terç dels seus trossos: `N of the M pieces are only notes in brackets, such as [MUSIC PLAYING]: the
-  language used (xx) is probably not the one spoken, and the engine may have translated the speech. Run it again with
-  the language typed.` Els subtítols s'escriuen igualment; l'avís diu què cal sospitar.
 
 ## Codis de sortida
 
@@ -194,6 +224,9 @@ un motor que ningú no ha registrat o un interval que no es pot fer servir.
 | una llengua que el model no pot transcriure | `the model cannot transcribe the language xx` |
 | cap llengua, i un model que no en pot detectar cap | `the model cannot detect the language: give one` |
 | un motor que ningú no ha registrat | `no transcription engine is called NAME` |
+| `<input>` o `--output` que falta | `input is required` o `--output is required` |
+| `--suppress-notes` amb `--keep-notes` | `--suppress-notes and --keep-notes say opposite things; give one of them` |
+| `--suppress-notes` per a un motor al qual no se li pot dir | `the engine NAME cannot be told not to write sounds as notes` |
 | una llengua que no és un codi | `"TEXT" is not a language code: write two letters, such as fr, en, de or es` |
 | un límit de l'interval que no és un temps | `"TEXT" is not a time: write it as 2:00, 1:02:03 or 2:00.5, or in seconds` |
 | `--end` no posterior a `--start` | `the end of the range must come after its start` |

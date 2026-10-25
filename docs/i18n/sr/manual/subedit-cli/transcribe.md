@@ -9,11 +9,14 @@ subedit-cli transcribe --output FILE
                        [--audio-track N]
                        [--language CODE]
                        [--start TIME] [--end TIME]
+                       [--suppress-notes | --keep-notes]
                        [--model FILE]
                        [--engine NAME]
                        [--keep-audio FILE]
                        [--raw]
                        <input>
+
+subedit-cli transcribe --list-languages [--model FILE] [--engine NAME]
 ```
 
 Пише **говор филма или звучне датотеке као датотеку титлова**. Звук се припреми и преда
@@ -41,7 +44,12 @@ subedit-cli transcribe --output FILE
   `[SPEAKING FRENCH]`. Када знате језик, наведите га.
 - **Може се транскрибовати само део филма** помоћу `--start` и `--end` — видите
   [Транскрипција дела филма](#транскрипција-дела-филма). Тако се модел проба на два минута пре него што се покрене на два сата.
-- **Звуци се не пишу као белешке**: мотору је речено да то не ради (његова сопствена опција је `--suppress-nst`), па `(Sonnerie de téléphone)` или `[MUSIC PLAYING]` не излазе у титловима, ни у заградама ни у угластим заградама.
+- **Језици које мотор нуди могу се исписати** помоћу `--list-languages` — видите
+  [Исписивање језика](#исписивање-језика).
+- **Звуци се подразумевано не пишу као белешке**: мотору је речено да то не ради (`--suppress-notes`; његова сопствена опција је `--suppress-nst`), па
+  `(Sonnerie de téléphone)` или `[MUSIC PLAYING]` не излазе у титловима, ни у заградама ни у угластим заградама. `--keep-notes` их пише, за титлове за наглуве.
+  Када су белешке забрањене, мотор пише `...` за одломак без говора, а **накнадна обрада одбацује делове који немају ни слово ни цифру** — `...`, `…`, `♪` —
+  пре него што споји и пресече; `--raw` их задржава, онако како су стигли делови мотора.
 - **Сегменти се спајају и секу** према границама поставки (`transcription.merge-gap-ms`,
   `transcription.max-duration-ms`, `transcription.max-characters`): два блиска дела једне
   реченице постају један титл, а део који је предугачак или преширок сече се на речи. **`--raw`
@@ -52,10 +60,10 @@ subedit-cli transcribe --output FILE
 ```console
 $ subedit-cli transcribe --help
 Write the speech of a video or an audio file as subtitles
-Usage: subedit-cli transcribe [OPTIONS] input
+Usage: subedit-cli transcribe [OPTIONS] [input]
 
 Positionals:
-  input TEXT REQUIRED         Video or audio file to transcribe
+  input TEXT                  Video or audio file to transcribe
 
 Options:
   -h,--help                   Print this help message and exit
@@ -66,9 +74,12 @@ Options:
   --start TIME                Where to begin, as 2:00, 1:02:03 or seconds; the beginning by default
   --end TIME                  Where to stop, as 2:00, 1:02:03 or seconds; the end by default
   --language CODE             Language of the speech, two letters: fr, en, de; detected from the first 30 seconds by default
+  --suppress-notes            Do not write sounds as notes, such as (phone ringing); the transcription.suppress-notes setting by default
+  --keep-notes                Write sounds as notes, against the setting
   --model FILE                Model file; the transcription.model setting by default
   --engine NAME               Engine; the transcription.engine setting by default
   --keep-audio FILE           Keep the extracted audio in this file
+  --list-languages            List the languages the engine offers for the model, and transcribe nothing
   --raw                       Write the segments as the engine cut them
 ```
 
@@ -76,16 +87,19 @@ Options:
 
 | Опција | Обавезно | Вредности | Подразумевано |
 | :----- | :----- | :------ | :----- |
-| `<input>` | да | филм или звучна датотека | — |
-| `--output` | да | датотека титлова за писање; њен директоријум се ствара ако не постоји | — |
+| `<input>` | да, осим са `--list-languages` | филм или звучна датотека | — |
+| `--output` | да, осим са `--list-languages` | датотека титлова за писање; њен директоријум се ствара ако не постоји | — |
 | `--to` | не | кратки назив формата: `srt`, `vtt`, `subviewer2`, `ssa`, `ass`, `microdvd`, `mpl2`, `tmplayer`, `lrc` | формат који каже наставак датотеке `--output`, иначе `srt` |
 | `--audio-track` | не | цео број од 0: положај међу звучним нумерама филма | `0`, прва |
 | `--language` | не | два слова, ISO 639-1 кôд: `en`, `fr`; трословни кôд као `fra` чита се као `fr` | поставка `transcription.language`; празно: језик се открива |
+| `--suppress-notes` | не | заставица: не писати звуке као белешке; одбија се за мотор коме се то не може рећи | поставка `transcription.suppress-notes` |
+| `--keep-notes` | не | заставица: писати их, супротно поставци; супротно од `--suppress-notes`, а обе заједно се одбијају | поставка `transcription.suppress-notes` |
+| `--list-languages` | не | заставица: исписати језике које мотор нуди за модел и ништа не транскрибовати | искључено |
 | `--start` | не | време: `2:00`, `1:02:03`, `2:00.5` или број секунди, `90` | почетак звука |
 | `--end` | не | време, написано као за `--start`; мора доћи после `--start` | крај звука |
 | `--model` | не | датотека модела | поставка `transcription.model` |
 | `--engine` | не | назив мотора: `whisper.cpp` | поставка `transcription.engine` |
-| `--keep-audio` | не | датотека у којој се задржава издвојени звук, као 16-битни моно PCM од 16 kHz у WAV датотеци; њен директоријум се ствара ако не постоји | звук се нигде не задржава |
+| `--keep-audio` | не | датотека у којој се задржава издвојени звук, као моно 16-битни PCM у WAV датотеци, са учесталошћу узорковања коју мотор тражи (16 kHz за whisper.cpp); њен директоријум се ствара ако не постоји, а име може садржати `{rate}`, које се замењује том учесталошћу у херцима (`film.{rate}.wav` се пише као `film.16000.wav`) | звук се нигде не задржава |
 | `--raw` | не | заставица: пише сегменте мотора без спајања и без сечења | искључено |
 
 **Поставке** се читају из датотеке поставки као оне команде [`adjust`](adjust.md) — види
@@ -97,6 +111,7 @@ Options:
 | `transcription.executable` | програм мотора, апсолутна путања; празно: тражи се у `PATH` | празно |
 | `transcription.model` | датотека модела, апсолутна путања | празно |
 | `transcription.language` | језик звука, два слова; празно: открива се | празно |
+| `transcription.suppress-notes` | не писати звуке као белешке | `true` |
 | `transcription.merge-gap-ms` | делови једне реченице ближи од толико милисекунди спајају се | `400` |
 | `transcription.max-duration-ms` | најдуже време које титл остаје на екрану, у милисекундама | `7000` |
 | `transcription.max-characters` | највише знакова које титл садржи, без бројања прелома редова | `84` |
@@ -133,6 +148,26 @@ subedit-cli transcribe --start 2:00 --end 3:30 --output test.srt --model large-v
 
 Звук целог филма се и даље издваја: опсег штеди транскрипцију, која траје знатно дуже.
 
+## Исписивање језика
+
+`--list-languages` исписује језике које мотор нуди **за модел**, један по реду: код који `--language` прима, табулатор и назив
+језика на језику интерфејса. Не треба му ни улаз ни излаз и не транскрибује ништа.
+
+```bash
+subedit-cli transcribe --list-languages --model ggml-small.bin
+```
+
+```text
+en	English
+zh	Chinese
+de	German
+…
+```
+
+Списак зависи од мотора и од модела: око сто језика за вишејезични whisper.cpp модел, само `en` за модел само за
+енглески. Мотор који не уме да исписује своје језике не исписује ниједан. Модел који није наведен или не постоји је грешка, са упутством на водич; само
+текстуални облик, ништа се не пише са [`--format json`](invocation.md#излаз-који-скрипта-може-да-чита).
+
 ## Излаз
 
 **Стандардни излаз** — ништа: резултат је записана датотека.
@@ -154,15 +189,11 @@ subedit-cli transcribe --start 2:00 --end 3:30 --output test.srt --model large-v
 
 ## Напомене
 
-Две напомене се јављају на првом нивоу, јер мењају шта треба очекивати:
+Једна напомена се казује на првом нивоу, пре рада, јер мења оно што се може очекивати:
 
-- **Пре рада, са моделом само за енглески**: `This model is for English only: whatever language the film
+- **Са моделом само за енглески**: `This model is for English only: whatever language the film
   speaks, the result will be English, or notes in brackets. Choose a multilingual model in the preferences.` Такав је модел
-  чије се име датотеке завршава са `.en`.
-- **После рада, када је мотор записао углавном напомене у заградама** — `[MUSIC PLAYING]`, `[SPEAKING FRENCH]` —,
-  најмање две и трећину његових делова: `N of the M pieces are only notes in brackets, such as [MUSIC PLAYING]: the
-  language used (xx) is probably not the one spoken, and the engine may have translated the speech. Run it again with
-  the language typed.` Титлови се ипак записују; напомена каже шта треба посумњати.
+  чије име датотеке се завршава на `.en`.
 
 ## Излазни кодови
 
@@ -181,6 +212,9 @@ subedit-cli transcribe --start 2:00 --end 3:30 --output test.srt --model large-v
 | језик који модел не може да транскрибује | `the model cannot transcribe the language xx` |
 | нема језика, а модел не уме да га открије | `the model cannot detect the language: give one` |
 | мотор који нико није регистровао | `no transcription engine is called NAME` |
+| недостаје `<input>` или `--output` | `input is required` или `--output is required` |
+| `--suppress-notes` са `--keep-notes` | `--suppress-notes and --keep-notes say opposite things; give one of them` |
+| `--suppress-notes` за мотор коме се то не може рећи | `the engine NAME cannot be told not to write sounds as notes` |
 | језик који није кôд | `"TEXT" is not a language code: write two letters, such as fr, en, de or es` |
 | граница опсега која није време | `"TEXT" is not a time: write it as 2:00, 1:02:03 or 2:00.5, or in seconds` |
 | `--end` није после `--start` | `the end of the range must come after its start` |

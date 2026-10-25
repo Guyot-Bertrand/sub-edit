@@ -1,6 +1,9 @@
 #pragma once
 
+#include <subedit/core/transcription/transcript.hpp>
+
 #include <string>
+#include <vector>
 
 namespace subedit::core {
 
@@ -25,6 +28,12 @@ struct TranscriptionError {
     /// What the engine said, or what was asked. English, free, may be empty.
     /// The words the user reads come from `core/wording/`, not from here.
     std::string detail{};
+
+    /// **What had been obtained when the work stopped**, a cancellation or a failure: the pieces
+    /// the engine had written, in order, without timed words (an engine gives those at the end).
+    /// Empty when it had written none, or cannot say. A long run stopped at 80 % should not throw
+    /// 80 % of the work away without being asked: the surfaces show it and let the person keep it.
+    std::vector<TranscribedSegment> partial{};
 
     friend bool operator==(const TranscriptionError&, const TranscriptionError&) = default;
 };

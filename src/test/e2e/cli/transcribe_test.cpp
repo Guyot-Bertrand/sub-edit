@@ -7,6 +7,7 @@
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/matchers/catch_matchers_string.hpp>
 
+#include <algorithm>
 #include <filesystem>
 #include <fstream>
 #include <iterator>
@@ -349,4 +350,101 @@ TEST_CASE("the command says the step, how far it is, and the text last obtained"
     CHECK_THAT(run.errors, ContainsSubstring("transcribing: 80%, 0:01:20 of 0:01:40"));
     CHECK_THAT(run.errors, ContainsSubstring("last text: Then more."));
     CHECK_THAT(run.errors, ContainsSubstring("transcribing: 100%"));
+}
+
+TEST_CASE("the name of the kept audio takes the rate the engine asked for",
+          "[e2e][CLI-TRANSCRIBE-04]") {
+    Stands stands;
+    stands.everything();
+    const std::string out = stands.scratch.of("out/film.srt");
+
+    const CliRun run = invokeWithSearchPath(stands.directory,
+                                            {"--format",
+                                             "json",
+                                             "transcribe",
+                                             stands.video,
+                                             "--output",
+                                             out,
+                                             "--model",
+                                             stands.model,
+                                             "--keep-audio",
+                                             stands.scratch.of("out/film.{rate}.wav")});
+
+    REQUIRE(run.exitCode == 0);
+    const std::string kept = stands.scratch.of("out/film.16000.wav");
+    CHECK(contentOf(kept) == "pcm");
+    CHECK_THAT(run.output, ContainsSubstring("\"audio\":\"" + kept + "\""));
+}
+
+TEST_CASE("listing the languages lists what the engine offers for the model, and runs nothing",
+          "[e2e][CLI-TRANSCRIBE-11]") {
+    Stands stands;
+    stands.everything();
+    const std::string english = writeFile(stands.scratch, "english.bin", modelHeader(51864));
+
+    const CliRun every = stands.run({"--list-languages", "--model", stands.model});
+
+    REQUIRE(every.exitCode == 0);
+    CHECK_THAT(every.output, ContainsSubstring("fr\tFrench\n"));
+    CHECK_THAT(every.output, ContainsSubstring("yue\tCantonese\n"));
+    CHECK(std::count(every.output.begin(), every.output.end(), '\n') == 100);
+    // Nothing was run: no engine received a thing.
+    CHECK_FALSE(std::filesystem::exists(stands.argumentLog));
+
+    const CliRun only = stands.run({"--list-languages", "--model", english});
+    REQUIRE(only.exitCode == 0);
+    CHECK(only.output == "en\tEnglish\n");
+
+    // Without a model there is nothing to ask the engine about, and the guide is pointed to.
+    const CliRun none = stands.run({"--list-languages"});
+    CHECK(none.exitCode == 2);
+    CHECK_THAT(none.errors, ContainsSubstring("Installing the transcription tools"));
+}
+
+TEST_CASE("sounds are not written as notes unless an option or the setting says otherwise",
+          "[e2e][CLI-TRANSCRIBE-12]") {
+    Stands stands;
+    stands.everything();
+    const std::string out = stands.scratch.of("out/film.srt");
+    const std::string off =
+        writeFile(stands.scratch, "off.conf", "transcription.suppress-notes = false\n");
+
+    // By default the engine is told not to.
+    REQUIRE(stands.run({stands.video, "--output", out, "--model", stands.model}).exitCode == 0);
+    CHECK_THAT(contentOf(stands.argumentLog), ContainsSubstring("-sns\n"));
+
+    // An option against it.
+    REQUIRE(stands.run({stands.video, "--output", out, "--model", stands.model, "--keep-notes"})
+                .exitCode == 0);
+    CHECK_THAT(contentOf(stands.argumentLog), !ContainsSubstring("-sns"));
+
+    // The setting off, and then an option for it.
+    const CliRun settingOff = invokeWithSearchPath(
+        stands.directory,
+        {"--config", off, "transcribe", stands.video, "--output", out, "--model", stands.model});
+    REQUIRE(settingOff.exitCode == 0);
+    CHECK_THAT(contentOf(stands.argumentLog), !ContainsSubstring("-sns"));
+    REQUIRE(invokeWithSearchPath(stands.directory,
+                                 {"--config",
+                                  off,
+                                  "transcribe",
+                                  stands.video,
+                                  "--output",
+                                  out,
+                                  "--model",
+                                  stands.model,
+                                  "--suppress-notes"})
+                .exitCode == 0);
+    CHECK_THAT(contentOf(stands.argumentLog), ContainsSubstring("-sns\n"));
+
+    // The two together say opposite things.
+    const CliRun both = stands.run({stands.video,
+                                    "--output",
+                                    out,
+                                    "--model",
+                                    stands.model,
+                                    "--suppress-notes",
+                                    "--keep-notes"});
+    CHECK(both.exitCode != 0);
+    CHECK_THAT(both.errors, ContainsSubstring("say opposite things"));
 }

@@ -28,6 +28,9 @@ struct MediaTranscriptionRequest {
     std::optional<std::string> language{};
     std::optional<std::filesystem::path> model{};
 
+    /// See `TranscriptionRequest::suppressNotes`.
+    bool suppressNotes = true;
+
     /// The part of the film to transcribe, in its own time; all of it when not given.
     std::optional<Timestamp> start{};
     std::optional<Timestamp> end{};
@@ -40,6 +43,10 @@ struct MediaTranscriptionError {
 
     /// The audio tracks the video has, when a track that is not there was asked for.
     std::vector<ContainerAudioTrack> tracks{};
+
+    /// What the engine had obtained when it stopped (`TranscriptionError::partial`): empty when the
+    /// audio could not be prepared, or the engine had written nothing.
+    std::vector<TranscribedSegment> partial{};
 };
 
 /// Prepares the audio of `request.input`, and has `engine` transcribe it.

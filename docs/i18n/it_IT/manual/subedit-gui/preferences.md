@@ -142,6 +142,7 @@ successiva.
 | `transcription.engine` | il nome del motore: lettere minuscole, cifre, `.`, `-` e `_` | `whisper.cpp` |
 | `transcription.executable`, `transcription.model` | un percorso assoluto; vuoto: il motore viene cercato nel `PATH`, e nessun modello è impostato | vuoto |
 | `transcription.language` | due lettere minuscole, un codice ISO 639-1; vuoto: la lingua viene rilevata | vuoto |
+| `transcription.suppress-notes` | `true` o `false` — `Do not write sounds as notes` | `true` |
 | `transcription.merge-gap-ms` | i pezzi di una stessa frase più vicini di questo valore vengono uniti, in millisecondi, intero e non negativo | `400` |
 | `transcription.max-duration-ms` | la durata massima di un sottotitolo trascritto sullo schermo, in millisecondi, da 1 a 3600000 | `7000` |
 | `transcription.max-characters` | il numero massimo di caratteri di un sottotitolo trascritto, da 1 a 1000 | `84` |
@@ -292,6 +293,9 @@ Sotto i campi, **la finestra dice che cosa c'è**: se il motore è stato trovato
 qualcosa, aggiunge il rimando a
 [Installare gli strumenti di trascrizione](../subedit-cli/install-transcription.md), che dice dove trovare
 ciascuno. I due campi sono le impostazioni `transcription.executable` e `transcription.model`.
+
+Una casella, **“Non scrivere i suoni come note”**, è l'impostazione `transcription.suppress-notes` (selezionata per impostazione predefinita): al motore è ordinato di non scrivere i suoni
+come note, per esempio `(phone ringing)`. Deselezionala per conservarli, per sottotitoli per non udenti. La finestra di `Transcribe Audio…` offre la stessa casella per la singola trascrizione.
 
 ## La lingua dell'interfaccia
 

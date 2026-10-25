@@ -5,6 +5,7 @@
 #include <subedit/core/transcription/whisper_cpp_output.hpp>
 
 #include <algorithm>
+#include <array>
 #include <cstdint>
 #include <fstream>
 #include <iterator>
@@ -17,6 +18,21 @@ namespace subedit::core {
 namespace {
 
 constexpr std::string_view kExecutableName = "whisper-cli";
+
+/// What whisper.cpp reads without converting: 16 kHz, whatever the file is.
+constexpr int kSampleRate = 16000;
+
+/// The languages a multilingual model transcribes, by whisper.cpp's own table (`g_lang`, checked on
+/// 1.9.5-dev): English first, as it lists them. Declared as the capability, so that a surface
+/// offers the closed set instead of a free field.
+constexpr std::array kMultilingual{
+    "en", "zh", "de", "es",  "ru", "ko", "fr", "ja", "pt", "tr", "pl", "ca", "nl", "ar", "sv",
+    "it", "id", "hi", "fi",  "vi", "he", "uk", "el", "ms", "cs", "ro", "da", "hu", "ta", "no",
+    "th", "ur", "hr", "bg",  "lt", "la", "mi", "ml", "cy", "sk", "te", "fa", "lv", "bn", "sr",
+    "az", "sl", "kn", "et",  "mk", "br", "eu", "is", "hy", "ne", "mn", "bs", "kk", "sq", "sw",
+    "gl", "mr", "pa", "si",  "km", "sn", "yo", "so", "af", "oc", "ka", "be", "tg", "sd", "gu",
+    "am", "yi", "lo", "uz",  "fo", "ht", "ps", "tk", "nn", "mt", "sa", "lb", "my", "bo", "tl",
+    "mg", "as", "tt", "haw", "ln", "ha", "ba", "jw", "su", "yue"};
 
 /// What `whisper-cli` exits with, checked on 1.9.5-dev.
 constexpr int kMissingInput = 2;
@@ -63,7 +79,12 @@ public:
         m_state.total = m_total;
     }
 
+    /// The pieces printed so far.
+    [[nodiscard]] std::vector<TranscribedSegment> printed() const { return m_printed; }
+
     void segment(const WhisperSegmentLine& line) {
+        m_printed.push_back(
+            TranscribedSegment{.text = line.text, .start = line.start, .end = line.end});
         m_state.position = m_total ? std::min(line.end, *m_total) : line.end;
         m_state.lastText = line.text;
         if (const std::optional<double> done = fractionAt(line.end))
@@ -107,6 +128,7 @@ private:
     std::optional<Timestamp> m_end;
     std::optional<Timestamp> m_total{};
     TranscriptionProgress m_state{.stage = TranscriptionStage::Transcribing};
+    std::vector<TranscribedSegment> m_printed{};
 };
 
 /// The arguments that restrict the tool to the range of `request`.
@@ -168,11 +190,14 @@ WhisperCppEngine::capabilitiesFor(const std::optional<std::filesystem::path>& mo
     if (!multilingual)
         return std::unexpected(error(TranscriptionErrorKind::Failed, model->string()));
 
-    EngineCapabilities capabilities{.timedWords = true, .needsModel = true};
-    if (*multilingual)
+    EngineCapabilities capabilities{
+        .timedWords = true, .suppressNotes = true, .sampleRate = kSampleRate, .needsModel = true};
+    if (*multilingual) {
         capabilities.languageDetection = true;
-    else
+        capabilities.languages.assign(kMultilingual.begin(), kMultilingual.end());
+    } else {
         capabilities.languages = {"en"};
+    }
     return capabilities;
 }
 
@@ -196,15 +221,15 @@ WhisperCppEngine::run(const TranscriptionRequest& request,
                                          "-l",
                                          request.language.value_or("auto"),
                                          "-pp",
-                                         // No sound written as a note, `(Sonnerie de téléphone)` or
-                                         // `[MUSIC PLAYING]`: the decoder is forbidden the symbols
-                                         // they are made of, in the parentheses as in the brackets.
-                                         "-sns",
                                          "-oj",
                                          "-ojf",
                                          "-of",
                                          prefix.string()};
     std::vector<std::string> arguments = fixed;
+    // No sound written as a note, `(Sonnerie de téléphone)` or `[MUSIC PLAYING]`: the decoder is
+    // forbidden the symbols they are made of, in the parentheses as in the brackets.
+    if (request.suppressNotes)
+        arguments.emplace_back("-sns");
     addRange(request, arguments);
 
     RunProgress progress{request, observer};
@@ -236,14 +261,19 @@ WhisperCppEngine::run(const TranscriptionRequest& request,
                                          ? TranscriptionErrorKind::EngineMissing
                                          : TranscriptionErrorKind::Failed,
                                      ran.error().detail));
+    // Whatever stopped it, the pieces already printed are handed back with the error.
+    const auto stopped = [&progress](TranscriptionError reason) {
+        reason.partial = progress.printed();
+        return std::unexpected(std::move(reason));
+    };
     if (ran->cancelled)
-        return std::unexpected(error(TranscriptionErrorKind::Cancelled));
+        return stopped(error(TranscriptionErrorKind::Cancelled));
     if (ran->code != 0)
-        return std::unexpected(errorOfExit(ran->code, std::move(lastError)));
+        return stopped(errorOfExit(ran->code, std::move(lastError)));
 
     std::optional<WhisperOutput> output = readWhisperJson(readAll(work.path() / "out.json"));
     if (!output)
-        return std::unexpected(error(TranscriptionErrorKind::Failed));
+        return stopped(error(TranscriptionErrorKind::Failed));
 
     clipToRange(request, output->transcription.segments);
     progress.finish();

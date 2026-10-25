@@ -9,11 +9,14 @@ subedit-cli transcribe --output FILE
                        [--audio-track N]
                        [--language CODE]
                        [--start TIME] [--end TIME]
+                       [--suppress-notes | --keep-notes]
                        [--model FILE]
                        [--engine NAME]
                        [--keep-audio FILE]
                        [--raw]
                        <input>
+
+subedit-cli transcribe --list-languages [--model FILE] [--engine NAME]
 ```
 
 Skrifar **tal myndskeiðs, eða hljóðskrár, sem skjátextaskrá**. Hljóðið er undirbúið,
@@ -42,7 +45,12 @@ og lýkur með kóða sem er ekki núll.
 - **Hægt er að umrita bara hluta kvikmyndarinnar**, með `--start` og `--end` — sjá
   [Að umrita hluta](#að-umrita-hluta). Þannig er líkan prófað á tveimur mínútum áður en það er keyrt á
   tveimur klukkustundum.
-- **Hljóð eru ekki skrifuð sem athugasemdir**: vélinni er sagt að gera það ekki (valkostur hennar er `--suppress-nst`), svo að `(Sonnerie de téléphone)` eða `[MUSIC PLAYING]` komi ekki upp í skjátextunum, hvorki innan sviga né hornklofa.
+- **Hægt er að telja upp tungumálin sem vél býður**, með `--list-languages` — sjá
+  [Að telja upp tungumálin](#að-telja-upp-tungumálin).
+- **Hljóð eru sjálfgefið ekki skrifuð sem athugasemdir**: vélinni er sagt að gera það ekki (`--suppress-notes`; hennar eigin valkostur er
+  `--suppress-nst`), svo að `(Sonnerie de téléphone)` eða `[MUSIC PLAYING]` koma ekki fram í skjátextunum, hvorki í sviga né í hornklofum.
+  `--keep-notes` skrifar þau, fyrir skjátexta fyrir heyrnarskerta. Þegar athugasemdir eru bannaðar skrifar vélin `...` fyrir kafla án tals, og **eftirvinnslan fellir niður bútana sem hafa hvorki staf né tölustaf**
+  — `...`, `…`, `♪` — áður en hún sameinar og klippir; `--raw` heldur þeim, eins og bútar vélarinnar komu.
 - **Bútarnir eru sameinaðir og skornir** samkvæmt mörkum stillinganna (`transcription.merge-gap-ms`,
   `transcription.max-duration-ms`, `transcription.max-characters`): tveir bútar úr einni setningu sem eru
   nálægt hvor öðrum verða einn skjátexti, og bútur sem er of langur eða of breiður er skorinn við orð. **`--raw`
@@ -53,10 +61,10 @@ og lýkur með kóða sem er ekki núll.
 ```console
 $ subedit-cli transcribe --help
 Write the speech of a video or an audio file as subtitles
-Usage: subedit-cli transcribe [OPTIONS] input
+Usage: subedit-cli transcribe [OPTIONS] [input]
 
 Positionals:
-  input TEXT REQUIRED         Video or audio file to transcribe
+  input TEXT                  Video or audio file to transcribe
 
 Options:
   -h,--help                   Print this help message and exit
@@ -67,9 +75,12 @@ Options:
   --start TIME                Where to begin, as 2:00, 1:02:03 or seconds; the beginning by default
   --end TIME                  Where to stop, as 2:00, 1:02:03 or seconds; the end by default
   --language CODE             Language of the speech, two letters: fr, en, de; detected from the first 30 seconds by default
+  --suppress-notes            Do not write sounds as notes, such as (phone ringing); the transcription.suppress-notes setting by default
+  --keep-notes                Write sounds as notes, against the setting
   --model FILE                Model file; the transcription.model setting by default
   --engine NAME               Engine; the transcription.engine setting by default
   --keep-audio FILE           Keep the extracted audio in this file
+  --list-languages            List the languages the engine offers for the model, and transcribe nothing
   --raw                       Write the segments as the engine cut them
 ```
 
@@ -77,16 +88,19 @@ Options:
 
 | Valkostur | Nauðsynlegt | Gildi | Sjálfgefið |
 | :----- | :----- | :------ | :----- |
-| `<input>` | já | myndskeið eða hljóðskrá | — |
-| `--output` | já | skjátextaskráin sem á að skrifa; mappan hennar er búin til ef hana vantar | — |
+| `<input>` | já, nema með `--list-languages` | myndskeið eða hljóðskrá | — |
+| `--output` | já, nema með `--list-languages` | skjátextaskráin sem á að skrifa; mappan hennar er búin til ef hana vantar | — |
 | `--to` | nei | stutta heiti sniðs: `srt`, `vtt`, `subviewer2`, `ssa`, `ass`, `microdvd`, `mpl2`, `tmplayer`, `lrc` | sniðið sem skráarending `--output` segir til um, annars `srt` |
 | `--audio-track` | nei | heil tala frá 0: staðan meðal hljóðrása myndskeiðsins | `0`, sú fyrsta |
 | `--language` | nei | tveir stafir, ISO 639-1 kóði: `en`, `fr`; þriggja stafa kóði eins og `fra` er lesinn sem `fr` | stillingin `transcription.language`; tómt: greint sjálfkrafa |
+| `--suppress-notes` | nei | fáni: ekki skrifa hljóð sem athugasemdir; hafnað fyrir vél sem ekki er hægt að segja það | stillingin `transcription.suppress-notes` |
+| `--keep-notes` | nei | fáni: skrifa þau, gegn stillingunni; andstæða `--suppress-notes`, og báðum saman er hafnað | stillingin `transcription.suppress-notes` |
+| `--list-languages` | nei | fáni: telja upp tungumálin sem vélin býður fyrir líkanið, og umrita ekkert | slökkt |
 | `--start` | nei | tími: `2:00`, `1:02:03`, `2:00.5`, eða fjöldi sekúndna, `90` | upphaf hljóðsins |
 | `--end` | nei | tími, skrifaður eins og fyrir `--start`; hann verður að koma á eftir `--start` | endir hljóðsins |
 | `--model` | nei | líkanaskráin | stillingin `transcription.model` |
 | `--engine` | nei | heiti vélar: `whisper.cpp` | stillingin `transcription.engine` |
-| `--keep-audio` | nei | skrá til að geyma útdregna hljóðið í, sem 16 kHz mónó 16 bita PCM í WAV-skrá; mappan hennar er búin til ef hana vantar | hljóðið er hvergi geymt |
+| `--keep-audio` | nei | skrá til að geyma útdregna hljóðið í, sem mónó 16 bita PCM í WAV-skrá, á þeirri sýnatökutíðni sem vélin biður um (16 kHz fyrir whisper.cpp); mappan hennar er búin til ef hana vantar, og nafnið má bera `{rate}`, sem er skipt út fyrir þá tíðni í riðum (`film.{rate}.wav` er skrifað `film.16000.wav`) | hljóðið er hvergi geymt |
 | `--raw` | nei | rofi: skrifa búta vélarinnar án sameiningar og án skurðar | slökkt |
 
 **Stillingarnar** eru lesnar úr stillingaskránni eins og stillingar [`adjust`](adjust.md) — sjá
@@ -98,6 +112,7 @@ Options:
 | `transcription.executable` | forrit vélarinnar, altæk slóð; tómt: leitað að því í `PATH` | tómt |
 | `transcription.model` | líkanaskráin, altæk slóð | tómt |
 | `transcription.language` | tungumál hljóðsins, tveir stafir; tómt: greint sjálfkrafa | tómt |
+| `transcription.suppress-notes` | ekki skrifa hljóð sem athugasemdir | `true` |
 | `transcription.merge-gap-ms` | bútar úr einni setningu sem eru nær hver öðrum en þetta margar millisekúndur eru sameinaðir | `400` |
 | `transcription.max-duration-ms` | lengsti tími sem skjátexti er á skjánum, í millisekúndum | `7000` |
 | `transcription.max-characters` | flestir stafir sem skjátexti rúmar, línuskil ekki talin með | `84` |
@@ -139,6 +154,26 @@ subedit-cli transcribe --start 2:00 --end 3:30 --output test.srt --model large-v
 
 Hljóð allrar kvikmyndarinnar er samt dregið út: það sem bilið sparar er umritunin, sem er mun lengri.
 
+## Að telja upp tungumálin
+
+`--list-languages` skrifar tungumálin sem vélin býður **fyrir líkanið**, eitt í hverri línu: kóðann sem `--language` tekur, tab-staf, og heiti
+tungumálsins á tungumáli viðmótsins. Hún þarf hvorki inntak né úttak, og umritar ekkert.
+
+```bash
+subedit-cli transcribe --list-languages --model ggml-small.bin
+```
+
+```text
+en	English
+zh	Chinese
+de	German
+…
+```
+
+Listinn fer eftir vélinni og líkaninu: um hundrað tungumál fyrir fjöltyngt whisper.cpp-líkan, aðeins `en` fyrir líkan fyrir ensku
+eingöngu. Vél sem getur ekki talið upp tungumál sín telur ekkert upp. Líkan sem er ekki gefið upp eða er ekki til staðar er villa, með tilvísun á leiðbeiningarnar; aðeins
+textaformið, ekkert er skrifað með [`--format json`](invocation.md#úttak-sem-skriftur-geta-lesið).
+
 ## Úttak
 
 **Hefðbundið úttak** — ekkert: niðurstaðan er skráin sem var skrifuð.
@@ -165,15 +200,11 @@ sem voru skrifaðir) og `counts.segments` (bútar vélarinnar sem þeir voru ger
 
 ## Tilkynningar
 
-Tvær tilkynningar eru sagðar á fyrsta stigi, því þær breyta því sem búast má við:
+Ein tilkynning er sögð á fyrsta stigi, áður en vinnan hefst, því hún breytir því sem búast má við:
 
-- **Fyrir vinnuna, með líkani fyrir ensku eingöngu**: `This model is for English only: whatever language the film
+- **Með líkani fyrir ensku eingöngu**: `This model is for English only: whatever language the film
   speaks, the result will be English, or notes in brackets. Choose a multilingual model in the preferences.` Líkan
   þar sem skráarnafnið endar á `.en` er slíkt.
-- **Eftir vinnuna, þegar vélin skrifaði aðallega athugasemdir í hornklofum** — `[MUSIC PLAYING]`, `[SPEAKING FRENCH]` —,
-  að minnsta kosti tvo þriðju hluta af bútum sínum: `N of the M pieces are only notes in brackets, such as [MUSIC PLAYING]: the
-  language used (xx) is probably not the one spoken, and the engine may have translated the speech. Run it again with
-  the language typed.` Skjátextarnir eru samt skrifaðir; tilkynningin segir hvað er að gruna.
 
 ## Skilakóðar
 
@@ -192,6 +223,9 @@ sem enginn skráði, eða bil sem ekki er hægt að nota.
 | tungumál sem líkanið getur ekki umritað | `the model cannot transcribe the language xx` |
 | ekkert tungumál, og líkan sem getur ekki greint eitt | `the model cannot detect the language: give one` |
 | vél sem enginn skráði | `no transcription engine is called NAME` |
+| `<input>` eða `--output` vantar | `input is required` eða `--output is required` |
+| `--suppress-notes` með `--keep-notes` | `--suppress-notes and --keep-notes say opposite things; give one of them` |
+| `--suppress-notes` fyrir vél sem ekki er hægt að segja það | `the engine NAME cannot be told not to write sounds as notes` |
 | tungumál sem er ekki kóði | `"TEXT" is not a language code: write two letters, such as fr, en, de or es` |
 | mörk bilsins sem eru ekki tími | `"TEXT" is not a time: write it as 2:00, 1:02:03 or 2:00.5, or in seconds` |
 | `--end` ekki á eftir `--start` | `the end of the range must come after its start` |

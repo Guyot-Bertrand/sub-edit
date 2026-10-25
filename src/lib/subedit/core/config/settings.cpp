@@ -64,6 +64,7 @@ constexpr std::string_view kTranscriptionEngineKey = "transcription.engine";
 constexpr std::string_view kTranscriptionExecutableKey = "transcription.executable";
 constexpr std::string_view kTranscriptionModelKey = "transcription.model";
 constexpr std::string_view kTranscriptionLanguageKey = "transcription.language";
+constexpr std::string_view kTranscriptionSuppressNotesKey = "transcription.suppress-notes";
 constexpr std::string_view kTranscriptionMergeGapKey = "transcription.merge-gap-ms";
 constexpr std::string_view kTranscriptionMaxDurationKey = "transcription.max-duration-ms";
 constexpr std::string_view kTranscriptionMaxCharactersKey = "transcription.max-characters";
@@ -844,7 +845,7 @@ void applyDurationAdjustmentOption(SettingsRead& read,
         take(millisecondsOf(value), form.gapMilliseconds);
 }
 
-/// Keeps one of the seven options of the audio transcription.
+/// Keeps one of the options of the audio transcription.
 void applyTranscriptionOption(SettingsRead& read, std::string_view key, std::string_view value) {
     const auto take = [&read, key, value](auto parsed, auto& field) {
         keepOption(read, key, value, std::move(parsed), field);
@@ -859,6 +860,8 @@ void applyTranscriptionOption(SettingsRead& read, std::string_view key, std::str
         take(directoryOf(value), form.model);
     else if (key == kTranscriptionLanguageKey)
         take(languageCodeOf(value), form.language);
+    else if (key == kTranscriptionSuppressNotesKey)
+        take(booleanOf(value), form.suppressNotes);
     else if (key == kTranscriptionMergeGapKey)
         take(millisecondsOf(value), form.mergeGapMilliseconds);
     else if (key == kTranscriptionMaxDurationKey)
@@ -991,7 +994,7 @@ void renderDurationAdjustment(std::string& out, const DurationAdjustmentSettings
                 form.gapMilliseconds == defaults.gapMilliseconds);
 }
 
-/// The seven options of the audio transcription, each written bare when it
+/// The options of the audio transcription, each written bare when it
 /// differs from the default and commented out when it does not.
 void renderTranscription(std::string& out, const TranscriptionSettings& form) {
     const TranscriptionSettings defaults;
@@ -1002,6 +1005,10 @@ void renderTranscription(std::string& out, const TranscriptionSettings& form) {
                 form.executable == defaults.executable);
     writeOption(out, kTranscriptionModelKey, form.model.string(), form.model == defaults.model);
     writeOption(out, kTranscriptionLanguageKey, form.language, form.language == defaults.language);
+    writeOption(out,
+                kTranscriptionSuppressNotesKey,
+                flagText(form.suppressNotes),
+                form.suppressNotes == defaults.suppressNotes);
     writeOption(out,
                 kTranscriptionMergeGapKey,
                 std::to_string(form.mergeGapMilliseconds),

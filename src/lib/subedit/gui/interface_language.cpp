@@ -43,7 +43,7 @@ InterfaceLanguage::InterfaceLanguage(const std::optional<std::string>& preferred
         return;
 
     m_language = found->name;
-    core::installCatalogue(std::move(found->catalogue));
+    core::installCatalogue(std::move(found->catalogue), found->name);
 
     // The whole window mirrors under a right-to-left language: menus, dialogs, the table's
     // columns. Text that is not language — the timeline, the video controls — sets its own.

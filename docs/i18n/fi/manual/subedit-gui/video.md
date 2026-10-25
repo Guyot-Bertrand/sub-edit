@@ -108,17 +108,22 @@ tämä asiakirja liittyy —, ja kolmas maininta asettaisi sen samalle tasolle k
 **projektin elokuvan** ääntä eikä koskaan tiedostoa, jonka valitsisit — litteroidaksesi
 äänitiedoston käytä komentoriviltä komentoa [`transcribe`](../subedit-cli/transcribe.md).
 
-Valintaikkuna kysyy kolme asiaa ja kertoo, voiko se aloittaa:
+Valintaikkuna kysyy neljä asiaa ja kertoo, voiko se aloittaa:
 
 - **ääniraidan**, luetteloituna samoin kuin valikko [`Audio`](#ääniraita) ne luettelee, kielineen
   ja nimineen sellaisina kuin tiedosto ne ilmoittaa;
-- **kielen**, kaksi kirjainta kuten `en` tai `fr` (`fra` luetaan muodossa `fr`). Se alkaa valitun raidan kielellä,
-  kun tiedosto ilmoittaa sellaisen, seuraa raitaa niin kauan kuin et ole kirjoittanut omaa, ja
-  **kentän alla oleva rivi kertoo, mistä se tulee**. Kun tiedosto ei ilmoita raidalle kieltä,
-  rivi kertoo sen ja varoittaa: malli tunnistaa kielen silloin äänen ensimmäisten kolmenkymmenen sekunnin perusteella, minkä vain monikielinen malli
-  osaa, ja **elokuva, joka alkaa musiikilla tai hiljaisuudella, voidaan ottaa toiseksi kieleksi ja sen puhe käännetään
-  tälle kielelle**. Kirjoita kieli, jos tiedät sen. Pelkälle englannille tarkoitetun mallin kohdalla kenttä on
-  lukittu arvoon `en` eikä sitä voi muuttaa, ja rivi kertoo, että elokuva tulee ulos englanniksi riippumatta siitä, mitä kieltä se puhuu;
+- **kielen**, valittuna **luettelosta**: ensin kohta, joka tunnistaa sen, “Tunnista ensimmäisen 30 sekunnin äänestä”, sitten kielet, joita
+  moottori tarjoaa mallille, nimellä ikkunan kielellä ja koodin kanssa — “ranska (fr)”. Luettelo on moottorin oma: noin sata
+  monikielisellä mallilla; pelkälle englannille tarkoitetulla mallilla siinä on yksi kohta, englanti, eikä sitä voi
+  muuttaa, ja rivi kertoo, että elokuva tulee ulos englanniksi riippumatta siitä, mitä kieltä se puhuu. Luettelo alkaa valitun raidan kielellä,
+  kun tiedosto ilmoittaa sellaisen ja moottori tarjoaa sen, seuraa raitaa niin kauan kuin et ole valinnut omaa, ja
+  **sen alla oleva rivi kertoo, mistä se tulee**. Kun tiedosto ei ilmoita raidalle kieltä, rivi kertoo sen ja varoittaa:
+  malli tunnistaa kielen silloin äänen ensimmäisten kolmenkymmenen sekunnin perusteella, ja **elokuva, joka alkaa musiikilla tai hiljaisuudella, voidaan ottaa toiseksi kieleksi ja sen puhe
+  käännetään tälle kielelle**. Valitse kieli, jos tiedät sen;
+- **äänet huomautuksina kirjoitettuina**: ruutu, “Älä kirjoita ääniä huomautuksina”, oletuksena valittuna. Moottorille sanotaan silloin, ettei se kirjoita ääniä
+  huomautuksina, kuten `(phone ringing)` tai `[MUSIC PLAYING]`; missä sillä ei ole puhetta kirjoitettavaksi, se kirjoittaa `...`, ja palat, joissa ei ole kirjainta eikä numeroa,
+  jälkikäsittely pudottaa. Poista valinta, jos haluat säilyttää huomautukset, kuulovammaisten tekstityksiä varten. Ruutu on harmaa syyn kanssa
+  moottorilla, jolle sitä ei voi sanoa. Se on asetus `transcription.suppress-notes`, jonka sisältävät myös [asetukset](preferences.md#litterointi);
 - **elokuvan osan**, ajasta toiseen — katso [Kokeile ensin osaa](#kokeile-ensin-osaa). Molemmat kentät
   tyhjinä tarkoittaa koko elokuvaa.
 
@@ -147,24 +152,38 @@ kertoo, missä työ on**, jotta tiedät sen elävän ja kuinka kauan se kestää
 
 Pitkällä elokuvalla, jossa on suuri malli prosessorilla, ensimmäiset minuutit voivat olla pitkiä: moottori lataa mallia ja työstää ensimmäisiä
 kolmenkymmenen sekunnin ikkunoitaan. Kohta ja viimeisin teksti liikkuvat ennen moottorin omaa prosenttia, joka tulee vain 5 %:n
-askelin elokuvasta. Kun työ päättyy, projektin tekstitykset korvataan
-litteroinnilla **yhtenä toimintona**: yksi `Undo` palauttaa sen, mitä siellä oli, käännöstekstit
-mukaan lukien. Litterointi, joka epäonnistuu tai jonka perut, ei muuta mitään — syy kerrotaan
-ruudussa, paitsi peruutuksen kohdalla, joka vain kertoo tilarivillä, että se peruttiin.
+askelin elokuvasta.
 
-**Kun suurin osa siitä, mitä moottori kirjoitti, on hakasulkeissa olevia merkintöjä** — `[MUSIC PLAYING]`, `[SPEAKING FRENCH]` —, ruutu
-kertoo sen työn jälkeen: käytetty kieli ei todennäköisesti ole puhuttu kieli, ja moottori on voinut kääntää puheen. Aja uudelleen
-kirjoittamalla kieli. Tekstitykset ovat silti projektissa, ja yksi `Undo` palauttaa sen, mikä siinä oli.
+### Esikatselu
+
+**Mikään ei korvaa projektin tekstityksiä, ennen kuin olet nähnyt ne.** Kun työ päättyy — ja myös kun peruutat sen tai se epäonnistuu
+tuotettuaan jotain —, ikkuna näyttää tuloksen kahdessa taulukossa vierekkäin, kummallakin **oma alkunsa ja loppunsa**:
+
+- **vasemmalla “Sellaisena kuin moottori sen kirjoitti”**: kaikki, mitä moottori palautti, sellaisena kuin se sen leikkasi, ilman jälkikäsittelyä — se, mitä
+  [`--raw`](../subedit-cli/transcribe.md) kirjoittaisi —, paikkamerkit (`...`) mukaan lukien;
+- **oikealla “Sellaisina kuin ne otetaan käyttöön”**: tekstitykset jälkikäsittelyn jälkeen — paikkamerkit pudotettu, lähekkäiset palat yhdistetty, pitkät
+  leikattu —, täsmälleen se, mikä menee projektiin.
+
+Nämä kaksi eivät asetu riville riviltä, minkä vuoksi kummallakin on omat aikansa. **Tekstityksen valitseminen oikealta korostaa vasemmalta palat, joista se
+tehtiin**, ja vierittää vasemman puolen niiden kohdalle; yksi tekstitys kerrallaan, vain tähän suuntaan. Kumpaakaan taulukkoa ei voi muokata.
+
+Kaksi painiketta sulkee sen. **“Käytä”** korvaa projektin tekstitykset **yhtenä toimintona**: yksi `Undo` palauttaa sen, mitä siellä oli, käännöstekstit
+mukaan lukien. **“Ohita”** hylkää tuloksen, ja se on menetetty. “Käytä” on harmaa, kun
+ei ole mitään käytettävää.
+
+**Kun ajo pysäytettiin**, ikkuna kertoo sen — “Osittainen tulos: työ pysähtyi kohtaan …” — ja tarjoaa sen, mikä oli siihen mennessä saatu, käytettäväksi
+tai ohitettavaksi, jottei pitkä, myöhään pysäytetty ajo menetä työtään kysymättä. Näillä paloilla ei ole ajoitettuja sanoja (moottori kirjoittaa ne lopussa), ja
+jälkikäsittely leikkaa palojen omista rajoista. Epäonnistuminen kerrotaan ensin ruudussa, kuten mikä tahansa epäonnistuminen; peruutus ei kerro mitään sellaista.
 
 ### Kokeile ensin osaa
 
-Alueen avulla voit **arvioida mallia tai kieltä kahdella minuutilla ennen kuin sitoudut kahteen tuntiin**. Kentät “Elokuvan osa” ottavat alun ja lopun, kumpikin kirjoitettuna `2:00`, `1:02:03`, `2:00.5` tai sekuntimääränä,
-`90`; yksi yksinään on sallittu (sieltä loppuun tai alusta sinne). `OK` pysyy harmaana, kunnes kenttä
+Alueen avulla voit **arvioida mallia tai kieltä kahdella minuutilla ennen kuin sitoudut kahteen tuntiin**. Kentät “Elokuvan osa” ottavat alun ja lopun, kumpikin kirjoitettuna `HH:MM:SS`, kuten kentät sanovat (`2:00` ja sekuntimäärä, `90`,
+luetaan myös); yksi yksinään on sallittu (sieltä loppuun tai alusta sinne). `OK` pysyy harmaana, kunnes kenttä
 on aika ja loppu on alun jälkeen, ja kenttien alla oleva rivi kertoo, mikä on vialla.
 
 - **Tekstitykset säilyttävät elokuvan ajan**: se, mikä sanotaan kohdassa 2:10, on tuloksessa kohdassa `0:02:10`.
-- **Se korvaa projektin tekstitykset kuten mikä tahansa litterointi**, saman kysymyksen jälkeen, kun tekstityksiä on, ja yksi
-  `Undo` palauttaa ne. Jos haluat kokeilla aluetta koskematta työhösi, tallenna ensin tai työskentele kopiolla.
+- **Se kulkee esikatselun kautta kuten mikä tahansa litterointi** ja korvaa projektin tekstitykset, kun se on otettu käyttöön; yksi `Undo` palauttaa ne. Jos haluat kokeilla aluetta koskematta työhösi,
+  ohita esikatselu tai tallenna ensin.
 
 **Sitä, mitä se tarvitsee, ei toimiteta**: moottori (whisper.cpp), malli ja `ffmpeg` äänen purkamiseen.
 Katso [Litterointityökalujen asentaminen](../subedit-cli/install-transcription.md).

@@ -9,11 +9,14 @@ subedit-cli transcribe --output FILE
                        [--audio-track N]
                        [--language CODE]
                        [--start TIME] [--end TIME]
+                       [--suppress-notes | --keep-notes]
                        [--model FILE]
                        [--engine NAME]
                        [--keep-audio FILE]
                        [--raw]
                        <input>
+
+subedit-cli transcribe --list-languages [--model FILE] [--engine NAME]
 ```
 
 Zapíše **řeč videa nebo zvukového souboru jako soubor titulků**. Zvuk se připraví,
@@ -42,8 +45,13 @@ a skončí s nenulovým kódem.
 - **Část filmu lze přepsat samostatně** pomocí `--start` a `--end` — viz
   [Přepis části](#přepis-části). Tak se model vyzkouší na dvou minutách, než se pustí na dvě
   hodiny.
-- **Zvuky se nezapisují jako poznámky**: nástroj má příkaz to nedělat (jeho vlastní volba je `--suppress-nst`), takže
-  `(Sonnerie de téléphone)` nebo `[MUSIC PLAYING]` se v titulcích neobjeví, ani v závorkách, ani v hranatých závorkách.
+- **Jazyky, které nástroj nabízí, lze vypsat** pomocí `--list-languages` — viz
+  [Výpis jazyků](#výpis-jazyků).
+- **Zvuky se ve výchozím stavu nezapisují jako poznámky**: nástroj má příkaz to nedělat (`--suppress-notes`; jeho vlastní volba je
+  `--suppress-nst`), takže `(Sonnerie de téléphone)` nebo `[MUSIC PLAYING]` se v titulcích neobjeví, ani v závorkách, ani v hranatých závorkách.
+  `--keep-notes` je zapíše, pro titulky pro neslyšící a nedoslýchavé. Když jsou poznámky zakázány, nástroj zapíše `...` pro úsek bez řeči
+  a **následné zpracování zahodí kousky, které nemají žádné písmeno ani číslici** — `...`, `…`, `♪` —
+  před slučováním a dělením; `--raw` je ponechá tak, jak kousky nástroje přišly.
 - **Segmenty se sloučí a rozdělí** podle mezí nastavení (`transcription.merge-gap-ms`,
   `transcription.max-duration-ms`, `transcription.max-characters`): dva kusy jedné věty, které jsou
   blízko sebe, tvoří jeden titulek, a kus příliš dlouhý nebo příliš široký se rozdělí u slova. **`--raw`
@@ -54,10 +62,10 @@ a skončí s nenulovým kódem.
 ```console
 $ subedit-cli transcribe --help
 Write the speech of a video or an audio file as subtitles
-Usage: subedit-cli transcribe [OPTIONS] input
+Usage: subedit-cli transcribe [OPTIONS] [input]
 
 Positionals:
-  input TEXT REQUIRED         Video or audio file to transcribe
+  input TEXT                  Video or audio file to transcribe
 
 Options:
   -h,--help                   Print this help message and exit
@@ -68,9 +76,12 @@ Options:
   --start TIME                Where to begin, as 2:00, 1:02:03 or seconds; the beginning by default
   --end TIME                  Where to stop, as 2:00, 1:02:03 or seconds; the end by default
   --language CODE             Language of the speech, two letters: fr, en, de; detected from the first 30 seconds by default
+  --suppress-notes            Do not write sounds as notes, such as (phone ringing); the transcription.suppress-notes setting by default
+  --keep-notes                Write sounds as notes, against the setting
   --model FILE                Model file; the transcription.model setting by default
   --engine NAME               Engine; the transcription.engine setting by default
   --keep-audio FILE           Keep the extracted audio in this file
+  --list-languages            List the languages the engine offers for the model, and transcribe nothing
   --raw                       Write the segments as the engine cut them
 ```
 
@@ -78,16 +89,19 @@ Options:
 
 | Volba | Povinná | Hodnoty | Výchozí |
 | :----- | :------- | :----- | :------ |
-| `<input>` | ano | video nebo zvukový soubor | — |
-| `--output` | ano | soubor titulků k zapsání; jeho adresář se vytvoří, pokud chybí | — |
+| `<input>` | ano, kromě `--list-languages` | video nebo zvukový soubor | — |
+| `--output` | ano, kromě `--list-languages` | soubor titulků k zapsání; jeho adresář se vytvoří, pokud chybí | — |
 | `--to` | ne | krátký název formátu: `srt`, `vtt`, `subviewer2`, `ssa`, `ass`, `microdvd`, `mpl2`, `tmplayer`, `lrc` | formát, který určuje přípona `--output`, jinak `srt` |
 | `--audio-track` | ne | celé číslo od 0: pořadí mezi zvukovými stopami videa | `0`, první |
 | `--language` | ne | dvě písmena, kód ISO 639-1: `en`, `fr`; třípísmenný kód, například `fra`, se čte jako `fr` | nastavení `transcription.language`; prázdné: zjistí se |
+| `--suppress-notes` | ne | příznak: nezapisovat zvuky jako poznámky; odmítnuto u nástroje, kterému to nelze říci | nastavení `transcription.suppress-notes` |
+| `--keep-notes` | ne | příznak: zapsat je, proti nastavení; opak `--suppress-notes`, a obě společně se odmítnou | nastavení `transcription.suppress-notes` |
+| `--list-languages` | ne | příznak: vypsat jazyky, které nástroj nabízí pro model, a nic nepřepisovat | vypnuto |
 | `--start` | no | čas: `2:00`, `1:02:03`, `2:00.5`, nebo počet sekund, `90` | začátek zvuku |
 | `--end` | no | čas zapsaný jako u `--start`; musí následovat po `--start` | konec zvuku |
 | `--model` | ne | soubor modelu | nastavení `transcription.model` |
 | `--engine` | ne | název nástroje: `whisper.cpp` | nastavení `transcription.engine` |
-| `--keep-audio` | ne | soubor, ve kterém se uchová vyextrahovaný zvuk, jako 16bitové mono PCM s frekvencí 16 kHz v souboru WAV; jeho adresář se vytvoří, pokud chybí | zvuk se neuchovává nikde |
+| `--keep-audio` | ne | soubor, ve kterém se uchová vyextrahovaný zvuk, jako 16bitové mono PCM v souboru WAV, s vzorkovací frekvencí, kterou nástroj žádá (16 kHz pro whisper.cpp); jeho adresář se vytvoří, pokud chybí, a název může nést `{rate}`, nahrazené touto frekvencí v hertzích (`film.{rate}.wav` se zapíše jako `film.16000.wav`) | zvuk se neuchovává nikde |
 | `--raw` | ne | přepínač: zapíše segmenty nástroje bez slučování a bez dělení | vypnuto |
 
 **Nastavení** se čtou ze souboru nastavení jako ta u [`adjust`](adjust.md) — viz
@@ -99,6 +113,7 @@ Options:
 | `transcription.executable` | program nástroje, absolutní cesta; prázdné: hledá se v `PATH` | prázdné |
 | `transcription.model` | soubor modelu, absolutní cesta | prázdné |
 | `transcription.language` | jazyk zvuku, dvě písmena; prázdné: zjistí se | prázdné |
+| `transcription.suppress-notes` | nezapisovat zvuky jako poznámky | `true` |
 | `transcription.merge-gap-ms` | části jedné věty bližší než tento počet milisekund se spojí | `400` |
 | `transcription.max-duration-ms` | nejdelší doba, po kterou titulek zůstává na obrazovce, v milisekundách | `7000` |
 | `transcription.max-characters` | největší počet znaků titulku, zalomení řádků se nepočítají | `84` |
@@ -141,6 +156,25 @@ subedit-cli transcribe --start 2:00 --end 3:30 --output test.srt --model large-v
 
 Zvuk celého filmu se stále extrahuje: rozsah ušetří přepis, který je mnohem delší.
 
+## Výpis jazyků
+
+`--list-languages` vypíše jazyky, které nástroj nabízí **pro model**, jeden na řádek: kód, který bere `--language`, tabulátor a název
+jazyka v jazyce rozhraní. Nepotřebuje ani vstup, ani výstup a nic nepřepisuje.
+
+```bash
+subedit-cli transcribe --list-languages --model ggml-small.bin
+```
+
+```text
+en	English
+zh	Chinese
+de	German
+…
+```
+
+Seznam závisí na nástroji a na modelu: asi sto jazyků pro vícejazyčný model whisper.cpp, jen `en` pro model pouze pro angličtinu. Nástroj, který své jazyky vypsat nemůže, nevypíše žádný. Nezadaný nebo neexistující model je chyba s odkazem na průvodce; pouze
+textová podoba, s [`--format json`](invocation.md#výstup-čitelný-pro-skript) se nezapisuje nic.
+
 ## Výstup
 
 **Standardní výstup** — nic: výsledkem je zapsaný soubor.
@@ -167,15 +201,11 @@ titulky) a `counts.segments` (kusy nástroje, z nichž vznikly) a `audio`, když
 
 ## Upozornění
 
-Dvě upozornění se vypisují na první úrovni, protože mění, co lze čekat:
+Jedno upozornění se vypisuje na první úrovni, před prací, protože mění, co lze čekat:
 
-- **Před prací, s modelem jen pro angličtinu**: `This model is for English only: whatever language the film
+- **S modelem jen pro angličtinu**: `This model is for English only: whatever language the film
   speaks, the result will be English, or notes in brackets. Choose a multilingual model in the preferences.` Takovým
   modelem je ten, jehož název souboru končí na `.en`.
-- **Po práci, když nástroj zapsal převážně poznámky v hranatých závorkách** — `[MUSIC PLAYING]`, `[SPEAKING FRENCH]` —,
-  alespoň dvě a třetinu jeho částí: `N of the M pieces are only notes in brackets, such as [MUSIC PLAYING]: the
-  language used (xx) is probably not the one spoken, and the engine may have translated the speech. Run it again with
-  the language typed.` Titulky se přesto zapíšou; upozornění říká, co podezírat.
 
 ## Návratové kódy
 
@@ -194,6 +224,9 @@ nástroje, který nikdo nezaregistroval, nebo u rozsahu, který nelze použít.
 | jazyk, který model neumí přepisovat | `the model cannot transcribe the language xx` |
 | žádný jazyk a model, který žádný nezjistí | `the model cannot detect the language: give one` |
 | nástroj, který nikdo nezaregistroval | `no transcription engine is called NAME` |
+| chybějící `<input>` nebo `--output` | `input is required` nebo `--output is required` |
+| `--suppress-notes` s `--keep-notes` | `--suppress-notes and --keep-notes say opposite things; give one of them` |
+| `--suppress-notes` u nástroje, kterému to nelze říci | `the engine NAME cannot be told not to write sounds as notes` |
 | jazyk, který není kód | `"TEXT" is not a language code: write two letters, such as fr, en, de or es` |
 | mez rozsahu, která není čas | `"TEXT" is not a time: write it as 2:00, 1:02:03 or 2:00.5, or in seconds` |
 | `--end` nenásleduje po `--start` | `the end of the range must come after its start` |

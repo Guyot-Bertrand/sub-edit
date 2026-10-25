@@ -9,11 +9,14 @@ subedit-cli transcribe --output FILE
                        [--audio-track N]
                        [--language CODE]
                        [--start TIME] [--end TIME]
+                       [--suppress-notes | --keep-notes]
                        [--model FILE]
                        [--engine NAME]
                        [--keep-audio FILE]
                        [--raw]
                        <input>
+
+subedit-cli transcribe --list-languages [--model FILE] [--engine NAME]
 ```
 
 Kirjoittaa **videon tai äänitiedoston puheen tekstitystiedostoksi**. Ääni valmistellaan,
@@ -42,8 +45,13 @@ päättyy nollasta poikkeavaan koodiin.
 - **Elokuvan osan voi litteroida yksinään** valitsimilla `--start` ja `--end` — katso
   [Osan litterointi](#osan-litterointi). Näin mallia kokeillaan kahdella minuutilla ennen kuin se ajetaan
   kahdelle tunnille.
-- **Äänet eivät kirjoitu muistiinpanoina**: moottorille on annettu käsky olla tekemättä niin (sen oma valitsin on `--suppress-nst`), jotta
-  `(Sonnerie de téléphone)` tai `[MUSIC PLAYING]` eivät nouse tekstityksiin, ei sulkeissa eikä hakasulkeissa.
+- **Moottorin tarjoamat kielet voi luetteloida** valitsimella `--list-languages` — katso
+  [Kielten luettelointi](#kielten-luettelointi).
+- **Äänet eivät kirjoitu muistiinpanoina oletuksena**: moottorille on annettu käsky olla tekemättä niin (`--suppress-notes`; sen oma valitsin on
+  `--suppress-nst`), jotta `(Sonnerie de téléphone)` tai `[MUSIC PLAYING]` eivät nouse tekstityksiin, ei sulkeissa eikä hakasulkeissa.
+  `--keep-notes` kirjoittaa ne, kuulovammaisten tekstityksiä varten. Kun muistiinpanot on kielletty, moottori kirjoittaa `...` kohtaan, jossa ei ole puhetta, ja
+  **jälkikäsittely pudottaa palat, joissa ei ole kirjainta eikä numeroa** — `...`, `…`, `♪` — ennen yhdistämistä ja leikkaamista; `--raw`
+  säilyttää ne sellaisina kuin moottorin palat tulivat.
 - **Segmentit yhdistetään ja leikataan** asetusten rajojen mukaan (`transcription.merge-gap-ms`,
   `transcription.max-duration-ms`, `transcription.max-characters`): kaksi saman lauseen palaa, jotka ovat
   lähellä toisiaan, muodostavat yhden tekstityksen, ja liian pitkä tai liian leveä pala leikataan sanan kohdalta. **`--raw`
@@ -54,10 +62,10 @@ päättyy nollasta poikkeavaan koodiin.
 ```console
 $ subedit-cli transcribe --help
 Write the speech of a video or an audio file as subtitles
-Usage: subedit-cli transcribe [OPTIONS] input
+Usage: subedit-cli transcribe [OPTIONS] [input]
 
 Positionals:
-  input TEXT REQUIRED         Video or audio file to transcribe
+  input TEXT                  Video or audio file to transcribe
 
 Options:
   -h,--help                   Print this help message and exit
@@ -68,9 +76,12 @@ Options:
   --start TIME                Where to begin, as 2:00, 1:02:03 or seconds; the beginning by default
   --end TIME                  Where to stop, as 2:00, 1:02:03 or seconds; the end by default
   --language CODE             Language of the speech, two letters: fr, en, de; detected from the first 30 seconds by default
+  --suppress-notes            Do not write sounds as notes, such as (phone ringing); the transcription.suppress-notes setting by default
+  --keep-notes                Write sounds as notes, against the setting
   --model FILE                Model file; the transcription.model setting by default
   --engine NAME               Engine; the transcription.engine setting by default
   --keep-audio FILE           Keep the extracted audio in this file
+  --list-languages            List the languages the engine offers for the model, and transcribe nothing
   --raw                       Write the segments as the engine cut them
 ```
 
@@ -78,16 +89,19 @@ Options:
 
 | Valitsin | Pakollinen | Arvot | Oletus |
 | :----- | :------- | :----- | :------ |
-| `<input>` | kyllä | video tai äänitiedosto | — |
-| `--output` | kyllä | kirjoitettava tekstitystiedosto; sen hakemisto luodaan, jos se puuttuu | — |
+| `<input>` | kyllä, paitsi valitsimella `--list-languages` | video tai äänitiedosto | — |
+| `--output` | kyllä, paitsi valitsimella `--list-languages` | kirjoitettava tekstitystiedosto; sen hakemisto luodaan, jos se puuttuu | — |
 | `--to` | ei | muodon lyhyt nimi: `srt`, `vtt`, `subviewer2`, `ssa`, `ass`, `microdvd`, `mpl2`, `tmplayer`, `lrc` | muoto, jonka `--output`-tiedoston pääte kertoo, muuten `srt` |
 | `--audio-track` | ei | kokonaisluku nollasta: paikka videon ääniraitojen joukossa | `0`, ensimmäinen |
 | `--language` | ei | kaksi kirjainta, ISO 639-1 -koodi: `en`, `fr`; kolmikirjaiminen koodi kuten `fra` luetaan muodossa `fr` | asetus `transcription.language`; tyhjä: tunnistetaan |
+| `--suppress-notes` | ei | lippu: älä kirjoita ääniä muistiinpanoina; hylätään moottorille, jolle sitä ei voi sanoa | asetus `transcription.suppress-notes` |
+| `--keep-notes` | ei | lippu: kirjoita ne, asetuksen vastaisesti; `--suppress-notes`in vastakohta, ja molemmat yhdessä hylätään | asetus `transcription.suppress-notes` |
+| `--list-languages` | ei | lippu: luettele kielet, joita moottori tarjoaa mallille, äläkä litteroi mitään | pois |
 | `--start` | no | aika: `2:00`, `1:02:03`, `2:00.5` tai sekuntimäärä, `90` | äänen alku |
 | `--end` | no | aika, kirjoitettuna kuten valitsimelle `--start`; sen on oltava `--start`-arvon jälkeen | äänen loppu |
 | `--model` | ei | mallitiedosto | asetus `transcription.model` |
 | `--engine` | ei | moottorin nimi: `whisper.cpp` | asetus `transcription.engine` |
-| `--keep-audio` | ei | tiedosto, johon purettu ääni säilytetään 16 kHz:n 16-bittisenä mono-PCM:nä WAV-tiedostossa; sen hakemisto luodaan, jos se puuttuu | ääntä ei säilytetä missään |
+| `--keep-audio` | ei | tiedosto, johon purettu ääni säilytetään 16-bittisenä mono-PCM:nä WAV-tiedostossa moottorin pyytämällä näytteenottotaajuudella (whisper.cpp:lle 16 kHz); sen hakemisto luodaan, jos se puuttuu, ja nimessä voi olla `{rate}`, joka korvataan tällä taajuudella hertseinä (`film.{rate}.wav` kirjoitetaan `film.16000.wav`) | ääntä ei säilytetä missään |
 | `--raw` | ei | lippu: kirjoittaa moottorin segmentit ilman yhdistämistä ja leikkaamista | pois |
 
 **Asetukset** luetaan asetustiedostosta kuten komennon [`adjust`](adjust.md) asetukset — katso
@@ -99,6 +113,7 @@ Options:
 | `transcription.executable` | moottorin ohjelma, absoluuttinen polku; tyhjä: haetaan `PATH`-polusta | tyhjä |
 | `transcription.model` | mallitiedosto, absoluuttinen polku | tyhjä |
 | `transcription.language` | äänen kieli, kaksi kirjainta; tyhjä: tunnistetaan | tyhjä |
+| `transcription.suppress-notes` | älä kirjoita ääniä muistiinpanoina | `true` |
 | `transcription.merge-gap-ms` | saman lauseen palat, jotka ovat näin monta millisekuntia lähempänä toisiaan, yhdistetään | `400` |
 | `transcription.max-duration-ms` | pisin aika, jonka tekstitys pysyy näytöllä, millisekunteina | `7000` |
 | `transcription.max-characters` | tekstityksen merkkien enimmäismäärä, rivinvaihtoja ei lasketa | `84` |
@@ -141,6 +156,25 @@ subedit-cli transcribe --start 2:00 --end 3:30 --output test.srt --model large-v
 
 Koko elokuvan ääni puretaan edelleen: alue säästää litteroinnin, joka kestää paljon pidempään.
 
+## Kielten luettelointi
+
+`--list-languages` kirjoittaa kielet, joita moottori tarjoaa **mallille**, yhden riviä kohden: koodin, jonka `--language` ottaa, sarkaimen ja kielen
+nimen käyttöliittymän kielellä. Se ei tarvitse syötettä eikä tulostetta, eikä se litteroi mitään.
+
+```bash
+subedit-cli transcribe --list-languages --model ggml-small.bin
+```
+
+```text
+en	English
+zh	Chinese
+de	German
+…
+```
+
+Luettelo riippuu moottorista ja mallista: noin sata kieltä monikieliselle whisper.cpp-mallille, vain `en` pelkälle englannille tarkoitetulle mallille. Moottori, joka ei osaa luetteloida kieliään, ei luettele yhtään. Malli, jota ei ole annettu tai joka ei ole paikalla, on virhe, jossa on osoitus oppaaseen; vain
+tekstimuoto, valitsimella [`--format json`](invocation.md#skriptin-luettava-tuloste) ei kirjoiteta mitään.
+
 ## Tuloste
 
 **Vakiotuloste** — ei mitään: tulos on kirjoitettu tiedosto.
@@ -167,15 +201,11 @@ tekstitykset) ja `counts.segments` (moottorin palat, joista ne tehtiin) sekä `a
 
 ## Huomautukset
 
-Kaksi huomautusta sanotaan ensimmäisellä tasolla, koska ne muuttavat sitä, mitä on odotettavissa:
+Yksi huomautus sanotaan ensimmäisellä tasolla ennen työtä, koska se muuttaa sitä, mitä on odotettavissa:
 
-- **Ennen työtä, kun malli on vain englannille**: `This model is for English only: whatever language the film
+- **Kun malli on vain englannille**: `This model is for English only: whatever language the film
   speaks, the result will be English, or notes in brackets. Choose a multilingual model in the preferences.` Malli,
   jonka tiedostonimi päättyy `.en`, on sellainen.
-- **Työn jälkeen, kun moottori on kirjoittanut enimmäkseen hakasulkeissa olevia merkintöjä** — `[MUSIC PLAYING]`, `[SPEAKING FRENCH]` —,
-  vähintään kaksi kolmasosaa sen paloista: `N of the M pieces are only notes in brackets, such as [MUSIC PLAYING]: the
-  language used (xx) is probably not the one spoken, and the engine may have translated the speech. Run it again with
-  the language typed.` Tekstitykset kirjoitetaan silti; huomautus kertoo, mitä epäillä.
 
 ## Paluuarvot
 
@@ -194,6 +224,9 @@ moottorissa, jota kukaan ei ole rekisteröinyt, tai alueessa, jota ei voi käytt
 | kieli, jota malli ei osaa litteroida | `the model cannot transcribe the language xx` |
 | ei kieltä, ja malli, joka ei osaa tunnistaa kieltä | `the model cannot detect the language: give one` |
 | moottori, jota kukaan ei ole rekisteröinyt | `no transcription engine is called NAME` |
+| `<input>` tai `--output` puuttuu | `input is required` tai `--output is required` |
+| `--suppress-notes` yhdessä `--keep-notes` kanssa | `--suppress-notes and --keep-notes say opposite things; give one of them` |
+| `--suppress-notes` moottorille, jolle sitä ei voi sanoa | `the engine NAME cannot be told not to write sounds as notes` |
 | kieli, joka ei ole koodi | `"TEXT" is not a language code: write two letters, such as fr, en, de or es` |
 | alueen raja, joka ei ole aika | `"TEXT" is not a time: write it as 2:00, 1:02:03 or 2:00.5, or in seconds` |
 | `--end` ei ole `--start`-arvon jälkeen | `the end of the range must come after its start` |

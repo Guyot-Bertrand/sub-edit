@@ -21,8 +21,13 @@
 
 namespace subedit::core {
 
-/// Makes `catalogue` the one that `translate` consults; null puts English back.
-void installCatalogue(std::shared_ptr<const Catalogue> catalogue);
+/// Makes `catalogue` the one that `translate` consults; null puts English back. `language` is the
+/// name of the catalogue's language (`fr`, `pt_BR`), for whoever must speak of languages in it:
+/// empty for English.
+void installCatalogue(std::shared_ptr<const Catalogue> catalogue, std::string language = {});
+
+/// The name of the language the installed catalogue is in, empty for English.
+[[nodiscard]] std::string_view interfaceLanguageName();
 
 /// The translation of `text`, or `text`.
 [[nodiscard]] std::string_view translate(std::string_view text);

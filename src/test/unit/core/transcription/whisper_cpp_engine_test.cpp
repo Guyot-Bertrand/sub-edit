@@ -7,6 +7,7 @@
 
 #include <catch2/catch_test_macros.hpp>
 
+#include <algorithm>
 #include <cstdlib>
 #include <filesystem>
 #include <fstream>
@@ -58,8 +59,18 @@ TEST_CASE("a multilingual model gives detection and every language", "[whisper][
     REQUIRE(capabilities.has_value());
     CHECK(capabilities->timedWords);
     CHECK(capabilities->languageDetection);
-    CHECK(capabilities->languages.empty());
     CHECK(capabilities->needsModel);
+    CHECK(capabilities->suppressNotes);
+    CHECK(capabilities->sampleRate == 16000);
+
+    // The closed set of its languages, so that a surface can offer them instead of a free field.
+    const auto& languages = capabilities->languages;
+    CHECK(languages.size() == 100);
+    CHECK(languages.front() == "en");
+    for (const char* wanted : {"fr", "de", "zh", "ja", "yue", "haw"})
+        CHECK(std::ranges::find(languages, wanted) != languages.end());
+    CHECK(capabilities->supportsLanguage("fr"));
+    CHECK_FALSE(capabilities->supportsLanguage("xx"));
 }
 
 TEST_CASE("an English-only model gives neither detection nor another language",
@@ -152,11 +163,11 @@ TEST_CASE("the command line is the one the tool expects", "[whisper][engine]") {
     CHECK(arguments[4] == "-l");
     CHECK(arguments[5] == "fr");
     CHECK(arguments[6] == "-pp");
-    CHECK(arguments[7] == "-sns");
-    CHECK(arguments[8] == "-oj");
-    CHECK(arguments[9] == "-ojf");
-    CHECK(arguments[10] == "-of");
-    CHECK(arguments[11].ends_with("/out"));
+    CHECK(arguments[7] == "-oj");
+    CHECK(arguments[8] == "-ojf");
+    CHECK(arguments[9] == "-of");
+    CHECK(arguments[10].ends_with("/out"));
+    CHECK(arguments[11] == "-sns");
 }
 
 TEST_CASE("the exit codes of the tool become the errors of the port", "[whisper][engine]") {
@@ -420,4 +431,66 @@ TEST_CASE("without the banner the position is known and the fraction is not",
     CHECK(states[1].position == Timestamp::fromMilliseconds(20000));
     CHECK_FALSE(states[1].fraction.has_value());
     CHECK_FALSE(states[1].total.has_value());
+}
+
+// ## What had been obtained when it stopped
+
+TEST_CASE("a failed run hands back the pieces it had printed", "[whisper][engine][partial]") {
+    const ScratchDirectory scratch;
+    const std::filesystem::path printed =
+        scratch.write("printed",
+                      "[00:00:00.000 --> 00:00:20.000]   First.\n"
+                      "[00:00:20.000 --> 00:00:50.000]   Second.\n");
+    const std::filesystem::path executable = scratch.standIn(
+        "whisper-cli", kFake, "--no-echo --stdout-from='" + printed.string() + "' --fail-with=1");
+    const std::filesystem::path audio = scratch.write("audio.wav", "audio");
+    const std::filesystem::path model = scratch.write("m.bin", header(51865));
+    const WhisperCppEngine engine{executable};
+
+    const auto done = engine.transcribe({.audio = audio, .model = model});
+
+    REQUIRE_FALSE(done.has_value());
+    CHECK(done.error().kind == TranscriptionErrorKind::Failed);
+    REQUIRE(done.error().partial.size() == 2);
+    CHECK(done.error().partial[0].text == "First.");
+    CHECK(done.error().partial[0].start == Timestamp::fromMilliseconds(0));
+    CHECK(done.error().partial[0].end == Timestamp::fromMilliseconds(20000));
+    CHECK(done.error().partial[1].text == "Second.");
+    CHECK(done.error().partial[1].end == Timestamp::fromMilliseconds(50000));
+}
+
+TEST_CASE("a cancelled run hands back the pieces it had printed", "[whisper][engine][partial]") {
+    const ScratchDirectory scratch;
+    const std::filesystem::path printed =
+        scratch.write("printed", "[00:00:00.000 --> 00:00:20.000]   First.\n");
+    const std::filesystem::path executable = scratch.standIn(
+        "whisper-cli", kFake, "--no-echo --stdout-from='" + printed.string() + "' --linger=30");
+    const std::filesystem::path audio = scratch.write("audio.wav", "audio");
+    const std::filesystem::path model = scratch.write("m.bin", header(51865));
+    const WhisperCppEngine engine{executable};
+    bool heard = false;
+
+    // Stops as soon as something has been heard of the work.
+    const auto done =
+        engine.transcribe({.audio = audio, .model = model},
+                          {.advanced =
+                               [&heard](const subedit::core::TranscriptionProgress& state) {
+                                   heard = heard || state.position.has_value();
+                               },
+                           .cancelled = [&heard] { return heard; }});
+
+    REQUIRE_FALSE(done.has_value());
+    CHECK(done.error().kind == TranscriptionErrorKind::Cancelled);
+    REQUIRE(done.error().partial.size() == 1);
+    CHECK(done.error().partial.front().text == "First.");
+}
+
+TEST_CASE("a run that printed nothing hands back nothing", "[whisper][engine][partial]") {
+    const Setup setup{"--fail-with=1"};
+    const WhisperCppEngine engine{setup.executable};
+
+    const auto done = engine.transcribe({.audio = setup.audio, .model = setup.multilingual});
+
+    REQUIRE_FALSE(done.has_value());
+    CHECK(done.error().partial.empty());
 }

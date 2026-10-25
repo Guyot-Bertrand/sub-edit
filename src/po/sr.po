@@ -1083,6 +1083,18 @@ msgstr ""
 "секунди"
 
 #: src/exe/cli/commands/transcribe.cpp
+msgid ""
+"Do not write sounds as notes, such as (phone ringing); the transcription."
+"suppress-notes setting by default"
+msgstr ""
+"Не писати звуке као белешке, на пример (phone ringing); подразумевано према "
+"поставци transcription.suppress-notes"
+
+#: src/exe/cli/commands/transcribe.cpp
+msgid "Write sounds as notes, against the setting"
+msgstr "Писати звуке као белешке, супротно поставци"
+
+#: src/exe/cli/commands/transcribe.cpp
 msgid "Model file; the transcription.model setting by default"
 msgstr "Датотека модела; подразумевано поставка transcription.model"
 
@@ -1093,6 +1105,11 @@ msgstr "Мотор; подразумевано поставка transcription.en
 #: src/exe/cli/commands/transcribe.cpp
 msgid "Keep the extracted audio in this file"
 msgstr "Задржи издвојени звук у овој датотеци"
+
+#: src/exe/cli/commands/transcribe.cpp
+msgid ""
+"List the languages the engine offers for the model, and transcribe nothing"
+msgstr "Исписати језике које мотор нуди за модел и ништа не транскрибовати"
 
 #: src/exe/cli/commands/transcribe.cpp
 msgid "Write the segments as the engine cut them"
@@ -1156,6 +1173,7 @@ msgstr "%1: „%2“ није трајање веће од нуле"
 
 #. TRANSLATORS: %1 and %2 are two options, such as --shorten and --no-shorten.
 #: src/lib/subedit/cli/adjusting.cpp src/lib/subedit/cli/correcting.cpp
+#: src/lib/subedit/cli/transcribing.cpp
 msgid "%1 and %2 say opposite things; give one of them"
 msgstr "%1 и %2 говоре супротно; задајте једну од њих"
 
@@ -2128,6 +2146,10 @@ msgstr "превелико је да би се држало, јер се пол�
 msgid "expected seconds like 2.999, or a timestamp like 00:00:07.001"
 msgstr "очекују се секунде као 2.999, или временска ознака као 00:00:07.001"
 
+#: src/lib/subedit/cli/transcribing.cpp
+msgid "%1 is required"
+msgstr "%1 је обавезно"
+
 #: src/lib/subedit/cli/transforming.cpp
 msgid "subtitle %1 is past the end: the file holds %2 subtitle"
 msgid_plural "subtitle %1 is past the end: the file holds %2 subtitles"
@@ -2440,6 +2462,10 @@ msgstr "Датотека модела коју мотор чита."
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "The language of the audio; detected when empty."
 msgstr "Језик звука; открива се ако је празно."
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "Do not write sounds as notes, such as (phone ringing)."
+msgstr "Не писати звуке као белешке, на пример (phone ringing)."
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "Pieces of one sentence closer than this are joined."
@@ -3483,20 +3509,17 @@ msgstr[2] ""
 "поништити."
 
 #: src/lib/subedit/core/wording/transcription.cpp
+msgid "%1 subtitle kept from a partial transcription, up to %2"
+msgid_plural "%1 subtitles kept from a partial transcription, up to %2"
+msgstr[0] "%1 титл сачуван из делимичне транскрипције, до %2"
+msgstr[1] "%1 титла сачувана из делимичне транскрипције, до %2"
+msgstr[2] "%1 титлова сачувано из делимичне транскрипције, до %2"
+
+#: src/lib/subedit/core/wording/transcription.cpp
 msgid ""
 "\"%1\" is not a time: write it as 2:00, 1:02:03 or 2:00.5, or in seconds"
 msgstr ""
 "„%1“ није време: упишите га као 2:00, 1:02:03 или 2:00.5, или у секундама"
-
-#: src/lib/subedit/core/wording/transcription.cpp
-msgid ""
-"%1 of the %2 pieces are only notes in brackets, such as [MUSIC PLAYING]: the "
-"language used (%3) is probably not the one spoken, and the engine may have "
-"translated the speech. Run it again with the language typed."
-msgstr ""
-"%1 од %2 делова су само напомене у заградама, као [MUSIC PLAYING]: "
-"употребљени језик (%3) вероватно није онај којим се говори, а мотор је можда "
-"превео говор. Покрените поново уз унет језик."
 
 #: src/lib/subedit/core/wording/transcription.cpp
 msgid ""
@@ -3507,6 +3530,10 @@ msgstr ""
 "Овај модел је само за енглески: ма којим језиком да се у филму говори, "
 "резултат ће бити на енглеском или напомене у заградама. Изаберите "
 "вишејезични модел у поставкама."
+
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "the engine %1 cannot be told not to write sounds as notes"
+msgstr "мотору %1 се не може рећи да не пише звуке као белешке"
 
 #: src/lib/subedit/core/wording/transcription.cpp
 msgid ""
@@ -3863,6 +3890,7 @@ msgstr "Документ"
 #: src/lib/subedit/gui/operation_dialog.cpp
 #: src/lib/subedit/gui/spell_check_settings_dialog.cpp
 #: src/lib/subedit/gui/subtitle_table_model.cpp
+#: src/lib/subedit/gui/transcription_preview_dialog.cpp
 #: src/lib/subedit/gui/transform_dialog.cpp
 msgid "Text"
 msgstr "Текст"
@@ -4416,6 +4444,11 @@ msgid "Decode on the graphics card"
 msgstr "Декодирај на графичкој картици"
 
 #: src/lib/subedit/gui/preferences_dialog.cpp
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+msgid "Do not write sounds as notes"
+msgstr "Не писати звуке као белешке"
+
+#: src/lib/subedit/gui/preferences_dialog.cpp
 msgid "Browse…"
 msgstr "Прегледај…"
 
@@ -4468,6 +4501,15 @@ msgstr "Програм"
 #: src/lib/subedit/gui/preferences_dialog.cpp
 msgid "Model"
 msgstr "Модел"
+
+#: src/lib/subedit/gui/preferences_dialog.cpp
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+msgid ""
+"Sounds such as (phone ringing) or [MUSIC PLAYING] are not written. Turn it "
+"off to keep them, for subtitles for the hard of hearing."
+msgstr ""
+"Звуци као што су (phone ringing) или [MUSIC PLAYING] се не пишу. Искључите "
+"опцију да бисте их задржали, за титлове за наглуве."
 
 # From Gaupol.
 #: src/lib/subedit/gui/preferences_dialog.cpp
@@ -4717,6 +4759,7 @@ msgid "Add"
 msgstr "Додај"
 
 #: src/lib/subedit/gui/spell_check_dialog.cpp
+#: src/lib/subedit/gui/transcription_preview_dialog.cpp
 msgid "Ignore"
 msgstr "Занемари"
 
@@ -4787,6 +4830,7 @@ msgstr "Текст: %1"
 
 # From Gaupol.
 #: src/lib/subedit/gui/subtitle_table_model.cpp
+#: src/lib/subedit/gui/transcription_preview_dialog.cpp
 msgid "Start"
 msgstr "Почетак"
 
@@ -4796,6 +4840,7 @@ msgstr "Почетак (сличице)"
 
 # From Gaupol.
 #: src/lib/subedit/gui/subtitle_table_model.cpp
+#: src/lib/subedit/gui/transcription_preview_dialog.cpp
 msgid "End"
 msgstr "Крај"
 
@@ -4850,17 +4895,13 @@ msgid "First audio track"
 msgstr "Прва звучна нумера"
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
-msgid "Detected from the sound"
-msgstr "Открива се по звуку"
-
-#: src/lib/subedit/gui/transcribe_dialog.cpp
 msgid ""
-"A language code such as fr, en, de, es or it (fra and eng work too). Leave "
-"it empty to let the model detect the language from the first 30 seconds of "
-"sound."
+"Choose the language of the speech. \"Detect\" lets the model find it from "
+"the first 30 seconds of sound, which a film that opens with music can get "
+"wrong."
 msgstr ""
-"Кôд језика, као fr, en, de, es или it (раде и fra и eng). Оставите празно да "
-"модел сам открије језик из првих 30 секунди звука."
+"Изаберите језик говора. „Откриј“ допушта моделу да га пронађе из првих 30 "
+"секунди звука, а филм који почиње музиком може да погреши."
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
 msgid ""
@@ -4871,9 +4912,13 @@ msgstr ""
 "транскрибује цео филм."
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
-#: src/lib/subedit/gui/transcribe_dialog.cpp
-msgid "The audio of the film open in this window is transcribed into subtitles that replace the ones of the project. The work runs in the background and can be cancelled."
-msgstr "Звук филма отвореног у овом прозору транскрибује се у титлове који замењују титлове пројекта. Рад се одвија у позадини и може се отказати."
+msgid ""
+"The audio of the film open in this window is transcribed into subtitles that "
+"replace the ones of the project. The work runs in the background and can be "
+"cancelled."
+msgstr ""
+"Звук филма отвореног у овом прозору транскрибује се у титлове који замењују "
+"титлове пројекта. Рад се одвија у позадини и може се отказати."
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
 msgid "Audio track"
@@ -4896,8 +4941,16 @@ msgid "Set them in the preferences."
 msgstr "Поставите их у поставкама."
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
-msgid "The language you typed is used."
-msgstr "Користи се језик који сте унели."
+msgid "This engine cannot be told not to write sounds as notes."
+msgstr "Овом мотору се не може рећи да не пише звуке као белешке."
+
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+msgid "Detect from the first 30 seconds of sound"
+msgstr "Открити из првих 30 секунди звука"
+
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+msgid "The language you chose is used."
+msgstr "Користи се језик који сте изабрали."
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
 msgid "Proposed from the language the file declares for this track."
@@ -4908,11 +4961,40 @@ msgid ""
 "The file declares no language for this track: the model will detect it from "
 "the first 30 seconds of sound. If the film opens with music or silence it "
 "can choose wrongly, and the speech is then translated into that language. "
-"Type the language if you know it."
+"Choose the language if you know it."
 msgstr ""
-"Датотека не наводи језик ове траке: модел ће га открити из првих 30 секунди "
+"Датотека не наводи језик ове нумере: модел ће га открити из првих 30 секунди "
 "звука. Ако филм почиње музиком или тишином, може погрешно изабрати, а говор "
-"се тада преводи на тај језик. Упишите језик ако га знате."
+"се тада преводи на тај језик. Изаберите језик ако га знате."
+
+#: src/lib/subedit/gui/transcription_preview_dialog.cpp
+msgid "Apply"
+msgstr "Примени"
+
+# From Gaupol.
+#: src/lib/subedit/gui/transcription_preview_dialog.cpp
+msgid "Transcription preview"
+msgstr "Преглед транскрипције"
+
+#: src/lib/subedit/gui/transcription_preview_dialog.cpp
+msgid ""
+"Partial result: the work stopped at %1. What was obtained up to there can be "
+"applied or ignored."
+msgstr ""
+"Делимичан резултат: рад је стао на %1. Оно што је до тада добијено може се "
+"применити или занемарити."
+
+#: src/lib/subedit/gui/transcription_preview_dialog.cpp
+msgid "Select a subtitle on the right to see the pieces it was made from."
+msgstr "Изаберите титл са десне стране да видите делове од којих је направљен."
+
+#: src/lib/subedit/gui/transcription_preview_dialog.cpp
+msgid "As the engine wrote it (%1)"
+msgstr "Како га је мотор записао (%1)"
+
+#: src/lib/subedit/gui/transcription_preview_dialog.cpp
+msgid "As they will be applied (%1)"
+msgstr "Како ће бити примењени (%1)"
 
 #: src/lib/subedit/gui/transcription_runner.cpp
 msgid "Extracting the audio…"
@@ -5336,6 +5418,23 @@ msgstr "Курзив"
 msgctxt "toolbar"
 msgid "Main"
 msgstr "Главни"
+
+#~ msgid ""
+#~ "%1 of the %2 pieces are only notes in brackets, such as [MUSIC PLAYING]: "
+#~ "the language used (%3) is probably not the one spoken, and the engine may "
+#~ "have translated the speech. Run it again with the language typed."
+#~ msgstr ""
+#~ "%1 од %2 делова су само напомене у заградама, као [MUSIC PLAYING]: "
+#~ "употребљени језик (%3) вероватно није онај којим се говори, а мотор је "
+#~ "можда превео говор. Покрените поново уз унет језик."
+
+#~ msgid ""
+#~ "A language code such as fr, en, de, es or it (fra and eng work too). "
+#~ "Leave it empty to let the model detect the language from the first 30 "
+#~ "seconds of sound."
+#~ msgstr ""
+#~ "Кôд језика, као fr, en, de, es или it (раде и fra и eng). Оставите празно "
+#~ "да модел сам открије језик из првих 30 секунди звука."
 
 #~ msgid "estimating the time left…"
 #~ msgstr "процењује се преостало време…"

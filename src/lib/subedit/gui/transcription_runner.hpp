@@ -4,6 +4,7 @@
 #include <subedit/core/model/subtitle.hpp>
 #include <subedit/core/time/timestamp.hpp>
 #include <subedit/core/transcription/tools_status.hpp>
+#include <subedit/core/transcription/transcript.hpp>
 #include <subedit/core/transcription/transcription_progress.hpp>
 
 #include <QString>
@@ -40,21 +41,21 @@ struct TranscriptionJob {
     std::optional<core::Timestamp> end{};
 };
 
-/// What it came to: the subtitles, and the language they are in.
+/// What it came to: **the pieces the engine cut, as it cut them**, and the language they are in.
+/// The post-processing is not done here: the window does it, with the limits it holds, so that the
+/// preview can show both and the person can judge the settings.
 struct TranscriptionOutcome {
-    std::vector<core::Subtitle> subtitles;
+    std::vector<core::TranscribedSegment> segments;
     std::string language{};
-
-    /// How many of the pieces the engine cut are notes in brackets only, out of how many: a large
-    /// share says the language used was probably wrong.
-    std::size_t notes = 0;
-    std::size_t pieces = 0;
 };
 
 /// Why it did not: in the user's words, or that they stopped it.
 struct TranscriptionFailure {
     std::string message{};
     bool cancelled = false;
+
+    /// What the engine had obtained when it stopped, for the preview to offer: empty when nothing.
+    std::vector<core::TranscribedSegment> partial{};
 };
 
 /// Runs a transcription for the window. **A seam**, for the reason `Prompts` is one: the

@@ -31,6 +31,19 @@ transcribeMedia(FileSystem& files,
                 std::string_view searchPath,
                 const MediaTranscriptionRequest& request,
                 const TranscriptionObserver& observer) {
+    // **What the engine can do is asked before any work**: the audio is extracted at the rate it
+    // wants, and a request it cannot honour — a language, a missing model — is refused before the
+    // extraction, which takes a while on a film, rather than after it.
+    const auto capabilities = engine.capabilitiesFor(request.model);
+    if (!capabilities)
+        return std::unexpected(MediaTranscriptionError{.cause = capabilities.error()});
+    if (const auto checked =
+            checkRequest(*capabilities,
+                         TranscriptionRequest{
+                             .audio = {}, .language = request.language, .model = request.model});
+        !checked)
+        return std::unexpected(MediaTranscriptionError{.cause = checked.error()});
+
     const TemporaryDirectory work{"subedit-transcribe"};
     const std::filesystem::path extracted =
         request.keepAudio.empty() ? work.path() / "audio.wav" : request.keepAudio;
@@ -45,8 +58,13 @@ transcribeMedia(FileSystem& files,
 
     observer.advance({.stage = TranscriptionStage::Extracting});
     std::filesystem::path audio = extracted;
-    if (const auto prepared =
-            extractAudio(files, searchPath, request.input, request.audioTrack, extracted, stop);
+    if (const auto prepared = extractAudio(files,
+                                           searchPath,
+                                           request.input,
+                                           request.audioTrack,
+                                           extracted,
+                                           capabilities->sampleRate,
+                                           stop);
         !prepared) {
         const bool usableAsIs = prepared.error().kind == AudioPreparationErrorKind::ToolMissing &&
                                 !request.audioTrack && isReadableAudio(request.input);
@@ -63,11 +81,13 @@ transcribeMedia(FileSystem& files,
     const TranscriptionRequest asked{.audio = audio,
                                      .language = request.language,
                                      .model = request.model,
+                                     .suppressNotes = request.suppressNotes,
                                      .start = request.start,
                                      .end = request.end};
     auto transcribed = engine.transcribe(asked, observer);
     if (!transcribed)
-        return std::unexpected(MediaTranscriptionError{.cause = transcribed.error()});
+        return std::unexpected(MediaTranscriptionError{
+            .cause = transcribed.error(), .tracks = {}, .partial = transcribed.error().partial});
     return std::move(*transcribed);
 }
 

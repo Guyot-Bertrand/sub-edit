@@ -140,6 +140,7 @@
 | `transcription.engine` | שם המנוע: אותיות קטנות, ספרות, `.`, `-` ו-`_` | `whisper.cpp` |
 | `transcription.executable`, `transcription.model` | נתיב מוחלט; ריק: המנוע נחפש ב-`PATH`, ולא נקבע מודל | ריק |
 | `transcription.language` | שתי אותיות קטנות, קוד ISO 639-1; ריק: השפה מזוהה אוטומטית | ריק |
+| `transcription.suppress-notes` | `true` או `false` — `Do not write sounds as notes` | `true` |
 | `transcription.merge-gap-ms` | חלקים של אותו משפט שקרובים זה לזה מערך זה מחוברים, באלפיות שנייה, מספר שלם לא שלילי | `400` |
 | `transcription.max-duration-ms` | משך ההצגה המרבי של כתובית מתומללת על המסך, באלפיות שנייה, מ-1 עד 3600000 | `7000` |
 | `transcription.max-characters` | מספר התווים המרבי בכתובית מתומללת, מ-1 עד 1000 | `84` |
@@ -290,6 +291,9 @@ subedit בנויה אין דרך לשאול את שולחן העבודה אם ה
 חסר היא מוסיפה את ההפניה אל
 [התקנת כלי התמלול](../subedit-cli/install-transcription.md), שאומרת היכן למצוא
 כל אחד. שני השדות הם ההגדרות `transcription.executable` ו-`transcription.model`.
+
+תיבה, **“לא לכתוב צלילים כהערות”**, היא ההגדרה `transcription.suppress-notes` (מסומנת כברירת מחדל): המנוע מקבל הוראה שלא לכתוב צלילים
+כהערות כמו `(phone ringing)`. בטלו את הסימון כדי לשמור אותם, עבור כתוביות לכבדי שמיעה. תיבת הדו־שיח של `Transcribe Audio…` מציעה את אותה תיבה לתמלול הבודד.
 
 ## שפת הממשק
 

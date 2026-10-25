@@ -138,3 +138,29 @@ TEST_CASE("the report names each state of the model", "[transcription][tools][wo
     CHECK_THAT(said(ModelState::NotAModel), ContainsSubstring("Model: not a model (/m.bin)"));
     CHECK_THAT(said(ModelState::EnglishOnly), ContainsSubstring("Model: English only (/m.bin)"));
 }
+
+TEST_CASE("the engine says what it can do with the model, once both are there",
+          "[transcription][tools]") {
+    const ScratchDirectory scratch;
+    const RealFileSystem files;
+    std::ignore = scratch.standIn("whisper-cli", "/bin/true", "");
+    TranscriptionSettings settings;
+
+    // No model: nothing to ask the engine about, and the option is not refused for it.
+    auto tools = inspectTranscriptionTools(files, scratch.path().string(), settings);
+    CHECK_FALSE(tools.capabilities.has_value());
+    CHECK(tools.suppressNotesAvailable());
+
+    settings.model = scratch.write("multilingual.bin", header(51865));
+    tools = inspectTranscriptionTools(files, scratch.path().string(), settings);
+    REQUIRE(tools.capabilities.has_value());
+    const subedit::core::EngineCapabilities known =
+        tools.capabilities.value_or(subedit::core::EngineCapabilities{});
+    CHECK(known.languageDetection);
+    CHECK(known.suppressNotes);
+    CHECK(tools.suppressNotesAvailable());
+
+    // An engine that says it cannot makes the option unavailable.
+    tools.capabilities = subedit::core::EngineCapabilities{.suppressNotes = false};
+    CHECK_FALSE(tools.suppressNotesAvailable());
+}

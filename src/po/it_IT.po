@@ -1094,6 +1094,18 @@ msgstr ""
 "predefinita dai primi 30 secondi"
 
 #: src/exe/cli/commands/transcribe.cpp
+msgid ""
+"Do not write sounds as notes, such as (phone ringing); the transcription."
+"suppress-notes setting by default"
+msgstr ""
+"Non scrivere i suoni come note, per esempio (phone ringing); per "
+"impostazione predefinita l'impostazione transcription.suppress-notes"
+
+#: src/exe/cli/commands/transcribe.cpp
+msgid "Write sounds as notes, against the setting"
+msgstr "Scrivere i suoni come note, contro l'impostazione"
+
+#: src/exe/cli/commands/transcribe.cpp
 msgid "Model file; the transcription.model setting by default"
 msgstr ""
 "File del modello; per impostazione predefinita l'impostazione transcription."
@@ -1107,6 +1119,13 @@ msgstr ""
 #: src/exe/cli/commands/transcribe.cpp
 msgid "Keep the extracted audio in this file"
 msgstr "Conserva l'audio estratto in questo file"
+
+#: src/exe/cli/commands/transcribe.cpp
+msgid ""
+"List the languages the engine offers for the model, and transcribe nothing"
+msgstr ""
+"Elencare le lingue che il motore offre per il modello, e non trascrivere "
+"nulla"
 
 #: src/exe/cli/commands/transcribe.cpp
 msgid "Write the segments as the engine cut them"
@@ -1170,6 +1189,7 @@ msgstr "%1: «%2» non è una durata maggiore di zero"
 
 #. TRANSLATORS: %1 and %2 are two options, such as --shorten and --no-shorten.
 #: src/lib/subedit/cli/adjusting.cpp src/lib/subedit/cli/correcting.cpp
+#: src/lib/subedit/cli/transcribing.cpp
 msgid "%1 and %2 say opposite things; give one of them"
 msgstr "%1 e %2 dicono cose opposte; indicane una sola"
 
@@ -2165,6 +2185,10 @@ msgstr ""
 msgid "expected seconds like 2.999, or a timestamp like 00:00:07.001"
 msgstr "attesi secondi come 2.999, oppure un timestamp come 00:00:07.001"
 
+#: src/lib/subedit/cli/transcribing.cpp
+msgid "%1 is required"
+msgstr "%1 è obbligatorio"
+
 #: src/lib/subedit/cli/transforming.cpp
 msgid "subtitle %1 is past the end: the file holds %2 subtitle"
 msgid_plural "subtitle %1 is past the end: the file holds %2 subtitles"
@@ -2492,6 +2516,10 @@ msgstr "Il file del modello che il motore legge."
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "The language of the audio; detected when empty."
 msgstr "La lingua dell'audio; rilevata se vuota."
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "Do not write sounds as notes, such as (phone ringing)."
+msgstr "Non scrivere i suoni come note, per esempio (phone ringing)."
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "Pieces of one sentence closer than this are joined."
@@ -3543,21 +3571,18 @@ msgstr[2] ""
 "Puoi annullare l'operazione."
 
 #: src/lib/subedit/core/wording/transcription.cpp
+msgid "%1 subtitle kept from a partial transcription, up to %2"
+msgid_plural "%1 subtitles kept from a partial transcription, up to %2"
+msgstr[0] "%1 sottotitolo conservato da una trascrizione parziale, fino a %2"
+msgstr[1] "%1 sottotitoli conservati da una trascrizione parziale, fino a %2"
+msgstr[2] "%1 sottotitoli conservati da una trascrizione parziale, fino a %2"
+
+#: src/lib/subedit/core/wording/transcription.cpp
 msgid ""
 "\"%1\" is not a time: write it as 2:00, 1:02:03 or 2:00.5, or in seconds"
 msgstr ""
 "\"%1\" non è un tempo: scrivilo come 2:00, 1:02:03 o 2:00.5, oppure in "
 "secondi"
-
-#: src/lib/subedit/core/wording/transcription.cpp
-msgid ""
-"%1 of the %2 pieces are only notes in brackets, such as [MUSIC PLAYING]: the "
-"language used (%3) is probably not the one spoken, and the engine may have "
-"translated the speech. Run it again with the language typed."
-msgstr ""
-"%1 dei %2 frammenti sono solo note tra parentesi quadre, come [MUSIC "
-"PLAYING]: la lingua usata (%3) probabilmente non è quella parlata, e il "
-"motore potrebbe aver tradotto il parlato. Riesegui indicando la lingua."
 
 #: src/lib/subedit/core/wording/transcription.cpp
 msgid ""
@@ -3568,6 +3593,10 @@ msgstr ""
 "Questo modello è solo per l'inglese: qualunque lingua parli il film, il "
 "risultato sarà in inglese, oppure note tra parentesi quadre. Scegli un "
 "modello multilingue nelle preferenze."
+
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "the engine %1 cannot be told not to write sounds as notes"
+msgstr "non si può dire al motore %1 di non scrivere i suoni come note"
 
 #: src/lib/subedit/core/wording/transcription.cpp
 msgid ""
@@ -3922,6 +3951,7 @@ msgstr "Documento"
 #: src/lib/subedit/gui/operation_dialog.cpp
 #: src/lib/subedit/gui/spell_check_settings_dialog.cpp
 #: src/lib/subedit/gui/subtitle_table_model.cpp
+#: src/lib/subedit/gui/transcription_preview_dialog.cpp
 #: src/lib/subedit/gui/transform_dialog.cpp
 msgid "Text"
 msgstr "Testo"
@@ -4490,6 +4520,11 @@ msgid "Decode on the graphics card"
 msgstr "Decodifica sulla scheda grafica"
 
 #: src/lib/subedit/gui/preferences_dialog.cpp
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+msgid "Do not write sounds as notes"
+msgstr "Non scrivere i suoni come note"
+
+#: src/lib/subedit/gui/preferences_dialog.cpp
 msgid "Browse…"
 msgstr "Sfoglia…"
 
@@ -4542,6 +4577,15 @@ msgstr "Programma"
 #: src/lib/subedit/gui/preferences_dialog.cpp
 msgid "Model"
 msgstr "Modello"
+
+#: src/lib/subedit/gui/preferences_dialog.cpp
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+msgid ""
+"Sounds such as (phone ringing) or [MUSIC PLAYING] are not written. Turn it "
+"off to keep them, for subtitles for the hard of hearing."
+msgstr ""
+"I suoni come (phone ringing) o [MUSIC PLAYING] non vengono scritti. "
+"Deseleziona per conservarli, per sottotitoli per non udenti."
 
 # From Gaupol.
 #: src/lib/subedit/gui/preferences_dialog.cpp
@@ -4794,6 +4838,7 @@ msgid "Add"
 msgstr "Aggiungi"
 
 #: src/lib/subedit/gui/spell_check_dialog.cpp
+#: src/lib/subedit/gui/transcription_preview_dialog.cpp
 msgid "Ignore"
 msgstr "Ignora"
 
@@ -4864,6 +4909,7 @@ msgid "Text: %1"
 msgstr "Testo: %1"
 
 #: src/lib/subedit/gui/subtitle_table_model.cpp
+#: src/lib/subedit/gui/transcription_preview_dialog.cpp
 msgid "Start"
 msgstr "Inizio"
 
@@ -4873,6 +4919,7 @@ msgstr "Inizio (fotogrammi)"
 
 # From Gaupol.
 #: src/lib/subedit/gui/subtitle_table_model.cpp
+#: src/lib/subedit/gui/transcription_preview_dialog.cpp
 msgid "End"
 msgstr "Fine"
 
@@ -4930,18 +4977,14 @@ msgid "First audio track"
 msgstr "Prima traccia audio"
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
-msgid "Detected from the sound"
-msgstr "Rilevata dal suono"
-
-#: src/lib/subedit/gui/transcribe_dialog.cpp
 msgid ""
-"A language code such as fr, en, de, es or it (fra and eng work too). Leave "
-"it empty to let the model detect the language from the first 30 seconds of "
-"sound."
+"Choose the language of the speech. \"Detect\" lets the model find it from "
+"the first 30 seconds of sound, which a film that opens with music can get "
+"wrong."
 msgstr ""
-"Un codice lingua come fr, en, de, es o it (vanno bene anche fra e eng). "
-"Lascialo vuoto per far rilevare la lingua al modello dai primi 30 secondi di "
-"audio."
+"Scegli la lingua del parlato. “Rileva” lascia che il modello la trovi dai "
+"primi 30 secondi di suono, cosa che un film che si apre con musica può "
+"sbagliare."
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
 msgid ""
@@ -4952,9 +4995,14 @@ msgstr ""
 "per trascrivere l'intero film."
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
-#: src/lib/subedit/gui/transcribe_dialog.cpp
-msgid "The audio of the film open in this window is transcribed into subtitles that replace the ones of the project. The work runs in the background and can be cancelled."
-msgstr "L'audio del film aperto in questa finestra viene trascritto in sottotitoli che sostituiscono quelli del progetto. Il lavoro si svolge in background e può essere annullato."
+msgid ""
+"The audio of the film open in this window is transcribed into subtitles that "
+"replace the ones of the project. The work runs in the background and can be "
+"cancelled."
+msgstr ""
+"L'audio del film aperto in questa finestra viene trascritto in sottotitoli "
+"che sostituiscono quelli del progetto. Il lavoro si svolge in background e "
+"può essere annullato."
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
 msgid "Audio track"
@@ -4977,8 +5025,16 @@ msgid "Set them in the preferences."
 msgstr "Impostali nelle preferenze."
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
-msgid "The language you typed is used."
-msgstr "Viene usata la lingua che hai digitato."
+msgid "This engine cannot be told not to write sounds as notes."
+msgstr "Non si può dire a questo motore di non scrivere i suoni come note."
+
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+msgid "Detect from the first 30 seconds of sound"
+msgstr "Rileva dai primi 30 secondi di suono"
+
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+msgid "The language you chose is used."
+msgstr "Viene usata la lingua che hai scelto."
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
 msgid "Proposed from the language the file declares for this track."
@@ -4989,12 +5045,42 @@ msgid ""
 "The file declares no language for this track: the model will detect it from "
 "the first 30 seconds of sound. If the film opens with music or silence it "
 "can choose wrongly, and the speech is then translated into that language. "
-"Type the language if you know it."
+"Choose the language if you know it."
 msgstr ""
 "Il file non dichiara alcuna lingua per questa traccia: il modello la "
-"rileverà dai primi 30 secondi di audio. Se il film inizia con musica o "
+"rileverà dai primi 30 secondi di suono. Se il film inizia con musica o "
 "silenzio può sbagliare, e il parlato viene allora tradotto in quella lingua. "
-"Indica la lingua se la conosci."
+"Scegli la lingua se la conosci."
+
+#: src/lib/subedit/gui/transcription_preview_dialog.cpp
+msgid "Apply"
+msgstr "Applica"
+
+# From Gaupol.
+#: src/lib/subedit/gui/transcription_preview_dialog.cpp
+msgid "Transcription preview"
+msgstr "Anteprima della trascrizione"
+
+#: src/lib/subedit/gui/transcription_preview_dialog.cpp
+msgid ""
+"Partial result: the work stopped at %1. What was obtained up to there can be "
+"applied or ignored."
+msgstr ""
+"Risultato parziale: il lavoro si è fermato a %1. Ciò che è stato ottenuto "
+"fino a lì può essere applicato o ignorato."
+
+#: src/lib/subedit/gui/transcription_preview_dialog.cpp
+msgid "Select a subtitle on the right to see the pieces it was made from."
+msgstr ""
+"Seleziona un sottotitolo a destra per vedere i pezzi da cui è stato fatto."
+
+#: src/lib/subedit/gui/transcription_preview_dialog.cpp
+msgid "As the engine wrote it (%1)"
+msgstr "Così come l'ha scritto il motore (%1)"
+
+#: src/lib/subedit/gui/transcription_preview_dialog.cpp
+msgid "As they will be applied (%1)"
+msgstr "Così come saranno applicati (%1)"
 
 #: src/lib/subedit/gui/transcription_runner.cpp
 msgid "Extracting the audio…"
@@ -5417,6 +5503,24 @@ msgstr "Corsivo"
 msgctxt "toolbar"
 msgid "Main"
 msgstr "Principale"
+
+#~ msgid ""
+#~ "%1 of the %2 pieces are only notes in brackets, such as [MUSIC PLAYING]: "
+#~ "the language used (%3) is probably not the one spoken, and the engine may "
+#~ "have translated the speech. Run it again with the language typed."
+#~ msgstr ""
+#~ "%1 dei %2 frammenti sono solo note tra parentesi quadre, come [MUSIC "
+#~ "PLAYING]: la lingua usata (%3) probabilmente non è quella parlata, e il "
+#~ "motore potrebbe aver tradotto il parlato. Riesegui indicando la lingua."
+
+#~ msgid ""
+#~ "A language code such as fr, en, de, es or it (fra and eng work too). "
+#~ "Leave it empty to let the model detect the language from the first 30 "
+#~ "seconds of sound."
+#~ msgstr ""
+#~ "Un codice lingua come fr, en, de, es o it (vanno bene anche fra e eng). "
+#~ "Lascialo vuoto per far rilevare la lingua al modello dai primi 30 secondi "
+#~ "di audio."
 
 #~ msgid "estimating the time left…"
 #~ msgstr "stima del tempo rimanente…"
