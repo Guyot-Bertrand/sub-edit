@@ -19,6 +19,7 @@ do not edit it by hand.
 ### Fixed
 
 - **gui** — Keep the question before the work, with the preview after
+- **core** — Read only the head of a model, not the whole file
 
 ## 1.0.13 — 2026-10-24
 
