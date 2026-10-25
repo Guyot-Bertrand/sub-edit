@@ -7,6 +7,7 @@
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/matchers/catch_matchers_string.hpp>
 
+#include <algorithm>
 #include <filesystem>
 #include <fstream>
 #include <iterator>
@@ -373,4 +374,29 @@ TEST_CASE("the name of the kept audio takes the rate the engine asked for",
     const std::string kept = stands.scratch.of("out/film.16000.wav");
     CHECK(contentOf(kept) == "pcm");
     CHECK_THAT(run.output, ContainsSubstring("\"audio\":\"" + kept + "\""));
+}
+
+TEST_CASE("--list-languages lists what the engine offers for the model, and runs nothing",
+          "[e2e][CLI-TRANSCRIBE-11]") {
+    Stands stands;
+    stands.everything();
+    const std::string english = writeFile(stands.scratch, "english.bin", modelHeader(51864));
+
+    const CliRun every = stands.run({"--list-languages", "--model", stands.model});
+
+    REQUIRE(every.exitCode == 0);
+    CHECK_THAT(every.output, ContainsSubstring("fr\tFrench\n"));
+    CHECK_THAT(every.output, ContainsSubstring("yue\tCantonese\n"));
+    CHECK(std::count(every.output.begin(), every.output.end(), '\n') == 100);
+    // Nothing was run: no engine received a thing.
+    CHECK_FALSE(std::filesystem::exists(stands.argumentLog));
+
+    const CliRun only = stands.run({"--list-languages", "--model", english});
+    REQUIRE(only.exitCode == 0);
+    CHECK(only.output == "en\tEnglish\n");
+
+    // Without a model there is nothing to ask the engine about, and the guide is pointed to.
+    const CliRun none = stands.run({"--list-languages"});
+    CHECK(none.exitCode == 2);
+    CHECK_THAT(none.errors, ContainsSubstring("Installing the transcription tools"));
 }

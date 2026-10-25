@@ -3,6 +3,7 @@
 
 #include <subedit/core/transcription/annotation_notes.hpp>
 #include <subedit/core/transcription/language_codes.hpp>
+#include <subedit/core/transcription/language_display.hpp>
 #include <subedit/core/transcription/remaining_time.hpp>
 #include <subedit/core/transcription/time_range.hpp>
 #include <subedit/core/transcription/whisper_cpp_output.hpp>
@@ -334,4 +335,28 @@ TEST_CASE("the notices say what happened and what to do", "[wording][transcripti
                Catch::Matchers::ContainsSubstring("Run it again with the language typed"));
     CHECK_THAT(subedit::core::noticeOfEnglishOnlyModel(),
                Catch::Matchers::ContainsSubstring("Choose a multilingual model"));
+}
+
+// ## The names of languages
+
+TEST_CASE("a language is named in the language of the reader", "[transcription][language]") {
+    using subedit::core::languageDisplayName;
+
+    CHECK(languageDisplayName("fr", "") == "French");
+    CHECK(languageDisplayName("fr", "fr") == "français");
+    CHECK(languageDisplayName("de", "fr") == "allemand");
+    CHECK(languageDisplayName("fr", "de") == "Französisch");
+    // A catalogue's regional name reads as its language.
+    CHECK(languageDisplayName("de", "pt_BR") == "alemão");
+}
+
+TEST_CASE("the old code of Javanese is read as the modern one", "[transcription][language]") {
+    using subedit::core::languageDisplayName;
+
+    CHECK(languageDisplayName("jw", "") == "Javanese");
+    CHECK(languageDisplayName("yue", "") == "Cantonese");
+}
+
+TEST_CASE("a code with no name is returned as it stands", "[transcription][language]") {
+    CHECK(subedit::core::languageDisplayName("zzz", "") == "zzz");
 }

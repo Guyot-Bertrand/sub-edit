@@ -26,9 +26,10 @@ int main(int argc, char** argv) {
         // from `LANGUAGE`, `LC_ALL`, `LC_MESSAGES` and `LANG` by our own code, and English
         // — no catalogue — when none of them names an installed one. Never Qt: this
         // binary has none.
-        subedit::core::installCatalogue(subedit::core::installedCatalogue(
-            subedit::core::languageCandidates(subedit::core::processEnvironment()),
-            subedit::platform::installedLocalePath()));
+        if (auto found = subedit::core::installedLanguage(
+                subedit::core::languageCandidates(subedit::core::processEnvironment()),
+                subedit::platform::installedLocalePath()))
+            subedit::core::installCatalogue(std::move(found->catalogue), found->name);
         return toInt(subedit::cli::run(argc, argv));
     } catch (const std::exception& error) {
         // TRANSLATORS: %1 is the reason of a failure the program did not foresee.

@@ -590,3 +590,71 @@ TEST_CASE("an engine that cannot suppress notes refuses the option by name, not 
         TranscribeOptions{.input = world.audio.string(), .output = world.output.string()});
     CHECK(quiet == ExitCode::Success);
 }
+
+// ## The languages an engine offers
+
+TEST_CASE("the languages of the engine are listed with their names, and nothing is transcribed",
+          "[cli][transcribe][languages]") {
+    World world;
+    FakeEngineScript script;
+    script.name = "whisper.cpp";
+    script.capabilities = {
+        .languageDetection = true, .languages = {"en", "fr", "ja"}, .needsModel = false};
+    script.seen = world.seen;
+    world.engines = EngineRegistry{};
+    (void)world.engines.add(std::make_unique<FakeTranscriptionEngine>(script));
+    std::ostringstream listed;
+    const Reporter reporter =
+        Reporter{world.errors, 1}.withTextOutput(listed).forCommand("transcribe");
+
+    const ExitCode code = transcribeFile(world.files,
+                                         world.engines,
+                                         "",
+                                         TranscribeOptions{.listLanguages = true},
+                                         world.settings,
+                                         reporter);
+
+    CHECK(code == ExitCode::Success);
+    CHECK(listed.str() == "en\tEnglish\nfr\tFrench\nja\tJapanese\n");
+    CHECK(world.seen->audio.empty());
+}
+
+TEST_CASE("an engine that lists no language lists nothing", "[cli][transcribe][languages]") {
+    World world; // its capabilities name none: any
+    std::ostringstream listed;
+    const Reporter reporter =
+        Reporter{world.errors, 1}.withTextOutput(listed).forCommand("transcribe");
+
+    CHECK(transcribeFile(
+              world.files, world.engines, "", {.listLanguages = true}, world.settings, reporter) ==
+          ExitCode::Success);
+    CHECK(listed.str().empty());
+}
+
+TEST_CASE("listing the languages of an engine that is not there says why",
+          "[cli][transcribe][languages]") {
+    World world;
+    std::ostringstream listed;
+    const Reporter reporter =
+        Reporter{world.errors, 1}.withTextOutput(listed).forCommand("transcribe");
+
+    const ExitCode code = transcribeFile(world.files,
+                                         world.engines,
+                                         "",
+                                         {.engine = "nobody", .listLanguages = true},
+                                         world.settings,
+                                         reporter);
+
+    CHECK(code == ExitCode::Usage);
+    CHECK_THAT(world.errors.str(), ContainsSubstring("no transcription engine is called nobody"));
+}
+
+TEST_CASE("without listing, an input and an output are needed", "[cli][transcribe][languages]") {
+    World world;
+
+    CHECK(world.run(TranscribeOptions{.output = world.output.string()}) == ExitCode::Usage);
+    CHECK_THAT(world.errors.str(), ContainsSubstring("input is required"));
+
+    CHECK(world.run(TranscribeOptions{.input = world.audio.string()}) == ExitCode::Usage);
+    CHECK_THAT(world.errors.str(), ContainsSubstring("--output is required"));
+}

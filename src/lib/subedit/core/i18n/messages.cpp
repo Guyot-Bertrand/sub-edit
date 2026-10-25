@@ -12,6 +12,11 @@ std::shared_ptr<const Catalogue>& installed() {
     return catalogue;
 }
 
+std::string& installedLanguage() {
+    static std::string language;
+    return language;
+}
+
 /// How many `SourceLanguage` scopes are open on this thread.
 thread_local int sourceLanguageDepth = 0;
 
@@ -30,8 +35,13 @@ SourceLanguage::~SourceLanguage() {
     --sourceLanguageDepth;
 }
 
-void installCatalogue(std::shared_ptr<const Catalogue> catalogue) {
+void installCatalogue(std::shared_ptr<const Catalogue> catalogue, std::string language) {
     installed() = std::move(catalogue);
+    installedLanguage() = installed() ? std::move(language) : std::string{};
+}
+
+std::string_view interfaceLanguageName() {
+    return installedLanguage();
 }
 
 std::string_view translate(std::string_view text) {

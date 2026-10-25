@@ -93,6 +93,11 @@ struct TranscribeOptions {
 
     /// Write the segments as the engine cut them, with no post-processing.
     bool raw = false;
+
+    /// Only list the languages the engine offers for the model, one per line: the code `--language`
+    /// takes, a tab, and the name of the language in the language of the interface. Nothing is
+    /// transcribed, and neither an input nor an output is needed.
+    bool listLanguages = false;
 };
 
 /// Transcribes `options.input` and writes the subtitles to `options.output`.

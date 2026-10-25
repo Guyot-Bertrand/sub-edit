@@ -8,6 +8,7 @@
 #include <subedit/core/transcription/annotation_notes.hpp>
 #include <subedit/core/transcription/audio_source.hpp>
 #include <subedit/core/transcription/language_codes.hpp>
+#include <subedit/core/transcription/language_display.hpp>
 #include <subedit/core/transcription/remaining_time.hpp>
 #include <subedit/core/transcription/subtitle_assembly.hpp>
 #include <subedit/core/transcription/time_range.hpp>
@@ -150,6 +151,22 @@ void ProgressNarration::say(const core::TranscriptionProgress& progress, Clock::
     m_reporter.say(2, line);
 }
 
+/// `--list-languages`: what the engine offers for the model, one language per line.
+[[nodiscard]] ExitCode listLanguagesOf(const core::TranscriptionEngine& engine,
+                                       const std::filesystem::path& model,
+                                       const Reporter& reporter) {
+    const auto capabilities =
+        engine.capabilitiesFor(model.empty() ? std::nullopt : std::optional{model});
+    if (!capabilities) {
+        reporter.failed(core::transcriptionErrorText(capabilities.error()));
+        return ExitCode::AllFailed;
+    }
+    const std::string reader{core::interfaceLanguageName()};
+    for (const std::string& code : capabilities->languages)
+        reporter.result(code + '\t' + core::languageDisplayName(code, reader) + '\n');
+    return ExitCode::Success;
+}
+
 ExitCode transcribeFile(core::FileSystem& files,
                         const core::EngineRegistry& engines,
                         std::string_view searchPath,
@@ -168,6 +185,18 @@ ExitCode transcribeFile(core::FileSystem& files,
         options.language.empty() ? settings.language : options.language;
     const std::filesystem::path& modelPath =
         options.model.empty() ? settings.model : std::filesystem::path{options.model};
+
+    if (options.listLanguages)
+        return listLanguagesOf(*engine, modelPath, reporter);
+
+    for (const auto& [value, name] :
+         {std::pair<const std::string&, std::string_view>{options.input, "input"},
+          std::pair<const std::string&, std::string_view>{options.output, "--output"}}) {
+        if (value.empty()) {
+            reporter.failed(core::substitute(core::translate("%1 is required"), {name}));
+            return ExitCode::Usage;
+        }
+    }
 
     core::MediaTranscriptionRequest request{
         .input = options.input, .audioTrack = options.audioTrack, .keepAudio = options.keepAudio};

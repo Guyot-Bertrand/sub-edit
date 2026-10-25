@@ -5,6 +5,7 @@
 #include <subedit/core/transcription/whisper_cpp_output.hpp>
 
 #include <algorithm>
+#include <array>
 #include <cstdint>
 #include <fstream>
 #include <iterator>
@@ -20,6 +21,18 @@ constexpr std::string_view kExecutableName = "whisper-cli";
 
 /// What whisper.cpp reads without converting: 16 kHz, whatever the file is.
 constexpr int kSampleRate = 16000;
+
+/// The languages a multilingual model transcribes, by whisper.cpp's own table (`g_lang`, checked on
+/// 1.9.5-dev): English first, as it lists them. Declared as the capability, so that a surface
+/// offers the closed set instead of a free field.
+constexpr std::array kMultilingual{
+    "en", "zh", "de", "es",  "ru", "ko", "fr", "ja", "pt", "tr", "pl", "ca", "nl", "ar", "sv",
+    "it", "id", "hi", "fi",  "vi", "he", "uk", "el", "ms", "cs", "ro", "da", "hu", "ta", "no",
+    "th", "ur", "hr", "bg",  "lt", "la", "mi", "ml", "cy", "sk", "te", "fa", "lv", "bn", "sr",
+    "az", "sl", "kn", "et",  "mk", "br", "eu", "is", "hy", "ne", "mn", "bs", "kk", "sq", "sw",
+    "gl", "mr", "pa", "si",  "km", "sn", "yo", "so", "af", "oc", "ka", "be", "tg", "sd", "gu",
+    "am", "yi", "lo", "uz",  "fo", "ht", "ps", "tk", "nn", "mt", "sa", "lb", "my", "bo", "tl",
+    "mg", "as", "tt", "haw", "ln", "ha", "ba", "jw", "su", "yue"};
 
 /// What `whisper-cli` exits with, checked on 1.9.5-dev.
 constexpr int kMissingInput = 2;
@@ -173,10 +186,12 @@ WhisperCppEngine::capabilitiesFor(const std::optional<std::filesystem::path>& mo
 
     EngineCapabilities capabilities{
         .timedWords = true, .suppressNotes = true, .sampleRate = kSampleRate, .needsModel = true};
-    if (*multilingual)
+    if (*multilingual) {
         capabilities.languageDetection = true;
-    else
+        capabilities.languages.assign(kMultilingual.begin(), kMultilingual.end());
+    } else {
         capabilities.languages = {"en"};
+    }
     return capabilities;
 }
 

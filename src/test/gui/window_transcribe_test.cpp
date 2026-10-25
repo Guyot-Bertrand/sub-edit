@@ -82,10 +82,32 @@ const std::vector<AudioTrack> kTracks{
     {.id = 1, .language = "fra", .title = "Original", .selected = true},
     {.id = 2, .language = "", .title = "Commentary", .selected = false}};
 
-/// Every tool there, and a model that detects the language.
-const TranscriptionTools kReady{.engine = std::filesystem::path{"/usr/bin/whisper-cli"},
-                                .extractor = true,
-                                .model = ModelState::Multilingual};
+/// Every tool there, and a model that detects the language and offers five.
+const TranscriptionTools kReady{
+    .engine = std::filesystem::path{"/usr/bin/whisper-cli"},
+    .extractor = true,
+    .model = ModelState::Multilingual,
+    .capabilities = subedit::core::EngineCapabilities{.languageDetection = true,
+                                                      .languages = {"en", "fr", "de", "es", "ja"},
+                                                      .suppressNotes = true}};
+
+/// Every tool there, and a model for English alone.
+[[nodiscard]] TranscriptionTools englishOnlyTools() {
+    TranscriptionTools tools = kReady;
+    tools.model = ModelState::EnglishOnly;
+    tools.capabilities =
+        subedit::core::EngineCapabilities{.languages = {"en"}, .suppressNotes = true};
+    return tools;
+}
+
+/// What the person does with the list of languages: picks one by its code.
+void pick(const TranscribeDialog& dialog, const char* code) {
+    QComboBox* box = dialog.languageBox();
+    const int at = box->findData(QString::fromUtf8(code));
+    REQUIRE(at >= 0);
+    box->setCurrentIndex(at);
+    Q_EMIT box->activated(at);
+}
 
 [[nodiscard]] TranscribeDialog::ToolsProbe probing(const TranscriptionTools& tools) {
     return [tools] { return ToolsView{.settings = {}, .tools = tools}; };
@@ -161,19 +183,17 @@ TEST_CASE("the dialog offers the tracks of the film and follows the declared lan
     const TranscribeDialog dialog{kTracks, {}, probing(kReady), nothing};
 
     CHECK(dialog.trackBox()->count() == 2);
-    CHECK(dialog.languageEdit()->text() == "fr");
+    CHECK(dialog.choice().language == "fr");
 
     dialog.trackBox()->setCurrentIndex(1);
-    CHECK(dialog.languageEdit()->text().isEmpty());
+    CHECK(dialog.choice().language.empty());
     CHECK(dialog.choice().track == 1);
 }
 
-TEST_CASE("a language that was typed is kept when the track changes", "[gui][GUI-TRANSCRIBE-01]") {
+TEST_CASE("a language that was chosen is kept when the track changes", "[gui][GUI-TRANSCRIBE-01]") {
     const TranscribeDialog dialog{kTracks, {}, probing(kReady), nothing};
 
-    dialog.languageEdit()->setText("de");
-    QMetaObject::invokeMethod(
-        dialog.languageEdit(), "textEdited", Q_ARG(QString, QStringLiteral("de")));
+    pick(dialog, "de");
     dialog.trackBox()->setCurrentIndex(1);
 
     CHECK(dialog.choice().language == "de");
@@ -191,7 +211,7 @@ TEST_CASE("a film without audio tracks still offers the first one", "[gui][GUI-T
 
     CHECK(dialog.trackBox()->count() == 1);
     CHECK(dialog.choice().track == 0);
-    CHECK(dialog.languageEdit()->text().isEmpty());
+    CHECK(dialog.choice().language.empty());
 }
 
 TEST_CASE("the dialog says where the language comes from, and when it must be given",
@@ -207,18 +227,17 @@ TEST_CASE("the dialog says where the language comes from, and when it must be gi
     CHECK_THAT(declared.languageHint()->text().toStdString(),
                ContainsSubstring("first 30 seconds of sound"));
 
-    TranscriptionTools englishOnly = kReady;
-    englishOnly.model = ModelState::EnglishOnly;
-    const TranscribeDialog blind{kTracks, {}, probing(englishOnly), nothing};
+    const TranscribeDialog blind{kTracks, {}, probing(englishOnlyTools()), nothing};
     CHECK_THAT(blind.languageHint()->text().toStdString(),
                ContainsSubstring("This model is for English only"));
     // And the language is English, and cannot be changed.
-    CHECK(blind.languageEdit()->text() == "en");
-    CHECK(blind.languageEdit()->isReadOnly());
+    CHECK(blind.languageBox()->count() == 1);
+    CHECK(blind.languageBox()->currentData().toString() == "en");
+    CHECK_FALSE(blind.languageBox()->isEnabled());
     CHECK(blind.choice().language == "en");
 
     const TranscribeDialog typed{kTracks, {.language = "de"}, probing(kReady), nothing};
-    CHECK_THAT(typed.languageHint()->text().toStdString(), ContainsSubstring("you typed is used"));
+    CHECK_THAT(typed.languageHint()->text().toStdString(), ContainsSubstring("you chose is used"));
 }
 
 TEST_CASE("the dialog says which tool is missing, points to the guide, and cannot start",
@@ -301,7 +320,7 @@ TEST_CASE("once confirmed the subtitles are replaced with the model of the setti
     stage.prompts.nextReplacementAccepted = true;
     stage.prompts.fill = [](QDialog& dialog) {
         dynamic_cast<TranscribeDialog&>(dialog).trackBox()->setCurrentIndex(1);
-        dynamic_cast<TranscribeDialog&>(dialog).languageEdit()->setText("en");
+        pick(dynamic_cast<TranscribeDialog&>(dialog), "en");
     };
 
     stage.window->transcribeAudioAction()->trigger();
@@ -541,21 +560,43 @@ TEST_CASE("a long text is cut so that the box does not widen", "[gui][GUI-TRANSC
     CHECK(label.size() < 160);
 }
 
-TEST_CASE("the dialog reads a three-letter code as the two-letter one, and refuses what is no code",
+TEST_CASE("the language is chosen in the list the engine offers, in the language of the window",
           "[gui][GUI-TRANSCRIBE-01]") {
     const TranscribeDialog dialog{kTracks, {}, probing(kReady), nothing};
-    const auto* ok = dialog.buttons()->button(QDialogButtonBox::Ok);
+    QComboBox* box = dialog.languageBox();
 
-    dialog.languageEdit()->setText("fra");
-    CHECK(dialog.choice().language == "fr");
-    CHECK(ok->isEnabled());
+    // "Detect" first, then the five, by name.
+    REQUIRE(box->count() == 6);
+    CHECK(box->itemData(0).toString().isEmpty());
+    CHECK(box->itemText(0).contains("first 30 seconds"));
+    QStringList codes;
+    for (int at = 1; at < box->count(); ++at)
+        codes << box->itemData(at).toString();
+    CHECK(codes.size() == 5);
+    for (const char* wanted : {"en", "fr", "de", "es", "ja"})
+        CHECK(codes.contains(wanted));
+    CHECK(box->itemText(box->findData("fr")) == "French (fr)");
 
-    dialog.languageEdit()->setText("f1");
-    CHECK_FALSE(ok->isEnabled());
-    CHECK(dialog.languageHint()->text().contains("is not a language code"));
+    // Sorted by name, in English here: English, French, German, Japanese, Spanish.
+    CHECK(codes == QStringList{"en", "fr", "de", "ja", "es"});
+}
 
-    dialog.languageEdit()->setText("");
-    CHECK(ok->isEnabled());
+TEST_CASE("without a model nothing is known of the languages: detect, and what was wanted",
+          "[gui][GUI-TRANSCRIBE-01]") {
+    const TranscriptionTools nothingYet{.engine = std::filesystem::path{"/usr/bin/whisper-cli"},
+                                        .extractor = true};
+    const TranscribeDialog dialog{kTracks, {.language = "de"}, probing(nothingYet), nothing};
+
+    CHECK(dialog.languageBox()->count() == 2);
+    CHECK(dialog.choice().language == "de");
+    CHECK_FALSE(dialog.buttons()->button(QDialogButtonBox::Ok)->isEnabled());
+}
+
+TEST_CASE("a language the engine does not offer falls back to detection",
+          "[gui][GUI-TRANSCRIBE-01]") {
+    const TranscribeDialog dialog{kTracks, {.language = "xx"}, probing(kReady), nothing};
+
+    CHECK(dialog.choice().language.empty());
 }
 
 // ## The preferences: where the program and the model are set
@@ -860,18 +901,18 @@ TEST_CASE("the box is on screen at once and wide enough for its title",
 
 TEST_CASE("changing to a model that speaks every language gives the field back",
           "[gui][GUI-TRANSCRIBE-01]") {
-    TranscriptionTools tools = kReady;
-    tools.model = ModelState::EnglishOnly;
+    TranscriptionTools tools = englishOnlyTools();
     const TranscribeDialog dialog{
         kTracks, {}, [&tools] { return ToolsView{.tools = tools}; }, [] {}, nullptr};
-    REQUIRE(dialog.languageEdit()->isReadOnly());
+    REQUIRE_FALSE(dialog.languageBox()->isEnabled());
 
-    tools.model = ModelState::Multilingual;
+    tools = kReady;
     dialog.preferencesButton()->click();
 
-    CHECK_FALSE(dialog.languageEdit()->isReadOnly());
+    CHECK(dialog.languageBox()->isEnabled());
+    CHECK(dialog.languageBox()->count() == 6);
     // The declared language of the track comes back, as it was before the model was chosen.
-    CHECK(dialog.languageEdit()->text() == "fr");
+    CHECK(dialog.choice().language == "fr");
 }
 
 TEST_CASE("a transcription made of notes in brackets says the language was probably wrong",

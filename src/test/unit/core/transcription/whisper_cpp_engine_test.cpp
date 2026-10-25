@@ -7,6 +7,7 @@
 
 #include <catch2/catch_test_macros.hpp>
 
+#include <algorithm>
 #include <cstdlib>
 #include <filesystem>
 #include <fstream>
@@ -58,8 +59,18 @@ TEST_CASE("a multilingual model gives detection and every language", "[whisper][
     REQUIRE(capabilities.has_value());
     CHECK(capabilities->timedWords);
     CHECK(capabilities->languageDetection);
-    CHECK(capabilities->languages.empty());
     CHECK(capabilities->needsModel);
+    CHECK(capabilities->suppressNotes);
+    CHECK(capabilities->sampleRate == 16000);
+
+    // The closed set of its languages, so that a surface can offer them instead of a free field.
+    const auto& languages = capabilities->languages;
+    CHECK(languages.size() == 100);
+    CHECK(languages.front() == "en");
+    for (const char* wanted : {"fr", "de", "zh", "ja", "yue", "haw"})
+        CHECK(std::ranges::find(languages, wanted) != languages.end());
+    CHECK(capabilities->supportsLanguage("fr"));
+    CHECK_FALSE(capabilities->supportsLanguage("xx"));
 }
 
 TEST_CASE("an English-only model gives neither detection nor another language",
