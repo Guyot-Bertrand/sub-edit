@@ -14,6 +14,7 @@ do not edit it by hand.
 - **core** — Drop placeholders, no-notes option, engine sample rate
 - **gui** — Choose the language in a list the engine offers
 - **gui** — Preview the transcription before it replaces the subtitles
+- **core** — Rework the post-processing, tune it in the preview
 
 ### Fixed
 
