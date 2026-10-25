@@ -96,8 +96,6 @@ public:
     [[nodiscard]] std::optional<std::filesystem::path>
     fileToChoose(ChosenFile what, const std::filesystem::path& current) override;
 
-    [[nodiscard]] bool confirmReplacement(const std::string& message) override;
-
     [[nodiscard]] bool run(QDialog& dialog) override;
 
     void reportFailure(const std::string& message) override;

@@ -10,9 +10,11 @@
 #include <subedit/core/model/subtitle.hpp>
 #include <subedit/core/time/timestamp.hpp>
 #include <subedit/core/transcription/engine_capabilities.hpp>
+#include <subedit/core/transcription/subtitle_assembly.hpp>
 #include <subedit/gui/main_window.hpp>
 #include <subedit/gui/preferences_dialog.hpp>
 #include <subedit/gui/transcribe_dialog.hpp>
+#include <subedit/gui/transcription_preview_dialog.hpp>
 #include <subedit/gui/transcription_runner.hpp>
 
 #include <QAbstractItemModel>
@@ -25,8 +27,10 @@
 #include <QLineEdit>
 #include <QProgressDialog>
 #include <QPushButton>
+#include <QScrollBar>
 #include <QStatusBar>
 #include <QTabBar>
+#include <QTableWidget>
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/matchers/catch_matchers_string.hpp>
 
@@ -49,8 +53,9 @@ using Catch::Matchers::ContainsSubstring;
 using subedit::core::AudioTrack;
 using subedit::core::InMemoryFileSystem;
 using subedit::core::ModelState;
-using subedit::core::Subtitle;
 using subedit::core::Timestamp;
+using subedit::core::TranscribedSegment;
+namespace core = subedit::core;
 using subedit::core::TranscriptionSettings;
 using subedit::core::TranscriptionTools;
 using subedit::gui::BackgroundTranscriptionRunner;
@@ -64,6 +69,8 @@ using subedit::gui::TranscriptionFailure;
 using subedit::gui::TranscriptionJob;
 using subedit::gui::TranscriptionOutcome;
 using subedit::gui::TranscriptionPreferences;
+using subedit::gui::TranscriptionPreview;
+using subedit::gui::TranscriptionPreviewDialog;
 using subedit::gui::TranscriptionRunner;
 using subedit::test::FakePrompts;
 using subedit::test::fileIn;
@@ -122,17 +129,18 @@ void nothing() {}
     return files;
 }
 
-[[nodiscard]] Subtitle subtitle(std::int64_t start, const char* text) {
-    return Subtitle{.start = Timestamp::fromMilliseconds(start),
-                    .end = Timestamp::fromMilliseconds(start + 1000),
-                    .mainText = text};
+/// A piece as the engine cut it: a second long.
+[[nodiscard]] TranscribedSegment piece(std::int64_t start, const char* text) {
+    return TranscribedSegment{.text = text,
+                              .start = Timestamp::fromMilliseconds(start),
+                              .end = Timestamp::fromMilliseconds(start + 1000)};
 }
 
 /// A runner that answers what the case says, and keeps what it was asked.
 class ScriptedRunner final : public TranscriptionRunner {
 public:
     std::expected<TranscriptionOutcome, TranscriptionFailure> answer = TranscriptionOutcome{
-        .subtitles = {subtitle(0, "Hello."), subtitle(1500, "World.")}, .language = "en"};
+        .segments = {piece(0, "Hello."), piece(1500, "World.")}, .language = "en"};
     std::vector<TranscriptionJob> asked{};
     TranscriptionTools there = kReady;
 
@@ -296,50 +304,24 @@ TEST_CASE("the command is out until a film is open and in once it is", "[gui][GU
     CHECK(stage.window->transcribeAudioAction()->isEnabled());
 }
 
-TEST_CASE("the window asks before replacing, and a refusal changes nothing",
-          "[gui][GUI-TRANSCRIBE-03]") {
+TEST_CASE("ignoring the preview changes nothing", "[gui][GUI-TRANSCRIBE-03]") {
     Stage stage;
     stage.prompts.nextRun = true;
-
-    stage.window->transcribeAudioAction()->trigger();
-
-    REQUIRE(stage.prompts.replacements.size() == 1);
-    CHECK_THAT(stage.prompts.replacements.front(), ContainsSubstring("3 subtitles"));
-    CHECK(stage.runner->asked.empty());
-    CHECK(textsOf(*stage.window) == std::vector<std::string>{"Un.", "Deux.", "Trois."});
-}
-
-TEST_CASE("once confirmed the subtitles are replaced with the model of the settings, and one undo "
-          "gives them back",
-          "[gui][GUI-TRANSCRIBE-03]") {
-    Stage stage;
-    subedit::core::Settings settings;
-    settings.transcription.model = "/models/small.bin";
-    stage.window->applySettings(settings);
-    stage.prompts.nextRun = true;
-    stage.prompts.nextReplacementAccepted = true;
-    stage.prompts.fill = [](QDialog& dialog) {
-        dynamic_cast<TranscribeDialog&>(dialog).trackBox()->setCurrentIndex(1);
-        pick(dynamic_cast<TranscribeDialog&>(dialog), "en");
+    stage.prompts.fill = [&stage](QDialog& dialog) {
+        // The dialog of the transcription is accepted; the preview of its result is ignored.
+        if (dynamic_cast<TranscriptionPreviewDialog*>(&dialog) != nullptr)
+            stage.prompts.nextRun = false;
     };
 
     stage.window->transcribeAudioAction()->trigger();
 
+    // The work was done and shown; the person lost it, and the project is as it was.
     REQUIRE(stage.runner->asked.size() == 1);
-    const TranscriptionJob& job = stage.runner->asked.front();
-    CHECK(job.video == "/films/film.mkv");
-    CHECK(job.track == 1);
-    CHECK(job.language == "en");
-    CHECK(job.model == "/models/small.bin");
-    CHECK(textsOf(*stage.window) == std::vector<std::string>{"Hello.", "World."});
-    CHECK(stage.window->statusBar()->currentMessage().toStdString() ==
-          "2 subtitles transcribed, language: en");
-
-    stage.window->undoAction()->trigger();
     CHECK(textsOf(*stage.window) == std::vector<std::string>{"Un.", "Deux.", "Trois."});
+    CHECK_FALSE(stage.window->undoAction()->isEnabled());
 }
 
-TEST_CASE("a project with nothing in it is not asked about", "[gui][GUI-TRANSCRIBE-03]") {
+TEST_CASE("a project with nothing in it is filled the same way", "[gui][GUI-TRANSCRIBE-03]") {
     InMemoryFileSystem files = directoryHolding();
     FakePrompts prompts;
     Projectionist booth;
@@ -354,14 +336,12 @@ TEST_CASE("a project with nothing in it is not asked about", "[gui][GUI-TRANSCRI
 
     window.transcribeAudioAction()->trigger();
 
-    CHECK(prompts.replacements.empty());
     CHECK(textsOf(window) == std::vector<std::string>{"Hello.", "World."});
 }
 
 TEST_CASE("a failure leaves the project as it was and says why", "[gui][GUI-TRANSCRIBE-02]") {
     Stage stage;
     stage.prompts.nextRun = true;
-    stage.prompts.nextReplacementAccepted = true;
     stage.runner->answer = std::unexpected(TranscriptionFailure{.message = "the model is gone"});
 
     stage.window->transcribeAudioAction()->trigger();
@@ -374,7 +354,6 @@ TEST_CASE("a cancellation leaves the project as it was and is not reported as a 
           "[gui][GUI-TRANSCRIBE-02]") {
     Stage stage;
     stage.prompts.nextRun = true;
-    stage.prompts.nextReplacementAccepted = true;
     stage.runner->answer = std::unexpected(TranscriptionFailure{.cancelled = true});
 
     stage.window->transcribeAudioAction()->trigger();
@@ -391,7 +370,6 @@ TEST_CASE("choosing nothing in the dialog does nothing", "[gui][GUI-TRANSCRIBE-0
 
     stage.window->transcribeAudioAction()->trigger();
 
-    CHECK(stage.prompts.replacements.empty());
     CHECK(stage.runner->asked.empty());
 }
 
@@ -400,7 +378,6 @@ TEST_CASE("the Preferences button of the dialog opens the preferences of the win
           "[gui][GUI-TRANSCRIBE-04]") {
     Stage stage;
     stage.prompts.nextRun = true;
-    stage.prompts.nextReplacementAccepted = true;
     stage.prompts.fill = [](QDialog& dialog) {
         if (auto* transcribe = dynamic_cast<TranscribeDialog*>(&dialog))
             transcribe->preferencesButton()->click();
@@ -420,7 +397,6 @@ TEST_CASE(
     "[gui][GUI-TRANSCRIBE-04]") {
     Stage stage;
     stage.prompts.nextRun = true;
-    stage.prompts.nextReplacementAccepted = true;
     stage.prompts.nextFileToChoose = std::filesystem::path{"/models/chosen.bin"};
     stage.prompts.fill = [](QDialog& dialog) {
         if (auto* transcribe = dynamic_cast<TranscribeDialog*>(&dialog))
@@ -499,14 +475,15 @@ TEST_CASE("a range that cannot be used says why and keeps OK out", "[gui][GUI-TR
     CHECK_FALSE(bare.buttons()->button(QDialogButtonBox::Ok)->isEnabled());
 }
 
-TEST_CASE("a range replaces the subtitles like any transcription, after the same question",
+TEST_CASE("a range replaces the subtitles like any transcription, after the same preview",
           "[gui][GUI-TRANSCRIBE-06]") {
     Stage stage;
     stage.prompts.nextRun = true;
-    stage.prompts.nextReplacementAccepted = true;
     stage.prompts.fill = [](QDialog& dialog) {
-        dynamic_cast<TranscribeDialog&>(dialog).startEdit()->setText("0:30");
-        dynamic_cast<TranscribeDialog&>(dialog).endEdit()->setText("1:00");
+        if (auto* ask = dynamic_cast<TranscribeDialog*>(&dialog)) {
+            ask->startEdit()->setText("0:30");
+            ask->endEdit()->setText("1:00");
+        }
     };
     const int tabs = stage.window->tabBar()->count();
 
@@ -515,8 +492,7 @@ TEST_CASE("a range replaces the subtitles like any transcription, after the same
     REQUIRE(stage.runner->asked.size() == 1);
     CHECK(stage.runner->asked.front().start == Timestamp::fromMilliseconds(30000));
     CHECK(stage.runner->asked.front().end == Timestamp::fromMilliseconds(60000));
-    // The question was asked, the project replaced, no tab opened.
-    CHECK(stage.prompts.replacements.size() == 1);
+    // The project replaced, no tab opened.
     CHECK(stage.window->tabBar()->count() == tabs);
     CHECK(textsOf(*stage.window) == std::vector<std::string>{"Hello.", "World."});
     stage.window->undoAction()->trigger();
@@ -725,8 +701,8 @@ TEST_CASE("the real runner transcribes through the tools it finds", "[gui][GUI-T
 
     REQUIRE(outcome.has_value());
     CHECK(outcome->language == "en");
-    CHECK(outcome->subtitles.size() >= 2);
-    CHECK(outcome->subtitles.front().mainText.starts_with("And so"));
+    CHECK_FALSE(outcome->segments.empty());
+    CHECK(outcome->segments.front().text.starts_with("And so"));
 }
 
 TEST_CASE("the real runner can be stopped, and says it was", "[gui][GUI-TRANSCRIBE-02]") {
@@ -867,7 +843,7 @@ TEST_CASE("the box follows the engine while it works", "[gui][GUI-TRANSCRIBE-05]
     const auto outcome = runner.run(tools.job(), nullptr);
 
     REQUIRE(outcome.has_value());
-    CHECK(outcome->subtitles.size() >= 2);
+    CHECK_FALSE(outcome->segments.empty());
 }
 
 TEST_CASE("the box is on screen at once and wide enough for its title",
@@ -915,50 +891,6 @@ TEST_CASE("changing to a model that speaks every language gives the field back",
     CHECK(dialog.choice().language == "fr");
 }
 
-TEST_CASE("a transcription made of notes in brackets says the language was probably wrong",
-          "[gui][GUI-TRANSCRIBE-05]") {
-    Stage stage;
-    stage.runner->answer = TranscriptionOutcome{
-        .subtitles = {subtitle(0, "[MUSIC PLAYING]")}, .language = "en", .notes = 5, .pieces = 9};
-    stage.prompts.nextRun = true;
-    stage.prompts.nextReplacementAccepted = true;
-
-    stage.window->transcribeAudioAction()->trigger();
-
-    REQUIRE(stage.prompts.outcomes.size() == 1);
-    CHECK_THAT(stage.prompts.outcomes.front(),
-               ContainsSubstring("5 of the 9 pieces are only notes"));
-    CHECK_THAT(stage.prompts.outcomes.front(), ContainsSubstring("language used (en)"));
-}
-
-TEST_CASE("a few notes among the speech are no cause for a warning", "[gui][GUI-TRANSCRIBE-05]") {
-    Stage stage;
-    stage.runner->answer = TranscriptionOutcome{
-        .subtitles = {subtitle(0, "Hello.")}, .language = "en", .notes = 1, .pieces = 20};
-    stage.prompts.nextRun = true;
-    stage.prompts.nextReplacementAccepted = true;
-
-    stage.window->transcribeAudioAction()->trigger();
-
-    CHECK(stage.prompts.outcomes.empty());
-}
-
-TEST_CASE("a range made of notes in brackets says so too", "[gui][GUI-TRANSCRIBE-05]") {
-    Stage stage;
-    stage.runner->answer = TranscriptionOutcome{
-        .subtitles = {subtitle(0, "[MUSIC PLAYING]")}, .language = "en", .notes = 4, .pieces = 6};
-    stage.prompts.nextRun = true;
-    stage.prompts.nextReplacementAccepted = true;
-    stage.prompts.fill = [](QDialog& dialog) {
-        dynamic_cast<TranscribeDialog&>(dialog).startEdit()->setText("00:01:00");
-    };
-
-    stage.window->transcribeAudioAction()->trigger();
-
-    REQUIRE(stage.prompts.outcomes.size() == 1);
-    CHECK_THAT(stage.prompts.outcomes.front(), ContainsSubstring("4 of the 6 pieces"));
-}
-
 // ## Sounds written as notes
 
 TEST_CASE(
@@ -997,9 +929,9 @@ TEST_CASE("the choice about notes goes to the runner and is kept for the next ti
           "[gui][GUI-TRANSCRIBE-01]") {
     Stage stage;
     stage.prompts.nextRun = true;
-    stage.prompts.nextReplacementAccepted = true;
     stage.prompts.fill = [](QDialog& dialog) {
-        dynamic_cast<TranscribeDialog&>(dialog).suppressNotesBox()->setChecked(false);
+        if (auto* ask = dynamic_cast<TranscribeDialog*>(&dialog))
+            ask->suppressNotesBox()->setChecked(false);
     };
 
     stage.window->transcribeAudioAction()->trigger();
@@ -1010,7 +942,7 @@ TEST_CASE("the choice about notes goes to the runner and is kept for the next ti
 }
 
 TEST_CASE("the preferences hold the choice about notes", "[gui][GUI-TRANSCRIBE-04]") {
-    TranscriptionSettings settings;
+    const TranscriptionSettings settings;
     const PreferencesDialog dialog{
         subedit::core::Theme::System, {}, {}, {}, TranscriptionPreferences{.settings = settings}};
     CHECK(dialog.suppressNotesBox()->isChecked());
@@ -1047,4 +979,175 @@ TEST_CASE("the real runner tells the engine not to write notes, unless asked not
     job.settings.suppressNotes = false;
     REQUIRE(runner.run(job, nullptr).has_value());
     CHECK(argumentsOf().find("-sns") == std::string::npos);
+}
+
+// ## The preview
+
+TEST_CASE(
+    "the result is shown in a preview, the engine's pieces and the final subtitles side by side",
+    "[gui][GUI-TRANSCRIBE-07]") {
+    Stage stage;
+    stage.runner->answer = TranscriptionOutcome{.segments = {piece(0, "I was going to"),
+                                                             piece(1100, "tell you."),
+                                                             piece(5000, "..."),
+                                                             piece(9000, "Bye.")},
+                                                .language = "en"};
+    stage.prompts.nextRun = true;
+    std::vector<std::string> left;
+    std::vector<std::string> right;
+    stage.prompts.fill = [&](QDialog& dialog) {
+        if (auto* preview = dynamic_cast<TranscriptionPreviewDialog*>(&dialog)) {
+            for (int row = 0; row < preview->piecesTable()->rowCount(); ++row)
+                left.push_back(preview->piecesTable()->item(row, 2)->text().toStdString());
+            for (int row = 0; row < preview->subtitlesTable()->rowCount(); ++row)
+                right.push_back(preview->subtitlesTable()->item(row, 2)->text().toStdString());
+        }
+    };
+
+    stage.window->transcribeAudioAction()->trigger();
+
+    // Left: everything, the placeholder too. Right: merged, and the placeholder gone.
+    CHECK(left == std::vector<std::string>{"I was going to", "tell you.", "...", "Bye."});
+    CHECK(right == std::vector<std::string>{"I was going to tell you.", "Bye."});
+    // Applying put the right-hand side in the project.
+    CHECK(textsOf(*stage.window) == right);
+}
+
+TEST_CASE("each side of the preview has its own start and end", "[gui][GUI-TRANSCRIBE-07]") {
+    const core::Assembly assembly = core::assemble(
+        std::vector<TranscribedSegment>{piece(0, "I was going to"), piece(1100, "tell you.")});
+    const TranscriptionPreviewDialog dialog{TranscriptionPreview{
+        .pieces = {piece(0, "I was going to"), piece(1100, "tell you.")}, .assembly = assembly}};
+
+    CHECK(dialog.piecesTable()->rowCount() == 2);
+    CHECK(dialog.subtitlesTable()->rowCount() == 1);
+    // The pieces: 0 to 1 s and 1.1 to 2.1 s. The subtitle: 0 to 2.1 s.
+    CHECK(dialog.piecesTable()->item(1, 0)->text() == "00:00:01.100");
+    CHECK(dialog.piecesTable()->item(1, 1)->text() == "00:00:02.100");
+    CHECK(dialog.subtitlesTable()->item(0, 0)->text() == "00:00:00.000");
+    CHECK(dialog.subtitlesTable()->item(0, 1)->text() == "00:00:02.100");
+}
+
+TEST_CASE("selecting a subtitle highlights the pieces it was made from and shows them",
+          "[gui][GUI-TRANSCRIBE-07]") {
+    std::vector<TranscribedSegment> pieces;
+    // Forty pieces, so that the left side has to scroll; pieces 30 and 31 merge, the rest stand
+    // alone.
+    constexpr std::int64_t kStep = 10000;
+    pieces.reserve(40);
+    for (std::int64_t index = 0; index < 40; ++index)
+        pieces.push_back(piece(index * kStep, "Said."));
+    pieces[30] = piece(30 * kStep, "Going to");
+    pieces[31] = piece((31 * kStep) - 9000, "tell you.");
+    const core::Assembly assembly = core::assemble(pieces);
+    TranscriptionPreviewDialog dialog{TranscriptionPreview{.pieces = pieces, .assembly = assembly}};
+    dialog.resize(1000, 400);
+    dialog.show();
+
+    // Nothing selected, nothing highlighted.
+    CHECK(dialog.highlightedPieces().empty());
+
+    // The subtitle made of two pieces: both are highlighted, and the left side scrolled to them.
+    int merged = -1;
+    for (std::size_t at = 0; at < assembly.sources.size(); ++at)
+        if (assembly.sources[at].size() == 2)
+            merged = static_cast<int>(at);
+    REQUIRE(merged >= 0);
+    dialog.subtitlesTable()->setCurrentCell(merged, 2);
+    const std::vector<int> expected(assembly.sources[static_cast<std::size_t>(merged)].begin(),
+                                    assembly.sources[static_cast<std::size_t>(merged)].end());
+    CHECK(dialog.highlightedPieces() == expected);
+    CHECK(dialog.piecesTable()->item(expected.front(), 2)->background().style() != Qt::NoBrush);
+    CHECK(dialog.piecesTable()->verticalScrollBar()->value() > 0);
+
+    // Moving the selection moves the highlight: the old one is cleared.
+    dialog.subtitlesTable()->setCurrentCell(0, 2);
+    CHECK(dialog.piecesTable()->item(expected.front(), 2)->background().style() == Qt::NoBrush);
+    CHECK(dialog.highlightedPieces().size() == 1);
+}
+
+TEST_CASE("the left side cannot be selected or edited", "[gui][GUI-TRANSCRIBE-07]") {
+    const TranscriptionPreviewDialog dialog{
+        TranscriptionPreview{.pieces = {piece(0, "Hello.")},
+                             .assembly = core::assemble(std::vector{piece(0, "Hello.")})}};
+
+    CHECK(dialog.piecesTable()->selectionMode() == QAbstractItemView::NoSelection);
+    CHECK(dialog.piecesTable()->editTriggers() == QAbstractItemView::NoEditTriggers);
+    CHECK(dialog.subtitlesTable()->editTriggers() == QAbstractItemView::NoEditTriggers);
+    // One subtitle at a time on the right.
+    CHECK(dialog.subtitlesTable()->selectionMode() == QAbstractItemView::SingleSelection);
+}
+
+TEST_CASE("nothing to apply, nothing to apply it with", "[gui][GUI-TRANSCRIBE-07]") {
+    const TranscriptionPreviewDialog dialog{TranscriptionPreview{
+        .pieces = {piece(0, "..."), piece(5000, "...")},
+        .assembly = core::assemble(std::vector{piece(0, "..."), piece(5000, "...")})}};
+
+    CHECK(dialog.piecesTable()->rowCount() == 2);
+    CHECK(dialog.subtitlesTable()->rowCount() == 0);
+    CHECK_FALSE(dialog.applyButton()->isEnabled());
+    CHECK(dialog.ignoreButton()->isEnabled());
+}
+
+TEST_CASE("a cancelled run offers what it had obtained, titled as partial",
+          "[gui][GUI-TRANSCRIBE-07]") {
+    Stage stage;
+    stage.runner->answer = std::unexpected(TranscriptionFailure{
+        .cancelled = true, .partial = {piece(0, "First."), piece(60000, "Second.")}});
+    stage.prompts.nextRun = true;
+    QString summary;
+    stage.prompts.fill = [&summary](QDialog& dialog) {
+        if (auto* preview = dynamic_cast<TranscriptionPreviewDialog*>(&dialog))
+            summary = preview->summary()->text();
+    };
+
+    stage.window->transcribeAudioAction()->trigger();
+
+    // Not a failure, so nothing is reported as one; the partial result is offered, and was applied.
+    CHECK(stage.prompts.failures.empty());
+    CHECK(summary.contains("Partial result"));
+    CHECK(summary.contains("0:01:01"));
+    CHECK(textsOf(*stage.window) == std::vector<std::string>{"First.", "Second."});
+    CHECK_THAT(stage.window->statusBar()->currentMessage().toStdString(),
+               ContainsSubstring("2 subtitles kept from a partial transcription, up to 0:01:01"));
+}
+
+TEST_CASE("a cancelled run offers its partial result, and ignoring it loses it",
+          "[gui][GUI-TRANSCRIBE-07]") {
+    Stage stage;
+    stage.runner->answer =
+        std::unexpected(TranscriptionFailure{.cancelled = true, .partial = {piece(0, "First.")}});
+    stage.prompts.nextRun = true;
+    stage.prompts.fill = [&stage](QDialog& dialog) {
+        if (dynamic_cast<TranscriptionPreviewDialog*>(&dialog) != nullptr)
+            stage.prompts.nextRun = false;
+    };
+
+    stage.window->transcribeAudioAction()->trigger();
+
+    CHECK(textsOf(*stage.window) == std::vector<std::string>{"Un.", "Deux.", "Trois."});
+}
+
+TEST_CASE("a failed run says why, and offers what it had obtained", "[gui][GUI-TRANSCRIBE-07]") {
+    Stage stage;
+    stage.runner->answer = std::unexpected(
+        TranscriptionFailure{.message = "the engine crashed", .partial = {piece(0, "First.")}});
+    stage.prompts.nextRun = true;
+
+    stage.window->transcribeAudioAction()->trigger();
+
+    CHECK(stage.prompts.failures == std::vector<std::string>{"the engine crashed"});
+    CHECK(textsOf(*stage.window) == std::vector<std::string>{"First."});
+}
+
+TEST_CASE("a cancelled run that had obtained nothing shows no preview",
+          "[gui][GUI-TRANSCRIBE-07]") {
+    Stage stage;
+    stage.runner->answer = std::unexpected(TranscriptionFailure{.cancelled = true});
+    stage.prompts.nextRun = true;
+
+    stage.window->transcribeAudioAction()->trigger();
+
+    // The dialog of the transcription, and no preview after it.
+    CHECK(stage.prompts.runAsked == 1);
 }

@@ -1,5 +1,4 @@
 #include <subedit/core/io/real_file_system.hpp>
-#include <subedit/core/transcription/annotation_notes.hpp>
 #include <subedit/core/transcription/default_engines.hpp>
 #include <subedit/core/transcription/remaining_time.hpp>
 #include <subedit/core/transcription/subtitle_assembly.hpp>
@@ -57,8 +56,9 @@ private:
     core::TranscriptionProgress m_progress{.stage = core::TranscriptionStage::Extracting};
 };
 
-[[nodiscard]] TranscriptionFailure failed(std::string message) {
-    return TranscriptionFailure{.message = std::move(message)};
+[[nodiscard]] TranscriptionFailure failed(std::string message,
+                                          std::vector<core::TranscribedSegment> partial = {}) {
+    return TranscriptionFailure{.message = std::move(message), .partial = std::move(partial)};
 }
 
 /// The words for what a transcription that came to nothing said.
@@ -73,8 +73,8 @@ private:
     }
     const auto& engine = std::get<core::TranscriptionError>(error.cause);
     if (engine.kind == core::TranscriptionErrorKind::Cancelled)
-        return TranscriptionFailure{.cancelled = true};
-    return failed(core::transcriptionErrorText(engine));
+        return TranscriptionFailure{.cancelled = true, .partial = error.partial};
+    return failed(core::transcriptionErrorText(engine), error.partial);
 }
 
 /// The whole work, on whichever thread calls it. Touches nothing of Qt.
@@ -108,12 +108,8 @@ private:
     if (!transcribed)
         return std::unexpected(failureOf(transcribed.error()));
 
-    const core::NotesShare share = core::notesShare(transcribed->segments);
-    return TranscriptionOutcome{
-        .subtitles = core::assembleSubtitles(transcribed->segments, core::assemblyOf(settings)),
-        .language = transcribed->language.value_or(std::string{}),
-        .notes = share.notes,
-        .pieces = share.pieces};
+    return TranscriptionOutcome{.segments = std::move(transcribed->segments),
+                                .language = transcribed->language.value_or(std::string{})};
 }
 
 } // namespace

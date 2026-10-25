@@ -9,11 +9,14 @@ subedit-cli transcribe --output FILE
                        [--audio-track N]
                        [--language CODE]
                        [--start TIME] [--end TIME]
+                       [--suppress-notes | --keep-notes]
                        [--model FILE]
                        [--engine NAME]
                        [--keep-audio FILE]
                        [--raw]
                        <input>
+
+subedit-cli transcribe --list-languages [--model FILE] [--engine NAME]
 ```
 
 כותבת **את הדיבור של סרטון, או של קובץ שמע, כקובץ כתוביות**. השמע מוכן,
@@ -43,7 +46,12 @@ subedit-cli transcribe --output FILE
 - **אפשר לתמלל חלק מהסרט בלבד**, עם `--start` ו-`--end` — ראו
   [תמלול חלק מהסרט](#תמלול-חלק-מהסרט). כך מנסים מודל על שתי דקות לפני שמריצים אותו על
   שעתיים.
-- **צלילים אינם נכתבים כהערות**: המנוע מקבל הוראה שלא לעשות זאת (האפשרות שלו היא `--suppress-nst`), כך ש-`(Sonnerie de téléphone)` או `[MUSIC PLAYING]` אינם עולים בכתוביות, לא בסוגריים עגולים ולא בסוגריים מרובעים.
+- **אפשר להציג את השפות שמנוע מציע**, עם `--list-languages` — ראו
+  [רשימת השפות](#רשימת-השפות).
+- **כברירת מחדל, צלילים אינם נכתבים כהערות**: המנוע מקבל הוראה שלא לעשות זאת (`--suppress-notes`; האפשרות שלו היא
+  `--suppress-nst`), כך ש-`(Sonnerie de téléphone)` או `[MUSIC PLAYING]` אינם עולים בכתוביות, לא בסוגריים עגולים ולא בסוגריים
+  מרובעים. `--keep-notes` כותבת אותם, עבור כתוביות לכבדי שמיעה. כשההערות אסורות, המנוע כותב `...` עבור קטע ללא דיבור, ו**העיבוד שלאחר מכן משמיט את החלקים שאין בהם אות ולא ספרה** — `...`, `…`, `♪` —
+  לפני המיזוג והחיתוך; `--raw` שומרת אותם, כפי שחלקי המנוע הגיעו.
 - **הקטעים ממוזגים וחתוכים** לפי המגבלות של ההגדרות (`transcription.merge-gap-ms`,
   `transcription.max-duration-ms`, `transcription.max-characters`): שני חלקים של אותו משפט שקרובים
   זה לזה הם כתובית אחת, וחלק ארוך מדי או רחב מדי נחתך במילה. **`--raw`
@@ -54,10 +62,10 @@ subedit-cli transcribe --output FILE
 ```console
 $ subedit-cli transcribe --help
 Write the speech of a video or an audio file as subtitles
-Usage: subedit-cli transcribe [OPTIONS] input
+Usage: subedit-cli transcribe [OPTIONS] [input]
 
 Positionals:
-  input TEXT REQUIRED         Video or audio file to transcribe
+  input TEXT                  Video or audio file to transcribe
 
 Options:
   -h,--help                   Print this help message and exit
@@ -68,9 +76,12 @@ Options:
   --start TIME                Where to begin, as 2:00, 1:02:03 or seconds; the beginning by default
   --end TIME                  Where to stop, as 2:00, 1:02:03 or seconds; the end by default
   --language CODE             Language of the speech, two letters: fr, en, de; detected from the first 30 seconds by default
+  --suppress-notes            Do not write sounds as notes, such as (phone ringing); the transcription.suppress-notes setting by default
+  --keep-notes                Write sounds as notes, against the setting
   --model FILE                Model file; the transcription.model setting by default
   --engine NAME               Engine; the transcription.engine setting by default
   --keep-audio FILE           Keep the extracted audio in this file
+  --list-languages            List the languages the engine offers for the model, and transcribe nothing
   --raw                       Write the segments as the engine cut them
 ```
 
@@ -78,16 +89,19 @@ Options:
 
 | אפשרות | חובה | ערכים | ברירת מחדל |
 | :----- | :----- | :------ | :----- |
-| `<input>` | כן | סרטון או קובץ שמע | — |
-| `--output` | כן | קובץ הכתוביות לכתיבה; התיקייה שלו נוצרת אם היא חסרה | — |
+| `<input>` | כן, חוץ מעם `--list-languages` | סרטון או קובץ שמע | — |
+| `--output` | כן, חוץ מעם `--list-languages` | קובץ הכתוביות לכתיבה; התיקייה שלו נוצרת אם היא חסרה | — |
 | `--to` | לא | השם הקצר של פורמט: `srt`, `vtt`, `subviewer2`, `ssa`, `ass`, `microdvd`, `mpl2`, `tmplayer`, `lrc` | הפורמט שהסיומת של `--output` מורה עליו, אחרת `srt` |
 | `--audio-track` | לא | מספר שלם החל מ-0: המיקום בין רצועות השמע של הסרטון | `0`, הראשונה |
 | `--language` | לא | שתי אותיות, קוד ISO 639-1: `en`, `fr`; קוד של שלוש אותיות כמו `fra` נקרא כ-`fr` | ההגדרה `transcription.language`; ריקה: מזוהה אוטומטית |
+| `--suppress-notes` | לא | דגל: לא לכתוב צלילים כהערות; נדחה עבור מנוע שאי אפשר לומר לו זאת | ההגדרה `transcription.suppress-notes` |
+| `--keep-notes` | לא | דגל: לכתוב אותם, בניגוד להגדרה; ההפך של `--suppress-notes`, והשתיים יחד נדחות | ההגדרה `transcription.suppress-notes` |
+| `--list-languages` | לא | דגל: להציג את השפות שהמנוע מציע עבור המודל, ולא לתמלל דבר | כבוי |
 | `--start` | לא | זמן: `2:00`, `1:02:03`, `2:00.5`, או מספר שניות, `90` | תחילת השמע |
 | `--end` | לא | זמן, הנכתב כמו ב-`--start`; הוא חייב לבוא אחרי `--start` | סוף השמע |
 | `--model` | לא | קובץ המודל | ההגדרה `transcription.model` |
 | `--engine` | לא | שם של מנוע: `whisper.cpp` | ההגדרה `transcription.engine` |
-| `--keep-audio` | לא | קובץ לשמירת השמע שחולץ, כ-PCM מונו 16 סיביות ב-16 קילו־הרץ בקובץ WAV; התיקייה שלו נוצרת אם היא חסרה | השמע אינו נשמר בשום מקום |
+| `--keep-audio` | לא | קובץ לשמירת השמע שחולץ, כ-PCM מונו 16 סיביות בקובץ WAV, בקצב הדגימה שהמנוע מבקש (16 קילו־הרץ עבור whisper.cpp); התיקייה שלו נוצרת אם היא חסרה, והשם יכול לשאת `{rate}`, שמוחלף בקצב הזה בהרץ (`film.{rate}.wav` נכתב `film.16000.wav`) | השמע אינו נשמר בשום מקום |
 | `--raw` | לא | דגל: כתיבת קטעי המנוע בלי מיזוג ובלי חיתוך | כבוי |
 
 **ההגדרות** נקראות מקובץ ההגדרות כמו אלה של [`adjust`](adjust.md) — ראו
@@ -99,6 +113,7 @@ Options:
 | `transcription.executable` | תוכנית המנוע, נתיב מוחלט; ריק: נחפשת ב-`PATH` | ריק |
 | `transcription.model` | קובץ המודל, נתיב מוחלט | ריק |
 | `transcription.language` | שפת השמע, שתי אותיות; ריק: מזוהה אוטומטית | ריק |
+| `transcription.suppress-notes` | לא לכתוב צלילים כהערות | `true` |
 | `transcription.merge-gap-ms` | חלקים של אותו משפט שקרובים זה לזה מכמות זו של אלפיות שנייה מחוברים | `400` |
 | `transcription.max-duration-ms` | משך ההצגה המרבי של כתובית על המסך, באלפיות שנייה | `7000` |
 | `transcription.max-characters` | מספר התווים המרבי בכתובית, בלי לספור מעברי שורה | `84` |
@@ -140,6 +155,26 @@ subedit-cli transcribe --start 2:00 --end 3:30 --output test.srt --model large-v
 
 השמע של הסרט כולו עדיין מחולץ: מה שהטווח חוסך הוא התמלול, הארוך הרבה יותר.
 
+## רשימת השפות
+
+`--list-languages` כותבת את השפות שהמנוע מציע **עבור המודל**, אחת בכל שורה: הקוד ש-`--language` מקבלת, טאב, ושם
+השפה בשפת הממשק. היא אינה צריכה לא קלט ולא פלט, ואינה מתמללת דבר.
+
+```bash
+subedit-cli transcribe --list-languages --model ggml-small.bin
+```
+
+```text
+en	English
+zh	Chinese
+de	German
+…
+```
+
+הרשימה תלויה במנוע ובמודל: כמאה שפות עבור מודל רב־לשוני של whisper.cpp, `en` בלבד עבור מודל
+לאנגלית בלבד. מנוע שאינו יכול להציג את שפותיו אינו מציג אף אחת. מודל שלא ניתן או שאינו שם הוא שגיאה, עם ההפניה אל המדריך; רק
+בצורת הטקסט, דבר אינו נכתב עם [`--format json`](invocation.md#פלט-שסקריפט-יכול-לקרוא).
+
 ## פלט
 
 **הפלט הסטנדרטי** — דבר: התוצאה היא הקובץ שנכתב.
@@ -166,15 +201,11 @@ subedit-cli transcribe --start 2:00 --end 3:30 --output test.srt --model large-v
 
 ## הודעות
 
-שתי הודעות נאמרות ברמה הראשונה, משום שהן משנות למה לצפות:
+הודעה אחת נאמרת ברמה הראשונה, לפני העבודה, כי היא משנה למה לצפות:
 
-- **לפני העבודה, עם מודל לאנגלית בלבד**: `This model is for English only: whatever language the film
+- **עם מודל לאנגלית בלבד**: `This model is for English only: whatever language the film
   speaks, the result will be English, or notes in brackets. Choose a multilingual model in the preferences.` מודל
   ששם הקובץ שלו מסתיים ב-`.en` הוא כזה.
-- **אחרי העבודה, כשהמנוע כתב בעיקר הערות בסוגריים מרובעים** — `[MUSIC PLAYING]`, `[SPEAKING FRENCH]` —,
-  לפחות שניים ושליש מקטעיו: `N of the M pieces are only notes in brackets, such as [MUSIC PLAYING]: the
-  language used (xx) is probably not the one spoken, and the engine may have translated the speech. Run it again with
-  the language typed.` הכתוביות נכתבות בכל זאת; ההודעה אומרת מה לחשוד.
 
 ## קודי יציאה
 
@@ -193,6 +224,9 @@ subedit-cli transcribe --start 2:00 --end 3:30 --output test.srt --model large-v
 | שפה שהמודל אינו יכול לתמלל | `the model cannot transcribe the language xx` |
 | אין שפה, ומודל שאינו יכול לזהות אחת | `the model cannot detect the language: give one` |
 | מנוע שאיש לא רשם | `no transcription engine is called NAME` |
+| `<input>` או `--output` חסרים | `input is required` או `--output is required` |
+| `--suppress-notes` עם `--keep-notes` | `--suppress-notes and --keep-notes say opposite things; give one of them` |
+| `--suppress-notes` עבור מנוע שאי אפשר לומר לו זאת | `the engine NAME cannot be told not to write sounds as notes` |
 | שפה שאינה קוד | `"TEXT" is not a language code: write two letters, such as fr, en, de or es` |
 | גבול של הטווח שאינו זמן | `"TEXT" is not a time: write it as 2:00, 1:02:03 or 2:00.5, or in seconds` |
 | `--end` לא אחרי `--start` | `the end of the range must come after its start` |

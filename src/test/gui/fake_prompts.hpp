@@ -75,17 +75,6 @@ public:
         return nextFileToChoose;
     }
 
-    /// What each confirmation of a replacement said, and whether the next is accepted.
-    /// **Refused by default, as the question of the film is**: the case one forgets is the
-    /// one that keeps what is there.
-    std::vector<std::string> replacements{};
-    bool nextReplacementAccepted = false;
-
-    [[nodiscard]] bool confirmReplacement(const std::string& message) override {
-        replacements.push_back(message);
-        return nextReplacementAccepted;
-    }
-
     [[nodiscard]] std::optional<std::filesystem::path>
     fileToOpen(const std::filesystem::path& directory) override {
         ++openAsked;

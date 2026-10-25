@@ -410,7 +410,6 @@ TEST_CASE("transcribing with no film open asks nothing", "[gui][GUI-TRANSCRIBE-0
     bench.operations.transcribeAudio(*bench.page);
 
     CHECK(bench.prompts.runAsked == 0);
-    CHECK(bench.prompts.replacements.empty());
 }
 
 TEST_CASE("the transcription dialog looks at the tools, and its Preferences button asks the "

@@ -141,6 +141,7 @@ existovaly dva bloky, se přečte beze změny a při příštím zavření se p�
 | `transcription.engine` | název nástroje: malá písmena, číslice, `.`, `-` a `_` | `whisper.cpp` |
 | `transcription.executable`, `transcription.model` | absolutní cesta; prázdná: nástroj se hledá v `PATH` a žádný model není nastaven | prázdná |
 | `transcription.language` | dvě malá písmena, kód ISO 639-1; prázdný: jazyk se zjistí | prázdný |
+| `transcription.suppress-notes` | `true` nebo `false` — `Do not write sounds as notes` | `true` |
 | `transcription.merge-gap-ms` | části jedné věty bližší než tato doba se spojí, v milisekundách, celé nezáporné číslo | `400` |
 | `transcription.max-duration-ms` | nejdelší doba, po kterou přepsaný titulek zůstává na obrazovce, v milisekundách, od 1 do 3600000 | `7000` |
 | `transcription.max-characters` | největší počet znaků přepsaného titulku, od 1 do 1000 | `84` |
@@ -291,6 +292,9 @@ a jaký je model — není nastaven, nenalezen, není to model, pouze pro angli�
 chybí, přidá odkaz na
 [Instalace nástrojů pro přepis](../subedit-cli/install-transcription.md), který říká, kde to které najít.
 Obě pole jsou nastavení `transcription.executable` a `transcription.model`.
+
+Políčko **„Nezapisovat zvuky jako poznámky“** je nastavení `transcription.suppress-notes` (ve výchozím stavu zaškrtnuté): nástroji se řekne, aby nezapisoval zvuky
+jako poznámky, například `(phone ringing)`. Odškrtněte je, chcete-li je ponechat, pro titulky pro neslyšící a nedoslýchavé. Dialog `Transcribe Audio…` nabízí totéž políčko pro jeden přepis.
 
 ## Jazyk rozhraní
 

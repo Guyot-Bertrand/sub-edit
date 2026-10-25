@@ -141,6 +141,7 @@ existisen os dous bloques lese sen cambios, e reescríbese en dous bloques no se
 | `transcription.engine` | o nome do motor: letras minúsculas, díxitos, `.`, `-` e `_` | `whisper.cpp` |
 | `transcription.executable`, `transcription.model` | unha ruta absoluta; baleiro: o motor búscase no `PATH`, e non se fixa ningún modelo | baleiro |
 | `transcription.language` | dúas letras minúsculas, un código ISO 639-1; baleiro: a lingua detéctase | baleiro |
+| `transcription.suppress-notes` | `true` ou `false` — `Do not write sounds as notes` | `true` |
 | `transcription.merge-gap-ms` | os anacos dunha mesma frase máis próximos ca isto únense, en milisegundos, enteiro e non negativo | `400` |
 | `transcription.max-duration-ms` | o máximo que un subtítulo transcrito permanece en pantalla, en milisegundos, de 1 a 3600000 | `7000` |
 | `transcription.max-characters` | o máximo de caracteres dun subtítulo transcrito, de 1 a 1000 | `84` |
@@ -291,6 +292,9 @@ está atopado, e o modelo — sen definir, non atopado, non é un modelo, só pa
 falta engade o enlace a
 [Instalar as ferramentas de transcrición](../subedit-cli/install-transcription.md), que di onde atopar
 cada un. Os dous campos son os axustes `transcription.executable` e `transcription.model`.
+
+Unha caixa, **«Non escribir os sons como notas»**, é o axuste `transcription.suppress-notes` (marcada por defecto): ao motor dáselle a orde de non escribir os sons
+como notas, tales como `(phone ringing)`. Desmárquea para conservalos, para subtítulos para xordos e con dificultades auditivas. O diálogo de `Transcribe Audio…` ofrece a mesma caixa para a transcrición de cada vez.
 
 ## A lingua da interface
 

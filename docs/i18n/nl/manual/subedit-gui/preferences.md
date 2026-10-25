@@ -141,6 +141,7 @@ twee blokken bestonden, wordt ongewijzigd gelezen, en bij de volgende sluiting i
 | `transcription.engine` | de naam van de engine: kleine letters, cijfers, `.`, `-` en `_` | `whisper.cpp` |
 | `transcription.executable`, `transcription.model` | een absoluut pad; leeg: de engine wordt in het `PATH` gezocht, en er is geen model ingesteld | leeg |
 | `transcription.language` | twee kleine letters, een ISO 639-1-code; leeg: de taal wordt gedetecteerd | leeg |
+| `transcription.suppress-notes` | `true` of `false` — `Do not write sounds as notes` | `true` |
 | `transcription.merge-gap-ms` | stukken van één zin die dichter bij elkaar liggen dan dit worden samengevoegd, in milliseconden, geheel en niet-negatief | `400` |
 | `transcription.max-duration-ms` | de maximale tijd dat een getranscribeerde ondertitel in beeld blijft, in milliseconden, van 1 tot 3600000 | `7000` |
 | `transcription.max-characters` | het maximale aantal tekens van een getranscribeerde ondertitel, van 1 tot 1000 | `84` |
@@ -291,6 +292,9 @@ is gevonden, en het model — niet ingesteld, niet gevonden, geen model, alleen 
 ontbreekt, voegt het de verwijzing toe naar
 [De transcriptiehulpmiddelen installeren](../subedit-cli/install-transcription.md), die zegt waar u
 elk vindt. De twee velden zijn de instellingen `transcription.executable` en `transcription.model`.
+
+Een vakje, **“Geluiden niet als notities schrijven”**, is de instelling `transcription.suppress-notes` (standaard aangevinkt): de engine krijgt de opdracht geluiden niet als
+notities te schrijven, zoals `(phone ringing)`. Vink het uit om ze te houden, voor ondertitels voor doven en slechthorenden. Het dialoogvenster van `Transcribe Audio…` biedt hetzelfde vakje voor die ene transcriptie.
 
 ## De interfacetaal
 

@@ -470,24 +470,6 @@ TEST_CASE("something that is not a language code is a usage error before any wor
     CHECK_FALSE(std::filesystem::exists(world.output));
 }
 
-TEST_CASE("a transcription made of notes in brackets is said to be probably in the wrong language",
-          "[cli][transcribe]") {
-    World world;
-    FakeEngineScript script;
-    script.name = "whisper.cpp";
-    script.capabilities = {.languageDetection = true, .needsModel = false};
-    script.segments = {segment(0, 1000, "[MUSIC PLAYING]"),
-                       segment(1000, 2000, "[SPEAKING FRENCH]"),
-                       segment(2000, 3000, "Hello.")};
-    world.engines = EngineRegistry{};
-    (void)world.engines.add(std::make_unique<FakeTranscriptionEngine>(script));
-
-    (void)world.run(
-        TranscribeOptions{.input = world.audio.string(), .output = world.output.string()});
-
-    CHECK_THAT(world.errors.str(), ContainsSubstring("2 of the 3 pieces are only notes"));
-}
-
 TEST_CASE("a model for English alone is said so before the work", "[cli][transcribe]") {
     World world;
     FakeEngineScript script;
@@ -511,7 +493,6 @@ TEST_CASE("a model that speaks every language is not warned about", "[cli][trans
         TranscribeOptions{.input = world.audio.string(), .output = world.output.string()});
 
     CHECK_THAT(world.errors.str(), !ContainsSubstring("English only"));
-    CHECK_THAT(world.errors.str(), !ContainsSubstring("only notes"));
 }
 
 // ## Sounds written as notes
@@ -535,7 +516,7 @@ struct NotesWorld : World {
 } // namespace
 
 TEST_CASE("sounds are not written as notes unless the setting or an option says otherwise",
-          "[cli][transcribe][notes]") {
+          "[cli][transcribe][notes][CLI-TRANSCRIBE-12]") {
     NotesWorld world;
     const auto run = [&world](TranscribeOptions options) {
         options.input = world.audio.string();

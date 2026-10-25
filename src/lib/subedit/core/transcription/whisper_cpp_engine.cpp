@@ -79,7 +79,12 @@ public:
         m_state.total = m_total;
     }
 
+    /// The pieces printed so far.
+    [[nodiscard]] std::vector<TranscribedSegment> printed() const { return m_printed; }
+
     void segment(const WhisperSegmentLine& line) {
+        m_printed.push_back(
+            TranscribedSegment{.text = line.text, .start = line.start, .end = line.end});
         m_state.position = m_total ? std::min(line.end, *m_total) : line.end;
         m_state.lastText = line.text;
         if (const std::optional<double> done = fractionAt(line.end))
@@ -123,6 +128,7 @@ private:
     std::optional<Timestamp> m_end;
     std::optional<Timestamp> m_total{};
     TranscriptionProgress m_state{.stage = TranscriptionStage::Transcribing};
+    std::vector<TranscribedSegment> m_printed{};
 };
 
 /// The arguments that restrict the tool to the range of `request`.
@@ -255,14 +261,19 @@ WhisperCppEngine::run(const TranscriptionRequest& request,
                                          ? TranscriptionErrorKind::EngineMissing
                                          : TranscriptionErrorKind::Failed,
                                      ran.error().detail));
+    // Whatever stopped it, the pieces already printed are handed back with the error.
+    const auto stopped = [&progress](TranscriptionError reason) {
+        reason.partial = progress.printed();
+        return std::unexpected(std::move(reason));
+    };
     if (ran->cancelled)
-        return std::unexpected(error(TranscriptionErrorKind::Cancelled));
+        return stopped(error(TranscriptionErrorKind::Cancelled));
     if (ran->code != 0)
-        return std::unexpected(errorOfExit(ran->code, std::move(lastError)));
+        return stopped(errorOfExit(ran->code, std::move(lastError)));
 
     std::optional<WhisperOutput> output = readWhisperJson(readAll(work.path() / "out.json"));
     if (!output)
-        return std::unexpected(error(TranscriptionErrorKind::Failed));
+        return stopped(error(TranscriptionErrorKind::Failed));
 
     clipToRange(request, output->transcription.segments);
     progress.finish();

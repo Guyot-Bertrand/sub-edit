@@ -165,5 +165,8 @@ file      src/lib/subedit/core/text/pattern_catalogue.cpp Group|Penalty|name|ena
 [tool-output] What an external tool writes and the program reads, and the values it is given: the keys of whisper.cpp's JSON, the marker of its progress lines and the banner and segment lines it prints, the magic number of a model, the tags of `ffprobe`, the keywords of JSON itself. The tool's syntax, not words for a reader (#774, #775, #776).
 file      src/lib/subedit/core/transcription/audio_source.cpp \S+
 file      src/lib/subedit/core/transcription/whisper_cpp_output.cpp progress =| --> |main: processing| samples, | sec|\S+
-file      src/lib/subedit/core/transcription/whisper_cpp_engine.cpp en|auto
+# The codes of the languages whisper.cpp takes, and `auto` (#794).
+file      src/lib/subedit/core/transcription/whisper_cpp_engine.cpp [a-z]{2,3}|auto
+# The codes of languages as ICU names them: whisper.cpp's old Javanese and the reader's default (#794).
+file      src/lib/subedit/core/transcription/language_display.cpp jw|jv|en
 file      src/lib/subedit/core/io/json_reader.cpp true|false|null|bfnrt

@@ -86,7 +86,8 @@ transcribeMedia(FileSystem& files,
                                      .end = request.end};
     auto transcribed = engine.transcribe(asked, observer);
     if (!transcribed)
-        return std::unexpected(MediaTranscriptionError{.cause = transcribed.error()});
+        return std::unexpected(MediaTranscriptionError{
+            .cause = transcribed.error(), .tracks = {}, .partial = transcribed.error().partial});
     return std::move(*transcribed);
 }
 

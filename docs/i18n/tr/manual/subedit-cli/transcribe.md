@@ -9,11 +9,14 @@ subedit-cli transcribe --output FILE
                        [--audio-track N]
                        [--language CODE]
                        [--start TIME] [--end TIME]
+                       [--suppress-notes | --keep-notes]
                        [--model FILE]
                        [--engine NAME]
                        [--keep-audio FILE]
                        [--raw]
                        <input>
+
+subedit-cli transcribe --list-languages [--model FILE] [--engine NAME]
 ```
 
 **Bir videonun ya da ses dosyasının konuşmasını bir altyazı dosyası olarak** yazar. Ses hazırlanır,
@@ -41,7 +44,12 @@ ve sıfırdan farklı bir kodla çıkar.
   `[SPEAKING FRENCH]` olarak. Dili biliyorsanız verin.
 - **Filmin yalnızca bir bölümü yazıya dökülebilir**, `--start` ve `--end` ile — bkz.
   [Filmin bir bölümünü yazıya dökme](#filmin-bir-bölümünü-yazıya-dökme). Bir model iki saatte çalıştırılmadan önce iki dakikada böyle denenir.
-- **Sesler not olarak yazılmaz**: motora bunu yapmaması söylenir (kendi seçeneği `--suppress-nst`), böylece `(Sonnerie de téléphone)` ya da `[MUSIC PLAYING]` altyazılara çıkmaz, ne parantez içinde ne köşeli parantez içinde.
+- **Bir motorun sunduğu diller listelenebilir**, `--list-languages` ile — bkz.
+  [Dilleri listeleme](#dilleri-listeleme).
+- **Sesler varsayılan olarak not olarak yazılmaz**: motora bunu yapmaması söylenir (`--suppress-notes`; kendi seçeneği `--suppress-nst`), böylece
+  `(Sonnerie de téléphone)` ya da `[MUSIC PLAYING]` altyazılara çıkmaz, ne parantez içinde ne köşeli parantez içinde. `--keep-notes` onları yazar, işitme engelliler için altyazılarda.
+  Notlar yasaklandığında motor konuşmasız bir bölüm için `...` yazar ve **son işleme, ne harf ne rakam içeren parçaları atar** — `...`, `…`, `♪` —
+  birleştirmeden ve kesmeden önce; `--raw` onları, motorun parçaları geldiği gibi korur.
 - **Parçalar birleştirilir ve kesilir**, ayarların sınırlarına göre (`transcription.merge-gap-ms`,
   `transcription.max-duration-ms`, `transcription.max-characters`): bir cümlenin birbirine yakın iki
   parçası tek bir altyazı olur, çok uzun ya da çok geniş bir parça ise bir sözcükten kesilir. **`--raw`
@@ -52,10 +60,10 @@ ve sıfırdan farklı bir kodla çıkar.
 ```console
 $ subedit-cli transcribe --help
 Write the speech of a video or an audio file as subtitles
-Usage: subedit-cli transcribe [OPTIONS] input
+Usage: subedit-cli transcribe [OPTIONS] [input]
 
 Positionals:
-  input TEXT REQUIRED         Video or audio file to transcribe
+  input TEXT                  Video or audio file to transcribe
 
 Options:
   -h,--help                   Print this help message and exit
@@ -66,9 +74,12 @@ Options:
   --start TIME                Where to begin, as 2:00, 1:02:03 or seconds; the beginning by default
   --end TIME                  Where to stop, as 2:00, 1:02:03 or seconds; the end by default
   --language CODE             Language of the speech, two letters: fr, en, de; detected from the first 30 seconds by default
+  --suppress-notes            Do not write sounds as notes, such as (phone ringing); the transcription.suppress-notes setting by default
+  --keep-notes                Write sounds as notes, against the setting
   --model FILE                Model file; the transcription.model setting by default
   --engine NAME               Engine; the transcription.engine setting by default
   --keep-audio FILE           Keep the extracted audio in this file
+  --list-languages            List the languages the engine offers for the model, and transcribe nothing
   --raw                       Write the segments as the engine cut them
 ```
 
@@ -76,16 +87,19 @@ Options:
 
 | Seçenek | Zorunlu | Değerler | Varsayılan |
 | :----- | :----- | :------ | :----- |
-| `<input>` | evet | bir video ya da ses dosyası | — |
-| `--output` | evet | yazılacak altyazı dosyası; dizini yoksa oluşturulur | — |
+| `<input>` | evet, `--list-languages` hariç | bir video ya da ses dosyası | — |
+| `--output` | evet, `--list-languages` hariç | yazılacak altyazı dosyası; dizini yoksa oluşturulur | — |
 | `--to` | hayır | bir biçimin kısa adı: `srt`, `vtt`, `subviewer2`, `ssa`, `ass`, `microdvd`, `mpl2`, `tmplayer`, `lrc` | `--output` uzantısının belirttiği biçim, yoksa `srt` |
 | `--audio-track` | hayır | 0'dan başlayan bir tam sayı: videonun ses izleri arasındaki konum | `0`, ilki |
 | `--language` | hayır | iki harf, bir ISO 639-1 kodu: `en`, `fr`; `fra` gibi üç harfli bir kod `fr` olarak okunur | `transcription.language` ayarı; boşsa: algılanır |
+| `--suppress-notes` | hayır | bir bayrak: sesleri not olarak yazma; bunun söylenemediği bir motor için reddedilir | `transcription.suppress-notes` ayarı |
+| `--keep-notes` | hayır | bir bayrak: onları yaz, ayarın tersine; `--suppress-notes`'un tersi, ikisi birlikte reddedilir | `transcription.suppress-notes` ayarı |
+| `--list-languages` | hayır | bir bayrak: motorun model için sunduğu dilleri listele ve hiçbir şeyi yazıya dökme | kapalı |
 | `--start` | hayır | bir süre: `2:00`, `1:02:03`, `2:00.5` ya da bir saniye sayısı, `90` | sesin başı |
 | `--end` | hayır | `--start` için olduğu gibi yazılmış bir süre; `--start` değerinden sonra gelmelidir | sesin sonu |
 | `--model` | hayır | model dosyası | `transcription.model` ayarı |
 | `--engine` | hayır | bir motorun adı: `whisper.cpp` | `transcription.engine` ayarı |
-| `--keep-audio` | hayır | çıkarılan sesin saklanacağı dosya, bir WAV dosyasında 16 kHz mono 16 bit PCM olarak; dizini yoksa oluşturulur | ses hiçbir yerde saklanmaz |
+| `--keep-audio` | hayır | çıkarılan sesin saklanacağı dosya, bir WAV dosyasında mono 16 bit PCM olarak, motorun istediği örnekleme hızında (whisper.cpp için 16 kHz); dizini yoksa oluşturulur ve ad, o hızın hertz cinsinden değeriyle değiştirilen `{rate}` taşıyabilir (`film.{rate}.wav`, `film.16000.wav` olarak yazılır) | ses hiçbir yerde saklanmaz |
 | `--raw` | hayır | bir bayrak: motorun parçalarını birleştirme ve kesme olmadan yazar | kapalı |
 
 **Ayarlar**, [`adjust`](adjust.md) komutunun ayarları gibi ayar dosyasından okunur — bkz.
@@ -97,6 +111,7 @@ Options:
 | `transcription.executable` | motorun programı, mutlak bir yol; boşsa: `PATH` içinde aranır | boş |
 | `transcription.model` | model dosyası, mutlak bir yol | boş |
 | `transcription.language` | sesin dili, iki harf; boşsa: algılanır | boş |
+| `transcription.suppress-notes` | sesleri not olarak yazma | `true` |
 | `transcription.merge-gap-ms` | bir cümlenin bu kadar milisaniyeden daha yakın parçaları birleştirilir | `400` |
 | `transcription.max-duration-ms` | bir altyazının ekranda kalabileceği en uzun süre, milisaniye cinsinden | `7000` |
 | `transcription.max-characters` | bir altyazının taşıyabileceği en fazla karakter, satır sonları sayılmaz | `84` |
@@ -133,6 +148,26 @@ subedit-cli transcribe --start 2:00 --end 3:30 --output test.srt --model large-v
 
 Tüm filmin sesi yine de çıkarılır: aralığın kazandırdığı, çok daha uzun süren yazıya dökmedir.
 
+## Dilleri listeleme
+
+`--list-languages` motorun **model için** sunduğu dilleri, satır başına bir tane yazar: `--language`'ın aldığı kod, bir sekme ve dilin arayüzün
+dilindeki adı. Ne bir girdiye ne bir çıktıya ihtiyaç duyar ve hiçbir şeyi yazıya dökmez.
+
+```bash
+subedit-cli transcribe --list-languages --model ggml-small.bin
+```
+
+```text
+en	English
+zh	Chinese
+de	German
+…
+```
+
+Liste motora ve modele bağlıdır: çok dilli bir whisper.cpp modeli için yaklaşık yüz dil, yalnızca İngilizce bir model için sadece `en`. Dillerini
+listeleyemeyen bir motor hiçbirini listelemez. Verilmeyen ya da orada olmayan bir model, kılavuza yönlendirmeyle birlikte bir hatadır; yalnızca metin
+biçimi vardır, [`--format json`](invocation.md#bir-betiğin-okuyabileceği-çıktı) ile hiçbir şey yazılmaz.
+
 ## Çıktı
 
 **Standart çıktı** — boş: sonuç yazılan dosyadır.
@@ -154,15 +189,11 @@ dosyanın nesnesi `language` içinde kullanılan dili, `counts.subtitles` (yazı
 
 ## Uyarılar
 
-İki uyarı ilk düzeyde söylenir, çünkü ne beklenmesi gerektiğini değiştirirler:
+Bir bildirim, işten önce, birinci düzeyde söylenir, çünkü beklenecek şeyi değiştirir:
 
-- **İşten önce, yalnızca İngilizce bir modelle**: `This model is for English only: whatever language the film
+- **Yalnızca İngilizce bir modelle**: `This model is for English only: whatever language the film
   speaks, the result will be English, or notes in brackets. Choose a multilingual model in the preferences.` Dosya adı
   `.en` ile biten bir model böyledir.
-- **İşten sonra, motor çoğunlukla köşeli parantez içinde notlar yazdığında** — `[MUSIC PLAYING]`, `[SPEAKING FRENCH]` —,
-  en az iki ve parçalarının üçte biri: `N of the M pieces are only notes in brackets, such as [MUSIC PLAYING]: the
-  language used (xx) is probably not the one spoken, and the engine may have translated the speech. Run it again with
-  the language typed.` Altyazılar yine de yazılır; uyarı neyden şüphelenileceğini söyler.
 
 ## Çıkış kodları
 
@@ -181,6 +212,9 @@ bir motor ya da kullanılamayan bir aralık.
 | modelin yazıya dökemediği bir dil | `the model cannot transcribe the language xx` |
 | dil yok ve dili algılayamayan bir model | `the model cannot detect the language: give one` |
 | kimsenin kaydetmediği bir motor | `no transcription engine is called NAME` |
+| `<input>` ya da `--output` eksik | `input is required` ya da `--output is required` |
+| `--suppress-notes` ile `--keep-notes` | `--suppress-notes and --keep-notes say opposite things; give one of them` |
+| bunun söylenemediği bir motor için `--suppress-notes` | `the engine NAME cannot be told not to write sounds as notes` |
 | bir kod olmayan bir dil | `"TEXT" is not a language code: write two letters, such as fr, en, de or es` |
 | bir süre olmayan bir aralık sınırı | `"TEXT" is not a time: write it as 2:00, 1:02:03 or 2:00.5, or in seconds` |
 | `--end`, `--start` değerinden sonra değil | `the end of the range must come after its start` |

@@ -100,16 +100,21 @@ eşlik ettiği — ve üçüncü bir ifade onu, başka bir şey olan
 **projenin filminin** sesidir ve asla seçeceğiniz bir dosya değildir — bir ses dosyasını yazıya dökmek için
 komut satırında [`transcribe`](../subedit-cli/transcribe.md) komutunu kullanın.
 
-İletişim kutusu üç şey ister ve başlayıp başlayamayacağını söyler:
+İletişim kutusu dört şey ister ve başlayıp başlayamayacağını söyler:
 
 - **ses izi**, [`Audio`](#ses-izi) menüsünün listelediği gibi listelenir, dosyanın bildirdiği dil
   ve başlıkla birlikte;
-- **dil**, `en` ya da `fr` gibi iki harf (`fra`, `fr` olarak okunur). Dosya bildirdiğinde seçilen izin diliyle
-  başlar, siz kendiniz bir tane yazmadığınız sürece ize uyar ve
-  **alanın altındaki bir satır nereden geldiğini söyler**. Dosya iz için bir dil bildirmediğinde
-  satır bunu söyler ve uyarır: model dili o zaman sesin ilk otuz saniyesinden algılar, bunu yalnızca çok dilli bir model yapabilir ve
-  **müzikle ya da sessizlikle açılan bir film başka bir dil sanılabilir ve konuşması o zaman o dile çevrilir**. Biliyorsanız dili yazın.
-  Yalnızca İngilizce bir modelle alan `en` değerine sabitlenir ve değiştirilemez, satır ise filmin hangi dili konuşursa konuşsun İngilizce çıkacağını söyler;
+- **dil**, bir **listeden** seçilir: önce onu algılayan bir giriş, “Sesin ilk 30 saniyesinden algıla”, sonra motorun model için
+  sunduğu diller, pencerenin dilindeki adıyla ve ardından kodu — “Fransızca (fr)”. Liste motorun kendi listesidir: çok dilli bir modelle yaklaşık yüz;
+  yalnızca İngilizce bir modelle tek girişi vardır, İngilizce, ve değiştirilemez, bir satır ise filmin hangi dili konuşursa konuşsun İngilizce
+  çıkacağını söyler. Liste, dosya bildirdiğinde ve motor sunduğunda seçilen izin diliyle başlar, siz kendiniz bir tane seçmediğiniz sürece ize uyar ve
+  **altındaki bir satır nereden geldiğini söyler**. Dosya iz için bir dil bildirmediğinde satır bunu söyler ve uyarır:
+  model dili o zaman sesin ilk otuz saniyesinden algılar ve **müzikle ya da sessizlikle açılan bir film başka bir dil sanılabilir ve konuşması o zaman
+  o dile çevrilir**. Biliyorsanız dili seçin;
+- **not olarak yazılan sesler**: bir kutu, “Sesleri not olarak yazma”, varsayılan olarak işaretli. Motora o zaman sesleri
+  `(phone ringing)` ya da `[MUSIC PLAYING]` gibi notlar olarak yazmaması söylenir; yazılacak konuşma olmayan yerde `...` yazar ve ne harf ne rakam içeren parçaları
+  son işleme atar. Notları korumak için kutunun işaretini kaldırın, işitme engelliler için altyazılarda. Bunun söylenemediği bir motor için kutu, nedeni belirtilerek
+  gri gösterilir. Bu, [tercihlerin](preferences.md#yazıya-dökme) de içerdiği `transcription.suppress-notes` ayarıdır;
 - **filmin bölümü**, bir zamandan bir başkasına — bkz. [Önce bir bölümü denemek](#önce-bir-bölümü-denemek). İki alan da boşsa filmin tamamı demektir.
 
 **Neyin eksik olduğunu da söyler.** Üç satır motorun, `ffmpeg`'in ve modelin orada olup olmadığını ve
@@ -121,10 +126,6 @@ bilgilerdir, her yazıya dökmede yeniden yapılacak seçimler değil — ve kut
 Dil bir sonraki sefer için saklanır. Motorun kendisi ve altyazıların sınırları
 [ayarlardır](preferences.md) (`transcription.*`).
 
-**Proje zaten altyazı içeriyorsa, pencere onları değiştirmeden önce sorar** ve kaç tanesinin gideceğini
-söyler. İşten önce sorar, böylece vazgeçmenin bir maliyeti olmaz. Proje boşsa
-sorulacak bir şey yoktur.
-
 İş **arka planda** çalışır, bir kutu ve bir `Cancel` düğmesiyle; pencere çevresinde kullanılabilir kalır. **Kutu işin nerede olduğunu söyler**, böylece canlı olduğunu ve ne kadar süreceğini bilirsiniz:
 
 - **adım**: önce “Ses çıkarılıyor…” — kutu o sırada meşguldür, rakam göstermez, çünkü çıkarma ne kadar ilerlediğini söylemez —, sonra “Ses yazıya dökülüyor…”, bir çubukla;
@@ -133,21 +134,35 @@ sorulacak bir şey yoktur.
 - **konum**, “0:12:30 / 0:50:00”: motorun filmde ne kadar ilerlediği; ilk metnini üretir üretmez görünür ve karşılık geldiği **son metnin hemen üstünde** gösterilir;
 - **elde edilen son metin**, işin anlamlı gittiğini görmeniz için.
 
-Büyük bir modelle işlemcide çalışan uzun bir filmde ilk dakikalar uzun olabilir: motor modeli yüklüyor ve ilk otuz saniyelik pencereleri üzerinde çalışıyor. Konum ve son metin, motorun yalnızca filmin %5'lik adımlarıyla gelen kendi yüzdesinden önce hareket eder. Bittiğinde projenin altyazıları
-yazıya dökmeyle **tek bir işlem olarak** değiştirilir: bir `Undo` orada olanı geri verir, çeviri
-metinleri dahil. Başarısız olan ya da iptal ettiğiniz bir yazıya dökme hiçbir şeyi değiştirmez — neden
-bir kutuda söylenir, yalnızca iptal hariç; iptal sadece durum çubuğunda iptal edildiğini söyler.
+Büyük bir modelle işlemcide çalışan uzun bir filmde ilk dakikalar uzun olabilir: motor modeli yüklüyor ve ilk otuz saniyelik pencereleri üzerinde çalışıyor. Konum ve son metin, motorun yalnızca filmin %5'lik adımlarıyla gelen kendi yüzdesinden önce hareket eder.
 
-**Motorun yazdığının çoğu köşeli parantez içinde notlardan oluştuğunda** — `[MUSIC PLAYING]`, `[SPEAKING FRENCH]` —, bir kutu bunu
-işten sonra söyler: kullanılan dil büyük olasılıkla konuşulan dil değildir ve motor konuşmayı çevirmiş olabilir. Dili yazarak yeniden çalıştırın.
-Altyazılar yine de projededir ve bir `Undo` orada olanı geri verir.
+### Önizleme
+
+**Siz görmeden hiçbir şey projenin altyazılarının yerini almaz.** İş bittiğinde — ve onu iptal ettiğinizde ya da bir şey ürettikten sonra
+başarısız olduğunda da — bir pencere sonucu yan yana iki tabloda gösterir, her biri **kendi başlangıcı ve bitişiyle**:
+
+- **solda “Motorun yazdığı gibi”**: motorun döndürdüğü her şey, onu nasıl kestiyse öyle, hiçbir son işleme olmadan — 
+  [`--raw`](../subedit-cli/transcribe.md)'ın yazacağı şey —, yer tutucular (`...`) dahil;
+- **sağda “Uygulanacakları gibi”**: son işlemeden sonraki altyazılar — yer tutucular atılmış, yakın parçalar birleştirilmiş, uzun
+  olanlar kesilmiş —, projeye girecek olan tam olarak budur.
+
+İkisi satır satır hizalanmaz, bu yüzden her birinin kendi zamanları vardır. **Sağdaki bir altyazıyı seçmek, solda onun oluştuğu parçaları
+vurgular** ve sol tarafı onlara kaydırır; bir seferde tek altyazı ve yalnızca bu yönde. Hiçbir tablo düzenlenemez.
+
+İki düğme pencereyi kapatır. **“Uygula”** projenin altyazılarını **tek bir işlem olarak** değiştirir: bir `Undo` orada olanı geri verir, çeviri
+metinleri dahil. **“Yok say”** sonucu atar ve o kaybolur. Tek onay budur — işten önce hiçbir şey sorulmaz. Uygulanacak bir şey olmadığında “Uygula” kapalıdır.
+
+**Çalışma durdurulduğunda** pencere bunu söyler — “Kısmi sonuç: iş … konumunda durdu” — ve oraya kadar elde edileni uygulamak
+ya da yok saymak üzere sunar, böylece geç durdurulan uzun bir çalışma emeğini sormadan yitirmez. Bu parçaların zaman damgalı kelimeleri yoktur (motor onları
+sonda yazar) ve son işleme parçaların kendi sınırlarından keser. Bir başarısızlık önce, her başarısızlık gibi, bir kutuda söylenir; bir iptal böyle bir şey söylemez.
 
 ### Önce bir bölümü denemek
 
-Bir aralık, **iki saate girişmeden önce bir modeli ya da bir dili iki dakikada değerlendirmenizi** sağlar. “Filmin bir bölümü” alanları bir başlangıç ve bir bitiş alır, her biri `2:00`, `1:02:03`, `2:00.5` ya da bir saniye sayısı, `90` olarak yazılır; yalnızca biri de olabilir (oradan sona kadar ya da baştan oraya kadar). Bir alan süre olmadığı ya da bitiş başlangıçtan sonra gelmediği sürece `OK` kapalı kalır ve alanların altındaki bir satır hangisi olduğunu söyler.
+Bir aralık, **iki saate girişmeden önce bir modeli ya da bir dili iki dakikada değerlendirmenizi** sağlar. “Filmin bir bölümü” alanları bir başlangıç ve bir bitiş alır, her biri `HH:MM:SS` olarak yazılır, alanların dediği gibi (`2:00` ve bir saniye sayısı, `90`, de okunur); yalnızca biri de olabilir (oradan sona kadar ya da baştan oraya kadar). Bir alan süre olmadığı ya da bitiş başlangıçtan sonra gelmediği sürece `OK` kapalı kalır ve alanların altındaki bir satır hangisi olduğunu söyler.
 
 - **Altyazılar filmin zamanını korur**: 2:10'da söylenen şey sonuçta `0:02:10` konumundadır.
-- **Projenin altyazılarını her yazıya dökme gibi değiştirir**, varsa aynı sorudan sonra, ve bir `Undo` onları geri verir. Çalışmanıza dokunmadan bir aralığı denemek için önce kaydedin ya da bir kopya üzerinde çalışın.
+- **Her yazıya dökme gibi önizlemeden geçer** ve uygulandığında projenin altyazılarının yerini alır; bir `Undo` onları geri verir.
+  Çalışmanıza dokunmadan bir aralığı denemek için önizlemeyi yok sayın ya da önce kaydedin.
 
 **İhtiyaç duyduğu şey birlikte gelmez**: bir motor (whisper.cpp), bir model ve sesi çıkarmak için `ffmpeg`.
 Bkz. [Yazıya dökme araçlarını kurma](../subedit-cli/install-transcription.md).

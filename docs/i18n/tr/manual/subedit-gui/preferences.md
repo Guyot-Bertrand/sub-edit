@@ -100,6 +100,7 @@ Okuyucu anahtarları herhangi bir sırayla, başlıklarla ya da başlıksız al�
 | `transcription.engine` | motorun adı: küçük harfler, rakamlar, `.`, `-` ve `_` | `whisper.cpp` |
 | `transcription.executable`, `transcription.model` | mutlak bir yol; boşsa: motor `PATH` içinde aranır ve hiçbir model ayarlanmamıştır | boş |
 | `transcription.language` | iki küçük harf, bir ISO 639-1 kodu; boşsa: dil algılanır | boş |
+| `transcription.suppress-notes` | `true` ya da `false` — `Do not write sounds as notes` | `true` |
 | `transcription.merge-gap-ms` | bir cümlenin bundan daha yakın parçaları birleştirilir, milisaniye cinsinden, tam ve negatif olmayan | `400` |
 | `transcription.max-duration-ms` | yazıya dökülmüş bir altyazının ekranda kalabileceği en uzun süre, milisaniye cinsinden, 1 ile 3600000 arasında | `7000` |
 | `transcription.max-characters` | yazıya dökülmüş bir altyazının taşıyabileceği en fazla karakter, 1 ile 1000 arasında | `84` |
@@ -197,6 +198,9 @@ bulunup bulunmadığını ve modeli — ayarlanmamış, bulunamadı, bir model d
 eksik olduğunda, her birinin nerede bulunacağını söyleyen
 [Yazıya dökme araçlarını kurma](../subedit-cli/install-transcription.md) sayfasına yönlendirme ekler.
 İki alan, `transcription.executable` ve `transcription.model` ayarlarıdır.
+
+**“Sesleri not olarak yazma”** kutusu `transcription.suppress-notes` ayarıdır (varsayılan olarak işaretli): motora sesleri
+`(phone ringing)` gibi notlar olarak yazmaması söylenir. Onları korumak için işareti kaldırın, işitme engelliler için altyazılarda. `Transcribe Audio…` iletişim kutusu tek bir yazıya dökme için aynı kutuyu sunar.
 
 ## Arayüz dili
 

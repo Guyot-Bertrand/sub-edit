@@ -155,6 +155,7 @@ sellaisenaan ja kirjoitetaan kahtena lohkona seuraavalla sulkemiskerralla.
 | `transcription.engine` | moottorin nimi: pieniä kirjaimia, numeroita, `.`, `-` ja `_` | `whisper.cpp` |
 | `transcription.executable`, `transcription.model` | absoluuttinen polku; tyhjä: moottori haetaan `PATH`-polusta, eikä mallia ole asetettu | tyhjä |
 | `transcription.language` | kaksi pientä kirjainta, ISO 639-1 -koodi; tyhjä: kieli tunnistetaan | tyhjä |
+| `transcription.suppress-notes` | `true` tai `false` — `Do not write sounds as notes` | `true` |
 | `transcription.merge-gap-ms` | saman lauseen palat, jotka ovat tätä lähempänä toisiaan, yhdistetään, millisekunteina, kokonaisluku, ei negatiivinen | `400` |
 | `transcription.max-duration-ms` | pisin aika, jonka litteroitu tekstitys pysyy näytöllä, millisekunteina, 1–3600000 | `7000` |
 | `transcription.max-characters` | litteroidun tekstityksen merkkien enimmäismäärä, 1–1000 | `84` |
@@ -309,6 +310,9 @@ ja malli — ei asetettu, ei löytynyt, ei ole malli, vain englannille tai monik
 puuttuu, se lisää viittauksen sivuun
 [Litterointityökalujen asentaminen](../subedit-cli/install-transcription.md), joka kertoo, mistä kukin löytyy.
 Nämä kaksi kenttää ovat asetukset `transcription.executable` ja `transcription.model`.
+
+Ruutu **“Älä kirjoita ääniä huomautuksina”** on asetus `transcription.suppress-notes` (oletuksena valittuna): moottorille sanotaan, ettei se kirjoita ääniä
+huomautuksina, kuten `(phone ringing)`. Poista valinta, jos haluat säilyttää ne, kuulovammaisten tekstityksiä varten. `Transcribe Audio…` -valintaikkuna tarjoaa saman ruudun yksittäistä litterointia varten.
 
 ## Käyttöliittymän kieli
 

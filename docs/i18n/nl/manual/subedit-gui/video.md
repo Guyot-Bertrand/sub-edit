@@ -108,17 +108,23 @@ het [raster dat uit de posities wordt afgeleid](frame-grid.md), wat een ander fe
 is geopend: het is de audio van **de film van het project**, nooit een bestand dat u zou kiezen — om een
 audiobestand te transcriberen gebruikt u [`transcribe`](../subedit-cli/transcribe.md) op de opdrachtregel.
 
-Het dialoogvenster vraagt om drie dingen en zegt of het kan beginnen:
+Het dialoogvenster vraagt om vier dingen en zegt of het kan beginnen:
 
 - **het audiospoor**, opgesomd zoals het menu [`Audio`](#het-audiospoor) ze opsomt, met de taal
   en de titel die het bestand opgeeft;
-- **de taal**, twee letters zoals `en` of `fr` (`fra` wordt als `fr` gelezen). Ze begint met de taal van het gekozen spoor
-  wanneer het bestand er een opgeeft, volgt het spoor zolang u er geen hebt getypt, en
-  **een regel onder het veld zegt waar ze vandaan komt**. Geeft het bestand geen taal op voor het spoor,
-  dan zegt de regel dat, en waarschuwt: het model zal ze dan detecteren uit de eerste dertig seconden geluid, wat alleen een
-  meertalig model kan, en **een film die opent met muziek of stilte kan voor een andere taal worden aangezien en zijn spraak
-  dan in die taal vertaald**. Typ de taal als u ze kent. Bij een model dat alleen Engels kent staat het veld vast op `en` en kan
-  het niet worden gewijzigd, en de regel zegt dat de film als Engels uitkomt, welke taal hij ook spreekt;
+- **de taal**, gekozen in een **lijst**: eerst een item dat ze detecteert, “Detecteren uit de eerste 30 seconden geluid”, dan de talen die de
+  engine voor het model biedt, met hun naam in de taal van het venster, gevolgd door hun code — “Frans (fr)”. De lijst is die van de
+  engine: ongeveer honderd bij een meertalig model; bij een model dat alleen Engels kent heeft ze het ene item, Engels, en kan ze niet
+  worden gewijzigd, en een regel zegt dat de film als Engels uitkomt, welke taal hij ook spreekt. De lijst begint met de taal van het gekozen
+  spoor wanneer het bestand er een opgeeft en de engine ze biedt, volgt het spoor zolang u er geen hebt gekozen, en
+  **een regel eronder zegt waar ze vandaan komt**. Geeft het bestand geen taal op voor het spoor, dan zegt de regel dat, en waarschuwt:
+  het model zal ze dan detecteren uit de eerste dertig seconden geluid, en **een film die opent met muziek of stilte kan voor een andere taal worden aangezien
+  en zijn spraak dan in die taal vertaald**. Kies de taal als u ze kent;
+- **geluiden geschreven als notities**: een vakje, “Geluiden niet als notities schrijven”, standaard aangevinkt. De engine krijgt dan de opdracht geluiden niet als
+  notities te schrijven, zoals `(phone ringing)` of `[MUSIC PLAYING]`; waar hij geen spraak heeft om te schrijven, schrijft hij `...`, en de stukken die geen letter en geen cijfer hebben
+  worden door de nabewerking weggelaten. Vink het vakje uit om de notities te houden, voor ondertitels voor doven en slechthorenden. Het vakje is grijs, met de reden,
+  voor een engine waaraan dat niet kan worden opgedragen. Het is de instelling `transcription.suppress-notes`, die ook de [instellingen](preferences.md#transcriptie)
+  bevatten;
 - **het deel van de film**, van de ene tijd tot de andere — zie [Eerst een deel proberen](#eerst-een-deel-proberen). Beide velden
   leeg is de hele film.
 
@@ -130,10 +136,6 @@ over de machine, geen keuzes die bij elke transcriptie opnieuw moeten worden gem
 
 De taal wordt voor de volgende keer bewaard. De engine zelf en de grenzen van de ondertitels zijn
 [instellingen](preferences.md) (`transcription.*`).
-
-**Wanneer het project al ondertitels bevat, vraagt het venster of het ze mag vervangen**, en zegt het hoeveel
-er verdwijnen. Het vraagt vóór het werk, zodat weigeren niets kost. Wanneer het project leeg is, valt er
-niets te vragen.
 
 Het werk draait **op de achtergrond**, met een venstertje en een knop `Cancel`; het venster blijft eromheen bruikbaar. **Het venstertje
 zegt hoe ver het werk is**, zodat u weet dat het leeft en hoe lang het zal duren:
@@ -148,24 +150,38 @@ zegt hoe ver het werk is**, zodat u weet dat het leeft en hoe lang het zal duren
 
 Bij een lange film met een groot model op een processor kunnen de eerste minuten lang zijn: de engine laadt het model en werkt aan zijn eerste
 vensters van dertig seconden. De positie en de laatste tekst bewegen voordat het eigen procent van de engine dat doet, dat alleen in stappen
-van 5 % van de film komt. Wanneer het klaar is, worden de ondertitels van het project vervangen
-door de transcriptie **in één bewerking**: één `Undo` geeft terug wat er stond, vertaalteksten
-inbegrepen. Een transcriptie die mislukt, of die u annuleert, verandert niets — de reden wordt
-gemeld in een venstertje, behalve bij een annulering, die alleen in de statusbalk meldt dat ze is geannuleerd.
+van 5 % van de film komt.
 
-**Wanneer het grootste deel van wat de engine heeft geschreven notities tussen haakjes zijn** — `[MUSIC PLAYING]`, `[SPEAKING FRENCH]` —, zegt een venstertje
-dat na het werk: de gebruikte taal is waarschijnlijk niet de gesproken taal, en de engine heeft de spraak mogelijk vertaald.
-Voer het opnieuw uit met de taal ingevuld. De ondertitels staan toch in het project, en één `Undo` geeft terug wat er stond.
+### Het voorbeeld
+
+**Niets vervangt de ondertitels van het project voordat u ze hebt gezien.** Wanneer het werk klaar is — en ook wanneer u het annuleert, of het mislukt
+nadat het iets heeft opgeleverd — toont een venster het resultaat in twee tabellen naast elkaar, elk met **zijn eigen begin en einde**:
+
+- **links, “Zoals de engine het schreef”**: alles wat de engine heeft teruggegeven, zoals hij het heeft geknipt, zonder enige nabewerking — wat
+  [`--raw`](../subedit-cli/transcribe.md) zou schrijven —, de plaatsvervangers (`...`) inbegrepen;
+- **rechts, “Zoals ze worden toegepast”**: de ondertitels na de nabewerking — plaatsvervangers weggelaten, nabije stukken samengevoegd, lange
+  stukken geknipt —, precies wat in het project komt.
+
+De twee komen niet regel voor regel overeen, daarom heeft elk zijn eigen tijden. **Een ondertitel rechts selecteren markeert links de stukken waaruit hij
+is gemaakt**, en schuift de linkerkant ernaartoe; één ondertitel tegelijk, en alleen in die richting. Geen van beide tabellen kan worden bewerkt.
+
+Twee knoppen sluiten het. **“Toepassen”** vervangt de ondertitels van het project **in één bewerking**: één `Undo` geeft terug wat er stond, vertaalteksten
+inbegrepen. **“Negeren”** gooit het resultaat weg, en het is verloren. Dat is de enige bevestiging — vóór het werk wordt niets gevraagd. “Toepassen” is uitgeschakeld als er
+niets toe te passen is.
+
+**Wanneer het werk is gestopt**, zegt het venster dat — “Gedeeltelijk resultaat: het werk is gestopt bij …” — en biedt het aan wat tot dan toe was verkregen, om toe te passen
+of te negeren, zodat een lange run die laat is gestopt zijn werk niet ongevraagd verliest. Die stukken hebben geen woorden met tijd (de engine schrijft ze aan het
+einde), en de nabewerking knipt op de eigen grenzen van de stukken. Een mislukking wordt eerst in een venstertje gemeld, zoals elke mislukking; een annulering meldt niets van dien aard.
 
 ### Eerst een deel proberen
 
-Met een bereik kunt u **een model of een taal op twee minuten beoordelen voordat u zich aan twee uur verbindt**. De velden “Deel van de film” nemen een begin en een einde, elk geschreven als `2:00`, `1:02:03`, `2:00.5` of een aantal
-seconden, `90`; een van beide alleen is toegestaan (van daar tot het einde, of van het begin tot daar). `OK` blijft uitgeschakeld zolang een veld
+Met een bereik kunt u **een model of een taal op twee minuten beoordelen voordat u zich aan twee uur verbindt**. De velden “Deel van de film” nemen een begin en een einde, elk geschreven als `HH:MM:SS`, zoals de velden zeggen (`2:00` en een aantal seconden, `90`,
+worden ook gelezen); een van beide alleen is toegestaan (van daar tot het einde, of van het begin tot daar). `OK` blijft uitgeschakeld zolang een veld
 geen tijd is of het einde niet na het begin komt, en een regel onder de velden zegt welke.
 
 - **De ondertitels behouden de tijd van de film**: wat op 2:10 wordt gezegd, staat in het resultaat op `0:02:10`.
-- **Het vervangt de ondertitels van het project zoals elke transcriptie**, na dezelfde vraag als er ondertitels zijn, en één
-  `Undo` geeft ze terug. Om een bereik te proberen zonder uw werk aan te raken, bewaar eerst, of werk op een kopie.
+- **Het gaat langs het voorbeeld zoals elke transcriptie**, en vervangt de ondertitels van het project zodra het is toegepast; één `Undo` geeft ze terug.
+  Om een bereik te proberen zonder uw werk aan te raken, negeert u het voorbeeld, of bewaart u eerst.
 
 **Wat het nodig heeft wordt niet meegeleverd**: een engine (whisper.cpp), een model en `ffmpeg` om de audio uit te pakken.
 Zie [De transcriptiehulpmiddelen installeren](../subedit-cli/install-transcription.md).

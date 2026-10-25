@@ -106,17 +106,23 @@ A **`Transcribe Audio…`** a film beszédét írja ki feliratként. Addig nem e
 a **projekt filmjének** hangja, és soha nem egy fájl, amelyet kiválasztana — egy hangfájl leiratozásához
 használja a [`transcribe`](../subedit-cli/transcribe.md) parancsot a parancssorban.
 
-A párbeszédablak három dolgot kér, és megmondja, el tud-e indulni:
+A párbeszédablak négy dolgot kér, és megmondja, el tud-e indulni:
 
 - **a hangsávot**, úgy felsorolva, ahogy az [`Audio`](#a-hangsáv) menü felsorolja, a fájl által
   megadott nyelvvel és címmel;
-- **a nyelvet**, két betű, például `en` vagy `fr` (a `fra`-t `fr`-ként olvassa). A kiválasztott hangsáv nyelvével indul, ha a fájl
-  megadja, követi a hangsávot, amíg Ön nem írt be egyet, és
-  **a mező alatti sor megmondja, honnan származik**. Ha a fájl nem ad meg nyelvet a hangsávhoz,
-  a sor ezt mondja, és figyelmeztet: a modell ekkor az első harminc másodpercnyi hangból fogja felismerni, amit csak a többnyelvű modell
-  tud, és **egy zenével vagy csenddel kezdődő filmet másik nyelvűnek nézhet, és a beszédét arra fordítja**.
-  Ha ismeri a nyelvet, írja be. Csak angolra való modellnél a mező `en`-re van rögzítve és nem módosítható,
-  a sor pedig azt mondja, hogy a film angolul fog kijönni, bármilyen nyelven szól;
+- **a nyelvet**, egy **listából** választva: először egy bejegyzés, amely felismeri, „Észlelés az első 30 másodpercnyi hangból”, majd a
+  motor által a modellhez kínált nyelvek, a nevük az ablak nyelvén, és utánuk a kódjuk — „Francia (fr)”. A lista a motoré: körülbelül száz
+  egy többnyelvű modellnél; egy csak angolra való modellnél egyetlen bejegyzése van, az angol, és nem módosítható,
+  egy sor pedig azt mondja, hogy a film angolul fog kijönni, bármilyen nyelven szól. A lista a kiválasztott hangsáv nyelvével indul, ha a fájl
+  megadja és a motor kínálja, követi a hangsávot, amíg Ön nem választott egyet, és
+  **az alatta lévő sor megmondja, honnan származik**. Ha a fájl nem ad meg nyelvet a hangsávhoz, a sor ezt mondja, és figyelmeztet:
+  a modell ekkor az első harminc másodpercnyi hangból fogja felismerni, és **egy zenével vagy csenddel kezdődő filmet másik nyelvűnek nézhet, és a beszédét arra fordítja**.
+  Ha ismeri a nyelvet, válassza ki;
+- **a megjegyzésként kiírt hangok**: egy jelölőnégyzet, a „Ne írja ki a hangokat megjegyzésként”, alapértelmezés szerint bejelölve. A motor ekkor megkapja az utasítást, hogy ne írja ki a hangokat
+  megjegyzésként, például `(phone ringing)` vagy `[MUSIC PLAYING]`; ahol nincs beszéd, amit kiírhatna, `...`-ot ír, és azokat a darabokat, amelyekben nincs betű és nincs számjegy,
+  az utófeldolgozás eldobja. Szüntesse meg a jelölést a megjegyzések megtartásához, halláskárosultaknak szóló feliratokhoz. A négyzet szürke, az okkal együtt,
+  olyan motornál, amelynek ez nem mondható meg. Ez a `transcription.suppress-notes` beállítás, amelyet a [beállítások](preferences.md#leiratozás)
+  is tartalmaznak;
 - **a film egy része**, egyik időponttól a másikig — lásd: [Előbb egy rész kipróbálása](#előbb-egy-rész-kipróbálása). Ha mindkét mező
   üres, az a teljes film.
 
@@ -128,10 +134,6 @@ vonatkozó tények, nem olyan választások, amelyeket minden leiratozásnál ú
 
 A nyelv megmarad a következő alkalomra. Maga a motor és a feliratok korlátai
 [beállítások](preferences.md) (`transcription.*`).
-
-**Ha a projekt már tartalmaz feliratokat, az ablak a lecserélésük előtt rákérdez**, és megmondja,
-hányat érint. A munka előtt kérdez, hogy az elutasítás semmibe se kerüljön. Ha a projekt üres, nincs
-mit kérdezni.
 
 A munka **a háttérben** fut, egy ablakkal és egy `Cancel` gombbal; az ablak körülötte használható marad. **Az ablak
 megmutatja, hol tart a munka**, hogy tudja, él, és mennyi ideig fog tartani:
@@ -145,23 +147,38 @@ megmutatja, hol tart a munka**, hogy tudja, él, és mennyi ideig fog tartani:
 
 Egy hosszú filmnél, nagy modellel, processzoron az első percek hosszúak lehetnek: a motor betölt, és az első harmincmásodperces
 ablakain dolgozik. A pozíció és az utolsó szöveg előbb mozdul, mint a motor saját százaléka, amely csak a film 5 %-os
-lépéseiben érkezik. Amikor véget ér, a projekt feliratait
-a leirat váltja fel **egyetlen műveletként**: egy `Undo` visszaadja, ami volt, a fordítási
-szövegekkel együtt. Egy sikertelen vagy általa megszakított leiratozás nem változtat semmin — az okot
-egy ablak mondja meg, kivéve a megszakítást, amelyet csak az állapotsor jelez.
+lépéseiben érkezik.
 
-**Ha amit a motor írt, többnyire szögletes zárójeles megjegyzés** — `[MUSIC PLAYING]`, `[SPEAKING FRENCH]` —, egy ablak
-ezt mondja a munka után: a használt nyelv valószínűleg nem az, amelyen beszélnek, és a motor lefordíthatta a beszédet.
-Futtassa újra a nyelv megadásával. A feliratok ettől még a projektben vannak, és egy `Undo` visszaadja, ami volt.
+### Az előnézet
+
+**A projekt feliratait semmi sem váltja fel, amíg meg nem nézte őket.** Amikor a munka véget ér — és akkor is, ha megszakítja, vagy ha valamit előállítva
+meghiúsul — egy ablak két, egymás melletti táblázatban mutatja az eredményt, mindkettőnek **saját kezdete és vége** van:
+
+- **balra, „Ahogy a motor írta”**: minden, amit a motor visszaadott, ahogy felvágta, utófeldolgozás nélkül — amit a
+  [`--raw`](../subedit-cli/transcribe.md) írna —, a helyőrzőkkel (`...`) együtt;
+- **jobbra, „Ahogy alkalmazva lesznek”**: a feliratok az utófeldolgozás után — a helyőrzők eldobva, a közeli darabok összevonva, a hosszúak
+  felvágva —, pontosan az, ami a projektbe kerül.
+
+A kettő nem sorról sorra illeszkedik, ezért mindkettőnek saját időpontjai vannak. **Ha jobbra kijelöl egy feliratot, balra kiemelődnek azok a darabok, amelyekből
+készült**, és a bal oldal odagörög; egyszerre egy felirat, és csak ebben az irányban. Egyik táblázat sem szerkeszthető.
+
+Két gomb zárja be. Az **„Alkalmaz”** a projekt feliratait **egyetlen műveletként** váltja fel: egy `Undo` visszaadja, ami volt, a fordítási
+szövegekkel együtt. A **„Kihagyás”** eldobja az eredményt, és az elvész. Ez az egyetlen megerősítés — a munka előtt semmit sem kérdez. Az „Alkalmaz” kikapcsolt, ha
+nincs mit alkalmazni.
+
+**Ha a futást leállították**, az ablak ezt mondja — „Részleges eredmény: a munka itt állt le: …” — és felkínálja, ami addig elkészült, alkalmazásra
+vagy kihagyásra, hogy egy későn leállított hosszú futás ne veszítse el a munkáját kérés nélkül. Ezeknek a daraboknak nincsenek időzített szavai (a motor a végén írja őket), és az
+utófeldolgozás a darabok saját határainál vág. A hibát előbb egy ablak mondja, mint bármely hibát; a megszakítás ilyet nem mond.
 
 ### Előbb egy rész kipróbálása
 
-Egy tartomány lehetővé teszi, hogy **egy modellt vagy nyelvet kétperces szakaszon ítéljen meg, mielőtt kétórásra vállalkozna**. A „A film egy része” mezők egy kezdetet és egy véget kapnak, mindegyiket `2:00`, `1:02:03`, `2:00.5` vagy
-másodpercek számaként, `90`, írva; elég az egyik (onnantól a végéig, vagy az elejétől odáig). Az `OK` kikapcsolt marad, amíg egy mező
+Egy tartomány lehetővé teszi, hogy **egy modellt vagy nyelvet kétperces szakaszon ítéljen meg, mielőtt kétórásra vállalkozna**. A „A film egy része” mezők egy kezdetet és egy véget kapnak, mindegyiket `HH:MM:SS` alakban írva, ahogy a mezők mondják (a `2:00` és a
+másodpercek száma, `90`, szintén érthető); elég az egyik (onnantól a végéig, vagy az elejétől odáig). Az `OK` kikapcsolt marad, amíg egy mező
 nem időpont, vagy a vég nem a kezdet után van, és a mezők alatti sor megmondja, melyik.
 
 - **A feliratok megtartják a film idejét**: ami 2:10-nél hangzik el, az az eredményben `0:02:10`-nél áll.
-- **Lecseréli a projekt feliratait, mint bármely leiratozás**, ugyanazon kérdés után, ha vannak, és egy `Undo` visszaadja őket. Ha úgy akar tartományt kipróbálni, hogy ne nyúljon a munkájához, előbb mentsen, vagy dolgozzon másolaton.
+- **Az előnézeten megy át, mint bármely leiratozás**, és az alkalmazás után váltja fel a projekt feliratait; egy `Undo` visszaadja őket.
+  Ha úgy akar tartományt kipróbálni, hogy ne nyúljon a munkájához, hagyja ki az előnézetet, vagy előbb mentsen.
 
 **Amire szüksége van, azt nem szállítja a program**: egy motor (whisper.cpp), egy modell, és az `ffmpeg` a hang kinyeréséhez.
 Lásd: [A leiratozó eszközök telepítése](../subedit-cli/install-transcription.md).

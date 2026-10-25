@@ -108,17 +108,23 @@ staðsetningunum næst.
 hljóð **kvikmyndar verkefnisins**, aldrei skrá sem þú velur — til að umrita
 hljóðskrá skaltu nota [`transcribe`](../subedit-cli/transcribe.md) á skipanalínunni.
 
-Glugginn biður um þrennt og segir hvort hann geti byrjað:
+Glugginn biður um fernt og segir hvort hann geti byrjað:
 
 - **hljóðrásina**, taldar upp eins og valmyndin [`Audio`](#hljóðrásin) telur þær upp, með tungumálinu
   og titlinum sem skráin gefur upp;
-- **tungumálið**, tveir stafir eins og `en` eða `fr` (`fra` er lesið sem `fr`). Það byrjar á tungumáli valinnar rásar þegar skráin
-  gefur það upp, fylgir rásinni svo lengi sem þú hefur ekki skrifað eitt, og
-  **lína undir reitnum segir hvaðan það kemur**. Þegar skráin gefur ekkert tungumál upp fyrir rásina
-  segir línan það, og varar við: líkanið greinir það þá af fyrstu þrjátíu sekúndum hljóðsins, sem aðeins fjöltyngt líkan getur, og
-  **kvikmynd sem byrjar á tónlist eða þögn getur verið tekin fyrir annað tungumál og talmálið þá þýtt yfir á það**.
-  Sláðu tungumálið inn ef þú veist það. Með líkani fyrir ensku eingöngu er reiturinn festur á `en` og ekki hægt að breyta honum,
-  og línan segir að kvikmyndin komi út á ensku hvaða tungumál sem hún talar;
+- **tungumálið**, valið í **lista**: fyrst færsla sem greinir það, „Greina af fyrstu 30 sekúndum hljóðsins“, síðan tungumálin sem
+  vélin býður fyrir líkanið, með heiti á tungumáli gluggans og kóða þeirra á eftir — „Franska (fr)“. Listinn er vélarinnar sjálfrar:
+  um hundrað með fjöltyngdu líkani; með líkani fyrir ensku eingöngu hefur hann eina færslu, ensku, og ekki er hægt að breyta henni,
+  og lína segir að kvikmyndin komi út á ensku hvaða tungumál sem hún talar. Listinn byrjar á tungumáli valinnar rásar þegar skráin
+  gefur það upp og vélin býður það, fylgir rásinni svo lengi sem þú hefur ekki valið eitt, og
+  **lína undir honum segir hvaðan það kemur**. Þegar skráin gefur ekkert tungumál upp fyrir rásina segir línan það, og varar við:
+  líkanið greinir það þá af fyrstu þrjátíu sekúndum hljóðsins, og **kvikmynd sem byrjar á tónlist eða þögn getur verið tekin fyrir annað tungumál og talmálið þá þýtt yfir á það**.
+  Veldu tungumálið ef þú veist það;
+- **hljóð skrifuð sem athugasemdir**: reitur, „Ekki skrifa hljóð sem athugasemdir“, hakaður sjálfgefið. Vélinni er þá sagt að skrifa ekki hljóð sem
+  athugasemdir, eins og `(phone ringing)` eða `[MUSIC PLAYING]`; þar sem hún hefur ekkert tal til að skrifa skrifar hún `...`, og bútar sem hafa hvorki staf né tölustaf
+  eru felldir niður í eftirvinnslunni. Taktu hakið af reitnum til að halda athugasemdunum, fyrir skjátexta fyrir heyrnarskerta. Reiturinn er grár, með ástæðunni,
+  fyrir vél sem ekki er hægt að segja það. Þetta er stillingin `transcription.suppress-notes`, sem [kjörstillingarnar](preferences.md#umritun)
+  geyma líka;
 - **hluta kvikmyndarinnar**, frá einum tíma til annars — sjá [Að prófa hluta fyrst](#að-prófa-hluta-fyrst). Séu báðir reitirnir
   tómir er átt við alla kvikmyndina.
 
@@ -130,10 +136,6 @@ um tölvuna, ekki val sem þarf að endurtaka við hverja umritun — og gluggin
 
 Tungumálið er geymt til næsta skiptis. Vélin sjálf og mörk skjátextanna eru
 [stillingar](preferences.md) (`transcription.*`).
-
-**Þegar verkefnið geymir þegar skjátexta spyr glugginn áður en hann skiptir þeim út**, og segir
-hversu margir fara. Hann spyr áður en vinnan hefst, svo að það kosti ekkert að hafna. Þegar verkefnið er tómt er
-engu að spyrja um.
 
 Vinnan fer fram **í bakgrunni**, með glugga og hnappi sem heitir `Cancel`; glugginn er áfram nothæfur í kringum hana. **Glugginn
 segir hvar vinnan er stödd**, svo að þú vitir að hún lifir og hve lengi hún tekur:
@@ -147,23 +149,38 @@ segir hvar vinnan er stödd**, svo að þú vitir að hún lifir og hve lengi h�
 
 Á langri kvikmynd með stóru líkani á örgjörva geta fyrstu mínúturnar verið langar: vélin er að hlaða og vinna í fyrstu
 þrjátíu sekúndna gluggunum sínum. Staðan og síðasti textinn hreyfast á undan eigin prósentu vélarinnar, sem kemur aðeins í skrefum
-upp á 5 % af kvikmyndinni. Þegar henni lýkur er skjátextum verkefnisins skipt út
-fyrir umritunina **í einni aðgerð**: ein `Undo` skilar því sem var, þýðingartextum
-meðtöldum. Umritun sem mistekst, eða sem þú hættir við, breytir engu — ástæðan
-er sögð í glugga, nema þegar hætt er við, en þá segir aðeins stöðulínan að hætt hafi verið við.
+upp á 5 % af kvikmyndinni.
 
-**Þegar mest af því sem vélin skrifaði eru athugasemdir í hornklofum** — `[MUSIC PLAYING]`, `[SPEAKING FRENCH]` —, segir gluggi
-það eftir vinnuna: tungumálið sem var notað er líklega ekki það sem er talað, og vélin kann að hafa þýtt talmálið. Keyrðu aftur með
-tungumálið skrifað inn. Skjátextarnir eru samt í verkefninu, og eitt `Undo` skilar því sem var.
+### Forskoðunin
+
+**Ekkert skiptir út skjátextum verkefnisins fyrr en þú hefur séð þá.** Þegar vinnunni lýkur — og líka þegar þú hættir við hana, eða hún mistekst
+eftir að hafa skilað einhverju — sýnir gluggi niðurstöðuna í tveimur töflum hlið við hlið, hvor með **sitt eigið upphaf og endi**:
+
+- **til vinstri, „Eins og vélin skrifaði það“**: allt sem vélin skilaði, eins og hún skar það, án nokkurrar eftirvinnslu — það sem
+  [`--raw`](../subedit-cli/transcribe.md) myndi skrifa —, staðgenglar (`...`) meðtaldir;
+- **til hægri, „Eins og þeir verða virkjaðir“**: skjátextarnir eftir eftirvinnsluna — staðgenglar felldir niður, nálægir bútar sameinaðir, langir
+  bútar klipptir —, nákvæmlega það sem fer í verkefnið.
+
+Töflurnar tvær raðast ekki línu fyrir línu, og þess vegna hefur hvor sína eigin tíma. **Þegar skjátexti til hægri er valinn eru bútarnir sem hann var gerður úr
+auðkenndir til vinstri**, og vinstri hliðin skrunar að þeim; einn skjátexti í einu, og aðeins í þá átt. Hvorug taflan er breytanleg.
+
+Tveir hnappar loka glugganum. **„Virkja“** skiptir út skjátextum verkefnisins **í einni aðgerð**: ein `Undo` skilar því sem var, þýðingartextum
+meðtöldum. **„Hunsa“** hendir niðurstöðunni, og hún glatast. Það er eina staðfestingin — ekkert er spurt áður en vinnan hefst. „Virkja“ er óvirkt þegar
+ekkert er til að virkja.
+
+**Þegar keyrslan var stöðvuð** segir glugginn það — „Hlutaniðurstaða: vinnan stöðvaðist við …“ — og býður það sem fékkst fram að því, til að virkja
+eða hunsa, svo að löng keyrsla sem stöðvuð er seint tapi ekki vinnu sinni óumbeðið. Þessir bútar hafa engin tímasett orð (vélin skrifar þau í lokin), og
+eftirvinnslan klippir á mörkum bútanna sjálfra. Bilun er fyrst sögð í glugga, eins og hver bilun; ekkert slíkt er sagt þegar hætt er við.
 
 ### Að prófa hluta fyrst
 
-Bil gerir þér kleift að **meta líkan eða tungumál á tveimur mínútum áður en lagt er í tvær klukkustundir**. Reitirnir „Hluti kvikmyndarinnar“ taka upphaf og endi, hvort um sig skrifað `2:00`, `1:02:03`, `2:00.5` eða fjöldi
-sekúndna, `90`; nóg er að fylla út annan (þaðan til enda, eða frá upphafi þangað). `OK` helst óvirkt meðan reitur
+Bil gerir þér kleift að **meta líkan eða tungumál á tveimur mínútum áður en lagt er í tvær klukkustundir**. Reitirnir „Hluti kvikmyndarinnar“ taka upphaf og endi, hvort um sig skrifað `HH:MM:SS`, eins og reitirnir segja (`2:00` og fjöldi sekúndna, `90`,
+eru líka lesin); nóg er að fylla út annan (þaðan til enda, eða frá upphafi þangað). `OK` helst óvirkt meðan reitur
 er ekki tími eða endirinn kemur ekki á eftir upphafinu, og lína undir reitunum segir hvor það er.
 
 - **Skjátextarnir halda tíma kvikmyndarinnar**: það sem sagt er á 2:10 er á `0:02:10` í niðurstöðunni.
-- **Það skiptir út skjátextum verkefnisins eins og hver umritun**, eftir sömu spurningu þegar þeir eru til, og ein `Undo` skilar þeim. Til að prófa bil án þess að snerta vinnuna þína skaltu vista fyrst, eða vinna á afriti.
+- **Það fer um forskoðunina eins og hver umritun**, og skiptir út skjátextum verkefnisins þegar það hefur verið virkjað; ein `Undo` skilar þeim.
+  Til að prófa bil án þess að snerta vinnuna þína skaltu hunsa forskoðunina, eða vista fyrst.
 
 **Það sem hún þarf fylgir ekki forritinu**: vél (whisper.cpp), líkan og `ffmpeg` til að draga hljóðið út.
 Sjá [Uppsetning umritunartækjanna](../subedit-cli/install-transcription.md).

@@ -108,17 +108,23 @@ li [grille deducet del positiones](frame-grid.md), quel es un altri.
 li audio del **film del projecte**, e jamais un file quel vu electe — por transcrir un
 file audio, usa [`transcribe`](../subedit-cli/transcribe.md) in li linea de comande.
 
-Li dialog demanda tre cosas, e dit si it posse comensar:
+Li dialog demanda quar cosas, e dit si it posse comensar:
 
 - **li pista audio**, listat quam li menu [`Audio`](#li-pista-audio) les lista, con li lingue
   e li titul quel li file declara;
-- **li lingue**, du líttere quam `en` o `fr` (`fra` es lect quam `fr`). It comensa con li lingue del pista selectet quande li file
-  declara un, seque li pista tam long quam vu ne ha tipat un, e
-  **un linea sub li camp dit de u it veni**. Quande li file declara null lingue por li pista,
-  li linea dit it, e avisa: li model detectará it tande del prim triant secondes de son, quo solmen un model multilingual
-  save far, e **un film quel comensa con musica o silentie posse esser prenet por un altri lingue e su parlada tande tradutet in it**.
-  Tipa li lingue si vu save it. Con un model solmen por anglesi, li camp es fixat a `en` e ne posse esser changeat,
-  e li linea dit que li film va ixir in anglesi quelcunc lingue it parla;
+- **li lingue**, selectet in un **liste**: unesim un intrada quel detecte it, “Detecter del prim 30 secondes de son”, pois li lingues quel
+  li motor ofri por li model, per nómine in li lingue del fenestre e sequet de lor code — “Francesi (fr)”. Li liste es ti del
+  motor self: circa cent con un model multilingual; con un model solmen por anglesi it have li singul intrada, anglesi, e ne posse esser
+  changeat, e un linea dit que li film va ixir in anglesi quelcunc lingue it parla. Li liste comensa con li lingue del pista
+  selectet quande li file declara it e li motor ofri it, seque li pista tam long quam vu ne ha selectet un, e
+  **un linea sub it dit de u it veni**. Quande li file declara null lingue por li pista, li linea dit it, e avisa:
+  li model detectará it tande del prim triant secondes de son, e **un film quel comensa con musica o silentie posse esser prenet por un altri lingue e su parlada tande tradutet in it**.
+  Selecte li lingue si vu save it;
+- **li sones scrit quam notes**: un caxa, “Ne scrir li sones quam notes”, marcat per defecte. Li motor recive tande li órdine de ne scrir li sones quam
+  notes, quam `(phone ringing)` o `[MUSIC PLAYING]`; u it have null parol a scrir it scri `...`, e li fragmentes quel have null líttere e null cifre
+  es lassat cader per li post-tractation. Desmarca li caxa por conservar li notes, por subtitules por li dur de audition. Li caxa es gris, con li motive,
+  por un motor a quel on ne posse dir it. It es li parametre `transcription.suppress-notes`, quel li [preferenties](preferences.md#transcription)
+  contene anc;
 - **li parte del film**, de un témpor til un altri — vide [Provar un parte ante](#provar-un-parte-ante). Con ambi campes
   vacui, it es li tot film.
 
@@ -130,10 +136,6 @@ pri li machine, ne selectiones a refar a chascun transcription — e li dialog r
 
 Li lingue es conservat por li sequent vice. Li motor self e li límites del subtitules es
 [parametres](preferences.md) (`transcription.*`).
-
-**Quande li projecte ja contene subtitules, li fenestre demanda ante remplazzar les**, e dit
-quant va partir. It demanda ante li labor, por que refusar costa nequo. Quande li projecte es vacui, il ne ha
-nequo a demandar.
 
 Li labor funde **in li fon**, con un cadre e un buton `Cancel`; li fenestre resta usabil circum it. **Li cadre
 dit u li labor es**, por que vu save que it vive e quant de témpor it va prender:
@@ -147,23 +149,38 @@ dit u li labor es**, por que vu save que it vive e quant de témpor it va prende
 
 Sur un long film con un grand model sur un processor, li prim minutes posse esser longi: li motor carga e labora sur su prim
 fenestres de trenta secondes. Li position e li ultim textu move ante li procent propri del motor, quel veni solmen per passus
-de 5 % del film. Quande it fini, li subtitules del projecte es remplazzat
-per li transcription **in un singul operation**: un `Undo` redona quo esset ibi, textus
-de traduction includet. Un transcription quel fallis, o quel vu anulla, changea nequo — li motive
-es dit in un cadre, except por un anullation, quel solmen dit in li barre de statu que it esset anullat.
+de 5 % del film.
 
-**Quande li maxim del quo li motor ha scrit es notes in crochetes** — `[MUSIC PLAYING]`, `[SPEAKING FRENCH]` —, un caxa
-dit it pos li labor: li lingue usat probabilmen ne es li parlat, e li motor possibilmen ha tradutet li parlada. Reexecutez con
-li lingue tipat. Li subtitules es tamen in li projecte, e un `Undo` rende li quo esset ibi.
+### Li previsu
+
+**Nequo remplazza li subtitules del projecte ante que vu ha videt les.** Quande li labor fini — e anc quande vu anulla it, o it fallis
+pos haver producet alquo — un fenestre monstra li resultate in du tabelles unmem al altri, chascun con **su propri comense e fine**:
+
+- **a sinistra, “Quam li motor l'ha scrit”**: omnicos quo li motor ha retornat, quam it l'ha talliat, sin null post-tractation — quo
+  [`--raw`](../subedit-cli/transcribe.md) scriet —, con li locotenentes (`...`) includet;
+- **a dextra, “Quam les va esser aplicat”**: li subtitules pos li post-tractation — locotenentes lassat cader, fragmentes proxim junt, fragmentes
+  long talliat —, exactmen quo va intrar in li projecte.
+
+Li du ne se alinea ne linea per linea, e it es pro to que chascun have su propri tempores. **Selecter un subtitul a dextra mette in evidentie, a sinistra, li pieces de quel it
+esset fat**, e fa scrollar li latere sinistre til les; un subtitul a un vice, e solmen in ti direction. Null del tabelles posse esser modificat.
+
+Du butones clude it. **“Aplicar”** remplazza li subtitules del projecte **in un singul operation**: un `Undo` redona quo esset ibi, textus
+de traduction includet. **“Ignorar”** lassa cader li resultate, e it es perdit. Ti es li sol confirmation — ante li labor nequo es demandat. “Aplicar” es extinct quande
+il ne ha nequo a aplicar.
+
+**Quande li execution esset halt**, li fenestre dit it — “Resultate partial: li labor ha halt a …” — e ofri quo esset obtenet til ibi, por aplicar
+o por ignorar, por que un long execution halt tard ne perde su labor sin demandar. Ti fragmentes have null parol con tempore (li motor scri les al fine), e li
+post-tractation talli al límites propri del fragmentes. Un fallida es unesim dit in un cadre, quam omni fallida; un anullation ne dit tal cose.
 
 ### Provar un parte ante
 
-Un interval permisse **jugar un model o un lingue sur du minutes ante engagear se por du hores**. Li campes “Parte del film” prende un comense e un fine, chascun scrit `2:00`, `1:02:03`, `2:00.5` o un númere
-de secondes, `90`; solmen un es permisset (de ibi til li fine, o del comense til ibi). `OK` resta extinct til un camp
+Un interval permisse **jugar un model o un lingue sur du minutes ante engagear se por du hores**. Li campes “Parte del film” prende un comense e un fine, chascun scrit `HH:MM:SS`, quam li campes dit (`2:00` e un númere de secondes, `90`,
+es anc leet); solmen un es permisset (de ibi til li fine, o del comense til ibi). `OK` resta extinct til un camp
 ne es un témpor o li fine ne es pos li comense, e un linea sub li campes dit quel.
 
 - **Li subtitules conserva li témpor del film**: quo es dit a 2:10 es a `0:02:10` in li resultate.
-- **It remplazza li subtitules del projecte quam omni transcription**, pos li sam question quande il hay, e un `Undo` redona les. Por provar un interval sin tangeer vor labor, gardar unesim, o laborar sur un copie.
+- **It passa per li previsu quam omni transcription**, e remplazza li subtitules del projecte unquam aplicat; un `Undo` redona les.
+  Por provar un interval sin tangeer vor labor, ignora li previsu, o gardar unesim.
 
 **Quo it besona ne es livrat con li programma**: un motor (whisper.cpp), un model, e `ffmpeg` por extraer li audio.
 Vide [Instalar li utensiles de transcription](../subedit-cli/install-transcription.md).

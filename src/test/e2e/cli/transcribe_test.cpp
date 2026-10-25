@@ -376,7 +376,7 @@ TEST_CASE("the name of the kept audio takes the rate the engine asked for",
     CHECK_THAT(run.output, ContainsSubstring("\"audio\":\"" + kept + "\""));
 }
 
-TEST_CASE("--list-languages lists what the engine offers for the model, and runs nothing",
+TEST_CASE("listing the languages lists what the engine offers for the model, and runs nothing",
           "[e2e][CLI-TRANSCRIBE-11]") {
     Stands stands;
     stands.everything();
@@ -399,4 +399,52 @@ TEST_CASE("--list-languages lists what the engine offers for the model, and runs
     const CliRun none = stands.run({"--list-languages"});
     CHECK(none.exitCode == 2);
     CHECK_THAT(none.errors, ContainsSubstring("Installing the transcription tools"));
+}
+
+TEST_CASE("sounds are not written as notes unless an option or the setting says otherwise",
+          "[e2e][CLI-TRANSCRIBE-12]") {
+    Stands stands;
+    stands.everything();
+    const std::string out = stands.scratch.of("out/film.srt");
+    const std::string off =
+        writeFile(stands.scratch, "off.conf", "transcription.suppress-notes = false\n");
+
+    // By default the engine is told not to.
+    REQUIRE(stands.run({stands.video, "--output", out, "--model", stands.model}).exitCode == 0);
+    CHECK_THAT(contentOf(stands.argumentLog), ContainsSubstring("-sns\n"));
+
+    // An option against it.
+    REQUIRE(stands.run({stands.video, "--output", out, "--model", stands.model, "--keep-notes"})
+                .exitCode == 0);
+    CHECK_THAT(contentOf(stands.argumentLog), !ContainsSubstring("-sns"));
+
+    // The setting off, and then an option for it.
+    const CliRun settingOff = invokeWithSearchPath(
+        stands.directory,
+        {"--config", off, "transcribe", stands.video, "--output", out, "--model", stands.model});
+    REQUIRE(settingOff.exitCode == 0);
+    CHECK_THAT(contentOf(stands.argumentLog), !ContainsSubstring("-sns"));
+    REQUIRE(invokeWithSearchPath(stands.directory,
+                                 {"--config",
+                                  off,
+                                  "transcribe",
+                                  stands.video,
+                                  "--output",
+                                  out,
+                                  "--model",
+                                  stands.model,
+                                  "--suppress-notes"})
+                .exitCode == 0);
+    CHECK_THAT(contentOf(stands.argumentLog), ContainsSubstring("-sns\n"));
+
+    // The two together say opposite things.
+    const CliRun both = stands.run({stands.video,
+                                    "--output",
+                                    out,
+                                    "--model",
+                                    stands.model,
+                                    "--suppress-notes",
+                                    "--keep-notes"});
+    CHECK(both.exitCode != 0);
+    CHECK_THAT(both.errors, ContainsSubstring("say opposite things"));
 }

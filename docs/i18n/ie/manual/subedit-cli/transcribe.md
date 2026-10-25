@@ -9,11 +9,14 @@ subedit-cli transcribe --output FILE
                        [--audio-track N]
                        [--language CODE]
                        [--start TIME] [--end TIME]
+                       [--suppress-notes | --keep-notes]
                        [--model FILE]
                        [--engine NAME]
                        [--keep-audio FILE]
                        [--raw]
                        <input>
+
+subedit-cli transcribe --list-languages [--model FILE] [--engine NAME]
 ```
 
 Scri **li parol de un video, o de un file audio, quam file de subtitules**. Li audio es preparat,
@@ -42,7 +45,12 @@ e exeunte con un code ne-zero.
 - **On posse transcrir solmen un parte del film**, con `--start` e `--end` — vide
   [Transcrir un parte](#transcrir-un-parte). It es li manie de provar un model sur du minutes ante lansar it sur
   du hores.
-- **Li sones ne es scrit quam notes**: li motor ha li ordine de ne far it (su propri option es `--suppress-nst`), por que `(Sonnerie de téléphone)` o `[MUSIC PLAYING]` ne veni in li subtitules, ni inter parentheses ni inter crochetes.
+- **Li lingues quel un motor ofri posse esser listat**, con `--list-languages` — vide
+  [Listar li lingues](#listar-li-lingues).
+- **Li sones ne es scrit quam notes, per defecte**: li motor recive li órdine de ne far it (`--suppress-notes`; su propri option es
+  `--suppress-nst`), por que `(Sonnerie de téléphone)` o `[MUSIC PLAYING]` ne apare in li subtitules, ni in parentheses ni in crochetes.
+  `--keep-notes` scri les, por subtitules por li dur de audition. Con li notes prohibit, li motor scri `...` por un passage sin parol, e **li post-tractation lassa cader li fragmentes
+  quel have null líttere e null cifre** — `...`, `…`, `♪` — ante junter e talliar; `--raw` conserva les, quam li fragmentes del motor ha venit.
 - **Li segmentes es fusionat e tallit** secun li límites del parametres (`transcription.merge-gap-ms`,
   `transcription.max-duration-ms`, `transcription.max-characters`): du fragmentes de un sam frase quel es
   proxim es un subtitul, e un fragment tro long o tro large es tallit a un parol. **`--raw`
@@ -53,10 +61,10 @@ e exeunte con un code ne-zero.
 ```console
 $ subedit-cli transcribe --help
 Write the speech of a video or an audio file as subtitles
-Usage: subedit-cli transcribe [OPTIONS] input
+Usage: subedit-cli transcribe [OPTIONS] [input]
 
 Positionals:
-  input TEXT REQUIRED         Video or audio file to transcribe
+  input TEXT                  Video or audio file to transcribe
 
 Options:
   -h,--help                   Print this help message and exit
@@ -67,9 +75,12 @@ Options:
   --start TIME                Where to begin, as 2:00, 1:02:03 or seconds; the beginning by default
   --end TIME                  Where to stop, as 2:00, 1:02:03 or seconds; the end by default
   --language CODE             Language of the speech, two letters: fr, en, de; detected from the first 30 seconds by default
+  --suppress-notes            Do not write sounds as notes, such as (phone ringing); the transcription.suppress-notes setting by default
+  --keep-notes                Write sounds as notes, against the setting
   --model FILE                Model file; the transcription.model setting by default
   --engine NAME               Engine; the transcription.engine setting by default
   --keep-audio FILE           Keep the extracted audio in this file
+  --list-languages            List the languages the engine offers for the model, and transcribe nothing
   --raw                       Write the segments as the engine cut them
 ```
 
@@ -77,16 +88,19 @@ Options:
 
 | Option | Obligatori | Valores | Predefinit |
 | :----- | :----- | :------ | :----- |
-| `<input>` | yes | un video o un file audio | — |
-| `--output` | yes | li file de subtitules a scrir; su dossier es creat si it manca | — |
+| `<input>` | si, except con `--list-languages` | un video o un file audio | — |
+| `--output` | si, except con `--list-languages` | li file de subtitules a scrir; su dossier es creat si it manca | — |
 | `--to` | no | li curt nómine de un formate: `srt`, `vtt`, `subviewer2`, `ssa`, `ass`, `microdvd`, `mpl2`, `tmplayer`, `lrc` | li formate quel li extension de `--output` indica, altrimen `srt` |
 | `--audio-track` | no | un númere integri ex 0: li position inter li pistas audio del video | `0`, li unesim |
 | `--language` | no | du líttere, un code ISO 639-1: `en`, `fr`; un code de tri líttere quam `fra` es lect quam `fr` | li parametre `transcription.language`; vacui: detectet |
+| `--suppress-notes` | no | un flag: ne scrir li sones quam notes; refusat por un motor a quel on ne posse dir it | li parametre `transcription.suppress-notes` |
+| `--keep-notes` | no | un flag: scrir les, contra li parametre; li contrari de `--suppress-notes`, e li du together es refusat | li parametre `transcription.suppress-notes` |
+| `--list-languages` | no | un flag: listar li lingues quel li motor ofri por li model, e transcrir nequo | desactivat |
 | `--start` | no | un témpor: `2:00`, `1:02:03`, `2:00.5`, o un númere de secondes, `90` | li comense del audio |
 | `--end` | no | un témpor, scrit quam por `--start`; it deve venir pos `--start` | li fine del audio |
 | `--model` | no | li file de model | li parametre `transcription.model` |
 | `--engine` | no | li nómine de un motor: `whisper.cpp` | li parametre `transcription.engine` |
-| `--keep-audio` | no | un file in quel conservar li audio extraet, quam PCM mono de 16 bits a 16 kHz in un file WAV; su dossier es creat si it manca | li audio ne es conservat in null loc |
+| `--keep-audio` | no | un file por conservar li audio extraet, quam PCM mono de 16 bit in un file WAV, al frequentie de sampling quel li motor demanda (16 kHz por whisper.cpp); su directoria es creat si it manca, e li nómine posse portar `{rate}`, remplazzat per ti frequentie in hertz (`film.{rate}.wav` es scrit `film.16000.wav`) | li audio ne es conservat in null loc |
 | `--raw` | no | un flag: scrir li segmentes del motor sin fusion e sin talliar | off |
 
 Li **parametres** es leet del file de parametres quam ti de [`adjust`](adjust.md) — vide
@@ -98,6 +112,7 @@ Li **parametres** es leet del file de parametres quam ti de [`adjust`](adjust.md
 | `transcription.executable` | li programma del motor, un chemin absolut; vacui: serchat in `PATH` | vacui |
 | `transcription.model` | li file de model, un chemin absolut | vacui |
 | `transcription.language` | li lingue del audio, du líttere; vacui: detectet | vacui |
+| `transcription.suppress-notes` | ne scrir li sones quam notes | `true` |
 | `transcription.merge-gap-ms` | fragmentes de un sam frase plu proxim ca ti númere de millisecondes es junit | `400` |
 | `transcription.max-duration-ms` | li max long duration quel un subtitul resta sur li ecran, in millisecondes | `7000` |
 | `transcription.max-characters` | li max númere de characteres de un subtitul, sin contar li ruptiones de linea | `84` |
@@ -139,6 +154,26 @@ subedit-cli transcribe --start 2:00 --end 3:30 --output test.srt --model large-v
 
 Li audio del tot film es tamen extraet: li transcription, mult plu long, es quo li interval economisa.
 
+## Listar li lingues
+
+`--list-languages` scri li lingues quel li motor ofri **por li model**, un per linea: li code quel `--language` prende, un tabulator, e li nómine
+del lingue in li lingue del interfacie. It besona null input ni output, e transcri nequo.
+
+```bash
+subedit-cli transcribe --list-languages --model ggml-small.bin
+```
+
+```text
+en	English
+zh	Chinese
+de	German
+…
+```
+
+Li liste depende del motor e del model: circa cent lingues por un model multilingual de whisper.cpp, solmen `en` por un model solmen por
+anglesi. Un motor quel ne posse listar su lingues lista null. Un model quel ne es dat o ne es ibi es un errore, con li indication al guide; solmen li
+forme textual, nequo es scrit con [`--format json`](invocation.md#un-output-quel-un-script-posse-leer).
+
 ## Output
 
 **Exeunte standard** — nequo: li resultate es li file scrit.
@@ -164,15 +199,11 @@ subtitules scrit) e `counts.segments` (li fragmentes del motor ex quel ili esset
 
 ## Avisos
 
-Du avisos es dit al prim nivelle, nam ili changea quo on deve atender:
+Un avise es dit al prim nivelle, ante li labor, nam it changea quo on deve atender:
 
-- **Ante li labor, con un model solmen por anglesi**: `This model is for English only: whatever language the film
+- **Con un model solmen por anglesi**: `This model is for English only: whatever language the film
   speaks, the result will be English, or notes in brackets. Choose a multilingual model in the preferences.` Un model
   quel nómine de file fini con `.en` es un tal.
-- **Pos li labor, quande li motor ha scrit principalmen notes in crochetes** — `[MUSIC PLAYING]`, `[SPEAKING FRENCH]` —,
-  minimum du e un triesim de su fragmentes: `N of the M pieces are only notes in brackets, such as [MUSIC PLAYING]: the
-  language used (xx) is probably not the one spoken, and the engine may have translated the speech. Run it again with
-  the language typed.` Li subtitules es scrit tamen; li avise dit quo suspectar.
 
 ## Codes de exeunte
 
@@ -191,6 +222,9 @@ motor quel nequi ha registrat o un interval quel ne posse esser usat.
 | un lingue quel li model ne posse transcrir | `the model cannot transcribe the language xx` |
 | null lingue, e un model quel ne posse detecter un | `the model cannot detect the language: give one` |
 | un motor quel nequi ha registrat | `no transcription engine is called NAME` |
+| `<input>` o `--output` mancant | `input is required` o `--output is required` |
+| `--suppress-notes` con `--keep-notes` | `--suppress-notes and --keep-notes say opposite things; give one of them` |
+| `--suppress-notes` por un motor a quel on ne posse dir it | `the engine NAME cannot be told not to write sounds as notes` |
 | un lingue quel ne es un code | `"TEXT" is not a language code: write two letters, such as fr, en, de or es` |
 | un límite del interval quel ne es un témpor | `"TEXT" is not a time: write it as 2:00, 1:02:03 or 2:00.5, or in seconds` |
 | `--end` ne pos `--start` | `the end of the range must come after its start` |

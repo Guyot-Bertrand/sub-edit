@@ -141,6 +141,7 @@
 | `transcription.engine` | назив мотора: мала слова, цифре, `.`, `-` и `_` | `whisper.cpp` |
 | `transcription.executable`, `transcription.model` | апсолутна путања; празно: мотор се тражи у `PATH`, а модел није задат | празно |
 | `transcription.language` | два мала слова, ISO 639-1 код; празно: језик се открива | празно |
+| `transcription.suppress-notes` | `true` или `false` — `Do not write sounds as notes` | `true` |
 | `transcription.merge-gap-ms` | делови једне реченице ближи од овога спајају се, у милисекундама, цео број који није негативан | `400` |
 | `transcription.max-duration-ms` | најдуже време које транскрибовани титл остаје на екрану, у милисекундама, од 1 до 3600000 | `7000` |
 | `transcription.max-characters` | највише знакова које транскрибовани титл садржи, од 1 до 1000 | `84` |
@@ -291,6 +292,9 @@ subedit-gui: /home/vous/.config/subedit/settings.conf: window.geometry: "plus ta
 недостаје, додаје упутство на
 [Инсталирање алата за транскрипцију](../subedit-cli/install-transcription.md), које каже где се
 шта налази. Та два поља су поставке `transcription.executable` и `transcription.model`.
+
+Поље за потврду **„Не писати звуке као белешке“** је поставка `transcription.suppress-notes` (подразумевано означено): мотору је речено да не пише звуке
+као белешке, на пример `(phone ringing)`. Поништите ознаку да их задржите, за титлове за наглуве. Дијалог `Transcribe Audio…` нуди исто поље за једну транскрипцију.
 
 ## Језик сучеља
 

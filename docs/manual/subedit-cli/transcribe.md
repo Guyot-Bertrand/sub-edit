@@ -6,11 +6,14 @@ subedit-cli transcribe --output FILE
                        [--audio-track N]
                        [--language CODE]
                        [--start TIME] [--end TIME]
+                       [--suppress-notes | --keep-notes]
                        [--model FILE]
                        [--engine NAME]
                        [--keep-audio FILE]
                        [--raw]
                        <input>
+
+subedit-cli transcribe --list-languages [--model FILE] [--engine NAME]
 ```
 
 Writes **the speech of a video, or of an audio file, as a subtitle file**. The audio is prepared,
@@ -39,8 +42,13 @@ exits with a non-zero code.
 - **A part of the film can be transcribed alone**, with `--start` and `--end` — see
   [Transcribing a part](#transcribing-a-part). It is how to try a model on two minutes before running it on
   two hours.
-- **Sounds are not written as notes**: the engine is told not to (its own option is `--suppress-nst`), so
-  that `(Sonnerie de téléphone)` or `[MUSIC PLAYING]` do not come up in the subtitles, in parentheses as in brackets.
+- **The languages an engine offers can be listed**, with `--list-languages` — see
+  [Listing the languages](#listing-the-languages).
+- **Sounds are not written as notes, by default**: the engine is told not to (`--suppress-notes`; its own option is
+  `--suppress-nst`), so that `(Sonnerie de téléphone)` or `[MUSIC PLAYING]` do not come up in the subtitles, in parentheses as in
+  brackets. `--keep-notes` writes them, for subtitles for the hard of hearing. Forbidden the notes, the engine writes `...` for a
+  passage with no speech, and **the post-processing drops the pieces that have no letter and no digit** — `...`, `…`, `♪` —
+  before it merges and cuts; `--raw` keeps them, as the engine's pieces came.
 - **The segments are merged and cut** to the limits of the settings (`transcription.merge-gap-ms`,
   `transcription.max-duration-ms`, `transcription.max-characters`): two pieces of one sentence that are
   close are one subtitle, and a piece that is too long or too wide is cut at a word. **`--raw`
@@ -51,10 +59,10 @@ exits with a non-zero code.
 ```console
 $ subedit-cli transcribe --help
 Write the speech of a video or an audio file as subtitles
-Usage: subedit-cli transcribe [OPTIONS] input
+Usage: subedit-cli transcribe [OPTIONS] [input]
 
 Positionals:
-  input TEXT REQUIRED         Video or audio file to transcribe
+  input TEXT                  Video or audio file to transcribe
 
 Options:
   -h,--help                   Print this help message and exit
@@ -65,9 +73,12 @@ Options:
   --start TIME                Where to begin, as 2:00, 1:02:03 or seconds; the beginning by default
   --end TIME                  Where to stop, as 2:00, 1:02:03 or seconds; the end by default
   --language CODE             Language of the speech, two letters: fr, en, de; detected from the first 30 seconds by default
+  --suppress-notes            Do not write sounds as notes, such as (phone ringing); the transcription.suppress-notes setting by default
+  --keep-notes                Write sounds as notes, against the setting
   --model FILE                Model file; the transcription.model setting by default
   --engine NAME               Engine; the transcription.engine setting by default
   --keep-audio FILE           Keep the extracted audio in this file
+  --list-languages            List the languages the engine offers for the model, and transcribe nothing
   --raw                       Write the segments as the engine cut them
 ```
 
@@ -75,16 +86,19 @@ Options:
 
 | Option | Required | Values | Default |
 | :----- | :------- | :----- | :------ |
-| `<input>` | yes | a video or an audio file | — |
-| `--output` | yes | the subtitle file to write; its directory is created when missing | — |
+| `<input>` | yes, except with `--list-languages` | a video or an audio file | — |
+| `--output` | yes, except with `--list-languages` | the subtitle file to write; its directory is created when missing | — |
 | `--to` | no | the short name of a format: `srt`, `vtt`, `subviewer2`, `ssa`, `ass`, `microdvd`, `mpl2`, `tmplayer`, `lrc` | the format the extension of `--output` says, else `srt` |
 | `--audio-track` | no | a whole number from 0: the position among the audio tracks of the video | `0`, the first |
 | `--language` | no | two letters, an ISO 639-1 code: `en`, `fr`; a three-letter code such as `fra` is read as `fr` | the setting `transcription.language`; empty: detected |
+| `--suppress-notes` | no | a flag: do not write sounds as notes; refused for an engine that cannot be told | the setting `transcription.suppress-notes` |
+| `--keep-notes` | no | a flag: write them, against the setting; the opposite of `--suppress-notes`, and the two together are refused | the setting `transcription.suppress-notes` |
+| `--list-languages` | no | a flag: list the languages the engine offers for the model, and transcribe nothing | off |
 | `--start` | no | a time: `2:00`, `1:02:03`, `2:00.5`, or a number of seconds, `90` | the beginning of the audio |
 | `--end` | no | a time, written as for `--start`; it must come after `--start` | the end of the audio |
 | `--model` | no | the model file | the setting `transcription.model` |
 | `--engine` | no | the name of an engine: `whisper.cpp` | the setting `transcription.engine` |
-| `--keep-audio` | no | a file to keep the extracted audio in, as 16 kHz mono 16-bit PCM in a WAV file; its directory is created when missing | the audio is kept nowhere |
+| `--keep-audio` | no | a file to keep the extracted audio in, as mono 16-bit PCM in a WAV file, at the sampling rate the engine asks for (16 kHz for whisper.cpp); its directory is created when missing, and the name may carry `{rate}`, replaced by that rate in hertz (`film.{rate}.wav` is written `film.16000.wav`) | the audio is kept nowhere |
 | `--raw` | no | a flag: write the engine's segments with no merging and no cutting | off |
 
 The **settings** are read from the settings file like those of [`adjust`](adjust.md) — see
@@ -96,6 +110,7 @@ The **settings** are read from the settings file like those of [`adjust`](adjust
 | `transcription.executable` | the engine's program, an absolute path; empty: searched for on `PATH` | empty |
 | `transcription.model` | the model file, an absolute path | empty |
 | `transcription.language` | the language of the audio, two letters; empty: detected | empty |
+| `transcription.suppress-notes` | do not write sounds as notes | `true` |
 | `transcription.merge-gap-ms` | pieces of one sentence closer than this many milliseconds are joined | `400` |
 | `transcription.max-duration-ms` | the longest a subtitle stays on screen, in milliseconds | `7000` |
 | `transcription.max-characters` | the most characters a subtitle holds, line breaks not counted | `84` |
@@ -138,6 +153,26 @@ subedit-cli transcribe --start 2:00 --end 3:30 --output test.srt --model large-v
 
 The audio of the whole film is still extracted: it is the transcription, much longer, that the range saves.
 
+## Listing the languages
+
+`--list-languages` writes the languages the engine offers **for the model**, one per line: the code `--language` takes, a tab, and the name
+of the language in the language of the interface. It needs neither an input nor an output, and transcribes nothing.
+
+```bash
+subedit-cli transcribe --list-languages --model ggml-small.bin
+```
+
+```text
+en	English
+zh	Chinese
+de	German
+…
+```
+
+The list depends on the engine and on the model: about a hundred languages for a multilingual whisper.cpp model, `en` alone for a model for English
+alone. An engine that cannot list its languages lists none. A model that is not given or not there is an error, with the pointer to the guide; the text
+form only, nothing is written with [`--format json`](invocation.md#output-a-script-can-read).
+
 ## Output
 
 **Standard output** — nothing: the result is the file written.
@@ -164,15 +199,11 @@ subtitles written) and `counts.segments` (the engine's pieces they were made fro
 
 ## Notices
 
-Two notices are said at the first level, because they change what to expect:
+One notice is said at the first level, before the work, because it changes what to expect:
 
-- **Before the work, with a model for English alone**: `This model is for English only: whatever language the film
+- **With a model for English alone**: `This model is for English only: whatever language the film
   speaks, the result will be English, or notes in brackets. Choose a multilingual model in the preferences.` A model
   whose file name ends in `.en` is one.
-- **After the work, when the engine wrote mostly notes in brackets** — `[MUSIC PLAYING]`, `[SPEAKING FRENCH]` —,
-  at least two and a third of its pieces: `N of the M pieces are only notes in brackets, such as [MUSIC PLAYING]: the
-  language used (xx) is probably not the one spoken, and the engine may have translated the speech. Run it again with
-  the language typed.` The subtitles are written all the same; the notice says what to suspect.
 
 ## Exit codes
 
@@ -191,6 +222,9 @@ engine nobody registered or a range that cannot be used.
 | a language the model cannot transcribe | `the model cannot transcribe the language xx` |
 | no language, and a model that cannot detect one | `the model cannot detect the language: give one` |
 | an engine nobody registered | `no transcription engine is called NAME` |
+| `<input>` or `--output` missing | `input is required` or `--output is required` |
+| `--suppress-notes` with `--keep-notes` | `--suppress-notes and --keep-notes say opposite things; give one of them` |
+| `--suppress-notes` for an engine that cannot be told | `the engine NAME cannot be told not to write sounds as notes` |
 | a language that is not a code | `"TEXT" is not a language code: write two letters, such as fr, en, de or es` |
 | a bound of the range that is not a time | `"TEXT" is not a time: write it as 2:00, 1:02:03 or 2:00.5, or in seconds` |
 | `--end` not after `--start` | `the end of the range must come after its start` |

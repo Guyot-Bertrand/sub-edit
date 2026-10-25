@@ -140,6 +140,7 @@ két blokk létezése előtt írt fájl változtatás nélkül olvasható, és a
 | `transcription.engine` | a motor neve: kisbetűk, számjegyek, `.`, `-` és `_` | `whisper.cpp` |
 | `transcription.executable`, `transcription.model` | abszolút elérési út; üres: a motort a `PATH`-ban keresi, és nincs beállított modell | üres |
 | `transcription.language` | két kisbetű, egy ISO 639-1 kód; üres: a nyelvet felismeri | üres |
+| `transcription.suppress-notes` | `true` vagy `false` — `Do not write sounds as notes` | `true` |
 | `transcription.merge-gap-ms` | egy mondat ennél közelebbi darabjai egyesülnek, ezredmásodpercben, nemnegatív egész | `400` |
 | `transcription.max-duration-ms` | a leghosszabb idő, amíg egy leiratozott felirat a képernyőn marad, ezredmásodpercben, 1-től 3600000-ig | `7000` |
 | `transcription.max-characters` | egy leiratozott felirat legtöbb karaktere, 1-től 1000-ig | `84` |
@@ -288,6 +289,9 @@ A mezők alatt **az ablak megmondja, mi van meg**: megvan-e a motor és hol, meg
 hiányzik, hozzáteszi a hivatkozást ide:
 [A leiratozó eszközök telepítése](../subedit-cli/install-transcription.md), amely megmondja, hol található
 mindegyik. A két mező a `transcription.executable` és a `transcription.model` beállítás.
+
+Egy jelölőnégyzet, a **„Ne írja ki a hangokat megjegyzésként”**, a `transcription.suppress-notes` beállítás (alapértelmezés szerint be van jelölve): a motor megkapja az utasítást, hogy ne írja ki a hangokat
+megjegyzésként, például `(phone ringing)`. Szüntesse meg a jelölést a megtartásukhoz, halláskárosultaknak szóló feliratokhoz. A `Transcribe Audio…` párbeszédablaka ugyanezt a négyzetet kínálja az adott leiratozáshoz.
 
 ## A felület nyelve
 

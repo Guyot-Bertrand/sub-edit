@@ -29,7 +29,7 @@
 #include <subedit/core/model/subtitle.hpp>
 #include <subedit/core/model/subtitle_index.hpp>
 #include <subedit/core/time/timestamp.hpp>
-#include <subedit/core/transcription/annotation_notes.hpp>
+#include <subedit/core/transcription/subtitle_assembly.hpp>
 #include <subedit/core/wording/conversion.hpp>
 #include <subedit/core/wording/counts.hpp>
 #include <subedit/core/wording/editing.hpp>
@@ -48,6 +48,7 @@
 #include <subedit/gui/status_line.hpp>
 #include <subedit/gui/subtitle_table_model.hpp>
 #include <subedit/gui/target.hpp>
+#include <subedit/gui/transcription_preview_dialog.hpp>
 #include <subedit/gui/transform_dialog.hpp>
 
 #include <QItemSelection>
@@ -419,12 +420,6 @@ void ProjectOperations::transcribeAudio(ProjectPage& page) {
     m_transcriptionSettings.language = choice.language;
     m_transcriptionSettings.suppressNotes = choice.suppressNotes;
 
-    // **Asked before the work, not after it**: whoever declines does not wait for a
-    // result they will not use. Nothing to ask when there is nothing to lose.
-    const std::size_t held = page.session->project().count();
-    if (held > 0 && !m_prompts->confirmReplacement(core::noticeOfReplacement(held)))
-        return;
-
     const TranscriptionJob job{.video = *video,
                                .track = choice.track,
                                .language = choice.language,
@@ -433,30 +428,51 @@ void ProjectOperations::transcribeAudio(ProjectPage& page) {
                                .start = choice.start,
                                .end = choice.end};
     std::expected<TranscriptionOutcome, TranscriptionFailure> outcome = m_view->transcribe(job);
-    if (!outcome) {
-        if (outcome.error().cancelled)
-            m_view->announce(
-                core::transcriptionErrorText({.kind = core::TranscriptionErrorKind::Cancelled}));
-        else
-            m_prompts->reportFailure(outcome.error().message);
-        return;
+
+    // The pieces to show, whole when the work ended, partial when it stopped having produced some.
+    std::vector<core::TranscribedSegment> pieces;
+    std::string language;
+    std::optional<core::Timestamp> partialUpTo;
+    if (outcome) {
+        pieces = std::move(outcome->segments);
+        language = std::move(outcome->language);
+    } else {
+        const TranscriptionFailure& failure = outcome.error();
+        if (!failure.cancelled)
+            m_prompts->reportFailure(failure.message);
+        // **What a long run had obtained is not thrown away unasked**: it is offered below,
+        // partial.
+        if (failure.partial.empty()) {
+            if (failure.cancelled)
+                m_view->announce(core::transcriptionErrorText(
+                    {.kind = core::TranscriptionErrorKind::Cancelled}));
+            return;
+        }
+        pieces = failure.partial;
+        partialUpTo = pieces.back().end;
     }
 
-    const std::size_t made = outcome->subtitles.size();
-    const bool suspicious =
-        core::looksLikeWrongLanguage({.notes = outcome->notes, .pieces = outcome->pieces});
-    const std::string suspicion =
-        suspicious ? core::noticeOfNotes(outcome->notes, outcome->pieces, outcome->language)
-                   : std::string{};
+    // **The decision comes after the result is seen**: "apply" replaces the subtitles of the
+    // project (as one undoable operation, so a person with work in it can still go back), "ignore"
+    // loses what was transcribed. That is the confirmation; nothing is asked before the work.
+    core::Assembly assembly = core::assemble(pieces, core::assemblyOf(m_transcriptionSettings));
+    TranscriptionPreviewDialog preview{TranscriptionPreview{.pieces = std::move(pieces),
+                                                            .assembly = std::move(assembly),
+                                                            .partialUpTo = partialUpTo},
+                                       m_view->dialogParent()};
+    if (!m_prompts->run(preview))
+        return;
+
+    std::vector<core::Subtitle> subtitles = preview.applied();
+    const std::size_t made = subtitles.size();
     std::unique_ptr<core::Command> command =
-        core::replaceAllSubtitles(page.session->project(), std::move(outcome->subtitles));
+        core::replaceAllSubtitles(page.session->project(), std::move(subtitles));
     if (command != nullptr) {
         const core::Selection everything = core::Selection::all(page.session->project());
         apply(page, std::move(command), everything);
     }
-    m_view->announce(core::noticeOfTranscription(made, outcome->language));
-    if (suspicious)
-        m_prompts->reportOutcome(suspicion);
+    m_view->announce(partialUpTo ? core::noticeOfPartialTranscription(made, *partialUpTo)
+                                 : core::noticeOfTranscription(made, language));
 }
 
 void ProjectOperations::appendFile(ProjectPage& page) {

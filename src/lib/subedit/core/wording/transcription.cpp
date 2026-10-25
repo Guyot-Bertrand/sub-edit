@@ -89,28 +89,17 @@ std::string noticeOfTranscription(std::size_t subtitles, std::string_view langua
                       {std::to_string(subtitles), language});
 }
 
-std::string noticeOfReplacement(std::size_t subtitles) {
-    return substitute(
-        translatePlural("The %1 subtitle of this project will be replaced by the transcription. "
-                        "You can undo it.",
-                        "The %1 subtitles of this project will be replaced by the transcription. "
-                        "You can undo it.",
-                        subtitles),
-        {std::to_string(subtitles)});
+std::string noticeOfPartialTranscription(std::size_t subtitles, Timestamp upTo) {
+    return substitute(translatePlural("%1 subtitle kept from a partial transcription, up to %2",
+                                      "%1 subtitles kept from a partial transcription, up to %2",
+                                      subtitles),
+                      {std::to_string(subtitles), clockText(upTo)});
 }
 
 std::string notATimeInRange(std::string_view text) {
     return substitute(
         translate("\"%1\" is not a time: write it as 2:00, 1:02:03 or 2:00.5, or in seconds"),
         {text});
-}
-
-std::string noticeOfNotes(std::size_t notes, std::size_t pieces, std::string_view language) {
-    return substitute(
-        translate("%1 of the %2 pieces are only notes in brackets, such as [MUSIC PLAYING]: the "
-                  "language used (%3) is probably not the one spoken, and the engine may have "
-                  "translated the speech. Run it again with the language typed."),
-        {std::to_string(notes), std::to_string(pieces), language});
 }
 
 std::string noticeOfEnglishOnlyModel() {

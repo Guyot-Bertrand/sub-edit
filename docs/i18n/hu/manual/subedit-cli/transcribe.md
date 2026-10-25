@@ -9,11 +9,14 @@ subedit-cli transcribe --output FILE
                        [--audio-track N]
                        [--language CODE]
                        [--start TIME] [--end TIME]
+                       [--suppress-notes | --keep-notes]
                        [--model FILE]
                        [--engine NAME]
                        [--keep-audio FILE]
                        [--raw]
                        <input>
+
+subedit-cli transcribe --list-languages [--model FILE] [--engine NAME]
 ```
 
 **Egy videó vagy egy hangfájl beszédét írja ki feliratfájlként.** A hangot előkészíti,
@@ -42,7 +45,13 @@ nem tör el semmit**: a parancs megmondja, mi hiányzik, az oldalra mutató hiva
 - **A film egy része külön is leiratozható** a `--start` és az `--end` kapcsolóval — lásd:
   [Egy rész leiratozása](#egy-rész-leiratozása). Így lehet egy modellt kétperces szakaszon kipróbálni, mielőtt
   kétórás filmre indítják.
-- **A hangokat nem jegyzetként írja le**: a motor utasítást kap rá, hogy ne tegye (saját kapcsolója a `--suppress-nst`), így a `(Sonnerie de téléphone)` vagy a `[MUSIC PLAYING]` nem kerül a feliratok közé, sem kerek, sem szögletes zárójelben.
+- **A motor által kínált nyelvek listázhatók**, a `--list-languages` kapcsolóval — lásd:
+  [A nyelvek listázása](#a-nyelvek-listázása).
+- **A hangok alapértelmezés szerint nem íródnak ki megjegyzésként**: a motor megkapja az utasítást, hogy ne tegye (`--suppress-notes`; a saját kapcsolója
+  a `--suppress-nst`), így a `(Sonnerie de téléphone)` vagy a `[MUSIC PLAYING]` nem jelenik meg a feliratokban, sem kerek, sem szögletes
+  zárójelben. A `--keep-notes` kiírja őket, halláskárosultaknak szóló feliratokhoz. A megjegyzések tiltása mellett a motor `...`-ot ír a beszéd nélküli
+  szakaszra, és **az utófeldolgozás eldobja azokat a darabokat, amelyekben nincs betű és nincs számjegy** — `...`, `…`, `♪` —
+  az összevonás és a vágás előtt; a `--raw` megtartja őket, ahogy a motor darabjai megérkeztek.
 - **A szakaszokat egyesíti és vágja** a beállítások korlátai szerint (`transcription.merge-gap-ms`,
   `transcription.max-duration-ms`, `transcription.max-characters`): egy mondat két közeli darabja
   egy felirat, a túl hosszú vagy túl széles darabot pedig szónál vágja el. **A `--raw`
@@ -53,10 +62,10 @@ nem tör el semmit**: a parancs megmondja, mi hiányzik, az oldalra mutató hiva
 ```console
 $ subedit-cli transcribe --help
 Write the speech of a video or an audio file as subtitles
-Usage: subedit-cli transcribe [OPTIONS] input
+Usage: subedit-cli transcribe [OPTIONS] [input]
 
 Positionals:
-  input TEXT REQUIRED         Video or audio file to transcribe
+  input TEXT                  Video or audio file to transcribe
 
 Options:
   -h,--help                   Print this help message and exit
@@ -67,9 +76,12 @@ Options:
   --start TIME                Where to begin, as 2:00, 1:02:03 or seconds; the beginning by default
   --end TIME                  Where to stop, as 2:00, 1:02:03 or seconds; the end by default
   --language CODE             Language of the speech, two letters: fr, en, de; detected from the first 30 seconds by default
+  --suppress-notes            Do not write sounds as notes, such as (phone ringing); the transcription.suppress-notes setting by default
+  --keep-notes                Write sounds as notes, against the setting
   --model FILE                Model file; the transcription.model setting by default
   --engine NAME               Engine; the transcription.engine setting by default
   --keep-audio FILE           Keep the extracted audio in this file
+  --list-languages            List the languages the engine offers for the model, and transcribe nothing
   --raw                       Write the segments as the engine cut them
 ```
 
@@ -77,16 +89,19 @@ Options:
 
 | Kapcsoló | Kötelező | Értékek | Alapértelmezés |
 | :----- | :----- | :------ | :----- |
-| `<input>` | igen | egy videó vagy egy hangfájl | — |
-| `--output` | igen | a kiírandó feliratfájl; a könyvtára létrejön, ha hiányzik | — |
+| `<input>` | igen, kivéve a `--list-languages` esetén | egy videó vagy egy hangfájl | — |
+| `--output` | igen, kivéve a `--list-languages` esetén | a kiírandó feliratfájl; a könyvtára létrejön, ha hiányzik | — |
 | `--to` | nem | egy formátum rövid neve: `srt`, `vtt`, `subviewer2`, `ssa`, `ass`, `microdvd`, `mpl2`, `tmplayer`, `lrc` | az `--output` kiterjesztése által megadott formátum, különben `srt` |
 | `--audio-track` | nem | 0-tól induló egész szám: a hely a videó hangsávjai között | `0`, az első |
 | `--language` | nem | két betű, egy ISO 639-1 kód: `en`, `fr`; egy hárombetűs kódot, például `fra`-t, `fr`-ként olvas | a `transcription.language` beállítás; üres: felismeri |
+| `--suppress-notes` | nem | kapcsoló: ne írja ki a hangokat megjegyzésként; elutasítva olyan motornál, amelynek ez nem mondható meg | a `transcription.suppress-notes` beállítás |
+| `--keep-notes` | nem | kapcsoló: írja ki őket, a beállítással szemben; a `--suppress-notes` ellentéte, és a kettő együtt elutasított | a `transcription.suppress-notes` beállítás |
+| `--list-languages` | nem | kapcsoló: a motor által a modellhez kínált nyelvek listázása, leiratozás nélkül | ki |
 | `--start` | nem | egy időpont: `2:00`, `1:02:03`, `2:00.5`, vagy másodpercek száma, `90` | a hang eleje |
 | `--end` | nem | egy időpont, a `--start`-hoz hasonlóan írva; a `--start` után kell jönnie | a hang vége |
 | `--model` | nem | a modellfájl | a `transcription.model` beállítás |
 | `--engine` | nem | egy motor neve: `whisper.cpp` | a `transcription.engine` beállítás |
-| `--keep-audio` | nem | egy fájl, amelyben a kinyert hang megmarad, 16 kHz-es mono 16 bites PCM-ként egy WAV-fájlban; a könyvtára létrejön, ha hiányzik | a hang sehol sem marad meg |
+| `--keep-audio` | nem | egy fájl a kinyert hang megtartásához, mono 16 bites PCM-ként WAV fájlban, a motor által kért mintavételi frekvencián (whisper.cpp esetén 16 kHz); a könyvtára létrejön, ha hiányzik, és a név tartalmazhat `{rate}`-et, amelyet ez a frekvencia helyettesít hertzben (a `film.{rate}.wav` neve `film.16000.wav` lesz) | a hang sehol sem marad meg |
 | `--raw` | nem | kapcsoló: a motor szakaszainak kiírása egyesítés és vágás nélkül | ki |
 
 A **beállítások** a beállításfájlból olvasódnak, mint az [`adjust`](adjust.md) beállításai — lásd
@@ -98,6 +113,7 @@ A **beállítások** a beállításfájlból olvasódnak, mint az [`adjust`](adj
 | `transcription.executable` | a motor programja, abszolút elérési út; üres: a `PATH`-ban keresi | üres |
 | `transcription.model` | a modellfájl, abszolút elérési út | üres |
 | `transcription.language` | a hang nyelve, két betű; üres: felismeri | üres |
+| `transcription.suppress-notes` | ne írja ki a hangokat megjegyzésként | `true` |
 | `transcription.merge-gap-ms` | egy mondat ennyi ezredmásodpercnél közelebbi darabjai egyesülnek | `400` |
 | `transcription.max-duration-ms` | a leghosszabb idő, amíg egy felirat a képernyőn marad, ezredmásodpercben | `7000` |
 | `transcription.max-characters` | egy felirat legtöbb karaktere, a sortöréseket nem számítva | `84` |
@@ -139,6 +155,26 @@ subedit-cli transcribe --start 2:00 --end 3:30 --output test.srt --model large-v
 
 A teljes film hangja ettől még kinyerődik: a tartomány a leiratozáson spórol, amely sokkal hosszabb.
 
+## A nyelvek listázása
+
+A `--list-languages` kiírja a motor által **a modellhez** kínált nyelveket, soronként egyet: a `--language` által elfogadott kódot, egy tabulátort, és a
+nyelv nevét a felület nyelvén. Nem kér sem bemenetet, sem kimenetet, és nem iratoz le semmit.
+
+```bash
+subedit-cli transcribe --list-languages --model ggml-small.bin
+```
+
+```text
+en	English
+zh	Chinese
+de	German
+…
+```
+
+A lista a motortól és a modelltől függ: egy többnyelvű whisper.cpp modellnél körülbelül száz nyelv, egy csak angolra való
+modellnél csak az `en`. Az a motor, amely nem tudja felsorolni a nyelveit, egyet sem listáz. Egy meg nem adott vagy nem létező modell hiba, az útmutatóra mutató hivatkozással; csak
+a szöveges alak létezik, a [`--format json`](invocation.md#szkript-által-olvasható-kimenet) mellett semmi sem íródik ki.
+
 ## Kimenet
 
 **Szabványos kimenet** — semmi: az eredmény a kiírt fájl.
@@ -164,15 +200,11 @@ az `audio` mezőt hordozza, ha a `--keep-audio` megőrizte a hangot.
 
 ## Figyelmeztetések
 
-Két figyelmeztetés hangzik el az első szinten, mert megváltoztatják, mire számítson:
+Egy figyelmeztetés hangzik el az első szinten, a munka előtt, mert megváltoztatja, mire kell számítani:
 
-- **A munka előtt, csak angolra való modellnél**: `This model is for English only: whatever language the film
+- **Csak angolra való modellnél**: `This model is for English only: whatever language the film
   speaks, the result will be English, or notes in brackets. Choose a multilingual model in the preferences.` Az a modell
   ilyen, amelynek a fájlneve `.en`-nel végződik.
-- **A munka után, ha a motor főleg szögletes zárójeles megjegyzéseket írt** — `[MUSIC PLAYING]`, `[SPEAKING FRENCH]` —,
-  darabjainak legalább kétharmadát: `N of the M pieces are only notes in brackets, such as [MUSIC PLAYING]: the
-  language used (xx) is probably not the one spoken, and the engine may have translated the speech. Run it again with
-  the language typed.` A feliratok ettől még megíródnak; a figyelmeztetés azt mondja meg, mire gyanakodjon.
 
 ## Kilépési kódok
 
@@ -191,6 +223,9 @@ egy motornál, amelyet senki sem regisztrált, vagy használhatatlan tartományn
 | a modell által le nem iratozható nyelv | `the model cannot transcribe the language xx` |
 | nincs nyelv, és a modell nem tud felismerni egyet | `the model cannot detect the language: give one` |
 | egy motor, amelyet senki sem regisztrált | `no transcription engine is called NAME` |
+| hiányzó `<input>` vagy `--output` | `input is required` vagy `--output is required` |
+| `--suppress-notes` a `--keep-notes` mellett | `--suppress-notes and --keep-notes say opposite things; give one of them` |
+| `--suppress-notes` olyan motornál, amelynek ez nem mondható meg | `the engine NAME cannot be told not to write sounds as notes` |
 | egy nyelv, amely nem kód | `"TEXT" is not a language code: write two letters, such as fr, en, de or es` |
 | a tartomány egy határa, amely nem időpont | `"TEXT" is not a time: write it as 2:00, 1:02:03 or 2:00.5, or in seconds` |
 | az `--end` nem a `--start` után | `the end of the range must come after its start` |

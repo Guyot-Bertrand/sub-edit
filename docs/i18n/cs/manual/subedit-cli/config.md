@@ -102,15 +102,15 @@ duration-adjust.lengthen
     Used by: subedit-cli adjust; Adjust Durations…
 ```
 
-Vypisuje **33 klíčů**:
+Vypisuje **41 klíčů**:
 
 <!-- example: subedit-cli config list | grep -c '^[a-z]' -->
 ```console
 $ subedit-cli config list | grep -c '^[a-z]'
-40
+41
 ```
 
-**Dvacet z nich čte příkazový řádek**; ostatních dvacet čte jen okno
+**Jedenadvacet z nich čte příkazový řádek**; ostatních dvacet čte jen okno
 a jejich řádek `Used by:` to říká, spolu s volbou podpříkazu `correct`, která je nahrazuje:
 
 | Klíč | Čte ho |
@@ -122,7 +122,7 @@ a jejich řádek `Used by:` to říká, spolu s volbou podpříkazu `correct`, k
 | `correction.human`, `correction.ocr` | [`correct`](correct.md) a `Correct Texts…` |
 | `correction.remove-blank` | `correct` a `Correct Texts…` |
 | `correction.line-break.max-lines` | `correct` a `Correct Texts…` |
-| `transcription.engine`, `transcription.executable`, `transcription.model`, `transcription.language`, `transcription.merge-gap-ms`, `transcription.max-duration-ms`, `transcription.max-characters` | [`transcribe`](transcribe.md) a `Transcribe Audio…` |
+| `transcription.engine`, `transcription.executable`, `transcription.model`, `transcription.language`, `transcription.suppress-notes`, `transcription.merge-gap-ms`, `transcription.max-duration-ms`, `transcription.max-characters` | [`transcribe`](transcribe.md) a `Transcribe Audio…` |
 | každý jiný klíč `correction.*` | jen `Correct Texts…` — `correct` bere `--tasks`, `--code`, `--max-length`, `--skip-length`, `--skip-lines`, `--language`, `--enable` a `--disable` ze svého vlastního řádku |
 
 Počty řádků, `correction.line-break.max-lines` a `correction.line-break.skip-max-lines`,

@@ -141,6 +141,7 @@ existieran los dos bloques se lee sin cambios, y se reescribe en dos bloques en 
 | `transcription.engine` | el nombre del motor: letras minúsculas, cifras, `.`, `-` y `_` | `whisper.cpp` |
 | `transcription.executable`, `transcription.model` | una ruta absoluta; vacío: el motor se busca en el `PATH` y no hay ningún modelo definido | vacío |
 | `transcription.language` | dos letras minúsculas, un código ISO 639-1; vacío: el idioma se detecta | vacío |
+| `transcription.suppress-notes` | `true` o `false` — `Do not write sounds as notes` | `true` |
 | `transcription.merge-gap-ms` | los fragmentos de una misma frase más próximos que esto se unen, en milisegundos, entero y no negativo | `400` |
 | `transcription.max-duration-ms` | la duración máxima de un subtítulo transcrito en pantalla, en milisegundos, de 1 a 3600000 | `7000` |
 | `transcription.max-characters` | el máximo de caracteres de un subtítulo transcrito, de 1 a 1000 | `84` |
@@ -291,6 +292,9 @@ se encuentra, y el modelo — no definido, no encontrado, no es un modelo, solo 
 algo, añade la referencia a
 [Instalar las herramientas de transcripción](../subedit-cli/install-transcription.md), que dice dónde encontrar
 cada uno. Los dos campos son los ajustes `transcription.executable` y `transcription.model`.
+
+Una casilla, **“No escribir los sonidos como notas”**, es el ajuste `transcription.suppress-notes` (marcada por defecto): se le dice al motor que no escriba los sonidos
+como notas, como `(phone ringing)`. Desmárquela para conservarlas, para subtítulos para personas sordas o con discapacidad auditiva. El cuadro de diálogo de `Transcribe Audio…` ofrece la misma casilla para la transcripción de una sola vez.
 
 ## El idioma de la interfaz
 

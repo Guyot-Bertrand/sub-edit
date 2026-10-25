@@ -157,7 +157,6 @@ add_library(
     transcription/language_codes.cpp
     transcription/language_display.cpp
     transcription/subtitle_assembly.cpp
-    transcription/annotation_notes.cpp
     transcription/remaining_time.cpp
     transcription/time_range.cpp
     transcription/tools_status.cpp

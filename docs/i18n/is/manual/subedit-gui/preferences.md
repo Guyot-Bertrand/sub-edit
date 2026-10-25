@@ -142,6 +142,7 @@ lokun.
 | `transcription.engine` | heiti vélarinnar: lágstafir, tölustafir, `.`, `-` og `_` | `whisper.cpp` |
 | `transcription.executable`, `transcription.model` | altæk slóð; tómt: leitað er að vélinni í `PATH` og ekkert líkan er stillt | tómt |
 | `transcription.language` | tveir lágstafir, ISO 639-1 kóði; tómt: tungumálið er greint sjálfkrafa | tómt |
+| `transcription.suppress-notes` | `true` eða `false` — `Do not write sounds as notes` | `true` |
 | `transcription.merge-gap-ms` | bútar úr einni setningu sem eru nær hver öðrum en þetta eru sameinaðir, í millisekúndum, heil tala sem er ekki neikvæð | `400` |
 | `transcription.max-duration-ms` | lengsti tími sem umritaður skjátexti er á skjánum, í millisekúndum, frá 1 til 3600000 | `7000` |
 | `transcription.max-characters` | flestir stafir sem umritaður skjátexti rúmar, frá 1 til 1000 | `84` |
@@ -292,6 +293,9 @@ finnst, og líkanið — ekki stillt, fannst ekki, er ekki líkan, fyrir ensku e
 vantar bætir hann við tilvísun á
 [Uppsetning umritunartækjanna](../subedit-cli/install-transcription.md), sem segir hvar finna má
 hvert um sig. Reitirnir tveir eru stillingarnar `transcription.executable` og `transcription.model`.
+
+Reitur, **„Ekki skrifa hljóð sem athugasemdir“**, er stillingin `transcription.suppress-notes` (hakað sjálfgefið): vélinni er sagt að skrifa ekki hljóð
+sem athugasemdir eins og `(phone ringing)`. Taktu hakið af til að halda þeim, fyrir skjátexta fyrir heyrnarskerta. Gluggi `Transcribe Audio…` býður sama reit fyrir hverja umritun fyrir sig.
 
 ## Tungumál viðmótsins
 

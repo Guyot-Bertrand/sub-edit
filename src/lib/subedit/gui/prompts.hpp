@@ -137,10 +137,6 @@ public:
     [[nodiscard]] virtual std::optional<std::filesystem::path>
     fileToChoose(ChosenFile what, const std::filesystem::path& current) = 0;
 
-    /// Whether to go on with an operation that will replace what the project holds:
-    /// `message` says what goes. The default answer is the safe one, to keep it.
-    [[nodiscard]] virtual bool confirmReplacement(const std::string& message) = 0;
-
     /// Shows `dialog` and says whether it was accepted.
     ///
     /// **One method for every dialog this project writes itself**, and that is

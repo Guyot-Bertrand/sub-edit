@@ -105,18 +105,23 @@ the [grid deduced from the positions](frame-grid.md), which is another one.
 is the audio of **the film of the project**, and never a file you would pick — to transcribe an
 audio file, use [`transcribe`](../subedit-cli/transcribe.md) on the command line.
 
-The dialog asks for three things, and says whether it can start:
+The dialog asks for four things, and says whether it can start:
 
 - **the audio track**, listed as the [`Audio`](#the-audio-track) menu lists them, with the language
   and the title the file declares;
-- **the language**, two letters such as `en` or `fr` (`fra` is read as `fr`). It starts with the language of the chosen
-  track when the file declares one, follows the track as long as you have not typed one, and
-  **a line under the field says where it comes from**. When the file declares no language for the track,
-  the line says so, and warns: the model will then detect it from the first thirty seconds of sound, which only
-  a multilingual model does, and **a film that opens with music or silence can be taken for another language and
-  its speech then translated into it**. Type the language if you know it. With a model for English alone the field
-  is fixed to `en` and cannot be changed, and the line says that the film will come out as English whatever it
-  speaks;
+- **the language**, chosen in a **list**: first an entry that detects it, “Detect from the first 30 seconds of sound”, then the languages the
+  engine offers for the model, by name in the language of the window and followed by their code — “French (fr)”. The list is the
+  engine's own: about a hundred with a multilingual model; with a model for English alone it has the one entry, English, and cannot be
+  changed, and a line says that the film will come out as English whatever it speaks. The list starts on the language of the chosen
+  track when the file declares one and the engine offers it, follows the track as long as you have not chosen one, and
+  **a line under it says where it comes from**. When the file declares no language for the track, the line says so, and warns:
+  the model will then detect it from the first thirty seconds of sound, and **a film that opens with music or silence can be taken for
+  another language and its speech then translated into it**. Choose the language if you know it;
+- **sounds written as notes**: a box, “Do not write sounds as notes”, checked by default. The engine is then told not to write sounds as
+  notes, such as `(phone ringing)` or `[MUSIC PLAYING]`; where it has no speech to write it writes `...`, and the pieces that have no letter and no digit
+  are dropped by the post-processing. Uncheck the box to keep the notes, for subtitles for the hard of hearing. The box is grey, with the reason,
+  for an engine that cannot be told. It is the setting `transcription.suppress-notes`, which the [preferences](preferences.md#transcription)
+  also hold;
 - **the part of the film**, from one time to another — see [Trying a part first](#trying-a-part-first). Both fields
   empty is the whole film.
 
@@ -128,10 +133,6 @@ about the machine, not choices to make again at each transcription — and the d
 
 The language is kept for the next time. The engine itself and the limits of the subtitles are
 [settings](preferences.md) (`transcription.*`).
-
-**When the project already holds subtitles, the window asks before replacing them**, and says how
-many go. It asks before the work, so that declining costs nothing. When the project is empty there
-is nothing to ask.
 
 The work runs **in the background**, with a box and a `Cancel` button; the window stays usable around it. **The box
 tells where the work stands**, so that you know it is alive and how long it will take:
@@ -146,24 +147,38 @@ tells where the work stands**, so that you know it is alive and how long it will
 
 On a long film with a large model on a processor, the first minutes can be long: the engine is loading and working on its first
 windows of thirty seconds. The position and the last text move before the engine's own percent does, which only comes in steps
-of 5 % of the film. When it ends, the subtitles of the project are replaced
-by the transcription **as a single operation**: one `Undo` gives back what was there, translation
-texts included. A transcription that fails, or that you cancel, changes nothing — the reason is
-said in a box, except for a cancellation, which only says it was cancelled in the status bar.
+of 5 % of the film.
 
-**When most of what the engine wrote is notes in brackets** — `[MUSIC PLAYING]`, `[SPEAKING FRENCH]` —, a box says so after
-the work: the language used is probably not the one spoken, and the engine may have translated the speech. Run it again with the
-language typed. The subtitles are in the project all the same, and one `Undo` gives back what was there.
+### The preview
+
+**Nothing replaces the subtitles of the project until you have seen them.** When the work ends — and also when you cancel it, or it fails
+after producing something — a window shows the result in two tables side by side, each with **its own start and end**:
+
+- **on the left, “As the engine wrote it”**: everything the engine returned, as it cut it, with no post-processing at all — what
+  [`--raw`](../subedit-cli/transcribe.md) would write —, the placeholders (`...`) included;
+- **on the right, “As they will be applied”**: the subtitles after the post-processing — placeholders dropped, close pieces merged, long
+  ones cut —, exactly what will go into the project.
+
+The two do not line up row for row, which is why each has its own times. **Selecting a subtitle on the right highlights, on the left, the pieces it
+was made from**, and scrolls the left side to them; one subtitle at a time, in that direction only. Neither table can be edited.
+
+Two buttons close it. **“Apply”** replaces the subtitles of the project **as a single operation**: one `Undo` gives back what was there, translation
+texts included. **“Ignore”** drops the result, and it is lost. That is the only confirmation — nothing is asked before the work. “Apply” is out when there
+is nothing to apply.
+
+**When the run was stopped**, the window says so — “Partial result: the work stopped at …” — and offers what had been obtained up to there, to apply
+or to ignore, so that a long run stopped late does not lose its work unasked. Those pieces have no timed words (the engine writes them at the end), and the
+post-processing cuts at the pieces' own limits. A failure is first said in a box, as for any failure; a cancellation says nothing of the kind.
 
 ### Trying a part first
 
-A range lets you **judge a model or a language on two minutes before committing to two hours**. The fields “Part of the film” take a beginning and an end, each written as `2:00`, `1:02:03`, `2:00.5` or a number
-of seconds, `90`; one alone is allowed (from there to the end, or from the start to there). `OK` stays out while a field is
+A range lets you **judge a model or a language on two minutes before committing to two hours**. The fields “Part of the film” take a beginning and an end, each written `HH:MM:SS`, as the fields say (`2:00` and a number of seconds, `90`,
+are read too); one alone is allowed (from there to the end, or from the start to there). `OK` stays out while a field is
 not a time or the end does not come after the beginning, and a line under the fields says which.
 
 - **The subtitles keep the time of the film**: what is said at 2:10 is at `0:02:10` in the result.
-- **It replaces the subtitles of the project like any transcription**, after the same question when there are some, and
-  one `Undo` gives them back. To try a range without touching your work, save first, or work on a copy.
+- **It goes through the preview like any transcription**, and replaces the subtitles of the project once applied; one `Undo` gives
+  them back. To try a range without touching your work, ignore the preview, or save first.
 
 **What it needs is not shipped**: an engine (whisper.cpp), a model, and `ffmpeg` to extract the audio.
 See [Installing the transcription tools](../subedit-cli/install-transcription.md).

@@ -101,15 +101,15 @@ duration-adjust.lengthen
     Used by: subedit-cli adjust; Adjust Durations…
 ```
 
-Hún telur upp **40 lykla**:
+Hún telur upp **41 lykla**:
 
 <!-- example: subedit-cli config list | grep -c '^[a-z]' -->
 ```console
 $ subedit-cli config list | grep -c '^[a-z]'
-40
+41
 ```
 
-**Tuttugu þeirra eru lesnir af skipanalínunni**; hinir tuttugu eru lesnir af glugganum einum,
+**Tuttugu og einn þeirra er lesinn af skipanalínunni**; hinir tuttugu eru lesnir af glugganum einum,
 og `Used by:`-lína þeirra segir það, með valkosti `correct` sem kemur í þeirra stað:
 
 | Lykill | Lesinn af |
@@ -121,7 +121,7 @@ og `Used by:`-lína þeirra segir það, með valkosti `correct` sem kemur í þ
 | `correction.human`, `correction.ocr` | [`correct`](correct.md) og `Correct Texts…` |
 | `correction.remove-blank` | `correct` og `Correct Texts…` |
 | `correction.line-break.max-lines` | `correct` og `Correct Texts…` |
-| `transcription.engine`, `transcription.executable`, `transcription.model`, `transcription.language`, `transcription.merge-gap-ms`, `transcription.max-duration-ms`, `transcription.max-characters` | [`transcribe`](transcribe.md) og `Transcribe Audio…` |
+| `transcription.engine`, `transcription.executable`, `transcription.model`, `transcription.language`, `transcription.suppress-notes`, `transcription.merge-gap-ms`, `transcription.max-duration-ms`, `transcription.max-characters` | [`transcribe`](transcribe.md) og `Transcribe Audio…` |
 | hver annar `correction.*`-lykill | aðeins `Correct Texts…` — `correct` tekur `--tasks`, `--code`, `--max-length`, `--skip-length`, `--skip-lines`, `--language`, `--enable` og `--disable` úr sinni eigin línu |
 
 Línufjöldinn, `correction.line-break.max-lines` og `correction.line-break.skip-max-lines`,

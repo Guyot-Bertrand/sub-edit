@@ -9,11 +9,14 @@ subedit-cli transcribe --output FILE
                        [--audio-track N]
                        [--language CODE]
                        [--start TIME] [--end TIME]
+                       [--suppress-notes | --keep-notes]
                        [--model FILE]
                        [--engine NAME]
                        [--keep-audio FILE]
                        [--raw]
                        <input>
+
+subedit-cli transcribe --list-languages [--model FILE] [--engine NAME]
 ```
 
 Записывает **речь видео или аудиофайла в виде файла субтитров**. Звук подготавливается и передаётся
@@ -41,7 +44,12 @@ subedit-cli transcribe --output FILE
   `[SPEAKING FRENCH]`. Если вы знаете язык, укажите его.
 - **Можно расшифровать только часть фильма** с помощью `--start` и `--end` — см.
   [Расшифровка части фильма](#расшифровка-части-фильма). Так модель пробуют на двух минутах, прежде чем запускать её на двух часах.
-- **Звуки не записываются как заметки**: движку велено этого не делать (его собственная опция — `--suppress-nst`), поэтому `(Sonnerie de téléphone)` или `[MUSIC PLAYING]` не попадают в субтитры ни в круглых, ни в квадратных скобках.
+- **Языки, которые предлагает движок, можно перечислить** с помощью `--list-languages` — см.
+  [Перечень языков](#перечень-языков).
+- **По умолчанию звуки не записываются как заметки**: движку велено этого не делать (`--suppress-notes`; его собственная опция — `--suppress-nst`), поэтому
+  `(Sonnerie de téléphone)` или `[MUSIC PLAYING]` не попадают в субтитры ни в круглых, ни в квадратных скобках. `--keep-notes` записывает их, для субтитров для слабослышащих.
+  Когда заметки запрещены, движок пишет `...` для отрывка без речи, а **постобработка отбрасывает фрагменты, в которых нет ни буквы, ни цифры** — `...`, `…`, `♪` —
+  прежде чем объединять и резать; `--raw` сохраняет их, как пришли фрагменты движка.
 - **Сегменты объединяются и режутся** по пределам настроек (`transcription.merge-gap-ms`,
   `transcription.max-duration-ms`, `transcription.max-characters`): две близкие части одного предложения
   становятся одним субтитром, а слишком длинная или слишком широкая часть режется по слову. **`--raw`
@@ -52,10 +60,10 @@ subedit-cli transcribe --output FILE
 ```console
 $ subedit-cli transcribe --help
 Write the speech of a video or an audio file as subtitles
-Usage: subedit-cli transcribe [OPTIONS] input
+Usage: subedit-cli transcribe [OPTIONS] [input]
 
 Positionals:
-  input TEXT REQUIRED         Video or audio file to transcribe
+  input TEXT                  Video or audio file to transcribe
 
 Options:
   -h,--help                   Print this help message and exit
@@ -66,9 +74,12 @@ Options:
   --start TIME                Where to begin, as 2:00, 1:02:03 or seconds; the beginning by default
   --end TIME                  Where to stop, as 2:00, 1:02:03 or seconds; the end by default
   --language CODE             Language of the speech, two letters: fr, en, de; detected from the first 30 seconds by default
+  --suppress-notes            Do not write sounds as notes, such as (phone ringing); the transcription.suppress-notes setting by default
+  --keep-notes                Write sounds as notes, against the setting
   --model FILE                Model file; the transcription.model setting by default
   --engine NAME               Engine; the transcription.engine setting by default
   --keep-audio FILE           Keep the extracted audio in this file
+  --list-languages            List the languages the engine offers for the model, and transcribe nothing
   --raw                       Write the segments as the engine cut them
 ```
 
@@ -76,16 +87,19 @@ Options:
 
 | Параметр | Обязательный | Значения | По умолчанию |
 | :----- | :----- | :------ | :----- |
-| `<input>` | да | видео или аудиофайл | — |
-| `--output` | да | файл субтитров для записи; его каталог создаётся, если отсутствует | — |
+| `<input>` | да, кроме `--list-languages` | видео или аудиофайл | — |
+| `--output` | да, кроме `--list-languages` | файл субтитров для записи; его каталог создаётся, если отсутствует | — |
 | `--to` | нет | краткое название формата: `srt`, `vtt`, `subviewer2`, `ssa`, `ass`, `microdvd`, `mpl2`, `tmplayer`, `lrc` | формат, который указывает расширение `--output`, иначе `srt` |
 | `--audio-track` | нет | целое число, начиная с 0: место среди звуковых дорожек видео | `0`, первая |
 | `--language` | нет | две буквы, код ISO 639-1: `en`, `fr`; трёхбуквенный код, например `fra`, читается как `fr` | настройка `transcription.language`; пусто: язык определяется автоматически |
+| `--suppress-notes` | нет | флаг: не записывать звуки как заметки; отклоняется для движка, которому этого нельзя велеть | настройка `transcription.suppress-notes` |
+| `--keep-notes` | нет | флаг: записывать их, вопреки настройке; противоположность `--suppress-notes`, а оба вместе отклоняются | настройка `transcription.suppress-notes` |
+| `--list-languages` | нет | флаг: перечислить языки, которые движок предлагает для модели, и ничего не расшифровывать | выключен |
 | `--start` | нет | время: `2:00`, `1:02:03`, `2:00.5` или число секунд, `90` | начало звука |
 | `--end` | нет | время, записанное так же, как для `--start`; оно должно идти после `--start` | конец звука |
 | `--model` | нет | файл модели | настройка `transcription.model` |
 | `--engine` | нет | название движка: `whisper.cpp` | настройка `transcription.engine` |
-| `--keep-audio` | нет | файл, в котором сохраняется извлечённый звук, как 16-битный моно PCM с частотой 16 кГц в файле WAV; его каталог создаётся, если отсутствует | звук нигде не сохраняется |
+| `--keep-audio` | нет | файл, в котором сохраняется извлечённый звук, как 16-битный моно PCM в файле WAV, с частотой дискретизации, которую запрашивает движок (16 кГц для whisper.cpp); его каталог создаётся, если отсутствует, а имя может содержать `{rate}`, заменяемое этой частотой в герцах (`film.{rate}.wav` записывается как `film.16000.wav`) | звук нигде не сохраняется |
 | `--raw` | нет | флаг: записать сегменты движка без объединения и без нарезки | выключен |
 
 **Настройки** читаются из файла настроек так же, как у [`adjust`](adjust.md) — см.
@@ -97,6 +111,7 @@ Options:
 | `transcription.executable` | программа движка, абсолютный путь; пусто: ищется в `PATH` | пусто |
 | `transcription.model` | файл модели, абсолютный путь | пусто |
 | `transcription.language` | язык звука, две буквы; пусто: определяется автоматически | пусто |
+| `transcription.suppress-notes` | не записывать звуки как заметки | `true` |
 | `transcription.merge-gap-ms` | части одного предложения, расстояние между которыми меньше этого числа миллисекунд, объединяются | `400` |
 | `transcription.max-duration-ms` | наибольшая длительность показа субтитра на экране, в миллисекундах | `7000` |
 | `transcription.max-characters` | наибольшее число символов в субтитре, без учёта переводов строки | `84` |
@@ -133,6 +148,26 @@ subedit-cli transcribe --start 2:00 --end 3:30 --output test.srt --model large-v
 
 Звук всего фильма всё равно извлекается: диапазон экономит расшифровку, которая намного дольше.
 
+## Перечень языков
+
+`--list-languages` выводит языки, которые движок предлагает **для модели**, по одному в строке: код, который принимает `--language`, табуляция и название
+языка на языке интерфейса. Ему не нужны ни входной файл, ни выходной, и он ничего не расшифровывает.
+
+```bash
+subedit-cli transcribe --list-languages --model ggml-small.bin
+```
+
+```text
+en	English
+zh	Chinese
+de	German
+…
+```
+
+Перечень зависит от движка и от модели: около ста языков для многоязычной модели whisper.cpp, только `en` для модели только для
+английского. Движок, который не умеет перечислять свои языки, не выводит ничего. Модель, которая не указана или отсутствует, — ошибка, с указанием на руководство; только
+текстовая форма, с [`--format json`](invocation.md#вывод-пригодный-для-чтения-скриптом) ничего не записывается.
+
 ## Вывод
 
 **Стандартный вывод** — пусто: результат — это записанный файл.
@@ -154,15 +189,11 @@ subedit-cli transcribe --start 2:00 --end 3:30 --output test.srt --model large-v
 
 ## Уведомления
 
-Два уведомления выводятся на первом уровне, потому что они меняют то, чего следует ожидать:
+Одно уведомление выводится на первом уровне, до работы, потому что оно меняет то, чего следует ожидать:
 
-- **До работы, с моделью только для английского**: `This model is for English only: whatever language the film
+- **С моделью только для английского**: `This model is for English only: whatever language the film
   speaks, the result will be English, or notes in brackets. Choose a multilingual model in the preferences.` Такова модель,
   имя файла которой заканчивается на `.en`.
-- **После работы, когда движок записал в основном примечания в скобках** — `[MUSIC PLAYING]`, `[SPEAKING FRENCH]` —,
-  не менее двух и одной трети его фрагментов: `N of the M pieces are only notes in brackets, such as [MUSIC PLAYING]: the
-  language used (xx) is probably not the one spoken, and the engine may have translated the speech. Run it again with
-  the language typed.` Субтитры всё равно записываются; уведомление говорит, что следует заподозрить.
 
 ## Коды завершения
 
@@ -181,6 +212,9 @@ subedit-cli transcribe --start 2:00 --end 3:30 --output test.srt --model large-v
 | язык, который модель не может расшифровать | `the model cannot transcribe the language xx` |
 | язык не указан, а модель не умеет его определять | `the model cannot detect the language: give one` |
 | движок, который никто не зарегистрировал | `no transcription engine is called NAME` |
+| не указан `<input>` или `--output` | `input is required` или `--output is required` |
+| `--suppress-notes` вместе с `--keep-notes` | `--suppress-notes and --keep-notes say opposite things; give one of them` |
+| `--suppress-notes` для движка, которому этого нельзя велеть | `the engine NAME cannot be told not to write sounds as notes` |
 | язык, не являющийся кодом | `"TEXT" is not a language code: write two letters, such as fr, en, de or es` |
 | граница диапазона, не являющаяся временем | `"TEXT" is not a time: write it as 2:00, 1:02:03 or 2:00.5, or in seconds` |
 | `--end` не после `--start` | `the end of the range must come after its start` |

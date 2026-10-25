@@ -141,6 +141,7 @@
 | `transcription.engine` | название движка: строчные буквы, цифры, `.`, `-` и `_` | `whisper.cpp` |
 | `transcription.executable`, `transcription.model` | абсолютный путь; пусто: движок ищется в `PATH`, а модель не задана | пусто |
 | `transcription.language` | две строчные буквы, код ISO 639-1; пусто: язык определяется автоматически | пусто |
+| `transcription.suppress-notes` | `true` или `false` — `Do not write sounds as notes` | `true` |
 | `transcription.merge-gap-ms` | части одного предложения, расстояние между которыми меньше этого значения, объединяются; в миллисекундах, целое неотрицательное число | `400` |
 | `transcription.max-duration-ms` | наибольшая длительность показа расшифрованного субтитра на экране, в миллисекундах, от 1 до 3600000 | `7000` |
 | `transcription.max-characters` | наибольшее число символов в расшифрованном субтитре, от 1 до 1000 | `84` |
@@ -291,6 +292,9 @@ subedit-gui: /home/vous/.config/subedit/settings.conf: window.geometry: "plus ta
 не хватает, он добавляет ссылку на страницу
 [Установка инструментов расшифровки](../subedit-cli/install-transcription.md), где сказано, где
 что найти. Эти два поля — настройки `transcription.executable` и `transcription.model`.
+
+Флажок **«Не записывать звуки как заметки»** — это настройка `transcription.suppress-notes` (по умолчанию установлен): движку велено не записывать звуки
+как заметки, например `(phone ringing)`. Снимите флажок, чтобы сохранить их, для субтитров для слабослышащих. Диалог `Transcribe Audio…` предлагает тот же флажок для одной расшифровки.
 
 ## Язык интерфейса
 

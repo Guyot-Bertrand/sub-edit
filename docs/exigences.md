@@ -349,10 +349,12 @@ longer prove anything.
 | `CLI-TRANSCRIBE-08` | `--format json` writes one record with the language used, the counts and the files written | 22 | implemented |
 | `GUI-TRANSCRIBE-01` | `Transcribe Audio…` opens a dialog offering the audio tracks of the project's video, a language and a model | 22 | implemented |
 | `GUI-TRANSCRIBE-02` | the transcription runs in the background with a progress indicator and can be cancelled, a cancelled or failed run leaving the project unchanged | 22 | implemented |
-| `GUI-TRANSCRIBE-03` | when the subtitle section is not empty the window asks for confirmation before replacing it, and one undo restores it | 22 | implemented |
+| `GUI-TRANSCRIBE-03` | the transcription replaces the subtitles of the project only once the person has applied it from the preview, as one undoable operation | 22 | implemented |
 | `GUI-TRANSCRIBE-04` | without the executable, the model or the extraction tool the command explains what is missing and where to read how to install it, and the rest of the window is unaffected | 22 | implemented |
 | `CLI-TRANSCRIBE-09` | `--start` and `--end` restrict the transcription to a part of the film, the subtitles keep the time of the film, and a bound that is no time or a range whose end comes first is refused before any work | 22 | implemented |
 | `CLI-TRANSCRIBE-10` | while it runs the command says the step, the percent, the position in the film and the time left, and at the third level the text last obtained | 22 | implemented |
 | `CLI-TRANSCRIBE-11` | `--list-languages` lists the languages the engine offers for the model, one per line with its name in the language of the interface, and transcribes nothing | 22 | implemented |
+| `CLI-TRANSCRIBE-12` | `--suppress-notes` and `--keep-notes` decide whether the engine writes sounds as notes, over the setting; both together are refused, and an engine that cannot be told refuses the first by name | 22 | implemented |
 | `GUI-TRANSCRIBE-05` | the progress box says the step, the position in the film, the time left and the last text obtained, and is busy rather than at 0 % while nothing says how far it is | 22 | implemented |
 | `GUI-TRANSCRIBE-06` | the dialog takes a range of the film and transcribes only that part, the result replacing the subtitles of the project like any transcription, after the same question | 22 | implemented |
+| `GUI-TRANSCRIBE-07` | the transcription is shown in a preview before it replaces the subtitles of the project — the engine's pieces on the left, the final subtitles on the right, each with its own times, a selected subtitle highlighting its sources — and a cancelled or failed run offers what it had obtained, to apply or to ignore | 22 | implemented |

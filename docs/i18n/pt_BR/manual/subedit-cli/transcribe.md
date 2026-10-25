@@ -9,11 +9,14 @@ subedit-cli transcribe --output FILE
                        [--audio-track N]
                        [--language CODE]
                        [--start TIME] [--end TIME]
+                       [--suppress-notes | --keep-notes]
                        [--model FILE]
                        [--engine NAME]
                        [--keep-audio FILE]
                        [--raw]
                        <input>
+
+subedit-cli transcribe --list-languages [--model FILE] [--engine NAME]
 ```
 
 Grava **a fala de um vídeo, ou de um arquivo de áudio, sob a forma de arquivo de legendas**. O áudio é
@@ -42,8 +45,13 @@ termina com um código diferente de zero.
 - **Pode-se transcrever só uma parte do filme**, com `--start` e `--end` — veja
   [Transcrever uma parte](#transcrever-uma-parte). É assim que se experimenta um modelo em dois minutos antes de o lançar
   em duas horas.
-- **Os sons não são escritos como notas**: o motor recebe ordem de não fazer isso (a opção própria dele é `--suppress-nst`), de modo
-  que `(Sonnerie de téléphone)` ou `[MUSIC PLAYING]` não apareçam nas legendas, entre parênteses como entre colchetes.
+- **Os idiomas que um motor oferece podem ser listados**, com `--list-languages` — veja
+  [Listar os idiomas](#listar-os-idiomas).
+- **Por preconfiguração, os sons não são escritos como notas**: o motor recebe a ordem de o não fazer (`--suppress-notes`; a sua própria opção é
+  `--suppress-nst`), de modo que `(Sonnerie de téléphone)` ou `[MUSIC PLAYING]` não surjam nas legendas, nem entre parênteses nem entre
+  retos. `--keep-notes` escreve-os, para legendas para surdos e ensurdecidos. Proibidas as notas, o motor escreve `...` para uma passagem
+  sem fala, e **o pós-processamento descarta os pedaços que não têm nem letra nem algarismo** — `...`, `…`, `♪` — antes de unir e cortar; `--raw` conserva-os,
+  tal como os pedaços do motor vieram.
 - **Os segmentos são unidos e cortados** segundo os limites das configurações (`transcription.merge-gap-ms`,
   `transcription.max-duration-ms`, `transcription.max-characters`): dois pedaços de uma mesma frase que estão
   próximos formam uma só legenda, e um pedaço demasiado longo ou demasiado largo é cortado numa palavra. **`--raw`
@@ -54,10 +62,10 @@ termina com um código diferente de zero.
 ```console
 $ subedit-cli transcribe --help
 Write the speech of a video or an audio file as subtitles
-Usage: subedit-cli transcribe [OPTIONS] input
+Usage: subedit-cli transcribe [OPTIONS] [input]
 
 Positionals:
-  input TEXT REQUIRED         Video or audio file to transcribe
+  input TEXT                  Video or audio file to transcribe
 
 Options:
   -h,--help                   Print this help message and exit
@@ -68,9 +76,12 @@ Options:
   --start TIME                Where to begin, as 2:00, 1:02:03 or seconds; the beginning by default
   --end TIME                  Where to stop, as 2:00, 1:02:03 or seconds; the end by default
   --language CODE             Language of the speech, two letters: fr, en, de; detected from the first 30 seconds by default
+  --suppress-notes            Do not write sounds as notes, such as (phone ringing); the transcription.suppress-notes setting by default
+  --keep-notes                Write sounds as notes, against the setting
   --model FILE                Model file; the transcription.model setting by default
   --engine NAME               Engine; the transcription.engine setting by default
   --keep-audio FILE           Keep the extracted audio in this file
+  --list-languages            List the languages the engine offers for the model, and transcribe nothing
   --raw                       Write the segments as the engine cut them
 ```
 
@@ -78,16 +89,19 @@ Options:
 
 | Opção | Obrigatório | Valores | Padrão |
 | :----- | :----- | :------ | :----- |
-| `<input>` | sim | um vídeo ou um arquivo de áudio | — |
-| `--output` | sim | o arquivo de legendas a escrever; sua pasta é criada se faltar | — |
+| `<input>` | sim, exceto com `--list-languages` | um vídeo ou um arquivo de áudio | — |
+| `--output` | sim, exceto com `--list-languages` | o arquivo de legendas a escrever; sua pasta é criada se faltar | — |
 | `--to` | não | o nome curto de um formato: `srt`, `vtt`, `subviewer2`, `ssa`, `ass`, `microdvd`, `mpl2`, `tmplayer`, `lrc` | o formato que a extensão de `--output` indica, senão `srt` |
 | `--audio-track` | não | um número inteiro a partir de 0: a posição entre as faixas de áudio do vídeo | `0`, a primeira |
 | `--language` | não | duas letras, um código ISO 639-1: `en`, `fr`; um código de três letras como `fra` é lido como `fr` | a configuração `transcription.language`; vazia: detectado |
+| `--suppress-notes` | não | uma opção sem valor: não escrever os sons como notas; recusada para um motor a quem isso não se pode dizer | a configuração `transcription.suppress-notes` |
+| `--keep-notes` | não | uma opção sem valor: escrevê-los, contra a configuração; o oposto de `--suppress-notes`, e as duas juntas são recusadas | a configuração `transcription.suppress-notes` |
+| `--list-languages` | não | uma opção sem valor: listar os idiomas que o motor oferece para o modelo, e não transcrever nada | desativada |
 | `--start` | não | um tempo: `2:00`, `1:02:03`, `2:00.5`, ou um número de segundos, `90` | o início do áudio |
 | `--end` | não | um tempo, escrito como para `--start`; precisa vir depois de `--start` | o fim do áudio |
 | `--model` | não | o arquivo do modelo | a configuração `transcription.model` |
 | `--engine` | não | o nome de um motor: `whisper.cpp` | a configuração `transcription.engine` |
-| `--keep-audio` | não | um arquivo onde guardar o áudio extraído, em PCM mono de 16 kHz e 16 bits num arquivo WAV; sua pasta é criada se faltar | o áudio não é guardado em lugar nenhum |
+| `--keep-audio` | não | um arquivo onde salvar o áudio extraído, como PCM mono de 16 bits num arquivo WAV, à taxa de amostragem que o motor pede (16 kHz para whisper.cpp); sua pasta é criada se faltar, e o nome pode levar `{rate}`, substituído por essa taxa em hertz (`film.{rate}.wav` é escrito `film.16000.wav`) | o áudio não é salvo em lugar nenhum |
 | `--raw` | não | um indicador: escrever os segmentos do motor sem união nem corte | desativado |
 
 As **configurações** são lidas do arquivo de configurações como as de [`adjust`](adjust.md) — veja
@@ -99,6 +113,7 @@ As **configurações** são lidas do arquivo de configurações como as de [`adj
 | `transcription.executable` | o programa do motor, um caminho absoluto; vazio: procurado no `PATH` | vazio |
 | `transcription.model` | o arquivo do modelo, um caminho absoluto | vazio |
 | `transcription.language` | o idioma do áudio, duas letras; vazio: detectado | vazio |
+| `transcription.suppress-notes` | não escrever os sons como notas | `true` |
 | `transcription.merge-gap-ms` | os pedaços de uma mesma frase mais próximos do que este número de milissegundos são unidos | `400` |
 | `transcription.max-duration-ms` | o tempo máximo que uma legenda fica na tela, em milissegundos | `7000` |
 | `transcription.max-characters` | o número máximo de caracteres de uma legenda, quebras de linha não contadas | `84` |
@@ -141,6 +156,26 @@ subedit-cli transcribe --start 2:00 --end 3:30 --output test.srt --model large-v
 
 O áudio do filme inteiro é extraído na mesma: é a transcrição, muito mais longa, que o intervalo poupa.
 
+## Listar os idiomas
+
+`--list-languages` escreve os idiomas que o motor oferece **para o modelo**, um por linha: o código que `--language` aceita, uma tabulação, e o nome
+do idioma no idioma da interface. Não precisa de entrada nem de saída, e não transcreve nada.
+
+```bash
+subedit-cli transcribe --list-languages --model ggml-small.bin
+```
+
+```text
+en	English
+zh	Chinese
+de	German
+…
+```
+
+A lista depende do motor e do modelo: uma centena de idiomas para um modelo whisper.cpp multilingue, só `en` para um modelo só para
+inglês. Um motor que não sabe listar os seus idiomas não lista nenhum. Um modelo não indicado ou ausente é um erro, com a link para o guia; apenas a
+forma de texto, nada é escrito com [`--format json`](invocation.md#uma-saída-que-um-script-pode-ler).
+
 ## Saída
 
 **Saída padrão** — nada: o resultado é o arquivo escrito.
@@ -162,15 +197,11 @@ legendas escritas) e `counts.segments` (os pedaços do motor de que foram feitas
 
 ## Avisos
 
-Dois avisos são ditos no primeiro nível, porque mudam o que esperar:
+Um aviso é dito no primeiro nível, antes do trabalho, porque muda o que há a esperar:
 
-- **Antes do trabalho, com um modelo só para inglês**: `This model is for English only: whatever language the film
+- **Com um modelo só para inglês**: `This model is for English only: whatever language the film
   speaks, the result will be English, or notes in brackets. Choose a multilingual model in the preferences.` Um modelo cujo nome de arquivo termina
-  em `.en` é um.
-- **Depois do trabalho, quando o motor escreveu sobretudo notas entre colchetes** — `[MUSIC PLAYING]`, `[SPEAKING FRENCH]` —,
-  pelo menos dois e um terço dos seus fragmentos: `N of the M pieces are only notes in brackets, such as [MUSIC PLAYING]: the
-  language used (xx) is probably not the one spoken, and the engine may have translated the speech. Run it again with
-  the language typed.` As legendas são escritas mesmo assim; o aviso diz o que suspeitar.
+  em `.en` é um deles.
 
 ## Códigos de saída
 
@@ -189,6 +220,9 @@ motor que ninguém registrou ou um intervalo que não pode ser usado.
 | um idioma que o modelo não sabe transcrever | `the model cannot transcribe the language xx` |
 | nenhum idioma, e um modelo que não sabe detectar um | `the model cannot detect the language: give one` |
 | um motor que ninguém registrou | `no transcription engine is called NAME` |
+| `<input>` ou `--output` em falta | `input is required` ou `--output is required` |
+| `--suppress-notes` com `--keep-notes` | `--suppress-notes and --keep-notes say opposite things; give one of them` |
+| `--suppress-notes` para um motor a quem isso não se pode dizer | `the engine NAME cannot be told not to write sounds as notes` |
 | um idioma que não é um código | `"TEXT" is not a language code: write two letters, such as fr, en, de or es` |
 | um limite do intervalo que não é um tempo | `"TEXT" is not a time: write it as 2:00, 1:02:03 or 2:00.5, or in seconds` |
 | `--end` não depois de `--start` | `the end of the range must come after its start` |

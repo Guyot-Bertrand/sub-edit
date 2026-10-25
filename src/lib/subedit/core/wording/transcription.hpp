@@ -36,19 +36,15 @@ namespace subedit::core {
 /// What a transcription came to: how many subtitles, in which language.
 [[nodiscard]] std::string noticeOfTranscription(std::size_t subtitles, std::string_view language);
 
-/// What replacing the subtitles of the project takes away, for the question that asks.
-[[nodiscard]] std::string noticeOfReplacement(std::size_t subtitles);
+/// What a run that stopped before its end gave, once the person kept it: how many subtitles, and
+/// how far the work had got.
+[[nodiscard]] std::string noticeOfPartialTranscription(std::size_t subtitles, Timestamp upTo);
 
 /// Where the engine has got to, in percent.
 [[nodiscard]] std::string transcriptionProgressText(int percent);
 
 /// What is wrong with a bound of the range that could not be read.
 [[nodiscard]] std::string notATimeInRange(std::string_view text);
-
-/// A transcription of which a good part is notes in brackets, the language used probably wrong:
-/// says so and what to do. `language` is the one the engine reports.
-[[nodiscard]] std::string
-noticeOfNotes(std::size_t notes, std::size_t pieces, std::string_view language);
 
 /// A model for English alone will write everything as English, whatever the film speaks.
 [[nodiscard]] std::string noticeOfEnglishOnlyModel();

@@ -154,11 +154,13 @@ TEST_CASE("the engine says what it can do with the model, once both are there",
     settings.model = scratch.write("multilingual.bin", header(51865));
     tools = inspectTranscriptionTools(files, scratch.path().string(), settings);
     REQUIRE(tools.capabilities.has_value());
-    CHECK(tools.capabilities->languageDetection);
-    CHECK(tools.capabilities->suppressNotes);
+    const subedit::core::EngineCapabilities known =
+        tools.capabilities.value_or(subedit::core::EngineCapabilities{});
+    CHECK(known.languageDetection);
+    CHECK(known.suppressNotes);
     CHECK(tools.suppressNotesAvailable());
 
     // An engine that says it cannot makes the option unavailable.
-    tools.capabilities->suppressNotes = false;
+    tools.capabilities = subedit::core::EngineCapabilities{.suppressNotes = false};
     CHECK_FALSE(tools.suppressNotesAvailable());
 }
