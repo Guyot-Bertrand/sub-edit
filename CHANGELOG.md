@@ -16,9 +16,14 @@ do not edit it by hand.
 - **gui** — Preview the transcription before it replaces the subtitles
 - **core** — Rework the post-processing, tune it in the preview
 
+### Documentation
+
+- **doc** — Record the measure of the first subtitle's start
+
 ### Fixed
 
 - **gui** — Keep the question before the work, with the preview after
+- **core** — Read only the head of a model, not the whole file
 
 ## 1.0.13 — 2026-10-24
 

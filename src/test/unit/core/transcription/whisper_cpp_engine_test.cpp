@@ -8,6 +8,8 @@
 #include <catch2/catch_test_macros.hpp>
 
 #include <algorithm>
+#include <chrono>
+#include <cstdint>
 #include <cstdlib>
 #include <filesystem>
 #include <fstream>
@@ -71,6 +73,22 @@ TEST_CASE("a multilingual model gives detection and every language", "[whisper][
         CHECK(std::ranges::find(languages, wanted) != languages.end());
     CHECK(capabilities->supportsLanguage("fr"));
     CHECK_FALSE(capabilities->supportsLanguage("xx"));
+}
+
+TEST_CASE("the capabilities read the head of a model, not the whole of it", "[whisper][engine]") {
+    const Setup setup;
+    const WhisperCppEngine engine{setup.executable};
+    // A sparse file of sixty-four gibibytes: reading it whole would take minutes and the memory
+    // of a workstation, and the windows ask at every key typed in the field of the model.
+    std::filesystem::resize_file(setup.multilingual, std::uintmax_t{64} << 30U);
+
+    const auto before = std::chrono::steady_clock::now();
+    const auto capabilities = engine.capabilitiesFor(setup.multilingual);
+    const auto taken = std::chrono::steady_clock::now() - before;
+
+    REQUIRE(capabilities.has_value());
+    CHECK(capabilities->languageDetection);
+    CHECK(taken < std::chrono::seconds{2});
 }
 
 TEST_CASE("an English-only model gives neither detection nor another language",
