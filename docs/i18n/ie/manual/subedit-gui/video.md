@@ -162,11 +162,16 @@ pos haver producet alquo — un fenestre monstra li resultate in du tabelles unm
 
 - **a sinistra, “Quam li motor l'ha scrit”**: omnicos quo li motor ha retornat, quam it l'ha talliat, sin null post-tractation — quo
   [`--raw`](../subedit-cli/transcribe.md) scriet —, con li locotenentes (`...`) includet;
-- **a dextra, “Quam les va esser aplicat”**: li subtitules pos li post-tractation — locotenentes lassat cader, fragmentes proxim junt, fragmentes
-  long talliat —, exactmen quo va intrar in li projecte.
+- **a dextra, “Quam les va esser aplicat”**: li subtitules pos li post-tractation, exactmen quo va intrar in li projecte. It es fat in tri etapes, chascun sur li tot transcription ante que li sequent comensa: li fragmentes sin litere ni cifre (`...`) es lassat cader; li proxim fragmentes de un sam frase es junt; ti quel es tro long es talliat — **unmen a un fine de frase (`. ? ! …`), poy a un comma, un punctocomma o un duplic puncte, e in li medie de un frase solmen si ples ne es punctuation u talliar**. Un talliada quel lassarea un subtitul tro small por esser leet (alqui characteres, un fraction de un seconde) es evitat quande un altri existe. Un subtitul quel comensa un fragment conserva su comension, e ti quel fini it conserva su fine: li tempores del paroles serve solmen por li talliadas in un fragment.
+
+Sur li tabelles, **“Post-tractation (solmen ti transcription)”** contene li tri límites del post-tractation: “Unir fragmentes plu proxim quam”, “Max long subtitul” e “Max númere de characteres in un subtitul” — li parametres `transcription.merge-gap-ms`, `transcription.max-duration-ms` e `transcription.max-characters`. **Changear un refa li tabelle a dextra strax**, sin li motor, e li subtitul selectet resta selectet. Li valores quel vu intra vale solmen por **ti transcription**: che vu aplica it o ignora it, li parametres del aplication resta quam ili esset. **“Conservar ti valores quam parametres”** dona li tri valores al parametres del aplication — ti del [preferenties](preferences.md#transcription), conservat con les —, e li fenestre dí it; clúder li fenestre ne fa it per se.
+
+![Li previsu de un transcription: li límites del post-tractation supra, li fragmentes del motor a sinistra, li subtitules a dextra, li duesim selectet e su du fragmentes de origine mettit in evidentie.](captures/apercu-transcription.png)
+
+![Li sam casse de dialog sub li paletta obscur.](captures/apercu-transcription-sombre.png)
 
 Li du ne se alinea ne linea per linea, e it es pro to que chascun have su propri tempores. **Selecter un subtitul a dextra mette in evidentie, a sinistra, li pieces de quel it
-esset fat**, e fa scrollar li latere sinistre til les; un subtitul a un vice, e solmen in ti direction. Null del tabelles posse esser modificat.
+esset fat**, e fa scrollar li latere sinistre til les; un subtitul a un vice, e solmen in ti direction. Null del tabelles posse esser modificat: quo null parametre arrange it corecte, it es modificat pos, in li tabelle del projecte, quam omni subtitul.
 
 Du butones clude it. **“Aplicar”** remplazza li subtitules del projecte **in un singul operation**: un `Undo` redona quo esset ibi, textus
 de traduction includet. **“Ignorar”** lassa cader li resultate, e it es perdit. “Aplicar” es extinct quande

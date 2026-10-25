@@ -54,7 +54,7 @@ nem tör el semmit**: a parancs megmondja, mi hiányzik, az oldalra mutató hiva
   az összevonás és a vágás előtt; a `--raw` megtartja őket, ahogy a motor darabjai megérkeztek.
 - **A szakaszokat egyesíti és vágja** a beállítások korlátai szerint (`transcription.merge-gap-ms`,
   `transcription.max-duration-ms`, `transcription.max-characters`): egy mondat két közeli darabja
-  egy felirat, a túl hosszú vagy túl széles darabot pedig szónál vágja el. **A `--raw`
+  egy felirat, a túl hosszú vagy túl széles darabot pedig vágja el — először mondatvégnél, aztán vesszőnél, pontosvesszőnél vagy kettőspontnál, és mondat közepén csak akkor, ha nincs írásjel, ahol vágni lehetne —, elkerülve azt a vágást, amely olvashatatlanul kicsi feliratot hagy. A három lépés sorrendben megy, mindegyik az egész átiraton: eldobás, egyesítés, vágás. Az a felirat, amely egy darabot kezd, megtartja a kezdetét, az, amelyik lezárja, megtartja a végét. **A `--raw`
   úgy írja ki a motor szakaszait, ahogy megjöttek**, szakaszonként egy feliratot, és így látható az is, mit
   csinál az egyesítés.
 

@@ -54,7 +54,7 @@ termina com um código diferente de zero.
   tal como os pedaços do motor vieram.
 - **Os segmentos são unidos e cortados** segundo os limites das definições (`transcription.merge-gap-ms`,
   `transcription.max-duration-ms`, `transcription.max-characters`): dois pedaços de uma mesma frase que estão
-  próximos formam uma só legenda, e um pedaço demasiado longo ou demasiado largo é cortado numa palavra. **`--raw`
+  próximos formam uma só legenda, e um pedaço demasiado longo ou demasiado largo é cortado — primeiro num fim de frase, depois numa vírgula, num ponto e vírgula ou nos dois pontos, e a meio de uma frase só quando não há pontuação onde cortar —, evitando um corte que deixe uma legenda demasiado pequena para ser lida. Os três passos fazem-se por ordem, cada um sobre toda a transcrição: descartar, unir, cortar. Uma legenda que começa um pedaço mantém o seu início, e a que o termina mantém o seu fim. **`--raw`
   escreve os segmentos do motor tal como chegaram**, um por legenda, o que é também a maneira de ver o que
   faz a união.
 

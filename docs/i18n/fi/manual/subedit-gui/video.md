@@ -161,11 +161,16 @@ tuotettuaan jotain —, ikkuna näyttää tuloksen kahdessa taulukossa vierekkä
 
 - **vasemmalla “Sellaisena kuin moottori sen kirjoitti”**: kaikki, mitä moottori palautti, sellaisena kuin se sen leikkasi, ilman jälkikäsittelyä — se, mitä
   [`--raw`](../subedit-cli/transcribe.md) kirjoittaisi —, paikkamerkit (`...`) mukaan lukien;
-- **oikealla “Sellaisina kuin ne otetaan käyttöön”**: tekstitykset jälkikäsittelyn jälkeen — paikkamerkit pudotettu, lähekkäiset palat yhdistetty, pitkät
-  leikattu —, täsmälleen se, mikä menee projektiin.
+- **oikealla “Sellaisina kuin ne otetaan käyttöön”**: tekstitykset jälkikäsittelyn jälkeen, täsmälleen se, mikä menee projektiin. Se etenee kolmessa vaiheessa, joista kukin koskee koko litterointia ennen kuin seuraava alkaa: jaksot, joissa ei ole kirjainta eikä numeroa (`...`), pudotetaan; saman lauseen lähekkäiset jaksot yhdistetään; liian pitkät leikataan — **ensin lauseen lopusta (`. ? ! …`), sitten pilkun, puolipisteen tai kaksoispisteen kohdalta, ja lauseen keskeltä vain silloin, kun ei ole välimerkkiä, josta leikata**. Leikkausta, joka jättäisi liian pienen, lukukelvottoman tekstityksen (muutama merkki, sekunnin murto-osa), vältetään, kun toinen on olemassa. Tekstitys, joka aloittaa palan, säilyttää alkunsa, ja se, joka lopettaa sen, säilyttää loppunsa: sanojen aikoja käytetään vain palan sisäisiin leikkauksiin.
+
+Taulukoiden yläpuolella **“Jälkikäsittely (vain tämä litterointi)”** sisältää jälkikäsittelyn kolme rajaa: “Yhdistä toisiaan lähempänä olevat jaksot kuin”, “Pisin tekstitys” ja “Tekstityksen merkkien enimmäismäärä” — asetukset `transcription.merge-gap-ms`, `transcription.max-duration-ms` ja `transcription.max-characters`. **Yhden muuttaminen tekee oikean taulukon heti uudelleen**, ilman moottoria, ja valitsemasi tekstitys pysyy valittuna. Kirjoittamasi arvot pätevät vain **tähän litterointiin**: otitpa sen käyttöön tai ohitit sen, sovelluksen asetukset pysyvät ennallaan. **“Säilytä nämä arvot asetuksina”** siirtää kolme arvoa sovelluksen asetuksiin — [asetukset](preferences.md#litterointi), niiden mukana tallennettuina —, ja ikkuna kertoo sen; ikkunan sulkeminen ei tee sitä yksinään.
+
+![Litteroinnin esikatselu: jälkikäsittelyn rajat ylhäällä, moottorin palat vasemmalla, tekstitykset oikealla, toinen valittuna ja sen kaksi lähdepalaa korostettuina.](captures/apercu-transcription.png)
+
+![Sama valintaikkuna tummalla paletilla.](captures/apercu-transcription-sombre.png)
 
 Nämä kaksi eivät asetu riville riviltä, minkä vuoksi kummallakin on omat aikansa. **Tekstityksen valitseminen oikealta korostaa vasemmalta palat, joista se
-tehtiin**, ja vierittää vasemman puolen niiden kohdalle; yksi tekstitys kerrallaan, vain tähän suuntaan. Kumpaakaan taulukkoa ei voi muokata.
+tehtiin**, ja vierittää vasemman puolen niiden kohdalle; yksi tekstitys kerrallaan, vain tähän suuntaan. Kumpaakaan taulukkoa ei voi muokata: sen, minkä mikään asetus ei saa oikeaksi, muokkaat jälkikäteen projektin taulukossa kuten mitä tahansa tekstitystä.
 
 Kaksi painiketta sulkee sen. **“Käytä”** korvaa projektin tekstitykset **yhtenä toimintona**: yksi `Undo` palauttaa sen, mitä siellä oli, käännöstekstit
 mukaan lukien. **“Ohita”** hylkää tuloksen, ja se on menetetty. “Käytä” on harmaa, kun

@@ -225,7 +225,7 @@ ekki keyrð, og `-q` og `-v` breyta engu.
 <!-- example: subedit-cli --version | head -n 1 -->
 ```console
 $ subedit-cli --version | head -n 1
-subedit 1.0.14
+subedit 1.0.15
 ```
 
 Allt úttakið, á vél með ICU 74.2 og Enchant 2.3.3 — tölurnar eru vélarinnar:

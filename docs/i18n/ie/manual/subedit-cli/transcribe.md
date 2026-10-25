@@ -53,7 +53,7 @@ e exeunte con un code ne-zero.
   quel have null líttere e null cifre** — `...`, `…`, `♪` — ante junter e talliar; `--raw` conserva les, quam li fragmentes del motor ha venit.
 - **Li segmentes es fusionat e tallit** secun li límites del parametres (`transcription.merge-gap-ms`,
   `transcription.max-duration-ms`, `transcription.max-characters`): du fragmentes de un sam frase quel es
-  proxim es un subtitul, e un fragment tro long o tro large es tallit a un parol. **`--raw`
+  proxim es un subtitul, e un fragment tro long o tro large es tallit — unmen a un fine de frase, poy a un comma, un punctocomma o un duplic puncte, e in li medie de un frase solmen si ples ne es punctuation u talliar —, evitante un talliada quel lassa un subtitul tro small por esser leet. Li tri etapes es fat in órdine, chascun sur li tot transcription: lassar cader, unir, talliar. Un subtitul quel comensa un fragment conserva su comension, e ti quel fini it conserva su fine. **`--raw`
   scri li segmentes del motor talmen quam ili vennit**, un per subtitul, quel anc es li manie de vider quo
   fa li fusion.
 

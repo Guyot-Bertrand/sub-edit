@@ -465,9 +465,19 @@ void ProjectOperations::transcribeAudio(ProjectPage& page) {
     core::Assembly assembly = core::assemble(pieces, core::assemblyOf(m_transcriptionSettings));
     TranscriptionPreviewDialog preview{TranscriptionPreview{.pieces = std::move(pieces),
                                                             .assembly = std::move(assembly),
+                                                            .settings = m_transcriptionSettings,
                                                             .partialUpTo = partialUpTo},
                                        m_view->dialogParent()};
-    if (!m_prompts->run(preview))
+    const bool applied = m_prompts->run(preview);
+
+    // **Tuned for this transcript, kept only when asked**: the button hands the three limits to the
+    // settings of the application, whether the result is then applied or ignored.
+    if (const auto& kept = preview.keptSettings()) {
+        m_transcriptionSettings.mergeGapMilliseconds = kept->mergeGapMilliseconds;
+        m_transcriptionSettings.maxDurationMilliseconds = kept->maxDurationMilliseconds;
+        m_transcriptionSettings.maxCharacters = kept->maxCharacters;
+    }
+    if (!applied)
         return;
 
     std::vector<core::Subtitle> subtitles = preview.applied();

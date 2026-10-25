@@ -54,7 +54,7 @@ eindigt met een code die niet nul is.
   `--raw` houdt ze, zoals de stukken van de engine zijn gekomen.
 - **De segmenten worden samengevoegd en geknipt** volgens de grenzen van de instellingen (`transcription.merge-gap-ms`,
   `transcription.max-duration-ms`, `transcription.max-characters`): twee stukken van één zin die dicht bij
-  elkaar liggen worden één ondertitel, en een stuk dat te lang of te breed is wordt bij een woord geknipt. **`--raw`
+  elkaar liggen worden één ondertitel, en een stuk dat te lang of te breed is wordt geknipt — eerst bij een zinseinde, dan bij een komma, een puntkomma of een dubbele punt, en midden in een zin alleen als er geen leesteken is om bij te knippen —, waarbij een knip wordt vermeden die een ondertitel achterlaat die te klein is om te lezen. De drie stappen gebeuren in volgorde, elk over het hele transcript: weglaten, samenvoegen, knippen. Een ondertitel die een stuk begint behoudt zijn begin, en die het afsluit behoudt zijn einde. **`--raw`
   schrijft de segmenten van de engine zoals ze kwamen**, één per ondertitel, en zo ziet u ook wat het
   samenvoegen doet.
 

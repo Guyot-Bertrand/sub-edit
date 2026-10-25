@@ -5,17 +5,21 @@
 #include <QBrush>
 #include <QColor>
 #include <QDialogButtonBox>
+#include <QFormLayout>
 #include <QGroupBox>
 #include <QHBoxLayout>
 #include <QHeaderView>
 #include <QLabel>
 #include <QPalette>
 #include <QPushButton>
+#include <QSignalBlocker>
+#include <QSpinBox>
 #include <QStringList>
 #include <QTableWidget>
 #include <QTableWidgetItem>
 #include <QVBoxLayout>
 
+#include <algorithm>
 #include <cstddef>
 #include <string>
 #include <utility>
@@ -31,6 +35,8 @@ constexpr int kTimeColumnWidth = 110;
 
 /// How much lighter than the selection colour the sources are painted.
 constexpr int kHighlightLightness = 150;
+
+constexpr int kMillisecondStep = 100;
 
 constexpr int kStartColumn = 0;
 constexpr int kEndColumn = 1;
@@ -90,6 +96,11 @@ TranscriptionPreviewDialog::TranscriptionPreviewDialog(TranscriptionPreview prev
       m_summary(new QLabel{this}),
       m_pieces(tableOf(this)),
       m_subtitles(tableOf(this)),
+      m_gap(new QSpinBox{this}),
+      m_duration(new QSpinBox{this}),
+      m_characters(new QSpinBox{this}),
+      m_keep(new QPushButton{translate("Keep these values as settings"), this}),
+      m_keptNote(new QLabel{this}),
       m_apply(new QPushButton{translate("Apply"), this}),
       m_ignore(new QPushButton{translate("Ignore"), this}) {
     setWindowTitle(translate("Transcription preview"));
@@ -124,20 +135,51 @@ TranscriptionPreviewDialog::TranscriptionPreviewDialog(TranscriptionPreview prev
     // Nothing to apply, nothing to replace the project's subtitles with.
     m_apply->setEnabled(!m_preview.assembly.subtitles.empty());
 
+    const core::TranscriptionSettings& start = m_preview.settings;
+    for (QSpinBox* box : {m_gap, m_duration}) {
+        box->setSuffix(translate(" ms"));
+        box->setSingleStep(kMillisecondStep);
+    }
+    m_gap->setRange(0, core::kLongestTranscribedSubtitleMilliseconds);
+    m_duration->setRange(1, core::kLongestTranscribedSubtitleMilliseconds);
+    m_characters->setRange(1, core::kMostTranscribedCharacters);
+    m_gap->setValue(static_cast<int>(start.mergeGapMilliseconds));
+    m_duration->setValue(static_cast<int>(start.maxDurationMilliseconds));
+    m_characters->setValue(start.maxCharacters);
+    for (QSpinBox* box : {m_gap, m_duration, m_characters})
+        connect(box, &QSpinBox::valueChanged, this, [this] { reassemble(); });
+    m_keptNote->setWordWrap(true);
+    connect(m_keep, &QPushButton::clicked, this, [this] {
+        m_kept = tuned();
+        m_keptNote->setText(
+            translate("These values are now the settings of the application "
+                      "(transcription.*). Closing this window changes nothing more."));
+    });
+
+    auto* tuning = new QFormLayout;
+    tuning->addRow(translate("Merge pieces closer than"), m_gap);
+    tuning->addRow(translate("Longest subtitle"), m_duration);
+    tuning->addRow(translate("Most characters in a subtitle"), m_characters);
+    auto* tuningBox = new QGroupBox{translate("Post-processing (this transcript only)"), this};
+    auto* tuningLayout = new QVBoxLayout{tuningBox};
+    tuningLayout->addLayout(tuning);
+    tuningLayout->addWidget(m_keep);
+    tuningLayout->addWidget(m_keptNote);
+
     auto* left = new QGroupBox{substitute(translate("As the engine wrote it (%1)"),
                                           QString::number(m_preview.pieces.size())),
                                this};
     auto* leftLayout = new QVBoxLayout{left};
     leftLayout->addWidget(m_pieces);
-    auto* right = new QGroupBox{substitute(translate("As they will be applied (%1)"),
-                                           QString::number(m_preview.assembly.subtitles.size())),
-                                this};
-    auto* rightLayout = new QVBoxLayout{right};
+    m_right = new QGroupBox{substitute(translate("As they will be applied (%1)"),
+                                       QString::number(m_preview.assembly.subtitles.size())),
+                            this};
+    auto* rightLayout = new QVBoxLayout{m_right};
     rightLayout->addWidget(m_subtitles);
 
     auto* tables = new QHBoxLayout;
     tables->addWidget(left);
-    tables->addWidget(right);
+    tables->addWidget(m_right);
 
     auto* buttons = new QHBoxLayout;
     buttons->addStretch(1);
@@ -146,8 +188,47 @@ TranscriptionPreviewDialog::TranscriptionPreviewDialog(TranscriptionPreview prev
 
     auto* stack = new QVBoxLayout{this};
     stack->addWidget(m_summary);
+    stack->addWidget(tuningBox);
     stack->addLayout(tables, 1);
     stack->addLayout(buttons);
+}
+
+core::TranscriptionSettings TranscriptionPreviewDialog::tuned() const {
+    core::TranscriptionSettings settings = m_preview.settings;
+    settings.mergeGapMilliseconds = m_gap->value();
+    settings.maxDurationMilliseconds = m_duration->value();
+    settings.maxCharacters = m_characters->value();
+    return settings;
+}
+
+void TranscriptionPreviewDialog::reassemble() {
+    // The selection is a subtitle of the old assembly; what follows it is the one that now holds
+    // the first piece it was made from.
+    std::optional<std::size_t> following;
+    const int row = m_subtitles->currentRow();
+    const auto& before = m_preview.assembly.sources;
+    if (row >= 0 && std::cmp_less(row, before.size()) &&
+        !before[static_cast<std::size_t>(row)].empty())
+        following = before[static_cast<std::size_t>(row)].front();
+
+    m_preview.assembly = core::assemble(m_preview.pieces, core::assemblyOf(tuned()));
+    {
+        const QSignalBlocker quiet{m_subtitles};
+        fill(*m_subtitles, m_preview.assembly.subtitles);
+    }
+    m_right->setTitle(substitute(translate("As they will be applied (%1)"),
+                                 QString::number(m_preview.assembly.subtitles.size())));
+    m_apply->setEnabled(!m_preview.assembly.subtitles.empty());
+
+    int target = -1;
+    if (following) {
+        const auto& sources = m_preview.assembly.sources;
+        for (std::size_t index = 0; index < sources.size() && target < 0; ++index)
+            if (std::ranges::find(sources[index], *following) != sources[index].end())
+                target = static_cast<int>(index);
+    }
+    m_subtitles->setCurrentCell(target, kTextColumn);
+    showSources(target);
 }
 
 void TranscriptionPreviewDialog::showSources(int row) {

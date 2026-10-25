@@ -160,11 +160,16 @@ ve dvou tabulkách vedle sebe, každé s **vlastním začátkem a koncem**:
 
 - **vlevo „Tak, jak jej nástroj zapsal“**: vše, co nástroj vrátil, tak, jak to rozdělil, bez jakéhokoli následného zpracování — to, co by zapsal
   [`--raw`](../subedit-cli/transcribe.md) —, včetně zástupných znaků (`...`);
-- **vpravo „Tak, jak budou použity“**: titulky po následném zpracování — zástupné znaky zahozeny, blízké kousky sloučeny, dlouhé
-  rozděleny —, přesně to, co půjde do projektu.
+- **vpravo „Tak, jak budou použity“**: titulky po následném zpracování, přesně to, co půjde do projektu. Probíhá ve třech krocích, každý nad celým přepisem, než začne další: kousky bez písmene a bez číslice (`...`) se zahodí; blízké kousky jedné věty se sloučí; příliš dlouhé se rozdělí — **nejprve na konci věty (`. ? ! …`), pak u čárky, středníku nebo dvojtečky a uprostřed věty jen tehdy, když není interpunkce, u které by se dalo dělit**. Řezu, který by zanechal titulek příliš malý na čtení (pár znaků, zlomek vteřiny), se vyhne, pokud existuje jiný. Titulek, který kousek začíná, si ponechá jeho začátek, a ten, který ho končí, jeho konec: časy slov slouží jen pro řezy uvnitř kousku.
+
+Nad tabulkami **„Následné zpracování (jen tento přepis)“** obsahuje tři meze následného zpracování: „Slučovat úseky bližší než“, „Nejdelší titulek“ a „Nejvyšší počet znaků titulku“ — nastavení `transcription.merge-gap-ms`, `transcription.max-duration-ms` a `transcription.max-characters`. **Změna jedné z nich hned znovu vytvoří pravou tabulku**, bez zapojení nástroje, a titulek, který jste měli vybraný, zůstane vybraný. Hodnoty, které zadáte, platí jen pro **tento přepis**: ať jej použijete, nebo zahodíte, nastavení aplikace zůstane, jaké bylo. **„Ponechat tyto hodnoty jako nastavení“** předá tři hodnoty nastavení aplikace — těm v [předvolby](preferences.md#přepis), uloženým spolu s nimi —, a okno to říká; zavření okna to samo neprovede.
+
+![Náhled přepisu: nahoře meze následného zpracování, vlevo kousky nástroje, vpravo titulky, druhý vybraný a jeho dva zdrojové kousky zvýrazněné.](captures/apercu-transcription.png)
+
+![Tentýž dialog v tmavé paletě.](captures/apercu-transcription-sombre.png)
 
 Obě se neřadí řádek po řádku, proto má každá vlastní časy. **Výběr titulku vpravo zvýrazní vlevo kousky, z nichž vznikl**, a posune levou stranu na ně;
-vždy jeden titulek, jen v tomto směru. Žádnou z tabulek nelze upravovat.
+vždy jeden titulek, jen v tomto směru. Žádnou z tabulek nelze upravovat: co žádné nastavení nevyřeší správně, se upraví potom v tabulce projektu jako každý titulek.
 
 Zavírají ji dvě tlačítka. **„Použít“** nahradí titulky projektu **jako jedna operace**: jedno `Undo` vrátí, co tam bylo, včetně textů
 překladu. **„Ignorovat“** výsledek zahodí a ten je ztracen. „Použít“ je nedostupné, když

@@ -166,11 +166,16 @@ dopo aver prodotto qualcosa — una finestra mostra il risultato in due tabelle 
 
 - **a sinistra, “Così come l'ha scritto il motore”**: tutto ciò che il motore ha restituito, come l'ha tagliato, senza alcuna post-elaborazione — ciò che
   scriverebbe [`--raw`](../subedit-cli/transcribe.md) —, segnaposto (`...`) compresi;
-- **a destra, “Così come saranno applicati”**: i sottotitoli dopo la post-elaborazione — segnaposto scartati, pezzi vicini uniti, pezzi
-  lunghi tagliati —, esattamente ciò che entrerà nel progetto.
+- **a destra, “Così come saranno applicati”**: i sottotitoli dopo la post-elaborazione, esattamente ciò che entrerà nel progetto. Avviene in tre passi, ciascuno su tutta la trascrizione prima che inizi il successivo: i pezzi senza lettere né cifre (`...`) vengono scartati; i pezzi vicini di una stessa frase vengono uniti; quelli troppo lunghi vengono tagliati — **prima a una fine di frase (`. ? ! …`), poi a una virgola, un punto e virgola o due punti, e a metà frase solo quando non c'è punteggiatura dove tagliare**. Un taglio che lascerebbe un sottotitolo troppo piccolo per essere letto (pochi caratteri, una frazione di secondo) viene evitato quando ne esiste un altro. Un sottotitolo che inizia un pezzo ne conserva l'inizio, e quello che lo termina ne conserva la fine: i tempi delle parole servono solo per i tagli all'interno di un pezzo.
+
+Sopra le tabelle, **“Post-elaborazione (solo questa trascrizione)”** contiene i tre limiti della post-elaborazione: “Unisci i frammenti più vicini di”, “Sottotitolo più lungo” e “Numero massimo di caratteri di un sottotitolo” — le impostazioni `transcription.merge-gap-ms`, `transcription.max-duration-ms` e `transcription.max-characters`. **Cambiarne una rifà subito la tabella di destra**, senza passare dal motore, e il sottotitolo che avevi selezionato resta selezionato. I valori inseriti valgono solo per **questa trascrizione**: che tu la applichi o la ignori, le impostazioni dell'applicazione restano com'erano. **“Mantieni questi valori come impostazioni”** affida i tre valori alle impostazioni dell'applicazione — quelle delle [preferenze](preferences.md#trascrizione), salvate con esse —, e la finestra lo dice; chiudere la finestra non lo fa da solo.
+
+![L'anteprima di una trascrizione: i limiti della post-elaborazione in alto, i pezzi del motore a sinistra, i sottotitoli a destra, il secondo selezionato e i suoi due pezzi di origine evidenziati.](captures/apercu-transcription.png)
+
+![La stessa finestra di dialogo con la tavolozza scura.](captures/apercu-transcription-sombre.png)
 
 Le due non si allineano riga per riga, ed è per questo che ciascuna ha i propri tempi. **Selezionare un sottotitolo a destra evidenzia, a sinistra, i pezzi da cui
-è stato fatto**, e scorre il lato sinistro fino a loro; un sottotitolo alla volta, e solo in questa direzione. Nessuna delle due tabelle si può modificare.
+è stato fatto**, e scorre il lato sinistro fino a loro; un sottotitolo alla volta, e solo in questa direzione. Nessuna delle due tabelle si può modificare: ciò che nessuna impostazione sistema si modifica dopo, nella tabella del progetto, come qualsiasi sottotitolo.
 
 Due pulsanti la chiudono. **“Applica”** sostituisce i sottotitoli del progetto **in una sola operazione**: un solo `Undo` restituisce ciò che c'era, testi di
 traduzione compresi. **“Ignora”** scarta il risultato, che va perso. “Applica” è disattivato quando non c'è

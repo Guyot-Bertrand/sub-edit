@@ -54,7 +54,7 @@ e sae cun código distinto de cero.
   antes de unir e cortar; `--raw` consérvaos, tal como chegaron os anacos do motor.
 - **Os segmentos únense e córtanse** segundo os límites dos axustes (`transcription.merge-gap-ms`,
   `transcription.max-duration-ms`, `transcription.max-characters`): dous anacos dunha mesma frase que están
-  próximos son un só subtítulo, e un anaco demasiado longo ou demasiado ancho córtase nunha palabra. **`--raw`
+  próximos son un só subtítulo, e un anaco demasiado longo ou demasiado ancho córtase — primeiro nun final de frase, despois nunha coma, un punto e coma ou dous puntos, e no medio dunha frase só cando non hai puntuación onde cortar —, evitando un corte que deixe un subtítulo demasiado pequeno para lerse. Os tres pasos fanse en orde, cada un sobre toda a transcrición: descartar, unir, cortar. Un subtítulo que comeza un anaco consérvalle o inicio, e o que o remata consérvalle o final. **`--raw`
   escribe os segmentos do motor tal como saíron**, un por subtítulo, que tamén é a maneira de ver o que fai
   a unión.
 

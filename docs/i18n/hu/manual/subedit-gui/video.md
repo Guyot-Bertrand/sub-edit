@@ -160,11 +160,16 @@ meghiúsul — egy ablak két, egymás melletti táblázatban mutatja az eredmé
 
 - **balra, „Ahogy a motor írta”**: minden, amit a motor visszaadott, ahogy felvágta, utófeldolgozás nélkül — amit a
   [`--raw`](../subedit-cli/transcribe.md) írna —, a helyőrzőkkel (`...`) együtt;
-- **jobbra, „Ahogy alkalmazva lesznek”**: a feliratok az utófeldolgozás után — a helyőrzők eldobva, a közeli darabok összevonva, a hosszúak
-  felvágva —, pontosan az, ami a projektbe kerül.
+- **jobbra, „Ahogy alkalmazva lesznek”**: a feliratok az utófeldolgozás után, pontosan az, ami a projektbe kerül. Három lépésben megy, mindegyik az egész átiraton, mielőtt a következő elkezdődik: a betű és számjegy nélküli darabokat eldobja (`...`); egy mondat közeli darabjait összevonja; a túl hosszúakat felvágja — **először mondatvégnél (`. ? ! …`), aztán vesszőnél, pontosvesszőnél vagy kettőspontnál, és mondat közepén csak akkor, ha nincs írásjel, ahol vágni lehetne**. Azt a vágást, amely olvashatatlanul kicsi feliratot hagyna (néhány karakter, egy másodperc törtrésze), elkerüli, ha van másik. Az a felirat, amely egy darabot kezd, megtartja a kezdetét, az, amelyik lezárja, megtartja a végét: a szavak időpontjait csak a darabon belüli vágásokhoz használja.
+
+A táblázatok fölött **„Utófeldolgozás (csak ez az átirat)”** az utófeldolgozás három korlátját tartalmazza: „Az ennél közelebbi darabok egyesítése:”, „Leghosszabb felirat” és „Egy felirat legnagyobb karakterszáma” — a `transcription.merge-gap-ms`, `transcription.max-duration-ms` és `transcription.max-characters` beállításokat. **Ha egyet megváltoztat, a jobb oldali táblázat azonnal újraképződik**, a motor bevonása nélkül, és a kijelölt felirat kijelölve marad. A megadott értékek csak **erre az átiratra** érvényesek: akár alkalmazza, akár elveti, az alkalmazás beállításai olyanok maradnak, amilyenek voltak. **„Ezen értékek megtartása beállításként”** átadja a három értéket az alkalmazás beállításainak — a [beállítások](preferences.md#leiratozás) részének, azokkal együtt mentve —, és az ablak ezt közli; az ablak bezárása ezt magától nem teszi meg.
+
+![Egy átirat előnézete: fent az utófeldolgozás korlátai, balra a motor darabjai, jobbra a feliratok, a második kijelölve, és két forrásdarabja kiemelve.](captures/apercu-transcription.png)
+
+![Ugyanaz a párbeszédablak sötét palettával.](captures/apercu-transcription-sombre.png)
 
 A kettő nem sorról sorra illeszkedik, ezért mindkettőnek saját időpontjai vannak. **Ha jobbra kijelöl egy feliratot, balra kiemelődnek azok a darabok, amelyekből
-készült**, és a bal oldal odagörög; egyszerre egy felirat, és csak ebben az irányban. Egyik táblázat sem szerkeszthető.
+készült**, és a bal oldal odagörög; egyszerre egy felirat, és csak ebben az irányban. Egyik táblázat sem szerkeszthető: amit egyetlen beállítás sem hoz helyre, azt utólag a projekt táblázatában szerkesztheti, mint bármely feliratot.
 
 Két gomb zárja be. Az **„Alkalmaz”** a projekt feliratait **egyetlen műveletként** váltja fel: egy `Undo` visszaadja, ami volt, a fordítási
 szövegekkel együtt. A **„Kihagyás”** eldobja az eredményt, és az elvész. Az „Alkalmaz” kikapcsolt, ha

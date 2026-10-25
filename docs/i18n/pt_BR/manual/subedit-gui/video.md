@@ -163,11 +163,16 @@ depois de ter produzido alguma coisa — uma janela mostra o resultado em duas t
 
 - **à esquerda, “Do jeito que o motor escreveu”**: tudo o que o motor devolveu, como o cortou, sem qualquer pós-processamento — o que
   [`--raw`](../subedit-cli/transcribe.md) escreveria —, os marcadores de posição (`...`) incluídos;
-- **à direita, “Do jeito que serão aplicadas”**: as legendas depois do pós-processamento — marcadores descartados, pedaços próximos unidos, pedaços
-  longos cortados —, exatamente o que entrará no projeto.
+- **à direita, “Do jeito que serão aplicadas”**: as legendas depois do pós-processamento, exatamente o que entrará no projeto. É feito em três passos, cada um sobre toda a transcrição antes de o seguinte começar: os pedaços sem letra nem dígito (`...`) são descartados; os pedaços próximos de uma mesma frase são unidos; os que são demasiado longos são cortados — **primeiro num fim de frase (`. ? ! …`), depois numa vírgula, num ponto e vírgula ou nos dois pontos, e a meio de uma frase só quando não há pontuação onde cortar**. Evita-se um corte que deixaria uma legenda demasiado pequena para ser lida (poucos caracteres, uma fração de segundo) quando existe outro. Uma legenda que começa um pedaço mantém o seu início, e a que o termina mantém o seu fim: os tempos das palavras só servem para os cortes dentro de um pedaço.
+
+Acima das tabelas, **“Pós-processamento (somente esta transcrição)”** contém os três limites do pós-processamento: “Juntar trechos mais próximos que”, “Legenda mais longa” e “Máximo de caracteres de uma legenda” — as configurações `transcription.merge-gap-ms`, `transcription.max-duration-ms` e `transcription.max-characters`. **Alterar uma refaz na hora a tabela da direita**, sem passar pelo motor, e a legenda que você tinha selecionada continua selecionada. Os valores digitados valem apenas para **esta transcrição**: quer você a aplique, quer a ignore, as configurações do aplicativo ficam como estavam. **“Manter estes valores como configurações”** entrega os três valores às configurações do aplicativo — as das [preferências](preferences.md#transcrição), salvas com elas —, e a janela diz isso; fechar a janela não faz isso por si só.
+
+![A pré-visualização de uma transcrição: os limites do pós-processamento em cima, os pedaços do motor à esquerda, as legendas à direita, a segunda selecionada e os seus dois pedaços de origem realçados.](captures/apercu-transcription.png)
+
+![A mesma caixa de diálogo com a paleta escura.](captures/apercu-transcription-sombre.png)
 
 As duas não se alinham linha a linha, e é por isso que cada uma tem os seus tempos. **Selecionar uma legenda à direita realça, à esquerda, os pedaços de que
-foi feita**, e desloca o lado esquerdo até eles; uma legenda de cada vez, e só nesse sentido. Nenhuma das tabelas se pode editar.
+foi feita**, e desloca o lado esquerdo até eles; uma legenda de cada vez, e só nesse sentido. Nenhuma das tabelas se pode editar: o que nenhuma configuração acerta se edita depois, na tabela do projeto, como qualquer legenda.
 
 Dois botões a fecham. **“Aplicar”** substitui as legendas do projeto **numa única operação**: um `Undo` devolve o que lá estava, textos de tradução
 incluídos. **“Ignorar”** descarta o resultado, que se perde. “Aplicar” fica desativado quando não há

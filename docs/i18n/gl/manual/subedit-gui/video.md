@@ -162,11 +162,16 @@ despois de producir algo — unha xanela mostra o resultado en dúas táboas lad
 
 - **á esquerda, “Tal como o escribiu o motor”**: todo o que devolveu o motor, tal como o cortou, sen ningún posprocesamento — o que
   escribiría [`--raw`](../subedit-cli/transcribe.md) —, marcadores de posición (`...`) incluídos;
-- **á dereita, “Tal como se aplicarán”**: os subtítulos despois do posprocesamento — marcadores eliminados, anacos próximos unidos, anacos
-  longos cortados —, exactamente o que entrará no proxecto.
+- **á dereita, “Tal como se aplicarán”**: os subtítulos despois do posprocesamento, exactamente o que entrará no proxecto. Faise en tres pasos, cada un sobre toda a transcrición antes de que comece o seguinte: descártanse os anacos sen letra nin díxito (`...`); únense os anacos próximos dunha mesma frase; córtanse os que son demasiado longos — **primeiro nun final de frase (`. ? ! …`), despois nunha coma, un punto e coma ou dous puntos, e no medio dunha frase só cando non hai puntuación onde cortar**. Evítase un corte que deixaría un subtítulo demasiado pequeno para lerse (uns poucos caracteres, unha fracción de segundo) cando existe outro. Un subtítulo que comeza un anaco consérvalle o inicio, e o que o remata consérvalle o final: os tempos das palabras só serven para os cortes dentro dun anaco.
+
+Por riba das táboas, **“Posprocesamento (só esta transcrición)”** contén os tres límites do posprocesamento: “Fusionar fragmentos máis próximos que”, “Subtítulo máis longo” e “Máximo de caracteres dun subtítulo” — os axustes `transcription.merge-gap-ms`, `transcription.max-duration-ms` e `transcription.max-characters`. **Cambiar un refai á vez a táboa da dereita**, sen pasar polo motor, e o subtítulo que tiña seleccionado segue seleccionado. Os valores que escribe valen só para **esta transcrición**: a aplique ou a ignore, os axustes da aplicación quedan como estaban. **“Conservar estes valores como axustes”** entrega os tres valores aos axustes da aplicación — os das [preferencias](preferences.md#transcrición), gardados con eles —, e a xanela dío; pechar a xanela non o fai por si só.
+
+![A vista previa dunha transcrición: os límites do posprocesamento arriba, os anacos do motor á esquerda, os subtítulos á dereita, o segundo seleccionado e os seus dous anacos de orixe realzados.](captures/apercu-transcription.png)
+
+![O mesmo diálogo coa paleta escura.](captures/apercu-transcription-sombre.png)
 
 As dúas non se aliñan fila a fila, e por iso cada unha ten os seus tempos. **Seleccionar un subtítulo á dereita realza, á esquerda, as pezas das que
-se fixo**, e despraza o lado esquerdo ata elas; un subtítulo de cada vez, e só nese sentido. Ningunha das táboas se pode editar.
+se fixo**, e despraza o lado esquerdo ata elas; un subtítulo de cada vez, e só nese sentido. Ningunha das táboas se pode editar: o que ningún axuste deixa ben edítase despois, na táboa do proxecto, coma calquera subtítulo.
 
 Dous botóns pechan a xanela. **“Aplicar”** substitúe os subtítulos do proxecto **nunha única operación**: un `Undo` devolve o que había, textos
 de tradución incluídos. **“Ignorar”** descarta o resultado, e perdese. “Aplicar” está apagado cando

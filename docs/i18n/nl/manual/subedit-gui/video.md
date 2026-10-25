@@ -163,11 +163,16 @@ nadat het iets heeft opgeleverd — toont een venster het resultaat in twee tabe
 
 - **links, “Zoals de engine het schreef”**: alles wat de engine heeft teruggegeven, zoals hij het heeft geknipt, zonder enige nabewerking — wat
   [`--raw`](../subedit-cli/transcribe.md) zou schrijven —, de plaatsvervangers (`...`) inbegrepen;
-- **rechts, “Zoals ze worden toegepast”**: de ondertitels na de nabewerking — plaatsvervangers weggelaten, nabije stukken samengevoegd, lange
-  stukken geknipt —, precies wat in het project komt.
+- **rechts, “Zoals ze worden toegepast”**: de ondertitels na de nabewerking, precies wat in het project komt. Het gebeurt in drie stappen, elk over het hele transcript voordat de volgende begint: de stukken zonder letter en zonder cijfer (`...`) worden weggelaten; de nabije stukken van één zin worden samengevoegd; de te lange worden geknipt — **eerst bij een zinseinde (`. ? ! …`), dan bij een komma, een puntkomma of een dubbele punt, en midden in een zin alleen als er geen leesteken is om bij te knippen**. Een knip die een ondertitel zou achterlaten die te klein is om te lezen (een paar tekens, een fractie van een seconde) wordt vermeden als er een andere is. Een ondertitel die een stuk begint behoudt zijn begin, en die het afsluit behoudt zijn einde: de tijden van de woorden dienen alleen voor de knippen binnen een stuk.
+
+Boven de tabellen bevat **“Nabewerking (alleen deze transcriptie)”** de drie grenzen van de nabewerking: “Fragmenten samenvoegen die dichterbij liggen dan”, “Langste ondertitel” en “Maximaal aantal tekens in een ondertitel” — de instellingen `transcription.merge-gap-ms`, `transcription.max-duration-ms` en `transcription.max-characters`. **Een ervan wijzigen maakt de rechtertabel meteen opnieuw**, zonder dat de engine eraan te pas komt, en de ondertitel die u had geselecteerd blijft geselecteerd. De waarden die u invoert gelden alleen voor **deze transcriptie**: of u haar toepast of negeert, de instellingen van de toepassing blijven zoals ze waren. **“Deze waarden als instellingen bewaren”** geeft de drie waarden door aan de instellingen van de toepassing — die van de [instellingen](preferences.md#transcriptie), samen met die opgeslagen —, en het venster zegt dat; het venster sluiten doet dat niet vanzelf.
+
+![Het voorbeeld van een transcriptie: de grenzen van de nabewerking erboven, de stukken van de engine links, de ondertitels rechts, de tweede geselecteerd en haar twee bronstukken gemarkeerd.](captures/apercu-transcription.png)
+
+![Hetzelfde dialoogvenster onder het donkere palet.](captures/apercu-transcription-sombre.png)
 
 De twee komen niet regel voor regel overeen, daarom heeft elk zijn eigen tijden. **Een ondertitel rechts selecteren markeert links de stukken waaruit hij
-is gemaakt**, en schuift de linkerkant ernaartoe; één ondertitel tegelijk, en alleen in die richting. Geen van beide tabellen kan worden bewerkt.
+is gemaakt**, en schuift de linkerkant ernaartoe; één ondertitel tegelijk, en alleen in die richting. Geen van beide tabellen kan worden bewerkt: wat geen enkele instelling goed krijgt, bewerkt u daarna in de tabel van het project, zoals elke ondertitel.
 
 Twee knoppen sluiten het. **“Toepassen”** vervangt de ondertitels van het project **in één bewerking**: één `Undo` geeft terug wat er stond, vertaalteksten
 inbegrepen. **“Negeren”** gooit het resultaat weg, en het is verloren. “Toepassen” is uitgeschakeld als er

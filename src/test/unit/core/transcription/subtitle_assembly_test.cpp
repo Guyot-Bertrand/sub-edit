@@ -128,11 +128,11 @@ TEST_CASE("a long segment is split at the timed words", "[assembly]") {
     const auto subtitles = assembleSubtitles(segments);
 
     REQUIRE(subtitles.size() == 2);
-    CHECK(subtitles[0].mainText == "one two three four");
+    CHECK(subtitles[0].mainText == "one two three");
     CHECK(subtitles[0].start == at(0));
-    CHECK(subtitles[0].end == at(6000));
-    CHECK(subtitles[1].mainText == "five six");
-    CHECK(subtitles[1].start == at(6100));
+    CHECK(subtitles[0].end == at(4500));
+    CHECK(subtitles[1].mainText == "four five six");
+    CHECK(subtitles[1].start == at(4600));
     CHECK(subtitles[1].end == at(10000));
 }
 
@@ -264,4 +264,99 @@ TEST_CASE("the subtitles of assemble are those of assembleSubtitles", "[assembly
 
     CHECK(textsOf(subedit::core::assemble(segments).subtitles) ==
           textsOf(assembleSubtitles(segments)));
+}
+
+// ## The rework of #795
+
+TEST_CASE("a piece is cut at its punctuation, not in the middle of a sentence",
+          "[assembly][cuts]") {
+    // Raw piece 0 of the film: 63 characters over 9.3 s, a comma after "comes".
+    TranscribedSegment piece =
+        segment(0, 9320, "When a change comes, some species feel the urge to migrate.");
+    piece.words = {word("When", 1000, 1500),
+                   word("a", 1500, 1700),
+                   word("change", 1700, 2300),
+                   word("comes,", 2300, 3000),
+                   word("some", 3200, 3700),
+                   word("species", 3700, 4500),
+                   word("feel", 4500, 5000),
+                   word("the", 5000, 5200),
+                   word("urge", 5200, 6000),
+                   word("to", 8800, 9000),
+                   word("migrate.", 9000, 9320)};
+
+    const auto subtitles = assembleSubtitles({&piece, 1});
+
+    REQUIRE(subtitles.size() == 2);
+    CHECK(subtitles[0].mainText == "When a change comes,");
+    CHECK(subtitles[1].mainText == "some species feel the urge to migrate.");
+}
+
+TEST_CASE("a sentence end is preferred to a clause end", "[assembly][cuts]") {
+    AssemblySettings settings;
+    settings.maxCharacters = 30;
+    const std::vector<TranscribedSegment> segments{
+        segment(0, 6000, "Yes, of course it is. Then we go home.")};
+
+    CHECK(textsOf(assembleSubtitles(segments, settings)) ==
+          std::vector<std::string>{"Yes, of course it is.", "Then we go home."});
+}
+
+TEST_CASE("a cut never leaves a one-word subtitle when another exists", "[assembly][cuts]") {
+    AssemblySettings settings;
+    settings.maxCharacters = 40;
+    const std::vector<TranscribedSegment> segments{
+        segment(0, 8000, "They call it Sukhanruha, following a scent in the wind, a star")};
+
+    for (const std::string& text : textsOf(assembleSubtitles(segments, settings)))
+        CHECK(text.size() >= subedit::core::kMinSubtitleCharacters);
+}
+
+TEST_CASE("the times of a piece are kept, whatever the words say", "[assembly][times]") {
+    TranscribedSegment piece = segment(0, 10000, "one two three four five six seven eight");
+    piece.words = {word("one", 1000, 1500),
+                   word("two", 1500, 2500),
+                   word("three", 2500, 3500),
+                   word("four", 3500, 4500),
+                   word("five", 4600, 5500),
+                   word("six", 5500, 6500),
+                   word("seven", 6500, 8000),
+                   word("eight", 8000, 9500)};
+    AssemblySettings settings;
+    settings.maxCharacters = 14;
+
+    const auto subtitles = assembleSubtitles({&piece, 1}, settings);
+
+    REQUIRE(subtitles.size() >= 3);
+    CHECK(subtitles.front().start == at(0));
+    CHECK(subtitles.back().end == at(10000));
+}
+
+TEST_CASE("a piece that fits keeps its times, merged or not", "[assembly][times]") {
+    TranscribedSegment first = segment(0, 1500, "I was going to");
+    first.words = {word("I", 400, 500),
+                   word("was", 500, 800),
+                   word("going", 800, 1000),
+                   word("to", 1000, 1200)};
+    const std::vector<TranscribedSegment> segments{first, segment(1600, 3200, "tell you.")};
+
+    const auto subtitles = assembleSubtitles(segments);
+
+    REQUIRE(subtitles.size() == 1);
+    CHECK(subtitles.front().start == at(0));
+    CHECK(subtitles.front().end == at(3200));
+}
+
+TEST_CASE("a closing quote or bracket does not hide the mark before it", "[assembly][cuts]") {
+    AssemblySettings settings;
+    settings.maxCharacters = 24;
+    // A word made of nothing but a closing mark is a boundary like any other, with no mark of its
+    // own.
+    const std::vector<TranscribedSegment> segments{
+        segment(0, 8000, "He said \"go home.\" Then ) he left slowly after that")};
+
+    const auto texts = textsOf(assembleSubtitles(segments, settings));
+
+    REQUIRE(texts.size() >= 2);
+    CHECK(texts.front() == "He said \"go home.\"");
 }

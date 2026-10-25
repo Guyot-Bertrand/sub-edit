@@ -28,6 +28,11 @@ struct AssemblySettings {
     /// lines of 42. Cutting that text into lines is the line-breaking task's
     /// job, which already exists.
     std::size_t maxCharacters = kDefaultMaxCharacters;
+
+    /// A cut that leaves less than this (in time or in characters) is avoided when another
+    /// exists.
+    Duration minDuration = Duration::fromMilliseconds(kMinSubtitleDurationMilliseconds);
+    std::size_t minCharacters = kMinSubtitleCharacters;
 };
 
 /// The limits the post-processing is held to, from the settings.
@@ -55,18 +60,21 @@ struct Assembly {
 
 /// Turns what an engine cut into subtitles.
 ///
-/// An engine cuts where it likes. This step, **independent of any engine**,
-/// does two things (D7 of the phase 22 spec):
+/// An engine cuts where it likes. This step, **independent of any engine**, does three things, in
+/// this order and each over the whole set before the next (D7 of the phase 22 spec):
 ///
-/// - it **merges** a segment into the one before when they are close, when the
-///   first does not end a sentence, when they have the same speaker (or none),
-///   and when the result still respects the limits;
-/// - it **splits** a segment that exceeds the limits, at a word boundary — at the
-///   timed words when the engine gave them, else in proportion to the letters.
+/// - it **drops** the pieces with no letter and no digit;
+/// - it **merges** a segment into the one before when they are close, when the first does not end a
+///   sentence, when they have the same speaker (or none), and when the result still respects the
+///   limits;
+/// - it **cuts** a segment that exceeds the limits, **at punctuation first** (an end of sentence,
+///   then a clause) and in the middle of a sentence only when there is none, balancing the halves
+///   and avoiding one too small — at the timed words when the engine gave them, else in proportion
+///   to the letters.
 ///
-/// It works with no speaker and with no timed words, and a word longer than the
-/// limit is kept whole rather than cut. The result carries the main text only;
-/// positions are those of the engine, untouched.
+/// It works with no speaker and with no timed words, and a word longer than the limit is kept
+/// whole rather than cut. The result carries the main text only; **a subtitle that begins a piece
+/// keeps its start and one that ends it keeps its end**.
 [[nodiscard]] std::vector<Subtitle> assembleSubtitles(std::span<const TranscribedSegment> segments,
                                                       const AssemblySettings& settings = {});
 

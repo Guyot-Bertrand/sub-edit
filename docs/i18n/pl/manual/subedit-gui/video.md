@@ -160,11 +160,16 @@ po wytworzeniu czegoś — okno pokazuje wynik w dwóch tabelach obok siebie, ka
 
 - **po lewej „Tak, jak zapisał to silnik”**: wszystko, co zwrócił silnik, tak jak je pociął, bez żadnego przetwarzania końcowego — to, co
   zapisałoby [`--raw`](../subedit-cli/transcribe.md) —, łącznie z zapychaczami (`...`);
-- **po prawej „Tak, jak zostaną zastosowane”**: napisy po przetwarzaniu końcowym — zapychacze odrzucone, bliskie kawałki scalone, długie
-  pocięte —, dokładnie to, co trafi do projektu.
+- **po prawej „Tak, jak zostaną zastosowane”**: napisy po przetwarzaniu końcowym, dokładnie to, co trafi do projektu. Odbywa się ono w trzech krokach, każdy na całej transkrypcji, zanim zacznie się następny: kawałki bez litery i bez cyfry (`...`) są odrzucane; bliskie kawałki jednego zdania są scalane; zbyt długie są cięte — **najpierw na końcu zdania (`. ? ! …`), potem na przecinku, średniku lub dwukropku, a w środku zdania tylko wtedy, gdy nie ma znaku interpunkcyjnego, na którym można ciąć**. Cięcia, które zostawiłoby napis zbyt mały, by go przeczytać (kilka znaków, ułamek sekundy), unika się, gdy istnieje inne. Napis, który zaczyna kawałek, zachowuje jego początek, a ten, który go kończy, zachowuje koniec: czasy słów służą tylko do cięć wewnątrz kawałka.
+
+Nad tabelami **„Przetwarzanie końcowe (tylko ta transkrypcja)”** zawiera trzy limity przetwarzania końcowego: „Łącz fragmenty bliższe niż”, „Najdłuższy napis” i „Maksymalna liczba znaków w napisie” — ustawienia `transcription.merge-gap-ms`, `transcription.max-duration-ms` i `transcription.max-characters`. **Zmiana jednego z nich od razu przelicza prawą tabelę**, bez udziału silnika, a zaznaczony napis pozostaje zaznaczony. Wpisane wartości obowiązują tylko dla **tej transkrypcji**: niezależnie od tego, czy ją zastosujesz, czy zignorujesz, ustawienia aplikacji pozostają takie, jakie były. **„Zachowaj te wartości jako ustawienia”** przekazuje te trzy wartości do ustawień aplikacji — tych z [preferencje](preferences.md#transkrypcja), zapisanych razem z nimi —, a okno o tym informuje; samo zamknięcie okna tego nie robi.
+
+![Podgląd transkrypcji: u góry limity przetwarzania końcowego, po lewej kawałki silnika, po prawej napisy, drugi zaznaczony, a jego dwa kawałki źródłowe podświetlone.](captures/apercu-transcription.png)
+
+![To samo okno dialogowe w ciemnej palecie.](captures/apercu-transcription-sombre.png)
 
 Obie nie pokrywają się wiersz w wiersz, dlatego każda ma własne czasy. **Zaznaczenie napisu po prawej podświetla po lewej kawałki, z których
-powstał**, i przewija lewą stronę do nich; jeden napis naraz i tylko w tym kierunku. Żadnej z tabel nie można edytować.
+powstał**, i przewija lewą stronę do nich; jeden napis naraz i tylko w tym kierunku. Żadnej z tabel nie można edytować: to, czego żadne ustawienie nie poprawi, edytuje się potem w tabeli projektu, jak każdy napis.
 
 Dwa przyciski zamykają okno. **„Zastosuj”** zastępuje napisy projektu **jedną operacją**: jedno `Undo` przywraca to, co było, łącznie z tekstami
 tłumaczenia. **„Ignoruj”** odrzuca wynik, który jest wtedy stracony. „Zastosuj” jest wyłączone, gdy nie ma

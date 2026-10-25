@@ -4061,6 +4061,7 @@ msgstr "Reparar los subtítulos"
 
 #. TRANSLATORS: the unit after the number of a spin box, with its space: « 50 ms ».
 #: src/lib/subedit/gui/disjoint_dialog.cpp
+#: src/lib/subedit/gui/transcription_preview_dialog.cpp
 msgid " ms"
 msgstr " ms"
 
@@ -5048,6 +5049,10 @@ msgstr ""
 "idioma. Elija el idioma si lo conoce."
 
 #: src/lib/subedit/gui/transcription_preview_dialog.cpp
+msgid "Keep these values as settings"
+msgstr "Conservar estos valores como ajustes"
+
+#: src/lib/subedit/gui/transcription_preview_dialog.cpp
 msgid "Apply"
 msgstr "Aplicar"
 
@@ -5069,6 +5074,28 @@ msgid "Select a subtitle on the right to see the pieces it was made from."
 msgstr ""
 "Seleccione un subtítulo a la derecha para ver los fragmentos con los que se "
 "hizo."
+
+#: src/lib/subedit/gui/transcription_preview_dialog.cpp
+msgid ""
+"These values are now the settings of the application (transcription.*). "
+"Closing this window changes nothing more."
+msgstr "Estos valores son ahora los ajustes de la aplicación (transcription.*). Cerrar esta ventana ya no cambia nada más."
+
+#: src/lib/subedit/gui/transcription_preview_dialog.cpp
+msgid "Merge pieces closer than"
+msgstr "Fusionar fragmentos más cercanos que"
+
+#: src/lib/subedit/gui/transcription_preview_dialog.cpp
+msgid "Longest subtitle"
+msgstr "Subtítulo más largo"
+
+#: src/lib/subedit/gui/transcription_preview_dialog.cpp
+msgid "Most characters in a subtitle"
+msgstr "Máximo de caracteres de un subtítulo"
+
+#: src/lib/subedit/gui/transcription_preview_dialog.cpp
+msgid "Post-processing (this transcript only)"
+msgstr "Posprocesamiento (solo esta transcripción)"
 
 #: src/lib/subedit/gui/transcription_preview_dialog.cpp
 msgid "As the engine wrote it (%1)"

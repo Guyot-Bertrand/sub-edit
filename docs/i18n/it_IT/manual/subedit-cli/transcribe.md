@@ -54,7 +54,7 @@ esce con un codice diverso da zero.
   così come i pezzi del motore sono arrivati.
 - **I segmenti vengono uniti e tagliati** secondo i limiti delle impostazioni (`transcription.merge-gap-ms`,
   `transcription.max-duration-ms`, `transcription.max-characters`): due pezzi di una stessa frase che sono
-  vicini formano un solo sottotitolo, e un pezzo troppo lungo o troppo largo viene tagliato a una parola. **`--raw`
+  vicini formano un solo sottotitolo, e un pezzo troppo lungo o troppo largo viene tagliato — prima a una fine di frase, poi a una virgola, un punto e virgola o due punti, e a metà frase solo quando non c'è punteggiatura dove tagliare —, evitando un taglio che lasci un sottotitolo troppo piccolo per essere letto. I tre passi si svolgono in ordine, ciascuno su tutta la trascrizione: scartare, unire, tagliare. Un sottotitolo che inizia un pezzo ne conserva l'inizio, e quello che lo termina ne conserva la fine. **`--raw`
   scrive i segmenti del motore così come sono arrivati**, uno per sottotitolo, che è anche il modo per vedere che cosa
   fa l'unione.
 

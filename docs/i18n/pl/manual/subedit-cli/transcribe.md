@@ -54,7 +54,7 @@ kończy się niezerowym kodem.
   takie, jakie kawałki silnika nadeszły.
 - **Segmenty są łączone i cięte** zgodnie z limitami z ustawień (`transcription.merge-gap-ms`,
   `transcription.max-duration-ms`, `transcription.max-characters`): dwa fragmenty jednego zdania, które leżą
-  blisko siebie, tworzą jeden napis, a fragment zbyt długi lub zbyt szeroki jest cięty na słowie. **`--raw`
+  blisko siebie, tworzą jeden napis, a fragment zbyt długi lub zbyt szeroki jest cięty — najpierw na końcu zdania, potem na przecinku, średniku lub dwukropku, a w środku zdania tylko wtedy, gdy nie ma znaku interpunkcyjnego, na którym można ciąć —, z unikaniem cięcia, które zostawia napis zbyt mały, by go przeczytać. Trzy kroki wykonują się po kolei, każdy na całej transkrypcji: odrzucenie, scalenie, cięcie. Napis, który zaczyna kawałek, zachowuje jego początek, a ten, który go kończy, zachowuje koniec. **`--raw`
   zapisuje segmenty silnika tak, jak przyszły**, po jednym na napis, co jest też sposobem, by zobaczyć, co
   robi łączenie.
 

@@ -53,7 +53,7 @@ og lýkur með kóða sem er ekki núll.
   — `...`, `…`, `♪` — áður en hún sameinar og klippir; `--raw` heldur þeim, eins og bútar vélarinnar komu.
 - **Bútarnir eru sameinaðir og skornir** samkvæmt mörkum stillinganna (`transcription.merge-gap-ms`,
   `transcription.max-duration-ms`, `transcription.max-characters`): tveir bútar úr einni setningu sem eru
-  nálægt hvor öðrum verða einn skjátexti, og bútur sem er of langur eða of breiður er skorinn við orð. **`--raw`
+  nálægt hvor öðrum verða einn skjátexti, og bútur sem er of langur eða of breiður er skorinn — fyrst við setningarlok, síðan við kommu, semíkommu eða tvípunkt, og inni í setningu aðeins þegar ekkert greinarmerki er til að klippa við —, og forðast er klippingu sem skilur eftir skjátexta of lítinn til að lesa. Skrefin þrjú gerast í röð, hvert yfir alla umritunina: fella niður, sameina, klippa. Skjátexti sem hefur bút heldur upphafi hans, og sá sem lýkur honum heldur endinum. **`--raw`
   skrifar búta vélarinnar eins og þeir komu**, einn fyrir hvern skjátexta, og það er líka leiðin til að sjá hvað
   sameiningin gerir.
 
