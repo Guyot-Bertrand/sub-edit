@@ -156,7 +156,7 @@ chascun subtitul move se per li sam quantité: null resta sur ecran plu long o p
 quam ante.
 
 Li duration es scrit **quam un marca de tempore, signe includet** — `00:00:02,500` move avan,
-`-0:01,250` move retro. Li formes acceptat es ti de un cellule de position.
+`-00:00:01,250` move retro. **Li camp es scrit super, ne in it**: it comensa quam `00:00:00,000`, un cifre substitue li cifre sub li cursor e li cursor salta su self li `:` e li `,`, tal que li forme nequande muta. Solmen cifres es prendet, e `-` (o `+`) por mutar li signe; `Backspace` e `Delete` remette un zero. Li sam camp serve in omni loc u on regla un tempore: li dialog de transformation, li cellules de position del tabelle e li interval de un transcription.
 
 ![Li casse de dialog de displaciament, paletta clar, con tri lineas selectet de
 nin cent octant: li duration a aplicar, li election del ciel e li

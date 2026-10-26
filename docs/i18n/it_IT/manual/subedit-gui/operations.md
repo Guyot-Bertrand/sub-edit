@@ -156,7 +156,7 @@ ogni sottotitolo si spostano della stessa quantità: nessuno resta sullo schermo
 breve di prima.
 
 La durata si scrive **come una marca temporale, segno compreso** — `00:00:02,500` sposta in avanti,
-`-0:01,250` sposta indietro. Le forme accettate sono quelle di una cella di posizione.
+`-00:00:01,250` sposta indietro. **Il campo si digita sopra, non vi si scrive dentro**: parte da `00:00:00,000`, una cifra sostituisce la cifra sotto il cursore e il cursore salta da solo i `:` e la `,`, così la forma non cambia mai. Sono accettate solo le cifre, e `-` (o `+`) per cambiare il segno; `Backspace` e `Delete` rimettono uno zero. Lo stesso campo serve ovunque si imposti un tempo: la finestra di trasformazione, le celle di posizione della tabella e l'intervallo di una trascrizione.
 
 ![La finestra di dialogo dello spostamento, tavolozza chiara, con tre righe selezionate su
 novecentottanta: la durata da applicare, la scelta della destinazione e il

@@ -183,8 +183,7 @@ Nachbearbeitung schneidet an den eigenen Grenzen der Stücke. Ein Fehlschlag wir
 
 ### Zuerst einen Teil ausprobieren
 
-Ein Bereich lässt Sie **ein Modell oder eine Sprache an zwei Minuten beurteilen, bevor Sie sich auf zwei Stunden festlegen**. Die Felder “Teil des Films” nehmen einen Anfang und ein Ende, jeweils geschrieben als `HH:MM:SS`, wie die Felder sagen (`2:00` und eine Anzahl Sekunden, `90`,
-werden ebenfalls gelesen); eines allein ist erlaubt (von dort bis zum Ende, oder vom Anfang bis dorthin). `OK` bleibt ausgegraut, solange ein Feld
+Ein Bereich lässt Sie **ein Modell oder eine Sprache an zwei Minuten beurteilen, bevor Sie sich auf zwei Stunden festlegen**. Die Felder “Teil des Films” nehmen einen Anfang und ein Ende, jeweils geschrieben als `HH:MM:SS` und Ziffer für Ziffer überschrieben, wie im [Verschiebungsdialog](operations.md#shift-positions) (eine als `2:00` eingefügte Zeit wird in Form gebracht); eines allein ist erlaubt (von dort bis zum Ende, oder vom Anfang bis dorthin). `OK` bleibt ausgegraut, solange ein Feld
 keine Zeitangabe ist oder das Ende nicht nach dem Anfang liegt, und eine Zeile unter den Feldern sagt, welches.
 
 - **Die Untertitel behalten die Zeit des Films**: Was bei 2:10 gesagt wird, steht im Ergebnis bei `0:02:10`.

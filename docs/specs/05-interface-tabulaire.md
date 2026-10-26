@@ -482,6 +482,8 @@ Registered in the `planned` state, as the rule requires, before the code.
 | `GUI-SAVE-02` | save as chooses path and format |
 | `GUI-SAVE-03` | closing with unsaved changes asks for confirmation |
 | `GUI-SHIFT-01` | the shift dialog shifts the target |
+| `GUI-TIME-01` | a field that sets a time is typed over, not inserted into: only digits (and `-` where a negative time makes sense) are taken, and the cursor skips the separators by itself, in the shift, the transformation, the range of a transcription and the position cells of the table |
+| `GUI-LOOK-01` | a read-only text area in a dialog is delimited — a thin frame and a background of its own — in both palettes |
 | `GUI-TRANSFORM-01` | the transformation dialog corrects by two reference points |
 | `GUI-SCOPE-01` | an operation dialog offers the choice between the selection and the whole project when only part is selected |
 | `GUI-PREVIEW-01` | an operation dialog shows, before applying, the first subtitles it would change |
@@ -609,6 +611,24 @@ only readers, writers, a detection and the types they produce.
 the defect there was a badly fed parameter, not a repetition. And the three
 guards that no user can reach are traversed by tests, which is the right answer
 to "a guard that no test traverses is a promise that nobody checks".
+
+## Added by #805: typing a time, and the look of a read-only area
+
+Two usability points seen in use, **generalised** rather than fixed where they were seen.
+
+- **A time is typed over, as in Gaupol** (`GUI-TIME-01`). `TimestampEdit` is a `QLineEdit` whose text is the time
+  `Timestamp::parse` reads, in a fixed shape `HH:MM:SS,mmm`: a digit **replaces** the digit under the cursor and the
+  cursor moves on, **skipping `:` and `,`** itself; **only digits** are taken, and `-`/`+` where a negative time makes sense;
+  Backspace and Delete put a zero back, the arrows move from digit to digit. Three shapes: a position (signed, with
+  milliseconds: shift, transformation and the position cells of the table), a duration (unsigned, the `Duration`
+  cells), and a range bound (no milliseconds, **empty allowed** — empty means "no bound"). A field that must hold a time begins as
+  zeros, so that there is a shape to overwrite. **A text given to the field** — a value to start from, a paste, a test —
+  **is put into shape when the time it holds is readable** (`1:02` becomes `00:01:02,000`) and is otherwise left alone, so what
+  reads `text()` keeps reading it. The frame-number cells keep their own field (a whole number, not a time). The grammar of
+  the transcription range (`2:00`, seconds) is still what the command line reads; the window's field is the shaped one.
+- **A read-only text area is delimited** (`GUI-LOOK-01`). `styleAsReadOnly` gives it a thin sunken frame and the palette's
+  `AlternateBase` as background, in both palettes; the two references of the transformation dialog use it, and a future
+  read-only area is given the look by the same call.
 
 ## Completion criteria
 

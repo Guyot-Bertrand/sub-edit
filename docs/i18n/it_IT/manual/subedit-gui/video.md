@@ -187,8 +187,7 @@ fine), e la post-elaborazione taglia ai limiti propri dei pezzi. Un fallimento v
 
 ### Provare prima una parte
 
-Un intervallo permette di **giudicare un modello o una lingua su due minuti prima di impegnarsi su due ore**. I campi “Parte del film” accettano un inizio e una fine, ciascuno scritto `HH:MM:SS`, come dicono i campi (`2:00` e un numero di secondi, `90`,
-sono letti anch'essi); ne è ammesso uno solo (da lì alla fine, o dall'inizio fino a lì). `OK` resta disattivato finché un campo non
+Un intervallo permette di **giudicare un modello o una lingua su due minuti prima di impegnarsi su due ore**. I campi “Parte del film” accettano un inizio e una fine, ciascuno scritto `HH:MM:SS` e digitato sopra cifra per cifra, come nella [finestra di spostamento](operations.md#shift-positions) (un tempo incollato come `2:00` viene messo in forma); ne è ammesso uno solo (da lì alla fine, o dall'inizio fino a lì). `OK` resta disattivato finché un campo non
 è un tempo o la fine non viene dopo l'inizio, e una riga sotto i campi dice quale.
 
 - **I sottotitoli mantengono il tempo del film**: ciò che è detto a 2:10 si trova a `0:02:10` nel risultato.

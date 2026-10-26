@@ -181,8 +181,7 @@ fin), et le post-traitement coupe aux limites propres des morceaux. Un échec es
 
 ### Essayer une partie d'abord
 
-Une plage permet de **juger un modèle ou une langue sur deux minutes avant de s'engager sur deux heures**. Les champs « Partie du film » prennent un début et une fin, chacun écrit `HH:MM:SS`, comme les champs le disent (`2:00` et un nombre de secondes, `90`,
-sont lus aussi) ; un seul est permis (de là jusqu'à la fin, ou du début jusque-là). `OK` reste éteint tant qu'un champ n'est
+Une plage permet de **juger un modèle ou une langue sur deux minutes avant de s'engager sur deux heures**. Les champs « Partie du film » prennent un début et une fin, chacun écrit `HH:MM:SS` et se tapent par-dessus, chiffre par chiffre, comme dans [le dialogue de décalage](operations.md#shift-positions) (un temps collé sous la forme `2:00` est remis en forme) ; un seul est permis (de là jusqu'à la fin, ou du début jusque-là). `OK` reste éteint tant qu'un champ n'est
 pas une durée ou que la fin ne vient pas après le début, et une ligne sous les champs dit lequel.
 
 - **Les sous-titres gardent le temps du film** : ce qui est dit à 2:10 est à `0:02:10` dans le résultat.

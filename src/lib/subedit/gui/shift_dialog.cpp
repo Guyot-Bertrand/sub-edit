@@ -2,6 +2,7 @@
 #include <subedit/core/time/timestamp.hpp>
 #include <subedit/gui/messages.hpp>
 #include <subedit/gui/shift_dialog.hpp>
+#include <subedit/gui/timestamp_edit.hpp>
 
 #include <QFormLayout>
 #include <QLineEdit>
@@ -13,7 +14,7 @@
 namespace subedit::gui {
 
 ShiftDialog::ShiftDialog(OperationScope scope, QWidget* parent)
-    : OperationDialog(scope, parent), m_by(new QLineEdit{this}) {
+    : OperationDialog(scope, parent), m_by(new TimestampEdit{{.negative = true}, this}) {
     setWindowTitle(translate("Shift positions"));
 
     m_by->setPlaceholderText(QStringLiteral("00:00:02,500"));

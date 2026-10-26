@@ -183,8 +183,7 @@ eftirvinnslan klippir á mörkum bútanna sjálfra. Bilun er fyrst sögð í glu
 
 ### Að prófa hluta fyrst
 
-Bil gerir þér kleift að **meta líkan eða tungumál á tveimur mínútum áður en lagt er í tvær klukkustundir**. Reitirnir „Hluti kvikmyndarinnar“ taka upphaf og endi, hvort um sig skrifað `HH:MM:SS`, eins og reitirnir segja (`2:00` og fjöldi sekúndna, `90`,
-eru líka lesin); nóg er að fylla út annan (þaðan til enda, eða frá upphafi þangað). `OK` helst óvirkt meðan reitur
+Bil gerir þér kleift að **meta líkan eða tungumál á tveimur mínútum áður en lagt er í tvær klukkustundir**. Reitirnir „Hluti kvikmyndarinnar“ taka upphaf og endi, hvort um sig skrifað `HH:MM:SS` og skrifaður yfir tölustaf fyrir tölustaf, eins og í [tilfærsluglugganum](operations.md#shift-positions) (tími sem er límdur inn sem `2:00` er færður í rétt form); nóg er að fylla út annan (þaðan til enda, eða frá upphafi þangað). `OK` helst óvirkt meðan reitur
 er ekki tími eða endirinn kemur ekki á eftir upphafinu, og lína undir reitunum segir hvor það er.
 
 - **Skjátextarnir halda tíma kvikmyndarinnar**: það sem sagt er á 2:10 er á `0:02:10` í niðurstöðunni.

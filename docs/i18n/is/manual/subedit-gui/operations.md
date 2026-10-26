@@ -156,7 +156,7 @@ hvers skjátexta færast um sömu stærð: enginn helst lengur eða skemur á sk
 en áður.
 
 Tímalengdin er skrifuð **eins og tímamerki, með formerki** — `00:00:02,500` færir áfram,
-`-0:01,250` færir afturábak. Leyfileg form eru þau sem gilda í tímasetningarreit.
+`-00:00:01,250` færir afturábak. **Reiturinn er skrifaður yfir, ekki inn í**: hann byrjar sem `00:00:00,000`, tölustafur kemur í stað tölustafsins undir bendlinum og bendillinn sleppir sjálfur `:` og `,`, svo að formið breytist aldrei. Aðeins tölustafir eru teknir, og `-` (eða `+`) til að skipta um formerki; `Backspace` og `Delete` setja núll aftur inn. Sami reitur er notaður alls staðar þar sem tími er stilltur: í umbreytingarglugganum, í tímasetningarreitum töflunnar og í bili uppskriftar.
 
 ![Færsluglugginn, ljós litapaletta, með þrjár línur valdar af
 níu hundruð og áttatíu: tímalengdin sem á að beita, val útkomunnar, og

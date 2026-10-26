@@ -99,7 +99,7 @@ Her sayfa nedenini verir: [pano](clipboard.md#neye-etki-ettikleri), [satırlar](
 
 Hedefi bir süre kadar, ileri ya da geri taşır. Her altyazının iki sınırı da aynı miktarda taşınır: hiçbiri öncekinden daha uzun ya da daha kısa süre ekranda kalmaz.
 
-Süre **bir zaman damgası gibi, işaret dahil** yazılır — `00:00:02,500` ileri taşır, `-0:01,250` geri. Kabul edilen biçimler bir konum hücresinin biçimleridir.
+Süre **bir zaman damgası gibi, işaret dahil** yazılır — `00:00:02,500` ileri taşır, `-00:00:01,250` geri. **Alanın üzerine yazılır, içine yazılmaz**: `00:00:00,000` olarak başlar, bir rakam imlecin altındaki rakamın yerini alır ve imleç `:` ile `,` işaretlerini kendiliğinden atlar; böylece biçim hiç değişmez. Yalnızca rakamlar ve işareti değiştirmek için `-` (ya da `+`) kabul edilir; `Backspace` ve `Delete` yerine sıfır koyar. Aynı alan bir sürenin ayarlandığı her yerde kullanılır: dönüştürme penceresi, tablonun konum hücreleri ve bir yazıya dökmenin aralığı.
 
 ![Kaydırma iletişim kutusu, açık palet, dokuz yüz seksen satırdan üçü
 seçili: uygulanacak süre, hedef seçimi ve

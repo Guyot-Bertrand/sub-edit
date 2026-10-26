@@ -111,6 +111,8 @@ longer prove anything.
 | `GUI-SAVE-02` | save as chooses path and format | 5 | implemented |
 | `GUI-SAVE-03` | closing with unsaved changes asks for confirmation | 5 | implemented |
 | `GUI-SHIFT-01` | the shift dialog shifts the target | 5 | implemented |
+| `GUI-TIME-01` | a field that sets a time is typed over, not inserted into: only digits (and `-` where a negative time makes sense) are taken, and the cursor skips the separators by itself, in the shift, the transformation, the range of a transcription and the position cells of the table | 5 | implemented |
+| `GUI-LOOK-01` | a read-only text area in a dialog is delimited — a thin frame and a background of its own — in both palettes | 5 | implemented |
 | `GUI-TRANSFORM-01` | the transform dialog corrects through two reference points | 5 | implemented |
 | `GUI-SCOPE-01` | an operation dialog offers the choice between the selection and the whole project when only part of it is selected | 5 | implemented |
 | `GUI-PREVIEW-01` | an operation dialog shows, before applying, the first subtitles it would change | 5 | implemented |

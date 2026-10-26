@@ -182,8 +182,7 @@ jälkikäsittely leikkaa palojen omista rajoista. Epäonnistuminen kerrotaan ens
 
 ### Kokeile ensin osaa
 
-Alueen avulla voit **arvioida mallia tai kieltä kahdella minuutilla ennen kuin sitoudut kahteen tuntiin**. Kentät “Elokuvan osa” ottavat alun ja lopun, kumpikin kirjoitettuna `HH:MM:SS`, kuten kentät sanovat (`2:00` ja sekuntimäärä, `90`,
-luetaan myös); yksi yksinään on sallittu (sieltä loppuun tai alusta sinne). `OK` pysyy harmaana, kunnes kenttä
+Alueen avulla voit **arvioida mallia tai kieltä kahdella minuutilla ennen kuin sitoudut kahteen tuntiin**. Kentät “Elokuvan osa” ottavat alun ja lopun, kumpikin kirjoitettuna `HH:MM:SS` ja kirjoitetaan päälle numero kerrallaan, kuten [siirtoikkunassa](operations.md#shift-positions) (liitetty aika, esimerkiksi `2:00`, muotoillaan oikeaan muotoon); yksi yksinään on sallittu (sieltä loppuun tai alusta sinne). `OK` pysyy harmaana, kunnes kenttä
 on aika ja loppu on alun jälkeen, ja kenttien alla oleva rivi kertoo, mikä on vialla.
 
 - **Tekstitykset säilyttävät elokuvan ajan**: se, mikä sanotaan kohdassa 2:10, on tuloksessa kohdassa `0:02:10`.

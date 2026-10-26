@@ -181,8 +181,7 @@ utófeldolgozás a darabok saját határainál vág. A hibát előbb egy ablak m
 
 ### Előbb egy rész kipróbálása
 
-Egy tartomány lehetővé teszi, hogy **egy modellt vagy nyelvet kétperces szakaszon ítéljen meg, mielőtt kétórásra vállalkozna**. A „A film egy része” mezők egy kezdetet és egy véget kapnak, mindegyiket `HH:MM:SS` alakban írva, ahogy a mezők mondják (a `2:00` és a
-másodpercek száma, `90`, szintén érthető); elég az egyik (onnantól a végéig, vagy az elejétől odáig). Az `OK` kikapcsolt marad, amíg egy mező
+Egy tartomány lehetővé teszi, hogy **egy modellt vagy nyelvet kétperces szakaszon ítéljen meg, mielőtt kétórásra vállalkozna**. A „A film egy része” mezők egy kezdetet és egy véget kapnak, mindegyiket `HH:MM:SS` alakban írva, és számjegyenként felülírva, ahogy [az eltolás párbeszédablakában](operations.md#shift-positions) (a `2:00` alakban beillesztett idő formára igazodik); elég az egyik (onnantól a végéig, vagy az elejétől odáig). Az `OK` kikapcsolt marad, amíg egy mező
 nem időpont, vagy a vég nem a kezdet után van, és a mezők alatti sor megmondja, melyik.
 
 - **A feliratok megtartják a film idejét**: ami 2:10-nél hangzik el, az az eredményben `0:02:10`-nél áll.

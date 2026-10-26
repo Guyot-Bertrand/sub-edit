@@ -183,8 +183,7 @@ posprocesamento corta nos límites propios dos anacos. Un fallo dise primeiro nu
 
 ### Probar primeiro unha parte
 
-Un intervalo permite **xulgar un modelo ou unha lingua en dous minutos antes de comprometerse con dúas horas**. Os campos “Parte da película” toman un comezo e un final, cada un escrito `HH:MM:SS`, como din os campos (`2:00` e un número de segundos, `90`,
-lense tamén); permítese só un (desde aí ata o final, ou desde o principio ata aí). `OK` queda apagado mentres un campo non
+Un intervalo permite **xulgar un modelo ou unha lingua en dous minutos antes de comprometerse con dúas horas**. Os campos “Parte da película” toman un comezo e un final, cada un escrito `HH:MM:SS` e sobrescrito díxito a díxito, como en [o diálogo de desprazamento](operations.md#shift-positions) (un tempo pegado como `2:00` ponse en forma); permítese só un (desde aí ata o final, ou desde o principio ata aí). `OK` queda apagado mentres un campo non
 é un tempo ou o final non vén despois do comezo, e unha liña baixo os campos di cal.
 
 - **Os subtítulos conservan o tempo da película**: o que se di aos 2:10 está en `0:02:10` no resultado.

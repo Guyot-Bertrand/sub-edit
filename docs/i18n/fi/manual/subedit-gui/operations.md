@@ -156,7 +156,7 @@ molemmat rajat liikkuvat saman verran: mikään ei pysy ruudulla kauemmin tai ly
 kuin ennen.
 
 Kesto kirjoitetaan **aikaleiman tapaan, etumerkki mukaan lukien** — `00:00:02,500` siirtää eteenpäin,
-`-0:01,250` siirtää taaksepäin. Hyväksytyt muodot ovat samat kuin kohtasolussa.
+`-00:00:01,250` siirtää taaksepäin. **Kenttä kirjoitetaan päälle, ei sen sisään**: se alkaa muodossa `00:00:00,000`, numero korvaa kursorin kohdalla olevan numeron ja kursori ohittaa itse merkit `:` ja `,`, joten muoto ei koskaan muutu. Hyväksytään vain numerot sekä `-` (tai `+`) etumerkin vaihtamiseksi; `Backspace` ja `Delete` palauttavat nollan. Samaa kenttää käytetään kaikkialla, missä aika annetaan: muunnosikkunassa, taulukon kohtasoluissa ja litteroinnin alueessa.
 
 ![Siirron valintaikkuna, vaalea paletti, kun valittuna on kolme riviä
 yhdeksästäsadastakahdeksastakymmenestä: sovellettava kesto, kohteen valinta ja

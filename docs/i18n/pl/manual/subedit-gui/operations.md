@@ -156,7 +156,7 @@ każdego napisu przesuwają się o tę samą wartość: żaden nie pozostaje na 
 niż przedtem.
 
 Czas trwania zapisuje się **jak kod czasowy, ze znakiem** — `00:00:02,500` przesuwa do przodu,
-`-0:01,250` przesuwa do tyłu. Przyjmowane postaci są te z komórki pozycji.
+`-00:00:01,250` przesuwa do tyłu. **Pole się nadpisuje, nie wpisuje się w nie**: zaczyna się od `00:00:00,000`, cyfra zastępuje cyfrę pod kursorem, a kursor sam pomija `:` i `,`, więc postać nigdy się nie zmienia. Przyjmowane są tylko cyfry oraz `-` (lub `+`) do zmiany znaku; `Backspace` i `Delete` przywracają zero. To samo pole służy wszędzie tam, gdzie ustawia się czas: w oknie przekształcenia, w komórkach pozycji tabeli i w zakresie transkrypcji.
 
 ![Okno dialogowe przesunięcia, jasna paleta, z trzema zaznaczonymi liniami z
 dziewięciuset osiemdziesięciu: czas trwania do zastosowania, wybór celu i

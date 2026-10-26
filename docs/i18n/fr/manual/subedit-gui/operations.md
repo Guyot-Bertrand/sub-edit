@@ -153,7 +153,7 @@ chaque sous-titre bougent d'autant : aucun ne reste à l'écran plus ou moins
 longtemps qu'avant.
 
 La durée s'écrit **comme un horodatage, signe compris** — `00:00:02,500` avance,
-`-0:01,250` recule. Les formes acceptées sont celles d'une cellule de position.
+`-00:00:01,250` recule. **Le champ se tape par-dessus, on n'y écrit pas** : il commence à `00:00:00,000`, un chiffre remplace le chiffre sous le curseur et le curseur saute de lui-même les `:` et la `,`, si bien que la forme ne change jamais. Seuls les chiffres sont pris, et `-` (ou `+`) pour changer le signe ; `Backspace` et `Delete` remettent un zéro. Le même champ sert partout où l'on règle un temps : le dialogue de transformation, les cellules de position du tableau et la plage d'une transcription.
 
 ![Le dialogue de décalage, palette claire, avec trois lignes sélectionnées sur
 neuf cent quatre-vingts : la durée à appliquer, le choix de la cible, et le

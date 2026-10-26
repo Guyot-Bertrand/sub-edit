@@ -19,10 +19,12 @@
 
 #include <QApplication>
 #include <QDialog>
+#include <QFrame>
 #include <QHeaderView>
 #include <QLabel>
 #include <QLatin1Char>
 #include <QLineEdit>
+#include <QPalette>
 #include <QPlainTextEdit>
 #include <QPushButton>
 #include <QScrollBar>
@@ -581,5 +583,20 @@ TEST_CASE("a reference's text keeps three lines of room, and scrolls past them",
         CHECK(dialog.size() == opened);
         CHECK((area->verticalScrollBar()->maximum() > 0) == shown.scrolls);
         CHECK(area->verticalScrollBar()->isVisible() == shown.scrolls);
+    }
+}
+
+TEST_CASE("the read-only text areas of a dialog are delimited, in both palettes",
+          "[gui][GUI-LOOK-01]") {
+    const TransformDialog dialog{4};
+
+    const auto areas = dialog.findChildren<QPlainTextEdit*>();
+    REQUIRE(areas.size() == 2);
+    for (const QPlainTextEdit* area : areas) {
+        CHECK(area->isReadOnly());
+        // A frame of the style's own, and a background that is neither the window's nor an input's.
+        CHECK(area->frameShape() == QFrame::StyledPanel);
+        CHECK(area->viewport()->backgroundRole() == QPalette::AlternateBase);
+        CHECK(area->viewport()->autoFillBackground());
     }
 }

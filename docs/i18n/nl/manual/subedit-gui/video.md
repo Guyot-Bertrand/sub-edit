@@ -184,8 +184,7 @@ einde), en de nabewerking knipt op de eigen grenzen van de stukken. Een mislukki
 
 ### Eerst een deel proberen
 
-Met een bereik kunt u **een model of een taal op twee minuten beoordelen voordat u zich aan twee uur verbindt**. De velden “Deel van de film” nemen een begin en een einde, elk geschreven als `HH:MM:SS`, zoals de velden zeggen (`2:00` en een aantal seconden, `90`,
-worden ook gelezen); een van beide alleen is toegestaan (van daar tot het einde, of van het begin tot daar). `OK` blijft uitgeschakeld zolang een veld
+Met een bereik kunt u **een model of een taal op twee minuten beoordelen voordat u zich aan twee uur verbindt**. De velden “Deel van de film” nemen een begin en een einde, elk geschreven als `HH:MM:SS` en cijfer voor cijfer overschreven, zoals in het [verschuivingsdialoogvenster](operations.md#shift-positions) (een als `2:00` geplakte tijd wordt in vorm gebracht); een van beide alleen is toegestaan (van daar tot het einde, of van het begin tot daar). `OK` blijft uitgeschakeld zolang een veld
 geen tijd is of het einde niet na het begin komt, en een regel onder de velden zegt welke.
 
 - **De ondertitels behouden de tijd van de film**: wat op 2:10 wordt gezegd, staat in het resultaat op `0:02:10`.

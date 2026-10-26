@@ -191,8 +191,8 @@ post-processing cuts at the pieces' own limits. A failure is first said in a box
 
 ### Trying a part first
 
-A range lets you **judge a model or a language on two minutes before committing to two hours**. The fields “Part of the film” take a beginning and an end, each written `HH:MM:SS`, as the fields say (`2:00` and a number of seconds, `90`,
-are read too); one alone is allowed (from there to the end, or from the start to there). `OK` stays out while a field is
+A range lets you **judge a model or a language on two minutes before committing to two hours**. The fields “Part of the film” take a beginning and an end, each written `HH:MM:SS` and typed over digit by digit, as in [the shift dialog](operations.md#shift-positions) (a time pasted
+as `2:00` is put into shape); one alone is allowed (from there to the end, or from the start to there). `OK` stays out while a field is
 not a time or the end does not come after the beginning, and a line under the fields says which.
 
 - **The subtitles keep the time of the film**: what is said at 2:10 is at `0:02:10` in the result.
