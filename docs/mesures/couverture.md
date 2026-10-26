@@ -508,15 +508,22 @@ the program and the model became settings, and a second `ChosenFile` kind choose
 — one more line in a modal box, none anywhere else. The window's side of it (the `Browse…` buttons, the settings
 that keep the answer) is covered through `FakePrompts`.
 
+**Five more lines in #798, the same box once again.** The voice-activity model is a third thing the person points at, so
+`ChosenFile` gains a third kind and `QtPrompts::fileToChoose` chooses between three titles instead of two: the table of
+titles and the call that opens the modal box, none of which a test can reach. **Measured, and named**: the five lines are all
+in `qt_prompts.cpp` (59 to 64); nothing else moved. What is covered rather than counted: the field and its `Browse…`
+button through `FakePrompts`, the setting, the option, the refusal of a missing file, the adapter's arguments, and the real
+runner handing the model to the engine.
+
 ## Record
 
-    total: 81
+    total: 86
 
-Recorded on version 1.0.11, on 2026-10-24.
+Recorded on version 1.0.17, on 2026-10-26.
 
 | Lines | File |
 | ----: | :--- |
-| 59 | `src/lib/subedit/gui/qt_prompts.cpp` |
+| 64 | `src/lib/subedit/gui/qt_prompts.cpp` |
 | 3 | `src/lib/subedit/core/io/real_file_system.cpp` |
 | 3 | `src/lib/subedit/core/process/start_process.cpp` |
 | 2 | `src/lib/subedit/core/edit/insert_command.cpp` |

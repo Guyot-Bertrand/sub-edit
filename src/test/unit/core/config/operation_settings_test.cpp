@@ -67,12 +67,12 @@ TEST_CASE(
     }
 }
 
-TEST_CASE("The command line honours exactly twenty-one keys", "[operation-settings]") {
+TEST_CASE("The command line honours exactly twenty-two keys", "[operation-settings]") {
     int both = 0;
     for (const SettingKey& one : operationKeys())
         if (one.surface == SettingSurface::Both)
             ++both;
-    CHECK(both == 21);
+    CHECK(both == 22);
 }
 
 TEST_CASE("findOperationKey finds a catalogued key and nothing else", "[operation-settings]") {

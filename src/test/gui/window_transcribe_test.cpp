@@ -732,6 +732,23 @@ TEST_CASE("the real runner transcribes through the tools it finds", "[gui][GUI-T
     CHECK(outcome->segments.front().text.starts_with("And so"));
 }
 
+TEST_CASE("the real runner hands the voice-activity model of the settings to the engine",
+          "[gui][GUI-TRANSCRIBE-09]") {
+    const Tools tools;
+    tools.everything();
+    BackgroundTranscriptionRunner runner{tools.scratch.path().string()};
+
+    // A model that is there is accepted; one that is not is a missing model, said before the work.
+    TranscriptionJob job = tools.job();
+    job.settings.vadModel = tools.scratch.write("vad.bin", "model");
+    CHECK(runner.run(job, nullptr).has_value());
+
+    job.settings.vadModel = tools.scratch.file("absent.bin");
+    const auto missing = runner.run(job, nullptr);
+    REQUIRE_FALSE(missing.has_value());
+    CHECK_THAT(missing.error().message, ContainsSubstring("the model file is not there"));
+}
+
 TEST_CASE("the real runner can be stopped, and says it was", "[gui][GUI-TRANSCRIBE-02]") {
     const Tools tools;
     (void)tools.scratch.standIn(

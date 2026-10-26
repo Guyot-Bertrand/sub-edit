@@ -855,6 +855,16 @@ msgstr "Обзор…"
 msgid "Searched for on the PATH"
 msgstr "Ищется в PATH"
 
+# The voice-activity model of the transcription group (#798)
+msgid "Voice-activity model"
+msgstr "Модель обнаружения речи"
+
+msgid "None: silences are not skipped"
+msgstr "Нет: паузы не пропускаются"
+
+msgid "A voice-activity model (Silero) makes the first subtitle begin where the speech does, and the others follow it."
+msgstr "Модель обнаружения речи (Silero) заставляет первый субтитр начинаться там, где начинается речь, а остальные следуют за ним."
+
 # The checkbox of the transcription group (#794)
 msgid "Do not write sounds as notes"
 msgstr "Не записывать звуки в виде пометок"
