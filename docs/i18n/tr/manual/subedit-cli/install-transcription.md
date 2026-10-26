@@ -48,6 +48,16 @@ sh ./models/download-ggml-model.sh small
 Sonra yolunu komut satırında `--model` ile, ya da `transcription.model` ayarıyla,
 ya da pencerenin, onu hatırlayan [tercihlerinde](../subedit-gui/preferences.md#yazıya-dökme) verin.
 
+### Konuşmanın başladığı yerden başlamak için bir ses etkinliği modeli
+
+İsteğe bağlı olarak bir **ses etkinliği modeli** (Silero), motorun kodlamadan önce sessizlikleri atlamasını sağlar. Model yoksa whisper ilk altyazısını filmde ilk ne gelirse gelsin, müzik dahil, 0'da başlatır ve zamanlarını tam pencerelere yuvarlar; model varsa ilk altyazı konuşmanın başladığı yerde başlar, diğerleri onu izler. Motorun deposunda bir tane indiren bir betik vardır:
+
+```bash
+sh ./models/download-vad-model.sh silero-v6.2.0
+```
+
+Yolunu `--vad-model` ile, `transcription.vad-model` ayarıyla ya da pencerenin [tercihlerinde](../subedit-gui/preferences.md#yazıya-dökme) verin.
+
 ### Hangi dil için hangi model
 
 Whisper dili bulduktan sonra model değiştirmez: **verdiğiniz model neyi

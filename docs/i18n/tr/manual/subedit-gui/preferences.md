@@ -98,7 +98,7 @@ Okuyucu anahtarları herhangi bir sırayla, başlıklarla ya da başlıksız al�
 | `correction.join-split.language` | bir yerel ayar kodu — `fr`, `en_US`, `sr@Latn` —; boş: sistemin dili | boş |
 | `correction.remove-blank` | `true` ya da `false` — `Remove all blank subtitles` | `true` |
 | `transcription.engine` | motorun adı: küçük harfler, rakamlar, `.`, `-` ve `_` | `whisper.cpp` |
-| `transcription.executable`, `transcription.model` | mutlak bir yol; boşsa: motor `PATH` içinde aranır ve hiçbir model ayarlanmamıştır | boş |
+| `transcription.executable`, `transcription.model`, `transcription.vad-model` | mutlak bir yol; boşsa: motor `PATH` içinde aranır ve hiçbir model ayarlanmamıştır, ve sessizlikler atlanmaz | boş |
 | `transcription.language` | iki küçük harf, bir ISO 639-1 kodu; boşsa: dil algılanır | boş |
 | `transcription.suppress-notes` | `true` ya da `false` — `Do not write sounds as notes` | `true` |
 | `transcription.merge-gap-ms` | bir cümlenin bundan daha yakın parçaları birleştirilir, milisaniye cinsinden, tam ve negatif olmayan | `400` |
@@ -198,6 +198,8 @@ bulunup bulunmadığını ve modeli — ayarlanmamış, bulunamadı, bir model d
 eksik olduğunda, her birinin nerede bulunacağını söyleyen
 [Yazıya dökme araçlarını kurma](../subedit-cli/install-transcription.md) sayfasına yönlendirme ekler.
 İki alan, `transcription.executable` ve `transcription.model` ayarlarıdır.
+
+Üçüncü bir alan, **“Ses etkinliği modeli”**, kendi `Browse…` düğmesiyle, motor kodlamadan önce sessizlikleri atlayan bir modeli belirtir (whisper.cpp için bir Silero modeli). Bir model varsa ilk altyazı konuşmanın başladığı yerde başlar ve diğerleri onu izler; 0'dan sayılan tam pencereler kullanılmaz. Boş bırakılırsa sessizlikler atlanmaz. Bu, `transcription.vad-model` ayarıdır ve modeli, konuşma modeli gibi, sizin sağlamanız gerekir: bkz. [Yazıya dökme araçlarını kurma](../subedit-cli/install-transcription.md).
 
 **“Sesleri not olarak yazma”** kutusu `transcription.suppress-notes` ayarıdır (varsayılan olarak işaretli): motora sesleri
 `(phone ringing)` gibi notlar olarak yazmaması söylenir. Onları korumak için işareti kaldırın, işitme engelliler için altyazılarda. `Transcribe Audio…` iletişim kutusu tek bir yazıya dökme için aynı kutuyu sunar.

@@ -200,8 +200,11 @@ WhisperCppEngine::capabilitiesFor(const std::optional<std::filesystem::path>& mo
     if (!multilingual)
         return std::unexpected(error(TranscriptionErrorKind::Failed, model->string()));
 
-    EngineCapabilities capabilities{
-        .timedWords = true, .suppressNotes = true, .sampleRate = kSampleRate, .needsModel = true};
+    EngineCapabilities capabilities{.timedWords = true,
+                                    .suppressNotes = true,
+                                    .voiceActivity = true,
+                                    .sampleRate = kSampleRate,
+                                    .needsModel = true};
     if (*multilingual) {
         capabilities.languageDetection = true;
         capabilities.languages.assign(kMultilingual.begin(), kMultilingual.end());
@@ -240,6 +243,16 @@ WhisperCppEngine::run(const TranscriptionRequest& request,
     // forbidden the symbols they are made of, in the parentheses as in the brackets.
     if (request.suppressNotes)
         arguments.emplace_back("-sns");
+    // Silences skipped before the decoder: its segments follow the speech instead of whole
+    // windows from 0.
+    if (request.vadModel) {
+        if (!std::filesystem::exists(*request.vadModel))
+            return std::unexpected(
+                error(TranscriptionErrorKind::ModelMissing, request.vadModel->string()));
+        arguments.emplace_back("--vad");
+        arguments.emplace_back("--vad-model");
+        arguments.emplace_back(request.vadModel->string());
+    }
     addRange(request, arguments);
 
     RunProgress progress{request, observer};

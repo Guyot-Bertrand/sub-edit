@@ -1107,6 +1107,10 @@ msgid "Model file; the transcription.model setting by default"
 msgstr "File de model; predefinit, li parametre transcription.model"
 
 #: src/exe/cli/commands/transcribe.cpp
+msgid "Voice-activity model that skips silences; the transcription.vad-model setting by default"
+msgstr "Model de activitá de voce que saltea li silentias; predefinit, li parametre transcription.vad-model"
+
+#: src/exe/cli/commands/transcribe.cpp
 msgid "Engine; the transcription.engine setting by default"
 msgstr "Motor; predefinit, li parametre transcription.engine"
 
@@ -2441,6 +2445,10 @@ msgid "The model file the engine reads."
 msgstr "Li file de model quel li motor leer."
 
 #: src/lib/subedit/core/config/operation_settings.cpp
+msgid "The voice-activity model that skips silences; none when empty."
+msgstr "Li model de activitá de voce que saltea li silentias; null si it es vacui."
+
+#: src/lib/subedit/core/config/operation_settings.cpp
 msgid "The language of the audio; detected when empty."
 msgstr "Li lingue del audio; detectet quande it es vacui."
 
@@ -3484,6 +3492,14 @@ msgid "the engine %1 cannot be told not to write sounds as notes"
 msgstr "on ne posse dir al motor %1 que it ne scri li sones quam notes"
 
 #: src/lib/subedit/core/wording/transcription.cpp
+msgid "the engine %1 cannot skip silences with a voice-activity model"
+msgstr "li motor %1 ne posse saltear li silentias con un model de activitá de voce"
+
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "the voice-activity model %1 does not exist"
+msgstr "li model de activitá de voce %1 ne existe"
+
+#: src/lib/subedit/core/wording/transcription.cpp
 msgid ""
 "\"%1\" is not a language code: write two letters, such as fr, en, de or es"
 msgstr "«%1» ne es un code de lingue: scrit du líttere, quam fr, en, de o es"
@@ -4430,12 +4446,24 @@ msgid "Searched for on the PATH"
 msgstr "Serchat in li PATH"
 
 #: src/lib/subedit/gui/preferences_dialog.cpp
+msgid "None: silences are not skipped"
+msgstr "Null: li silentias ne es salteat"
+
+#: src/lib/subedit/gui/preferences_dialog.cpp
+msgid "A voice-activity model (Silero) makes the first subtitle begin where the speech does, and the others follow it."
+msgstr "Un model de activitá de voce (Silero) fa que li unesim subtitul comensa u li parlada comensa, e li altres seque it."
+
+#: src/lib/subedit/gui/preferences_dialog.cpp
 msgid "Program"
 msgstr "Programma"
 
 #: src/lib/subedit/gui/preferences_dialog.cpp
 msgid "Model"
 msgstr "Model"
+
+#: src/lib/subedit/gui/preferences_dialog.cpp
+msgid "Voice-activity model"
+msgstr "Model de activitá de voce"
 
 #: src/lib/subedit/gui/preferences_dialog.cpp
 #: src/lib/subedit/gui/transcribe_dialog.cpp
@@ -4503,6 +4531,10 @@ msgstr "Aperter"
 #: src/lib/subedit/gui/qt_prompts.cpp
 msgid "Select Video"
 msgstr "Selecter un video"
+
+#: src/lib/subedit/gui/qt_prompts.cpp
+msgid "Choose a voice-activity model"
+msgstr "Selecter un model de activitá de voce"
 
 #: src/lib/subedit/gui/qt_prompts.cpp
 msgid "Choose a model"
@@ -4939,7 +4971,9 @@ msgstr "Selecte un subtitul a dextra por vider li pieces de quel it esset fat."
 msgid ""
 "These values are now the settings of the application (transcription.*). "
 "Closing this window changes nothing more."
-msgstr "Ti valores es nu li parametres del aplication (transcription.*). Cluder ti fenestre ne changea plu alquo."
+msgstr ""
+"Ti valores es nu li parametres del aplication (transcription.*). Cluder ti "
+"fenestre ne changea plu alquo."
 
 #: src/lib/subedit/gui/transcription_preview_dialog.cpp
 msgid "Merge pieces closer than"

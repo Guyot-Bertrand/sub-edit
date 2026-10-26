@@ -48,6 +48,16 @@ sh ./models/download-ggml-model.sh small
 Ezután adja meg az elérési útját az `--model` kapcsolóval a parancssorban, vagy a `transcription.model` beállítással,
 vagy az ablak [beállításaiban](../subedit-gui/preferences.md#leiratozás), amelyek megjegyzik.
 
+### Beszédaktivitás-modell, hogy ott kezdődjön a felirat, ahol a beszéd
+
+Választhatóan egy **beszédaktivitás-modell** (Silero) lehetővé teszi, hogy a motor a dekódolás előtt kihagyja a csendet. Nélküle a whisper az első feliratot 0-nál kezdi, bármi is legyen elöl a filmben, a zenét is beleértve, és az időpontjait egész ablakokra kerekíti; vele az első felirat ott kezdődik, ahol a beszéd, a többi pedig követi. A motor tárolójában van egy szkript, amely letölt egyet:
+
+```bash
+sh ./models/download-vad-model.sh silero-v6.2.0
+```
+
+Adja meg az elérési útját a `--vad-model` kapcsolóval, a `transcription.vad-model` beállítással, vagy az ablak [beállításaiban](../subedit-gui/preferences.md#leiratozás).
+
 ### Melyik modell melyik nyelvhez
 
 A Whisper nem vált modellt, miután megtalálta a nyelvet: **az Ön által megadott modell dönti el, mit

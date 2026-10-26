@@ -38,6 +38,16 @@ sh ./models/download-ggml-model.sh small
 
 然后在命令行上用 `--model` 给出它的路径，或者用设置 `transcription.model`，或者在窗口的[首选项](../subedit-gui/preferences.md#转录)中给出，首选项会记住它。
 
+### 语音活动模型：从语音开始的地方开始
+
+可选地，一个**语音活动模型**（Silero）可以让引擎在解码之前跳过静音。没有它时，whisper 无论影片中最先出现什么（包括音乐），都从 0 开始第一条字幕，并把时间取整到完整的窗口；有了它，第一条字幕从语音开始的地方开始，其余字幕随之而来。引擎的仓库中有一个脚本可以获取它：
+
+```bash
+sh ./models/download-vad-model.sh silero-v6.2.0
+```
+
+用 `--vad-model`、设置 `transcription.vad-model`，或在窗口的[首选项](../subedit-gui/preferences.md#转录)中给出它的路径。
+
 ### 哪种语言用哪个模型
 
 Whisper 找到语言之后不会更换模型：**您给出的模型决定了它能做什么。**

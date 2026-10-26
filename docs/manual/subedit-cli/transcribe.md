@@ -8,6 +8,7 @@ subedit-cli transcribe --output FILE
                        [--start TIME] [--end TIME]
                        [--suppress-notes | --keep-notes]
                        [--model FILE]
+                       [--vad-model FILE]
                        [--engine NAME]
                        [--keep-audio FILE]
                        [--raw]
@@ -79,6 +80,7 @@ Options:
   --suppress-notes            Do not write sounds as notes, such as (phone ringing); the transcription.suppress-notes setting by default
   --keep-notes                Write sounds as notes, against the setting
   --model FILE                Model file; the transcription.model setting by default
+  --vad-model FILE            Voice-activity model that skips silences; the transcription.vad-model setting by default
   --engine NAME               Engine; the transcription.engine setting by default
   --keep-audio FILE           Keep the extracted audio in this file
   --list-languages            List the languages the engine offers for the model, and transcribe nothing
@@ -100,6 +102,7 @@ Options:
 | `--start` | no | a time: `2:00`, `1:02:03`, `2:00.5`, or a number of seconds, `90` | the beginning of the audio |
 | `--end` | no | a time, written as for `--start`; it must come after `--start` | the end of the audio |
 | `--model` | no | the model file | the setting `transcription.model` |
+| `--vad-model` | no | a voice-activity model (a Silero model for whisper.cpp), which makes the engine skip the silences before it decodes: its segments then follow the speech, and the first one begins where the speech does instead of at 0. The file must exist, and an engine that cannot use it refuses the option by name | the setting `transcription.vad-model` |
 | `--engine` | no | the name of an engine: `whisper.cpp` | the setting `transcription.engine` |
 | `--keep-audio` | no | a file to keep the extracted audio in, as mono 16-bit PCM in a WAV file, at the sampling rate the engine asks for (16 kHz for whisper.cpp); its directory is created when missing, and the name may carry `{rate}`, replaced by that rate in hertz (`film.{rate}.wav` is written `film.16000.wav`) | the audio is kept nowhere |
 | `--raw` | no | a flag: write the engine's segments with no merging and no cutting | off |
@@ -112,6 +115,7 @@ The **settings** are read from the settings file like those of [`adjust`](adjust
 | `transcription.engine` | the engine | `whisper.cpp` |
 | `transcription.executable` | the engine's program, an absolute path; empty: searched for on `PATH` | empty |
 | `transcription.model` | the model file, an absolute path | empty |
+| `transcription.vad-model` | the voice-activity model, an absolute path; empty: none, and the silences are not skipped. A setting an engine cannot use is dropped without a word | empty |
 | `transcription.language` | the language of the audio, two letters; empty: detected | empty |
 | `transcription.suppress-notes` | do not write sounds as notes | `true` |
 | `transcription.merge-gap-ms` | pieces of one sentence closer than this many milliseconds are joined | `400` |

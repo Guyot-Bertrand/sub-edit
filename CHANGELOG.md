@@ -15,6 +15,8 @@ do not edit it by hand.
 - **gui** — Choose the language in a list the engine offers
 - **gui** — Preview the transcription before it replaces the subtitles
 - **core** — Rework the post-processing, tune it in the preview
+- **core** — Add a voice-activity model to skip silences
+- **cli** — Declare the --vad-model option
 
 ### Documentation
 
@@ -24,6 +26,10 @@ do not edit it by hand.
 
 - **gui** — Keep the question before the work, with the preview after
 - **core** — Read only the head of a model, not the whole file
+
+### Tests
+
+- **gui** — Cover the voice-activity model, record the five dialog lines
 
 ## 1.0.13 — 2026-10-24
 

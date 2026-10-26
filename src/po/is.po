@@ -1092,6 +1092,10 @@ msgid "Model file; the transcription.model setting by default"
 msgstr "Líkanaskrá; sjálfgefið stillingin transcription.model"
 
 #: src/exe/cli/commands/transcribe.cpp
+msgid "Voice-activity model that skips silences; the transcription.vad-model setting by default"
+msgstr "Raddvirknilíkan sem sleppir þögnum; sjálfgefið stillingin transcription.vad-model"
+
+#: src/exe/cli/commands/transcribe.cpp
 msgid "Engine; the transcription.engine setting by default"
 msgstr "Vél; sjálfgefið stillingin transcription.engine"
 
@@ -2436,6 +2440,10 @@ msgid "The model file the engine reads."
 msgstr "Líkanaskráin sem vélin les."
 
 #: src/lib/subedit/core/config/operation_settings.cpp
+msgid "The voice-activity model that skips silences; none when empty."
+msgstr "Raddvirknilíkanið sem sleppir þögnum; ekkert ef autt."
+
+#: src/lib/subedit/core/config/operation_settings.cpp
 msgid "The language of the audio; detected when empty."
 msgstr "Tungumál hljóðsins; greint sjálfkrafa þegar það er tómt."
 
@@ -3481,6 +3489,14 @@ msgid "the engine %1 cannot be told not to write sounds as notes"
 msgstr "ekki er hægt að segja vélinni %1 að skrifa ekki hljóð sem athugasemdir"
 
 #: src/lib/subedit/core/wording/transcription.cpp
+msgid "the engine %1 cannot skip silences with a voice-activity model"
+msgstr "vélin %1 getur ekki sleppt þögnum með raddvirknilíkani"
+
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "the voice-activity model %1 does not exist"
+msgstr "raddvirknilíkanið %1 er ekki til"
+
+#: src/lib/subedit/core/wording/transcription.cpp
 msgid ""
 "\"%1\" is not a language code: write two letters, such as fr, en, de or es"
 msgstr ""
@@ -4427,12 +4443,24 @@ msgid "Searched for on the PATH"
 msgstr "Leitað á PATH"
 
 #: src/lib/subedit/gui/preferences_dialog.cpp
+msgid "None: silences are not skipped"
+msgstr "Ekkert: þögnum er ekki sleppt"
+
+#: src/lib/subedit/gui/preferences_dialog.cpp
+msgid "A voice-activity model (Silero) makes the first subtitle begin where the speech does, and the others follow it."
+msgstr "Raddvirknilíkan (Silero) lætur fyrsta texta byrja þar sem talið byrjar og hina fylgja í kjölfarið."
+
+#: src/lib/subedit/gui/preferences_dialog.cpp
 msgid "Program"
 msgstr "Forrit"
 
 #: src/lib/subedit/gui/preferences_dialog.cpp
 msgid "Model"
 msgstr "Líkan"
+
+#: src/lib/subedit/gui/preferences_dialog.cpp
+msgid "Voice-activity model"
+msgstr "Raddvirknilíkan"
 
 #: src/lib/subedit/gui/preferences_dialog.cpp
 #: src/lib/subedit/gui/transcribe_dialog.cpp
@@ -4500,6 +4528,10 @@ msgstr "Opna"
 #: src/lib/subedit/gui/qt_prompts.cpp
 msgid "Select Video"
 msgstr "Veldu myndskeið"
+
+#: src/lib/subedit/gui/qt_prompts.cpp
+msgid "Choose a voice-activity model"
+msgstr "Velja raddvirknilíkan"
 
 #: src/lib/subedit/gui/qt_prompts.cpp
 msgid "Choose a model"
@@ -4941,7 +4973,9 @@ msgstr "Veldu skjátexta til hægri til að sjá bútana sem hann var gerður ú
 msgid ""
 "These values are now the settings of the application (transcription.*). "
 "Closing this window changes nothing more."
-msgstr "Þessi gildi eru nú stillingar forritsins (transcription.*). Að loka þessum glugga breytir engu frekar."
+msgstr ""
+"Þessi gildi eru nú stillingar forritsins (transcription.*). Að loka þessum "
+"glugga breytir engu frekar."
 
 #: src/lib/subedit/gui/transcription_preview_dialog.cpp
 msgid "Merge pieces closer than"

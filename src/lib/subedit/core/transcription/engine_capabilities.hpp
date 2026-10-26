@@ -29,6 +29,11 @@ struct EngineCapabilities {
     /// cannot.
     bool suppressNotes = false;
 
+    /// Whether it can skip the silences with a voice-activity model
+    /// (`TranscriptionRequest::vadModel`). Refused on the command line for an engine that cannot,
+    /// when asked for by name; a setting is dropped without a word.
+    bool voiceActivity = false;
+
     /// The sampling rate, in hertz, of the audio the engine wants: whisper.cpp reads 16 kHz. **The
     /// rate is the engine's need, not the program's**: the extraction produces what the engine asks
     /// for. 0 means no preference, and the audio keeps the rate it has.

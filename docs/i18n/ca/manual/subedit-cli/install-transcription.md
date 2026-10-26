@@ -48,6 +48,16 @@ sh ./models/download-ggml-model.sh small
 Després doneu-ne el camí amb `--model` a la línia d'ordres, o amb el paràmetre `transcription.model`,
 o a les [preferències](../subedit-gui/preferences.md#transcripció) de la finestra, que se'n recorden.
 
+### Un model d'activitat de veu, per començar on comença la parla
+
+Opcionalment, un **model d'activitat de veu** (Silero) permet que el motor ometi els silencis abans de descodificar. Sense un, whisper comença el primer subtítol a 0, sigui el que sigui que vingui primer a la pel·lícula, música inclosa, i arrodoneix els seus temps a finestres senceres; amb un, el primer subtítol comença on comença la parla i els altres el segueixen. El repositori del motor té un script que n'obté un:
+
+```bash
+sh ./models/download-vad-model.sh silero-v6.2.0
+```
+
+Doneu-ne el camí amb `--vad-model`, amb el paràmetre `transcription.vad-model`, o a les [preferències](../subedit-gui/preferences.md#transcripció) de la finestra.
+
 ### Quin model per a quina llengua
 
 Whisper no canvia de model un cop ha trobat la llengua: **el model que doneu decideix què

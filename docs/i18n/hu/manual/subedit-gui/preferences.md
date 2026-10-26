@@ -138,7 +138,7 @@ két blokk létezése előtt írt fájl változtatás nélkül olvasható, és a
 | `correction.join-split.language` | területi kód — `fr`, `en_US`, `sr@Latn` —; üres: a rendszer nyelve | üres |
 | `correction.remove-blank` | `true` vagy `false` — `Remove all blank subtitles` | `true` |
 | `transcription.engine` | a motor neve: kisbetűk, számjegyek, `.`, `-` és `_` | `whisper.cpp` |
-| `transcription.executable`, `transcription.model` | abszolút elérési út; üres: a motort a `PATH`-ban keresi, és nincs beállított modell | üres |
+| `transcription.executable`, `transcription.model`, `transcription.vad-model` | abszolút elérési út; üres: a motort a `PATH`-ban keresi, és nincs beállított modell, és a csendet nem hagyja ki | üres |
 | `transcription.language` | két kisbetű, egy ISO 639-1 kód; üres: a nyelvet felismeri | üres |
 | `transcription.suppress-notes` | `true` vagy `false` — `Do not write sounds as notes` | `true` |
 | `transcription.merge-gap-ms` | egy mondat ennél közelebbi darabjai egyesülnek, ezredmásodpercben, nemnegatív egész | `400` |
@@ -289,6 +289,8 @@ A mezők alatt **az ablak megmondja, mi van meg**: megvan-e a motor és hol, meg
 hiányzik, hozzáteszi a hivatkozást ide:
 [A leiratozó eszközök telepítése](../subedit-cli/install-transcription.md), amely megmondja, hol található
 mindegyik. A két mező a `transcription.executable` és a `transcription.model` beállítás.
+
+Egy harmadik mező, **„Beszédaktivitás-modell”**, saját `Browse…` gombbal, olyan modellt nevez meg, amely kihagyja a csendet, mielőtt a motor dekódolna (egy Silero-modell a whisper.cpp-hez). Ezzel az első felirat ott kezdődik, ahol a beszéd, a többi pedig követi, a 0-tól számolt egész ablakok helyett. Üresen hagyva a csendet nem hagyja ki. Ez a `transcription.vad-model` beállítás, és a modellt Önnek kell beszereznie, mint a beszédmodellt: lásd [A leiratozó eszközök telepítése](../subedit-cli/install-transcription.md).
 
 Egy jelölőnégyzet, a **„Ne írja ki a hangokat megjegyzésként”**, a `transcription.suppress-notes` beállítás (alapértelmezés szerint be van jelölve): a motor megkapja az utasítást, hogy ne írja ki a hangokat
 megjegyzésként, például `(phone ringing)`. Szüntesse meg a jelölést a megtartásukhoz, halláskárosultaknak szóló feliratokhoz. A `Transcribe Audio…` párbeszédablaka ugyanezt a négyzetet kínálja az adott leiratozáshoz.

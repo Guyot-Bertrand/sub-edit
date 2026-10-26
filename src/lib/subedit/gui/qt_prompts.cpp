@@ -12,6 +12,7 @@
 #include <QMessageBox>
 #include <QString>
 
+#include <array>
 #include <expected>
 #include <filesystem>
 #include <memory>
@@ -114,12 +115,15 @@ QtPrompts::videoToOpen(const std::filesystem::path& directory) {
 
 std::optional<std::filesystem::path> QtPrompts::fileToChoose(ChosenFile what,
                                                              const std::filesystem::path& current) {
-    const bool model = what == ChosenFile::Model;
-    return pathOf(QFileDialog::getOpenFileName(
-        m_owner,
-        model ? translate("Choose a model") : translate("Choose the program"),
-        QString::fromStdString(current.string()),
-        model ? translate("Models (*.bin);;All files (*)") : translate("All files (*)")));
+    const bool model = what != ChosenFile::Program;
+    const std::array<QString, 3> titles{translate("Choose a model"),
+                                        translate("Choose the program"),
+                                        translate("Choose a voice-activity model")};
+    return pathOf(QFileDialog::getOpenFileName(m_owner,
+                                               titles.at(static_cast<std::size_t>(what)),
+                                               QString::fromStdString(current.string()),
+                                               model ? translate("Models (*.bin);;All files (*)")
+                                                     : translate("All files (*)")));
 }
 
 std::optional<SaveTarget> QtPrompts::saveTarget(const core::SourceFile& current,

@@ -139,7 +139,7 @@ existovaly dva bloky, se přečte beze změny a při příštím zavření se p�
 | `correction.join-split.language` | kód národního prostředí — `fr`, `en_US`, `sr@Latn` —; prázdný: jazyk systému | prázdný |
 | `correction.remove-blank` | `true` nebo `false` — `Remove all blank subtitles` | `true` |
 | `transcription.engine` | název nástroje: malá písmena, číslice, `.`, `-` a `_` | `whisper.cpp` |
-| `transcription.executable`, `transcription.model` | absolutní cesta; prázdná: nástroj se hledá v `PATH` a žádný model není nastaven | prázdná |
+| `transcription.executable`, `transcription.model`, `transcription.vad-model` | absolutní cesta; prázdná: nástroj se hledá v `PATH` a žádný model není nastaven, a ticho se nepřeskakuje | prázdná |
 | `transcription.language` | dvě malá písmena, kód ISO 639-1; prázdný: jazyk se zjistí | prázdný |
 | `transcription.suppress-notes` | `true` nebo `false` — `Do not write sounds as notes` | `true` |
 | `transcription.merge-gap-ms` | části jedné věty bližší než tato doba se spojí, v milisekundách, celé nezáporné číslo | `400` |
@@ -292,6 +292,8 @@ a jaký je model — není nastaven, nenalezen, není to model, pouze pro angli�
 chybí, přidá odkaz na
 [Instalace nástrojů pro přepis](../subedit-cli/install-transcription.md), který říká, kde to které najít.
 Obě pole jsou nastavení `transcription.executable` a `transcription.model`.
+
+Třetí pole, **„Model detekce řeči“**, s vlastním tlačítkem `Browse…`, určuje model, který před dekódováním enginu přeskakuje ticho (model Silero pro whisper.cpp). S ním první titulek začíná tam, kde začíná řeč, a ostatní ho následují, místo celých oken počítaných od 0. Ponecháte-li je prázdné, ticho se nepřeskakuje. Je to nastavení `transcription.vad-model` a model musíte opatřit sami, stejně jako model řeči: viz [Instalace nástrojů pro přepis](../subedit-cli/install-transcription.md).
 
 Políčko **„Nezapisovat zvuky jako poznámky“** je nastavení `transcription.suppress-notes` (ve výchozím stavu zaškrtnuté): nástroji se řekne, aby nezapisoval zvuky
 jako poznámky, například `(phone ringing)`. Odškrtněte je, chcete-li je ponechat, pro titulky pro neslyšící a nedoslýchavé. Dialog `Transcribe Audio…` nabízí totéž políčko pro jeden přepis.

@@ -140,7 +140,7 @@ lokun.
 | `correction.join-split.language` | staðarkóði — `fr`, `en_US`, `sr@Latn` —; tómt: tungumál kerfisins | tómt |
 | `correction.remove-blank` | `true` eða `false` — `Remove all blank subtitles` | `true` |
 | `transcription.engine` | heiti vélarinnar: lágstafir, tölustafir, `.`, `-` og `_` | `whisper.cpp` |
-| `transcription.executable`, `transcription.model` | altæk slóð; tómt: leitað er að vélinni í `PATH` og ekkert líkan er stillt | tómt |
+| `transcription.executable`, `transcription.model`, `transcription.vad-model` | altæk slóð; tómt: leitað er að vélinni í `PATH` og ekkert líkan er stillt, og þögnum er ekki sleppt | tómt |
 | `transcription.language` | tveir lágstafir, ISO 639-1 kóði; tómt: tungumálið er greint sjálfkrafa | tómt |
 | `transcription.suppress-notes` | `true` eða `false` — `Do not write sounds as notes` | `true` |
 | `transcription.merge-gap-ms` | bútar úr einni setningu sem eru nær hver öðrum en þetta eru sameinaðir, í millisekúndum, heil tala sem er ekki neikvæð | `400` |
@@ -293,6 +293,8 @@ finnst, og líkanið — ekki stillt, fannst ekki, er ekki líkan, fyrir ensku e
 vantar bætir hann við tilvísun á
 [Uppsetning umritunartækjanna](../subedit-cli/install-transcription.md), sem segir hvar finna má
 hvert um sig. Reitirnir tveir eru stillingarnar `transcription.executable` og `transcription.model`.
+
+Þriðji reiturinn, **„Raddvirknilíkan“**, með eigin hnapp `Browse…`, tilgreinir líkan sem sleppir þögnum áður en vélin afkóðar (Silero-líkan fyrir whisper.cpp). Með því byrjar fyrsti skjátextinn þar sem talið byrjar og hinir fylgja honum, í stað heilla glugga sem eru taldir frá 0. Ef reiturinn er tómur er þögnum ekki sleppt. Þetta er stillingin `transcription.vad-model`, og líkanið þarftu sjálf(ur) að útvega, eins og talmódelið: sjá [Uppsetning umritunartækjanna](../subedit-cli/install-transcription.md).
 
 Reitur, **„Ekki skrifa hljóð sem athugasemdir“**, er stillingin `transcription.suppress-notes` (hakað sjálfgefið): vélinni er sagt að skrifa ekki hljóð
 sem athugasemdir eins og `(phone ringing)`. Taktu hakið af til að halda þeim, fyrir skjátexta fyrir heyrnarskerta. Gluggi `Transcribe Audio…` býður sama reit fyrir hverja umritun fyrir sig.

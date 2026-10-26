@@ -92,6 +92,12 @@ describeTranscribe(CLI::App& app, std::string_view name, TranscribeCommandOption
             std::string{core::translate("Model file; the transcription.model setting by default")})
         ->option_text("FILE");
     transcribe
+        ->add_option("--vad-model",
+                     options.request.vadModel,
+                     std::string{core::translate("Voice-activity model that skips silences; the "
+                                                 "transcription.vad-model setting by default")})
+        ->option_text("FILE");
+    transcribe
         ->add_option(
             "--engine",
             options.request.engine,

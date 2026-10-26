@@ -102,15 +102,15 @@ duration-adjust.lengthen
     Used by: subedit-cli adjust; Adjust Durations…
 ```
 
-Avaimia on **41**:
+Avaimia on **42**:
 
 <!-- example: subedit-cli config list | grep -c '^[a-z]' -->
 ```console
 $ subedit-cli config list | grep -c '^[a-z]'
-41
+42
 ```
 
-**Niistä kaksikymmentäyksi luetaan komentoriviltä**; muut kaksikymmentä lukee vain ikkuna, ja niiden
+**Niistä kaksikymmentäkaksi luetaan komentoriviltä**; muut kaksikymmentä lukee vain ikkuna, ja niiden
 rivi `Used by:` kertoo sen sekä nimeää alikomennon `correct` valitsimen, joka korvaa ne:
 
 | Avain | Lukija |
@@ -122,7 +122,7 @@ rivi `Used by:` kertoo sen sekä nimeää alikomennon `correct` valitsimen, joka
 | `correction.human`, `correction.ocr` | [`correct`](correct.md) ja `Correct Texts…` |
 | `correction.remove-blank` | `correct` ja `Correct Texts…` |
 | `correction.line-break.max-lines` | `correct` ja `Correct Texts…` |
-| `transcription.engine`, `transcription.executable`, `transcription.model`, `transcription.language`, `transcription.suppress-notes`, `transcription.merge-gap-ms`, `transcription.max-duration-ms`, `transcription.max-characters` | [`transcribe`](transcribe.md) ja `Transcribe Audio…` |
+| `transcription.engine`, `transcription.executable`, `transcription.model`, `transcription.vad-model`, `transcription.language`, `transcription.suppress-notes`, `transcription.merge-gap-ms`, `transcription.max-duration-ms`, `transcription.max-characters` | [`transcribe`](transcribe.md) ja `Transcribe Audio…` |
 | kaikki muut avaimet `correction.*` | vain `Correct Texts…` — `correct` ottaa valitsimet `--tasks`, `--code`, `--max-length`, `--skip-length`, `--skip-lines`, `--language`, `--enable` ja `--disable` omalta komentoriviltään |
 
 Rivimäärät, `correction.line-break.max-lines` ja `correction.line-break.skip-max-lines`,

@@ -140,7 +140,7 @@ successiva.
 | `correction.join-split.language` | un codice di locale — `fr`, `en_US`, `sr@Latn` —; vuoto: la lingua del sistema | vuoto |
 | `correction.remove-blank` | `true` o `false` — `Remove all blank subtitles` | `true` |
 | `transcription.engine` | il nome del motore: lettere minuscole, cifre, `.`, `-` e `_` | `whisper.cpp` |
-| `transcription.executable`, `transcription.model` | un percorso assoluto; vuoto: il motore viene cercato nel `PATH`, e nessun modello è impostato | vuoto |
+| `transcription.executable`, `transcription.model`, `transcription.vad-model` | un percorso assoluto; vuoto: il motore viene cercato nel `PATH`, e nessun modello è impostato, e i silenzi non vengono saltati | vuoto |
 | `transcription.language` | due lettere minuscole, un codice ISO 639-1; vuoto: la lingua viene rilevata | vuoto |
 | `transcription.suppress-notes` | `true` o `false` — `Do not write sounds as notes` | `true` |
 | `transcription.merge-gap-ms` | i pezzi di una stessa frase più vicini di questo valore vengono uniti, in millisecondi, intero e non negativo | `400` |
@@ -293,6 +293,8 @@ Sotto i campi, **la finestra dice che cosa c'è**: se il motore è stato trovato
 qualcosa, aggiunge il rimando a
 [Installare gli strumenti di trascrizione](../subedit-cli/install-transcription.md), che dice dove trovare
 ciascuno. I due campi sono le impostazioni `transcription.executable` e `transcription.model`.
+
+Un terzo campo, **“Modello di attività vocale”**, con un proprio pulsante `Browse…`, indica un modello che salta i silenzi prima che il motore decodifichi (un modello Silero per whisper.cpp). Con uno, il primo sottotitolo inizia dove inizia il parlato e gli altri lo seguono, invece di finestre intere contate da 0. Se resta vuoto, i silenzi non vengono saltati. È l'impostazione `transcription.vad-model`, e il modello va procurato da te, come il modello vocale: vedi [Installare gli strumenti di trascrizione](../subedit-cli/install-transcription.md).
 
 Una casella, **“Non scrivere i suoni come note”**, è l'impostazione `transcription.suppress-notes` (selezionata per impostazione predefinita): al motore è ordinato di non scrivere i suoni
 come note, per esempio `(phone ringing)`. Deselezionala per conservarli, per sottotitoli per non udenti. La finestra di `Transcribe Audio…` offre la stessa casella per la singola trascrizione.

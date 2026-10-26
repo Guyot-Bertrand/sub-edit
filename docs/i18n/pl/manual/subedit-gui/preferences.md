@@ -139,7 +139,7 @@ pojawiły się dwa bloki, jest czytany bez zmian i przepisany w dwóch blokach p
 | `correction.join-split.language` | kod ustawień regionalnych — `fr`, `en_US`, `sr@Latn` —; puste: język systemu | puste |
 | `correction.remove-blank` | `true` lub `false` — `Remove all blank subtitles` | `true` |
 | `transcription.engine` | nazwa silnika: małe litery, cyfry, `.`, `-` i `_` | `whisper.cpp` |
-| `transcription.executable`, `transcription.model` | ścieżka bezwzględna; puste: silnik jest szukany w `PATH`, a model nie jest ustawiony | puste |
+| `transcription.executable`, `transcription.model`, `transcription.vad-model` | ścieżka bezwzględna; puste: silnik jest szukany w `PATH`, a model nie jest ustawiony, a cisza nie jest pomijana | puste |
 | `transcription.language` | dwie małe litery, kod ISO 639-1; puste: język jest wykrywany | puste |
 | `transcription.suppress-notes` | `true` lub `false` — `Do not write sounds as notes` | `true` |
 | `transcription.merge-gap-ms` | fragmenty jednego zdania położone bliżej niż ta wartość są łączone, w milisekundach, liczba całkowita nieujemna | `400` |
@@ -292,6 +292,8 @@ został znaleziony, oraz model — nie ustawiony, nie znaleziony, nie jest model
 brakuje, dodaje odsyłacz do
 [Instalowanie narzędzi do transkrypcji](../subedit-cli/install-transcription.md), który mówi, gdzie znaleźć
 każde z nich. Te dwa pola to ustawienia `transcription.executable` i `transcription.model`.
+
+Trzecie pole, **„Model wykrywania mowy”**, z własnym przyciskiem `Browse…`, wskazuje model, który pomija ciszę, zanim silnik zacznie dekodować (model Silero dla whisper.cpp). Z nim pierwszy napis zaczyna się tam, gdzie zaczyna się mowa, a pozostałe za nim podążają, zamiast całych okien liczonych od 0. Pozostawione puste, nie pomija ciszy. To ustawienie `transcription.vad-model`, a model trzeba dostarczyć samemu, tak jak model mowy: zob. [Instalowanie narzędzi do transkrypcji](../subedit-cli/install-transcription.md).
 
 Pole wyboru, **„Nie zapisuj dźwięków jako uwag”**, to ustawienie `transcription.suppress-notes` (domyślnie zaznaczone): silnik ma polecenie, by nie zapisywać dźwięków
 jako uwag, takich jak `(phone ringing)`. Odznacz je, aby je zachować, na potrzeby napisów dla niesłyszących. Okno `Transcribe Audio…` oferuje to samo pole dla jednej transkrypcji.

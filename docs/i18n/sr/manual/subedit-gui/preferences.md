@@ -139,7 +139,7 @@
 | `correction.join-split.language` | шифра локалитета — `fr`, `en_US`, `sr@Latn` —; празно: језик система | празно |
 | `correction.remove-blank` | `true` или `false` — `Remove all blank subtitles` | `true` |
 | `transcription.engine` | назив мотора: мала слова, цифре, `.`, `-` и `_` | `whisper.cpp` |
-| `transcription.executable`, `transcription.model` | апсолутна путања; празно: мотор се тражи у `PATH`, а модел није задат | празно |
+| `transcription.executable`, `transcription.model`, `transcription.vad-model` | апсолутна путања; празно: мотор се тражи у `PATH`, а модел није задат, и тишине се не прескачу | празно |
 | `transcription.language` | два мала слова, ISO 639-1 код; празно: језик се открива | празно |
 | `transcription.suppress-notes` | `true` или `false` — `Do not write sounds as notes` | `true` |
 | `transcription.merge-gap-ms` | делови једне реченице ближи од овога спајају се, у милисекундама, цео број који није негативан | `400` |
@@ -292,6 +292,8 @@ subedit-gui: /home/vous/.config/subedit/settings.conf: window.geometry: "plus ta
 недостаје, додаје упутство на
 [Инсталирање алата за транскрипцију](../subedit-cli/install-transcription.md), које каже где се
 шта налази. Та два поља су поставке `transcription.executable` и `transcription.model`.
+
+Треће поље, **„Модел откривања говора“**, са сопственим дугметом `Browse…`, одређује модел који прескаче тишине пре него што мотор декодира (Silero модел за whisper.cpp). Са њим први титл почиње тамо где почиње говор, а остали га прате, уместо целих прозора рачунатих од 0. Ако остане празно, тишине се не прескачу. То је поставка `transcription.vad-model`, а модел морате обезбедити сами, као и модел говора: видите [Инсталирање алата за транскрипцију](../subedit-cli/install-transcription.md).
 
 Поље за потврду **„Не писати звуке као белешке“** је поставка `transcription.suppress-notes` (подразумевано означено): мотору је речено да не пише звуке
 као белешке, на пример `(phone ringing)`. Поништите ознаку да их задржите, за титлове за наглуве. Дијалог `Transcribe Audio…` нуди исто поље за једну транскрипцију.

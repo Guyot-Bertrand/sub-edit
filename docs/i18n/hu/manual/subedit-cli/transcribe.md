@@ -11,6 +11,7 @@ subedit-cli transcribe --output FILE
                        [--start TIME] [--end TIME]
                        [--suppress-notes | --keep-notes]
                        [--model FILE]
+                       [--vad-model FILE]
                        [--engine NAME]
                        [--keep-audio FILE]
                        [--raw]
@@ -79,6 +80,7 @@ Options:
   --suppress-notes            Do not write sounds as notes, such as (phone ringing); the transcription.suppress-notes setting by default
   --keep-notes                Write sounds as notes, against the setting
   --model FILE                Model file; the transcription.model setting by default
+  --vad-model FILE            Voice-activity model that skips silences; the transcription.vad-model setting by default
   --engine NAME               Engine; the transcription.engine setting by default
   --keep-audio FILE           Keep the extracted audio in this file
   --list-languages            List the languages the engine offers for the model, and transcribe nothing
@@ -100,6 +102,7 @@ Options:
 | `--start` | nem | egy időpont: `2:00`, `1:02:03`, `2:00.5`, vagy másodpercek száma, `90` | a hang eleje |
 | `--end` | nem | egy időpont, a `--start`-hoz hasonlóan írva; a `--start` után kell jönnie | a hang vége |
 | `--model` | nem | a modellfájl | a `transcription.model` beállítás |
+| `--vad-model` | nem | egy beszédaktivitás-modell (egy Silero-modell a whisper.cpp-hez), amely a dekódolás előtt kihagyatja a motorral a csendet: a szegmensei ilyenkor a beszédet követik, és az első ott kezdődik, ahol a beszéd, nem 0-nál. A fájlnak léteznie kell, és az a motor, amely nem tudja használni, név szerint elutasítja a kapcsolót | a `transcription.vad-model` beállítás |
 | `--engine` | nem | egy motor neve: `whisper.cpp` | a `transcription.engine` beállítás |
 | `--keep-audio` | nem | egy fájl a kinyert hang megtartásához, mono 16 bites PCM-ként WAV fájlban, a motor által kért mintavételi frekvencián (whisper.cpp esetén 16 kHz); a könyvtára létrejön, ha hiányzik, és a név tartalmazhat `{rate}`-et, amelyet ez a frekvencia helyettesít hertzben (a `film.{rate}.wav` neve `film.16000.wav` lesz) | a hang sehol sem marad meg |
 | `--raw` | nem | kapcsoló: a motor szakaszainak kiírása egyesítés és vágás nélkül | ki |
@@ -112,6 +115,7 @@ A **beállítások** a beállításfájlból olvasódnak, mint az [`adjust`](adj
 | `transcription.engine` | a motor | `whisper.cpp` |
 | `transcription.executable` | a motor programja, abszolút elérési út; üres: a `PATH`-ban keresi | üres |
 | `transcription.model` | a modellfájl, abszolút elérési út | üres |
+| `transcription.vad-model` | a beszédaktivitás-modell, abszolút elérési út; üres: nincs, és a csendet nem hagyja ki. A beállítást, amelyet a motor nem tud használni, szó nélkül elhagyja | üres |
 | `transcription.language` | a hang nyelve, két betű; üres: felismeri | üres |
 | `transcription.suppress-notes` | ne írja ki a hangokat megjegyzésként | `true` |
 | `transcription.merge-gap-ms` | egy mondat ennyi ezredmásodpercnél közelebbi darabjai egyesülnek | `400` |

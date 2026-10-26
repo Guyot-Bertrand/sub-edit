@@ -11,6 +11,7 @@ subedit-cli transcribe --output FILE
                        [--start TIME] [--end TIME]
                        [--suppress-notes | --keep-notes]
                        [--model FILE]
+                       [--vad-model FILE]
                        [--engine NAME]
                        [--keep-audio FILE]
                        [--raw]
@@ -79,6 +80,7 @@ Options:
   --suppress-notes            Do not write sounds as notes, such as (phone ringing); the transcription.suppress-notes setting by default
   --keep-notes                Write sounds as notes, against the setting
   --model FILE                Model file; the transcription.model setting by default
+  --vad-model FILE            Voice-activity model that skips silences; the transcription.vad-model setting by default
   --engine NAME               Engine; the transcription.engine setting by default
   --keep-audio FILE           Keep the extracted audio in this file
   --list-languages            List the languages the engine offers for the model, and transcribe nothing
@@ -100,6 +102,7 @@ Options:
 | `--start` | no | čas: `2:00`, `1:02:03`, `2:00.5`, nebo počet sekund, `90` | začátek zvuku |
 | `--end` | no | čas zapsaný jako u `--start`; musí následovat po `--start` | konec zvuku |
 | `--model` | ne | soubor modelu | nastavení `transcription.model` |
+| `--vad-model` | ne | model detekce řeči (model Silero pro whisper.cpp), který způsobí, že engine před dekódováním přeskočí ticho: jeho segmenty pak sledují řeč a první z nich začíná tam, kde začíná řeč, místo v čase 0. Soubor musí existovat a engine, který jej nemůže použít, volbu jménem odmítne | nastavení `transcription.vad-model` |
 | `--engine` | ne | název nástroje: `whisper.cpp` | nastavení `transcription.engine` |
 | `--keep-audio` | ne | soubor, ve kterém se uchová vyextrahovaný zvuk, jako 16bitové mono PCM v souboru WAV, s vzorkovací frekvencí, kterou nástroj žádá (16 kHz pro whisper.cpp); jeho adresář se vytvoří, pokud chybí, a název může nést `{rate}`, nahrazené touto frekvencí v hertzích (`film.{rate}.wav` se zapíše jako `film.16000.wav`) | zvuk se neuchovává nikde |
 | `--raw` | ne | přepínač: zapíše segmenty nástroje bez slučování a bez dělení | vypnuto |
@@ -112,6 +115,7 @@ Options:
 | `transcription.engine` | nástroj | `whisper.cpp` |
 | `transcription.executable` | program nástroje, absolutní cesta; prázdné: hledá se v `PATH` | prázdné |
 | `transcription.model` | soubor modelu, absolutní cesta | prázdné |
+| `transcription.vad-model` | model detekce řeči, absolutní cesta; prázdné: žádný a ticho se nepřeskakuje. Nastavení, které engine nemůže použít, se bez upozornění vynechá | prázdné |
 | `transcription.language` | jazyk zvuku, dvě písmena; prázdné: zjistí se | prázdné |
 | `transcription.suppress-notes` | nezapisovat zvuky jako poznámky | `true` |
 | `transcription.merge-gap-ms` | části jedné věty bližší než tento počet milisekund se spojí | `400` |

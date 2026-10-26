@@ -48,6 +48,16 @@ sh ./models/download-ggml-model.sh small
 Anna sitten sen polku valitsimella `--model` komentorivillä tai asetuksella `transcription.model`
 tai ikkunan [asetuksissa](../subedit-gui/preferences.md#litterointi), jotka muistavat sen.
 
+### Puheaktiivisuusmalli, jotta alku osuu puheen kohdalle
+
+Valinnaisesti **puheaktiivisuusmalli** (Silero) antaa moottorin ohittaa hiljaisuudet ennen dekoodausta. Ilman sitä whisper aloittaa ensimmäisen tekstityksen kohdasta 0 riippumatta siitä, mitä elokuvassa tulee ensin, musiikki mukaan lukien, ja pyöristää aikansa kokonaisiin ikkunoihin; sen kanssa ensimmäinen tekstitys alkaa siitä, mistä puhe alkaa, ja muut seuraavat sitä. Moottorin repositoriossa on skripti, joka hakee sellaisen:
+
+```bash
+sh ./models/download-vad-model.sh silero-v6.2.0
+```
+
+Anna sen polku valitsimella `--vad-model`, asetuksella `transcription.vad-model` tai ikkunan [asetuksissa](../subedit-gui/preferences.md#litterointi).
+
 ### Mikä malli mille kielelle
 
 Whisper ei vaihda mallia sen jälkeen, kun se on löytänyt kielen: **antamasi malli ratkaisee, mihin

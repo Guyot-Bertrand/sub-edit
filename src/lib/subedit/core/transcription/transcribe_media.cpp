@@ -82,6 +82,7 @@ transcribeMedia(FileSystem& files,
                                      .language = request.language,
                                      .model = request.model,
                                      .suppressNotes = request.suppressNotes,
+                                     .vadModel = request.vadModel,
                                      .start = request.start,
                                      .end = request.end};
     auto transcribed = engine.transcribe(asked, observer);

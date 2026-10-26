@@ -1099,6 +1099,10 @@ msgid "Model file; the transcription.model setting by default"
 msgstr "Датотека модела; подразумевано поставка transcription.model"
 
 #: src/exe/cli/commands/transcribe.cpp
+msgid "Voice-activity model that skips silences; the transcription.vad-model setting by default"
+msgstr "Модел откривања говора који прескаче тишине; подразумевано поставка transcription.vad-model"
+
+#: src/exe/cli/commands/transcribe.cpp
 msgid "Engine; the transcription.engine setting by default"
 msgstr "Мотор; подразумевано поставка transcription.engine"
 
@@ -2460,6 +2464,10 @@ msgid "The model file the engine reads."
 msgstr "Датотека модела коју мотор чита."
 
 #: src/lib/subedit/core/config/operation_settings.cpp
+msgid "The voice-activity model that skips silences; none when empty."
+msgstr "Модел откривања говора који прескаче тишине; ниједан ако је празно."
+
+#: src/lib/subedit/core/config/operation_settings.cpp
 msgid "The language of the audio; detected when empty."
 msgstr "Језик звука; открива се ако је празно."
 
@@ -3536,6 +3544,14 @@ msgid "the engine %1 cannot be told not to write sounds as notes"
 msgstr "мотору %1 се не може рећи да не пише звуке као белешке"
 
 #: src/lib/subedit/core/wording/transcription.cpp
+msgid "the engine %1 cannot skip silences with a voice-activity model"
+msgstr "мотор %1 не може да прескаче тишине помоћу модела откривања говора"
+
+#: src/lib/subedit/core/wording/transcription.cpp
+msgid "the voice-activity model %1 does not exist"
+msgstr "модел откривања говора %1 не постоји"
+
+#: src/lib/subedit/core/wording/transcription.cpp
 msgid ""
 "\"%1\" is not a language code: write two letters, such as fr, en, de or es"
 msgstr "„%1“ није кôд језика: упишите два слова, као fr, en, de или es"
@@ -4496,12 +4512,24 @@ msgid "Searched for on the PATH"
 msgstr "Тражи се у PATH-у"
 
 #: src/lib/subedit/gui/preferences_dialog.cpp
+msgid "None: silences are not skipped"
+msgstr "Ниједан: тишине се не прескачу"
+
+#: src/lib/subedit/gui/preferences_dialog.cpp
+msgid "A voice-activity model (Silero) makes the first subtitle begin where the speech does, and the others follow it."
+msgstr "Модел откривања говора (Silero) чини да први титл почне тамо где почиње говор, а остали га прате."
+
+#: src/lib/subedit/gui/preferences_dialog.cpp
 msgid "Program"
 msgstr "Програм"
 
 #: src/lib/subedit/gui/preferences_dialog.cpp
 msgid "Model"
 msgstr "Модел"
+
+#: src/lib/subedit/gui/preferences_dialog.cpp
+msgid "Voice-activity model"
+msgstr "Модел откривања говора"
 
 #: src/lib/subedit/gui/preferences_dialog.cpp
 #: src/lib/subedit/gui/transcribe_dialog.cpp
@@ -4569,6 +4597,10 @@ msgstr "Отвори"
 #: src/lib/subedit/gui/qt_prompts.cpp
 msgid "Select Video"
 msgstr "Изабери филм"
+
+#: src/lib/subedit/gui/qt_prompts.cpp
+msgid "Choose a voice-activity model"
+msgstr "Изабери модел откривања говора"
 
 #: src/lib/subedit/gui/qt_prompts.cpp
 msgid "Choose a model"
@@ -4997,7 +5029,9 @@ msgstr "Изаберите титл са десне стране да видит
 msgid ""
 "These values are now the settings of the application (transcription.*). "
 "Closing this window changes nothing more."
-msgstr "Ове вредности су сада подешавања апликације (transcription.*). Затварање овог прозора више ништа не мења."
+msgstr ""
+"Ове вредности су сада подешавања апликације (transcription.*). Затварање "
+"овог прозора више ништа не мења."
 
 #: src/lib/subedit/gui/transcription_preview_dialog.cpp
 msgid "Merge pieces closer than"

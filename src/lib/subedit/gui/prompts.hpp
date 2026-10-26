@@ -45,8 +45,9 @@ struct ModifiedDocument {
 
 /// What a transcription asks the person to point at.
 enum class ChosenFile {
-    Model,   ///< the model file the engine reads
-    Program, ///< the engine's program
+    Model,      ///< the model file the engine reads
+    Program,    ///< the engine's program
+    VoiceModel, ///< the voice-activity model that skips silences
 };
 
 /// What to do about a document that differs from its file.

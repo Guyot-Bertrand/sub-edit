@@ -55,6 +55,12 @@ namespace subedit::core {
 /// An engine that cannot be told not to write sounds as notes, asked to.
 [[nodiscard]] std::string engineCannotSuppressNotes(std::string_view engine);
 
+/// `--vad-model` for an engine that cannot skip silences with a voice-activity model.
+[[nodiscard]] std::string engineCannotDetectVoice(std::string_view engine);
+
+/// The file `--vad-model` names is not there.
+[[nodiscard]] std::string voiceModelNotFound(std::string_view path);
+
 /// What is wrong with a language that could not be read as a code.
 [[nodiscard]] std::string notALanguageCode(std::string_view text);
 

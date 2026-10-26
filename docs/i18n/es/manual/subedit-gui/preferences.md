@@ -139,7 +139,7 @@ existieran los dos bloques se lee sin cambios, y se reescribe en dos bloques en 
 | `correction.join-split.language` | un código de configuración regional — `fr`, `en_US`, `sr@Latn` —; vacío: el idioma del sistema | vacío |
 | `correction.remove-blank` | `true` o `false` — `Remove all blank subtitles` | `true` |
 | `transcription.engine` | el nombre del motor: letras minúsculas, cifras, `.`, `-` y `_` | `whisper.cpp` |
-| `transcription.executable`, `transcription.model` | una ruta absoluta; vacío: el motor se busca en el `PATH` y no hay ningún modelo definido | vacío |
+| `transcription.executable`, `transcription.model`, `transcription.vad-model` | una ruta absoluta; vacío: el motor se busca en el `PATH` y no hay ningún modelo definido, y los silencios no se omiten | vacío |
 | `transcription.language` | dos letras minúsculas, un código ISO 639-1; vacío: el idioma se detecta | vacío |
 | `transcription.suppress-notes` | `true` o `false` — `Do not write sounds as notes` | `true` |
 | `transcription.merge-gap-ms` | los fragmentos de una misma frase más próximos que esto se unen, en milisegundos, entero y no negativo | `400` |
@@ -292,6 +292,8 @@ se encuentra, y el modelo — no definido, no encontrado, no es un modelo, solo 
 algo, añade la referencia a
 [Instalar las herramientas de transcripción](../subedit-cli/install-transcription.md), que dice dónde encontrar
 cada uno. Los dos campos son los ajustes `transcription.executable` y `transcription.model`.
+
+Un tercer campo, **“Modelo de actividad de voz”**, con su propio botón `Browse…`, indica un modelo que omite los silencios antes de que el motor decodifique (un modelo Silero para whisper.cpp). Con uno, el primer subtítulo empieza donde empieza el habla y los demás lo siguen, en lugar de ventanas enteras contadas desde 0. Si se deja vacío, los silencios no se omiten. Es el ajuste `transcription.vad-model`, y el modelo lo debe proporcionar usted, como el modelo de voz: véase [Instalar las herramientas de transcripción](../subedit-cli/install-transcription.md).
 
 Una casilla, **“No escribir los sonidos como notas”**, es el ajuste `transcription.suppress-notes` (marcada por defecto): se le dice al motor que no escriba los sonidos
 como notas, como `(phone ringing)`. Desmárquela para conservarlas, para subtítulos para personas sordas o con discapacidad auditiva. El cuadro de diálogo de `Transcribe Audio…` ofrece la misma casilla para la transcripción de una sola vez.

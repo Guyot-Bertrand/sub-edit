@@ -1154,6 +1154,7 @@ TEST_CASE("the transcription options at their defaults are written commented out
     CHECK_THAT(written, ContainsSubstring("#transcription.engine = whisper.cpp\n"));
     CHECK_THAT(written, ContainsSubstring("#transcription.executable = \n"));
     CHECK_THAT(written, ContainsSubstring("#transcription.model = \n"));
+    CHECK_THAT(written, ContainsSubstring("#transcription.vad-model = \n"));
     CHECK_THAT(written, ContainsSubstring("#transcription.language = \n"));
     CHECK_THAT(written, ContainsSubstring("#transcription.merge-gap-ms = 400\n"));
     CHECK_THAT(written, ContainsSubstring("#transcription.max-duration-ms = 7000\n"));
@@ -1164,6 +1165,7 @@ TEST_CASE("the transcription options are read, written back and read again", "[c
     const SettingsRead read = readOf("transcription.engine = other-engine\n"
                                      "transcription.executable = /opt/whisper/whisper-cli\n"
                                      "transcription.model = /models/ggml-small.bin\n"
+                                     "transcription.vad-model = /models/ggml-silero.bin\n"
                                      "transcription.language = fr\n"
                                      "transcription.merge-gap-ms = 250\n"
                                      "transcription.max-duration-ms = 5000\n"
@@ -1174,6 +1176,7 @@ TEST_CASE("the transcription options are read, written back and read again", "[c
     CHECK(form.engine == "other-engine");
     CHECK(form.executable == "/opt/whisper/whisper-cli");
     CHECK(form.model == "/models/ggml-small.bin");
+    CHECK(form.vadModel == "/models/ggml-silero.bin");
     CHECK(form.language == "fr");
     CHECK(form.mergeGapMilliseconds == 250);
     CHECK(form.maxDurationMilliseconds == 5000);

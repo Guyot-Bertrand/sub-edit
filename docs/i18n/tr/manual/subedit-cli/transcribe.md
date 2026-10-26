@@ -11,6 +11,7 @@ subedit-cli transcribe --output FILE
                        [--start TIME] [--end TIME]
                        [--suppress-notes | --keep-notes]
                        [--model FILE]
+                       [--vad-model FILE]
                        [--engine NAME]
                        [--keep-audio FILE]
                        [--raw]
@@ -77,6 +78,7 @@ Options:
   --suppress-notes            Do not write sounds as notes, such as (phone ringing); the transcription.suppress-notes setting by default
   --keep-notes                Write sounds as notes, against the setting
   --model FILE                Model file; the transcription.model setting by default
+  --vad-model FILE            Voice-activity model that skips silences; the transcription.vad-model setting by default
   --engine NAME               Engine; the transcription.engine setting by default
   --keep-audio FILE           Keep the extracted audio in this file
   --list-languages            List the languages the engine offers for the model, and transcribe nothing
@@ -98,6 +100,7 @@ Options:
 | `--start` | hayır | bir süre: `2:00`, `1:02:03`, `2:00.5` ya da bir saniye sayısı, `90` | sesin başı |
 | `--end` | hayır | `--start` için olduğu gibi yazılmış bir süre; `--start` değerinden sonra gelmelidir | sesin sonu |
 | `--model` | hayır | model dosyası | `transcription.model` ayarı |
+| `--vad-model` | hayır | bir ses etkinliği modeli (whisper.cpp için bir Silero modeli); motorun kodlamadan önce sessizlikleri atlamasını sağlar: bölümleri bu durumda konuşmayı izler ve ilki 0 yerine konuşmanın başladığı yerde başlar. Dosya var olmalıdır ve onu kullanamayan bir motor seçeneği adıyla reddeder | `transcription.vad-model` ayarı |
 | `--engine` | hayır | bir motorun adı: `whisper.cpp` | `transcription.engine` ayarı |
 | `--keep-audio` | hayır | çıkarılan sesin saklanacağı dosya, bir WAV dosyasında mono 16 bit PCM olarak, motorun istediği örnekleme hızında (whisper.cpp için 16 kHz); dizini yoksa oluşturulur ve ad, o hızın hertz cinsinden değeriyle değiştirilen `{rate}` taşıyabilir (`film.{rate}.wav`, `film.16000.wav` olarak yazılır) | ses hiçbir yerde saklanmaz |
 | `--raw` | hayır | bir bayrak: motorun parçalarını birleştirme ve kesme olmadan yazar | kapalı |
@@ -110,6 +113,7 @@ Options:
 | `transcription.engine` | motor | `whisper.cpp` |
 | `transcription.executable` | motorun programı, mutlak bir yol; boşsa: `PATH` içinde aranır | boş |
 | `transcription.model` | model dosyası, mutlak bir yol | boş |
+| `transcription.vad-model` | ses etkinliği modeli, mutlak bir yol; boş: yok ve sessizlikler atlanmaz. Bir motorun kullanamadığı ayar sessizce bırakılır | boş |
 | `transcription.language` | sesin dili, iki harf; boşsa: algılanır | boş |
 | `transcription.suppress-notes` | sesleri not olarak yazma | `true` |
 | `transcription.merge-gap-ms` | bir cümlenin bu kadar milisaniyeden daha yakın parçaları birleştirilir | `400` |

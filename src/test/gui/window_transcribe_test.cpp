@@ -648,7 +648,7 @@ TEST_CASE("the preferences say what is there of what the fields name, as they ar
 }
 
 TEST_CASE("the Browse buttons ask the window for a program and for a model, and keep a refusal out",
-          "[gui][GUI-TRANSCRIBE-04]") {
+          "[gui][GUI-TRANSCRIBE-04][GUI-TRANSCRIBE-09]") {
     std::vector<std::pair<ChosenFile, std::filesystem::path>> asked;
     std::optional<std::filesystem::path> answer = std::filesystem::path{"/chosen/file"};
     const PreferencesDialog dialog{
@@ -671,6 +671,12 @@ TEST_CASE("the Browse buttons ask the window for a program and for a model, and 
     CHECK(asked[0].first == ChosenFile::Program);
     CHECK(asked[1].first == ChosenFile::Model);
     CHECK(asked[1].second == "/models/old.bin");
+
+    dialog.voiceModelButton()->click();
+    CHECK(dialog.voiceModelEdit()->text() == "/chosen/file");
+    CHECK(dialog.transcription().vadModel == "/chosen/file");
+    REQUIRE(asked.size() == 3);
+    CHECK(asked[2].first == ChosenFile::VoiceModel);
 
     answer = std::nullopt;
     dialog.modelEdit()->setText("/kept");
@@ -724,6 +730,23 @@ TEST_CASE("the real runner transcribes through the tools it finds", "[gui][GUI-T
     CHECK(outcome->language == "en");
     CHECK_FALSE(outcome->segments.empty());
     CHECK(outcome->segments.front().text.starts_with("And so"));
+}
+
+TEST_CASE("the real runner hands the voice-activity model of the settings to the engine",
+          "[gui][GUI-TRANSCRIBE-09]") {
+    const Tools tools;
+    tools.everything();
+    BackgroundTranscriptionRunner runner{tools.scratch.path().string()};
+
+    // A model that is there is accepted; one that is not is a missing model, said before the work.
+    TranscriptionJob job = tools.job();
+    job.settings.vadModel = tools.scratch.write("vad.bin", "model");
+    CHECK(runner.run(job, nullptr).has_value());
+
+    job.settings.vadModel = tools.scratch.file("absent.bin");
+    const auto missing = runner.run(job, nullptr);
+    REQUIRE_FALSE(missing.has_value());
+    CHECK_THAT(missing.error().message, ContainsSubstring("the model file is not there"));
 }
 
 TEST_CASE("the real runner can be stopped, and says it was", "[gui][GUI-TRANSCRIBE-02]") {

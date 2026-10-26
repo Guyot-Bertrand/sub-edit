@@ -52,6 +52,16 @@ sh ./models/download-ggml-model.sh small
 Donnez ensuite son chemin avec `--model` en ligne de commande, ou avec le réglage `transcription.model`,
 ou dans les [préférences](../subedit-gui/preferences.md#transcription) de la fenêtre, qui s'en souviennent.
 
+### Un modèle d'activité vocale, pour commencer là où commence la parole
+
+Facultativement, un **modèle d'activité vocale** (Silero) laisse le moteur sauter les silences avant de décoder. Sans lui, whisper commence son premier sous-titre à 0 quoi qu'il y ait d'abord dans le film, musique comprise, et arrondit ses instants à des fenêtres entières ; avec lui, le premier sous-titre commence là où commence la parole et les autres le suivent. Le dépôt du moteur a un script qui en récupère un :
+
+```bash
+sh ./models/download-vad-model.sh silero-v6.2.0
+```
+
+Donnez son chemin avec `--vad-model`, avec le réglage `transcription.vad-model`, ou dans les [préférences](../subedit-gui/preferences.md#transcription) de la fenêtre.
+
 ### Quel modèle pour quelle langue
 
 Whisper ne change pas de modèle une fois la langue trouvée : **le modèle que vous donnez décide de ce qu'il

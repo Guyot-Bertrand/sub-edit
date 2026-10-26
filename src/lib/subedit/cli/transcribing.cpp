@@ -221,6 +221,29 @@ namespace {
     return std::nullopt;
 }
 
+/// What the voice-activity model asked for allows. **An option names a file, and is refused by name
+/// when the engine cannot use it or when the file is missing; a setting is dropped without a word**
+/// for an engine that cannot, since a setting is written for all the engines.
+[[nodiscard]] std::optional<ExitCode> checkVoiceModel(const TranscribeOptions& options,
+                                                      const core::EngineCapabilities* capabilities,
+                                                      const std::string& engineName,
+                                                      const core::FileSystem& files,
+                                                      core::MediaTranscriptionRequest& request,
+                                                      const Reporter& reporter) {
+    if (capabilities != nullptr && !capabilities->voiceActivity) {
+        if (!options.vadModel.empty()) {
+            reporter.failed(core::engineCannotDetectVoice(engineName));
+            return ExitCode::Usage;
+        }
+        request.vadModel.reset();
+    }
+    if (request.vadModel && !options.vadModel.empty() && !files.exists(*request.vadModel)) {
+        reporter.failed(core::voiceModelNotFound(request.vadModel->string()));
+        return ExitCode::Usage;
+    }
+    return std::nullopt;
+}
+
 } // namespace
 
 ExitCode transcribeFile(core::FileSystem& files,
@@ -254,6 +277,12 @@ ExitCode transcribeFile(core::FileSystem& files,
     request.suppressNotes = options.suppressNotes || (!options.keepNotes && settings.suppressNotes);
     if (!modelPath.empty())
         request.model = modelPath;
+    // The option names a file; the setting only says where one is, and is dropped for an engine
+    // that cannot use it.
+    const std::filesystem::path& voiceModel =
+        options.vadModel.empty() ? settings.vadModel : std::filesystem::path{options.vadModel};
+    if (!voiceModel.empty())
+        request.vadModel = voiceModel;
     if (const std::optional<ExitCode> refused =
             readChoices(options, languageName, request, reporter))
         return *refused;
@@ -270,6 +299,10 @@ ExitCode transcribeFile(core::FileSystem& files,
         reporter.failed(core::engineCannotSuppressNotes(engineName));
         return ExitCode::Usage;
     }
+
+    if (const std::optional<ExitCode> refused = checkVoiceModel(
+            options, capabilities ? &*capabilities : nullptr, engineName, files, request, reporter))
+        return *refused;
 
     // A model for English alone writes everything as English: said before the long work, not after.
     if (capabilities && !capabilities->languageDetection && capabilities->languages.size() == 1 &&

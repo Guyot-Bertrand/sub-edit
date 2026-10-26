@@ -67,12 +67,12 @@ TEST_CASE(
     }
 }
 
-TEST_CASE("The command line honours exactly twenty-one keys", "[operation-settings]") {
+TEST_CASE("The command line honours exactly twenty-two keys", "[operation-settings]") {
     int both = 0;
     for (const SettingKey& one : operationKeys())
         if (one.surface == SettingSurface::Both)
             ++both;
-    CHECK(both == 21);
+    CHECK(both == 22);
 }
 
 TEST_CASE("findOperationKey finds a catalogued key and nothing else", "[operation-settings]") {
@@ -289,6 +289,7 @@ TEST_CASE("Every key can be set away from its default and unset back to it",
         {"transcription.engine", "other-engine"},
         {"transcription.executable", "/opt/whisper/bin/whisper-cli"},
         {"transcription.model", "/models/ggml-small.bin"},
+        {"transcription.vad-model", "/models/ggml-silero-v6.2.0.bin"},
         {"transcription.language", "fr"},
         {"transcription.suppress-notes", "false"},
         {"transcription.merge-gap-ms", "250"},

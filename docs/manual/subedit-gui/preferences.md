@@ -136,7 +136,7 @@ two blocks existed is read unchanged, and rewritten in two blocks at the next cl
 | `correction.join-split.language` | a locale code — `fr`, `en_US`, `sr@Latn` —; empty: the system's language | empty |
 | `correction.remove-blank` | `true` or `false` — `Remove all blank subtitles` | `true` |
 | `transcription.engine` | the name of the engine: lower-case letters, digits, `.`, `-` and `_` | `whisper.cpp` |
-| `transcription.executable`, `transcription.model` | an absolute path; empty: the engine is searched for on `PATH`, and no model is set | empty |
+| `transcription.executable`, `transcription.model`, `transcription.vad-model` | an absolute path; empty: the engine is searched for on `PATH`, and no model is set, and the silences are not skipped | empty |
 | `transcription.language` | two lower-case letters, an ISO 639-1 code; empty: the language is detected | empty |
 | `transcription.suppress-notes` | `true` or `false` — `Do not write sounds as notes` | `true` |
 | `transcription.merge-gap-ms` | pieces of one sentence closer than this are joined, in milliseconds, whole and non-negative | `400` |
@@ -289,6 +289,11 @@ is found, and the model — not set, not found, not a model, for English alone, 
 missing it adds the pointer to
 [Installing the transcription tools](../subedit-cli/install-transcription.md), which says where to find
 each. The two fields are the settings `transcription.executable` and `transcription.model`.
+
+A third field, **“Voice-activity model”**, with its own `Browse…` button, names a model that skips the silences before the engine decodes (a Silero model
+for whisper.cpp). With one, the first subtitle begins where the speech does and the others follow it, instead of whole windows counted from 0. Left empty, the silences
+are not skipped. It is the setting `transcription.vad-model`, and the model is yours to provide, as the speech model is: see
+[Installing the transcription tools](../subedit-cli/install-transcription.md).
 
 A box, **“Do not write sounds as notes”**, is the setting `transcription.suppress-notes` (checked by default): the engine is told not to write sounds
 as notes such as `(phone ringing)`. Uncheck it to keep them, for subtitles for the hard of hearing. The dialog of `Transcribe Audio…` offers the same box for the one transcription.

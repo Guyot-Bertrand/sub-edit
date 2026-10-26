@@ -153,7 +153,7 @@ sellaisenaan ja kirjoitetaan kahtena lohkona seuraavalla sulkemiskerralla.
 | `correction.join-split.language` | kieliasetuksen koodi — `fr`, `en_US`, `sr@Latn` —; tyhjä: järjestelmän kieli | tyhjä |
 | `correction.remove-blank` | `true` tai `false` — `Remove all blank subtitles` | `true` |
 | `transcription.engine` | moottorin nimi: pieniä kirjaimia, numeroita, `.`, `-` ja `_` | `whisper.cpp` |
-| `transcription.executable`, `transcription.model` | absoluuttinen polku; tyhjä: moottori haetaan `PATH`-polusta, eikä mallia ole asetettu | tyhjä |
+| `transcription.executable`, `transcription.model`, `transcription.vad-model` | absoluuttinen polku; tyhjä: moottori haetaan `PATH`-polusta, eikä mallia ole asetettu, eikä hiljaisuuksia ohiteta | tyhjä |
 | `transcription.language` | kaksi pientä kirjainta, ISO 639-1 -koodi; tyhjä: kieli tunnistetaan | tyhjä |
 | `transcription.suppress-notes` | `true` tai `false` — `Do not write sounds as notes` | `true` |
 | `transcription.merge-gap-ms` | saman lauseen palat, jotka ovat tätä lähempänä toisiaan, yhdistetään, millisekunteina, kokonaisluku, ei negatiivinen | `400` |
@@ -310,6 +310,8 @@ ja malli — ei asetettu, ei löytynyt, ei ole malli, vain englannille tai monik
 puuttuu, se lisää viittauksen sivuun
 [Litterointityökalujen asentaminen](../subedit-cli/install-transcription.md), joka kertoo, mistä kukin löytyy.
 Nämä kaksi kenttää ovat asetukset `transcription.executable` ja `transcription.model`.
+
+Kolmas kenttä, **“Puheaktiivisuusmalli”**, jolla on oma `Browse…`-painike, nimeää mallin, joka ohittaa hiljaisuudet ennen kuin moottori dekoodaa (Silero-malli whisper.cpp:lle). Sen kanssa ensimmäinen tekstitys alkaa siitä, mistä puhe alkaa, ja muut seuraavat sitä, kokonaisten ikkunoiden sijaan, jotka lasketaan kohdasta 0. Tyhjänä hiljaisuuksia ei ohiteta. Se on asetus `transcription.vad-model`, ja malli on sinun hankittavasi, kuten puhemalli: katso [Litterointityökalujen asentaminen](../subedit-cli/install-transcription.md).
 
 Ruutu **“Älä kirjoita ääniä huomautuksina”** on asetus `transcription.suppress-notes` (oletuksena valittuna): moottorille sanotaan, ettei se kirjoita ääniä
 huomautuksina, kuten `(phone ringing)`. Poista valinta, jos haluat säilyttää ne, kuulovammaisten tekstityksiä varten. `Transcribe Audio…` -valintaikkuna tarjoaa saman ruudun yksittäistä litterointia varten.

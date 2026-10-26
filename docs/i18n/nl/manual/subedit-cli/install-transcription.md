@@ -48,6 +48,16 @@ sh ./models/download-ggml-model.sh small
 Geef vervolgens het pad ervan op met `--model` op de opdrachtregel, of met de instelling `transcription.model`,
 of in de [instellingen](../subedit-gui/preferences.md#transcriptie) van het venster, die het onthouden.
 
+### Een spraakactiviteitsmodel, om te beginnen waar de spraak begint
+
+Optioneel laat een **spraakactiviteitsmodel** (Silero) de engine de stiltes overslaan voordat ze decodeert. Zonder begint whisper zijn eerste ondertitel bij 0, wat er in de film ook als eerste komt, muziek inbegrepen, en rondt zijn tijden af op hele vensters; met een model begint de eerste ondertitel waar de spraak begint en volgen de andere. De repository van de engine heeft een script dat er een ophaalt:
+
+```bash
+sh ./models/download-vad-model.sh silero-v6.2.0
+```
+
+Geef het pad ervan op met `--vad-model`, met de instelling `transcription.vad-model` of in de [instellingen](../subedit-gui/preferences.md#transcriptie) van het venster.
+
 ### Welk model voor welke taal
 
 Whisper wisselt niet van model zodra het de taal heeft gevonden: **het model dat u opgeeft bepaalt wat het
