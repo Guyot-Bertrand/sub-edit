@@ -19,6 +19,7 @@ add_executable(
     core/text/common_errors_bench.cpp
     core/text/line_breaking_bench.cpp
     core/time/timestamp_bench.cpp
+    core/transcription/subtitle_assembly_bench.cpp
     core/version_bench.cpp
     gui/ems_line_breaking_bench.cpp
     gui/subtitle_table_model_bench.cpp

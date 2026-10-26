@@ -1092,8 +1092,12 @@ msgid "Model file; the transcription.model setting by default"
 msgstr "Líkanaskrá; sjálfgefið stillingin transcription.model"
 
 #: src/exe/cli/commands/transcribe.cpp
-msgid "Voice-activity model that skips silences; the transcription.vad-model setting by default"
-msgstr "Raddvirknilíkan sem sleppir þögnum; sjálfgefið stillingin transcription.vad-model"
+msgid ""
+"Voice-activity model that skips silences; the transcription.vad-model "
+"setting by default"
+msgstr ""
+"Raddvirknilíkan sem sleppir þögnum; sjálfgefið stillingin transcription.vad-"
+"model"
 
 #: src/exe/cli/commands/transcribe.cpp
 msgid "Engine; the transcription.engine setting by default"
@@ -4447,8 +4451,12 @@ msgid "None: silences are not skipped"
 msgstr "Ekkert: þögnum er ekki sleppt"
 
 #: src/lib/subedit/gui/preferences_dialog.cpp
-msgid "A voice-activity model (Silero) makes the first subtitle begin where the speech does, and the others follow it."
-msgstr "Raddvirknilíkan (Silero) lætur fyrsta texta byrja þar sem talið byrjar og hina fylgja í kjölfarið."
+msgid ""
+"A voice-activity model (Silero) makes the first subtitle begin where the "
+"speech does, and the others follow it."
+msgstr ""
+"Raddvirknilíkan (Silero) lætur fyrsta texta byrja þar sem talið byrjar og "
+"hina fylgja í kjölfarið."
 
 #: src/lib/subedit/gui/preferences_dialog.cpp
 msgid "Program"
@@ -4530,16 +4538,16 @@ msgid "Select Video"
 msgstr "Veldu myndskeið"
 
 #: src/lib/subedit/gui/qt_prompts.cpp
-msgid "Choose a voice-activity model"
-msgstr "Velja raddvirknilíkan"
-
-#: src/lib/subedit/gui/qt_prompts.cpp
 msgid "Choose a model"
 msgstr "Velja líkan"
 
 #: src/lib/subedit/gui/qt_prompts.cpp
 msgid "Choose the program"
 msgstr "Velja forritið"
+
+#: src/lib/subedit/gui/qt_prompts.cpp
+msgid "Choose a voice-activity model"
+msgstr "Velja raddvirknilíkan"
 
 #: src/lib/subedit/gui/qt_prompts.cpp
 msgid "Models (*.bin);;All files (*)"

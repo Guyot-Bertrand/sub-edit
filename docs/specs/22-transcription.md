@@ -259,7 +259,9 @@ small models are noticeably worse outside English. A download command can be an 
 
 **Twelve**, registered `planned` in `docs/exigences.md` with this spec; each issue re-reads its own before its code and
 the state moves to `implemented` when a test cites it. Four more were added by #792, once the first real runs showed
-what was missing: `CLI-TRANSCRIBE-09`, `CLI-TRANSCRIBE-10`, `GUI-TRANSCRIBE-05` and `GUI-TRANSCRIBE-06`.
+what was missing: `CLI-TRANSCRIBE-09`, `CLI-TRANSCRIBE-10`, `GUI-TRANSCRIBE-05` and `GUI-TRANSCRIBE-06`. Six more came with
+#794, #795 and #798: `CLI-TRANSCRIBE-11` to `CLI-TRANSCRIBE-13` and `GUI-TRANSCRIBE-07` to `GUI-TRANSCRIBE-09`. All twenty-two are
+`implemented`.
 
 | Identifier | What it promises |
 | :--------- | :--------------- |
@@ -388,18 +390,41 @@ user's to provide (`models/download-vad-model.sh` of whisper.cpp), as the speech
 Measured by hand on the first two minutes of a real film (`small` model): without it the first segment begins at 0:00:00,000 and times are
 rounded to whole windows (9.000, 14.000); with it the first begins at 4.930 and the next ones at 9.270 and 14.430.
 
+## Closure
+
+**Phase 22 closes in 1.1.0, on 2026-10-26.** Twenty issues, #767 to #799, and nothing open once this one is merged.
+What it delivers: the engine port and its capabilities, the whisper.cpp adapter, the audio preparation, the post-processing, the
+`transcribe` command, `Transcribe Audio…` with its preview, the settings, and the installation guide.
+
+**What the review of the whole phase found**, and fixed in the course of it rather than at the end: the first real run showed what
+the spec had not foreseen (#792, #794); the post-processing cut in the middle of sentences and moved the first subtitle (#795);
+two windows took seconds to open because the whole model was read for its first eight bytes (#799). The spec's two deviations are
+written where they happened: D7 cuts by duration and characters, with no reuse of the line-breaking task of phase 12 (which is
+for lines, not for subtitles), and the preview came to stand between the engine and the project.
+
+**Measured on a real film** (a film of 41 minutes, its first two minutes, `small` model, `whisper-cli` and `ffmpeg` installed, VAD with
+the Silero v6.2.0 model; a machine with four cores working at 380 %): the whole chain, from the video to the file, took 1 min 8 s for
+120 s of film, and gave 42 subtitles, the first beginning at 4.93 s where the speech begins. Without the voice-activity model the first
+begins at 0 and the times fall on whole windows. The post-processing alone, on three thousand pieces (a long film), takes about
+20 ms (`assembling the subtitles of a full-length transcript`, in the bench), which is why the preview makes its right-hand side again at
+every key typed.
+
+**What is left, and is not a defect**: speakers (`-di`, `-tdrz`) and the number of channels of the extraction were left out on purpose
+(#794) for lack of an asset to prove them; no model larger than `small` and no language but English was measured (open points 5 and 6);
+nothing is shipped, and subedit downloads nothing (D11). Phase 23 reuses the engine and its timed words, which are the tokens of the
+engine and therefore approximate.
+
 ## Open points
 
 1. **The name of phase 23's command.** `align` already snaps a file to a frame grid. The scoping of phase 23 names the new
    command with that in mind.
-2. **VAD.** whisper.cpp offers voice-activity detection, which could cut long silences before the engine. Untested; the
-   adapter (#775) decides whether it is worth exposing.
+2. ~~**VAD.**~~ **Settled by #798**: exposed as `transcription.vad-model`, measured on a real film (see *Closure*).
 3. **Other engines.** sherpa-onnx is the only serious C++ alternative surveyed; Phonon-2 is to be reassessed if its
    languages and a command-line entry are documented. Neither is part of the phase: the port exists so that adding one is
    an adapter.
 4. **Downloading models.** Left out on purpose (D11). A download command, with a source and an integrity check, can be a
    later issue.
-5. **Timings with a real model.** Word timings were seen with `tiny` only. The thresholds of D7 are tuned on a larger
-   model's output before the defaults are fixed.
+5. **Timings with a real model.** Seen with `small` on a real film at the closure (see *Closure*); the defaults of D7 (400 ms,
+   7000 ms, 84 characters) held and are kept. `medium` and `large` were not measured.
 6. **Other languages than English.** The run covered one English sample; French and a wrong detection are to be tried
    with the real adapter.

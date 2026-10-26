@@ -1097,8 +1097,12 @@ msgid "Model file; the transcription.model setting by default"
 msgstr "Modellfájl; alapértelmezés szerint a transcription.model beállítás"
 
 #: src/exe/cli/commands/transcribe.cpp
-msgid "Voice-activity model that skips silences; the transcription.vad-model setting by default"
-msgstr "Beszédaktivitás-modell, amely kihagyja a csendet; alapértelmezés szerint a transcription.vad-model beállítás"
+msgid ""
+"Voice-activity model that skips silences; the transcription.vad-model "
+"setting by default"
+msgstr ""
+"Beszédaktivitás-modell, amely kihagyja a csendet; alapértelmezés szerint a "
+"transcription.vad-model beállítás"
 
 #: src/exe/cli/commands/transcribe.cpp
 msgid "Engine; the transcription.engine setting by default"
@@ -4474,8 +4478,12 @@ msgid "None: silences are not skipped"
 msgstr "Nincs: a csendet nem hagyja ki"
 
 #: src/lib/subedit/gui/preferences_dialog.cpp
-msgid "A voice-activity model (Silero) makes the first subtitle begin where the speech does, and the others follow it."
-msgstr "A beszédaktivitás-modell (Silero) azt éri el, hogy az első felirat ott kezdődjön, ahol a beszéd, a többi pedig követi."
+msgid ""
+"A voice-activity model (Silero) makes the first subtitle begin where the "
+"speech does, and the others follow it."
+msgstr ""
+"A beszédaktivitás-modell (Silero) azt éri el, hogy az első felirat ott "
+"kezdődjön, ahol a beszéd, a többi pedig követi."
 
 #: src/lib/subedit/gui/preferences_dialog.cpp
 msgid "Program"
@@ -4558,16 +4566,16 @@ msgid "Select Video"
 msgstr "Videó kiválasztása"
 
 #: src/lib/subedit/gui/qt_prompts.cpp
-msgid "Choose a voice-activity model"
-msgstr "Beszédaktivitás-modell kiválasztása"
-
-#: src/lib/subedit/gui/qt_prompts.cpp
 msgid "Choose a model"
 msgstr "Modell kiválasztása"
 
 #: src/lib/subedit/gui/qt_prompts.cpp
 msgid "Choose the program"
 msgstr "A program kiválasztása"
+
+#: src/lib/subedit/gui/qt_prompts.cpp
+msgid "Choose a voice-activity model"
+msgstr "Beszédaktivitás-modell kiválasztása"
 
 #: src/lib/subedit/gui/qt_prompts.cpp
 msgid "Models (*.bin);;All files (*)"

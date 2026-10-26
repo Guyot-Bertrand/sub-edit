@@ -9,6 +9,12 @@ do not edit it by hand.
 
 ## Unreleased
 
+### Documentation
+
+- **doc** — Review and close phase 22 (1.1.0)
+
+## 1.0.17 — 2026-10-26
+
 ### Added
 
 - **core** — Drop placeholders, no-notes option, engine sample rate

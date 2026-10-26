@@ -1116,8 +1116,12 @@ msgid "Model file; the transcription.model setting by default"
 msgstr "Файл модели; по умолчанию настройка transcription.model"
 
 #: src/exe/cli/commands/transcribe.cpp
-msgid "Voice-activity model that skips silences; the transcription.vad-model setting by default"
-msgstr "Модель обнаружения речи, пропускающая паузы; по умолчанию настройка transcription.vad-model"
+msgid ""
+"Voice-activity model that skips silences; the transcription.vad-model "
+"setting by default"
+msgstr ""
+"Модель обнаружения речи, пропускающая паузы; по умолчанию настройка "
+"transcription.vad-model"
 
 #: src/exe/cli/commands/transcribe.cpp
 msgid "Engine; the transcription.engine setting by default"
@@ -2556,7 +2560,8 @@ msgstr "Файл модели, который читает движок."
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "The voice-activity model that skips silences; none when empty."
-msgstr "Модель обнаружения речи, пропускающая паузы; если пусто, не используется."
+msgstr ""
+"Модель обнаружения речи, пропускающая паузы; если пусто, не используется."
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "The language of the audio; detected when empty."
@@ -4672,8 +4677,12 @@ msgid "None: silences are not skipped"
 msgstr "Нет: паузы не пропускаются"
 
 #: src/lib/subedit/gui/preferences_dialog.cpp
-msgid "A voice-activity model (Silero) makes the first subtitle begin where the speech does, and the others follow it."
-msgstr "Модель обнаружения речи (Silero) заставляет первый субтитр начинаться там, где начинается речь, а остальные следуют за ним."
+msgid ""
+"A voice-activity model (Silero) makes the first subtitle begin where the "
+"speech does, and the others follow it."
+msgstr ""
+"Модель обнаружения речи (Silero) заставляет первый субтитр начинаться там, "
+"где начинается речь, а остальные следуют за ним."
 
 #: src/lib/subedit/gui/preferences_dialog.cpp
 msgid "Program"
@@ -4759,16 +4768,16 @@ msgid "Select Video"
 msgstr "Выберите видеофайл"
 
 #: src/lib/subedit/gui/qt_prompts.cpp
-msgid "Choose a voice-activity model"
-msgstr "Выбрать модель обнаружения речи"
-
-#: src/lib/subedit/gui/qt_prompts.cpp
 msgid "Choose a model"
 msgstr "Выбрать модель"
 
 #: src/lib/subedit/gui/qt_prompts.cpp
 msgid "Choose the program"
 msgstr "Выбрать программу"
+
+#: src/lib/subedit/gui/qt_prompts.cpp
+msgid "Choose a voice-activity model"
+msgstr "Выбрать модель обнаружения речи"
 
 #: src/lib/subedit/gui/qt_prompts.cpp
 msgid "Models (*.bin);;All files (*)"

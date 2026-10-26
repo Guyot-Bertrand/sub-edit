@@ -225,7 +225,7 @@ code=1
 <!-- example: subedit-cli --version | head -n 1 -->
 ```console
 $ subedit-cli --version | head -n 1
-subedit 1.0.17
+subedit 1.1.0
 ```
 
 Све заједно, на машини са ICU 74.2 и Enchant 2.3.3 — бројеви су машинини:

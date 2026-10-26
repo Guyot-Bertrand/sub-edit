@@ -1090,8 +1090,12 @@ msgid "Model file; the transcription.model setting by default"
 msgstr "Model dosyası; varsayılan olarak transcription.model ayarı"
 
 #: src/exe/cli/commands/transcribe.cpp
-msgid "Voice-activity model that skips silences; the transcription.vad-model setting by default"
-msgstr "Sessizlikleri atlayan ses etkinliği modeli; varsayılan olarak transcription.vad-model ayarı"
+msgid ""
+"Voice-activity model that skips silences; the transcription.vad-model "
+"setting by default"
+msgstr ""
+"Sessizlikleri atlayan ses etkinliği modeli; varsayılan olarak transcription."
+"vad-model ayarı"
 
 #: src/exe/cli/commands/transcribe.cpp
 msgid "Engine; the transcription.engine setting by default"
@@ -4446,8 +4450,12 @@ msgid "None: silences are not skipped"
 msgstr "Yok: sessizlikler atlanmaz"
 
 #: src/lib/subedit/gui/preferences_dialog.cpp
-msgid "A voice-activity model (Silero) makes the first subtitle begin where the speech does, and the others follow it."
-msgstr "Bir ses etkinliği modeli (Silero), ilk altyazının konuşmanın başladığı yerde başlamasını sağlar; diğerleri onu izler."
+msgid ""
+"A voice-activity model (Silero) makes the first subtitle begin where the "
+"speech does, and the others follow it."
+msgstr ""
+"Bir ses etkinliği modeli (Silero), ilk altyazının konuşmanın başladığı yerde "
+"başlamasını sağlar; diğerleri onu izler."
 
 #: src/lib/subedit/gui/preferences_dialog.cpp
 msgid "Program"
@@ -4529,16 +4537,16 @@ msgid "Select Video"
 msgstr "Video Seç"
 
 #: src/lib/subedit/gui/qt_prompts.cpp
-msgid "Choose a voice-activity model"
-msgstr "Bir ses etkinliği modeli seç"
-
-#: src/lib/subedit/gui/qt_prompts.cpp
 msgid "Choose a model"
 msgstr "Model seç"
 
 #: src/lib/subedit/gui/qt_prompts.cpp
 msgid "Choose the program"
 msgstr "Programı seç"
+
+#: src/lib/subedit/gui/qt_prompts.cpp
+msgid "Choose a voice-activity model"
+msgstr "Bir ses etkinliği modeli seç"
 
 #: src/lib/subedit/gui/qt_prompts.cpp
 msgid "Models (*.bin);;All files (*)"

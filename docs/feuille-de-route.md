@@ -1544,6 +1544,14 @@ the user fetches them, through a dedicated command or a path to fill in.
   open project after a confirmation;
 - the language is detected, unless the user forces it.
 
+**Closed in 1.1.0, on 2026-10-26.** The phase — twenty issues, #767 to #799, with nothing open — delivers `subedit-cli transcribe` and
+`Transcribe Audio…`: whisper.cpp behind a port with declared capabilities, the audio taken from a file or from a track of the video, an
+engine-independent post-processing (drop the notes, merge, then cut at punctuation, the times of the pieces kept), a preview that is
+the place to tune it, and an optional voice-activity model that makes the first subtitle begin where the speech does. Nothing is
+shipped. **Measured**: on the first two minutes of a real film, `small` model, 1 min 8 s for the whole chain; the post-processing of
+three thousand pieces takes 20 ms. **What remains unmeasured**: the models above `small`, the languages other than English, speakers
+and stereo (left out on purpose).
+
 ## 23 — Automatic alignment
 
 Re-time an existing subtitle on the audio: from the text and the voice,

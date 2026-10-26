@@ -1162,8 +1162,12 @@ msgid "Model file; the transcription.model setting by default"
 msgstr "Ficheiro do modelo; por predefinição, a definição transcription.model"
 
 #: src/exe/cli/commands/transcribe.cpp
-msgid "Voice-activity model that skips silences; the transcription.vad-model setting by default"
-msgstr "Modelo de atividade de voz que ignora os silêncios; por predefinição, a definição transcription.vad-model"
+msgid ""
+"Voice-activity model that skips silences; the transcription.vad-model "
+"setting by default"
+msgstr ""
+"Modelo de atividade de voz que ignora os silêncios; por predefinição, a "
+"definição transcription.vad-model"
 
 #: src/exe/cli/commands/transcribe.cpp
 msgid "Engine; the transcription.engine setting by default"
@@ -2553,7 +2557,9 @@ msgstr "O ficheiro do modelo que o motor lê."
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "The voice-activity model that skips silences; none when empty."
-msgstr "O modelo de atividade de voz que ignora os silêncios; nenhum se estiver vazio."
+msgstr ""
+"O modelo de atividade de voz que ignora os silêncios; nenhum se estiver "
+"vazio."
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "The language of the audio; detected when empty."
@@ -3639,7 +3645,8 @@ msgstr "não se pode dizer ao motor %1 que não escreva os sons como notas"
 
 #: src/lib/subedit/core/wording/transcription.cpp
 msgid "the engine %1 cannot skip silences with a voice-activity model"
-msgstr "o motor %1 não pode ignorar os silêncios com um modelo de atividade de voz"
+msgstr ""
+"o motor %1 não pode ignorar os silêncios com um modelo de atividade de voz"
 
 #: src/lib/subedit/core/wording/transcription.cpp
 msgid "the voice-activity model %1 does not exist"
@@ -4626,8 +4633,12 @@ msgid "None: silences are not skipped"
 msgstr "Nenhum: os silêncios não são ignorados"
 
 #: src/lib/subedit/gui/preferences_dialog.cpp
-msgid "A voice-activity model (Silero) makes the first subtitle begin where the speech does, and the others follow it."
-msgstr "Um modelo de atividade de voz (Silero) faz o primeiro subtítulo começar onde a fala começa, e os restantes seguem-no."
+msgid ""
+"A voice-activity model (Silero) makes the first subtitle begin where the "
+"speech does, and the others follow it."
+msgstr ""
+"Um modelo de atividade de voz (Silero) faz o primeiro subtítulo começar onde "
+"a fala começa, e os restantes seguem-no."
 
 #: src/lib/subedit/gui/preferences_dialog.cpp
 msgid "Program"
@@ -4711,16 +4722,16 @@ msgid "Select Video"
 msgstr "Selecionar vídeo"
 
 #: src/lib/subedit/gui/qt_prompts.cpp
-msgid "Choose a voice-activity model"
-msgstr "Escolher um modelo de atividade de voz"
-
-#: src/lib/subedit/gui/qt_prompts.cpp
 msgid "Choose a model"
 msgstr "Escolher um modelo"
 
 #: src/lib/subedit/gui/qt_prompts.cpp
 msgid "Choose the program"
 msgstr "Escolher o programa"
+
+#: src/lib/subedit/gui/qt_prompts.cpp
+msgid "Choose a voice-activity model"
+msgstr "Escolher um modelo de atividade de voz"
 
 #: src/lib/subedit/gui/qt_prompts.cpp
 msgid "Models (*.bin);;All files (*)"
