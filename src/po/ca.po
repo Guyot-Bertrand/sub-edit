@@ -1120,8 +1120,12 @@ msgid "Model file; the transcription.model setting by default"
 msgstr "Fitxer de model; per defecte, el paràmetre transcription.model"
 
 #: src/exe/cli/commands/transcribe.cpp
-msgid "Voice-activity model that skips silences; the transcription.vad-model setting by default"
-msgstr "Model d'activitat de veu que omet els silencis; per defecte, el paràmetre transcription.vad-model"
+msgid ""
+"Voice-activity model that skips silences; the transcription.vad-model "
+"setting by default"
+msgstr ""
+"Model d'activitat de veu que omet els silencis; per defecte, el paràmetre "
+"transcription.vad-model"
 
 #: src/exe/cli/commands/transcribe.cpp
 msgid "Engine; the transcription.engine setting by default"
@@ -4483,8 +4487,12 @@ msgid "None: silences are not skipped"
 msgstr "Cap: no s'ometen els silencis"
 
 #: src/lib/subedit/gui/preferences_dialog.cpp
-msgid "A voice-activity model (Silero) makes the first subtitle begin where the speech does, and the others follow it."
-msgstr "Un model d'activitat de veu (Silero) fa que el primer subtítol comenci allà on comença la parla, i els altres el segueixen."
+msgid ""
+"A voice-activity model (Silero) makes the first subtitle begin where the "
+"speech does, and the others follow it."
+msgstr ""
+"Un model d'activitat de veu (Silero) fa que el primer subtítol comenci allà "
+"on comença la parla, i els altres el segueixen."
 
 #: src/lib/subedit/gui/preferences_dialog.cpp
 msgid "Program"
@@ -4566,16 +4574,16 @@ msgid "Select Video"
 msgstr "Selecciona un vídeo"
 
 #: src/lib/subedit/gui/qt_prompts.cpp
-msgid "Choose a voice-activity model"
-msgstr "Trieu un model d'activitat de veu"
-
-#: src/lib/subedit/gui/qt_prompts.cpp
 msgid "Choose a model"
 msgstr "Trieu un model"
 
 #: src/lib/subedit/gui/qt_prompts.cpp
 msgid "Choose the program"
 msgstr "Trieu el programa"
+
+#: src/lib/subedit/gui/qt_prompts.cpp
+msgid "Choose a voice-activity model"
+msgstr "Trieu un model d'activitat de veu"
 
 #: src/lib/subedit/gui/qt_prompts.cpp
 msgid "Models (*.bin);;All files (*)"

@@ -1145,8 +1145,12 @@ msgid "Model file; the transcription.model setting by default"
 msgstr "Modelbestand; standaard de instelling transcription.model"
 
 #: src/exe/cli/commands/transcribe.cpp
-msgid "Voice-activity model that skips silences; the transcription.vad-model setting by default"
-msgstr "Spraakactiviteitsmodel dat stiltes overslaat; standaard de instelling transcription.vad-model"
+msgid ""
+"Voice-activity model that skips silences; the transcription.vad-model "
+"setting by default"
+msgstr ""
+"Spraakactiviteitsmodel dat stiltes overslaat; standaard de instelling "
+"transcription.vad-model"
 
 #: src/exe/cli/commands/transcribe.cpp
 msgid "Engine; the transcription.engine setting by default"
@@ -2531,7 +2535,8 @@ msgstr "Het modelbestand dat de engine leest."
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "The voice-activity model that skips silences; none when empty."
-msgstr "Het spraakactiviteitsmodel dat stiltes overslaat; geen als het leeg is."
+msgstr ""
+"Het spraakactiviteitsmodel dat stiltes overslaat; geen als het leeg is."
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "The language of the audio; detected when empty."
@@ -4555,8 +4560,12 @@ msgid "None: silences are not skipped"
 msgstr "Geen: stiltes worden niet overgeslagen"
 
 #: src/lib/subedit/gui/preferences_dialog.cpp
-msgid "A voice-activity model (Silero) makes the first subtitle begin where the speech does, and the others follow it."
-msgstr "Een spraakactiviteitsmodel (Silero) laat de eerste ondertitel beginnen waar de spraak begint, en de andere volgen die."
+msgid ""
+"A voice-activity model (Silero) makes the first subtitle begin where the "
+"speech does, and the others follow it."
+msgstr ""
+"Een spraakactiviteitsmodel (Silero) laat de eerste ondertitel beginnen waar "
+"de spraak begint, en de andere volgen die."
 
 #: src/lib/subedit/gui/preferences_dialog.cpp
 msgid "Program"
@@ -4639,16 +4648,16 @@ msgid "Select Video"
 msgstr "Video kiezen"
 
 #: src/lib/subedit/gui/qt_prompts.cpp
-msgid "Choose a voice-activity model"
-msgstr "Een spraakactiviteitsmodel kiezen"
-
-#: src/lib/subedit/gui/qt_prompts.cpp
 msgid "Choose a model"
 msgstr "Een model kiezen"
 
 #: src/lib/subedit/gui/qt_prompts.cpp
 msgid "Choose the program"
 msgstr "Het programma kiezen"
+
+#: src/lib/subedit/gui/qt_prompts.cpp
+msgid "Choose a voice-activity model"
+msgstr "Een spraakactiviteitsmodel kiezen"
 
 #: src/lib/subedit/gui/qt_prompts.cpp
 msgid "Models (*.bin);;All files (*)"

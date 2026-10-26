@@ -1075,7 +1075,9 @@ msgid "Model file; the transcription.model setting by default"
 msgstr "模型文件；默认为 transcription.model 设置"
 
 #: src/exe/cli/commands/transcribe.cpp
-msgid "Voice-activity model that skips silences; the transcription.vad-model setting by default"
+msgid ""
+"Voice-activity model that skips silences; the transcription.vad-model "
+"setting by default"
 msgstr "跳过静音的语音活动模型；默认为 transcription.vad-model 设置"
 
 #: src/exe/cli/commands/transcribe.cpp
@@ -4217,7 +4219,9 @@ msgid "None: silences are not skipped"
 msgstr "无：不跳过静音"
 
 #: src/lib/subedit/gui/preferences_dialog.cpp
-msgid "A voice-activity model (Silero) makes the first subtitle begin where the speech does, and the others follow it."
+msgid ""
+"A voice-activity model (Silero) makes the first subtitle begin where the "
+"speech does, and the others follow it."
 msgstr "语音活动模型（Silero）使第一条字幕从语音开始处开始，其余字幕随之跟进。"
 
 #: src/lib/subedit/gui/preferences_dialog.cpp
@@ -4298,16 +4302,16 @@ msgid "Select Video"
 msgstr "选择视频"
 
 #: src/lib/subedit/gui/qt_prompts.cpp
-msgid "Choose a voice-activity model"
-msgstr "选择语音活动模型"
-
-#: src/lib/subedit/gui/qt_prompts.cpp
 msgid "Choose a model"
 msgstr "选择模型"
 
 #: src/lib/subedit/gui/qt_prompts.cpp
 msgid "Choose the program"
 msgstr "选择程序"
+
+#: src/lib/subedit/gui/qt_prompts.cpp
+msgid "Choose a voice-activity model"
+msgstr "选择语音活动模型"
 
 #: src/lib/subedit/gui/qt_prompts.cpp
 msgid "Models (*.bin);;All files (*)"
