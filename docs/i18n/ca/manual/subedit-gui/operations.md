@@ -156,7 +156,7 @@ cada subtítol es mouen la mateixa quantitat: cap no es queda a la pantalla més
 que abans.
 
 La durada s'escriu **com una marca de temps, signe inclòs** — `00:00:02,500` avança,
-`-0:01,250` fa recular. Les formes acceptades són les d'una cel·la de posició.
+`-00:00:01,250` fa recular. **El camp se sobreescriu, no s'hi escriu**: comença com a `00:00:00,000`, una xifra substitueix la xifra que hi ha sota el cursor i el cursor salta per si sol els `:` i la `,`, de manera que la forma no canvia mai. Només s'accepten xifres, i `-` (o `+`) per canviar el signe; `Backspace` i `Delete` hi tornen a posar un zero. El mateix camp s'usa allà on s'indica un temps: el diàleg de transformació, les cel·les de posició de la taula i l'interval d'una transcripció.
 
 ![El diàleg de desplaçament, paleta clara, amb tres línies seleccionades de
 nou-centes vuitanta: la durada per aplicar, l'elecció de l'objectiu, i el

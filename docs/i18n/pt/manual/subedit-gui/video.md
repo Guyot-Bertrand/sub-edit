@@ -184,8 +184,7 @@ fim), e o pós-processamento corta nos limites próprios dos pedaços. Uma falha
 
 ### Experimentar primeiro uma parte
 
-Um intervalo permite **avaliar um modelo ou um idioma em dois minutos antes de se comprometer com duas horas**. Os campos “Parte do filme” recebem um início e um fim, cada um escrito `HH:MM:SS`, como os campos dizem (`2:00` e um número de segundos, `90`,
-também são lidos); um só é permitido (dali até ao fim, ou do início até ali). `OK` fica desativado enquanto um campo não
+Um intervalo permite **avaliar um modelo ou um idioma em dois minutos antes de se comprometer com duas horas**. Os campos “Parte do filme” recebem um início e um fim, cada um escrito `HH:MM:SS` e escrito por cima dígito a dígito, como em [o diálogo de deslocamento](operations.md#shift-positions) (um tempo colado como `2:00` é posto em forma); um só é permitido (dali até ao fim, ou do início até ali). `OK` fica desativado enquanto um campo não
 for um tempo ou o fim não vier depois do início, e uma linha sob os campos diz qual.
 
 - **As legendas mantêm o tempo do filme**: o que é dito aos 2:10 fica em `0:02:10` no resultado.

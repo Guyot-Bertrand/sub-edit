@@ -9,6 +9,12 @@ do not edit it by hand.
 
 ## Unreleased
 
+### Added
+
+- **gui** — Type times over digit by digit, delimit read-only areas
+
+## 1.1.0 — 2026-10-26
+
 ### Documentation
 
 - **doc** — Review and close phase 22 (1.1.0)

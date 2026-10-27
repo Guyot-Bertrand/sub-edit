@@ -167,7 +167,7 @@ sonda yazar) ve son işleme parçaların kendi sınırlarından keser. Bir başa
 
 ### Önce bir bölümü denemek
 
-Bir aralık, **iki saate girişmeden önce bir modeli ya da bir dili iki dakikada değerlendirmenizi** sağlar. “Filmin bir bölümü” alanları bir başlangıç ve bir bitiş alır, her biri `HH:MM:SS` olarak yazılır, alanların dediği gibi (`2:00` ve bir saniye sayısı, `90`, de okunur); yalnızca biri de olabilir (oradan sona kadar ya da baştan oraya kadar). Bir alan süre olmadığı ya da bitiş başlangıçtan sonra gelmediği sürece `OK` kapalı kalır ve alanların altındaki bir satır hangisi olduğunu söyler.
+Bir aralık, **iki saate girişmeden önce bir modeli ya da bir dili iki dakikada değerlendirmenizi** sağlar. “Filmin bir bölümü” alanları bir başlangıç ve bir bitiş alır, her biri `HH:MM:SS` olarak yazılır ve [kaydırma penceresinde](operations.md#shift-positions) olduğu gibi rakam rakam üzerine yazılır (`2:00` olarak yapıştırılan bir süre biçime sokulur); yalnızca biri de olabilir (oradan sona kadar ya da baştan oraya kadar). Bir alan süre olmadığı ya da bitiş başlangıçtan sonra gelmediği sürece `OK` kapalı kalır ve alanların altındaki bir satır hangisi olduğunu söyler.
 
 - **Altyazılar filmin zamanını korur**: 2:10'da söylenen şey sonuçta `0:02:10` konumundadır.
 - **Her yazıya dökme gibi önizlemeden geçer** ve uygulandığında projenin altyazılarının yerini alır; bir `Undo` onları geri verir.

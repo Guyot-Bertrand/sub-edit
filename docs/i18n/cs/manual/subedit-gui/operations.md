@@ -156,7 +156,7 @@ každého titulku se posunou o stejnou hodnotu: žádný nezůstane na obrazovce
 než předtím.
 
 Doba trvání se zapisuje **jako časový údaj, včetně znaménka** — `00:00:02,500` posouvá dopředu,
-`-0:01,250` posouvá zpět. Přijímané tvary jsou tytéž jako u buňky pozice.
+`-00:00:01,250` posouvá zpět. **Pole se přepisuje, nepíše se do něj**: začíná jako `00:00:00,000`, číslice nahradí číslici pod kurzorem a kurzor sám přeskakuje `:` a `,`, takže tvar se nikdy nemění. Přijímají se jen číslice a `-` (nebo `+`) pro změnu znaménka; `Backspace` a `Delete` vrátí nulu. Totéž pole se používá všude, kde se zadává čas: v dialogu transformace, v buňkách pozic tabulky a v rozsahu přepisu.
 
 ![Dialog posunu, světlá paleta, se třemi vybranými řádky z
 devíti set osmdesáti: doba trvání, o kterou posunout, volba cíle a

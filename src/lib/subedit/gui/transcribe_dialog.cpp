@@ -5,6 +5,7 @@
 #include <subedit/core/wording/transcription.hpp>
 #include <subedit/gui/audio_track_menu.hpp>
 #include <subedit/gui/messages.hpp>
+#include <subedit/gui/timestamp_edit.hpp>
 #include <subedit/gui/transcribe_dialog.hpp>
 
 #include <QCheckBox>
@@ -48,8 +49,8 @@ TranscribeDialog::TranscribeDialog(std::vector<core::AudioTrack> tracks,
       m_track(new QComboBox{this}),
       m_language(new QComboBox{this}),
       m_suppressNotes(new QCheckBox{translate("Do not write sounds as notes"), this}),
-      m_start(new QLineEdit{this}),
-      m_end(new QLineEdit{this}),
+      m_start(new TimestampEdit{{.milliseconds = false, .optional = true}, this}),
+      m_end(new TimestampEdit{{.milliseconds = false, .optional = true}, this}),
       m_rangeHint(new QLabel{this}),
       m_hint(new QLabel{this}),
       m_tools(new QLabel{this}),

@@ -156,7 +156,7 @@ cada legenda movem-se da mesma quantidade: nenhuma fica no ecrã mais ou menos t
 do que antes.
 
 A duração escreve-se **como uma marca de tempo, sinal incluído** — `00:00:02,500` desloca para a frente,
-`-0:01,250` desloca para trás. As formas aceites são as de uma célula de posição.
+`-00:00:01,250` desloca para trás. **O campo escreve-se por cima, não se escreve nele**: começa como `00:00:00,000`, um dígito substitui o dígito que está sob o cursor e o cursor salta sozinho os `:` e a `,`, de modo que a forma nunca muda. Só são aceites dígitos, e `-` (ou `+`) para mudar o sinal; `Backspace` e `Delete` repõem um zero. O mesmo campo serve em todo o lado onde se indica um tempo: o diálogo de transformação, as células de posição da tabela e o intervalo de uma transcrição.
 
 ![A caixa de diálogo de deslocamento, paleta clara, com três linhas selecionadas de
 novecentas e oitenta: a duração a aplicar, a escolha do alvo, e o botão de

@@ -183,8 +183,7 @@ postprocessament talla als límits propis dels trossos. Un error es diu primer e
 
 ### Provar primer una part
 
-Un interval permet **jutjar un model o una llengua en dos minuts abans de comprometre's amb dues hores**. Els camps “Part de la pel·lícula” accepten un inici i un final, cadascun escrit `HH:MM:SS`, com diuen els camps (`2:00` i un nombre de segons, `90`,
-es llegeixen també); se'n permet només un (d'allà fins al final, o del principi fins allà). `OK` queda apagat mentre un camp no
+Un interval permet **jutjar un model o una llengua en dos minuts abans de comprometre's amb dues hores**. Els camps “Part de la pel·lícula” accepten un inici i un final, cadascun escrit `HH:MM:SS` i sobreescrit xifra a xifra, com en [el diàleg de desplaçament](operations.md#shift-positions) (un temps enganxat com `2:00` es posa en forma); se'n permet només un (d'allà fins al final, o del principi fins allà). `OK` queda apagat mentre un camp no
 és un temps o el final no ve després de l'inici, i una línia sota els camps diu quin.
 
 - **Els subtítols conserven el temps de la pel·lícula**: el que es diu a 2:10 és a `0:02:10` al resultat.

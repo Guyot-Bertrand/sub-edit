@@ -183,8 +183,7 @@ posprocesamiento corta en los límites propios de los fragmentos. Un fallo se di
 
 ### Probar primero una parte
 
-Un intervalo permite **juzgar un modelo o un idioma en dos minutos antes de comprometerse con dos horas**. Los campos “Parte de la película” admiten un inicio y un final, cada uno escrito `HH:MM:SS`, como dicen los campos (`2:00` y un número de segundos, `90`,
-se leen también); se permite solo uno (desde ahí hasta el final, o desde el principio hasta ahí). `OK` queda apagado mientras un campo
+Un intervalo permite **juzgar un modelo o un idioma en dos minutos antes de comprometerse con dos horas**. Los campos “Parte de la película” admiten un inicio y un final, cada uno escrito `HH:MM:SS` y sobrescrito dígito a dígito, como en [el diálogo de desplazamiento](operations.md#shift-positions) (un tiempo pegado como `2:00` se pone en forma); se permite solo uno (desde ahí hasta el final, o desde el principio hasta ahí). `OK` queda apagado mientras un campo
 no es un tiempo o el final no va después del inicio, y una línea bajo los campos dice cuál.
 
 - **Los subtítulos conservan el tiempo de la película**: lo que se dice en 2:10 está en `0:02:10` en el resultado.

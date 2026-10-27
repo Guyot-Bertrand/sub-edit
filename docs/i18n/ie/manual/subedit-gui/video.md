@@ -183,8 +183,7 @@ post-tractation talli al límites propri del fragmentes. Un fallida es unesim di
 
 ### Provar un parte ante
 
-Un interval permisse **jugar un model o un lingue sur du minutes ante engagear se por du hores**. Li campes “Parte del film” prende un comense e un fine, chascun scrit `HH:MM:SS`, quam li campes dit (`2:00` e un númere de secondes, `90`,
-es anc leet); solmen un es permisset (de ibi til li fine, o del comense til ibi). `OK` resta extinct til un camp
+Un interval permisse **jugar un model o un lingue sur du minutes ante engagear se por du hores**. Li campes “Parte del film” prende un comense e un fine, chascun scrit `HH:MM:SS` e scrit super, cifre por cifre, quam in [li dialog de decalage](operations.md#shift-positions) (un tempore collat quam `2:00` es mettet in forme); solmen un es permisset (de ibi til li fine, o del comense til ibi). `OK` resta extinct til un camp
 ne es un témpor o li fine ne es pos li comense, e un linea sub li campes dit quel.
 
 - **Li subtitules conserva li témpor del film**: quo es dit a 2:10 es a `0:02:10` in li resultate.

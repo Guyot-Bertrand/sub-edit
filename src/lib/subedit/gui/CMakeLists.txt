@@ -6,7 +6,7 @@
 set(CMAKE_AUTOMOC ON)
 
 add_library(
-    subedit_gui STATIC subtitle_table.cpp subtitle_table_model.cpp cell_delegates.cpp subtitle_editor.cpp line_length_display.cpp command_label.cpp messages.cpp interface_language.cpp
+    subedit_gui STATIC subtitle_table.cpp subtitle_table_model.cpp cell_delegates.cpp timestamp_edit.cpp read_only_area.cpp subtitle_editor.cpp line_length_display.cpp command_label.cpp messages.cpp interface_language.cpp
                        invocation.cpp libraries.cpp settings_path.cpp theme.cpp preferences_dialog.cpp
                        manual_path.cpp manual_window.cpp
                        diagnostics_button.cpp qt_prompts.cpp target.cpp ems_line_measure.cpp

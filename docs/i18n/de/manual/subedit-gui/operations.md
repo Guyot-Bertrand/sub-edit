@@ -156,7 +156,7 @@ jedes Untertitels bewegen sich um denselben Betrag: Keiner bleibt länger oder k
 als vorher.
 
 Die Dauer wird **wie ein Zeitstempel geschrieben, Vorzeichen inbegriffen** — `00:00:02,500` verschiebt vorwärts,
-`-0:01,250` rückwärts. Die angenommenen Formen sind die einer Positionszelle.
+`-00:00:01,250` rückwärts. **Das Feld wird überschrieben, nicht hineingeschrieben**: Es beginnt als `00:00:00,000`, eine Ziffer ersetzt die Ziffer unter dem Cursor, und der Cursor überspringt `:` und `,` von selbst, sodass die Form sich nie ändert. Angenommen werden nur Ziffern sowie `-` (oder `+`), um das Vorzeichen zu ändern; `Backspace` und `Delete` setzen eine Null zurück. Dasselbe Feld wird überall verwendet, wo eine Zeit gesetzt wird: im Transformationsdialog, in den Positionszellen der Tabelle und im Bereich einer Transkription.
 
 ![Der Dialog der Verschiebung, helle Palette, mit drei ausgewählten Zeilen von
 neunhundertachtzig: die anzuwendende Dauer, die Wahl des Ziels und die

@@ -156,7 +156,7 @@ ugyanannyival mozdul: egyik sem marad hosszabban vagy rövidebben
 a képernyőn, mint korábban.
 
 Az időtartam **időbélyegként van megadva, az előjellel együtt** — a `00:00:02,500` előre mozdít,
-a `-0:01,250` hátra. Az elfogadott alakok a pozíciócelláéi.
+a `-00:00:01,250` hátra. **A mező felülírandó, nem beleírandó**: `00:00:00,000` alakban indul, egy számjegy felülírja a kurzor alatti számjegyet, a kurzor pedig magától átugorja a `:` és a `,` jeleket, így az alak sosem változik. Csak számjegyeket fogad el, valamint a `-` (vagy `+`) jelet az előjel váltásához; a `Backspace` és a `Delete` nullát tesz vissza. Ugyanezt a mezőt használja minden hely, ahol időt kell megadni: az átalakítási párbeszédablak, a táblázat pozíciócellái és egy átirat tartománya.
 
 ![Az eltolás párbeszédablaka, világos paletta, kilencszáznyolcvan sorból
 három kijelölve: az alkalmazandó időtartam, a cél kiválasztása és az

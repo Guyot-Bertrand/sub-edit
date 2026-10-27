@@ -3,6 +3,8 @@
 #include <subedit/core/model/subtitle_index.hpp>
 #include <subedit/core/time/timestamp.hpp>
 #include <subedit/gui/messages.hpp>
+#include <subedit/gui/read_only_area.hpp>
+#include <subedit/gui/timestamp_edit.hpp>
 #include <subedit/gui/transform_dialog.hpp>
 
 #include <QFont>
@@ -64,27 +66,28 @@ protected:
 /// How many lines of a subtitle the reference rows show before they scroll.
 constexpr int kShownLines = 3;
 
+/// The air between the text of a reference and the frame around it.
+constexpr int kTextMargin = 3;
+
 /// Where the text of a reference is shown: read-only, wrapped, and always the
 /// height of three lines of the dialog's font.
 ///
 /// **Not a label**, for two reasons: a wrapping label is as tall as the text it
 /// shows, so the dialog jumped with every reference, and a long text had no
-/// way to be read whole. **Not an input either**: no frame, the background of
-/// the window, and out of the tab chain — only the new start is the user's to
-/// type in. A click still gives it the focus, so that its text can be copied.
+/// way to be read whole. **Not an input either**: it has the look of a read-only
+/// area (`styleAsReadOnly`, a frame and a background of its own, so that one sees
+/// where it ends) — only the new start is the user's to type in. A click still
+/// gives it the focus, so that its text can be copied.
 [[nodiscard]] QPlainTextEdit* textArea(QWidget* parent) {
     auto* area = new QPlainTextEdit{parent};
-    area->setReadOnly(true);
-    area->setFocusPolicy(Qt::ClickFocus);
-    area->setFrameShape(QFrame::NoFrame);
-    area->viewport()->setBackgroundRole(QPalette::Window);
+    styleAsReadOnly(*area);
     area->setLineWrapMode(QPlainTextEdit::WidgetWidth);
     // A long address has no space to break at, and is cut anywhere.
     area->setWordWrapMode(QTextOption::WrapAtWordBoundaryOrAnywhere);
     area->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
     area->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    // Flush with the values of the rows above, as a label would be.
-    area->document()->setDocumentMargin(0);
+    // A little air between the text and the frame.
+    area->document()->setDocumentMargin(kTextMargin);
 
     // Each line rounded up to a whole pixel, as the text layout lays them, the
     // document's margin above and below them, and the one pixel
@@ -172,7 +175,7 @@ TransformDialog::Row TransformDialog::makeRow(std::size_t subtitleCount) {
     auto* text = textArea(this);
 
     auto* number = numberField(this, subtitleCount);
-    auto* target = new QLineEdit{this};
+    auto* target = new TimestampEdit{{.negative = true}, this};
 
     return Row{.number = number, .current = current, .target = target, .text = text};
 }

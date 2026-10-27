@@ -156,7 +156,7 @@ cada subtítulo se mueven lo mismo: ninguno se queda en pantalla más ni menos t
 que antes.
 
 La duración se escribe **como una marca de tiempo, signo incluido** — `00:00:02,500` adelanta,
-`-0:01,250` atrasa. Las formas aceptadas son las de una celda de posición.
+`-00:00:01,250` atrasa. **El campo se sobrescribe, no se escribe en él**: empieza como `00:00:00,000`, un dígito sustituye al dígito que está bajo el cursor y el cursor salta solo los `:` y la `,`, de modo que la forma nunca cambia. Solo se aceptan dígitos, y `-` (o `+`) para cambiar el signo; `Backspace` y `Delete` vuelven a poner un cero. El mismo campo se usa dondequiera que se indica un tiempo: el diálogo de transformación, las celdas de posición de la tabla y el intervalo de una transcripción.
 
 ![El cuadro de diálogo de desplazamiento, paleta clara, con tres líneas seleccionadas de
 novecientas ochenta: la duración que aplicar, la elección del alcance y el

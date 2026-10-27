@@ -156,7 +156,7 @@ elke ondertitel verschuiven met hetzelfde bedrag: geen enkele blijft langer of k
 dan voorheen.
 
 De duur wordt geschreven **als een tijdcode, teken inbegrepen** — `00:00:02,500` verschuift vooruit,
-`-0:01,250` verschuift terug. De geaccepteerde vormen zijn die van een positiecel.
+`-00:00:01,250` verschuift terug. **Het veld wordt overschreven, er wordt niet in geschreven**: het begint als `00:00:00,000`, een cijfer vervangt het cijfer onder de cursor en de cursor slaat de `:` en de `,` zelf over, zodat de vorm nooit verandert. Alleen cijfers worden aangenomen, en `-` (of `+`) om het teken te wijzigen; `Backspace` en `Delete` zetten weer een nul terug. Hetzelfde veld wordt overal gebruikt waar een tijd wordt ingesteld: het transformatiedialoogvenster, de positiecellen van de tabel en het bereik van een transcriptie.
 
 ![Het verschuivingsdialoogvenster, licht palet, met drie regels geselecteerd van
 negenhonderdtachtig: de toe te passen duur, de keuze van het doel, en de

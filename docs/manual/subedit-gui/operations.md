@@ -153,7 +153,11 @@ each subtitle move by the same amount: none stays on screen longer or shorter
 than before.
 
 The duration is written **like a timestamp, sign included** — `00:00:02,500` moves forward,
-`-0:01,250` moves back. The accepted forms are those of a position cell.
+`-00:00:01,250` moves back. **The field is typed over, not typed into**: it begins as `00:00:00,000`, a digit
+replaces the digit under the cursor and the cursor skips the `:` and the `,` by itself, so the shape never changes.
+Only digits are taken, and `-` (or `+`) to change the sign; `Backspace` and `Delete` put a zero back. The same field
+is used wherever a time is set: the transformation dialog, the position cells of the table and the range of a
+transcription.
 
 ![The shift dialog, light palette, with three lines selected out of
 nine hundred and eighty: the duration to apply, the choice of target, and the

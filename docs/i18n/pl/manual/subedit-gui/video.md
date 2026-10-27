@@ -181,8 +181,7 @@ końcu), a przetwarzanie końcowe tnie na własnych granicach kawałków. Niepow
 
 ### Najpierw wypróbuj fragment
 
-Zakres pozwala **ocenić model lub język na dwóch minutach, zanim zobowiążesz się do dwóch godzin**. Pola „Fragment filmu” przyjmują początek i koniec, każdy zapisany jako `HH:MM:SS`, jak mówią pola (`2:00` i liczba sekund, `90`,
-też są odczytywane); dozwolone jest tylko jedno (stąd do końca albo od początku do tego miejsca). `OK` pozostaje wyłączony, dopóki pole
+Zakres pozwala **ocenić model lub język na dwóch minutach, zanim zobowiążesz się do dwóch godzin**. Pola „Fragment filmu” przyjmują początek i koniec, każdy zapisany jako `HH:MM:SS` i nadpisany cyfra po cyfrze, jak w [oknie przesunięcia](operations.md#shift-positions) (czas wklejony jako `2:00` zostaje doprowadzony do właściwej postaci); dozwolone jest tylko jedno (stąd do końca albo od początku do tego miejsca). `OK` pozostaje wyłączony, dopóki pole
 nie jest czasem lub koniec nie następuje po początku, a wiersz pod polami mówi, które.
 
 - **Napisy zachowują czas filmu**: to, co powiedziano w 2:10, jest w wyniku w `0:02:10`.

@@ -181,8 +181,7 @@ následné zpracování řeže na vlastních hranicích kousků. Selhání se ne
 
 ### Nejprve zkusit část
 
-Rozsah umožňuje **posoudit model nebo jazyk na dvou minutách, než se zavážete na dvě hodiny**. Pole “Část filmu” berou začátek a konec, každý zapsaný jako `HH:MM:SS`, jak říkají pole (`2:00` a počet sekund, `90`,
-jsou rovněž čteny); jedno samotné je povoleno (odtud do konce, nebo od začátku potud). `OK` zůstane nedostupné, dokud některé pole
+Rozsah umožňuje **posoudit model nebo jazyk na dvou minutách, než se zavážete na dvě hodiny**. Pole “Část filmu” berou začátek a konec, každý zapsaný jako `HH:MM:SS` a přepisovaný číslici po číslici, jako v [dialogu posunu](operations.md#shift-positions) (čas vložený jako `2:00` se uvede do tvaru); jedno samotné je povoleno (odtud do konce, nebo od začátku potud). `OK` zůstane nedostupné, dokud některé pole
 není čas nebo konec nenásleduje po začátku, a řádek pod poli řekne, které.
 
 - **Titulky zachovají čas filmu**: co se říká v 2:10, je ve výsledku na `0:02:10`.

@@ -4,6 +4,7 @@
 #include <subedit/gui/spell_highlighter.hpp>
 #include <subedit/gui/subtitle_editor.hpp>
 #include <subedit/gui/subtitle_table_model.hpp>
+#include <subedit/gui/timestamp_edit.hpp>
 
 #include <QAbstractTextDocumentLayout>
 #include <QApplication>
@@ -37,21 +38,7 @@ namespace subedit::gui {
 
 namespace {
 
-/// The shape a timestamp may be typed in, and nothing more.
-///
-/// **It constrains the characters, not the bounds.** `00:70:00,000` goes
-/// through, and deliberately: saying that a minute stops at sixty is
-/// `Timestamp::parse`'s work, which it already does, and repeating it here
-/// would leave two definitions to keep in agreement. What the shape refuses is
-/// what the reading would never usefully catch — a letter in the middle of a
-/// timestamp.
-///
-/// Permissive as the reading is: hours optional, one or two digits per field,
-/// one to three decimals or none, comma or period.
-constexpr auto kPositionPattern = R"(\s*-?\d{1,2}:\d{1,2}(:\d{1,2})?([.,]\d{1,3})?\s*)";
-
-/// The shape of a position with no sign: what a duration may be typed in.
-constexpr auto kDurationPattern = R"(\s*\d{1,2}:\d{1,2}(:\d{1,2})?([.,]\d{1,3})?\s*)";
+/// (The shape of a timestamp is `TimestampEdit`'s: the cells that hold one use it.)
 
 /// The shape of a position counted in frames: a whole number, and the sign a start may have before
 /// the film. Nine digits is more than any film has, and keeps a number of a size `toLongLong`
@@ -293,13 +280,15 @@ QWidget* PositionDelegate::createEditor(QWidget* parent,
     // what the cell takes, and a colon in it would be a timestamp the reading refuses.
     const auto* model = qobject_cast<const SubtitleTableModel*>(index.model());
     const bool frames = model != nullptr && model->frameRate().has_value();
-    return constrainedField(parent, frames ? kFramePattern : kPositionPattern);
+    if (frames)
+        return constrainedField(parent, kFramePattern);
+    return new TimestampEdit{{.negative = true}, parent};
 }
 
 QWidget* DurationDelegate::createEditor(QWidget* parent,
                                         const QStyleOptionViewItem& /*option*/,
                                         const QModelIndex& /*index*/) const {
-    return constrainedField(parent, kDurationPattern);
+    return new TimestampEdit{{}, parent};
 }
 
 } // namespace subedit::gui
