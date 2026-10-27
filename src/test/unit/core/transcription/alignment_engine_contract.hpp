@@ -54,11 +54,11 @@ inline void checkAlignmentEngineContract(const core::AlignmentEngine& engine,
             CHECK(line.start.has_value() == line.end.has_value());
             if (!line.start)
                 continue;
-            CHECK(*line.start <= *line.end);
+            const core::Timestamp start = line.start.value_or(core::Timestamp::fromMilliseconds(0));
+            CHECK(start <= line.end.value_or(start));
             // The text is in the order it is said, so the starts do not go back.
-            if (previous)
-                CHECK(*previous <= *line.start);
-            previous = line.start;
+            CHECK(previous.value_or(start) <= start);
+            previous = start;
         }
 
         double last = 0.0;

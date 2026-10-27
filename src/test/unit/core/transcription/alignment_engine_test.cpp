@@ -36,6 +36,7 @@ const std::vector<std::string> kCases{
 /// What a perfect engine answers: the truth, and nothing for a line said nowhere.
 std::vector<AlignedLine> truthOf(const AlignmentCase& wanted) {
     std::vector<AlignedLine> answer;
+    answer.reserve(wanted.truth.size());
     for (const auto& place : wanted.truth) {
         if (place)
             answer.push_back({.start = place->start, .end = place->end});
@@ -48,15 +49,22 @@ std::vector<AlignedLine> truthOf(const AlignmentCase& wanted) {
 /// What an engine that corrects nothing answers: the times the file already has.
 std::vector<AlignedLine> givenOf(const AlignmentCase& wanted) {
     std::vector<AlignedLine> answer;
+    answer.reserve(wanted.given.size());
     for (const auto& place : wanted.given)
         answer.push_back({.start = place.start, .end = place.end});
     return answer;
 }
 
+/// How late the file gives a line, against where it is really said, in milliseconds.
+std::int64_t delayOf(const AlignmentCase& wanted, std::size_t line) {
+    const auto& place = wanted.truth.at(line);
+    return place ? (wanted.given.at(line).start - place->start).milliseconds() : 0;
+}
+
 } // namespace
 
 TEST_CASE("every case has a line, a time and a truth for each line of its file",
-          "[alignment][cases][ALIGN-TOOLS-01]") {
+          "[alignment][cases][tools]") {
     for (const std::string& name : kCases) {
         INFO(name);
         const AlignmentCase wanted = loadAlignmentCase(name);
@@ -66,18 +74,18 @@ TEST_CASE("every case has a line, a time and a truth for each line of its file",
     }
 }
 
-TEST_CASE("the truth is what the fault laid down", "[alignment][cases][ALIGN-TOOLS-01]") {
+TEST_CASE("the truth is what the fault laid down", "[alignment][cases][tools]") {
     // A constant offset: every line is given 2.4 s after where it is said.
     const AlignmentCase late = loadAlignmentCase("offset-plus-2400");
     for (std::size_t line = 0; line < late.lines.size(); ++line) {
         REQUIRE(late.truth[line].has_value());
-        CHECK((late.given[line].start - late.truth[line]->start).milliseconds() == 2400);
+        CHECK(delayOf(late, line) == 2400);
     }
 
     // A drift: the delay grows from nothing to three seconds.
     const AlignmentCase drifting = loadAlignmentCase("drift");
-    CHECK((drifting.given.front().start - drifting.truth.front()->start).milliseconds() == 0);
-    CHECK((drifting.given.back().start - drifting.truth.back()->start).milliseconds() == 3000);
+    CHECK(delayOf(drifting, 0) == 0);
+    CHECK(delayOf(drifting, drifting.lines.size() - 1) == 3000);
 
     // A line that is said nowhere has no truth, and is in the file.
     const AlignmentCase extra = loadAlignmentCase("extra-line");
@@ -92,7 +100,7 @@ TEST_CASE("the truth is what the fault laid down", "[alignment][cases][ALIGN-TOO
 }
 
 TEST_CASE("what an engine would have heard reads as the tool writes it, at the true times",
-          "[alignment][cases][ALIGN-TOOLS-01]") {
+          "[alignment][cases][tools]") {
     for (const std::string& name : kCases) {
         INFO(name);
         const AlignmentCase wanted = loadAlignmentCase(name);
@@ -100,10 +108,9 @@ TEST_CASE("what an engine would have heard reads as the tool writes it, at the t
         const std::string text{std::istreambuf_iterator<char>{file},
                                std::istreambuf_iterator<char>{}};
 
-        const auto output = subedit::core::readWhisperJson(text);
-
-        REQUIRE(output.has_value());
-        const auto& segments = output->transcription.segments;
+        const auto output =
+            subedit::core::readWhisperJson(text).value_or(subedit::core::WhisperOutput{});
+        const auto& segments = output.transcription.segments;
         // One segment per spoken line, and none for the line the engine did not hear.
         CHECK(segments.size() == (name == "unheard-line" ? 11U : 12U));
         REQUIRE_FALSE(segments.empty());
@@ -114,7 +121,7 @@ TEST_CASE("what an engine would have heard reads as the tool writes it, at the t
 }
 
 TEST_CASE("a perfect answer is at no distance, and finds everything the truth places",
-          "[alignment][measure][ALIGN-TOOLS-02]") {
+          "[alignment][measure][tools]") {
     for (const std::string& name : kCases) {
         INFO(name);
         const AlignmentCase wanted = loadAlignmentCase(name);
@@ -130,7 +137,7 @@ TEST_CASE("a perfect answer is at no distance, and finds everything the truth pl
 }
 
 TEST_CASE("an engine that corrects nothing is as far as the fault it was not asked to find",
-          "[alignment][measure][ALIGN-TOOLS-02]") {
+          "[alignment][measure][tools]") {
     const AlignmentCase late = loadAlignmentCase("offset-plus-2400");
     CHECK(measure(givenOf(late), late).worst == 2400);
     CHECK(measure(givenOf(late), late).median == 2400);
@@ -150,7 +157,7 @@ TEST_CASE("an engine that corrects nothing is as far as the fault it was not ask
 }
 
 TEST_CASE("an alignment is judged on what it invents and what it misses",
-          "[alignment][measure][ALIGN-TOOLS-02]") {
+          "[alignment][measure][tools]") {
     // The line said nowhere: giving it a place is the one thing an alignment must not do.
     const AlignmentCase extra = loadAlignmentCase("extra-line");
     CHECK(measure(givenOf(extra), extra).invented == 1);
@@ -167,7 +174,7 @@ TEST_CASE("an alignment is judged on what it invents and what it misses",
 }
 
 TEST_CASE("the fake alignment engine answers what it was told, and passes the contract",
-          "[alignment][contract][ALIGN-TOOLS-03]") {
+          "[alignment][contract][tools]") {
     const subedit::test::ScratchDirectory scratch;
     const AlignmentCase wanted = loadAlignmentCase("offset-plus-2400");
     auto seen = std::make_shared<subedit::core::AlignmentRequest>();
@@ -183,7 +190,7 @@ TEST_CASE("the fake alignment engine answers what it was told, and passes the co
 }
 
 TEST_CASE("an engine that needs a model is held to ask for it before any work",
-          "[alignment][contract][ALIGN-TOOLS-03]") {
+          "[alignment][contract][tools]") {
     const subedit::test::ScratchDirectory scratch;
     const FakeAlignmentEngine engine{FakeAlignmentScript{.capabilities = {.needsModel = true}}};
     const auto audio = scratch.write("voice.wav", "audio");

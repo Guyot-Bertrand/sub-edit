@@ -37,8 +37,6 @@ skipped (as for #770).
 
 ## Requirements
 
-| Identifier | What it promises |
-| :--------- | :--------------- |
-| `ALIGN-TOOLS-01` | the alignment cases lay a subtitle file at a known fault (an offset, a drift, a partial offset, a line said nowhere, a line not heard) with the truth of where each line is said, written by arithmetic and replayed by the gate |
-| `ALIGN-TOOLS-02` | an answer is measured against the truth: the distance of each found line, the lines missed, and the lines invented — the one thing an alignment must not do |
-| `ALIGN-TOOLS-03` | a fake alignment engine and a contract suite any adapter of the alignment port passes: one entry per line in order, none for a line not found, refusal before any work, stop when asked |
+**None for the tooling**: the registry (`docs/exigences.md`) holds what the command line and the window show, proven by the end-to-end and
+interface binaries; these tools are proven by the unit tests that use them (`alignment_engine_test.cpp`: the cases read and their truth,
+the measure, the fake engine and the contract). The requirements of the alignment itself come with the scoping (#804).

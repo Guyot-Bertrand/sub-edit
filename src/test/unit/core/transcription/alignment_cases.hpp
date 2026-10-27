@@ -46,7 +46,7 @@ struct AlignmentCase {
 namespace detail {
 
 [[nodiscard]] inline std::string readText(const std::filesystem::path& path) {
-    std::ifstream file{path, std::ios::binary};
+    const std::ifstream file{path, std::ios::binary};
     std::ostringstream text;
     text << file.rdbuf();
     return text.str();
@@ -92,9 +92,9 @@ namespace detail {
             continue;
         }
         const std::size_t space = line.find(' ');
-        made.truth.emplace_back(
-            TruePlace{core::Timestamp::fromMilliseconds(std::stoll(line.substr(0, space))),
-                      core::Timestamp::fromMilliseconds(std::stoll(line.substr(space + 1)))});
+        made.truth.emplace_back(TruePlace{
+            .start = core::Timestamp::fromMilliseconds(std::stoll(line.substr(0, space))),
+            .end = core::Timestamp::fromMilliseconds(std::stoll(line.substr(space + 1)))});
     }
     return made;
 }
@@ -124,21 +124,23 @@ struct AlignmentQuality {
     AlignmentQuality quality;
     std::vector<std::int64_t> distances;
     for (std::size_t line = 0; line < wanted.truth.size(); ++line) {
-        const bool answered = line < answer.size() && answer[line].start.has_value();
-        if (!wanted.truth[line]) {
-            if (answered)
+        const std::optional<core::Timestamp> got =
+            line < answer.size() ? answer[line].start : std::nullopt;
+        const std::optional<TruePlace>& place = wanted.truth[line];
+        if (!place.has_value()) {
+            if (got.has_value())
                 ++quality.invented;
             quality.errors.emplace_back(std::nullopt);
             continue;
         }
-        if (!answered) {
+        if (!got.has_value()) {
             ++quality.missed;
             quality.errors.emplace_back(std::nullopt);
             continue;
         }
         ++quality.found;
         const std::int64_t distance =
-            std::abs((*answer[line].start - wanted.truth[line]->start).milliseconds());
+            std::abs((got.value_or(place->start) - place->start).milliseconds());
         distances.push_back(distance);
         quality.errors.emplace_back(distance);
     }
