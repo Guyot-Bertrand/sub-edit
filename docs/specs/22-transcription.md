@@ -387,6 +387,14 @@ the tool starts. On the command line, **an option names a file and is refused by
 missing; a setting is dropped without a word** for an engine that cannot, since a setting is written for all the engines. The model is the
 user's to provide (`models/download-vad-model.sh` of whisper.cpp), as the speech model is; nothing is shipped.
 
+**A defect found afterwards (#808).** With a voice-activity model, whisper.cpp writes the times of the *segments* on the film's time and
+the times of the *tokens* — the timed words — **on the timeline with the silences removed** (a segment at 118 s whose tokens are at 67 s). The
+post-processing cuts a piece inside at the words' times, so with a model set the cuts came out of order (34 subtitles of 91 with a small
+character limit). The adapter now **puts the words of each segment back on the film's time**: shifted so that the first begins where
+the segment does, and kept inside it; the words stay right relative to one another. Same film, same limits: no subtitle out of order.
+A sample written by hand (`vad.words.json`, made-up words, the structure of the real output) is the one exception to "nothing here is
+edited by hand" in `src/test/data/whisper/`, and says so.
+
 Measured by hand on the first two minutes of a real film (`small` model): without it the first segment begins at 0:00:00,000 and times are
 rounded to whole windows (9.000, 14.000); with it the first begins at 4.930 and the next ones at 9.270 and 14.430.
 

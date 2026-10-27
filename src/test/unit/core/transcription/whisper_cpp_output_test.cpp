@@ -11,6 +11,7 @@
 
 namespace {
 
+using subedit::core::putWordsOnTheSegments;
 using subedit::core::readModelIsMultilingual;
 using subedit::core::readWhisperJson;
 using subedit::core::readWhisperProgress;
@@ -156,4 +157,65 @@ TEST_CASE("something that is not a model has no language capability", "[whisper]
     CHECK_FALSE(readModelIsMultilingual("lmgg").has_value());
     CHECK_FALSE(readModelIsMultilingual("GGUF\x99\xca\x00\x00").has_value());
     CHECK_FALSE(readModelIsMultilingual("").has_value());
+}
+
+// ## A run with a voice-activity model (#808)
+
+TEST_CASE(
+    "the words of a run with a voice-activity model are on another timeline than the segments",
+    "[whisper][vad]") {
+    const WhisperOutput output = read(sample("vad.words.json"));
+
+    // As the tool writes it: the segments on the film's time, the words on the time with the
+    // silences removed.
+    const auto& segments = output.transcription.segments;
+    REQUIRE(segments.size() == 3);
+    CHECK(segments[2].start == Timestamp::fromMilliseconds(20000));
+    CHECK(segments[2].words.front().start == Timestamp::fromMilliseconds(8720));
+}
+
+TEST_CASE("putting the words back shifts each segment's words onto its own start",
+          "[whisper][vad]") {
+    WhisperOutput output = read(sample("vad.words.json"));
+    auto& segments = output.transcription.segments;
+
+    putWordsOnTheSegments(segments);
+
+    for (const auto& segment : segments) {
+        REQUIRE_FALSE(segment.words.empty());
+        // The first word begins where the segment does, and none leaves it.
+        CHECK(segment.words.front().start == segment.start);
+        for (const auto& word : segment.words) {
+            CHECK(word.start >= segment.start);
+            CHECK(word.end <= segment.end);
+            CHECK(word.end >= word.start);
+        }
+    }
+    // The words are right relative to one another: "beta" is still 900 ms after "alpha".
+    CHECK(segments[0].words[1].start - segments[0].words[0].start ==
+          subedit::core::Duration::fromMilliseconds(900));
+    // The third segment's words, 8.72 s into the compressed timeline, are at 20 s.
+    CHECK(segments[2].words[1].start == Timestamp::fromMilliseconds(20880));
+}
+
+TEST_CASE("a segment with no words, or none that fits, is left in order", "[whisper][vad]") {
+    std::vector<subedit::core::TranscribedSegment> segments{
+        {.text = "no words",
+         .start = Timestamp::fromMilliseconds(1000),
+         .end = Timestamp::fromMilliseconds(2000)},
+        {.text = "long",
+         .start = Timestamp::fromMilliseconds(5000),
+         .end = Timestamp::fromMilliseconds(5500),
+         .words = {{.text = "a",
+                    .start = Timestamp::fromMilliseconds(100),
+                    .end = Timestamp::fromMilliseconds(400)},
+                   {.text = "b",
+                    .start = Timestamp::fromMilliseconds(400),
+                    .end = Timestamp::fromMilliseconds(9000)}}}};
+
+    putWordsOnTheSegments(segments);
+
+    CHECK(segments[0].words.empty());
+    // The second word is longer than its segment: it is kept inside.
+    CHECK(segments[1].words[1].end == Timestamp::fromMilliseconds(5500));
 }

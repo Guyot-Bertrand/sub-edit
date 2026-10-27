@@ -116,6 +116,7 @@ add_executable(
     core/process/fake_transcriber_test.cpp
     core/process/run_streaming_test.cpp
     core/transcription/transcription_engine_test.cpp
+    core/transcription/alignment_engine_test.cpp
     core/transcription/audio_source_test.cpp
     core/transcription/json_reader_test.cpp
     core/transcription/subtitle_assembly_test.cpp

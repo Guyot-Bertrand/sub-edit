@@ -1,0 +1,281 @@
+{
+ "systeminfo": "WHISPER : (machine-specific, replaced by whisper-fixtures.sh)",
+ "model": {
+  "type": "tiny",
+  "multilingual": true,
+  "vocab": 51865,
+  "audio": {
+   "ctx": 1500,
+   "state": 384,
+   "head": 6,
+   "layer": 4
+  },
+  "text": {
+   "ctx": 448,
+   "state": 384,
+   "head": 6,
+   "layer": 4
+  },
+  "mels": 80,
+  "ftype": 1
+ },
+ "params": {
+  "model": "ggml-tiny.bin",
+  "language": "auto",
+  "translate": false
+ },
+ "result": {
+  "language": "en"
+ },
+ "transcription": [
+  {
+   "timestamps": {
+    "from": "00:00:04,930",
+    "to": "00:00:09,270"
+   },
+   "offsets": {
+    "from": 4930,
+    "to": 9270
+   },
+   "text": " alpha beta gamma, delta epsilon.",
+   "tokens": [
+    {
+     "text": "[_BEG_]",
+     "timestamps": {
+      "from": "00:00:00,000",
+      "to": "00:00:00,000"
+     },
+     "offsets": {
+      "from": 0,
+      "to": 0
+     },
+     "id": 370,
+     "p": 0.9,
+     "t_dtw": -1
+    },
+    {
+     "text": " alpha",
+     "timestamps": {
+      "from": "00:00:00,000",
+      "to": "00:00:00,000"
+     },
+     "offsets": {
+      "from": 0,
+      "to": 900
+     },
+     "id": 370,
+     "p": 0.9,
+     "t_dtw": -1
+    },
+    {
+     "text": " beta",
+     "timestamps": {
+      "from": "00:00:00,000",
+      "to": "00:00:00,000"
+     },
+     "offsets": {
+      "from": 900,
+      "to": 1800
+     },
+     "id": 370,
+     "p": 0.9,
+     "t_dtw": -1
+    },
+    {
+     "text": " gamma,",
+     "timestamps": {
+      "from": "00:00:00,000",
+      "to": "00:00:00,000"
+     },
+     "offsets": {
+      "from": 1800,
+      "to": 2600
+     },
+     "id": 370,
+     "p": 0.9,
+     "t_dtw": -1
+    },
+    {
+     "text": " delta",
+     "timestamps": {
+      "from": "00:00:00,000",
+      "to": "00:00:00,000"
+     },
+     "offsets": {
+      "from": 2600,
+      "to": 3400
+     },
+     "id": 370,
+     "p": 0.9,
+     "t_dtw": -1
+    },
+    {
+     "text": " epsilon.",
+     "timestamps": {
+      "from": "00:00:00,000",
+      "to": "00:00:00,000"
+     },
+     "offsets": {
+      "from": 3400,
+      "to": 4100
+     },
+     "id": 370,
+     "p": 0.9,
+     "t_dtw": -1
+    }
+   ]
+  },
+  {
+   "timestamps": {
+    "from": "00:00:09,270",
+    "to": "00:00:14,430"
+   },
+   "offsets": {
+    "from": 9270,
+    "to": 14430
+   },
+   "text": " zeta eta theta iota.",
+   "tokens": [
+    {
+     "text": "[_BEG_]",
+     "timestamps": {
+      "from": "00:00:00,000",
+      "to": "00:00:00,000"
+     },
+     "offsets": {
+      "from": 4120,
+      "to": 4120
+     },
+     "id": 370,
+     "p": 0.9,
+     "t_dtw": -1
+    },
+    {
+     "text": " zeta",
+     "timestamps": {
+      "from": "00:00:00,000",
+      "to": "00:00:00,000"
+     },
+     "offsets": {
+      "from": 4120,
+      "to": 5000
+     },
+     "id": 370,
+     "p": 0.9,
+     "t_dtw": -1
+    },
+    {
+     "text": " eta",
+     "timestamps": {
+      "from": "00:00:00,000",
+      "to": "00:00:00,000"
+     },
+     "offsets": {
+      "from": 5000,
+      "to": 6100
+     },
+     "id": 370,
+     "p": 0.9,
+     "t_dtw": -1
+    },
+    {
+     "text": " theta",
+     "timestamps": {
+      "from": "00:00:00,000",
+      "to": "00:00:00,000"
+     },
+     "offsets": {
+      "from": 6100,
+      "to": 7300
+     },
+     "id": 370,
+     "p": 0.9,
+     "t_dtw": -1
+    },
+    {
+     "text": " iota.",
+     "timestamps": {
+      "from": "00:00:00,000",
+      "to": "00:00:00,000"
+     },
+     "offsets": {
+      "from": 7300,
+      "to": 8500
+     },
+     "id": 370,
+     "p": 0.9,
+     "t_dtw": -1
+    }
+   ]
+  },
+  {
+   "timestamps": {
+    "from": "00:00:20,000",
+    "to": "00:00:24,000"
+   },
+   "offsets": {
+    "from": 20000,
+    "to": 24000
+   },
+   "text": " kappa lambda mu.",
+   "tokens": [
+    {
+     "text": "[_BEG_]",
+     "timestamps": {
+      "from": "00:00:00,000",
+      "to": "00:00:00,000"
+     },
+     "offsets": {
+      "from": 8720,
+      "to": 8720
+     },
+     "id": 370,
+     "p": 0.9,
+     "t_dtw": -1
+    },
+    {
+     "text": " kappa",
+     "timestamps": {
+      "from": "00:00:00,000",
+      "to": "00:00:00,000"
+     },
+     "offsets": {
+      "from": 8720,
+      "to": 9600
+     },
+     "id": 370,
+     "p": 0.9,
+     "t_dtw": -1
+    },
+    {
+     "text": " lambda",
+     "timestamps": {
+      "from": "00:00:00,000",
+      "to": "00:00:00,000"
+     },
+     "offsets": {
+      "from": 9600,
+      "to": 10600
+     },
+     "id": 370,
+     "p": 0.9,
+     "t_dtw": -1
+    },
+    {
+     "text": " mu.",
+     "timestamps": {
+      "from": "00:00:00,000",
+      "to": "00:00:00,000"
+     },
+     "offsets": {
+      "from": 10600,
+      "to": 11400
+     },
+     "id": 370,
+     "p": 0.9,
+     "t_dtw": -1
+    }
+   ]
+  }
+ ]
+}

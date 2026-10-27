@@ -6,6 +6,7 @@
 #include <optional>
 #include <string>
 #include <string_view>
+#include <vector>
 
 namespace subedit::core {
 
@@ -34,6 +35,16 @@ struct WhisperOutput {
 /// - the timings of the tokens are the tool's own and approximate: a word can
 ///   begin and end at the same moment.
 [[nodiscard]] std::optional<WhisperOutput> readWhisperJson(std::string_view text);
+
+/// Puts the words of every segment back on the film's time, for a run that used a voice-activity
+/// model.
+///
+/// **With `--vad`, the tool writes the times of the segments on the film's time and the times of
+/// the tokens on the timeline with the silences removed** (measured on a real film, #808: a segment
+/// at 118 s whose tokens are at 67 s). The words are right relative to one another, so the words of
+/// a segment are **shifted so that the first begins where the segment begins**, and kept inside it.
+/// Without this, the post-processing cuts a piece at times that are not those of its own.
+void putWordsOnTheSegments(std::vector<TranscribedSegment>& segments);
 
 /// The progress, from 0 to 1, that a line of standard error reports — nothing
 /// for any other line. The tool writes `progress =  25%` and the like.

@@ -40,3 +40,10 @@ otherwise the tool's, re-indented with tabs as it writes them.
 
 Another language than English, a model larger than `tiny` (whose word timings are approximate), voice-activity
 detection, a GPU build, a start made of silence or music. Each needs its own capture when the adapter relies on it.
+
+## The one sample written by hand
+
+`vad.words.json` is **not a capture**: it was written to reproduce a structure seen once on a real run with a
+voice-activity model (issue #808), with made-up words so that no film's dialogue is carried here. The segments are on the
+film's time (4.93 s, 9.27 s, 20 s) and **the tokens on the timeline with the silences removed** (0 s, 4.12 s, 8.72 s), which is
+what `whisper-cli --vad` writes. It is read by the adapter's tests only, and is not replayed by `whisper-fixtures.sh`.

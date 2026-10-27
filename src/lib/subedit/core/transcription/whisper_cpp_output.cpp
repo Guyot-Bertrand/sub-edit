@@ -2,6 +2,7 @@
 #include <subedit/core/transcription/time_range.hpp>
 #include <subedit/core/transcription/whisper_cpp_output.hpp>
 
+#include <algorithm>
 #include <charconv>
 #include <cmath>
 #include <cstdint>
@@ -213,6 +214,18 @@ std::optional<bool> readModelIsMultilingual(std::string_view header) {
             static_cast<std::uint32_t>(static_cast<unsigned char>(header[kMagicSize + index]))
             << (kBitsPerByte * index);
     return vocabulary >= kFirstMultilingualVocabulary;
+}
+
+void putWordsOnTheSegments(std::vector<TranscribedSegment>& segments) {
+    for (TranscribedSegment& segment : segments) {
+        if (segment.words.empty())
+            continue;
+        const Duration shift = segment.start - segment.words.front().start;
+        for (TimedWord& word : segment.words) {
+            word.start = std::clamp(word.start + shift, segment.start, segment.end);
+            word.end = std::clamp(word.end + shift, word.start, segment.end);
+        }
+    }
 }
 
 } // namespace subedit::core

@@ -15,6 +15,8 @@ step "cross-check of adjust: the script against the counts written by hand"
 "${REPO_ROOT}/src/scripts/measure-duration-constraints.py" --check-fixtures
 step "shifted pairs"
 "${REPO_ROOT}/src/scripts/shifted-pairs.py" --check
+step "alignment cases"
+"${REPO_ROOT}/src/scripts/alignment-cases.py" --check
 step "wrong-rate conversions"
 "${REPO_ROOT}/src/scripts/wrong-rate-pairs.py" --check
 step "translated manual structure"
