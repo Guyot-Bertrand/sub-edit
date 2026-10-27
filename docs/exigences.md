@@ -363,3 +363,13 @@ longer prove anything.
 | `GUI-TRANSCRIBE-08` | the post-processing is tuned in the preview — the merge gap, the longest subtitle and the most characters — the right-hand side made again at once with the selection kept; the values hold for that transcript only, and one button hands them to the settings of the application | 22 | implemented |
 | `CLI-TRANSCRIBE-13` | `--vad-model` (over the `transcription.vad-model` setting) gives the engine a voice-activity model that skips the silences, so that its segments follow the speech; an engine that cannot refuses the option by name and drops the setting without a word, and a file that is not there is refused before any work | 22 | implemented |
 | `GUI-TRANSCRIBE-09` | the Preferences name the voice-activity model with a field and a Browse button, saved as `transcription.vad-model`, and the transcription uses it | 22 | implemented |
+| `CLI-SYNC-01` | `sync` re-times a subtitle file on the audio of a video or an audio file and writes the result in the format of `--output`, changing the starts and ends only | 23 | planned |
+| `CLI-SYNC-02` | a line not found keeps its original time, is reported, and the command succeeds; a run that finds no line is refused with a non-zero code and nothing written | 23 | planned |
+| `CLI-SYNC-03` | `--start` and `--end` restrict the audio, and only the lines that begin in the range are touched | 23 | planned |
+| `CLI-SYNC-04` | the report gives the counts of lines found, partial, out of line and not found, the median shift and the drift, and `--format json` writes them in one record | 23 | planned |
+| `CLI-SYNC-05` | `--min-match` and `--doubt-gap` override the settings, and a value out of range is refused before any work | 23 | planned |
+| `CLI-SYNC-06` | a missing executable, model or extraction tool is reported with a pointer to the installation page, with a non-zero exit code and nothing written | 23 | planned |
+| `GUI-SYNC-01` | `Synchronize with Audio…` opens a dialog offering the language, the model, the scope (the whole file or the selection) and the thresholds | 23 | planned |
+| `GUI-SYNC-02` | the work runs in the background with a progress indicator and can be cancelled, a cancelled or failed run leaving the project unchanged | 23 | planned |
+| `GUI-SYNC-03` | the result is shown in a preview — current times and new times side by side, the flagged lines marked — and applies as one undoable operation | 23 | planned |
+| `GUI-SYNC-04` | without the executable, the model or the extraction tool the command explains what is missing and where to read how to install it, and the rest of the window is unaffected | 23 | planned |

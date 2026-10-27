@@ -1563,9 +1563,15 @@ does not catch.
 optional like it. It is shipped on the command line
 and in the interface.
 
-**To be settled at scoping:** the behaviour when alignment is doubtful
-(entries not found, progressive drift) and how to report it to
-the user.
+**Scoped on 2026-10-27** ([#804](https://github.com/Guyot-Bertrand/sub-edit/issues/804), spec
+[`23-alignment.md`](specs/23-alignment.md), [ADR 0047](adr/0047-align-by-matching-the-text-to-heard-words.md)):
+
+- the first adapter **transcribes, then matches** the text to the heard words, with nothing new to install; a forced aligner is an
+  adapter for later;
+- a line not heard **gets no position** and keeps its time; doubt is classified (not found, partial, out of line) and reported with the
+  median shift and the drift;
+- the command is `sync` and the window entry `Synchronize with Audio…`, in the Video menu, with the preview of phase 22;
+- ten requirements, seven slices.
 
 ## 24 — Workflow and integrations
 
