@@ -298,6 +298,9 @@ WhisperCppEngine::run(const TranscriptionRequest& request,
     if (!output)
         return stopped(error(TranscriptionErrorKind::Failed));
 
+    // The words of a run with a voice-activity model are on another timeline than the segments.
+    if (request.vadModel)
+        putWordsOnTheSegments(output->transcription.segments);
     clipToRange(request, output->transcription.segments);
     progress.finish();
     return std::move(output->transcription);

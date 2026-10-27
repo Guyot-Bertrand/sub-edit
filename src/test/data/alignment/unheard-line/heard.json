@@ -1,0 +1,1239 @@
+{
+ "systeminfo": "WHISPER : (written by alignment-cases.py)",
+ "model": {
+  "type": "tiny",
+  "multilingual": true,
+  "vocab": 51865
+ },
+ "params": {
+  "model": "ggml-tiny.bin",
+  "language": "auto",
+  "translate": false
+ },
+ "result": {
+  "language": "en"
+ },
+ "transcription": [
+  {
+   "timestamps": {
+    "from": "00:00:01,000",
+    "to": "00:00:03,000"
+   },
+   "offsets": {
+    "from": 1000,
+    "to": 3000
+   },
+   "text": " The harbour was quiet at dawn.",
+   "tokens": [
+    {
+     "text": "[_BEG_]",
+     "timestamps": {
+      "from": "00:00:01,000",
+      "to": "00:00:01,000"
+     },
+     "offsets": {
+      "from": 1000,
+      "to": 1000
+     },
+     "id": 0,
+     "p": 0.9,
+     "t_dtw": -1
+    },
+    {
+     "text": " The",
+     "timestamps": {
+      "from": "00:00:01,000",
+      "to": "00:00:01,293"
+     },
+     "offsets": {
+      "from": 1000,
+      "to": 1293
+     },
+     "id": 0,
+     "p": 0.9,
+     "t_dtw": -1
+    },
+    {
+     "text": " harbour",
+     "timestamps": {
+      "from": "00:00:01,333",
+      "to": "00:00:01,627"
+     },
+     "offsets": {
+      "from": 1333,
+      "to": 1627
+     },
+     "id": 0,
+     "p": 0.9,
+     "t_dtw": -1
+    },
+    {
+     "text": " was",
+     "timestamps": {
+      "from": "00:00:01,667",
+      "to": "00:00:01,960"
+     },
+     "offsets": {
+      "from": 1667,
+      "to": 1960
+     },
+     "id": 0,
+     "p": 0.9,
+     "t_dtw": -1
+    },
+    {
+     "text": " quiet",
+     "timestamps": {
+      "from": "00:00:02,000",
+      "to": "00:00:02,293"
+     },
+     "offsets": {
+      "from": 2000,
+      "to": 2293
+     },
+     "id": 0,
+     "p": 0.9,
+     "t_dtw": -1
+    },
+    {
+     "text": " at",
+     "timestamps": {
+      "from": "00:00:02,333",
+      "to": "00:00:02,627"
+     },
+     "offsets": {
+      "from": 2333,
+      "to": 2627
+     },
+     "id": 0,
+     "p": 0.9,
+     "t_dtw": -1
+    },
+    {
+     "text": " dawn.",
+     "timestamps": {
+      "from": "00:00:02,667",
+      "to": "00:00:02,960"
+     },
+     "offsets": {
+      "from": 2667,
+      "to": 2960
+     },
+     "id": 0,
+     "p": 0.9,
+     "t_dtw": -1
+    }
+   ]
+  },
+  {
+   "timestamps": {
+    "from": "00:00:04,200",
+    "to": "00:00:05,800"
+   },
+   "offsets": {
+    "from": 4200,
+    "to": 5800
+   },
+   "text": " Nobody had lit the lamps yet.",
+   "tokens": [
+    {
+     "text": "[_BEG_]",
+     "timestamps": {
+      "from": "00:00:04,200",
+      "to": "00:00:04,200"
+     },
+     "offsets": {
+      "from": 4200,
+      "to": 4200
+     },
+     "id": 0,
+     "p": 0.9,
+     "t_dtw": -1
+    },
+    {
+     "text": " Nobody",
+     "timestamps": {
+      "from": "00:00:04,200",
+      "to": "00:00:04,427"
+     },
+     "offsets": {
+      "from": 4200,
+      "to": 4427
+     },
+     "id": 0,
+     "p": 0.9,
+     "t_dtw": -1
+    },
+    {
+     "text": " had",
+     "timestamps": {
+      "from": "00:00:04,467",
+      "to": "00:00:04,693"
+     },
+     "offsets": {
+      "from": 4467,
+      "to": 4693
+     },
+     "id": 0,
+     "p": 0.9,
+     "t_dtw": -1
+    },
+    {
+     "text": " lit",
+     "timestamps": {
+      "from": "00:00:04,733",
+      "to": "00:00:04,960"
+     },
+     "offsets": {
+      "from": 4733,
+      "to": 4960
+     },
+     "id": 0,
+     "p": 0.9,
+     "t_dtw": -1
+    },
+    {
+     "text": " the",
+     "timestamps": {
+      "from": "00:00:05,000",
+      "to": "00:00:05,227"
+     },
+     "offsets": {
+      "from": 5000,
+      "to": 5227
+     },
+     "id": 0,
+     "p": 0.9,
+     "t_dtw": -1
+    },
+    {
+     "text": " lamps",
+     "timestamps": {
+      "from": "00:00:05,267",
+      "to": "00:00:05,493"
+     },
+     "offsets": {
+      "from": 5267,
+      "to": 5493
+     },
+     "id": 0,
+     "p": 0.9,
+     "t_dtw": -1
+    },
+    {
+     "text": " yet.",
+     "timestamps": {
+      "from": "00:00:05,533",
+      "to": "00:00:05,760"
+     },
+     "offsets": {
+      "from": 5533,
+      "to": 5760
+     },
+     "id": 0,
+     "p": 0.9,
+     "t_dtw": -1
+    }
+   ]
+  },
+  {
+   "timestamps": {
+    "from": "00:00:08,000",
+    "to": "00:00:11,000"
+   },
+   "offsets": {
+    "from": 8000,
+    "to": 11000
+   },
+   "text": " She carried the letter across the square.",
+   "tokens": [
+    {
+     "text": "[_BEG_]",
+     "timestamps": {
+      "from": "00:00:08,000",
+      "to": "00:00:08,000"
+     },
+     "offsets": {
+      "from": 8000,
+      "to": 8000
+     },
+     "id": 0,
+     "p": 0.9,
+     "t_dtw": -1
+    },
+    {
+     "text": " She",
+     "timestamps": {
+      "from": "00:00:08,000",
+      "to": "00:00:08,389"
+     },
+     "offsets": {
+      "from": 8000,
+      "to": 8389
+     },
+     "id": 0,
+     "p": 0.9,
+     "t_dtw": -1
+    },
+    {
+     "text": " carried",
+     "timestamps": {
+      "from": "00:00:08,429",
+      "to": "00:00:08,817"
+     },
+     "offsets": {
+      "from": 8429,
+      "to": 8817
+     },
+     "id": 0,
+     "p": 0.9,
+     "t_dtw": -1
+    },
+    {
+     "text": " the",
+     "timestamps": {
+      "from": "00:00:08,857",
+      "to": "00:00:09,246"
+     },
+     "offsets": {
+      "from": 8857,
+      "to": 9246
+     },
+     "id": 0,
+     "p": 0.9,
+     "t_dtw": -1
+    },
+    {
+     "text": " letter",
+     "timestamps": {
+      "from": "00:00:09,286",
+      "to": "00:00:09,674"
+     },
+     "offsets": {
+      "from": 9286,
+      "to": 9674
+     },
+     "id": 0,
+     "p": 0.9,
+     "t_dtw": -1
+    },
+    {
+     "text": " across",
+     "timestamps": {
+      "from": "00:00:09,714",
+      "to": "00:00:10,103"
+     },
+     "offsets": {
+      "from": 9714,
+      "to": 10103
+     },
+     "id": 0,
+     "p": 0.9,
+     "t_dtw": -1
+    },
+    {
+     "text": " the",
+     "timestamps": {
+      "from": "00:00:10,143",
+      "to": "00:00:10,531"
+     },
+     "offsets": {
+      "from": 10143,
+      "to": 10531
+     },
+     "id": 0,
+     "p": 0.9,
+     "t_dtw": -1
+    },
+    {
+     "text": " square.",
+     "timestamps": {
+      "from": "00:00:10,571",
+      "to": "00:00:10,960"
+     },
+     "offsets": {
+      "from": 10571,
+      "to": 10960
+     },
+     "id": 0,
+     "p": 0.9,
+     "t_dtw": -1
+    }
+   ]
+  },
+  {
+   "timestamps": {
+    "from": "00:00:12,500",
+    "to": "00:00:14,000"
+   },
+   "offsets": {
+    "from": 12500,
+    "to": 14000
+   },
+   "text": " It was addressed to no one.",
+   "tokens": [
+    {
+     "text": "[_BEG_]",
+     "timestamps": {
+      "from": "00:00:12,500",
+      "to": "00:00:12,500"
+     },
+     "offsets": {
+      "from": 12500,
+      "to": 12500
+     },
+     "id": 0,
+     "p": 0.9,
+     "t_dtw": -1
+    },
+    {
+     "text": " It",
+     "timestamps": {
+      "from": "00:00:12,500",
+      "to": "00:00:12,710"
+     },
+     "offsets": {
+      "from": 12500,
+      "to": 12710
+     },
+     "id": 0,
+     "p": 0.9,
+     "t_dtw": -1
+    },
+    {
+     "text": " was",
+     "timestamps": {
+      "from": "00:00:12,750",
+      "to": "00:00:12,960"
+     },
+     "offsets": {
+      "from": 12750,
+      "to": 12960
+     },
+     "id": 0,
+     "p": 0.9,
+     "t_dtw": -1
+    },
+    {
+     "text": " addressed",
+     "timestamps": {
+      "from": "00:00:13,000",
+      "to": "00:00:13,210"
+     },
+     "offsets": {
+      "from": 13000,
+      "to": 13210
+     },
+     "id": 0,
+     "p": 0.9,
+     "t_dtw": -1
+    },
+    {
+     "text": " to",
+     "timestamps": {
+      "from": "00:00:13,250",
+      "to": "00:00:13,460"
+     },
+     "offsets": {
+      "from": 13250,
+      "to": 13460
+     },
+     "id": 0,
+     "p": 0.9,
+     "t_dtw": -1
+    },
+    {
+     "text": " no",
+     "timestamps": {
+      "from": "00:00:13,500",
+      "to": "00:00:13,710"
+     },
+     "offsets": {
+      "from": 13500,
+      "to": 13710
+     },
+     "id": 0,
+     "p": 0.9,
+     "t_dtw": -1
+    },
+    {
+     "text": " one.",
+     "timestamps": {
+      "from": "00:00:13,750",
+      "to": "00:00:13,960"
+     },
+     "offsets": {
+      "from": 13750,
+      "to": 13960
+     },
+     "id": 0,
+     "p": 0.9,
+     "t_dtw": -1
+    }
+   ]
+  },
+  {
+   "timestamps": {
+    "from": "00:00:17,000",
+    "to": "00:00:19,500"
+   },
+   "offsets": {
+    "from": 17000,
+    "to": 19500
+   },
+   "text": " Somewhere a bell began to ring.",
+   "tokens": [
+    {
+     "text": "[_BEG_]",
+     "timestamps": {
+      "from": "00:00:17,000",
+      "to": "00:00:17,000"
+     },
+     "offsets": {
+      "from": 17000,
+      "to": 17000
+     },
+     "id": 0,
+     "p": 0.9,
+     "t_dtw": -1
+    },
+    {
+     "text": " Somewhere",
+     "timestamps": {
+      "from": "00:00:17,000",
+      "to": "00:00:17,377"
+     },
+     "offsets": {
+      "from": 17000,
+      "to": 17377
+     },
+     "id": 0,
+     "p": 0.9,
+     "t_dtw": -1
+    },
+    {
+     "text": " a",
+     "timestamps": {
+      "from": "00:00:17,417",
+      "to": "00:00:17,793"
+     },
+     "offsets": {
+      "from": 17417,
+      "to": 17793
+     },
+     "id": 0,
+     "p": 0.9,
+     "t_dtw": -1
+    },
+    {
+     "text": " bell",
+     "timestamps": {
+      "from": "00:00:17,833",
+      "to": "00:00:18,210"
+     },
+     "offsets": {
+      "from": 17833,
+      "to": 18210
+     },
+     "id": 0,
+     "p": 0.9,
+     "t_dtw": -1
+    },
+    {
+     "text": " began",
+     "timestamps": {
+      "from": "00:00:18,250",
+      "to": "00:00:18,627"
+     },
+     "offsets": {
+      "from": 18250,
+      "to": 18627
+     },
+     "id": 0,
+     "p": 0.9,
+     "t_dtw": -1
+    },
+    {
+     "text": " to",
+     "timestamps": {
+      "from": "00:00:18,667",
+      "to": "00:00:19,043"
+     },
+     "offsets": {
+      "from": 18667,
+      "to": 19043
+     },
+     "id": 0,
+     "p": 0.9,
+     "t_dtw": -1
+    },
+    {
+     "text": " ring.",
+     "timestamps": {
+      "from": "00:00:19,083",
+      "to": "00:00:19,460"
+     },
+     "offsets": {
+      "from": 19083,
+      "to": 19460
+     },
+     "id": 0,
+     "p": 0.9,
+     "t_dtw": -1
+    }
+   ]
+  },
+  {
+   "timestamps": {
+    "from": "00:00:20,200",
+    "to": "00:00:21,700"
+   },
+   "offsets": {
+    "from": 20200,
+    "to": 21700
+   },
+   "text": " He listened, and did not move.",
+   "tokens": [
+    {
+     "text": "[_BEG_]",
+     "timestamps": {
+      "from": "00:00:20,200",
+      "to": "00:00:20,200"
+     },
+     "offsets": {
+      "from": 20200,
+      "to": 20200
+     },
+     "id": 0,
+     "p": 0.9,
+     "t_dtw": -1
+    },
+    {
+     "text": " He",
+     "timestamps": {
+      "from": "00:00:20,200",
+      "to": "00:00:20,410"
+     },
+     "offsets": {
+      "from": 20200,
+      "to": 20410
+     },
+     "id": 0,
+     "p": 0.9,
+     "t_dtw": -1
+    },
+    {
+     "text": " listened,",
+     "timestamps": {
+      "from": "00:00:20,450",
+      "to": "00:00:20,660"
+     },
+     "offsets": {
+      "from": 20450,
+      "to": 20660
+     },
+     "id": 0,
+     "p": 0.9,
+     "t_dtw": -1
+    },
+    {
+     "text": " and",
+     "timestamps": {
+      "from": "00:00:20,700",
+      "to": "00:00:20,910"
+     },
+     "offsets": {
+      "from": 20700,
+      "to": 20910
+     },
+     "id": 0,
+     "p": 0.9,
+     "t_dtw": -1
+    },
+    {
+     "text": " did",
+     "timestamps": {
+      "from": "00:00:20,950",
+      "to": "00:00:21,160"
+     },
+     "offsets": {
+      "from": 20950,
+      "to": 21160
+     },
+     "id": 0,
+     "p": 0.9,
+     "t_dtw": -1
+    },
+    {
+     "text": " not",
+     "timestamps": {
+      "from": "00:00:21,200",
+      "to": "00:00:21,410"
+     },
+     "offsets": {
+      "from": 21200,
+      "to": 21410
+     },
+     "id": 0,
+     "p": 0.9,
+     "t_dtw": -1
+    },
+    {
+     "text": " move.",
+     "timestamps": {
+      "from": "00:00:21,450",
+      "to": "00:00:21,660"
+     },
+     "offsets": {
+      "from": 21450,
+      "to": 21660
+     },
+     "id": 0,
+     "p": 0.9,
+     "t_dtw": -1
+    }
+   ]
+  },
+  {
+   "timestamps": {
+    "from": "00:00:25,000",
+    "to": "00:00:28,000"
+   },
+   "offsets": {
+    "from": 25000,
+    "to": 28000
+   },
+   "text": " The ferry left without its captain.",
+   "tokens": [
+    {
+     "text": "[_BEG_]",
+     "timestamps": {
+      "from": "00:00:25,000",
+      "to": "00:00:25,000"
+     },
+     "offsets": {
+      "from": 25000,
+      "to": 25000
+     },
+     "id": 0,
+     "p": 0.9,
+     "t_dtw": -1
+    },
+    {
+     "text": " The",
+     "timestamps": {
+      "from": "00:00:25,000",
+      "to": "00:00:25,460"
+     },
+     "offsets": {
+      "from": 25000,
+      "to": 25460
+     },
+     "id": 0,
+     "p": 0.9,
+     "t_dtw": -1
+    },
+    {
+     "text": " ferry",
+     "timestamps": {
+      "from": "00:00:25,500",
+      "to": "00:00:25,960"
+     },
+     "offsets": {
+      "from": 25500,
+      "to": 25960
+     },
+     "id": 0,
+     "p": 0.9,
+     "t_dtw": -1
+    },
+    {
+     "text": " left",
+     "timestamps": {
+      "from": "00:00:26,000",
+      "to": "00:00:26,460"
+     },
+     "offsets": {
+      "from": 26000,
+      "to": 26460
+     },
+     "id": 0,
+     "p": 0.9,
+     "t_dtw": -1
+    },
+    {
+     "text": " without",
+     "timestamps": {
+      "from": "00:00:26,500",
+      "to": "00:00:26,960"
+     },
+     "offsets": {
+      "from": 26500,
+      "to": 26960
+     },
+     "id": 0,
+     "p": 0.9,
+     "t_dtw": -1
+    },
+    {
+     "text": " its",
+     "timestamps": {
+      "from": "00:00:27,000",
+      "to": "00:00:27,460"
+     },
+     "offsets": {
+      "from": 27000,
+      "to": 27460
+     },
+     "id": 0,
+     "p": 0.9,
+     "t_dtw": -1
+    },
+    {
+     "text": " captain.",
+     "timestamps": {
+      "from": "00:00:27,500",
+      "to": "00:00:27,960"
+     },
+     "offsets": {
+      "from": 27500,
+      "to": 27960
+     },
+     "id": 0,
+     "p": 0.9,
+     "t_dtw": -1
+    }
+   ]
+  },
+  {
+   "timestamps": {
+    "from": "00:00:29,500",
+    "to": "00:00:31,000"
+   },
+   "offsets": {
+    "from": 29500,
+    "to": 31000
+   },
+   "text": " Rain came in from the west.",
+   "tokens": [
+    {
+     "text": "[_BEG_]",
+     "timestamps": {
+      "from": "00:00:29,500",
+      "to": "00:00:29,500"
+     },
+     "offsets": {
+      "from": 29500,
+      "to": 29500
+     },
+     "id": 0,
+     "p": 0.9,
+     "t_dtw": -1
+    },
+    {
+     "text": " Rain",
+     "timestamps": {
+      "from": "00:00:29,500",
+      "to": "00:00:29,710"
+     },
+     "offsets": {
+      "from": 29500,
+      "to": 29710
+     },
+     "id": 0,
+     "p": 0.9,
+     "t_dtw": -1
+    },
+    {
+     "text": " came",
+     "timestamps": {
+      "from": "00:00:29,750",
+      "to": "00:00:29,960"
+     },
+     "offsets": {
+      "from": 29750,
+      "to": 29960
+     },
+     "id": 0,
+     "p": 0.9,
+     "t_dtw": -1
+    },
+    {
+     "text": " in",
+     "timestamps": {
+      "from": "00:00:30,000",
+      "to": "00:00:30,210"
+     },
+     "offsets": {
+      "from": 30000,
+      "to": 30210
+     },
+     "id": 0,
+     "p": 0.9,
+     "t_dtw": -1
+    },
+    {
+     "text": " from",
+     "timestamps": {
+      "from": "00:00:30,250",
+      "to": "00:00:30,460"
+     },
+     "offsets": {
+      "from": 30250,
+      "to": 30460
+     },
+     "id": 0,
+     "p": 0.9,
+     "t_dtw": -1
+    },
+    {
+     "text": " the",
+     "timestamps": {
+      "from": "00:00:30,500",
+      "to": "00:00:30,710"
+     },
+     "offsets": {
+      "from": 30500,
+      "to": 30710
+     },
+     "id": 0,
+     "p": 0.9,
+     "t_dtw": -1
+    },
+    {
+     "text": " west.",
+     "timestamps": {
+      "from": "00:00:30,750",
+      "to": "00:00:30,960"
+     },
+     "offsets": {
+      "from": 30750,
+      "to": 30960
+     },
+     "id": 0,
+     "p": 0.9,
+     "t_dtw": -1
+    }
+   ]
+  },
+  {
+   "timestamps": {
+    "from": "00:00:37,300",
+    "to": "00:00:38,800"
+   },
+   "offsets": {
+    "from": 37300,
+    "to": 38800
+   },
+   "text": " One of them was missing.",
+   "tokens": [
+    {
+     "text": "[_BEG_]",
+     "timestamps": {
+      "from": "00:00:37,300",
+      "to": "00:00:37,300"
+     },
+     "offsets": {
+      "from": 37300,
+      "to": 37300
+     },
+     "id": 0,
+     "p": 0.9,
+     "t_dtw": -1
+    },
+    {
+     "text": " One",
+     "timestamps": {
+      "from": "00:00:37,300",
+      "to": "00:00:37,560"
+     },
+     "offsets": {
+      "from": 37300,
+      "to": 37560
+     },
+     "id": 0,
+     "p": 0.9,
+     "t_dtw": -1
+    },
+    {
+     "text": " of",
+     "timestamps": {
+      "from": "00:00:37,600",
+      "to": "00:00:37,860"
+     },
+     "offsets": {
+      "from": 37600,
+      "to": 37860
+     },
+     "id": 0,
+     "p": 0.9,
+     "t_dtw": -1
+    },
+    {
+     "text": " them",
+     "timestamps": {
+      "from": "00:00:37,900",
+      "to": "00:00:38,160"
+     },
+     "offsets": {
+      "from": 37900,
+      "to": 38160
+     },
+     "id": 0,
+     "p": 0.9,
+     "t_dtw": -1
+    },
+    {
+     "text": " was",
+     "timestamps": {
+      "from": "00:00:38,200",
+      "to": "00:00:38,460"
+     },
+     "offsets": {
+      "from": 38200,
+      "to": 38460
+     },
+     "id": 0,
+     "p": 0.9,
+     "t_dtw": -1
+    },
+    {
+     "text": " missing.",
+     "timestamps": {
+      "from": "00:00:38,500",
+      "to": "00:00:38,760"
+     },
+     "offsets": {
+      "from": 38500,
+      "to": 38760
+     },
+     "id": 0,
+     "p": 0.9,
+     "t_dtw": -1
+    }
+   ]
+  },
+  {
+   "timestamps": {
+    "from": "00:00:42,000",
+    "to": "00:00:45,000"
+   },
+   "offsets": {
+    "from": 42000,
+    "to": 45000
+   },
+   "text": " By noon the fog had lifted again.",
+   "tokens": [
+    {
+     "text": "[_BEG_]",
+     "timestamps": {
+      "from": "00:00:42,000",
+      "to": "00:00:42,000"
+     },
+     "offsets": {
+      "from": 42000,
+      "to": 42000
+     },
+     "id": 0,
+     "p": 0.9,
+     "t_dtw": -1
+    },
+    {
+     "text": " By",
+     "timestamps": {
+      "from": "00:00:42,000",
+      "to": "00:00:42,389"
+     },
+     "offsets": {
+      "from": 42000,
+      "to": 42389
+     },
+     "id": 0,
+     "p": 0.9,
+     "t_dtw": -1
+    },
+    {
+     "text": " noon",
+     "timestamps": {
+      "from": "00:00:42,429",
+      "to": "00:00:42,817"
+     },
+     "offsets": {
+      "from": 42429,
+      "to": 42817
+     },
+     "id": 0,
+     "p": 0.9,
+     "t_dtw": -1
+    },
+    {
+     "text": " the",
+     "timestamps": {
+      "from": "00:00:42,857",
+      "to": "00:00:43,246"
+     },
+     "offsets": {
+      "from": 42857,
+      "to": 43246
+     },
+     "id": 0,
+     "p": 0.9,
+     "t_dtw": -1
+    },
+    {
+     "text": " fog",
+     "timestamps": {
+      "from": "00:00:43,286",
+      "to": "00:00:43,674"
+     },
+     "offsets": {
+      "from": 43286,
+      "to": 43674
+     },
+     "id": 0,
+     "p": 0.9,
+     "t_dtw": -1
+    },
+    {
+     "text": " had",
+     "timestamps": {
+      "from": "00:00:43,714",
+      "to": "00:00:44,103"
+     },
+     "offsets": {
+      "from": 43714,
+      "to": 44103
+     },
+     "id": 0,
+     "p": 0.9,
+     "t_dtw": -1
+    },
+    {
+     "text": " lifted",
+     "timestamps": {
+      "from": "00:00:44,143",
+      "to": "00:00:44,531"
+     },
+     "offsets": {
+      "from": 44143,
+      "to": 44531
+     },
+     "id": 0,
+     "p": 0.9,
+     "t_dtw": -1
+    },
+    {
+     "text": " again.",
+     "timestamps": {
+      "from": "00:00:44,571",
+      "to": "00:00:44,960"
+     },
+     "offsets": {
+      "from": 44571,
+      "to": 44960
+     },
+     "id": 0,
+     "p": 0.9,
+     "t_dtw": -1
+    }
+   ]
+  },
+  {
+   "timestamps": {
+    "from": "00:00:46,500",
+    "to": "00:00:48,000"
+   },
+   "offsets": {
+    "from": 46500,
+    "to": 48000
+   },
+   "text": " Then the letter was opened.",
+   "tokens": [
+    {
+     "text": "[_BEG_]",
+     "timestamps": {
+      "from": "00:00:46,500",
+      "to": "00:00:46,500"
+     },
+     "offsets": {
+      "from": 46500,
+      "to": 46500
+     },
+     "id": 0,
+     "p": 0.9,
+     "t_dtw": -1
+    },
+    {
+     "text": " Then",
+     "timestamps": {
+      "from": "00:00:46,500",
+      "to": "00:00:46,760"
+     },
+     "offsets": {
+      "from": 46500,
+      "to": 46760
+     },
+     "id": 0,
+     "p": 0.9,
+     "t_dtw": -1
+    },
+    {
+     "text": " the",
+     "timestamps": {
+      "from": "00:00:46,800",
+      "to": "00:00:47,060"
+     },
+     "offsets": {
+      "from": 46800,
+      "to": 47060
+     },
+     "id": 0,
+     "p": 0.9,
+     "t_dtw": -1
+    },
+    {
+     "text": " letter",
+     "timestamps": {
+      "from": "00:00:47,100",
+      "to": "00:00:47,360"
+     },
+     "offsets": {
+      "from": 47100,
+      "to": 47360
+     },
+     "id": 0,
+     "p": 0.9,
+     "t_dtw": -1
+    },
+    {
+     "text": " was",
+     "timestamps": {
+      "from": "00:00:47,400",
+      "to": "00:00:47,660"
+     },
+     "offsets": {
+      "from": 47400,
+      "to": 47660
+     },
+     "id": 0,
+     "p": 0.9,
+     "t_dtw": -1
+    },
+    {
+     "text": " opened.",
+     "timestamps": {
+      "from": "00:00:47,700",
+      "to": "00:00:47,960"
+     },
+     "offsets": {
+      "from": 47700,
+      "to": 47960
+     },
+     "id": 0,
+     "p": 0.9,
+     "t_dtw": -1
+    }
+   ]
+  }
+ ]
+}

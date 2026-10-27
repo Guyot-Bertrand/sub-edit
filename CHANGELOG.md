@@ -9,6 +9,16 @@ do not edit it by hand.
 
 ## Unreleased
 
+### Fixed
+
+- **core** — Put the words of a VAD run back on the film's time
+
+### Tests
+
+- **core** — Satisfy tidy in the alignment tooling
+
+## 1.1.1 — 2026-10-27
+
 ### Added
 
 - **gui** — Type times over digit by digit, delimit read-only areas

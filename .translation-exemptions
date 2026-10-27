@@ -74,6 +74,8 @@ text      (?:UTF|ISO|KOI8|EUC|CP|IBM)-?[\w-]*(?:,version=\d)?|windows-\d+|Shift_
 [constant] An all-capitals token: an environment variable, a keyword of a file format, a placeholder of the syntax. It is a name, not a sentence.
 # The form the time fields of the transcription dialog ask for, shown as their placeholder (#792).
 file      src/lib/subedit/gui/transcribe_dialog.cpp HH:MM:SS
+# The same form, as the placeholder of a field that may be empty (#805).
+file      src/lib/subedit/gui/timestamp_edit.cpp HH:MM:SS(?:,mmm)?
 text      [A-Z][A-Z0-9_]*(?:[ -][A-Z0-9_]+)*
 
 [program] The names of the program, its executables and the programs it drives: a name is not translated.

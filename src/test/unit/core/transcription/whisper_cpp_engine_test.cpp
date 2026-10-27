@@ -534,3 +534,21 @@ TEST_CASE("a run that printed nothing hands back nothing", "[whisper][engine][pa
     REQUIRE_FALSE(done.has_value());
     CHECK(done.error().partial.empty());
 }
+
+TEST_CASE("with a voice-activity model the words come back on the film's time",
+          "[whisper][engine][vad]") {
+    const std::string sample = std::string{SUBEDIT_TEST_DATA_DIR} + "/whisper/vad.words.json";
+    const Setup setup{"--output-from='" + sample + "'"};
+    const WhisperCppEngine engine{setup.executable};
+    const std::filesystem::path vad = setup.scratch.write("vad.bin", "model");
+
+    const auto with =
+        engine.transcribe({.audio = setup.audio, .model = setup.multilingual, .vadModel = vad});
+    const auto without = engine.transcribe({.audio = setup.audio, .model = setup.multilingual});
+
+    REQUIRE(with.has_value());
+    REQUIRE(without.has_value());
+    // With it, the last segment (at 20 s) has its words at 20 s; without, they are left as written.
+    CHECK(with->segments[2].words.front().start == Timestamp::fromMilliseconds(20000));
+    CHECK(without->segments[2].words.front().start == Timestamp::fromMilliseconds(8720));
+}

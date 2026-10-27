@@ -1,0 +1,48 @@
+1
+00:00:02,800 --> 00:00:04,800
+The harbour was quiet at dawn.
+
+2
+00:00:06,000 --> 00:00:07,600
+Nobody had lit the lamps yet.
+
+3
+00:00:09,800 --> 00:00:12,800
+She carried the letter across the square.
+
+4
+00:00:14,300 --> 00:00:15,800
+It was addressed to no one.
+
+5
+00:00:18,800 --> 00:00:21,300
+Somewhere a bell began to ring.
+
+6
+00:00:22,000 --> 00:00:23,500
+He listened, and did not move.
+
+7
+00:00:26,800 --> 00:00:29,800
+The ferry left without its captain.
+
+8
+00:00:31,300 --> 00:00:32,800
+Rain came in from the west.
+
+9
+00:00:35,800 --> 00:00:38,300
+They counted the boats twice.
+
+10
+00:00:39,100 --> 00:00:40,600
+One of them was missing.
+
+11
+00:00:43,800 --> 00:00:46,800
+By noon the fog had lifted again.
+
+12
+00:00:48,300 --> 00:00:49,800
+Then the letter was opened.
+
