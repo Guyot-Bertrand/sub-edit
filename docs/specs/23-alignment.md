@@ -82,6 +82,8 @@ The core classifies each line, after the matching. Three kinds, in this order:
 | **partial** | found, but few of its words were heard | matched fraction below `0.8` |
 | **out of line** | found, but its shift from the original time departs from the shift of its neighbours | by more than `alignment.doubt-gap` (default 2000 ms) from the median shift of the five lines around it |
 
+Every median here is the **lower** of the two middle values when the count is even, so that a single outlier among few neighbours cannot pull the median onto itself. The classification is the first kind that holds: a partial line is not also called out of line.
+
 The result also carries **the shift of every found line** and two figures that tell the story of the file: the median shift, and the
 **drift** — the difference between the median shift of the last tenth of the found lines and of the first tenth. A constant offset reads as a
 large median and no drift; a progressive drift reads as both.

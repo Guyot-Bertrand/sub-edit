@@ -9,6 +9,10 @@ do not edit it by hand.
 
 ## Unreleased
 
+### Added
+
+- **core** — Match a text to the words an engine heard
+
 ### Documentation
 
 - **doc** — Scope phase 23, automatic alignment
