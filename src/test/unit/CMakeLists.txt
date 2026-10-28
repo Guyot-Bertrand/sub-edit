@@ -127,6 +127,8 @@ add_executable(
     core/transcription/whisper_cpp_output_test.cpp
     core/transcription/word_matching_test.cpp
     core/transcription/alignment_doubt_test.cpp
+    core/transcription/alignment_retiming_test.cpp
+    core/transcription/transcript_matching_aligner_test.cpp
     core/io/file_error_test.cpp
     core/text/lines_test.cpp
     core/text/markup_test.cpp

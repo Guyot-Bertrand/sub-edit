@@ -146,6 +146,8 @@ $ subedit-cli sync film.fr.srt --video film.mkv --output film.fr.synced.srt
 | `alignment.min-match` | `--min-match` | `0.5` | the fraction of a line's words that must be heard for it to be found |
 | `alignment.doubt-gap` | `--doubt-gap` | `2000` ms | how far a shift may depart from its neighbours' |
 
+**Delivered in two steps.** The settings exist as a type with their defaults from the adapter's issue (#812); they are read from and written to the settings file, and the account of the operation and the reasons for failure are worded, with the `sync` command (#813), where a person first sees them — and where the catalogues are translated once.
+
 The model, the voice-activity model and the engine of the **transcription** are those of phase 22; there is no second set. The account of
 the operation and the reasons for failure live in a new family of `core/wording/` (`alignment`), shared by the two surfaces.
 

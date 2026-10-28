@@ -12,6 +12,7 @@ do not edit it by hand.
 ### Added
 
 - **core** — Match a text to the words an engine heard
+- **core** — Classify the doubtful lines of an alignment
 
 ### Documentation
 

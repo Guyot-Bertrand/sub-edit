@@ -22,6 +22,14 @@ struct AlignmentRequest {
 
     std::optional<std::string> language{};
     std::optional<std::filesystem::path> model{};
+
+    /// The voice-activity model of the engine that listens, when it has one.
+    std::optional<std::filesystem::path> vadModel{};
+
+    /// The part of the audio to listen to, in the time of the film; the whole of it when nothing
+    /// is given. A line outside the range is not found.
+    std::optional<Timestamp> start{};
+    std::optional<Timestamp> end{};
 };
 
 /// Where one line is said. **Nothing for a line the engine did not find**:

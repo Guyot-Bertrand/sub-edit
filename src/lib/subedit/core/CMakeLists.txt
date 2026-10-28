@@ -165,7 +165,9 @@ add_library(
     transcription/whisper_cpp_engine.cpp
     transcription/whisper_cpp_output.cpp
     transcription/word_matching.cpp
-    transcription/alignment_doubt.cpp)
+    transcription/alignment_doubt.cpp
+    transcription/alignment_retiming.cpp
+    transcription/transcript_matching_aligner.cpp)
 add_library(subedit::core ALIAS subedit_core)
 
 # The include root is src/lib/, hence always-qualified includes:
