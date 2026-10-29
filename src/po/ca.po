@@ -863,7 +863,7 @@ msgid "Re-time a file mastered at one frame rate for another"
 msgstr ""
 "Resincronitza un fitxer fet a una freqüència de fotogrames per a una altra"
 
-#: src/exe/cli/commands/framerate.cpp
+#: src/exe/cli/commands/framerate.cpp src/exe/cli/commands/sync.cpp
 msgid "Subtitle files to re-time"
 msgstr "Fitxers de subtítols que cal resincronitzar"
 
@@ -1066,6 +1066,74 @@ msgstr ""
 msgid "--head and --tail go together: give both, or neither with --dry-run"
 msgstr "--head i --tail van junts: indiqueu-los tots dos, o cap amb --dry-run"
 
+#: src/exe/cli/commands/sync.cpp
+msgid "Re-time the subtitles of a file on the audio of a film"
+msgstr "Resincronitza els subtítols d'un fitxer segons l'àudio d'una pel·lícula"
+
+#: src/exe/cli/commands/sync.cpp
+msgid "Film to listen to"
+msgstr "Pel·lícula que cal escoltar"
+
+#: src/exe/cli/commands/sync.cpp
+msgid "Audio file to listen to, instead of a film"
+msgstr "Fitxer d'àudio que cal escoltar, en lloc d'una pel·lícula"
+
+#: src/exe/cli/commands/sync.cpp
+msgid "Audio track of a film, counted from 0; the first by default"
+msgstr "Pista d'àudio d'una pel·lícula, comptada des de 0; per defecte, la primera"
+
+#: src/exe/cli/commands/sync.cpp src/exe/cli/commands/transcribe.cpp
+msgid "Where to begin, as 2:00, 1:02:03 or seconds; the beginning by default"
+msgstr "On començar, com 2:00, 1:02:03 o en segons; per defecte, el principi"
+
+#: src/exe/cli/commands/sync.cpp src/exe/cli/commands/transcribe.cpp
+msgid "Where to stop, as 2:00, 1:02:03 or seconds; the end by default"
+msgstr "On aturar-se, com 2:00, 1:02:03 o en segons; per defecte, el final"
+
+#: src/exe/cli/commands/sync.cpp src/exe/cli/commands/transcribe.cpp
+msgid ""
+"Language of the speech, two letters: fr, en, de; detected from the first 30 "
+"seconds by default"
+msgstr ""
+"Llengua de la parla, dues lletres: fr, en, de; per defecte es detecta a "
+"partir dels primers 30 segons"
+
+#: src/exe/cli/commands/sync.cpp src/exe/cli/commands/transcribe.cpp
+msgid "Model file; the transcription.model setting by default"
+msgstr "Fitxer de model; per defecte, el paràmetre transcription.model"
+
+#: src/exe/cli/commands/sync.cpp src/exe/cli/commands/transcribe.cpp
+msgid ""
+"Voice-activity model that skips silences; the transcription.vad-model "
+"setting by default"
+msgstr ""
+"Model d'activitat de veu que omet els silencis; per defecte, el paràmetre "
+"transcription.vad-model"
+
+#: src/exe/cli/commands/sync.cpp
+msgid "Engine that listens; the transcription.engine setting by default"
+msgstr "Motor que escolta; per defecte, el paràmetre transcription.engine"
+
+#: src/exe/cli/commands/sync.cpp src/exe/cli/commands/transcribe.cpp
+msgid "Keep the extracted audio in this file"
+msgstr "Conserva l'àudio extret en aquest fitxer"
+
+#: src/exe/cli/commands/sync.cpp
+msgid ""
+"Share of a subtitle's words that must be heard, in percent; the alignment."
+"min-match setting by default"
+msgstr "Part de les paraules d'un subtítol que s'han d'haver sentit, en percentatge; per defecte, el paràmetre alignment.min-match"
+
+#: src/exe/cli/commands/sync.cpp
+msgid ""
+"How far a subtitle may move from its neighbours' shift before it is flagged, "
+"in milliseconds; the alignment.doubt-gap setting by default"
+msgstr "Quant pot allunyar-se un subtítol del desplaçament dels veïns abans de ser assenyalat, en mil·lisegons; per defecte, el paràmetre alignment.doubt-gap"
+
+#: src/exe/cli/commands/sync.cpp
+msgid "Write the subtitles to check to this file"
+msgstr "Escriu en aquest fitxer els subtítols que cal revisar"
+
 #: src/exe/cli/commands/transcribe.cpp
 msgid "Write the speech of a video or an audio file as subtitles"
 msgstr "Escriu la parla d'un vídeo o d'un fitxer d'àudio en forma de subtítols"
@@ -1088,22 +1156,6 @@ msgid "Audio track of a video, counted from 0; the first by default"
 msgstr "Pista d'àudio d'un vídeo, comptada des de 0; per defecte, la primera"
 
 #: src/exe/cli/commands/transcribe.cpp
-msgid "Where to begin, as 2:00, 1:02:03 or seconds; the beginning by default"
-msgstr "On començar, com 2:00, 1:02:03 o en segons; per defecte, el principi"
-
-#: src/exe/cli/commands/transcribe.cpp
-msgid "Where to stop, as 2:00, 1:02:03 or seconds; the end by default"
-msgstr "On aturar-se, com 2:00, 1:02:03 o en segons; per defecte, el final"
-
-#: src/exe/cli/commands/transcribe.cpp
-msgid ""
-"Language of the speech, two letters: fr, en, de; detected from the first 30 "
-"seconds by default"
-msgstr ""
-"Llengua de la parla, dues lletres: fr, en, de; per defecte es detecta a "
-"partir dels primers 30 segons"
-
-#: src/exe/cli/commands/transcribe.cpp
 msgid ""
 "Do not write sounds as notes, such as (phone ringing); the transcription."
 "suppress-notes setting by default"
@@ -1116,24 +1168,8 @@ msgid "Write sounds as notes, against the setting"
 msgstr "Escriu els sons com a notes, contra el paràmetre"
 
 #: src/exe/cli/commands/transcribe.cpp
-msgid "Model file; the transcription.model setting by default"
-msgstr "Fitxer de model; per defecte, el paràmetre transcription.model"
-
-#: src/exe/cli/commands/transcribe.cpp
-msgid ""
-"Voice-activity model that skips silences; the transcription.vad-model "
-"setting by default"
-msgstr ""
-"Model d'activitat de veu que omet els silencis; per defecte, el paràmetre "
-"transcription.vad-model"
-
-#: src/exe/cli/commands/transcribe.cpp
 msgid "Engine; the transcription.engine setting by default"
 msgstr "Motor; per defecte, el paràmetre transcription.engine"
-
-#: src/exe/cli/commands/transcribe.cpp
-msgid "Keep the extracted audio in this file"
-msgstr "Conserva l'àudio extret en aquest fitxer"
 
 #: src/exe/cli/commands/transcribe.cpp
 msgid ""
@@ -2114,6 +2150,10 @@ msgstr "%1: dividit al subtítol %2: %3 al cap, %4 a la cua"
 msgid "%1 -> %2, %3"
 msgstr "%1 -> %2, %3"
 
+#: src/lib/subedit/cli/syncing.cpp
+msgid "--report names one file: give one subtitle file when you use it"
+msgstr "--report anomena un sol fitxer: doneu un sol fitxer de subtítols quan l'useu"
+
 #: src/lib/subedit/cli/text_rewriting.cpp
 msgid "--on and --off say opposite things; give one of them"
 msgstr "--on i --off diuen coses oposades; indiqueu-ne només una"
@@ -2254,6 +2294,14 @@ msgstr "un nombre enter d'1 a 1000"
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "subedit-cli transcribe; Transcribe Audio…"
 msgstr "subedit-cli transcribe; Transcriu l'àudio…"
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "subedit-cli sync"
+msgstr "subedit-cli sync"
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "a whole number from 1 to 100"
+msgstr "un nombre enter de l'1 al 100"
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "subedit-cli adjust; Adjust Durations…"
@@ -2507,6 +2555,18 @@ msgid "Most characters a transcribed subtitle holds."
 msgstr "Nombre màxim de caràcters d'un subtítol transcrit."
 
 #: src/lib/subedit/core/config/operation_settings.cpp
+msgid "The engine that aligns the subtitles on the audio."
+msgstr "El motor que alinea els subtítols amb l'àudio."
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "Share of a line's words that must be heard, in percent."
+msgstr "Part de les paraules d'una línia que s'han d'haver sentit, en percentatge."
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "How far a line may move from its neighbours' shift."
+msgstr "Quant pot allunyar-se una línia del desplaçament dels veïns."
+
+#: src/lib/subedit/core/config/operation_settings.cpp
 msgid "%1 is managed by the window; use --enable/--disable on correct"
 msgstr "%1 el gestiona la finestra; useu --enable/--disable amb correct"
 
@@ -2657,6 +2717,57 @@ msgstr "falta el nom del grup"
 #: src/lib/subedit/core/text/replacement_template.cpp
 msgid "unknown group name '%1'"
 msgstr "nom de grup desconegut «%1»"
+
+#: src/lib/subedit/core/wording/alignment.cpp
+msgid "there is no alignment engine called %1"
+msgstr "cap motor d'alineació es diu %1"
+
+#: src/lib/subedit/core/wording/alignment.cpp
+msgid ""
+"sync needs the audio to listen to: give --video or --audio, and not both"
+msgstr "sync necessita l'àudio que cal escoltar: doneu --video o --audio, i no tots dos"
+
+#: src/lib/subedit/core/wording/alignment.cpp
+msgid ""
+"the %1 subtitle was looked for in the audio and was not found: is it the "
+"right audio, and the right language?"
+msgid_plural ""
+"none of the %1 subtitles was found in the audio: is it the right audio, and "
+"the right language?"
+msgstr[0] "el subtítol %1 s'ha cercat a l'àudio i no s'ha trobat: és l'àudio correcte, i la llengua correcta?"
+msgstr[1] "cap dels %1 subtítols no s'ha trobat a l'àudio: és l'àudio correcte, i la llengua correcta?"
+
+#: src/lib/subedit/core/wording/alignment.cpp
+msgid "%1 of %2 subtitle placed on the audio, %3 to check"
+msgid_plural "%1 of %2 subtitles placed on the audio, %3 to check"
+msgstr[0] "%1 de %2 subtítol col·locat a l'àudio, %3 per revisar"
+msgstr[1] "%1 de %2 subtítols col·locats a l'àudio, %3 per revisar"
+
+#. TRANSLATORS: %1 is a sentence, such as « 40 of 42 subtitles placed on the audio, 2 to
+#. check »; %2 and %3 are lengths in seconds, such as « -2.400 s ».
+#: src/lib/subedit/core/wording/alignment.cpp
+msgid "%1; median shift %2, drift %3"
+msgstr "%1; desplaçament mitjà %2, deriva %3"
+
+#: src/lib/subedit/core/wording/alignment.cpp
+msgid "not found in the audio, left as it was"
+msgstr "no trobat a l'àudio, deixat tal com era"
+
+#: src/lib/subedit/core/wording/alignment.cpp
+msgid "only partly heard"
+msgstr "només sentit en part"
+
+#: src/lib/subedit/core/wording/alignment.cpp
+msgid "moved differently from its neighbours"
+msgstr "desplaçat de manera diferent dels veïns"
+
+#: src/lib/subedit/core/wording/alignment.cpp
+msgid "cut back to the start of the next subtitle"
+msgstr "retallat fins a l'inici del subtítol següent"
+
+#: src/lib/subedit/core/wording/alignment.cpp
+msgid "still overlaps the next subtitle"
+msgstr "encara se superposa al subtítol següent"
 
 #: src/lib/subedit/core/wording/analysis.cpp
 msgid "ends before it starts"

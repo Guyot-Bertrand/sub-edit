@@ -3,9 +3,11 @@
 // `transcribe`: the audio of a video or of an audio file, written as a subtitle file.
 
 #include <subedit/cli/exit_code.hpp>
+#include <subedit/cli/records.hpp>
 #include <subedit/core/config/transcription_settings.hpp>
 #include <subedit/core/transcription/engine_registry.hpp>
 #include <subedit/core/transcription/remaining_time.hpp>
+#include <subedit/core/transcription/transcribe_media.hpp>
 #include <subedit/core/transcription/transcription_progress.hpp>
 
 #include <chrono>
@@ -59,6 +61,28 @@ private:
     std::optional<std::pair<core::TranscriptionStage, int>> m_shown{};
     std::string m_lastText;
 };
+
+/// What a transcription that came to nothing said: the words for the surface, and for the record
+/// the identifier a script can test. Shared with `sync`, which listens the same way.
+[[nodiscard]] Failure failureOf(const core::MediaTranscriptionError& error);
+
+/// Reads the language and the range the person asked for into `request`, or says what cannot be
+/// read, as the exit code to leave with. Empty texts ask for nothing.
+[[nodiscard]] std::optional<ExitCode> readListenerChoices(const std::string& languageName,
+                                                          const std::string& startText,
+                                                          const std::string& endText,
+                                                          core::MediaTranscriptionRequest& request,
+                                                          const Reporter& reporter);
+
+/// What the voice-activity model asked for allows. **An option names a file, and is refused by
+/// name when the engine cannot use it or when the file is missing; a setting is dropped without a
+/// word** for an engine that cannot, since a setting is written for all the engines.
+[[nodiscard]] std::optional<ExitCode> checkVoiceModel(const std::string& vadOption,
+                                                      const core::EngineCapabilities* capabilities,
+                                                      const std::string& engineName,
+                                                      const core::FileSystem& files,
+                                                      core::MediaTranscriptionRequest& request,
+                                                      const Reporter& reporter);
 
 /// What `transcribe` was asked for, as the command line wrote it. Empty means
 /// « the setting decides ».

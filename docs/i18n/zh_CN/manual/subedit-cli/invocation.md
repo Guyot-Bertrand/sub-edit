@@ -49,6 +49,7 @@ Subcommands:
   split-file                  Cut a subtitle file in two, a head and a tail
   pair                        Write a translation at the positions of its main file, and say how it lined up
   transcribe                  Write the speech of a video or an audio file as subtitles
+  sync                        Re-time the subtitles of a file on the audio of a film
   config                      List, show and change the operation settings
 ```
 
@@ -285,15 +286,16 @@ Gaupol 也是这样做的——它用标记所指明的编码重新开始读取�
 | [`split-file`](split-file.md) | 把一个文件切成**两个**：前半部分和后半部分 | 是 |
 | [`pair`](pair.md) | 把翻译写到其主文件的位置上，并说明各行是如何对应的 | 是 |
 | [`transcribe`](transcribe.md) | 把视频或音频文件中的语音写成字幕 | 是——有自己的输出位置，`--output` |
+| [`sync`](sync.md) | 按影片的音频重新校准文件中字幕的时间 | 是 |
 | [`config`](config.md) | 列出、显示和更改设置文件中的操作设置 | 仅设置文件 |
 
-共二十二个，全部列在这里；本工具的帮助以同样的顺序列出它们。
+共二十三个，全部列在这里；本工具的帮助以同样的顺序列出它们。
 
-**只有一个什么都不碰**，也就是右侧一列所示的情形：`inspect` 只读取并报告。其余二十个都会写入，而下文所说的内容适用于其中十七个：[`append`](append.md) 和 [`split-file`](split-file.md) 各有自己的参数个数——N 个文件生成**一个**结果，一个文件生成**两个**结果——因此各有自己的输出位置，在各自的页面中说明；[`transcribe`](transcribe.md) 由视频或音频文件生成一个新文件，只接受 `--output`。[`config`](config.md) 不写入任何字幕文件：它读取并更改设置文件，下文所说的内容都不适用于它。
+**只有一个什么都不碰**，也就是右侧一列所示的情形：`inspect` 只读取并报告。其余二十一个都会写入，而下文所说的内容适用于其中十八个：[`append`](append.md) 和 [`split-file`](split-file.md) 各有自己的参数个数——N 个文件生成**一个**结果，一个文件生成**两个**结果——因此各有自己的输出位置，在各自的页面中说明；[`transcribe`](transcribe.md) 由视频或音频文件生成一个新文件，只接受 `--output`。[`config`](config.md) 不写入任何字幕文件：它读取并更改设置文件，下文所说的内容都不适用于它。
 
 ## 输出位置
 
-写入文件的十七个子命令——[`convert`](convert.md)、[`shift`](shift.md)、[`transform`](transform.md)、[`framerate`](framerate.md)、[`snap`](snap.md)、[`hearing-impaired`](hearing-impaired.md)、[`adjust`](adjust.md)、[`replace`](replace.md)、[`case`](case.md)、[`italics`](italics.md)、[`dialogue-dashes`](dialogue-dashes.md)、[`sort`](sort.md)、[`join-repeats`](join-repeats.md)、[`disjoint`](disjoint.md)、[`repair`](repair.md)、[`correct`](correct.md)、[`pair`](pair.md)——以同样的方式指定输出位置。（[`append`](append.md) 和 [`split-file`](split-file.md) 在各自的页面中有自己的输出位置。）[`inspect`](inspect.md) 不写入任何文件，也不接受这些选项。
+写入文件的十八个子命令——[`convert`](convert.md)、[`shift`](shift.md)、[`transform`](transform.md)、[`framerate`](framerate.md)、[`snap`](snap.md)、[`hearing-impaired`](hearing-impaired.md)、[`adjust`](adjust.md)、[`replace`](replace.md)、[`case`](case.md)、[`italics`](italics.md)、[`dialogue-dashes`](dialogue-dashes.md)、[`sort`](sort.md)、[`join-repeats`](join-repeats.md)、[`disjoint`](disjoint.md)、[`repair`](repair.md)、[`correct`](correct.md)、[`pair`](pair.md)、[`sync`](sync.md)——以同样的方式指定输出位置。（[`append`](append.md) 和 [`split-file`](split-file.md) 在各自的页面中有自己的输出位置。）[`inspect`](inspect.md) 不写入任何文件，也不接受这些选项。
 
 **已经存在的输出位置会被覆盖**，不会询问，也没有选项可以避免：写入是原子的——文件绝不会只写一半，被中断的写入会让旧文件保持完好——但原有内容会丢失。这不是遗留下来的缺陷：这就是规则，在同一个输出目录上再次运行命令，就是让它在自己的结果之上再运行一遍。
 
@@ -512,7 +514,7 @@ a.srt: line 6: SubRip numbers that do not follow ("7"), settled by the reader
 a.srt: line 9: a line that fits nowhere, left as it stands
 ```
 
-全部十七个子命令都会报告它们，而不只是 [`inspect`](inspect.md)：一个被尽可能好地读取、然后又被写回的文件，经历了同样的决定，对此保持沉默会让人误以为什么也没有发生。
+全部十八个子命令都会报告它们，而不只是 [`inspect`](inspect.md)：一个被尽可能好地读取、然后又被写回的文件，经历了同样的决定，对此保持沉默会让人误以为什么也没有发生。
 
 **诊断信息绝不是失败**。文件已读取，命令已成功，退出码为 `0`。这就是它们放在最详细的级别的原因：放在更低的级别，它们会淹没那条说明真正做了什么的行。
 

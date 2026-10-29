@@ -46,5 +46,6 @@ lásd
 | [`split-file`](split-file.md) | fájl kettévágása, a vége visszavezetve a kezdőpontra |
 | [`pair`](pair.md) | fordítás írása a főfájl pozícióira, és annak jelzése, hogyan illeszkedtek a sorai |
 | [`transcribe`](transcribe.md) | egy videó vagy egy hangfájl beszédének kiírása feliratként |
+| [`sync`](sync.md) | egy fájl feliratainak újraidőzítése egy film hangjára |
 | [A leiratozó eszközök telepítése](install-transcription.md) | a motor, a modell és az `ffmpeg`, amelyet a program nem szállít |
 | [`config`](config.md) | az ablakkal megosztott műveleti beállítások listázása, megjelenítése és módosítása |

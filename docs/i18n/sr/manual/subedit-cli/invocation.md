@@ -49,6 +49,7 @@ Subcommands:
   split-file                  Cut a subtitle file in two, a head and a tail
   pair                        Write a translation at the positions of its main file, and say how it lined up
   transcribe                  Write the speech of a video or an audio file as subtitles
+  sync                        Re-time the subtitles of a file on the audio of a film
   config                      List, show and change the operation settings
 ```
 
@@ -370,12 +371,13 @@ avec-bom.srt: a byte order mark that contradicts the encoding asked for ("UTF-16
 | [`split-file`](split-file.md) | сече датотеку на **две**: почетак и остатак | да |
 | [`pair`](pair.md) | пише превод на положајима његове главне датотеке и јавља како су му се редови поравнали | да |
 | [`transcribe`](transcribe.md) | пише говор филма или звучне датотеке као титлове | да — своје одредиште, `--output` |
+| [`sync`](sync.md) | усклађује време титлова датотеке са звуком филма | да |
 | [`config`](config.md) | набраја, приказује и мења поставке операција из датотеке поставки | само датотеку поставки |
 
-Свих двадесет и две су ту; помоћ алата их набраја истим редом.
+Свих двадесет и три су ту; помоћ алата их набраја истим редом.
 
 **Само једна не дира ништа**, а то је десна колона: `inspect` чита и
-јавља. Осталих двадесет пишу, а оно што следи важи за седамнаест од њих:
+јавља. Осталих двадесет и једна пишу, а оно што следи важи за осамнаест од њих:
 [`append`](append.md) и [`split-file`](split-file.md) имају сваки свој број улаза и излаза — N датотека за
 **један** резултат, једна датотека за **два** — а тиме и своје одредиште, које описују на својој страници;
 [`transcribe`](transcribe.md) прави нову датотеку од филма или звучне датотеке и узима само `--output`.
@@ -384,12 +386,12 @@ avec-bom.srt: a byte order mark that contradicts the encoding asked for ("UTF-16
 
 ## Одредиште
 
-Седамнаест подкоманди које пишу — [`convert`](convert.md),
+Осамнаест подкоманди које пишу — [`convert`](convert.md),
 [`shift`](shift.md), [`transform`](transform.md), [`framerate`](framerate.md),
 [`snap`](snap.md), [`hearing-impaired`](hearing-impaired.md), [`adjust`](adjust.md),
 [`replace`](replace.md), [`case`](case.md), [`italics`](italics.md),
 [`dialogue-dashes`](dialogue-dashes.md), [`sort`](sort.md), [`join-repeats`](join-repeats.md),
-[`disjoint`](disjoint.md), [`repair`](repair.md), [`correct`](correct.md), [`pair`](pair.md) — примају своје одредиште на исти начин. ([`append`](append.md) и
+[`disjoint`](disjoint.md), [`repair`](repair.md), [`correct`](correct.md), [`pair`](pair.md), [`sync`](sync.md) — примају своје одредиште на исти начин. ([`append`](append.md) и
 [`split-file`](split-file.md) имају своје, на својој страници.) [`inspect`](inspect.md) не пише ниједну датотеку и
 не прихвата ниједну од ових опција.
 
@@ -716,7 +718,7 @@ a.srt: line 6: SubRip numbers that do not follow ("7"), settled by the reader
 a.srt: line 9: a line that fits nowhere, left as it stands
 ```
 
-Свих седамнаест подкоманди их јавља, не само [`inspect`](inspect.md):
+Свих осамнаест подкоманди их јавља, не само [`inspect`](inspect.md):
 датотека прочитана колико год је могуће добро, а затим записана назад, прошла је кроз исте одлуке, а њихово
 ућуткивање натерало би да се верује да се ништа није десило.
 

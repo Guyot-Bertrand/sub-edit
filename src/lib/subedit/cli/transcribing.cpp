@@ -89,9 +89,11 @@ constexpr double kPercent = 100.0;
     return subtitles;
 }
 
+} // namespace
+
 /// What a transcription that came to nothing said: the words for the surface, and for the
 /// record the identifier a script can test.
-[[nodiscard]] Failure failureOf(const core::MediaTranscriptionError& error) {
+Failure failureOf(const core::MediaTranscriptionError& error) {
     if (const auto* audio = std::get_if<core::AudioPreparationError>(&error.cause))
         return Failure{idOf(audio->kind), [&] {
                            std::string text = core::audioPreparationErrorText(*audio);
@@ -102,8 +104,6 @@ constexpr double kPercent = 100.0;
     const auto& engine = std::get<core::TranscriptionError>(error.cause);
     return Failure{idOf(engine.kind), [&] { return core::transcriptionErrorText(engine); }};
 }
-
-} // namespace
 
 ProgressNarration::ProgressNarration(const Reporter& reporter,
                                      std::function<Clock::time_point()> clock,
@@ -189,11 +189,13 @@ namespace {
     return std::nullopt;
 }
 
-/// Reads the language and the range into `request`, or says what cannot be read.
-[[nodiscard]] std::optional<ExitCode> readChoices(const TranscribeOptions& options,
-                                                  const std::string& languageName,
-                                                  core::MediaTranscriptionRequest& request,
-                                                  const Reporter& reporter) {
+} // namespace
+
+std::optional<ExitCode> readListenerChoices(const std::string& languageName,
+                                            const std::string& startText,
+                                            const std::string& endText,
+                                            core::MediaTranscriptionRequest& request,
+                                            const Reporter& reporter) {
     if (!languageName.empty()) {
         request.language = core::readLanguageCode(languageName);
         if (!request.language) {
@@ -202,10 +204,8 @@ namespace {
         }
     }
     for (const auto& [text, bound] :
-         {std::pair<const std::string&, std::optional<core::Timestamp>&>{options.start,
-                                                                         request.start},
-          std::pair<const std::string&, std::optional<core::Timestamp>&>{options.end,
-                                                                         request.end}}) {
+         {std::pair<const std::string&, std::optional<core::Timestamp>&>{startText, request.start},
+          std::pair<const std::string&, std::optional<core::Timestamp>&>{endText, request.end}}) {
         if (text.empty())
             continue;
         bound = core::readRangeBound(text);
@@ -224,27 +224,25 @@ namespace {
 /// What the voice-activity model asked for allows. **An option names a file, and is refused by name
 /// when the engine cannot use it or when the file is missing; a setting is dropped without a word**
 /// for an engine that cannot, since a setting is written for all the engines.
-[[nodiscard]] std::optional<ExitCode> checkVoiceModel(const TranscribeOptions& options,
-                                                      const core::EngineCapabilities* capabilities,
-                                                      const std::string& engineName,
-                                                      const core::FileSystem& files,
-                                                      core::MediaTranscriptionRequest& request,
-                                                      const Reporter& reporter) {
+std::optional<ExitCode> checkVoiceModel(const std::string& vadOption,
+                                        const core::EngineCapabilities* capabilities,
+                                        const std::string& engineName,
+                                        const core::FileSystem& files,
+                                        core::MediaTranscriptionRequest& request,
+                                        const Reporter& reporter) {
     if (capabilities != nullptr && !capabilities->voiceActivity) {
-        if (!options.vadModel.empty()) {
+        if (!vadOption.empty()) {
             reporter.failed(core::engineCannotDetectVoice(engineName));
             return ExitCode::Usage;
         }
         request.vadModel.reset();
     }
-    if (request.vadModel && !options.vadModel.empty() && !files.exists(*request.vadModel)) {
+    if (request.vadModel && !vadOption.empty() && !files.exists(*request.vadModel)) {
         reporter.failed(core::voiceModelNotFound(request.vadModel->string()));
         return ExitCode::Usage;
     }
     return std::nullopt;
 }
-
-} // namespace
 
 ExitCode transcribeFile(core::FileSystem& files,
                         const core::EngineRegistry& engines,
@@ -284,7 +282,7 @@ ExitCode transcribeFile(core::FileSystem& files,
     if (!voiceModel.empty())
         request.vadModel = voiceModel;
     if (const std::optional<ExitCode> refused =
-            readChoices(options, languageName, request, reporter))
+            readListenerChoices(languageName, options.start, options.end, request, reporter))
         return *refused;
 
     const auto capabilities = engine->capabilitiesFor(request.model);
@@ -300,8 +298,13 @@ ExitCode transcribeFile(core::FileSystem& files,
         return ExitCode::Usage;
     }
 
-    if (const std::optional<ExitCode> refused = checkVoiceModel(
-            options, capabilities ? &*capabilities : nullptr, engineName, files, request, reporter))
+    if (const std::optional<ExitCode> refused =
+            checkVoiceModel(options.vadModel,
+                            capabilities ? &*capabilities : nullptr,
+                            engineName,
+                            files,
+                            request,
+                            reporter))
         return *refused;
 
     // A model for English alone writes everything as English: said before the long work, not after.

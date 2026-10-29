@@ -18,7 +18,7 @@ struct LineTimes {
 
 /// The times a line ends up with, and what had to be done to keep the file in order.
 struct RetimedLine {
-    LineTimes times;
+    LineTimes times{.start = Timestamp::origin(), .end = Timestamp::origin()};
 
     /// The line took the place the alignment found; otherwise it keeps its own times.
     bool moved = false;

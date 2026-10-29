@@ -46,5 +46,6 @@ zacząć, znajdziesz w
 | [`split-file`](split-file.md) | dzieli plik na dwie części, a drugą cofa do początku |
 | [`pair`](pair.md) | zapisuje tłumaczenie w pozycjach jego pliku głównego i mówi, jak ułożyły się jego linie |
 | [`transcribe`](transcribe.md) | zapisuje mowę z filmu lub z pliku dźwiękowego jako napisy |
+| [`sync`](sync.md) | przesuwa napisy z pliku tak, by pasowały do dźwięku filmu |
 | [Instalowanie narzędzi do transkrypcji](install-transcription.md) | silnik, model i `ffmpeg`, których program nie dostarcza |
 | [`config`](config.md) | wyświetla, pokazuje i zmienia ustawienia operacji wspólne z oknem |

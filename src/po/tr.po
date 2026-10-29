@@ -841,7 +841,7 @@ msgid "Re-time a file mastered at one frame rate for another"
 msgstr ""
 "Bir kare hızına göre hazırlanmış bir dosyayı bir başkası için yeniden zamanla"
 
-#: src/exe/cli/commands/framerate.cpp
+#: src/exe/cli/commands/framerate.cpp src/exe/cli/commands/sync.cpp
 msgid "Subtitle files to re-time"
 msgstr "Yeniden zamanlanacak altyazı dosyaları"
 
@@ -1034,6 +1034,76 @@ msgstr ""
 "--head ve --tail birlikte verilir: ikisini de verin, ya da --dry-run ile "
 "hiçbirini vermeyin"
 
+#: src/exe/cli/commands/sync.cpp
+msgid "Re-time the subtitles of a file on the audio of a film"
+msgstr "Bir dosyanın altyazılarını bir filmin sesine göre yeniden zamanla"
+
+#: src/exe/cli/commands/sync.cpp
+msgid "Film to listen to"
+msgstr "Dinlenecek film"
+
+#: src/exe/cli/commands/sync.cpp
+msgid "Audio file to listen to, instead of a film"
+msgstr "Bir film yerine dinlenecek ses dosyası"
+
+#: src/exe/cli/commands/sync.cpp
+msgid "Audio track of a film, counted from 0; the first by default"
+msgstr "Bir filmin ses izi, 0'dan başlayarak sayılır; varsayılan olarak ilki"
+
+#: src/exe/cli/commands/sync.cpp src/exe/cli/commands/transcribe.cpp
+msgid "Where to begin, as 2:00, 1:02:03 or seconds; the beginning by default"
+msgstr ""
+"Nereden başlanacağı: 2:00, 1:02:03 veya saniye; varsayılan olarak baştan"
+
+#: src/exe/cli/commands/sync.cpp src/exe/cli/commands/transcribe.cpp
+msgid "Where to stop, as 2:00, 1:02:03 or seconds; the end by default"
+msgstr ""
+"Nerede duracağı: 2:00, 1:02:03 veya saniye; varsayılan olarak sona kadar"
+
+#: src/exe/cli/commands/sync.cpp src/exe/cli/commands/transcribe.cpp
+msgid ""
+"Language of the speech, two letters: fr, en, de; detected from the first 30 "
+"seconds by default"
+msgstr ""
+"Konuşmanın dili, iki harf: fr, en, de; varsayılan olarak ilk 30 saniyeden "
+"algılanır"
+
+#: src/exe/cli/commands/sync.cpp src/exe/cli/commands/transcribe.cpp
+msgid "Model file; the transcription.model setting by default"
+msgstr "Model dosyası; varsayılan olarak transcription.model ayarı"
+
+#: src/exe/cli/commands/sync.cpp src/exe/cli/commands/transcribe.cpp
+msgid ""
+"Voice-activity model that skips silences; the transcription.vad-model "
+"setting by default"
+msgstr ""
+"Sessizlikleri atlayan ses etkinliği modeli; varsayılan olarak transcription."
+"vad-model ayarı"
+
+#: src/exe/cli/commands/sync.cpp
+msgid "Engine that listens; the transcription.engine setting by default"
+msgstr "Dinleyen motor; varsayılan olarak transcription.engine ayarı"
+
+#: src/exe/cli/commands/sync.cpp src/exe/cli/commands/transcribe.cpp
+msgid "Keep the extracted audio in this file"
+msgstr "Çıkarılan sesi bu dosyada tut"
+
+#: src/exe/cli/commands/sync.cpp
+msgid ""
+"Share of a subtitle's words that must be heard, in percent; the alignment."
+"min-match setting by default"
+msgstr "Bir altyazının sözcüklerinden duyulması gereken pay, yüzde olarak; varsayılan olarak alignment.min-match ayarı"
+
+#: src/exe/cli/commands/sync.cpp
+msgid ""
+"How far a subtitle may move from its neighbours' shift before it is flagged, "
+"in milliseconds; the alignment.doubt-gap setting by default"
+msgstr "Bir altyazının, işaretlenmeden önce, komşularının kaymasından ne kadar ayrılabileceği, milisaniye olarak; varsayılan olarak alignment.doubt-gap ayarı"
+
+#: src/exe/cli/commands/sync.cpp
+msgid "Write the subtitles to check to this file"
+msgstr "Kontrol edilecek altyazıları bu dosyaya yaz"
+
 #: src/exe/cli/commands/transcribe.cpp
 msgid "Write the speech of a video or an audio file as subtitles"
 msgstr "Bir videonun veya ses dosyasının konuşmasını altyazı olarak yaz"
@@ -1056,24 +1126,6 @@ msgid "Audio track of a video, counted from 0; the first by default"
 msgstr "Bir videonun ses izi, 0'dan başlayarak sayılır; varsayılan olarak ilki"
 
 #: src/exe/cli/commands/transcribe.cpp
-msgid "Where to begin, as 2:00, 1:02:03 or seconds; the beginning by default"
-msgstr ""
-"Nereden başlanacağı: 2:00, 1:02:03 veya saniye; varsayılan olarak baştan"
-
-#: src/exe/cli/commands/transcribe.cpp
-msgid "Where to stop, as 2:00, 1:02:03 or seconds; the end by default"
-msgstr ""
-"Nerede duracağı: 2:00, 1:02:03 veya saniye; varsayılan olarak sona kadar"
-
-#: src/exe/cli/commands/transcribe.cpp
-msgid ""
-"Language of the speech, two letters: fr, en, de; detected from the first 30 "
-"seconds by default"
-msgstr ""
-"Konuşmanın dili, iki harf: fr, en, de; varsayılan olarak ilk 30 saniyeden "
-"algılanır"
-
-#: src/exe/cli/commands/transcribe.cpp
 msgid ""
 "Do not write sounds as notes, such as (phone ringing); the transcription."
 "suppress-notes setting by default"
@@ -1086,24 +1138,8 @@ msgid "Write sounds as notes, against the setting"
 msgstr "Sesleri not olarak yaz, ayarın tersine"
 
 #: src/exe/cli/commands/transcribe.cpp
-msgid "Model file; the transcription.model setting by default"
-msgstr "Model dosyası; varsayılan olarak transcription.model ayarı"
-
-#: src/exe/cli/commands/transcribe.cpp
-msgid ""
-"Voice-activity model that skips silences; the transcription.vad-model "
-"setting by default"
-msgstr ""
-"Sessizlikleri atlayan ses etkinliği modeli; varsayılan olarak transcription."
-"vad-model ayarı"
-
-#: src/exe/cli/commands/transcribe.cpp
 msgid "Engine; the transcription.engine setting by default"
 msgstr "Motor; varsayılan olarak transcription.engine ayarı"
-
-#: src/exe/cli/commands/transcribe.cpp
-msgid "Keep the extracted audio in this file"
-msgstr "Çıkarılan sesi bu dosyada tut"
 
 #: src/exe/cli/commands/transcribe.cpp
 msgid ""
@@ -2079,6 +2115,10 @@ msgstr "%1: %2 numaralı altyazıdan bölündü: başta %3, kuyrukta %4"
 msgid "%1 -> %2, %3"
 msgstr "%1 -> %2, %3"
 
+#: src/lib/subedit/cli/syncing.cpp
+msgid "--report names one file: give one subtitle file when you use it"
+msgstr "--report tek bir dosya adlandırır: onu kullanırken tek bir altyazı dosyası verin"
+
 #: src/lib/subedit/cli/text_rewriting.cpp
 msgid "--on and --off say opposite things; give one of them"
 msgstr "--on ve --off birbirinin tersini söylüyor; birini verin"
@@ -2218,6 +2258,14 @@ msgstr "1 ile 1000 arasında bir tam sayı"
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "subedit-cli transcribe; Transcribe Audio…"
 msgstr "subedit-cli transcribe; Sesi Yazıya Dök…"
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "subedit-cli sync"
+msgstr "subedit-cli sync"
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "a whole number from 1 to 100"
+msgstr "1 ile 100 arasında bir tam sayı"
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "subedit-cli adjust; Adjust Durations…"
@@ -2478,6 +2526,18 @@ msgid "Most characters a transcribed subtitle holds."
 msgstr "Yazıya dökülmüş bir altyazının taşıyabileceği en fazla karakter."
 
 #: src/lib/subedit/core/config/operation_settings.cpp
+msgid "The engine that aligns the subtitles on the audio."
+msgstr "Altyazıları sese göre hizalayan motor."
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "Share of a line's words that must be heard, in percent."
+msgstr "Bir satırın sözcüklerinden duyulması gereken pay, yüzde olarak."
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "How far a line may move from its neighbours' shift."
+msgstr "Bir satırın komşularının kaymasından ne kadar ayrılabileceği."
+
+#: src/lib/subedit/core/config/operation_settings.cpp
 msgid "%1 is managed by the window; use --enable/--disable on correct"
 msgstr ""
 "%1 pencere tarafından yönetilir; correct üzerinde --enable/--disable kullanın"
@@ -2630,6 +2690,57 @@ msgstr "grup adı eksik"
 #: src/lib/subedit/core/text/replacement_template.cpp
 msgid "unknown group name '%1'"
 msgstr "bilinmeyen grup adı '%1'"
+
+#: src/lib/subedit/core/wording/alignment.cpp
+msgid "there is no alignment engine called %1"
+msgstr "%1 adlı bir hizalama motoru yok"
+
+#: src/lib/subedit/core/wording/alignment.cpp
+msgid ""
+"sync needs the audio to listen to: give --video or --audio, and not both"
+msgstr "sync'in dinleyeceği bir ses gerekir: --video ya da --audio verin, ikisini birden değil"
+
+#: src/lib/subedit/core/wording/alignment.cpp
+msgid ""
+"the %1 subtitle was looked for in the audio and was not found: is it the "
+"right audio, and the right language?"
+msgid_plural ""
+"none of the %1 subtitles was found in the audio: is it the right audio, and "
+"the right language?"
+msgstr[0] "%1 altyazı seste arandı ve bulunamadı: doğru ses ve doğru dil mi?"
+msgstr[1] "%1 altyazının hiçbiri seste bulunamadı: doğru ses ve doğru dil mi?"
+
+#: src/lib/subedit/core/wording/alignment.cpp
+msgid "%1 of %2 subtitle placed on the audio, %3 to check"
+msgid_plural "%1 of %2 subtitles placed on the audio, %3 to check"
+msgstr[0] "%2 altyazının %1 tanesi sese yerleştirildi, %3 tanesi kontrol edilecek"
+msgstr[1] "%2 altyazının %1 tanesi sese yerleştirildi, %3 tanesi kontrol edilecek"
+
+#. TRANSLATORS: %1 is a sentence, such as « 40 of 42 subtitles placed on the audio, 2 to
+#. check »; %2 and %3 are lengths in seconds, such as « -2.400 s ».
+#: src/lib/subedit/core/wording/alignment.cpp
+msgid "%1; median shift %2, drift %3"
+msgstr "%1; ortanca kayma %2, sapma %3"
+
+#: src/lib/subedit/core/wording/alignment.cpp
+msgid "not found in the audio, left as it was"
+msgstr "seste bulunamadı, olduğu gibi bırakıldı"
+
+#: src/lib/subedit/core/wording/alignment.cpp
+msgid "only partly heard"
+msgstr "yalnızca kısmen duyuldu"
+
+#: src/lib/subedit/core/wording/alignment.cpp
+msgid "moved differently from its neighbours"
+msgstr "komşularından farklı kaydı"
+
+#: src/lib/subedit/core/wording/alignment.cpp
+msgid "cut back to the start of the next subtitle"
+msgstr "sonraki altyazının başlangıcına kadar kısaltıldı"
+
+#: src/lib/subedit/core/wording/alignment.cpp
+msgid "still overlaps the next subtitle"
+msgstr "hâlâ sonraki altyazıyla çakışıyor"
 
 #: src/lib/subedit/core/wording/analysis.cpp
 msgid "ends before it starts"

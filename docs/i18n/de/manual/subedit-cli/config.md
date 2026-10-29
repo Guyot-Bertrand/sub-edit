@@ -102,15 +102,15 @@ duration-adjust.lengthen
     Used by: subedit-cli adjust; Adjust Durations…
 ```
 
-Er listet **42 Schlüssel** auf:
+Er listet **45 Schlüssel** auf:
 
 <!-- example: subedit-cli config list | grep -c '^[a-z]' -->
 ```console
 $ subedit-cli config list | grep -c '^[a-z]'
-42
+45
 ```
 
-**Zweiundzwanzig davon werden von der Befehlszeile gelesen**; die zwanzig anderen liest nur das Fenster,
+**Fünfundzwanzig davon werden von der Befehlszeile gelesen**; die zwanzig anderen liest nur das Fenster,
 und ihre Zeile `Used by:` sagt es, zusammen mit der Option von `correct`, die an ihre Stelle tritt:
 
 | Schlüssel | Gelesen von |
@@ -123,6 +123,7 @@ und ihre Zeile `Used by:` sagt es, zusammen mit der Option von `correct`, die an
 | `correction.remove-blank` | `correct` und `Correct Texts…` |
 | `correction.line-break.max-lines` | `correct` und `Correct Texts…` |
 | `transcription.engine`, `transcription.executable`, `transcription.model`, `transcription.vad-model`, `transcription.language`, `transcription.suppress-notes`, `transcription.merge-gap-ms`, `transcription.max-duration-ms`, `transcription.max-characters` | [`transcribe`](transcribe.md) und `Transcribe Audio…` |
+| `alignment.engine`, `alignment.min-match`, `alignment.doubt-gap` | [`sync`](sync.md) |
 | jeder andere Schlüssel `correction.*` | nur `Correct Texts…` — `correct` nimmt `--tasks`, `--code`, `--max-length`, `--skip-length`, `--skip-lines`, `--language`, `--enable` und `--disable` aus seiner eigenen Zeile |
 
 Die Zeilenzahlen, `correction.line-break.max-lines` und `correction.line-break.skip-max-lines`,

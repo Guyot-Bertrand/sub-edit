@@ -36,6 +36,7 @@ Sub Station Alpha、Advanced SSA、MicroDVD、MPL2、TMPlayer、LRC——并且�
 | 更改整个文件的大小写、斜体或对话破折号 | [操作](subedit-gui/operations.md#italic)，或 [`case`](subedit-cli/case.md)、[`italics`](subedit-cli/italics.md)、[`dialogue-dashes`](subedit-cli/dialogue-dashes.md) |
 | 查找并替换某个词，同时不破坏标签 | [查找与替换](subedit-gui/find-and-replace.md)，或 [`replace`](subedit-cli/replace.md) |
 | 把影片中的语音写成字幕 | [`Transcribe Audio…`](subedit-gui/video.md#转录音频)，或 [`transcribe`](subedit-cli/transcribe.md)——在[安装好工具](subedit-cli/install-transcription.md)之后 |
+| 按影片的音频重新校准字幕文件的时间 | [`sync`](subedit-cli/sync.md)——在[安装好工具](subedit-cli/install-transcription.md)之后 |
 | 对照原文翻译 | [打开翻译](subedit-gui/files.md#打开翻译)；若要按主文件重新调整翻译的时间，则用 [`pair`](subedit-cli/pair.md) |
 | 一次处理上百个文件 | [处理目录树](subedit-cli/lots.md)，然后是[调用](subedit-cli/invocation.md) |
 

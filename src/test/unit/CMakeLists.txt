@@ -128,6 +128,7 @@ add_executable(
     core/transcription/word_matching_test.cpp
     core/transcription/alignment_doubt_test.cpp
     core/transcription/alignment_retiming_test.cpp
+    core/transcription/alignment_wording_test.cpp
     core/transcription/transcript_matching_aligner_test.cpp
     core/io/file_error_test.cpp
     core/text/lines_test.cpp
@@ -264,6 +265,7 @@ add_executable(
     cli/shared_settings_test.cpp
     cli/shifting_test.cpp
     cli/sorting_test.cpp
+    cli/syncing_test.cpp
     cli/transcribing_test.cpp
     cli/disjoining_test.cpp
     cli/joining_test.cpp

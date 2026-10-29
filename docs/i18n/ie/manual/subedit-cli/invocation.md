@@ -49,6 +49,7 @@ Subcommands:
   split-file                  Cut a subtitle file in two, a head and a tail
   pair                        Write a translation at the positions of its main file, and say how it lined up
   transcribe                  Write the speech of a video or an audio file as subtitles
+  sync                        Re-time the subtitles of a file on the audio of a film
   config                      List, show and change the operation settings
 ```
 
@@ -370,12 +371,13 @@ quo esset fat ne es un silentie.
 | [`split-file`](split-file.md) | separa un file in **du**: un cap e un cauda | yes |
 | [`pair`](pair.md) | scri un traduction a-presso li positiones de su file principal, e di qualmen su lineas se alliniat | yes |
 | [`transcribe`](transcribe.md) | scri li parol de un video o de un file audio quam subtitules | yes — su propri destination, `--output` |
+| [`sync`](sync.md) | retemporisa li subtitules de un file sur li audio de un film | yes |
 | [`config`](config.md) | lista, monstra e changea li parametres de operation del file de parametres | solmen li file de parametres |
 
-Omni vint-du es ci; li auxilie del instrument les lista in li sam órdine.
+Omni vint-tri es ci; li auxilie del instrument les lista in li sam órdine.
 
 **Solmen un tange nequo**, e to es li columne a dextre: `inspect` leer e
-reporta. Li altri vint scri, e quo seque vale por dece-sett de les:
+reporta. Li altri vint-un scri, e quo seque vale por dece-ott de les:
 [`append`](append.md) e [`split-file`](split-file.md) have chascun un aritá propri — N files por
 **un** resultate, un file por **du** — e dunc lor propri destination, quel ili descrie sur lor págine;
 [`transcribe`](transcribe.md) fa un nov file ex un video o un file audio, e prende solmen `--output`.
@@ -384,12 +386,12 @@ nequo de quo seque aplica a it.
 
 ## Li destination
 
-Li dece-sett subcomandes quel scri — [`convert`](convert.md),
+Li dece-ott subcomandes quel scri — [`convert`](convert.md),
 [`shift`](shift.md), [`transform`](transform.md), [`framerate`](framerate.md),
 [`snap`](snap.md), [`hearing-impaired`](hearing-impaired.md), [`adjust`](adjust.md),
 [`replace`](replace.md), [`case`](case.md), [`italics`](italics.md),
 [`dialogue-dashes`](dialogue-dashes.md), [`sort`](sort.md), [`join-repeats`](join-repeats.md),
-[`disjoint`](disjoint.md), [`repair`](repair.md), [`correct`](correct.md), [`pair`](pair.md) — prende lor destination in li sam manere. ([`append`](append.md) e
+[`disjoint`](disjoint.md), [`repair`](repair.md), [`correct`](correct.md), [`pair`](pair.md), [`sync`](sync.md) — prende lor destination in li sam manere. ([`append`](append.md) e
 [`split-file`](split-file.md) have li lor propri, sur lor págine.) [`inspect`](inspect.md) scri null file e
 accepta null de ca optiones.
 
@@ -716,7 +718,7 @@ a.srt: line 6: SubRip numbers that do not follow ("7"), settled by the reader
 a.srt: line 9: a line that fits nowhere, left as it stands
 ```
 
-Chascun del dece-sett subcomandes les reporta, ne solmen [`inspect`](inspect.md):
+Chascun del dece-ott subcomandes les reporta, ne solmen [`inspect`](inspect.md):
 un file leet tam bon quam possibil e pois scrit retro ha passat tra li sam decisiones, e tacer les
 lassarea creder que nequo evenit.
 

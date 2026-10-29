@@ -46,5 +46,6 @@ u comensar, vide
 | [`split-file`](split-file.md) | separar un file in du, li cauda reportat al origine |
 | [`pair`](pair.md) | scrir un traduction a li positiones de su file principal, e dir qualmen su lineas esset alliniat |
 | [`transcribe`](transcribe.md) | scrir li parol de un video o de un file audio quam subtitules |
+| [`sync`](sync.md) | retemporisar li subtitules de un file sur li audio de un film |
 | [Instalar li utensiles de transcription](install-transcription.md) | li motor, li model e `ffmpeg`, quel li programma ne livra |
 | [`config`](config.md) | listar, monstrar e changear li parametres de operation partit con li fenestre |

@@ -1,5 +1,6 @@
 #pragma once
 
+#include <subedit/core/config/alignment_settings.hpp>
 #include <subedit/core/config/insert_placement.hpp>
 #include <subedit/core/config/search_options.hpp>
 #include <subedit/core/config/theme.hpp>
@@ -191,6 +192,9 @@ struct Settings {
 
     /// What the audio transcription retains — phase 22, #777.
     TranscriptionSettings transcription{};
+
+    /// What the automatic alignment retains — phase 23, #813.
+    AlignmentSettings alignment{};
 
     /// What the table and its editor show of a line's length — issue #526.
     EditorSettings editor{};

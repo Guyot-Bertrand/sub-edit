@@ -49,6 +49,7 @@ Subcommands:
   split-file                  Cut a subtitle file in two, a head and a tail
   pair                        Write a translation at the positions of its main file, and say how it lined up
   transcribe                  Write the speech of a video or an audio file as subtitles
+  sync                        Re-time the subtitles of a file on the audio of a film
   config                      List, show and change the operation settings
 ```
 
@@ -370,12 +371,13 @@ wat is gedaan geen stilte.
 | [`split-file`](split-file.md) | knipt een bestand in **twee**: een kop en een staart | ja |
 | [`pair`](pair.md) | schrijft een vertaling op de posities van haar hoofdbestand, en zegt hoe haar regels zijn uitgelijnd | ja |
 | [`transcribe`](transcribe.md) | schrijft de gesproken tekst van een video of een audiobestand als ondertitels | ja — een eigen bestemming, `--output` |
+| [`sync`](sync.md) | hertimet de ondertitels van een bestand op de audio van een film | ja |
 | [`config`](config.md) | somt de bewerkingsinstellingen van het instellingenbestand op, toont en wijzigt ze | alleen het instellingenbestand |
 
-Alle tweeëntwintig staan erin; de hulp van het hulpprogramma somt ze in dezelfde volgorde op.
+Alle drieëntwintig staan erin; de hulp van het hulpprogramma somt ze in dezelfde volgorde op.
 
 **Slechts één raakt niets aan**, en dat is de rechterkolom: `inspect` leest en
-meldt. De andere twintig schrijven, en wat volgt geldt voor zeventien ervan:
+meldt. De andere eenentwintig schrijven, en wat volgt geldt voor achttien ervan:
 [`append`](append.md) en [`split-file`](split-file.md) hebben elk een eigen arity — N bestanden voor
 **één** resultaat, één bestand voor **twee** — en dus een eigen bestemming, die ze op hun pagina beschrijven;
 [`transcribe`](transcribe.md) maakt een nieuw bestand van een video of een audiobestand, en neemt alleen `--output`.
@@ -384,12 +386,12 @@ niets van wat volgt is erop van toepassing.
 
 ## De bestemming
 
-De zeventien subcommando's die schrijven — [`convert`](convert.md),
+De achttien subcommando's die schrijven — [`convert`](convert.md),
 [`shift`](shift.md), [`transform`](transform.md), [`framerate`](framerate.md),
 [`snap`](snap.md), [`hearing-impaired`](hearing-impaired.md), [`adjust`](adjust.md),
 [`replace`](replace.md), [`case`](case.md), [`italics`](italics.md),
 [`dialogue-dashes`](dialogue-dashes.md), [`sort`](sort.md), [`join-repeats`](join-repeats.md),
-[`disjoint`](disjoint.md), [`repair`](repair.md), [`correct`](correct.md), [`pair`](pair.md) — nemen hun bestemming op dezelfde manier. ([`append`](append.md) en
+[`disjoint`](disjoint.md), [`repair`](repair.md), [`correct`](correct.md), [`pair`](pair.md), [`sync`](sync.md) — nemen hun bestemming op dezelfde manier. ([`append`](append.md) en
 [`split-file`](split-file.md) hebben een eigen, op hun pagina.) [`inspect`](inspect.md) schrijft geen bestand en
 accepteert geen van deze opties.
 
@@ -715,7 +717,7 @@ a.srt: line 6: SubRip numbers that do not follow ("7"), settled by the reader
 a.srt: line 9: a line that fits nowhere, left as it stands
 ```
 
-Alle zeventien subcommando's melden ze, niet alleen [`inspect`](inspect.md):
+Alle achttien subcommando's melden ze, niet alleen [`inspect`](inspect.md):
 een bestand dat zo goed mogelijk is gelezen en daarna teruggeschreven, heeft dezelfde beslissingen doorlopen, en ze stil houden
 zou doen geloven dat er niets is gebeurd.
 

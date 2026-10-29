@@ -167,6 +167,7 @@ TEST_CASE("the settings start at the defaults of the spec", "[alignment][aligner
     const subedit::core::AlignmentSettings settings;
 
     CHECK(settings.engine == "transcript-matching");
-    CHECK(settings.minimumMatch == 0.5);
+    CHECK(settings.minimumMatchPercent == 50);
+    CHECK(settings.minimumMatch() == subedit::core::kDefaultMinimumMatch);
     CHECK(settings.doubtGapMilliseconds == 2000);
 }

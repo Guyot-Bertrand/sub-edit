@@ -49,6 +49,7 @@ Subcommands:
   split-file                  Cut a subtitle file in two, a head and a tail
   pair                        Write a translation at the positions of its main file, and say how it lined up
   transcribe                  Write the speech of a video or an audio file as subtitles
+  sync                        Re-time the subtitles of a file on the audio of a film
   config                      List, show and change the operation settings
 ```
 
@@ -370,12 +371,13 @@ foi feito não é um silêncio.
 | [`split-file`](split-file.md) | corta um arquivo em **dois**: uma cabeça e uma cauda | sim |
 | [`pair`](pair.md) | grava uma tradução nas posições de seu arquivo principal, e diz como suas linhas se alinharam | sim |
 | [`transcribe`](transcribe.md) | grava a fala de um vídeo ou de um arquivo de áudio como legendas | sim — seu próprio destino, `--output` |
+| [`sync`](sync.md) | reajusta o tempo das legendas de um arquivo sobre o áudio de um filme | sim |
 | [`config`](config.md) | lista, mostra e altera as configurações de operação do arquivo de configurações | somente o arquivo de configurações |
 
-Todos os vinte e dois estão ali; a ajuda da ferramenta os lista na mesma ordem.
+Todos os vinte e três estão ali; a ajuda da ferramenta os lista na mesma ordem.
 
 **Apenas um não toca em nada**, e é a coluna da direita: `inspect` lê e
-relata. Os outros vinte gravam, e o que se segue vale para dezessete deles:
+relata. Os outros vinte e um gravam, e o que se segue vale para dezoito deles:
 [`append`](append.md) e [`split-file`](split-file.md) têm cada um uma aridade própria — N arquivos para
 **um** resultado, um arquivo para **dois** — e portanto seu próprio destino, que descrevem em sua página;
 [`transcribe`](transcribe.md) cria um novo arquivo a partir de um vídeo ou de um arquivo de áudio, e aceita somente `--output`.
@@ -384,12 +386,12 @@ nada do que se segue se aplica a ele.
 
 ## O destino
 
-Os dezessete subcomandos que gravam — [`convert`](convert.md),
+Os dezoito subcomandos que gravam — [`convert`](convert.md),
 [`shift`](shift.md), [`transform`](transform.md), [`framerate`](framerate.md),
 [`snap`](snap.md), [`hearing-impaired`](hearing-impaired.md), [`adjust`](adjust.md),
 [`replace`](replace.md), [`case`](case.md), [`italics`](italics.md),
 [`dialogue-dashes`](dialogue-dashes.md), [`sort`](sort.md), [`join-repeats`](join-repeats.md),
-[`disjoint`](disjoint.md), [`repair`](repair.md), [`correct`](correct.md), [`pair`](pair.md) — recebem seu destino da mesma maneira. ([`append`](append.md) e
+[`disjoint`](disjoint.md), [`repair`](repair.md), [`correct`](correct.md), [`pair`](pair.md), [`sync`](sync.md) — recebem seu destino da mesma maneira. ([`append`](append.md) e
 [`split-file`](split-file.md) têm o seu, em sua página.) [`inspect`](inspect.md) não grava nenhum arquivo e
 não aceita nenhuma destas opções.
 
@@ -716,7 +718,7 @@ a.srt: line 6: SubRip numbers that do not follow ("7"), settled by the reader
 a.srt: line 9: a line that fits nowhere, left as it stands
 ```
 
-Todos os dezessete subcomandos os relatam, não apenas [`inspect`](inspect.md):
+Todos os dezoito subcomandos os relatam, não apenas [`inspect`](inspect.md):
 um arquivo lido o melhor possível e depois gravado de volta passou pelas mesmas decisões, e mantê-las em silêncio
 faria acreditar que nada aconteceu.
 

@@ -13,6 +13,7 @@ do not edit it by hand.
 
 - **core** — Match a text to the words an engine heard
 - **core** — Classify the doubtful lines of an alignment
+- **core** — Align by matching the text to a transcription
 
 ### Documentation
 

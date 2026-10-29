@@ -46,5 +46,6 @@ per on començar, vegeu
 | [`split-file`](split-file.md) | tallar un fitxer en dos, amb la cua portada a l'origen |
 | [`pair`](pair.md) | escriure una traducció a les posicions del seu fitxer principal, i dir com s'han alineat les seves línies |
 | [`transcribe`](transcribe.md) | escriure la parla d'un vídeo o d'un fitxer d'àudio en forma de subtítols |
+| [`sync`](sync.md) | resincronitzar els subtítols d'un fitxer segons l'àudio d'una pel·lícula |
 | [Instal·lació de les eines de transcripció](install-transcription.md) | el motor, el model i `ffmpeg`, que el programa no lliura |
 | [`config`](config.md) | llistar, mostrar i canviar la configuració de les operacions compartida amb la finestra |

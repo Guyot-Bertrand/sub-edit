@@ -49,6 +49,7 @@ Subcommands:
   split-file                  Cut a subtitle file in two, a head and a tail
   pair                        Write a translation at the positions of its main file, and say how it lined up
   transcribe                  Write the speech of a video or an audio file as subtitles
+  sync                        Re-time the subtitles of a file on the audio of a film
   config                      List, show and change the operation settings
 ```
 
@@ -286,15 +287,16 @@ avec-bom.srt: a byte order mark that contradicts the encoding asked for ("UTF-16
 | [`split-file`](split-file.md) | חותכת קובץ ל**שניים**: ראש וזנב | כן |
 | [`pair`](pair.md) | כותבת תרגום במיקומי הקובץ הראשי שלו, ואומרת איך שורותיו התיישרו | כן |
 | [`transcribe`](transcribe.md) | כותבת את הדיבור של סרטון או של קובץ שמע ככתוביות | כן — היעד שלה, `--output` |
+| [`sync`](sync.md) | מסנכרנת מחדש את הכתוביות של קובץ לפי השמע של סרט | כן |
 | [`config`](config.md) | מונה, מציגה ומשנה את הגדרות הפעולות של קובץ ההגדרות | קובץ ההגדרות בלבד |
 
-כולן נמצאות כאן, עשרים ושתיים; עזרת הכלי מונה אותן באותו סדר.
+כולן נמצאות כאן, עשרים ושלוש; עזרת הכלי מונה אותן באותו סדר.
 
-**רק אחת אינה נוגעת בדבר**, והיא העמודה הימנית: `inspect` קוראת ומדווחת. עשרים האחרות כותבות, ומה שבא בהמשך תקף לשבע עשרה מהן: ל-[`append`](append.md) ול-[`split-file`](split-file.md) יש לכל אחת מבנה קלט ופלט משלה — N קבצים ל**תוצאה אחת**, קובץ אחד ל**שתיים** — ולכן יעד משלה, שהן מתארות בדף שלהן; [`transcribe`](transcribe.md) יוצרת קובץ חדש מסרטון או מקובץ שמע, ומקבלת את `--output` בלבד. [`config`](config.md) אינה כותבת קובץ כתוביות: היא קוראת ומשנה את קובץ ההגדרות, ושום דבר ממה שבא בהמשך אינו חל עליה.
+**רק אחת אינה נוגעת בדבר**, והיא העמודה הימנית: `inspect` קוראת ומדווחת. עשרים ואחת האחרות כותבות, ומה שבא בהמשך תקף לשמונה עשרה מהן: ל-[`append`](append.md) ול-[`split-file`](split-file.md) יש לכל אחת מבנה קלט ופלט משלה — N קבצים ל**תוצאה אחת**, קובץ אחד ל**שתיים** — ולכן יעד משלה, שהן מתארות בדף שלהן; [`transcribe`](transcribe.md) יוצרת קובץ חדש מסרטון או מקובץ שמע, ומקבלת את `--output` בלבד. [`config`](config.md) אינה כותבת קובץ כתוביות: היא קוראת ומשנה את קובץ ההגדרות, ושום דבר ממה שבא בהמשך אינו חל עליה.
 
 ## היעד
 
-שבע עשרה תת-הפקודות שכותבות — [`convert`](convert.md), [`shift`](shift.md), [`transform`](transform.md), [`framerate`](framerate.md), [`snap`](snap.md), [`hearing-impaired`](hearing-impaired.md), [`adjust`](adjust.md), [`replace`](replace.md), [`case`](case.md), [`italics`](italics.md), [`dialogue-dashes`](dialogue-dashes.md), [`sort`](sort.md), [`join-repeats`](join-repeats.md), [`disjoint`](disjoint.md), [`repair`](repair.md), [`correct`](correct.md), [`pair`](pair.md) — מקבלות את היעד שלהן באותו אופן. (ל-[`append`](append.md) ול-[`split-file`](split-file.md) יש יעד משלהן, בדף שלהן.) [`inspect`](inspect.md) אינה כותבת קובץ ואינה מקבלת אף אחת מהאפשרויות האלה.
+שמונה עשרה תת-הפקודות שכותבות — [`convert`](convert.md), [`shift`](shift.md), [`transform`](transform.md), [`framerate`](framerate.md), [`snap`](snap.md), [`hearing-impaired`](hearing-impaired.md), [`adjust`](adjust.md), [`replace`](replace.md), [`case`](case.md), [`italics`](italics.md), [`dialogue-dashes`](dialogue-dashes.md), [`sort`](sort.md), [`join-repeats`](join-repeats.md), [`disjoint`](disjoint.md), [`repair`](repair.md), [`correct`](correct.md), [`pair`](pair.md), [`sync`](sync.md) — מקבלות את היעד שלהן באותו אופן. (ל-[`append`](append.md) ול-[`split-file`](split-file.md) יש יעד משלהן, בדף שלהן.) [`inspect`](inspect.md) אינה כותבת קובץ ואינה מקבלת אף אחת מהאפשרויות האלה.
 
 **יעד שכבר קיים נדרס**, בלי שאלה ובלי אפשרות להימנע מכך: הכתיבה אטומית — הקובץ אינו נכתב לעולם בחצי, וכתיבה שהופסקה משאירה את הישן שלם —, אבל התוכן הקודם אובד. זה אינו פגם שהשארנו: זה הכלל, והרצת פקודה שוב על אותה תיקיית פלט מריצה אותה שוב על עצמה.
 
@@ -513,7 +515,7 @@ a.srt: line 6: SubRip numbers that do not follow ("7"), settled by the reader
 a.srt: line 9: a line that fits nowhere, left as it stands
 ```
 
-כל שבע עשרה תת-הפקודות מדווחות עליהם, לא רק [`inspect`](inspect.md): קובץ שנקרא כמיטב היכולת ואחר כך נכתב בחזרה עבר את אותן החלטות, ושתיקה עליהן הייתה גורמת להאמין שדבר לא קרה.
+כל שמונה עשרה תת-הפקודות מדווחות עליהם, לא רק [`inspect`](inspect.md): קובץ שנקרא כמיטב היכולת ואחר כך נכתב בחזרה עבר את אותן החלטות, ושתיקה עליהן הייתה גורמת להאמין שדבר לא קרה.
 
 **אבחון אינו כישלון לעולם.** הקובץ נקרא, הפקודה הצליחה, קוד היציאה הוא `0`. לכן הם חיים ברמה המפורטת ביותר: נמוך יותר, הם היו קוברים את השורה שאומרת מה נעשה באמת.
 

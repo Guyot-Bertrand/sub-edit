@@ -101,15 +101,15 @@ duration-adjust.lengthen
     Used by: subedit-cli adjust; Adjust Durations…
 ```
 
-Hún telur upp **42 lykla**:
+Hún telur upp **45 lykla**:
 
 <!-- example: subedit-cli config list | grep -c '^[a-z]' -->
 ```console
 $ subedit-cli config list | grep -c '^[a-z]'
-42
+45
 ```
 
-**Tuttugu og tveir þeirra eru lesnir af skipanalínunni**; hinir tuttugu eru lesnir af glugganum einum,
+**Tuttugu og fimm þeirra eru lesnir af skipanalínunni**; hinir tuttugu eru lesnir af glugganum einum,
 og `Used by:`-lína þeirra segir það, með valkosti `correct` sem kemur í þeirra stað:
 
 | Lykill | Lesinn af |
@@ -122,6 +122,7 @@ og `Used by:`-lína þeirra segir það, með valkosti `correct` sem kemur í þ
 | `correction.remove-blank` | `correct` og `Correct Texts…` |
 | `correction.line-break.max-lines` | `correct` og `Correct Texts…` |
 | `transcription.engine`, `transcription.executable`, `transcription.model`, `transcription.vad-model`, `transcription.language`, `transcription.suppress-notes`, `transcription.merge-gap-ms`, `transcription.max-duration-ms`, `transcription.max-characters` | [`transcribe`](transcribe.md) og `Transcribe Audio…` |
+| `alignment.engine`, `alignment.min-match`, `alignment.doubt-gap` | [`sync`](sync.md) |
 | hver annar `correction.*`-lykill | aðeins `Correct Texts…` — `correct` tekur `--tasks`, `--code`, `--max-length`, `--skip-length`, `--skip-lines`, `--language`, `--enable` og `--disable` úr sinni eigin línu |
 
 Línufjöldinn, `correction.line-break.max-lines` og `correction.line-break.skip-max-lines`,

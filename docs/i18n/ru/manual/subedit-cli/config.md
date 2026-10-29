@@ -102,15 +102,15 @@ duration-adjust.lengthen
     Used by: subedit-cli adjust; Adjust Durations…
 ```
 
-Она перечисляет **42 ключ**:
+Она перечисляет **45 ключей**:
 
 <!-- example: subedit-cli config list | grep -c '^[a-z]' -->
 ```console
 $ subedit-cli config list | grep -c '^[a-z]'
-42
+45
 ```
 
-**Двадцать две из них читаются командной строкой**; остальные двадцать читаются только окном,
+**Двадцать пять из них читаются командной строкой**; остальные двадцать читаются только окном,
 о чём говорит их строка `Used by:` с указанием параметра `correct`, который занимает их место:
 
 | Ключ | Кто читает |
@@ -123,6 +123,7 @@ $ subedit-cli config list | grep -c '^[a-z]'
 | `correction.remove-blank` | `correct` и `Correct Texts…` |
 | `correction.line-break.max-lines` | `correct` и `Correct Texts…` |
 | `transcription.engine`, `transcription.executable`, `transcription.model`, `transcription.vad-model`, `transcription.language`, `transcription.suppress-notes`, `transcription.merge-gap-ms`, `transcription.max-duration-ms`, `transcription.max-characters` | [`transcribe`](transcribe.md) и `Transcribe Audio…` |
+| `alignment.engine`, `alignment.min-match`, `alignment.doubt-gap` | [`sync`](sync.md) |
 | все остальные ключи `correction.*` | только `Correct Texts…` — `correct` берёт `--tasks`, `--code`, `--max-length`, `--skip-length`, `--skip-lines`, `--language`, `--enable` и `--disable` из собственной командной строки |
 
 Числа строк, `correction.line-break.max-lines` и `correction.line-break.skip-max-lines`,

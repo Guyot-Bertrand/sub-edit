@@ -6,6 +6,8 @@
 #include <algorithm>
 #include <array>
 #include <cctype>
+#include <functional>
+#include <optional>
 #include <string>
 #include <utility>
 
@@ -23,22 +25,41 @@ constexpr std::array kReadableAudio{".wav", ".mp3", ".flac", ".ogg"};
     return std::ranges::find(kReadableAudio, extension) != kReadableAudio.end();
 }
 
+/// Has `engine` transcribe `audio`, leaving the result in `done`.
+std::expected<void, TranscriptionError> transcribeOn(const TranscriptionEngine& engine,
+                                                     const MediaTranscriptionRequest& request,
+                                                     const TranscriptionObserver& observer,
+                                                     std::optional<Transcription>& done,
+                                                     const std::filesystem::path& audio) {
+    auto transcribed = engine.transcribe({.audio = audio,
+                                          .language = request.language,
+                                          .model = request.model,
+                                          .suppressNotes = request.suppressNotes,
+                                          .vadModel = request.vadModel,
+                                          .start = request.start,
+                                          .end = request.end},
+                                         observer);
+    if (!transcribed)
+        return std::unexpected(transcribed.error());
+    done = std::move(*transcribed);
+    return {};
+}
+
 } // namespace
 
-std::expected<Transcription, MediaTranscriptionError>
-transcribeMedia(FileSystem& files,
-                const TranscriptionEngine& engine,
-                std::string_view searchPath,
-                const MediaTranscriptionRequest& request,
-                const TranscriptionObserver& observer) {
+std::expected<void, MediaTranscriptionError>
+withPreparedAudio(FileSystem& files,
+                  const EngineCapabilities& capabilities,
+                  std::string_view searchPath,
+                  const MediaTranscriptionRequest& request,
+                  const TranscriptionObserver& observer,
+                  const std::function<std::expected<void, TranscriptionError>(
+                      const std::filesystem::path& audio)>& use) {
     // **What the engine can do is asked before any work**: the audio is extracted at the rate it
     // wants, and a request it cannot honour — a language, a missing model — is refused before the
     // extraction, which takes a while on a film, rather than after it.
-    const auto capabilities = engine.capabilitiesFor(request.model);
-    if (!capabilities)
-        return std::unexpected(MediaTranscriptionError{.cause = capabilities.error()});
     if (const auto checked =
-            checkRequest(*capabilities,
+            checkRequest(capabilities,
                          TranscriptionRequest{
                              .audio = {}, .language = request.language, .model = request.model});
         !checked)
@@ -63,7 +84,7 @@ transcribeMedia(FileSystem& files,
                                            request.input,
                                            request.audioTrack,
                                            extracted,
-                                           capabilities->sampleRate,
+                                           capabilities.sampleRate,
                                            stop);
         !prepared) {
         const bool usableAsIs = prepared.error().kind == AudioPreparationErrorKind::ToolMissing &&
@@ -78,18 +99,36 @@ transcribeMedia(FileSystem& files,
         audio = request.input;
     }
 
-    const TranscriptionRequest asked{.audio = audio,
-                                     .language = request.language,
-                                     .model = request.model,
-                                     .suppressNotes = request.suppressNotes,
-                                     .vadModel = request.vadModel,
-                                     .start = request.start,
-                                     .end = request.end};
-    auto transcribed = engine.transcribe(asked, observer);
-    if (!transcribed)
+    if (const auto used = use(audio); !used)
         return std::unexpected(MediaTranscriptionError{
-            .cause = transcribed.error(), .tracks = {}, .partial = transcribed.error().partial});
-    return std::move(*transcribed);
+            .cause = used.error(), .tracks = {}, .partial = used.error().partial});
+    return {};
+}
+
+std::expected<Transcription, MediaTranscriptionError>
+transcribeMedia(FileSystem& files,
+                const TranscriptionEngine& engine,
+                std::string_view searchPath,
+                const MediaTranscriptionRequest& request,
+                const TranscriptionObserver& observer) {
+    const auto capabilities = engine.capabilitiesFor(request.model);
+    if (!capabilities)
+        return std::unexpected(MediaTranscriptionError{.cause = capabilities.error()});
+
+    std::optional<Transcription> done;
+    const auto prepared = withPreparedAudio(files,
+                                            *capabilities,
+                                            searchPath,
+                                            request,
+                                            observer,
+                                            std::bind_front(transcribeOn,
+                                                            std::cref(engine),
+                                                            std::cref(request),
+                                                            std::cref(observer),
+                                                            std::ref(done)));
+    if (!prepared)
+        return std::unexpected(prepared.error());
+    return std::move(done).value_or(Transcription{});
 }
 
 } // namespace subedit::core

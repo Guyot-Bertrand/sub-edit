@@ -54,6 +54,8 @@ statement \.set\(
 statement ^@,\s*(?:count\(|static_cast<std::int64_t>\(|Json\b|std::vector<Count>|constraintsRecord\(|settings(?:File)?$|0$)
 statement \b(?:counts|fields)\.emplace_back\(\s*@
 file      src/lib/subedit/cli/json.cpp \S+
+# The kinds of the lines `sync` flags, promised in its record (#813).
+file      src/lib/subedit/cli/syncing.cpp partial|overlaps
 
 [option] Command-line option, sub-command and positional names, and the metavariables and values of an option. The user types them; they are never translated (D3).
 text      --?[A-Za-z][\w-]*(?:\s*[,/]\s*--?[A-Za-z][\w-]*)*
@@ -172,3 +174,6 @@ file      src/lib/subedit/core/transcription/whisper_cpp_engine.cpp [a-z]{2,3}|a
 # The codes of languages as ICU names them: whisper.cpp's old Javanese and the reader's default (#794).
 file      src/lib/subedit/core/transcription/language_display.cpp jw|jv|en
 file      src/lib/subedit/core/io/json_reader.cpp true|false|null|bfnrt
+
+[error-detail] The English `detail` of a `TranscriptionError`: what was asked or what the engine said, for the record and for the person who reads a bug report, which `core/wording/` puts after the sentence it words itself (`the transcription failed: %1`). Not a message for a reader (#813).
+file      src/lib/subedit/core/transcription/transcript_matching_aligner.cpp the engine gives no timed words, which the alignment is built on

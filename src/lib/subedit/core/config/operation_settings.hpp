@@ -23,6 +23,7 @@ struct OperationSettings {
     DurationAdjustmentSettings durationAdjustment{};
     CorrectionSettings correction{};
     TranscriptionSettings transcription{};
+    AlignmentSettings alignment{};
 
     friend bool operator==(const OperationSettings&, const OperationSettings&) = default;
 };

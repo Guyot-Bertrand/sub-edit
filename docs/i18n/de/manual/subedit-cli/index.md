@@ -46,5 +46,6 @@ wo Sie anfangen, siehe
 | [`split-file`](split-file.md) | eine Datei in zwei Teile schneiden, der Rest auf den Nullpunkt zurückgesetzt |
 | [`pair`](pair.md) | eine Übersetzung an die Positionen ihrer Hauptdatei schreiben und berichten, wie ihre Zeilen zugeordnet wurden |
 | [`transcribe`](transcribe.md) | die Sprache eines Videos oder einer Audiodatei als Untertitel schreiben |
+| [`sync`](sync.md) | die Untertitel einer Datei am Ton eines Films neu ausrichten |
 | [Die Transkriptionswerkzeuge installieren](install-transcription.md) | die Engine, das Modell und `ffmpeg`, die das Programm nicht ausliefert |
 | [`config`](config.md) | die mit dem Fenster geteilten Einstellungen der Operationen auflisten, anzeigen und ändern |

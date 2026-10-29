@@ -49,6 +49,7 @@ Subcommands:
   split-file                  Cut a subtitle file in two, a head and a tail
   pair                        Write a translation at the positions of its main file, and say how it lined up
   transcribe                  Write the speech of a video or an audio file as subtitles
+  sync                        Re-time the subtitles of a file on the audio of a film
   config                      List, show and change the operation settings
 ```
 
@@ -286,15 +287,16 @@ Ezt teszi a Gaupol is — a jelölő kódolásával újrakezdi az olvasást —,
 | [`split-file`](split-file.md) | a fájlt **kettéhasítja**: egy elejére és egy végére | igen |
 | [`pair`](pair.md) | a fordítást a főfájl pozícióin írja meg, és közli, hogyan illeszkedtek a sorai | igen |
 | [`transcribe`](transcribe.md) | egy videó vagy egy hangfájl beszédét írja ki feliratként | igen — saját cél, az `--output` |
+| [`sync`](sync.md) | egy fájl feliratait újraidőzíti egy film hangjára | igen |
 | [`config`](config.md) | felsorolja, megmutatja és módosítja a beállításfájl műveleti beállításait | csak a beállításfájlt |
 
-Mind a huszonkettő itt van; az eszköz súgója ugyanebben a sorrendben sorolja fel őket.
+Mind a huszonhárom itt van; az eszköz súgója ugyanebben a sorrendben sorolja fel őket.
 
-**Csak egy nem érint semmit**, és ez a jobb oldali oszlop: az `inspect` olvas és jelent. A másik húsz ír, és ami következik, az tizenhétre érvényes közülük: az [`append`](append.md) és a [`split-file`](split-file.md) saját számosságú — N fájl **egy** eredményhez, egy fájl **kettőhöz** — és ezért saját célú, amelyet az oldaluk ír le; a [`transcribe`](transcribe.md) új fájlt készít egy videóból vagy egy hangfájlból, és csak az `--output` kapcsolót fogadja el. A [`config`](config.md) nem ír feliratfájlt: a beállításfájlt olvassa és módosítja, és semmi sem érvényes rá abból, ami következik.
+**Csak egy nem érint semmit**, és ez a jobb oldali oszlop: az `inspect` olvas és jelent. A másik huszonegy ír, és ami következik, az tizennyolcra érvényes közülük: az [`append`](append.md) és a [`split-file`](split-file.md) saját számosságú — N fájl **egy** eredményhez, egy fájl **kettőhöz** — és ezért saját célú, amelyet az oldaluk ír le; a [`transcribe`](transcribe.md) új fájlt készít egy videóból vagy egy hangfájlból, és csak az `--output` kapcsolót fogadja el. A [`config`](config.md) nem ír feliratfájlt: a beállításfájlt olvassa és módosítja, és semmi sem érvényes rá abból, ami következik.
 
 ## A cél
 
-A tizenhét író alparancs — [`convert`](convert.md), [`shift`](shift.md), [`transform`](transform.md), [`framerate`](framerate.md), [`snap`](snap.md), [`hearing-impaired`](hearing-impaired.md), [`adjust`](adjust.md), [`replace`](replace.md), [`case`](case.md), [`italics`](italics.md), [`dialogue-dashes`](dialogue-dashes.md), [`sort`](sort.md), [`join-repeats`](join-repeats.md), [`disjoint`](disjoint.md), [`repair`](repair.md), [`correct`](correct.md), [`pair`](pair.md) — ugyanúgy veszi a célját. (Az [`append`](append.md) és a [`split-file`](split-file.md) saját céllal rendelkezik, az oldalukon.) Az [`inspect`](inspect.md) nem ír fájlt, és ezek közül egyik kapcsolót sem fogadja el.
+A tizennyolc író alparancs — [`convert`](convert.md), [`shift`](shift.md), [`transform`](transform.md), [`framerate`](framerate.md), [`snap`](snap.md), [`hearing-impaired`](hearing-impaired.md), [`adjust`](adjust.md), [`replace`](replace.md), [`case`](case.md), [`italics`](italics.md), [`dialogue-dashes`](dialogue-dashes.md), [`sort`](sort.md), [`join-repeats`](join-repeats.md), [`disjoint`](disjoint.md), [`repair`](repair.md), [`correct`](correct.md), [`pair`](pair.md), [`sync`](sync.md) — ugyanúgy veszi a célját. (Az [`append`](append.md) és a [`split-file`](split-file.md) saját céllal rendelkezik, az oldalukon.) Az [`inspect`](inspect.md) nem ír fájlt, és ezek közül egyik kapcsolót sem fogadja el.
 
 **A már létező cél felülíródik**, kérdés nélkül, és nincs kapcsoló, amely ezt elkerülné: az írás atomi — a fájl sosem íródik félig, és a megszakadt írás érintetlenül hagyja a régit —, de az előző tartalom elvész. Ez nem megtartott hiba: ez a szabály, és ha ugyanarra a kimeneti könyvtárra újra lefuttatnak egy parancsot, az önmagára fut le újra.
 
@@ -513,7 +515,7 @@ a.srt: line 6: SubRip numbers that do not follow ("7"), settled by the reader
 a.srt: line 9: a line that fits nowhere, left as it stands
 ```
 
-Mind a tizenhét alparancs jelenti őket, nemcsak az [`inspect`](inspect.md): a lehető legjobban beolvasott, majd visszaírt fájl ugyanezeken a döntéseken ment át, és ha csendben maradnának, azt lehetne hinni, hogy nem történt semmi.
+Mind a tizennyolc alparancs jelenti őket, nemcsak az [`inspect`](inspect.md): a lehető legjobban beolvasott, majd visszaírt fájl ugyanezeken a döntéseken ment át, és ha csendben maradnának, azt lehetne hinni, hogy nem történt semmi.
 
 **A diagnosztika sosem hiba.** A fájlt beolvasták, a parancs sikerrel járt, a kilépési kód `0`. Ezért a legrészletesebb szinten élnek: lejjebb elnyomnák azt a sort, amely azt mondja meg, mi történt valójában.
 

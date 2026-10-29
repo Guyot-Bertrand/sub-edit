@@ -43,5 +43,6 @@ where to begin, see
 | [`split-file`](split-file.md) | cut a file in two, the tail brought back to the origin |
 | [`pair`](pair.md) | write a translation at the positions of its main file, and say how its lines lined up |
 | [`transcribe`](transcribe.md) | write the speech of a video or an audio file as subtitles |
+| [`sync`](sync.md) | re-time the subtitles of a file on the audio of a film |
 | [Installing the transcription tools](install-transcription.md) | the engine, the model and `ffmpeg`, which the program does not ship |
 | [`config`](config.md) | list, show and change the operation settings shared with the window |

@@ -35,6 +35,7 @@
 namespace {
 
 using Catch::Matchers::ContainsSubstring;
+using subedit::core::AlignmentSettings;
 using subedit::core::ByteOrderMark;
 using subedit::core::CorrectionSettings;
 using subedit::core::DurationAdjustmentSettings;
@@ -1203,6 +1204,45 @@ TEST_CASE("a transcription value that cannot be read leaves its default", "[conf
         const SettingsRead read = readOf(line);
 
         CHECK(read.settings.transcription == TranscriptionSettings{});
+        CHECK(read.diagnostics.size() == 1);
+    }
+}
+
+TEST_CASE("the alignment options at their defaults are written commented out", "[config]") {
+    const std::string written = renderSettings(Settings{});
+
+    CHECK_THAT(written, ContainsSubstring("#alignment.engine = transcript-matching\n"));
+    CHECK_THAT(written, ContainsSubstring("#alignment.min-match = 50\n"));
+    CHECK_THAT(written, ContainsSubstring("#alignment.doubt-gap = 2000\n"));
+}
+
+TEST_CASE("the alignment options are read, written back and read again", "[config]") {
+    const SettingsRead read = readOf("alignment.engine = other-aligner\n"
+                                     "alignment.min-match = 70\n"
+                                     "alignment.doubt-gap = 1500\n");
+
+    const AlignmentSettings& form = read.settings.alignment;
+    CHECK(read.diagnostics.empty());
+    CHECK(form.engine == "other-aligner");
+    CHECK(form.minimumMatchPercent == 70);
+    CHECK(form.minimumMatch() == 0.7);
+    CHECK(form.doubtGapMilliseconds == 1500);
+
+    InMemoryFileSystem files;
+    REQUIRE(writeSettings(files, kPath, read.settings).has_value());
+    CHECK(readSettings(files, kPath).settings.alignment == form);
+}
+
+TEST_CASE("an alignment value that cannot be read leaves its default", "[config]") {
+    for (const char* line : {"alignment.engine = \n",
+                             "alignment.engine = Transcript Matching\n",
+                             "alignment.min-match = 0\n",
+                             "alignment.min-match = 101\n",
+                             "alignment.min-match = half\n",
+                             "alignment.doubt-gap = -1\n"}) {
+        const SettingsRead read = readOf(line);
+
+        CHECK(read.settings.alignment == AlignmentSettings{});
         CHECK(read.diagnostics.size() == 1);
     }
 }

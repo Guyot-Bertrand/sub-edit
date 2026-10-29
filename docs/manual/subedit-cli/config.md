@@ -99,15 +99,15 @@ duration-adjust.lengthen
     Used by: subedit-cli adjust; Adjust Durations…
 ```
 
-It lists **42 keys**:
+It lists **45 keys**:
 
 <!-- example: subedit-cli config list | grep -c '^[a-z]' -->
 ```console
 $ subedit-cli config list | grep -c '^[a-z]'
-42
+45
 ```
 
-**Twenty-two of them are read by the command line**; the twenty others are read by the window only,
+**Twenty-five of them are read by the command line**; the twenty others are read by the window only,
 and their `Used by:` line says so, with the option of `correct` that takes their place:
 
 | Key | Read by |
@@ -120,6 +120,7 @@ and their `Used by:` line says so, with the option of `correct` that takes their
 | `correction.remove-blank` | `correct` and `Correct Texts…` |
 | `correction.line-break.max-lines` | `correct` and `Correct Texts…` |
 | `transcription.engine`, `transcription.executable`, `transcription.model`, `transcription.vad-model`, `transcription.language`, `transcription.suppress-notes`, `transcription.merge-gap-ms`, `transcription.max-duration-ms`, `transcription.max-characters` | [`transcribe`](transcribe.md) and `Transcribe Audio…` |
+| `alignment.engine`, `alignment.min-match`, `alignment.doubt-gap` | [`sync`](sync.md) |
 | every other `correction.*` key | `Correct Texts…` only — `correct` takes `--tasks`, `--code`, `--max-length`, `--skip-length`, `--skip-lines`, `--language`, `--enable` and `--disable` from its own line |
 
 The numbers of lines, `correction.line-break.max-lines` and `correction.line-break.skip-max-lines`,

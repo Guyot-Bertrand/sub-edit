@@ -40,6 +40,7 @@ file aperit e pos salvat sin change ne move se de un sol byte.
 | changear li casu de littere, li italic o li strecs de dialog de un tot file | [Li operationes](subedit-gui/operations.md#italic), o [`case`](subedit-cli/case.md), [`italics`](subedit-cli/italics.md), [`dialogue-dashes`](subedit-cli/dialogue-dashes.md) |
 | serchar un parol e substituer it, sin rupter li etiquettes | [Trovar e substituer](subedit-gui/find-and-replace.md), o [`replace`](subedit-cli/replace.md) |
 | scrir li parol de un film quam subtitules | [`Transcribe Audio…`](subedit-gui/video.md#transcrir-li-audio), o [`transcribe`](subedit-cli/transcribe.md) — pos [instalar li utensiles](subedit-cli/install-transcription.md) |
+| retemporisar un file de subtitules sur li audio de un film | [`sync`](subedit-cli/sync.md) — pos [instalar li utensiles](subedit-cli/install-transcription.md) |
 | traducter along li textu original | [Aperter un traduction](subedit-gui/files.md#aperter-un-traduction), o [`pair`](subedit-cli/pair.md) por retemporisar it secun li file principal |
 | tractar cent files in un vice | [Tractar un arbore](subedit-cli/lots.md), poy [Invocation](subedit-cli/invocation.md) |
 

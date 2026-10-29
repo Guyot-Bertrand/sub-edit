@@ -40,6 +40,7 @@ Sub Station Alpha, Advanced SSA, MicroDVD, MPL2, TMPlayer, LRC — и
 | променити величину слова, искошено писмо или цртице разговора у целој датотеци | [Операције](subedit-gui/operations.md#italic) или [`case`](subedit-cli/case.md), [`italics`](subedit-cli/italics.md), [`dialogue-dashes`](subedit-cli/dialogue-dashes.md) |
 | потражити реч и заменити је, без кварења ознака | [Налажење и замена](subedit-gui/find-and-replace.md) или [`replace`](subedit-cli/replace.md) |
 | записати говор филма као титлове | [`Transcribe Audio…`](subedit-gui/video.md#транскрипција-звука) или [`transcribe`](subedit-cli/transcribe.md) — после [инсталирања алата](subedit-cli/install-transcription.md) |
+| ускладити време титлова датотеке са звуком филма | [`sync`](subedit-cli/sync.md) — после [инсталирања алата](subedit-cli/install-transcription.md) |
 | преводити уз изворни текст | [Отварање превода](subedit-gui/files.md#отварање-превода) или [`pair`](subedit-cli/pair.md) да се превод поново усклади по главној датотеци |
 | обрадити сто датотека одједном | [Обрада стабла директоријума](subedit-cli/lots.md), затим [Покретање](subedit-cli/invocation.md) |
 

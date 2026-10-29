@@ -46,5 +46,6 @@ por dónde empezar, véase
 | [`split-file`](split-file.md) | cortar un archivo en dos, con la cola llevada de vuelta al origen |
 | [`pair`](pair.md) | escribir una traducción en las posiciones de su archivo principal, e indicar cómo se emparejaron sus líneas |
 | [`transcribe`](transcribe.md) | escribir el habla de un vídeo o de un archivo de audio como subtítulos |
+| [`sync`](sync.md) | reajustar los tiempos de los subtítulos de un archivo según el audio de una película |
 | [Instalar las herramientas de transcripción](install-transcription.md) | el motor, el modelo y `ffmpeg`, que el programa no entrega |
 | [`config`](config.md) | listar, mostrar y cambiar la configuración de las operaciones compartida con la ventana |

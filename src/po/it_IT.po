@@ -842,7 +842,7 @@ msgid "Re-time a file mastered at one frame rate for another"
 msgstr ""
 "Risincronizza un file preparato a una frequenza di fotogrammi per un'altra"
 
-#: src/exe/cli/commands/framerate.cpp
+#: src/exe/cli/commands/framerate.cpp src/exe/cli/commands/sync.cpp
 msgid "Subtitle files to re-time"
 msgstr "File di sottotitoli da risincronizzare"
 
@@ -1048,6 +1048,80 @@ msgstr ""
 "--head e --tail vanno insieme: indicali entrambi, oppure nessuno dei due con "
 "--dry-run"
 
+#: src/exe/cli/commands/sync.cpp
+msgid "Re-time the subtitles of a file on the audio of a film"
+msgstr "Riporta i sottotitoli di un file sui tempi dell'audio di un film"
+
+#: src/exe/cli/commands/sync.cpp
+msgid "Film to listen to"
+msgstr "Film da ascoltare"
+
+#: src/exe/cli/commands/sync.cpp
+msgid "Audio file to listen to, instead of a film"
+msgstr "File audio da ascoltare, al posto di un film"
+
+#: src/exe/cli/commands/sync.cpp
+msgid "Audio track of a film, counted from 0; the first by default"
+msgstr "Traccia audio di un film, contata da 0; per impostazione predefinita la prima"
+
+#: src/exe/cli/commands/sync.cpp src/exe/cli/commands/transcribe.cpp
+msgid "Where to begin, as 2:00, 1:02:03 or seconds; the beginning by default"
+msgstr ""
+"Da dove iniziare, come 2:00, 1:02:03 o secondi; l'inizio per impostazione "
+"predefinita"
+
+#: src/exe/cli/commands/sync.cpp src/exe/cli/commands/transcribe.cpp
+msgid "Where to stop, as 2:00, 1:02:03 or seconds; the end by default"
+msgstr ""
+"Dove fermarsi, come 2:00, 1:02:03 o secondi; la fine per impostazione "
+"predefinita"
+
+#: src/exe/cli/commands/sync.cpp src/exe/cli/commands/transcribe.cpp
+msgid ""
+"Language of the speech, two letters: fr, en, de; detected from the first 30 "
+"seconds by default"
+msgstr ""
+"Lingua del parlato, due lettere: fr, en, de; rilevata per impostazione "
+"predefinita dai primi 30 secondi"
+
+#: src/exe/cli/commands/sync.cpp src/exe/cli/commands/transcribe.cpp
+msgid "Model file; the transcription.model setting by default"
+msgstr ""
+"File del modello; per impostazione predefinita l'impostazione transcription."
+"model"
+
+#: src/exe/cli/commands/sync.cpp src/exe/cli/commands/transcribe.cpp
+msgid ""
+"Voice-activity model that skips silences; the transcription.vad-model "
+"setting by default"
+msgstr ""
+"Modello di attività vocale che salta i silenzi; per impostazione predefinita "
+"l'impostazione transcription.vad-model"
+
+#: src/exe/cli/commands/sync.cpp
+msgid "Engine that listens; the transcription.engine setting by default"
+msgstr "Motore che ascolta; per impostazione predefinita l'impostazione transcription.engine"
+
+#: src/exe/cli/commands/sync.cpp src/exe/cli/commands/transcribe.cpp
+msgid "Keep the extracted audio in this file"
+msgstr "Conserva l'audio estratto in questo file"
+
+#: src/exe/cli/commands/sync.cpp
+msgid ""
+"Share of a subtitle's words that must be heard, in percent; the alignment."
+"min-match setting by default"
+msgstr "Quota delle parole di un sottotitolo che devono essere udite, in percentuale; per impostazione predefinita l'impostazione alignment.min-match"
+
+#: src/exe/cli/commands/sync.cpp
+msgid ""
+"How far a subtitle may move from its neighbours' shift before it is flagged, "
+"in milliseconds; the alignment.doubt-gap setting by default"
+msgstr "Quanto un sottotitolo può discostarsi dallo spostamento dei suoi vicini prima di essere segnalato, in millisecondi; per impostazione predefinita l'impostazione alignment.doubt-gap"
+
+#: src/exe/cli/commands/sync.cpp
+msgid "Write the subtitles to check to this file"
+msgstr "Scrivi in questo file i sottotitoli da controllare"
+
 #: src/exe/cli/commands/transcribe.cpp
 msgid "Write the speech of a video or an audio file as subtitles"
 msgstr ""
@@ -1074,26 +1148,6 @@ msgstr ""
 "predefinita"
 
 #: src/exe/cli/commands/transcribe.cpp
-msgid "Where to begin, as 2:00, 1:02:03 or seconds; the beginning by default"
-msgstr ""
-"Da dove iniziare, come 2:00, 1:02:03 o secondi; l'inizio per impostazione "
-"predefinita"
-
-#: src/exe/cli/commands/transcribe.cpp
-msgid "Where to stop, as 2:00, 1:02:03 or seconds; the end by default"
-msgstr ""
-"Dove fermarsi, come 2:00, 1:02:03 o secondi; la fine per impostazione "
-"predefinita"
-
-#: src/exe/cli/commands/transcribe.cpp
-msgid ""
-"Language of the speech, two letters: fr, en, de; detected from the first 30 "
-"seconds by default"
-msgstr ""
-"Lingua del parlato, due lettere: fr, en, de; rilevata per impostazione "
-"predefinita dai primi 30 secondi"
-
-#: src/exe/cli/commands/transcribe.cpp
 msgid ""
 "Do not write sounds as notes, such as (phone ringing); the transcription."
 "suppress-notes setting by default"
@@ -1106,27 +1160,9 @@ msgid "Write sounds as notes, against the setting"
 msgstr "Scrivere i suoni come note, contro l'impostazione"
 
 #: src/exe/cli/commands/transcribe.cpp
-msgid "Model file; the transcription.model setting by default"
-msgstr ""
-"File del modello; per impostazione predefinita l'impostazione transcription."
-"model"
-
-#: src/exe/cli/commands/transcribe.cpp
-msgid ""
-"Voice-activity model that skips silences; the transcription.vad-model "
-"setting by default"
-msgstr ""
-"Modello di attività vocale che salta i silenzi; per impostazione predefinita "
-"l'impostazione transcription.vad-model"
-
-#: src/exe/cli/commands/transcribe.cpp
 msgid "Engine; the transcription.engine setting by default"
 msgstr ""
 "Motore; per impostazione predefinita l'impostazione transcription.engine"
-
-#: src/exe/cli/commands/transcribe.cpp
-msgid "Keep the extracted audio in this file"
-msgstr "Conserva l'audio estratto in questo file"
 
 #: src/exe/cli/commands/transcribe.cpp
 msgid ""
@@ -2150,6 +2186,10 @@ msgstr "%1: diviso al sottotitolo %2: %3 nella testa, %4 nella coda"
 msgid "%1 -> %2, %3"
 msgstr "%1 -> %2, %3"
 
+#: src/lib/subedit/cli/syncing.cpp
+msgid "--report names one file: give one subtitle file when you use it"
+msgstr "--report indica un solo file: con questa opzione indica un solo file di sottotitoli"
+
 #: src/lib/subedit/cli/text_rewriting.cpp
 msgid "--on and --off say opposite things; give one of them"
 msgstr "--on e --off dicono cose opposte; indicane uno solo"
@@ -2293,6 +2333,14 @@ msgstr "un numero intero da 1 a 1000"
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "subedit-cli transcribe; Transcribe Audio…"
 msgstr "subedit-cli transcribe; Trascrivi audio…"
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "subedit-cli sync"
+msgstr "subedit-cli sync"
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "a whole number from 1 to 100"
+msgstr "un numero intero da 1 a 100"
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "subedit-cli adjust; Adjust Durations…"
@@ -2546,6 +2594,18 @@ msgid "Most characters a transcribed subtitle holds."
 msgstr "Numero massimo di caratteri di un sottotitolo trascritto."
 
 #: src/lib/subedit/core/config/operation_settings.cpp
+msgid "The engine that aligns the subtitles on the audio."
+msgstr "Il motore che allinea i sottotitoli all'audio."
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "Share of a line's words that must be heard, in percent."
+msgstr "Quota delle parole di una riga che devono essere udite, in percentuale."
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "How far a line may move from its neighbours' shift."
+msgstr "Quanto una riga può discostarsi dallo spostamento delle sue vicine."
+
+#: src/lib/subedit/core/config/operation_settings.cpp
 msgid "%1 is managed by the window; use --enable/--disable on correct"
 msgstr "%1 è gestito dalla finestra; usa --enable/--disable con correct"
 
@@ -2697,6 +2757,59 @@ msgstr "nome di gruppo mancante"
 #: src/lib/subedit/core/text/replacement_template.cpp
 msgid "unknown group name '%1'"
 msgstr "nome di gruppo '%1' sconosciuto"
+
+#: src/lib/subedit/core/wording/alignment.cpp
+msgid "there is no alignment engine called %1"
+msgstr "non esiste alcun motore di allineamento chiamato %1"
+
+#: src/lib/subedit/core/wording/alignment.cpp
+msgid ""
+"sync needs the audio to listen to: give --video or --audio, and not both"
+msgstr "sync ha bisogno dell'audio da ascoltare: indica --video oppure --audio, non entrambi"
+
+#: src/lib/subedit/core/wording/alignment.cpp
+msgid ""
+"the %1 subtitle was looked for in the audio and was not found: is it the "
+"right audio, and the right language?"
+msgid_plural ""
+"none of the %1 subtitles was found in the audio: is it the right audio, and "
+"the right language?"
+msgstr[0] "il sottotitolo %1 è stato cercato nell'audio e non è stato trovato: è l'audio giusto, e la lingua giusta?"
+msgstr[1] "nessuno dei %1 di sottotitoli è stato trovato nell'audio: è l'audio giusto, e la lingua giusta?"
+msgstr[2] "nessuno dei %1 sottotitoli è stato trovato nell'audio: è l'audio giusto, e la lingua giusta?"
+
+#: src/lib/subedit/core/wording/alignment.cpp
+msgid "%1 of %2 subtitle placed on the audio, %3 to check"
+msgid_plural "%1 of %2 subtitles placed on the audio, %3 to check"
+msgstr[0] "%1 sottotitolo su %2 collocato sull'audio, %3 da controllare"
+msgstr[1] "%1 su %2 di sottotitoli collocati sull'audio, %3 da controllare"
+msgstr[2] "%1 sottotitoli su %2 collocati sull'audio, %3 da controllare"
+
+#. TRANSLATORS: %1 is a sentence, such as « 40 of 42 subtitles placed on the audio, 2 to
+#. check »; %2 and %3 are lengths in seconds, such as « -2.400 s ».
+#: src/lib/subedit/core/wording/alignment.cpp
+msgid "%1; median shift %2, drift %3"
+msgstr "%1; spostamento mediano %2, deriva %3"
+
+#: src/lib/subedit/core/wording/alignment.cpp
+msgid "not found in the audio, left as it was"
+msgstr "non trovato nell'audio, lasciato com'era"
+
+#: src/lib/subedit/core/wording/alignment.cpp
+msgid "only partly heard"
+msgstr "udito solo in parte"
+
+#: src/lib/subedit/core/wording/alignment.cpp
+msgid "moved differently from its neighbours"
+msgstr "spostato in modo diverso dai suoi vicini"
+
+#: src/lib/subedit/core/wording/alignment.cpp
+msgid "cut back to the start of the next subtitle"
+msgstr "accorciato fino all'inizio del sottotitolo successivo"
+
+#: src/lib/subedit/core/wording/alignment.cpp
+msgid "still overlaps the next subtitle"
+msgstr "si sovrappone ancora al sottotitolo successivo"
 
 #: src/lib/subedit/core/wording/analysis.cpp
 msgid "ends before it starts"

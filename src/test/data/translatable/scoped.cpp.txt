@@ -57,6 +57,10 @@ return {"error", "stream=r_frame_rate", "default=noprint_wrappers=1:nokey=1"}; /
 const JsonValue* segments = document->find("transcription"); // expect: exempt:tool-output
 return std::unexpected("the transcription is not readable"); // expect: counted
 
+// path: src/lib/subedit/core/transcription/transcript_matching_aligner.cpp
+return fail("the engine gives no timed words, which the alignment is built on"); // expect: exempt:error-detail
+return fail("any other sentence a reader would see"); // expect: counted
+
 // path: src/lib/subedit/core/text/spell_checker.cpp
 const std::array suffixes{"1st", "2nd", "3rd"}; // expect: exempt:spelling-data
 const std::array contractions{"'ll", "'re", "'ve"}; // expect: exempt:spelling-data

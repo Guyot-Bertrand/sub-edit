@@ -49,6 +49,7 @@ Subcommands:
   split-file                  Cut a subtitle file in two, a head and a tail
   pair                        Write a translation at the positions of its main file, and say how it lined up
   transcribe                  Write the speech of a video or an audio file as subtitles
+  sync                        Re-time the subtitles of a file on the audio of a film
   config                      List, show and change the operation settings
 ```
 
@@ -370,12 +371,13 @@ avec-bom.srt: a byte order mark that contradicts the encoding asked for ("UTF-16
 | [`split-file`](split-file.md) | разрезает файл на **два**: начало и конец | да |
 | [`pair`](pair.md) | записывает перевод на позиции его основного файла и сообщает, как легли его строки | да |
 | [`transcribe`](transcribe.md) | записывает речь видео или аудиофайла в виде субтитров | да — своё место назначения, `--output` |
+| [`sync`](sync.md) | пересчитывает время субтитров файла по звуку фильма | да |
 | [`config`](config.md) | перечисляет, показывает и изменяет настройки операций в файле настроек | только файл настроек |
 
-Перечислена каждая из двадцати двух подкоманд; справка программы перечисляет их в том же порядке.
+Перечислена каждая из двадцати трёх подкоманд; справка программы перечисляет их в том же порядке.
 
 **Только одна подкоманда ничего не затрагивает**, о чём говорит правый столбец: `inspect` читает и
-сообщает. Остальные двадцать записывают, а то, что сказано далее, относится к семнадцати из них:
+сообщает. Остальные двадцать одна записывают, а то, что сказано далее, относится к восемнадцати из них:
 у [`append`](append.md) и [`split-file`](split-file.md) своя арность — N файлов на
 **один** результат, один файл на **два**, — а значит, и своё место назначения, которое они описывают на своей странице;
 [`transcribe`](transcribe.md) делает новый файл из видео или аудиофайла и принимает только `--output`.
@@ -384,12 +386,12 @@ avec-bom.srt: a byte order mark that contradicts the encoding asked for ("UTF-16
 
 ## Место назначения
 
-Семнадцать подкоманд, которые записывают, — [`convert`](convert.md),
+Восемнадцать подкоманд, которые записывают, — [`convert`](convert.md),
 [`shift`](shift.md), [`transform`](transform.md), [`framerate`](framerate.md),
 [`snap`](snap.md), [`hearing-impaired`](hearing-impaired.md), [`adjust`](adjust.md),
 [`replace`](replace.md), [`case`](case.md), [`italics`](italics.md),
 [`dialogue-dashes`](dialogue-dashes.md), [`sort`](sort.md), [`join-repeats`](join-repeats.md),
-[`disjoint`](disjoint.md), [`repair`](repair.md), [`correct`](correct.md), [`pair`](pair.md) — задают место назначения одним и тем же способом. (У [`append`](append.md) и
+[`disjoint`](disjoint.md), [`repair`](repair.md), [`correct`](correct.md), [`pair`](pair.md), [`sync`](sync.md) — задают место назначения одним и тем же способом. (У [`append`](append.md) и
 [`split-file`](split-file.md) оно своё, оно описано на их странице.) [`inspect`](inspect.md) не записывает файлов и
 не принимает ни один из этих параметров.
 
@@ -716,7 +718,7 @@ a.srt: line 6: SubRip numbers that do not follow ("7"), settled by the reader
 a.srt: line 9: a line that fits nowhere, left as it stands
 ```
 
-Сообщают о них все семнадцать подкоманд, а не только [`inspect`](inspect.md):
+Сообщают о них все восемнадцать подкоманд, а не только [`inspect`](inspect.md):
 файл, прочитанный как можно лучше и затем записанный обратно, прошёл через те же решения, и умолчание о них
 позволило бы поверить, что ничего не произошло.
 

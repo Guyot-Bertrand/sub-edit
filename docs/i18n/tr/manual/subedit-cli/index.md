@@ -46,5 +46,6 @@ toplu olarak veya bir betikten işlemek. Diğer program için ve nereden başlan
 | [`split-file`](split-file.md) | bir dosyayı ikiye kesme, kuyruğu başlangıca getirme |
 | [`pair`](pair.md) | bir çeviriyi ana dosyasının konumlarına yazma ve satırlarının nasıl hizalandığını söyleme |
 | [`transcribe`](transcribe.md) | bir videonun ya da ses dosyasının konuşmasını altyazı olarak yazma |
+| [`sync`](sync.md) | bir dosyanın altyazılarını bir filmin sesine göre yeniden zamanlama |
 | [Yazıya dökme araçlarını kurma](install-transcription.md) | programın birlikte getirmediği motor, model ve `ffmpeg` |
 | [`config`](config.md) | pencereyle paylaşılan işlem ayarlarını listeleme, gösterme ve değiştirme |

@@ -65,7 +65,7 @@ The matching is **a pure function of the text and the heard words**, in the core
    (one or two characters apart on a word of five or more) as a match. The result is monotonic by construction: the lines come out in the
    order they are in the file.
 3. **A line takes** the start of its first matched word and the end of its last. It is **found** when at least half of its words are
-   matched (setting `alignment.min-match`, default `0.5`), and at least one; a line of a single word is found only if that word is.
+   matched (setting `alignment.min-match`, default 50 %), and at least one; a line of a single word is found only if that word is.
 4. **A line spoken nowhere** (music, a foreign language, a credit that is not said) has no match and **gets no position**: the contract
    of `AlignedLine`, held by the suite. The engine never invents one.
 
@@ -120,7 +120,7 @@ $ subedit-cli sync film.fr.srt --video film.mkv --output film.fr.synced.srt
 - the subtitle file is the positional argument; `--video` (or `--audio`) gives the sound, with `--audio-track`, `--language`,
   `--model`, `--vad-model`, `--start`, `--end` as for `transcribe`;
 - `--output` as for the other commands (in place only when asked, nothing written on failure);
-- `--min-match` and `--doubt-gap` over the settings;
+- `--min-match` (percent) and `--doubt-gap` (milliseconds) over the settings;
 - `--report` writes the flagged lines to the file it names; `--format json` writes one record (ADR 0038) with the counts, the median shift,
   the drift and the flagged numbers;
 - a flagged line is **not a failure**: exit code 0, the report says it. A run that finds no line at all (a wrong audio, a wrong language) is
@@ -143,10 +143,10 @@ $ subedit-cli sync film.fr.srt --video film.mkv --output film.fr.synced.srt
 | Key | Option | Default | Meaning |
 | :-- | :----- | :------ | :------ |
 | `alignment.engine` | — | `transcript-matching` | the adapter chosen in the registry |
-| `alignment.min-match` | `--min-match` | `0.5` | the fraction of a line's words that must be heard for it to be found |
+| `alignment.min-match` | `--min-match` | `50` | the share of a line's words that must be heard for it to be found, in percent |
 | `alignment.doubt-gap` | `--doubt-gap` | `2000` ms | how far a shift may depart from its neighbours' |
 
-**Delivered in two steps.** The settings exist as a type with their defaults from the adapter's issue (#812); they are read from and written to the settings file, and the account of the operation and the reasons for failure are worded, with the `sync` command (#813), where a person first sees them — and where the catalogues are translated once.
+**Delivered with the command (#813).** The settings are read from and written to the settings file, and the account of the operation and the reasons for failure are worded in `core/wording/alignment`, where a person first sees them.
 
 The model, the voice-activity model and the engine of the **transcription** are those of phase 22; there is no second set. The account of
 the operation and the reasons for failure live in a new family of `core/wording/` (`alignment`), shared by the two surfaces.

@@ -9,6 +9,10 @@
 
 namespace subedit::core {
 
+inline constexpr int kDefaultMinimumMatchPercent = 50;
+inline constexpr int kMostMinimumMatchPercent = 100;
+inline constexpr double kPercent = 100.0;
+
 /// What the automatic alignment retains — phase 23, D7 of its spec.
 ///
 /// The model, the voice-activity model and the engine that **listens** are those of
@@ -19,11 +23,14 @@ struct AlignmentSettings {
     /// The alignment engine, as `makeAlignmentEngine` knows it.
     std::string engine{kDefaultAlignmentEngine};
 
-    /// The fraction of a line's words that must be heard for the line to be found.
-    double minimumMatch = kDefaultMinimumMatch;
+    /// The share of a line's words that must be heard for the line to be found, in percent.
+    int minimumMatchPercent = kDefaultMinimumMatchPercent;
 
     /// How far a shift may depart from its neighbours', in milliseconds.
     std::int64_t doubtGapMilliseconds = kDefaultDoubtGapMilliseconds;
+
+    /// The same share, as the matching takes it.
+    [[nodiscard]] double minimumMatch() const { return minimumMatchPercent / kPercent; }
 
     friend bool operator==(const AlignmentSettings&, const AlignmentSettings&) = default;
 };

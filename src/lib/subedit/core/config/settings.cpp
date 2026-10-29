@@ -59,6 +59,10 @@ constexpr std::string_view kDurationGapEnabledKey = "duration-adjust.gap-enabled
 constexpr std::string_view kDurationGapKey = "duration-adjust.gap-ms";
 
 // The audio transcription, seven keys under one prefix — phase 22, #777.
+constexpr std::string_view kAlignmentPrefix = "alignment.";
+constexpr std::string_view kAlignmentEngineKey = "alignment.engine";
+constexpr std::string_view kAlignmentMinMatchKey = "alignment.min-match";
+constexpr std::string_view kAlignmentDoubtGapKey = "alignment.doubt-gap";
 constexpr std::string_view kTranscriptionPrefix = "transcription.";
 constexpr std::string_view kTranscriptionEngineKey = "transcription.engine";
 constexpr std::string_view kTranscriptionExecutableKey = "transcription.executable";
@@ -840,6 +844,21 @@ void applyDurationAdjustmentOption(SettingsRead& read,
         take(millisecondsOf(value), form.gapMilliseconds);
 }
 
+/// Keeps one of the options of the automatic alignment.
+void applyAlignmentOption(SettingsRead& read, std::string_view key, std::string_view value) {
+    const auto take = [&read, key, value](auto parsed, auto& field) {
+        keepOption(read, key, value, std::move(parsed), field);
+    };
+
+    AlignmentSettings& form = read.settings.alignment;
+    if (key == kAlignmentEngineKey)
+        take(engineNameOf(value), form.engine);
+    else if (key == kAlignmentMinMatchKey)
+        take(boundedIntegerOf(value, 1, kMostMinimumMatchPercent), form.minimumMatchPercent);
+    else if (key == kAlignmentDoubtGapKey)
+        take(millisecondsOf(value), form.doubtGapMilliseconds);
+}
+
 /// Keeps one of the options of the audio transcription.
 void applyTranscriptionOption(SettingsRead& read, std::string_view key, std::string_view value) {
     const auto take = [&read, key, value](auto parsed, auto& field) {
@@ -927,6 +946,8 @@ void applyOption(SettingsRead& read,
         applyCorrectionOption(read, key, value);
     else if (key.starts_with(kTranscriptionPrefix))
         applyTranscriptionOption(read, key, value);
+    else if (key.starts_with(kAlignmentPrefix))
+        applyAlignmentOption(read, key, value);
     else if (key.starts_with(kSpellCheckPrefix))
         applySpellCheckOption(read, key, value);
     else if (key.starts_with(kEditorPrefix))
@@ -1020,6 +1041,21 @@ void renderTranscription(std::string& out, const TranscriptionSettings& form) {
                 kTranscriptionMaxCharactersKey,
                 std::to_string(form.maxCharacters),
                 form.maxCharacters == defaults.maxCharacters);
+}
+
+/// The options of the automatic alignment, each written bare when it differs from the default and
+/// commented out when it does not.
+void renderAlignment(std::string& out, const AlignmentSettings& form) {
+    const AlignmentSettings defaults;
+    writeOption(out, kAlignmentEngineKey, form.engine, form.engine == defaults.engine);
+    writeOption(out,
+                kAlignmentMinMatchKey,
+                std::to_string(form.minimumMatchPercent),
+                form.minimumMatchPercent == defaults.minimumMatchPercent);
+    writeOption(out,
+                kAlignmentDoubtGapKey,
+                std::to_string(form.doubtGapMilliseconds),
+                form.doubtGapMilliseconds == defaults.doubtGapMilliseconds);
 }
 
 [[nodiscard]] std::string activationsText(const std::vector<PatternActivation>& activations) {
@@ -1269,6 +1305,8 @@ void renderOperationBlock(std::string& out, const Settings& settings) {
     renderCorrectionSettings(out, settings.correction);
 
     renderTranscription(out, settings.transcription);
+
+    renderAlignment(out, settings.alignment);
 }
 
 void renderDisplayBlock(std::string& out, const Settings& settings) {

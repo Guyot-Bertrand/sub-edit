@@ -146,6 +146,7 @@ add_library(
     wording/editing.cpp
     wording/formats.cpp
     wording/settings.cpp
+    wording/alignment.cpp
     wording/transcription.cpp
     wording/translation.cpp
     wording/version.cpp
@@ -165,6 +166,7 @@ add_library(
     transcription/whisper_cpp_engine.cpp
     transcription/whisper_cpp_output.cpp
     transcription/word_matching.cpp
+    transcription/align_media.cpp
     transcription/alignment_doubt.cpp
     transcription/alignment_retiming.cpp
     transcription/transcript_matching_aligner.cpp)
