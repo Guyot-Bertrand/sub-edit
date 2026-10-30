@@ -40,7 +40,7 @@ sem er opnuð og síðan vistuð án breytingar haggast ekki um eitt einasta bæ
 | breyta stafstöðu, skáletri eða þankastrikum í heilli skrá | [Aðgerðirnar](subedit-gui/operations.md#italic) eða [`case`](subedit-cli/case.md), [`italics`](subedit-cli/italics.md), [`dialogue-dashes`](subedit-cli/dialogue-dashes.md) |
 | leita að orði og skipta því út án þess að brjóta merki | [Leita og skipta út](subedit-gui/find-and-replace.md) eða [`replace`](subedit-cli/replace.md) |
 | skrifa tal kvikmyndar sem skjátexta | [`Transcribe Audio…`](subedit-gui/video.md#umritun-hljóðsins) eða [`transcribe`](subedit-cli/transcribe.md) — eftir að hafa [sett upp tækin](subedit-cli/install-transcription.md) |
-| tímastilla skjátextaskrá eftir hljóði kvikmyndar | [`sync`](subedit-cli/sync.md) — eftir að hafa [sett upp tækin](subedit-cli/install-transcription.md) |
+| tímastilla skjátextaskrá eftir hljóði kvikmyndar | [`Synchronize with Audio…`](subedit-gui/video.md#samstilling-við-hljóðið) eða [`sync`](subedit-cli/sync.md) — eftir að hafa [sett upp tækin](subedit-cli/install-transcription.md) |
 | þýða samhliða frumtextanum | [Að opna þýðingu](subedit-gui/files.md#að-opna-þýðingu) eða [`pair`](subedit-cli/pair.md) til að tímasetja hana upp á nýtt eftir aðalskránni |
 | vinna hundrað skrár í einu | [Vinnsla á möpputré](subedit-cli/lots.md), síðan [Ræsing](subedit-cli/invocation.md) |
 

@@ -10,6 +10,7 @@ kvikmyndinni — sjá [Spilarinn](player.md#að-fara-um-kvikmyndina).
 | :----- | :---------- | :------------- |
 | Velja myndskeið… | enginn | velur myndskeiðsskrána sem skjalið fylgir |
 | Umrita hljóð… | enginn | umritar hljóð kvikmyndarinnar í skjátexta sem koma í stað skjátexta verkefnisins — sjá [Umritun hljóðsins](#umritun-hljóðsins) |
+| Samstilla við hljóð… | enginn | færir skjátexta verkefnisins þangað sem orð þeirra eru sögð í hljóði kvikmyndarinnar — sjá [Samstilling við hljóðið](#samstilling-við-hljóðið) |
 | Spila / Hlé | `Ctrl+P` | spilar eða stöðvar myndskeiðið — sjá [Spilarinn](player.md#spilun-og-stöðvun) |
 
 Tengda myndskeiðið er **eiginleiki opna skjalsins**, ekki stilling
@@ -192,6 +193,55 @@ er ekki tími eða endirinn kemur ekki á eftir upphafinu, og lína undir reitun
 
 **Það sem hún þarf fylgir ekki forritinu**: vél (whisper.cpp), líkan og `ffmpeg` til að draga hljóðið út.
 Sjá [Uppsetning umritunartækjanna](../subedit-cli/install-transcription.md).
+
+## Samstilling við hljóðið
+
+**`Synchronize with Audio…`** tímastillir skjátexta verkefnisins eftir hljóði kvikmyndarinnar. Þetta á við um `.srt` skrána
+sem sótt er á netinu, færða í upphafi og í lokin, sem ein tilfærsla kemur ekki aftur í lag: leitað er að hverjum skjátexta í því sem
+sagt er, og hann tekur stað þar sem það er sagt. **Aðeins upphaf og endir breytast** — aldrei textinn, stíllinn, fjöldi
+skjátexta né röð þeirra. Eins og `Transcribe Audio…` er hún óvirk þar til kvikmynd er opin, og það er hljóð **kvikmyndar verkefnisins** sem er notað; sama
+skipun á skipanalínunni er [`sync`](../subedit-cli/sync.md).
+
+Skjátextarnir verða að vera á tungumálinu sem er talað: ekkert er þýtt. Vinnuna vinnur vélin sem umritar — sú sem er í
+[kjörstillingunum](preferences.md#umritun), með sama forriti, `ffmpeg` og líkani — og **glugginn segir hvað vantar** nákvæmlega eins og
+gluggi umritunarinnar, með tilvísun í [Uppsetning umritunartækjanna](../subedit-cli/install-transcription.md) og hnappinn
+`Preferences…`.
+
+Glugginn biður um:
+
+- **hljóðrásina** og **tungumálið**, eins og við umritunina;
+- **hluta kvikmyndarinnar**, frá einum tíma til annars, hvort tveggja tómt fyrir alla kvikmyndina: aðeins skjátextar sem **byrja** innan bilsins eru
+  sóttir og færðir;
+- **„Aðeins valdir skjátextar“**: reitur, óvirkur þegar ekkert er valið. Hann leitar aðeins að völdu skjátextunum, í þeim hluta
+  kvikmyndarinnar sem byrjar mínútu fyrir þann fyrsta og endar mínútu eftir þann síðasta, svo að skrá sem er sein eða snemma sé
+  enn innan þess sem hlustað er á;
+- **„Orð til að heyra“**, í prósentum: hlutfall orða skjátexta sem þarf að heyrast til að skjátextinn finnist, 50 % sjálfgefið — stillingin
+  `alignment.min-match`;
+- **„Tilfærsla til athugunar“**, í millisekúndum: hve langt skjátexti má færast frá tilfærslu nágranna sinna áður en hann er merktur, 2000 ms sjálfgefið —
+  stillingin `alignment.doubt-gap`.
+
+Þrjú síðustu eru munuð til næsta skiptis. Vinnan fer fram **í bakgrunni**, með sama reit og hnappinn `Cancel` og umritunin;
+keyrsla sem bilar eða er stöðvuð breytir engu.
+
+### Niðurstaðan
+
+**Ekkert færist fyrr en þú hefur séð hvert skjátextarnir fara.** Þegar vinnunni lýkur sýnir gluggi, fyrir hvern skjátexta sem leitað var að,
+númer hans, texta hans, **upphafið sem hann hafði, upphafið sem hann fær, tilfærsluna þar á milli**, og það sem er **til athugunar**, í orðum:
+
+- **„fannst ekki í hljóðinu, látinn halda sér“**: færri orð heyrðust en reiturinn krefst. Skjátextinn heldur tímum sínum — **engin staða er
+  nokkru sinni fundin upp, né giskað á hana út frá nágrönnunum**;
+- **„heyrðist aðeins að hluta“**: fannst, en færri en 80 % orða hans heyrðust;
+- **„færðist öðruvísi en nágrannarnir“**: fannst, en tilfærsla hans víkur frá miðtilfærslu skjátextanna tveggja til hvorrar handar um meira en
+  „Tilfærsla til athugunar“;
+- **„styttur að upphafi næsta skjátexta“** og **„skarast enn við næsta skjátexta“**: skjátexti sem rynni inn í þann næsta er styttur að
+  því sem sá næsti byrjar; sá sem skarast enn við hann, sem stytting læknar ekki, er látinn halda sér og það sagt.
+
+Lína fyrir ofan töfluna segir hvernig fór — hve margir skjátextar voru settir, hve margir eru til athugunar, miðgildi tilfærslu og rek —, og
+**„Aðeins skjátextar til athugunar“** sýnir aðeins þá. Ekki er hægt að breyta töflunni.
+
+Tveir hnappar loka glugganum. **„Virkja“** færir upphaf og endi **í einni aðgerð**: ein `Undo` skilar tímunum sem voru. „Hætta við“
+skilur verkefnið eftir eins og það er. „Virkja“ er óvirkt þegar ekkert myndi færast. Þegar enginn skjátextanna fannst, segir glugginn það í reit
+og sýnir ekkert til að virkja: það er nær örugglega rangt hljóð eða rangt tungumál.
 
 ## Þegar engin kvikmynd er
 

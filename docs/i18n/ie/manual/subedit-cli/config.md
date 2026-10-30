@@ -123,7 +123,7 @@ e lor linea `Used by:` di it, con li option de `correct` quel prende lor loc:
 | `correction.remove-blank` | `correct` e `Correct Texts…` |
 | `correction.line-break.max-lines` | `correct` e `Correct Texts…` |
 | `transcription.engine`, `transcription.executable`, `transcription.model`, `transcription.vad-model`, `transcription.language`, `transcription.suppress-notes`, `transcription.merge-gap-ms`, `transcription.max-duration-ms`, `transcription.max-characters` | [`transcribe`](transcribe.md) e `Transcribe Audio…` |
-| `alignment.engine`, `alignment.min-match`, `alignment.doubt-gap` | [`sync`](sync.md) |
+| `alignment.engine`, `alignment.min-match`, `alignment.doubt-gap` | [`sync`](sync.md) e `Synchronize with Audio…` |
 | chascun altri clave `correction.*` | `Correct Texts…` solmen — `correct` prende `--tasks`, `--code`, `--max-length`, `--skip-length`, `--skip-lines`, `--language`, `--enable` e `--disable` de su propri linea |
 
 Li númeres de lineas, `correction.line-break.max-lines` e `correction.line-break.skip-max-lines`,

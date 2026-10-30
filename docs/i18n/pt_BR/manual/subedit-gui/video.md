@@ -10,6 +10,7 @@ O menu **Vídeo** traz primeiro três comandos, e os gestos que conduzem o filme
 | :------ | :----- | :-------- |
 | Selecionar vídeo… | nenhum | escolhe o arquivo de vídeo ao qual o documento se associa |
 | Transcrever áudio… | nenhum | transcreve o áudio do filme em legendas que substituem as do projeto — veja [Transcrever o áudio](#transcrever-o-áudio) |
+| Sincronizar com o áudio… | nenhum | move as legendas do projeto para onde suas palavras são ditas no áudio do filme — veja [Sincronizar com o áudio](#sincronizar-com-o-áudio) |
 | Reproduzir / Pausar | `Ctrl+P` | reproduz ou interrompe o vídeo — veja [O reprodutor](player.md#reproduzir-e-parar) |
 
 O vídeo associado é **uma propriedade do documento aberto**, e não uma configuração
@@ -193,6 +194,55 @@ for um tempo ou o fim não vier depois do início, e uma linha sob os campos diz
 
 **O que ela precisa não é fornecido**: um motor (whisper.cpp), um modelo e o `ffmpeg` para extrair o áudio.
 Veja [Instalar as ferramentas de transcrição](../subedit-cli/install-transcription.md).
+
+## Sincronizar com o áudio
+
+**`Synchronize with Audio…`** reajusta o tempo das legendas do projeto sobre o áudio do filme. É o caso do `.srt`
+baixado da internet, deslocado no início e no fim, que um único deslocamento não conserta: cada legenda é procurada no que
+é dito e toma o lugar onde é dita. **Só os inícios e os fins mudam** — nunca o texto, o estilo, o número de
+legendas nem a ordem delas. Como `Transcribe Audio…`, fica desativado enquanto não houver um filme aberto, e é o áudio do **filme do projeto**; a
+mesma operação na linha de comando é [`sync`](../subedit-cli/sync.md).
+
+As legendas devem estar no idioma que é falado: nada é traduzido. O trabalho é feito pelo motor que transcreve — o das
+[preferências](preferences.md#transcrição), com o mesmo programa, o mesmo `ffmpeg` e o mesmo modelo — e **a caixa de diálogo diz o que falta**, exatamente como a da
+transcrição, com o link para [Instalar as ferramentas de transcrição](../subedit-cli/install-transcription.md) e um botão
+`Preferences…`.
+
+A caixa de diálogo pede:
+
+- **a faixa de áudio** e **o idioma**, como para a transcrição;
+- **a parte do filme**, de um tempo a outro, os dois campos vazios para o filme inteiro: só as legendas que **começam** nesse intervalo são
+  procuradas e movidas;
+- **“Só as legendas selecionadas”**: uma caixa, desativada quando nada está selecionado. Ela procura só as legendas selecionadas, na parte do
+  filme que começa um minuto antes da primeira delas e termina um minuto depois da última, de modo que um arquivo atrasado ou adiantado
+  continue dentro do que é ouvido;
+- **“Palavras a ouvir”**, em porcentagem: a parcela das palavras de uma legenda que deve ser ouvida para que a legenda seja encontrada, 50 % por padrão — a
+  configuração `alignment.min-match`;
+- **“Deslocamento a verificar”**, em milissegundos: quanto uma legenda pode se afastar do deslocamento das vizinhas antes de ser sinalizada, 2000 ms por padrão —
+  a configuração `alignment.doubt-gap`.
+
+Os três últimos são guardados para a vez seguinte. O trabalho roda **em segundo plano**, com a mesma caixa e o mesmo botão `Cancel` da transcrição;
+uma execução que falha ou que você interrompe não muda nada.
+
+### O resultado
+
+**Nada se move até que você tenha visto para onde as legendas iriam.** Quando o trabalho termina, uma janela mostra, para cada legenda procurada,
+seu número, seu texto, **o início que tinha, o início que toma, o deslocamento entre os dois**, e o que há **a verificar**, em palavras:
+
+- **“não encontrada no áudio, deixada como estava”**: foram ouvidas menos palavras do que a caixa pede. A legenda guarda seus tempos — **nenhuma posição é
+  jamais inventada, nem deduzida das vizinhas**;
+- **“ouvida só em parte”**: encontrada, mas menos de 80 % de suas palavras foram ouvidas;
+- **“deslocada de modo diferente das vizinhas”**: encontrada, mas seu deslocamento se afasta do deslocamento mediano das duas legendas de cada lado em mais do que o
+  “Deslocamento a verificar”;
+- **“recuada até o início da legenda seguinte”** e **“ainda se sobrepõe à legenda seguinte”**: uma legenda que invadiria a seguinte é recuada até
+  onde a seguinte começa; a que ainda se sobrepõe a ela, o que recuar não cura, é deixada e dita.
+
+Uma linha acima da tabela diz o que deu — quantas legendas foram colocadas, quantas há a verificar, o deslocamento mediano e a deriva —, e
+**“Só as legendas a verificar”** mostra apenas essas. A tabela não pode ser editada.
+
+Dois botões a fecham. **“Aplicar”** move os inícios e os fins **numa única operação**: um `Undo` devolve os tempos que lá estavam. “Cancelar”
+deixa o projeto como está. “Aplicar” fica desativado quando nada se moveria. Quando nenhuma das legendas pôde ser encontrada, a janela diz isso numa caixa
+e não mostra nada a aplicar: quase certamente é o áudio errado ou o idioma errado.
 
 ## Quando não há filme
 

@@ -123,7 +123,7 @@ und ihre Zeile `Used by:` sagt es, zusammen mit der Option von `correct`, die an
 | `correction.remove-blank` | `correct` und `Correct Texts…` |
 | `correction.line-break.max-lines` | `correct` und `Correct Texts…` |
 | `transcription.engine`, `transcription.executable`, `transcription.model`, `transcription.vad-model`, `transcription.language`, `transcription.suppress-notes`, `transcription.merge-gap-ms`, `transcription.max-duration-ms`, `transcription.max-characters` | [`transcribe`](transcribe.md) und `Transcribe Audio…` |
-| `alignment.engine`, `alignment.min-match`, `alignment.doubt-gap` | [`sync`](sync.md) |
+| `alignment.engine`, `alignment.min-match`, `alignment.doubt-gap` | [`sync`](sync.md) und `Synchronize with Audio…` |
 | jeder andere Schlüssel `correction.*` | nur `Correct Texts…` — `correct` nimmt `--tasks`, `--code`, `--max-length`, `--skip-length`, `--skip-lines`, `--language`, `--enable` und `--disable` aus seiner eigenen Zeile |
 
 Die Zeilenzahlen, `correction.line-break.max-lines` und `correction.line-break.skip-max-lines`,

@@ -32,7 +32,7 @@ constexpr std::string_view kDurationLimit =
 constexpr std::string_view kCharacterLimit = deferred("a whole number from 1 to 1000");
 
 constexpr std::string_view kTranscribe = deferred("subedit-cli transcribe; Transcribe Audio…");
-constexpr std::string_view kSync = deferred("subedit-cli sync");
+constexpr std::string_view kSync = deferred("subedit-cli sync; Synchronize with Audio…");
 constexpr std::string_view kPercentage = deferred("a whole number from 1 to 100");
 
 constexpr std::string_view kAdjust = deferred("subedit-cli adjust; Adjust Durations…");

@@ -1068,7 +1068,8 @@ msgstr "--head i --tail van junts: indiqueu-los tots dos, o cap amb --dry-run"
 
 #: src/exe/cli/commands/sync.cpp
 msgid "Re-time the subtitles of a file on the audio of a film"
-msgstr "Resincronitza els subtítols d'un fitxer segons l'àudio d'una pel·lícula"
+msgstr ""
+"Resincronitza els subtítols d'un fitxer segons l'àudio d'una pel·lícula"
 
 #: src/exe/cli/commands/sync.cpp
 msgid "Film to listen to"
@@ -1080,7 +1081,8 @@ msgstr "Fitxer d'àudio que cal escoltar, en lloc d'una pel·lícula"
 
 #: src/exe/cli/commands/sync.cpp
 msgid "Audio track of a film, counted from 0; the first by default"
-msgstr "Pista d'àudio d'una pel·lícula, comptada des de 0; per defecte, la primera"
+msgstr ""
+"Pista d'àudio d'una pel·lícula, comptada des de 0; per defecte, la primera"
 
 #: src/exe/cli/commands/sync.cpp src/exe/cli/commands/transcribe.cpp
 msgid "Where to begin, as 2:00, 1:02:03 or seconds; the beginning by default"
@@ -1122,13 +1124,17 @@ msgstr "Conserva l'àudio extret en aquest fitxer"
 msgid ""
 "Share of a subtitle's words that must be heard, in percent; the alignment."
 "min-match setting by default"
-msgstr "Part de les paraules d'un subtítol que s'han d'haver sentit, en percentatge; per defecte, el paràmetre alignment.min-match"
+msgstr ""
+"Part de les paraules d'un subtítol que s'han d'haver sentit, en percentatge; "
+"per defecte, el paràmetre alignment.min-match"
 
 #: src/exe/cli/commands/sync.cpp
 msgid ""
 "How far a subtitle may move from its neighbours' shift before it is flagged, "
 "in milliseconds; the alignment.doubt-gap setting by default"
-msgstr "Quant pot allunyar-se un subtítol del desplaçament dels veïns abans de ser assenyalat, en mil·lisegons; per defecte, el paràmetre alignment.doubt-gap"
+msgstr ""
+"Quant pot allunyar-se un subtítol del desplaçament dels veïns abans de ser "
+"assenyalat, en mil·lisegons; per defecte, el paràmetre alignment.doubt-gap"
 
 #: src/exe/cli/commands/sync.cpp
 msgid "Write the subtitles to check to this file"
@@ -2152,7 +2158,8 @@ msgstr "%1 -> %2, %3"
 
 #: src/lib/subedit/cli/syncing.cpp
 msgid "--report names one file: give one subtitle file when you use it"
-msgstr "--report anomena un sol fitxer: doneu un sol fitxer de subtítols quan l'useu"
+msgstr ""
+"--report anomena un sol fitxer: doneu un sol fitxer de subtítols quan l'useu"
 
 #: src/lib/subedit/cli/text_rewriting.cpp
 msgid "--on and --off say opposite things; give one of them"
@@ -2296,8 +2303,8 @@ msgid "subedit-cli transcribe; Transcribe Audio…"
 msgstr "subedit-cli transcribe; Transcriu l'àudio…"
 
 #: src/lib/subedit/core/config/operation_settings.cpp
-msgid "subedit-cli sync"
-msgstr "subedit-cli sync"
+msgid "subedit-cli sync; Synchronize with Audio…"
+msgstr "subedit-cli sync; Sincronitza amb l'àudio…"
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "a whole number from 1 to 100"
@@ -2560,7 +2567,8 @@ msgstr "El motor que alinea els subtítols amb l'àudio."
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "Share of a line's words that must be heard, in percent."
-msgstr "Part de les paraules d'una línia que s'han d'haver sentit, en percentatge."
+msgstr ""
+"Part de les paraules d'una línia que s'han d'haver sentit, en percentatge."
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "How far a line may move from its neighbours' shift."
@@ -2725,7 +2733,9 @@ msgstr "cap motor d'alineació es diu %1"
 #: src/lib/subedit/core/wording/alignment.cpp
 msgid ""
 "sync needs the audio to listen to: give --video or --audio, and not both"
-msgstr "sync necessita l'àudio que cal escoltar: doneu --video o --audio, i no tots dos"
+msgstr ""
+"sync necessita l'àudio que cal escoltar: doneu --video o --audio, i no tots "
+"dos"
 
 #: src/lib/subedit/core/wording/alignment.cpp
 msgid ""
@@ -2734,8 +2744,12 @@ msgid ""
 msgid_plural ""
 "none of the %1 subtitles was found in the audio: is it the right audio, and "
 "the right language?"
-msgstr[0] "el subtítol %1 s'ha cercat a l'àudio i no s'ha trobat: és l'àudio correcte, i la llengua correcta?"
-msgstr[1] "cap dels %1 subtítols no s'ha trobat a l'àudio: és l'àudio correcte, i la llengua correcta?"
+msgstr[0] ""
+"el subtítol %1 s'ha cercat a l'àudio i no s'ha trobat: és l'àudio correcte, "
+"i la llengua correcta?"
+msgstr[1] ""
+"cap dels %1 subtítols no s'ha trobat a l'àudio: és l'àudio correcte, i la "
+"llengua correcta?"
 
 #: src/lib/subedit/core/wording/alignment.cpp
 msgid "%1 of %2 subtitle placed on the audio, %3 to check"
@@ -2972,6 +2986,10 @@ msgstr "unió dels subtítols repetits"
 #: src/lib/subedit/core/wording/analysis.cpp
 msgid "transcribing the audio"
 msgstr "la transcripció de l'àudio"
+
+#: src/lib/subedit/core/wording/analysis.cpp
+msgid "synchronizing with the audio"
+msgstr "la sincronització amb l'àudio"
 
 #. TRANSLATORS: how well the positions fall on a frame-rate grid: clean,
 #. partial, or none at all.
@@ -3992,6 +4010,7 @@ msgstr "Document"
 #: src/lib/subedit/gui/operation_dialog.cpp
 #: src/lib/subedit/gui/spell_check_settings_dialog.cpp
 #: src/lib/subedit/gui/subtitle_table_model.cpp
+#: src/lib/subedit/gui/synchronization_preview_dialog.cpp
 #: src/lib/subedit/gui/transcription_preview_dialog.cpp
 #: src/lib/subedit/gui/transform_dialog.cpp
 msgid "Text"
@@ -4977,6 +4996,41 @@ msgstr "Final (fotogrames)"
 msgid "Duration"
 msgstr "Durada"
 
+#: src/lib/subedit/gui/synchronization_preview_dialog.cpp
+msgid "Only the subtitles to check"
+msgstr "Només els subtítols per revisar"
+
+#: src/lib/subedit/gui/synchronization_preview_dialog.cpp
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+#: src/lib/subedit/gui/transcription_runner.cpp
+msgid "Synchronize with audio"
+msgstr "Sincronitza amb l'àudio"
+
+#: src/lib/subedit/gui/synchronization_preview_dialog.cpp
+msgid "No."
+msgstr "N.º"
+
+#: src/lib/subedit/gui/synchronization_preview_dialog.cpp
+msgid "Was"
+msgstr "Abans"
+
+#: src/lib/subedit/gui/synchronization_preview_dialog.cpp
+msgid "Now"
+msgstr "Ara"
+
+#: src/lib/subedit/gui/synchronization_preview_dialog.cpp
+msgid "Shift"
+msgstr "Desplaçament"
+
+#: src/lib/subedit/gui/synchronization_preview_dialog.cpp
+msgid "To check"
+msgstr "Per revisar"
+
+#: src/lib/subedit/gui/synchronization_preview_dialog.cpp
+#: src/lib/subedit/gui/transcription_preview_dialog.cpp
+msgid "Apply"
+msgstr "Aplica"
+
 #: src/lib/subedit/gui/table_columns.cpp
 msgid "&Duration"
 msgstr "&Durada"
@@ -5006,6 +5060,10 @@ msgstr "Mostra la traducció al costat del text"
 #: src/lib/subedit/gui/target.cpp
 msgid "Main"
 msgstr "Principal"
+
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+msgid "Only the selected subtitles"
+msgstr "Només els subtítols seleccionats"
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
 msgid "Preferences…"
@@ -5065,6 +5123,39 @@ msgid "Part of the film"
 msgstr "Part de la pel·lícula"
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
+msgid "Words to hear"
+msgstr "Paraules per sentir"
+
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+msgid "Shift to check"
+msgstr "Desplaçament per revisar"
+
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+msgid ""
+"The subtitles of the project are moved to where their words are said in the "
+"audio of the film open in this window. Nothing but their times changes. The "
+"work runs in the background and can be cancelled, and the result is shown "
+"before it is applied."
+msgstr "Els subtítols del projecte es mouen a on es diuen les seves paraules a l'àudio de la pel·lícula oberta en aquesta finestra. Només en canvien els temps. La feina s'executa en segon pla i es pot cancel·lar, i el resultat es mostra abans d'aplicar-lo."
+
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+msgid ""
+"The share of a subtitle's words that must be heard for the subtitle to be "
+"found."
+msgstr "La part de les paraules d'un subtítol que s'han de sentir perquè el subtítol es consideri trobat."
+
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+msgid ""
+"How far a subtitle may move from the shift of its neighbours before it is "
+"flagged."
+msgstr "Quant pot allunyar-se un subtítol del desplaçament dels veïns abans de ser assenyalat."
+
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+msgid ""
+"Look for the selected subtitles alone, in the part of the film around them."
+msgstr "Cerca només els subtítols seleccionats, a la part de la pel·lícula que els envolta."
+
+#: src/lib/subedit/gui/transcribe_dialog.cpp
 msgid "Set them in the preferences."
 msgstr "Indiqueu-los a les preferències."
 
@@ -5100,10 +5191,6 @@ msgstr ""
 #: src/lib/subedit/gui/transcription_preview_dialog.cpp
 msgid "Keep these values as settings"
 msgstr "Conserva aquests valors com a paràmetres"
-
-#: src/lib/subedit/gui/transcription_preview_dialog.cpp
-msgid "Apply"
-msgstr "Aplica"
 
 # From Gaupol.
 #: src/lib/subedit/gui/transcription_preview_dialog.cpp
@@ -5156,21 +5243,21 @@ msgid "As they will be applied (%1)"
 msgstr "Tal com s'aplicaran (%1)"
 
 #: src/lib/subedit/gui/transcription_runner.cpp
-msgid "Extracting the audio…"
-msgstr "Extracció de l'àudio…"
+#: src/lib/subedit/gui/unsaved_documents_dialog.cpp
+msgid "Cancel"
+msgstr "Cancel·la"
 
 #: src/lib/subedit/gui/transcription_runner.cpp
 msgid "Transcribing the audio…"
 msgstr "Transcripció de l'àudio…"
 
 #: src/lib/subedit/gui/transcription_runner.cpp
-msgid "Last text: %1"
-msgstr "Darrer text: %1"
+msgid "Extracting the audio…"
+msgstr "Extracció de l'àudio…"
 
 #: src/lib/subedit/gui/transcription_runner.cpp
-#: src/lib/subedit/gui/unsaved_documents_dialog.cpp
-msgid "Cancel"
-msgstr "Cancel·la"
+msgid "Last text: %1"
+msgstr "Darrer text: %1"
 
 #: src/lib/subedit/gui/transform_dialog.cpp
 msgid "Transform positions"
@@ -5331,6 +5418,10 @@ msgstr "Posicions en &fotogrames"
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "Transcribe Audio…"
 msgstr "Transcriu l'àudio…"
+
+#: src/lib/subedit/gui/window_actions.cpp
+msgid "Synchronize with Audio…"
+msgstr "Sincronitza amb l'àudio…"
 
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "Play / Pause"
@@ -5586,6 +5677,9 @@ msgstr "Cursiva"
 msgctxt "toolbar"
 msgid "Main"
 msgstr "Principal"
+
+#~ msgid "subedit-cli sync"
+#~ msgstr "subedit-cli sync"
 
 #~ msgid ""
 #~ "%1 of the %2 pieces are only notes in brackets, such as [MUSIC PLAYING]: "

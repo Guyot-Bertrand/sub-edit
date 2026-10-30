@@ -75,7 +75,8 @@ text      (?:UTF|ISO|KOI8|EUC|CP|IBM)-?[\w-]*(?:,version=\d)?|windows-\d+|Shift_
 
 [constant] An all-capitals token: an environment variable, a keyword of a file format, a placeholder of the syntax. It is a name, not a sentence.
 # The form the time fields of the transcription dialog ask for, shown as their placeholder (#792).
-file      src/lib/subedit/gui/transcribe_dialog.cpp HH:MM:SS
+# The unit of the field that sets the shift to check, beside the time form (#814).
+file      src/lib/subedit/gui/transcribe_dialog.cpp HH:MM:SS| ms
 # The same form, as the placeholder of a field that may be empty (#805).
 file      src/lib/subedit/gui/timestamp_edit.cpp HH:MM:SS(?:,mmm)?
 text      [A-Z][A-Z0-9_]*(?:[ -][A-Z0-9_]+)*
@@ -151,6 +152,7 @@ file      src/lib/subedit/core/text/spell_checker.cpp \S+
 [contract] The message of an exception thrown when a caller broke a precondition: a defect of the program, read by a developer in a crash report, never by the user (#684).
 text      splitProject: nothing would stay, or nothing would leave
 file      src/lib/subedit/core/model/project.cpp subtitle index | in a project of |restoring | subtitles at | destinations
+file      src/lib/subedit/gui/transcription_runner.cpp this runner cannot synchronize
 
 [catalogue-loading] Why a message catalogue was refused. The catalogue is the very thing that failed to load, so it cannot say it in the user's language; the reason is read by the translator who wrote the file, in a test or a debugger, and `installedLanguage` drops it (#684).
 file      src/lib/subedit/core/i18n/catalogue.cpp

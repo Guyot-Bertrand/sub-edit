@@ -123,7 +123,7 @@ $ subedit-cli config list | grep -c '^[a-z]'
 | `correction.remove-blank` | `correct` и `Correct Texts…` |
 | `correction.line-break.max-lines` | `correct` и `Correct Texts…` |
 | `transcription.engine`, `transcription.executable`, `transcription.model`, `transcription.vad-model`, `transcription.language`, `transcription.suppress-notes`, `transcription.merge-gap-ms`, `transcription.max-duration-ms`, `transcription.max-characters` | [`transcribe`](transcribe.md) и `Transcribe Audio…` |
-| `alignment.engine`, `alignment.min-match`, `alignment.doubt-gap` | [`sync`](sync.md) |
+| `alignment.engine`, `alignment.min-match`, `alignment.doubt-gap` | [`sync`](sync.md) и `Synchronize with Audio…` |
 | сваки други кључ `correction.*` | само `Correct Texts…` — `correct` узима `--tasks`, `--code`, `--max-length`, `--skip-length`, `--skip-lines`, `--language`, `--enable` и `--disable` из своје линије |
 
 Бројеви редова, `correction.line-break.max-lines` и `correction.line-break.skip-max-lines`,

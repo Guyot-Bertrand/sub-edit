@@ -1,4 +1,5 @@
 #include <subedit/core/io/real_file_system.hpp>
+#include <subedit/core/transcription/align_media.hpp>
 #include <subedit/core/transcription/default_engines.hpp>
 #include <subedit/core/transcription/remaining_time.hpp>
 #include <subedit/core/transcription/subtitle_assembly.hpp>
@@ -75,6 +76,102 @@ private:
     if (engine.kind == core::TranscriptionErrorKind::Cancelled)
         return TranscriptionFailure{.cancelled = true, .partial = error.partial};
     return failed(core::transcriptionErrorText(engine), error.partial);
+}
+
+using AlignResult = std::expected<AlignmentOutcome, TranscriptionFailure>;
+
+/// The listening work of a synchronization, on whichever thread calls it. Touches nothing of Qt.
+[[nodiscard]] AlignResult alignWork(const AlignmentJob& job,
+                                    const std::string& searchPath,
+                                    SharedProgress& progress,
+                                    const std::atomic<bool>& cancelled) {
+    core::RealFileSystem files;
+    const core::TranscriptionSettings& settings = job.settings;
+    const core::EngineRegistry engines = core::makeDefaultEngines(
+        files,
+        searchPath,
+        settings.executable.empty() ? std::nullopt : std::optional{settings.executable});
+    const core::TranscriptionEngine* const engine = engines.find(settings.engine);
+    if (engine == nullptr)
+        return std::unexpected(failed(core::noSuchTranscriptionEngine(settings.engine)));
+
+    core::MediaAlignmentRequest request;
+    request.media.input = job.video;
+    request.media.audioTrack = job.track;
+    if (!job.language.empty())
+        request.media.language = job.language;
+    if (!job.model.empty())
+        request.media.model = job.model;
+    if (!settings.vadModel.empty())
+        request.media.vadModel = settings.vadModel;
+    request.media.start = job.start;
+    request.media.end = job.end;
+    request.lines = job.lines;
+
+    const core::TranscriptMatchingAligner aligner{*engine, job.alignment.minimumMatch()};
+    const core::TranscriptionObserver observer{
+        .advanced = [&progress](const core::TranscriptionProgress& state) { progress.set(state); },
+        .cancelled = [&cancelled] { return cancelled.load(); }};
+    auto matched = core::alignMedia(files, aligner, searchPath, request, observer);
+    if (!matched)
+        return std::unexpected(failureOf(matched.error()));
+    return AlignmentOutcome{.matches = std::move(*matched)};
+}
+
+/// Runs `work` on a background thread behind a box that shows how far it has got and lets the
+/// person stop it. `cancelProbe` is a test's way of pressing Cancel.
+template<typename Outcome, typename Work>
+[[nodiscard]] Outcome runBehindBox(const QString& title,
+                                   QWidget* parent,
+                                   const std::function<bool()>& cancelProbe,
+                                   Work work) {
+    SharedProgress progress;
+    core::RemainingTime remaining;
+    const auto started = core::RemainingTime::Clock::now();
+    remaining.note(0.0, started);
+    std::atomic<bool> cancelled{false};
+
+    QProgressDialog box{
+        translate("Transcribing the audio…"), translate("Cancel"), 0, kPercent, parent};
+    box.setWindowTitle(title);
+    box.setWindowModality(Qt::WindowModal);
+    box.setMinimumDuration(0);
+    box.setAutoClose(false);
+    box.setAutoReset(false);
+    // Busy until something says how far it is: an extraction has no figure to give.
+    box.setRange(0, 0);
+    // A box with no value yet is shown after a delay Qt sets by itself, a few seconds: asked for at
+    // once, since the work starts at once and a window that does not answer looks like a freeze.
+    box.setMinimumWidth(kBoxWidth);
+    box.show();
+
+    QFutureWatcher<Outcome> watcher;
+    QEventLoop loop;
+    QObject::connect(&watcher, &QFutureWatcher<Outcome>::finished, &loop, &QEventLoop::quit);
+    watcher.setFuture(
+        QtConcurrent::run([&work, &progress, &cancelled] { return work(progress, cancelled); }));
+
+    QTimer poll;
+    QObject::connect(&poll, &QTimer::timeout, &loop, [&] {
+        const core::TranscriptionProgress state = progress.get();
+        const auto now = core::RemainingTime::Clock::now();
+        if (state.fraction)
+            remaining.note(*state.fraction, now);
+        if (state.fraction && state.stage == core::TranscriptionStage::Transcribing) {
+            box.setRange(0, kPercent);
+            box.setValue(static_cast<int>(*state.fraction * kPercent));
+        }
+        box.setLabelText(
+            transcriptionBoxLabel(state,
+                                  remaining.left(now),
+                                  std::chrono::duration_cast<std::chrono::seconds>(now - started)));
+        if (box.wasCanceled() || (cancelProbe && cancelProbe()))
+            cancelled = true;
+    });
+    poll.start(kPollMilliseconds);
+
+    loop.exec();
+    return watcher.result();
 }
 
 /// The whole work, on whichever thread calls it. Touches nothing of Qt.
@@ -158,54 +255,28 @@ BackgroundTranscriptionRunner::tools(const core::TranscriptionSettings& settings
 }
 
 Result BackgroundTranscriptionRunner::run(const TranscriptionJob& job, QWidget* parent) {
-    SharedProgress progress;
-    core::RemainingTime remaining;
-    const auto started = core::RemainingTime::Clock::now();
-    remaining.note(0.0, started);
-    std::atomic<bool> cancelled{false};
+    return runBehindBox<Result>(
+        translate("Transcribe audio"),
+        parent,
+        m_cancelProbe,
+        [this, &job](SharedProgress& progress, const std::atomic<bool>& cancelled) {
+            return work(job, m_searchPath, progress, cancelled);
+        });
+}
 
-    QProgressDialog box{
-        translate("Transcribing the audio…"), translate("Cancel"), 0, kPercent, parent};
-    box.setWindowTitle(translate("Transcribe audio"));
-    box.setWindowModality(Qt::WindowModal);
-    box.setMinimumDuration(0);
-    box.setAutoClose(false);
-    box.setAutoReset(false);
-    // Busy until something says how far it is: an extraction has no figure to give.
-    box.setRange(0, 0);
-    // A box with no value yet is shown after a delay Qt sets by itself, a few seconds: asked for at
-    // once, since the work starts at once and a window that does not answer looks like a freeze.
-    box.setMinimumWidth(kBoxWidth);
-    box.show();
+AlignResult BackgroundTranscriptionRunner::align(const AlignmentJob& job, QWidget* parent) {
+    return runBehindBox<AlignResult>(
+        translate("Synchronize with audio"),
+        parent,
+        m_cancelProbe,
+        [this, &job](SharedProgress& progress, const std::atomic<bool>& cancelled) {
+            return alignWork(job, m_searchPath, progress, cancelled);
+        });
+}
 
-    QFutureWatcher<Result> watcher;
-    QEventLoop loop;
-    QObject::connect(&watcher, &QFutureWatcher<Result>::finished, &loop, &QEventLoop::quit);
-    watcher.setFuture(QtConcurrent::run([this, &job, &progress, &cancelled] {
-        return work(job, m_searchPath, progress, cancelled);
-    }));
-
-    QTimer poll;
-    QObject::connect(&poll, &QTimer::timeout, &loop, [&] {
-        const core::TranscriptionProgress state = progress.get();
-        const auto now = core::RemainingTime::Clock::now();
-        if (state.fraction)
-            remaining.note(*state.fraction, now);
-        if (state.fraction && state.stage == core::TranscriptionStage::Transcribing) {
-            box.setRange(0, kPercent);
-            box.setValue(static_cast<int>(*state.fraction * kPercent));
-        }
-        box.setLabelText(
-            transcriptionBoxLabel(state,
-                                  remaining.left(now),
-                                  std::chrono::duration_cast<std::chrono::seconds>(now - started)));
-        if (box.wasCanceled() || (m_cancelProbe && m_cancelProbe()))
-            cancelled = true;
-    });
-    poll.start(kPollMilliseconds);
-
-    loop.exec();
-    return watcher.result();
+std::expected<AlignmentOutcome, TranscriptionFailure>
+TranscriptionRunner::align(const AlignmentJob& /*job*/, QWidget* /*parent*/) {
+    return std::unexpected(TranscriptionFailure{.message = "this runner cannot synchronize"});
 }
 
 } // namespace subedit::gui

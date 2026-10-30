@@ -129,6 +129,7 @@ add_executable(
     core/transcription/alignment_doubt_test.cpp
     core/transcription/alignment_retiming_test.cpp
     core/transcription/alignment_wording_test.cpp
+    core/transcription/synchronization_test.cpp
     core/transcription/transcript_matching_aligner_test.cpp
     core/io/file_error_test.cpp
     core/text/lines_test.cpp

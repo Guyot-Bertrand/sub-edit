@@ -123,7 +123,7 @@ $ subedit-cli config list | grep -c '^[a-z]'
 | `correction.remove-blank` | `correct` ו-`Correct Texts…` |
 | `correction.line-break.max-lines` | `correct` ו-`Correct Texts…` |
 | `transcription.engine`, `transcription.executable`, `transcription.model`, `transcription.vad-model`, `transcription.language`, `transcription.suppress-notes`, `transcription.merge-gap-ms`, `transcription.max-duration-ms`, `transcription.max-characters` | [`transcribe`](transcribe.md) ו-`Transcribe Audio…` |
-| `alignment.engine`, `alignment.min-match`, `alignment.doubt-gap` | [`sync`](sync.md) |
+| `alignment.engine`, `alignment.min-match`, `alignment.doubt-gap` | [`sync`](sync.md) ו-`Synchronize with Audio…` |
 | כל מפתח `correction.*` אחר | `Correct Texts…` בלבד — `correct` לוקחת את `--tasks`, `--code`, `--max-length`, `--skip-length`, `--skip-lines`, `--language`, `--enable` ו-`--disable` משורתה שלה |
 
 מספר השורות נקבע במפתח `correction.line-break.max-lines`

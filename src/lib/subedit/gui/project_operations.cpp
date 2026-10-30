@@ -30,6 +30,8 @@
 #include <subedit/core/model/subtitle_index.hpp>
 #include <subedit/core/time/timestamp.hpp>
 #include <subedit/core/transcription/subtitle_assembly.hpp>
+#include <subedit/core/transcription/synchronization.hpp>
+#include <subedit/core/wording/alignment.hpp>
 #include <subedit/core/wording/conversion.hpp>
 #include <subedit/core/wording/counts.hpp>
 #include <subedit/core/wording/editing.hpp>
@@ -47,6 +49,8 @@
 #include <subedit/gui/split_project_dialog.hpp>
 #include <subedit/gui/status_line.hpp>
 #include <subedit/gui/subtitle_table_model.hpp>
+#include <subedit/gui/synchronization_preview.hpp>
+#include <subedit/gui/synchronization_preview_dialog.hpp>
 #include <subedit/gui/target.hpp>
 #include <subedit/gui/transcription_preview_dialog.hpp>
 #include <subedit/gui/transform_dialog.hpp>
@@ -490,6 +494,101 @@ void ProjectOperations::transcribeAudio(ProjectPage& page) {
     }
     m_view->announce(partialUpTo ? core::noticeOfPartialTranscription(made, *partialUpTo)
                                  : core::noticeOfTranscription(made, language));
+}
+
+void ProjectOperations::synchronizeWithAudio(ProjectPage& page, const core::Selection& selection) {
+    const std::optional<std::filesystem::path> video = m_view->videoOf(page);
+    if (!video.has_value() || page.session->project().count() == 0)
+        return;
+
+    const std::vector<core::AudioTrack> tracks = m_view->audioTracksOf(page);
+    const bool selected = !selection.isEmpty();
+    TranscribeDialog dialog{
+        tracks,
+        TranscribeChoice{.language = m_transcriptionSettings.language,
+                         .minimumMatchPercent = m_alignmentSettings.minimumMatchPercent,
+                         .doubtGapMilliseconds =
+                             static_cast<int>(m_alignmentSettings.doubtGapMilliseconds)},
+        [this] { return currentTools(); },
+        [this] { m_view->openPreferences(); },
+        m_view->dialogParent()};
+    dialog.forSynchronization(
+        {.language = m_transcriptionSettings.language,
+         .minimumMatchPercent = m_alignmentSettings.minimumMatchPercent,
+         .doubtGapMilliseconds = static_cast<int>(m_alignmentSettings.doubtGapMilliseconds)},
+        selected);
+    if (!m_prompts->run(dialog))
+        return;
+    const TranscribeChoice choice = dialog.choice();
+
+    // Kept as asked, even when the run then fails: the next one offers it again.
+    m_transcriptionSettings.language = choice.language;
+    m_alignmentSettings.minimumMatchPercent = choice.minimumMatchPercent;
+    m_alignmentSettings.doubtGapMilliseconds = choice.doubtGapMilliseconds;
+
+    const core::Project& project = page.session->project();
+    const core::LinesToSynchronize looked =
+        choice.selectionOnly ? core::subtitlesOf(project, selection)
+                             : core::subtitlesBeginningIn(project, choice.start, choice.end);
+    if (looked.subtitles.empty())
+        return;
+
+    // The selected subtitles are looked for in the part of the film around them: a margin on each
+    // side, so that a file that is late or early is still inside what is listened to.
+    std::optional<core::Timestamp> from = choice.start;
+    std::optional<core::Timestamp> to = choice.end;
+    if (choice.selectionOnly) {
+        constexpr std::int64_t kMarginMilliseconds = 60000;
+        const core::Subtitle& first =
+            project.subtitleAt(core::SubtitleIndex::fromValue(looked.subtitles.front()));
+        const core::Subtitle& last =
+            project.subtitleAt(core::SubtitleIndex::fromValue(looked.subtitles.back()));
+        from = core::Timestamp::fromMilliseconds(
+            std::max<std::int64_t>(0, first.start.milliseconds() - kMarginMilliseconds));
+        to = core::Timestamp::fromMilliseconds(last.end.milliseconds() + kMarginMilliseconds);
+    }
+
+    const AlignmentJob job{.video = *video,
+                           .track = choice.track,
+                           .language = choice.language,
+                           .model = m_transcriptionSettings.model,
+                           .settings = m_transcriptionSettings,
+                           .alignment = m_alignmentSettings,
+                           .lines = looked.lines,
+                           .start = from,
+                           .end = to};
+    const std::expected<AlignmentOutcome, TranscriptionFailure> outcome = m_view->align(job);
+    if (!outcome) {
+        if (!outcome.error().cancelled)
+            m_prompts->reportFailure(outcome.error().message);
+        else
+            m_view->announce(
+                core::transcriptionErrorText({.kind = core::TranscriptionErrorKind::Cancelled}));
+        return;
+    }
+
+    const core::DoubtLimits limits{.partialBelow = core::kDefaultPartialBelow,
+                                   .gapMilliseconds = m_alignmentSettings.doubtGapMilliseconds};
+    const core::SynchronizationPlan plan =
+        core::planSynchronization(project, looked.subtitles, outcome->matches, limits);
+    if (plan.report.positioned() == 0) {
+        m_prompts->reportFailure(core::noLineFoundInTheAudio(looked.lines.size()));
+        return;
+    }
+
+    // **The decision comes after the result is seen**: nothing moves until it is applied.
+    const core::AlignmentReport report = plan.report;
+    SynchronizationPreviewDialog preview{
+        SynchronizationPreview{.texts = looked.lines, .plan = plan}, m_view->dialogParent()};
+    if (!m_prompts->run(preview))
+        return;
+
+    std::unique_ptr<core::Command> command = core::synchronizationCommand(project, plan);
+    if (command != nullptr) {
+        const core::Selection everything = core::Selection::all(page.session->project());
+        apply(page, std::move(command), everything);
+    }
+    m_view->announce(core::noticeOfAlignment(report));
 }
 
 void ProjectOperations::appendFile(ProjectPage& page) {

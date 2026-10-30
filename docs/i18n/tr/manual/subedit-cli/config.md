@@ -123,7 +123,7 @@ ve `Used by:` satırları bunu, yerlerini alan `correct` seçeneğiyle birlikte 
 | `correction.remove-blank` | `correct` ve `Correct Texts…` |
 | `correction.line-break.max-lines` | `correct` ve `Correct Texts…` |
 | `transcription.engine`, `transcription.executable`, `transcription.model`, `transcription.vad-model`, `transcription.language`, `transcription.suppress-notes`, `transcription.merge-gap-ms`, `transcription.max-duration-ms`, `transcription.max-characters` | [`transcribe`](transcribe.md) ve `Transcribe Audio…` |
-| `alignment.engine`, `alignment.min-match`, `alignment.doubt-gap` | [`sync`](sync.md) |
+| `alignment.engine`, `alignment.min-match`, `alignment.doubt-gap` | [`sync`](sync.md) ve `Synchronize with Audio…` |
 | diğer her `correction.*` anahtarı | yalnızca `Correct Texts…` — `correct`, `--tasks`, `--code`, `--max-length`, `--skip-length`, `--skip-lines`, `--language`, `--enable` ve `--disable` değerlerini kendi satırından alır |
 
 Satır sayıları, `correction.line-break.max-lines` ve `correction.line-break.skip-max-lines`,

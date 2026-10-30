@@ -13,6 +13,7 @@
 #include <subedit/core/transcription/align_media.hpp>
 #include <subedit/core/transcription/alignment_doubt.hpp>
 #include <subedit/core/transcription/alignment_retiming.hpp>
+#include <subedit/core/transcription/synchronization.hpp>
 #include <subedit/core/transcription/transcript_matching_aligner.hpp>
 #include <subedit/core/wording/alignment.hpp>
 #include <subedit/core/wording/formats.hpp>
@@ -28,49 +29,6 @@
 namespace subedit::cli {
 
 namespace {
-
-/// The subtitles to look for in the audio: all of them, or those that begin in the range asked
-/// for. The others are left alone, and are not counted among the lines not found.
-struct Looked {
-    std::vector<std::size_t> subtitles;
-    std::vector<std::string> lines;
-};
-
-[[nodiscard]] Looked subtitlesToLookFor(const core::Project& project,
-                                        const std::optional<core::Timestamp>& from,
-                                        const std::optional<core::Timestamp>& to) {
-    Looked looked;
-    const auto subtitles = project.subtitles();
-    for (std::size_t at = 0; at < subtitles.size(); ++at) {
-        const core::Timestamp start = subtitles[at].start;
-        if ((from && start < *from) || (to && start > *to))
-            continue;
-        looked.subtitles.push_back(at);
-        looked.lines.push_back(subtitles[at].mainText);
-    }
-    return looked;
-}
-
-/// The times the matching gives, put on the file: only the subtitles that moved, as one command.
-[[nodiscard]] std::size_t placeOnFile(core::Session& session,
-                                      const std::vector<core::RetimedLine>& retimed,
-                                      const std::vector<std::size_t>& subtitles) {
-    std::vector<std::unique_ptr<core::Command>> commands;
-    for (std::size_t line = 0; line < retimed.size(); ++line) {
-        if (!retimed[line].moved && !retimed[line].trimmed)
-            continue;
-        const auto index = core::SubtitleIndex::fromValue(subtitles[line]);
-        commands.push_back(std::make_unique<core::SetPositionCommand>(
-            session.project(), index, core::Boundary::Start, retimed[line].times.start));
-        commands.push_back(std::make_unique<core::SetPositionCommand>(
-            session.project(), index, core::Boundary::End, retimed[line].times.end));
-    }
-    const std::size_t placed = commands.size() / 2;
-    if (placed > 0)
-        session.apply(std::make_unique<core::CompositeCommand>(core::CommandKind::Transform,
-                                                               std::move(commands)));
-    return placed;
-}
 
 /// The lines to check, as the report file and the record say them: the number of the subtitle in
 /// the file, and why.
@@ -200,40 +158,31 @@ struct SyncRun {
 };
 
 [[nodiscard]] OperationOutcome syncOneFile(const SyncRun& run, core::Session& session) {
-    const Looked looked =
-        subtitlesToLookFor(session.project(), run.request.media.start, run.request.media.end);
+    const core::LinesToSynchronize looked = core::subtitlesBeginningIn(
+        session.project(), run.request.media.start, run.request.media.end);
     run.request.lines = looked.lines;
     const auto matched =
         core::alignMedia(run.files, run.aligner, run.searchPath, run.request, run.observer);
     if (!matched)
         return std::unexpected(failureOf(matched.error()));
 
-    std::vector<core::Timestamp> originals;
-    std::vector<core::LineTimes> times;
-    for (const std::size_t at : looked.subtitles) {
-        const core::Subtitle& subtitle =
-            session.project().subtitleAt(core::SubtitleIndex::fromValue(at));
-        originals.push_back(subtitle.start);
-        times.push_back({.start = subtitle.start, .end = subtitle.end});
-    }
-    const core::AlignmentReport report = core::judgeAlignment(*matched, originals, run.limits);
-    if (report.positioned() == 0 && !looked.lines.empty())
+    const core::SynchronizationPlan plan =
+        core::planSynchronization(session.project(), looked.subtitles, *matched, run.limits);
+    if (plan.report.positioned() == 0 && !looked.lines.empty())
         return std::unexpected(Failure{
             "no-line-found", [&] { return core::noLineFoundInTheAudio(looked.lines.size()); }});
 
-    std::vector<core::AlignedLine> places;
-    places.reserve(matched->size());
-    for (const core::LineMatch& match : *matched)
-        places.push_back(match.place);
-    const std::vector<core::RetimedLine> retimed = core::retime(times, places);
-    const std::size_t moved = placeOnFile(session, retimed, looked.subtitles);
+    const std::size_t moved = plan.changed();
+    if (std::unique_ptr<core::Command> command =
+            core::synchronizationCommand(session.project(), plan))
+        session.apply(std::move(command));
 
-    const std::vector<Flag> flags = flagsOf(report, retimed, looked.subtitles);
+    const std::vector<Flag> flags = flagsOf(plan.report, plan.retimed, plan.subtitles);
     if (!run.options.report.empty())
         writeReport(run.files, run.options.report, flags, run.reporter);
 
-    OperationResult result{.sentence = core::noticeOfAlignment(report),
-                           .counts = countsOf(report, moved)};
+    OperationResult result{.sentence = core::noticeOfAlignment(plan.report),
+                           .counts = countsOf(plan.report, moved)};
     result.fields.emplace_back("flagged", flagsRecord(flags));
     return result;
 }

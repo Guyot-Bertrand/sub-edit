@@ -10,6 +10,7 @@ El menú **Vídeo** porta primer tres ordres, i els gestos que condueixen la pel
 | :------ | :------- | :----------- |
 | Selecciona un vídeo… | cap | tria el fitxer de vídeo amb què va el document |
 | Transcriu l'àudio… | cap | transcriu l'àudio de la pel·lícula en subtítols que substitueixen els del projecte — vegeu [Transcriure l'àudio](#transcriure-làudio) |
+| Sincronitza amb l'àudio… | cap | mou els subtítols del projecte a on es diuen les seves paraules a l'àudio de la pel·lícula — vegeu [Sincronitzar amb l'àudio](#sincronitzar-amb-làudio) |
 | Reprodueix / Pausa | `Ctrl+P` | reprodueix o atura el vídeo — vegeu [El reproductor](player.md#reproduir-i-aturar) |
 
 El vídeo associat és **una propietat del document obert**, no un paràmetre de
@@ -192,6 +193,54 @@ Un interval permet **jutjar un model o una llengua en dos minuts abans de compro
 
 **El que necessita no es lliura**: un motor (whisper.cpp), un model, i `ffmpeg` per extreure l'àudio.
 Vegeu [Instal·lació de les eines de transcripció](../subedit-cli/install-transcription.md).
+
+## Sincronitzar amb l'àudio
+
+**`Synchronize with Audio…`** resincronitza els subtítols del projecte segons l'àudio de la pel·lícula. És el cas del `.srt`
+baixat d'internet, desfasat a l'inici i al final, que un sol desplaçament no arregla: cada subtítol es cerca en el que es
+diu, i pren el lloc on es diu. **Només canvien els inicis i els finals** — mai el text, l'estil, el nombre de
+subtítols ni el seu ordre. Com `Transcribe Audio…`, està desactivada fins que s'obre una pel·lícula, i és l'àudio de **la pel·lícula del projecte**; la
+mateixa ordre a la línia d'ordres és [`sync`](../subedit-cli/sync.md).
+
+Els subtítols han de ser en la llengua que es parla: no es tradueix res. La feina la fa el motor que transcriu — el de
+les [preferències](preferences.md#transcripció), amb el mateix programa, `ffmpeg` i model — i **el diàleg diu què hi falta** exactament com el de la transcripció, amb la referència a [Instal·lació de les eines de transcripció](../subedit-cli/install-transcription.md) i un
+botó `Preferences…`.
+
+El diàleg demana:
+
+- **la pista d'àudio** i **la llengua**, com per a la transcripció;
+- **la part de la pel·lícula**, d'un temps a un altre, tots dos buits per a tota la pel·lícula: només els subtítols que **comencen** dins de l'interval
+  es cerquen i es mouen;
+- **“Només els subtítols seleccionats”**: un quadre, apagat quan no hi ha res seleccionat. Cerca només els subtítols seleccionats, a la part de la
+  pel·lícula que comença un minut abans del primer i acaba un minut després de l'últim, de manera que un fitxer endarrerit o avançat
+  continuï dins del que s'escolta;
+- **“Paraules per sentir”**, en percentatge: la part de les paraules d'un subtítol que s'han de sentir perquè el subtítol es consideri trobat, 50 % per defecte — el
+  paràmetre `alignment.min-match`;
+- **“Desplaçament per revisar”**, en mil·lisegons: quant pot allunyar-se un subtítol del desplaçament dels veïns abans de ser assenyalat, 2000 ms per defecte —
+  el paràmetre `alignment.doubt-gap`.
+
+Els tres últims es conserven per a la vegada següent. La feina s'executa **en segon pla**, amb el mateix quadre i el mateix botó `Cancel` que la transcripció;
+una execució que falla o que atureu no canvia res.
+
+### El resultat
+
+**Res no es mou fins que heu vist on anirien els subtítols.** Quan la feina acaba, una finestra mostra, per a cada subtítol cercat,
+el seu número, el seu text, **l'inici que tenia, l'inici que pren, el desplaçament entre tots dos**, i què hi ha **per revisar**, amb paraules:
+
+- **“no trobat a l'àudio, deixat tal com era”**: s'han sentit menys paraules de les que demana el quadre. El subtítol conserva els seus temps — **cap posició
+  no s'inventa mai, i cap no s'endevina a partir dels veïns**;
+- **“només sentit en part”**: trobat, però s'ha sentit menys del 80 % de les seves paraules;
+- **“desplaçat de manera diferent dels veïns”**: trobat, però el seu desplaçament s'allunya del desplaçament mitjà dels dos subtítols de cada costat en més del
+  “Desplaçament per revisar”;
+- **“retallat fins a l'inici del subtítol següent”** i **“encara se superposa al subtítol següent”**: un subtítol que envairia el següent es retalla fins a
+  on comença el següent; el que encara se superposa, que retallar no pot arreglar, es deixa i es diu.
+
+Una línia sobre la taula diu en què ha acabat — quants subtítols s'han col·locat, quants s'han de revisar, el desplaçament mitjà i la deriva —, i
+**“Només els subtítols per revisar”** mostra només aquests. La taula no es pot editar.
+
+Dos botons la tanquen. **“Aplica”** mou els inicis i els finals **com una sola operació**: un sol `Undo` retorna els temps que hi havia. “Cancel·la”
+deixa el projecte com és. “Aplica” és apagat quan no hi ha res a moure. Quan no s'ha pogut trobar cap dels subtítols, la finestra ho diu en un quadre
+i no mostra res per aplicar: gairebé segur que és l'àudio equivocat o la llengua equivocada.
 
 ## Quan no hi ha pel·lícula
 

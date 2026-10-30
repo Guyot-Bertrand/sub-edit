@@ -1148,13 +1148,17 @@ msgstr "Säilytä purettu ääni tässä tiedostossa"
 msgid ""
 "Share of a subtitle's words that must be heard, in percent; the alignment."
 "min-match setting by default"
-msgstr "Osuus tekstityksen sanoista, jotka on kuultava, prosentteina; oletuksena asetus alignment.min-match"
+msgstr ""
+"Osuus tekstityksen sanoista, jotka on kuultava, prosentteina; oletuksena "
+"asetus alignment.min-match"
 
 #: src/exe/cli/commands/sync.cpp
 msgid ""
 "How far a subtitle may move from its neighbours' shift before it is flagged, "
 "in milliseconds; the alignment.doubt-gap setting by default"
-msgstr "Kuinka paljon tekstityksen siirto saa poiketa naapureidensa siirrosta ennen kuin se merkitään, millisekunteina; oletuksena asetus alignment.doubt-gap"
+msgstr ""
+"Kuinka paljon tekstityksen siirto saa poiketa naapureidensa siirrosta ennen "
+"kuin se merkitään, millisekunteina; oletuksena asetus alignment.doubt-gap"
 
 #: src/exe/cli/commands/sync.cpp
 msgid "Write the subtitles to check to this file"
@@ -2174,7 +2178,8 @@ msgstr "%1 -> %2, %3"
 
 #: src/lib/subedit/cli/syncing.cpp
 msgid "--report names one file: give one subtitle file when you use it"
-msgstr "--report nimeää yhden tiedoston: anna yksi tekstitystiedosto, kun käytät sitä"
+msgstr ""
+"--report nimeää yhden tiedoston: anna yksi tekstitystiedosto, kun käytät sitä"
 
 #: src/lib/subedit/cli/text_rewriting.cpp
 msgid "--on and --off say opposite things; give one of them"
@@ -2318,8 +2323,8 @@ msgid "subedit-cli transcribe; Transcribe Audio…"
 msgstr "subedit-cli transcribe; Litteroi ääni…"
 
 #: src/lib/subedit/core/config/operation_settings.cpp
-msgid "subedit-cli sync"
-msgstr "subedit-cli sync"
+msgid "subedit-cli sync; Synchronize with Audio…"
+msgstr "subedit-cli sync; Synkronoi äänen kanssa…"
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "a whole number from 1 to 100"
@@ -2755,7 +2760,8 @@ msgstr "kohdistusmoottoria nimeltä %1 ei ole"
 #: src/lib/subedit/core/wording/alignment.cpp
 msgid ""
 "sync needs the audio to listen to: give --video or --audio, and not both"
-msgstr "sync tarvitsee kuunneltavan äänen: anna --video tai --audio, älä molempia"
+msgstr ""
+"sync tarvitsee kuunneltavan äänen: anna --video tai --audio, älä molempia"
 
 #: src/lib/subedit/core/wording/alignment.cpp
 msgid ""
@@ -2765,7 +2771,8 @@ msgid_plural ""
 "none of the %1 subtitles was found in the audio: is it the right audio, and "
 "the right language?"
 msgstr[0] "tekstitystä ei löytynyt äänestä: onko ääni ja kieli oikea?"
-msgstr[1] "yhtäkään %1 tekstityksestä ei löytynyt äänestä: onko ääni ja kieli oikea?"
+msgstr[1] ""
+"yhtäkään %1 tekstityksestä ei löytynyt äänestä: onko ääni ja kieli oikea?"
 
 #: src/lib/subedit/core/wording/alignment.cpp
 msgid "%1 of %2 subtitle placed on the audio, %3 to check"
@@ -3003,6 +3010,10 @@ msgstr "toistuvien kappaleiden yhdistäminen"
 #: src/lib/subedit/core/wording/analysis.cpp
 msgid "transcribing the audio"
 msgstr "äänen litterointi"
+
+#: src/lib/subedit/core/wording/analysis.cpp
+msgid "synchronizing with the audio"
+msgstr "synkronointi äänen kanssa"
 
 #. TRANSLATORS: how well the positions fall on a frame-rate grid: clean,
 #. partial, or none at all.
@@ -4023,6 +4034,7 @@ msgstr "Asiakirja"
 #: src/lib/subedit/gui/operation_dialog.cpp
 #: src/lib/subedit/gui/spell_check_settings_dialog.cpp
 #: src/lib/subedit/gui/subtitle_table_model.cpp
+#: src/lib/subedit/gui/synchronization_preview_dialog.cpp
 #: src/lib/subedit/gui/transcription_preview_dialog.cpp
 #: src/lib/subedit/gui/transform_dialog.cpp
 msgid "Text"
@@ -5011,6 +5023,42 @@ msgstr "Loppu (ruudut)"
 msgid "Duration"
 msgstr "Kesto"
 
+#: src/lib/subedit/gui/synchronization_preview_dialog.cpp
+msgid "Only the subtitles to check"
+msgstr "Vain tarkistettavat tekstitykset"
+
+#: src/lib/subedit/gui/synchronization_preview_dialog.cpp
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+#: src/lib/subedit/gui/transcription_runner.cpp
+msgid "Synchronize with audio"
+msgstr "Synkronoi äänen kanssa"
+
+# From Gaupol.
+#: src/lib/subedit/gui/synchronization_preview_dialog.cpp
+msgid "No."
+msgstr "Nro"
+
+#: src/lib/subedit/gui/synchronization_preview_dialog.cpp
+msgid "Was"
+msgstr "Oli"
+
+#: src/lib/subedit/gui/synchronization_preview_dialog.cpp
+msgid "Now"
+msgstr "Nyt"
+
+#: src/lib/subedit/gui/synchronization_preview_dialog.cpp
+msgid "Shift"
+msgstr "Siirto"
+
+#: src/lib/subedit/gui/synchronization_preview_dialog.cpp
+msgid "To check"
+msgstr "Tarkistettava"
+
+#: src/lib/subedit/gui/synchronization_preview_dialog.cpp
+#: src/lib/subedit/gui/transcription_preview_dialog.cpp
+msgid "Apply"
+msgstr "Käytä"
+
 # From Gaupol.
 #: src/lib/subedit/gui/table_columns.cpp
 msgid "&Duration"
@@ -5043,6 +5091,10 @@ msgstr "Näytä käännös tekstin vieressä"
 #: src/lib/subedit/gui/target.cpp
 msgid "Main"
 msgstr "Pääasiakirja"
+
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+msgid "Only the selected subtitles"
+msgstr "Vain valitut tekstitykset"
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
 msgid "Preferences…"
@@ -5101,6 +5153,39 @@ msgid "Part of the film"
 msgstr "Elokuvan osa"
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
+msgid "Words to hear"
+msgstr "Kuultavat sanat"
+
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+msgid "Shift to check"
+msgstr "Tarkistettava siirto"
+
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+msgid ""
+"The subtitles of the project are moved to where their words are said in the "
+"audio of the film open in this window. Nothing but their times changes. The "
+"work runs in the background and can be cancelled, and the result is shown "
+"before it is applied."
+msgstr "Projektin tekstitykset siirretään sinne, missä niiden sanat sanotaan tässä ikkunassa avoinna olevan elokuvan äänessä. Vain niiden ajat muuttuvat. Työ tehdään taustalla ja sen voi peruuttaa, ja tulos näytetään ennen sen käyttöönottoa."
+
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+msgid ""
+"The share of a subtitle's words that must be heard for the subtitle to be "
+"found."
+msgstr "Osuus tekstityksen sanoista, jotka on kuultava, jotta tekstitys katsotaan löytyneeksi."
+
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+msgid ""
+"How far a subtitle may move from the shift of its neighbours before it is "
+"flagged."
+msgstr "Kuinka kauas tekstitys saa siirtyä naapuriensa siirrosta, ennen kuin se merkitään."
+
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+msgid ""
+"Look for the selected subtitles alone, in the part of the film around them."
+msgstr "Etsi vain valitut tekstitykset, niiden ympärillä olevasta elokuvan osasta."
+
+#: src/lib/subedit/gui/transcribe_dialog.cpp
 msgid "Set them in the preferences."
 msgstr "Aseta ne asetuksissa."
 
@@ -5135,10 +5220,6 @@ msgstr ""
 #: src/lib/subedit/gui/transcription_preview_dialog.cpp
 msgid "Keep these values as settings"
 msgstr "Säilytä nämä arvot asetuksina"
-
-#: src/lib/subedit/gui/transcription_preview_dialog.cpp
-msgid "Apply"
-msgstr "Käytä"
 
 # From Gaupol.
 #: src/lib/subedit/gui/transcription_preview_dialog.cpp
@@ -5190,21 +5271,21 @@ msgid "As they will be applied (%1)"
 msgstr "Sellaisina kuin ne otetaan käyttöön (%1)"
 
 #: src/lib/subedit/gui/transcription_runner.cpp
-msgid "Extracting the audio…"
-msgstr "Puretaan ääntä…"
+#: src/lib/subedit/gui/unsaved_documents_dialog.cpp
+msgid "Cancel"
+msgstr "Peru"
 
 #: src/lib/subedit/gui/transcription_runner.cpp
 msgid "Transcribing the audio…"
 msgstr "Litteroidaan ääntä…"
 
 #: src/lib/subedit/gui/transcription_runner.cpp
-msgid "Last text: %1"
-msgstr "Viimeisin teksti: %1"
+msgid "Extracting the audio…"
+msgstr "Puretaan ääntä…"
 
 #: src/lib/subedit/gui/transcription_runner.cpp
-#: src/lib/subedit/gui/unsaved_documents_dialog.cpp
-msgid "Cancel"
-msgstr "Peru"
+msgid "Last text: %1"
+msgstr "Viimeisin teksti: %1"
 
 #: src/lib/subedit/gui/transform_dialog.cpp
 msgid "Transform positions"
@@ -5365,6 +5446,10 @@ msgstr "&Kohdat ruutuina"
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "Transcribe Audio…"
 msgstr "Litteroi ääni…"
+
+#: src/lib/subedit/gui/window_actions.cpp
+msgid "Synchronize with Audio…"
+msgstr "Synkronoi äänen kanssa…"
 
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "Play / Pause"
@@ -5630,6 +5715,9 @@ msgstr "Kursiivi"
 msgctxt "toolbar"
 msgid "Main"
 msgstr "Päätyökalurivi"
+
+#~ msgid "subedit-cli sync"
+#~ msgstr "subedit-cli sync"
 
 #~ msgid ""
 #~ "%1 of the %2 pieces are only notes in brackets, such as [MUSIC PLAYING]: "

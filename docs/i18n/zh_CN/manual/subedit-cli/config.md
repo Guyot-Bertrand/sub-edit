@@ -110,7 +110,7 @@ $ subedit-cli config list | grep -c '^[a-z]'
 | `correction.remove-blank` | `correct` 和 `Correct Texts…` |
 | `correction.line-break.max-lines` | `correct` 和 `Correct Texts…` |
 | `transcription.engine`, `transcription.executable`, `transcription.model`, `transcription.vad-model`, `transcription.language`, `transcription.suppress-notes`, `transcription.merge-gap-ms`, `transcription.max-duration-ms`, `transcription.max-characters` | [`transcribe`](transcribe.md) 和 `Transcribe Audio…` |
-| `alignment.engine`, `alignment.min-match`, `alignment.doubt-gap` | [`sync`](sync.md) |
+| `alignment.engine`, `alignment.min-match`, `alignment.doubt-gap` | [`sync`](sync.md) 和 `Synchronize with Audio…` |
 | 其余所有 `correction.*` 键 | 只有 `Correct Texts…`——`correct` 从自己的命令行取任务（`--tasks`）、代码（`--code`）、最大长度（`--max-length`）、跳过的长度（`--skip-length`）、跳过的行数（`--skip-lines`）、语言（`--language`）以及 `--enable` 和 `--disable` |
 
 行数 `correction.line-break.max-lines` 和 `correction.line-break.skip-max-lines` 是 1 到 1000 的整数——也就是 `correct --max-lines` 的界限；行长度 `correction.line-break.max-length` 和 `correction.line-break.skip-max-length` 是大于 0 的数：`set` 拒绝其他取值，而手工编辑后含有这类取值的文件，则保留默认值。

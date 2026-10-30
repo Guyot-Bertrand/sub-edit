@@ -19,6 +19,7 @@
 #include <QLocale>
 #include <QPushButton>
 #include <QSignalBlocker>
+#include <QSpinBox>
 #include <QString>
 #include <QVBoxLayout>
 
@@ -49,6 +50,11 @@ TranscribeDialog::TranscribeDialog(std::vector<core::AudioTrack> tracks,
       m_track(new QComboBox{this}),
       m_language(new QComboBox{this}),
       m_suppressNotes(new QCheckBox{translate("Do not write sounds as notes"), this}),
+      m_selectionOnly(new QCheckBox{translate("Only the selected subtitles"), this}),
+      m_minimumMatch(new QSpinBox{this}),
+      m_doubtGap(new QSpinBox{this}),
+      m_explanation(new QLabel{this}),
+      m_fields(new QFormLayout),
       m_start(new TimestampEdit{{.milliseconds = false, .optional = true}, this}),
       m_end(new TimestampEdit{{.milliseconds = false, .optional = true}, this}),
       m_rangeHint(new QLabel{this}),
@@ -103,14 +109,13 @@ TranscribeDialog::TranscribeDialog(std::vector<core::AudioTrack> tracks,
     m_hint->setWordWrap(true);
     m_tools->setWordWrap(true);
 
-    auto* explanation = new QLabel{
+    m_explanation->setText(
         translate("The audio of the film open in this window is transcribed into subtitles "
                   "that replace the ones of the project. The work runs in the background and "
-                  "can be cancelled."),
-        this};
-    explanation->setWordWrap(true);
+                  "can be cancelled."));
+    m_explanation->setWordWrap(true);
 
-    auto* fields = new QFormLayout;
+    QFormLayout* fields = m_fields;
     fields->addRow(translate("Audio track"), m_track);
     fields->addRow(translate("Language"), m_language);
     fields->addRow(QString{}, m_hint);
@@ -122,12 +127,27 @@ TranscribeDialog::TranscribeDialog(std::vector<core::AudioTrack> tracks,
     range->addWidget(m_end);
     fields->addRow(translate("Part of the film"), range);
     fields->addRow(QString{}, m_rangeHint);
+    fields->addRow(QString{}, m_selectionOnly);
+    fields->addRow(translate("Words to hear"), m_minimumMatch);
+    fields->addRow(translate("Shift to check"), m_doubtGap);
+    // Only the synchronization shows these three, but the choice always carries them: what the
+    // fields hold is what was given, so that a dialog that does not ask them gives them back.
+    m_minimumMatch->setRange(1, core::kMostMinimumMatchPercent);
+    m_minimumMatch->setValue(initial.minimumMatchPercent);
+    constexpr int kLargestGap = 60000;
+    m_doubtGap->setRange(0, kLargestGap);
+    m_doubtGap->setValue(initial.doubtGapMilliseconds);
+    m_selectionOnly->setChecked(initial.selectionOnly);
+    // Only the synchronization asks these three.
+    for (QWidget* widget :
+         std::initializer_list<QWidget*>{m_selectionOnly, m_minimumMatch, m_doubtGap})
+        fields->setRowVisible(widget, false);
 
     connect(m_buttons, &QDialogButtonBox::accepted, this, &QDialog::accept);
     connect(m_buttons, &QDialogButtonBox::rejected, this, &QDialog::reject);
 
     auto* stack = new QVBoxLayout{this};
-    stack->addWidget(explanation);
+    stack->addWidget(m_explanation);
     stack->addLayout(fields);
     stack->addWidget(m_tools);
     stack->addWidget(m_preferences);
@@ -147,7 +167,40 @@ TranscribeChoice TranscribeDialog::choice() const {
                             .language = selectedLanguage(),
                             .suppressNotes = m_suppressNotes->isChecked(),
                             .start = core::readRangeBound(m_start->text().toStdString()),
-                            .end = core::readRangeBound(m_end->text().toStdString())};
+                            .end = core::readRangeBound(m_end->text().toStdString()),
+                            .selectionOnly = m_selectionOnly->isChecked(),
+                            .minimumMatchPercent = m_minimumMatch->value(),
+                            .doubtGapMilliseconds = m_doubtGap->value()};
+}
+
+void TranscribeDialog::forSynchronization(const TranscribeChoice& initial,
+                                          bool selectionAvailable) {
+    setWindowTitle(translate("Synchronize with audio"));
+    m_explanation->setText(
+        translate("The subtitles of the project are moved to where their words are said in the "
+                  "audio of the film open in this window. Nothing but their times changes. The "
+                  "work runs in the background and can be cancelled, and the result is shown "
+                  "before it is applied."));
+    m_minimumMatch->setSuffix(QStringLiteral(" %"));
+    m_minimumMatch->setValue(initial.minimumMatchPercent);
+    m_minimumMatch->setToolTip(translate(
+        "The share of a subtitle's words that must be heard for the subtitle to be found."));
+    constexpr int kGapStep = 100;
+    m_doubtGap->setSingleStep(kGapStep);
+    m_doubtGap->setSuffix(QStringLiteral(" ms"));
+    m_doubtGap->setValue(initial.doubtGapMilliseconds);
+    m_doubtGap->setToolTip(translate(
+        "How far a subtitle may move from the shift of its neighbours before it is flagged."));
+    m_selectionOnly->setEnabled(selectionAvailable);
+    m_selectionOnly->setChecked(selectionAvailable && initial.selectionOnly);
+    m_selectionOnly->setToolTip(
+        translate("Look for the selected subtitles alone, in the part of the film around them."));
+
+    for (QWidget* widget :
+         std::initializer_list<QWidget*>{m_selectionOnly, m_minimumMatch, m_doubtGap})
+        m_fields->setRowVisible(widget, true);
+    // Sounds are not words: the alignment never asks for them.
+    m_fields->setRowVisible(m_suppressNotes, false);
 }
 
 void TranscribeDialog::refresh() {

@@ -10,6 +10,7 @@ Valikossa **Video** on ensin kolme komentoa ja sitten toiminnot, joilla elokuvaa
 | :------ | :------- | :----------- |
 | Valitse video… | ei ole | valitsee videotiedoston, johon asiakirja liittyy |
 | Litteroi ääni… | ei ole | litteroi elokuvan äänen tekstityksiksi, jotka korvaavat projektin tekstitykset — katso [Äänen litterointi](#äänen-litterointi) |
+| Synkronoi äänen kanssa… | ei ole | siirtää projektin tekstitykset sinne, missä niiden sanat sanotaan elokuvan äänessä — katso [Synkronointi äänen kanssa](#synkronointi-äänen-kanssa) |
 | Toista / tauko | `Ctrl+P` | toistaa tai pysäyttää videon — katso [Soitin](player.md#toistaminen-ja-pysäyttäminen) |
 
 Liitetty video on **avoimen asiakirjan ominaisuus** eikä sovelluksen
@@ -191,6 +192,54 @@ on aika ja loppu on alun jälkeen, ja kenttien alla oleva rivi kertoo, mikä on 
 
 **Sitä, mitä se tarvitsee, ei toimiteta**: moottori (whisper.cpp), malli ja `ffmpeg` äänen purkamiseen.
 Katso [Litterointityökalujen asentaminen](../subedit-cli/install-transcription.md).
+
+## Synkronointi äänen kanssa
+
+**`Synchronize with Audio…`** ajoittaa projektin tekstitykset uudelleen elokuvan äänen mukaan. Se on tarkoitettu verkosta haetulle `.srt`-tiedostolle,
+joka on siirtynyt alusta ja lopusta ja jota yksi siirto ei palauta: kutakin tekstitystä etsitään siitä, mitä sanotaan, ja se
+saa paikan, jossa se sanotaan. **Vain alut ja loput muuttuvat** — ei koskaan teksti, tyyli, tekstitysten määrä tai niiden järjestys. Kuten
+`Transcribe Audio…`, komento on pois käytöstä, kunnes elokuva on avattu, ja se koskee **projektin elokuvan** ääntä; sama komento komentoriviltä on
+[`sync`](../subedit-cli/sync.md).
+
+Tekstitysten on oltava puhutulla kielellä: mitään ei käännetä. Työn tekee litteroiva moottori — [asetusten](preferences.md#litterointi) moottori,
+samalla ohjelmalla, `ffmpeg`illä ja mallilla — ja **valintaikkuna kertoo, mitä puuttuu**, aivan kuten litteroinnin, viittauksella sivuun
+[Litterointityökalujen asentaminen](../subedit-cli/install-transcription.md) ja painikkeella `Preferences…`.
+
+Valintaikkuna kysyy:
+
+- **ääniraidan** ja **kielen**, kuten litteroinnissa;
+- **elokuvan osan**, ajasta toiseen, molemmat tyhjinä tarkoittaa koko elokuvaa: vain tekstitykset, jotka **alkavat** alueella,
+  etsitään ja siirretään;
+- **“Vain valitut tekstitykset”**: ruutu, pois käytöstä, kun mitään ei ole valittu. Se etsii vain valitut tekstitykset elokuvan osasta,
+  joka alkaa minuuttia ennen ensimmäistä ja päättyy minuuttia viimeisen jälkeen, jotta myöhässä tai edellä oleva tiedosto
+  jää silti kuunnellun sisään;
+- **“Kuultavat sanat”**, prosentteina: osuus tekstityksen sanoista, jotka on kuultava, jotta tekstitys katsotaan löytyneeksi, oletuksena 50 % — asetus
+  `alignment.min-match`;
+- **“Tarkistettava siirto”**, millisekunteina: kuinka kauas tekstitys saa siirtyä naapuriensa siirrosta, ennen kuin se merkitään, oletuksena 2000 ms —
+  asetus `alignment.doubt-gap`.
+
+Kolme viimeistä muistetaan seuraavaa kertaa varten. Työ tehdään **taustalla**, samalla ruudulla ja samalla painikkeella `Cancel` kuin litterointi;
+työ, joka epäonnistuu tai jonka pysäytät, ei muuta mitään.
+
+### Tulos
+
+**Mikään ei siirry, ennen kuin olet nähnyt, minne tekstitykset menisivät.** Kun työ päättyy, ikkuna näyttää jokaisesta etsitystä tekstityksestä
+sen numeron, tekstin, **alun, joka sillä oli, alun, jonka se saa, ja niiden välisen siirron**, sekä sen, mikä on **tarkistettava**, sanoin:
+
+- **“ei löytynyt äänestä, jätetty ennalleen”**: kuultiin vähemmän sanoja kuin ruutu vaatii. Tekstitys säilyttää aikansa — **mitään paikkaa ei
+  koskaan keksitä eikä arvata naapureiden mukaan**;
+- **“kuultu vain osittain”**: löytyi, mutta alle 80 % sen sanoista kuultiin;
+- **“siirtyi eri tavalla kuin naapurit”**: löytyi, mutta sen siirto poikkeaa kummallakin puolella olevan kahden tekstityksen mediaanisiirrosta enemmän kuin
+  “Tarkistettava siirto”;
+- **“lyhennetty seuraavan tekstityksen alkuun”** ja **“menee yhä päällekkäin seuraavan tekstityksen kanssa”**: tekstitys, joka menisi seuraavan päälle, leikataan
+  kohtaan, jossa seuraava alkaa; se, joka on yhä päällekkäin ja jota leikkaus ei paranna, jätetään ja siitä kerrotaan.
+
+Taulukon yläpuolella oleva rivi kertoo lopputuloksen — kuinka monta tekstitystä sijoitettiin, kuinka monta on tarkistettava, mediaanisiirto ja ajautuma —, ja
+**“Vain tarkistettavat tekstitykset”** näyttää vain ne. Taulukkoa ei voi muokata.
+
+Kaksi painiketta sulkee ikkunan. **“Käytä”** siirtää alut ja loput **yhtenä toimintona**: yksi `Undo` palauttaa ajat, jotka siellä olivat. “Peru”
+jättää projektin ennalleen. “Käytä” on harmaa, kun mikään ei siirtyisi. Kun yhtäkään tekstitystä ei löytynyt, ikkuna kertoo sen ruudussa
+eikä näytä mitään käytettävää: väärä ääni tai väärä kieli on lähes varmasti syynä.
 
 ## Kun elokuvaa ei ole
 

@@ -40,7 +40,7 @@ teruggeschreven — een bestand dat wordt geopend en zonder wijziging weer opges
 | de hoofdletters, het cursief of de dialoogstreepjes van een heel bestand wijzigen | [De bewerkingen](subedit-gui/operations.md#italic), of [`case`](subedit-cli/case.md), [`italics`](subedit-cli/italics.md), [`dialogue-dashes`](subedit-cli/dialogue-dashes.md) |
 | een woord zoeken en vervangen, zonder de tags te beschadigen | [Zoeken en vervangen](subedit-gui/find-and-replace.md), of [`replace`](subedit-cli/replace.md) |
 | de gesproken tekst van een film als ondertitels schrijven | [`Transcribe Audio…`](subedit-gui/video.md#de-audio-transcriberen), of [`transcribe`](subedit-cli/transcribe.md) — na [de installatie van de hulpmiddelen](subedit-cli/install-transcription.md) |
-| de ondertitels van een bestand hertimen op de audio van een film | [`sync`](subedit-cli/sync.md) — na [de installatie van de hulpmiddelen](subedit-cli/install-transcription.md) |
+| de ondertitels van een bestand hertimen op de audio van een film | [`Synchronize with Audio…`](subedit-gui/video.md#synchroniseren-met-de-audio), of [`sync`](subedit-cli/sync.md) — na [de installatie van de hulpmiddelen](subedit-cli/install-transcription.md) |
 | vertalen naast de oorspronkelijke tekst | [Een vertaling openen](subedit-gui/files.md#een-vertaling-openen), of [`pair`](subedit-cli/pair.md) om hem op het hoofdbestand opnieuw te timen |
 | honderd bestanden tegelijk verwerken | [Een mappenstructuur verwerken](subedit-cli/lots.md), daarna [Aanroep](subedit-cli/invocation.md) |
 

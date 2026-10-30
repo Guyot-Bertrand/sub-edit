@@ -117,7 +117,7 @@ $ subedit-cli config list | grep -c '^[a-z]'
 | `correction.remove-blank` | `correct` és `Correct Texts…` |
 | `correction.line-break.max-lines` | `correct` és `Correct Texts…` |
 | `transcription.engine`, `transcription.executable`, `transcription.model`, `transcription.vad-model`, `transcription.language`, `transcription.suppress-notes`, `transcription.merge-gap-ms`, `transcription.max-duration-ms`, `transcription.max-characters` | [`transcribe`](transcribe.md) és `Transcribe Audio…` |
-| `alignment.engine`, `alignment.min-match`, `alignment.doubt-gap` | [`sync`](sync.md) |
+| `alignment.engine`, `alignment.min-match`, `alignment.doubt-gap` | [`sync`](sync.md) és `Synchronize with Audio…` |
 | minden más `correction.*` kulcs | csak a `Correct Texts…` — a `correct` a `--tasks`, `--code`, `--max-length`, `--skip-length`, `--skip-lines`, `--language`, `--enable` és `--disable` kapcsolót a saját parancssorából veszi |
 
 A sorok számai, a `correction.line-break.max-lines` és a `correction.line-break.skip-max-lines`,

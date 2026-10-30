@@ -1092,13 +1092,18 @@ msgstr "Çıkarılan sesi bu dosyada tut"
 msgid ""
 "Share of a subtitle's words that must be heard, in percent; the alignment."
 "min-match setting by default"
-msgstr "Bir altyazının sözcüklerinden duyulması gereken pay, yüzde olarak; varsayılan olarak alignment.min-match ayarı"
+msgstr ""
+"Bir altyazının sözcüklerinden duyulması gereken pay, yüzde olarak; "
+"varsayılan olarak alignment.min-match ayarı"
 
 #: src/exe/cli/commands/sync.cpp
 msgid ""
 "How far a subtitle may move from its neighbours' shift before it is flagged, "
 "in milliseconds; the alignment.doubt-gap setting by default"
-msgstr "Bir altyazının, işaretlenmeden önce, komşularının kaymasından ne kadar ayrılabileceği, milisaniye olarak; varsayılan olarak alignment.doubt-gap ayarı"
+msgstr ""
+"Bir altyazının, işaretlenmeden önce, komşularının kaymasından ne kadar "
+"ayrılabileceği, milisaniye olarak; varsayılan olarak alignment.doubt-gap "
+"ayarı"
 
 #: src/exe/cli/commands/sync.cpp
 msgid "Write the subtitles to check to this file"
@@ -2117,7 +2122,9 @@ msgstr "%1 -> %2, %3"
 
 #: src/lib/subedit/cli/syncing.cpp
 msgid "--report names one file: give one subtitle file when you use it"
-msgstr "--report tek bir dosya adlandırır: onu kullanırken tek bir altyazı dosyası verin"
+msgstr ""
+"--report tek bir dosya adlandırır: onu kullanırken tek bir altyazı dosyası "
+"verin"
 
 #: src/lib/subedit/cli/text_rewriting.cpp
 msgid "--on and --off say opposite things; give one of them"
@@ -2260,8 +2267,8 @@ msgid "subedit-cli transcribe; Transcribe Audio…"
 msgstr "subedit-cli transcribe; Sesi Yazıya Dök…"
 
 #: src/lib/subedit/core/config/operation_settings.cpp
-msgid "subedit-cli sync"
-msgstr "subedit-cli sync"
+msgid "subedit-cli sync; Synchronize with Audio…"
+msgstr "subedit-cli sync; Sesle Eşitle…"
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "a whole number from 1 to 100"
@@ -2698,7 +2705,9 @@ msgstr "%1 adlı bir hizalama motoru yok"
 #: src/lib/subedit/core/wording/alignment.cpp
 msgid ""
 "sync needs the audio to listen to: give --video or --audio, and not both"
-msgstr "sync'in dinleyeceği bir ses gerekir: --video ya da --audio verin, ikisini birden değil"
+msgstr ""
+"sync'in dinleyeceği bir ses gerekir: --video ya da --audio verin, ikisini "
+"birden değil"
 
 #: src/lib/subedit/core/wording/alignment.cpp
 msgid ""
@@ -2713,8 +2722,10 @@ msgstr[1] "%1 altyazının hiçbiri seste bulunamadı: doğru ses ve doğru dil 
 #: src/lib/subedit/core/wording/alignment.cpp
 msgid "%1 of %2 subtitle placed on the audio, %3 to check"
 msgid_plural "%1 of %2 subtitles placed on the audio, %3 to check"
-msgstr[0] "%2 altyazının %1 tanesi sese yerleştirildi, %3 tanesi kontrol edilecek"
-msgstr[1] "%2 altyazının %1 tanesi sese yerleştirildi, %3 tanesi kontrol edilecek"
+msgstr[0] ""
+"%2 altyazının %1 tanesi sese yerleştirildi, %3 tanesi kontrol edilecek"
+msgstr[1] ""
+"%2 altyazının %1 tanesi sese yerleştirildi, %3 tanesi kontrol edilecek"
 
 #. TRANSLATORS: %1 is a sentence, such as « 40 of 42 subtitles placed on the audio, 2 to
 #. check »; %2 and %3 are lengths in seconds, such as « -2.400 s ».
@@ -2945,6 +2956,10 @@ msgstr "yinelenen altyazıları birleştirme"
 #: src/lib/subedit/core/wording/analysis.cpp
 msgid "transcribing the audio"
 msgstr "sesin yazıya dökülmesi"
+
+#: src/lib/subedit/core/wording/analysis.cpp
+msgid "synchronizing with the audio"
+msgstr "sesle eşitleme"
 
 #. TRANSLATORS: how well the positions fall on a frame-rate grid: clean,
 #. partial, or none at all.
@@ -3961,6 +3976,7 @@ msgstr "Belge"
 #: src/lib/subedit/gui/operation_dialog.cpp
 #: src/lib/subedit/gui/spell_check_settings_dialog.cpp
 #: src/lib/subedit/gui/subtitle_table_model.cpp
+#: src/lib/subedit/gui/synchronization_preview_dialog.cpp
 #: src/lib/subedit/gui/transcription_preview_dialog.cpp
 #: src/lib/subedit/gui/transform_dialog.cpp
 msgid "Text"
@@ -4935,6 +4951,42 @@ msgstr "Bitiş (kare)"
 msgid "Duration"
 msgstr "Süre"
 
+#: src/lib/subedit/gui/synchronization_preview_dialog.cpp
+msgid "Only the subtitles to check"
+msgstr "Yalnızca denetlenecek altyazılar"
+
+#: src/lib/subedit/gui/synchronization_preview_dialog.cpp
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+#: src/lib/subedit/gui/transcription_runner.cpp
+msgid "Synchronize with audio"
+msgstr "Sesle eşitle"
+
+# From Gaupol.
+#: src/lib/subedit/gui/synchronization_preview_dialog.cpp
+msgid "No."
+msgstr "No."
+
+#: src/lib/subedit/gui/synchronization_preview_dialog.cpp
+msgid "Was"
+msgstr "Önce"
+
+#: src/lib/subedit/gui/synchronization_preview_dialog.cpp
+msgid "Now"
+msgstr "Sonra"
+
+#: src/lib/subedit/gui/synchronization_preview_dialog.cpp
+msgid "Shift"
+msgstr "Kayma"
+
+#: src/lib/subedit/gui/synchronization_preview_dialog.cpp
+msgid "To check"
+msgstr "Denetlenecek"
+
+#: src/lib/subedit/gui/synchronization_preview_dialog.cpp
+#: src/lib/subedit/gui/transcription_preview_dialog.cpp
+msgid "Apply"
+msgstr "Uygula"
+
 #: src/lib/subedit/gui/table_columns.cpp
 msgid "&Duration"
 msgstr "&Süre"
@@ -4963,6 +5015,10 @@ msgstr "Çeviriyi metnin yanında göster"
 #: src/lib/subedit/gui/target.cpp
 msgid "Main"
 msgstr "Ana"
+
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+msgid "Only the selected subtitles"
+msgstr "Yalnızca seçili altyazılar"
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
 msgid "Preferences…"
@@ -5020,6 +5076,39 @@ msgid "Part of the film"
 msgstr "Filmin bir bölümü"
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
+msgid "Words to hear"
+msgstr "Duyulacak sözcükler"
+
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+msgid "Shift to check"
+msgstr "Denetlenecek kayma"
+
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+msgid ""
+"The subtitles of the project are moved to where their words are said in the "
+"audio of the film open in this window. Nothing but their times changes. The "
+"work runs in the background and can be cancelled, and the result is shown "
+"before it is applied."
+msgstr "Projenin altyazıları, bu pencerede açık olan filmin sesinde sözcüklerinin söylendiği yere taşınır. Zamanlarından başka hiçbir şey değişmez. İş arka planda çalışır ve iptal edilebilir; sonuç uygulanmadan önce gösterilir."
+
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+msgid ""
+"The share of a subtitle's words that must be heard for the subtitle to be "
+"found."
+msgstr "Bir altyazının bulunmuş sayılması için sözcüklerinin ne kadarının duyulması gerektiği."
+
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+msgid ""
+"How far a subtitle may move from the shift of its neighbours before it is "
+"flagged."
+msgstr "Bir altyazının, işaretlenmeden önce komşularının kaymasından ne kadar uzaklaşabileceği."
+
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+msgid ""
+"Look for the selected subtitles alone, in the part of the film around them."
+msgstr "Yalnızca seçili altyazıları, filmin çevrelerindeki bölümünde ara."
+
+#: src/lib/subedit/gui/transcribe_dialog.cpp
 msgid "Set them in the preferences."
 msgstr "Bunları tercihlerde ayarlayın."
 
@@ -5053,10 +5142,6 @@ msgstr ""
 #: src/lib/subedit/gui/transcription_preview_dialog.cpp
 msgid "Keep these values as settings"
 msgstr "Bu değerleri ayar olarak sakla"
-
-#: src/lib/subedit/gui/transcription_preview_dialog.cpp
-msgid "Apply"
-msgstr "Uygula"
 
 # From Gaupol.
 #: src/lib/subedit/gui/transcription_preview_dialog.cpp
@@ -5108,21 +5193,21 @@ msgid "As they will be applied (%1)"
 msgstr "Uygulanacakları gibi (%1)"
 
 #: src/lib/subedit/gui/transcription_runner.cpp
-msgid "Extracting the audio…"
-msgstr "Ses çıkarılıyor…"
+#: src/lib/subedit/gui/unsaved_documents_dialog.cpp
+msgid "Cancel"
+msgstr "İptal"
 
 #: src/lib/subedit/gui/transcription_runner.cpp
 msgid "Transcribing the audio…"
 msgstr "Ses yazıya dökülüyor…"
 
 #: src/lib/subedit/gui/transcription_runner.cpp
-msgid "Last text: %1"
-msgstr "Son metin: %1"
+msgid "Extracting the audio…"
+msgstr "Ses çıkarılıyor…"
 
 #: src/lib/subedit/gui/transcription_runner.cpp
-#: src/lib/subedit/gui/unsaved_documents_dialog.cpp
-msgid "Cancel"
-msgstr "İptal"
+msgid "Last text: %1"
+msgstr "Son metin: %1"
 
 #: src/lib/subedit/gui/transform_dialog.cpp
 msgid "Transform positions"
@@ -5278,6 +5363,10 @@ msgstr "Konumlar &Karelerle"
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "Transcribe Audio…"
 msgstr "Sesi Yazıya Dök…"
+
+#: src/lib/subedit/gui/window_actions.cpp
+msgid "Synchronize with Audio…"
+msgstr "Sesle Eşitle…"
 
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "Play / Pause"
@@ -5518,6 +5607,9 @@ msgstr "İtalik"
 msgctxt "toolbar"
 msgid "Main"
 msgstr "Ana"
+
+#~ msgid "subedit-cli sync"
+#~ msgstr "subedit-cli sync"
 
 #~ msgid ""
 #~ "%1 of the %2 pieces are only notes in brackets, such as [MUSIC PLAYING]: "

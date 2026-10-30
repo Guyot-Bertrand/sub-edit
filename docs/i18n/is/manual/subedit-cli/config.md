@@ -122,7 +122,7 @@ og `Used by:`-lína þeirra segir það, með valkosti `correct` sem kemur í þ
 | `correction.remove-blank` | `correct` og `Correct Texts…` |
 | `correction.line-break.max-lines` | `correct` og `Correct Texts…` |
 | `transcription.engine`, `transcription.executable`, `transcription.model`, `transcription.vad-model`, `transcription.language`, `transcription.suppress-notes`, `transcription.merge-gap-ms`, `transcription.max-duration-ms`, `transcription.max-characters` | [`transcribe`](transcribe.md) og `Transcribe Audio…` |
-| `alignment.engine`, `alignment.min-match`, `alignment.doubt-gap` | [`sync`](sync.md) |
+| `alignment.engine`, `alignment.min-match`, `alignment.doubt-gap` | [`sync`](sync.md) og `Synchronize with Audio…` |
 | hver annar `correction.*`-lykill | aðeins `Correct Texts…` — `correct` tekur `--tasks`, `--code`, `--max-length`, `--skip-length`, `--skip-lines`, `--language`, `--enable` og `--disable` úr sinni eigin línu |
 
 Línufjöldinn, `correction.line-break.max-lines` og `correction.line-break.skip-max-lines`,

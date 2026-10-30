@@ -10,6 +10,7 @@ Menu **Wideo** zawiera najpierw trzy polecenia oraz gesty sterujące filmem
 | :-------- | :---- | :------ |
 | Wybierz wideo… | brak | wybiera plik wideo, z którym związany jest dokument |
 | Transkrybuj dźwięk… | brak | transkrybuje dźwięk filmu na napisy, które zastępują napisy projektu — zobacz [Transkrypcja dźwięku](#transkrypcja-dźwięku) |
+| Synchronizuj z dźwiękiem… | brak | przesuwa napisy projektu tam, gdzie ich słowa padają w dźwięku filmu — zobacz [Synchronizacja z dźwiękiem](#synchronizacja-z-dźwiękiem) |
 | Odtwórz / Pauza | `Ctrl+P` | odtwarza lub zatrzymuje wideo — zobacz [Odtwarzacz](player.md#odtwarzanie-i-zatrzymywanie) |
 
 Powiązane wideo jest **właściwością otwartego dokumentu**, a nie ustawieniem
@@ -190,6 +191,54 @@ nie jest czasem lub koniec nie następuje po początku, a wiersz pod polami mów
 
 **To, czego potrzebuje, nie jest dostarczane**: silnik (whisper.cpp), model i `ffmpeg` do wyodrębnienia dźwięku.
 Zobacz [Instalowanie narzędzi do transkrypcji](../subedit-cli/install-transcription.md).
+
+## Synchronizacja z dźwiękiem
+
+**`Synchronize with Audio…`** ustawia czasy napisów projektu według dźwięku filmu. To przypadek pliku `.srt`
+pobranego z internetu, przesuniętego na początku i na końcu, którego jedno przesunięcie nie naprawia: każdy napis jest szukany w tym, co
+zostało powiedziane, i zajmuje miejsce, w którym pada. **Zmieniają się tylko początki i końce** — nigdy tekst, styl, liczba
+napisów ani ich kolejność. Tak jak `Transcribe Audio…` jest wyłączone, dopóki film nie zostanie otwarty, i dotyczy dźwięku **filmu projektu**; to
+samo w wierszu poleceń to [`sync`](../subedit-cli/sync.md).
+
+Napisy muszą być w języku, w którym się mówi: nic nie jest tłumaczone. Pracę wykonuje silnik, który transkrybuje — ten z
+[preferencji](preferences.md#transkrypcja), z tym samym programem, `ffmpeg` i modelem — a **okno dialogowe mówi, czego brakuje**, dokładnie tak jak okno
+transkrypcji, ze wskazaniem na [Instalowanie narzędzi do transkrypcji](../subedit-cli/install-transcription.md) i przyciskiem
+`Preferences…`.
+
+Okno dialogowe pyta o:
+
+- **ścieżkę dźwiękową** i **język**, jak przy transkrypcji;
+- **część filmu**, od jednego czasu do drugiego, oba puste dla całego filmu: szukane i przesuwane są tylko napisy, które **zaczynają się** w tym zakresie;
+- **„Tylko zaznaczone napisy”**: pole wyboru, wyłączone, gdy nic nie jest zaznaczone. Szuka samych zaznaczonych napisów, w części
+  filmu, która zaczyna się minutę przed pierwszym z nich i kończy minutę po ostatnim, tak aby plik spóźniony lub przyspieszony
+  nadal mieścił się w tym, czego się słucha;
+- **„Słowa do usłyszenia”**, w procentach: odsetek słów napisu, które muszą zostać usłyszane, aby napis został znaleziony, domyślnie 50 % — ustawienie
+  `alignment.min-match`;
+- **„Przesunięcie do sprawdzenia”**, w milisekundach: o ile napis może odbiegać od przesunięcia sąsiednich napisów, zanim zostanie oznaczony, domyślnie 2000 ms —
+  ustawienie `alignment.doubt-gap`.
+
+Trzy ostatnie są zapamiętywane na następny raz. Praca przebiega **w tle**, z tym samym oknem i przyciskiem `Cancel` co transkrypcja;
+praca, która się nie powiedzie lub którą przerwiesz, niczego nie zmienia.
+
+### Wynik
+
+**Nic się nie rusza, dopóki nie zobaczysz, dokąd trafią napisy.** Gdy praca się kończy, okno pokazuje dla każdego szukanego napisu
+jego numer, tekst, **początek, który miał, początek, który otrzymuje, przesunięcie między nimi** oraz to, co jest **do sprawdzenia**, słowami:
+
+- **„nie znaleziono w dźwięku, pozostawiono bez zmian”**: usłyszano mniej słów, niż wymaga pole. Napis zachowuje swoje czasy — **żadna pozycja nie jest
+  nigdy zmyślana ani zgadywana na podstawie sąsiadów**;
+- **„usłyszano tylko część”**: znaleziony, ale usłyszano mniej niż 80 % jego słów;
+- **„przesunięty inaczej niż sąsiednie napisy”**: znaleziony, ale jego przesunięcie odbiega od środkowego przesunięcia dwóch napisów po każdej stronie o więcej niż
+  „Przesunięcie do sprawdzenia”;
+- **„skrócono do początku następnego napisu”** i **„nadal nachodzi na następny napis”**: napis, który wszedłby na następny, jest skracany do
+  miejsca, w którym zaczyna się następny; napis, który nadal na niego nachodzi, czego skrócenie nie naprawia, jest pozostawiany i zgłaszany.
+
+Wiersz nad tabelą mówi, do czego doszło — ile napisów umieszczono, ile jest do sprawdzenia, mediana przesunięcia i dryf —, a
+**„Tylko napisy do sprawdzenia”** pokazuje tylko te. Tabeli nie można edytować.
+
+Dwa przyciski ją zamykają. **„Zastosuj”** przesuwa początki i końce **jako jedną operację**: jedno `Undo` przywraca poprzednie czasy. „Anuluj”
+zostawia projekt bez zmian. „Zastosuj” jest wyłączone, gdy nic by się nie ruszyło. Gdy nie udało się znaleźć żadnego napisu, okno mówi o tym w ramce
+i nie pokazuje nic do zastosowania: to prawie na pewno zły dźwięk lub zły język.
 
 ## Gdy nie ma filmu
 

@@ -136,7 +136,7 @@ $ subedit-cli sync film.fr.srt --video film.mkv --output film.fr.synced.srt
    unchanged.
 3. **The preview of phase 22 is reused**: the current times on the left, the new ones on the right, a selected line showing its
    shift; the flagged lines are marked and can be filtered to. The person applies the result as one undoable operation, or ignores it.
-4. The table of the window does not get a column for the flags in this phase (open point 3).
+4. The table of the window does not get a column for the flags in this phase (open point 3). The dialog of the transcription serves, with the three choices of the alignment added and the question about notes taken out; the undo menu names the operation (`CommandKind::Synchronize`).
 
 ## D7 — Settings and wording
 

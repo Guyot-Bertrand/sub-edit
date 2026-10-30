@@ -122,7 +122,7 @@ la fenêtre, et leur ligne `Used by:` le dit, avec l'option de `correct` qui en 
 | `correction.remove-blank` | `correct` et `Correct Texts…` |
 | `correction.line-break.max-lines` | `correct` et `Correct Texts…` |
 | `transcription.engine`, `transcription.executable`, `transcription.model`, `transcription.vad-model`, `transcription.language`, `transcription.suppress-notes`, `transcription.merge-gap-ms`, `transcription.max-duration-ms`, `transcription.max-characters` | [`transcribe`](transcribe.md) et `Transcribe Audio…` |
-| `alignment.engine`, `alignment.min-match`, `alignment.doubt-gap` | [`sync`](sync.md) |
+| `alignment.engine`, `alignment.min-match`, `alignment.doubt-gap` | [`sync`](sync.md) et `Synchronize with Audio…` |
 | toute autre clé `correction.*` | `Correct Texts…` seulement — `correct` prend `--tasks`, `--code`, `--max-length`, `--skip-length`, `--skip-lines`, `--language`, `--enable` et `--disable` sur sa propre ligne |
 
 Les nombres de lignes, `correction.line-break.max-lines` et `correction.line-break.skip-max-lines`,

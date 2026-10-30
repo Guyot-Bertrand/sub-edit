@@ -1135,7 +1135,9 @@ msgstr ""
 
 #: src/exe/cli/commands/sync.cpp
 msgid "Re-time the subtitles of a file on the audio of a film"
-msgstr "Reajusta los tiempos de los subtítulos de un archivo según el audio de una película"
+msgstr ""
+"Reajusta los tiempos de los subtítulos de un archivo según el audio de una "
+"película"
 
 #: src/exe/cli/commands/sync.cpp
 msgid "Film to listen to"
@@ -1147,7 +1149,8 @@ msgstr "Archivo de audio que escuchar, en lugar de una película"
 
 #: src/exe/cli/commands/sync.cpp
 msgid "Audio track of a film, counted from 0; the first by default"
-msgstr "Pista de audio de una película, contada desde 0; por defecto, la primera"
+msgstr ""
+"Pista de audio de una película, contada desde 0; por defecto, la primera"
 
 #: src/exe/cli/commands/sync.cpp src/exe/cli/commands/transcribe.cpp
 msgid "Where to begin, as 2:00, 1:02:03 or seconds; the beginning by default"
@@ -1190,13 +1193,17 @@ msgstr "Conserva el audio extraído en este archivo"
 msgid ""
 "Share of a subtitle's words that must be heard, in percent; the alignment."
 "min-match setting by default"
-msgstr "Proporción de las palabras de un subtítulo que deben oírse, en porcentaje; por defecto, el ajuste alignment.min-match"
+msgstr ""
+"Proporción de las palabras de un subtítulo que deben oírse, en porcentaje; "
+"por defecto, el ajuste alignment.min-match"
 
 #: src/exe/cli/commands/sync.cpp
 msgid ""
 "How far a subtitle may move from its neighbours' shift before it is flagged, "
 "in milliseconds; the alignment.doubt-gap setting by default"
-msgstr "Cuánto puede alejarse un subtítulo del desplazamiento de sus vecinos antes de señalarse, en milisegundos; por defecto, el ajuste alignment.doubt-gap"
+msgstr ""
+"Cuánto puede alejarse un subtítulo del desplazamiento de sus vecinos antes "
+"de señalarse, en milisegundos; por defecto, el ajuste alignment.doubt-gap"
 
 #: src/exe/cli/commands/sync.cpp
 msgid "Write the subtitles to check to this file"
@@ -2232,7 +2239,9 @@ msgstr "%1 -> %2, %3"
 
 #: src/lib/subedit/cli/syncing.cpp
 msgid "--report names one file: give one subtitle file when you use it"
-msgstr "--report designa un solo archivo: indique un solo archivo de subtítulos cuando lo use"
+msgstr ""
+"--report designa un solo archivo: indique un solo archivo de subtítulos "
+"cuando lo use"
 
 #: src/lib/subedit/cli/text_rewriting.cpp
 msgid "--on and --off say opposite things; give one of them"
@@ -2379,8 +2388,8 @@ msgid "subedit-cli transcribe; Transcribe Audio…"
 msgstr "subedit-cli transcribe; Transcribir audio…"
 
 #: src/lib/subedit/core/config/operation_settings.cpp
-msgid "subedit-cli sync"
-msgstr "subedit-cli sync"
+msgid "subedit-cli sync; Synchronize with Audio…"
+msgstr "subedit-cli sync; Sincronizar con el audio…"
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "a whole number from 1 to 100"
@@ -2642,7 +2651,8 @@ msgstr "El motor que alinea los subtítulos con el audio."
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "Share of a line's words that must be heard, in percent."
-msgstr "Proporción de las palabras de una línea que deben oírse, en porcentaje."
+msgstr ""
+"Proporción de las palabras de una línea que deben oírse, en porcentaje."
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "How far a line may move from its neighbours' shift."
@@ -2808,7 +2818,8 @@ msgstr "no hay ningún motor de alineación llamado %1"
 #: src/lib/subedit/core/wording/alignment.cpp
 msgid ""
 "sync needs the audio to listen to: give --video or --audio, and not both"
-msgstr "sync necesita el audio que escuchar: indique --video o --audio, y no ambos"
+msgstr ""
+"sync necesita el audio que escuchar: indique --video o --audio, y no ambos"
 
 #: src/lib/subedit/core/wording/alignment.cpp
 msgid ""
@@ -2817,8 +2828,12 @@ msgid ""
 msgid_plural ""
 "none of the %1 subtitles was found in the audio: is it the right audio, and "
 "the right language?"
-msgstr[0] "el subtítulo %1 se buscó en el audio y no se encontró: ¿es el audio correcto, y el idioma correcto?"
-msgstr[1] "ninguno de los %1 subtítulos se encontró en el audio: ¿es el audio correcto, y el idioma correcto?"
+msgstr[0] ""
+"el subtítulo %1 se buscó en el audio y no se encontró: ¿es el audio "
+"correcto, y el idioma correcto?"
+msgstr[1] ""
+"ninguno de los %1 subtítulos se encontró en el audio: ¿es el audio correcto, "
+"y el idioma correcto?"
 
 #: src/lib/subedit/core/wording/alignment.cpp
 msgid "%1 of %2 subtitle placed on the audio, %3 to check"
@@ -3055,6 +3070,10 @@ msgstr "unión de subtítulos repetidos"
 #: src/lib/subedit/core/wording/analysis.cpp
 msgid "transcribing the audio"
 msgstr "la transcripción del audio"
+
+#: src/lib/subedit/core/wording/analysis.cpp
+msgid "synchronizing with the audio"
+msgstr "la sincronización con el audio"
 
 #. TRANSLATORS: how well the positions fall on a frame-rate grid: clean,
 #. partial, or none at all.
@@ -4081,6 +4100,7 @@ msgstr "Documento"
 #: src/lib/subedit/gui/operation_dialog.cpp
 #: src/lib/subedit/gui/spell_check_settings_dialog.cpp
 #: src/lib/subedit/gui/subtitle_table_model.cpp
+#: src/lib/subedit/gui/synchronization_preview_dialog.cpp
 #: src/lib/subedit/gui/transcription_preview_dialog.cpp
 #: src/lib/subedit/gui/transform_dialog.cpp
 msgid "Text"
@@ -5079,6 +5099,42 @@ msgstr "Fin (fotogramas)"
 msgid "Duration"
 msgstr "Duración"
 
+#: src/lib/subedit/gui/synchronization_preview_dialog.cpp
+msgid "Only the subtitles to check"
+msgstr "Solo los subtítulos que comprobar"
+
+#: src/lib/subedit/gui/synchronization_preview_dialog.cpp
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+#: src/lib/subedit/gui/transcription_runner.cpp
+msgid "Synchronize with audio"
+msgstr "Sincronizar con el audio"
+
+# From Gaupol.
+#: src/lib/subedit/gui/synchronization_preview_dialog.cpp
+msgid "No."
+msgstr "N.º"
+
+#: src/lib/subedit/gui/synchronization_preview_dialog.cpp
+msgid "Was"
+msgstr "Antes"
+
+#: src/lib/subedit/gui/synchronization_preview_dialog.cpp
+msgid "Now"
+msgstr "Ahora"
+
+#: src/lib/subedit/gui/synchronization_preview_dialog.cpp
+msgid "Shift"
+msgstr "Desplazamiento"
+
+#: src/lib/subedit/gui/synchronization_preview_dialog.cpp
+msgid "To check"
+msgstr "Que comprobar"
+
+#: src/lib/subedit/gui/synchronization_preview_dialog.cpp
+#: src/lib/subedit/gui/transcription_preview_dialog.cpp
+msgid "Apply"
+msgstr "Aplicar"
+
 # From Gaupol.
 #: src/lib/subedit/gui/table_columns.cpp
 msgid "&Duration"
@@ -5111,6 +5167,10 @@ msgstr "Mostrar la traducción junto al texto"
 #: src/lib/subedit/gui/target.cpp
 msgid "Main"
 msgstr "Principal"
+
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+msgid "Only the selected subtitles"
+msgstr "Solo los subtítulos seleccionados"
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
 msgid "Preferences…"
@@ -5170,6 +5230,39 @@ msgid "Part of the film"
 msgstr "Parte de la película"
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
+msgid "Words to hear"
+msgstr "Palabras que oír"
+
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+msgid "Shift to check"
+msgstr "Desplazamiento que comprobar"
+
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+msgid ""
+"The subtitles of the project are moved to where their words are said in the "
+"audio of the film open in this window. Nothing but their times changes. The "
+"work runs in the background and can be cancelled, and the result is shown "
+"before it is applied."
+msgstr "Los subtítulos del proyecto se mueven a donde se dicen sus palabras en el audio de la película abierta en esta ventana. Solo cambian sus tiempos. El trabajo se ejecuta en segundo plano y puede cancelarse, y el resultado se muestra antes de aplicarlo."
+
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+msgid ""
+"The share of a subtitle's words that must be heard for the subtitle to be "
+"found."
+msgstr "La proporción de palabras de un subtítulo que debe oírse para que el subtítulo se encuentre."
+
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+msgid ""
+"How far a subtitle may move from the shift of its neighbours before it is "
+"flagged."
+msgstr "Cuánto puede alejarse un subtítulo del desplazamiento de sus vecinos antes de que se señale."
+
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+msgid ""
+"Look for the selected subtitles alone, in the part of the film around them."
+msgstr "Buscar solo los subtítulos seleccionados, en la parte de la película que los rodea."
+
+#: src/lib/subedit/gui/transcribe_dialog.cpp
 msgid "Set them in the preferences."
 msgstr "Defínalos en las preferencias."
 
@@ -5204,10 +5297,6 @@ msgstr ""
 #: src/lib/subedit/gui/transcription_preview_dialog.cpp
 msgid "Keep these values as settings"
 msgstr "Conservar estos valores como ajustes"
-
-#: src/lib/subedit/gui/transcription_preview_dialog.cpp
-msgid "Apply"
-msgstr "Aplicar"
 
 # From Gaupol.
 #: src/lib/subedit/gui/transcription_preview_dialog.cpp
@@ -5261,21 +5350,21 @@ msgid "As they will be applied (%1)"
 msgstr "Tal como se aplicarán (%1)"
 
 #: src/lib/subedit/gui/transcription_runner.cpp
-msgid "Extracting the audio…"
-msgstr "Extrayendo el audio…"
+#: src/lib/subedit/gui/unsaved_documents_dialog.cpp
+msgid "Cancel"
+msgstr "Cancelar"
 
 #: src/lib/subedit/gui/transcription_runner.cpp
 msgid "Transcribing the audio…"
 msgstr "Transcribiendo el audio…"
 
 #: src/lib/subedit/gui/transcription_runner.cpp
-msgid "Last text: %1"
-msgstr "Último texto: %1"
+msgid "Extracting the audio…"
+msgstr "Extrayendo el audio…"
 
 #: src/lib/subedit/gui/transcription_runner.cpp
-#: src/lib/subedit/gui/unsaved_documents_dialog.cpp
-msgid "Cancel"
-msgstr "Cancelar"
+msgid "Last text: %1"
+msgstr "Último texto: %1"
 
 #: src/lib/subedit/gui/transform_dialog.cpp
 msgid "Transform positions"
@@ -5436,6 +5525,10 @@ msgstr "Posiciones en &fotogramas"
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "Transcribe Audio…"
 msgstr "Transcribir audio…"
+
+#: src/lib/subedit/gui/window_actions.cpp
+msgid "Synchronize with Audio…"
+msgstr "Sincronizar con el audio…"
 
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "Play / Pause"
@@ -5700,6 +5793,9 @@ msgstr "Cursiva"
 msgctxt "toolbar"
 msgid "Main"
 msgstr "Principal"
+
+#~ msgid "subedit-cli sync"
+#~ msgstr "subedit-cli sync"
 
 #~ msgid ""
 #~ "%1 of the %2 pieces are only notes in brackets, such as [MUSIC PLAYING]: "

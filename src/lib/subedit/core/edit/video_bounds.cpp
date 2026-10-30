@@ -79,8 +79,9 @@ bool movesPositions(CommandKind kind) {
     case CommandKind::AttachTranslation:
     // A text rewritten or a subtitle removed touches no position at all.
     case CommandKind::CorrectTexts:
-    // They come from the audio of the film itself.
+    // They come from the audio of the film itself, and so do the places it gives.
     case CommandKind::Transcribe:
+    case CommandKind::Synchronize:
         return false;
     }
 

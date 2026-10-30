@@ -1067,13 +1067,17 @@ msgstr "שמירת השמע שחולץ בקובץ זה"
 msgid ""
 "Share of a subtitle's words that must be heard, in percent; the alignment."
 "min-match setting by default"
-msgstr "החלק ממילות הכתובית שחייב להישמע, באחוזים; כברירת מחדל ההגדרה alignment.min-match"
+msgstr ""
+"החלק ממילות הכתובית שחייב להישמע, באחוזים; כברירת מחדל ההגדרה alignment.min-"
+"match"
 
 #: src/exe/cli/commands/sync.cpp
 msgid ""
 "How far a subtitle may move from its neighbours' shift before it is flagged, "
 "in milliseconds; the alignment.doubt-gap setting by default"
-msgstr "עד כמה כתובית יכולה לסטות מהזזת שכנותיה לפני שהיא מסומנת, באלפיות שנייה; כברירת מחדל ההגדרה alignment.doubt-gap"
+msgstr ""
+"עד כמה כתובית יכולה לסטות מהזזת שכנותיה לפני שהיא מסומנת, באלפיות שנייה; "
+"כברירת מחדל ההגדרה alignment.doubt-gap"
 
 #: src/exe/cli/commands/sync.cpp
 msgid "Write the subtitles to check to this file"
@@ -2226,8 +2230,8 @@ msgid "subedit-cli transcribe; Transcribe Audio…"
 msgstr "subedit-cli transcribe; תמלול שמע…"
 
 #: src/lib/subedit/core/config/operation_settings.cpp
-msgid "subedit-cli sync"
-msgstr "subedit-cli sync"
+msgid "subedit-cli sync; Synchronize with Audio…"
+msgstr "subedit-cli sync; סנכרון עם שמע…"
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "a whole number from 1 to 100"
@@ -2889,6 +2893,10 @@ msgstr "איחוד כתוביות חוזרות"
 #: src/lib/subedit/core/wording/analysis.cpp
 msgid "transcribing the audio"
 msgstr "תמלול השמע"
+
+#: src/lib/subedit/core/wording/analysis.cpp
+msgid "synchronizing with the audio"
+msgstr "מסנכרן עם השמע"
 
 #. TRANSLATORS: how well the positions fall on a frame-rate grid: clean,
 #. partial, or none at all.
@@ -3931,6 +3939,7 @@ msgstr "מסמך"
 #: src/lib/subedit/gui/operation_dialog.cpp
 #: src/lib/subedit/gui/spell_check_settings_dialog.cpp
 #: src/lib/subedit/gui/subtitle_table_model.cpp
+#: src/lib/subedit/gui/synchronization_preview_dialog.cpp
 #: src/lib/subedit/gui/transcription_preview_dialog.cpp
 #: src/lib/subedit/gui/transform_dialog.cpp
 msgid "Text"
@@ -4905,6 +4914,42 @@ msgstr "סוף (פריימים)"
 msgid "Duration"
 msgstr "משך"
 
+#: src/lib/subedit/gui/synchronization_preview_dialog.cpp
+msgid "Only the subtitles to check"
+msgstr "רק הכתוביות לבדיקה"
+
+#: src/lib/subedit/gui/synchronization_preview_dialog.cpp
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+#: src/lib/subedit/gui/transcription_runner.cpp
+msgid "Synchronize with audio"
+msgstr "סנכרון עם שמע"
+
+# From Gaupol.
+#: src/lib/subedit/gui/synchronization_preview_dialog.cpp
+msgid "No."
+msgstr "מס׳"
+
+#: src/lib/subedit/gui/synchronization_preview_dialog.cpp
+msgid "Was"
+msgstr "היה"
+
+#: src/lib/subedit/gui/synchronization_preview_dialog.cpp
+msgid "Now"
+msgstr "עכשיו"
+
+#: src/lib/subedit/gui/synchronization_preview_dialog.cpp
+msgid "Shift"
+msgstr "הזזה"
+
+#: src/lib/subedit/gui/synchronization_preview_dialog.cpp
+msgid "To check"
+msgstr "לבדיקה"
+
+#: src/lib/subedit/gui/synchronization_preview_dialog.cpp
+#: src/lib/subedit/gui/transcription_preview_dialog.cpp
+msgid "Apply"
+msgstr "החלה"
+
 #: src/lib/subedit/gui/table_columns.cpp
 msgid "&Duration"
 msgstr "מ&שך"
@@ -4934,6 +4979,10 @@ msgstr "הצגת התרגום לצד הטקסט"
 #: src/lib/subedit/gui/target.cpp
 msgid "Main"
 msgstr "ראשי"
+
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+msgid "Only the selected subtitles"
+msgstr "רק הכתוביות הנבחרות"
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
 msgid "Preferences…"
@@ -4991,6 +5040,39 @@ msgid "Part of the film"
 msgstr "חלק מהסרט"
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
+msgid "Words to hear"
+msgstr "מילים לשמיעה"
+
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+msgid "Shift to check"
+msgstr "הזזה לבדיקה"
+
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+msgid ""
+"The subtitles of the project are moved to where their words are said in the "
+"audio of the film open in this window. Nothing but their times changes. The "
+"work runs in the background and can be cancelled, and the result is shown "
+"before it is applied."
+msgstr "הכתוביות של הפרויקט מוזזות למקום שבו המילים שלהן נאמרות בשמע של הסרט הפתוח בחלון זה. רק הזמנים שלהן משתנים. העבודה רצה ברקע וניתן לבטל אותה, והתוצאה מוצגת לפני שהיא מוחלת."
+
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+msgid ""
+"The share of a subtitle's words that must be heard for the subtitle to be "
+"found."
+msgstr "חלק המילים של כתובית שחייב להישמע כדי שהכתובית תימצא."
+
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+msgid ""
+"How far a subtitle may move from the shift of its neighbours before it is "
+"flagged."
+msgstr "עד כמה כתובית רשאית לסטות מההזזה של שכנותיה לפני שהיא מסומנת."
+
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+msgid ""
+"Look for the selected subtitles alone, in the part of the film around them."
+msgstr "חיפוש הכתוביות הנבחרות בלבד, בחלק הסרט שסביבן."
+
+#: src/lib/subedit/gui/transcribe_dialog.cpp
 msgid "Set them in the preferences."
 msgstr "הגדירו אותם בהעדפות."
 
@@ -5024,10 +5106,6 @@ msgstr ""
 #: src/lib/subedit/gui/transcription_preview_dialog.cpp
 msgid "Keep these values as settings"
 msgstr "שמירת הערכים האלה כהגדרות"
-
-#: src/lib/subedit/gui/transcription_preview_dialog.cpp
-msgid "Apply"
-msgstr "החלה"
 
 #: src/lib/subedit/gui/transcription_preview_dialog.cpp
 msgid "Transcription preview"
@@ -5077,21 +5155,21 @@ msgid "As they will be applied (%1)"
 msgstr "כפי שיוחלו (%1)"
 
 #: src/lib/subedit/gui/transcription_runner.cpp
-msgid "Extracting the audio…"
-msgstr "מחלץ את השמע…"
+#: src/lib/subedit/gui/unsaved_documents_dialog.cpp
+msgid "Cancel"
+msgstr "ביטול"
 
 #: src/lib/subedit/gui/transcription_runner.cpp
 msgid "Transcribing the audio…"
 msgstr "מתמלל את השמע…"
 
 #: src/lib/subedit/gui/transcription_runner.cpp
-msgid "Last text: %1"
-msgstr "הטקסט האחרון: %1"
+msgid "Extracting the audio…"
+msgstr "מחלץ את השמע…"
 
 #: src/lib/subedit/gui/transcription_runner.cpp
-#: src/lib/subedit/gui/unsaved_documents_dialog.cpp
-msgid "Cancel"
-msgstr "ביטול"
+msgid "Last text: %1"
+msgstr "הטקסט האחרון: %1"
 
 #: src/lib/subedit/gui/transform_dialog.cpp
 msgid "Transform positions"
@@ -5252,6 +5330,10 @@ msgstr "מיקומים ב&פריימים"
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "Transcribe Audio…"
 msgstr "תמלול שמע…"
+
+#: src/lib/subedit/gui/window_actions.cpp
+msgid "Synchronize with Audio…"
+msgstr "סנכרון עם שמע…"
 
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "Play / Pause"
@@ -5503,6 +5585,9 @@ msgstr "נטוי"
 msgctxt "toolbar"
 msgid "Main"
 msgstr "ראשי"
+
+#~ msgid "subedit-cli sync"
+#~ msgstr "subedit-cli sync"
 
 #~ msgid ""
 #~ "%1 of the %2 pieces are only notes in brackets, such as [MUSIC PLAYING]: "

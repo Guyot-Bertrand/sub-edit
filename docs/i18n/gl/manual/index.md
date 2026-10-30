@@ -40,7 +40,7 @@ ficheiro aberto e despois gardado sen ningún cambio non se move nin un byte.
 | cambiar as maiúsculas, a cursiva ou os trazos de diálogo de todo un ficheiro | [As operacións](subedit-gui/operations.md#italic), ou [`case`](subedit-cli/case.md), [`italics`](subedit-cli/italics.md), [`dialogue-dashes`](subedit-cli/dialogue-dashes.md) |
 | buscar unha palabra e substituíla, sen romper as etiquetas | [Buscar e substituír](subedit-gui/find-and-replace.md), ou [`replace`](subedit-cli/replace.md) |
 | escribir a fala dunha película como subtítulos | [`Transcribe Audio…`](subedit-gui/video.md#transcribir-o-son), ou [`transcribe`](subedit-cli/transcribe.md) — despois de [instalar as ferramentas](subedit-cli/install-transcription.md) |
-| recalcular os tempos dun ficheiro de subtítulos segundo o son dunha película | [`sync`](subedit-cli/sync.md) — despois de [instalar as ferramentas](subedit-cli/install-transcription.md) |
+| recalcular os tempos dun ficheiro de subtítulos segundo o son dunha película | [`Synchronize with Audio…`](subedit-gui/video.md#sincronizar-co-son), ou [`sync`](subedit-cli/sync.md) — despois de [instalar as ferramentas](subedit-cli/install-transcription.md) |
 | traducir xunto ao texto orixinal | [Abrir unha tradución](subedit-gui/files.md#abrir-unha-tradución), ou [`pair`](subedit-cli/pair.md) para recalcular os seus tempos sobre o ficheiro principal |
 | procesar cen ficheiros dunha vez | [Procesar unha árbore](subedit-cli/lots.md), despois [Invocación](subedit-cli/invocation.md) |
 

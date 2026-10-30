@@ -123,7 +123,7 @@ rivi `Used by:` kertoo sen sekä nimeää alikomennon `correct` valitsimen, joka
 | `correction.remove-blank` | `correct` ja `Correct Texts…` |
 | `correction.line-break.max-lines` | `correct` ja `Correct Texts…` |
 | `transcription.engine`, `transcription.executable`, `transcription.model`, `transcription.vad-model`, `transcription.language`, `transcription.suppress-notes`, `transcription.merge-gap-ms`, `transcription.max-duration-ms`, `transcription.max-characters` | [`transcribe`](transcribe.md) ja `Transcribe Audio…` |
-| `alignment.engine`, `alignment.min-match`, `alignment.doubt-gap` | [`sync`](sync.md) |
+| `alignment.engine`, `alignment.min-match`, `alignment.doubt-gap` | [`sync`](sync.md) ja `Synchronize with Audio…` |
 | kaikki muut avaimet `correction.*` | vain `Correct Texts…` — `correct` ottaa valitsimet `--tasks`, `--code`, `--max-length`, `--skip-length`, `--skip-lines`, `--language`, `--enable` ja `--disable` omalta komentoriviltään |
 
 Rivimäärät, `correction.line-break.max-lines` ja `correction.line-break.skip-max-lines`,

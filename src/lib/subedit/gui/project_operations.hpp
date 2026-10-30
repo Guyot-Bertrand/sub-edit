@@ -128,6 +128,11 @@ public:
         [[nodiscard]] virtual std::expected<TranscriptionOutcome, TranscriptionFailure>
         transcribe(const TranscriptionJob& job) = 0;
 
+        /// Listens to the film and finds where the lines of `job` are said, with a box as for a
+        /// transcription. Returns when it is over.
+        [[nodiscard]] virtual std::expected<AlignmentOutcome, TranscriptionFailure>
+        align(const AlignmentJob& job) = 0;
+
     protected:
         View() = default;
         View(const View&) = default;
@@ -235,6 +240,24 @@ public:
     /// is as it was and the reason is said in a box. The choices are kept as settings.
     void transcribeAudio(ProjectPage& page);
 
+    /// `Synchronize with Audio…`: asks for the audio track, the language and three choices of an
+    /// alignment, has the film's audio listened to, **shows where each subtitle would go** — the
+    /// ones to check marked — and, if the person applies it, moves the starts and ends of the
+    /// project as one entry of the history. Nothing but times changes.
+    ///
+    /// `selection` is what the "only the selected subtitles" box offers; a run that fails, or that
+    /// the person stops or does not apply, changes nothing.
+    void synchronizeWithAudio(ProjectPage& page, const core::Selection& selection);
+
+    /// What the alignment asks for, and what the settings say; the choices of the dialog are kept.
+    [[nodiscard]] const core::AlignmentSettings& alignmentSettings() const {
+        return m_alignmentSettings;
+    }
+
+    void setAlignmentSettings(const core::AlignmentSettings& settings) {
+        m_alignmentSettings = settings;
+    }
+
     /// What the last transcription asked for, and what the settings say.
     [[nodiscard]] const core::TranscriptionSettings& transcriptionSettings() const {
         return m_transcriptionSettings;
@@ -321,6 +344,9 @@ private:
 
     /// The audio transcription's settings: the window changes the model and the language.
     core::TranscriptionSettings m_transcriptionSettings;
+
+    /// The automatic alignment's settings: the dialog keeps the last choices.
+    core::AlignmentSettings m_alignmentSettings;
 };
 
 } // namespace subedit::gui

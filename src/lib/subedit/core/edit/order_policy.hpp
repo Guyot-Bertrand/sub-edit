@@ -53,6 +53,9 @@ enum class OrderPolicy {
     case CommandKind::AttachTranslation:
     // What it lays down is another file's own order, not this project's.
     case CommandKind::Append:
+    // The places it finds follow the order of the speech, but a subtitle not found keeps its
+    // own time between two that moved.
+    case CommandKind::Synchronize:
         return true;
     case CommandKind::SetText:
     case CommandKind::SetEnd:

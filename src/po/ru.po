@@ -1119,13 +1119,17 @@ msgstr "Сохранить извлечённый звук в этот файл"
 msgid ""
 "Share of a subtitle's words that must be heard, in percent; the alignment."
 "min-match setting by default"
-msgstr "Доля слов субтитра, которые должны быть услышаны, в процентах; по умолчанию настройка alignment.min-match"
+msgstr ""
+"Доля слов субтитра, которые должны быть услышаны, в процентах; по умолчанию "
+"настройка alignment.min-match"
 
 #: src/exe/cli/commands/sync.cpp
 msgid ""
 "How far a subtitle may move from its neighbours' shift before it is flagged, "
 "in milliseconds; the alignment.doubt-gap setting by default"
-msgstr "Насколько сдвиг субтитра может отличаться от сдвига соседних, прежде чем он будет отмечен, в миллисекундах; по умолчанию настройка alignment.doubt-gap"
+msgstr ""
+"Насколько сдвиг субтитра может отличаться от сдвига соседних, прежде чем он "
+"будет отмечен, в миллисекундах; по умолчанию настройка alignment.doubt-gap"
 
 #: src/exe/cli/commands/sync.cpp
 msgid "Write the subtitles to check to this file"
@@ -2222,7 +2226,8 @@ msgstr "%1 -> %2, %3"
 
 #: src/lib/subedit/cli/syncing.cpp
 msgid "--report names one file: give one subtitle file when you use it"
-msgstr "--report задаёт один файл: при его использовании укажите один файл субтитров"
+msgstr ""
+"--report задаёт один файл: при его использовании укажите один файл субтитров"
 
 #: src/lib/subedit/cli/text_rewriting.cpp
 msgid "--on and --off say opposite things; give one of them"
@@ -2370,8 +2375,8 @@ msgid "subedit-cli transcribe; Transcribe Audio…"
 msgstr "subedit-cli transcribe; Расшифровать аудио…"
 
 #: src/lib/subedit/core/config/operation_settings.cpp
-msgid "subedit-cli sync"
-msgstr "subedit-cli sync"
+msgid "subedit-cli sync; Synchronize with Audio…"
+msgstr "subedit-cli sync; Синхронизировать со звуком…"
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "a whole number from 1 to 100"
@@ -2805,7 +2810,9 @@ msgstr "нет движка выравнивания с именем %1"
 #: src/lib/subedit/core/wording/alignment.cpp
 msgid ""
 "sync needs the audio to listen to: give --video or --audio, and not both"
-msgstr "sync нужен звук для прослушивания: укажите --video или --audio, но не оба сразу"
+msgstr ""
+"sync нужен звук для прослушивания: укажите --video или --audio, но не оба "
+"сразу"
 
 #: src/lib/subedit/core/wording/alignment.cpp
 msgid ""
@@ -2814,10 +2821,14 @@ msgid ""
 msgid_plural ""
 "none of the %1 subtitles was found in the audio: is it the right audio, and "
 "the right language?"
-msgstr[0] "%1 субтитр искали в звуке, но не нашли: тот ли это звук и тот ли язык?"
-msgstr[1] "ни один из %1 субтитров не найден в звуке: тот ли это звук и тот ли язык?"
-msgstr[2] "ни один из %1 субтитров не найден в звуке: тот ли это звук и тот ли язык?"
-msgstr[3] "ни один из %1 субтитров не найден в звуке: тот ли это звук и тот ли язык?"
+msgstr[0] ""
+"%1 субтитр искали в звуке, но не нашли: тот ли это звук и тот ли язык?"
+msgstr[1] ""
+"ни один из %1 субтитров не найден в звуке: тот ли это звук и тот ли язык?"
+msgstr[2] ""
+"ни один из %1 субтитров не найден в звуке: тот ли это звук и тот ли язык?"
+msgstr[3] ""
+"ни один из %1 субтитров не найден в звуке: тот ли это звук и тот ли язык?"
 
 #: src/lib/subedit/core/wording/alignment.cpp
 msgid "%1 of %2 subtitle placed on the audio, %3 to check"
@@ -3056,6 +3067,10 @@ msgstr "объединение повторяющихся субтитров"
 #: src/lib/subedit/core/wording/analysis.cpp
 msgid "transcribing the audio"
 msgstr "расшифровка звука"
+
+#: src/lib/subedit/core/wording/analysis.cpp
+msgid "synchronizing with the audio"
+msgstr "синхронизация со звуком"
 
 #. TRANSLATORS: how well the positions fall on a frame-rate grid: clean,
 #. partial, or none at all.
@@ -4169,6 +4184,7 @@ msgstr "Документ"
 #: src/lib/subedit/gui/operation_dialog.cpp
 #: src/lib/subedit/gui/spell_check_settings_dialog.cpp
 #: src/lib/subedit/gui/subtitle_table_model.cpp
+#: src/lib/subedit/gui/synchronization_preview_dialog.cpp
 #: src/lib/subedit/gui/transcription_preview_dialog.cpp
 #: src/lib/subedit/gui/transform_dialog.cpp
 msgid "Text"
@@ -5173,6 +5189,41 @@ msgstr "Конец (кадры)"
 msgid "Duration"
 msgstr "Длительность"
 
+#: src/lib/subedit/gui/synchronization_preview_dialog.cpp
+msgid "Only the subtitles to check"
+msgstr "Только субтитры для проверки"
+
+#: src/lib/subedit/gui/synchronization_preview_dialog.cpp
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+#: src/lib/subedit/gui/transcription_runner.cpp
+msgid "Synchronize with audio"
+msgstr "Синхронизация со звуком"
+
+#: src/lib/subedit/gui/synchronization_preview_dialog.cpp
+msgid "No."
+msgstr "№"
+
+#: src/lib/subedit/gui/synchronization_preview_dialog.cpp
+msgid "Was"
+msgstr "Было"
+
+#: src/lib/subedit/gui/synchronization_preview_dialog.cpp
+msgid "Now"
+msgstr "Стало"
+
+#: src/lib/subedit/gui/synchronization_preview_dialog.cpp
+msgid "Shift"
+msgstr "Сдвиг"
+
+#: src/lib/subedit/gui/synchronization_preview_dialog.cpp
+msgid "To check"
+msgstr "Проверить"
+
+#: src/lib/subedit/gui/synchronization_preview_dialog.cpp
+#: src/lib/subedit/gui/transcription_preview_dialog.cpp
+msgid "Apply"
+msgstr "Применить"
+
 # From Gaupol.
 #: src/lib/subedit/gui/table_columns.cpp
 msgid "&Duration"
@@ -5201,6 +5252,10 @@ msgstr "Показывать перевод рядом с текстом"
 #: src/lib/subedit/gui/target.cpp
 msgid "Main"
 msgstr "Основной"
+
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+msgid "Only the selected subtitles"
+msgstr "Только выбранные субтитры"
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
 msgid "Preferences…"
@@ -5259,6 +5314,39 @@ msgid "Part of the film"
 msgstr "Часть фильма"
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
+msgid "Words to hear"
+msgstr "Слов для распознавания"
+
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+msgid "Shift to check"
+msgstr "Сдвиг для проверки"
+
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+msgid ""
+"The subtitles of the project are moved to where their words are said in the "
+"audio of the film open in this window. Nothing but their times changes. The "
+"work runs in the background and can be cancelled, and the result is shown "
+"before it is applied."
+msgstr "Субтитры проекта переносятся туда, где их слова произносятся в звуке фильма, открытого в этом окне. Меняется только их время. Работа идёт в фоновом режиме, её можно отменить, а результат показывается до применения."
+
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+msgid ""
+"The share of a subtitle's words that must be heard for the subtitle to be "
+"found."
+msgstr "Доля слов субтитра, которые должны быть услышаны, чтобы субтитр считался найденным."
+
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+msgid ""
+"How far a subtitle may move from the shift of its neighbours before it is "
+"flagged."
+msgstr "Насколько субтитр может отклониться от сдвига соседних, прежде чем он будет отмечен."
+
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+msgid ""
+"Look for the selected subtitles alone, in the part of the film around them."
+msgstr "Искать только выбранные субтитры, в части фильма вокруг них."
+
+#: src/lib/subedit/gui/transcribe_dialog.cpp
 msgid "Set them in the preferences."
 msgstr "Задайте их в настройках."
 
@@ -5293,10 +5381,6 @@ msgstr ""
 #: src/lib/subedit/gui/transcription_preview_dialog.cpp
 msgid "Keep these values as settings"
 msgstr "Сохранить эти значения как настройки"
-
-#: src/lib/subedit/gui/transcription_preview_dialog.cpp
-msgid "Apply"
-msgstr "Применить"
 
 # From Gaupol.
 #: src/lib/subedit/gui/transcription_preview_dialog.cpp
@@ -5349,21 +5433,21 @@ msgid "As they will be applied (%1)"
 msgstr "Как они будут применены (%1)"
 
 #: src/lib/subedit/gui/transcription_runner.cpp
-msgid "Extracting the audio…"
-msgstr "Извлечение звука…"
+#: src/lib/subedit/gui/unsaved_documents_dialog.cpp
+msgid "Cancel"
+msgstr "Отмена"
 
 #: src/lib/subedit/gui/transcription_runner.cpp
 msgid "Transcribing the audio…"
 msgstr "Расшифровка звука…"
 
 #: src/lib/subedit/gui/transcription_runner.cpp
-msgid "Last text: %1"
-msgstr "Последний текст: %1"
+msgid "Extracting the audio…"
+msgstr "Извлечение звука…"
 
 #: src/lib/subedit/gui/transcription_runner.cpp
-#: src/lib/subedit/gui/unsaved_documents_dialog.cpp
-msgid "Cancel"
-msgstr "Отмена"
+msgid "Last text: %1"
+msgstr "Последний текст: %1"
 
 #: src/lib/subedit/gui/transform_dialog.cpp
 msgid "Transform positions"
@@ -5523,6 +5607,10 @@ msgstr "Позиции в &кадрах"
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "Transcribe Audio…"
 msgstr "Расшифровать аудио…"
+
+#: src/lib/subedit/gui/window_actions.cpp
+msgid "Synchronize with Audio…"
+msgstr "Синхронизировать со звуком…"
 
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "Play / Pause"
@@ -5776,6 +5864,9 @@ msgstr "Курсив"
 msgctxt "toolbar"
 msgid "Main"
 msgstr "Основная"
+
+#~ msgid "subedit-cli sync"
+#~ msgstr "subedit-cli sync"
 
 #~ msgid ""
 #~ "%1 of the %2 pieces are only notes in brackets, such as [MUSIC PLAYING]: "

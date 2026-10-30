@@ -2089,7 +2089,7 @@ msgid "subedit-cli transcribe; Transcribe Audio…"
 msgstr ""
 
 #: src/lib/subedit/core/config/operation_settings.cpp
-msgid "subedit-cli sync"
+msgid "subedit-cli sync; Synchronize with Audio…"
 msgstr ""
 
 #: src/lib/subedit/core/config/operation_settings.cpp
@@ -2735,6 +2735,10 @@ msgstr ""
 
 #: src/lib/subedit/core/wording/analysis.cpp
 msgid "transcribing the audio"
+msgstr ""
+
+#: src/lib/subedit/core/wording/analysis.cpp
+msgid "synchronizing with the audio"
 msgstr ""
 
 #. TRANSLATORS: how well the positions fall on a frame-rate grid: clean,
@@ -3696,6 +3700,7 @@ msgstr ""
 #: src/lib/subedit/gui/operation_dialog.cpp
 #: src/lib/subedit/gui/spell_check_settings_dialog.cpp
 #: src/lib/subedit/gui/subtitle_table_model.cpp
+#: src/lib/subedit/gui/synchronization_preview_dialog.cpp
 #: src/lib/subedit/gui/transcription_preview_dialog.cpp
 #: src/lib/subedit/gui/transform_dialog.cpp
 msgid "Text"
@@ -4621,6 +4626,41 @@ msgstr ""
 msgid "Duration"
 msgstr ""
 
+#: src/lib/subedit/gui/synchronization_preview_dialog.cpp
+msgid "Only the subtitles to check"
+msgstr ""
+
+#: src/lib/subedit/gui/synchronization_preview_dialog.cpp
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+#: src/lib/subedit/gui/transcription_runner.cpp
+msgid "Synchronize with audio"
+msgstr ""
+
+#: src/lib/subedit/gui/synchronization_preview_dialog.cpp
+msgid "No."
+msgstr ""
+
+#: src/lib/subedit/gui/synchronization_preview_dialog.cpp
+msgid "Was"
+msgstr ""
+
+#: src/lib/subedit/gui/synchronization_preview_dialog.cpp
+msgid "Now"
+msgstr ""
+
+#: src/lib/subedit/gui/synchronization_preview_dialog.cpp
+msgid "Shift"
+msgstr ""
+
+#: src/lib/subedit/gui/synchronization_preview_dialog.cpp
+msgid "To check"
+msgstr ""
+
+#: src/lib/subedit/gui/synchronization_preview_dialog.cpp
+#: src/lib/subedit/gui/transcription_preview_dialog.cpp
+msgid "Apply"
+msgstr ""
+
 #: src/lib/subedit/gui/table_columns.cpp
 msgid "&Duration"
 msgstr ""
@@ -4647,6 +4687,10 @@ msgstr ""
 
 #: src/lib/subedit/gui/target.cpp
 msgid "Main"
+msgstr ""
+
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+msgid "Only the selected subtitles"
 msgstr ""
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
@@ -4699,6 +4743,39 @@ msgid "Part of the film"
 msgstr ""
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
+msgid "Words to hear"
+msgstr ""
+
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+msgid "Shift to check"
+msgstr ""
+
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+msgid ""
+"The subtitles of the project are moved to where their words are said in the "
+"audio of the film open in this window. Nothing but their times changes. The "
+"work runs in the background and can be cancelled, and the result is shown "
+"before it is applied."
+msgstr ""
+
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+msgid ""
+"The share of a subtitle's words that must be heard for the subtitle to be "
+"found."
+msgstr ""
+
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+msgid ""
+"How far a subtitle may move from the shift of its neighbours before it is "
+"flagged."
+msgstr ""
+
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+msgid ""
+"Look for the selected subtitles alone, in the part of the film around them."
+msgstr ""
+
+#: src/lib/subedit/gui/transcribe_dialog.cpp
 msgid "Set them in the preferences."
 msgstr ""
 
@@ -4728,10 +4805,6 @@ msgstr ""
 
 #: src/lib/subedit/gui/transcription_preview_dialog.cpp
 msgid "Keep these values as settings"
-msgstr ""
-
-#: src/lib/subedit/gui/transcription_preview_dialog.cpp
-msgid "Apply"
 msgstr ""
 
 #: src/lib/subedit/gui/transcription_preview_dialog.cpp
@@ -4779,7 +4852,8 @@ msgid "As they will be applied (%1)"
 msgstr ""
 
 #: src/lib/subedit/gui/transcription_runner.cpp
-msgid "Extracting the audio…"
+#: src/lib/subedit/gui/unsaved_documents_dialog.cpp
+msgid "Cancel"
 msgstr ""
 
 #: src/lib/subedit/gui/transcription_runner.cpp
@@ -4787,12 +4861,11 @@ msgid "Transcribing the audio…"
 msgstr ""
 
 #: src/lib/subedit/gui/transcription_runner.cpp
-msgid "Last text: %1"
+msgid "Extracting the audio…"
 msgstr ""
 
 #: src/lib/subedit/gui/transcription_runner.cpp
-#: src/lib/subedit/gui/unsaved_documents_dialog.cpp
-msgid "Cancel"
+msgid "Last text: %1"
 msgstr ""
 
 #: src/lib/subedit/gui/transform_dialog.cpp
@@ -4942,6 +5015,10 @@ msgstr ""
 
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "Transcribe Audio…"
+msgstr ""
+
+#: src/lib/subedit/gui/window_actions.cpp
+msgid "Synchronize with Audio…"
 msgstr ""
 
 #: src/lib/subedit/gui/window_actions.cpp

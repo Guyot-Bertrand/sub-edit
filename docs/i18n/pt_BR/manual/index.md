@@ -40,7 +40,7 @@ arquivo aberto e depois salvo sem alterações não muda nem um byte.
 | mudar as maiúsculas e minúsculas, o itálico ou os travessões de diálogo de um arquivo inteiro | [As operações](subedit-gui/operations.md#italic) ou [`case`](subedit-cli/case.md), [`italics`](subedit-cli/italics.md), [`dialogue-dashes`](subedit-cli/dialogue-dashes.md) |
 | procurar uma palavra e substituí-la, sem quebrar as marcações | [Localizar e substituir](subedit-gui/find-and-replace.md) ou [`replace`](subedit-cli/replace.md) |
 | escrever a fala de um filme como legendas | [`Transcribe Audio…`](subedit-gui/video.md#transcrever-o-áudio) ou [`transcribe`](subedit-cli/transcribe.md) — depois de [instalar as ferramentas](subedit-cli/install-transcription.md) |
-| reajustar o tempo de um arquivo de legendas sobre o áudio de um filme | [`sync`](subedit-cli/sync.md) — depois de [instalar as ferramentas](subedit-cli/install-transcription.md) |
+| reajustar o tempo de um arquivo de legendas sobre o áudio de um filme | [`Synchronize with Audio…`](subedit-gui/video.md#sincronizar-com-o-áudio) ou [`sync`](subedit-cli/sync.md) — depois de [instalar as ferramentas](subedit-cli/install-transcription.md) |
 | traduzir ao lado do texto original | [Abrir uma tradução](subedit-gui/files.md#abrir-uma-tradução) ou [`pair`](subedit-cli/pair.md) para ressincronizá-la com base no arquivo principal |
 | processar cem arquivos de uma vez | [Processar uma árvore de diretórios](subedit-cli/lots.md) e depois [Invocação](subedit-cli/invocation.md) |
 

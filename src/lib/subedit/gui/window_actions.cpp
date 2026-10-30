@@ -126,6 +126,7 @@ WindowActions::WindowActions(QObject* owner)
       selectVideo(buildLitAction(owner, translate("Select Video…"), {})),
       // Out until a film is open: it is the film's audio that is transcribed.
       transcribeAudio(buildAction(owner, translate("Transcribe Audio…"), {})),
+      synchronizeWithAudio(buildAction(owner, translate("Synchronize with Audio…"), {})),
       playPause(
           buildAction(owner, translate("Play / Pause"), QStringLiteral("media-playback-start"))),
       // **Gaupol's seven gestures, under Gaupol's names** — issue #615: the menu `Video` is where
@@ -391,6 +392,7 @@ void WindowActions::placeIn(QMainWindow& window, std::span<QAction* const> colum
     QMenu* video = window.menuBar()->addMenu(translate("&Video"));
     video->addAction(selectVideo);
     video->addAction(transcribeAudio);
+    video->addAction(synchronizeWithAudio);
     video->addSeparator();
     video->addAction(playPause);
     video->addAction(playSelection);

@@ -123,7 +123,7 @@ i la seva línia `Used by:` ho diu, amb l'opció de `correct` que n'ocupa el llo
 | `correction.remove-blank` | `correct` i `Correct Texts…` |
 | `correction.line-break.max-lines` | `correct` i `Correct Texts…` |
 | `transcription.engine`, `transcription.executable`, `transcription.model`, `transcription.vad-model`, `transcription.language`, `transcription.suppress-notes`, `transcription.merge-gap-ms`, `transcription.max-duration-ms`, `transcription.max-characters` | [`transcribe`](transcribe.md) i `Transcribe Audio…` |
-| `alignment.engine`, `alignment.min-match`, `alignment.doubt-gap` | [`sync`](sync.md) |
+| `alignment.engine`, `alignment.min-match`, `alignment.doubt-gap` | [`sync`](sync.md) i `Synchronize with Audio…` |
 | qualsevol altra clau `correction.*` | només `Correct Texts…` — `correct` pren `--tasks`, `--code`, `--max-length`, `--skip-length`, `--skip-lines`, `--language`, `--enable` i `--disable` de la seva pròpia línia |
 
 Els nombres de línies, `correction.line-break.max-lines` i `correction.line-break.skip-max-lines`,

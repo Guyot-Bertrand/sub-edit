@@ -123,7 +123,7 @@ a jejich řádek `Used by:` to říká, spolu s volbou podpříkazu `correct`, k
 | `correction.remove-blank` | `correct` a `Correct Texts…` |
 | `correction.line-break.max-lines` | `correct` a `Correct Texts…` |
 | `transcription.engine`, `transcription.executable`, `transcription.model`, `transcription.vad-model`, `transcription.language`, `transcription.suppress-notes`, `transcription.merge-gap-ms`, `transcription.max-duration-ms`, `transcription.max-characters` | [`transcribe`](transcribe.md) a `Transcribe Audio…` |
-| `alignment.engine`, `alignment.min-match`, `alignment.doubt-gap` | [`sync`](sync.md) |
+| `alignment.engine`, `alignment.min-match`, `alignment.doubt-gap` | [`sync`](sync.md) a `Synchronize with Audio…` |
 | každý jiný klíč `correction.*` | jen `Correct Texts…` — `correct` bere `--tasks`, `--code`, `--max-length`, `--skip-length`, `--skip-lines`, `--language`, `--enable` a `--disable` ze svého vlastního řádku |
 
 Počty řádků, `correction.line-break.max-lines` a `correction.line-break.skip-max-lines`,

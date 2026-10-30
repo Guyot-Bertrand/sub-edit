@@ -292,6 +292,10 @@ public:
 
     [[nodiscard]] QAction* transcribeAudioAction() const { return m_actions->transcribeAudio; }
 
+    [[nodiscard]] QAction* synchronizeWithAudioAction() const {
+        return m_actions->synchronizeWithAudio;
+    }
+
     [[nodiscard]] QAction* playPauseAction() const { return m_actions->playPause; }
 
     /// The gestures that drive the film, for a test to trigger them — issue #615.

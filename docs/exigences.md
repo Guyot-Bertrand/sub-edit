@@ -369,7 +369,7 @@ longer prove anything.
 | `CLI-SYNC-04` | the report gives the counts of lines found, partial, out of line and not found, the median shift and the drift, and `--format json` writes them in one record | 23 | implemented |
 | `CLI-SYNC-05` | `--min-match` and `--doubt-gap` override the settings, and a value out of range is refused before any work | 23 | implemented |
 | `CLI-SYNC-06` | a missing executable, model or extraction tool is reported with a pointer to the installation page, with a non-zero exit code and nothing written | 23 | implemented |
-| `GUI-SYNC-01` | `Synchronize with Audio…` opens a dialog offering the language, the model, the scope (the whole file or the selection) and the thresholds | 23 | planned |
-| `GUI-SYNC-02` | the work runs in the background with a progress indicator and can be cancelled, a cancelled or failed run leaving the project unchanged | 23 | planned |
-| `GUI-SYNC-03` | the result is shown in a preview — current times and new times side by side, the flagged lines marked — and applies as one undoable operation | 23 | planned |
-| `GUI-SYNC-04` | without the executable, the model or the extraction tool the command explains what is missing and where to read how to install it, and the rest of the window is unaffected | 23 | planned |
+| `GUI-SYNC-01` | `Synchronize with Audio…` opens a dialog offering the language, the model, the scope (the whole file or the selection) and the thresholds | 23 | implemented |
+| `GUI-SYNC-02` | the work runs in the background with a progress indicator and can be cancelled, a cancelled or failed run leaving the project unchanged | 23 | implemented |
+| `GUI-SYNC-03` | the result is shown in a preview — current times and new times side by side, the flagged lines marked — and applies as one undoable operation | 23 | implemented |
+| `GUI-SYNC-04` | without the executable, the model or the extraction tool the command explains what is missing and where to read how to install it, and the rest of the window is unaffected | 23 | implemented |

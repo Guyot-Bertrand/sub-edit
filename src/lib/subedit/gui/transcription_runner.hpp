@@ -1,11 +1,13 @@
 #pragma once
 
+#include <subedit/core/config/alignment_settings.hpp>
 #include <subedit/core/config/transcription_settings.hpp>
 #include <subedit/core/model/subtitle.hpp>
 #include <subedit/core/time/timestamp.hpp>
 #include <subedit/core/transcription/tools_status.hpp>
 #include <subedit/core/transcription/transcript.hpp>
 #include <subedit/core/transcription/transcription_progress.hpp>
+#include <subedit/core/transcription/word_matching.hpp>
 
 #include <QString>
 
@@ -49,6 +51,29 @@ struct TranscriptionOutcome {
     std::string language{};
 };
 
+/// What a synchronization is asked to do for the window: the film, the track, the lines of the
+/// subtitles to look for, and the choices of the dialog. The engine and the limits are settings.
+struct AlignmentJob {
+    std::filesystem::path video;
+    int track = 0;
+    std::string language{};
+    std::filesystem::path model{};
+    core::TranscriptionSettings settings{};
+    core::AlignmentSettings alignment{};
+
+    /// The texts to find in the audio, one per subtitle, in order.
+    std::vector<std::string> lines;
+
+    /// The part of the film to listen to; all of it when not given.
+    std::optional<core::Timestamp> start{};
+    std::optional<core::Timestamp> end{};
+};
+
+/// How each line came out: where it was heard, and how many of its words were.
+struct AlignmentOutcome {
+    std::vector<core::LineMatch> matches;
+};
+
 /// Why it did not: in the user's words, or that they stopped it.
 struct TranscriptionFailure {
     std::string message{};
@@ -70,6 +95,11 @@ public:
     /// sits over.
     [[nodiscard]] virtual std::expected<TranscriptionOutcome, TranscriptionFailure>
     run(const TranscriptionJob& job, QWidget* parent) = 0;
+
+    /// Listens to the film and finds where `job.lines` are said, and returns when it is over. The
+    /// answer is a failure for a runner that cannot: only the real one, and a test's, can.
+    [[nodiscard]] virtual std::expected<AlignmentOutcome, TranscriptionFailure>
+    align(const AlignmentJob& job, QWidget* parent);
 
     /// Which of what a transcription needs is there, for the settings given. Asked each time the
     /// window shows it: the person installs a tool, comes back, and expects the window to know.
@@ -100,6 +130,9 @@ public:
 
     [[nodiscard]] std::expected<TranscriptionOutcome, TranscriptionFailure>
     run(const TranscriptionJob& job, QWidget* parent) override;
+
+    [[nodiscard]] std::expected<AlignmentOutcome, TranscriptionFailure>
+    align(const AlignmentJob& job, QWidget* parent) override;
 
     [[nodiscard]] core::TranscriptionTools
     tools(const core::TranscriptionSettings& settings) override;
