@@ -198,10 +198,54 @@ of a translation (the text must be in the spoken language), a forced-alignment a
 | 6 — by hand | [#815](https://github.com/Guyot-Bertrand/sub-edit/issues/815) | the real-film run with a shifted file, documented, never reported as passed when skipped | 4 | M |
 | 7 — closure | [#816](https://github.com/Guyot-Bertrand/sub-edit/issues/816) | review of the phase, then the version the maintainer decides | all | M |
 
+## The by-hand run (#815)
+
+`src/scripts/alignment-by-hand.sh` runs `sync` on a real film, outside the gate, and prints a table. It transcribes the first minutes of the film
+with one model (the *truth*), makes from that file four files at a known fault — **late** by 2.4 s, a **drift** that grows from nothing to 3 s,
+the **second half** late by 2 s, and a line that nobody says (**extra**) —, runs `sync` on each with another model, and measures how far each
+start lands from the truth. `--control` adds a run with the model that wrote the truth. A run that lacks a tool or a model says
+`SKIPPED`, names it and exits 77: **a skipped run is never a passed one.**
+
+**What it proves, and what it does not.** The truth comes from an engine, not from a person: the table says whether the matching finds its way
+back from a known fault with the words a second model heard, not whether the engine's times are those of the speech. The engine's own text is
+also cleaner than a subtitle written by a person; a real subtitle file is a harder case.
+
+**Measured on 2026-10-31**, on the first five minutes of a real film (103 subtitles), truth by `medium` and `sync` with `small` and the Silero
+model, on twelve cores:
+
+| Case | Median | 95th percentile | Worst | Within 500 ms | Not found | Flagged | Time |
+| :--- | -----: | --------------: | ----: | ------------: | --------: | ------: | ---: |
+| late | 260 ms | 2440 ms | 16300 ms | 71 of 103 | 1 | 22 | 146 s |
+| drift | 260 ms | 2440 ms | 16300 ms | 71 of 103 | 1 | 22 | 142 s |
+| second half late | 260 ms | 2440 ms | 16300 ms | 71 of 103 | 1 | 23 | 140 s |
+| extra line | 230 ms | 2440 ms | 16300 ms | 72 of 103 | 2 | 24 | 145 s |
+| control (`medium` listens) | 0 ms | 0 ms | 0 ms | 103 of 103 | 0 | 0 | 445 s |
+
+What it says:
+
+- **The matching is exact when the same words are heard.** With the model that wrote the truth, every start lands on the truth, the median shift is
+  the 2.4 s that was laid down, and nothing is flagged.
+- **The fault does not matter.** The four faults give the same figures: each line is matched on its own, so a constant offset, a drift and a
+  half-late file are one case, as D4 has it. The median shift and the drift of the report are what tell them apart.
+- **What remains with another model is the models' disagreement**, and a few mishearings. Two models do not put the start of a word at the same
+  moment: 71 of 103 starts are within 500 ms, the others mostly within a second, the median at a quarter of a second. Eight starts are more than two
+  seconds out, one by sixteen: the small model misheard the line or matched a repeated phrase elsewhere.
+- **The doubt catches them.** Seven of the eight starts more than two seconds out are flagged — "only partly heard" or "moved differently from its
+  neighbours" —; the eighth is not. Twenty-two lines are flagged in all, which is what a person is asked to look at.
+- **A line nobody says keeps its time**, and is reported.
+- **Time.** Five minutes of film take about two and a half minutes with `small` and the voice model, and seven and a half with `medium`: the cost
+  is the transcription (D1), and grows with the model and the length of the part listened to.
+
+**Decision on a forced aligner (open point 1): not yet.** The matching is exact on the words it is given, and the errors that remain are the
+listening model's — its word times, and its mishearings. A forced aligner would know the true words and would remove the mishearings; it would not
+change the other half, and it is one more tool to install. The evidence does not call for it; a larger model (`medium` gave no error at all as the
+reference) and the flagged lines are the answer for now. It is reconsidered if a real subtitle file, with its own text, shows many lines not found.
+
 ## Open points
 
-1. **A forced-alignment adapter.** Worth an issue only if the matching of D1 does not hold on the real-film run of slice 6, or if a
-   language the transcription handles badly matters. It is an adapter and a contract suite, nothing else.
+1. **A forced-alignment adapter.** Judged on the real-film run (see above) and not called for: the matching is exact on the words it is given. Worth an
+   issue only if a real subtitle file, with its own text, shows many lines not found, or if a language the transcription handles badly matters. It
+   is an adapter and a contract suite, nothing else.
 2. **Interpolating a line not found.** Between two corrected lines, an option could place it at the neighbours' shift. It is a guess; it
    waits for a person who asks for it.
 3. **A flag column in the table.** It needs a place in the project model that is not the undo stack; it waits for the first use of the

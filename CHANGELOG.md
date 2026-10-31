@@ -15,6 +15,7 @@ do not edit it by hand.
 - **core** — Classify the doubtful lines of an alignment
 - **core** — Align by matching the text to a transcription
 - **cli** — Add sync to re-time subtitles on the audio
+- **gui** — Add Synchronize with Audio… to the window
 
 ### Documentation
 
