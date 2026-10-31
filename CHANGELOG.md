@@ -9,9 +9,18 @@ do not edit it by hand.
 
 ## Unreleased
 
+### Added
+
+- **core** — Match a text to the words an engine heard
+- **core** — Classify the doubtful lines of an alignment
+- **core** — Align by matching the text to a transcription
+- **cli** — Add sync to re-time subtitles on the audio
+- **gui** — Add Synchronize with Audio… to the window
+
 ### Documentation
 
 - **doc** — Scope phase 23, automatic alignment
+- **scripts** — Add the by-hand run of sync on a real film
 
 ## 1.1.2 — 2026-10-27
 

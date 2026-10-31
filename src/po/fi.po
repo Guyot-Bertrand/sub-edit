@@ -889,7 +889,7 @@ msgstr ""
 msgid "Re-time a file mastered at one frame rate for another"
 msgstr "Ajoita yhdelle ruutunopeudelle tehty tiedosto toiselle"
 
-#: src/exe/cli/commands/framerate.cpp
+#: src/exe/cli/commands/framerate.cpp src/exe/cli/commands/sync.cpp
 msgid "Subtitle files to re-time"
 msgstr "Uudelleen ajoitettavat tekstitystiedostot"
 
@@ -1090,6 +1090,80 @@ msgstr ""
 "--head ja --tail kuuluvat yhteen: anna molemmat tai --dry-run-valitsimen "
 "kanssa ei kumpaakaan"
 
+#: src/exe/cli/commands/sync.cpp
+msgid "Re-time the subtitles of a file on the audio of a film"
+msgstr "Ajoita tiedoston tekstitykset uudelleen elokuvan äänen mukaan"
+
+#: src/exe/cli/commands/sync.cpp
+msgid "Film to listen to"
+msgstr "Kuunneltava elokuva"
+
+#: src/exe/cli/commands/sync.cpp
+msgid "Audio file to listen to, instead of a film"
+msgstr "Kuunneltava äänitiedosto elokuvan sijaan"
+
+#: src/exe/cli/commands/sync.cpp
+msgid "Audio track of a film, counted from 0; the first by default"
+msgstr "Elokuvan ääniraita, laskettuna nollasta; oletuksena ensimmäinen"
+
+#: src/exe/cli/commands/sync.cpp src/exe/cli/commands/transcribe.cpp
+msgid "Where to begin, as 2:00, 1:02:03 or seconds; the beginning by default"
+msgstr ""
+"Mistä aloitetaan, muodossa 2:00, 1:02:03 tai sekunteina; oletuksena alku"
+
+#: src/exe/cli/commands/sync.cpp src/exe/cli/commands/transcribe.cpp
+msgid "Where to stop, as 2:00, 1:02:03 or seconds; the end by default"
+msgstr ""
+"Mihin lopetetaan, muodossa 2:00, 1:02:03 tai sekunteina; oletuksena loppu"
+
+#: src/exe/cli/commands/sync.cpp src/exe/cli/commands/transcribe.cpp
+msgid ""
+"Language of the speech, two letters: fr, en, de; detected from the first 30 "
+"seconds by default"
+msgstr ""
+"Puheen kieli, kaksi kirjainta: fr, en, de; oletuksena tunnistetaan "
+"ensimmäisten 30 sekunnin perusteella"
+
+#: src/exe/cli/commands/sync.cpp src/exe/cli/commands/transcribe.cpp
+msgid "Model file; the transcription.model setting by default"
+msgstr "Mallitiedosto; oletuksena asetus transcription.model"
+
+#: src/exe/cli/commands/sync.cpp src/exe/cli/commands/transcribe.cpp
+msgid ""
+"Voice-activity model that skips silences; the transcription.vad-model "
+"setting by default"
+msgstr ""
+"Puheaktiivisuusmalli, joka ohittaa hiljaisuudet; oletuksena asetus "
+"transcription.vad-model"
+
+#: src/exe/cli/commands/sync.cpp
+msgid "Engine that listens; the transcription.engine setting by default"
+msgstr "Kuunteleva moottori; oletuksena asetus transcription.engine"
+
+#: src/exe/cli/commands/sync.cpp src/exe/cli/commands/transcribe.cpp
+msgid "Keep the extracted audio in this file"
+msgstr "Säilytä purettu ääni tässä tiedostossa"
+
+#: src/exe/cli/commands/sync.cpp
+msgid ""
+"Share of a subtitle's words that must be heard, in percent; the alignment."
+"min-match setting by default"
+msgstr ""
+"Osuus tekstityksen sanoista, jotka on kuultava, prosentteina; oletuksena "
+"asetus alignment.min-match"
+
+#: src/exe/cli/commands/sync.cpp
+msgid ""
+"How far a subtitle may move from its neighbours' shift before it is flagged, "
+"in milliseconds; the alignment.doubt-gap setting by default"
+msgstr ""
+"Kuinka paljon tekstityksen siirto saa poiketa naapureidensa siirrosta ennen "
+"kuin se merkitään, millisekunteina; oletuksena asetus alignment.doubt-gap"
+
+#: src/exe/cli/commands/sync.cpp
+msgid "Write the subtitles to check to this file"
+msgstr "Kirjoita tarkistettavat tekstitykset tähän tiedostoon"
+
 #: src/exe/cli/commands/transcribe.cpp
 msgid "Write the speech of a video or an audio file as subtitles"
 msgstr "Kirjoittaa videon tai äänitiedoston puheen tekstityksenä"
@@ -1112,24 +1186,6 @@ msgid "Audio track of a video, counted from 0; the first by default"
 msgstr "Videon ääniraita, laskettuna nollasta; oletuksena ensimmäinen"
 
 #: src/exe/cli/commands/transcribe.cpp
-msgid "Where to begin, as 2:00, 1:02:03 or seconds; the beginning by default"
-msgstr ""
-"Mistä aloitetaan, muodossa 2:00, 1:02:03 tai sekunteina; oletuksena alku"
-
-#: src/exe/cli/commands/transcribe.cpp
-msgid "Where to stop, as 2:00, 1:02:03 or seconds; the end by default"
-msgstr ""
-"Mihin lopetetaan, muodossa 2:00, 1:02:03 tai sekunteina; oletuksena loppu"
-
-#: src/exe/cli/commands/transcribe.cpp
-msgid ""
-"Language of the speech, two letters: fr, en, de; detected from the first 30 "
-"seconds by default"
-msgstr ""
-"Puheen kieli, kaksi kirjainta: fr, en, de; oletuksena tunnistetaan "
-"ensimmäisten 30 sekunnin perusteella"
-
-#: src/exe/cli/commands/transcribe.cpp
 msgid ""
 "Do not write sounds as notes, such as (phone ringing); the transcription."
 "suppress-notes setting by default"
@@ -1142,24 +1198,8 @@ msgid "Write sounds as notes, against the setting"
 msgstr "Kirjoita äänet huomautuksina, asetuksen vastaisesti"
 
 #: src/exe/cli/commands/transcribe.cpp
-msgid "Model file; the transcription.model setting by default"
-msgstr "Mallitiedosto; oletuksena asetus transcription.model"
-
-#: src/exe/cli/commands/transcribe.cpp
-msgid ""
-"Voice-activity model that skips silences; the transcription.vad-model "
-"setting by default"
-msgstr ""
-"Puheaktiivisuusmalli, joka ohittaa hiljaisuudet; oletuksena asetus "
-"transcription.vad-model"
-
-#: src/exe/cli/commands/transcribe.cpp
 msgid "Engine; the transcription.engine setting by default"
 msgstr "Moottori; oletuksena asetus transcription.engine"
-
-#: src/exe/cli/commands/transcribe.cpp
-msgid "Keep the extracted audio in this file"
-msgstr "Säilytä purettu ääni tässä tiedostossa"
 
 #: src/exe/cli/commands/transcribe.cpp
 msgid ""
@@ -2136,6 +2176,11 @@ msgstr "%1: jaettu kappaleen %2 kohdalta: alkuosassa %3, loppuosassa %4"
 msgid "%1 -> %2, %3"
 msgstr "%1 -> %2, %3"
 
+#: src/lib/subedit/cli/syncing.cpp
+msgid "--report names one file: give one subtitle file when you use it"
+msgstr ""
+"--report nimeää yhden tiedoston: anna yksi tekstitystiedosto, kun käytät sitä"
+
 #: src/lib/subedit/cli/text_rewriting.cpp
 msgid "--on and --off say opposite things; give one of them"
 msgstr "--on ja --off ovat ristiriidassa; anna vain toinen"
@@ -2276,6 +2321,14 @@ msgstr "kokonaisluku 1–1000"
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "subedit-cli transcribe; Transcribe Audio…"
 msgstr "subedit-cli transcribe; Litteroi ääni…"
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "subedit-cli sync; Synchronize with Audio…"
+msgstr "subedit-cli sync; Synkronoi äänen kanssa…"
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "a whole number from 1 to 100"
+msgstr "kokonaisluku väliltä 1-100"
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "subedit-cli adjust; Adjust Durations…"
@@ -2534,6 +2587,18 @@ msgid "Most characters a transcribed subtitle holds."
 msgstr "Litteroidun tekstityksen merkkien enimmäismäärä."
 
 #: src/lib/subedit/core/config/operation_settings.cpp
+msgid "The engine that aligns the subtitles on the audio."
+msgstr "Moottori, joka kohdistaa tekstitykset ääneen."
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "Share of a line's words that must be heard, in percent."
+msgstr "Osuus rivin sanoista, jotka on kuultava, prosentteina."
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "How far a line may move from its neighbours' shift."
+msgstr "Kuinka paljon rivin siirto saa poiketa naapureidensa siirrosta."
+
+#: src/lib/subedit/core/config/operation_settings.cpp
 msgid "%1 is managed by the window; use --enable/--disable on correct"
 msgstr ""
 "%1 on ikkunan hallinnoima; käytä correct-komennolla valitsimia --enable/--"
@@ -2687,6 +2752,59 @@ msgstr "ryhmän nimi puuttuu"
 #: src/lib/subedit/core/text/replacement_template.cpp
 msgid "unknown group name '%1'"
 msgstr "tuntematon ryhmän nimi ”%1”"
+
+#: src/lib/subedit/core/wording/alignment.cpp
+msgid "there is no alignment engine called %1"
+msgstr "kohdistusmoottoria nimeltä %1 ei ole"
+
+#: src/lib/subedit/core/wording/alignment.cpp
+msgid ""
+"sync needs the audio to listen to: give --video or --audio, and not both"
+msgstr ""
+"sync tarvitsee kuunneltavan äänen: anna --video tai --audio, älä molempia"
+
+#: src/lib/subedit/core/wording/alignment.cpp
+msgid ""
+"the %1 subtitle was looked for in the audio and was not found: is it the "
+"right audio, and the right language?"
+msgid_plural ""
+"none of the %1 subtitles was found in the audio: is it the right audio, and "
+"the right language?"
+msgstr[0] "tekstitystä ei löytynyt äänestä: onko ääni ja kieli oikea?"
+msgstr[1] ""
+"yhtäkään %1 tekstityksestä ei löytynyt äänestä: onko ääni ja kieli oikea?"
+
+#: src/lib/subedit/core/wording/alignment.cpp
+msgid "%1 of %2 subtitle placed on the audio, %3 to check"
+msgid_plural "%1 of %2 subtitles placed on the audio, %3 to check"
+msgstr[0] "%1/%2 tekstitys sijoitettu ääneen, %3 tarkistettavaa"
+msgstr[1] "%1/%2 tekstitystä sijoitettu ääneen, %3 tarkistettavaa"
+
+#. TRANSLATORS: %1 is a sentence, such as « 40 of 42 subtitles placed on the audio, 2 to
+#. check »; %2 and %3 are lengths in seconds, such as « -2.400 s ».
+#: src/lib/subedit/core/wording/alignment.cpp
+msgid "%1; median shift %2, drift %3"
+msgstr "%1; mediaanisiirto %2, ajautuma %3"
+
+#: src/lib/subedit/core/wording/alignment.cpp
+msgid "not found in the audio, left as it was"
+msgstr "ei löytynyt äänestä, jätetty ennalleen"
+
+#: src/lib/subedit/core/wording/alignment.cpp
+msgid "only partly heard"
+msgstr "kuultu vain osittain"
+
+#: src/lib/subedit/core/wording/alignment.cpp
+msgid "moved differently from its neighbours"
+msgstr "siirtyi eri tavalla kuin naapurit"
+
+#: src/lib/subedit/core/wording/alignment.cpp
+msgid "cut back to the start of the next subtitle"
+msgstr "lyhennetty seuraavan tekstityksen alkuun"
+
+#: src/lib/subedit/core/wording/alignment.cpp
+msgid "still overlaps the next subtitle"
+msgstr "menee yhä päällekkäin seuraavan tekstityksen kanssa"
 
 #: src/lib/subedit/core/wording/analysis.cpp
 msgid "ends before it starts"
@@ -2892,6 +3010,10 @@ msgstr "toistuvien kappaleiden yhdistäminen"
 #: src/lib/subedit/core/wording/analysis.cpp
 msgid "transcribing the audio"
 msgstr "äänen litterointi"
+
+#: src/lib/subedit/core/wording/analysis.cpp
+msgid "synchronizing with the audio"
+msgstr "synkronointi äänen kanssa"
 
 #. TRANSLATORS: how well the positions fall on a frame-rate grid: clean,
 #. partial, or none at all.
@@ -3912,6 +4034,7 @@ msgstr "Asiakirja"
 #: src/lib/subedit/gui/operation_dialog.cpp
 #: src/lib/subedit/gui/spell_check_settings_dialog.cpp
 #: src/lib/subedit/gui/subtitle_table_model.cpp
+#: src/lib/subedit/gui/synchronization_preview_dialog.cpp
 #: src/lib/subedit/gui/transcription_preview_dialog.cpp
 #: src/lib/subedit/gui/transform_dialog.cpp
 msgid "Text"
@@ -4900,6 +5023,42 @@ msgstr "Loppu (ruudut)"
 msgid "Duration"
 msgstr "Kesto"
 
+#: src/lib/subedit/gui/synchronization_preview_dialog.cpp
+msgid "Only the subtitles to check"
+msgstr "Vain tarkistettavat tekstitykset"
+
+#: src/lib/subedit/gui/synchronization_preview_dialog.cpp
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+#: src/lib/subedit/gui/transcription_runner.cpp
+msgid "Synchronize with audio"
+msgstr "Synkronoi äänen kanssa"
+
+# From Gaupol.
+#: src/lib/subedit/gui/synchronization_preview_dialog.cpp
+msgid "No."
+msgstr "Nro"
+
+#: src/lib/subedit/gui/synchronization_preview_dialog.cpp
+msgid "Was"
+msgstr "Oli"
+
+#: src/lib/subedit/gui/synchronization_preview_dialog.cpp
+msgid "Now"
+msgstr "Nyt"
+
+#: src/lib/subedit/gui/synchronization_preview_dialog.cpp
+msgid "Shift"
+msgstr "Siirto"
+
+#: src/lib/subedit/gui/synchronization_preview_dialog.cpp
+msgid "To check"
+msgstr "Tarkistettava"
+
+#: src/lib/subedit/gui/synchronization_preview_dialog.cpp
+#: src/lib/subedit/gui/transcription_preview_dialog.cpp
+msgid "Apply"
+msgstr "Käytä"
+
 # From Gaupol.
 #: src/lib/subedit/gui/table_columns.cpp
 msgid "&Duration"
@@ -4932,6 +5091,10 @@ msgstr "Näytä käännös tekstin vieressä"
 #: src/lib/subedit/gui/target.cpp
 msgid "Main"
 msgstr "Pääasiakirja"
+
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+msgid "Only the selected subtitles"
+msgstr "Vain valitut tekstitykset"
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
 msgid "Preferences…"
@@ -4990,6 +5153,39 @@ msgid "Part of the film"
 msgstr "Elokuvan osa"
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
+msgid "Words to hear"
+msgstr "Kuultavat sanat"
+
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+msgid "Shift to check"
+msgstr "Tarkistettava siirto"
+
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+msgid ""
+"The subtitles of the project are moved to where their words are said in the "
+"audio of the film open in this window. Nothing but their times changes. The "
+"work runs in the background and can be cancelled, and the result is shown "
+"before it is applied."
+msgstr "Projektin tekstitykset siirretään sinne, missä niiden sanat sanotaan tässä ikkunassa avoinna olevan elokuvan äänessä. Vain niiden ajat muuttuvat. Työ tehdään taustalla ja sen voi peruuttaa, ja tulos näytetään ennen sen käyttöönottoa."
+
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+msgid ""
+"The share of a subtitle's words that must be heard for the subtitle to be "
+"found."
+msgstr "Osuus tekstityksen sanoista, jotka on kuultava, jotta tekstitys katsotaan löytyneeksi."
+
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+msgid ""
+"How far a subtitle may move from the shift of its neighbours before it is "
+"flagged."
+msgstr "Kuinka kauas tekstitys saa siirtyä naapuriensa siirrosta, ennen kuin se merkitään."
+
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+msgid ""
+"Look for the selected subtitles alone, in the part of the film around them."
+msgstr "Etsi vain valitut tekstitykset, niiden ympärillä olevasta elokuvan osasta."
+
+#: src/lib/subedit/gui/transcribe_dialog.cpp
 msgid "Set them in the preferences."
 msgstr "Aseta ne asetuksissa."
 
@@ -5024,10 +5220,6 @@ msgstr ""
 #: src/lib/subedit/gui/transcription_preview_dialog.cpp
 msgid "Keep these values as settings"
 msgstr "Säilytä nämä arvot asetuksina"
-
-#: src/lib/subedit/gui/transcription_preview_dialog.cpp
-msgid "Apply"
-msgstr "Käytä"
 
 # From Gaupol.
 #: src/lib/subedit/gui/transcription_preview_dialog.cpp
@@ -5079,21 +5271,21 @@ msgid "As they will be applied (%1)"
 msgstr "Sellaisina kuin ne otetaan käyttöön (%1)"
 
 #: src/lib/subedit/gui/transcription_runner.cpp
-msgid "Extracting the audio…"
-msgstr "Puretaan ääntä…"
+#: src/lib/subedit/gui/unsaved_documents_dialog.cpp
+msgid "Cancel"
+msgstr "Peru"
 
 #: src/lib/subedit/gui/transcription_runner.cpp
 msgid "Transcribing the audio…"
 msgstr "Litteroidaan ääntä…"
 
 #: src/lib/subedit/gui/transcription_runner.cpp
-msgid "Last text: %1"
-msgstr "Viimeisin teksti: %1"
+msgid "Extracting the audio…"
+msgstr "Puretaan ääntä…"
 
 #: src/lib/subedit/gui/transcription_runner.cpp
-#: src/lib/subedit/gui/unsaved_documents_dialog.cpp
-msgid "Cancel"
-msgstr "Peru"
+msgid "Last text: %1"
+msgstr "Viimeisin teksti: %1"
 
 #: src/lib/subedit/gui/transform_dialog.cpp
 msgid "Transform positions"
@@ -5254,6 +5446,10 @@ msgstr "&Kohdat ruutuina"
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "Transcribe Audio…"
 msgstr "Litteroi ääni…"
+
+#: src/lib/subedit/gui/window_actions.cpp
+msgid "Synchronize with Audio…"
+msgstr "Synkronoi äänen kanssa…"
 
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "Play / Pause"
@@ -5519,6 +5715,9 @@ msgstr "Kursiivi"
 msgctxt "toolbar"
 msgid "Main"
 msgstr "Päätyökalurivi"
+
+#~ msgid "subedit-cli sync"
+#~ msgstr "subedit-cli sync"
 
 #~ msgid ""
 #~ "%1 of the %2 pieces are only notes in brackets, such as [MUSIC PLAYING]: "

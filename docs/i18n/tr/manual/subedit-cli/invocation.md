@@ -49,6 +49,7 @@ Subcommands:
   split-file                  Cut a subtitle file in two, a head and a tail
   pair                        Write a translation at the positions of its main file, and say how it lined up
   transcribe                  Write the speech of a video or an audio file as subtitles
+  sync                        Re-time the subtitles of a file on the audio of a film
   config                      List, show and change the operation settings
 ```
 
@@ -225,7 +226,7 @@ dilleri, standart çıktıda; araç `0` koduyla durur. Birlikte verilen bir alt 
 <!-- example: subedit-cli --version | head -n 1 -->
 ```console
 $ subedit-cli --version | head -n 1
-subedit 1.1.4
+subedit 1.2.0
 ```
 
 ICU 74.2 ve Enchant 2.3.3 bulunan bir makinede tamamı — sayılar makineninkilerdir:
@@ -370,12 +371,13 @@ sessizlik değildir.
 | [`split-file`](split-file.md) | bir dosyayı **iki** parçaya böler: baş ve kuyruk | evet |
 | [`pair`](pair.md) | bir çeviriyi ana dosyasının konumlarına yazar ve satırlarının nasıl hizalandığını söyler | evet |
 | [`transcribe`](transcribe.md) | bir videonun ya da ses dosyasının konuşmasını altyazı olarak yazar | evet — kendi hedefi, `--output` |
+| [`sync`](sync.md) | bir dosyanın altyazılarını bir filmin sesine göre yeniden zamanlar | evet |
 | [`config`](config.md) | ayar dosyasının işlem ayarlarını listeler, gösterir ve değiştirir | yalnızca ayar dosyası |
 
-Yirmi ikisinin hepsi buradadır; aracın yardımı onları aynı sırayla listeler.
+Yirmi üçünün hepsi buradadır; aracın yardımı onları aynı sırayla listeler.
 
 **Yalnızca biri hiçbir şeye dokunmaz**, o da sağ sütundur: `inspect` okur ve
-bildirir. Diğer yirmisi yazar ve izleyenler onlardan on yedisi için geçerlidir:
+bildirir. Diğer yirmi biri yazar ve izleyenler onlardan on sekizi için geçerlidir:
 [`append`](append.md) ve [`split-file`](split-file.md) alt komutlarının her birinin kendi girdi sayısı vardır — **bir** sonuç için N dosya,
 **iki** sonuç için bir dosya — ve dolayısıyla kendi hedefleri, sayfalarında anlattıkları;
 [`transcribe`](transcribe.md) bir video ya da ses dosyasından yeni bir dosya yapar ve yalnızca `--output` alır.
@@ -384,12 +386,12 @@ izleyenlerin hiçbiri ona uygulanmaz.
 
 ## Hedef
 
-Yazan on yedi alt komut — [`convert`](convert.md),
+Yazan on sekiz alt komut — [`convert`](convert.md),
 [`shift`](shift.md), [`transform`](transform.md), [`framerate`](framerate.md),
 [`snap`](snap.md), [`hearing-impaired`](hearing-impaired.md), [`adjust`](adjust.md),
 [`replace`](replace.md), [`case`](case.md), [`italics`](italics.md),
 [`dialogue-dashes`](dialogue-dashes.md), [`sort`](sort.md), [`join-repeats`](join-repeats.md),
-[`disjoint`](disjoint.md), [`repair`](repair.md), [`correct`](correct.md), [`pair`](pair.md) — hedeflerini aynı biçimde alır. ([`append`](append.md) ve
+[`disjoint`](disjoint.md), [`repair`](repair.md), [`correct`](correct.md), [`pair`](pair.md), [`sync`](sync.md) — hedeflerini aynı biçimde alır. ([`append`](append.md) ve
 [`split-file`](split-file.md) alt komutlarının kendi hedefleri sayfalarında anlatılır.) [`inspect`](inspect.md) hiçbir dosya yazmaz ve
 bu seçeneklerin hiçbirini kabul etmez.
 
@@ -713,7 +715,7 @@ a.srt: line 6: SubRip numbers that do not follow ("7"), settled by the reader
 a.srt: line 9: a line that fits nowhere, left as it stands
 ```
 
-On yedi alt komutun hepsi bunları bildirir, yalnızca [`inspect`](inspect.md) değil:
+On sekiz alt komutun hepsi bunları bildirir, yalnızca [`inspect`](inspect.md) değil:
 elden geldiğince iyi okunup sonra geri yazılan bir dosya aynı kararlardan geçmiştir ve bunları sessiz
 tutmak hiçbir şey olmadığına inandırırdı.
 

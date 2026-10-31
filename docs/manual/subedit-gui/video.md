@@ -7,6 +7,7 @@ The **Video** menu carries first three commands, and the gestures that drive the
 | :------ | :------- | :----------- |
 | Select Video… | none | chooses the video file the document goes with |
 | Transcribe Audio… | none | transcribes the audio of the film into subtitles that replace the project's — see [Transcribing the audio](#transcribing-the-audio) |
+| Synchronize with Audio… | none | moves the subtitles of the project to where their words are said in the audio of the film — see [Synchronizing with the audio](#synchronizing-with-the-audio) |
 | Play / Pause | `Ctrl+P` | plays or stops the video — see [The player](player.md#playing-and-stopping) |
 
 The associated video is **a property of the open document**, not a setting of
@@ -201,6 +202,55 @@ not a time or the end does not come after the beginning, and a line under the fi
 
 **What it needs is not shipped**: an engine (whisper.cpp), a model, and `ffmpeg` to extract the audio.
 See [Installing the transcription tools](../subedit-cli/install-transcription.md).
+
+## Synchronizing with the audio
+
+**`Synchronize with Audio…`** re-times the subtitles of the project on the audio of the film. It is the case of the `.srt`
+fetched online, shifted at the start and at the end, which a single shift does not bring back: each subtitle is looked for in what is
+said, and takes the place where it is said. **Only starts and ends change** — never the text, the style, the number of
+subtitles or their order. Like `Transcribe Audio…` it is out until a film is open, and it is the audio of **the film of the project**; the
+same command line is [`sync`](../subedit-cli/sync.md).
+
+The subtitles must be in the language that is spoken: nothing is translated. The work is done by the engine that transcribes — the one of
+the [preferences](preferences.md#transcription), with the same program, `ffmpeg` and model — and **the dialog says what is missing** exactly as
+the transcription's does, with the pointer to [Installing the transcription tools](../subedit-cli/install-transcription.md) and a
+`Preferences…` button.
+
+The dialog asks for:
+
+- **the audio track** and **the language**, as for the transcription;
+- **the part of the film**, from one time to another, both empty for the whole film: only the subtitles that **begin** in the range are
+  looked for and moved;
+- **“Only the selected subtitles”**: a box, out when nothing is selected. It looks for the selected subtitles alone, in the part of the
+  film that begins a minute before the first of them and ends a minute after the last, so that a file that is late or early is
+  still inside what is listened to;
+- **“Words to hear”**, in percent: the share of a subtitle's words that must be heard for the subtitle to be found, 50 % by default — the setting
+  `alignment.min-match`;
+- **“Shift to check”**, in milliseconds: how far a subtitle may move from the shift of its neighbours before it is flagged, 2000 ms by default —
+  the setting `alignment.doubt-gap`.
+
+The three last are kept for the next time. The work runs **in the background**, with the same box and `Cancel` button as the transcription;
+a run that fails or that you stop changes nothing.
+
+### The result
+
+**Nothing moves until you have seen where the subtitles would go.** When the work ends a window shows, for each subtitle that was looked for,
+its number, its text, **the start it had, the start it takes, the shift between the two**, and what there is **to check**, in words:
+
+- **“not found in the audio, left as it was”**: fewer words were heard than the box asks for. The subtitle keeps its times — **no position is
+  ever invented, and none is guessed from the neighbours**;
+- **“only partly heard”**: found, but fewer than 80 % of its words were heard;
+- **“moved differently from its neighbours”**: found, but its shift departs from the middle shift of the two subtitles on each side by more than the
+  “Shift to check”;
+- **“cut back to the start of the next subtitle”** and **“still overlaps the next subtitle”**: a subtitle that would run into the next is cut back to
+  where the next begins; one that still overlaps it, which cutting cannot cure, is left and said.
+
+A line above the table says what it came to — how many subtitles were placed, how many are to check, the median shift and the drift —, and
+**“Only the subtitles to check”** shows those alone. The table cannot be edited.
+
+Two buttons close it. **“Apply”** moves the starts and ends **as a single operation**: one `Undo` gives back the times that were there. “Cancel”
+leaves the project as it is. “Apply” is out when nothing would move. When none of the subtitles could be found at all, the window says so in a box
+and shows nothing to apply: it is almost certainly the wrong audio or the wrong language.
 
 ## When there is no film
 

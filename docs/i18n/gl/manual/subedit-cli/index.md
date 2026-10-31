@@ -46,5 +46,6 @@ por onde comezar, véxase
 | [`split-file`](split-file.md) | cortar un ficheiro en dous, coa cola levada de volta á orixe |
 | [`pair`](pair.md) | escribir unha tradución nas posicións do seu ficheiro principal, e dicir como se aliñaron as súas liñas |
 | [`transcribe`](transcribe.md) | escribir a fala dun vídeo ou dun ficheiro de son como subtítulos |
+| [`sync`](sync.md) | recalcular os tempos dos subtítulos dun ficheiro segundo o son dunha película |
 | [Instalar as ferramentas de transcrición](install-transcription.md) | o motor, o modelo e `ffmpeg`, que o programa non inclúe |
 | [`config`](config.md) | enumerar, mostrar e cambiar a configuración das operacións compartida coa xanela |

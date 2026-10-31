@@ -40,6 +40,7 @@ soubor otevřený a uložený beze změny se nezmění ani o bajt.
 | změnit velikost písmen, kurzívu nebo dialogové pomlčky celého souboru | [Operace](subedit-gui/operations.md#italic), nebo [`case`](subedit-cli/case.md), [`italics`](subedit-cli/italics.md), [`dialogue-dashes`](subedit-cli/dialogue-dashes.md) |
 | vyhledat slovo a nahradit ho, aniž by se porušily značky | [Najít a nahradit](subedit-gui/find-and-replace.md), nebo [`replace`](subedit-cli/replace.md) |
 | zapsat řeč filmu jako titulky | [`Transcribe Audio…`](subedit-gui/video.md#přepis-zvuku), nebo [`transcribe`](subedit-cli/transcribe.md) — po [instalaci nástrojů](subedit-cli/install-transcription.md) |
+| přečasovat soubor titulků podle zvuku filmu | [`Synchronize with Audio…`](subedit-gui/video.md#synchronizace-se-zvukem), nebo [`sync`](subedit-cli/sync.md) — po [instalaci nástrojů](subedit-cli/install-transcription.md) |
 | překládat vedle původního textu | [Otevření překladu](subedit-gui/files.md#otevření-překladu), nebo [`pair`](subedit-cli/pair.md) k jeho přečasování podle hlavního souboru |
 | zpracovat sto souborů najednou | [Zpracování stromu](subedit-cli/lots.md), pak [Spuštění](subedit-cli/invocation.md) |
 

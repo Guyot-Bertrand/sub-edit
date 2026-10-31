@@ -392,6 +392,11 @@ public:
         return m_window->m_transcriber->run(job, m_window);
     }
 
+    [[nodiscard]] std::expected<AlignmentOutcome, TranscriptionFailure>
+    align(const AlignmentJob& job) override {
+        return m_window->m_transcriber->align(job, m_window);
+    }
+
     void openAside(core::Project project) override {
         m_window->openOn(std::move(project), {});
         // Born holding subtitles no file has: closing it must ask, as it does
@@ -485,6 +490,7 @@ public:
         m_window->m_playable = playable;
         m_window->m_actions->playPause->setEnabled(playable);
         m_window->m_actions->transcribeAudio->setEnabled(playable);
+        m_window->m_actions->synchronizeWithAudio->setEnabled(playable);
         m_window->refreshVideoGestures();
         m_window->refreshAudioTracks();
     }
@@ -701,6 +707,10 @@ MainWindow::MainWindow(core::FileSystem& files,
             &QAction::triggered,
             this,
             operate(&ProjectOperations::removeHearingImpaired));
+    connect(act.synchronizeWithAudio, &QAction::triggered, this, [this] {
+        commitCellEditor();
+        m_operations->synchronizeWithAudio(*m_page, selectionOf(*m_table->selectionModel()));
+    });
     connect(act.transcribeAudio,
             &QAction::triggered,
             this,
@@ -1970,6 +1980,7 @@ void MainWindow::applySettings(const core::Settings& settings) {
     m_insertPlacement = settings.insertPlacement;
     m_operations->setDurationSettings(settings.durationAdjustment);
     m_operations->setTranscriptionSettings(settings.transcription);
+    m_operations->setAlignmentSettings(settings.alignment);
     m_correction->setSettings(settings.correction);
     m_spellCheck->setSettings(settings.spellCheck);
     refreshSpellCheckAction();
@@ -2016,6 +2027,7 @@ core::Settings MainWindow::settings() const {
     settings.search = m_search->options();
     settings.durationAdjustment = m_operations->durationSettings();
     settings.transcription = m_operations->transcriptionSettings();
+    settings.alignment = m_operations->alignmentSettings();
     settings.correction = m_correction->settings();
     settings.spellCheck = m_spellCheck->settings();
     settings.writeEncoding = m_page->writeEncoding;

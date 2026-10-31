@@ -40,6 +40,7 @@ fitxer obert i desat sense cap canvi no es mou ni un byte.
 | canviar les majúscules i minúscules, la cursiva o els guions de diàleg de tot un fitxer | [Les operacions](subedit-gui/operations.md#italic), o [`case`](subedit-cli/case.md), [`italics`](subedit-cli/italics.md), [`dialogue-dashes`](subedit-cli/dialogue-dashes.md) |
 | cercar una paraula i reemplaçar-la, sense trencar les etiquetes | [Cerca i reemplaça](subedit-gui/find-and-replace.md), o [`replace`](subedit-cli/replace.md) |
 | escriure la parla d'una pel·lícula en forma de subtítols | [`Transcribe Audio…`](subedit-gui/video.md#transcriure-làudio), o [`transcribe`](subedit-cli/transcribe.md) — després d'[instal·lar les eines](subedit-cli/install-transcription.md) |
+| resincronitzar un fitxer de subtítols segons l'àudio d'una pel·lícula | [`Synchronize with Audio…`](subedit-gui/video.md#sincronitzar-amb-làudio), o [`sync`](subedit-cli/sync.md) — després d'[instal·lar les eines](subedit-cli/install-transcription.md) |
 | traduir al costat del text original | [Obrir una traducció](subedit-gui/files.md#obrir-una-traducció), o [`pair`](subedit-cli/pair.md) per resincronitzar-la sobre el fitxer principal |
 | processar cent fitxers alhora | [Processar un arbre](subedit-cli/lots.md), i després [Invocació](subedit-cli/invocation.md) |
 

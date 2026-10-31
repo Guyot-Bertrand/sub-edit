@@ -10,6 +10,7 @@ A **Videó** menü először három parancsot hordoz, majd a filmet vezérlő mo
 | :------ | :------------- | :--------- |
 | Videó kiválasztása… | nincs | kiválasztja a videófájlt, amelyhez a dokumentum tartozik |
 | Hang leiratozása… | nincs | a film hangját a projekt feliratait felváltó feliratokká iratozza le — lásd [A hang leiratozása](#a-hang-leiratozása) |
+| Szinkronizálás a hanggal… | nincs | a projekt feliratait oda helyezi, ahol a szavaik elhangzanak a film hangjában — lásd [A hanggal való szinkronizálás](#a-hanggal-való-szinkronizálás) |
 | Lejátszás / Szünet | `Ctrl+P` | lejátssza vagy megállítja a videót — lásd [A lejátszó](player.md#lejátszás-és-megállítás) |
 
 A társított videó **a megnyitott dokumentum tulajdonsága**, nem az alkalmazás
@@ -190,6 +191,53 @@ nem időpont, vagy a vég nem a kezdet után van, és a mezők alatti sor megmon
 
 **Amire szüksége van, azt nem szállítja a program**: egy motor (whisper.cpp), egy modell, és az `ffmpeg` a hang kinyeréséhez.
 Lásd: [A leiratozó eszközök telepítése](../subedit-cli/install-transcription.md).
+
+## A hanggal való szinkronizálás
+
+A **`Synchronize with Audio…`** a projekt feliratait újraidőzíti a film hangjára. Ez az eset az online letöltött `.srt`-é, amely az elején és a végén
+eltolt, és amelyet egyetlen eltolás nem hoz helyre: minden feliratot megkeres abban, ami elhangzik, és arra a helyre kerül, ahol elhangzik. **Csak a kezdetek és a végek változnak** — soha
+nem a szöveg, a stílus, a feliratok száma vagy sorrendjük. A `Transcribe Audio…` parancshoz hasonlóan addig nem elérhető, amíg nincs megnyitva film, és **a projekt filmjének** hangjáról van szó; ugyanez
+a parancssorban a [`sync`](../subedit-cli/sync.md).
+
+A feliratoknak a beszélt nyelven kell lenniük: semmi sem kerül lefordításra. A munkát a leiratozó motor végzi — a
+[beállításokban](preferences.md#leiratozás) megadott, ugyanazzal a programmal, `ffmpeg`-gel és modellel — és **az ablak megmondja, mi hiányzik**, pontosan úgy,
+mint a leiratozásé, a [A leiratozó eszközök telepítése](../subedit-cli/install-transcription.md) oldalra mutató hivatkozással és egy
+`Preferences…` gombbal.
+
+A párbeszédablak a következőket kéri:
+
+- **a hangsávot** és **a nyelvet**, mint a leiratozásnál;
+- **a film egy részét**, egyik időponttól a másikig, mindkettő üresen a teljes film: csak azokat a feliratokat keresi meg és helyezi át, amelyek a tartományban **kezdődnek**;
+- **„Csak a kijelölt feliratok”**: egy jelölőnégyzet, kikapcsolva, ha nincs kijelölés. Csak a kijelölt feliratokat keresi, a film azon részében,
+  amely az első kijelölt előtt egy perccel kezdődik és az utolsó után egy perccel ér véget, hogy a késő vagy korai fájl is
+  a meghallgatott részen belül legyen;
+- **„Hallandó szavak”**, százalékban: egy felirat szavainak az a hányada, amelyet hallani kell ahhoz, hogy a feliratot megtalálja, alapértelmezés szerint 50 % — a
+  `alignment.min-match` beállítás;
+- **„Ellenőrzendő eltolás”**, ezredmásodpercben: mennyire térhet el egy felirat a szomszédai eltolásától, mielőtt megjelöli, alapértelmezés szerint 2000 ms —
+  a `alignment.doubt-gap` beállítás.
+
+Az utolsó hármat megjegyzi a következő alkalomra. A munka **a háttérben** fut, ugyanazzal az ablakkal és `Cancel` gombbal, mint a leiratozás;
+a sikertelen vagy az Ön által leállított futás semmit sem változtat.
+
+### Az eredmény
+
+**Semmi sem mozdul, amíg nem látta, hová kerülnének a feliratok.** Amikor a munka véget ér, egy ablak minden megkeresett feliratnál megmutatja
+a sorszámát, a szövegét, **a kezdetét, ami volt, a kezdetét, ami lesz, a kettő közti eltolást**, és azt, hogy mit kell **ellenőrizni**, szavakkal:
+
+- **„nem található a hangban, úgy hagyva, ahogy volt”**: kevesebb szót hallott, mint amennyit a mező kér. A felirat megtartja az időpontjait — **soha nem talál ki helyzetet, és nem
+  találgat a szomszédokból**;
+- **„csak részben hallható”**: megtalálta, de a szavainak kevesebb mint 80 %-át hallotta;
+- **„a szomszédaitól eltérően mozdult”**: megtalálta, de az eltolása a két-két szomszédos felirat középső eltolásától jobban eltér, mint az
+  „Ellenőrzendő eltolás”;
+- **„visszavágva a következő felirat kezdetéig”** és **„még mindig átfedi a következő feliratot”**: a következőbe nyúló feliratot visszavágja
+  addig, ahol a következő kezdődik; azt, amely még mindig átfedi, és amelyet a vágás nem orvosol, meghagyja, és jelzi.
+
+A táblázat fölötti sor megmondja, mi lett belőle — hány feliratot helyezett el, hányat kell ellenőrizni, a medián eltolást és az elcsúszást —, és
+**a „Csak az ellenőrizendő feliratok”** csak azokat mutatja. A táblázat nem szerkeszthető.
+
+Két gomb zárja be. Az **„Alkalmaz”** a kezdeteket és a végeket **egyetlen műveletként** mozgatja: egy `Undo` visszaadja a korábbi időpontokat. A „Mégse”
+a projektet úgy hagyja, ahogy van. Az „Alkalmaz” kikapcsolt, ha semmi sem mozdulna. Ha egyetlen feliratot sem sikerült megtalálni, az ablak ezt egy üzenetben mondja meg,
+és nem mutat alkalmazandó semmit: szinte biztosan rossz a hang vagy rossz a nyelv.
 
 ## Ha nincs film
 

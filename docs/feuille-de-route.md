@@ -1573,6 +1573,16 @@ and in the interface.
 - the command is `sync` and the window entry `Synchronize with Audio…`, in the Video menu, with the preview of phase 22;
 - ten requirements, seven slices.
 
+**Closed in 1.2.0, on 2026-10-31.** The phase — eight issues, #810 to #816 with the scoping #804, nothing open — delivers `subedit-cli sync` and
+`Synchronize with Audio…`: the text is matched, word by word and in order, to what the transcription engine heard; a line nobody says keeps its
+time and is reported; doubt is classified (not found, partial, out of line) with the median shift and the drift; the window shows the result in
+the preview of phase 22 and applies it as one undoable operation. **Ten requirements, `CLI-SYNC-01` to `06` and `GUI-SYNC-01` to `04`, all
+`implemented` and cited by a test.** **Measured** by hand on the first five minutes of a real film (103 subtitles): the four faults laid down — late,
+drift, second half late, an extra line — give the same figures, because each line is matched on its own; with the model that wrote the truth every
+start lands on it, with a smaller one 71 of 103 starts are within 500 ms and seven of the eight starts more than two seconds out are flagged. **Open
+points settled**: a forced aligner is not called for yet, interpolating a line not found and a column of flags wait for a person who asks. **What
+remains unmeasured**: languages other than English, and a real subtitle file with its own text.
+
 ## 24 — Workflow and integrations
 
 What makes it possible to chain the previous phases without replaying them by hand:

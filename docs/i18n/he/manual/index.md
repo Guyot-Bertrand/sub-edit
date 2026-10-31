@@ -39,6 +39,7 @@ Sub Station Alpha, Advanced SSA, MicroDVD, MPL2, TMPlayer, LRC — ומזהות
 | לשנות את הרשיות, את הנטוי או את מקפי הדו־שיח של קובץ שלם | [הפעולות](subedit-gui/operations.md#italic), או [`case`](subedit-cli/case.md), [`italics`](subedit-cli/italics.md), [`dialogue-dashes`](subedit-cli/dialogue-dashes.md) |
 | לחפש מילה ולהחליף אותה בלי לשבור את התגיות | [חיפוש והחלפה](subedit-gui/find-and-replace.md), או [`replace`](subedit-cli/replace.md) |
 | לכתוב את הדיבור של סרט ככתוביות | [`Transcribe Audio…`](subedit-gui/video.md#תמלול-השמע), או [`transcribe`](subedit-cli/transcribe.md) — לאחר [התקנת הכלים](subedit-cli/install-transcription.md) |
+| לסנכרן מחדש קובץ כתוביות לפי השמע של סרט | [`Synchronize with Audio…`](subedit-gui/video.md#סנכרון-עם-השמע), או [`sync`](subedit-cli/sync.md) — לאחר [התקנת הכלים](subedit-cli/install-transcription.md) |
 | לתרגם לצד הטקסט המקורי | [פתיחת תרגום](subedit-gui/files.md#פתיחת-תרגום), או [`pair`](subedit-cli/pair.md) כדי לתזמן אותו מחדש לפי הקובץ הראשי |
 | לעבד מאה קבצים בבת אחת | [עיבוד עץ קבצים](subedit-cli/lots.md), ואחר כך [הפעלה](subedit-cli/invocation.md) |
 

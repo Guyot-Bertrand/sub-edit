@@ -150,6 +150,8 @@ std::string_view nameOf(CommandKind kind) {
         return translate("joining repeated subtitles");
     case CommandKind::Transcribe:
         return translate("transcribing the audio");
+    case CommandKind::Synchronize:
+        return translate("synchronizing with the audio");
     }
 
     // Every one of `CommandKind` is handled and the compiler checks it. A

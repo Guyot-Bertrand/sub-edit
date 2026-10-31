@@ -10,6 +10,7 @@ O menú **Vídeo** leva primeiro tres ordes, e despois os xestos que manexan a p
 | :------ | :------- | :----------- |
 | Seleccionar vídeo… | ningún | escolle o ficheiro de vídeo ao que corresponde o documento |
 | Transcribir o son… | ningún | transcribe o son da película en subtítulos que substitúen os do proxecto — véxase [Transcribir o son](#transcribir-o-son) |
+| Sincronizar co son… | ningún | move os subtítulos do proxecto ao lugar onde se din as súas palabras no son da película — véxase [Sincronizar co son](#sincronizar-co-son) |
 | Reproducir / Pausa | `Ctrl+P` | reproduce ou detén o vídeo — véxase [O reprodutor](player.md#reproducir-e-deter) |
 
 O vídeo asociado é **unha propiedade do documento aberto**, non un axuste da
@@ -192,6 +193,55 @@ Un intervalo permite **xulgar un modelo ou unha lingua en dous minutos antes de 
 
 **O que necesita non vén co programa**: un motor (whisper.cpp), un modelo e `ffmpeg` para extraer o son.
 Vexa [Instalar as ferramentas de transcrición](../subedit-cli/install-transcription.md).
+
+## Sincronizar co son
+
+**`Synchronize with Audio…`** recalcula os tempos dos subtítulos do proxecto segundo o son da película. É o caso do `.srt`
+descargado da rede, desprazado ao comezo e ao final, que un só desprazamento non corrixe: cada subtítulo búscase no que se
+di, e toma o lugar onde se di. **Só cambian os comezos e os finais** — nunca o texto, o estilo, o número de
+subtítulos nin a súa orde. Como `Transcribe Audio…`, está desactivada ata que se abre unha película, e é o son da **película do proxecto**; a
+mesma orde na liña de ordes é [`sync`](../subedit-cli/sync.md).
+
+Os subtítulos deben estar na lingua que se fala: non se traduce nada. O traballo fáino o motor que transcribe — o das
+[preferencias](preferences.md#transcrición), co mesmo programa, `ffmpeg` e modelo — e **o diálogo di o que falta** exactamente como
+o da transcrición, co enlace a [Instalar as ferramentas de transcrición](../subedit-cli/install-transcription.md) e un
+botón `Preferences…`.
+
+O diálogo pide:
+
+- **a pista de son** e **a lingua**, como na transcrición;
+- **a parte da película**, desde un tempo ata outro, ambos baleiros para toda a película: só se buscan e se moven os subtítulos que **comezan** no
+  intervalo;
+- **“Só os subtítulos seleccionados”**: unha caixa, apagada cando non hai nada seleccionado. Busca só os subtítulos seleccionados, na parte da
+  película que comeza un minuto antes do primeiro deles e remata un minuto despois do último, de xeito que un ficheiro atrasado ou adiantado
+  quede aínda dentro do que se escoita;
+- **“Palabras que hai que oír”**, en porcentaxe: a parte das palabras dun subtítulo que se ten que oír para que o subtítulo se atope, 50 % por defecto — o axuste
+  `alignment.min-match`;
+- **“Desprazamento que revisar”**, en milisegundos: canto pode afastarse un subtítulo do desprazamento dos seus veciños antes de que se marque, 2000 ms por defecto —
+  o axuste `alignment.doubt-gap`.
+
+Os tres últimos consérvanse para a vez seguinte. O traballo execútase **en segundo plano**, coa mesma caixa e o mesmo botón `Cancel` que a transcrición;
+un traballo que falla ou que se detén non cambia nada.
+
+### O resultado
+
+**Nada se move ata que viu onde irían os subtítulos.** Cando o traballo remata, unha xanela mostra, para cada subtítulo buscado,
+o seu número, o seu texto, **o comezo que tiña, o comezo que toma, o desprazamento entre ambos**, e o que hai **que revisar**, con palabras:
+
+- **“non atopado no son, deixado como estaba”**: oíronse menos palabras das que pide a caixa. O subtítulo conserva os seus tempos — **nunca se inventa unha
+  posición, nin se adiviña a partir dos veciños**;
+- **“só oído en parte”**: atopado, pero oíuse menos do 80 % das súas palabras;
+- **“moveuse de xeito distinto dos veciños”**: atopado, pero o seu desprazamento afástase do desprazamento mediano dos dous subtítulos de cada lado en máis do
+  “Desprazamento que revisar”;
+- **“recortado ata o comezo do subtítulo seguinte”** e **“aínda se solapa co subtítulo seguinte”**: un subtítulo que chocaría co seguinte recórtase ata
+  onde comeza o seguinte; o que aínda se solapa, que o recorte non pode curar, déixase e dise.
+
+Unha liña por riba da táboa di en que quedou — cantos subtítulos se colocaron, cantos hai que revisar, o desprazamento mediano e a deriva —, e
+**“Só os subtítulos que hai que revisar”** mostra só eses. A táboa non se pode editar.
+
+Dous botóns a pechan. **“Aplicar”** move os comezos e os finais **nunha soa operación**: un `Undo` devolve os tempos que había. “Cancelar”
+deixa o proxecto como está. “Aplicar” está apagado cando nada se movería. Cando non se puido atopar ningún subtítulo, a xanela dío nunha caixa
+e non mostra nada que aplicar: case seguro é o son equivocado ou a lingua equivocada.
 
 ## Cando non hai película
 

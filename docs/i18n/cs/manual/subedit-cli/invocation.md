@@ -49,6 +49,7 @@ Subcommands:
   split-file                  Cut a subtitle file in two, a head and a tail
   pair                        Write a translation at the positions of its main file, and say how it lined up
   transcribe                  Write the speech of a video or an audio file as subtitles
+  sync                        Re-time the subtitles of a file on the audio of a film
   config                      List, show and change the operation settings
 ```
 
@@ -225,7 +226,7 @@ nespustí a `-q` ani `-v` nic nemění.
 <!-- example: subedit-cli --version | head -n 1 -->
 ```console
 $ subedit-cli --version | head -n 1
-subedit 1.1.4
+subedit 1.2.0
 ```
 
 Celý výstup na počítači s ICU 74.2 a Enchant 2.3.3 — čísla jsou čísla daného počítače:
@@ -370,12 +371,13 @@ tím, co bylo provedeno, není zamlčen.
 | [`split-file`](split-file.md) | rozdělí soubor na **dvě** části: první a druhou | ano |
 | [`pair`](pair.md) | zapíše překlad na pozice jeho hlavního souboru a sdělí, jak se jeho řádky zarovnaly | ano |
 | [`transcribe`](transcribe.md) | zapíše řeč videa nebo zvukového souboru jako titulky | ano — vlastní cíl zápisu, `--output` |
+| [`sync`](sync.md) | přečasuje titulky souboru podle zvuku filmu | ano |
 | [`config`](config.md) | vypíše, zobrazí a změní nastavení operací v souboru nastavení | jen soubor nastavení |
 
-Je jich všech dvacet dva; nápověda nástroje je uvádí ve stejném pořadí.
+Je jich všech dvacet tři; nápověda nástroje je uvádí ve stejném pořadí.
 
 **Jen jeden se ničeho nedotkne**, a to ukazuje pravý sloupec: `inspect` čte a
-podává zprávu. Ostatních dvacet zapisuje a to, co následuje, platí pro sedmnáct z nich:
+podává zprávu. Ostatních dvacet jedna zapisuje a to, co následuje, platí pro osmnáct z nich:
 [`append`](append.md) a [`split-file`](split-file.md) mají každý vlastní aritu — N souborů pro
 **jeden** výsledek, jeden soubor pro **dva** — a tedy i vlastní cíl zápisu, který popisují na své stránce;
 [`transcribe`](transcribe.md) vytváří nový soubor z videa nebo zvukového souboru a bere jen `--output`.
@@ -384,12 +386,12 @@ nic z toho, co následuje, se na něj nevztahuje.
 
 ## Cíl zápisu
 
-Sedmnáct podpříkazů, které zapisují — [`convert`](convert.md),
+Osmnáct podpříkazů, které zapisují — [`convert`](convert.md),
 [`shift`](shift.md), [`transform`](transform.md), [`framerate`](framerate.md),
 [`snap`](snap.md), [`hearing-impaired`](hearing-impaired.md), [`adjust`](adjust.md),
 [`replace`](replace.md), [`case`](case.md), [`italics`](italics.md),
 [`dialogue-dashes`](dialogue-dashes.md), [`sort`](sort.md), [`join-repeats`](join-repeats.md),
-[`disjoint`](disjoint.md), [`repair`](repair.md), [`correct`](correct.md), [`pair`](pair.md) —, přijímají svůj cíl zápisu stejným způsobem. ([`append`](append.md) a
+[`disjoint`](disjoint.md), [`repair`](repair.md), [`correct`](correct.md), [`pair`](pair.md), [`sync`](sync.md) —, přijímají svůj cíl zápisu stejným způsobem. ([`append`](append.md) a
 [`split-file`](split-file.md) mají vlastní, popsaný na jejich stránce.) [`inspect`](inspect.md) nezapisuje žádný soubor a
 žádnou z těchto voleb nepřijímá.
 
@@ -716,7 +718,7 @@ a.srt: line 6: SubRip numbers that do not follow ("7"), settled by the reader
 a.srt: line 9: a line that fits nowhere, left as it stands
 ```
 
-Hlásí je všech sedmnáct podpříkazů, nejen [`inspect`](inspect.md):
+Hlásí je všech osmnáct podpříkazů, nejen [`inspect`](inspect.md):
 soubor přečtený tak dobře, jak to šlo, a pak zapsaný zpět prošel stejnými rozhodnutími a jejich zamlčení
 by nechalo věřit, že se nic nestalo.
 

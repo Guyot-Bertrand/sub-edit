@@ -10,6 +10,7 @@ El menú **Vídeo** lleva primero tres órdenes, y luego los gestos que controla
 | :------ | :------- | :----------- |
 | Seleccionar vídeo… | ninguno | elige el archivo de vídeo que acompaña al documento |
 | Transcribir audio… | ninguno | transcribe el audio de la película en subtítulos que sustituyen a los del proyecto — véase [Transcribir el audio](#transcribir-el-audio) |
+| Sincronizar con el audio… | ninguno | mueve los subtítulos del proyecto a donde se dicen sus palabras en el audio de la película — véase [Sincronizar con el audio](#sincronizar-con-el-audio) |
 | Reproducir / Pausa | `Ctrl+P` | reproduce o detiene el vídeo — véase [El reproductor](player.md#reproducir-y-detener) |
 
 El vídeo asociado es **una propiedad del documento abierto**, no un ajuste de
@@ -192,6 +193,54 @@ no es un tiempo o el final no va después del inicio, y una línea bajo los camp
 
 **Lo que necesita no se entrega**: un motor (whisper.cpp), un modelo y `ffmpeg` para extraer el audio.
 Véase [Instalar las herramientas de transcripción](../subedit-cli/install-transcription.md).
+
+## Sincronizar con el audio
+
+**`Synchronize with Audio…`** reajusta los tiempos de los subtítulos del proyecto según el audio de la película. Es el caso del `.srt`
+descargado de internet, desfasado al principio y al final, que un simple desplazamiento no corrige: cada subtítulo se busca en lo que se
+dice y ocupa el lugar donde se dice. **Solo cambian los inicios y los finales** — nunca el texto, el estilo, el número de
+subtítulos ni su orden. Como `Transcribe Audio…`, está desactivada hasta que se abre una película, y es el audio de **la película del proyecto**; la
+misma orden en la línea de comandos es [`sync`](../subedit-cli/sync.md).
+
+Los subtítulos deben estar en el idioma que se habla: no se traduce nada. El trabajo lo hace el motor que transcribe — el de las
+[preferencias](preferences.md#transcripción), con el mismo programa, `ffmpeg` y el mismo modelo — y **el cuadro de diálogo dice lo que falta** igual que el de
+la transcripción, con la referencia a [Instalar las herramientas de transcripción](../subedit-cli/install-transcription.md) y un
+botón `Preferences…`.
+
+El cuadro de diálogo pide:
+
+- **la pista de audio** y **el idioma**, como para la transcripción;
+- **la parte de la película**, de un tiempo a otro, ambos vacíos para toda la película: solo se buscan y se mueven los subtítulos que **empiezan** dentro del intervalo;
+- **“Solo los subtítulos seleccionados”**: una casilla, desactivada cuando no hay nada seleccionado. Busca solo los subtítulos seleccionados, en la parte de la
+  película que empieza un minuto antes del primero y termina un minuto después del último, de modo que un archivo adelantado o atrasado
+  quede dentro de lo que se escucha;
+- **“Palabras que oír”**, en porcentaje: la proporción de palabras de un subtítulo que debe oírse para que el subtítulo se encuentre, 50 % por defecto — el ajuste
+  `alignment.min-match`;
+- **“Desplazamiento que comprobar”**, en milisegundos: cuánto puede alejarse un subtítulo del desplazamiento de sus vecinos antes de que se señale, 2000 ms por defecto —
+  el ajuste `alignment.doubt-gap`.
+
+Los tres últimos se conservan para la próxima vez. El trabajo se ejecuta **en segundo plano**, con el mismo cuadro y el mismo botón `Cancel` que la transcripción;
+un trabajo que falla o que usted detiene no cambia nada.
+
+### El resultado
+
+**Nada se mueve hasta que haya visto adónde irían los subtítulos.** Cuando el trabajo termina, una ventana muestra, para cada subtítulo buscado,
+su número, su texto, **el inicio que tenía, el inicio que toma, el desplazamiento entre ambos**, y lo que hay **que comprobar**, con palabras:
+
+- **“no encontrado en el audio, dejado como estaba”**: se oyeron menos palabras de las que pide la casilla. El subtítulo conserva sus tiempos — **nunca se
+  inventa ninguna posición, ni se adivina a partir de los vecinos**;
+- **“solo se oyó en parte”**: encontrado, pero se oyeron menos del 80 % de sus palabras;
+- **“movido de forma distinta a sus vecinos”**: encontrado, pero su desplazamiento se aparta del desplazamiento mediano de los dos subtítulos de cada lado en más de lo que indica
+  “Desplazamiento que comprobar”;
+- **“recortado hasta el inicio del subtítulo siguiente”** y **“aún se solapa con el subtítulo siguiente”**: un subtítulo que invadiría el siguiente se recorta hasta
+  donde empieza el siguiente; el que aún se solapa con él, algo que recortar no cura, se deja y se avisa.
+
+Una línea encima de la tabla dice a qué se ha llegado — cuántos subtítulos se han colocado, cuántos hay que comprobar, el desplazamiento mediano y la deriva —, y
+**“Solo los subtítulos que comprobar”** muestra solo esos. La tabla no se puede editar.
+
+Dos botones cierran la ventana. **“Aplicar”** mueve los inicios y los finales **como una sola operación**: un `Undo` devuelve los tiempos que había. “Cancelar”
+deja el proyecto como está. “Aplicar” está desactivado cuando nada se movería. Cuando no se ha podido encontrar ninguno de los subtítulos, la ventana lo dice en un cuadro
+y no muestra nada que aplicar: casi seguro es el audio equivocado o el idioma equivocado.
 
 ## Cuando no hay película
 

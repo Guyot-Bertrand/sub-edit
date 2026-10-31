@@ -46,6 +46,7 @@ Subcommands:
   split-file                  Cut a subtitle file in two, a head and a tail
   pair                        Write a translation at the positions of its main file, and say how it lined up
   transcribe                  Write the speech of a video or an audio file as subtitles
+  sync                        Re-time the subtitles of a file on the audio of a film
   config                      List, show and change the operation settings
 ```
 
@@ -222,7 +223,7 @@ not run, and `-q` and `-v` change nothing.
 <!-- example: subedit-cli --version | head -n 1 -->
 ```console
 $ subedit-cli --version | head -n 1
-subedit 1.1.4
+subedit 1.2.0
 ```
 
 The whole of it, on a machine with ICU 74.2 and Enchant 2.3.3 — the numbers are the machine's:
@@ -367,12 +368,13 @@ what was done is not a silence.
 | [`split-file`](split-file.md) | cuts a file in **two**: a head and a tail | yes |
 | [`pair`](pair.md) | writes a translation at the positions of its main file, and says how its lines lined up | yes |
 | [`transcribe`](transcribe.md) | writes the speech of a video or an audio file as subtitles | yes — its own destination, `--output` |
+| [`sync`](sync.md) | re-times the subtitles of a file on the audio of a film | yes |
 | [`config`](config.md) | lists, shows and changes the operation settings of the settings file | the settings file only |
 
-All twenty-two are there; the tool's help lists them in the same order.
+All twenty-three are there; the tool's help lists them in the same order.
 
 **Only one touches nothing**, and that is the right-hand column: `inspect` reads and
-reports. The other twenty write, and what follows holds for seventeen of them:
+reports. The other twenty-one write, and what follows holds for eighteen of them:
 [`append`](append.md) and [`split-file`](split-file.md) each have an arity of their own — N files for
 **one** result, one file for **two** — and so their own destination, which they describe on their page;
 [`transcribe`](transcribe.md) makes a new file from a video or an audio file, and takes `--output` alone.
@@ -381,12 +383,12 @@ nothing of what follows applies to it.
 
 ## The destination
 
-The seventeen subcommands that write — [`convert`](convert.md),
+The eighteen subcommands that write — [`convert`](convert.md),
 [`shift`](shift.md), [`transform`](transform.md), [`framerate`](framerate.md),
 [`snap`](snap.md), [`hearing-impaired`](hearing-impaired.md), [`adjust`](adjust.md),
 [`replace`](replace.md), [`case`](case.md), [`italics`](italics.md),
 [`dialogue-dashes`](dialogue-dashes.md), [`sort`](sort.md), [`join-repeats`](join-repeats.md),
-[`disjoint`](disjoint.md), [`repair`](repair.md), [`correct`](correct.md), [`pair`](pair.md) — take their destination the same way. ([`append`](append.md) and
+[`disjoint`](disjoint.md), [`repair`](repair.md), [`correct`](correct.md), [`pair`](pair.md), [`sync`](sync.md) — take their destination the same way. ([`append`](append.md) and
 [`split-file`](split-file.md) have their own, on their page.) [`inspect`](inspect.md) writes no file and
 accepts none of these options.
 
@@ -713,7 +715,7 @@ a.srt: line 6: SubRip numbers that do not follow ("7"), settled by the reader
 a.srt: line 9: a line that fits nowhere, left as it stands
 ```
 
-All seventeen subcommands report them, not only [`inspect`](inspect.md):
+All eighteen subcommands report them, not only [`inspect`](inspect.md):
 a file read as well as can be and then written back went through the same decisions, and keeping them quiet
 would let one believe nothing happened.
 

@@ -54,6 +54,8 @@ statement \.set\(
 statement ^@,\s*(?:count\(|static_cast<std::int64_t>\(|Json\b|std::vector<Count>|constraintsRecord\(|settings(?:File)?$|0$)
 statement \b(?:counts|fields)\.emplace_back\(\s*@
 file      src/lib/subedit/cli/json.cpp \S+
+# The kinds of the lines `sync` flags, promised in its record (#813).
+file      src/lib/subedit/cli/syncing.cpp partial|overlaps
 
 [option] Command-line option, sub-command and positional names, and the metavariables and values of an option. The user types them; they are never translated (D3).
 text      --?[A-Za-z][\w-]*(?:\s*[,/]\s*--?[A-Za-z][\w-]*)*
@@ -73,7 +75,8 @@ text      (?:UTF|ISO|KOI8|EUC|CP|IBM)-?[\w-]*(?:,version=\d)?|windows-\d+|Shift_
 
 [constant] An all-capitals token: an environment variable, a keyword of a file format, a placeholder of the syntax. It is a name, not a sentence.
 # The form the time fields of the transcription dialog ask for, shown as their placeholder (#792).
-file      src/lib/subedit/gui/transcribe_dialog.cpp HH:MM:SS
+# The unit of the field that sets the shift to check, beside the time form (#814).
+file      src/lib/subedit/gui/transcribe_dialog.cpp HH:MM:SS| ms
 # The same form, as the placeholder of a field that may be empty (#805).
 file      src/lib/subedit/gui/timestamp_edit.cpp HH:MM:SS(?:,mmm)?
 text      [A-Z][A-Z0-9_]*(?:[ -][A-Z0-9_]+)*
@@ -149,6 +152,7 @@ file      src/lib/subedit/core/text/spell_checker.cpp \S+
 [contract] The message of an exception thrown when a caller broke a precondition: a defect of the program, read by a developer in a crash report, never by the user (#684).
 text      splitProject: nothing would stay, or nothing would leave
 file      src/lib/subedit/core/model/project.cpp subtitle index | in a project of |restoring | subtitles at | destinations
+file      src/lib/subedit/gui/transcription_runner.cpp this runner cannot synchronize
 
 [catalogue-loading] Why a message catalogue was refused. The catalogue is the very thing that failed to load, so it cannot say it in the user's language; the reason is read by the translator who wrote the file, in a test or a debugger, and `installedLanguage` drops it (#684).
 file      src/lib/subedit/core/i18n/catalogue.cpp
@@ -172,3 +176,6 @@ file      src/lib/subedit/core/transcription/whisper_cpp_engine.cpp [a-z]{2,3}|a
 # The codes of languages as ICU names them: whisper.cpp's old Javanese and the reader's default (#794).
 file      src/lib/subedit/core/transcription/language_display.cpp jw|jv|en
 file      src/lib/subedit/core/io/json_reader.cpp true|false|null|bfnrt
+
+[error-detail] The English `detail` of a `TranscriptionError`: what was asked or what the engine said, for the record and for the person who reads a bug report, which `core/wording/` puts after the sentence it words itself (`the transcription failed: %1`). Not a message for a reader (#813).
+file      src/lib/subedit/core/transcription/transcript_matching_aligner.cpp the engine gives no timed words, which the alignment is built on

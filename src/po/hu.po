@@ -831,7 +831,7 @@ msgid "Re-time a file mastered at one frame rate for another"
 msgstr ""
 "Az egyik képkockasebességre készült fájl időzítésének átigazítása másikra"
 
-#: src/exe/cli/commands/framerate.cpp
+#: src/exe/cli/commands/framerate.cpp src/exe/cli/commands/sync.cpp
 msgid "Subtitle files to re-time"
 msgstr "Az átidőzítendő feliratfájlok"
 
@@ -1038,6 +1038,84 @@ msgstr ""
 "a --head és a --tail összetartozik: adja meg mindkettőt, vagy egyiket sem a "
 "--dry-run mellett"
 
+#: src/exe/cli/commands/sync.cpp
+msgid "Re-time the subtitles of a file on the audio of a film"
+msgstr "Egy fájl feliratainak újraidőzítése egy film hangjára"
+
+#: src/exe/cli/commands/sync.cpp
+msgid "Film to listen to"
+msgstr "A meghallgatandó film"
+
+#: src/exe/cli/commands/sync.cpp
+msgid "Audio file to listen to, instead of a film"
+msgstr "A meghallgatandó hangfájl, film helyett"
+
+#: src/exe/cli/commands/sync.cpp
+msgid "Audio track of a film, counted from 0; the first by default"
+msgstr "Egy film hangsávja, 0-tól számolva; alapértelmezés szerint az első"
+
+#: src/exe/cli/commands/sync.cpp src/exe/cli/commands/transcribe.cpp
+msgid "Where to begin, as 2:00, 1:02:03 or seconds; the beginning by default"
+msgstr ""
+"Honnan induljon, pl. 2:00, 1:02:03 vagy másodpercben; alapértelmezés szerint "
+"az eleje"
+
+#: src/exe/cli/commands/sync.cpp src/exe/cli/commands/transcribe.cpp
+msgid "Where to stop, as 2:00, 1:02:03 or seconds; the end by default"
+msgstr ""
+"Hol álljon meg, pl. 2:00, 1:02:03 vagy másodpercben; alapértelmezés szerint "
+"a vége"
+
+#: src/exe/cli/commands/sync.cpp src/exe/cli/commands/transcribe.cpp
+msgid ""
+"Language of the speech, two letters: fr, en, de; detected from the first 30 "
+"seconds by default"
+msgstr ""
+"A beszéd nyelve, két betű: fr, en, de; alapértelmezés szerint az első 30 "
+"másodpercből ismeri fel"
+
+#: src/exe/cli/commands/sync.cpp src/exe/cli/commands/transcribe.cpp
+msgid "Model file; the transcription.model setting by default"
+msgstr "Modellfájl; alapértelmezés szerint a transcription.model beállítás"
+
+#: src/exe/cli/commands/sync.cpp src/exe/cli/commands/transcribe.cpp
+msgid ""
+"Voice-activity model that skips silences; the transcription.vad-model "
+"setting by default"
+msgstr ""
+"Beszédaktivitás-modell, amely kihagyja a csendet; alapértelmezés szerint a "
+"transcription.vad-model beállítás"
+
+#: src/exe/cli/commands/sync.cpp
+msgid "Engine that listens; the transcription.engine setting by default"
+msgstr ""
+"A hallgató motor; alapértelmezés szerint a transcription.engine beállítás"
+
+#: src/exe/cli/commands/sync.cpp src/exe/cli/commands/transcribe.cpp
+msgid "Keep the extracted audio in this file"
+msgstr "A kinyert hang megőrzése ebben a fájlban"
+
+#: src/exe/cli/commands/sync.cpp
+msgid ""
+"Share of a subtitle's words that must be heard, in percent; the alignment."
+"min-match setting by default"
+msgstr ""
+"A felirat szavainak hány százalékát kell meghallani; alapértelmezés szerint "
+"az alignment.min-match beállítás"
+
+#: src/exe/cli/commands/sync.cpp
+msgid ""
+"How far a subtitle may move from its neighbours' shift before it is flagged, "
+"in milliseconds; the alignment.doubt-gap setting by default"
+msgstr ""
+"Mennyivel térhet el egy felirat a szomszédai eltolásától, mielőtt "
+"megjelölik, ezredmásodpercben; alapértelmezés szerint az alignment.doubt-gap "
+"beállítás"
+
+#: src/exe/cli/commands/sync.cpp
+msgid "Write the subtitles to check to this file"
+msgstr "Az ellenőrizendő feliratok kiírása ebbe a fájlba"
+
 #: src/exe/cli/commands/transcribe.cpp
 msgid "Write the speech of a video or an audio file as subtitles"
 msgstr "Egy videó vagy hangfájl beszédének kiírása feliratként"
@@ -1061,26 +1139,6 @@ msgid "Audio track of a video, counted from 0; the first by default"
 msgstr "Egy videó hangsávja, 0-tól számolva; alapértelmezés szerint az első"
 
 #: src/exe/cli/commands/transcribe.cpp
-msgid "Where to begin, as 2:00, 1:02:03 or seconds; the beginning by default"
-msgstr ""
-"Honnan induljon, pl. 2:00, 1:02:03 vagy másodpercben; alapértelmezés szerint "
-"az eleje"
-
-#: src/exe/cli/commands/transcribe.cpp
-msgid "Where to stop, as 2:00, 1:02:03 or seconds; the end by default"
-msgstr ""
-"Hol álljon meg, pl. 2:00, 1:02:03 vagy másodpercben; alapértelmezés szerint "
-"a vége"
-
-#: src/exe/cli/commands/transcribe.cpp
-msgid ""
-"Language of the speech, two letters: fr, en, de; detected from the first 30 "
-"seconds by default"
-msgstr ""
-"A beszéd nyelve, két betű: fr, en, de; alapértelmezés szerint az első 30 "
-"másodpercből ismeri fel"
-
-#: src/exe/cli/commands/transcribe.cpp
 msgid ""
 "Do not write sounds as notes, such as (phone ringing); the transcription."
 "suppress-notes setting by default"
@@ -1093,24 +1151,8 @@ msgid "Write sounds as notes, against the setting"
 msgstr "A hangok kiírása megjegyzésként, a beállítással szemben"
 
 #: src/exe/cli/commands/transcribe.cpp
-msgid "Model file; the transcription.model setting by default"
-msgstr "Modellfájl; alapértelmezés szerint a transcription.model beállítás"
-
-#: src/exe/cli/commands/transcribe.cpp
-msgid ""
-"Voice-activity model that skips silences; the transcription.vad-model "
-"setting by default"
-msgstr ""
-"Beszédaktivitás-modell, amely kihagyja a csendet; alapértelmezés szerint a "
-"transcription.vad-model beállítás"
-
-#: src/exe/cli/commands/transcribe.cpp
 msgid "Engine; the transcription.engine setting by default"
 msgstr "Motor; alapértelmezés szerint a transcription.engine beállítás"
-
-#: src/exe/cli/commands/transcribe.cpp
-msgid "Keep the extracted audio in this file"
-msgstr "A kinyert hang megőrzése ebben a fájlban"
 
 #: src/exe/cli/commands/transcribe.cpp
 msgid ""
@@ -2095,6 +2137,11 @@ msgstr "%1: kettévágva a(z) %2. feliratnál: %3 a fejben, %4 a farokban"
 msgid "%1 -> %2, %3"
 msgstr "%1 -> %2, %3"
 
+#: src/lib/subedit/cli/syncing.cpp
+msgid "--report names one file: give one subtitle file when you use it"
+msgstr ""
+"a --report egy fájlt nevez meg: használatakor egyetlen feliratfájlt adjon meg"
+
 #: src/lib/subedit/cli/text_rewriting.cpp
 msgid "--on and --off say opposite things; give one of them"
 msgstr "a --on és a --off ellentétes dolgot kér; adja meg csak az egyiket"
@@ -2236,6 +2283,14 @@ msgstr "egész szám 1-től 1000-ig"
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "subedit-cli transcribe; Transcribe Audio…"
 msgstr "subedit-cli transcribe; Hang leiratozása…"
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "subedit-cli sync; Synchronize with Audio…"
+msgstr "subedit-cli sync; Szinkronizálás a hanggal…"
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "a whole number from 1 to 100"
+msgstr "1 és 100 közötti egész szám"
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "subedit-cli adjust; Adjust Durations…"
@@ -2496,6 +2551,18 @@ msgid "Most characters a transcribed subtitle holds."
 msgstr "A leiratozott felirat legfeljebb ennyi karaktert tartalmaz."
 
 #: src/lib/subedit/core/config/operation_settings.cpp
+msgid "The engine that aligns the subtitles on the audio."
+msgstr "A feliratokat a hanghoz igazító motor."
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "Share of a line's words that must be heard, in percent."
+msgstr "A sor szavainak hány százalékát kell meghallani."
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "How far a line may move from its neighbours' shift."
+msgstr "Mennyivel térhet el egy sor a szomszédai eltolásától."
+
+#: src/lib/subedit/core/config/operation_settings.cpp
 msgid "%1 is managed by the window; use --enable/--disable on correct"
 msgstr ""
 "A(z) %1 beállítást az ablak kezeli; használja a --enable/--disable kapcsolót "
@@ -2650,6 +2717,63 @@ msgstr "hiányzik a csoportnév"
 #: src/lib/subedit/core/text/replacement_template.cpp
 msgid "unknown group name '%1'"
 msgstr "ismeretlen csoportnév: '%1'"
+
+#: src/lib/subedit/core/wording/alignment.cpp
+msgid "there is no alignment engine called %1"
+msgstr "nincs %1 nevű igazítómotor"
+
+#: src/lib/subedit/core/wording/alignment.cpp
+msgid ""
+"sync needs the audio to listen to: give --video or --audio, and not both"
+msgstr ""
+"a sync-nek hang kell a hallgatáshoz: adja meg a --video vagy az --audio "
+"kapcsolót, de ne mindkettőt"
+
+#: src/lib/subedit/core/wording/alignment.cpp
+msgid ""
+"the %1 subtitle was looked for in the audio and was not found: is it the "
+"right audio, and the right language?"
+msgid_plural ""
+"none of the %1 subtitles was found in the audio: is it the right audio, and "
+"the right language?"
+msgstr[0] ""
+"a(z) %1 felirat nem található a hangban: ez a megfelelő hang, és a megfelelő "
+"nyelv?"
+msgstr[1] ""
+"a(z) %1 felirat közül egy sem található a hangban: ez a megfelelő hang, és a "
+"megfelelő nyelv?"
+
+#: src/lib/subedit/core/wording/alignment.cpp
+msgid "%1 of %2 subtitle placed on the audio, %3 to check"
+msgid_plural "%1 of %2 subtitles placed on the audio, %3 to check"
+msgstr[0] "%1 / %2 felirat a hangra helyezve, %3 ellenőrizendő"
+msgstr[1] "%1 / %2 felirat a hangra helyezve, %3 ellenőrizendő"
+
+#. TRANSLATORS: %1 is a sentence, such as « 40 of 42 subtitles placed on the audio, 2 to
+#. check »; %2 and %3 are lengths in seconds, such as « -2.400 s ».
+#: src/lib/subedit/core/wording/alignment.cpp
+msgid "%1; median shift %2, drift %3"
+msgstr "%1; medián eltolás %2, elcsúszás %3"
+
+#: src/lib/subedit/core/wording/alignment.cpp
+msgid "not found in the audio, left as it was"
+msgstr "nem található a hangban, úgy hagyva, ahogy volt"
+
+#: src/lib/subedit/core/wording/alignment.cpp
+msgid "only partly heard"
+msgstr "csak részben hallható"
+
+#: src/lib/subedit/core/wording/alignment.cpp
+msgid "moved differently from its neighbours"
+msgstr "a szomszédaitól eltérően mozdult"
+
+#: src/lib/subedit/core/wording/alignment.cpp
+msgid "cut back to the start of the next subtitle"
+msgstr "visszavágva a következő felirat kezdetéig"
+
+#: src/lib/subedit/core/wording/alignment.cpp
+msgid "still overlaps the next subtitle"
+msgstr "még mindig átfed a következő felirattal"
 
 #: src/lib/subedit/core/wording/analysis.cpp
 msgid "ends before it starts"
@@ -2854,6 +2978,10 @@ msgstr "ismétlődő feliratok egyesítése"
 #: src/lib/subedit/core/wording/analysis.cpp
 msgid "transcribing the audio"
 msgstr "a hang leiratozása"
+
+#: src/lib/subedit/core/wording/analysis.cpp
+msgid "synchronizing with the audio"
+msgstr "a hanggal való szinkronizálás"
 
 #. TRANSLATORS: how well the positions fall on a frame-rate grid: clean,
 #. partial, or none at all.
@@ -3869,6 +3997,7 @@ msgstr "Dokumentum"
 #: src/lib/subedit/gui/operation_dialog.cpp
 #: src/lib/subedit/gui/spell_check_settings_dialog.cpp
 #: src/lib/subedit/gui/subtitle_table_model.cpp
+#: src/lib/subedit/gui/synchronization_preview_dialog.cpp
 #: src/lib/subedit/gui/transcription_preview_dialog.cpp
 #: src/lib/subedit/gui/transform_dialog.cpp
 msgid "Text"
@@ -4858,6 +4987,42 @@ msgstr "Vég (képkocka)"
 msgid "Duration"
 msgstr "Időtartam"
 
+#: src/lib/subedit/gui/synchronization_preview_dialog.cpp
+msgid "Only the subtitles to check"
+msgstr "Csak az ellenőrizendő feliratok"
+
+#: src/lib/subedit/gui/synchronization_preview_dialog.cpp
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+#: src/lib/subedit/gui/transcription_runner.cpp
+msgid "Synchronize with audio"
+msgstr "Szinkronizálás a hanggal"
+
+# From Gaupol.
+#: src/lib/subedit/gui/synchronization_preview_dialog.cpp
+msgid "No."
+msgstr "Sz."
+
+#: src/lib/subedit/gui/synchronization_preview_dialog.cpp
+msgid "Was"
+msgstr "Volt"
+
+#: src/lib/subedit/gui/synchronization_preview_dialog.cpp
+msgid "Now"
+msgstr "Lett"
+
+#: src/lib/subedit/gui/synchronization_preview_dialog.cpp
+msgid "Shift"
+msgstr "Eltolás"
+
+#: src/lib/subedit/gui/synchronization_preview_dialog.cpp
+msgid "To check"
+msgstr "Ellenőrizendő"
+
+#: src/lib/subedit/gui/synchronization_preview_dialog.cpp
+#: src/lib/subedit/gui/transcription_preview_dialog.cpp
+msgid "Apply"
+msgstr "Alkalmaz"
+
 # From Gaupol.
 #: src/lib/subedit/gui/table_columns.cpp
 msgid "&Duration"
@@ -4890,6 +5055,10 @@ msgstr "A fordítás megjelenítése a szöveg mellett"
 #: src/lib/subedit/gui/target.cpp
 msgid "Main"
 msgstr "Fő"
+
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+msgid "Only the selected subtitles"
+msgstr "Csak a kijelölt feliratok"
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
 msgid "Preferences…"
@@ -4947,6 +5116,39 @@ msgid "Part of the film"
 msgstr "A film egy része"
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
+msgid "Words to hear"
+msgstr "Hallandó szavak"
+
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+msgid "Shift to check"
+msgstr "Ellenőrzendő eltolás"
+
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+msgid ""
+"The subtitles of the project are moved to where their words are said in the "
+"audio of the film open in this window. Nothing but their times changes. The "
+"work runs in the background and can be cancelled, and the result is shown "
+"before it is applied."
+msgstr "A projekt feliratai oda kerülnek, ahol a szavaik elhangzanak az ebben az ablakban megnyitott film hangjában. Csak az időpontjaik változnak. A munka a háttérben fut, megszakítható, és az eredmény az alkalmazás előtt megjelenik."
+
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+msgid ""
+"The share of a subtitle's words that must be heard for the subtitle to be "
+"found."
+msgstr "Egy felirat szavainak az a hányada, amelyet hallani kell ahhoz, hogy a feliratot megtalálja."
+
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+msgid ""
+"How far a subtitle may move from the shift of its neighbours before it is "
+"flagged."
+msgstr "Mennyire térhet el egy felirat a szomszédai eltolásától, mielőtt megjelöli."
+
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+msgid ""
+"Look for the selected subtitles alone, in the part of the film around them."
+msgstr "Csak a kijelölt feliratokat keresi, a film körülöttük lévő részében."
+
+#: src/lib/subedit/gui/transcribe_dialog.cpp
 msgid "Set them in the preferences."
 msgstr "Állítsa be őket a beállításokban."
 
@@ -4983,10 +5185,6 @@ msgstr ""
 #: src/lib/subedit/gui/transcription_preview_dialog.cpp
 msgid "Keep these values as settings"
 msgstr "Ezen értékek megtartása beállításként"
-
-#: src/lib/subedit/gui/transcription_preview_dialog.cpp
-msgid "Apply"
-msgstr "Alkalmaz"
 
 # From Gaupol.
 #: src/lib/subedit/gui/transcription_preview_dialog.cpp
@@ -5039,21 +5237,21 @@ msgid "As they will be applied (%1)"
 msgstr "Ahogy alkalmazva lesznek (%1)"
 
 #: src/lib/subedit/gui/transcription_runner.cpp
-msgid "Extracting the audio…"
-msgstr "A hang kinyerése…"
+#: src/lib/subedit/gui/unsaved_documents_dialog.cpp
+msgid "Cancel"
+msgstr "Mégse"
 
 #: src/lib/subedit/gui/transcription_runner.cpp
 msgid "Transcribing the audio…"
 msgstr "A hang leiratozása…"
 
 #: src/lib/subedit/gui/transcription_runner.cpp
-msgid "Last text: %1"
-msgstr "Utolsó szöveg: %1"
+msgid "Extracting the audio…"
+msgstr "A hang kinyerése…"
 
 #: src/lib/subedit/gui/transcription_runner.cpp
-#: src/lib/subedit/gui/unsaved_documents_dialog.cpp
-msgid "Cancel"
-msgstr "Mégse"
+msgid "Last text: %1"
+msgstr "Utolsó szöveg: %1"
 
 #: src/lib/subedit/gui/transform_dialog.cpp
 msgid "Transform positions"
@@ -5208,6 +5406,10 @@ msgstr "Pozíciók &képkockában"
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "Transcribe Audio…"
 msgstr "Hang leiratozása…"
+
+#: src/lib/subedit/gui/window_actions.cpp
+msgid "Synchronize with Audio…"
+msgstr "Szinkronizálás a hanggal…"
 
 #: src/lib/subedit/gui/window_actions.cpp
 msgid "Play / Pause"
@@ -5464,6 +5666,9 @@ msgstr "Dőlt betű"
 msgctxt "toolbar"
 msgid "Main"
 msgstr "Fő"
+
+#~ msgid "subedit-cli sync"
+#~ msgstr "subedit-cli sync"
 
 #~ msgid ""
 #~ "%1 of the %2 pieces are only notes in brackets, such as [MUSIC PLAYING]: "

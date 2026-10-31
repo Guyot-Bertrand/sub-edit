@@ -49,6 +49,7 @@ Subcommands:
   split-file                  Cut a subtitle file in two, a head and a tail
   pair                        Write a translation at the positions of its main file, and say how it lined up
   transcribe                  Write the speech of a video or an audio file as subtitles
+  sync                        Re-time the subtitles of a file on the audio of a film
   config                      List, show and change the operation settings
 ```
 
@@ -225,7 +226,7 @@ ei ajeta, eivätkä `-q` ja `-v` muuta mitään.
 <!-- example: subedit-cli --version | head -n 1 -->
 ```console
 $ subedit-cli --version | head -n 1
-subedit 1.1.4
+subedit 1.2.0
 ```
 
 Koko tuloste koneella, jossa on ICU 74.2 ja Enchant 2.3.3 — numerot ovat koneen omia:
@@ -370,12 +371,13 @@ mitä tehtiin, ei ole vaikenemista.
 | [`split-file`](split-file.md) | leikkaa tiedoston **kahtia**: alkuosaan ja loppuosaan | kyllä |
 | [`pair`](pair.md) | kirjoittaa käännöksen päätiedostonsa kohtiin ja kertoo, miten sen rivit asettuivat kohdakkain | kyllä |
 | [`transcribe`](transcribe.md) | kirjoittaa videon tai äänitiedoston puheen tekstitykseksi | kyllä — oma kohteensa, `--output` |
+| [`sync`](sync.md) | ajoittaa tiedoston tekstitykset uudelleen elokuvan äänen mukaan | kyllä |
 | [`config`](config.md) | luettelee, näyttää ja muuttaa asetustiedoston toimintojen asetuksia | vain asetustiedostoon |
 
-Kaikki kaksikymmentäkaksi ovat mukana; työkalun ohje luettelee ne samassa järjestyksessä.
+Kaikki kaksikymmentäkolme ovat mukana; työkalun ohje luettelee ne samassa järjestyksessä.
 
 **Vain yksi ei koske mihinkään**, ja sen kertoo oikeanpuoleinen sarake: `inspect` lukee ja
-raportoi. Muut kaksikymmentä kirjoittavat, ja seuraava koskee seitsemäätoista niistä:
+raportoi. Muut kaksikymmentäyksi kirjoittavat, ja seuraava koskee kahdeksaatoista niistä:
 [`append`](append.md) ja [`split-file`](split-file.md) ottavat kumpikin omanlaisensa määrän tiedostoja — N tiedostoa
 **yhteen** tulokseen, yksi tiedosto **kahteen** — ja siksi niillä on oma kohteensa, jonka ne kuvaavat sivullaan;
 [`transcribe`](transcribe.md) tekee videosta tai äänitiedostosta uuden tiedoston ja ottaa vain `--output`in.
@@ -384,12 +386,12 @@ mikään seuraavasta koske sitä.
 
 ## Kohde
 
-Seitsemäntoista kirjoittavaa alikomentoa — [`convert`](convert.md),
+Kahdeksantoista kirjoittavaa alikomentoa — [`convert`](convert.md),
 [`shift`](shift.md), [`transform`](transform.md), [`framerate`](framerate.md),
 [`snap`](snap.md), [`hearing-impaired`](hearing-impaired.md), [`adjust`](adjust.md),
 [`replace`](replace.md), [`case`](case.md), [`italics`](italics.md),
 [`dialogue-dashes`](dialogue-dashes.md), [`sort`](sort.md), [`join-repeats`](join-repeats.md),
-[`disjoint`](disjoint.md), [`repair`](repair.md), [`correct`](correct.md), [`pair`](pair.md) — ottavat kohteensa samalla tavalla. ([`append`](append.md) ja
+[`disjoint`](disjoint.md), [`repair`](repair.md), [`correct`](correct.md), [`pair`](pair.md), [`sync`](sync.md) — ottavat kohteensa samalla tavalla. ([`append`](append.md) ja
 [`split-file`](split-file.md) käyttävät omaansa, joka kuvataan niiden sivulla.) [`inspect`](inspect.md) ei kirjoita tiedostoa eikä
 hyväksy mitään näistä valitsimista.
 
@@ -716,7 +718,7 @@ a.srt: line 6: SubRip numbers that do not follow ("7"), settled by the reader
 a.srt: line 9: a line that fits nowhere, left as it stands
 ```
 
-Kaikki seitsemäntoista alikomentoa ilmoittavat niistä, ei vain [`inspect`](inspect.md):
+Kaikki kahdeksantoista alikomentoa ilmoittavat niistä, ei vain [`inspect`](inspect.md):
 niin hyvin kuin mahdollista luettu ja sitten takaisin kirjoitettu tiedosto kävi läpi samat päätökset, ja niistä vaikeneminen
 antaisi uskoa, ettei mitään tapahtunut.
 

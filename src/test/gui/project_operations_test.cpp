@@ -145,6 +145,11 @@ public:
     transcribe(const subedit::gui::TranscriptionJob& /*job*/) override {
         return subedit::gui::TranscriptionOutcome{};
     }
+
+    [[nodiscard]] std::expected<subedit::gui::AlignmentOutcome, subedit::gui::TranscriptionFailure>
+    align(const subedit::gui::AlignmentJob& /*job*/) override {
+        return subedit::gui::AlignmentOutcome{};
+    }
 };
 
 /// A page on four subtitles, the operations over it, and what answers them.

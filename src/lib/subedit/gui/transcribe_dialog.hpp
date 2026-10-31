@@ -1,5 +1,6 @@
 #pragma once
 
+#include <subedit/core/config/alignment_settings.hpp>
 #include <subedit/core/config/transcription_settings.hpp>
 #include <subedit/core/time/timestamp.hpp>
 #include <subedit/core/transcription/tools_status.hpp>
@@ -19,6 +20,8 @@ class QDialogButtonBox;
 class QLabel;
 class QLineEdit;
 class QPushButton;
+class QSpinBox;
+class QFormLayout;
 
 namespace subedit::gui {
 
@@ -39,6 +42,13 @@ struct TranscribeChoice {
     /// subtitles of the project like any other, after the same question.
     std::optional<core::Timestamp> start{};
     std::optional<core::Timestamp> end{};
+
+    /// For `Synchronize with Audio…` only: look for the selected subtitles alone, the share of a
+    /// subtitle's words that must be heard (percent), and how far a shift may depart from its
+    /// neighbours' before it is flagged (milliseconds).
+    bool selectionOnly = false;
+    int minimumMatchPercent = core::kDefaultMinimumMatchPercent;
+    int doubtGapMilliseconds = static_cast<int>(core::kDefaultDoubtGapMilliseconds);
 
     friend bool operator==(const TranscribeChoice&, const TranscribeChoice&) = default;
 };
@@ -79,6 +89,17 @@ public:
                      ToolsProbe probe,
                      const PreferencesOpener& openPreferences,
                      QWidget* parent = nullptr);
+
+    /// Turns the dialog into the one of `Synchronize with Audio…`: the same track, language and
+    /// tools, no question about notes, and the three choices of an alignment. `selectionAvailable`
+    /// says whether some subtitles are selected, which is what "only the selected" needs.
+    void forSynchronization(const TranscribeChoice& initial, bool selectionAvailable);
+
+    [[nodiscard]] QCheckBox* selectionBox() const { return m_selectionOnly; }
+
+    [[nodiscard]] QSpinBox* minimumMatchBox() const { return m_minimumMatch; }
+
+    [[nodiscard]] QSpinBox* doubtGapBox() const { return m_doubtGap; }
 
     /// The form as the fields say it.
     [[nodiscard]] TranscribeChoice choice() const;
@@ -137,6 +158,11 @@ private:
     QComboBox* m_track;
     QComboBox* m_language;
     QCheckBox* m_suppressNotes;
+    QCheckBox* m_selectionOnly;
+    QSpinBox* m_minimumMatch;
+    QSpinBox* m_doubtGap;
+    QLabel* m_explanation;
+    QFormLayout* m_fields;
     QLineEdit* m_start;
     QLineEdit* m_end;
     QLabel* m_rangeHint;

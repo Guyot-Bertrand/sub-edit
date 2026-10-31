@@ -40,6 +40,7 @@ açılıp değişiklik yapılmadan kaydedilen bir dosya tek bir bayt bile deği�
 | bir dosyanın tamamının büyük/küçük harfini, italiklerini veya diyalog çizgilerini değiştirmek | [İşlemler](subedit-gui/operations.md#italic) veya [`case`](subedit-cli/case.md), [`italics`](subedit-cli/italics.md), [`dialogue-dashes`](subedit-cli/dialogue-dashes.md) |
 | bir sözcüğü bulup etiketleri bozmadan değiştirmek | [Arama ve değiştirme](subedit-gui/find-and-replace.md) veya [`replace`](subedit-cli/replace.md) |
 | bir filmin konuşmasını altyazı olarak yazmak | [`Transcribe Audio…`](subedit-gui/video.md#sesi-yazıya-dökme) veya [`transcribe`](subedit-cli/transcribe.md) — [araçları kurduktan](subedit-cli/install-transcription.md) sonra |
+| bir altyazı dosyasını bir filmin sesine göre yeniden zamanlamak | [`Synchronize with Audio…`](subedit-gui/video.md#sesle-eşitleme) veya [`sync`](subedit-cli/sync.md) — [araçları kurduktan](subedit-cli/install-transcription.md) sonra |
 | özgün metnin yanında çeviri yapmak | [Çeviri açma](subedit-gui/files.md#çeviri-açma) veya çeviriyi ana dosyaya göre yeniden zamanlamak için [`pair`](subedit-cli/pair.md) |
 | yüz dosyayı bir seferde işlemek | [Dizin ağacını işleme](subedit-cli/lots.md), ardından [Çalıştırma](subedit-cli/invocation.md) |
 

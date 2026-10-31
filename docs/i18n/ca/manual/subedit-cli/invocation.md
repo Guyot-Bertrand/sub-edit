@@ -49,6 +49,7 @@ Subcommands:
   split-file                  Cut a subtitle file in two, a head and a tail
   pair                        Write a translation at the positions of its main file, and say how it lined up
   transcribe                  Write the speech of a video or an audio file as subtitles
+  sync                        Re-time the subtitles of a file on the audio of a film
   config                      List, show and change the operation settings
 ```
 
@@ -226,7 +227,7 @@ no s'executa, i `-q` i `-v` no hi canvien res.
 <!-- example: subedit-cli --version | head -n 1 -->
 ```console
 $ subedit-cli --version | head -n 1
-subedit 1.1.4
+subedit 1.2.0
 ```
 
 La sortida sencera, en una màquina amb ICU 74.2 i Enchant 2.3.3 — els números són els de la màquina:
@@ -371,12 +372,13 @@ el que s'ha fet no és un silenci.
 | [`split-file`](split-file.md) | talla un fitxer en **dos**: un cap i una cua | sí |
 | [`pair`](pair.md) | escriu una traducció a les posicions del seu fitxer principal, i diu com s'han alineat les seves línies | sí |
 | [`transcribe`](transcribe.md) | escriu la parla d'un vídeo o d'un fitxer d'àudio en forma de subtítols | sí — la seva pròpia destinació, `--output` |
+| [`sync`](sync.md) | resincronitza els subtítols d'un fitxer segons l'àudio d'una pel·lícula | sí |
 | [`config`](config.md) | llista, mostra i canvia la configuració de les operacions del fitxer de configuració | només el fitxer de configuració |
 
-Hi són totes vint-i-dues; l'ajuda de l'eina les llista en el mateix ordre.
+Hi són totes vint-i-tres; l'ajuda de l'eina les llista en el mateix ordre.
 
 **Només una no toca res**, i és la columna de la dreta: `inspect` llegeix i
-informa. Les altres vint escriuen, i el que segueix val per a disset d'elles:
+informa. Les altres vint-i-una escriuen, i el que segueix val per a divuit d'elles:
 [`append`](append.md) i [`split-file`](split-file.md) tenen cadascuna una aritat pròpia — N fitxers per a
 **un** resultat, un fitxer per a **dos** — i per tant la seva pròpia destinació, que descriuen a la seva pàgina;
 [`transcribe`](transcribe.md) fa un fitxer nou a partir d'un vídeo o d'un fitxer d'àudio, i només pren `--output`.
@@ -385,12 +387,12 @@ no se li aplica res del que segueix.
 
 ## La destinació
 
-Les disset subordres que escriuen — [`convert`](convert.md),
+Les divuit subordres que escriuen — [`convert`](convert.md),
 [`shift`](shift.md), [`transform`](transform.md), [`framerate`](framerate.md),
 [`snap`](snap.md), [`hearing-impaired`](hearing-impaired.md), [`adjust`](adjust.md),
 [`replace`](replace.md), [`case`](case.md), [`italics`](italics.md),
 [`dialogue-dashes`](dialogue-dashes.md), [`sort`](sort.md), [`join-repeats`](join-repeats.md),
-[`disjoint`](disjoint.md), [`repair`](repair.md), [`correct`](correct.md), [`pair`](pair.md) — prenen la seva destinació de la mateixa manera. ([`append`](append.md) i
+[`disjoint`](disjoint.md), [`repair`](repair.md), [`correct`](correct.md), [`pair`](pair.md), [`sync`](sync.md) — prenen la seva destinació de la mateixa manera. ([`append`](append.md) i
 [`split-file`](split-file.md) tenen la seva, a la seva pàgina.) [`inspect`](inspect.md) no escriu cap fitxer i
 no accepta cap d'aquestes opcions.
 
@@ -717,7 +719,7 @@ a.srt: line 6: SubRip numbers that do not follow ("7"), settled by the reader
 a.srt: line 9: a line that fits nowhere, left as it stands
 ```
 
-Les disset subordres els informen, no només [`inspect`](inspect.md):
+Les divuit subordres els informen, no només [`inspect`](inspect.md):
 un fitxer llegit tan bé com es pot i després tornat a escriure ha passat per les mateixes decisions, i callar-les
 faria creure que no ha passat res.
 

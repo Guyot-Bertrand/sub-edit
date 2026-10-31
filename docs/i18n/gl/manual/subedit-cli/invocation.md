@@ -49,6 +49,7 @@ Subcommands:
   split-file                  Cut a subtitle file in two, a head and a tail
   pair                        Write a translation at the positions of its main file, and say how it lined up
   transcribe                  Write the speech of a video or an audio file as subtitles
+  sync                        Re-time the subtitles of a file on the audio of a film
   config                      List, show and change the operation settings
 ```
 
@@ -225,7 +226,7 @@ non se executa, e `-q` e `-v` non cambian nada.
 <!-- example: subedit-cli --version | head -n 1 -->
 ```console
 $ subedit-cli --version | head -n 1
-subedit 1.1.4
+subedit 1.2.0
 ```
 
 Completa, nunha máquina con ICU 74.2 e Enchant 2.3.3 — os números son os da máquina:
@@ -370,12 +371,13 @@ o que se fixo non é un silencio.
 | [`split-file`](split-file.md) | corta un ficheiro en **dous**: unha cabeza e unha cola | si |
 | [`pair`](pair.md) | escribe unha tradución nas posicións do seu ficheiro principal, e di como se aliñaron as súas liñas | si |
 | [`transcribe`](transcribe.md) | escribe a fala dun vídeo ou dun ficheiro de son como subtítulos | si — o seu propio destino, `--output` |
+| [`sync`](sync.md) | recalcula os tempos dos subtítulos dun ficheiro segundo o son dunha película | si |
 | [`config`](config.md) | enumera, mostra e cambia a configuración das operacións do ficheiro de configuración | só o ficheiro de configuración |
 
-Están as vinte e dúas; a axuda da ferramenta enuméraas na mesma orde.
+Están as vinte e tres; a axuda da ferramenta enuméraas na mesma orde.
 
 **Só unha non toca nada**, e iso é a columna da dereita: `inspect` le e
-informa. As outras vinte escriben, e o que segue vale para dezasete delas:
+informa. As outras vinte e unha escriben, e o que segue vale para dezaoito delas:
 [`append`](append.md) e [`split-file`](split-file.md) teñen cada unha unha aridade propia — N ficheiros para
 **un** resultado, un ficheiro para **dous** — e polo tanto o seu propio destino, que describen na súa páxina;
 [`transcribe`](transcribe.md) fai un ficheiro novo a partir dun vídeo ou dun ficheiro de son, e toma só `--output`.
@@ -384,12 +386,12 @@ nada do que segue se lle aplica.
 
 ## O destino
 
-As dezasete subordes que escriben — [`convert`](convert.md),
+As dezaoito subordes que escriben — [`convert`](convert.md),
 [`shift`](shift.md), [`transform`](transform.md), [`framerate`](framerate.md),
 [`snap`](snap.md), [`hearing-impaired`](hearing-impaired.md), [`adjust`](adjust.md),
 [`replace`](replace.md), [`case`](case.md), [`italics`](italics.md),
 [`dialogue-dashes`](dialogue-dashes.md), [`sort`](sort.md), [`join-repeats`](join-repeats.md),
-[`disjoint`](disjoint.md), [`repair`](repair.md), [`correct`](correct.md), [`pair`](pair.md) — reciben o seu destino da mesma forma. ([`append`](append.md) e
+[`disjoint`](disjoint.md), [`repair`](repair.md), [`correct`](correct.md), [`pair`](pair.md), [`sync`](sync.md) — reciben o seu destino da mesma forma. ([`append`](append.md) e
 [`split-file`](split-file.md) teñen o seu propio, na súa páxina.) [`inspect`](inspect.md) non escribe ningún ficheiro e
 non acepta ningunha destas opcións.
 
@@ -716,7 +718,7 @@ a.srt: line 6: SubRip numbers that do not follow ("7"), settled by the reader
 a.srt: line 9: a line that fits nowhere, left as it stands
 ```
 
-As dezasete subordes infórmanos, non só [`inspect`](inspect.md):
+As dezaoito subordes infórmanos, non só [`inspect`](inspect.md):
 un ficheiro lido o mellor que se pode e despois escrito de novo pasou polas mesmas decisións, e calalas
 faría crer que non pasou nada.
 

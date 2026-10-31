@@ -40,6 +40,7 @@ archivo abierto y luego guardado sin cambios no se mueve ni un byte.
 | cambiar la capitalización, la cursiva o las rayas de diálogo de todo un archivo | [Las operaciones](subedit-gui/operations.md#italic), o [`case`](subedit-cli/case.md), [`italics`](subedit-cli/italics.md), [`dialogue-dashes`](subedit-cli/dialogue-dashes.md) |
 | buscar una palabra y reemplazarla, sin romper las etiquetas | [Buscar y reemplazar](subedit-gui/find-and-replace.md), o [`replace`](subedit-cli/replace.md) |
 | escribir el habla de una película como subtítulos | [`Transcribe Audio…`](subedit-gui/video.md#transcribir-el-audio), o [`transcribe`](subedit-cli/transcribe.md) — tras [instalar las herramientas](subedit-cli/install-transcription.md) |
+| reajustar los tiempos de un archivo de subtítulos según el audio de una película | [`Synchronize with Audio…`](subedit-gui/video.md#sincronizar-con-el-audio), o [`sync`](subedit-cli/sync.md) — tras [instalar las herramientas](subedit-cli/install-transcription.md) |
 | traducir junto al texto original | [Abrir una traducción](subedit-gui/files.md#abrir-una-traducción), o [`pair`](subedit-cli/pair.md) para reajustar sus tiempos sobre el archivo principal |
 | procesar cien archivos de una vez | [Procesar un árbol](subedit-cli/lots.md), y después [Invocación](subedit-cli/invocation.md) |
 

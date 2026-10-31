@@ -6,6 +6,7 @@
 
 #include <expected>
 #include <filesystem>
+#include <functional>
 #include <optional>
 #include <string_view>
 #include <variant>
@@ -51,6 +52,21 @@ struct MediaTranscriptionError {
     /// audio could not be prepared, or the engine had written nothing.
     std::vector<TranscribedSegment> partial{};
 };
+
+/// Prepares the audio of `request.input` and hands it to `use`: **the road both transcription and
+/// alignment take**, so that the extraction, its refusals and its fallbacks are one.
+///
+/// `capabilities` are those of whatever will listen: the audio is extracted at the rate it asks
+/// for, and a request it cannot honour is refused before the extraction. The audio is removed once
+/// `use` returns, unless `request.keepAudio` names a file.
+[[nodiscard]] std::expected<void, MediaTranscriptionError>
+withPreparedAudio(FileSystem& files,
+                  const EngineCapabilities& capabilities,
+                  std::string_view searchPath,
+                  const MediaTranscriptionRequest& request,
+                  const TranscriptionObserver& observer,
+                  const std::function<std::expected<void, TranscriptionError>(
+                      const std::filesystem::path& audio)>& use);
 
 /// Prepares the audio of `request.input`, and has `engine` transcribe it.
 ///

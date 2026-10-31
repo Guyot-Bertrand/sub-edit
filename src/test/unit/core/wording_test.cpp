@@ -625,6 +625,14 @@ TEST_CASE("correcting texts has a name of its own in the history", "[wording][co
     CHECK(nameOf(CommandKind::CorrectTexts) == "correcting texts");
 }
 
+TEST_CASE("synchronizing with the audio has a name of its own in the history",
+          "[wording][alignment]") {
+    using subedit::core::CommandKind;
+    using subedit::core::nameOf;
+
+    CHECK(nameOf(CommandKind::Synchronize) == "synchronizing with the audio");
+}
+
 TEST_CASE("the correction assistant's notice counts what it edited and what it removed",
           "[wording][correction]") {
     using subedit::core::noticeOfCorrection;

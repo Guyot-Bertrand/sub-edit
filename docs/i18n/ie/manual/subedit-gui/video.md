@@ -10,6 +10,7 @@ Li menu **Video** porta prim tri comandes, e li gestes quel condui li film
 | :------ | :------- | :----------- |
 | Selecter video… | null | elige li file de video con quel li document vade |
 | Transcrir audio… | null | transcrive li audio del film in subtitules quel remplazza ti del projecte — vide [Transcrir li audio](#transcrir-li-audio) |
+| Sincronisar con audio… | null | move li subtitules del projecte til u lor parol es dit in li audio del film — vide [Sincronisar con li audio](#sincronisar-con-li-audio) |
 | Reproducter / Pausa | `Ctrl+P` | reproducte o halta li video — vide [Li reproductor](player.md#reproducter-e-halter) |
 
 Li video associat es **un proprietá del document aperit**, ne un parametre de
@@ -192,6 +193,54 @@ ne es un témpor o li fine ne es pos li comense, e un linea sub li campes dit qu
 
 **Quo it besona ne es livrat con li programma**: un motor (whisper.cpp), un model, e `ffmpeg` por extraer li audio.
 Vide [Instalar li utensiles de transcription](../subedit-cli/install-transcription.md).
+
+## Sincronisar con li audio
+
+**`Synchronize with Audio…`** retemporisa li subtitules del projecte sur li audio del film. It es li casu del `.srt`
+prenet in linea, decalat al comense e al fine, quel un singul movement ne remena: chascun subtitul es serchat in quo es dit, e prende li loc u it es dit. **Solmen li comenses e fines change** — jamais li textu, li stil, li númere de
+subtitules ni lor órdine. Quam `Transcribe Audio…` it es desactivat til que un film es aperit, e it es li audio del **film del projecte**; li
+sam comande in li linea de comande es [`sync`](../subedit-cli/sync.md).
+
+Li subtitules deve esser in li lingue quel es parlat: nequo es tradutet. Li labor es fat per li motor quel transcrive — ti del
+[preferenties](preferences.md#transcription), con li sam programma, `ffmpeg` e model — e **li dialog dit quo manca** exactmen quam li dialog del
+transcription, con li indication a [Instalar li utensiles de transcription](../subedit-cli/install-transcription.md) e un
+buton `Preferences…`.
+
+Li dialog demanda:
+
+- **li pista audio** e **li lingue**, quam por li transcription;
+- **li parte del film**, de un témpor til un altri, ambi vacui por li tot film: solmen li subtitules quel **comensa** in li interval es
+  serchat e movet;
+- **“Solmen li selectet subtitules”**: un caxa, extinct quande nequo es selectet. It sercha solmen li selectet subtitules, in li parte del
+  film quel comensa un minute ante li prim de les e fini un minute pos li ultim, por que un file tard o tro tost
+  resta intra quo es audit;
+- **“Parol a audir”**, in procent: li parte del parol de un subtitul quel deve esser audit por que li subtitul es trovat, 50 % per defecte — li parametre
+  `alignment.min-match`;
+- **“Movement a verificar”**, in millisecondes: quant un subtitul posse divergir del movement de su vicinos ante que it es marcat, 2000 ms per defecte —
+  li parametre `alignment.doubt-gap`.
+
+Li tri ultim es conservat por li sequent vice. Li labor funde **in li fon**, con li sam cadre e buton `Cancel` quam li transcription;
+un labor quel fallis o quel vu halta changea nequo.
+
+### Li resultate
+
+**Nequo move ante que vu ha videt u li subtitules va ir.** Quande li labor fini, un fenestre monstra, por chascun subtitul serchat,
+su númere, su textu, **li comense quel it have, li comense quel it prende, li movement inter li du**, e quo es **a verificar**, in parol:
+
+- **“ne trovat in li audio, lassat quam it esset”**: min parol es audit quam li caxa demanda. Li subtitul conserva su tempores — **null position es
+  jamais inventet, e null es divinat del vicinos**;
+- **“audit solmen in parte”**: trovat, ma min de 80 % de su parol es audit;
+- **“movet altrimen que su vicinos”**: trovat, ma su movement diverge del movement median del du subtitules de chascun latere per plu quam
+  li “Movement a verificar”;
+- **“decurtat til li comense del sequent subtitul”** e **“ancor superpone li sequent subtitul”**: un subtitul quel va colider con li sequent es decurtat til
+  u li sequent comensa; un quel lo superpone ancor, quo decurtar ne posse curar, es lassat e dit.
+
+Un linea super li tabelle dit quo it ha duct — quant de subtitules es plazzat, quant es a verificar, li movement median e li derive —, e
+**“Solmen li subtitules a verificar”** monstra solmen les. Li tabelle ne posse esser modificat.
+
+Du butones clude it. **“Aplicar”** move li comenses e fines **in un singul operation**: un `Undo` redona li tempores quel esset ibi. “Anullar”
+lassa li projecte quam it es. “Aplicar” es extinct quande nequo va mover. Quande null subtitul ha posset esser trovat, li fenestre dit it in un caxa
+e monstra nequo a aplicar: it es quasi cert li fals audio o li fals lingue.
 
 ## Quande il ne ha film
 

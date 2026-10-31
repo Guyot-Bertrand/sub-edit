@@ -67,12 +67,12 @@ TEST_CASE(
     }
 }
 
-TEST_CASE("The command line honours exactly twenty-two keys", "[operation-settings]") {
+TEST_CASE("The command line honours exactly twenty-five keys", "[operation-settings]") {
     int both = 0;
     for (const SettingKey& one : operationKeys())
         if (one.surface == SettingSurface::Both)
             ++both;
-    CHECK(both == 22);
+    CHECK(both == 25);
 }
 
 TEST_CASE("findOperationKey finds a catalogued key and nothing else", "[operation-settings]") {
@@ -295,6 +295,9 @@ TEST_CASE("Every key can be set away from its default and unset back to it",
         {"transcription.merge-gap-ms", "250"},
         {"transcription.max-duration-ms", "5000"},
         {"transcription.max-characters", "70"},
+        {"alignment.engine", "other-aligner"},
+        {"alignment.min-match", "70"},
+        {"alignment.doubt-gap", "1500"},
     };
 
     // A display preference and an activation, which neither command may touch.

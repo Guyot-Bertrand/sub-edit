@@ -102,15 +102,15 @@ duration-adjust.lengthen
     Used by: subedit-cli adjust; Adjust Durations…
 ```
 
-**42 anahtar** listeler:
+**45 anahtar** listeler:
 
 <!-- example: subedit-cli config list | grep -c '^[a-z]' -->
 ```console
 $ subedit-cli config list | grep -c '^[a-z]'
-42
+45
 ```
 
-**Yirmi ikisini komut satırı okur**; diğer yirmisini yalnızca pencere okur
+**Yirmi beşini komut satırı okur**; diğer yirmisini yalnızca pencere okur
 ve `Used by:` satırları bunu, yerlerini alan `correct` seçeneğiyle birlikte söyler:
 
 | Anahtar | Okuyan |
@@ -123,6 +123,7 @@ ve `Used by:` satırları bunu, yerlerini alan `correct` seçeneğiyle birlikte 
 | `correction.remove-blank` | `correct` ve `Correct Texts…` |
 | `correction.line-break.max-lines` | `correct` ve `Correct Texts…` |
 | `transcription.engine`, `transcription.executable`, `transcription.model`, `transcription.vad-model`, `transcription.language`, `transcription.suppress-notes`, `transcription.merge-gap-ms`, `transcription.max-duration-ms`, `transcription.max-characters` | [`transcribe`](transcribe.md) ve `Transcribe Audio…` |
+| `alignment.engine`, `alignment.min-match`, `alignment.doubt-gap` | [`sync`](sync.md) ve `Synchronize with Audio…` |
 | diğer her `correction.*` anahtarı | yalnızca `Correct Texts…` — `correct`, `--tasks`, `--code`, `--max-length`, `--skip-length`, `--skip-lines`, `--language`, `--enable` ve `--disable` değerlerini kendi satırından alır |
 
 Satır sayıları, `correction.line-break.max-lines` ve `correction.line-break.skip-max-lines`,

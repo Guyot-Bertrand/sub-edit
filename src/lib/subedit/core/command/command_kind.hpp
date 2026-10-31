@@ -40,6 +40,7 @@ enum class CommandKind {
     MakeDisjoint,
     JoinRepeats,
     Transcribe,
+    Synchronize,
 };
 
 } // namespace subedit::core

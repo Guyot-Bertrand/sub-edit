@@ -40,6 +40,7 @@ megnyitott, majd változtatás nélkül mentett fájl egyetlen bájtot sem vált
 | egy egész fájl kis- és nagybetűinek, dőlt betűinek vagy párbeszéd-kötőjeleinek módosítása | [A műveletek](subedit-gui/operations.md#italic) vagy [`case`](subedit-cli/case.md), [`italics`](subedit-cli/italics.md), [`dialogue-dashes`](subedit-cli/dialogue-dashes.md) |
 | szó keresése és cseréje a címkék megrongálása nélkül | [Keresés és csere](subedit-gui/find-and-replace.md) vagy [`replace`](subedit-cli/replace.md) |
 | egy film beszédének kiírása feliratként | [`Transcribe Audio…`](subedit-gui/video.md#a-hang-leiratozása) vagy [`transcribe`](subedit-cli/transcribe.md) — [az eszközök telepítése](subedit-cli/install-transcription.md) után |
+| egy feliratfájl újraidőzítése egy film hangjára | [`Synchronize with Audio…`](subedit-gui/video.md#a-hanggal-való-szinkronizálás) vagy [`sync`](subedit-cli/sync.md) — [az eszközök telepítése](subedit-cli/install-transcription.md) után |
 | fordítás az eredeti szöveg mellett | [Fordítás megnyitása](subedit-gui/files.md#fordítás-megnyitása) vagy [`pair`](subedit-cli/pair.md), amellyel a főfájlhoz időzíthető újra |
 | száz fájl feldolgozása egyszerre | [Könyvtárfa feldolgozása](subedit-cli/lots.md), majd [Indítás](subedit-cli/invocation.md) |
 

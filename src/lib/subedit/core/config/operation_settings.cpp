@@ -32,6 +32,8 @@ constexpr std::string_view kDurationLimit =
 constexpr std::string_view kCharacterLimit = deferred("a whole number from 1 to 1000");
 
 constexpr std::string_view kTranscribe = deferred("subedit-cli transcribe; Transcribe Audio…");
+constexpr std::string_view kSync = deferred("subedit-cli sync; Synchronize with Audio…");
+constexpr std::string_view kPercentage = deferred("a whole number from 1 to 100");
 
 constexpr std::string_view kAdjust = deferred("subedit-cli adjust; Adjust Durations…");
 constexpr std::string_view kCorrect = deferred("subedit-cli correct; Correct Texts…");
@@ -285,6 +287,21 @@ constexpr std::array kCatalogue{
                .accepts = kCharacterLimit,
                .usedBy = kTranscribe,
                .surface = kBoth},
+    SettingKey{.key = "alignment.engine",
+               .description = deferred("The engine that aligns the subtitles on the audio."),
+               .accepts = kEngineName,
+               .usedBy = kSync,
+               .surface = kBoth},
+    SettingKey{.key = "alignment.min-match",
+               .description = deferred("Share of a line's words that must be heard, in percent."),
+               .accepts = kPercentage,
+               .usedBy = kSync,
+               .surface = kBoth},
+    SettingKey{.key = "alignment.doubt-gap",
+               .description = deferred("How far a line may move from its neighbours' shift."),
+               .accepts = kMilliseconds,
+               .usedBy = kSync,
+               .surface = kBoth},
 };
 
 // A key of the file, in the correction family, that is not in the catalogue:
@@ -368,7 +385,8 @@ OperationSettingsRead readOperationSettings(const FileSystem& files,
 OperationSettings operationPartOf(const Settings& settings) {
     return {.durationAdjustment = settings.durationAdjustment,
             .correction = settings.correction,
-            .transcription = settings.transcription};
+            .transcription = settings.transcription,
+            .alignment = settings.alignment};
 }
 
 std::span<const SettingKey> operationKeys() {
@@ -415,6 +433,7 @@ std::expected<void, std::string> unsetOperationOption(Settings& settings, std::s
     Settings rebuilt = settings;
     rebuilt.durationAdjustment = {};
     rebuilt.transcription = {};
+    rebuilt.alignment = {};
     rebuilt.correction =
         CorrectionSettings{.patternActivations = std::move(rebuilt.correction.patternActivations)};
     for (const SettingEntry& entry : describeOperationSettings(settings)) {

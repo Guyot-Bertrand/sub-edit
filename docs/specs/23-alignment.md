@@ -1,6 +1,6 @@
 # Phase 23 — Automatic alignment
 
-**Status: scoped (#804).** The tooling came first (#803); this document decides the rest — the engine, the matching of a line to the
+**Status: shipped (#804 to #816), closed in 1.2.0.** The tooling came first (#803); this document decides the rest — the engine, the matching of a line to the
 speech, the doubtful alignment, the command and the window — and splits the phase into issues.
 
 What the roadmap promises: re-time an existing subtitle file on the audio. From the text and the voice, find where each sentence is
@@ -65,7 +65,7 @@ The matching is **a pure function of the text and the heard words**, in the core
    (one or two characters apart on a word of five or more) as a match. The result is monotonic by construction: the lines come out in the
    order they are in the file.
 3. **A line takes** the start of its first matched word and the end of its last. It is **found** when at least half of its words are
-   matched (setting `alignment.min-match`, default `0.5`), and at least one; a line of a single word is found only if that word is.
+   matched (setting `alignment.min-match`, default 50 %), and at least one; a line of a single word is found only if that word is.
 4. **A line spoken nowhere** (music, a foreign language, a credit that is not said) has no match and **gets no position**: the contract
    of `AlignedLine`, held by the suite. The engine never invents one.
 
@@ -81,6 +81,8 @@ The core classifies each line, after the matching. Three kinds, in this order:
 | **not found** | the matching gave no position | below `alignment.min-match` |
 | **partial** | found, but few of its words were heard | matched fraction below `0.8` |
 | **out of line** | found, but its shift from the original time departs from the shift of its neighbours | by more than `alignment.doubt-gap` (default 2000 ms) from the median shift of the five lines around it |
+
+Every median here is the **lower** of the two middle values when the count is even, so that a single outlier among few neighbours cannot pull the median onto itself. The classification is the first kind that holds: a partial line is not also called out of line.
 
 The result also carries **the shift of every found line** and two figures that tell the story of the file: the median shift, and the
 **drift** — the difference between the median shift of the last tenth of the found lines and of the first tenth. A constant offset reads as a
@@ -118,7 +120,7 @@ $ subedit-cli sync film.fr.srt --video film.mkv --output film.fr.synced.srt
 - the subtitle file is the positional argument; `--video` (or `--audio`) gives the sound, with `--audio-track`, `--language`,
   `--model`, `--vad-model`, `--start`, `--end` as for `transcribe`;
 - `--output` as for the other commands (in place only when asked, nothing written on failure);
-- `--min-match` and `--doubt-gap` over the settings;
+- `--min-match` (percent) and `--doubt-gap` (milliseconds) over the settings;
 - `--report` writes the flagged lines to the file it names; `--format json` writes one record (ADR 0038) with the counts, the median shift,
   the drift and the flagged numbers;
 - a flagged line is **not a failure**: exit code 0, the report says it. A run that finds no line at all (a wrong audio, a wrong language) is
@@ -134,15 +136,17 @@ $ subedit-cli sync film.fr.srt --video film.mkv --output film.fr.synced.srt
    unchanged.
 3. **The preview of phase 22 is reused**: the current times on the left, the new ones on the right, a selected line showing its
    shift; the flagged lines are marked and can be filtered to. The person applies the result as one undoable operation, or ignores it.
-4. The table of the window does not get a column for the flags in this phase (open point 3).
+4. The table of the window does not get a column for the flags in this phase (open point 3). The dialog of the transcription serves, with the three choices of the alignment added and the question about notes taken out; the undo menu names the operation (`CommandKind::Synchronize`).
 
 ## D7 — Settings and wording
 
 | Key | Option | Default | Meaning |
 | :-- | :----- | :------ | :------ |
 | `alignment.engine` | — | `transcript-matching` | the adapter chosen in the registry |
-| `alignment.min-match` | `--min-match` | `0.5` | the fraction of a line's words that must be heard for it to be found |
+| `alignment.min-match` | `--min-match` | `50` | the share of a line's words that must be heard for it to be found, in percent |
 | `alignment.doubt-gap` | `--doubt-gap` | `2000` ms | how far a shift may depart from its neighbours' |
+
+**Delivered with the command (#813).** The settings are read from and written to the settings file, and the account of the operation and the reasons for failure are worded in `core/wording/alignment`, where a person first sees them.
 
 The model, the voice-activity model and the engine of the **transcription** are those of phase 22; there is no second set. The account of
 the operation and the reasons for failure live in a new family of `core/wording/` (`alignment`), shared by the two surfaces.
@@ -194,10 +198,54 @@ of a translation (the text must be in the spoken language), a forced-alignment a
 | 6 — by hand | [#815](https://github.com/Guyot-Bertrand/sub-edit/issues/815) | the real-film run with a shifted file, documented, never reported as passed when skipped | 4 | M |
 | 7 — closure | [#816](https://github.com/Guyot-Bertrand/sub-edit/issues/816) | review of the phase, then the version the maintainer decides | all | M |
 
+## The by-hand run (#815)
+
+`src/scripts/alignment-by-hand.sh` runs `sync` on a real film, outside the gate, and prints a table. It transcribes the first minutes of the film
+with one model (the *truth*), makes from that file four files at a known fault — **late** by 2.4 s, a **drift** that grows from nothing to 3 s,
+the **second half** late by 2 s, and a line that nobody says (**extra**) —, runs `sync` on each with another model, and measures how far each
+start lands from the truth. `--control` adds a run with the model that wrote the truth. A run that lacks a tool or a model says
+`SKIPPED`, names it and exits 77: **a skipped run is never a passed one.**
+
+**What it proves, and what it does not.** The truth comes from an engine, not from a person: the table says whether the matching finds its way
+back from a known fault with the words a second model heard, not whether the engine's times are those of the speech. The engine's own text is
+also cleaner than a subtitle written by a person; a real subtitle file is a harder case.
+
+**Measured on 2026-10-31**, on the first five minutes of a real film (103 subtitles), truth by `medium` and `sync` with `small` and the Silero
+model, on twelve cores:
+
+| Case | Median | 95th percentile | Worst | Within 500 ms | Not found | Flagged | Time |
+| :--- | -----: | --------------: | ----: | ------------: | --------: | ------: | ---: |
+| late | 260 ms | 2440 ms | 16300 ms | 71 of 103 | 1 | 22 | 146 s |
+| drift | 260 ms | 2440 ms | 16300 ms | 71 of 103 | 1 | 22 | 142 s |
+| second half late | 260 ms | 2440 ms | 16300 ms | 71 of 103 | 1 | 23 | 140 s |
+| extra line | 230 ms | 2440 ms | 16300 ms | 72 of 103 | 2 | 24 | 145 s |
+| control (`medium` listens) | 0 ms | 0 ms | 0 ms | 103 of 103 | 0 | 0 | 445 s |
+
+What it says:
+
+- **The matching is exact when the same words are heard.** With the model that wrote the truth, every start lands on the truth, the median shift is
+  the 2.4 s that was laid down, and nothing is flagged.
+- **The fault does not matter.** The four faults give the same figures: each line is matched on its own, so a constant offset, a drift and a
+  half-late file are one case, as D4 has it. The median shift and the drift of the report are what tell them apart.
+- **What remains with another model is the models' disagreement**, and a few mishearings. Two models do not put the start of a word at the same
+  moment: 71 of 103 starts are within 500 ms, the others mostly within a second, the median at a quarter of a second. Eight starts are more than two
+  seconds out, one by sixteen: the small model misheard the line or matched a repeated phrase elsewhere.
+- **The doubt catches them.** Seven of the eight starts more than two seconds out are flagged — "only partly heard" or "moved differently from its
+  neighbours" —; the eighth is not. Twenty-two lines are flagged in all, which is what a person is asked to look at.
+- **A line nobody says keeps its time**, and is reported.
+- **Time.** Five minutes of film take about two and a half minutes with `small` and the voice model, and seven and a half with `medium`: the cost
+  is the transcription (D1), and grows with the model and the length of the part listened to.
+
+**Decision on a forced aligner (open point 1): not yet.** The matching is exact on the words it is given, and the errors that remain are the
+listening model's — its word times, and its mishearings. A forced aligner would know the true words and would remove the mishearings; it would not
+change the other half, and it is one more tool to install. The evidence does not call for it; a larger model (`medium` gave no error at all as the
+reference) and the flagged lines are the answer for now. It is reconsidered if a real subtitle file, with its own text, shows many lines not found.
+
 ## Open points
 
-1. **A forced-alignment adapter.** Worth an issue only if the matching of D1 does not hold on the real-film run of slice 6, or if a
-   language the transcription handles badly matters. It is an adapter and a contract suite, nothing else.
+1. **A forced-alignment adapter.** Judged on the real-film run (see above) and not called for: the matching is exact on the words it is given. Worth an
+   issue only if a real subtitle file, with its own text, shows many lines not found, or if a language the transcription handles badly matters. It
+   is an adapter and a contract suite, nothing else.
 2. **Interpolating a line not found.** Between two corrected lines, an option could place it at the neighbours' shift. It is a guess; it
    waits for a person who asks for it.
 3. **A flag column in the table.** It needs a place in the project model that is not the undo stack; it waits for the first use of the

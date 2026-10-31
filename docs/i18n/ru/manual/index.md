@@ -40,6 +40,7 @@ Sub Station Alpha, Advanced SSA, MicroDVD, MPL2, TMPlayer, LRC — и
 | изменить регистр, курсив или тире в диалогах во всём файле | [Операции](subedit-gui/operations.md#italic) или [`case`](subedit-cli/case.md), [`italics`](subedit-cli/italics.md), [`dialogue-dashes`](subedit-cli/dialogue-dashes.md) |
 | найти слово и заменить его, не повредив теги | [Поиск и замена](subedit-gui/find-and-replace.md) или [`replace`](subedit-cli/replace.md) |
 | записать речь фильма в виде субтитров | [`Transcribe Audio…`](subedit-gui/video.md#расшифровка-звука) или [`transcribe`](subedit-cli/transcribe.md) — после [установки инструментов](subedit-cli/install-transcription.md) |
+| пересчитать время файла субтитров по звуку фильма | [`Synchronize with Audio…`](subedit-gui/video.md#синхронизация-со-звуком) или [`sync`](subedit-cli/sync.md) — после [установки инструментов](subedit-cli/install-transcription.md) |
 | переводить рядом с исходным текстом | [Открытие перевода](subedit-gui/files.md#открытие-перевода) или [`pair`](subedit-cli/pair.md), чтобы изменить его тайминг по основному файлу |
 | обработать сотню файлов сразу | [Обработка дерева каталогов](subedit-cli/lots.md), затем [Запуск](subedit-cli/invocation.md) |
 

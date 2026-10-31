@@ -10,6 +10,7 @@ Nabídka **Video** nese nejprve tři příkazy a pak úkony, které ovládají f
 | :------ | :------- | :----------- |
 | Vybrat video… | žádná | zvolí soubor videa, ke kterému dokument patří |
 | Přepsat zvuk… | žádná | přepíše zvuk filmu na titulky, které nahradí titulky projektu — viz [Přepis zvuku](#přepis-zvuku) |
+| Synchronizovat se zvukem… | žádná | přesune titulky projektu tam, kde jsou jejich slova vyslovena ve zvuku filmu — viz [Synchronizace se zvukem](#synchronizace-se-zvukem) |
 | Přehrát / pozastavit | `Ctrl+P` | přehraje nebo zastaví video — viz [Přehrávač](player.md#přehrávání-a-zastavení) |
 
 Přidružené video je **vlastností otevřeného dokumentu**, nikoli nastavením
@@ -190,6 +191,54 @@ není čas nebo konec nenásleduje po začátku, a řádek pod poli řekne, kter
 
 **Co je potřeba, se nedodává**: nástroj (whisper.cpp), model a `ffmpeg` k extrakci zvuku.
 Viz [Instalace nástrojů pro přepis](../subedit-cli/install-transcription.md).
+
+## Synchronizace se zvukem
+
+**`Synchronize with Audio…`** přečasuje titulky projektu podle zvuku filmu. Je to případ souboru `.srt`
+stáhnutého z internetu, posunutého na začátku i na konci, který jediný posun nevrátí: každý titulek se hledá v tom, co je
+řečeno, a zaujme místo, kde je řečen. **Mění se jen začátky a konce** — nikdy text, styl, počet
+titulků ani jejich pořadí. Jako `Transcribe Audio…` je nedostupná, dokud není otevřen film, a jde o zvuk **filmu projektu**; stejný
+příkazový řádek je [`sync`](../subedit-cli/sync.md).
+
+Titulky musí být v jazyce, kterým se mluví: nic se nepřekládá. Práci provádí nástroj, který přepisuje — ten z
+[předvoleb](preferences.md#přepis), se stejným programem, `ffmpeg` a modelem — a **dialog říká, co chybí**, přesně jako dialog
+přepisu, s odkazem na [Instalace nástrojů pro přepis](../subedit-cli/install-transcription.md) a tlačítkem
+`Preferences…`.
+
+Dialog se ptá na:
+
+- **zvukovou stopu** a **jazyk**, jako u přepisu;
+- **část filmu**, od jednoho času do druhého, obojí prázdné znamená celý film: hledají se a přesouvají jen titulky, které v rozsahu **začínají**;
+- **„Jen vybrané titulky“**: pole, nedostupné, když není nic vybráno. Hledá jen vybrané titulky, v části
+  filmu, která začíná minutu před prvním z nich a končí minutu po posledním, aby soubor, který je pozdě nebo brzy, byl
+  stále uvnitř toho, co se poslouchá;
+- **„Slova k zaslechnutí“**, v procentech: podíl slov titulku, který musí být zaslechnut, aby byl titulek nalezen, ve výchozím stavu 50 % — nastavení
+  `alignment.min-match`;
+- **„Posun ke kontrole“**, v milisekundách: o kolik se může titulek odchýlit od posunu svých sousedů, než bude označen, ve výchozím stavu 2000 ms —
+  nastavení `alignment.doubt-gap`.
+
+Poslední tři se uchovají pro příště. Práce probíhá **na pozadí**, se stejným polem a tlačítkem `Cancel` jako přepis;
+běh, který selže nebo který zastavíte, nic nezmění.
+
+### Výsledek
+
+**Nic se nepohne, dokud neuvidíte, kam by titulky šly.** Když práce skončí, okno ukáže u každého hledaného titulku
+jeho číslo, jeho text, **začátek, který měl, začátek, který zaujme, posun mezi nimi**, a to, co je **ke kontrole**, slovy:
+
+- **„nenalezeno ve zvuku, ponecháno jak bylo“**: bylo zaslechnuto méně slov, než pole požaduje. Titulek si ponechá své časy — **žádná poloha se
+  nikdy nevymýšlí a žádná se neodhaduje podle sousedů**;
+- **„jen zčásti zaslechnuto“**: nalezeno, ale zaslechnuto méně než 80 % jeho slov;
+- **„posunut jinak než jeho sousedé“**: nalezeno, ale jeho posun se liší od středního posunu dvou titulků na každé straně o více než
+  „Posun ke kontrole“;
+- **„zkráceno na začátek dalšího titulku“** a **„stále se překrývá s dalším titulkem“**: titulek, který by zasáhl do dalšího, se zkrátí
+  tam, kde další začíná; ten, který se s ním stále překrývá a zkrácení to nevyléčí, se ponechá a oznámí.
+
+Řádek nad tabulkou říká, k čemu to došlo — kolik titulků bylo umístěno, kolik je ke kontrole, střední posun a drift —, a
+**„Jen titulky ke kontrole“** ukáže pouze je. Tabulku nelze upravovat.
+
+Okno zavírají dvě tlačítka. **„Použít“** přesune začátky a konce **jako jedinou operaci**: jedno `Undo` vrátí časy, které tam byly. „Zrušit“
+nechá projekt, jak je. „Použít“ je nedostupné, když by se nic nepohnulo. Když se nepodařilo najít žádný z titulků, okno to
+oznámí v poli a nenabídne nic k použití: téměř jistě jde o špatný zvuk nebo špatný jazyk.
 
 ## Když není film
 

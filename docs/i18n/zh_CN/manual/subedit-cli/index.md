@@ -36,5 +36,6 @@ subedit 的命令行工具：无需图形界面，即可批量处理字幕文件
 | [`split-file`](split-file.md) | 把一个文件切成两个，后半部分移回起点 |
 | [`pair`](pair.md) | 把翻译写到其主文件的位置上，并说明其各行是如何对应的 |
 | [`transcribe`](transcribe.md) | 把视频或音频文件中的语音写成字幕 |
+| [`sync`](sync.md) | 按影片的音频重新校准文件中字幕的时间 |
 | [安装转录工具](install-transcription.md) | 引擎、模型和 `ffmpeg`，程序不随附提供 |
 | [`config`](config.md) | 列出、显示和更改与窗口共用的操作设置 |
