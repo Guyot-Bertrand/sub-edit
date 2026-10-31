@@ -226,7 +226,7 @@ code=1
 <!-- example: subedit-cli --version | head -n 1 -->
 ```console
 $ subedit-cli --version | head -n 1
-subedit 1.1.5
+subedit 1.2.0
 ```
 
 Полный вывод на машине с ICU 74.2 и Enchant 2.3.3 (номера версий зависят от машины):

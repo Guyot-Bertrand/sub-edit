@@ -20,6 +20,7 @@ do not edit it by hand.
 ### Documentation
 
 - **doc** — Scope phase 23, automatic alignment
+- **scripts** — Add the by-hand run of sync on a real film
 
 ## 1.1.2 — 2026-10-27
 

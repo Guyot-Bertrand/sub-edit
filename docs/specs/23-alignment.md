@@ -1,6 +1,6 @@
 # Phase 23 — Automatic alignment
 
-**Status: scoped (#804).** The tooling came first (#803); this document decides the rest — the engine, the matching of a line to the
+**Status: shipped (#804 to #816), closed in 1.2.0.** The tooling came first (#803); this document decides the rest — the engine, the matching of a line to the
 speech, the doubtful alignment, the command and the window — and splits the phase into issues.
 
 What the roadmap promises: re-time an existing subtitle file on the audio. From the text and the voice, find where each sentence is
