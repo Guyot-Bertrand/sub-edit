@@ -24,6 +24,10 @@ do not edit it by hand.
 - **scripts** — Add the by-hand run of sync on a real film
 - **doc** — Close phase 23 and bump to 1.2.0
 
+### Fixed
+
+- **core** — Bound what a file or the detector can make it allocate
+
 ## 1.1.2 — 2026-10-27
 
 ### Fixed

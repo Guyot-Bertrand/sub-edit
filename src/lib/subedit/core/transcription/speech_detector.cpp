@@ -15,6 +15,10 @@ constexpr std::string_view kSegmentLine = "Speech segment ";
 constexpr std::string_view kStartKey = "start = ";
 constexpr std::string_view kEndKey = "end = ";
 
+/// No audio is longer than a day: a stretch that ends later is not read, and neither is a number
+/// that is not finite (`from_chars` reads `inf` and `nan`, and a comparison with them is false).
+constexpr double kLongestAudioHundredths = 24.0 * 3600.0 * 100.0;
+
 [[nodiscard]] TranscriptionError error(TranscriptionErrorKind kind, std::string detail = {}) {
     return TranscriptionError{.kind = kind, .detail = std::move(detail)};
 }
@@ -37,7 +41,8 @@ constexpr std::string_view kEndKey = "end = ";
         return std::nullopt;
     const std::optional<double> start = numberAfter(line, kStartKey);
     const std::optional<double> end = numberAfter(line, kEndKey);
-    if (!start || !end || *end < *start)
+    if (!start || !end || !std::isfinite(*start) || !std::isfinite(*end) || *start < 0.0 ||
+        *end < *start || *end > kLongestAudioHundredths)
         return std::nullopt;
     constexpr double kMillisecondsPerHundredth = 10.0;
     return SpeechSpan{

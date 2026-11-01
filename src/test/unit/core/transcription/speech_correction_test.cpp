@@ -309,7 +309,10 @@ TEST_CASE(
     const auto spans =
         subedit::core::parseSpeechSegments("Speech segment 0: end = 90.00\n"
                                            "Speech segment 1: start = soon, end = 90.00\n"
-                                           "Speech segment 2: start = 10.00, end = 20.00");
+                                           "Speech segment 2: start = 10.00, end = 20.00\n"
+                                           "Speech segment 3: start = 10.00, end = 1e300\n"
+                                           "Speech segment 4: start = 10.00, end = inf\n"
+                                           "Speech segment 5: start = nan, end = 20.00");
 
     REQUIRE(spans.size() == 1);
     CHECK(spans.front() == SpeechSpan{.start = at(0.1), .end = at(0.2)});
@@ -333,4 +336,17 @@ TEST_CASE("a detector that fails fails the alignment, and the reason is kept",
     const auto* reason = std::get_if<subedit::core::TranscriptionError>(&done.error().cause);
     REQUIRE(reason != nullptr);
     CHECK(reason->detail == "no way");
+}
+
+TEST_CASE("a time far beyond the film does not decide how much is looked at",
+          "[alignment][speech]") {
+    const std::vector<SpeechSpan> film = aFilm();
+    std::vector<LineTimes> lines = subtitlesOf(film);
+    // A file that says one of its subtitles ends after thirty-five thousand hours.
+    lines.push_back({.start = at(125000000.0), .end = at(126000000.0)});
+
+    const SpeechCorrection correction = subedit::core::estimateSpeechCorrection(film, lines);
+
+    CHECK(correction.fitted());
+    CHECK(correction.ratio == 1.0);
 }

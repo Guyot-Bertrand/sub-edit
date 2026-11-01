@@ -306,7 +306,11 @@ SpeechCorrection estimateSpeechCorrection(std::span<const SpeechSpan> speech,
     double linesEnd = 0.0;
     for (const LineTimes& line : lines)
         linesEnd = std::max(linesEnd, seconds(line.end));
-    const auto length = static_cast<std::size_t>(std::ceil(std::max(horizon, linesEnd * 1.26))) + 1;
+    // The film is no longer than the speech found plus the furthest a file may be from it: a line
+    // beyond that cannot be laid, and a time in a file must not decide how much is allocated.
+    const double reachable = horizon + kMostShiftSeconds;
+    const double wanted = std::min(std::max(horizon, linesEnd * 1.26), reachable);
+    const auto length = static_cast<std::size_t>(std::ceil(wanted)) + 1;
 
     correction.ratio = chooseRatio(speech, lines, length);
 
