@@ -1,6 +1,6 @@
 # Phase 23 — Automatic alignment
 
-**Status: in progress — reopened by [#820](https://github.com/Guyot-Bertrand/sub-edit/issues/820).** The first closure, in 1.2.0, was premature and is withdrawn: tried by hand on a film in English with a good subtitle file in French, `sync` found nothing and said nothing about why. The matching of words (D1 to D8) needs the text in the language spoken; D9 adds the method that does not.
+**Status: shipped (#804 to #820), closed in 1.2.0 by [#816](https://github.com/Guyot-Bertrand/sub-edit/issues/816).** The first closure was withdrawn the same day, and the phase delivered a second method ([#820](https://github.com/Guyot-Bertrand/sub-edit/issues/820)): the matching of words (D1 to D8) needs the text in the language spoken; D9 does not.
 
 **Scoped (#804).** The tooling came first (#803); this document decides the rest — the engine, the matching of a line to the
 speech, the doubtful alignment, the command and the window — and splits the phase into issues.
