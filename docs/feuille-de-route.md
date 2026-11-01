@@ -1573,13 +1573,28 @@ and in the interface.
 - the command is `sync` and the window entry `Synchronize with Audio…`, in the Video menu, with the preview of phase 22;
 - ten requirements, seven slices.
 
-**Reopened on 2026-11-01 ([#820](https://github.com/Guyot-Bertrand/sub-edit/issues/820)).** The phase was closed in 1.2.0 on the strength of one case — a
-text written by an engine, heard again by another — and tried by hand on the case it exists for, a film in English with a good subtitle file in French,
-`sync` found nothing and said nothing about why. The matching of words needs the text in the language spoken. The closure and its tag are withdrawn,
-and the phase delivers a second method, **laying the file on when there is speech**, which does not depend on the language, takes seconds and corrects
-the file as a whole; it is the default, the matching of words stays for a text in the language spoken, and both surfaces say, every time, what the speech
-method does not do. A second stage that placed each line on the speech was tried and discarded (spec, D9). The phase closes again when #820 and the
-closure review #816 are done.
+**Closed in 1.2.0, on 2026-11-01** ([#816](https://github.com/Guyot-Bertrand/sub-edit/issues/816)), at the second attempt. The first closure, on the strength of
+one case — a text written by an engine, heard again by another — was withdrawn the same day: tried by hand on a film in English with a good subtitle
+file in French, `sync` found nothing and said nothing about why. The matching of words needs the text in the language spoken
+([#820](https://github.com/Guyot-Bertrand/sub-edit/issues/820)).
+
+The phase — nine issues, #810 to #816 with the scoping #804 and the rework #820 — delivers `subedit-cli sync` and `Synchronize with Audio…` with
+**two methods**. **`speech`, the default, lays the file on when there is speech**: a frame rate among the usual ratios, then a shift per stretch of two
+minutes along a smoothed path (a constant offset, a drift, a second half that is late); it depends on no language, transcribes nothing and takes
+seconds. **`words` matches the words** of each subtitle to the words an engine heard, for a text in the language spoken; it alone can place one subtitle
+that is out of place in a file that is otherwise right. A subtitle the audio does not give keeps its time and is reported; doubt is classified (not
+found, partial, out of line) with the median shift and the drift; the window shows the result in the preview of phase 22 and applies it as one undoable
+operation. **Both surfaces say, every time, what the speech method does not do**, and refuse a file with too little in common with the sound.
+**Thirteen requirements, `CLI-SYNC-01` to `08` and `GUI-SYNC-01` to `05`, all `implemented` and cited by a test.**
+
+**Measured**, by hand and as observations: the words method on the first five minutes of a real film (103 subtitles), the four faults laid down — late,
+drift, second half late, an extra line — give the same figures, because each line is matched on its own; with the model that wrote the truth every start
+lands on it, with a smaller one 71 of 103 starts are within 500 ms. The speech method on three episodes of a series with English sound and French
+subtitles, with a known fault laid on the file: starts within 500 ms in two episodes and 91 % in the third (a teaser with music), in about thirteen
+seconds for forty minutes of film. **Discarded, measured**: a second stage that re-placed each line on the speech recovered 5 to 22 % of the displaced
+lines and damaged 20 to 60 % of the good ones ([ADR 0048](adr/0048-lay-the-file-on-the-speech-by-default.md)). **What remains unmeasured**: languages
+other than English, a real subtitle file in the language spoken (the case where the words method alone places a single line), and a film with little
+speech. **Open points settled**: a forced aligner is not called for; interpolating a line not found and a column of flags wait for a person who asks.
 
 ## 24 — Workflow and integrations
 

@@ -23,6 +23,7 @@ do not edit it by hand.
 - **doc** — Scope phase 23, automatic alignment
 - **scripts** — Add the by-hand run of sync on a real film
 - **doc** — Close phase 23 and bump to 1.2.0
+- **doc** — Close phase 23 and bump to 1.2.0
 
 ### Fixed
 
