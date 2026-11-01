@@ -10,7 +10,7 @@ Nabídka **Video** nese nejprve tři příkazy a pak úkony, které ovládají f
 | :------ | :------- | :----------- |
 | Vybrat video… | žádná | zvolí soubor videa, ke kterému dokument patří |
 | Přepsat zvuk… | žádná | přepíše zvuk filmu na titulky, které nahradí titulky projektu — viz [Přepis zvuku](#přepis-zvuku) |
-| Synchronizovat se zvukem… | žádná | přesune titulky projektu tam, kde jsou jejich slova vyslovena ve zvuku filmu — viz [Synchronizace se zvukem](#synchronizace-se-zvukem) |
+| Synchronizovat se zvukem… | žádná | přesune titulky projektu tak, aby odpovídaly zvuku filmu — viz [Synchronizace se zvukem](#synchronizace-se-zvukem) |
 | Přehrát / pozastavit | `Ctrl+P` | přehraje nebo zastaví video — viz [Přehrávač](player.md#přehrávání-a-zastavení) |
 
 Přidružené video je **vlastností otevřeného dokumentu**, nikoli nastavením
@@ -195,29 +195,39 @@ Viz [Instalace nástrojů pro přepis](../subedit-cli/install-transcription.md).
 ## Synchronizace se zvukem
 
 **`Synchronize with Audio…`** přečasuje titulky projektu podle zvuku filmu. Je to případ souboru `.srt`
-stáhnutého z internetu, posunutého na začátku i na konci, který jediný posun nevrátí: každý titulek se hledá v tom, co je
-řečeno, a zaujme místo, kde je řečen. **Mění se jen začátky a konce** — nikdy text, styl, počet
+stáhnutého z internetu, posunutého na začátku i na konci, který jediný posun nevrátí. **Mění se jen začátky a konce** — nikdy text, styl, počet
 titulků ani jejich pořadí. Jako `Transcribe Audio…` je nedostupná, dokud není otevřen film, a jde o zvuk **filmu projektu**; stejný
 příkazový řádek je [`sync`](../subedit-cli/sync.md).
 
-Titulky musí být v jazyce, kterým se mluví: nic se nepřekládá. Práci provádí nástroj, který přepisuje — ten z
-[předvoleb](preferences.md#přepis), se stejným programem, `ffmpeg` a modelem — a **dialog říká, co chybí**, přesně jako dialog
-přepisu, s odkazem na [Instalace nástrojů pro přepis](../subedit-cli/install-transcription.md) a tlačítkem
-`Preferences…`.
+Dělají to dvě metody a dialog se ptá, kterou:
+
+- **„Řeč“, výchozí, položí soubor na místa, kde se mluví.** Na jazyce nezávisí — francouzské titulky na anglickém filmu
+  jsou v pořádku —, nic nepřepisuje a trvá vteřiny. Opravuje soubor **jako celek**: stálý posun, drift, opožděnou druhou
+  polovinu, soubor načasovaný pro jinou snímkovou frekvenci. Potřebuje `ffmpeg`, program `whisper-vad-speech-segments`
+  z whisper.cpp a model detekce řeči, nastavený v [předvolbách](preferences.md#přepis).
+- **„Slova“ porovnává slova každého titulku se slovy, která nástroj slyšel.** Titulky musí být v jazyce, kterým se
+  mluví, nic se nepřekládá a trvá to tolik, co přepis. Umí umístit i jeden titulek, který je mimo, v souboru, který je
+  jinak správně. Práci provádí nástroj, který přepisuje, se stejným programem, `ffmpeg` a modelem.
+
+**U „Řeč“ dialog i výsledek říkají, co nedělá**, při každém běhu: nikdy se nedívá na titulek samostatně, takže titulek,
+který je sám mimo, nebo titulek zobrazený nad tichem, může být stále špatně, a první minuty mohou zůstat mimo, když film
+začíná hudbou nebo titulky. Zkontrolujte výsledek. **Dialog říká, co chybí**, přesně jako dialog přepisu, s odkazem na
+[Instalace nástrojů pro přepis](../subedit-cli/install-transcription.md) a tlačítkem `Preferences…`.
 
 Dialog se ptá na:
 
-- **zvukovou stopu** a **jazyk**, jako u přepisu;
+- **zvukovou stopu** a **jazyk**, jako u přepisu — jazyk je jen pro „Slova“;
+- **metodu**, „Řeč“ nebo „Slova“, uchová se pro příště;
 - **část filmu**, od jednoho času do druhého, obojí prázdné znamená celý film: hledají se a přesouvají jen titulky, které v rozsahu **začínají**;
 - **„Jen vybrané titulky“**: pole, nedostupné, když není nic vybráno. Hledá jen vybrané titulky, v části
   filmu, která začíná minutu před prvním z nich a končí minutu po posledním, aby soubor, který je pozdě nebo brzy, byl
   stále uvnitř toho, co se poslouchá;
-- **„Slova k zaslechnutí“**, v procentech: podíl slov titulku, který musí být zaslechnut, aby byl titulek nalezen, ve výchozím stavu 50 % — nastavení
+- **„Slova k zaslechnutí“**, v procentech, jen pro „Slova“: podíl slov titulku, který musí být zaslechnut, aby byl titulek nalezen, ve výchozím stavu 50 % — nastavení
   `alignment.min-match`;
 - **„Posun ke kontrole“**, v milisekundách: o kolik se může titulek odchýlit od posunu svých sousedů, než bude označen, ve výchozím stavu 2000 ms —
   nastavení `alignment.doubt-gap`.
 
-Poslední tři se uchovají pro příště. Práce probíhá **na pozadí**, se stejným polem a tlačítkem `Cancel` jako přepis;
+Poslední dvě se uchovají pro příště. Práce probíhá **na pozadí**, se stejným polem a tlačítkem `Cancel` jako přepis;
 běh, který selže nebo který zastavíte, nic nezmění.
 
 ### Výsledek
@@ -233,12 +243,12 @@ jeho číslo, jeho text, **začátek, který měl, začátek, který zaujme, pos
 - **„zkráceno na začátek dalšího titulku“** a **„stále se překrývá s dalším titulkem“**: titulek, který by zasáhl do dalšího, se zkrátí
   tam, kde další začíná; ten, který se s ním stále překrývá a zkrácení to nevyléčí, se ponechá a oznámí.
 
-Řádek nad tabulkou říká, k čemu to došlo — kolik titulků bylo umístěno, kolik je ke kontrole, střední posun a drift —, a
+Řádek nad tabulkou říká, k čemu to došlo — kolik titulků bylo umístěno, kolik je ke kontrole, střední posun a drift —, pak u „Řeč“ upozornění na to, co nedělá, a když byla opravena snímková frekvence, že byla. A
 **„Jen titulky ke kontrole“** ukáže pouze je. Tabulku nelze upravovat.
 
 Okno zavírají dvě tlačítka. **„Použít“** přesune začátky a konce **jako jedinou operaci**: jedno `Undo` vrátí časy, které tam byly. „Zrušit“
 nechá projekt, jak je. „Použít“ je nedostupné, když by se nic nepohnulo. Když se nepodařilo najít žádný z titulků, okno to
-oznámí v poli a nenabídne nic k použití: téměř jistě jde o špatný zvuk nebo špatný jazyk.
+oznámí v poli a nenabídne nic k použití: u „Slova“ jde téměř jistě o špatný zvuk nebo špatný jazyk; u „Řeč“ téměř jistě o špatný film, protože titulky mají příliš málo společného s řečí.
 
 ## Když není film
 

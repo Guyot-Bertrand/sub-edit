@@ -86,6 +86,15 @@ CLI::App* describeSync(CLI::App& app, std::string_view name, SyncCommandOptions&
                      options.request.keepAudio,
                      std::string{core::translate("Keep the extracted audio in this file")})
         ->option_text("FILE");
+    sync->add_option("--method",
+                     options.request.method,
+                     std::string{core::translate(
+                         "How the subtitles are put in line: speech (from when there is speech, "
+                         "whatever the language) or words (from the words heard); the "
+                         "alignment.method setting by default")})
+        ->check(CLI::IsMember(
+            {std::string{core::kSpeechMethodName}, std::string{core::kWordsMethodName}}))
+        ->option_text("METHOD");
     sync->add_option("--min-match",
                      options.minimumMatch,
                      std::string{core::translate(

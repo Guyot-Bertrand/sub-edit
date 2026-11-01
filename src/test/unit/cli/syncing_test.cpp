@@ -10,6 +10,10 @@
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/matchers/catch_matchers_string.hpp>
 
+#include <array>
+#include <cmath>
+#include <cstdint>
+#include <cstdio>
 #include <filesystem>
 #include <fstream>
 #include <iterator>
@@ -76,11 +80,14 @@ struct World {
     std::ostringstream records;
     EngineRegistry engines;
     TranscriptionSettings transcription;
-    AlignmentSettings alignment;
+    AlignmentSettings alignment{.method = subedit::core::AlignmentMethod::Words};
     std::filesystem::path audio = scratch.write("voice.wav", "audio");
     std::filesystem::path video = scratch.write("film.mkv", "video");
     std::filesystem::path subtitles;
     std::filesystem::path output = scratch.file("out/film.srt");
+
+    /// Where the programs are looked for: nowhere, unless a test puts some there.
+    std::string searchPath;
 
     explicit World(const std::string& name, bool voiceActivity = true) {
         const subedit::test::AlignmentCase wanted = subedit::test::loadAlignmentCase(name);
@@ -114,7 +121,7 @@ struct World {
         const std::vector<std::string> paths(inputs, subtitles.string());
         return syncAll(files,
                        engines,
-                       "",
+                       searchPath,
                        paths,
                        std::nullopt,
                        options,
@@ -349,4 +356,148 @@ TEST_CASE("an engine that cannot say what it can do fails the file", "[cli][sync
 
     CHECK(world.run(world.listening()) == ExitCode::AllFailed);
     CHECK_THAT(world.errors.str(), ContainsSubstring("the transcription engine was not found"));
+}
+
+TEST_CASE("the speech method is refused, before any work, without its program or its model",
+          "[cli][sync]") {
+    World world{"offset-plus-2400"};
+    world.alignment.method = subedit::core::AlignmentMethod::Speech;
+    const auto model = world.scratch.write("vad.bin", "model");
+
+    // No model named.
+    CHECK(world.run(world.listening()) == ExitCode::AllFailed);
+    CHECK_THAT(world.errors.str(), ContainsSubstring("needs a voice-activity model"));
+
+    // A model that is not there.
+    SyncOptions missing = world.listening();
+    missing.vadModel = world.scratch.file("nowhere.bin").string();
+    CHECK(world.run(missing) == ExitCode::AllFailed);
+
+    // A model, and nowhere to find the program (the search path of the harness is empty).
+    SyncOptions noTool = world.listening();
+    noTool.vadModel = model.string();
+    CHECK(world.run(noTool) == ExitCode::AllFailed);
+    CHECK_THAT(world.errors.str(), ContainsSubstring("whisper-vad-speech-segments"));
+    CHECK_FALSE(std::filesystem::exists(world.output));
+}
+
+namespace {
+
+std::string stamp(std::int64_t milliseconds) {
+    std::array<char, 32> text{};
+    std::snprintf(text.data(),
+                  text.size(),
+                  "%02d:%02d:%02d,%03d",
+                  static_cast<int>(milliseconds / 3600000),
+                  static_cast<int>((milliseconds / 60000) % 60),
+                  static_cast<int>((milliseconds / 1000) % 60),
+                  static_cast<int>(milliseconds % 1000));
+    return text.data();
+}
+
+/// A film of speech and the file of subtitles for it, in no language the program knows: what the
+/// voice detector prints, and a file whose times are `ratio` times the truth, `late` after it.
+struct SpeechFilm {
+    std::string detected = "Detected speech segments:\n";
+    std::string srt;
+    std::vector<std::int64_t> truth;
+
+    SpeechFilm(double ratio, std::int64_t late) {
+        constexpr int kLines = 60;
+        std::uint32_t state = 777;
+        std::int64_t now = 5000;
+        for (int line = 0; line < kLines; ++line) {
+            state = (state * 1664525U) + 1013904223U;
+            const std::int64_t length = 1200 + ((state >> 8U) % 2800);
+            state = (state * 1664525U) + 1013904223U;
+            const std::int64_t pause = 600 + ((state >> 8U) % 2400);
+            truth.push_back(now);
+            detected += "Speech segment " + std::to_string(line) +
+                        ": start = " + std::to_string(now / 10) +
+                        ".00, end = " + std::to_string((now + length) / 10) + ".00\n";
+            const auto moved = [&](std::int64_t at) {
+                return static_cast<std::int64_t>(std::llround(static_cast<double>(at) * ratio)) +
+                       late;
+            };
+            srt += std::to_string(line + 1) + "\n" + stamp(moved(now)) + " --> " +
+                   stamp(moved(now + length)) + "\nsome words\n\n";
+            now += length + pause;
+        }
+    }
+};
+
+/// A world where the voice detector is a script printing `detected`, and the file is `srt`.
+void layOnSpeech(World& world, const std::string& detected, const std::string& srt) {
+    world.alignment.method = subedit::core::AlignmentMethod::Speech;
+    world.subtitles = world.scratch.write("film.srt", srt);
+    const std::filesystem::path bin = world.scratch.file("bin");
+    std::filesystem::create_directories(bin);
+    const std::filesystem::path listing = world.scratch.write("segments.txt", detected);
+    const std::filesystem::path tool = world.scratch.write(
+        "bin/whisper-vad-speech-segments", "#!/bin/sh\ncat '" + listing.string() + "'\n");
+    std::filesystem::permissions(
+        tool, std::filesystem::perms::owner_all, std::filesystem::perm_options::add);
+    world.searchPath = bin.string();
+}
+
+SyncOptions onSpeech(const World& world) {
+    SyncOptions options = world.listening();
+    options.vadModel = world.scratch.write("vad.bin", "model").string();
+    return options;
+}
+
+} // namespace
+
+TEST_CASE("the speech method lays a file on when there is speech, and warns", "[cli][sync]") {
+    World world{"offset-plus-2400"};
+    const SpeechFilm film{1.0, 3000};
+    layOnSpeech(world, film.detected, film.srt);
+    SyncOptions options = onSpeech(world);
+    options.keepAudio = world.scratch.file("kept.wav").string();
+
+    const ExitCode code = world.run(options);
+
+    CHECK(code == ExitCode::Success);
+    const std::string written = readAll(world.output);
+    for (const std::int64_t start : film.truth)
+        CHECK_THAT(written, ContainsSubstring(stamp(start) + " --> "));
+    CHECK_THAT(world.errors.str(), ContainsSubstring("Only the file as a whole was put in line"));
+    CHECK_THAT(world.records.str(), ContainsSubstring("\"kind\":\"speech-only\""));
+}
+
+TEST_CASE("the speech method says when it put the frame rate of the file right", "[cli][sync]") {
+    World world{"offset-plus-2400"};
+    const SpeechFilm film{25.0 / 23.976, 0};
+    layOnSpeech(world, film.detected, film.srt);
+
+    const ExitCode code = world.run(onSpeech(world));
+
+    CHECK(code == ExitCode::Success);
+    CHECK_THAT(world.errors.str(), ContainsSubstring("The frame rate of the file was put right"));
+}
+
+TEST_CASE("the speech method refuses what it cannot lay, and what the program cannot do",
+          "[cli][sync]") {
+    World world{"offset-plus-2400"};
+    const SpeechFilm film{1.0, 3000};
+
+    // A voice detector that fails.
+    layOnSpeech(world, film.detected, film.srt);
+    (void)world.scratch.write("bin/whisper-vad-speech-segments",
+                              "#!/bin/sh\necho 'error: no way' >&2\nexit 1\n");
+    CHECK(world.run(onSpeech(world)) == ExitCode::AllFailed);
+    CHECK_FALSE(std::filesystem::exists(world.output));
+
+    // A film with almost no speech: the file has nothing to agree with.
+    layOnSpeech(world, "Speech segment 0: start = 100.00, end = 110.00\n", film.srt);
+    CHECK(world.run(onSpeech(world)) == ExitCode::AllFailed);
+    CHECK_THAT(world.errors.str(), ContainsSubstring("too little in common"));
+    CHECK_FALSE(std::filesystem::exists(world.output));
+
+    // A range that cannot be.
+    layOnSpeech(world, film.detected, film.srt);
+    SyncOptions backwards = onSpeech(world);
+    backwards.start = "1:00";
+    backwards.end = "0:30";
+    CHECK(world.run(backwards) == ExitCode::Usage);
 }

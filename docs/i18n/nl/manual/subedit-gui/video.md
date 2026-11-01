@@ -10,7 +10,7 @@ Het menu **Video** bevat eerst drie commando's, en daarna de gebaren die de film
 | :------- | :-------- | :----------- |
 | Video kiezen… | geen | kiest het videobestand waarbij het document hoort |
 | Audio transcriberen… | geen | transcribeert de audio van de film tot ondertitels die die van het project vervangen — zie [De audio transcriberen](#de-audio-transcriberen) |
-| Synchroniseren met audio… | geen | verplaatst de ondertitels van het project naar waar hun woorden worden gezegd in de audio van de film — zie [Synchroniseren met de audio](#synchroniseren-met-de-audio) |
+| Synchroniseren met audio… | geen | verplaatst de ondertitels van het project zodat ze overeenkomen met de audio van de film — zie [Synchroniseren met de audio](#synchroniseren-met-de-audio) |
 | Afspelen / Pauzeren | `Ctrl+P` | speelt de video af of stopt haar — zie [De speler](player.md#afspelen-en-stoppen) |
 
 De gekoppelde video is **een eigenschap van het geopende document**, geen instelling van
@@ -198,30 +198,40 @@ Zie [De transcriptiehulpmiddelen installeren](../subedit-cli/install-transcripti
 ## Synchroniseren met de audio
 
 **`Synchronize with Audio…`** hertimet de ondertitels van het project op de audio van de film. Het is het geval van de `.srt`
-die online is opgehaald, aan het begin en aan het einde verschoven, en die een enkele verschuiving niet terugbrengt: elke ondertitel wordt gezocht in wat er
-wordt gezegd en neemt de plaats in waar hij wordt gezegd. **Alleen begin en einde veranderen** — nooit de tekst, de stijl, het aantal
+die online is opgehaald, aan het begin en aan het einde verschoven, en die een enkele verschuiving niet terugbrengt. **Alleen begin en einde veranderen** — nooit de tekst, de stijl, het aantal
 ondertitels of hun volgorde. Zoals `Transcribe Audio…` is het uitgeschakeld zolang er geen film is geopend, en het is de audio van **de film van het project**; dezelfde
 opdrachtregel is [`sync`](../subedit-cli/sync.md).
 
-De ondertitels moeten in de gesproken taal staan: er wordt niets vertaald. Het werk wordt gedaan door de engine die transcribeert — die van
-de [instellingen](preferences.md#transcriptie), met hetzelfde programma, dezelfde `ffmpeg` en hetzelfde model — en **het dialoogvenster zegt wat er ontbreekt** precies zoals dat van de
-transcriptie, met de verwijzing naar [De transcriptiehulpmiddelen installeren](../subedit-cli/install-transcription.md) en een
-knop `Preferences…`.
+Twee methoden doen het, en het dialoogvenster vraagt welke:
+
+- **“Spraak”, de standaard, legt het bestand neer op het moment dat iemand spreekt.** Het hangt niet van de taal af — Franse ondertitels op een film in
+  het Engels zijn prima —, het transcribeert niets, en het duurt seconden. Het corrigeert het bestand **als geheel**: een constante afwijking, een drift, een tweede
+  helft die te laat is, een bestand dat voor een andere framesnelheid is getimed. Het heeft `ffmpeg` nodig, het programma `whisper-vad-speech-segments` van whisper.cpp en een
+  spraakactiviteitsmodel, ingesteld in de [instellingen](preferences.md#transcriptie).
+- **“Woorden” koppelt de woorden van elke ondertitel aan de woorden die de engine heeft gehoord.** De ondertitels moeten in de gesproken taal staan, er wordt
+  niets vertaald, en het duurt zo lang als een transcriptie. Het kan één ondertitel plaatsen die misplaatst is in een bestand dat verder goed is.
+  Het werk wordt gedaan door de engine die transcribeert, met hetzelfde programma, dezelfde `ffmpeg` en hetzelfde model.
+
+**Met “Spraak” zeggen het dialoogvenster en het resultaat wat het niet doet**, telkens: het kijkt nooit naar één ondertitel op zichzelf, dus een ondertitel die alleen
+misplaatst is, of een titel die over een stilte wordt getoond, kan nog steeds fout zijn, en de eerste minuten kunnen afwijken wanneer de film opent met muziek of titels. Controleer
+het resultaat. **Het dialoogvenster zegt wat er ontbreekt** precies zoals dat van de transcriptie, met de verwijzing naar
+[De transcriptiehulpmiddelen installeren](../subedit-cli/install-transcription.md) en een knop `Preferences…`.
 
 Het dialoogvenster vraagt om:
 
-- **het audiospoor** en **de taal**, zoals bij de transcriptie;
+- **het audiospoor** en **de taal**, zoals bij de transcriptie — de taal is alleen voor “Woorden”;
+- **de methode**, “Spraak” of “Woorden”, bewaard voor de volgende keer;
 - **het deel van de film**, van de ene tijd tot de andere, beide leeg voor de hele film: alleen de ondertitels die in het bereik **beginnen** worden
   gezocht en verplaatst;
 - **“Alleen de geselecteerde ondertitels”**: een vakje, uitgeschakeld als er niets is geselecteerd. Het zoekt alleen de geselecteerde ondertitels, in het deel van de
   film dat een minuut vóór de eerste ervan begint en een minuut na de laatste eindigt, zodat een bestand dat te laat of te vroeg is
   toch binnen wat wordt beluisterd valt;
-- **“Te horen woorden”**, in procenten: het aandeel van de woorden van een ondertitel dat moet worden gehoord om de ondertitel te vinden, standaard 50 % — de instelling
+- **“Te horen woorden”**, in procenten, alleen voor “Woorden”: het aandeel van de woorden van een ondertitel dat moet worden gehoord om de ondertitel te vinden, standaard 50 % — de instelling
   `alignment.min-match`;
 - **“Te controleren verschuiving”**, in milliseconden: hoever een ondertitel mag afwijken van de verschuiving van zijn buren voordat hij wordt gemarkeerd, standaard 2000 ms —
   de instelling `alignment.doubt-gap`.
 
-De drie laatste worden voor de volgende keer bewaard. Het werk draait **op de achtergrond**, met hetzelfde vakje en dezelfde knop `Cancel` als de transcriptie;
+De twee laatste worden voor de volgende keer bewaard. Het werk draait **op de achtergrond**, met hetzelfde vakje en dezelfde knop `Cancel` als de transcriptie;
 een uitvoering die mislukt of die u stopt, verandert niets.
 
 ### Het resultaat
@@ -237,12 +247,13 @@ zijn nummer, zijn tekst, **het begin dat hij had, het begin dat hij krijgt, de v
 - **“ingekort tot het begin van de volgende ondertitel”** en **“overlapt de volgende ondertitel nog steeds”**: een ondertitel die tegen de volgende zou aanlopen, wordt ingekort tot
   waar de volgende begint; een die hem nog overlapt, wat inkorten niet verhelpt, wordt gelaten en gemeld.
 
-Een regel boven de tabel zegt waar het op uitkwam — hoeveel ondertitels zijn geplaatst, hoeveel er te controleren zijn, de mediane verschuiving en de drift —, en
+Een regel boven de tabel zegt waar het op uitkwam — hoeveel ondertitels zijn geplaatst, hoeveel er te controleren zijn, de mediane verschuiving en de drift —, daarna, met “Spraak”, de waarschuwing van wat het niet doet en, wanneer een framesnelheid is rechtgezet, dat dat is gebeurd. En
 **“Alleen de te controleren ondertitels”** toont alleen die. De tabel kan niet worden bewerkt.
 
 Twee knoppen sluiten het. **“Toepassen”** verplaatst de begin- en eindtijden **als één enkele bewerking**: één `Undo` geeft de tijden terug die er waren. “Annuleren”
 laat het project zoals het is. “Toepassen” is uitgeschakeld als er niets zou bewegen. Wanneer geen enkele ondertitel kon worden gevonden, zegt het venster dat in een vak
-en toont het niets om toe te passen: het is vrijwel zeker de verkeerde audio of de verkeerde taal.
+en toont het niets om toe te passen: met “Woorden” is het vrijwel zeker de verkeerde audio of de verkeerde taal; met “Spraak” is het vrijwel zeker de verkeerde
+film, omdat de ondertitels te weinig gemeen hebben met de spraak.
 
 ## Wanneer er geen film is
 

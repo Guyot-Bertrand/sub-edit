@@ -1212,18 +1212,21 @@ TEST_CASE("the alignment options at their defaults are written commented out", "
     const std::string written = renderSettings(Settings{});
 
     CHECK_THAT(written, ContainsSubstring("#alignment.engine = transcript-matching\n"));
+    CHECK_THAT(written, ContainsSubstring("#alignment.method = speech\n"));
     CHECK_THAT(written, ContainsSubstring("#alignment.min-match = 50\n"));
     CHECK_THAT(written, ContainsSubstring("#alignment.doubt-gap = 2000\n"));
 }
 
 TEST_CASE("the alignment options are read, written back and read again", "[config]") {
     const SettingsRead read = readOf("alignment.engine = other-aligner\n"
+                                     "alignment.method = words\n"
                                      "alignment.min-match = 70\n"
                                      "alignment.doubt-gap = 1500\n");
 
     const AlignmentSettings& form = read.settings.alignment;
     CHECK(read.diagnostics.empty());
     CHECK(form.engine == "other-aligner");
+    CHECK(form.method == subedit::core::AlignmentMethod::Words);
     CHECK(form.minimumMatchPercent == 70);
     CHECK(form.minimumMatch() == 0.7);
     CHECK(form.doubtGapMilliseconds == 1500);
@@ -1233,8 +1236,16 @@ TEST_CASE("the alignment options are read, written back and read again", "[confi
     CHECK(readSettings(files, kPath).settings.alignment == form);
 }
 
+TEST_CASE("the speech method can be named in the settings file", "[config]") {
+    const SettingsRead read = readOf("alignment.method = speech\n");
+
+    CHECK(read.diagnostics.empty());
+    CHECK(read.settings.alignment.method == subedit::core::AlignmentMethod::Speech);
+}
+
 TEST_CASE("an alignment value that cannot be read leaves its default", "[config]") {
     for (const char* line : {"alignment.engine = \n",
+                             "alignment.method = both\n",
                              "alignment.engine = Transcript Matching\n",
                              "alignment.min-match = 0\n",
                              "alignment.min-match = 101\n",

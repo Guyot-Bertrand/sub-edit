@@ -204,6 +204,18 @@ private:
     return moved;
 }
 
+/// The times of the subtitles numbered `subtitles` (from 0), in that order.
+[[nodiscard]] std::vector<core::LineTimes> timesOf(const core::Project& project,
+                                                   const std::vector<std::size_t>& subtitles) {
+    std::vector<core::LineTimes> times;
+    times.reserve(subtitles.size());
+    for (const std::size_t at : subtitles) {
+        const core::Subtitle& subtitle = project.subtitleAt(core::SubtitleIndex::fromValue(at));
+        times.push_back({.start = subtitle.start, .end = subtitle.end});
+    }
+    return times;
+}
+
 } // namespace
 
 std::string joinedNotices(const std::string& done, const std::string& warning) {
@@ -506,6 +518,7 @@ void ProjectOperations::synchronizeWithAudio(ProjectPage& page, const core::Sele
     TranscribeDialog dialog{
         tracks,
         TranscribeChoice{.language = m_transcriptionSettings.language,
+                         .method = m_alignmentSettings.method,
                          .minimumMatchPercent = m_alignmentSettings.minimumMatchPercent,
                          .doubtGapMilliseconds =
                              static_cast<int>(m_alignmentSettings.doubtGapMilliseconds)},
@@ -514,6 +527,7 @@ void ProjectOperations::synchronizeWithAudio(ProjectPage& page, const core::Sele
         m_view->dialogParent()};
     dialog.forSynchronization(
         {.language = m_transcriptionSettings.language,
+         .method = m_alignmentSettings.method,
          .minimumMatchPercent = m_alignmentSettings.minimumMatchPercent,
          .doubtGapMilliseconds = static_cast<int>(m_alignmentSettings.doubtGapMilliseconds)},
         selected);
@@ -523,6 +537,7 @@ void ProjectOperations::synchronizeWithAudio(ProjectPage& page, const core::Sele
 
     // Kept as asked, even when the run then fails: the next one offers it again.
     m_transcriptionSettings.language = choice.language;
+    m_alignmentSettings.method = choice.method;
     m_alignmentSettings.minimumMatchPercent = choice.minimumMatchPercent;
     m_alignmentSettings.doubtGapMilliseconds = choice.doubtGapMilliseconds;
 
@@ -554,7 +569,9 @@ void ProjectOperations::synchronizeWithAudio(ProjectPage& page, const core::Sele
                            .model = m_transcriptionSettings.model,
                            .settings = m_transcriptionSettings,
                            .alignment = m_alignmentSettings,
+                           .method = choice.method,
                            .lines = looked.lines,
+                           .times = timesOf(project, looked.subtitles),
                            .start = from,
                            .end = to};
     const std::expected<AlignmentOutcome, TranscriptionFailure> outcome = m_view->align(job);
@@ -567,19 +584,33 @@ void ProjectOperations::synchronizeWithAudio(ProjectPage& page, const core::Sele
         return;
     }
 
+    const bool onSpeech = choice.method == core::AlignmentMethod::Speech;
+    if (onSpeech && !outcome->fitted) {
+        m_prompts->reportFailure(core::noAgreementWithTheSpeech());
+        return;
+    }
     const core::DoubtLimits limits{.partialBelow = core::kDefaultPartialBelow,
                                    .gapMilliseconds = m_alignmentSettings.doubtGapMilliseconds};
     const core::SynchronizationPlan plan =
         core::planSynchronization(project, looked.subtitles, outcome->matches, limits);
     if (plan.report.positioned() == 0) {
-        m_prompts->reportFailure(core::noLineFoundInTheAudio(looked.lines.size()));
+        m_prompts->reportFailure(core::noLineFoundInTheAudio(looked.lines.size()) + " " +
+                                 core::speechMethodIgnoresLanguage());
         return;
+    }
+    // Said in the preview whatever else it shows: what laying a file on the speech does not do.
+    std::string warning;
+    if (onSpeech) {
+        warning = core::speechOnlyWarning();
+        if (outcome->ratio != 1.0)
+            warning += " " + core::frameRateCorrectedText(outcome->ratio);
     }
 
     // **The decision comes after the result is seen**: nothing moves until it is applied.
     const core::AlignmentReport report = plan.report;
     SynchronizationPreviewDialog preview{
-        SynchronizationPreview{.texts = looked.lines, .plan = plan}, m_view->dialogParent()};
+        SynchronizationPreview{.texts = looked.lines, .plan = plan, .warning = warning},
+        m_view->dialogParent()};
     if (!m_prompts->run(preview))
         return;
 

@@ -4,6 +4,7 @@
 #include <subedit/core/config/transcription_settings.hpp>
 #include <subedit/core/model/subtitle.hpp>
 #include <subedit/core/time/timestamp.hpp>
+#include <subedit/core/transcription/alignment_retiming.hpp>
 #include <subedit/core/transcription/tools_status.hpp>
 #include <subedit/core/transcription/transcript.hpp>
 #include <subedit/core/transcription/transcription_progress.hpp>
@@ -61,8 +62,15 @@ struct AlignmentJob {
     core::TranscriptionSettings settings{};
     core::AlignmentSettings alignment{};
 
-    /// The texts to find in the audio, one per subtitle, in order.
+    /// How the file is laid on the audio.
+    core::AlignmentMethod method = core::AlignmentMethod::Speech;
+
+    /// The texts to find in the audio, one per subtitle, in order: what the words are matched
+    /// from.
     std::vector<std::string> lines;
+
+    /// The times of the same subtitles: what the speech is laid from.
+    std::vector<core::LineTimes> times;
 
     /// The part of the film to listen to; all of it when not given.
     std::optional<core::Timestamp> start{};
@@ -72,6 +80,12 @@ struct AlignmentJob {
 /// How each line came out: where it was heard, and how many of its words were.
 struct AlignmentOutcome {
     std::vector<core::LineMatch> matches;
+
+    /// Whether the speech could be laid on the file; always true for the words.
+    bool fitted = true;
+
+    /// The frame rate put right, when the speech was laid on the file: 1 when it was right.
+    double ratio = 1.0;
 };
 
 /// Why it did not: in the user's words, or that they stopped it.

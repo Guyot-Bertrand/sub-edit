@@ -46,6 +46,9 @@ struct SyncOptions {
     std::string start{};
     std::string end{};
 
+    /// `speech` or `words`; empty for the `alignment.method` setting.
+    std::string method{};
+
     /// Over `alignment.min-match` (percent) and `alignment.doubt-gap` (milliseconds).
     std::optional<int> minimumMatchPercent{};
     std::optional<std::int64_t> doubtGapMilliseconds{};

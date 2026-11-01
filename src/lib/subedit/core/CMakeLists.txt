@@ -170,6 +170,9 @@ add_library(
     transcription/alignment_doubt.cpp
     transcription/alignment_retiming.cpp
     transcription/synchronization.cpp
+    transcription/speech_detector.cpp
+    transcription/speech_correction.cpp
+    transcription/align_on_speech.cpp
     transcription/transcript_matching_aligner.cpp)
 add_library(subedit::core ALIAS subedit_core)
 

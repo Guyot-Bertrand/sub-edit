@@ -47,6 +47,9 @@ struct TranscribeChoice {
     /// subtitle's words that must be heard (percent), and how far a shift may depart from its
     /// neighbours' before it is flagged (milliseconds).
     bool selectionOnly = false;
+
+    /// How the subtitles are laid on the audio: from when there is speech, or from the words.
+    core::AlignmentMethod method = core::AlignmentMethod::Speech;
     int minimumMatchPercent = core::kDefaultMinimumMatchPercent;
     int doubtGapMilliseconds = static_cast<int>(core::kDefaultDoubtGapMilliseconds);
 
@@ -97,6 +100,11 @@ public:
 
     [[nodiscard]] QCheckBox* selectionBox() const { return m_selectionOnly; }
 
+    [[nodiscard]] QComboBox* methodBox() const { return m_method; }
+
+    /// The line under the method: what laying the subtitles on the speech does not do.
+    [[nodiscard]] QLabel* methodHint() const { return m_methodHint; }
+
     [[nodiscard]] QSpinBox* minimumMatchBox() const { return m_minimumMatch; }
 
     [[nodiscard]] QSpinBox* doubtGapBox() const { return m_doubtGap; }
@@ -146,6 +154,12 @@ private:
     /// the window.
     void fillLanguages();
 
+    /// Redraws what depends on the method chosen: what is greyed, and what is said of it.
+    void followMethod();
+
+    /// Whether the method chosen is the one that lays the subtitles on the speech.
+    [[nodiscard]] bool onSpeech() const;
+
     /// `OK` is in when the tools are there and the fields can be used.
     void updateButtons();
 
@@ -159,6 +173,8 @@ private:
     QComboBox* m_language;
     QCheckBox* m_suppressNotes;
     QCheckBox* m_selectionOnly;
+    QComboBox* m_method;
+    QLabel* m_methodHint;
     QSpinBox* m_minimumMatch;
     QSpinBox* m_doubtGap;
     QLabel* m_explanation;
@@ -173,6 +189,9 @@ private:
 
     /// Whether the person typed a language, which a change of track must then respect.
     bool m_languageChosen = false;
+
+    /// Whether this is the dialog of `Synchronize with Audio…`.
+    bool m_synchronizing = false;
 
     /// Whether the range, as typed, can be used.
     bool m_rangeValid = true;

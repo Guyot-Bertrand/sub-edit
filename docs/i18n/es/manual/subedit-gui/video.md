@@ -10,7 +10,7 @@ El menú **Vídeo** lleva primero tres órdenes, y luego los gestos que controla
 | :------ | :------- | :----------- |
 | Seleccionar vídeo… | ninguno | elige el archivo de vídeo que acompaña al documento |
 | Transcribir audio… | ninguno | transcribe el audio de la película en subtítulos que sustituyen a los del proyecto — véase [Transcribir el audio](#transcribir-el-audio) |
-| Sincronizar con el audio… | ninguno | mueve los subtítulos del proyecto a donde se dicen sus palabras en el audio de la película — véase [Sincronizar con el audio](#sincronizar-con-el-audio) |
+| Sincronizar con el audio… | ninguno | mueve los subtítulos del proyecto para ajustarlos al audio de la película — véase [Sincronizar con el audio](#sincronizar-con-el-audio) |
 | Reproducir / Pausa | `Ctrl+P` | reproduce o detiene el vídeo — véase [El reproductor](player.md#reproducir-y-detener) |
 
 El vídeo asociado es **una propiedad del documento abierto**, no un ajuste de
@@ -197,29 +197,39 @@ Véase [Instalar las herramientas de transcripción](../subedit-cli/install-tran
 ## Sincronizar con el audio
 
 **`Synchronize with Audio…`** reajusta los tiempos de los subtítulos del proyecto según el audio de la película. Es el caso del `.srt`
-descargado de internet, desfasado al principio y al final, que un simple desplazamiento no corrige: cada subtítulo se busca en lo que se
-dice y ocupa el lugar donde se dice. **Solo cambian los inicios y los finales** — nunca el texto, el estilo, el número de
+descargado de internet, desfasado al principio y al final, que un simple desplazamiento no corrige. **Solo cambian los inicios y los finales** — nunca el texto, el estilo, el número de
 subtítulos ni su orden. Como `Transcribe Audio…`, está desactivada hasta que se abre una película, y es el audio de **la película del proyecto**; la
 misma orden en la línea de comandos es [`sync`](../subedit-cli/sync.md).
 
-Los subtítulos deben estar en el idioma que se habla: no se traduce nada. El trabajo lo hace el motor que transcribe — el de las
-[preferencias](preferences.md#transcripción), con el mismo programa, `ffmpeg` y el mismo modelo — y **el cuadro de diálogo dice lo que falta** igual que el de
-la transcripción, con la referencia a [Instalar las herramientas de transcripción](../subedit-cli/install-transcription.md) y un
-botón `Preferences…`.
+Dos métodos lo hacen, y el cuadro de diálogo pregunta cuál:
+
+- **“Habla”, el predeterminado, coloca el archivo sobre los momentos en que alguien habla.** No depende del idioma — unos subtítulos en francés sobre una película en inglés
+  sirven —, no transcribe nada y tarda segundos. Corrige el archivo **en conjunto**: un desfase constante, una deriva, una segunda mitad
+  que va tarde, un archivo temporizado para otra velocidad de fotogramas. Necesita `ffmpeg`, el programa `whisper-vad-speech-segments` de whisper.cpp y un
+  modelo de actividad de voz, indicado en las [preferencias](preferences.md#transcripción).
+- **“Palabras” empareja las palabras de cada subtítulo con las palabras que ha oído el motor.** Los subtítulos deben estar en el idioma que se habla, no se traduce
+  nada, y tarda lo que tarda una transcripción. Puede colocar un subtítulo que esté fuera de sitio en un archivo que por lo demás está bien.
+  El trabajo lo hace el motor que transcribe, con el mismo programa, `ffmpeg` y el mismo modelo.
+
+**Con “Habla”, el cuadro de diálogo y el resultado dicen lo que no hace**, cada vez: nunca mira un subtítulo por sí solo, de modo que un subtítulo fuera de
+lugar él solo, o un título mostrado sobre un silencio, aún puede ser incorrecto, y los primeros minutos pueden seguir desajustados cuando la película empieza con música o créditos. Revise
+el resultado. **El cuadro de diálogo dice lo que falta** igual que el de la transcripción, con la referencia a
+[Instalar las herramientas de transcripción](../subedit-cli/install-transcription.md) y un botón `Preferences…`.
 
 El cuadro de diálogo pide:
 
-- **la pista de audio** y **el idioma**, como para la transcripción;
+- **la pista de audio** y **el idioma**, como para la transcripción — el idioma solo cuenta para “Palabras”;
+- **el método**, “Habla” o “Palabras”, que se conserva para la próxima vez;
 - **la parte de la película**, de un tiempo a otro, ambos vacíos para toda la película: solo se buscan y se mueven los subtítulos que **empiezan** dentro del intervalo;
 - **“Solo los subtítulos seleccionados”**: una casilla, desactivada cuando no hay nada seleccionado. Busca solo los subtítulos seleccionados, en la parte de la
   película que empieza un minuto antes del primero y termina un minuto después del último, de modo que un archivo adelantado o atrasado
   quede dentro de lo que se escucha;
-- **“Palabras que oír”**, en porcentaje: la proporción de palabras de un subtítulo que debe oírse para que el subtítulo se encuentre, 50 % por defecto — el ajuste
+- **“Palabras que oír”**, en porcentaje, solo para “Palabras”: la proporción de palabras de un subtítulo que debe oírse para que el subtítulo se encuentre, 50 % por defecto — el ajuste
   `alignment.min-match`;
 - **“Desplazamiento que comprobar”**, en milisegundos: cuánto puede alejarse un subtítulo del desplazamiento de sus vecinos antes de que se señale, 2000 ms por defecto —
   el ajuste `alignment.doubt-gap`.
 
-Los tres últimos se conservan para la próxima vez. El trabajo se ejecuta **en segundo plano**, con el mismo cuadro y el mismo botón `Cancel` que la transcripción;
+Los dos últimos se conservan para la próxima vez. El trabajo se ejecuta **en segundo plano**, con el mismo cuadro y el mismo botón `Cancel` que la transcripción;
 un trabajo que falla o que usted detiene no cambia nada.
 
 ### El resultado
@@ -235,12 +245,13 @@ su número, su texto, **el inicio que tenía, el inicio que toma, el desplazamie
 - **“recortado hasta el inicio del subtítulo siguiente”** y **“aún se solapa con el subtítulo siguiente”**: un subtítulo que invadiría el siguiente se recorta hasta
   donde empieza el siguiente; el que aún se solapa con él, algo que recortar no cura, se deja y se avisa.
 
-Una línea encima de la tabla dice a qué se ha llegado — cuántos subtítulos se han colocado, cuántos hay que comprobar, el desplazamiento mediano y la deriva —, y
+Una línea encima de la tabla dice a qué se ha llegado — cuántos subtítulos se han colocado, cuántos hay que comprobar, el desplazamiento mediano y la deriva —, luego, con “Habla”, la advertencia de lo que no hace y, cuando se corrigió una velocidad de fotogramas, que se corrigió. Y
 **“Solo los subtítulos que comprobar”** muestra solo esos. La tabla no se puede editar.
 
 Dos botones cierran la ventana. **“Aplicar”** mueve los inicios y los finales **como una sola operación**: un `Undo` devuelve los tiempos que había. “Cancelar”
 deja el proyecto como está. “Aplicar” está desactivado cuando nada se movería. Cuando no se ha podido encontrar ninguno de los subtítulos, la ventana lo dice en un cuadro
-y no muestra nada que aplicar: casi seguro es el audio equivocado o el idioma equivocado.
+y no muestra nada que aplicar: con “Palabras” casi seguro es el audio equivocado o el idioma equivocado; con “Habla” casi seguro es la
+película equivocada, pues los subtítulos tienen demasiado poco en común con el habla.
 
 ## Cuando no hay película
 

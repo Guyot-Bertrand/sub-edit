@@ -16,11 +16,17 @@ do not edit it by hand.
 - **core** — Align by matching the text to a transcription
 - **cli** — Add sync to re-time subtitles on the audio
 - **gui** — Add Synchronize with Audio… to the window
+- **cli** — Lay a file on the speech, whatever its language
 
 ### Documentation
 
 - **doc** — Scope phase 23, automatic alignment
 - **scripts** — Add the by-hand run of sync on a real film
+- **doc** — Close phase 23 and bump to 1.2.0
+
+### Fixed
+
+- **core** — Bound what a file or the detector can make it allocate
 
 ## 1.1.2 — 2026-10-27
 

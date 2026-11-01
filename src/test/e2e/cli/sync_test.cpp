@@ -8,6 +8,9 @@
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/matchers/catch_matchers_string.hpp>
 
+#include <array>
+#include <cstdint>
+#include <cstdio>
 #include <filesystem>
 #include <string>
 #include <vector>
@@ -66,7 +69,7 @@ struct Stands {
     }
 
     [[nodiscard]] std::vector<std::string> listening(const std::string& out) const {
-        return {"--video", video, "--model", model, "--output", out};
+        return {"--video", video, "--method", "words", "--model", model, "--output", out};
     }
 };
 
@@ -103,8 +106,8 @@ TEST_CASE("sync re-times a file on the audio and changes the starts and ends onl
     // An audio file instead of a film does as well.
     const std::string again = stands.scratch.of("out/again.srt");
     const std::string audio = writeFile(stands.scratch, "voice.wav", "pcm");
-    const CliRun byAudio =
-        stands.run({"--audio", audio, "--model", stands.model, "--output", again});
+    const CliRun byAudio = stands.run(
+        {"--audio", audio, "--method", "words", "--model", stands.model, "--output", again});
     CHECK(byAudio.exitCode == 0);
 }
 
@@ -225,7 +228,8 @@ TEST_CASE("a missing model, engine or audio source is refused with the pointer t
     const std::string out = stands.scratch.of("out/film.srt");
 
     // No model given, nor in the settings.
-    const CliRun noModel = stands.run({"--video", stands.video, "--output", out});
+    const CliRun noModel =
+        stands.run({"--video", stands.video, "--method", "words", "--output", out});
     CHECK(noModel.exitCode == 2);
     CHECK_THAT(noModel.errors, ContainsSubstring("no model was given"));
     CHECK_THAT(noModel.errors, ContainsSubstring("Installing the transcription tools"));
@@ -250,5 +254,144 @@ TEST_CASE("a missing model, engine or audio source is refused with the pointer t
         join({"--config", settings, "sync", stands.subtitles}, stands.listening(out)));
     CHECK(noEngine.exitCode == 2);
     CHECK_THAT(noEngine.errors, ContainsSubstring("the transcription engine was not found"));
+    CHECK_FALSE(std::filesystem::exists(out));
+}
+
+namespace {
+
+/// A film of speech, and a file of subtitles for it that is late by three seconds: what the
+/// voice detector would print, and the file as it stands. The file is in no language the program
+/// knows — only its times matter.
+struct SpeechStands {
+    const Scratch scratch;
+    std::string directory = scratch.of("bin");
+    std::string model = writeFile(scratch, "vad.bin", "voice-activity model");
+    std::string video = writeFile(scratch, "film.mkv", "not really a video");
+    std::string subtitles;
+
+    /// Where each line begins, in milliseconds, before the fault.
+    std::vector<std::int64_t> truth;
+
+    static constexpr int kLines = 60;
+    static constexpr std::int64_t kLate = 3000;
+
+    SpeechStands() {
+        std::string detected = "Detected speech segments:\n";
+        std::string srt;
+        std::uint32_t state = 4242;
+        std::int64_t now = 5000;
+        for (int line = 0; line < kLines; ++line) {
+            state = state * 1664525U + 1013904223U;
+            const std::int64_t length = 1200 + ((state >> 8U) % 2800);
+            state = state * 1664525U + 1013904223U;
+            const std::int64_t pause = 600 + ((state >> 8U) % 2400);
+            truth.push_back(now);
+            detected += "Speech segment " + std::to_string(line) +
+                        ": start = " + std::to_string(now / 10) +
+                        ".00, end = " + std::to_string((now + length) / 10) + ".00\n";
+            srt += std::to_string(line + 1) + "\n" + stamp(now + kLate) + " --> " +
+                   stamp(now + length + kLate) + "\nsome words\n\n";
+            now += length + pause;
+        }
+        subtitles = writeFile(scratch, "film.srt", srt);
+        const std::string segments = writeFile(scratch, "segments.txt", detected);
+        script("whisper-vad-speech-segments", "cat '" + segments + "'");
+        const std::string audio = writeFile(scratch, "sample.wav", "pcm");
+        script("ffmpeg", "exec '" + kFake + "' --output-from='" + audio + "' \"$@\"");
+    }
+
+    static std::string stamp(std::int64_t milliseconds) {
+        std::array<char, 32> text{};
+        std::snprintf(text.data(),
+                      text.size(),
+                      "%02d:%02d:%02d,%03d",
+                      static_cast<int>(milliseconds / 3600000),
+                      static_cast<int>((milliseconds / 60000) % 60),
+                      static_cast<int>((milliseconds / 1000) % 60),
+                      static_cast<int>(milliseconds % 1000));
+        return text.data();
+    }
+
+    void script(const std::string& name, const std::string& body) const {
+        const std::string path = writeFile(scratch, "bin/" + name, "#!/bin/sh\n" + body + "\n");
+        std::filesystem::permissions(
+            path, std::filesystem::perms::owner_all, std::filesystem::perm_options::add);
+    }
+
+    [[nodiscard]] CliRun run(std::vector<std::string> arguments) const {
+        std::vector<std::string> all{"sync", subtitles, "--video", video};
+        all.insert(all.end(), arguments.begin(), arguments.end());
+        return invokeWithSearchPath(directory, all);
+    }
+};
+
+} // namespace
+
+TEST_CASE("sync lays a file on the speech, whatever the language, without transcribing",
+          "[e2e][CLI-SYNC-07]") {
+    const SpeechStands stands;
+    const std::string out = stands.scratch.of("out/film.srt");
+
+    const CliRun run = stands.run({"--vad-model", stands.model, "--output", out});
+
+    REQUIRE(run.exitCode == 0);
+    const std::string written = contentOf(out);
+    // Every start is back where the voice is, and the texts are untouched.
+    for (std::size_t line = 0; line < stands.truth.size(); ++line)
+        CHECK_THAT(written,
+                   ContainsSubstring(std::to_string(line + 1) + "\n" +
+                                     SpeechStands::stamp(stands.truth[line]) + " --> "));
+    CHECK_THAT(written, ContainsSubstring("some words"));
+    CHECK_THAT(run.errors, ContainsSubstring("60 of 60 subtitles placed on the audio"));
+    // The file it was given is left as it was.
+    CHECK_THAT(contentOf(stands.subtitles),
+               ContainsSubstring(SpeechStands::stamp(stands.truth.front() + SpeechStands::kLate)));
+}
+
+TEST_CASE("sync says, every time, what laying a file on the speech does not do",
+          "[e2e][CLI-SYNC-08]") {
+    const SpeechStands stands;
+    const std::string out = stands.scratch.of("out/film.srt");
+
+    const CliRun text = stands.run({"--vad-model", stands.model, "--output", out});
+    CHECK_THAT(text.errors, ContainsSubstring("Only the file as a whole was put in line"));
+
+    const CliRun record = invokeWithSearchPath(stands.directory,
+                                               {"--format",
+                                                "json",
+                                                "sync",
+                                                stands.subtitles,
+                                                "--video",
+                                                stands.video,
+                                                "--vad-model",
+                                                stands.model,
+                                                "--output",
+                                                stands.scratch.of("out/again.srt")});
+    CHECK_THAT(record.output, ContainsSubstring("\"kind\":\"speech-only\""));
+
+    // The method of the words has its own limits, and does not carry this warning.
+    const Stands words{"offset-plus-2400"};
+    const CliRun heard = words.run(words.listening(words.scratch.of("out/words.srt")));
+    CHECK_THAT(heard.errors, !ContainsSubstring("Only the file as a whole"));
+}
+
+TEST_CASE("sync on the speech refuses a missing model, and a file that does not fit the sound, "
+          "and writes nothing",
+          "[e2e][CLI-SYNC-07]") {
+    const SpeechStands stands;
+    const std::string out = stands.scratch.of("out/film.srt");
+
+    const CliRun noModel = stands.run({"--output", out});
+    CHECK(noModel.exitCode == 2);
+    CHECK_THAT(noModel.errors, ContainsSubstring("needs a voice-activity model"));
+    CHECK_THAT(noModel.errors, ContainsSubstring("Installing the transcription tools"));
+
+    // A film with hardly any speech: the file has nothing to agree with.
+    const SpeechStands quiet;
+    quiet.script("whisper-vad-speech-segments",
+                 "echo 'Speech segment 0: start = 1000.00, end = 1100.00'");
+    const CliRun nothing = quiet.run({"--vad-model", quiet.model, "--output", out});
+    CHECK(nothing.exitCode == 2);
+    CHECK_THAT(nothing.errors, ContainsSubstring("too little in common"));
     CHECK_FALSE(std::filesystem::exists(out));
 }
