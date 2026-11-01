@@ -1,5 +1,6 @@
 #include <subedit/core/io/find_executable.hpp>
 #include <subedit/core/transcription/default_engines.hpp>
+#include <subedit/core/transcription/speech_detector.hpp>
 #include <subedit/core/transcription/tools_status.hpp>
 #include <subedit/core/transcription/whisper_cpp_engine.hpp>
 #include <subedit/core/transcription/whisper_cpp_output.hpp>
@@ -45,6 +46,8 @@ TranscriptionTools inspectTranscriptionTools(const FileSystem& files,
             settings.executable.empty() ? std::nullopt : std::optional{settings.executable});
     tools.extractor = findExecutable(files, kExtractorName, searchPath).has_value();
     tools.model = modelStateOf(settings.model);
+    tools.voiceTool = findVadTool(files, searchPath);
+    tools.voiceModel = !settings.vadModel.empty() && files.exists(settings.vadModel);
     if (tools.engine &&
         (tools.model == ModelState::EnglishOnly || tools.model == ModelState::Multilingual)) {
         const EngineRegistry engines = makeDefaultEngines(files, searchPath, tools.engine);

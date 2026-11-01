@@ -1,6 +1,8 @@
 # Phase 23 — Automatic alignment
 
-**Status: shipped (#804 to #816), closed in 1.2.0.** The tooling came first (#803); this document decides the rest — the engine, the matching of a line to the
+**Status: in progress — reopened by [#820](https://github.com/Guyot-Bertrand/sub-edit/issues/820).** The first closure, in 1.2.0, was premature and is withdrawn: tried by hand on a film in English with a good subtitle file in French, `sync` found nothing and said nothing about why. The matching of words (D1 to D8) needs the text in the language spoken; D9 adds the method that does not.
+
+**Scoped (#804).** The tooling came first (#803); this document decides the rest — the engine, the matching of a line to the
 speech, the doubtful alignment, the command and the window — and splits the phase into issues.
 
 What the roadmap promises: re-time an existing subtitle file on the audio. From the text and the voice, find where each sentence is
@@ -161,6 +163,49 @@ the operation and the reasons for failure live in a new family of `core/wording/
   skipped (as for #770);
 - the requirements below, registered `planned` in `docs/exigences.md`, moved to `implemented` by the issue whose test cites them.
 
+## D9 — Laying the file on the speech, whatever the language (#820)
+
+**The matching of words needs the text in the language that is spoken** (D2), and the case it was proved on — a text written by an engine, heard
+again by another — was the only one. A person who has a film in its original language and a subtitle file in theirs, nearly right, gets nothing from
+it: every line is "not found". The goal is the **times** of the file, not its words, and the times can be found without the words.
+
+**The method.** Ask the sound only *where somebody speaks* (the voice-activity model of phase 22, run alone by `whisper-vad-speech-segments`), and
+find the correction that makes the subtitles agree with it:
+
+1. **The frame rate** is chosen among the ratios between any two of 23.976, 24, 25, 29.97 and 30, and 1; a ratio other than 1 is taken only when it
+   correlates 1.15 times better than 1.
+2. **The shift** is found for each stretch of two minutes, every thirty seconds, as the shift that best correlates the two curves (speech, subtitle
+   shown) within ±150 s; the **path through those shifts** is the one that agrees most and changes least (a Viterbi path, with a cost for changing the
+   shift and a small one for being far from 0). A constant offset, a drift and a second half that is late are all paths.
+3. **The correction** is the ratio and the shifts, interpolated between the stretches; each start and each end goes through it.
+4. **Agreement** — the median, along the path, of the correlation — is measured; under 0.15 the file is refused as having too little in common with
+   the sound.
+
+**What it measured** (observations on three episodes of a TV series with English sound and French subtitles, not guarantees): with the file's own
+times as the truth and a known fault laid on it — late, early, drifting, half late, another frame rate —, every start lands within 500 ms in two
+episodes and 91 % in the third (the teaser, with music), in about thirteen seconds for forty minutes of film; a file of another episode gives an
+agreement under 0.1, against 0.3 for the right one.
+
+**What it does not do — and is told, every time.** It corrects the file as a whole. It cannot find a line that is out of place alone in a file that is
+otherwise right: a line moved by a few seconds almost always falls on other speech. **A second stage that re-placed each line on the speech next to it
+was tried and discarded**: it recovered 5 to 22 % of the displaced lines and damaged 20 to 60 % of the good ones; flagging lines with little speech under
+them caught a fraction of the displaced lines with many false alarms. A title card shown over a silence (a chapter card, a caption translating
+something on screen) has no speech to lean on: it moves with the file and may be wrong.
+
+**Which method runs.** `speech` is the default (`alignment.method`, `--method`, the choice of the dialog); `words` stays for a text in the language
+spoken, where it alone can place one line on its own. The two are not chained: the choice is the person's. Chaining — correcting the file by the speech,
+then refining each line by its words — is worth an issue when a real file in the language spoken asks for it.
+
+**Said, not hidden.** Both surfaces carry the warning of what `speech` does not do — the command on the error output and as a `speech-only` warning
+of the record; the dialog under the choice of the method, and the preview under its summary — and a file that does not fit the sound is refused with
+the reason (`noAgreementWithTheSpeech`), as the failure of the words is followed by the pointer to the method that ignores the language.
+
+**Requirements:** `CLI-SYNC-07`, `CLI-SYNC-08` and `GUI-SYNC-05`.
+
+**Not delivered, noted.** Chaining the two methods; a placement of the cards over a silence (it would need a model of what a card is); a route for the
+single misplaced line in a file whose language is not the one spoken (align a file in the language spoken by its words, then carry its times over by
+overlap, as the alignment of a translation of phase 13 does).
+
 ## What the phase does not deliver
 
 Transcription itself (phase 22), speaker identification, styles and positions (phase 18), live alignment, model training, the alignment
@@ -169,7 +214,7 @@ of a translation (the text must be in the spoken language), a forced-alignment a
 
 ## Requirements
 
-**Ten**, registered `planned` in `docs/exigences.md` with this spec.
+**Thirteen**: ten registered with this spec, and three of #820 (`CLI-SYNC-07`, `CLI-SYNC-08`, `GUI-SYNC-05`).
 
 | Identifier | What it promises |
 | :--------- | :--------------- |
@@ -183,6 +228,9 @@ of a translation (the text must be in the spoken language), a forced-alignment a
 | `GUI-SYNC-02` | the work runs in the background with a progress indicator and can be cancelled, a cancelled or failed run leaving the project unchanged |
 | `GUI-SYNC-03` | the result is shown in a preview — current times and new times side by side, the flagged lines marked — and applies as one undoable operation |
 | `GUI-SYNC-04` | without the executable, the model or the extraction tool the command explains what is missing and where to read how to install it, and the rest of the window is unaffected |
+| `CLI-SYNC-07` | `sync --method speech`, the default, lays the file on when there is speech without transcribing, whatever the language of the subtitles, and refuses, with nothing written, a missing voice-activity model or program, and a file that has too little in common with the sound |
+| `CLI-SYNC-08` | the warning that only the file as a whole was put in line is said every time `speech` runs, in the output and as a `speech-only` warning of the record |
+| `GUI-SYNC-05` | the dialog offers the method, speech first, says what speech does not do, and the preview repeats it; a file that does not fit the sound is refused with the reason |
 
 ## Split
 

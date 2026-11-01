@@ -71,6 +71,8 @@ const TranscriptionTools kReady{
     .engine = std::filesystem::path{"/usr/bin/whisper-cli"},
     .extractor = true,
     .model = ModelState::Multilingual,
+    .voiceTool = std::filesystem::path{"/usr/bin/whisper-vad-speech-segments"},
+    .voiceModel = true,
     .capabilities = subedit::core::EngineCapabilities{
         .languageDetection = true, .languages = {"en", "fr"}, .suppressNotes = true}};
 
@@ -375,6 +377,8 @@ TEST_CASE("without the program or the model the dialog says what is missing and 
         const auto* sync = dynamic_cast<TranscribeDialog*>(&dialog);
         REQUIRE(sync != nullptr);
         seen = true;
+        sync->methodBox()->setCurrentIndex(
+            sync->methodBox()->findData(static_cast<int>(subedit::core::AlignmentMethod::Words)));
         CHECK_THAT(sync->toolsLabel()->text().toStdString(),
                    ContainsSubstring("Set them in the preferences."));
         CHECK_FALSE(sync->buttons()->button(QDialogButtonBox::Ok)->isEnabled());
@@ -501,7 +505,9 @@ struct Tools {
             .track = 0,
             .language = "en",
             .model = model,
-            .lines = {"The harbour was quiet at dawn.", "Nobody had lit the lamps yet."}};
+            .method = subedit::core::AlignmentMethod::Words,
+            .lines = {"The harbour was quiet at dawn.", "Nobody had lit the lamps yet."},
+            .times = {}};
     }
 };
 
@@ -580,4 +586,179 @@ TEST_CASE("a project with nothing in it has nothing to synchronize", "[gui][GUI-
 
     CHECK(prompts.runAsked == 0);
     CHECK(runner->asked.empty());
+}
+
+TEST_CASE("the dialog offers the speech first, says what it does not do, and keeps the choice",
+          "[gui][GUI-SYNC-05]") {
+    Stage stage;
+    stage.prompts.nextRun = true;
+    bool seen = false;
+    stage.prompts.fill = [&seen](QDialog& dialog) {
+        auto* sync = dynamic_cast<TranscribeDialog*>(&dialog);
+        if (sync == nullptr)
+            return;
+        seen = true;
+        // The speech by default: it needs no language, and says what it does not do.
+        CHECK(sync->choice().method == subedit::core::AlignmentMethod::Speech);
+        CHECK_THAT(sync->methodHint()->text().toStdString(),
+                   ContainsSubstring("Only the file as a whole was put in line"));
+        CHECK_FALSE(sync->minimumMatchBox()->isEnabled());
+        CHECK_FALSE(sync->languageBox()->isEnabled());
+        CHECK(sync->buttons()->button(QDialogButtonBox::Ok)->isEnabled());
+
+        // The words need the language, and carry no such warning.
+        sync->methodBox()->setCurrentIndex(
+            sync->methodBox()->findData(static_cast<int>(subedit::core::AlignmentMethod::Words)));
+        CHECK(sync->methodHint()->text().isEmpty());
+        CHECK(sync->minimumMatchBox()->isEnabled());
+    };
+
+    stage.window->synchronizeWithAudioAction()->trigger();
+
+    REQUIRE(seen);
+    REQUIRE(stage.runner->asked.size() == 1);
+    const AlignmentJob& job = stage.runner->asked.front();
+    CHECK(job.method == subedit::core::AlignmentMethod::Words);
+    CHECK(job.times.size() == 3);
+    CHECK(job.times.front().start == at(1000));
+}
+
+TEST_CASE("the preview of a result on the speech repeats what it does not do",
+          "[gui][GUI-SYNC-05]") {
+    Stage stage;
+    stage.prompts.nextRun = true;
+    std::vector<std::string> summaries;
+    stage.prompts.fill = [&summaries](QDialog& dialog) {
+        if (auto* preview = dynamic_cast<SynchronizationPreviewDialog*>(&dialog))
+            summaries.push_back(preview->summary()->text().toStdString());
+    };
+    stage.runner->answer = AlignmentOutcome{
+        .matches = {heard(1500), heard(3000), heard(5500)}, .fitted = true, .ratio = 25.0 / 23.976};
+
+    stage.window->synchronizeWithAudioAction()->trigger();
+
+    REQUIRE(summaries.size() == 1);
+    CHECK_THAT(summaries.front(), ContainsSubstring("Only the file as a whole was put in line"));
+    CHECK_THAT(summaries.front(), ContainsSubstring("The frame rate of the file was put right"));
+}
+
+TEST_CASE("a file that does not fit the sound is refused with the reason, and nothing moves",
+          "[gui][GUI-SYNC-05]") {
+    Stage stage;
+    stage.prompts.nextRun = true;
+    stage.runner->answer =
+        AlignmentOutcome{.matches = {LineMatch{}, LineMatch{}, LineMatch{}}, .fitted = false};
+
+    stage.window->synchronizeWithAudioAction()->trigger();
+
+    REQUIRE(stage.prompts.failures.size() == 1);
+    CHECK_THAT(stage.prompts.failures.front(), ContainsSubstring("too little in common"));
+    CHECK(startsOf(*stage.window) == std::vector<std::int64_t>{1000, 2500, 5000});
+}
+
+TEST_CASE("without the program or the model of the speech the dialog says so and cannot start",
+          "[gui][GUI-SYNC-05]") {
+    Stage stage;
+    stage.runner->there = TranscriptionTools{.extractor = true};
+    bool seen = false;
+    stage.prompts.fill = [&seen](QDialog& dialog) {
+        const auto* sync = dynamic_cast<TranscribeDialog*>(&dialog);
+        REQUIRE(sync != nullptr);
+        seen = true;
+        CHECK_THAT(sync->toolsLabel()->text().toStdString(),
+                   ContainsSubstring("whisper-vad-speech-segments"));
+        CHECK_FALSE(sync->buttons()->button(QDialogButtonBox::Ok)->isEnabled());
+    };
+
+    stage.prompts.nextRun = false;
+    stage.window->synchronizeWithAudioAction()->trigger();
+
+    CHECK(seen);
+    CHECK(stage.runner->asked.empty());
+}
+
+TEST_CASE("the real runner lays the file on the speech it finds, without transcribing",
+          "[gui][GUI-SYNC-05]") {
+    const Tools tools;
+    tools.everything();
+    // A voice detector that finds a stretch every four seconds, and a file three seconds late.
+    std::string detected;
+    AlignmentJob job = tools.job();
+    job.method = subedit::core::AlignmentMethod::Speech;
+    job.lines.clear();
+    constexpr int kLines = 40;
+    for (int line = 0; line < kLines; ++line) {
+        const std::int64_t start = 5000 + (static_cast<std::int64_t>(line) * 4000);
+        detected += "Speech segment " + std::to_string(line) +
+                    ": start = " + std::to_string(start / 10) +
+                    ".00, end = " + std::to_string((start + 2000) / 10) + ".00\n";
+        job.lines.emplace_back("text");
+        job.times.push_back({.start = at(start + 3000), .end = at(start + 5000)});
+    }
+    const auto listing = tools.scratch.write("segments.txt", detected);
+    (void)tools.scratch.write("whisper-vad-speech-segments",
+                              "#!/bin/sh\ncat '" + listing.string() + "'\n");
+    std::filesystem::permissions(tools.scratch.file("whisper-vad-speech-segments"),
+                                 std::filesystem::perms::owner_all,
+                                 std::filesystem::perm_options::add);
+    job.settings.vadModel = tools.scratch.write("vad.bin", "model");
+    BackgroundTranscriptionRunner runner{tools.scratch.path().string()};
+
+    const auto outcome = runner.align(job, nullptr);
+
+    REQUIRE(outcome.has_value());
+    CHECK(outcome->fitted);
+    CHECK(outcome->ratio == 1.0);
+    REQUIRE(outcome->matches.size() == static_cast<std::size_t>(kLines));
+    CHECK(outcome->matches.front().place.start == at(5000));
+}
+
+TEST_CASE("the real runner says what the speech lacks", "[gui][GUI-SYNC-05]") {
+    const Tools tools;
+    tools.everything();
+    BackgroundTranscriptionRunner runner{tools.scratch.path().string()};
+    AlignmentJob job = tools.job();
+    job.method = subedit::core::AlignmentMethod::Speech;
+
+    // No program that finds speech on the search path.
+    const auto noTool = runner.align(job, nullptr);
+    REQUIRE_FALSE(noTool.has_value());
+    CHECK_THAT(noTool.error().message, ContainsSubstring("whisper-vad-speech-segments"));
+
+    // The program, and no model.
+    (void)tools.scratch.write("whisper-vad-speech-segments", "#!/bin/sh\nexit 0\n");
+    std::filesystem::permissions(tools.scratch.file("whisper-vad-speech-segments"),
+                                 std::filesystem::perms::owner_all,
+                                 std::filesystem::perm_options::add);
+    const auto noModel = runner.align(job, nullptr);
+    REQUIRE_FALSE(noModel.has_value());
+    CHECK_THAT(noModel.error().message, ContainsSubstring("voice-activity model"));
+
+    // The program, a model, and a detector that fails.
+    (void)tools.scratch.write("whisper-vad-speech-segments", "#!/bin/sh\nexit 1\n");
+    job.settings.vadModel = tools.scratch.write("vad.bin", "model");
+    const auto fails = runner.align(job, nullptr);
+    REQUIRE_FALSE(fails.has_value());
+    CHECK_FALSE(fails.error().cancelled);
+}
+
+TEST_CASE("the dialog says which of the speech's tools is missing", "[gui][GUI-SYNC-05]") {
+    const auto labelFor = [](const TranscriptionTools& there) {
+        Stage stage;
+        stage.runner->there = there;
+        stage.prompts.nextRun = false;
+        std::string label;
+        stage.prompts.fill = [&label](QDialog& dialog) {
+            if (const auto* sync = dynamic_cast<TranscribeDialog*>(&dialog))
+                label = sync->toolsLabel()->text().toStdString();
+        };
+        stage.window->synchronizeWithAudioAction()->trigger();
+        return label;
+    };
+    const auto program = std::filesystem::path{"/usr/bin/whisper-vad-speech-segments"};
+
+    CHECK_THAT(labelFor(TranscriptionTools{.extractor = true, .voiceTool = program}),
+               ContainsSubstring("voice-activity model"));
+    CHECK_THAT(labelFor(TranscriptionTools{.voiceTool = program, .voiceModel = true}),
+               ContainsSubstring("ffmpeg: not found"));
 }

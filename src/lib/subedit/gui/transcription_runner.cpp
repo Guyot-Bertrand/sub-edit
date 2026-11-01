@@ -1,9 +1,12 @@
 #include <subedit/core/io/real_file_system.hpp>
 #include <subedit/core/transcription/align_media.hpp>
+#include <subedit/core/transcription/align_on_speech.hpp>
 #include <subedit/core/transcription/default_engines.hpp>
 #include <subedit/core/transcription/remaining_time.hpp>
+#include <subedit/core/transcription/speech_detector.hpp>
 #include <subedit/core/transcription/subtitle_assembly.hpp>
 #include <subedit/core/transcription/transcribe_media.hpp>
+#include <subedit/core/wording/alignment.hpp>
 #include <subedit/core/wording/transcription.hpp>
 #include <subedit/gui/messages.hpp>
 #include <subedit/gui/transcription_runner.hpp>
@@ -80,12 +83,46 @@ private:
 
 using AlignResult = std::expected<AlignmentOutcome, TranscriptionFailure>;
 
+/// The work of a synchronization on the speech: nothing is transcribed.
+[[nodiscard]] AlignResult speechWork(const AlignmentJob& job,
+                                     core::RealFileSystem& files,
+                                     const std::string& searchPath,
+                                     SharedProgress& progress,
+                                     const std::atomic<bool>& cancelled) {
+    const std::optional<std::filesystem::path> tool = core::findVadTool(files, searchPath);
+    if (!tool)
+        return std::unexpected(failed(core::speechNeedsTheVoiceTool()));
+    if (job.settings.vadModel.empty() || !files.exists(job.settings.vadModel))
+        return std::unexpected(failed(core::speechNeedsTheVoiceModel()));
+
+    core::SpeechAlignmentRequest request;
+    request.media.input = job.video;
+    request.media.audioTrack = job.track;
+    request.media.vadModel = job.settings.vadModel;
+    request.media.start = job.start;
+    request.media.end = job.end;
+    request.lines = job.times;
+
+    const core::WhisperVadDetector detector{*tool};
+    const core::TranscriptionObserver observer{
+        .advanced = [&progress](const core::TranscriptionProgress& state) { progress.set(state); },
+        .cancelled = [&cancelled] { return cancelled.load(); }};
+    auto aligned = core::alignMediaOnSpeech(files, detector, searchPath, request, observer);
+    if (!aligned)
+        return std::unexpected(failureOf(aligned.error()));
+    return AlignmentOutcome{.matches = std::move(aligned->matches),
+                            .fitted = aligned->correction.fitted(),
+                            .ratio = aligned->correction.ratio};
+}
+
 /// The listening work of a synchronization, on whichever thread calls it. Touches nothing of Qt.
 [[nodiscard]] AlignResult alignWork(const AlignmentJob& job,
                                     const std::string& searchPath,
                                     SharedProgress& progress,
                                     const std::atomic<bool>& cancelled) {
     core::RealFileSystem files;
+    if (job.method == core::AlignmentMethod::Speech)
+        return speechWork(job, files, searchPath, progress, cancelled);
     const core::TranscriptionSettings& settings = job.settings;
     const core::EngineRegistry engines = core::makeDefaultEngines(
         files,

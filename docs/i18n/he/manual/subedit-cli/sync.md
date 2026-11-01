@@ -12,6 +12,7 @@ subedit-cli sync (--video FILE | --audio FILE)
                  [--vad-model FILE]
                  [--engine NAME]
                  [--keep-audio FILE]
+                 [--method METHOD]
                  [--min-match PERCENT]
                  [--doubt-gap MS]
                  [--report FILE]
@@ -21,12 +22,23 @@ subedit-cli sync (--video FILE | --audio FILE)
 ```
 
 **מסנכרנת מחדש קובץ כתוביות לפי השמע של סרט.** המקרה שבשבילו היא קיימת הוא קובץ ה-`.srt` שהורד מהרשת, מוזז
-בהתחלה ובסוף, ושהזזה אחת אינה מחזירה למקומו: כל כתובית נחפשת במה שנאמר, ותופסת את המקום שבו היא נאמרת.
+בהתחלה ובסוף, ושהזזה אחת אינה מחזירה למקומו. שתי שיטות עושות זאת, ו-`--method` (או ההגדרה `alignment.method`) בוחר ביניהן:
 
-היא מאזינה לשמע בעזרת מנוע תמלול — אותו מנוע של [`transcribe`](transcribe.md) — ו**מתאימה את המילים של
-כל כתובית למילים ששמע**. שום דבר אינו מתורגם: הכתוביות חייבות להיות בשפה שמדוברת.
+- **`speech`, ברירת המחדל, מניחה את הקובץ על המקומות שבהם מישהו מדבר.** היא שואלת את הצליל רק היכן יש דיבור,
+  ומוצאת את ההזזה שמתאימה את הכתוביות אליו, קטע סרט אחר קטע סרט: היסט קבוע, סחיפה, מחצית שנייה שמאחרת, וקובץ שתוזמן
+  לקצב פריימים אחר (25 במקום 23.976 וכיוצא בזה) — הכול מתוקן. **היא אינה תלויה בשפה** — הכתוביות יכולות להיות בצרפתית
+  והסרט באנגלית —, אינה זקוקה לתמלול, ולוקחת שניות. היא זקוקה ל-`ffmpeg`, לתוכנה `whisper-vad-speech-segments` שמגיעה
+  עם whisper.cpp, ולמודל זיהוי פעילות קולית (`--vad-model`, ההגדרה `transcription.vad-model`).
+- **`words` מתאימה את המילים של כל כתובית למילים שמנוע שמע.** היא מאזינה בעזרת מנוע תמלול — אותו מנוע של
+  [`transcribe`](transcribe.md) — וכל כתובית תופסת את המקום שבו המילים שלה נאמרות. שום דבר אינו מתורגם: הכתוביות
+  חייבות להיות בשפה שמדוברת. היא יכולה למקם כתובית בודדת שאינה במקומה בקובץ שפרט לכך תקין, ולוקחת את הזמן של תמלול.
 
-**שום דבר ממה שהיא צריכה אינו מצורף לתוכנה**: המנוע, מודל ו-`ffmpeg` הם אלה של
+**מה ש-`speech` אינה עושה נאמר בכל הרצה**, בפלט השגיאה וברישום: היא מתקנת את הקובץ **כמכלול**, לעולם לא כתובית אחר
+כתובית. כתובית שאינה במקומה בפני עצמה בקובץ שפרט לכך תקין, או כותרת המוצגת מעל שתיקה (כרטיס פרק, כיתוב שמתרגם דבר
+שעל המסך), אינה נחפשת ועלולה עדיין להיות שגויה, והדקות הראשונות עלולות להישאר שגויות כשהסרט נפתח במוזיקה או בכותרות.
+בדקו את התוצאה, או השתמשו ב-`--method words` כשהטקסט בשפה המדוברת.
+
+**שום דבר ממה שהיא צריכה אינו מצורף לתוכנה**: התוכנות, המודל ו-`ffmpeg` הם אלה של
 [התקנת כלי התמלול](install-transcription.md), והיעדרם אינו שובר דבר — הפקודה אומרת מה חסר, עם הפניה לדף ההוא,
 אינה כותבת דבר ומסתיימת בקוד שאינו אפס.
 
@@ -34,13 +46,15 @@ subedit-cli sync (--video FILE | --audio FILE)
 - **כתובית שהשמע אינו נותן לה מקום שומרת על הזמנים שלה** — קרדיט שאיש אינו אומר, שיר, שורה בשפה אחרת.
   **שום מיקום אינו ממציאים לעולם, ושום מיקום אינו מנחשים לפי השכנות**: השורה נשארת במקום שבו הקובץ החזיק אותה,
   והפקודה אומרת זאת. זה *אינו* כשל, וקוד היציאה הוא `0`.
-- **כתובית נמצאת כשלפחות מחצית מילותיה נשמעו** (`--min-match`, `alignment.min-match`), ולפחות אחת. רישיות, ניקוד,
-  פיסוק ותגיות אינם משנים; מילה שאות אחת רחוקה ממילה ארוכה נחשבת כנשמעת.
+- **עם `words`, כתובית נמצאת כשלפחות מחצית מילותיה נשמעו** (`--min-match`, `alignment.min-match`), ולפחות אחת.
+  רישיות, ניקוד, פיסוק ותגיות אינם משנים; מילה שאות אחת רחוקה ממילה ארוכה נחשבת כנשמעת. `speech` מקימה כל כתובית,
+  ואינה לוקחת אף אחת מ-`--language`, `--model`, `--engine` או `--min-match`.
 - **הסיום הוא המקום שבו המילה האחרונה מסתיימת.** המנוע מתזמן מילים בקירוב, כמה מאיות שנייה לפני הסיום של
   הכתובית עצמה, ולכן כתובית עשויה לצאת קצרה מעט מכפי שהייתה.
 - **כתובית שהייתה נכנסת בבאה אחריה נחתכת עד המקום שבו הבאה מתחילה.** כתובית שעדיין חופפת את הבאה, מה
   שחיתוך אינו מרפא, נשארת ונאמרת.
-- **קובץ שאף אחת מכתוביותיו לא נמצאה נדחה ואינו נכתב**: זה כמעט בוודאי השמע הלא נכון או השפה הלא נכונה.
+- **קובץ שאינו מתאים לצליל נדחה ואינו נכתב**: עם `words`, אף אחת מהכתוביות לא נמצאה, וזה כמעט תמיד השמע הלא נכון או
+  השפה הלא נכונה — `speech` אינה תלויה בשפה; עם `speech`, לכתוביות ולדיבור יש מעט מדי במשותף, וזה כמעט תמיד הסרט הלא נכון.
 - **אפשר להאזין לחלק מהסרט בלבד**, עם `--start` ו-`--end`, כמו ב-[`transcribe`](transcribe.md#תמלול-חלק-מהסרט): רק
   הכתוביות ש**מתחילות** בטווח נחפשות ונוגעים בהן, השאר נשארות כמות שהן ואינן נספרות.
 - **להאזנה לשמע יש מחיר לכל קובץ שניתן.** כדי לסנכרן מחדש כמה קבצים על אותו סרט, צפו להמתין לכל אחד.
@@ -67,6 +81,7 @@ Options:
   --vad-model FILE            Voice-activity model that skips silences; the transcription.vad-model setting by default
   --engine NAME               Engine that listens; the transcription.engine setting by default
   --keep-audio FILE           Keep the extracted audio in this file
+  --method METHOD             How the subtitles are put in line: speech (from when there is speech, whatever the language) or words (from the words heard); the alignment.method setting by default
   --min-match PERCENT         Share of a subtitle's words that must be heard, in percent; the alignment.min-match setting by default
   --doubt-gap MS              How far a subtitle may move from its neighbours' shift before it is flagged, in milliseconds; the alignment.doubt-gap setting by default
   --report FILE               Write the subtitles to check to this file
@@ -91,6 +106,7 @@ Options:
 | `--vad-model` | לא | מודל זיהוי פעילות קולית, שגורם למנוע לדלג על השתיקות; איתו המילים עוקבות אחרי הדיבור מקרוב יותר | ההגדרה `transcription.vad-model` |
 | `--engine` | לא | שם המנוע שמאזין: `whisper.cpp` | ההגדרה `transcription.engine` |
 | `--keep-audio` | לא | קובץ לשמירת השמע שחולץ; התיקייה שלו נוצרת אם היא חסרה | השמע אינו נשמר בשום מקום |
+| `--method` | לא | `speech`: מניחה את הקובץ על המקומות שבהם יש דיבור, בכל שפה; `words`: מתאימה את המילים למה ששמעו, בשפה המדוברת | ההגדרה `alignment.method`, `speech` |
 | `--min-match` | לא | מספר שלם מ-1 עד 100: החלק ממילות הכתובית שחייב להישמע, באחוזים | ההגדרה `alignment.min-match`, `50` |
 | `--doubt-gap` | לא | מספר שלם של אלפיות שנייה, 0 או יותר: עד כמה ההזזה של כתובית יכולה להיות שונה מזו של שכנותיה לפני שהיא מסומנת | ההגדרה `alignment.doubt-gap`, `2000` |
 | `--report` | לא | קובץ לכתיבת הכתוביות שיש לבדוק, אחת בשורה: מספר הכתובית, טאב, והסיבה; קובץ כתוביות אחד בכל פעם | דבר אינו נכתב |
@@ -105,7 +121,8 @@ Options:
 
 | מפתח | משמעות | ברירת מחדל |
 | :-- | :------ | :------ |
-| `alignment.engine` | מנוע ההתאמה; יש אחד, `transcript-matching`, שמאזין ומתאים | `transcript-matching` |
+| `alignment.engine` | מנוע ההתאמה של השיטה `words`; יש אחד, `transcript-matching`, שמאזין ומתאים | `transcript-matching` |
+| `alignment.method` | איך הכתוביות מיושרות: `speech` או `words` | `speech` |
 | `alignment.min-match` | החלק ממילות הכתובית שחייב להישמע כדי שתימצא, באחוזים | `50` |
 | `alignment.doubt-gap` | עד כמה, באלפיות שנייה, ההזזה של כתובית יכולה לסטות מזו של שכנותיה לפני שהיא מסומנת | `2000` |
 
@@ -119,6 +136,9 @@ Options:
 | only partly heard | נמצאה, אבל פחות מ-80 % ממילותיה נשמעו |
 | moved differently from its neighbours | נמצאה, אבל ההזזה שלה סוטה מההזזה החציונית של שתי הכתוביות בכל צד ביותר מ-`--doubt-gap` |
 
+עם `speech` כל כתובית מוקמת, ורק האחרונה מבין אלה יכולה לחול: היכן שההזזה של הקובץ משתנה ביותר מ-`--doubt-gap` מכתובית
+לבאה אחריה (מחצית שנייה שמאחרת), הכתוביות משני צדי המדרגה מסומנות.
+
 כתובית יכולה גם להיות **cut back to the start of the next subtitle**, או **still overlap the next subtitle**.
 
 שני מספרים מספרים את סיפורו של הקובץ כולו. **ההזזה החציונית** היא האמצע של מידת ההזזה של הכתוביות: קובץ
@@ -131,7 +151,7 @@ Options:
 
 | רמה | מה נאמר בפלט השגיאה |
 | :---- | :------------------------------- |
-| 1 | `<file>: N of M subtitles placed on the audio, K to check; median shift X s, drift Y s -> <destination>` |
+| 1 | `<file>: N of M subtitles placed on the audio, K to check; median shift X s, drift Y s -> <destination>` — וכשקצב פריימים תוקן, גם היחס; עם `speech`, **האזהרה על מה שהיא אינה עושה**, בשורה משלה |
 | 2 | השלב וההתקדמות, כמו ב-[`transcribe`](transcribe.md#פלט) |
 
 ### ב-JSON
@@ -140,19 +160,26 @@ Options:
 (שנחפשו), `placed` (שקיבלו מקום), `moved` (שזמניהן השתנו), `partial`, `out_of_line`, `not_found`,
 `median_shift_ms` ו-`drift_ms`; ו-`flagged`, רשימה של `{"subtitle": N, "kind": "…"}` שבה המספר הוא
 מקומה של הכתובית בקובץ ו-`kind` הוא אחד מ-`not-found`, `partial`, `out-of-line`, `cut-back` ו-`overlaps`.
-המזהים מובטחים; המשפטים אינם.
+עם `speech`, `warnings` נושא ערך אחד עם `kind` `speech-only`. המזהים מובטחים; המשפטים אינם.
 
 ## דוגמה
 
 ```bash
-subedit-cli sync --video film.mkv --model small.bin --vad-model silero.bin \
+subedit-cli sync --video film.mkv --vad-model silero.bin \
     --report to-check.txt --output film.synced.srt film.srt
+```
+
+למקם כל כתובית לפי המילים שלה, עבור טקסט בשפה המדוברת:
+
+```bash
+subedit-cli sync --method words --video film.mkv --model small.bin --vad-model silero.bin \
+    --output film.synced.srt film.srt
 ```
 
 ## קודי יציאה
 
 אלה של הכלי: `0` אם הקובץ נכתב, עם כתוביות מסומנות או בלעדיהן, `2` אם לא ניתן היה לכתוב אותו — כלי או מודל חסרים,
-חילוץ או האזנה שנכשלו, אף כתובית שלא נמצאה —, `1` בשגיאת שימוש, כמו היעדר גם של `--video` וגם של `--audio` (או שניהם
+חילוץ או האזנה שנכשלו, קובץ שאינו מתאים לצליל (אף כתובית שלו לא נמצאה, או שיש לו מעט מדי במשותף עם הדיבור) —, `1` בשגיאת שימוש, כמו היעדר גם של `--video` וגם של `--audio` (או שניהם
 יחד), אפשרות מחוץ לטווח שלה, או טווח שאי אפשר להשתמש בו.
 
 ## שגיאות
@@ -166,6 +193,8 @@ subedit-cli sync --video film.mkv --model small.bin --vad-model silero.bin \
 | רצועה שאין בסרטון | `the video has no audio track N`, ואחריה הרצועות שיש בו |
 | שפה שהמודל אינו יכול לתמלל | `the model cannot transcribe the language xx` |
 | מנוע שאיש לא רשם | `no transcription engine is called NAME`, או `there is no alignment engine called NAME` |
-| אף כתובית לא נמצאה | `none of the N subtitles was found in the audio: is it the right audio, and the right language?` |
+| אף כתובית לא נמצאה (`words`) | `none of the N subtitles was found in the audio: is it the right audio, and the right language?`, ואחריה `The method based on speech does not depend on the language.` |
+| מודל זיהוי הפעילות הקולית לא צוין, או שהתוכנה שמוצאת דיבור לא נמצאה (`speech`) | `Finding where there is speech needs a voice-activity model: name one in the transcription.vad-model setting.` או `Finding where there is speech needs the program whisper-vad-speech-segments, which comes with whisper.cpp, and it was not found.`, ואחריה ההפניה למדריך |
+| לכתוביות ולדיבור יש מעט מדי במשותף (`speech`) | `The sound and the subtitles have too little in common to be put in line: is it the right film?` |
 | `--min-match` מחוץ ל-1 עד 100, `--doubt-gap` שלילי | שגיאת השימוש של האפשרות |
 | `--report` עם יותר מקובץ כתוביות אחד | `--report names one file: give one subtitle file when you use it` |

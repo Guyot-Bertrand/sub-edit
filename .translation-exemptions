@@ -48,6 +48,8 @@ file      src/lib/subedit/cli/configuring.cpp both
 file      src/lib/subedit/cli/transcribing.cpp [a-z]+(?:-[a-z]+)*
 # The ISO 639 codes of the languages an engine takes: names the container and the engine write (#779).
 file      src/lib/subedit/core/transcription/language_codes.cpp [a-z]{2,3}
+# The names of the two alignment methods, as the setting and the option spell them (#820).
+file      src/lib/subedit/core/config/alignment_settings.hpp speech|words
 
 [json] The `--format json` output is a contract: its keys and values are the same in every language (D3).
 statement \.set\(

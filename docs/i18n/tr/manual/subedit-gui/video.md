@@ -10,7 +10,7 @@
 | :---- | :------ | :------- |
 | Video Seç… | yok | belgenin eşlik ettiği video dosyasını seçer |
 | Sesi Yazıya Dök… | yok | filmin sesini, projenin altyazılarının yerine geçen altyazılara dönüştürür — bkz. [Sesi yazıya dökme](#sesi-yazıya-dökme) |
-| Sesle Eşitle… | yok | projenin altyazılarını, filmin sesinde sözcüklerinin söylendiği yere taşır — bkz. [Sesle eşitleme](#sesle-eşitleme) |
+| Sesle Eşitle… | yok | projenin altyazılarını filmin sesine uyacak şekilde taşır — bkz. [Sesle eşitleme](#sesle-eşitleme) |
 | Oynat / Duraklat | `Ctrl+P` | videoyu oynatır ya da durdurur — bkz. [Oynatıcı](player.md#oynatma-ve-durdurma) |
 
 Bağlı video **açık belgenin bir özelliğidir**, uygulamanın bir ayarı değil: başka bir altyazı
@@ -179,19 +179,25 @@ Bkz. [Yazıya dökme araçlarını kurma](../subedit-cli/install-transcription.m
 
 ## Sesle eşitleme
 
-**`Synchronize with Audio…`** projenin altyazılarını filmin sesine göre yeniden zamanlar. Çevrimiçi bulunan, başta ve sonda kaymış, tek bir kaydırmayla düzelmeyen `.srt` durumu budur: her altyazı söylenenler içinde aranır ve söylendiği yere yerleşir. **Yalnızca başlangıçlar ve bitişler değişir** — metin, biçem, altyazı sayısı ya da sıraları asla. `Transcribe Audio…` gibi, bir film açılana kadar devre dışıdır ve bu, **projenin filminin** sesidir; aynı komut satırı [`sync`](../subedit-cli/sync.md) komutudur.
+**`Synchronize with Audio…`** projenin altyazılarını filmin sesine göre yeniden zamanlar. Çevrimiçi bulunan, başta ve sonda kaymış, tek bir kaydırmayla düzelmeyen `.srt` durumu budur. **Yalnızca başlangıçlar ve bitişler değişir** — metin, biçem, altyazı sayısı ya da sıraları asla. `Transcribe Audio…` gibi, bir film açılana kadar devre dışıdır ve bu, **projenin filminin** sesidir; aynı komut satırı [`sync`](../subedit-cli/sync.md) komutudur.
 
-Altyazılar konuşulan dilde olmalıdır: hiçbir şey çevrilmez. İşi yazıya döken motor yapar — [tercihlerdeki](preferences.md#yazıya-dökme) motor, aynı program, `ffmpeg` ve model — ve **iletişim kutusu neyin eksik olduğunu söyler**, tıpkı yazıya dökmeninki gibi, [Yazıya dökme araçlarını kurma](../subedit-cli/install-transcription.md) sayfasına yönlendirerek ve bir `Preferences…` düğmesiyle.
+İki yöntem bunu yapar ve iletişim kutusu hangisini istediğinizi sorar:
+
+- **“Konuşma”, varsayılan, dosyayı birinin konuştuğu yerlere oturtur.** Dile bağlı değildir — İngilizce bir filmdeki Fransızca altyazılar sorun değildir —, hiçbir şeyi yazıya dökmez ve saniyeler sürer. Dosyayı **bütün olarak** düzeltir: sabit bir kayma, bir sapma, geç kalan bir ikinci yarı, başka bir kare hızına göre zamanlanmış bir dosya. `ffmpeg`, whisper.cpp'nin `whisper-vad-speech-segments` programı ve [tercihlerde](preferences.md#yazıya-dökme) ayarlanan bir ses etkinliği modeli gerekir.
+- **“Sözcükler”, her altyazının sözcüklerini motorun duyduğu sözcüklerle eşleştirir.** Altyazılar konuşulan dilde olmalıdır, hiçbir şey çevrilmez ve bir yazıya dökmenin süresini alır. Başka türlü doğru olan bir dosyada yerinden oynamış tek bir altyazıyı yerleştirebilir. İşi yazıya döken motor yapar, aynı program, `ffmpeg` ve modelle.
+
+**“Konuşma” ile iletişim kutusu ve sonuç, yapmadığı şeyi** her seferinde söyler: hiçbir zaman tek bir altyazıya ayrı ayrı bakmaz, bu yüzden tek başına yerinden oynamış bir altyazı ya da bir sessizliğin üstünde gösterilen bir başlık yine yanlış olabilir ve film müzik ya da jenerikle açılıyorsa ilk dakikalar kaymış kalabilir. Sonucu kontrol edin. **İletişim kutusu neyin eksik olduğunu söyler**, tıpkı yazıya dökmeninki gibi, [Yazıya dökme araçlarını kurma](../subedit-cli/install-transcription.md) sayfasına yönlendirerek ve bir `Preferences…` düğmesiyle.
 
 İletişim kutusu şunları ister:
 
-- yazıya dökmedeki gibi **ses izi** ve **dil**;
+- yazıya dökmedeki gibi **ses izi** ve **dil** — dil yalnızca “Sözcükler” içindir;
+- **yöntem**, “Konuşma” ya da “Sözcükler”, bir sonraki sefer için saklanır;
 - **filmin bölümü**, bir zamandan bir başkasına, tüm film için ikisi de boş: yalnızca aralıkta **başlayan** altyazılar aranır ve taşınır;
 - **“Yalnızca seçili altyazılar”**: bir kutu, hiçbir şey seçili değilken devre dışı. Yalnızca seçili altyazıları, ilkinden bir dakika önce başlayan ve sonuncudan bir dakika sonra biten film bölümünde arar; böylece geç ya da erken kalmış bir dosya yine dinlenen bölümün içinde kalır;
-- **“Duyulacak sözcükler”**, yüzde olarak: bir altyazının bulunmuş sayılması için sözcüklerinin ne kadarının duyulması gerektiği, varsayılan olarak %50 — `alignment.min-match` ayarı;
+- **“Duyulacak sözcükler”**, yüzde olarak, yalnızca “Sözcükler” için: bir altyazının bulunmuş sayılması için sözcüklerinin ne kadarının duyulması gerektiği, varsayılan olarak %50 — `alignment.min-match` ayarı;
 - **“Denetlenecek kayma”**, milisaniye olarak: bir altyazının, işaretlenmeden önce komşularının kaymasından ne kadar uzaklaşabileceği, varsayılan olarak 2000 ms — `alignment.doubt-gap` ayarı.
 
-Son üçü bir sonraki sefer için saklanır. İş **arka planda** çalışır, yazıya dökmedeki aynı kutu ve `Cancel` düğmesiyle; başarısız olan ya da durdurduğunuz bir çalışma hiçbir şeyi değiştirmez.
+Son ikisi bir sonraki sefer için saklanır. İş **arka planda** çalışır, yazıya dökmedeki aynı kutu ve `Cancel` düğmesiyle; başarısız olan ya da durdurduğunuz bir çalışma hiçbir şeyi değiştirmez.
 
 ### Sonuç
 
@@ -202,9 +208,9 @@ Son üçü bir sonraki sefer için saklanır. İş **arka planda** çalışır, 
 - **“komşularından farklı kaydı”**: bulundu, ama kayması, iki yanındaki ikişer altyazının ortanca kaymasından “Denetlenecek kayma” değerinden fazla ayrılıyor;
 - **“sonraki altyazının başlangıcına kadar kısaltıldı”** ve **“hâlâ sonraki altyazıyla çakışıyor”**: bir sonrakine taşacak altyazı, sonrakinin başladığı yere kadar kısaltılır; kısaltmanın çözemediği, hâlâ çakışan ise olduğu gibi bırakılır ve söylenir.
 
-Tablonun üstündeki bir satır ne olduğunu söyler — kaç altyazının yerleştirildiği, kaçının denetlenmesi gerektiği, ortanca kayma ve sapma —, **“Yalnızca denetlenecek altyazılar”** ise yalnızca onları gösterir. Tablo düzenlenemez.
+Tablonun üstündeki bir satır ne olduğunu söyler — kaç altyazının yerleştirildiği, kaçının denetlenmesi gerektiği, ortanca kayma ve sapma —, ardından “Konuşma” ile yapmadığı şeyin uyarısı ve bir kare hızı düzeltildiyse bunun söylenmesi; **“Yalnızca denetlenecek altyazılar”** ise yalnızca onları gösterir. Tablo düzenlenemez.
 
-İki düğme onu kapatır. **“Uygula”** başlangıçları ve bitişleri **tek bir işlem olarak** taşır: bir `Undo` önceki zamanları geri verir. “İptal” projeyi olduğu gibi bırakır. Hiçbir şey taşınmayacaksa “Uygula” devre dışıdır. Altyazıların hiçbiri bulunamadığında pencere bunu bir kutuda söyler ve uygulanacak bir şey göstermez: bu hemen hemen kesinlikle yanlış ses ya da yanlış dildir.
+İki düğme onu kapatır. **“Uygula”** başlangıçları ve bitişleri **tek bir işlem olarak** taşır: bir `Undo` önceki zamanları geri verir. “İptal” projeyi olduğu gibi bırakır. Hiçbir şey taşınmayacaksa “Uygula” devre dışıdır. Altyazıların hiçbiri bulunamadığında pencere bunu bir kutuda söyler ve uygulanacak bir şey göstermez: “Sözcükler” ile bu hemen hemen kesinlikle yanlış ses ya da yanlış dildir; “Konuşma” ile hemen hemen kesinlikle yanlış filmdir, altyazıların konuşmayla ortak yanı çok azdır.
 
 ## Film olmadığında
 

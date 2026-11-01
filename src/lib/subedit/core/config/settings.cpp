@@ -61,6 +61,7 @@ constexpr std::string_view kDurationGapKey = "duration-adjust.gap-ms";
 // The audio transcription, seven keys under one prefix — phase 22, #777.
 constexpr std::string_view kAlignmentPrefix = "alignment.";
 constexpr std::string_view kAlignmentEngineKey = "alignment.engine";
+constexpr std::string_view kAlignmentMethodKey = "alignment.method";
 constexpr std::string_view kAlignmentMinMatchKey = "alignment.min-match";
 constexpr std::string_view kAlignmentDoubtGapKey = "alignment.doubt-gap";
 constexpr std::string_view kTranscriptionPrefix = "transcription.";
@@ -853,6 +854,8 @@ void applyAlignmentOption(SettingsRead& read, std::string_view key, std::string_
     AlignmentSettings& form = read.settings.alignment;
     if (key == kAlignmentEngineKey)
         take(engineNameOf(value), form.engine);
+    else if (key == kAlignmentMethodKey)
+        take(alignmentMethodNamed(value), form.method);
     else if (key == kAlignmentMinMatchKey)
         take(boundedIntegerOf(value, 1, kMostMinimumMatchPercent), form.minimumMatchPercent);
     else if (key == kAlignmentDoubtGapKey)
@@ -1048,6 +1051,8 @@ void renderTranscription(std::string& out, const TranscriptionSettings& form) {
 void renderAlignment(std::string& out, const AlignmentSettings& form) {
     const AlignmentSettings defaults;
     writeOption(out, kAlignmentEngineKey, form.engine, form.engine == defaults.engine);
+    writeOption(
+        out, kAlignmentMethodKey, std::string{nameOf(form.method)}, form.method == defaults.method);
     writeOption(out,
                 kAlignmentMinMatchKey,
                 std::to_string(form.minimumMatchPercent),

@@ -46,7 +46,8 @@ msgid "First person pronoun"
 msgstr "Ensimmäisen persoonan pronomini"
 
 # From Gaupol.
-#: packaging/patterns/Latn-en.common-error packaging/patterns/Latn.common-error
+#: packaging/patterns/Latn-en.common-error
+#: packaging/patterns/Latn.common-error
 msgid "Add or remove space between a number and the associated unit"
 msgstr "Lisää tai poista väli luvun ja sen yksikön välistä"
 
@@ -86,7 +87,8 @@ msgid "Replace zero with letter \"O\" in an upper case word"
 msgstr "Korvaa nolla kirjaimella ”O” isolla kirjoitetussa sanassa"
 
 # From Gaupol.
-#: packaging/patterns/Latn-en.common-error packaging/patterns/Latn.common-error
+#: packaging/patterns/Latn-en.common-error
+#: packaging/patterns/Latn.common-error
 msgid "Space between number and unit"
 msgstr "Väli luvun ja yksikön välissä"
 
@@ -108,7 +110,8 @@ msgstr "Nolla isolla kirjoitetussa sanassa"
 # From Gaupol.
 #: packaging/patterns/Latn-en.hearing-impaired
 msgid ""
-"Replace the uppercase name of the speaker before a colon with a dialogue dash"
+"Replace the uppercase name of the speaker before a colon with a dialogue "
+"dash"
 msgstr ""
 "Korvaa kokonaan isolla kirjoitettu puhujan nimi ennen kaksoispistettä "
 "vuoropuheluviivalla"
@@ -159,12 +162,14 @@ msgid "Title"
 msgstr "Titteli"
 
 # From Gaupol.
-#: packaging/patterns/Latn-fi.common-error packaging/patterns/Latn.common-error
+#: packaging/patterns/Latn-fi.common-error
+#: packaging/patterns/Latn.common-error
 msgid "Add space after various punctuation marks"
 msgstr "Lisää väli tiettyjen välimerkkien jälkeen"
 
 # From Gaupol.
-#: packaging/patterns/Latn-fi.common-error packaging/patterns/Latn.common-error
+#: packaging/patterns/Latn-fi.common-error
+#: packaging/patterns/Latn.common-error
 msgid "Space after punctuation marks"
 msgstr "Väli välimerkkien jälkeen"
 
@@ -179,7 +184,8 @@ msgid "Add spaces around guillemets"
 msgstr "Lisää välit kulmalainausmerkkien ympärille"
 
 # From Gaupol.
-#: packaging/patterns/Latn-fr.common-error packaging/patterns/Latn.common-error
+#: packaging/patterns/Latn-fr.common-error
+#: packaging/patterns/Latn.common-error
 msgid "Space before punctuation marks"
 msgstr "Väli ennen välimerkkejä"
 
@@ -230,8 +236,7 @@ msgstr "Lisää välit nuottimerkkien ja lyriikoiden väliin"
 
 # From Gaupol.
 #: packaging/patterns/Latn.common-error
-msgid ""
-"Change the various spellings of 12-hour periods to \"a.m.\" and \"p.m.\""
+msgid "Change the various spellings of 12-hour periods to \"a.m.\" and \"p.m.\""
 msgstr "Muuta 12 tunnin jaksojen kirjoitusasu muotoon ”a.m.” ja ”p.m.”"
 
 # From Gaupol.
@@ -637,8 +642,8 @@ msgstr ""
 #: src/exe/cli/commands/append.cpp
 msgid "no destination given: append writes one file, use --output"
 msgstr ""
-"kohdetta ei annettu: append kirjoittaa yhden tiedoston, käytä valitsinta --"
-"output"
+"kohdetta ei annettu: append kirjoittaa yhden tiedoston, käytä valitsinta "
+"--output"
 
 #: src/exe/cli/commands/command.cpp
 msgid "File to write, for a single input"
@@ -671,7 +676,8 @@ msgstr "Miten käännöksen rivit löytävät kappaleensa"
 
 #: src/exe/cli/commands/command.cpp
 msgid "The document to change: the main one, or the translation given by -t"
-msgstr "Muutettava asiakirja: pääasiakirja tai valitsimella -t annettu käännös"
+msgstr ""
+"Muutettava asiakirja: pääasiakirja tai valitsimella -t annettu käännös"
 
 #: src/exe/cli/commands/config.cpp
 msgid "List, show and change the operation settings"
@@ -686,11 +692,13 @@ msgstr ""
 #: src/exe/cli/commands/config.cpp
 msgid "Write the settings file used, then every operation key with its value"
 msgstr ""
-"Kirjoita käytetty asetustiedosto ja sitten jokainen toiminnon avain arvoineen"
+"Kirjoita käytetty asetustiedosto ja sitten jokainen toiminnon avain "
+"arvoineen"
 
 #: src/exe/cli/commands/config.cpp
 msgid "Write KEY = VALUE into the settings file, keeping every other setting"
-msgstr "Kirjoita KEY = VALUE asetustiedostoon ja säilytä kaikki muut asetukset"
+msgstr ""
+"Kirjoita KEY = VALUE asetustiedostoon ja säilytä kaikki muut asetukset"
 
 #: src/exe/cli/commands/config.cpp
 msgid "Operation key, as config list names it"
@@ -702,9 +710,11 @@ msgstr "Arvo, kuten config list kertoo sen hyväksyvän"
 
 #: src/exe/cli/commands/config.cpp
 msgid ""
-"Put KEY back to its default in the settings file, keeping every other setting"
+"Put KEY back to its default in the settings file, keeping every other "
+"setting"
 msgstr ""
-"Palauta KEY oletusarvoonsa asetustiedostossa ja säilytä kaikki muut asetukset"
+"Palauta KEY oletusarvoonsa asetustiedostossa ja säilytä kaikki muut "
+"asetukset"
 
 #: src/exe/cli/commands/config.cpp
 msgid "--no-config has nothing to write to"
@@ -769,7 +779,8 @@ msgid "The tasks to run, in a list: none is chosen beforehand"
 msgstr "Suoritettavat tehtävät luettelona: mitään ei ole valittu valmiiksi"
 
 #: src/exe/cli/commands/correct.cpp
-msgid "The cascade of patterns the tasks read: Zyyy, Latn, Latn-en, Latn-en-US"
+msgid ""
+"The cascade of patterns the tasks read: Zyyy, Latn, Latn-en, Latn-en-US"
 msgstr ""
 "Lausekkeiden porrastus, jota tehtävät lukevat: Zyyy, Latn, Latn-en, Latn-en-"
 "US"
@@ -781,25 +792,26 @@ msgstr "Käytettävät yleisten virheiden luokat: oletuksena molemmat"
 #: src/exe/cli/commands/correct.cpp
 msgid "Switch a pattern on, by its English name or type:name; repeatable"
 msgstr ""
-"Ota lauseke käyttöön sen englanninkielisellä nimellä tai muodossa type:name; "
-"toistettavissa"
+"Ota lauseke käyttöön sen englanninkielisellä nimellä tai muodossa type:name;"
+" toistettavissa"
 
 #: src/exe/cli/commands/correct.cpp
 msgid "Switch a pattern off, by its English name or type:name; repeatable"
 msgstr ""
-"Poista lauseke käytöstä sen englanninkielisellä nimellä tai muodossa type:"
-"name; toistettavissa"
+"Poista lauseke käytöstä sen englanninkielisellä nimellä tai muodossa "
+"type:name; toistettavissa"
 
 #: src/exe/cli/commands/correct.cpp
 msgid "The dictionary join-words and split-words read: fr_FR, en_US, en..."
-msgstr "Sanakirja, jota join-words ja split-words lukevat: fr_FR, en_US, en..."
+msgstr ""
+"Sanakirja, jota join-words ja split-words lukevat: fr_FR, en_US, en..."
 
 #: src/exe/cli/commands/correct.cpp
 msgid ""
 "Longest line of line-break, in characters; no default, Gaupol's is in ems"
 msgstr ""
-"line-break-tehtävän pisin rivi merkkeinä; ei oletusta, Gaupolin oletus on em-"
-"yksiköissä"
+"line-break-tehtävän pisin rivi merkkeinä; ei oletusta, Gaupolin oletus on "
+"em-yksiköissä"
 
 #: src/exe/cli/commands/correct.cpp
 msgid "Most lines of line-break: 3, as Gaupol's"
@@ -870,8 +882,8 @@ msgid ""
 "Most lines of a merged subtitle; more are shown in windows, 0 for no limit "
 "(default 2)"
 msgstr ""
-"Yhdistetyn kappaleen rivien enimmäismäärä; ylimenevät näytetään ikkunoina, 0 "
-"= ei rajaa (oletus 2)"
+"Yhdistetyn kappaleen rivien enimmäismäärä; ylimenevät näytetään ikkunoina, 0"
+" = ei rajaa (oletus 2)"
 
 #: src/exe/cli/commands/disjoint.cpp src/exe/cli/commands/repair.cpp
 msgid "Put a dash before the text of each merged subtitle"
@@ -911,7 +923,8 @@ msgstr "Siivottavat tekstitystiedostot"
 
 #: src/exe/cli/commands/hearing_impaired.cpp
 msgid "Also remove the sounds between parentheses, often whispered lines"
-msgstr "Poista myös kaarisulkeissa olevat äänet, usein kuiskattuja repliikkejä"
+msgstr ""
+"Poista myös kaarisulkeissa olevat äänet, usein kuiskattuja repliikkejä"
 
 #: src/exe/cli/commands/inspect.cpp
 msgid "Report what a subtitle file is made of"
@@ -950,8 +963,8 @@ msgstr "Tekstitystiedostot, joiden toistot yhdistetään"
 #: src/exe/cli/commands/letter_case.cpp
 msgid "Put the texts in title, sentence, upper or lower case, tags intact"
 msgstr ""
-"Muunna tekstien kirjainkoko: Jokainen Sana Isolla, lauseen kirjainkoko, ISOT "
-"tai pienet kirjaimet, tagit ennallaan"
+"Muunna tekstien kirjainkoko: Jokainen Sana Isolla, lauseen kirjainkoko, ISOT"
+" tai pienet kirjaimet, tagit ennallaan"
 
 #: src/exe/cli/commands/letter_case.cpp
 msgid "The case to put the texts in"
@@ -975,7 +988,8 @@ msgstr ""
 
 #: src/exe/cli/commands/repair.cpp
 msgid ""
-"Join the repeated subtitles, put them in order, then make the ranges disjoint"
+"Join the repeated subtitles, put them in order, then make the ranges "
+"disjoint"
 msgstr ""
 "Yhdistä toistuvat kappaleet, järjestä ne ja poista aikavälien "
 "päällekkäisyydet"
@@ -1035,7 +1049,8 @@ msgid "Frame rate to align on: 25, 23.976"
 msgstr "Ruutunopeus, johon kohdistetaan: 25, 23.976"
 
 #: src/exe/cli/commands/sort.cpp
-msgid "Put the subtitles in the order of their start, keeping ties as they are"
+msgid ""
+"Put the subtitles in the order of their start, keeping ties as they are"
 msgstr "Järjestä kappaleet alkukohdan mukaan, tasatilanteet ennallaan"
 
 #: src/exe/cli/commands/sort.cpp
@@ -1081,8 +1096,8 @@ msgstr ""
 msgid ""
 "no destination given: split-file writes two files, use --head and --tail"
 msgstr ""
-"kohdetta ei annettu: split-file kirjoittaa kaksi tiedostoa, käytä valitsimia "
-"--head ja --tail"
+"kohdetta ei annettu: split-file kirjoittaa kaksi tiedostoa, käytä valitsimia"
+" --head ja --tail"
 
 #: src/exe/cli/commands/split_file.cpp
 msgid "--head and --tail go together: give both, or neither with --dry-run"
@@ -1146,16 +1161,26 @@ msgstr "Säilytä purettu ääni tässä tiedostossa"
 
 #: src/exe/cli/commands/sync.cpp
 msgid ""
-"Share of a subtitle's words that must be heard, in percent; the alignment."
-"min-match setting by default"
+"How the subtitles are put in line: speech (from when there is speech, "
+"whatever the language) or words (from the words heard); the alignment.method"
+" setting by default"
+msgstr ""
+"Miten tekstitykset kohdistetaan: speech (sen mukaan, missä puhutaan, millä "
+"kielellä tahansa) tai words (kuultujen sanojen mukaan); oletuksena asetus "
+"alignment.method"
+
+#: src/exe/cli/commands/sync.cpp
+msgid ""
+"Share of a subtitle's words that must be heard, in percent; the "
+"alignment.min-match setting by default"
 msgstr ""
 "Osuus tekstityksen sanoista, jotka on kuultava, prosentteina; oletuksena "
 "asetus alignment.min-match"
 
 #: src/exe/cli/commands/sync.cpp
 msgid ""
-"How far a subtitle may move from its neighbours' shift before it is flagged, "
-"in milliseconds; the alignment.doubt-gap setting by default"
+"How far a subtitle may move from its neighbours' shift before it is flagged,"
+" in milliseconds; the alignment.doubt-gap setting by default"
 msgstr ""
 "Kuinka paljon tekstityksen siirto saa poiketa naapureidensa siirrosta ennen "
 "kuin se merkitään, millisekunteina; oletuksena asetus alignment.doubt-gap"
@@ -1187,11 +1212,11 @@ msgstr "Videon ääniraita, laskettuna nollasta; oletuksena ensimmäinen"
 
 #: src/exe/cli/commands/transcribe.cpp
 msgid ""
-"Do not write sounds as notes, such as (phone ringing); the transcription."
-"suppress-notes setting by default"
+"Do not write sounds as notes, such as (phone ringing); the "
+"transcription.suppress-notes setting by default"
 msgstr ""
-"Älä kirjoita ääniä huomautuksina, esimerkiksi (puhelimen soitto); oletuksena "
-"asetus transcription.suppress-notes"
+"Älä kirjoita ääniä huomautuksina, esimerkiksi (puhelimen soitto); oletuksena"
+" asetus transcription.suppress-notes"
 
 #: src/exe/cli/commands/transcribe.cpp
 msgid "Write sounds as notes, against the setting"
@@ -1236,7 +1261,8 @@ msgstr "subedit-cli: %1"
 msgid "subedit-cli: unknown failure"
 msgstr "subedit-cli: tuntematon virhe"
 
-#. TRANSLATORS: %1 is what the user typed. « off » is a value of the option, as typed.
+#. TRANSLATORS: %1 is what the user typed. « off » is a value of the option,
+#. as typed.
 #: src/lib/subedit/cli/adjusting.cpp
 msgid ""
 "--speed: \"%1\" is not a reading speed: expected a number of characters per "
@@ -1245,9 +1271,11 @@ msgstr ""
 "--speed: ”%1” ei ole lukunopeus: odotettiin nollaa suurempaa merkkimäärää "
 "sekunnissa, kuten 15 tai 12.5, tai off"
 
-#. TRANSLATORS: %1 is an option, such as --minimum; %2 why its value does not read.
+#. TRANSLATORS: %1 is an option, such as --minimum; %2 why its value does not
+#. read.
 #. TRANSLATORS: %1 is the file, or what a message is about; %2 the message.
-#. TRANSLATORS: %1 is Undo or Redo, %2 the operation it undoes or redoes, such as shifting.
+#. TRANSLATORS: %1 is Undo or Redo, %2 the operation it undoes or redoes, such
+#. as shifting.
 #. TRANSLATORS: %1 is a file's path, %2 what went wrong with it.
 #: src/lib/subedit/cli/adjusting.cpp src/lib/subedit/cli/batch.cpp
 #: src/lib/subedit/cli/configuring.cpp src/lib/subedit/cli/conversion.cpp
@@ -1276,7 +1304,8 @@ msgstr "%1 ja %2 ovat ristiriidassa; anna vain toinen"
 #: src/lib/subedit/cli/adjusting.cpp
 msgid ""
 "--lengthen, --no-lengthen, --shorten and --no-shorten say which way the "
-"reading speed may move an end, and --speed off switches the reading speed off"
+"reading speed may move an end, and --speed off switches the reading speed "
+"off"
 msgstr ""
 "--lengthen, --no-lengthen, --shorten ja --no-shorten kertovat, mihin "
 "suuntaan lukunopeus saa siirtää loppua, ja --speed off poistaa lukunopeuden "
@@ -1305,7 +1334,8 @@ msgid_plural "%1 subtitles aligned on %2 fps, %3"
 msgstr[0] "%1 kappale kohdistettu, ruutunopeus %2 fps, %3"
 msgstr[1] "%1 kappaletta kohdistettu, ruutunopeus %2 fps, %3"
 
-#. TRANSLATORS: %1 is the file written, %2 a number of subtitles (« 12 subtitles »)
+#. TRANSLATORS: %1 is the file written, %2 a number of subtitles (« 12
+#. subtitles »)
 #. and %3 a number of files (« 3 files »).
 #: src/lib/subedit/cli/appending.cpp
 msgid "%1: %2 from %3"
@@ -1422,7 +1452,8 @@ msgid_plural "%1 of %2 files transformed"
 msgstr[0] "Muunnetut tiedostot: %1/%2"
 msgstr[1] "Muunnetut tiedostot: %1/%2"
 
-#. TRANSLATORS: %1 is the summary of a batch, such as « 1 of 3 files shifted »; %2
+#. TRANSLATORS: %1 is the summary of a batch, such as « 1 of 3 files shifted
+#. »; %2
 #. how many files of it failed.
 #: src/lib/subedit/cli/batch.cpp
 msgid "%1, %2 failed"
@@ -1505,8 +1536,8 @@ msgstr "%1 palautettu oletukseen (%2)"
 
 #: src/lib/subedit/cli/conversion.cpp
 msgid ""
-"writing frames needs a frame rate, and the positions fall on no grid to take "
-"one from — give --frame-rate"
+"writing frames needs a frame rate, and the positions fall on no grid to take"
+" one from — give --frame-rate"
 msgstr ""
 "ruutujen kirjoittaminen vaatii ruutunopeuden, eivätkä kohdat ole millään "
 "ruudukolla, josta sen voisi päätellä — anna --frame-rate"
@@ -1520,7 +1551,8 @@ msgstr "%1: ruutuina, ruutunopeus %2, ruudukko, jolla kohdat ovat"
 msgid "%1 has no byte order mark to write"
 msgstr "%1: ei kirjoitettavaa tavujärjestysmerkkiä"
 
-#. TRANSLATORS: %1 is a file, %2 and %3 numbers of bytes. English says « bytes »
+#. TRANSLATORS: %1 is a file, %2 and %3 numbers of bytes. English says « bytes
+#. »
 #. whatever the count; the form is chosen by %2.
 #: src/lib/subedit/cli/conversion.cpp src/lib/subedit/cli/writing.cpp
 msgid "%1: %2 bytes read, %3 would be written"
@@ -1541,7 +1573,8 @@ msgstr "%1: %2 -> %3, %4, rivinvaihdot %5"
 #: src/lib/subedit/cli/conversion.cpp
 msgid "%1: %2 subtitle converted to %3 (dry run, nothing written)"
 msgid_plural "%1: %2 subtitles converted to %3 (dry run, nothing written)"
-msgstr[0] "%1: %2 kappale muunnettu muotoon %3 (koeajo, mitään ei kirjoitettu)"
+msgstr[0] ""
+"%1: %2 kappale muunnettu muotoon %3 (koeajo, mitään ei kirjoitettu)"
 msgstr[1] ""
 "%1: %2 kappaletta muunnettu muotoon %3 (koeajo, mitään ei kirjoitettu)"
 
@@ -1563,7 +1596,8 @@ msgstr ""
 "--in-place ei voi muuttaa muotoa: tiedostolle jäisi nimi, joka ei enää "
 "vastaa sen sisältöä"
 
-#. TRANSLATORS: %1 is --enable or --disable, %2 what the user typed, %3 a pattern code.
+#. TRANSLATORS: %1 is --enable or --disable, %2 what the user typed, %3 a
+#. pattern code.
 #: src/lib/subedit/cli/correcting.cpp
 msgid "%1: \"%2\" names no pattern of the tasks given, under the code %3"
 msgstr "%1: ”%2” ei nimeä yhtään annettujen tehtävien lauseketta koodilla %3"
@@ -1578,7 +1612,8 @@ msgstr ""
 "%1: ”%2” nimeää usean tyypin lausekkeita: kirjoita type:name, jossa tyyppi "
 "on common-error, capitalization, hearing-impaired tai line-break"
 
-#. TRANSLATORS: %1 is the name of a pattern, %2 why it gave up, %3 a subtitle number.
+#. TRANSLATORS: %1 is the name of a pattern, %2 why it gave up, %3 a subtitle
+#. number.
 #: src/lib/subedit/cli/correcting.cpp
 msgid "pattern \"%1\" (%2) was not applied to subtitle %3"
 msgstr "lauseketta ”%1” (%2) ei käytetty kappaleeseen %3"
@@ -1622,8 +1657,8 @@ msgstr "--classes: ”%1” ei ole luokka: odotettiin human, ocr tai human,ocr"
 
 #: src/lib/subedit/cli/correcting.cpp
 msgid ""
-"--language is for the tasks join-words and split-words, which were not asked "
-"for"
+"--language is for the tasks join-words and split-words, which were not asked"
+" for"
 msgstr "--language on tehtäville join-words ja split-words, joita ei pyydetty"
 
 #. TRANSLATORS: %1 is the list of tasks the user gave.
@@ -1634,8 +1669,8 @@ msgstr "--language vaaditaan sanoja tarkistaville tehtäville: %1"
 #. TRANSLATORS: %1 is what the user typed.
 #: src/lib/subedit/cli/correcting.cpp
 msgid ""
-"--language: \"%1\" is not a language: expected a locale code, like fr, en_US "
-"or sr@Latn"
+"--language: \"%1\" is not a language: expected a locale code, like fr, en_US"
+" or sr@Latn"
 msgstr ""
 "--language: ”%1” ei ole kieli: odotettiin maa-asetuksen koodia, kuten fr, "
 "en_US tai sr@Latn"
@@ -1671,7 +1706,8 @@ msgid ""
 "--max-lines: \"%1\" is not a number of lines: expected a whole number "
 "greater than zero"
 msgstr ""
-"--max-lines: ”%1” ei ole rivimäärä: odotettiin nollaa suurempaa kokonaislukua"
+"--max-lines: ”%1” ei ole rivimäärä: odotettiin nollaa suurempaa "
+"kokonaislukua"
 
 #: src/lib/subedit/cli/correcting.cpp
 msgid ""
@@ -1689,10 +1725,11 @@ msgstr ""
 
 #. TRANSLATORS: %1 is a task, as typed; %2 a pattern code.
 #: src/lib/subedit/cli/correcting.cpp
-msgid "%1: no pattern is active under the code %2; switch one on with --enable"
+msgid ""
+"%1: no pattern is active under the code %2; switch one on with --enable"
 msgstr ""
-"%1: koodilla %2 ei ole yhtään käytössä olevaa lauseketta; ota jokin käyttöön "
-"valitsimella --enable"
+"%1: koodilla %2 ei ole yhtään käytössä olevaa lauseketta; ota jokin käyttöön"
+" valitsimella --enable"
 
 #: src/lib/subedit/cli/correcting.cpp
 msgid "patterns: %1"
@@ -1742,13 +1779,15 @@ msgstr "%1, %2"
 msgid "line %1: %2, %3"
 msgstr "rivi %1: %2, %3"
 
-#. TRANSLATORS: %1 is what a reading met, %2 an excerpt of the file, %3 how serious
+#. TRANSLATORS: %1 is what a reading met, %2 an excerpt of the file, %3 how
+#. serious
 #. it is.
 #: src/lib/subedit/cli/diagnostics.cpp
 msgid "%1 (\"%2\"), %3"
 msgstr "%1 (”%2”), %3"
 
-#. TRANSLATORS: %1 is a line number, %2 what a reading met on it, %3 an excerpt
+#. TRANSLATORS: %1 is a line number, %2 what a reading met on it, %3 an
+#. excerpt
 #. of the file, %4 how serious it is.
 #: src/lib/subedit/cli/diagnostics.cpp
 msgid "line %1: %2 (\"%3\"), %4"
@@ -1771,8 +1810,8 @@ msgstr "--minimum: ”%1” ei ole kesto, joka on nolla tai enemmän"
 #. TRANSLATORS: %1 is what the user typed.
 #: src/lib/subedit/cli/disjoining.cpp
 msgid ""
-"--max-lines: \"%1\" is not a number of lines: expected a whole number, 0 for "
-"no limit"
+"--max-lines: \"%1\" is not a number of lines: expected a whole number, 0 for"
+" no limit"
 msgstr ""
 "--max-lines: ”%1” ei ole rivimäärä: odotettiin kokonaislukua, 0 = ei rajaa"
 
@@ -1789,7 +1828,8 @@ msgstr "%1: ei sisällä yhtään tiedostoa muodossa, jota tämä työkalu etsii
 #: src/lib/subedit/cli/expansion.cpp
 msgid "%1: %2 file left aside, with no extension of a known format"
 msgid_plural "%1: %2 files left aside, with no extension of a known format"
-msgstr[0] "%1: %2 tiedosto jätetty sivuun, ei tunnetun muodon tiedostopäätettä"
+msgstr[0] ""
+"%1: %2 tiedosto jätetty sivuun, ei tunnetun muodon tiedostopäätettä"
 msgstr[1] ""
 "%1: %2 tiedostoa jätetty sivuun, ei tunnetun muodon tiedostopäätettä"
 
@@ -1879,7 +1919,8 @@ msgstr ""
 msgid "it ends before it starts"
 msgstr "se päättyy ennen kuin alkaa"
 
-#. TRANSLATORS: %1 is the range typed, %2 how many subtitles the file has. English
+#. TRANSLATORS: %1 is the range typed, %2 how many subtitles the file has.
+#. English
 #. writes the number alone; the form is chosen by %2.
 #: src/lib/subedit/cli/index_grammar.cpp
 msgid "range %1 starts after the last subtitle: the file has %2"
@@ -1898,7 +1939,8 @@ msgstr[0] ""
 msgstr[1] ""
 "väli %1 päättyy viimeisen kappaleen jälkeen: kappaleita tiedostossa: %2"
 
-#. TRANSLATORS: %1 is a kind of line ending, %2 the line where another kind starts.
+#. TRANSLATORS: %1 is a kind of line ending, %2 the line where another kind
+#. starts.
 #: src/lib/subedit/cli/inspection.cpp
 msgid "%1, mixed from line %2"
 msgstr "%1, sekoitettu riviltä %2 alkaen"
@@ -1935,7 +1977,8 @@ msgstr "ruutunopeuden ruudukko: %1 (liian vähän kappaleita päättelyyn)"
 msgid "frame rate grid: %1 (best candidate at %2)"
 msgstr "ruutunopeuden ruudukko: %1 (paras ehdokas: %2)"
 
-#. TRANSLATORS: %1 is a frame rate, %2 the verdict on the grid, %3 a percentage.
+#. TRANSLATORS: %1 is a frame rate, %2 the verdict on the grid, %3 a
+#. percentage.
 #: src/lib/subedit/cli/inspection.cpp
 msgid "frame rate grid: %1 fps, %2 (%3)"
 msgstr "ruutunopeuden ruudukko: %1 fps, %2 (%3)"
@@ -1969,7 +2012,8 @@ msgid_plural "off the grid: %1 of %2 starts, in %3"
 msgstr[0] "ruudukon ulkopuolella: alkukohtia %1/%2, %3"
 msgstr[1] "ruudukon ulkopuolella: alkukohtia %1/%2, %3"
 
-#: src/lib/subedit/cli/inspection.cpp src/lib/subedit/core/wording/analysis.cpp
+#: src/lib/subedit/cli/inspection.cpp
+#: src/lib/subedit/core/wording/analysis.cpp
 msgid "none"
 msgstr "ei mitään"
 
@@ -2179,7 +2223,8 @@ msgstr "%1 -> %2, %3"
 #: src/lib/subedit/cli/syncing.cpp
 msgid "--report names one file: give one subtitle file when you use it"
 msgstr ""
-"--report nimeää yhden tiedoston: anna yksi tekstitystiedosto, kun käytät sitä"
+"--report nimeää yhden tiedoston: anna yksi tekstitystiedosto, kun käytät "
+"sitä"
 
 #: src/lib/subedit/cli/text_rewriting.cpp
 msgid "--on and --off say opposite things; give one of them"
@@ -2237,8 +2282,8 @@ msgstr[1] "kappale %1 on lopun jälkeen: tiedostossa on %2 kappaletta"
 #. TRANSLATORS: %1 is a subtitle number.
 #: src/lib/subedit/cli/transforming.cpp
 msgid ""
-"--first and --last both name subtitle %1, and two references on one subtitle "
-"define no transform"
+"--first and --last both name subtitle %1, and two references on one subtitle"
+" define no transform"
 msgstr ""
 "--first ja --last nimeävät molemmat kappaleen %1, eivätkä kaksi viitekohtaa "
 "samassa kappaleessa määritä muunnosta"
@@ -2247,7 +2292,8 @@ msgstr ""
 msgid ""
 "subtitles %1 and %2 start at the same moment, so they define no transform"
 msgstr ""
-"kappaleet %1 ja %2 alkavat samalla hetkellä, joten ne eivät määritä muunnosta"
+"kappaleet %1 ja %2 alkavat samalla hetkellä, joten ne eivät määritä "
+"muunnosta"
 
 #: src/lib/subedit/cli/transforming.cpp
 msgid ""
@@ -2256,7 +2302,8 @@ msgstr ""
 "kappale %1 joutuisi ennen nollakohtaa, mitä mikään tekstitystiedosto ei voi "
 "sisältää"
 
-#. TRANSLATORS: %1 subtitles were transformed; %2 and %3 are the two references, as
+#. TRANSLATORS: %1 subtitles were transformed; %2 and %3 are the two
+#. references, as
 #. typed: 1=00:00:01.000.
 #: src/lib/subedit/cli/transforming.cpp
 msgid "%1 subtitle transformed onto %2 and %3"
@@ -2282,8 +2329,8 @@ msgstr "kokonaisluku millisekunteja, 0 tai enemmän"
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid ""
-"a pattern code, Script[-language[-COUNTRY]], not empty: Zyyy, Latn, Latn-en, "
-"Latn-en-US"
+"a pattern code, Script[-language[-COUNTRY]], not empty: Zyyy, Latn, Latn-en,"
+" Latn-en-US"
 msgstr ""
 "lausekekoodi, Script[-language[-COUNTRY]], ei tyhjä: Zyyy, Latn, Latn-en, "
 "Latn-en-US"
@@ -2327,6 +2374,10 @@ msgid "subedit-cli sync; Synchronize with Audio…"
 msgstr "subedit-cli sync; Synkronoi äänen kanssa…"
 
 #: src/lib/subedit/core/config/operation_settings.cpp
+msgid "speech or words"
+msgstr "speech tai words"
+
+#: src/lib/subedit/core/config/operation_settings.cpp
 msgid "a whole number from 1 to 100"
 msgstr "kokonaisluku väliltä 1-100"
 
@@ -2341,44 +2392,44 @@ msgstr "subedit-cli correct; Korjaa tekstejä…"
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "Correct Texts… (window only; correct takes --tasks instead)"
 msgstr ""
-"Korjaa tekstejä… (vain ikkunassa; correct käyttää sen sijaan valitsinta --"
-"tasks)"
+"Korjaa tekstejä… (vain ikkunassa; correct käyttää sen sijaan valitsinta "
+"--tasks)"
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "Correct Texts… (window only; correct takes --code instead)"
 msgstr ""
-"Korjaa tekstejä… (vain ikkunassa; correct käyttää sen sijaan valitsinta --"
-"code)"
+"Korjaa tekstejä… (vain ikkunassa; correct käyttää sen sijaan valitsinta "
+"--code)"
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "Correct Texts… (window only; correct takes --enable/--disable instead)"
 msgstr ""
-"Korjaa tekstejä… (vain ikkunassa; correct käyttää sen sijaan valitsimia --"
-"enable/--disable)"
+"Korjaa tekstejä… (vain ikkunassa; correct käyttää sen sijaan valitsimia "
+"--enable/--disable)"
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "Correct Texts… (window only; correct takes --max-length instead)"
 msgstr ""
-"Korjaa tekstejä… (vain ikkunassa; correct käyttää sen sijaan valitsinta --"
-"max-length)"
+"Korjaa tekstejä… (vain ikkunassa; correct käyttää sen sijaan valitsinta "
+"--max-length)"
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "Correct Texts… (window only; correct takes --skip-length instead)"
 msgstr ""
-"Korjaa tekstejä… (vain ikkunassa; correct käyttää sen sijaan valitsinta --"
-"skip-length)"
+"Korjaa tekstejä… (vain ikkunassa; correct käyttää sen sijaan valitsinta "
+"--skip-length)"
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "Correct Texts… (window only; correct takes --skip-lines instead)"
 msgstr ""
-"Korjaa tekstejä… (vain ikkunassa; correct käyttää sen sijaan valitsinta --"
-"skip-lines)"
+"Korjaa tekstejä… (vain ikkunassa; correct käyttää sen sijaan valitsinta "
+"--skip-lines)"
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "Correct Texts… (window only; correct takes --language instead)"
 msgstr ""
-"Korjaa tekstejä… (vain ikkunassa; correct käyttää sen sijaan valitsinta --"
-"language)"
+"Korjaa tekstejä… (vain ikkunassa; correct käyttää sen sijaan valitsinta "
+"--language)"
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "Reading speed the durations are brought to."
@@ -2467,15 +2518,17 @@ msgstr ""
 "Käsitteleekö ikkunan kuulovammaisten tehtävä hakasulkeissa olevaa tekstiä."
 
 #: src/lib/subedit/core/config/operation_settings.cpp
-msgid "Whether the window's hearing-impaired task acts on text in parentheses."
-msgstr "Käsitteleekö ikkunan kuulovammaisten tehtävä sulkeissa olevaa tekstiä."
+msgid ""
+"Whether the window's hearing-impaired task acts on text in parentheses."
+msgstr ""
+"Käsitteleekö ikkunan kuulovammaisten tehtävä sulkeissa olevaa tekstiä."
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid ""
 "Longest line the window's line-break task aims at, in the unit in-ems names."
 msgstr ""
-"Pisin rivi, jota ikkunan rivinkatkaisutehtävä tavoittelee, valitsimen in-ems "
-"nimeämässä yksikössä."
+"Pisin rivi, jota ikkunan rivinkatkaisutehtävä tavoittelee, valitsimen in-ems"
+" nimeämässä yksikössä."
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "Most lines a subtitle is broken into."
@@ -2487,8 +2540,8 @@ msgstr "Mittaako ikkuna rivit em-yksiköinä merkkien sijaan."
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid ""
-"Whether the window's line-break task leaves alone a subtitle whose lines are "
-"short enough."
+"Whether the window's line-break task leaves alone a subtitle whose lines are"
+" short enough."
 msgstr ""
 "Jättääkö ikkunan rivinkatkaisutehtävä rauhaan kappaleen, jonka rivit ovat "
 "riittävän lyhyitä."
@@ -2503,8 +2556,8 @@ msgstr ""
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid ""
-"Whether the window's line-break task leaves alone a subtitle with few enough "
-"lines."
+"Whether the window's line-break task leaves alone a subtitle with few enough"
+" lines."
 msgstr ""
 "Jättääkö ikkunan rivinkatkaisutehtävä rauhaan kappaleen, jossa on riittävän "
 "vähän rivejä."
@@ -2537,11 +2590,12 @@ msgstr ""
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid ""
-"a locale code, two lower-case letters, then optionally _ and two upper-case, "
-"then optionally @ and a script: fr, en_US, sr@Latn"
+"a locale code, two lower-case letters, then optionally _ and two upper-case,"
+" then optionally @ and a script: fr, en_US, sr@Latn"
 msgstr ""
-"kielialuekoodi: kaksi pientä kirjainta, sitten valinnaisesti _ ja kaksi isoa "
-"kirjainta, sitten valinnaisesti @ ja kirjoitusjärjestelmä: fr, en_US, sr@Latn"
+"kielialuekoodi: kaksi pientä kirjainta, sitten valinnaisesti _ ja kaksi isoa"
+" kirjainta, sitten valinnaisesti @ ja kirjoitusjärjestelmä: fr, en_US, "
+"sr@Latn"
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid ""
@@ -2591,6 +2645,14 @@ msgid "The engine that aligns the subtitles on the audio."
 msgstr "Moottori, joka kohdistaa tekstitykset ääneen."
 
 #: src/lib/subedit/core/config/operation_settings.cpp
+msgid ""
+"How the subtitles are laid on the audio: by when there is speech, or by the "
+"words heard."
+msgstr ""
+"Miten tekstitykset asetetaan äänen päälle: sen mukaan, missä puhutaan, tai "
+"kuultujen sanojen mukaan."
+
+#: src/lib/subedit/core/config/operation_settings.cpp
 msgid "Share of a line's words that must be heard, in percent."
 msgstr "Osuus rivin sanoista, jotka on kuultava, prosentteina."
 
@@ -2601,8 +2663,8 @@ msgstr "Kuinka paljon rivin siirto saa poiketa naapureidensa siirrosta."
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "%1 is managed by the window; use --enable/--disable on correct"
 msgstr ""
-"%1 on ikkunan hallinnoima; käytä correct-komennolla valitsimia --enable/--"
-"disable"
+"%1 on ikkunan hallinnoima; käytä correct-komennolla valitsimia "
+"--enable/--disable"
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "%1 is a display preference; set it in the window"
@@ -2615,8 +2677,8 @@ msgstr "tuntematon asetus %1; subedit-cli config list luettelee ne"
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "cannot read '%1' for %2; subedit-cli config list says what it accepts"
 msgstr ""
-"arvoa ”%1” ei voi lukea asetukselle %2; subedit-cli config list kertoo, mitä "
-"se hyväksyy"
+"arvoa ”%1” ei voi lukea asetukselle %2; subedit-cli config list kertoo, mitä"
+" se hyväksyy"
 
 #: src/lib/subedit/core/format/lrc_reader.cpp
 #: src/lib/subedit/core/format/tm_player_reader.cpp
@@ -2713,9 +2775,11 @@ msgid "an unterminated group name"
 msgstr "päättämätön ryhmän nimi"
 
 #: src/lib/subedit/core/text/python_regex_syntax.cpp
-msgid "the group name '%1' is not letters and digits, which is all ICU accepts"
+msgid ""
+"the group name '%1' is not letters and digits, which is all ICU accepts"
 msgstr ""
-"ryhmän nimi ”%1” ei koostu kirjaimista ja numeroista, mitä ICU yksin hyväksyy"
+"ryhmän nimi ”%1” ei koostu kirjaimista ja numeroista, mitä ICU yksin "
+"hyväksyy"
 
 #: src/lib/subedit/core/text/python_regex_syntax.cpp
 msgid "a backslash ends the expression"
@@ -2775,12 +2839,56 @@ msgstr[1] ""
 "yhtäkään %1 tekstityksestä ei löytynyt äänestä: onko ääni ja kieli oikea?"
 
 #: src/lib/subedit/core/wording/alignment.cpp
+msgid ""
+"Finding where there is speech needs a voice-activity model: name one in the "
+"transcription.vad-model setting."
+msgstr ""
+"Sen löytäminen, missä puhutaan, vaatii puheaktiivisuusmallin: nimeä "
+"sellainen asetuksessa transcription.vad-model."
+
+#: src/lib/subedit/core/wording/alignment.cpp
+msgid ""
+"Finding where there is speech needs the program whisper-vad-speech-segments,"
+" which comes with whisper.cpp, and it was not found."
+msgstr ""
+"Sen löytäminen, missä puhutaan, vaatii ohjelman whisper-vad-speech-segments,"
+" joka tulee whisper.cpp:n mukana, eikä sitä löytynyt."
+
+#: src/lib/subedit/core/wording/alignment.cpp
+msgid ""
+"The sound and the subtitles have too little in common to be put in line: is "
+"it the right film?"
+msgstr ""
+"Ääni ja tekstitykset muistuttavat toisiaan liian vähän, jotta ne voitaisiin "
+"kohdistaa: onko elokuva oikea?"
+
+#: src/lib/subedit/core/wording/alignment.cpp
+msgid ""
+"Only the file as a whole was put in line with the speech, not each subtitle:"
+" one that is out of place by itself, or a title shown over a silence, may "
+"still be wrong. Check the result."
+msgstr ""
+"Vain tiedosto kokonaisuutena kohdistettiin puheeseen, ei jokaista "
+"tekstitystä erikseen: tekstitys, joka on yksinään väärässä paikassa, tai "
+"hiljaisuuden päällä näytetty teksti voi yhä olla väärin. Tarkista tulos."
+
+#: src/lib/subedit/core/wording/alignment.cpp
+msgid ""
+"The frame rate of the file was put right: its times were divided by %1."
+msgstr "Tiedoston ruutunopeus korjattiin: sen ajat jaettiin luvulla %1."
+
+#: src/lib/subedit/core/wording/alignment.cpp
+msgid "The method based on speech does not depend on the language."
+msgstr "Puheeseen perustuva menetelmä ei riipu kielestä."
+
+#: src/lib/subedit/core/wording/alignment.cpp
 msgid "%1 of %2 subtitle placed on the audio, %3 to check"
 msgid_plural "%1 of %2 subtitles placed on the audio, %3 to check"
 msgstr[0] "%1/%2 tekstitys sijoitettu ääneen, %3 tarkistettavaa"
 msgstr[1] "%1/%2 tekstitystä sijoitettu ääneen, %3 tarkistettavaa"
 
-#. TRANSLATORS: %1 is a sentence, such as « 40 of 42 subtitles placed on the audio, 2 to
+#. TRANSLATORS: %1 is a sentence, such as « 40 of 42 subtitles placed on the
+#. audio, 2 to
 #. check »; %2 and %3 are lengths in seconds, such as « -2.400 s ».
 #: src/lib/subedit/core/wording/alignment.cpp
 msgid "%1; median shift %2, drift %3"
@@ -2877,7 +2985,8 @@ msgstr "merkistökoodaus, jota mikään ei ilmoittanut"
 #: src/lib/subedit/core/wording/analysis.cpp
 msgid "a byte order mark that contradicts the encoding asked for"
 msgstr ""
-"tavujärjestysmerkki, joka on ristiriidassa pyydetyn merkistökoodauksen kanssa"
+"tavujärjestysmerkki, joka on ristiriidassa pyydetyn merkistökoodauksen "
+"kanssa"
 
 #: src/lib/subedit/core/wording/analysis.cpp
 msgid "left as it stands"
@@ -3320,8 +3429,8 @@ msgid ""
 "%1 of %2 subtitle aligned to %3 fps; the document is still read on a %4 fps "
 "grid"
 msgid_plural ""
-"%1 of %2 subtitles aligned to %3 fps; the document is still read on a %4 fps "
-"grid"
+"%1 of %2 subtitles aligned to %3 fps; the document is still read on a %4 fps"
+" grid"
 msgstr[0] ""
 "Kohdistetut kappaleet: %1/%2, ruutunopeus %3 fps; asiakirjaa luetaan yhä "
 "ruudukolla %4 fps"
@@ -3449,8 +3558,8 @@ msgstr "merkistökoodausta nimeltä ”%1” ei ole"
 #. TRANSLATORS: %1 is the name the user gave for an encoding.
 #: src/lib/subedit/core/wording/formats.cpp
 msgid ""
-"\"%1\" writes a byte order mark of its own; name the byte order, as UTF-16LE "
-"and UTF-16BE do"
+"\"%1\" writes a byte order mark of its own; name the byte order, as UTF-16LE"
+" and UTF-16BE do"
 msgstr ""
 "”%1” kirjoittaa oman tavujärjestysmerkkinsä; nimeä tavujärjestys, kuten "
 "UTF-16LE ja UTF-16BE tekevät"
@@ -3660,8 +3769,7 @@ msgstr[1] ""
 "%1 tekstitystä säilytetty osittaisesta litteroinnista, kohtaan %2 asti"
 
 #: src/lib/subedit/core/wording/transcription.cpp
-msgid ""
-"\"%1\" is not a time: write it as 2:00, 1:02:03 or 2:00.5, or in seconds"
+msgid "\"%1\" is not a time: write it as 2:00, 1:02:03 or 2:00.5, or in seconds"
 msgstr ""
 "”%1” ei ole aika: kirjoita se muodossa 2:00, 1:02:03 tai 2:00.5 tai "
 "sekunteina"
@@ -3669,8 +3777,8 @@ msgstr ""
 #: src/lib/subedit/core/wording/transcription.cpp
 msgid ""
 "This model is for English only: whatever language the film speaks, the "
-"result will be English, or notes in brackets. Choose a multilingual model in "
-"the preferences."
+"result will be English, or notes in brackets. Choose a multilingual model in"
+" the preferences."
 msgstr ""
 "Tämä malli on tarkoitettu vain englannille: riippumatta elokuvan puhumasta "
 "kielestä tulos on englantia tai hakasulkeissa olevia merkintöjä. Valitse "
@@ -3689,8 +3797,7 @@ msgid "the voice-activity model %1 does not exist"
 msgstr "puheaktiivisuusmallia %1 ei ole olemassa"
 
 #: src/lib/subedit/core/wording/transcription.cpp
-msgid ""
-"\"%1\" is not a language code: write two letters, such as fr, en, de or es"
+msgid "\"%1\" is not a language code: write two letters, such as fr, en, de or es"
 msgstr ""
 "”%1” ei ole kielikoodi: kirjoita kaksi kirjainta, kuten fr, en, de tai es"
 
@@ -3745,6 +3852,7 @@ msgid "ffmpeg: found"
 msgstr "ffmpeg: löytyi"
 
 #: src/lib/subedit/core/wording/transcription.cpp
+#: src/lib/subedit/gui/transcribe_dialog.cpp
 msgid "ffmpeg: not found"
 msgstr "ffmpeg: ei löytynyt"
 
@@ -3812,11 +3920,11 @@ msgid ""
 "the lines sit %1 later than the subtitles; moved back, %2 line would attach "
 "instead of %3"
 msgid_plural ""
-"the lines sit %1 later than the subtitles; moved back, %2 lines would attach "
-"instead of %3"
+"the lines sit %1 later than the subtitles; moved back, %2 lines would attach"
+" instead of %3"
 msgstr[0] ""
-"rivit ovat %1 kappaleita myöhemmin; taaksepäin siirrettynä liittyisi %2 rivi "
-"(nyt %3)"
+"rivit ovat %1 kappaleita myöhemmin; taaksepäin siirrettynä liittyisi %2 rivi"
+" (nyt %3)"
 msgstr[1] ""
 "rivit ovat %1 kappaleita myöhemmin; taaksepäin siirrettynä liittyisi %2 "
 "riviä (nyt %3)"
@@ -3839,13 +3947,15 @@ msgstr[1] ""
 msgid "the file is already open as the main document"
 msgstr "tiedosto on jo avoinna pääasiakirjana"
 
-#. TRANSLATORS: %1 is the version of a library the program runs against, %2 the version it
+#. TRANSLATORS: %1 is the version of a library the program runs against, %2
+#. the version it
 #. was compiled with — « 74.2 (built with 74.2) ».
 #: src/lib/subedit/core/wording/version.cpp
 msgid "%1 (built with %2)"
 msgstr "%1 (käännetty versiolla %2)"
 
-#. TRANSLATORS: %1 is the list of the interface languages installed, by code — « en, fr ».
+#. TRANSLATORS: %1 is the list of the interface languages installed, by code —
+#. « en, fr ».
 #: src/lib/subedit/core/wording/version.cpp
 msgid "Languages: %1"
 msgstr "Kielet: %1"
@@ -3879,8 +3989,8 @@ msgstr "Kohdat ovat ruutujen numeroita, ruutunopeus %1 fps, %2"
 #: src/lib/subedit/core/wording/video.cpp
 msgid ""
 "no frame rate to count a frame by: the video declares none, the file is not "
-"counted in frames, and its positions fall on no grid. Associate a video that "
-"declares one."
+"counted in frames, and its positions fall on no grid. Associate a video that"
+" declares one."
 msgstr ""
 "ei ruutunopeutta, jolla ruutuja laskea: video ei ilmoita sitä, tiedostoa ei "
 "ole ajoitettu ruutuina eivätkä sen kohdat ole millään ruudukolla. Liitä "
@@ -3912,26 +4022,31 @@ msgstr "Lisensoitu GPL:n version 3 tai myöhemmän ehdoin."
 msgid "About subedit"
 msgstr "Tietoja subeditistä"
 
-#. TRANSLATORS: the heading of the column of the libraries' names, in « About subedit ».
+#. TRANSLATORS: the heading of the column of the libraries' names, in « About
+#. subedit ».
 #: src/lib/subedit/gui/about_dialog.cpp
 msgid "Library"
 msgstr "Kirjasto"
 
-#. TRANSLATORS: the heading of the version of a library the program runs against.
+#. TRANSLATORS: the heading of the version of a library the program runs
+#. against.
 #: src/lib/subedit/gui/about_dialog.cpp
 msgid "Loaded"
 msgstr "Ladattu"
 
-#. TRANSLATORS: the heading of the version of a library the program was compiled with.
+#. TRANSLATORS: the heading of the version of a library the program was
+#. compiled with.
 #: src/lib/subedit/gui/about_dialog.cpp
 msgid "Built with"
 msgstr "Käännetty versiolla"
 
-#: src/lib/subedit/gui/command_label.cpp src/lib/subedit/gui/window_actions.cpp
+#: src/lib/subedit/gui/command_label.cpp
+#: src/lib/subedit/gui/window_actions.cpp
 msgid "Undo"
 msgstr "Kumoa"
 
-#: src/lib/subedit/gui/command_label.cpp src/lib/subedit/gui/window_actions.cpp
+#: src/lib/subedit/gui/command_label.cpp
+#: src/lib/subedit/gui/window_actions.cpp
 msgid "Redo"
 msgstr "Tee uudelleen"
 
@@ -4146,7 +4261,8 @@ msgstr "Poista aikavälien päällekkäisyydet"
 msgid "Repair subtitles"
 msgstr "Korjaa kappaleet"
 
-#. TRANSLATORS: the unit after the number of a spin box, with its space: « 50 ms ».
+#. TRANSLATORS: the unit after the number of a spin box, with its space: « 50
+#. ms ».
 #: src/lib/subedit/gui/disjoint_dialog.cpp
 #: src/lib/subedit/gui/transcription_preview_dialog.cpp
 msgid " ms"
@@ -4154,8 +4270,8 @@ msgstr " ms"
 
 #: src/lib/subedit/gui/disjoint_dialog.cpp
 msgid ""
-"An interval shorter than this is taken over by a neighbour. Zero keeps every "
-"interval."
+"An interval shorter than this is taken over by a neighbour. Zero keeps every"
+" interval."
 msgstr ""
 "Tätä lyhyemmän aikavälin ottaa naapuri. Nolla säilyttää kaikki aikavälit."
 
@@ -4185,9 +4301,9 @@ msgstr ""
 
 #: src/lib/subedit/gui/disjoint_dialog.cpp
 msgid ""
-"Overlapping subtitles are cut where they overlap, and what shows together is "
-"merged line by line, the earliest first. Nothing is shortened or lengthened. "
-"Each change can be undone."
+"Overlapping subtitles are cut where they overlap, and what shows together is"
+" merged line by line, the earliest first. Nothing is shortened or "
+"lengthened. Each change can be undone."
 msgstr ""
 "Päällekkäiset kappaleet leikataan päällekkäisyyden kohdalta, ja yhtä aikaa "
 "näkyvät yhdistetään rivi riviltä aikaisin ensin. Mitään ei lyhennetä eikä "
@@ -4246,8 +4362,8 @@ msgstr "Tiedostosta löytyneet ongelmat"
 
 #: src/lib/subedit/gui/fixes_proposal_dialog.cpp
 msgid ""
-"Opening this file found something that can be put right. Each correction can "
-"be undone."
+"Opening this file found something that can be put right. Each correction can"
+" be undone."
 msgstr ""
 "Tiedostoa avattaessa löytyi jotain, minkä voi korjata. Jokaisen korjauksen "
 "voi kumota."
@@ -4287,8 +4403,8 @@ msgstr[0] ""
 "Poista aikavälien päällekkäisyydet: %1 kappale alkaa ennen kuin edellinen "
 "päättyy"
 msgstr[1] ""
-"Poista aikavälien päällekkäisyydet: %1 kappaletta alkaa ennen kuin edellinen "
-"päättyy"
+"Poista aikavälien päällekkäisyydet: %1 kappaletta alkaa ennen kuin edellinen"
+" päättyy"
 
 #: src/lib/subedit/gui/frame_rate_dialog.cpp
 msgid "Convert frame rate"
@@ -4314,7 +4430,8 @@ msgstr "Videon ilmoittama"
 msgid "The file was read at"
 msgstr "Tiedosto luettiin nopeudella"
 
-#. TRANSLATORS: %1 is the number of subtitles the file has, too few to measure.
+#. TRANSLATORS: %1 is the number of subtitles the file has, too few to
+#. measure.
 #: src/lib/subedit/gui/grid_analysis_dialog.cpp
 msgid "Too few subtitles to tell: %1 of them."
 msgstr "Liian vähän kappaleita päättelyyn: %1."
@@ -4328,12 +4445,14 @@ msgstr ""
 "Mikään ruutunopeuden ruudukko ei selitä näitä kohtia. Lähimmän ehdokkaan "
 "osuvuus: %1."
 
-#. TRANSLATORS: %1 is a frame rate, %2 how clean the grid is (« clean »), %3 a share.
+#. TRANSLATORS: %1 is a frame rate, %2 how clean the grid is (« clean »), %3 a
+#. share.
 #: src/lib/subedit/gui/grid_analysis_dialog.cpp
 msgid "Written on a %1 fps grid — %2, %3."
 msgstr "Kirjoitettu ruudukolle %1 fps — %2, %3."
 
-#. TRANSLATORS: %1 is a number of subtitle starts, %2 a length of time, « 1:32:05 ».
+#. TRANSLATORS: %1 is a number of subtitle starts, %2 a length of time, «
+#. 1:32:05 ».
 #: src/lib/subedit/gui/grid_analysis_dialog.cpp
 msgid "Measured on %1 start, over %2."
 msgid_plural "Measured on %1 starts, over %2."
@@ -4425,7 +4544,8 @@ msgstr "Jaa sanoja"
 msgid "Language:"
 msgstr "Kieli:"
 
-#. TRANSLATORS: %1 is the name of the file; `[*]` is where Qt puts the mark of unsaved
+#. TRANSLATORS: %1 is the name of the file; `[*]` is where Qt puts the mark of
+#. unsaved
 #. changes, and stays as it is.
 #: src/lib/subedit/gui/main_window.cpp
 msgid "%1[*] — subedit"
@@ -4478,7 +4598,8 @@ msgstr "%1: ei voitu lukea."
 #. TRANSLATORS: %1 is the path a link of the manual names.
 #: src/lib/subedit/gui/manual_window.cpp
 msgid ""
-"%1 is not part of the installed manual; it lives in the project's repository."
+"%1 is not part of the installed manual; it lives in the project's "
+"repository."
 msgstr ""
 "%1 ei kuulu asennettuun käyttöoppaaseen; se on projektin tietovarastossa."
 
@@ -4497,7 +4618,8 @@ msgstr "Miten tiedoston %1 rivit kohdistetaan kappaleisiin?"
 
 #: src/lib/subedit/gui/open_translation_dialog.cpp
 msgid "By position — each line goes to the subtitle it falls in"
-msgstr "Kohdan mukaan — jokainen rivi menee kappaleeseen, jonka aikaan se osuu"
+msgstr ""
+"Kohdan mukaan — jokainen rivi menee kappaleeseen, jonka aikaan se osuu"
 
 #: src/lib/subedit/gui/open_translation_dialog.cpp
 msgid "By number — the nth line goes to the nth subtitle"
@@ -4571,7 +4693,8 @@ msgstr "Tauko"
 msgid "Play"
 msgstr "Toista"
 
-#. TRANSLATORS: the interface language that follows the environment, LANGUAGE and LANG.
+#. TRANSLATORS: the interface language that follows the environment, LANGUAGE
+#. and LANG.
 #: src/lib/subedit/gui/preferences_dialog.cpp
 msgid "System default"
 msgstr "Järjestelmän oletus"
@@ -4602,7 +4725,8 @@ msgstr "Selaa…"
 msgid "Preferences"
 msgstr "Asetukset"
 
-#. TRANSLATORS: the unit after a number of frames, with its space: « 2 frames ».
+#. TRANSLATORS: the unit after a number of frames, with its space: « 2 frames
+#. ».
 #: src/lib/subedit/gui/preferences_dialog.cpp
 msgid " frames"
 msgstr " ruutua"
@@ -4706,7 +4830,8 @@ msgstr "Haetaan kohteesta: %1"
 msgid "Search wrapped around"
 msgstr "Haku jatkui alusta"
 
-#. TRANSLATORS: a filter of the file dialog; %1 lists the patterns, « *.srt *.vtt ».
+#. TRANSLATORS: a filter of the file dialog; %1 lists the patterns, « *.srt
+#. *.vtt ».
 #: src/lib/subedit/gui/qt_prompts.cpp
 msgid "Subtitles (%1)"
 msgstr "Tekstitykset (%1)"
@@ -4715,7 +4840,8 @@ msgstr "Tekstitykset (%1)"
 msgid "All files (*)"
 msgstr "Kaikki tiedostot (*)"
 
-#. TRANSLATORS: a filter of the file dialog; %1 lists the patterns, « *.mkv *.mp4 ».
+#. TRANSLATORS: a filter of the file dialog; %1 lists the patterns, « *.mkv
+#. *.mp4 ».
 #: src/lib/subedit/gui/qt_prompts.cpp
 msgid "Videos (%1)"
 msgstr "Videot (%1)"
@@ -4890,7 +5016,8 @@ msgid "Find and replace"
 msgstr "Etsi ja korvaa"
 
 # From Gaupol.
-#: src/lib/subedit/gui/search_dialog.cpp src/lib/subedit/gui/window_actions.cpp
+#: src/lib/subedit/gui/search_dialog.cpp
+#: src/lib/subedit/gui/window_actions.cpp
 msgid "Find"
 msgstr "Etsi"
 
@@ -4987,8 +5114,8 @@ msgstr "Jaa kappaleen kohdalta"
 
 #: src/lib/subedit/gui/split_project_dialog.cpp
 msgid ""
-"The subtitles from this one on move to a new project, opened in a tab of its "
-"own."
+"The subtitles from this one on move to a new project, opened in a tab of its"
+" own."
 msgstr ""
 "Kappaleet tästä eteenpäin siirtyvät uuteen projektiin, joka avataan omaan "
 "välilehteensä."
@@ -5121,17 +5248,17 @@ msgstr ""
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
 msgid ""
-"A time as HH:MM:SS, for example 00:02:00. Leave both empty to transcribe the "
-"whole film."
+"A time as HH:MM:SS, for example 00:02:00. Leave both empty to transcribe the"
+" whole film."
 msgstr ""
 "Aika muodossa HH:MM:SS, esimerkiksi 00:02:00. Jätä molemmat tyhjiksi "
 "litteroidaksesi koko elokuvan."
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
 msgid ""
-"The audio of the film open in this window is transcribed into subtitles that "
-"replace the ones of the project. The work runs in the background and can be "
-"cancelled."
+"The audio of the film open in this window is transcribed into subtitles that"
+" replace the ones of the project. The work runs in the background and can be"
+" cancelled."
 msgstr ""
 "Tässä ikkunassa avoinna olevan elokuvan ääni litteroidaan tekstitykseksi, "
 "joka korvaa projektin tekstitykset. Työ tehdään taustalla, ja sen voi perua."
@@ -5153,6 +5280,10 @@ msgid "Part of the film"
 msgstr "Elokuvan osa"
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
+msgid "Method"
+msgstr "Menetelmä"
+
+#: src/lib/subedit/gui/transcribe_dialog.cpp
 msgid "Words to hear"
 msgstr "Kuultavat sanat"
 
@@ -5161,29 +5292,45 @@ msgid "Shift to check"
 msgstr "Tarkistettava siirto"
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
+msgid "Speech: from when there is speech, in any language"
+msgstr "Speech: sen mukaan, missä puhutaan, millä kielellä tahansa"
+
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+msgid "Words: from the words heard, in the language spoken"
+msgstr "Words: kuultujen sanojen mukaan, puhutulla kielellä"
+
+#: src/lib/subedit/gui/transcribe_dialog.cpp
 msgid ""
-"The subtitles of the project are moved to where their words are said in the "
-"audio of the film open in this window. Nothing but their times changes. The "
-"work runs in the background and can be cancelled, and the result is shown "
-"before it is applied."
-msgstr "Projektin tekstitykset siirretään sinne, missä niiden sanat sanotaan tässä ikkunassa avoinna olevan elokuvan äänessä. Vain niiden ajat muuttuvat. Työ tehdään taustalla ja sen voi peruuttaa, ja tulos näytetään ennen sen käyttöönottoa."
+"The subtitles of the project are moved to match the audio of the film open "
+"in this window. Nothing but their times changes. The work runs in the "
+"background and can be cancelled, and the result is shown before it is "
+"applied."
+msgstr ""
+"Projektin tekstitykset siirretään vastaamaan tässä ikkunassa avoinna olevan "
+"elokuvan ääntä. Vain niiden ajat muuttuvat. Työ tehdään taustalla ja sen voi"
+" peruuttaa, ja tulos näytetään ennen sen käyttöönottoa."
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
 msgid ""
 "The share of a subtitle's words that must be heard for the subtitle to be "
 "found."
-msgstr "Osuus tekstityksen sanoista, jotka on kuultava, jotta tekstitys katsotaan löytyneeksi."
+msgstr ""
+"Osuus tekstityksen sanoista, jotka on kuultava, jotta tekstitys katsotaan "
+"löytyneeksi."
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
 msgid ""
 "How far a subtitle may move from the shift of its neighbours before it is "
 "flagged."
-msgstr "Kuinka kauas tekstitys saa siirtyä naapuriensa siirrosta, ennen kuin se merkitään."
+msgstr ""
+"Kuinka kauas tekstitys saa siirtyä naapuriensa siirrosta, ennen kuin se "
+"merkitään."
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
 msgid ""
 "Look for the selected subtitles alone, in the part of the film around them."
-msgstr "Etsi vain valitut tekstitykset, niiden ympärillä olevasta elokuvan osasta."
+msgstr ""
+"Etsi vain valitut tekstitykset, niiden ympärillä olevasta elokuvan osasta."
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
 msgid "Set them in the preferences."
@@ -5191,7 +5338,8 @@ msgstr "Aseta ne asetuksissa."
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
 msgid "This engine cannot be told not to write sounds as notes."
-msgstr "Tälle moottorille ei voi sanoa, ettei se kirjoita ääniä huomautuksina."
+msgstr ""
+"Tälle moottorille ei voi sanoa, ettei se kirjoita ääniä huomautuksina."
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
 msgid "Detect from the first 30 seconds of sound"
@@ -5213,9 +5361,9 @@ msgid ""
 "Choose the language if you know it."
 msgstr ""
 "Tiedosto ei ilmoita kieltä tälle raidalle: malli tunnistaa sen ensimmäisen "
-"30 sekunnin äänestä. Jos elokuva alkaa musiikilla tai hiljaisuudella, se voi "
-"valita väärin, ja puhe käännetään silloin tälle kielelle. Valitse kieli, jos "
-"tiedät sen."
+"30 sekunnin äänestä. Jos elokuva alkaa musiikilla tai hiljaisuudella, se voi"
+" valita väärin, ja puhe käännetään silloin tälle kielelle. Valitse kieli, "
+"jos tiedät sen."
 
 #: src/lib/subedit/gui/transcription_preview_dialog.cpp
 msgid "Keep these values as settings"
@@ -5228,8 +5376,8 @@ msgstr "Litteroinnin esikatselu"
 
 #: src/lib/subedit/gui/transcription_preview_dialog.cpp
 msgid ""
-"Partial result: the work stopped at %1. What was obtained up to there can be "
-"applied or ignored."
+"Partial result: the work stopped at %1. What was obtained up to there can be"
+" applied or ignored."
 msgstr ""
 "Osittainen tulos: työ pysähtyi kohtaan %1. Siihen mennessä saatu voidaan "
 "ottaa käyttöön tai ohittaa."
@@ -5720,18 +5868,18 @@ msgstr "Päätyökalurivi"
 #~ msgstr "subedit-cli sync"
 
 #~ msgid ""
-#~ "%1 of the %2 pieces are only notes in brackets, such as [MUSIC PLAYING]: "
-#~ "the language used (%3) is probably not the one spoken, and the engine may "
-#~ "have translated the speech. Run it again with the language typed."
+#~ "%1 of the %2 pieces are only notes in brackets, such as [MUSIC PLAYING]: the"
+#~ " language used (%3) is probably not the one spoken, and the engine may have "
+#~ "translated the speech. Run it again with the language typed."
 #~ msgstr ""
 #~ "%1 / %2 palasta on pelkkiä hakasulkeissa olevia merkintöjä, kuten [MUSIC "
 #~ "PLAYING]: käytetty kieli (%3) ei todennäköisesti ole puhuttu kieli, ja "
 #~ "moottori on voinut kääntää puheen. Aja se uudelleen kirjoittamalla kieli."
 
 #~ msgid ""
-#~ "A language code such as fr, en, de, es or it (fra and eng work too). "
-#~ "Leave it empty to let the model detect the language from the first 30 "
-#~ "seconds of sound."
+#~ "A language code such as fr, en, de, es or it (fra and eng work too). Leave "
+#~ "it empty to let the model detect the language from the first 30 seconds of "
+#~ "sound."
 #~ msgstr ""
 #~ "Kielikoodi, kuten fr, en, de, es tai it (myös fra ja eng käyvät). Jätä "
 #~ "tyhjäksi, jotta malli tunnistaa kielen äänen ensimmäisten 30 sekunnin "
@@ -5744,8 +5892,8 @@ msgstr "Päätyökalurivi"
 #~ msgstr "Tämä malli ei osaa tunnistaa kieltä: kirjoita se."
 
 #~ msgid ""
-#~ "The file declares no language for this track: the model will detect it "
-#~ "from the sound. Type it if you know it."
+#~ "The file declares no language for this track: the model will detect it from "
+#~ "the sound. Type it if you know it."
 #~ msgstr ""
 #~ "Tiedosto ei ilmoita tälle raidalle kieltä: malli tunnistaa sen äänestä. "
 #~ "Kirjoita se, jos tiedät sen."
@@ -5760,5 +5908,5 @@ msgstr "Päätyökalurivi"
 #~ "The model file the engine reads. It is not shipped with the program: the "
 #~ "manual says where to find one."
 #~ msgstr ""
-#~ "Mallitiedosto, jonka moottori lukee. Sitä ei toimiteta ohjelman mukana: "
-#~ "opas kertoo, mistä sellaisen löytää."
+#~ "Mallitiedosto, jonka moottori lukee. Sitä ei toimiteta ohjelman mukana: opas"
+#~ " kertoo, mistä sellaisen löytää."

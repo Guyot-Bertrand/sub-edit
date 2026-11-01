@@ -10,7 +10,7 @@ Das Menü **Video** enthält zunächst drei Befehle, und die Handgriffe, die den
 | :------ | :------- | :----------- |
 | Video auswählen … | keines | wählt die Videodatei, zu der das Dokument gehört |
 | Audio transkribieren … | keines | transkribiert das Audio des Films in Untertitel, die die des Projekts ersetzen — siehe [Das Audio transkribieren](#das-audio-transkribieren) |
-| Mit Audio synchronisieren … | keines | verschiebt die Untertitel des Projekts dorthin, wo ihre Wörter im Audio des Films gesprochen werden — siehe [Mit dem Audio synchronisieren](#mit-dem-audio-synchronisieren) |
+| Mit Audio synchronisieren … | keines | verschiebt die Untertitel des Projekts, damit sie zum Audio des Films passen — siehe [Mit dem Audio synchronisieren](#mit-dem-audio-synchronisieren) |
 | Wiedergabe / Pause | `Ctrl+P` | spielt das Video ab oder hält es an — siehe [Der Player](player.md#abspielen-und-anhalten) |
 
 Das verknüpfte Video ist **eine Eigenschaft des geöffneten Dokuments**, keine Einstellung
@@ -197,27 +197,38 @@ Siehe [Die Transkriptionswerkzeuge installieren](../subedit-cli/install-transcri
 ## Mit dem Audio synchronisieren
 
 **`Synchronize with Audio…`** richtet die Untertitel des Projekts am Audio des Films neu aus. Das ist der Fall der online geholten `.srt`, die am Anfang und am Ende
-verschoben ist und die eine einzige Verschiebung nicht zurückbringt: Jeder Untertitel wird in dem gesucht, was gesprochen wird, und nimmt den Platz ein, an dem er gesprochen wird.
-**Nur Anfänge und Enden ändern sich** — nie der Text, der Stil, die Anzahl der Untertitel oder ihre Reihenfolge. Wie `Transcribe Audio…` ist der Befehl ausgeschaltet, bis ein Film geöffnet ist,
+verschoben ist und die eine einzige Verschiebung nicht zurückbringt. **Nur Anfänge und Enden ändern sich** — nie der Text, der Stil, die Anzahl der Untertitel oder ihre Reihenfolge. Wie `Transcribe Audio…` ist der Befehl ausgeschaltet, bis ein Film geöffnet ist,
 und es ist das Audio **des Films des Projekts**; dieselbe Funktion in der Befehlszeile ist [`sync`](../subedit-cli/sync.md).
 
-Die Untertitel müssen in der gesprochenen Sprache sein: Es wird nichts übersetzt. Die Arbeit erledigt die Engine, die transkribiert — die der
-[Einstellungen](preferences.md#transkription), mit demselben Programm, `ffmpeg` und Modell — und **der Dialog sagt, was fehlt**, genau wie der der Transkription,
-mit dem Verweis auf [Die Transkriptionswerkzeuge installieren](../subedit-cli/install-transcription.md) und einer Schaltfläche `Preferences…`.
+Zwei Methoden leisten das, und der Dialog fragt, welche:
+
+- **“Speech”, der Standard, legt die Datei auf die Stellen, an denen gesprochen wird.** Er hängt nicht von der Sprache ab — französische Untertitel zu einem englischen Film
+  sind in Ordnung —, er transkribiert nichts, und er dauert Sekunden. Er korrigiert die Datei **als Ganzes**: einen konstanten Versatz, eine Drift, eine zweite Hälfte,
+  die zu spät ist, eine Datei, die für eine andere Bildrate getaktet ist. Er braucht `ffmpeg`, das Programm `whisper-vad-speech-segments` von whisper.cpp und ein
+  Modell zur Spracherkennung, festgelegt in den [Einstellungen](preferences.md#transkription).
+- **“Words” gleicht die Wörter jedes Untertitels mit den Wörtern ab, die die Engine gehört hat.** Die Untertitel müssen in der gesprochenen Sprache sein, es wird nichts
+  übersetzt, und er dauert so lange wie eine Transkription. Er kann einen einzelnen Untertitel platzieren, der in einer sonst richtigen Datei an der falschen Stelle steht.
+  Die Arbeit erledigt die Engine, die transkribiert, mit demselben Programm, `ffmpeg` und Modell.
+
+**Mit “Speech” sagen der Dialog und das Ergebnis jedes Mal, was er nicht leistet**: Er betrachtet nie einen Untertitel für sich, sodass ein Untertitel, der allein an der
+falschen Stelle steht, oder ein Titel über einer Stille weiterhin falsch sein kann und die ersten Minuten daneben bleiben können, wenn der Film mit Musik oder Titeln beginnt. Prüfen Sie
+das Ergebnis. **Der Dialog sagt, was fehlt**, genau wie der der Transkription, mit dem Verweis auf
+[Die Transkriptionswerkzeuge installieren](../subedit-cli/install-transcription.md) und einer Schaltfläche `Preferences…`.
 
 Der Dialog fragt nach:
 
-- **der Tonspur** und **der Sprache**, wie bei der Transkription;
+- **der Tonspur** und **der Sprache**, wie bei der Transkription — die Sprache gilt nur für “Words”;
+- **der Methode**, “Speech” oder “Words”, für das nächste Mal behalten;
 - **dem Teil des Films**, von einer Zeit bis zu einer anderen, beide leer für den ganzen Film: Nur die Untertitel, die in diesem Bereich **beginnen**, werden gesucht und verschoben;
 - **“Nur die ausgewählten Untertitel”**: einem Kästchen, ausgeschaltet, wenn nichts ausgewählt ist. Es sucht nur die ausgewählten Untertitel, in dem Teil des
   Films, der eine Minute vor dem ersten von ihnen beginnt und eine Minute nach dem letzten endet, sodass eine zu späte oder zu frühe Datei
   noch innerhalb dessen liegt, was abgehört wird;
-- **“Zu hörende Wörter”**, in Prozent: der Anteil der Wörter eines Untertitels, der gehört werden muss, damit der Untertitel gefunden wird, standardmäßig 50 % — die Einstellung
+- **“Zu hörende Wörter”**, in Prozent, nur für “Words”: der Anteil der Wörter eines Untertitels, der gehört werden muss, damit der Untertitel gefunden wird, standardmäßig 50 % — die Einstellung
   `alignment.min-match`;
 - **“Zu prüfende Verschiebung”**, in Millisekunden: wie weit ein Untertitel von der Verschiebung seiner Nachbarn abweichen darf, bevor er markiert wird, standardmäßig 2000 ms —
   die Einstellung `alignment.doubt-gap`.
 
-Die drei letzten werden für das nächste Mal behalten. Die Arbeit läuft **im Hintergrund**, mit demselben Feld und derselben Schaltfläche `Cancel` wie die Transkription;
+Die zwei letzten werden für das nächste Mal behalten. Die Arbeit läuft **im Hintergrund**, mit demselben Feld und derselben Schaltfläche `Cancel` wie die Transkription;
 eine Arbeit, die fehlschlägt oder die Sie abbrechen, ändert nichts.
 
 ### Das Ergebnis
@@ -233,12 +244,13 @@ seine Nummer, seinen Text, **den Anfang, den er hatte, den Anfang, den er einnim
 - **“auf den Beginn des nächsten Untertitels gekürzt”** und **“überschneidet den nächsten Untertitel weiterhin”**: Ein Untertitel, der in den nächsten hineinlaufen würde, wird auf
   den Beginn des nächsten gekürzt; einer, der ihn weiterhin überschneidet, was Kürzen nicht heilt, bleibt, wie er ist, und wird gemeldet.
 
-Eine Zeile über der Tabelle sagt, was dabei herauskam — wie viele Untertitel platziert wurden, wie viele zu prüfen sind, die mittlere Verschiebung und die Drift —, und
+Eine Zeile über der Tabelle sagt, was dabei herauskam — wie viele Untertitel platziert wurden, wie viele zu prüfen sind, die mittlere Verschiebung und die Drift —, dann, mit “Speech”, die Warnung vor dem, was er nicht leistet und, wenn eine Bildrate zurechtgerückt wurde, dass dies geschah. Und
 **“Nur die zu prüfenden Untertitel”** zeigt nur diese. Die Tabelle lässt sich nicht bearbeiten.
 
 Zwei Schaltflächen schließen das Fenster. **“Anwenden”** verschiebt die Anfänge und Enden **in einem einzigen Vorgang**: Ein `Undo` gibt die Zeiten zurück, die da waren. “Abbrechen”
 lässt das Projekt, wie es ist. “Anwenden” ist ausgeschaltet, wenn sich nichts bewegen würde. Wenn keiner der Untertitel gefunden werden konnte, sagt das Fenster es in einem Kasten
-und zeigt nichts zum Anwenden: Es ist fast sicher das falsche Audio oder die falsche Sprache.
+und zeigt nichts zum Anwenden: Mit “Words” ist es fast sicher das falsche Audio oder die falsche Sprache; mit “Speech” ist es fast sicher der falsche
+Film, da die Untertitel zu wenig mit der Sprache gemeinsam haben.
 
 ## Wenn es keinen Film gibt
 

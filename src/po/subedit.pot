@@ -989,6 +989,13 @@ msgstr ""
 
 #: src/exe/cli/commands/sync.cpp
 msgid ""
+"How the subtitles are put in line: speech (from when there is speech, "
+"whatever the language) or words (from the words heard); the alignment.method "
+"setting by default"
+msgstr ""
+
+#: src/exe/cli/commands/sync.cpp
+msgid ""
 "Share of a subtitle's words that must be heard, in percent; the alignment."
 "min-match setting by default"
 msgstr ""
@@ -2093,6 +2100,10 @@ msgid "subedit-cli sync; Synchronize with Audio…"
 msgstr ""
 
 #: src/lib/subedit/core/config/operation_settings.cpp
+msgid "speech or words"
+msgstr ""
+
+#: src/lib/subedit/core/config/operation_settings.cpp
 msgid "a whole number from 1 to 100"
 msgstr ""
 
@@ -2325,6 +2336,12 @@ msgid "The engine that aligns the subtitles on the audio."
 msgstr ""
 
 #: src/lib/subedit/core/config/operation_settings.cpp
+msgid ""
+"How the subtitles are laid on the audio: by when there is speech, or by the "
+"words heard."
+msgstr ""
+
+#: src/lib/subedit/core/config/operation_settings.cpp
 msgid "Share of a line's words that must be heard, in percent."
 msgstr ""
 
@@ -2500,6 +2517,39 @@ msgid_plural ""
 "the right language?"
 msgstr[0] ""
 msgstr[1] ""
+
+#: src/lib/subedit/core/wording/alignment.cpp
+msgid ""
+"Finding where there is speech needs a voice-activity model: name one in the "
+"transcription.vad-model setting."
+msgstr ""
+
+#: src/lib/subedit/core/wording/alignment.cpp
+msgid ""
+"Finding where there is speech needs the program whisper-vad-speech-segments, "
+"which comes with whisper.cpp, and it was not found."
+msgstr ""
+
+#: src/lib/subedit/core/wording/alignment.cpp
+msgid ""
+"The sound and the subtitles have too little in common to be put in line: is "
+"it the right film?"
+msgstr ""
+
+#: src/lib/subedit/core/wording/alignment.cpp
+msgid ""
+"Only the file as a whole was put in line with the speech, not each subtitle: "
+"one that is out of place by itself, or a title shown over a silence, may "
+"still be wrong. Check the result."
+msgstr ""
+
+#: src/lib/subedit/core/wording/alignment.cpp
+msgid "The frame rate of the file was put right: its times were divided by %1."
+msgstr ""
+
+#: src/lib/subedit/core/wording/alignment.cpp
+msgid "The method based on speech does not depend on the language."
+msgstr ""
 
 #: src/lib/subedit/core/wording/alignment.cpp
 msgid "%1 of %2 subtitle placed on the audio, %3 to check"
@@ -3430,6 +3480,7 @@ msgid "ffmpeg: found"
 msgstr ""
 
 #: src/lib/subedit/core/wording/transcription.cpp
+#: src/lib/subedit/gui/transcribe_dialog.cpp
 msgid "ffmpeg: not found"
 msgstr ""
 
@@ -4743,6 +4794,10 @@ msgid "Part of the film"
 msgstr ""
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
+msgid "Method"
+msgstr ""
+
+#: src/lib/subedit/gui/transcribe_dialog.cpp
 msgid "Words to hear"
 msgstr ""
 
@@ -4751,11 +4806,19 @@ msgid "Shift to check"
 msgstr ""
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
+msgid "Speech: from when there is speech, in any language"
+msgstr ""
+
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+msgid "Words: from the words heard, in the language spoken"
+msgstr ""
+
+#: src/lib/subedit/gui/transcribe_dialog.cpp
 msgid ""
-"The subtitles of the project are moved to where their words are said in the "
-"audio of the film open in this window. Nothing but their times changes. The "
-"work runs in the background and can be cancelled, and the result is shown "
-"before it is applied."
+"The subtitles of the project are moved to match the audio of the film open "
+"in this window. Nothing but their times changes. The work runs in the "
+"background and can be cancelled, and the result is shown before it is "
+"applied."
 msgstr ""
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp

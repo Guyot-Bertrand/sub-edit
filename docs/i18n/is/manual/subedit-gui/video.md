@@ -10,7 +10,7 @@ kvikmyndinni — sjá [Spilarinn](player.md#að-fara-um-kvikmyndina).
 | :----- | :---------- | :------------- |
 | Velja myndskeið… | enginn | velur myndskeiðsskrána sem skjalið fylgir |
 | Umrita hljóð… | enginn | umritar hljóð kvikmyndarinnar í skjátexta sem koma í stað skjátexta verkefnisins — sjá [Umritun hljóðsins](#umritun-hljóðsins) |
-| Samstilla við hljóð… | enginn | færir skjátexta verkefnisins þangað sem orð þeirra eru sögð í hljóði kvikmyndarinnar — sjá [Samstilling við hljóðið](#samstilling-við-hljóðið) |
+| Samstilla við hljóð… | enginn | færir skjátexta verkefnisins svo þeir passi við hljóð kvikmyndarinnar — sjá [Samstilling við hljóðið](#samstilling-við-hljóðið) |
 | Spila / Hlé | `Ctrl+P` | spilar eða stöðvar myndskeiðið — sjá [Spilarinn](player.md#spilun-og-stöðvun) |
 
 Tengda myndskeiðið er **eiginleiki opna skjalsins**, ekki stilling
@@ -197,30 +197,40 @@ Sjá [Uppsetning umritunartækjanna](../subedit-cli/install-transcription.md).
 ## Samstilling við hljóðið
 
 **`Synchronize with Audio…`** tímastillir skjátexta verkefnisins eftir hljóði kvikmyndarinnar. Þetta á við um `.srt` skrána
-sem sótt er á netinu, færða í upphafi og í lokin, sem ein tilfærsla kemur ekki aftur í lag: leitað er að hverjum skjátexta í því sem
-sagt er, og hann tekur stað þar sem það er sagt. **Aðeins upphaf og endir breytast** — aldrei textinn, stíllinn, fjöldi
+sem sótt er á netinu, færða í upphafi og í lokin, sem ein tilfærsla kemur ekki aftur í lag. **Aðeins upphaf og endir breytast** — aldrei textinn, stíllinn, fjöldi
 skjátexta né röð þeirra. Eins og `Transcribe Audio…` er hún óvirk þar til kvikmynd er opin, og það er hljóð **kvikmyndar verkefnisins** sem er notað; sama
 skipun á skipanalínunni er [`sync`](../subedit-cli/sync.md).
 
-Skjátextarnir verða að vera á tungumálinu sem er talað: ekkert er þýtt. Vinnuna vinnur vélin sem umritar — sú sem er í
-[kjörstillingunum](preferences.md#umritun), með sama forriti, `ffmpeg` og líkani — og **glugginn segir hvað vantar** nákvæmlega eins og
-gluggi umritunarinnar, með tilvísun í [Uppsetning umritunartækjanna](../subedit-cli/install-transcription.md) og hnappinn
-`Preferences…`.
+Tvær aðferðir gera það, og glugginn spyr hvora skal nota:
+
+- **„Speech“, sjálfgefin, leggur skrána á þar sem einhver talar.** Hún er óháð tungumálinu — franskir skjátextar á ensku myndskeiði
+  eru í lagi —, hún umritar ekkert og tekur nokkrar sekúndur. Hún leiðréttir skrána **í heild**: föst tilfærsla, rek, seinni helmingur
+  sem er seinn, skrá sem er tímastillt fyrir aðra rammatíðni. Hún þarf `ffmpeg`, forritið `whisper-vad-speech-segments` frá whisper.cpp og
+  raddvirknilíkan, stillt í [kjörstillingunum](preferences.md#umritun).
+- **„Words“ ber orð hvers skjátexta saman við orðin sem vélin heyrði.** Skjátextarnir verða að vera á tungumálinu sem er talað, ekkert
+  er þýtt, og hún tekur tíma umritunar. Hún getur komið fyrir einum skjátexta sem er á röngum stað í skrá sem er annars rétt.
+  Vinnuna vinnur vélin sem umritar, með sama forriti, `ffmpeg` og líkani.
+
+**Með „Speech“ segja glugginn og niðurstaðan hvað hún gerir ekki**, í hvert sinn: hún lítur aldrei á einn skjátexta einan, svo skjátexti sem er á
+röngum stað einn og sér, eða titill sem er sýndur yfir þögn, getur enn verið rangur, og fyrstu mínúturnar geta verið áfram skakkar þegar myndskeiðið byrjar á tónlist eða titlum. Athugaðu
+niðurstöðuna. **Glugginn segir hvað vantar** nákvæmlega eins og gluggi umritunarinnar, með tilvísun í
+[Uppsetning umritunartækjanna](../subedit-cli/install-transcription.md) og hnappinn `Preferences…`.
 
 Glugginn biður um:
 
-- **hljóðrásina** og **tungumálið**, eins og við umritunina;
+- **hljóðrásina** og **tungumálið**, eins og við umritunina — tungumálið er aðeins fyrir „Words“;
+- **aðferðina**, „Speech“ eða „Words“, munda til næsta skiptis;
 - **hluta kvikmyndarinnar**, frá einum tíma til annars, hvort tveggja tómt fyrir alla kvikmyndina: aðeins skjátextar sem **byrja** innan bilsins eru
   sóttir og færðir;
 - **„Aðeins valdir skjátextar“**: reitur, óvirkur þegar ekkert er valið. Hann leitar aðeins að völdu skjátextunum, í þeim hluta
   kvikmyndarinnar sem byrjar mínútu fyrir þann fyrsta og endar mínútu eftir þann síðasta, svo að skrá sem er sein eða snemma sé
   enn innan þess sem hlustað er á;
-- **„Orð til að heyra“**, í prósentum: hlutfall orða skjátexta sem þarf að heyrast til að skjátextinn finnist, 50 % sjálfgefið — stillingin
+- **„Orð til að heyra“**, í prósentum, aðeins fyrir „Words“: hlutfall orða skjátexta sem þarf að heyrast til að skjátextinn finnist, 50 % sjálfgefið — stillingin
   `alignment.min-match`;
 - **„Tilfærsla til athugunar“**, í millisekúndum: hve langt skjátexti má færast frá tilfærslu nágranna sinna áður en hann er merktur, 2000 ms sjálfgefið —
   stillingin `alignment.doubt-gap`.
 
-Þrjú síðustu eru munuð til næsta skiptis. Vinnan fer fram **í bakgrunni**, með sama reit og hnappinn `Cancel` og umritunin;
+Tvö síðustu eru munuð til næsta skiptis. Vinnan fer fram **í bakgrunni**, með sama reit og hnappinn `Cancel` og umritunin;
 keyrsla sem bilar eða er stöðvuð breytir engu.
 
 ### Niðurstaðan
@@ -236,12 +246,13 @@ númer hans, texta hans, **upphafið sem hann hafði, upphafið sem hann fær, t
 - **„styttur að upphafi næsta skjátexta“** og **„skarast enn við næsta skjátexta“**: skjátexti sem rynni inn í þann næsta er styttur að
   því sem sá næsti byrjar; sá sem skarast enn við hann, sem stytting læknar ekki, er látinn halda sér og það sagt.
 
-Lína fyrir ofan töfluna segir hvernig fór — hve margir skjátextar voru settir, hve margir eru til athugunar, miðgildi tilfærslu og rek —, og
+Lína fyrir ofan töfluna segir hvernig fór — hve margir skjátextar voru settir, hve margir eru til athugunar, miðgildi tilfærslu og rek —, svo, með „Speech“, viðvörunin um það sem hún gerir ekki og, þegar rammatíðni var löguð, að það var gert. Og
 **„Aðeins skjátextar til athugunar“** sýnir aðeins þá. Ekki er hægt að breyta töflunni.
 
 Tveir hnappar loka glugganum. **„Virkja“** færir upphaf og endi **í einni aðgerð**: ein `Undo` skilar tímunum sem voru. „Hætta við“
 skilur verkefnið eftir eins og það er. „Virkja“ er óvirkt þegar ekkert myndi færast. Þegar enginn skjátextanna fannst, segir glugginn það í reit
-og sýnir ekkert til að virkja: það er nær örugglega rangt hljóð eða rangt tungumál.
+og sýnir ekkert til að virkja: með „Words“ er það nær örugglega rangt hljóð eða rangt tungumál; með „Speech“ er það nær örugglega rangt
+myndskeið, því skjátextarnir eiga of lítið sameiginlegt við talið.
 
 ## Þegar engin kvikmynd er
 

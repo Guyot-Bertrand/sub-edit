@@ -75,7 +75,10 @@ SynchronizationPreviewDialog::SynchronizationPreviewDialog(SynchronizationPrevie
     setMinimumSize(kMinimumWidth, kMinimumHeight);
 
     m_summary->setWordWrap(true);
-    m_summary->setText(QString::fromStdString(core::noticeOfAlignment(m_preview->plan.report)));
+    QString summary = QString::fromStdString(core::noticeOfAlignment(m_preview->plan.report));
+    if (!m_preview->warning.empty())
+        summary += QStringLiteral("\n\n") + QString::fromStdString(m_preview->warning);
+    m_summary->setText(summary);
 
     m_table->setHorizontalHeaderLabels(QStringList{translate("No."),
                                                    translate("Text"),

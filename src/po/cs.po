@@ -46,7 +46,8 @@ msgid "First person pronoun"
 msgstr "Zájmeno první osoby"
 
 # From Gaupol.
-#: packaging/patterns/Latn-en.common-error packaging/patterns/Latn.common-error
+#: packaging/patterns/Latn-en.common-error
+#: packaging/patterns/Latn.common-error
 msgid "Add or remove space between a number and the associated unit"
 msgstr "Přidat nebo odstranit mezeru mezi číslem a k němu patřící jednotkou"
 
@@ -86,7 +87,8 @@ msgid "Replace zero with letter \"O\" in an upper case word"
 msgstr "Nahradit nulu písmenem „O“ ve slově napsaném velkými písmeny"
 
 # From Gaupol.
-#: packaging/patterns/Latn-en.common-error packaging/patterns/Latn.common-error
+#: packaging/patterns/Latn-en.common-error
+#: packaging/patterns/Latn.common-error
 msgid "Space between number and unit"
 msgstr "Mezera mezi číslem a jednotkou"
 
@@ -108,7 +110,8 @@ msgstr "Nula ve slově napsaném velkými písmeny"
 # From Gaupol.
 #: packaging/patterns/Latn-en.hearing-impaired
 msgid ""
-"Replace the uppercase name of the speaker before a colon with a dialogue dash"
+"Replace the uppercase name of the speaker before a colon with a dialogue "
+"dash"
 msgstr ""
 "Nahradit jméno mluvčího psané velkými písmeny před dvojtečkou dialogovou "
 "pomlčkou"
@@ -159,12 +162,14 @@ msgid "Title"
 msgstr "Titul"
 
 # From Gaupol.
-#: packaging/patterns/Latn-fi.common-error packaging/patterns/Latn.common-error
+#: packaging/patterns/Latn-fi.common-error
+#: packaging/patterns/Latn.common-error
 msgid "Add space after various punctuation marks"
 msgstr "Přidat mezeru za různá interpunkční znaménka"
 
 # From Gaupol.
-#: packaging/patterns/Latn-fi.common-error packaging/patterns/Latn.common-error
+#: packaging/patterns/Latn-fi.common-error
+#: packaging/patterns/Latn.common-error
 msgid "Space after punctuation marks"
 msgstr "Mezera za interpunkčními znaménky"
 
@@ -179,7 +184,8 @@ msgid "Add spaces around guillemets"
 msgstr "Přidat mezery kolem francouzských uvozovek"
 
 # From Gaupol.
-#: packaging/patterns/Latn-fr.common-error packaging/patterns/Latn.common-error
+#: packaging/patterns/Latn-fr.common-error
+#: packaging/patterns/Latn.common-error
 msgid "Space before punctuation marks"
 msgstr "Mezera před interpunkčními znaménky"
 
@@ -229,9 +235,9 @@ msgstr "Přidat mezery mezi znaky hudebních not a slova písně"
 
 # From Gaupol.
 #: packaging/patterns/Latn.common-error
-msgid ""
-"Change the various spellings of 12-hour periods to \"a.m.\" and \"p.m.\""
-msgstr "Změnit různé způsoby psaní dvanáctihodinových údobí na „a.m.“ a „p.m.“"
+msgid "Change the various spellings of 12-hour periods to \"a.m.\" and \"p.m.\""
+msgstr ""
+"Změnit různé způsoby psaní dvanáctihodinových údobí na „a.m.“ a „p.m.“"
 
 # From Gaupol.
 #: packaging/patterns/Latn.common-error
@@ -548,7 +554,8 @@ msgstr ""
 
 #: src/exe/cli/application.cpp
 msgid "Write the encodings that can be read and written, one a line, and stop"
-msgstr "Vypsat kódování, která lze číst a zapisovat, jedno na řádek, a skončit"
+msgstr ""
+"Vypsat kódování, která lze číst a zapisovat, jedno na řádek, a skončit"
 
 #: src/exe/cli/application.cpp
 msgid "--config needs a file name"
@@ -694,10 +701,11 @@ msgstr "Hodnota, jak ji podle config list klíč přijímá"
 
 #: src/exe/cli/commands/config.cpp
 msgid ""
-"Put KEY back to its default in the settings file, keeping every other setting"
+"Put KEY back to its default in the settings file, keeping every other "
+"setting"
 msgstr ""
-"Vrátit KEY v souboru nastavení na výchozí hodnotu a zachovat všechna ostatní "
-"nastavení"
+"Vrátit KEY v souboru nastavení na výchozí hodnotu a zachovat všechna ostatní"
+" nastavení"
 
 #: src/exe/cli/commands/config.cpp
 msgid "--no-config has nothing to write to"
@@ -762,7 +770,8 @@ msgid "The tasks to run, in a list: none is chosen beforehand"
 msgstr "Úlohy ke spuštění, v seznamu: žádná není předem vybrána"
 
 #: src/exe/cli/commands/correct.cpp
-msgid "The cascade of patterns the tasks read: Zyyy, Latn, Latn-en, Latn-en-US"
+msgid ""
+"The cascade of patterns the tasks read: Zyyy, Latn, Latn-en, Latn-en-US"
 msgstr "Kaskáda vzorů, kterou úlohy čtou: Zyyy, Latn, Latn-en, Latn-en-US"
 
 #: src/exe/cli/commands/correct.cpp
@@ -785,8 +794,8 @@ msgstr "Slovník, který čtou join-words a split-words: fr_FR, en_US, en..."
 msgid ""
 "Longest line of line-break, in characters; no default, Gaupol's is in ems"
 msgstr ""
-"Nejdelší řádek pro line-break ve znacích; bez výchozí hodnoty, ta Gaupolu je "
-"v em"
+"Nejdelší řádek pro line-break ve znacích; bez výchozí hodnoty, ta Gaupolu je"
+" v em"
 
 #: src/exe/cli/commands/correct.cpp
 msgid "Most lines of line-break: 3, as Gaupol's"
@@ -797,15 +806,15 @@ msgid ""
 "Leave alone a subtitle whose longest line is within this, or off: --max-"
 "length"
 msgstr ""
-"Ponechat titulek, jehož nejdelší řádek se do této hodnoty vejde, nebo off: --"
-"max-length"
+"Ponechat titulek, jehož nejdelší řádek se do této hodnoty vejde, nebo off: "
+"--max-length"
 
 #: src/exe/cli/commands/correct.cpp
 msgid ""
 "Leave alone a subtitle whose line count is within this, or off: --max-lines"
 msgstr ""
-"Ponechat titulek, jehož počet řádků se do této hodnoty vejde, nebo off: --"
-"max-lines"
+"Ponechat titulek, jehož počet řádků se do této hodnoty vejde, nebo off: "
+"--max-lines"
 
 #: src/exe/cli/commands/correct.cpp
 msgid ""
@@ -938,8 +947,8 @@ msgstr "Soubory titulků, v nichž spojit opakování"
 #: src/exe/cli/commands/letter_case.cpp
 msgid "Put the texts in title, sentence, upper or lower case, tags intact"
 msgstr ""
-"Převést texty na velikost písmen jako v nadpisu, ve větě, na velká nebo malá "
-"písmena, se zachováním značek"
+"Převést texty na velikost písmen jako v nadpisu, ve větě, na velká nebo malá"
+" písmena, se zachováním značek"
 
 #: src/exe/cli/commands/letter_case.cpp
 msgid "The case to put the texts in"
@@ -962,8 +971,10 @@ msgstr "pair vyžaduje soubor překladu, který se položí na hlavní: použijt
 
 #: src/exe/cli/commands/repair.cpp
 msgid ""
-"Join the repeated subtitles, put them in order, then make the ranges disjoint"
-msgstr "Spojit opakované titulky, seřadit je a pak učinit rozsahy disjunktními"
+"Join the repeated subtitles, put them in order, then make the ranges "
+"disjoint"
+msgstr ""
+"Spojit opakované titulky, seřadit je a pak učinit rozsahy disjunktními"
 
 #: src/exe/cli/commands/repair.cpp
 msgid "Subtitle files to repair"
@@ -1021,7 +1032,8 @@ msgid "Frame rate to align on: 25, 23.976"
 msgstr "Snímková frekvence pro zarovnání: 25, 23.976"
 
 #: src/exe/cli/commands/sort.cpp
-msgid "Put the subtitles in the order of their start, keeping ties as they are"
+msgid ""
+"Put the subtitles in the order of their start, keeping ties as they are"
 msgstr "Seřadit titulky podle jejich začátku, shodné ponechat, jak jsou"
 
 #: src/exe/cli/commands/sort.cpp
@@ -1130,16 +1142,26 @@ msgstr "Uchovat vyextrahovaný zvuk v tomto souboru"
 
 #: src/exe/cli/commands/sync.cpp
 msgid ""
-"Share of a subtitle's words that must be heard, in percent; the alignment."
-"min-match setting by default"
+"How the subtitles are put in line: speech (from when there is speech, "
+"whatever the language) or words (from the words heard); the alignment.method"
+" setting by default"
+msgstr ""
+"Jak se titulky srovnají: speech (podle toho, kdy se mluví, v jakémkoli "
+"jazyce) nebo words (podle slyšených slov); ve výchozím stavu nastavení "
+"alignment.method"
+
+#: src/exe/cli/commands/sync.cpp
+msgid ""
+"Share of a subtitle's words that must be heard, in percent; the "
+"alignment.min-match setting by default"
 msgstr ""
 "Podíl slov titulku, která se musí slyšet, v procentech; ve výchozím stavu "
 "nastavení alignment.min-match"
 
 #: src/exe/cli/commands/sync.cpp
 msgid ""
-"How far a subtitle may move from its neighbours' shift before it is flagged, "
-"in milliseconds; the alignment.doubt-gap setting by default"
+"How far a subtitle may move from its neighbours' shift before it is flagged,"
+" in milliseconds; the alignment.doubt-gap setting by default"
 msgstr ""
 "O kolik se titulek smí posunout oproti posunu sousedů, než se označí, v "
 "milisekundách; ve výchozím stavu nastavení alignment.doubt-gap"
@@ -1162,7 +1184,8 @@ msgstr "Soubor titulků k zapsání"
 
 #: src/exe/cli/commands/transcribe.cpp
 msgid "Format to write; the one the extension of --output says by default"
-msgstr "Formát k zapsání; ve výchozím stavu ten, který určuje přípona --output"
+msgstr ""
+"Formát k zapsání; ve výchozím stavu ten, který určuje přípona --output"
 
 #: src/exe/cli/commands/transcribe.cpp
 msgid "Audio track of a video, counted from 0; the first by default"
@@ -1170,8 +1193,8 @@ msgstr "Zvuková stopa videa, číslovaná od 0; ve výchozím stavu první"
 
 #: src/exe/cli/commands/transcribe.cpp
 msgid ""
-"Do not write sounds as notes, such as (phone ringing); the transcription."
-"suppress-notes setting by default"
+"Do not write sounds as notes, such as (phone ringing); the "
+"transcription.suppress-notes setting by default"
 msgstr ""
 "Nezapisovat zvuky jako poznámky, například (zvonění telefonu); ve výchozím "
 "stavu nastavení transcription.suppress-notes"
@@ -1219,7 +1242,8 @@ msgstr "subedit-cli: %1"
 msgid "subedit-cli: unknown failure"
 msgstr "subedit-cli: neznámé selhání"
 
-#. TRANSLATORS: %1 is what the user typed. « off » is a value of the option, as typed.
+#. TRANSLATORS: %1 is what the user typed. « off » is a value of the option,
+#. as typed.
 #: src/lib/subedit/cli/adjusting.cpp
 msgid ""
 "--speed: \"%1\" is not a reading speed: expected a number of characters per "
@@ -1228,9 +1252,11 @@ msgstr ""
 "--speed: „%1“ není rychlost čtení: očekává se počet znaků za sekundu větší "
 "než nula, například 15 nebo 12.5, nebo off"
 
-#. TRANSLATORS: %1 is an option, such as --minimum; %2 why its value does not read.
+#. TRANSLATORS: %1 is an option, such as --minimum; %2 why its value does not
+#. read.
 #. TRANSLATORS: %1 is the file, or what a message is about; %2 the message.
-#. TRANSLATORS: %1 is Undo or Redo, %2 the operation it undoes or redoes, such as shifting.
+#. TRANSLATORS: %1 is Undo or Redo, %2 the operation it undoes or redoes, such
+#. as shifting.
 #. TRANSLATORS: %1 is a file's path, %2 what went wrong with it.
 #: src/lib/subedit/cli/adjusting.cpp src/lib/subedit/cli/batch.cpp
 #: src/lib/subedit/cli/configuring.cpp src/lib/subedit/cli/conversion.cpp
@@ -1259,7 +1285,8 @@ msgstr "%1 a %2 si odporují; zadejte jen jednu z nich"
 #: src/lib/subedit/cli/adjusting.cpp
 msgid ""
 "--lengthen, --no-lengthen, --shorten and --no-shorten say which way the "
-"reading speed may move an end, and --speed off switches the reading speed off"
+"reading speed may move an end, and --speed off switches the reading speed "
+"off"
 msgstr ""
 "--lengthen, --no-lengthen, --shorten a --no-shorten určují, kterým směrem "
 "smí rychlost čtení posunout konec, a --speed off rychlost čtení vypne"
@@ -1289,7 +1316,8 @@ msgstr[0] "%1 titulek zarovnán na %2 fps, %3"
 msgstr[1] "%1 titulky zarovnány na %2 fps, %3"
 msgstr[2] "%1 titulků zarovnáno na %2 fps, %3"
 
-#. TRANSLATORS: %1 is the file written, %2 a number of subtitles (« 12 subtitles »)
+#. TRANSLATORS: %1 is the file written, %2 a number of subtitles (« 12
+#. subtitles »)
 #. and %3 a number of files (« 3 files »).
 #: src/lib/subedit/cli/appending.cpp
 msgid "%1: %2 from %3"
@@ -1423,7 +1451,8 @@ msgstr[0] "Transformováno %1 z %2 souboru"
 msgstr[1] "Transformováno %1 z %2 souborů"
 msgstr[2] "Transformováno %1 z %2 souborů"
 
-#. TRANSLATORS: %1 is the summary of a batch, such as « 1 of 3 files shifted »; %2
+#. TRANSLATORS: %1 is the summary of a batch, such as « 1 of 3 files shifted
+#. »; %2
 #. how many files of it failed.
 #: src/lib/subedit/cli/batch.cpp
 msgid "%1, %2 failed"
@@ -1507,8 +1536,8 @@ msgstr "%1 vrácen na výchozí hodnotu (%2)"
 
 #: src/lib/subedit/cli/conversion.cpp
 msgid ""
-"writing frames needs a frame rate, and the positions fall on no grid to take "
-"one from — give --frame-rate"
+"writing frames needs a frame rate, and the positions fall on no grid to take"
+" one from — give --frame-rate"
 msgstr ""
 "zápis ve snímcích vyžaduje snímkovou frekvenci a pozice neleží na žádné "
 "mřížce, ze které by se dala odvodit — zadejte --frame-rate"
@@ -1522,7 +1551,8 @@ msgstr "%1: počítáno ve snímcích při %2, mřížce, na které pozice lež�
 msgid "%1 has no byte order mark to write"
 msgstr "%1 nemá žádnou značku pořadí bajtů, kterou by šlo zapsat"
 
-#. TRANSLATORS: %1 is a file, %2 and %3 numbers of bytes. English says « bytes »
+#. TRANSLATORS: %1 is a file, %2 and %3 numbers of bytes. English says « bytes
+#. »
 #. whatever the count; the form is chosen by %2.
 #: src/lib/subedit/cli/conversion.cpp src/lib/subedit/cli/writing.cpp
 msgid "%1: %2 bytes read, %3 would be written"
@@ -1568,7 +1598,8 @@ msgstr ""
 "--in-place nemůže změnit formát: soubor by si ponechal název, kterému by "
 "jeho obsah už neodpovídal"
 
-#. TRANSLATORS: %1 is --enable or --disable, %2 what the user typed, %3 a pattern code.
+#. TRANSLATORS: %1 is --enable or --disable, %2 what the user typed, %3 a
+#. pattern code.
 #: src/lib/subedit/cli/correcting.cpp
 msgid "%1: \"%2\" names no pattern of the tasks given, under the code %3"
 msgstr "%1: „%2“ neoznačuje žádný vzor zadaných úloh pod kódem %3"
@@ -1583,7 +1614,8 @@ msgstr ""
 "%1: „%2“ označuje vzory několika typů: napište type:name, kde type je jeden "
 "z common-error, capitalization, hearing-impaired, line-break"
 
-#. TRANSLATORS: %1 is the name of a pattern, %2 why it gave up, %3 a subtitle number.
+#. TRANSLATORS: %1 is the name of a pattern, %2 why it gave up, %3 a subtitle
+#. number.
 #: src/lib/subedit/cli/correcting.cpp
 msgid "pattern \"%1\" (%2) was not applied to subtitle %3"
 msgstr "vzor „%1“ (%2) nebyl použit na titulek %3"
@@ -1627,8 +1659,8 @@ msgstr "--classes: „%1“ není třída: očekává se human, ocr nebo human,o
 
 #: src/lib/subedit/cli/correcting.cpp
 msgid ""
-"--language is for the tasks join-words and split-words, which were not asked "
-"for"
+"--language is for the tasks join-words and split-words, which were not asked"
+" for"
 msgstr ""
 "--language je určen pro úlohy join-words a split-words, které nebyly zadány"
 
@@ -1640,8 +1672,8 @@ msgstr "--language vyžadují úlohy, které kontrolují slova: %1"
 #. TRANSLATORS: %1 is what the user typed.
 #: src/lib/subedit/cli/correcting.cpp
 msgid ""
-"--language: \"%1\" is not a language: expected a locale code, like fr, en_US "
-"or sr@Latn"
+"--language: \"%1\" is not a language: expected a locale code, like fr, en_US"
+" or sr@Latn"
 msgstr ""
 "--language: „%1“ není jazyk: očekává se kód národního prostředí, například "
 "fr, en_US nebo sr@Latn"
@@ -1660,8 +1692,8 @@ msgid ""
 "--max-length is required by the task line-break: Gaupol's 24 is a width in "
 "ems, and has no value in characters"
 msgstr ""
-"--max-length vyžaduje úloha line-break: hodnota 24 v Gaupolu je šířka v em a "
-"nemá žádnou hodnotu ve znacích"
+"--max-length vyžaduje úloha line-break: hodnota 24 v Gaupolu je šířka v em a"
+" nemá žádnou hodnotu ve znacích"
 
 #. TRANSLATORS: %1 is what the user typed.
 #: src/lib/subedit/cli/correcting.cpp
@@ -1693,7 +1725,8 @@ msgstr "„%1“ je zadán pro --enable i pro --disable: vyberte jedno"
 
 #. TRANSLATORS: %1 is a task, as typed; %2 a pattern code.
 #: src/lib/subedit/cli/correcting.cpp
-msgid "%1: no pattern is active under the code %2; switch one on with --enable"
+msgid ""
+"%1: no pattern is active under the code %2; switch one on with --enable"
 msgstr ""
 "%1: pod kódem %2 není aktivní žádný vzor; zapněte nějaký pomocí --enable"
 
@@ -1744,13 +1777,15 @@ msgstr "%1, %2"
 msgid "line %1: %2, %3"
 msgstr "řádek %1: %2, %3"
 
-#. TRANSLATORS: %1 is what a reading met, %2 an excerpt of the file, %3 how serious
+#. TRANSLATORS: %1 is what a reading met, %2 an excerpt of the file, %3 how
+#. serious
 #. it is.
 #: src/lib/subedit/cli/diagnostics.cpp
 msgid "%1 (\"%2\"), %3"
 msgstr "%1 („%2“), %3"
 
-#. TRANSLATORS: %1 is a line number, %2 what a reading met on it, %3 an excerpt
+#. TRANSLATORS: %1 is a line number, %2 what a reading met on it, %3 an
+#. excerpt
 #. of the file, %4 how serious it is.
 #: src/lib/subedit/cli/diagnostics.cpp
 msgid "line %1: %2 (\"%3\"), %4"
@@ -1773,8 +1808,8 @@ msgstr "--minimum: „%1“ není doba trvání nula nebo větší"
 #. TRANSLATORS: %1 is what the user typed.
 #: src/lib/subedit/cli/disjoining.cpp
 msgid ""
-"--max-lines: \"%1\" is not a number of lines: expected a whole number, 0 for "
-"no limit"
+"--max-lines: \"%1\" is not a number of lines: expected a whole number, 0 for"
+" no limit"
 msgstr ""
 "--max-lines: „%1“ není počet řádků: očekává se celé číslo, 0 bez omezení"
 
@@ -1879,7 +1914,8 @@ msgstr ""
 msgid "it ends before it starts"
 msgstr "končí dřív, než začíná"
 
-#. TRANSLATORS: %1 is the range typed, %2 how many subtitles the file has. English
+#. TRANSLATORS: %1 is the range typed, %2 how many subtitles the file has.
+#. English
 #. writes the number alone; the form is chosen by %2.
 #: src/lib/subedit/cli/index_grammar.cpp
 msgid "range %1 starts after the last subtitle: the file has %2"
@@ -1896,7 +1932,8 @@ msgstr[0] "rozsah %1 končí za posledním titulkem: soubor má %2 titulek"
 msgstr[1] "rozsah %1 končí za posledním titulkem: soubor má %2 titulky"
 msgstr[2] "rozsah %1 končí za posledním titulkem: soubor má %2 titulků"
 
-#. TRANSLATORS: %1 is a kind of line ending, %2 the line where another kind starts.
+#. TRANSLATORS: %1 is a kind of line ending, %2 the line where another kind
+#. starts.
 #: src/lib/subedit/cli/inspection.cpp
 msgid "%1, mixed from line %2"
 msgstr "%1, smíšené od řádku %2"
@@ -1933,7 +1970,8 @@ msgstr "mřížka snímků: %1 (příliš málo titulků na rozhodnutí)"
 msgid "frame rate grid: %1 (best candidate at %2)"
 msgstr "mřížka snímků: %1 (nejlepší kandidát při %2)"
 
-#. TRANSLATORS: %1 is a frame rate, %2 the verdict on the grid, %3 a percentage.
+#. TRANSLATORS: %1 is a frame rate, %2 the verdict on the grid, %3 a
+#. percentage.
 #: src/lib/subedit/cli/inspection.cpp
 msgid "frame rate grid: %1 fps, %2 (%3)"
 msgstr "mřížka snímků: %1 fps, %2 (%3)"
@@ -1968,7 +2006,8 @@ msgstr[0] "mimo mřížku: %1 z %2 začátku (%3)"
 msgstr[1] "mimo mřížku: %1 z %2 začátků (%3)"
 msgstr[2] "mimo mřížku: %1 z %2 začátků (%3)"
 
-#: src/lib/subedit/cli/inspection.cpp src/lib/subedit/core/wording/analysis.cpp
+#: src/lib/subedit/cli/inspection.cpp
+#: src/lib/subedit/core/wording/analysis.cpp
 msgid "none"
 msgstr "žádná"
 
@@ -2240,8 +2279,8 @@ msgstr[2] "titulek %1 je za koncem: soubor obsahuje %2 titulků"
 #. TRANSLATORS: %1 is a subtitle number.
 #: src/lib/subedit/cli/transforming.cpp
 msgid ""
-"--first and --last both name subtitle %1, and two references on one subtitle "
-"define no transform"
+"--first and --last both name subtitle %1, and two references on one subtitle"
+" define no transform"
 msgstr ""
 "--first i --last určují titulek %1 a dva referenční body na jednom titulku "
 "žádnou transformaci neurčují"
@@ -2260,7 +2299,8 @@ msgstr ""
 "titulek %1 by se dostal před počátek, což žádný soubor titulků nedokáže "
 "uchovat"
 
-#. TRANSLATORS: %1 subtitles were transformed; %2 and %3 are the two references, as
+#. TRANSLATORS: %1 subtitles were transformed; %2 and %3 are the two
+#. references, as
 #. typed: 1=00:00:01.000.
 #: src/lib/subedit/cli/transforming.cpp
 msgid "%1 subtitle transformed onto %2 and %3"
@@ -2287,11 +2327,11 @@ msgstr "celé číslo milisekund, 0 nebo více"
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid ""
-"a pattern code, Script[-language[-COUNTRY]], not empty: Zyyy, Latn, Latn-en, "
-"Latn-en-US"
+"a pattern code, Script[-language[-COUNTRY]], not empty: Zyyy, Latn, Latn-en,"
+" Latn-en-US"
 msgstr ""
-"kód vzorů, Script[-language[-COUNTRY]], neprázdný: Zyyy, Latn, Latn-en, Latn-"
-"en-US"
+"kód vzorů, Script[-language[-COUNTRY]], neprázdný: Zyyy, Latn, Latn-en, "
+"Latn-en-US"
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "a number above 0, decimals allowed: 24, 42.5"
@@ -2328,6 +2368,10 @@ msgstr "subedit-cli transcribe; Přepsat zvuk…"
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "subedit-cli sync; Synchronize with Audio…"
 msgstr "subedit-cli sync; Synchronizovat se zvukem…"
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid "speech or words"
+msgstr "speech nebo words"
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "a whole number from 1 to 100"
@@ -2456,7 +2500,8 @@ msgstr ""
 "Zda úloha okna pro sluchově postižené působí na text v hranatých závorkách."
 
 #: src/lib/subedit/core/config/operation_settings.cpp
-msgid "Whether the window's hearing-impaired task acts on text in parentheses."
+msgid ""
+"Whether the window's hearing-impaired task acts on text in parentheses."
 msgstr ""
 "Zda úloha okna pro sluchově postižené působí na text v kulatých závorkách."
 
@@ -2477,8 +2522,8 @@ msgstr "Zda okno měří řádky v em místo ve znacích."
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid ""
-"Whether the window's line-break task leaves alone a subtitle whose lines are "
-"short enough."
+"Whether the window's line-break task leaves alone a subtitle whose lines are"
+" short enough."
 msgstr ""
 "Zda úloha okna pro zalamování řádků nechává beze změny titulek, jehož řádky "
 "jsou dostatečně krátké."
@@ -2493,8 +2538,8 @@ msgstr ""
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid ""
-"Whether the window's line-break task leaves alone a subtitle with few enough "
-"lines."
+"Whether the window's line-break task leaves alone a subtitle with few enough"
+" lines."
 msgstr ""
 "Zda úloha okna pro zalamování řádků nechává beze změny titulek s dostatečně "
 "malým počtem řádků."
@@ -2527,8 +2572,8 @@ msgstr ""
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid ""
-"a locale code, two lower-case letters, then optionally _ and two upper-case, "
-"then optionally @ and a script: fr, en_US, sr@Latn"
+"a locale code, two lower-case letters, then optionally _ and two upper-case,"
+" then optionally @ and a script: fr, en_US, sr@Latn"
 msgstr ""
 "kód jazykové verze: dvě malá písmena, poté volitelně _ a dvě velká, poté "
 "volitelně @ a písmo: fr, en_US, sr@Latn"
@@ -2577,6 +2622,14 @@ msgstr "Největší počet znaků přepsaného titulku."
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "The engine that aligns the subtitles on the audio."
 msgstr "Nástroj, který zarovnává titulky podle zvuku."
+
+#: src/lib/subedit/core/config/operation_settings.cpp
+msgid ""
+"How the subtitles are laid on the audio: by when there is speech, or by the "
+"words heard."
+msgstr ""
+"Jak se titulky položí na zvuk: podle toho, kdy se mluví, nebo podle "
+"slyšených slov."
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "Share of a line's words that must be heard, in percent."
@@ -2697,7 +2750,8 @@ msgid "an unterminated group name"
 msgstr "neukončený název skupiny"
 
 #: src/lib/subedit/core/text/python_regex_syntax.cpp
-msgid "the group name '%1' is not letters and digits, which is all ICU accepts"
+msgid ""
+"the group name '%1' is not letters and digits, which is all ICU accepts"
 msgstr ""
 "název skupiny „%1“ nejsou písmena a číslice, což je vše, co ICU přijímá"
 
@@ -2764,13 +2818,58 @@ msgstr[2] ""
 "jazyk?"
 
 #: src/lib/subedit/core/wording/alignment.cpp
+msgid ""
+"Finding where there is speech needs a voice-activity model: name one in the "
+"transcription.vad-model setting."
+msgstr ""
+"Zjištění, kde se mluví, vyžaduje model detekce řeči: uveďte ho v nastavení "
+"transcription.vad-model."
+
+#: src/lib/subedit/core/wording/alignment.cpp
+msgid ""
+"Finding where there is speech needs the program whisper-vad-speech-segments,"
+" which comes with whisper.cpp, and it was not found."
+msgstr ""
+"Zjištění, kde se mluví, vyžaduje program whisper-vad-speech-segments, který "
+"je součástí whisper.cpp, a ten nebyl nalezen."
+
+#: src/lib/subedit/core/wording/alignment.cpp
+msgid ""
+"The sound and the subtitles have too little in common to be put in line: is "
+"it the right film?"
+msgstr ""
+"Zvuk a titulky mají příliš málo společného, než aby se daly srovnat: je to "
+"správný film?"
+
+#: src/lib/subedit/core/wording/alignment.cpp
+msgid ""
+"Only the file as a whole was put in line with the speech, not each subtitle:"
+" one that is out of place by itself, or a title shown over a silence, may "
+"still be wrong. Check the result."
+msgstr ""
+"S řečí byl srovnán pouze soubor jako celek, nikoli každý titulek: titulek, "
+"který je sám o sobě mimo, nebo titulek zobrazený nad tichem, může být stále "
+"špatně. Zkontrolujte výsledek."
+
+#: src/lib/subedit/core/wording/alignment.cpp
+msgid ""
+"The frame rate of the file was put right: its times were divided by %1."
+msgstr ""
+"Snímková frekvence souboru byla opravena: jeho časy byly vyděleny číslem %1."
+
+#: src/lib/subedit/core/wording/alignment.cpp
+msgid "The method based on speech does not depend on the language."
+msgstr "Metoda založená na řeči na jazyce nezávisí."
+
+#: src/lib/subedit/core/wording/alignment.cpp
 msgid "%1 of %2 subtitle placed on the audio, %3 to check"
 msgid_plural "%1 of %2 subtitles placed on the audio, %3 to check"
 msgstr[0] "Na zvuk umístěn %1 z %2 titulků, %3 ke kontrole"
 msgstr[1] "Na zvuk umístěny %1 z %2 titulků, %3 ke kontrole"
 msgstr[2] "Na zvuk umístěno %1 z %2 titulků, %3 ke kontrole"
 
-#. TRANSLATORS: %1 is a sentence, such as « 40 of 42 subtitles placed on the audio, 2 to
+#. TRANSLATORS: %1 is a sentence, such as « 40 of 42 subtitles placed on the
+#. audio, 2 to
 #. check »; %2 and %3 are lengths in seconds, such as « -2.400 s ».
 #: src/lib/subedit/core/wording/alignment.cpp
 msgid "%1; median shift %2, drift %3"
@@ -3329,8 +3428,8 @@ msgid ""
 "%1 of %2 subtitle aligned to %3 fps; the document is still read on a %4 fps "
 "grid"
 msgid_plural ""
-"%1 of %2 subtitles aligned to %3 fps; the document is still read on a %4 fps "
-"grid"
+"%1 of %2 subtitles aligned to %3 fps; the document is still read on a %4 fps"
+" grid"
 msgstr[0] ""
 "Zarovnáno %1 z %2 titulku na %3 fps; dokument se stále čte na mřížce %4 fps"
 msgstr[1] ""
@@ -3468,8 +3567,8 @@ msgstr "žádné kódování se nejmenuje „%1“"
 #. TRANSLATORS: %1 is the name the user gave for an encoding.
 #: src/lib/subedit/core/wording/formats.cpp
 msgid ""
-"\"%1\" writes a byte order mark of its own; name the byte order, as UTF-16LE "
-"and UTF-16BE do"
+"\"%1\" writes a byte order mark of its own; name the byte order, as UTF-16LE"
+" and UTF-16BE do"
 msgstr ""
 "„%1“ zapisuje vlastní značku pořadí bajtů; uveďte pořadí bajtů, jako to "
 "dělají UTF-16LE a UTF-16BE"
@@ -3559,10 +3658,8 @@ msgid ""
 msgstr ""
 "# Nastavení subedit.\n"
 "#\n"
-"# Volby ponechané na výchozí hodnotě jsou zapsány jako komentář. "
-"Odkomentujte\n"
-"# řádek a změňte jeho hodnotu, chcete-li ji přepsat; smažte řádek, chcete-"
-"li\n"
+"# Volby ponechané na výchozí hodnotě jsou zapsány jako komentář. Odkomentujte\n"
+"# řádek a změňte jeho hodnotu, chcete-li ji přepsat; smažte řádek, chcete-li\n"
 "# se vrátit k výchozí hodnotě, ať už bude v pozdější verzi jakákoli.\n"
 "#\n"
 "# Dvě z nich mají místo čísla ve výchozím stavu to, co zvolí okno: jejich\n"
@@ -3585,7 +3682,8 @@ msgid ""
 "See the manual page \"Installing the transcription tools\" (install-"
 "transcription)."
 msgstr ""
-"Viz stránka příručky „Instalace nástrojů pro přepis“ (install-transcription)."
+"Viz stránka příručky „Instalace nástrojů pro přepis“ (install-"
+"transcription)."
 
 #: src/lib/subedit/core/wording/transcription.cpp
 msgid "the transcription engine was not found"
@@ -3681,16 +3779,15 @@ msgstr[1] "%1 titulky zachovány z částečného přepisu, až do %2"
 msgstr[2] "%1 titulků zachováno z částečného přepisu, až do %2"
 
 #: src/lib/subedit/core/wording/transcription.cpp
-msgid ""
-"\"%1\" is not a time: write it as 2:00, 1:02:03 or 2:00.5, or in seconds"
+msgid "\"%1\" is not a time: write it as 2:00, 1:02:03 or 2:00.5, or in seconds"
 msgstr ""
 "„%1“ není čas: zapište jej jako 2:00, 1:02:03 nebo 2:00.5, nebo v sekundách"
 
 #: src/lib/subedit/core/wording/transcription.cpp
 msgid ""
 "This model is for English only: whatever language the film speaks, the "
-"result will be English, or notes in brackets. Choose a multilingual model in "
-"the preferences."
+"result will be English, or notes in brackets. Choose a multilingual model in"
+" the preferences."
 msgstr ""
 "Tento model je jen pro angličtinu: ať se ve filmu mluví jakýmkoli jazykem, "
 "výsledek bude anglicky, nebo poznámky v hranatých závorkách. Vyberte v "
@@ -3709,8 +3806,7 @@ msgid "the voice-activity model %1 does not exist"
 msgstr "model detekce řeči %1 neexistuje"
 
 #: src/lib/subedit/core/wording/transcription.cpp
-msgid ""
-"\"%1\" is not a language code: write two letters, such as fr, en, de or es"
+msgid "\"%1\" is not a language code: write two letters, such as fr, en, de or es"
 msgstr ""
 "„%1“ není kód jazyka: napište dvě písmena, například fr, en, de nebo es"
 
@@ -3765,6 +3861,7 @@ msgid "ffmpeg: found"
 msgstr "ffmpeg: nalezen"
 
 #: src/lib/subedit/core/wording/transcription.cpp
+#: src/lib/subedit/gui/transcribe_dialog.cpp
 msgid "ffmpeg: not found"
 msgstr "ffmpeg: nenalezen"
 
@@ -3836,8 +3933,8 @@ msgid ""
 "the lines sit %1 later than the subtitles; moved back, %2 line would attach "
 "instead of %3"
 msgid_plural ""
-"the lines sit %1 later than the subtitles; moved back, %2 lines would attach "
-"instead of %3"
+"the lines sit %1 later than the subtitles; moved back, %2 lines would attach"
+" instead of %3"
 msgstr[0] ""
 "řádky jsou o %1 později než titulky; po posunutí zpět by se připojil %2 "
 "řádek místo %3"
@@ -3856,8 +3953,8 @@ msgid_plural ""
 "the lines sit %1 earlier than the subtitles; moved forward, %2 lines would "
 "attach instead of %3"
 msgstr[0] ""
-"řádky jsou o %1 dříve než titulky; po posunutí vpřed by se připojil %2 řádek "
-"místo %3"
+"řádky jsou o %1 dříve než titulky; po posunutí vpřed by se připojil %2 řádek"
+" místo %3"
 msgstr[1] ""
 "řádky jsou o %1 dříve než titulky; po posunutí vpřed by se připojily %2 "
 "řádky místo %3"
@@ -3869,13 +3966,15 @@ msgstr[2] ""
 msgid "the file is already open as the main document"
 msgstr "soubor je již otevřen jako hlavní dokument"
 
-#. TRANSLATORS: %1 is the version of a library the program runs against, %2 the version it
+#. TRANSLATORS: %1 is the version of a library the program runs against, %2
+#. the version it
 #. was compiled with — « 74.2 (built with 74.2) ».
 #: src/lib/subedit/core/wording/version.cpp
 msgid "%1 (built with %2)"
 msgstr "%1 (sestaveno s %2)"
 
-#. TRANSLATORS: %1 is the list of the interface languages installed, by code — « en, fr ».
+#. TRANSLATORS: %1 is the list of the interface languages installed, by code —
+#. « en, fr ».
 #: src/lib/subedit/core/wording/version.cpp
 msgid "Languages: %1"
 msgstr "Jazyky: %1"
@@ -3909,8 +4008,8 @@ msgstr "Pozice jsou čísla snímků, počítaná při %1 fps, zdroj: %2"
 #: src/lib/subedit/core/wording/video.cpp
 msgid ""
 "no frame rate to count a frame by: the video declares none, the file is not "
-"counted in frames, and its positions fall on no grid. Associate a video that "
-"declares one."
+"counted in frames, and its positions fall on no grid. Associate a video that"
+" declares one."
 msgstr ""
 "žádná snímková frekvence, podle které počítat snímky: video žádnou neuvádí, "
 "soubor není počítán ve snímcích a jeho pozice neleží na žádné mřížce. "
@@ -3942,26 +4041,31 @@ msgstr "Licencováno pod GPL, verze 3 nebo novější."
 msgid "About subedit"
 msgstr "O aplikaci subedit"
 
-#. TRANSLATORS: the heading of the column of the libraries' names, in « About subedit ».
+#. TRANSLATORS: the heading of the column of the libraries' names, in « About
+#. subedit ».
 #: src/lib/subedit/gui/about_dialog.cpp
 msgid "Library"
 msgstr "Knihovna"
 
-#. TRANSLATORS: the heading of the version of a library the program runs against.
+#. TRANSLATORS: the heading of the version of a library the program runs
+#. against.
 #: src/lib/subedit/gui/about_dialog.cpp
 msgid "Loaded"
 msgstr "Načtená"
 
-#. TRANSLATORS: the heading of the version of a library the program was compiled with.
+#. TRANSLATORS: the heading of the version of a library the program was
+#. compiled with.
 #: src/lib/subedit/gui/about_dialog.cpp
 msgid "Built with"
 msgstr "Sestaveno s"
 
-#: src/lib/subedit/gui/command_label.cpp src/lib/subedit/gui/window_actions.cpp
+#: src/lib/subedit/gui/command_label.cpp
+#: src/lib/subedit/gui/window_actions.cpp
 msgid "Undo"
 msgstr "Zpět"
 
-#: src/lib/subedit/gui/command_label.cpp src/lib/subedit/gui/window_actions.cpp
+#: src/lib/subedit/gui/command_label.cpp
+#: src/lib/subedit/gui/window_actions.cpp
 msgid "Redo"
 msgstr "Znovu"
 
@@ -4176,7 +4280,8 @@ msgstr "Převést rozsahy na disjunktní"
 msgid "Repair subtitles"
 msgstr "Spravit titulky"
 
-#. TRANSLATORS: the unit after the number of a spin box, with its space: « 50 ms ».
+#. TRANSLATORS: the unit after the number of a spin box, with its space: « 50
+#. ms ».
 #: src/lib/subedit/gui/disjoint_dialog.cpp
 #: src/lib/subedit/gui/transcription_preview_dialog.cpp
 msgid " ms"
@@ -4184,8 +4289,8 @@ msgstr " ms"
 
 #: src/lib/subedit/gui/disjoint_dialog.cpp
 msgid ""
-"An interval shorter than this is taken over by a neighbour. Zero keeps every "
-"interval."
+"An interval shorter than this is taken over by a neighbour. Zero keeps every"
+" interval."
 msgstr ""
 "Interval kratší než tato hodnota převezme soused. Nula ponechá všechny "
 "intervaly."
@@ -4199,8 +4304,8 @@ msgid ""
 "A merged subtitle with more lines is shown in windows of this many lines, "
 "one after the other."
 msgstr ""
-"Sloučený titulek s více řádky se zobrazí v oknech o tomto počtu řádků, jedno "
-"po druhém."
+"Sloučený titulek s více řádky se zobrazí v oknech o tomto počtu řádků, jedno"
+" po druhém."
 
 #: src/lib/subedit/gui/disjoint_dialog.cpp
 msgid ""
@@ -4217,13 +4322,13 @@ msgstr ""
 
 #: src/lib/subedit/gui/disjoint_dialog.cpp
 msgid ""
-"Overlapping subtitles are cut where they overlap, and what shows together is "
-"merged line by line, the earliest first. Nothing is shortened or lengthened. "
-"Each change can be undone."
+"Overlapping subtitles are cut where they overlap, and what shows together is"
+" merged line by line, the earliest first. Nothing is shortened or "
+"lengthened. Each change can be undone."
 msgstr ""
-"Překrývající se titulky se rozdělí tam, kde se překrývají, a co se zobrazuje "
-"současně, se sloučí řádek po řádku, nejdřívější první. Nic se nezkracuje ani "
-"neprodlužuje. Každou změnu lze vrátit zpět."
+"Překrývající se titulky se rozdělí tam, kde se překrývají, a co se zobrazuje"
+" současně, se sloučí řádek po řádku, nejdřívější první. Nic se nezkracuje "
+"ani neprodlužuje. Každou změnu lze vrátit zpět."
 
 #: src/lib/subedit/gui/disjoint_dialog.cpp
 msgid "Shortest interval kept"
@@ -4278,8 +4383,8 @@ msgstr "Problémy nalezené v tomto souboru"
 
 #: src/lib/subedit/gui/fixes_proposal_dialog.cpp
 msgid ""
-"Opening this file found something that can be put right. Each correction can "
-"be undone."
+"Opening this file found something that can be put right. Each correction can"
+" be undone."
 msgstr ""
 "Při otevření tohoto souboru se našlo něco, co lze napravit. Každou opravu "
 "lze vrátit zpět."
@@ -4347,7 +4452,8 @@ msgstr "Video uvádí"
 msgid "The file was read at"
 msgstr "Soubor byl přečten při"
 
-#. TRANSLATORS: %1 is the number of subtitles the file has, too few to measure.
+#. TRANSLATORS: %1 is the number of subtitles the file has, too few to
+#. measure.
 #: src/lib/subedit/gui/grid_analysis_dialog.cpp
 msgid "Too few subtitles to tell: %1 of them."
 msgstr "Příliš málo titulků na rozhodnutí: počet %1."
@@ -4358,14 +4464,17 @@ msgid ""
 "No frame rate grid explains these positions. The closest candidate reaches "
 "%1."
 msgstr ""
-"Tyto pozice nevysvětluje žádná mřížka snímků. Nejbližší kandidát dosahuje %1."
+"Tyto pozice nevysvětluje žádná mřížka snímků. Nejbližší kandidát dosahuje "
+"%1."
 
-#. TRANSLATORS: %1 is a frame rate, %2 how clean the grid is (« clean »), %3 a share.
+#. TRANSLATORS: %1 is a frame rate, %2 how clean the grid is (« clean »), %3 a
+#. share.
 #: src/lib/subedit/gui/grid_analysis_dialog.cpp
 msgid "Written on a %1 fps grid — %2, %3."
 msgstr "Zapsáno na mřížce %1 fps — %2, %3."
 
-#. TRANSLATORS: %1 is a number of subtitle starts, %2 a length of time, « 1:32:05 ».
+#. TRANSLATORS: %1 is a number of subtitle starts, %2 a length of time, «
+#. 1:32:05 ».
 #: src/lib/subedit/gui/grid_analysis_dialog.cpp
 msgid "Measured on %1 start, over %2."
 msgid_plural "Measured on %1 starts, over %2."
@@ -4459,7 +4568,8 @@ msgstr "Rozdělit slova"
 msgid "Language:"
 msgstr "Jazyk:"
 
-#. TRANSLATORS: %1 is the name of the file; `[*]` is where Qt puts the mark of unsaved
+#. TRANSLATORS: %1 is the name of the file; `[*]` is where Qt puts the mark of
+#. unsaved
 #. changes, and stays as it is.
 #: src/lib/subedit/gui/main_window.cpp
 msgid "%1[*] — subedit"
@@ -4513,7 +4623,8 @@ msgstr "%1 nelze přečíst."
 #. TRANSLATORS: %1 is the path a link of the manual names.
 #: src/lib/subedit/gui/manual_window.cpp
 msgid ""
-"%1 is not part of the installed manual; it lives in the project's repository."
+"%1 is not part of the installed manual; it lives in the project's "
+"repository."
 msgstr ""
 "%1 není součástí nainstalované příručky; nachází se v repozitáři projektu."
 
@@ -4607,7 +4718,8 @@ msgstr "Pozastavit"
 msgid "Play"
 msgstr "Přehrát"
 
-#. TRANSLATORS: the interface language that follows the environment, LANGUAGE and LANG.
+#. TRANSLATORS: the interface language that follows the environment, LANGUAGE
+#. and LANG.
 #: src/lib/subedit/gui/preferences_dialog.cpp
 msgid "System default"
 msgstr "Výchozí podle systému"
@@ -4638,7 +4750,8 @@ msgstr "Procházet…"
 msgid "Preferences"
 msgstr "Předvolby"
 
-#. TRANSLATORS: the unit after a number of frames, with its space: « 2 frames ».
+#. TRANSLATORS: the unit after a number of frames, with its space: « 2 frames
+#. ».
 #: src/lib/subedit/gui/preferences_dialog.cpp
 msgid " frames"
 msgstr " sn."
@@ -4744,7 +4857,8 @@ msgstr "Hledání v: %1"
 msgid "Search wrapped around"
 msgstr "Hledání pokračuje od začátku"
 
-#. TRANSLATORS: a filter of the file dialog; %1 lists the patterns, « *.srt *.vtt ».
+#. TRANSLATORS: a filter of the file dialog; %1 lists the patterns, « *.srt
+#. *.vtt ».
 #: src/lib/subedit/gui/qt_prompts.cpp
 msgid "Subtitles (%1)"
 msgstr "Titulky (%1)"
@@ -4753,7 +4867,8 @@ msgstr "Titulky (%1)"
 msgid "All files (*)"
 msgstr "Všechny soubory (*)"
 
-#. TRANSLATORS: a filter of the file dialog; %1 lists the patterns, « *.mkv *.mp4 ».
+#. TRANSLATORS: a filter of the file dialog; %1 lists the patterns, « *.mkv
+#. *.mp4 ».
 #: src/lib/subedit/gui/qt_prompts.cpp
 msgid "Videos (%1)"
 msgstr "Videa (%1)"
@@ -4929,7 +5044,8 @@ msgid "Find and replace"
 msgstr "Najít a nahradit"
 
 # From Gaupol.
-#: src/lib/subedit/gui/search_dialog.cpp src/lib/subedit/gui/window_actions.cpp
+#: src/lib/subedit/gui/search_dialog.cpp
+#: src/lib/subedit/gui/window_actions.cpp
 msgid "Find"
 msgstr "Najít"
 
@@ -5026,8 +5142,8 @@ msgstr "Rozdělit u titulku"
 
 #: src/lib/subedit/gui/split_project_dialog.cpp
 msgid ""
-"The subtitles from this one on move to a new project, opened in a tab of its "
-"own."
+"The subtitles from this one on move to a new project, opened in a tab of its"
+" own."
 msgstr ""
 "Titulky od tohoto dál se přesunou do nového projektu, otevřeného ve vlastní "
 "kartě."
@@ -5159,17 +5275,17 @@ msgstr ""
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
 msgid ""
-"A time as HH:MM:SS, for example 00:02:00. Leave both empty to transcribe the "
-"whole film."
+"A time as HH:MM:SS, for example 00:02:00. Leave both empty to transcribe the"
+" whole film."
 msgstr ""
 "Čas ve tvaru HH:MM:SS, například 00:02:00. Nechte obě pole prázdná, aby se "
 "přepsal celý film."
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
 msgid ""
-"The audio of the film open in this window is transcribed into subtitles that "
-"replace the ones of the project. The work runs in the background and can be "
-"cancelled."
+"The audio of the film open in this window is transcribed into subtitles that"
+" replace the ones of the project. The work runs in the background and can be"
+" cancelled."
 msgstr ""
 "Zvuk filmu otevřeného v tomto okně se přepíše na titulky, které nahradí "
 "titulky projektu. Práce probíhá na pozadí a lze ji zrušit."
@@ -5191,6 +5307,10 @@ msgid "Part of the film"
 msgstr "Část filmu"
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
+msgid "Method"
+msgstr "Metoda"
+
+#: src/lib/subedit/gui/transcribe_dialog.cpp
 msgid "Words to hear"
 msgstr "Slova k zaslechnutí"
 
@@ -5199,24 +5319,37 @@ msgid "Shift to check"
 msgstr "Posun ke kontrole"
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
+msgid "Speech: from when there is speech, in any language"
+msgstr "Řeč: podle toho, kdy se mluví, v jakémkoli jazyce"
+
+#: src/lib/subedit/gui/transcribe_dialog.cpp
+msgid "Words: from the words heard, in the language spoken"
+msgstr "Slova: podle slyšených slov, v mluveném jazyce"
+
+#: src/lib/subedit/gui/transcribe_dialog.cpp
 msgid ""
-"The subtitles of the project are moved to where their words are said in the "
-"audio of the film open in this window. Nothing but their times changes. The "
-"work runs in the background and can be cancelled, and the result is shown "
-"before it is applied."
-msgstr "Titulky projektu se přesunou tam, kde jsou jejich slova vyslovena ve zvuku filmu otevřeného v tomto okně. Mění se pouze jejich časy. Práce probíhá na pozadí a lze ji zrušit; výsledek se zobrazí před použitím."
+"The subtitles of the project are moved to match the audio of the film open "
+"in this window. Nothing but their times changes. The work runs in the "
+"background and can be cancelled, and the result is shown before it is "
+"applied."
+msgstr ""
+"Titulky projektu se přesunou tak, aby odpovídaly zvuku filmu otevřeného v "
+"tomto okně. Mění se pouze jejich časy. Práce probíhá na pozadí a lze ji "
+"zrušit; výsledek se zobrazí před použitím."
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
 msgid ""
 "The share of a subtitle's words that must be heard for the subtitle to be "
 "found."
-msgstr "Podíl slov titulku, který musí být zaslechnut, aby byl titulek nalezen."
+msgstr ""
+"Podíl slov titulku, který musí být zaslechnut, aby byl titulek nalezen."
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
 msgid ""
 "How far a subtitle may move from the shift of its neighbours before it is "
 "flagged."
-msgstr "O kolik se může titulek odchýlit od posunu svých sousedů, než bude označen."
+msgstr ""
+"O kolik se může titulek odchýlit od posunu svých sousedů, než bude označen."
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
 msgid ""
@@ -5265,11 +5398,11 @@ msgstr "Náhled přepisu"
 
 #: src/lib/subedit/gui/transcription_preview_dialog.cpp
 msgid ""
-"Partial result: the work stopped at %1. What was obtained up to there can be "
-"applied or ignored."
+"Partial result: the work stopped at %1. What was obtained up to there can be"
+" applied or ignored."
 msgstr ""
-"Částečný výsledek: práce se zastavila na %1. To, co bylo do té doby získáno, "
-"lze použít nebo ignorovat."
+"Částečný výsledek: práce se zastavila na %1. To, co bylo do té doby získáno,"
+" lze použít nebo ignorovat."
 
 #: src/lib/subedit/gui/transcription_preview_dialog.cpp
 msgid "Select a subtitle on the right to see the pieces it was made from."
@@ -5280,8 +5413,8 @@ msgid ""
 "These values are now the settings of the application (transcription.*). "
 "Closing this window changes nothing more."
 msgstr ""
-"Tyto hodnoty jsou nyní nastavením aplikace (transcription.*). Zavření tohoto "
-"okna už nic dalšího nemění."
+"Tyto hodnoty jsou nyní nastavením aplikace (transcription.*). Zavření tohoto"
+" okna už nic dalšího nemění."
 
 #: src/lib/subedit/gui/transcription_preview_dialog.cpp
 msgid "Merge pieces closer than"
@@ -5757,21 +5890,21 @@ msgstr "Hlavní"
 #~ msgstr "subedit-cli sync"
 
 #~ msgid ""
-#~ "%1 of the %2 pieces are only notes in brackets, such as [MUSIC PLAYING]: "
-#~ "the language used (%3) is probably not the one spoken, and the engine may "
-#~ "have translated the speech. Run it again with the language typed."
+#~ "%1 of the %2 pieces are only notes in brackets, such as [MUSIC PLAYING]: the"
+#~ " language used (%3) is probably not the one spoken, and the engine may have "
+#~ "translated the speech. Run it again with the language typed."
 #~ msgstr ""
 #~ "%1 z %2 částí jsou jen poznámky v hranatých závorkách, například [MUSIC "
 #~ "PLAYING]: použitý jazyk (%3) pravděpodobně není ten, kterým se mluví, a "
 #~ "nástroj mohl řeč přeložit. Spusťte přepis znovu se zadaným jazykem."
 
 #~ msgid ""
-#~ "A language code such as fr, en, de, es or it (fra and eng work too). "
-#~ "Leave it empty to let the model detect the language from the first 30 "
-#~ "seconds of sound."
+#~ "A language code such as fr, en, de, es or it (fra and eng work too). Leave "
+#~ "it empty to let the model detect the language from the first 30 seconds of "
+#~ "sound."
 #~ msgstr ""
-#~ "Kód jazyka, například fr, en, de, es nebo it (fungují i fra a eng). "
-#~ "Nechte pole prázdné, aby model zjistil jazyk z prvních 30 sekund zvuku."
+#~ "Kód jazyka, například fr, en, de, es nebo it (fungují i fra a eng). Nechte "
+#~ "pole prázdné, aby model zjistil jazyk z prvních 30 sekund zvuku."
 
 #~ msgid "estimating the time left…"
 #~ msgstr "odhaduje se zbývající čas…"
@@ -5780,11 +5913,11 @@ msgstr "Hlavní"
 #~ msgstr "Tento model neumí zjistit jazyk: zadejte ho."
 
 #~ msgid ""
-#~ "The file declares no language for this track: the model will detect it "
-#~ "from the sound. Type it if you know it."
+#~ "The file declares no language for this track: the model will detect it from "
+#~ "the sound. Type it if you know it."
 #~ msgstr ""
-#~ "Soubor pro tuto stopu neuvádí žádný jazyk: model ho zjistí ze zvuku. "
-#~ "Pokud ho znáte, zadejte ho."
+#~ "Soubor pro tuto stopu neuvádí žádný jazyk: model ho zjistí ze zvuku. Pokud "
+#~ "ho znáte, zadejte ho."
 
 #~ msgid "Beginning"
 #~ msgstr "Začátek"

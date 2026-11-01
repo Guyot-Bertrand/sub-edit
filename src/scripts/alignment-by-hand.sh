@@ -21,7 +21,7 @@
 # a skipped run is never reported as a passed one.
 #
 #   alignment-by-hand.sh --cli PATH --film FILE --model PATH --truth-model PATH --vad-model PATH
-#                        [--end 5:00] [--language CODE] [--keep DIR] [--control]
+#                        [--end 5:00] [--language CODE] [--keep DIR] [--control] [--method words|speech]
 #
 #   --cli          the `subedit-cli` executable
 #   --film         a video or an audio file with speech in it; nothing of it is kept
@@ -31,6 +31,8 @@
 #   --end          how much of the film, from its beginning (default 5:00)
 #   --language     the language of the speech (default: detected)
 #   --keep         a directory to leave the files in; a temporary one, removed, otherwise
+#   --method       how `sync` puts the files in line (default words, the protocol of #815); `speech`
+#                  lays them on when there is speech, listens with no model, and runs in seconds
 #   --control      one run more, with the model that wrote the truth: the same words are heard, so
 #                  what remains is the matching alone (slow: the larger model listens again)
 #
@@ -43,7 +45,7 @@ skip() {
     exit 77
 }
 
-cli="" film="" model="" truth_model="" vad="" end="5:00" language="" keep="" control=0
+cli="" film="" model="" truth_model="" vad="" end="5:00" language="" keep="" control=0 method="words"
 while [[ $# -gt 0 ]]; do
     case "$1" in
     --cli) cli="$2" ;;
@@ -54,6 +56,7 @@ while [[ $# -gt 0 ]]; do
     --end) end="$2" ;;
     --language) language="$2" ;;
     --keep) keep="$2" ;;
+    --method) method="$2" ;;
     --control)
         control=1
         shift
@@ -138,8 +141,8 @@ for case in "${cases[@]}"; do
     started=$(date +%s)
     listening="$model"
     [[ "$case" != control ]] || listening="$truth_model"
-    "$cli" --format json sync "$work/$case.srt" --video "$film" --end "$limit" --model "$listening" \
-        --vad-model "$vad" "${lang[@]}" --report "$work/$case.report.txt" \
+    "$cli" --format json sync "$work/$case.srt" --video "$film" --end "$limit" --method "$method" \
+        --model "$listening" --vad-model "$vad" "${lang[@]}" --report "$work/$case.report.txt" \
         --output "$work/$case.synced.srt" >"$work/$case.json" 2>/dev/null || true
     echo "$(( $(date +%s) - started ))" >"$work/$case.seconds"
 done

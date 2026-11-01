@@ -33,6 +33,7 @@ constexpr std::string_view kCharacterLimit = deferred("a whole number from 1 to 
 
 constexpr std::string_view kTranscribe = deferred("subedit-cli transcribe; Transcribe Audio…");
 constexpr std::string_view kSync = deferred("subedit-cli sync; Synchronize with Audio…");
+constexpr std::string_view kAlignmentMethod = deferred("speech or words");
 constexpr std::string_view kPercentage = deferred("a whole number from 1 to 100");
 
 constexpr std::string_view kAdjust = deferred("subedit-cli adjust; Adjust Durations…");
@@ -290,6 +291,12 @@ constexpr std::array kCatalogue{
     SettingKey{.key = "alignment.engine",
                .description = deferred("The engine that aligns the subtitles on the audio."),
                .accepts = kEngineName,
+               .usedBy = kSync,
+               .surface = kBoth},
+    SettingKey{.key = "alignment.method",
+               .description = deferred("How the subtitles are laid on the audio: by when there is "
+                                       "speech, or by the words heard."),
+               .accepts = kAlignmentMethod,
                .usedBy = kSync,
                .surface = kBoth},
     SettingKey{.key = "alignment.min-match",

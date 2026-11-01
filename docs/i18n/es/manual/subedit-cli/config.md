@@ -107,7 +107,7 @@ Enumera **45 claves**:
 <!-- example: subedit-cli config list | grep -c '^[a-z]' -->
 ```console
 $ subedit-cli config list | grep -c '^[a-z]'
-45
+46
 ```
 
 **La línea de comandos lee veinticinco de ellas**; las otras veinte solo las lee la ventana,
@@ -123,7 +123,7 @@ y su línea `Used by:` lo dice, con la opción de `correct` que ocupa su lugar:
 | `correction.remove-blank` | `correct` y `Correct Texts…` |
 | `correction.line-break.max-lines` | `correct` y `Correct Texts…` |
 | `transcription.engine`, `transcription.executable`, `transcription.model`, `transcription.vad-model`, `transcription.language`, `transcription.suppress-notes`, `transcription.merge-gap-ms`, `transcription.max-duration-ms`, `transcription.max-characters` | [`transcribe`](transcribe.md) y `Transcribe Audio…` |
-| `alignment.engine`, `alignment.min-match`, `alignment.doubt-gap` | [`sync`](sync.md) y `Synchronize with Audio…` |
+| `alignment.engine`, `alignment.method`, `alignment.min-match`, `alignment.doubt-gap` | [`sync`](sync.md) y `Synchronize with Audio…` |
 | cualquier otra clave `correction.*` | solo `Correct Texts…`; `correct` toma `--tasks`, `--code`, `--max-length`, `--skip-length`, `--skip-lines`, `--language`, `--enable` y `--disable` de su propia línea |
 
 Los números de líneas, `correction.line-break.max-lines` y `correction.line-break.skip-max-lines`,

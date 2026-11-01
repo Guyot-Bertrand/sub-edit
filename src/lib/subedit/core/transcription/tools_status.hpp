@@ -33,6 +33,12 @@ struct TranscriptionTools {
 
     ModelState model = ModelState::NotSet;
 
+    /// The program that finds where there is speech, and whether the voice-activity model the
+    /// settings name is there: what laying subtitles on the speech needs, in place of an engine and
+    /// a model of speech.
+    std::optional<std::filesystem::path> voiceTool{};
+    bool voiceModel = false;
+
     /// What the engine can do with the model, when both are there and the engine says. The surfaces
     /// adapt to it: a control for what the engine cannot do is greyed.
     std::optional<EngineCapabilities> capabilities{};
@@ -47,6 +53,11 @@ struct TranscriptionTools {
     [[nodiscard]] bool ready() const {
         return engine.has_value() && extractor &&
                (model == ModelState::EnglishOnly || model == ModelState::Multilingual);
+    }
+
+    /// Whether subtitles can be laid on the speech: the program, its model, and the extraction.
+    [[nodiscard]] bool speechReady() const {
+        return voiceTool.has_value() && voiceModel && extractor;
     }
 
     friend bool operator==(const TranscriptionTools&, const TranscriptionTools&) = default;

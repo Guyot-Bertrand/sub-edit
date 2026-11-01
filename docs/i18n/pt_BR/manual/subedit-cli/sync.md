@@ -12,6 +12,7 @@ subedit-cli sync (--video FILE | --audio FILE)
                  [--vad-model FILE]
                  [--engine NAME]
                  [--keep-audio FILE]
+                 [--method METHOD]
                  [--min-match PERCENT]
                  [--doubt-gap MS]
                  [--report FILE]
@@ -21,14 +22,27 @@ subedit-cli sync (--video FILE | --audio FILE)
 ```
 
 **Reajusta o tempo de um arquivo de legendas sobre o áudio de um filme.** O caso para o qual existe é o `.srt` baixado da internet,
-deslocado no início e no fim, que um único deslocamento não conserta: cada legenda é procurada no que é dito e
-toma o lugar em que é dita.
+deslocado no início e no fim, que um único deslocamento não conserta. Dois métodos o fazem, e `--method` (ou a
+configuração `alignment.method`) escolhe entre eles:
 
-Ele escuta o áudio com um motor de transcrição — o mesmo de [`transcribe`](transcribe.md) — e **compara
-as palavras de cada legenda com as palavras que ouviu**. Nada é traduzido: as legendas precisam estar no idioma
-que é falado.
+- **`speech`, o padrão, assenta o arquivo sobre os momentos em que alguém fala.** Ele pergunta ao som apenas onde há fala e
+  acha o deslocamento que põe as legendas de acordo com ela, trecho de filme por trecho de filme: um deslocamento constante, uma deriva,
+  uma segunda metade atrasada e um arquivo cronometrado para outra taxa de quadros (25 por 23,976 e semelhantes) são todos corrigidos.
+  **Ele não depende do idioma** — as legendas podem estar em francês e o filme em inglês —, não precisa de nenhuma
+  transcrição e leva segundos. Precisa do `ffmpeg`, do programa `whisper-vad-speech-segments` que vem com o
+  whisper.cpp e de um modelo de atividade de voz (`--vad-model`, a configuração `transcription.vad-model`).
+- **`words` compara as palavras de cada legenda com as palavras que um motor ouviu.** Ele escuta com um motor de transcrição —
+  o mesmo de [`transcribe`](transcribe.md) — e cada legenda toma o lugar em que suas palavras são ditas. Nada
+  é traduzido: as legendas precisam estar no idioma que é falado. Ele pode colocar no lugar uma única legenda fora de
+  lugar num arquivo que está certo no resto, e leva o tempo de uma transcrição.
 
-**Nada do que é necessário é fornecido com o programa**: o motor, um modelo e o `ffmpeg` são os de
+**O que `speech` não faz é dito a cada execução**, na saída de erro e no registro: ele corrige o arquivo
+**como um todo**, nunca uma legenda por vez. Uma legenda fora de lugar sozinha num arquivo que está certo no resto,
+ou um título mostrado sobre um silêncio (um cartão de capítulo, uma legenda que traduz algo na tela), não é procurada
+e pode continuar errada, e os primeiros minutos podem continuar fora quando o filme abre com música ou créditos. Verifique o resultado,
+ou use `--method words` quando o texto estiver no idioma falado.
+
+**Nada do que é necessário é fornecido com o programa**: os programas, o modelo e o `ffmpeg` são os de
 [Instalar as ferramentas de transcrição](install-transcription.md), e a sua ausência não estraga nada — o comando
 diz o que falta, com a remissão para essa página, não escreve nada e termina com um código diferente de zero.
 
@@ -36,14 +50,17 @@ diz o que falta, com a remissão para essa página, não escreve nada e termina 
 - **Uma legenda que o áudio não fornece mantém os seus tempos** — um crédito que ninguém diz, uma canção, uma fala em outro idioma.
   **Nenhuma posição é jamais inventada, nem adivinhada a partir das vizinhas**: a linha fica onde o arquivo a tinha,
   e o comando o diz. Isso *não* é uma falha, e o código de saída é `0`.
-- **Uma legenda é encontrada quando pelo menos metade das suas palavras é ouvida** (`--min-match`, `alignment.min-match`), e pelo
-  menos uma. Maiúsculas, acentos, pontuação e marcação não contam; uma palavra com uma letra de diferença numa palavra longa conta como ouvida.
+- **Com `words`, uma legenda é encontrada quando pelo menos metade das suas palavras é ouvida** (`--min-match`,
+  `alignment.min-match`), e pelo menos uma. Maiúsculas, acentos, pontuação e marcação não contam; uma palavra com uma letra de diferença
+  numa palavra longa conta como ouvida. `speech` dá lugar a toda legenda, e não aceita nenhum de `--language`, `--model`, `--engine`
+  nem `--min-match`.
 - **O fim é onde termina a última palavra.** O motor marca o tempo das palavras de forma aproximada, alguns centésimos de segundo antes do
   fim próprio da legenda, de modo que uma legenda pode sair um pouco mais curta do que era.
 - **Uma legenda que invadiria a seguinte é recuada até onde a seguinte começa.** Uma que ainda se sobrepõe à
   seguinte, o que o recuo não cura, é deixada e dita.
-- **Um arquivo em que nenhuma legenda foi encontrada é recusado e não é escrito**: é quase certamente o áudio errado ou o
-  idioma errado.
+- **Um arquivo que não combina com o som é recusado e não é escrito**: com `words`, nenhuma das legendas foi encontrada,
+  o que quase sempre é o áudio errado ou o idioma errado — `speech` não depende do idioma; com `speech`, as legendas e a fala têm
+  pouco em comum, o que quase sempre é o filme errado.
 - **Pode-se escutar só uma parte do filme**, com `--start` e `--end`, como para
   [`transcribe`](transcribe.md#transcrever-uma-parte): somente as legendas que **começam** no intervalo são procuradas e
   tocadas, as outras ficam como estão e não são contadas.
@@ -72,6 +89,7 @@ Options:
   --vad-model FILE            Voice-activity model that skips silences; the transcription.vad-model setting by default
   --engine NAME               Engine that listens; the transcription.engine setting by default
   --keep-audio FILE           Keep the extracted audio in this file
+  --method METHOD             How the subtitles are put in line: speech (from when there is speech, whatever the language) or words (from the words heard); the alignment.method setting by default
   --min-match PERCENT         Share of a subtitle's words that must be heard, in percent; the alignment.min-match setting by default
   --doubt-gap MS              How far a subtitle may move from its neighbours' shift before it is flagged, in milliseconds; the alignment.doubt-gap setting by default
   --report FILE               Write the subtitles to check to this file
@@ -96,6 +114,7 @@ Options:
 | `--vad-model` | não | um modelo de atividade de voz, que faz o motor ignorar os silêncios; com ele as palavras seguem mais de perto a fala | a configuração `transcription.vad-model` |
 | `--engine` | não | o nome do motor que escuta: `whisper.cpp` | a configuração `transcription.engine` |
 | `--keep-audio` | não | um arquivo onde guardar o áudio extraído; sua pasta é criada se faltar | o áudio não é guardado em lugar nenhum |
+| `--method` | não | `speech`: assenta o arquivo sobre os momentos de fala, em qualquer idioma; `words`: compara as palavras com o que foi ouvido, no idioma falado | a configuração `alignment.method`, `speech` |
 | `--min-match` | não | um número inteiro de 1 a 100: a parte das palavras de uma legenda que deve ser ouvida, em porcentagem | a configuração `alignment.min-match`, `50` |
 | `--doubt-gap` | não | um número inteiro de milissegundos, 0 ou mais: quanto o deslocamento de uma legenda pode diferir do das vizinhas antes de ser sinalizada | a configuração `alignment.doubt-gap`, `2000` |
 | `--report` | não | um arquivo onde escrever as legendas a verificar, uma por linha: o número da legenda, uma tabulação e o motivo; um arquivo de legenda de cada vez | nada é escrito |
@@ -111,7 +130,8 @@ uma tem aqui a sua opção. O motor, o modelo e o modelo de atividade de voz sã
 
 | Chave | Significado | Padrão |
 | :-- | :------ | :------ |
-| `alignment.engine` | o motor de alinhamento; há um, `transcript-matching`, que escuta e compara | `transcript-matching` |
+| `alignment.engine` | o motor de alinhamento do método `words`; há um, `transcript-matching`, que escuta e compara | `transcript-matching` |
+| `alignment.method` | como as legendas são postas em linha: `speech` ou `words` | `speech` |
 | `alignment.min-match` | a parte das palavras de uma legenda que deve ser ouvida para que seja encontrada, em porcentagem | `50` |
 | `alignment.doubt-gap` | quanto, em milissegundos, o deslocamento de uma legenda pode se afastar do das vizinhas antes de ser sinalizada | `2000` |
 
@@ -124,6 +144,10 @@ O comando diz quais legendas verificar, e por quê. Uma legenda é sinalizada pe
 | not found in the audio, left as it was | menos de `--min-match` das suas palavras foram ouvidas: ela mantém os seus tempos |
 | only partly heard | encontrada, mas menos de 80 % das suas palavras foram ouvidas |
 | moved differently from its neighbours | encontrada, mas o seu deslocamento se afasta do deslocamento mediano das duas legendas de cada lado em mais de `--doubt-gap` |
+
+Com `speech`, toda legenda recebe um lugar, e só o último destes motivos pode valer: onde o arquivo muda o seu deslocamento em mais de
+`--doubt-gap` de uma legenda para a seguinte (uma segunda metade atrasada), as legendas de cada lado do degrau são
+sinalizadas.
 
 Uma legenda também pode ser **recuada até o início da legenda seguinte**, ou **ainda se sobrepor à legenda seguinte**.
 
@@ -138,7 +162,7 @@ cada vez mais ao longo do filme.
 
 | Nível | O que se diz na saída de erro |
 | :---- | :------------------------------- |
-| 1 | `<file>: N of M subtitles placed on the audio, K to check; median shift X s, drift Y s -> <destination>` |
+| 1 | `<file>: N of M subtitles placed on the audio, K to check; median shift X s, drift Y s -> <destination>` — e, quando uma taxa de quadros foi corrigida, a razão; com `speech`, **o aviso do que ele não faz**, numa linha à parte |
 | 2 | a etapa e o progresso, como para [`transcribe`](transcribe.md#saída) |
 
 ### Em JSON
@@ -147,20 +171,28 @@ Com [`--format json`](invocation.md#uma-saída-que-um-script-pode-ler), o objeto
 (procuradas), `placed` (que receberam um lugar), `moved` (cujos tempos mudaram), `partial`, `out_of_line`, `not_found`,
 `median_shift_ms` e `drift_ms`; e `flagged`, uma lista de `{"subtitle": N, "kind": "…"}` em que o número é o
 lugar da legenda no arquivo e `kind` é um entre `not-found`, `partial`, `out-of-line`, `cut-back` e `overlaps`.
-Os identificadores são prometidos; as frases não.
+Com `speech`, `warnings` traz uma entrada de `kind` `speech-only`. Os identificadores são prometidos; as frases não.
 
 ## Exemplo
 
 ```bash
-subedit-cli sync --video film.mkv --model small.bin --vad-model silero.bin \
+subedit-cli sync --video film.mkv --vad-model silero.bin \
     --report to-check.txt --output film.synced.srt film.srt
+```
+
+Para colocar cada legenda pelas suas palavras, com um texto no idioma falado:
+
+```bash
+subedit-cli sync --method words --video film.mkv --model small.bin --vad-model silero.bin \
+    --output film.synced.srt film.srt
 ```
 
 ## Códigos de saída
 
 Os da ferramenta: `0` se o arquivo foi escrito, com legendas sinalizadas ou não, `2` se não pôde ser — uma ferramenta ou um modelo
-ausente, uma extração ou uma escuta que falhou, nenhuma legenda encontrada —, `1` num erro de uso, como nem
-`--video` nem `--audio` (ou os dois), uma opção fora do seu intervalo, ou um intervalo que não pode ser usado.
+ausente, uma extração ou uma escuta que falhou, um arquivo que não combina com o som (nenhuma das suas legendas encontrada, ou
+pouco em comum com a fala) —, `1` num erro de uso, como nem `--video` nem `--audio` (ou os dois), uma opção fora do seu
+intervalo, ou um intervalo que não pode ser usado.
 
 ## Erros
 
@@ -173,6 +205,8 @@ ausente, uma extração ou uma escuta que falhou, nenhuma legenda encontrada —
 | uma faixa que o filme não tem | `the video has no audio track N`, depois as faixas que ele tem |
 | um idioma que o modelo não pode transcrever | `the model cannot transcribe the language xx` |
 | um motor que ninguém registrou | `no transcription engine is called NAME`, ou `there is no alignment engine called NAME` |
-| nenhuma das legendas encontrada | `none of the N subtitles was found in the audio: is it the right audio, and the right language?` |
+| nenhuma das legendas encontrada (`words`) | `none of the N subtitles was found in the audio: is it the right audio, and the right language?`, depois `The method based on speech does not depend on the language.` |
+| o modelo de atividade de voz não informado, ou o programa que acha a fala não encontrado (`speech`) | `Finding where there is speech needs a voice-activity model: name one in the transcription.vad-model setting.` ou `Finding where there is speech needs the program whisper-vad-speech-segments, which comes with whisper.cpp, and it was not found.`, depois a remissão para o guia |
+| as legendas e a fala têm pouco em comum (`speech`) | `The sound and the subtitles have too little in common to be put in line: is it the right film?` |
 | `--min-match` fora de 1 a 100, `--doubt-gap` negativo | o erro de uso da opção |
 | `--report` com mais de um arquivo de legenda | `--report names one file: give one subtitle file when you use it` |

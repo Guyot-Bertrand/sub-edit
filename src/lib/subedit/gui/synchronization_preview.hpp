@@ -13,6 +13,10 @@ struct SynchronizationPreview {
     std::vector<std::string> texts;
 
     core::SynchronizationPlan plan;
+
+    /// What the person must not take for granted of this result, shown under the summary: the
+    /// limits of laying the file on the speech, and a frame rate put right. Empty for nothing.
+    std::string warning;
 };
 
 } // namespace subedit::gui

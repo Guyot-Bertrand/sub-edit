@@ -2,6 +2,7 @@
 #include <subedit/core/transcription/language_codes.hpp>
 #include <subedit/core/transcription/language_display.hpp>
 #include <subedit/core/transcription/time_range.hpp>
+#include <subedit/core/wording/alignment.hpp>
 #include <subedit/core/wording/transcription.hpp>
 #include <subedit/gui/audio_track_menu.hpp>
 #include <subedit/gui/messages.hpp>
@@ -51,6 +52,8 @@ TranscribeDialog::TranscribeDialog(std::vector<core::AudioTrack> tracks,
       m_language(new QComboBox{this}),
       m_suppressNotes(new QCheckBox{translate("Do not write sounds as notes"), this}),
       m_selectionOnly(new QCheckBox{translate("Only the selected subtitles"), this}),
+      m_method(new QComboBox{this}),
+      m_methodHint(new QLabel{this}),
       m_minimumMatch(new QSpinBox{this}),
       m_doubtGap(new QSpinBox{this}),
       m_explanation(new QLabel{this}),
@@ -128,6 +131,8 @@ TranscribeDialog::TranscribeDialog(std::vector<core::AudioTrack> tracks,
     fields->addRow(translate("Part of the film"), range);
     fields->addRow(QString{}, m_rangeHint);
     fields->addRow(QString{}, m_selectionOnly);
+    fields->addRow(translate("Method"), m_method);
+    fields->addRow(QString{}, m_methodHint);
     fields->addRow(translate("Words to hear"), m_minimumMatch);
     fields->addRow(translate("Shift to check"), m_doubtGap);
     // Only the synchronization shows these three, but the choice always carries them: what the
@@ -138,9 +143,16 @@ TranscribeDialog::TranscribeDialog(std::vector<core::AudioTrack> tracks,
     m_doubtGap->setRange(0, kLargestGap);
     m_doubtGap->setValue(initial.doubtGapMilliseconds);
     m_selectionOnly->setChecked(initial.selectionOnly);
-    // Only the synchronization asks these three.
-    for (QWidget* widget :
-         std::initializer_list<QWidget*>{m_selectionOnly, m_minimumMatch, m_doubtGap})
+    m_method->addItem(translate("Speech: from when there is speech, in any language"),
+                      static_cast<int>(core::AlignmentMethod::Speech));
+    m_method->addItem(translate("Words: from the words heard, in the language spoken"),
+                      static_cast<int>(core::AlignmentMethod::Words));
+    m_method->setCurrentIndex(m_method->findData(static_cast<int>(initial.method)));
+    m_methodHint->setWordWrap(true);
+    connect(m_method, &QComboBox::currentIndexChanged, this, [this] { refresh(); });
+    // Only the synchronization asks these.
+    for (QWidget* widget : std::initializer_list<QWidget*>{
+             m_selectionOnly, m_method, m_methodHint, m_minimumMatch, m_doubtGap})
         fields->setRowVisible(widget, false);
 
     connect(m_buttons, &QDialogButtonBox::accepted, this, &QDialog::accept);
@@ -169,6 +181,8 @@ TranscribeChoice TranscribeDialog::choice() const {
                             .start = core::readRangeBound(m_start->text().toStdString()),
                             .end = core::readRangeBound(m_end->text().toStdString()),
                             .selectionOnly = m_selectionOnly->isChecked(),
+                            .method =
+                                static_cast<core::AlignmentMethod>(m_method->currentData().toInt()),
                             .minimumMatchPercent = m_minimumMatch->value(),
                             .doubtGapMilliseconds = m_doubtGap->value()};
 }
@@ -177,10 +191,11 @@ void TranscribeDialog::forSynchronization(const TranscribeChoice& initial,
                                           bool selectionAvailable) {
     setWindowTitle(translate("Synchronize with audio"));
     m_explanation->setText(
-        translate("The subtitles of the project are moved to where their words are said in the "
-                  "audio of the film open in this window. Nothing but their times changes. The "
-                  "work runs in the background and can be cancelled, and the result is shown "
-                  "before it is applied."));
+        translate("The subtitles of the project are moved to match the audio of the film open in "
+                  "this window. Nothing but their times changes. The work runs in the background "
+                  "and can be cancelled, and the result is shown before it is applied."));
+    m_synchronizing = true;
+    m_method->setCurrentIndex(m_method->findData(static_cast<int>(initial.method)));
     m_minimumMatch->setSuffix(QStringLiteral(" %"));
     m_minimumMatch->setValue(initial.minimumMatchPercent);
     m_minimumMatch->setToolTip(translate(
@@ -196,11 +211,27 @@ void TranscribeDialog::forSynchronization(const TranscribeChoice& initial,
     m_selectionOnly->setToolTip(
         translate("Look for the selected subtitles alone, in the part of the film around them."));
 
-    for (QWidget* widget :
-         std::initializer_list<QWidget*>{m_selectionOnly, m_minimumMatch, m_doubtGap})
+    for (QWidget* widget : std::initializer_list<QWidget*>{
+             m_selectionOnly, m_method, m_methodHint, m_minimumMatch, m_doubtGap})
         m_fields->setRowVisible(widget, true);
     // Sounds are not words: the alignment never asks for them.
     m_fields->setRowVisible(m_suppressNotes, false);
+    followMethod();
+    refresh();
+}
+
+bool TranscribeDialog::onSpeech() const {
+    return m_synchronizing && static_cast<core::AlignmentMethod>(m_method->currentData().toInt()) ==
+                                  core::AlignmentMethod::Speech;
+}
+
+void TranscribeDialog::followMethod() {
+    const bool speech = onSpeech();
+    // The language of the speech and the share of words heard belong to the matching of words.
+    m_language->setEnabled(!speech && m_language->count() > 1);
+    m_minimumMatch->setEnabled(!speech);
+    m_methodHint->setText(speech ? QString::fromStdString(core::speechOnlyWarning()) : QString{});
+    updateButtons();
 }
 
 void TranscribeDialog::refresh() {
@@ -209,7 +240,18 @@ void TranscribeDialog::refresh() {
 
     QString report =
         QString::fromStdString(core::transcriptionToolsReport(view.tools, view.settings));
-    if (!view.tools.ready())
+    if (onSpeech()) {
+        // What laying the subtitles on the speech lacks, if anything: not what the matching of
+        // words needs.
+        if (!view.tools.voiceTool)
+            report = QString::fromStdString(core::speechNeedsTheVoiceTool());
+        else if (!view.tools.voiceModel)
+            report = QString::fromStdString(core::speechNeedsTheVoiceModel());
+        else if (!view.tools.extractor)
+            report = translate("ffmpeg: not found");
+        else
+            report.clear();
+    } else if (!view.tools.ready())
         report += QStringLiteral("\n\n%1\n%2")
                       .arg(translate("Set them in the preferences."),
                            QString::fromStdString(core::installationGuidePointer()));
@@ -217,6 +259,7 @@ void TranscribeDialog::refresh() {
     fillLanguages();
     explainLanguage();
     checkRange();
+    followMethod();
 
     // Greyed, with the reason, for an engine that cannot be told: the checkbox is not removed, so
     // that the person sees the option exists and why it is out.
@@ -249,7 +292,8 @@ void TranscribeDialog::checkRange() {
 }
 
 void TranscribeDialog::updateButtons() {
-    m_buttons->button(QDialogButtonBox::Ok)->setEnabled(m_current.ready() && m_rangeValid);
+    const bool ready = onSpeech() ? m_current.speechReady() : m_current.ready();
+    m_buttons->button(QDialogButtonBox::Ok)->setEnabled(ready && m_rangeValid);
 }
 
 void TranscribeDialog::fillLanguages() {

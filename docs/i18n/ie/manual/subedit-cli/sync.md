@@ -12,6 +12,7 @@ subedit-cli sync (--video FILE | --audio FILE)
                  [--vad-model FILE]
                  [--engine NAME]
                  [--keep-audio FILE]
+                 [--method METHOD]
                  [--min-match PERCENT]
                  [--doubt-gap MS]
                  [--report FILE]
@@ -21,14 +22,27 @@ subedit-cli sync (--video FILE | --audio FILE)
 ```
 
 **Retemporisa li subtitules de un file sur li audio de un film.** Li casu por quel it existe es li `.srt` descargat
-in rete, movet al comense e al fine, quel un sol movement ne remena: chascun subtitul es serchat in quo es dit, e
-prende li loc u it es dit.
+in rete, movet al comense e al fine, quel un sol movement ne remena. Du metodes it fa, e `--method` (o li parametre
+`alignment.method`) elige inter les:
 
-It audi li audio con un motor de transcription — li sam quam ti de [`transcribe`](transcribe.md) — e **fa
-corresponder li paroles de chascun subtitul con li paroles quel it ha audit**. Nequo es traductet: li subtitules deve
-esser in li lingue quel es parlat.
+- **`speech`, li predefinit, pone li file sur li moment u alqui parla.** It demanda al son solmen u il ha parlada, e
+  trova li movement quel fa li subtitules concordar con it, parte de film per parte de film: un decalage constant, un
+  derive, un duesim mità quel es tard, e un file temporisat por un altri frequentie de images (25 por 23.976, e talis)
+  es omnes corriget. **It ne depende del lingue** — li subtitules posse esser in francese e li film in anglesi —, it
+  besona null transcription, e it prende secondes. It besona `ffmpeg`, li programma `whisper-vad-speech-segments` quel
+  veni con whisper.cpp, e un model de activitá de voce (`--vad-model`, li parametre `transcription.vad-model`).
+- **`words` fa corresponder li paroles de chascun subtitul con li paroles quel un motor ha audit.** It audi con un motor
+  de transcription — li sam quam ti de [`transcribe`](transcribe.md) — e chascun subtitul prende li loc u su paroles
+  es dit. Nequo es traductet: li subtitules deve esser in li lingue quel es parlat. It posse placiar un sol subtitul
+  quel es foris de su loc in un file quel es altrimen corect, e it prende li témpor de un transcription.
 
-**Nulquo de quo it besona es livrat con li programma**: li motor, un model e `ffmpeg` es ti de
+**Quo `speech` ne fa es dit chascun vice quel it funde**, sur li exeunte de error e in li registre: it corrige li file
+**in su tot**, nequande un subtitul a un vice. Un subtitul quel es foris de su loc por se self in un file altrimen
+corect, o un titul monstrat sur un silentie (un carte de capitul, un legende quel tradue alquo sur li image), ne es
+serchat e posse esser ancor fals, e li prim minutes posse resta foris quande li film comensa con musica o titules.
+Verificar li resultate, o usar `--method words` quande li textu es in li lingue parlat.
+
+**Nulquo de quo it besona es livrat con li programma**: li programmas, li model e `ffmpeg` es ti de
 [Instalar li utensiles de transcription](install-transcription.md), e lor manca ne rumpe nequo — li comande dit quo
 manca, con li indication a ti págine, scri null cosa e exeunte con un code ne-zero.
 
@@ -36,15 +50,17 @@ manca, con li indication a ti págine, scri null cosa e exeunte con un code ne-z
 - **Un subtitul quel li audio ne da conserva su tempores** — un credit quel nequi dis, un cantu, un linea in un altri
   lingue. **Null position es nequande inventat, ni divinat ex li vicinos**: li linea resta u li file la havea, e li
   comande dit it. To *ne* es un fallimentu, e li code de exeunte es `0`.
-- **Un subtitul es trovat quande al minimum li mità de su paroles es audit** (`--min-match`, `alignment.min-match`), e
-  al minimum un. Li casu, li accentus, li punctuation e li marcation ne importa; un parol quel diffère per un líttere
-  de un long parol conta quam audit.
+- **Con `words`, un subtitul es trovat quande al minimum li mità de su paroles es audit** (`--min-match`,
+  `alignment.min-match`), e al minimum un. Li casu, li accentus, li punctuation e li marcation ne importa; un parol quel
+  diffère per un líttere de un long parol conta quam audit. `speech` plazza chascun subtitul, e prende null de
+  `--language`, `--model`, `--engine` o `--min-match`.
 - **Li fine es u li ultim parol fini.** Li motor temporisa li paroles approximativmen, alcun centesimes de seconde ante
   li fine propri del subtitul, dunc un subtitul posse exir un poc plu curt quam it esset.
 - **Un subtitul quel entrarea in li sequent es decurtat til u li sequent comensa.** Un quel ancor superpone li
   sequent, quo decurtar ne posse curar, es lassat e dit.
-- **Un file de quel null subtitul esset trovat es refusat e ne scrit**: it es presque cert li mal audio o li mal
-  lingue.
+- **Un file quel ne conveni al son es refusat e ne scrit**: con `words`, null subtitul esset trovat, quo es presque
+  sempre li mal audio o li mal lingue — `speech` ne depende del lingue; con `speech`, li subtitules e li parlada have
+  tro poc in comun, quo es presque sempre li mal film.
 - **On posse audir solmen un parte del film**, con `--start` e `--end`, quam por
   [`transcribe`](transcribe.md#transcrir-un-parte): solmen li subtitules quel **comensa** in li interval es serchat e
   tanget, li altres resta quam ili es e ne es contat.
@@ -73,6 +89,7 @@ Options:
   --vad-model FILE            Voice-activity model that skips silences; the transcription.vad-model setting by default
   --engine NAME               Engine that listens; the transcription.engine setting by default
   --keep-audio FILE           Keep the extracted audio in this file
+  --method METHOD             How the subtitles are put in line: speech (from when there is speech, whatever the language) or words (from the words heard); the alignment.method setting by default
   --min-match PERCENT         Share of a subtitle's words that must be heard, in percent; the alignment.min-match setting by default
   --doubt-gap MS              How far a subtitle may move from its neighbours' shift before it is flagged, in milliseconds; the alignment.doubt-gap setting by default
   --report FILE               Write the subtitles to check to this file
@@ -98,6 +115,7 @@ Options:
 | `--vad-model` | no | un model de activitá de voce, quel fa que li motor saltea li silentias; con it li paroles seque plu strictmen li parol | li parametre `transcription.vad-model` |
 | `--engine` | no | li nómine del motor quel audi: `whisper.cpp` | li parametre `transcription.engine` |
 | `--keep-audio` | no | un file por conservar li audio extraet; su directoria es creat si it manca | li audio ne es conservat in null loc |
+| `--method` | no | `speech`: pone li file sur li moment u il ha parlada, in omni lingue; `words`: fa corresponder li paroles con quo esset audit, in li lingue parlat | li parametre `alignment.method`, `speech` |
 | `--min-match` | no | un númere integri de 1 til 100: li parte del paroles de un subtitul quel deve esser audit, in procent | li parametre `alignment.min-match`, `50` |
 | `--doubt-gap` | no | un númere integri de millisecondes, 0 o plu: quant li movement de un subtitul posse divergir del movement de su vicinos ante que it es marcat | li parametre `alignment.doubt-gap`, `2000` |
 | `--report` | no | un file in quel scrir li subtitules a verificar, un per linea: li númere del subtitul, un tabulator, e pro quo; un file de subtitules a un vice | null cosa es scrit |
@@ -114,7 +132,8 @@ li model de activitá de voce es ti de `transcribe`.
 
 | Clave | Signification | Predefinit |
 | :-- | :------ | :------ |
-| `alignment.engine` | li motor de allineament; il ha un, `transcript-matching`, quel audi e fa corresponder | `transcript-matching` |
+| `alignment.engine` | li motor de allineament del metode `words`; il ha un, `transcript-matching`, quel audi e fa corresponder | `transcript-matching` |
+| `alignment.method` | qualmen li subtitules es mett in linea: `speech` o `words` | `speech` |
 | `alignment.min-match` | li parte del paroles de un subtitul quel deve esser audit por que it es trovat, in procent | `50` |
 | `alignment.doubt-gap` | quant, in millisecondes, li movement de un subtitul posse divergir del movement de su vicinos ante que it es marcat | `2000` |
 
@@ -127,6 +146,10 @@ Li comande dit qual subtitules verificar, e pro quo. Un subtitul es marcat por l
 | ne trovat in li audio, lassat quam it esset | min de `--min-match` de su paroles esset audit: it conserva su tempores |
 | audit solmen in parte | trovat, ma min de 80 % de su paroles esset audit |
 | movet altrimen que su vicinos | trovat, ma su movement diverge del movement median del du subtitules de chascun costa per plu de `--doubt-gap` |
+
+Con `speech` chascun subtitul es plazzat, e solmen li ultim de ti rasones posse valer: u li file changea su movement per
+plu quam `--doubt-gap` de un subtitul al sequent (un duesim mità tard), li subtitules de chascun costa del passu es
+marcat.
 
 Un subtitul posse anc esser **decurtat til li comense del sequent subtitul**, o **ancor superponer li sequent subtitul**.
 
@@ -141,7 +164,7 @@ plu durant li film.
 
 | Nivelle | Quo es dit sur li exeunte de error |
 | :---- | :-------------------------------- |
-| 1 | `<file>: N of M subtitles placed on the audio, K to check; median shift X s, drift Y s -> <destination>` |
+| 1 | `<file>: N of M subtitles placed on the audio, K to check; median shift X s, drift Y s -> <destination>` — e, quande un frequentie de images esset corriget, li proportion; con `speech`, **li avise de quo it ne fa**, sur un linea a part |
 | 2 | li pass e li progress, quam por [`transcribe`](transcribe.md#output) |
 
 ### In JSON
@@ -150,20 +173,28 @@ Con [`--format json`](invocation.md#un-output-quel-un-script-posse-leer), li obj
 `subtitles` (serchat), `placed` (qui have un loc), `moved` (de quel li tempores ha changeat), `partial`, `out_of_line`,
 `not_found`, `median_shift_ms` e `drift_ms`; e `flagged`, un liste de `{"subtitle": N, "kind": "…"}` u li númere es li
 position del subtitul in li file e `kind` es un de `not-found`, `partial`, `out-of-line`, `cut-back` e `overlaps`.
-Li ids es promisset; li frases no.
+Con `speech`, `warnings` porta un intrada de `kind` `speech-only`. Li ids es promisset; li frases no.
 
 ## Exemple
 
 ```bash
-subedit-cli sync --video film.mkv --model small.bin --vad-model silero.bin \
+subedit-cli sync --video film.mkv --vad-model silero.bin \
     --report to-check.txt --output film.synced.srt film.srt
+```
+
+Por plazzar chascun subtitul secun su paroles, por un textu in li lingue parlat:
+
+```bash
+subedit-cli sync --method words --video film.mkv --model small.bin --vad-model silero.bin \
+    --output film.synced.srt film.srt
 ```
 
 ## Codes de exeunte
 
 Ti del instrument: `0` si li file esset scrit, subtitules marcat o no, `2` si it ne posset esser — un instrument o un
-model mancant, un extraction o un audition fallit, null subtitul trovat —, `1` pro un errore de usation, quam ni `--video`
-ni `--audio` (o ambi), un option foris de su interval, o un interval quel ne posse esser usat.
+model mancant, un extraction o un audition fallit, un file quel ne conveni al son (null de su subtitules trovat, o tro
+poc in comun con li parlada) —, `1` pro un errore de usation, quam ni `--video` ni `--audio` (o ambi), un option foris
+de su interval, o un interval quel ne posse esser usat.
 
 ## Errores
 
@@ -176,6 +207,8 @@ ni `--audio` (o ambi), un option foris de su interval, o un interval quel ne pos
 | un pista quel li film ne have | `the video has no audio track N`, poy li pistas quel it have |
 | un lingue quel li model ne posse transcrir | `the model cannot transcribe the language xx` |
 | un motor quel nequi ha registrat | `no transcription engine is called NAME`, o `there is no alignment engine called NAME` |
-| null subtitul trovat | `none of the N subtitles was found in the audio: is it the right audio, and the right language?` |
+| null subtitul trovat (`words`) | `none of the N subtitles was found in the audio: is it the right audio, and the right language?`, poy `The method based on speech does not depend on the language.` |
+| li model de activitá de voce ne nominat, o li programma quel trova li parlada ne trovat (`speech`) | `Finding where there is speech needs a voice-activity model: name one in the transcription.vad-model setting.` o `Finding where there is speech needs the program whisper-vad-speech-segments, which comes with whisper.cpp, and it was not found.`, poy li indication al guide |
+| li subtitules e li parlada have tro poc in comun (`speech`) | `The sound and the subtitles have too little in common to be put in line: is it the right film?` |
 | `--min-match` foris 1 til 100, `--doubt-gap` negativ | li errore de usation del option |
 | `--report` con plu de un file de subtitules | `--report names one file: give one subtitle file when you use it` |

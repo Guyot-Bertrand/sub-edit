@@ -373,3 +373,6 @@ longer prove anything.
 | `GUI-SYNC-02` | the work runs in the background with a progress indicator and can be cancelled, a cancelled or failed run leaving the project unchanged | 23 | implemented |
 | `GUI-SYNC-03` | the result is shown in a preview — current times and new times side by side, the flagged lines marked — and applies as one undoable operation | 23 | implemented |
 | `GUI-SYNC-04` | without the executable, the model or the extraction tool the command explains what is missing and where to read how to install it, and the rest of the window is unaffected | 23 | implemented |
+| `CLI-SYNC-07` | `sync --method speech`, the default, lays the file on when there is speech without transcribing, whatever the language of the subtitles, and refuses, with nothing written, a missing voice-activity model or program, and a file that has too little in common with the sound | 23 | implemented |
+| `CLI-SYNC-08` | the warning that only the file as a whole was put in line is said every time `speech` runs, in the output and as a `speech-only` warning of the record | 23 | implemented |
+| `GUI-SYNC-05` | the dialog offers the method, speech first, says what speech does not do, and the preview repeats it; a file that does not fit the sound is refused with the reason | 23 | implemented |

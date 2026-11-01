@@ -21,6 +21,28 @@ namespace subedit::core {
 /// wrong language, far more often than a file nobody says.
 [[nodiscard]] std::string noLineFoundInTheAudio(std::size_t lines);
 
+/// Finding where there is speech needs a voice-activity model, and none is named.
+[[nodiscard]] std::string speechNeedsTheVoiceModel();
+
+/// Finding where there is speech needs the program of whisper.cpp that does it, and it is not
+/// there.
+[[nodiscard]] std::string speechNeedsTheVoiceTool();
+
+/// The sound and the file have too little in common for the file to be put in line with it: the
+/// wrong film, or one with hardly any speech.
+[[nodiscard]] std::string noAgreementWithTheSpeech();
+
+/// What must not be believed of a file put in line with the speech alone: only the file as a whole
+/// was corrected. **Shown every time, by both surfaces**, so that nobody expects a line that is on
+/// its own out of place to have been found.
+[[nodiscard]] std::string speechOnlyWarning();
+
+/// The frame rate of the file was put right: its times were divided by `ratio`.
+[[nodiscard]] std::string frameRateCorrectedText(double ratio);
+
+/// Said after a failure of the matching of words: another method does not depend on the language.
+[[nodiscard]] std::string speechMethodIgnoresLanguage();
+
 /// What an alignment came to: how many subtitles were placed, how many are to be checked, and the
 /// figures that tell the story of the file.
 [[nodiscard]] std::string noticeOfAlignment(const AlignmentReport& report);

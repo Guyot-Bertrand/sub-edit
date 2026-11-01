@@ -2,8 +2,11 @@
 #include <subedit/core/time/duration.hpp>
 #include <subedit/core/wording/alignment.hpp>
 #include <subedit/core/wording/analysis.hpp>
+#include <subedit/core/wording/transcription.hpp>
 
 #include <cstddef>
+#include <iomanip>
+#include <sstream>
 #include <string>
 #include <utility>
 
@@ -26,6 +29,44 @@ std::string noLineFoundInTheAudio(std::size_t lines) {
                         "and the right language?",
                         lines),
         {std::to_string(lines)});
+}
+
+std::string speechNeedsTheVoiceModel() {
+    return std::string{translate("Finding where there is speech needs a voice-activity model: "
+                                 "name one in the transcription.vad-model setting.")} +
+           " " + installationGuidePointer();
+}
+
+std::string speechNeedsTheVoiceTool() {
+    return std::string{translate("Finding where there is speech needs the program "
+                                 "whisper-vad-speech-segments, which comes with whisper.cpp, and "
+                                 "it was not found.")} +
+           " " + installationGuidePointer();
+}
+
+std::string noAgreementWithTheSpeech() {
+    return std::string{translate("The sound and the subtitles have too little in common to be put "
+                                 "in line: is it the right film?")};
+}
+
+std::string speechOnlyWarning() {
+    return std::string{translate(
+        "Only the file as a whole was put in line with the speech, not each subtitle: one that is "
+        "out of place by itself, or a title shown over a silence, may still be wrong. Check the "
+        "result.")};
+}
+
+std::string frameRateCorrectedText(double ratio) {
+    constexpr int kPlaces = 4;
+    std::ostringstream formatted;
+    formatted << std::fixed << std::setprecision(kPlaces) << ratio;
+    return substitute(translate("The frame rate of the file was put right: its times were divided "
+                                "by %1."),
+                      {formatted.str()});
+}
+
+std::string speechMethodIgnoresLanguage() {
+    return std::string{translate("The method based on speech does not depend on the language.")};
 }
 
 std::string noticeOfAlignment(const AlignmentReport& report) {

@@ -7,7 +7,7 @@ Le menu **Vidéo** porte d'abord trois commandes, et les gestes qui pilotent le 
 | :------- | :-------- | :-------------- |
 | Choisir une vidéo… | aucun | choisit le fichier vidéo que le document accompagne |
 | Transcrire l'audio… | aucun | transcrit l'audio du film en sous-titres qui remplacent ceux du projet — voir [Transcrire l'audio](#transcrire-laudio) |
-| Synchroniser avec l'audio… | aucun | déplace les sous-titres du projet là où leurs mots sont dits dans l'audio du film — voir [Synchroniser avec l'audio](#synchroniser-avec-laudio) |
+| Synchroniser avec l'audio… | aucun | déplace les sous-titres du projet pour correspondre à l'audio du film — voir [Synchroniser avec l'audio](#synchroniser-avec-laudio) |
 | Lecture / Pause | `Ctrl+P` | joue ou arrête la vidéo — voir [Le lecteur](player.md#jouer-et-arrêter) |
 
 La vidéo associée est **une propriété du document ouvert**, pas un réglage de
@@ -195,30 +195,40 @@ Voir [Installer les outils de transcription](../subedit-cli/install-transcriptio
 ## Synchroniser avec l'audio
 
 **`Synchronize with Audio…`** recale les sous-titres du projet sur l'audio du film. C'est le cas du `.srt` récupéré en ligne, décalé
-au début et à la fin, qu'un simple décalage ne ramène pas : chaque sous-titre est cherché dans ce qui est dit, et prend la place où il
-est dit. **Seuls les débuts et les fins changent** — jamais le texte, le style, le nombre de sous-titres ni leur ordre. Comme
+au début et à la fin, qu'un simple décalage ne ramène pas. **Seuls les débuts et les fins changent** — jamais le texte, le style, le nombre de sous-titres ni leur ordre. Comme
 `Transcribe Audio…`, la commande est éteinte tant qu'aucun film n'est ouvert, et c'est l'audio **du film du projet** ; la même commande en ligne de
 commande est [`sync`](../subedit-cli/sync.md).
 
-Les sous-titres doivent être dans la langue qui est parlée : rien n'est traduit. Le travail est fait par le moteur qui transcrit — celui des
-[préférences](preferences.md#transcription), avec le même programme, `ffmpeg` et le même modèle — et **le dialogue dit ce qui manque**, comme celui de la
-transcription, avec le renvoi vers [Installer les outils de transcription](../subedit-cli/install-transcription.md) et un bouton
-`Preferences…`.
+Deux méthodes y parviennent, et le dialogue demande laquelle :
+
+- **« Parole », la méthode par défaut, pose le fichier sur les moments où l'on parle.** Elle ne dépend pas de la langue — des sous-titres français
+  sur un film en anglais conviennent —, elle ne transcrit rien, et elle prend quelques secondes. Elle corrige le fichier **dans son ensemble** : un
+  décalage constant, une dérive, une seconde moitié en retard, un fichier calé pour une autre cadence d'images. Il lui faut `ffmpeg`, le programme
+  `whisper-vad-speech-segments` de whisper.cpp et un modèle d'activité vocale, réglé dans les [préférences](preferences.md#transcription).
+- **« Mots » apparie les mots de chaque sous-titre aux mots que le moteur a entendus.** Les sous-titres doivent être dans la langue qui est parlée,
+  rien n'est traduit, et elle prend le temps d'une transcription. Elle peut placer un sous-titre déplacé dans un fichier par ailleurs juste.
+  Le travail est fait par le moteur qui transcrit, avec le même programme, `ffmpeg` et le même modèle.
+
+**Avec « Parole », le dialogue et le résultat disent ce qu'elle ne fait pas**, à chaque fois : elle ne regarde jamais un sous-titre seul, si bien qu'un
+sous-titre déplacé à lui seul, ou un titre affiché sur un silence, peut rester faux, et les premières minutes peuvent rester décalées quand le film s'ouvre
+sur de la musique ou des titres. Vérifiez le résultat. **Le dialogue dit ce qui manque**, comme celui de la transcription, avec le renvoi vers
+[Installer les outils de transcription](../subedit-cli/install-transcription.md) et un bouton `Preferences…`.
 
 Le dialogue demande :
 
-- **la piste audio** et **la langue**, comme pour la transcription ;
+- **la piste audio** et **la langue**, comme pour la transcription — la langue ne sert qu'à « Mots » ;
+- **la méthode**, « Parole » ou « Mots », gardée pour la fois suivante ;
 - **la partie du film**, d'un temps à un autre, les deux vides pour tout le film : seuls les sous-titres qui **commencent** dans la plage sont
   cherchés et déplacés ;
 - **« Seulement les sous-titres sélectionnés »** : une case, éteinte quand rien n'est sélectionné. Elle ne cherche que les sous-titres sélectionnés, dans la partie du
   film qui commence une minute avant le premier et finit une minute après le dernier, de sorte qu'un fichier en retard ou en avance reste
   dans ce qui est écouté ;
-- **« Mots à entendre »**, en pourcentage : la part des mots d'un sous-titre qui doit être entendue pour que le sous-titre soit trouvé, 50 % par défaut — le réglage
+- **« Mots à entendre »**, en pourcentage, pour « Mots » seulement : la part des mots d'un sous-titre qui doit être entendue pour que le sous-titre soit trouvé, 50 % par défaut — le réglage
   `alignment.min-match` ;
 - **« Décalage à vérifier »**, en millisecondes : de combien un sous-titre peut s'écarter du décalage de ses voisins avant d'être signalé, 2000 ms par défaut —
   le réglage `alignment.doubt-gap`.
 
-Les trois derniers sont gardés pour la fois suivante. Le travail se fait **en arrière-plan**, avec la même boîte et le même bouton `Cancel` que la transcription ;
+Les deux derniers sont gardés pour la fois suivante. Le travail se fait **en arrière-plan**, avec la même boîte et le même bouton `Cancel` que la transcription ;
 un travail qui échoue ou que vous arrêtez ne change rien.
 
 ### Le résultat
@@ -234,12 +244,13 @@ son numéro, son texte, **le début qu'il avait, le début qu'il prend, le déca
 - **« raccourci jusqu'au début du sous-titre suivant »** et **« chevauche encore le sous-titre suivant »** : un sous-titre qui rentrerait dans le suivant est raccourci jusqu'à
   l'endroit où le suivant commence ; celui qui le chevauche encore, ce qu'un raccourcissement ne guérit pas, est laissé et signalé.
 
-Une ligne au-dessus du tableau dit ce que cela donne — combien de sous-titres sont placés, combien sont à vérifier, le décalage médian et la dérive —, et
+Une ligne au-dessus du tableau dit ce que cela donne — combien de sous-titres sont placés, combien sont à vérifier, le décalage médian et la dérive —, puis, avec « Parole », l'avertissement de ce qu'elle ne fait pas et, quand une cadence d'images a été corrigée, qu'elle l'a été. Et
 **« Seulement les sous-titres à vérifier »** montre ceux-là seuls. Le tableau ne s'édite pas.
 
 Deux boutons ferment la fenêtre. **« Appliquer »** déplace les débuts et les fins **en une seule opération** : un `Undo` rend les temps qui étaient là. « Annuler »
 laisse le projet tel qu'il est. « Appliquer » est éteint quand rien ne bougerait. Quand aucun des sous-titres n'a pu être trouvé, la fenêtre le dit dans une boîte
-et ne montre rien à appliquer : c'est presque sûrement le mauvais son ou la mauvaise langue.
+et ne montre rien à appliquer : avec « Mots » c'est presque sûrement le mauvais son ou la mauvaise langue ; avec « Parole » c'est presque sûrement le mauvais
+film, les sous-titres ayant trop peu en commun avec la parole.
 
 ## Quand il n'y a pas de film
 

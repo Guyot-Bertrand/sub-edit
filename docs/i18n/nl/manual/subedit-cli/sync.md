@@ -12,6 +12,7 @@ subedit-cli sync (--video FILE | --audio FILE)
                  [--vad-model FILE]
                  [--engine NAME]
                  [--keep-audio FILE]
+                 [--method METHOD]
                  [--min-match PERCENT]
                  [--doubt-gap MS]
                  [--report FILE]
@@ -21,14 +22,27 @@ subedit-cli sync (--video FILE | --audio FILE)
 ```
 
 **Hertimet een ondertitelbestand op de audio van een film.** Het geval waarvoor het bestaat is de online gedownloade
-`.srt`, aan het begin en aan het einde verschoven, die een enkele verschuiving niet terugbrengt: elke ondertitel wordt
-gezocht in wat er wordt gezegd, en neemt de plaats in waar hij wordt uitgesproken.
+`.srt`, aan het begin en aan het einde verschoven, die een enkele verschuiving niet terugbrengt. Twee methoden doen het, en `--method` (of de
+instelling `alignment.method`) kiest tussen beide:
 
-Het luistert naar de audio met een transcriptie-engine — dezelfde als die van [`transcribe`](transcribe.md) — en **koppelt
-de woorden van elke ondertitel aan de woorden die het heeft gehoord**. Er wordt niets vertaald: de ondertitels moeten
-in de gesproken taal staan.
+- **`speech`, de standaard, legt het bestand neer op het moment dat iemand spreekt.** Het vraagt het geluid alleen waar spraak is, en
+  vindt de verschuiving die de ondertitels met de spraak laat overeenkomen, stuk film na stuk film: een constante afwijking, een drift,
+  een tweede helft die te laat is, en een bestand dat voor een andere framesnelheid is getimed (25 voor 23,976 en dergelijke) worden allemaal rechtgezet.
+  **Het hangt niet van de taal af** — de ondertitels mogen Frans zijn en de film Engels —, het heeft geen transcriptie nodig, en het duurt seconden. Het heeft
+  `ffmpeg` nodig, het programma `whisper-vad-speech-segments` dat bij whisper.cpp wordt geleverd, en een spraakactiviteitsmodel (`--vad-model`, de instelling
+  `transcription.vad-model`).
+- **`words` koppelt de woorden van elke ondertitel aan de woorden die een engine heeft gehoord.** Het luistert met een transcriptie-engine —
+  dezelfde als die van [`transcribe`](transcribe.md) — en elke ondertitel neemt de plaats in waar zijn woorden worden gezegd. Er wordt niets
+  vertaald: de ondertitels moeten in de gesproken taal staan. Het kan één ondertitel plaatsen die misplaatst is in een bestand dat verder goed is, en het duurt zo lang als een
+  transcriptie.
 
-**Niets van wat nodig is wordt met het programma meegeleverd**: de engine, een model en `ffmpeg` zijn die van
+**Wat `speech` niet doet wordt telkens gezegd als het draait**, op de foutuitvoer en in het verslag: het corrigeert het bestand
+**als geheel**, nooit één ondertitel tegelijk. Een ondertitel die op zichzelf misplaatst is in een bestand dat verder goed is,
+of een titel die over een stilte wordt getoond (een hoofdstukkaart, een bijschrift dat iets op het scherm vertaalt), wordt niet gezocht
+en kan nog steeds fout zijn, en de eerste minuten kunnen afwijken wanneer de film opent met muziek of titels. Controleer het resultaat,
+of gebruik `--method words` wanneer de tekst in de gesproken taal staat.
+
+**Niets van wat nodig is wordt met het programma meegeleverd**: de programma's, het model en `ffmpeg` zijn die van
 [De transcriptiehulpmiddelen installeren](install-transcription.md), en hun afwezigheid breekt niets — de opdracht zegt
 wat er ontbreekt, met de verwijzing naar die pagina, schrijft niets en eindigt met een code die niet nul is.
 
@@ -36,14 +50,16 @@ wat er ontbreekt, met de verwijzing naar die pagina, schrijft niets en eindigt m
 - **Een ondertitel die de audio niet geeft behoudt zijn tijden** — een generiek die niemand uitspreekt, een lied, een regel in een andere taal.
   **Er wordt nooit een positie verzonnen, en geen enkele wordt uit de buren afgeleid**: de regel blijft waar het bestand hem had,
   en de opdracht zegt het. Het is *geen* mislukking, en de afsluitcode is `0`.
-- **Een ondertitel is gevonden wanneer minstens de helft van zijn woorden wordt gehoord** (`--min-match`, `alignment.min-match`), en
-  minstens één. Hoofdletters, accenten, leestekens en opmaak doen er niet toe; een woord dat één letter afwijkt van een lang woord telt als gehoord.
+- **Met `words` is een ondertitel gevonden wanneer minstens de helft van zijn woorden wordt gehoord** (`--min-match`,
+  `alignment.min-match`), en minstens één. Hoofdletters, accenten, leestekens en opmaak doen er niet toe; een woord dat één letter afwijkt van een lang woord telt als gehoord. `speech` plaatst elke ondertitel, en neemt
+  geen van `--language`, `--model`, `--engine` of `--min-match`.
 - **Het einde is waar het laatste woord eindigt.** De engine timet woorden bij benadering, enkele honderdsten van een seconde vóór
   het eigen einde van de ondertitel, dus een ondertitel kan iets korter uitkomen dan hij was.
 - **Een ondertitel die tegen de volgende zou aanlopen wordt ingekort tot waar de volgende begint.** Een ondertitel die de
   volgende nog steeds overlapt, wat inkorten niet verhelpt, blijft staan en wordt gemeld.
-- **Een bestand waarvan geen enkele ondertitel is gevonden wordt geweigerd en niet geschreven**: het is vrijwel zeker de verkeerde audio of de
-  verkeerde taal.
+- **Een bestand dat niet bij het geluid past wordt geweigerd en niet geschreven**: met `words` is geen enkele ondertitel gevonden,
+  wat bijna altijd de verkeerde audio of de verkeerde taal is — `speech` hangt niet van de taal af; met
+  `speech` hebben de ondertitels en de spraak te weinig gemeen, wat bijna altijd de verkeerde film is.
 - **Een deel van de film kan alleen worden beluisterd**, met `--start` en `--end`, zoals bij
   [`transcribe`](transcribe.md#een-deel-transcriberen): alleen de ondertitels die in het bereik **beginnen** worden gezocht en
   aangeraakt, de andere blijven zoals ze zijn en worden niet geteld.
@@ -72,6 +88,7 @@ Options:
   --vad-model FILE            Voice-activity model that skips silences; the transcription.vad-model setting by default
   --engine NAME               Engine that listens; the transcription.engine setting by default
   --keep-audio FILE           Keep the extracted audio in this file
+  --method METHOD             How the subtitles are put in line: speech (from when there is speech, whatever the language) or words (from the words heard); the alignment.method setting by default
   --min-match PERCENT         Share of a subtitle's words that must be heard, in percent; the alignment.min-match setting by default
   --doubt-gap MS              How far a subtitle may move from its neighbours' shift before it is flagged, in milliseconds; the alignment.doubt-gap setting by default
   --report FILE               Write the subtitles to check to this file
@@ -96,6 +113,7 @@ Options:
 | `--vad-model` | nee | een spraakactiviteitsmodel, waardoor de engine de stiltes overslaat; daarmee volgen de woorden de spraak nauwkeuriger | de instelling `transcription.vad-model` |
 | `--engine` | nee | de naam van de engine die luistert: `whisper.cpp` | de instelling `transcription.engine` |
 | `--keep-audio` | nee | een bestand om de uitgepakte audio in te bewaren; de map wordt aangemaakt als ze ontbreekt | de audio wordt nergens bewaard |
+| `--method` | nee | `speech`: het bestand neerleggen op het moment dat er spraak is, in elke taal; `words`: de woorden koppelen aan wat is gehoord, in de gesproken taal | de instelling `alignment.method`, `speech` |
 | `--min-match` | nee | een geheel getal van 1 tot 100: het aandeel van de woorden van een ondertitel dat gehoord moet worden, in procenten | de instelling `alignment.min-match`, `50` |
 | `--doubt-gap` | nee | een geheel aantal milliseconden, 0 of meer: hoever de verschuiving van een ondertitel mag afwijken van die van zijn buren voordat hij wordt gemarkeerd | de instelling `alignment.doubt-gap`, `2000` |
 | `--report` | nee | een bestand om de te controleren ondertitels in te schrijven, één per regel: het nummer van de ondertitel, een tab, en waarom; één ondertitelbestand tegelijk | er wordt niets geschreven |
@@ -111,7 +129,8 @@ elk heeft hier zijn optie. De engine, het model en het spraakactiviteitsmodel zi
 
 | Sleutel | Betekenis | Standaard |
 | :-- | :------ | :------ |
-| `alignment.engine` | de uitlijn-engine; er is er één, `transcript-matching`, die luistert en koppelt | `transcript-matching` |
+| `alignment.engine` | de uitlijn-engine van de methode `words`; er is er één, `transcript-matching`, die luistert en koppelt | `transcript-matching` |
+| `alignment.method` | hoe de ondertitels op één lijn worden gebracht: `speech` of `words` | `speech` |
 | `alignment.min-match` | het aandeel van de woorden van een ondertitel dat gehoord moet worden om hem gevonden te laten zijn, in procenten | `50` |
 | `alignment.doubt-gap` | hoever, in milliseconden, de verschuiving van een ondertitel mag afwijken van die van zijn buren voordat hij wordt gemarkeerd | `2000` |
 
@@ -124,6 +143,10 @@ De opdracht zegt welke ondertitels u moet controleren, en waarom. Een ondertitel
 | not found in the audio, left as it was | minder dan `--min-match` van zijn woorden is gehoord: hij behoudt zijn tijden |
 | only partly heard | gevonden, maar minder dan 80 % van zijn woorden is gehoord |
 | moved differently from its neighbours | gevonden, maar zijn verschuiving wijkt met meer dan `--doubt-gap` af van de mediane verschuiving van de twee ondertitels aan weerszijden |
+
+Met `speech` wordt elke ondertitel geplaatst, en kan alleen de laatste hiervan opgaan: waar het bestand zijn verschuiving met meer
+dan `--doubt-gap` verandert van de ene ondertitel naar de volgende (een tweede helft die te laat is), worden de ondertitels aan weerszijden van de stap
+gemarkeerd.
 
 Een ondertitel kan ook **ingekort worden tot het begin van de volgende ondertitel**, of **de volgende ondertitel nog steeds overlappen**.
 
@@ -138,7 +161,7 @@ meer te laat was naarmate de film vorderde.
 
 | Niveau | Wat er op de foutuitvoer wordt gezegd |
 | :---- | :------------------------------- |
-| 1 | `<file>: N of M subtitles placed on the audio, K to check; median shift X s, drift Y s -> <destination>` |
+| 1 | `<file>: N of M subtitles placed on the audio, K to check; median shift X s, drift Y s -> <destination>` — en, wanneer een framesnelheid is rechtgezet, de verhouding; met `speech` **de waarschuwing van wat het niet doet**, op een eigen regel |
 | 2 | de stap en de voortgang, zoals bij [`transcribe`](transcribe.md#uitvoer) |
 
 ### In JSON
@@ -147,19 +170,26 @@ Met [`--format json`](invocation.md#uitvoer-die-een-script-kan-lezen) bevat het 
 (gezocht), `placed` (een plaats gegeven), `moved` (waarvan de tijden zijn veranderd), `partial`, `out_of_line`, `not_found`,
 `median_shift_ms` en `drift_ms`; en `flagged`, een lijst van `{"subtitle": N, "kind": "…"}` waarin het nummer de plaats van de
 ondertitel in het bestand is en `kind` een van `not-found`, `partial`, `out-of-line`, `cut-back` en `overlaps` is.
-De identifiers worden beloofd; de zinnen niet.
+Met `speech` bevat `warnings` één item van `kind` `speech-only`. De identifiers worden beloofd; de zinnen niet.
 
 ## Voorbeeld
 
 ```bash
-subedit-cli sync --video film.mkv --model small.bin --vad-model silero.bin \
+subedit-cli sync --video film.mkv --vad-model silero.bin \
     --report to-check.txt --output film.synced.srt film.srt
+```
+
+Om elke ondertitel op zijn woorden te plaatsen, voor een tekst in de gesproken taal:
+
+```bash
+subedit-cli sync --method words --video film.mkv --model small.bin --vad-model silero.bin \
+    --output film.synced.srt film.srt
 ```
 
 ## Afsluitcodes
 
 Die van het hulpmiddel: `0` als het bestand is geschreven, met of zonder gemarkeerde ondertitels, `2` als dat niet kon — een hulpmiddel of een model dat ontbreekt, een
-mislukte extractie of luisterbeurt, geen enkele ondertitel gevonden —, `1` bij een gebruiksfout, zoals noch
+mislukte extractie of luisterbeurt, een bestand dat niet bij het geluid past (geen enkele ondertitel gevonden, of te weinig gemeen met de spraak) —, `1` bij een gebruiksfout, zoals noch
 `--video` noch `--audio` (of beide), een optie buiten haar bereik, of een bereik dat onbruikbaar is.
 
 ## Fouten
@@ -173,6 +203,8 @@ mislukte extractie of luisterbeurt, geen enkele ondertitel gevonden —, `1` bij
 | een spoor dat de film niet heeft | `the video has no audio track N`, daarna de sporen die hij heeft |
 | een taal die het model niet kan transcriberen | `the model cannot transcribe the language xx` |
 | een engine die niemand heeft geregistreerd | `no transcription engine is called NAME`, of `there is no alignment engine called NAME` |
-| geen enkele ondertitel gevonden | `none of the N subtitles was found in the audio: is it the right audio, and the right language?` |
+| geen enkele ondertitel gevonden (`words`) | `none of the N subtitles was found in the audio: is it the right audio, and the right language?`, daarna `The method based on speech does not depend on the language.` |
+| het spraakactiviteitsmodel niet opgegeven, of het programma dat spraak vindt niet gevonden (`speech`) | `Finding where there is speech needs a voice-activity model: name one in the transcription.vad-model setting.` of `Finding where there is speech needs the program whisper-vad-speech-segments, which comes with whisper.cpp, and it was not found.`, daarna de verwijzing naar de gids |
+| de ondertitels en de spraak hebben te weinig gemeen (`speech`) | `The sound and the subtitles have too little in common to be put in line: is it the right film?` |
 | `--min-match` buiten 1 tot 100, `--doubt-gap` negatief | de gebruiksfout van de optie |
 | `--report` met meer dan één ondertitelbestand | `--report names one file: give one subtitle file when you use it` |

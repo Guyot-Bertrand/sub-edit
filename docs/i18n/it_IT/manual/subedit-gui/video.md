@@ -10,7 +10,7 @@ Il menu **Video** porta anzitutto tre comandi, e poi i gesti che guidano il film
 | :------ | :------- | :----------- |
 | Seleziona video… | nessuna | sceglie il file video a cui il documento è associato |
 | Trascrivi audio… | nessuna | trascrive l'audio del film in sottotitoli che sostituiscono quelli del progetto — vedi [Trascrivere l'audio](#trascrivere-laudio) |
-| Sincronizza con l'audio… | nessuna | sposta i sottotitoli del progetto dove le loro parole sono pronunciate nell'audio del film — vedi [Sincronizzare con l'audio](#sincronizzare-con-laudio) |
+| Sincronizza con l'audio… | nessuna | sposta i sottotitoli del progetto per farli corrispondere all'audio del film — vedi [Sincronizzare con l'audio](#sincronizzare-con-laudio) |
 | Riproduci / Pausa | `Ctrl+P` | riproduce o ferma il video — vedi [Il lettore video](player.md#riprodurre-e-fermare) |
 
 Il video associato è **una proprietà del documento aperto**, non un'impostazione
@@ -201,30 +201,40 @@ Vedi [Installare gli strumenti di trascrizione](../subedit-cli/install-transcrip
 ## Sincronizzare con l'audio
 
 **`Synchronize with Audio…`** riporta i sottotitoli del progetto sui tempi dell'audio del film. È il caso del file `.srt`
-scaricato online, sfasato all'inizio e alla fine, che un solo spostamento non rimette a posto: ogni sottotitolo viene cercato in ciò che
-si dice, e prende il posto in cui viene detto. **Cambiano solo gli inizi e le fini** — mai il testo, lo stile, il numero dei
+scaricato online, sfasato all'inizio e alla fine, che un solo spostamento non rimette a posto. **Cambiano solo gli inizi e le fini** — mai il testo, lo stile, il numero dei
 sottotitoli né il loro ordine. Come `Transcribe Audio…` è disattivato finché non è aperto un film, ed è l'audio del **film del progetto**; la
 stessa cosa da riga di comando è [`sync`](../subedit-cli/sync.md).
 
-I sottotitoli devono essere nella lingua parlata: nulla viene tradotto. Il lavoro lo fa il motore che trascrive — quello delle
-[preferenze](preferences.md#trascrizione), con lo stesso programma, `ffmpeg` e modello — e **la finestra di dialogo dice che cosa manca** esattamente come quella
-della trascrizione, con il rimando a [Installare gli strumenti di trascrizione](../subedit-cli/install-transcription.md) e un
-pulsante `Preferences…`.
+Due metodi lo fanno, e la finestra di dialogo chiede quale:
+
+- **“Speech”, il predefinito, appoggia il file sui momenti in cui qualcuno parla.** Non dipende dalla lingua — sottotitoli francesi su un film in
+  inglese vanno bene —, non trascrive nulla e impiega pochi secondi. Corregge il file **nel suo insieme**: uno scarto costante, una deriva, una
+  seconda metà in ritardo, un file preparato per un'altra frequenza di fotogrammi. Richiede `ffmpeg`, il programma `whisper-vad-speech-segments` di
+  whisper.cpp e un modello di attività vocale, indicato nelle [preferenze](preferences.md#trascrizione).
+- **“Words” abbina le parole di ogni sottotitolo alle parole che il motore ha udito.** I sottotitoli devono essere nella lingua parlata, nulla
+  viene tradotto, e impiega il tempo di una trascrizione. Può collocare un sottotitolo fuori posto in un file per il resto corretto.
+  Il lavoro lo fa il motore che trascrive, con lo stesso programma, `ffmpeg` e modello.
+
+**Con “Speech”, la finestra di dialogo e il risultato dicono ciò che non fa**, ogni volta: non guarda mai un sottotitolo da solo, quindi un sottotitolo
+fuori posto da solo, o un titolo mostrato durante un silenzio, può essere ancora sbagliato, e i primi minuti possono restare sfasati quando il film si apre
+con musica o titoli. Controlla il risultato. **La finestra di dialogo dice che cosa manca** esattamente come quella della trascrizione, con il rimando a
+[Installare gli strumenti di trascrizione](../subedit-cli/install-transcription.md) e un pulsante `Preferences…`.
 
 La finestra di dialogo chiede:
 
-- **la traccia audio** e **la lingua**, come per la trascrizione;
+- **la traccia audio** e **la lingua**, come per la trascrizione — la lingua vale solo per “Words”;
+- **il metodo**, “Speech” o “Words”, conservato per la volta successiva;
 - **la parte del film**, da un tempo a un altro, entrambi vuoti per l'intero film: solo i sottotitoli che **iniziano** nell'intervallo vengono
   cercati e spostati;
 - **“Solo i sottotitoli selezionati”**: una casella, disattivata quando non c'è nulla di selezionato. Cerca solo i sottotitoli selezionati, nella parte del
   film che inizia un minuto prima del primo e termina un minuto dopo l'ultimo, in modo che un file in ritardo o in anticipo rientri
   comunque in ciò che viene ascoltato;
-- **“Parole da udire”**, in percentuale: la quota delle parole di un sottotitolo che deve essere udita perché il sottotitolo risulti trovato, 50 % per impostazione predefinita — l'impostazione
+- **“Parole da udire”**, in percentuale, solo per “Words”: la quota delle parole di un sottotitolo che deve essere udita perché il sottotitolo risulti trovato, 50 % per impostazione predefinita — l'impostazione
   `alignment.min-match`;
 - **“Spostamento da controllare”**, in millisecondi: quanto un sottotitolo può discostarsi dallo spostamento dei suoi vicini prima di essere segnalato, 2000 ms per impostazione predefinita —
   l'impostazione `alignment.doubt-gap`.
 
-Gli ultimi tre vengono conservati per la volta successiva. Il lavoro si svolge **in background**, con la stessa finestra e lo stesso pulsante `Cancel` della trascrizione;
+Gli ultimi due vengono conservati per la volta successiva. Il lavoro si svolge **in background**, con la stessa finestra e lo stesso pulsante `Cancel` della trascrizione;
 un lavoro che fallisce o che interrompi non cambia nulla.
 
 ### Il risultato
@@ -240,12 +250,13 @@ il suo numero, il suo testo, **l'inizio che aveva, l'inizio che prende, lo spost
 - **“accorciato fino all'inizio del sottotitolo successivo”** e **“si sovrappone ancora al sottotitolo successivo”**: un sottotitolo che andrebbe a finire sul successivo viene accorciato fino
   a dove inizia il successivo; uno che lo sovrappone ancora, cosa che il taglio non può curare, viene lasciato e segnalato.
 
-Una riga sopra la tabella dice com'è andata — quanti sottotitoli sono stati collocati, quanti sono da controllare, lo spostamento mediano e la deriva —, e
+Una riga sopra la tabella dice com'è andata — quanti sottotitoli sono stati collocati, quanti sono da controllare, lo spostamento mediano e la deriva —, poi, con “Speech”, l'avvertimento su ciò che non fa e, quando una frequenza di fotogrammi è stata corretta, che lo è stata. E
 **“Solo i sottotitoli da controllare”** mostra soltanto quelli. La tabella non si può modificare.
 
 Due pulsanti chiudono la finestra. **“Applica”** sposta gli inizi e le fini **come un'unica operazione**: un solo `Undo` restituisce i tempi che c'erano. “Cancel”
 lascia il progetto com'è. “Applica” è disattivato quando nulla si sposterebbe. Quando nessuno dei sottotitoli è stato trovato, la finestra lo dice in una casella
-e non mostra nulla da applicare: è quasi certamente l'audio sbagliato o la lingua sbagliata.
+e non mostra nulla da applicare: con “Words” è quasi certamente l'audio sbagliato o la lingua sbagliata; con “Speech” è quasi certamente il film
+sbagliato, avendo i sottotitoli troppo poco in comune con il parlato.
 
 ## Quando non c'è alcun film
 
