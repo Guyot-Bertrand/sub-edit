@@ -1069,13 +1069,8 @@ msgstr ""
 msgid "Later reference, as <index>=<time>: 3=00:00:10.000"
 msgstr ""
 
-#. TRANSLATORS: %1 is the reason of a failure the program did not foresee.
 #: src/exe/cli/main.cpp
-msgid "subedit-cli: %1"
-msgstr ""
-
-#: src/exe/cli/main.cpp
-msgid "subedit-cli: unknown failure"
+msgid "unknown failure"
 msgstr ""
 
 #. TRANSLATORS: %1 is what the user typed. « off » is a value of the option, as typed.

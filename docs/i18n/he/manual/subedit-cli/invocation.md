@@ -101,13 +101,14 @@ Subcommands:
 | שמות תבניות התיקון ש-`correct --enable` ו-`--disable` מקבלות | תבנית נקראת בשם האנגלי שהקובץ שלה מכיל |
 | שמות הפורמטים והקידודים | פורמט נקרא בשמו |
 | האבחונים של CLI11 עצמה — ארגומנט חובה חסר, אפשרות לא מוכרת, ערך שאפשרות אינה מקבלת — ו-`Run with --help for more information.` שלה | מנוסחים בתוך המנתח שעליו שורת הפקודה בנויה; הם נשארים באנגלית |
+| המסגרת של שורת שגיאה: `[subedit]`, תת-הפקודה, `[-]`, המפתח `error` | סקריפט מוצא מה נכשל והיכן בלי לקרוא את המילים; רק ההודעה מתורגמת |
 
 בקשת אנגלית, יהיו אשר יהיו תנאי הסביבה:
 
 <!-- example: LC_ALL=C LANGUAGE=fr subedit-cli shift --output-dir out a.srt; echo "code=$?" -->
 ```console
 $ LC_ALL=C LANGUAGE=fr subedit-cli shift --output-dir out a.srt; echo "code=$?"
-shift needs --by, or --to-grid to work the amount out from the positions
+[subedit] [shift] [-] error: shift needs --by, or --to-grid to work the amount out from the positions
 code=1
 ```
 
@@ -167,7 +168,7 @@ $XDG_CONFIG_HOME/subedit/settings.conf
 <!-- example: printf '1\n00:00:01,000 --> 00:00:01,200\nUn.\n\n' > a.srt; subedit-cli --config mine.conf adjust --dry-run a.srt; echo "code=$?" -->
 ```console
 $ printf '1\n00:00:01,000 --> 00:00:01,200\nUn.\n\n' > a.srt; subedit-cli --config mine.conf adjust --dry-run a.srt; echo "code=$?"
-settings file not found: mine.conf
+[subedit] [adjust] [-] error: settings file not found: mine.conf
 code=1
 ```
 
@@ -178,7 +179,7 @@ code=1
 <!-- example: subedit-cli --version | head -n 1 -->
 ```console
 $ subedit-cli --version | head -n 1
-subedit 1.2.4
+subedit 1.2.5
 ```
 
 הפלט במלואו, במחשב עם ICU 74.2 ו-Enchant 2.3.3 — המספרים הם של המחשב:
@@ -601,7 +602,7 @@ Au revoir.
 <!-- example: mkdir films; printf '1\n00:00:01,000 --> 00:00:02,000\nUn.\n\n' > films/a.srt; subedit-cli inspect films; echo "code=$?" -->
 ```console
 $ mkdir films; printf '1\n00:00:01,000 --> 00:00:02,000\nUn.\n\n' > films/a.srt; subedit-cli inspect films; echo "code=$?"
-films: is a directory: use --recursive
+[subedit] [inspect] [-] error: films: is a directory: use --recursive
 code=1
 ```
 
@@ -661,3 +662,13 @@ $ man -L fr subedit-cli-shift
 | `--align-method` בלי `-t` | `--align-method needs a translation file: use -t` |
 | `-t` עם כמה קלטים, או תיקייה | `-t names one file but several inputs were given: use one invocation per pair` |
 | תרגום זהה לקובץ הראשי | `<translation>: the file is already open as the main document` |
+
+**כל שגיאה היא שורה באותה צורה**, `[subedit] [<command>] [-] error: <message>`: תת-הפקודה שהמנתח הגיע אליה, `-` אם לא הגיע לאף אחת, והודעה בת כמה שורות נכתבת בכמה שורות, כל אחת עם המסגרת שלה. אבחון של CLI11 מסווג באותו אופן:
+
+<!-- example: subedit-cli shift --bogus a.srt; echo "code=$?" -->
+```console
+$ subedit-cli shift --bogus a.srt; echo "code=$?"
+[subedit] [shift] [-] error: The following argument was not expected: --bogus
+[subedit] [shift] [-] error: Run with --help for more information.
+code=1
+```

@@ -63,7 +63,7 @@ ExitCode runRepair(const RepairOptions& options,
     const std::expected<core::DisjointSettings, std::string> settings =
         settingsOf(options.settings);
     if (!settings) {
-        return refuse(settings.error());
+        return refuse(reporter, settings.error());
     }
 
     const std::expected<PreparedWriting, std::string> prepared =
@@ -72,7 +72,7 @@ ExitCode runRepair(const RepairOptions& options,
                        {.files = options.files, .recursive = options.recursive},
                        options.destination);
     if (!prepared) {
-        return refuse(prepared.error());
+        return refuse(reporter, prepared.error());
     }
 
     return repairAll(

@@ -21,6 +21,7 @@ using Catch::Matchers::ContainsSubstring;
 using subedit::e2e::CliRun;
 using subedit::e2e::contentOf;
 using subedit::e2e::invoke;
+using subedit::e2e::refusal;
 using subedit::e2e::Scratch;
 using subedit::e2e::writeFile;
 
@@ -331,7 +332,7 @@ TEST_CASE("config set and unset with --no-config are usage errors", "[e2e][confi
 
         CHECK(run.exitCode == 1);
         CHECK(run.output.empty());
-        CHECK(run.errors == "--no-config has nothing to write to\n");
+        CHECK(run.errors == refusal("config", "--no-config has nothing to write to"));
     }
 }
 
@@ -344,7 +345,7 @@ TEST_CASE("an empty --config name is a usage error, not the user's file", "[e2e]
 
         CHECK(run.exitCode == 1);
         CHECK(run.output.empty());
-        CHECK(run.errors == "--config needs a file name\n");
+        CHECK(run.errors == refusal("config", "--config needs a file name"));
     }
 }
 

@@ -60,3 +60,34 @@ TEST_CASE("asking for silence and for detail at once is refused", "[e2e][CLI-USA
     // written: saying so is what tells the caller they were misunderstood.
     CHECK_THAT(run.errors, ContainsSubstring("--quiet"));
 }
+
+// Every line of the standard error is `[subedit] [<command>] [<i>/<n>] <key>: <value>`, the
+// complaints of the parser included (#826).
+
+TEST_CASE("a complaint of the parser is filed under the subcommand it reached", "[e2e][usage]") {
+    const CliRun run = invoke({"shift", "--bogus", "a.srt"});
+
+    CHECK(run.exitCode == 1);
+    CHECK(run.output.empty());
+    // CLI11's own words, in English, one line of its message an `error` line each.
+    CHECK(run.errors == "[subedit] [shift] [-] error: The following argument was not expected: "
+                        "--bogus\n"
+                        "[subedit] [shift] [-] error: Run with --help for more information.\n");
+}
+
+TEST_CASE("a complaint before any subcommand writes a dash for it", "[e2e][usage]") {
+    const CliRun run = invoke({"--inexistant"});
+
+    CHECK(run.exitCode == 1);
+    CHECK(run.errors == "[subedit] [-] [-] error: The following argument was not expected: "
+                        "--inexistant\n"
+                        "[subedit] [-] [-] error: Run with --help for more information.\n");
+}
+
+TEST_CASE("the help asked of a subcommand stays the result, with no prefix", "[e2e][usage]") {
+    const CliRun run = invoke({"shift", "--help"});
+
+    CHECK(run.exitCode == 0);
+    CHECK(run.errors.empty());
+    CHECK_THAT(run.output, !ContainsSubstring("[subedit]"));
+}

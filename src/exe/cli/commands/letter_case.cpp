@@ -58,7 +58,7 @@ ExitCode runCase(const CaseOptions& options,
                         .translation = &options.translation},
                        options.destination);
     if (!prepared) {
-        return refuse(prepared.error());
+        return refuse(reporter, prepared.error());
     }
 
     return recaseIn(files,

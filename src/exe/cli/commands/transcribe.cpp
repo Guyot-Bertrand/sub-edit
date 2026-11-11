@@ -125,7 +125,7 @@ ExitCode runTranscribe(TranscribeCommandOptions& options,
                        const Reporter& reporter,
                        const SharedSettings& shared) {
     if (const std::optional<std::string> missing = missingNamedFile(shared))
-        return refuse(*missing);
+        return refuse(reporter, *missing);
 
     if (options.audioTrack >= 0)
         options.request.audioTrack = options.audioTrack;

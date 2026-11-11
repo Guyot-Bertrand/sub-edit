@@ -45,7 +45,7 @@ ExitCode runJoin(const JoinOptions& options,
                        {.files = options.files, .recursive = options.recursive},
                        options.destination);
     if (!prepared) {
-        return refuse(prepared.error());
+        return refuse(reporter, prepared.error());
     }
 
     return joinAll(files, prepared->inputs.paths, reading, prepared->destination, reporter);

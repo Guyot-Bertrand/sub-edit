@@ -4,7 +4,6 @@
 #include <subedit/core/i18n/messages.hpp>
 
 #include <CLI/CLI.hpp>
-#include <iostream>
 #include <string>
 
 namespace subedit::cli {
@@ -67,8 +66,8 @@ void describeDocument(CLI::App* command, TranslationOptions& options) {
     describeTranslation(command, options);
 }
 
-ExitCode refuse(std::string_view why) {
-    std::cerr << why << '\n';
+ExitCode refuse(const Reporter& reporter, std::string_view why) {
+    reporter.error(why);
     return ExitCode::Usage;
 }
 

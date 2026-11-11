@@ -22,7 +22,8 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=3; plural=(n == 1 && n % 1 == 0) ? 0 : (n == 2 && n % 1 == 0) ? 1: 2;\n"
+"Plural-Forms: nplurals=3; plural=(n == 1 && n % 1 == 0) ? 0 : (n == 2 && n % "
+"1 == 0) ? 1: 2;\n"
 
 # From Gaupol.
 #: packaging/patterns/Latn-en-US.common-error
@@ -43,8 +44,7 @@ msgid "First person pronoun"
 msgstr "כינוי גוף ראשון"
 
 # From Gaupol.
-#: packaging/patterns/Latn-en.common-error
-#: packaging/patterns/Latn.common-error
+#: packaging/patterns/Latn-en.common-error packaging/patterns/Latn.common-error
 msgid "Add or remove space between a number and the associated unit"
 msgstr "הוספה או הסרה של רווח בין המספר והיחידה המשויכת אליו"
 
@@ -83,8 +83,7 @@ msgid "Replace zero with letter \"O\" in an upper case word"
 msgstr "החלפת אפס באות “O” במילה הכתובה ברישיות"
 
 # From Gaupol.
-#: packaging/patterns/Latn-en.common-error
-#: packaging/patterns/Latn.common-error
+#: packaging/patterns/Latn-en.common-error packaging/patterns/Latn.common-error
 msgid "Space between number and unit"
 msgstr "רווחים בין מספר ליחידה"
 
@@ -105,8 +104,7 @@ msgstr "אפס במילה באותיות רישיות"
 # From Gaupol.
 #: packaging/patterns/Latn-en.hearing-impaired
 msgid ""
-"Replace the uppercase name of the speaker before a colon with a dialogue "
-"dash"
+"Replace the uppercase name of the speaker before a colon with a dialogue dash"
 msgstr "החלפת השם באותיות רישיות של הדובר לפני הנקודתיים במקף דו־שיח"
 
 # From Gaupol.
@@ -147,14 +145,12 @@ msgid "Title"
 msgstr "תואר"
 
 # From Gaupol.
-#: packaging/patterns/Latn-fi.common-error
-#: packaging/patterns/Latn.common-error
+#: packaging/patterns/Latn-fi.common-error packaging/patterns/Latn.common-error
 msgid "Add space after various punctuation marks"
 msgstr "הוספת רווח לאחר סימני פיסוק שונים"
 
 # From Gaupol.
-#: packaging/patterns/Latn-fi.common-error
-#: packaging/patterns/Latn.common-error
+#: packaging/patterns/Latn-fi.common-error packaging/patterns/Latn.common-error
 msgid "Space after punctuation marks"
 msgstr "רווחים לאחר סימני פיסוק"
 
@@ -167,8 +163,7 @@ msgid "Add spaces around guillemets"
 msgstr "הוספת רווחים סביב מרכאות כפולות זוויתיות (« »)"
 
 # From Gaupol.
-#: packaging/patterns/Latn-fr.common-error
-#: packaging/patterns/Latn.common-error
+#: packaging/patterns/Latn-fr.common-error packaging/patterns/Latn.common-error
 msgid "Space before punctuation marks"
 msgstr "רווחים לפני סימני פיסוק"
 
@@ -214,7 +209,8 @@ msgstr "הוספת רווחים בין תווי תו מוזיקלי למילות
 
 # From Gaupol.
 #: packaging/patterns/Latn.common-error
-msgid "Change the various spellings of 12-hour periods to \"a.m.\" and \"p.m.\""
+msgid ""
+"Change the various spellings of 12-hour periods to \"a.m.\" and \"p.m.\""
 msgstr "שינוי צורות האיות השונות של פרקי 12 השעות ל־“a.m.‎” ו־“p.m.‎”"
 
 # From Gaupol.
@@ -656,8 +652,7 @@ msgstr "ערך, כפי ש־config list אומר שהוא מתקבל"
 
 #: src/exe/cli/commands/config.cpp
 msgid ""
-"Put KEY back to its default in the settings file, keeping every other "
-"setting"
+"Put KEY back to its default in the settings file, keeping every other setting"
 msgstr "החזרת KEY לברירת המחדל בקובץ ההגדרות, תוך שמירה על כל שאר ההגדרות"
 
 #: src/exe/cli/commands/config.cpp
@@ -721,8 +716,7 @@ msgid "The tasks to run, in a list: none is chosen beforehand"
 msgstr "המשימות להרצה, ברשימה: אף אחת אינה נבחרת מראש"
 
 #: src/exe/cli/commands/correct.cpp
-msgid ""
-"The cascade of patterns the tasks read: Zyyy, Latn, Latn-en, Latn-en-US"
+msgid "The cascade of patterns the tasks read: Zyyy, Latn, Latn-en, Latn-en-US"
 msgstr "מפל התבניות שהמשימות קוראות: Zyyy, Latn, Latn-en, Latn-en-US"
 
 #: src/exe/cli/commands/correct.cpp
@@ -745,8 +739,8 @@ msgstr "המילון ש־join-words ו־split-words קוראים: fr_FR, en_US, 
 msgid ""
 "Longest line of line-break, in characters; no default, Gaupol's is in ems"
 msgstr ""
-"השורה הארוכה ביותר של line-break, בתווים; אין ברירת מחדל, זו של Gaupol נמדדת"
-" ב־em"
+"השורה הארוכה ביותר של line-break, בתווים; אין ברירת מחדל, זו של Gaupol נמדדת "
+"ב־em"
 
 #: src/exe/cli/commands/correct.cpp
 msgid "Most lines of line-break: 3, as Gaupol's"
@@ -914,8 +908,7 @@ msgstr "pair דורש את קובץ התרגום להנחה על הראשי: ה�
 
 #: src/exe/cli/commands/repair.cpp
 msgid ""
-"Join the repeated subtitles, put them in order, then make the ranges "
-"disjoint"
+"Join the repeated subtitles, put them in order, then make the ranges disjoint"
 msgstr "איחוד הכתוביות החוזרות, סידורן, ואז הפיכת הטווחים לזרים"
 
 #: src/exe/cli/commands/repair.cpp
@@ -972,8 +965,7 @@ msgid "Frame rate to align on: 25, 23.976"
 msgstr "קצב הפריימים להצמדה אליו: 25, 23.976"
 
 #: src/exe/cli/commands/sort.cpp
-msgid ""
-"Put the subtitles in the order of their start, keeping ties as they are"
+msgid "Put the subtitles in the order of their start, keeping ties as they are"
 msgstr "סידור הכתוביות לפי זמן ההתחלה שלהן, תוך השארת שוויונות כפי שהם"
 
 #: src/exe/cli/commands/sort.cpp
@@ -1018,8 +1010,7 @@ msgstr "לא ניתן יעד: split-file כותב שני קבצים, השתמש�
 
 #: src/exe/cli/commands/split_file.cpp
 msgid "--head and --tail go together: give both, or neither with --dry-run"
-msgstr ""
-"--head ו־--tail הולכים יחד: ציינו את שניהם, או אף אחד מהם עם --dry-run"
+msgstr "--head ו־--tail הולכים יחד: ציינו את שניהם, או אף אחד מהם עם --dry-run"
 
 #: src/exe/cli/commands/sync.cpp
 msgid "Re-time the subtitles of a file on the audio of a film"
@@ -1050,8 +1041,7 @@ msgid ""
 "Language of the speech, two letters: fr, en, de; detected from the first 30 "
 "seconds by default"
 msgstr ""
-"שפת הדיבור, שתי אותיות: fr, en, de; מזוהה כברירת מחדל מתוך 30 השניות "
-"הראשונות"
+"שפת הדיבור, שתי אותיות: fr, en, de; מזוהה כברירת מחדל מתוך 30 השניות הראשונות"
 
 #: src/exe/cli/commands/sync.cpp src/exe/cli/commands/transcribe.cpp
 msgid "Model file; the transcription.model setting by default"
@@ -1062,8 +1052,8 @@ msgid ""
 "Voice-activity model that skips silences; the transcription.vad-model "
 "setting by default"
 msgstr ""
-"מודל זיהוי פעילות קולית שמדלג על שתיקות; כברירת מחדל ההגדרה "
-"transcription.vad-model"
+"מודל זיהוי פעילות קולית שמדלג על שתיקות; כברירת מחדל ההגדרה transcription."
+"vad-model"
 
 #: src/exe/cli/commands/sync.cpp
 msgid "Engine that listens; the transcription.engine setting by default"
@@ -1076,24 +1066,24 @@ msgstr "שמירת השמע שחולץ בקובץ זה"
 #: src/exe/cli/commands/sync.cpp
 msgid ""
 "How the subtitles are put in line: speech (from when there is speech, "
-"whatever the language) or words (from the words heard); the alignment.method"
-" setting by default"
+"whatever the language) or words (from the words heard); the alignment.method "
+"setting by default"
 msgstr ""
 "איך הכתוביות מיושרות: speech (לפי המקומות שבהם יש דיבור, בכל שפה) או words "
 "(לפי המילים ששמע); כברירת מחדל ההגדרה alignment.method"
 
 #: src/exe/cli/commands/sync.cpp
 msgid ""
-"Share of a subtitle's words that must be heard, in percent; the "
-"alignment.min-match setting by default"
+"Share of a subtitle's words that must be heard, in percent; the alignment."
+"min-match setting by default"
 msgstr ""
 "החלק ממילות הכתובית שחייב להישמע, באחוזים; כברירת מחדל ההגדרה alignment.min-"
 "match"
 
 #: src/exe/cli/commands/sync.cpp
 msgid ""
-"How far a subtitle may move from its neighbours' shift before it is flagged,"
-" in milliseconds; the alignment.doubt-gap setting by default"
+"How far a subtitle may move from its neighbours' shift before it is flagged, "
+"in milliseconds; the alignment.doubt-gap setting by default"
 msgstr ""
 "עד כמה כתובית יכולה לסטות מהזזת שכנותיה לפני שהיא מסומנת, באלפיות שנייה; "
 "כברירת מחדל ההגדרה alignment.doubt-gap"
@@ -1124,8 +1114,8 @@ msgstr "רצועת שמע של סרטון, בספירה מ-0; כברירת מח�
 
 #: src/exe/cli/commands/transcribe.cpp
 msgid ""
-"Do not write sounds as notes, such as (phone ringing); the "
-"transcription.suppress-notes setting by default"
+"Do not write sounds as notes, such as (phone ringing); the transcription."
+"suppress-notes setting by default"
 msgstr ""
 "לא לכתוב צלילים כהערות, למשל (phone ringing); ההגדרה transcription.suppress-"
 "notes כברירת מחדל"
@@ -1163,30 +1153,22 @@ msgstr "הפניה מוקדמת יותר, בצורה <index>=<time>: 1=00:00:01.
 msgid "Later reference, as <index>=<time>: 3=00:00:10.000"
 msgstr "הפניה מאוחרת יותר, בצורה <index>=<time>: 3=00:00:10.000"
 
-#. TRANSLATORS: %1 is the reason of a failure the program did not foresee.
 #: src/exe/cli/main.cpp
-msgid "subedit-cli: %1"
-msgstr "subedit-cli: %1"
+msgid "unknown failure"
+msgstr "כשל לא ידוע"
 
-#: src/exe/cli/main.cpp
-msgid "subedit-cli: unknown failure"
-msgstr "subedit-cli: כשל לא ידוע"
-
-#. TRANSLATORS: %1 is what the user typed. « off » is a value of the option,
-#. as typed.
+#. TRANSLATORS: %1 is what the user typed. « off » is a value of the option, as typed.
 #: src/lib/subedit/cli/adjusting.cpp
 msgid ""
 "--speed: \"%1\" is not a reading speed: expected a number of characters per "
 "second above zero, like 15 or 12.5, or off"
 msgstr ""
-"--speed: “%1” אינו מהירות קריאה: צפוי מספר תווים לשנייה גדול מאפס, כמו 15 או"
-" 12.5, או off"
+"--speed: “%1” אינו מהירות קריאה: צפוי מספר תווים לשנייה גדול מאפס, כמו 15 או "
+"12.5, או off"
 
-#. TRANSLATORS: %1 is an option, such as --minimum; %2 why its value does not
-#. read.
+#. TRANSLATORS: %1 is an option, such as --minimum; %2 why its value does not read.
 #. TRANSLATORS: %1 is the file, or what a message is about; %2 the message.
-#. TRANSLATORS: %1 is Undo or Redo, %2 the operation it undoes or redoes, such
-#. as shifting.
+#. TRANSLATORS: %1 is Undo or Redo, %2 the operation it undoes or redoes, such as shifting.
 #. TRANSLATORS: %1 is a file's path, %2 what went wrong with it.
 #: src/lib/subedit/cli/adjusting.cpp src/lib/subedit/cli/batch.cpp
 #: src/lib/subedit/cli/configuring.cpp src/lib/subedit/cli/conversion.cpp
@@ -1215,8 +1197,7 @@ msgstr "%1 ו־%2 אומרים דברים הפוכים; ציינו אחד מהם
 #: src/lib/subedit/cli/adjusting.cpp
 msgid ""
 "--lengthen, --no-lengthen, --shorten and --no-shorten say which way the "
-"reading speed may move an end, and --speed off switches the reading speed "
-"off"
+"reading speed may move an end, and --speed off switches the reading speed off"
 msgstr ""
 "--lengthen, --no-lengthen, --shorten ו־--no-shorten קובעים לאיזה כיוון "
 "מהירות הקריאה רשאית להזיז סוף כתובית, ו־--speed off מכבה את מהירות הקריאה"
@@ -1246,8 +1227,7 @@ msgstr[0] "%1 כתובית הוצמדה ל־%2 פריימים לשנייה, %3"
 msgstr[1] "%1 כתוביות הוצמדו ל־%2 פריימים לשנייה, %3"
 msgstr[2] "%1 כתוביות הוצמדו ל־%2 פריימים לשנייה, %3"
 
-#. TRANSLATORS: %1 is the file written, %2 a number of subtitles (« 12
-#. subtitles »)
+#. TRANSLATORS: %1 is the file written, %2 a number of subtitles (« 12 subtitles »)
 #. and %3 a number of files (« 3 files »).
 #: src/lib/subedit/cli/appending.cpp
 msgid "%1: %2 from %3"
@@ -1381,8 +1361,7 @@ msgstr[0] "התמרה: %1 מתוך %2 קובץ"
 msgstr[1] "התמרה: %1 מתוך %2 קבצים"
 msgstr[2] "התמרה: %1 מתוך %2 קבצים"
 
-#. TRANSLATORS: %1 is the summary of a batch, such as « 1 of 3 files shifted
-#. »; %2
+#. TRANSLATORS: %1 is the summary of a batch, such as « 1 of 3 files shifted »; %2
 #. how many files of it failed.
 #: src/lib/subedit/cli/batch.cpp
 msgid "%1, %2 failed"
@@ -1466,11 +1445,11 @@ msgstr "%1 הוחזר לברירת המחדל שלו (%2)"
 
 #: src/lib/subedit/cli/conversion.cpp
 msgid ""
-"writing frames needs a frame rate, and the positions fall on no grid to take"
-" one from — give --frame-rate"
+"writing frames needs a frame rate, and the positions fall on no grid to take "
+"one from — give --frame-rate"
 msgstr ""
-"כתיבה בפריימים דורשת קצב פריימים, והמיקומים אינם נופלים על אף רשת שאפשר לקחת"
-" ממנה אחד — ציינו --frame-rate"
+"כתיבה בפריימים דורשת קצב פריימים, והמיקומים אינם נופלים על אף רשת שאפשר לקחת "
+"ממנה אחד — ציינו --frame-rate"
 
 #. TRANSLATORS: %1 is a file, %2 a frame rate.
 #: src/lib/subedit/cli/conversion.cpp
@@ -1481,8 +1460,7 @@ msgstr "%1: נספר בפריימים ב־%2, הרשת שהמיקומים נופ
 msgid "%1 has no byte order mark to write"
 msgstr "אין ל־%1 סימן סדר בתים לכתיבה"
 
-#. TRANSLATORS: %1 is a file, %2 and %3 numbers of bytes. English says « bytes
-#. »
+#. TRANSLATORS: %1 is a file, %2 and %3 numbers of bytes. English says « bytes »
 #. whatever the count; the form is chosen by %2.
 #: src/lib/subedit/cli/conversion.cpp src/lib/subedit/cli/writing.cpp
 msgid "%1: %2 bytes read, %3 would be written"
@@ -1528,8 +1506,7 @@ msgstr ""
 "--in-place אינו יכול לשנות את הפורמט: הקובץ היה שומר על שם שתוכנו כבר אינו "
 "תואם"
 
-#. TRANSLATORS: %1 is --enable or --disable, %2 what the user typed, %3 a
-#. pattern code.
+#. TRANSLATORS: %1 is --enable or --disable, %2 what the user typed, %3 a pattern code.
 #: src/lib/subedit/cli/correcting.cpp
 msgid "%1: \"%2\" names no pattern of the tasks given, under the code %3"
 msgstr "%1: “%2” אינו שם של אף תבנית של המשימות שניתנו, תחת הקוד %3"
@@ -1544,8 +1521,7 @@ msgstr ""
 "%1: “%2” מציין תבניות מכמה סוגים: כתבו type:name, כשהסוג הוא common-error, "
 "capitalization, hearing-impaired או line-break"
 
-#. TRANSLATORS: %1 is the name of a pattern, %2 why it gave up, %3 a subtitle
-#. number.
+#. TRANSLATORS: %1 is the name of a pattern, %2 why it gave up, %3 a subtitle number.
 #: src/lib/subedit/cli/correcting.cpp
 msgid "pattern \"%1\" (%2) was not applied to subtitle %3"
 msgstr "התבנית “%1” (%2) לא הוחלה על כתובית %3"
@@ -1588,8 +1564,8 @@ msgstr "--classes: “%1” אינו סוג: צפוי human, ocr או human,ocr"
 
 #: src/lib/subedit/cli/correcting.cpp
 msgid ""
-"--language is for the tasks join-words and split-words, which were not asked"
-" for"
+"--language is for the tasks join-words and split-words, which were not asked "
+"for"
 msgstr "--language מיועד למשימות join-words ו־split-words, שלא התבקשו"
 
 #. TRANSLATORS: %1 is the list of tasks the user gave.
@@ -1600,8 +1576,8 @@ msgstr "--language נדרש למשימות שבודקות מילים: %1"
 #. TRANSLATORS: %1 is what the user typed.
 #: src/lib/subedit/cli/correcting.cpp
 msgid ""
-"--language: \"%1\" is not a language: expected a locale code, like fr, en_US"
-" or sr@Latn"
+"--language: \"%1\" is not a language: expected a locale code, like fr, en_US "
+"or sr@Latn"
 msgstr "--language: “%1” אינו שפה: צפוי קוד לוקאל, כמו fr, en_US או sr@Latn"
 
 #: src/lib/subedit/cli/correcting.cpp
@@ -1618,8 +1594,8 @@ msgid ""
 "--max-length is required by the task line-break: Gaupol's 24 is a width in "
 "ems, and has no value in characters"
 msgstr ""
-"--max-length נדרש למשימה line-break: 24 של Gaupol הוא רוחב ב־em, ואין לו ערך"
-" בתווים"
+"--max-length נדרש למשימה line-break: 24 של Gaupol הוא רוחב ב־em, ואין לו ערך "
+"בתווים"
 
 #. TRANSLATORS: %1 is what the user typed.
 #: src/lib/subedit/cli/correcting.cpp
@@ -1648,8 +1624,7 @@ msgstr "“%1” ניתן הן ל־--enable והן ל־--disable: בחרו בא�
 
 #. TRANSLATORS: %1 is a task, as typed; %2 a pattern code.
 #: src/lib/subedit/cli/correcting.cpp
-msgid ""
-"%1: no pattern is active under the code %2; switch one on with --enable"
+msgid "%1: no pattern is active under the code %2; switch one on with --enable"
 msgstr "%1: אין תבנית פעילה תחת הקוד %2; הפעילו אחת באמצעות --enable"
 
 #: src/lib/subedit/cli/correcting.cpp
@@ -1696,15 +1671,13 @@ msgstr "%1, %2"
 msgid "line %1: %2, %3"
 msgstr "שורה %1: %2, %3"
 
-#. TRANSLATORS: %1 is what a reading met, %2 an excerpt of the file, %3 how
-#. serious
+#. TRANSLATORS: %1 is what a reading met, %2 an excerpt of the file, %3 how serious
 #. it is.
 #: src/lib/subedit/cli/diagnostics.cpp
 msgid "%1 (\"%2\"), %3"
 msgstr "%1 (“%2”), %3"
 
-#. TRANSLATORS: %1 is a line number, %2 what a reading met on it, %3 an
-#. excerpt
+#. TRANSLATORS: %1 is a line number, %2 what a reading met on it, %3 an excerpt
 #. of the file, %4 how serious it is.
 #: src/lib/subedit/cli/diagnostics.cpp
 msgid "line %1: %2 (\"%3\"), %4"
@@ -1727,8 +1700,8 @@ msgstr "--minimum: “%1” אינו משך זמן של אפס או יותר"
 #. TRANSLATORS: %1 is what the user typed.
 #: src/lib/subedit/cli/disjoining.cpp
 msgid ""
-"--max-lines: \"%1\" is not a number of lines: expected a whole number, 0 for"
-" no limit"
+"--max-lines: \"%1\" is not a number of lines: expected a whole number, 0 for "
+"no limit"
 msgstr "--max-lines: “%1” אינו מספר שורות: צפוי מספר שלם, 0 ללא הגבלה"
 
 #. TRANSLATORS: %1 is a directory the user named.
@@ -1830,8 +1803,7 @@ msgstr "כתבו אותו N-M, או N- כדי להגיע עד הסוף, בספי
 msgid "it ends before it starts"
 msgstr "הוא מסתיים לפני שהוא מתחיל"
 
-#. TRANSLATORS: %1 is the range typed, %2 how many subtitles the file has.
-#. English
+#. TRANSLATORS: %1 is the range typed, %2 how many subtitles the file has. English
 #. writes the number alone; the form is chosen by %2.
 #: src/lib/subedit/cli/index_grammar.cpp
 msgid "range %1 starts after the last subtitle: the file has %2"
@@ -1848,8 +1820,7 @@ msgstr[0] "הטווח %1 מסתיים אחרי הכתובית האחרונה: ב
 msgstr[1] "הטווח %1 מסתיים אחרי הכתובית האחרונה: בקובץ יש %2"
 msgstr[2] "הטווח %1 מסתיים אחרי הכתובית האחרונה: בקובץ יש %2"
 
-#. TRANSLATORS: %1 is a kind of line ending, %2 the line where another kind
-#. starts.
+#. TRANSLATORS: %1 is a kind of line ending, %2 the line where another kind starts.
 #: src/lib/subedit/cli/inspection.cpp
 msgid "%1, mixed from line %2"
 msgstr "%1, מעורבים משורה %2"
@@ -1886,8 +1857,7 @@ msgstr "רשת קצב הפריימים: %1 (מעט מדי כתוביות כדי 
 msgid "frame rate grid: %1 (best candidate at %2)"
 msgstr "רשת קצב הפריימים: %1 (המועמד הטוב ביותר ב־%2)"
 
-#. TRANSLATORS: %1 is a frame rate, %2 the verdict on the grid, %3 a
-#. percentage.
+#. TRANSLATORS: %1 is a frame rate, %2 the verdict on the grid, %3 a percentage.
 #: src/lib/subedit/cli/inspection.cpp
 msgid "frame rate grid: %1 fps, %2 (%3)"
 msgstr "רשת קצב הפריימים: %1 פריימים לשנייה, %2 (%3)"
@@ -1922,8 +1892,7 @@ msgstr[0] "מחוץ לרשת: %1 מתוך %2 התחלה, ב־%3"
 msgstr[1] "מחוץ לרשת: %1 מתוך %2 התחלות, ב־%3"
 msgstr[2] "מחוץ לרשת: %1 מתוך %2 התחלות, ב־%3"
 
-#: src/lib/subedit/cli/inspection.cpp
-#: src/lib/subedit/core/wording/analysis.cpp
+#: src/lib/subedit/cli/inspection.cpp src/lib/subedit/core/wording/analysis.cpp
 msgid "none"
 msgstr "אין"
 
@@ -2183,11 +2152,11 @@ msgstr[2] "כתובית %1 היא אחרי הסוף: בקובץ %2 כתוביו�
 #. TRANSLATORS: %1 is a subtitle number.
 #: src/lib/subedit/cli/transforming.cpp
 msgid ""
-"--first and --last both name subtitle %1, and two references on one subtitle"
-" define no transform"
+"--first and --last both name subtitle %1, and two references on one subtitle "
+"define no transform"
 msgstr ""
-"--first ו־--last נותנים שניהם את שם כתובית %1, ושתי הפניות לאותה כתובית אינן"
-" מגדירות התמרה"
+"--first ו־--last נותנים שניהם את שם כתובית %1, ושתי הפניות לאותה כתובית אינן "
+"מגדירות התמרה"
 
 #: src/lib/subedit/cli/transforming.cpp
 msgid ""
@@ -2199,8 +2168,7 @@ msgid ""
 "subtitle %1 would land before the origin, which no subtitle file can hold"
 msgstr "כתובית %1 תיפול לפני נקודת המוצא, מה שאף קובץ כתוביות אינו יכול להכיל"
 
-#. TRANSLATORS: %1 subtitles were transformed; %2 and %3 are the two
-#. references, as
+#. TRANSLATORS: %1 subtitles were transformed; %2 and %3 are the two references, as
 #. typed: 1=00:00:01.000.
 #: src/lib/subedit/cli/transforming.cpp
 msgid "%1 subtitle transformed onto %2 and %3"
@@ -2227,8 +2195,8 @@ msgstr "מספר שלם של אלפיות שנייה, 0 או יותר"
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid ""
-"a pattern code, Script[-language[-COUNTRY]], not empty: Zyyy, Latn, Latn-en,"
-" Latn-en-US"
+"a pattern code, Script[-language[-COUNTRY]], not empty: Zyyy, Latn, Latn-en, "
+"Latn-en-US"
 msgstr ""
 "קוד תבניות, Script[-language[-COUNTRY]], לא ריק: Zyyy, Latn, Latn-en, Latn-"
 "en-US"
@@ -2296,8 +2264,7 @@ msgstr "תיקון הטקסטים… (בחלון בלבד; ב־correct משתמ�
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "Correct Texts… (window only; correct takes --enable/--disable instead)"
 msgstr ""
-"תיקון הטקסטים… (בחלון בלבד; ב־correct משתמשים ב־--enable/--disable במקום "
-"זאת)"
+"תיקון הטקסטים… (בחלון בלבד; ב־correct משתמשים ב־--enable/--disable במקום זאת)"
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "Correct Texts… (window only; correct takes --max-length instead)"
@@ -2403,8 +2370,7 @@ msgid "Whether the window's hearing-impaired task acts on text in brackets."
 msgstr "האם משימת הלקויי שמיעה של החלון פועלת על טקסט בסוגריים מרובעים."
 
 #: src/lib/subedit/core/config/operation_settings.cpp
-msgid ""
-"Whether the window's hearing-impaired task acts on text in parentheses."
+msgid "Whether the window's hearing-impaired task acts on text in parentheses."
 msgstr "האם משימת הלקויי שמיעה של החלון פועלת על טקסט בסוגריים עגולים."
 
 #: src/lib/subedit/core/config/operation_settings.cpp
@@ -2424,8 +2390,8 @@ msgstr "האם החלון מודד שורות ב־em ולא בתווים."
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid ""
-"Whether the window's line-break task leaves alone a subtitle whose lines are"
-" short enough."
+"Whether the window's line-break task leaves alone a subtitle whose lines are "
+"short enough."
 msgstr ""
 "האם משימת מעברי השורה של החלון משאירה כמות שהיא כתובית ששורותיה קצרות דיין."
 
@@ -2434,16 +2400,15 @@ msgid ""
 "Longest line a subtitle may have and still be left alone by the window's "
 "line-break task."
 msgstr ""
-"השורה הארוכה ביותר שיכולה להיות לכתובית כך שמשימת מעברי השורה של החלון עדיין"
-" תשאיר אותה כמות שהיא."
+"השורה הארוכה ביותר שיכולה להיות לכתובית כך שמשימת מעברי השורה של החלון עדיין "
+"תשאיר אותה כמות שהיא."
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid ""
-"Whether the window's line-break task leaves alone a subtitle with few enough"
-" lines."
+"Whether the window's line-break task leaves alone a subtitle with few enough "
+"lines."
 msgstr ""
-"האם משימת מעברי השורה של החלון משאירה כמות שהיא כתובית שיש בה מעט שורות "
-"דיין."
+"האם משימת מעברי השורה של החלון משאירה כמות שהיא כתובית שיש בה מעט שורות דיין."
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid ""
@@ -2471,8 +2436,8 @@ msgstr "המילון שלפיו משימת חיבור/פיצול המילים ש
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid ""
-"a locale code, two lower-case letters, then optionally _ and two upper-case,"
-" then optionally @ and a script: fr, en_US, sr@Latn"
+"a locale code, two lower-case letters, then optionally _ and two upper-case, "
+"then optionally @ and a script: fr, en_US, sr@Latn"
 msgstr ""
 "קוד אזור ושפה, שתי אותיות קטנות, ואחריהן אופציונלית _ ושתי אותיות גדולות, "
 "ואחריהן אופציונלית @ וכתב: fr, en_US, sr@Latn"
@@ -2648,8 +2613,7 @@ msgid "an unterminated group name"
 msgstr "שם קבוצה לא מסתיים"
 
 #: src/lib/subedit/core/text/python_regex_syntax.cpp
-msgid ""
-"the group name '%1' is not letters and digits, which is all ICU accepts"
+msgid "the group name '%1' is not letters and digits, which is all ICU accepts"
 msgstr "שם הקבוצה '%1' אינו אותיות וספרות, שהם הדבר היחיד ש־ICU מקבל"
 
 #: src/lib/subedit/core/text/python_regex_syntax.cpp
@@ -2705,10 +2669,8 @@ msgid_plural ""
 "none of the %1 subtitles was found in the audio: is it the right audio, and "
 "the right language?"
 msgstr[0] "הכתובית %1 נחפשה בשמע ולא נמצאה: האם זה השמע הנכון והשפה הנכונה?"
-msgstr[1] ""
-"אף אחת מ-%1 הכתוביות לא נמצאה בשמע: האם זה השמע הנכון והשפה הנכונה?"
-msgstr[2] ""
-"אף אחת מ-%1 הכתוביות לא נמצאה בשמע: האם זה השמע הנכון והשפה הנכונה?"
+msgstr[1] "אף אחת מ-%1 הכתוביות לא נמצאה בשמע: האם זה השמע הנכון והשפה הנכונה?"
+msgstr[2] "אף אחת מ-%1 הכתוביות לא נמצאה בשמע: האם זה השמע הנכון והשפה הנכונה?"
 
 #: src/lib/subedit/core/wording/alignment.cpp
 msgid ""
@@ -2720,8 +2682,8 @@ msgstr ""
 
 #: src/lib/subedit/core/wording/alignment.cpp
 msgid ""
-"Finding where there is speech needs the program whisper-vad-speech-segments,"
-" which comes with whisper.cpp, and it was not found."
+"Finding where there is speech needs the program whisper-vad-speech-segments, "
+"which comes with whisper.cpp, and it was not found."
 msgstr ""
 "איתור המקומות שבהם יש דיבור מצריך את התוכנה whisper-vad-speech-segments, "
 "שמגיעה עם whisper.cpp, והיא לא נמצאה."
@@ -2735,8 +2697,8 @@ msgstr ""
 
 #: src/lib/subedit/core/wording/alignment.cpp
 msgid ""
-"Only the file as a whole was put in line with the speech, not each subtitle:"
-" one that is out of place by itself, or a title shown over a silence, may "
+"Only the file as a whole was put in line with the speech, not each subtitle: "
+"one that is out of place by itself, or a title shown over a silence, may "
 "still be wrong. Check the result."
 msgstr ""
 "רק הקובץ כולו יושר לפי הדיבור, לא כל כתובית לחוד: כתובית שממוקמת שלא במקומה "
@@ -2744,8 +2706,7 @@ msgstr ""
 "התוצאה."
 
 #: src/lib/subedit/core/wording/alignment.cpp
-msgid ""
-"The frame rate of the file was put right: its times were divided by %1."
+msgid "The frame rate of the file was put right: its times were divided by %1."
 msgstr "קצב הפריימים של הקובץ תוקן: הזמנים שלו חולקו ב-%1."
 
 #: src/lib/subedit/core/wording/alignment.cpp
@@ -2759,8 +2720,7 @@ msgstr[0] "%1 מתוך %2 כתובית הוצבה לפי השמע, %3 לבדיק
 msgstr[1] "%1 מתוך %2 כתוביות הוצבו לפי השמע, %3 לבדיקה"
 msgstr[2] "%1 מתוך %2 כתוביות הוצבו לפי השמע, %3 לבדיקה"
 
-#. TRANSLATORS: %1 is a sentence, such as « 40 of 42 subtitles placed on the
-#. audio, 2 to
+#. TRANSLATORS: %1 is a sentence, such as « 40 of 42 subtitles placed on the audio, 2 to
 #. check »; %2 and %3 are lengths in seconds, such as « -2.400 s ».
 #: src/lib/subedit/core/wording/alignment.cpp
 msgid "%1; median shift %2, drift %3"
@@ -3316,17 +3276,17 @@ msgid ""
 "%1 of %2 subtitle aligned to %3 fps; the document is still read on a %4 fps "
 "grid"
 msgid_plural ""
-"%1 of %2 subtitles aligned to %3 fps; the document is still read on a %4 fps"
-" grid"
+"%1 of %2 subtitles aligned to %3 fps; the document is still read on a %4 fps "
+"grid"
 msgstr[0] ""
 "%1 מתוך %2 כתובית הוצמדה ל־%3 פריימים לשנייה; המסמך עדיין נקרא על רשת של %4 "
 "פריימים לשנייה"
 msgstr[1] ""
-"%1 מתוך %2 כתוביות הוצמדו ל־%3 פריימים לשנייה; המסמך עדיין נקרא על רשת של %4"
-" פריימים לשנייה"
+"%1 מתוך %2 כתוביות הוצמדו ל־%3 פריימים לשנייה; המסמך עדיין נקרא על רשת של %4 "
+"פריימים לשנייה"
 msgstr[2] ""
-"%1 מתוך %2 כתוביות הוצמדו ל־%3 פריימים לשנייה; המסמך עדיין נקרא על רשת של %4"
-" פריימים לשנייה"
+"%1 מתוך %2 כתוביות הוצמדו ל־%3 פריימים לשנייה; המסמך עדיין נקרא על רשת של %4 "
+"פריימים לשנייה"
 
 #: src/lib/subedit/core/wording/editing.cpp
 msgid "nothing to look for"
@@ -3458,8 +3418,8 @@ msgstr "אין קידוד בשם “%1”"
 #. TRANSLATORS: %1 is the name the user gave for an encoding.
 #: src/lib/subedit/core/wording/formats.cpp
 msgid ""
-"\"%1\" writes a byte order mark of its own; name the byte order, as UTF-16LE"
-" and UTF-16BE do"
+"\"%1\" writes a byte order mark of its own; name the byte order, as UTF-16LE "
+"and UTF-16BE do"
 msgstr ""
 "“%1” כותב סימן סדר בתים משלו; ציינו את סדר הבתים, כפי ש־UTF-16LE ו־UTF-16BE "
 "עושים"
@@ -3664,14 +3624,15 @@ msgstr[1] "%1 כתוביות נשמרו מתמלול חלקי, עד %2"
 msgstr[2] "%1 כתוביות נשמרו מתמלול חלקי, עד %2"
 
 #: src/lib/subedit/core/wording/transcription.cpp
-msgid "\"%1\" is not a time: write it as 2:00, 1:02:03 or 2:00.5, or in seconds"
+msgid ""
+"\"%1\" is not a time: write it as 2:00, 1:02:03 or 2:00.5, or in seconds"
 msgstr "„%1” אינו זמן: כתבו אותו כ-2:00, 1:02:03 או 2:00.5, או בשניות"
 
 #: src/lib/subedit/core/wording/transcription.cpp
 msgid ""
 "This model is for English only: whatever language the film speaks, the "
-"result will be English, or notes in brackets. Choose a multilingual model in"
-" the preferences."
+"result will be English, or notes in brackets. Choose a multilingual model in "
+"the preferences."
 msgstr ""
 "מודל זה מיועד לאנגלית בלבד: לא משנה באיזו שפה הסרט מדבר, התוצאה תהיה "
 "באנגלית, או הערות בסוגריים מרובעים. בחרו מודל רב־לשוני בהעדפות."
@@ -3689,7 +3650,8 @@ msgid "the voice-activity model %1 does not exist"
 msgstr "מודל זיהוי הפעילות הקולית %1 אינו קיים"
 
 #: src/lib/subedit/core/wording/transcription.cpp
-msgid "\"%1\" is not a language code: write two letters, such as fr, en, de or es"
+msgid ""
+"\"%1\" is not a language code: write two letters, such as fr, en, de or es"
 msgstr "“%1” אינו קוד שפה: כתבו שתי אותיות, כמו fr, en, de או es"
 
 #: src/lib/subedit/core/wording/transcription.cpp
@@ -3815,8 +3777,8 @@ msgid ""
 "the lines sit %1 later than the subtitles; moved back, %2 line would attach "
 "instead of %3"
 msgid_plural ""
-"the lines sit %1 later than the subtitles; moved back, %2 lines would attach"
-" instead of %3"
+"the lines sit %1 later than the subtitles; moved back, %2 lines would attach "
+"instead of %3"
 msgstr[0] ""
 "השורות מאוחרות ב־%1 מהכתוביות; אם יוחזרו אחורה, תתחבר %2 שורה במקום %3"
 msgstr[1] ""
@@ -3842,15 +3804,13 @@ msgstr[2] ""
 msgid "the file is already open as the main document"
 msgstr "הקובץ כבר פתוח כמסמך הראשי"
 
-#. TRANSLATORS: %1 is the version of a library the program runs against, %2
-#. the version it
+#. TRANSLATORS: %1 is the version of a library the program runs against, %2 the version it
 #. was compiled with — « 74.2 (built with 74.2) ».
 #: src/lib/subedit/core/wording/version.cpp
 msgid "%1 (built with %2)"
 msgstr "%1 (נבנה עם %2)"
 
-#. TRANSLATORS: %1 is the list of the interface languages installed, by code —
-#. « en, fr ».
+#. TRANSLATORS: %1 is the list of the interface languages installed, by code — « en, fr ».
 #: src/lib/subedit/core/wording/version.cpp
 msgid "Languages: %1"
 msgstr "שפות: %1"
@@ -3860,8 +3820,8 @@ msgid ""
 "positions cannot be shown in frames: the file is not counted in frames, the "
 "video declares no frame rate, and the positions fall on no grid"
 msgstr ""
-"לא ניתן להציג מיקומים בפריימים: הקובץ אינו נספר בפריימים, הווידאו אינו מצהיר"
-" על קצב פריימים, והמיקומים אינם נופלים על אף רשת"
+"לא ניתן להציג מיקומים בפריימים: הקובץ אינו נספר בפריימים, הווידאו אינו מצהיר "
+"על קצב פריימים, והמיקומים אינם נופלים על אף רשת"
 
 #: src/lib/subedit/core/wording/video.cpp
 msgid "the rate the video declares"
@@ -3884,8 +3844,8 @@ msgstr "המיקומים הם מספרי פריימים, הנספרים ב־%1 �
 #: src/lib/subedit/core/wording/video.cpp
 msgid ""
 "no frame rate to count a frame by: the video declares none, the file is not "
-"counted in frames, and its positions fall on no grid. Associate a video that"
-" declares one."
+"counted in frames, and its positions fall on no grid. Associate a video that "
+"declares one."
 msgstr ""
 "אין קצב פריימים לספירת פריימים: הווידאו אינו מצהיר על אחד, הקובץ אינו נספר "
 "בפריימים, והמיקומים שלו אינם נופלים על אף רשת. שייכו וידאו שמצהיר על קצב."
@@ -3916,31 +3876,26 @@ msgstr "ברישיון GPL, גרסה 3 או מאוחרת יותר."
 msgid "About subedit"
 msgstr "אודות subedit"
 
-#. TRANSLATORS: the heading of the column of the libraries' names, in « About
-#. subedit ».
+#. TRANSLATORS: the heading of the column of the libraries' names, in « About subedit ».
 #: src/lib/subedit/gui/about_dialog.cpp
 msgid "Library"
 msgstr "ספרייה"
 
-#. TRANSLATORS: the heading of the version of a library the program runs
-#. against.
+#. TRANSLATORS: the heading of the version of a library the program runs against.
 #: src/lib/subedit/gui/about_dialog.cpp
 msgid "Loaded"
 msgstr "נטענה"
 
-#. TRANSLATORS: the heading of the version of a library the program was
-#. compiled with.
+#. TRANSLATORS: the heading of the version of a library the program was compiled with.
 #: src/lib/subedit/gui/about_dialog.cpp
 msgid "Built with"
 msgstr "נבנתה עם"
 
-#: src/lib/subedit/gui/command_label.cpp
-#: src/lib/subedit/gui/window_actions.cpp
+#: src/lib/subedit/gui/command_label.cpp src/lib/subedit/gui/window_actions.cpp
 msgid "Undo"
 msgstr "ביטול פעולה"
 
-#: src/lib/subedit/gui/command_label.cpp
-#: src/lib/subedit/gui/window_actions.cpp
+#: src/lib/subedit/gui/command_label.cpp src/lib/subedit/gui/window_actions.cpp
 msgid "Redo"
 msgstr "ביצוע חוזר"
 
@@ -4151,8 +4106,7 @@ msgstr "הפיכת הטווחים לזרים"
 msgid "Repair subtitles"
 msgstr "תיקון הכתוביות"
 
-#. TRANSLATORS: the unit after the number of a spin box, with its space: « 50
-#. ms ».
+#. TRANSLATORS: the unit after the number of a spin box, with its space: « 50 ms ».
 #: src/lib/subedit/gui/disjoint_dialog.cpp
 #: src/lib/subedit/gui/transcription_preview_dialog.cpp
 msgid " ms"
@@ -4160,8 +4114,8 @@ msgstr " ms"
 
 #: src/lib/subedit/gui/disjoint_dialog.cpp
 msgid ""
-"An interval shorter than this is taken over by a neighbour. Zero keeps every"
-" interval."
+"An interval shorter than this is taken over by a neighbour. Zero keeps every "
+"interval."
 msgstr "מרווח קצר מערך זה נלקח על ידי שכן. אפס שומר על כל המרווחים."
 
 #: src/lib/subedit/gui/disjoint_dialog.cpp
@@ -4188,9 +4142,9 @@ msgstr ""
 
 #: src/lib/subedit/gui/disjoint_dialog.cpp
 msgid ""
-"Overlapping subtitles are cut where they overlap, and what shows together is"
-" merged line by line, the earliest first. Nothing is shortened or "
-"lengthened. Each change can be undone."
+"Overlapping subtitles are cut where they overlap, and what shows together is "
+"merged line by line, the earliest first. Nothing is shortened or lengthened. "
+"Each change can be undone."
 msgstr ""
 "כתוביות חופפות נחתכות במקום החפיפה, ומה שמוצג יחד ממוזג שורה אחר שורה, "
 "המוקדם ראשון. דבר אינו מקוצר או מוארך. אפשר לבטל כל שינוי."
@@ -4248,8 +4202,8 @@ msgstr "בעיות שנמצאו בקובץ הזה"
 
 #: src/lib/subedit/gui/fixes_proposal_dialog.cpp
 msgid ""
-"Opening this file found something that can be put right. Each correction can"
-" be undone."
+"Opening this file found something that can be put right. Each correction can "
+"be undone."
 msgstr "פתיחת הקובץ הזה מצאה דבר שאפשר לתקן. אפשר לבטל כל תיקון."
 
 #: src/lib/subedit/gui/fixes_proposal_dialog.cpp
@@ -4309,8 +4263,7 @@ msgstr "הווידאו מצהיר"
 msgid "The file was read at"
 msgstr "הקובץ נקרא ב־"
 
-#. TRANSLATORS: %1 is the number of subtitles the file has, too few to
-#. measure.
+#. TRANSLATORS: %1 is the number of subtitles the file has, too few to measure.
 #: src/lib/subedit/gui/grid_analysis_dialog.cpp
 msgid "Too few subtitles to tell: %1 of them."
 msgstr "מעט מדי כתוביות כדי להכריע: %1."
@@ -4321,17 +4274,15 @@ msgid ""
 "No frame rate grid explains these positions. The closest candidate reaches "
 "%1."
 msgstr ""
-"שום רשת קצב פריימים אינה מסבירה את המיקומים האלה. המועמדת הקרובה ביותר מגיעה"
-" ל־%1."
+"שום רשת קצב פריימים אינה מסבירה את המיקומים האלה. המועמדת הקרובה ביותר מגיעה "
+"ל־%1."
 
-#. TRANSLATORS: %1 is a frame rate, %2 how clean the grid is (« clean »), %3 a
-#. share.
+#. TRANSLATORS: %1 is a frame rate, %2 how clean the grid is (« clean »), %3 a share.
 #: src/lib/subedit/gui/grid_analysis_dialog.cpp
 msgid "Written on a %1 fps grid — %2, %3."
 msgstr "נכתב על רשת של %1 פריימים לשנייה — %2, %3."
 
-#. TRANSLATORS: %1 is a number of subtitle starts, %2 a length of time, «
-#. 1:32:05 ».
+#. TRANSLATORS: %1 is a number of subtitle starts, %2 a length of time, « 1:32:05 ».
 #: src/lib/subedit/gui/grid_analysis_dialog.cpp
 msgid "Measured on %1 start, over %2."
 msgid_plural "Measured on %1 starts, over %2."
@@ -4425,8 +4376,7 @@ msgstr "פיצול מילים"
 msgid "Language:"
 msgstr "שפה:"
 
-#. TRANSLATORS: %1 is the name of the file; `[*]` is where Qt puts the mark of
-#. unsaved
+#. TRANSLATORS: %1 is the name of the file; `[*]` is where Qt puts the mark of unsaved
 #. changes, and stays as it is.
 #: src/lib/subedit/gui/main_window.cpp
 msgid "%1[*] — subedit"
@@ -4480,8 +4430,7 @@ msgstr "לא ניתן היה לקרוא את %1."
 #. TRANSLATORS: %1 is the path a link of the manual names.
 #: src/lib/subedit/gui/manual_window.cpp
 msgid ""
-"%1 is not part of the installed manual; it lives in the project's "
-"repository."
+"%1 is not part of the installed manual; it lives in the project's repository."
 msgstr "%1 אינו חלק מהמדריך המותקן; הוא נמצא במאגר של הפרויקט."
 
 #: src/lib/subedit/gui/mpv_player.cpp
@@ -4573,8 +4522,7 @@ msgstr "השהיה"
 msgid "Play"
 msgstr "הפעלה"
 
-#. TRANSLATORS: the interface language that follows the environment, LANGUAGE
-#. and LANG.
+#. TRANSLATORS: the interface language that follows the environment, LANGUAGE and LANG.
 #: src/lib/subedit/gui/preferences_dialog.cpp
 msgid "System default"
 msgstr "ברירת המחדל של המערכת"
@@ -4605,8 +4553,7 @@ msgstr "עיון…"
 msgid "Preferences"
 msgstr "העדפות"
 
-#. TRANSLATORS: the unit after a number of frames, with its space: « 2 frames
-#. ».
+#. TRANSLATORS: the unit after a number of frames, with its space: « 2 frames ».
 #: src/lib/subedit/gui/preferences_dialog.cpp
 msgid " frames"
 msgstr " פריימים"
@@ -4711,8 +4658,7 @@ msgstr "חיפוש ב: %1"
 msgid "Search wrapped around"
 msgstr "החיפוש חזר להתחלה"
 
-#. TRANSLATORS: a filter of the file dialog; %1 lists the patterns, « *.srt
-#. *.vtt ».
+#. TRANSLATORS: a filter of the file dialog; %1 lists the patterns, « *.srt *.vtt ».
 #: src/lib/subedit/gui/qt_prompts.cpp
 msgid "Subtitles (%1)"
 msgstr "כתוביות (%1)"
@@ -4721,8 +4667,7 @@ msgstr "כתוביות (%1)"
 msgid "All files (*)"
 msgstr "כל הקבצים (*)"
 
-#. TRANSLATORS: a filter of the file dialog; %1 lists the patterns, « *.mkv
-#. *.mp4 ».
+#. TRANSLATORS: a filter of the file dialog; %1 lists the patterns, « *.mkv *.mp4 ».
 #: src/lib/subedit/gui/qt_prompts.cpp
 msgid "Videos (%1)"
 msgstr "קובצי וידאו (%1)"
@@ -4896,8 +4841,7 @@ msgid "Find and replace"
 msgstr "חיפוש והחלפה"
 
 # From Gaupol.
-#: src/lib/subedit/gui/search_dialog.cpp
-#: src/lib/subedit/gui/window_actions.cpp
+#: src/lib/subedit/gui/search_dialog.cpp src/lib/subedit/gui/window_actions.cpp
 msgid "Find"
 msgstr "חיפוש"
 
@@ -4993,8 +4937,8 @@ msgstr "פיצול בכתובית"
 
 #: src/lib/subedit/gui/split_project_dialog.cpp
 msgid ""
-"The subtitles from this one on move to a new project, opened in a tab of its"
-" own."
+"The subtitles from this one on move to a new project, opened in a tab of its "
+"own."
 msgstr "הכתוביות מכתובית זו ואילך עוברות לפרויקט חדש, הנפתח בלשונית משלו."
 
 #. TRANSLATORS: %1 is Main or Translation, the text an operation aims at.
@@ -5121,17 +5065,17 @@ msgstr ""
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
 msgid ""
-"A time as HH:MM:SS, for example 00:02:00. Leave both empty to transcribe the"
-" whole film."
+"A time as HH:MM:SS, for example 00:02:00. Leave both empty to transcribe the "
+"whole film."
 msgstr ""
 "זמן בפורמט HH:MM:SS, למשל 00:02:00. השאירו את שניהם ריקים כדי לתמלל את כל "
 "הסרט."
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
 msgid ""
-"The audio of the film open in this window is transcribed into subtitles that"
-" replace the ones of the project. The work runs in the background and can be"
-" cancelled."
+"The audio of the film open in this window is transcribed into subtitles that "
+"replace the ones of the project. The work runs in the background and can be "
+"cancelled."
 msgstr ""
 "השמע של הסרט הפתוח בחלון הזה מתומלל לכתוביות שמחליפות את כתוביות הפרויקט. "
 "העבודה מתבצעת ברקע וניתן לבטל אותה."
@@ -5179,9 +5123,8 @@ msgid ""
 "background and can be cancelled, and the result is shown before it is "
 "applied."
 msgstr ""
-"הכתוביות של הפרויקט מוזזות כך שיתאימו לשמע של הסרט הפתוח בחלון זה. רק הזמנים"
-" שלהן משתנים. העבודה רצה ברקע וניתן לבטל אותה, והתוצאה מוצגת לפני שהיא "
-"מוחלת."
+"הכתוביות של הפרויקט מוזזות כך שיתאימו לשמע של הסרט הפתוח בחלון זה. רק הזמנים "
+"שלהן משתנים. העבודה רצה ברקע וניתן לבטל אותה, והתוצאה מוצגת לפני שהיא מוחלת."
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
 msgid ""
@@ -5241,8 +5184,8 @@ msgstr "תצוגה מקדימה של התמלול"
 
 #: src/lib/subedit/gui/transcription_preview_dialog.cpp
 msgid ""
-"Partial result: the work stopped at %1. What was obtained up to there can be"
-" applied or ignored."
+"Partial result: the work stopped at %1. What was obtained up to there can be "
+"applied or ignored."
 msgstr ""
 "תוצאה חלקית: העבודה נעצרה ב-%1. מה שהתקבל עד אז ניתן להחלה או להתעלמות."
 
@@ -5714,22 +5657,28 @@ msgctxt "toolbar"
 msgid "Main"
 msgstr "ראשי"
 
+#~ msgid "subedit-cli: %1"
+#~ msgstr "subedit-cli: %1"
+
+#~ msgid "subedit-cli: unknown failure"
+#~ msgstr "subedit-cli: כשל לא ידוע"
+
 #~ msgid "subedit-cli sync"
 #~ msgstr "subedit-cli sync"
 
 #~ msgid ""
-#~ "%1 of the %2 pieces are only notes in brackets, such as [MUSIC PLAYING]: the"
-#~ " language used (%3) is probably not the one spoken, and the engine may have "
-#~ "translated the speech. Run it again with the language typed."
+#~ "%1 of the %2 pieces are only notes in brackets, such as [MUSIC PLAYING]: "
+#~ "the language used (%3) is probably not the one spoken, and the engine may "
+#~ "have translated the speech. Run it again with the language typed."
 #~ msgstr ""
-#~ "%1 מתוך %2 הקטעים הם הערות בסוגריים מרובעים בלבד, כמו [MUSIC PLAYING]: סביר "
-#~ "שהשפה שנעשה בה שימוש (%3) אינה השפה המדוברת, והמנוע אולי תרגם את הדיבור. "
-#~ "הריצו שוב כשהשפה מוקלדת."
+#~ "%1 מתוך %2 הקטעים הם הערות בסוגריים מרובעים בלבד, כמו [MUSIC PLAYING]: "
+#~ "סביר שהשפה שנעשה בה שימוש (%3) אינה השפה המדוברת, והמנוע אולי תרגם את "
+#~ "הדיבור. הריצו שוב כשהשפה מוקלדת."
 
 #~ msgid ""
-#~ "A language code such as fr, en, de, es or it (fra and eng work too). Leave "
-#~ "it empty to let the model detect the language from the first 30 seconds of "
-#~ "sound."
+#~ "A language code such as fr, en, de, es or it (fra and eng work too). "
+#~ "Leave it empty to let the model detect the language from the first 30 "
+#~ "seconds of sound."
 #~ msgstr ""
 #~ "קוד שפה כמו fr, en, de, es או it (גם fra ו-eng עובדים). השאירו ריק כדי "
 #~ "שהמודל יזהה את השפה מתוך 30 השניות הראשונות של הצליל."
@@ -5741,11 +5690,11 @@ msgstr "ראשי"
 #~ msgstr "המודל הזה אינו יודע לזהות את השפה: הקלידו אותה."
 
 #~ msgid ""
-#~ "The file declares no language for this track: the model will detect it from "
-#~ "the sound. Type it if you know it."
+#~ "The file declares no language for this track: the model will detect it "
+#~ "from the sound. Type it if you know it."
 #~ msgstr ""
-#~ "הקובץ אינו מצהיר על שפה עבור הרצועה הזו: המודל יזהה אותה מתוך הצליל. הקלידו "
-#~ "אותה אם אתם יודעים אותה."
+#~ "הקובץ אינו מצהיר על שפה עבור הרצועה הזו: המודל יזהה אותה מתוך הצליל. "
+#~ "הקלידו אותה אם אתם יודעים אותה."
 
 #~ msgid "Beginning"
 #~ msgstr "התחלה"
@@ -5757,4 +5706,5 @@ msgstr "ראשי"
 #~ "The model file the engine reads. It is not shipped with the program: the "
 #~ "manual says where to find one."
 #~ msgstr ""
-#~ "קובץ המודל שהמנוע קורא. הוא אינו מצורף לתוכנה: המדריך מציין היכן למצוא אחד."
+#~ "קובץ המודל שהמנוע קורא. הוא אינו מצורף לתוכנה: המדריך מציין היכן למצוא "
+#~ "אחד."

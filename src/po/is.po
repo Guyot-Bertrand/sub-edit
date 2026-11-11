@@ -43,8 +43,7 @@ msgid "First person pronoun"
 msgstr "Fyrstu persónu fornafn"
 
 # From Gaupol.
-#: packaging/patterns/Latn-en.common-error
-#: packaging/patterns/Latn.common-error
+#: packaging/patterns/Latn-en.common-error packaging/patterns/Latn.common-error
 msgid "Add or remove space between a number and the associated unit"
 msgstr "Bæta við eða fjarlægja bil á milli tölustafa og mælieininga"
 
@@ -78,8 +77,7 @@ msgstr "Skipta stafnum „l“ út fyrir „I“ í orði með hástöfum"
 msgid "Replace zero with letter \"O\" in an upper case word"
 msgstr "Skipta núlli út fyrir stafinn „O“ í orði með hástöfum"
 
-#: packaging/patterns/Latn-en.common-error
-#: packaging/patterns/Latn.common-error
+#: packaging/patterns/Latn-en.common-error packaging/patterns/Latn.common-error
 msgid "Space between number and unit"
 msgstr "Bil á milli tölustafa og mælieininga"
 
@@ -98,8 +96,7 @@ msgstr "Núll í orði með hástöfum"
 
 #: packaging/patterns/Latn-en.hearing-impaired
 msgid ""
-"Replace the uppercase name of the speaker before a colon with a dialogue "
-"dash"
+"Replace the uppercase name of the speaker before a colon with a dialogue dash"
 msgstr ""
 "Skipta út nafni mælandans í hástöfum á undan tvípunkti fyrir þankastrik"
 
@@ -143,13 +140,11 @@ msgstr "Forsetning"
 msgid "Title"
 msgstr "Titill"
 
-#: packaging/patterns/Latn-fi.common-error
-#: packaging/patterns/Latn.common-error
+#: packaging/patterns/Latn-fi.common-error packaging/patterns/Latn.common-error
 msgid "Add space after various punctuation marks"
 msgstr "Setja bil á eftir ýmsum greinarmerkjum"
 
-#: packaging/patterns/Latn-fi.common-error
-#: packaging/patterns/Latn.common-error
+#: packaging/patterns/Latn-fi.common-error packaging/patterns/Latn.common-error
 msgid "Space after punctuation marks"
 msgstr "Bil á eftir greinarmerkjum"
 
@@ -161,8 +156,7 @@ msgstr "Setja eða fjarlægja bil á undan ýmsum greinarmerkjum"
 msgid "Add spaces around guillemets"
 msgstr "Bæta við bilum í kringum guillemet-merki"
 
-#: packaging/patterns/Latn-fr.common-error
-#: packaging/patterns/Latn.common-error
+#: packaging/patterns/Latn-fr.common-error packaging/patterns/Latn.common-error
 msgid "Space before punctuation marks"
 msgstr "Bil á undan greinarmerkjum"
 
@@ -209,7 +203,8 @@ msgid "Add spaces between musical note characters and lyrics"
 msgstr "Bæta við bilum á milli nótnatákna og söngtexta"
 
 #: packaging/patterns/Latn.common-error
-msgid "Change the various spellings of 12-hour periods to \"a.m.\" and \"p.m.\""
+msgid ""
+"Change the various spellings of 12-hour periods to \"a.m.\" and \"p.m.\""
 msgstr "Breyta ýmsum ritháttum á 12 stunda tímabilum í „a.m.“ og „p.m.“"
 
 # From Gaupol.
@@ -508,8 +503,8 @@ msgstr "Hunsa allar stillingaskrár: nota innbyggð sjálfgildi"
 #: src/exe/cli/application.cpp
 msgid "Write the encodings that can be read and written, one a line, and stop"
 msgstr ""
-"Skrifa stafakóðanirnar sem hægt er að lesa og skrifa, eina í hverri línu, og"
-" hætta"
+"Skrifa stafakóðanirnar sem hægt er að lesa og skrifa, eina í hverri línu, og "
+"hætta"
 
 #: src/exe/cli/application.cpp
 msgid "--config needs a file name"
@@ -624,8 +619,7 @@ msgstr "Hvernig línur þýðingarinnar finna skjátexta sína"
 
 #: src/exe/cli/commands/command.cpp
 msgid "The document to change: the main one, or the translation given by -t"
-msgstr ""
-"Skjalið sem á að breyta: aðalskjalið, eða þýðingin sem gefin er með -t"
+msgstr "Skjalið sem á að breyta: aðalskjalið, eða þýðingin sem gefin er með -t"
 
 #: src/exe/cli/commands/config.cpp
 msgid "List, show and change the operation settings"
@@ -658,8 +652,7 @@ msgstr "Gildi, eins og config list segir að það sé tekið við"
 
 #: src/exe/cli/commands/config.cpp
 msgid ""
-"Put KEY back to its default in the settings file, keeping every other "
-"setting"
+"Put KEY back to its default in the settings file, keeping every other setting"
 msgstr ""
 "Setja KEY aftur á sjálfgildi sitt í stillingaskránni og halda öllum öðrum "
 "stillingum"
@@ -727,8 +720,7 @@ msgid "The tasks to run, in a list: none is chosen beforehand"
 msgstr "Verkin sem á að keyra, í lista: ekkert er valið fyrirfram"
 
 #: src/exe/cli/commands/correct.cpp
-msgid ""
-"The cascade of patterns the tasks read: Zyyy, Latn, Latn-en, Latn-en-US"
+msgid "The cascade of patterns the tasks read: Zyyy, Latn, Latn-en, Latn-en-US"
 msgstr "Mynsturröðin sem verkin lesa: Zyyy, Latn, Latn-en, Latn-en-US"
 
 #: src/exe/cli/commands/correct.cpp
@@ -763,15 +755,15 @@ msgid ""
 "Leave alone a subtitle whose longest line is within this, or off: --max-"
 "length"
 msgstr ""
-"Láta skjátexta í friði ef lengsta lína hans er innan þessa marks, eða off: "
-"--max-length"
+"Láta skjátexta í friði ef lengsta lína hans er innan þessa marks, eða off: --"
+"max-length"
 
 #: src/exe/cli/commands/correct.cpp
 msgid ""
 "Leave alone a subtitle whose line count is within this, or off: --max-lines"
 msgstr ""
-"Láta skjátexta í friði ef línufjöldi hans er innan þessa marks, eða off: "
-"--max-lines"
+"Láta skjátexta í friði ef línufjöldi hans er innan þessa marks, eða off: --"
+"max-lines"
 
 #: src/exe/cli/commands/correct.cpp
 msgid ""
@@ -784,8 +776,7 @@ msgstr ""
 msgid ""
 "Remove the subtitles the correction empties, whatever the settings file says"
 msgstr ""
-"Fjarlægja skjátextana sem leiðréttingin tæmir, hvað sem stillingaskráin "
-"segir"
+"Fjarlægja skjátextana sem leiðréttingin tæmir, hvað sem stillingaskráin segir"
 
 #: src/exe/cli/commands/dialogue_dashes.cpp
 msgid "Put dialogue dashes on the lines, or take them off"
@@ -809,8 +800,8 @@ msgid ""
 "Cut overlapping subtitles so that no range overlaps another, merging what "
 "overlaps"
 msgstr ""
-"Stytta skjátexta sem skarast þannig að ekkert tímabil skarist við annað, með"
-" því að sameina það sem skarast"
+"Stytta skjátexta sem skarast þannig að ekkert tímabil skarist við annað, með "
+"því að sameina það sem skarast"
 
 #: src/exe/cli/commands/disjoint.cpp
 msgid "Subtitle files to make disjoint"
@@ -909,8 +900,8 @@ msgstr "Skjátextaskrár til að sameina endurtekningar í"
 #: src/exe/cli/commands/letter_case.cpp
 msgid "Put the texts in title, sentence, upper or lower case, tags intact"
 msgstr ""
-"Setja textana í fyrirsagnar-, setninga-, há- eða lágstafi, án þess að snerta"
-" kóða"
+"Setja textana í fyrirsagnar-, setninga-, há- eða lágstafi, án þess að snerta "
+"kóða"
 
 #: src/exe/cli/commands/letter_case.cpp
 msgid "The case to put the texts in"
@@ -934,8 +925,7 @@ msgstr ""
 
 #: src/exe/cli/commands/repair.cpp
 msgid ""
-"Join the repeated subtitles, put them in order, then make the ranges "
-"disjoint"
+"Join the repeated subtitles, put them in order, then make the ranges disjoint"
 msgstr ""
 "Sameina endurteknu skjátextana, raða þeim og láta tímabilin svo ekki skarast"
 
@@ -983,8 +973,7 @@ msgstr "Færa um stærðina sem setur tímasetningarnar aftur á rammanet sitt"
 msgid ""
 "Move every position onto the nearest frame of a frame rate (see framerate)"
 msgstr ""
-"Færa allar tímasetningar á næsta ramma tiltekinnar rammatíðni (sjá "
-"framerate)"
+"Færa allar tímasetningar á næsta ramma tiltekinnar rammatíðni (sjá framerate)"
 
 #: src/exe/cli/commands/snap.cpp
 msgid "Subtitle files to align"
@@ -995,8 +984,7 @@ msgid "Frame rate to align on: 25, 23.976"
 msgstr "Rammatíðni til að jafna á: 25, 23.976"
 
 #: src/exe/cli/commands/sort.cpp
-msgid ""
-"Put the subtitles in the order of their start, keeping ties as they are"
+msgid "Put the subtitles in the order of their start, keeping ties as they are"
 msgstr "Raða skjátextunum eftir upphafi og halda jafnteflum eins og þau eru"
 
 #: src/exe/cli/commands/sort.cpp
@@ -1105,25 +1093,25 @@ msgstr "Geyma útdregna hljóðið í þessari skrá"
 #: src/exe/cli/commands/sync.cpp
 msgid ""
 "How the subtitles are put in line: speech (from when there is speech, "
-"whatever the language) or words (from the words heard); the alignment.method"
-" setting by default"
+"whatever the language) or words (from the words heard); the alignment.method "
+"setting by default"
 msgstr ""
-"Hvernig skjátextarnir eru stilltir: speech (eftir því hvenær er tal, á hvaða"
-" tungumáli sem er) eða words (eftir orðunum sem heyrast); sjálfgefið "
+"Hvernig skjátextarnir eru stilltir: speech (eftir því hvenær er tal, á hvaða "
+"tungumáli sem er) eða words (eftir orðunum sem heyrast); sjálfgefið "
 "stillingin alignment.method"
 
 #: src/exe/cli/commands/sync.cpp
 msgid ""
-"Share of a subtitle's words that must be heard, in percent; the "
-"alignment.min-match setting by default"
+"Share of a subtitle's words that must be heard, in percent; the alignment."
+"min-match setting by default"
 msgstr ""
 "Hlutfall orða skjátexta sem þarf að heyrast, í prósentum; sjálfgefið "
 "stillingin alignment.min-match"
 
 #: src/exe/cli/commands/sync.cpp
 msgid ""
-"How far a subtitle may move from its neighbours' shift before it is flagged,"
-" in milliseconds; the alignment.doubt-gap setting by default"
+"How far a subtitle may move from its neighbours' shift before it is flagged, "
+"in milliseconds; the alignment.doubt-gap setting by default"
 msgstr ""
 "Hve langt skjátexti má færast frá tilfærslu nágranna sinna áður en hann er "
 "merktur, í millisekúndum; sjálfgefið stillingin alignment.doubt-gap"
@@ -1155,8 +1143,8 @@ msgstr "Hljóðrás myndskeiðs, talin frá 0; sjálfgefið sú fyrsta"
 
 #: src/exe/cli/commands/transcribe.cpp
 msgid ""
-"Do not write sounds as notes, such as (phone ringing); the "
-"transcription.suppress-notes setting by default"
+"Do not write sounds as notes, such as (phone ringing); the transcription."
+"suppress-notes setting by default"
 msgstr ""
 "Ekki skrifa hljóð sem athugasemdir, til dæmis (phone ringing); stillingin "
 "transcription.suppress-notes sjálfgefið"
@@ -1196,30 +1184,22 @@ msgstr "Fyrri viðmiðun, sem <index>=<time>: 1=00:00:01.000"
 msgid "Later reference, as <index>=<time>: 3=00:00:10.000"
 msgstr "Síðari viðmiðun, sem <index>=<time>: 3=00:00:10.000"
 
-#. TRANSLATORS: %1 is the reason of a failure the program did not foresee.
 #: src/exe/cli/main.cpp
-msgid "subedit-cli: %1"
-msgstr "subedit-cli: %1"
+msgid "unknown failure"
+msgstr "óþekkt bilun"
 
-#: src/exe/cli/main.cpp
-msgid "subedit-cli: unknown failure"
-msgstr "subedit-cli: óþekkt bilun"
-
-#. TRANSLATORS: %1 is what the user typed. « off » is a value of the option,
-#. as typed.
+#. TRANSLATORS: %1 is what the user typed. « off » is a value of the option, as typed.
 #: src/lib/subedit/cli/adjusting.cpp
 msgid ""
 "--speed: \"%1\" is not a reading speed: expected a number of characters per "
 "second above zero, like 15 or 12.5, or off"
 msgstr ""
-"--speed: „%1“ er ekki lestrarhraði: búist var við fjölda stafa á sekúndu sem"
-" er yfir núlli, eins og 15 eða 12.5, eða off"
+"--speed: „%1“ er ekki lestrarhraði: búist var við fjölda stafa á sekúndu sem "
+"er yfir núlli, eins og 15 eða 12.5, eða off"
 
-#. TRANSLATORS: %1 is an option, such as --minimum; %2 why its value does not
-#. read.
+#. TRANSLATORS: %1 is an option, such as --minimum; %2 why its value does not read.
 #. TRANSLATORS: %1 is the file, or what a message is about; %2 the message.
-#. TRANSLATORS: %1 is Undo or Redo, %2 the operation it undoes or redoes, such
-#. as shifting.
+#. TRANSLATORS: %1 is Undo or Redo, %2 the operation it undoes or redoes, such as shifting.
 #. TRANSLATORS: %1 is a file's path, %2 what went wrong with it.
 #: src/lib/subedit/cli/adjusting.cpp src/lib/subedit/cli/batch.cpp
 #: src/lib/subedit/cli/configuring.cpp src/lib/subedit/cli/conversion.cpp
@@ -1248,8 +1228,7 @@ msgstr "%1 og %2 segja andstæða hluti; gefðu annað þeirra"
 #: src/lib/subedit/cli/adjusting.cpp
 msgid ""
 "--lengthen, --no-lengthen, --shorten and --no-shorten say which way the "
-"reading speed may move an end, and --speed off switches the reading speed "
-"off"
+"reading speed may move an end, and --speed off switches the reading speed off"
 msgstr ""
 "--lengthen, --no-lengthen, --shorten og --no-shorten segja í hvaða átt "
 "lestrarhraðinn má færa endi, og --speed off slekkur á lestrarhraðanum"
@@ -1277,8 +1256,7 @@ msgid_plural "%1 subtitles aligned on %2 fps, %3"
 msgstr[0] "Jafnaður skjátexti: %1 á %2 fps, %3"
 msgstr[1] "Jafnaðir skjátextar: %1 á %2 fps, %3"
 
-#. TRANSLATORS: %1 is the file written, %2 a number of subtitles (« 12
-#. subtitles »)
+#. TRANSLATORS: %1 is the file written, %2 a number of subtitles (« 12 subtitles »)
 #. and %3 a number of files (« 3 files »).
 #: src/lib/subedit/cli/appending.cpp
 msgid "%1: %2 from %3"
@@ -1395,8 +1373,7 @@ msgid_plural "%1 of %2 files transformed"
 msgstr[0] "Skrá ummynduð: %1 af %2"
 msgstr[1] "Skrár ummyndaðar: %1 af %2"
 
-#. TRANSLATORS: %1 is the summary of a batch, such as « 1 of 3 files shifted
-#. »; %2
+#. TRANSLATORS: %1 is the summary of a batch, such as « 1 of 3 files shifted »; %2
 #. how many files of it failed.
 #: src/lib/subedit/cli/batch.cpp
 msgid "%1, %2 failed"
@@ -1479,8 +1456,8 @@ msgstr "Sjálfgildi sett aftur fyrir %1 (%2)"
 
 #: src/lib/subedit/cli/conversion.cpp
 msgid ""
-"writing frames needs a frame rate, and the positions fall on no grid to take"
-" one from — give --frame-rate"
+"writing frames needs a frame rate, and the positions fall on no grid to take "
+"one from — give --frame-rate"
 msgstr ""
 "til að skrifa ramma þarf rammatíðni, og tímasetningarnar falla á ekkert net "
 "sem hægt er að lesa hana úr — gefðu --frame-rate"
@@ -1494,8 +1471,7 @@ msgstr "%1: talið í römmum, rammatíðni %2, netið sem tímasetningarnar fal
 msgid "%1 has no byte order mark to write"
 msgstr "%1 hefur ekkert bætaröðunarmerki til að skrifa"
 
-#. TRANSLATORS: %1 is a file, %2 and %3 numbers of bytes. English says « bytes
-#. »
+#. TRANSLATORS: %1 is a file, %2 and %3 numbers of bytes. English says « bytes »
 #. whatever the count; the form is chosen by %2.
 #: src/lib/subedit/cli/conversion.cpp src/lib/subedit/cli/writing.cpp
 msgid "%1: %2 bytes read, %3 would be written"
@@ -1536,11 +1512,10 @@ msgid ""
 "--in-place cannot change the format: the file would keep a name its content "
 "no longer matches"
 msgstr ""
-"--in-place getur ekki breytt sniðinu: skráin héldi nafni sem innihald hennar"
-" passar ekki lengur við"
+"--in-place getur ekki breytt sniðinu: skráin héldi nafni sem innihald hennar "
+"passar ekki lengur við"
 
-#. TRANSLATORS: %1 is --enable or --disable, %2 what the user typed, %3 a
-#. pattern code.
+#. TRANSLATORS: %1 is --enable or --disable, %2 what the user typed, %3 a pattern code.
 #: src/lib/subedit/cli/correcting.cpp
 msgid "%1: \"%2\" names no pattern of the tasks given, under the code %3"
 msgstr ""
@@ -1553,11 +1528,10 @@ msgid ""
 "%1: \"%2\" names patterns of several types: write type:name, with the type "
 "one of common-error, capitalization, hearing-impaired, line-break"
 msgstr ""
-"%1: „%2“ nefnir mynstur af fleiri en einni gerð: skrifaðu type:name, þar sem"
-" type er common-error, capitalization, hearing-impaired eða line-break"
+"%1: „%2“ nefnir mynstur af fleiri en einni gerð: skrifaðu type:name, þar sem "
+"type er common-error, capitalization, hearing-impaired eða line-break"
 
-#. TRANSLATORS: %1 is the name of a pattern, %2 why it gave up, %3 a subtitle
-#. number.
+#. TRANSLATORS: %1 is the name of a pattern, %2 why it gave up, %3 a subtitle number.
 #: src/lib/subedit/cli/correcting.cpp
 msgid "pattern \"%1\" (%2) was not applied to subtitle %3"
 msgstr "mynstrinu „%1“ (%2) var ekki beitt á skjátexta %3"
@@ -1573,13 +1547,12 @@ msgid ""
 "--tasks: \"%1\" is not a task: expected mentions, join-words, split-words, "
 "common-errors, capitalization or line-break"
 msgstr ""
-"--tasks: „%1“ er ekki verk: búist var við mentions, join-words, split-words,"
-" common-errors, capitalization eða line-break"
+"--tasks: „%1“ er ekki verk: búist var við mentions, join-words, split-words, "
+"common-errors, capitalization eða line-break"
 
 #: src/lib/subedit/cli/correcting.cpp
 msgid "--code is for the tasks that read patterns, and none was asked for"
-msgstr ""
-"--code er fyrir verkin sem lesa mynstur, og ekkert þeirra var beðið um"
+msgstr "--code er fyrir verkin sem lesa mynstur, og ekkert þeirra var beðið um"
 
 #. TRANSLATORS: %1 is the list of tasks the user gave.
 #: src/lib/subedit/cli/correcting.cpp
@@ -1592,8 +1565,8 @@ msgid ""
 "--code: \"%1\" is not a pattern code: expected Script[-language[-COUNTRY]], "
 "like Zyyy, Latn or Latn-en-US"
 msgstr ""
-"--code: „%1“ er ekki mynsturkóði: búist var við Script[-language[-COUNTRY]],"
-" eins og Zyyy, Latn eða Latn-en-US"
+"--code: „%1“ er ekki mynsturkóði: búist var við Script[-language[-COUNTRY]], "
+"eins og Zyyy, Latn eða Latn-en-US"
 
 #: src/lib/subedit/cli/correcting.cpp
 msgid "--classes: \"%1\" is not a class: expected human, ocr or human,ocr"
@@ -1602,8 +1575,8 @@ msgstr ""
 
 #: src/lib/subedit/cli/correcting.cpp
 msgid ""
-"--language is for the tasks join-words and split-words, which were not asked"
-" for"
+"--language is for the tasks join-words and split-words, which were not asked "
+"for"
 msgstr ""
 "--language er fyrir verkin join-words og split-words, sem var ekki beðið um"
 
@@ -1615,8 +1588,8 @@ msgstr "--language er nauðsynlegt fyrir verkin sem athuga orð: %1"
 #. TRANSLATORS: %1 is what the user typed.
 #: src/lib/subedit/cli/correcting.cpp
 msgid ""
-"--language: \"%1\" is not a language: expected a locale code, like fr, en_US"
-" or sr@Latn"
+"--language: \"%1\" is not a language: expected a locale code, like fr, en_US "
+"or sr@Latn"
 msgstr ""
 "--language: „%1“ er ekki tungumál: búist var við staðarkóða, eins og fr, "
 "en_US eða sr@Latn"
@@ -1672,8 +1645,7 @@ msgstr "„%1“ er gefið bæði með --enable og --disable: veldu annað"
 
 #. TRANSLATORS: %1 is a task, as typed; %2 a pattern code.
 #: src/lib/subedit/cli/correcting.cpp
-msgid ""
-"%1: no pattern is active under the code %2; switch one on with --enable"
+msgid "%1: no pattern is active under the code %2; switch one on with --enable"
 msgstr ""
 "%1: ekkert mynstur er virkt undir kóðanum %2; kveiktu á einu með --enable"
 
@@ -1725,15 +1697,13 @@ msgstr "%1, %2"
 msgid "line %1: %2, %3"
 msgstr "lína %1: %2, %3"
 
-#. TRANSLATORS: %1 is what a reading met, %2 an excerpt of the file, %3 how
-#. serious
+#. TRANSLATORS: %1 is what a reading met, %2 an excerpt of the file, %3 how serious
 #. it is.
 #: src/lib/subedit/cli/diagnostics.cpp
 msgid "%1 (\"%2\"), %3"
 msgstr "%1 („%2“), %3"
 
-#. TRANSLATORS: %1 is a line number, %2 what a reading met on it, %3 an
-#. excerpt
+#. TRANSLATORS: %1 is a line number, %2 what a reading met on it, %3 an excerpt
 #. of the file, %4 how serious it is.
 #: src/lib/subedit/cli/diagnostics.cpp
 msgid "line %1: %2 (\"%3\"), %4"
@@ -1756,8 +1726,8 @@ msgstr "--minimum: „%1“ er ekki tímalengd upp á núll eða meira"
 #. TRANSLATORS: %1 is what the user typed.
 #: src/lib/subedit/cli/disjoining.cpp
 msgid ""
-"--max-lines: \"%1\" is not a number of lines: expected a whole number, 0 for"
-" no limit"
+"--max-lines: \"%1\" is not a number of lines: expected a whole number, 0 for "
+"no limit"
 msgstr ""
 "--max-lines: „%1“ er ekki línufjöldi: búist var við heiltölu, 0 fyrir engin "
 "takmörk"
@@ -1854,15 +1824,13 @@ msgstr "„%1“ er ekki svið: %2"
 #: src/lib/subedit/cli/index_grammar.cpp
 msgid "write it N-M, or N- to go to the end, counted from 1 and inclusive"
 msgstr ""
-"skrifaðu það N-M, eða N- til að fara til enda, talið frá 1 og með báðum "
-"endum"
+"skrifaðu það N-M, eða N- til að fara til enda, talið frá 1 og með báðum endum"
 
 #: src/lib/subedit/cli/index_grammar.cpp
 msgid "it ends before it starts"
 msgstr "það endar áður en það byrjar"
 
-#. TRANSLATORS: %1 is the range typed, %2 how many subtitles the file has.
-#. English
+#. TRANSLATORS: %1 is the range typed, %2 how many subtitles the file has. English
 #. writes the number alone; the form is chosen by %2.
 #: src/lib/subedit/cli/index_grammar.cpp
 msgid "range %1 starts after the last subtitle: the file has %2"
@@ -1877,8 +1845,7 @@ msgid_plural "range %1 ends after the last subtitle: the file has %2"
 msgstr[0] "svið %1 endar eftir síðasta skjátexta: skráin hefur %2 skjátexta"
 msgstr[1] "svið %1 endar eftir síðasta skjátexta: skráin hefur %2 skjátexta"
 
-#. TRANSLATORS: %1 is a kind of line ending, %2 the line where another kind
-#. starts.
+#. TRANSLATORS: %1 is a kind of line ending, %2 the line where another kind starts.
 #: src/lib/subedit/cli/inspection.cpp
 msgid "%1, mixed from line %2"
 msgstr "%1, blandað frá línu %2"
@@ -1915,8 +1882,7 @@ msgstr "rammatíðninet: %1 (of fáir skjátextar til að greina)"
 msgid "frame rate grid: %1 (best candidate at %2)"
 msgstr "rammatíðninet: %1 (besta tilgátan: %2)"
 
-#. TRANSLATORS: %1 is a frame rate, %2 the verdict on the grid, %3 a
-#. percentage.
+#. TRANSLATORS: %1 is a frame rate, %2 the verdict on the grid, %3 a percentage.
 #: src/lib/subedit/cli/inspection.cpp
 msgid "frame rate grid: %1 fps, %2 (%3)"
 msgstr "rammatíðninet: %1 fps, %2 (%3)"
@@ -1950,8 +1916,7 @@ msgid_plural "off the grid: %1 of %2 starts, in %3"
 msgstr[0] "utan netsins (upphöf): %1 af %2, %3"
 msgstr[1] "utan netsins (upphöf): %1 af %2, %3"
 
-#: src/lib/subedit/cli/inspection.cpp
-#: src/lib/subedit/core/wording/analysis.cpp
+#: src/lib/subedit/cli/inspection.cpp src/lib/subedit/core/wording/analysis.cpp
 msgid "none"
 msgstr "ekkert"
 
@@ -2220,8 +2185,8 @@ msgstr[1] "skjátexti %1 er fyrir aftan endann: skjátextar í skránni eru %2"
 #. TRANSLATORS: %1 is a subtitle number.
 #: src/lib/subedit/cli/transforming.cpp
 msgid ""
-"--first and --last both name subtitle %1, and two references on one subtitle"
-" define no transform"
+"--first and --last both name subtitle %1, and two references on one subtitle "
+"define no transform"
 msgstr ""
 "--first og --last nefna báðir skjátexta %1, og tvær viðmiðanir á einum "
 "skjátexta skilgreina enga umbreytingu"
@@ -2240,8 +2205,7 @@ msgstr ""
 "skjátexti %1 myndi lenda á undan upphafspunktinum, sem engin skjátextaskrá "
 "getur geymt"
 
-#. TRANSLATORS: %1 subtitles were transformed; %2 and %3 are the two
-#. references, as
+#. TRANSLATORS: %1 subtitles were transformed; %2 and %3 are the two references, as
 #. typed: 1=00:00:01.000.
 #: src/lib/subedit/cli/transforming.cpp
 msgid "%1 subtitle transformed onto %2 and %3"
@@ -2267,8 +2231,8 @@ msgstr "heiltala millisekúndna, 0 eða meira"
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid ""
-"a pattern code, Script[-language[-COUNTRY]], not empty: Zyyy, Latn, Latn-en,"
-" Latn-en-US"
+"a pattern code, Script[-language[-COUNTRY]], not empty: Zyyy, Latn, Latn-en, "
+"Latn-en-US"
 msgstr ""
 "mynstrakóði, Script[-language[-COUNTRY]], ekki tómur: Zyyy, Latn, Latn-en, "
 "Latn-en-US"
@@ -2328,8 +2292,7 @@ msgstr "subedit-cli correct; Leiðrétta texta…"
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "Correct Texts… (window only; correct takes --tasks instead)"
-msgstr ""
-"Leiðrétta texta… (aðeins í glugganum; correct tekur --tasks í staðinn)"
+msgstr "Leiðrétta texta… (aðeins í glugganum; correct tekur --tasks í staðinn)"
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "Correct Texts… (window only; correct takes --code instead)"
@@ -2447,16 +2410,15 @@ msgstr ""
 "Hvort verkefni gluggans fyrir heyrnarskerta verkar á texta í hornklofum."
 
 #: src/lib/subedit/core/config/operation_settings.cpp
-msgid ""
-"Whether the window's hearing-impaired task acts on text in parentheses."
+msgid "Whether the window's hearing-impaired task acts on text in parentheses."
 msgstr "Hvort verkefni gluggans fyrir heyrnarskerta verkar á texta í svigum."
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid ""
 "Longest line the window's line-break task aims at, in the unit in-ems names."
 msgstr ""
-"Lengsta lína sem línuskilaverkefni gluggans stefnir að, í þeirri einingu sem"
-" in-ems tilgreinir."
+"Lengsta lína sem línuskilaverkefni gluggans stefnir að, í þeirri einingu sem "
+"in-ems tilgreinir."
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "Most lines a subtitle is broken into."
@@ -2468,8 +2430,8 @@ msgstr "Hvort glugginn mælir línur í ems frekar en stöfum."
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid ""
-"Whether the window's line-break task leaves alone a subtitle whose lines are"
-" short enough."
+"Whether the window's line-break task leaves alone a subtitle whose lines are "
+"short enough."
 msgstr ""
 "Hvort línuskilaverkefni gluggans lætur skjátexta í friði ef línur hans eru "
 "nógu stuttar."
@@ -2484,8 +2446,8 @@ msgstr ""
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid ""
-"Whether the window's line-break task leaves alone a subtitle with few enough"
-" lines."
+"Whether the window's line-break task leaves alone a subtitle with few enough "
+"lines."
 msgstr ""
 "Hvort línuskilaverkefni gluggans lætur skjátexta í friði ef línurnar eru "
 "nógu fáar."
@@ -2513,13 +2475,13 @@ msgstr "Hvort verkefni gluggans um að sameina/skipta orðum skiptir orðum."
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "Dictionary the window's join/split-words task checks words by."
 msgstr ""
-"Orðabók sem verkefni gluggans um að sameina/skipta orðum notar til að athuga"
-" orð."
+"Orðabók sem verkefni gluggans um að sameina/skipta orðum notar til að athuga "
+"orð."
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid ""
-"a locale code, two lower-case letters, then optionally _ and two upper-case,"
-" then optionally @ and a script: fr, en_US, sr@Latn"
+"a locale code, two lower-case letters, then optionally _ and two upper-case, "
+"then optionally @ and a script: fr, en_US, sr@Latn"
 msgstr ""
 "tungumálakóði, tveir lágstafir, síðan valfrjálst _ og tveir hástafir, síðan "
 "valfrjálst @ og skrift: fr, en_US, sr@Latn"
@@ -2701,8 +2663,7 @@ msgid "an unterminated group name"
 msgstr "óendað hópheiti"
 
 #: src/lib/subedit/core/text/python_regex_syntax.cpp
-msgid ""
-"the group name '%1' is not letters and digits, which is all ICU accepts"
+msgid "the group name '%1' is not letters and digits, which is all ICU accepts"
 msgstr ""
 "hópheitið '%1' er ekki bókstafir og tölustafir, sem er allt sem ICU tekur "
 "gilt"
@@ -2776,8 +2737,8 @@ msgstr ""
 
 #: src/lib/subedit/core/wording/alignment.cpp
 msgid ""
-"Finding where there is speech needs the program whisper-vad-speech-segments,"
-" which comes with whisper.cpp, and it was not found."
+"Finding where there is speech needs the program whisper-vad-speech-segments, "
+"which comes with whisper.cpp, and it was not found."
 msgstr ""
 "Til að finna hvar tal er þarf forritið whisper-vad-speech-segments, sem "
 "fylgir whisper.cpp, og það fannst ekki."
@@ -2787,13 +2748,13 @@ msgid ""
 "The sound and the subtitles have too little in common to be put in line: is "
 "it the right film?"
 msgstr ""
-"Hljóðið og skjátextarnir eiga of lítið sameiginlegt til að hægt sé að stilla"
-" þá saman: er þetta rétt kvikmynd?"
+"Hljóðið og skjátextarnir eiga of lítið sameiginlegt til að hægt sé að stilla "
+"þá saman: er þetta rétt kvikmynd?"
 
 #: src/lib/subedit/core/wording/alignment.cpp
 msgid ""
-"Only the file as a whole was put in line with the speech, not each subtitle:"
-" one that is out of place by itself, or a title shown over a silence, may "
+"Only the file as a whole was put in line with the speech, not each subtitle: "
+"one that is out of place by itself, or a title shown over a silence, may "
 "still be wrong. Check the result."
 msgstr ""
 "Aðeins skráin í heild var stillt eftir talinu, ekki hver skjátexti: "
@@ -2801,8 +2762,7 @@ msgstr ""
 "þögn, getur enn verið rangur. Athugaðu niðurstöðuna."
 
 #: src/lib/subedit/core/wording/alignment.cpp
-msgid ""
-"The frame rate of the file was put right: its times were divided by %1."
+msgid "The frame rate of the file was put right: its times were divided by %1."
 msgstr "Rammatíðni skráarinnar var lagfærð: tímum hennar var deilt með %1."
 
 #: src/lib/subedit/core/wording/alignment.cpp
@@ -2815,8 +2775,7 @@ msgid_plural "%1 of %2 subtitles placed on the audio, %3 to check"
 msgstr[0] "%1 af %2 skjátexta stilltur eftir hljóðinu, %3 til að athuga"
 msgstr[1] "%1 af %2 skjátextum stilltir eftir hljóðinu, %3 til að athuga"
 
-#. TRANSLATORS: %1 is a sentence, such as « 40 of 42 subtitles placed on the
-#. audio, 2 to
+#. TRANSLATORS: %1 is a sentence, such as « 40 of 42 subtitles placed on the audio, 2 to
 #. check »; %2 and %3 are lengths in seconds, such as « -2.400 s ».
 #: src/lib/subedit/core/wording/alignment.cpp
 msgid "%1; median shift %2, drift %3"
@@ -3356,8 +3315,8 @@ msgid ""
 "%1 of %2 subtitle aligned to %3 fps; the document is still read on a %4 fps "
 "grid"
 msgid_plural ""
-"%1 of %2 subtitles aligned to %3 fps; the document is still read on a %4 fps"
-" grid"
+"%1 of %2 subtitles aligned to %3 fps; the document is still read on a %4 fps "
+"grid"
 msgstr[0] ""
 "Skjátexti jafnaður á %3 fps: %1 af %2; skjalið er enn lesið á %4 fps neti"
 msgstr[1] ""
@@ -3486,8 +3445,8 @@ msgstr "engin stafakóðun heitir „%1“"
 #. TRANSLATORS: %1 is the name the user gave for an encoding.
 #: src/lib/subedit/core/wording/formats.cpp
 msgid ""
-"\"%1\" writes a byte order mark of its own; name the byte order, as UTF-16LE"
-" and UTF-16BE do"
+"\"%1\" writes a byte order mark of its own; name the byte order, as UTF-16LE "
+"and UTF-16BE do"
 msgstr ""
 "„%1“ skrifar sitt eigið bætaröðunarmerki; nefndu bætaröðina, eins og "
 "UTF-16LE og UTF-16BE gera"
@@ -3577,14 +3536,17 @@ msgid ""
 msgstr ""
 "# Stillingar subedit.\n"
 "#\n"
-"# Valkostir sem eru á sjálfgildi sínu eru skrifaðir sem athugasemd. Fjarlægðu\n"
+"# Valkostir sem eru á sjálfgildi sínu eru skrifaðir sem athugasemd. "
+"Fjarlægðu\n"
 "# athugasemdarmerkið af línu og breyttu gildinu til að víkja frá því; eyddu\n"
-"# línunni til að fara aftur á sjálfgildið, hvað sem það verður í síðari útgáfu.\n"
+"# línunni til að fara aftur á sjálfgildið, hvað sem það verður í síðari "
+"útgáfu.\n"
 "#\n"
 "# Tveir þeirra hafa sem sjálfgildi það sem glugginn velur frekar en tölu:\n"
 "# athugasemdarlínan sýnir lögun gildis, ekki sjálfgildi sem er í gildi.\n"
 "#\n"
-"# Gildi sem þessi skrá getur ekki lesið er skilið eftir á sjálfgildi sínu, og\n"
+"# Gildi sem þessi skrá getur ekki lesið er skilið eftir á sjálfgildi sínu, "
+"og\n"
 "# það er sagt á staðalvillu þegar forritið ræsist.\n"
 
 #: src/lib/subedit/core/wording/settings.cpp
@@ -3694,16 +3656,16 @@ msgstr[0] "%1 skjátexti varðveittur úr hlutaumritun, allt að %2"
 msgstr[1] "%1 skjátextar varðveittir úr hlutaumritun, allt að %2"
 
 #: src/lib/subedit/core/wording/transcription.cpp
-msgid "\"%1\" is not a time: write it as 2:00, 1:02:03 or 2:00.5, or in seconds"
+msgid ""
+"\"%1\" is not a time: write it as 2:00, 1:02:03 or 2:00.5, or in seconds"
 msgstr ""
-"„%1“ er ekki tími: skrifaðu hann sem 2:00, 1:02:03 eða 2:00.5, eða í "
-"sekúndum"
+"„%1“ er ekki tími: skrifaðu hann sem 2:00, 1:02:03 eða 2:00.5, eða í sekúndum"
 
 #: src/lib/subedit/core/wording/transcription.cpp
 msgid ""
 "This model is for English only: whatever language the film speaks, the "
-"result will be English, or notes in brackets. Choose a multilingual model in"
-" the preferences."
+"result will be English, or notes in brackets. Choose a multilingual model in "
+"the preferences."
 msgstr ""
 "Þetta líkan er eingöngu fyrir ensku: hvaða tungumál sem kvikmyndin talar "
 "verður niðurstaðan enska, eða athugasemdir í hornklofum. Veldu fjöltyngt "
@@ -3711,8 +3673,7 @@ msgstr ""
 
 #: src/lib/subedit/core/wording/transcription.cpp
 msgid "the engine %1 cannot be told not to write sounds as notes"
-msgstr ""
-"ekki er hægt að segja vélinni %1 að skrifa ekki hljóð sem athugasemdir"
+msgstr "ekki er hægt að segja vélinni %1 að skrifa ekki hljóð sem athugasemdir"
 
 #: src/lib/subedit/core/wording/transcription.cpp
 msgid "the engine %1 cannot skip silences with a voice-activity model"
@@ -3723,7 +3684,8 @@ msgid "the voice-activity model %1 does not exist"
 msgstr "raddvirknilíkanið %1 er ekki til"
 
 #: src/lib/subedit/core/wording/transcription.cpp
-msgid "\"%1\" is not a language code: write two letters, such as fr, en, de or es"
+msgid ""
+"\"%1\" is not a language code: write two letters, such as fr, en, de or es"
 msgstr ""
 "„%1“ er ekki tungumálskóði: skrifaðu tvo stafi, eins og fr, en, de eða es"
 
@@ -3845,8 +3807,8 @@ msgid ""
 "the lines sit %1 later than the subtitles; moved back, %2 line would attach "
 "instead of %3"
 msgid_plural ""
-"the lines sit %1 later than the subtitles; moved back, %2 lines would attach"
-" instead of %3"
+"the lines sit %1 later than the subtitles; moved back, %2 lines would attach "
+"instead of %3"
 msgstr[0] ""
 "línurnar eru %1 á eftir skjátextunum; færðar til baka festist lína: %2 í "
 "stað %3"
@@ -3864,22 +3826,19 @@ msgid_plural ""
 msgstr[0] ""
 "línurnar eru %1 á undan skjátextunum; færðar fram festist lína: %2 í stað %3"
 msgstr[1] ""
-"línurnar eru %1 á undan skjátextunum; færðar fram festast línur: %2 í stað "
-"%3"
+"línurnar eru %1 á undan skjátextunum; færðar fram festast línur: %2 í stað %3"
 
 #: src/lib/subedit/core/wording/translation.cpp
 msgid "the file is already open as the main document"
 msgstr "skráin er þegar opin sem aðalskjalið"
 
-#. TRANSLATORS: %1 is the version of a library the program runs against, %2
-#. the version it
+#. TRANSLATORS: %1 is the version of a library the program runs against, %2 the version it
 #. was compiled with — « 74.2 (built with 74.2) ».
 #: src/lib/subedit/core/wording/version.cpp
 msgid "%1 (built with %2)"
 msgstr "%1 (smíðað með %2)"
 
-#. TRANSLATORS: %1 is the list of the interface languages installed, by code —
-#. « en, fr ».
+#. TRANSLATORS: %1 is the list of the interface languages installed, by code — « en, fr ».
 #: src/lib/subedit/core/wording/version.cpp
 msgid "Languages: %1"
 msgstr "Tungumál: %1"
@@ -3890,8 +3849,7 @@ msgid ""
 "video declares no frame rate, and the positions fall on no grid"
 msgstr ""
 "ekki er hægt að sýna tímasetningar í römmum: skráin er ekki talin í römmum, "
-"myndskeiðið tilgreinir enga rammatíðni og tímasetningarnar falla á ekkert "
-"net"
+"myndskeiðið tilgreinir enga rammatíðni og tímasetningarnar falla á ekkert net"
 
 #: src/lib/subedit/core/wording/video.cpp
 msgid "the rate the video declares"
@@ -3914,8 +3872,8 @@ msgstr "Tímasetningar eru rammanúmer, talin á %1 fps, %2"
 #: src/lib/subedit/core/wording/video.cpp
 msgid ""
 "no frame rate to count a frame by: the video declares none, the file is not "
-"counted in frames, and its positions fall on no grid. Associate a video that"
-" declares one."
+"counted in frames, and its positions fall on no grid. Associate a video that "
+"declares one."
 msgstr ""
 "engin rammatíðni til að telja ramma eftir: myndskeiðið tilgreinir enga, "
 "skráin er ekki talin í römmum og tímasetningar hennar falla á ekkert net. "
@@ -3947,31 +3905,26 @@ msgstr "Gefið út með GPL-leyfi, útgáfu 3 eða nýrri."
 msgid "About subedit"
 msgstr "Um subedit"
 
-#. TRANSLATORS: the heading of the column of the libraries' names, in « About
-#. subedit ».
+#. TRANSLATORS: the heading of the column of the libraries' names, in « About subedit ».
 #: src/lib/subedit/gui/about_dialog.cpp
 msgid "Library"
 msgstr "Bókasafn"
 
-#. TRANSLATORS: the heading of the version of a library the program runs
-#. against.
+#. TRANSLATORS: the heading of the version of a library the program runs against.
 #: src/lib/subedit/gui/about_dialog.cpp
 msgid "Loaded"
 msgstr "Hlaðið"
 
-#. TRANSLATORS: the heading of the version of a library the program was
-#. compiled with.
+#. TRANSLATORS: the heading of the version of a library the program was compiled with.
 #: src/lib/subedit/gui/about_dialog.cpp
 msgid "Built with"
 msgstr "Smíðað með"
 
-#: src/lib/subedit/gui/command_label.cpp
-#: src/lib/subedit/gui/window_actions.cpp
+#: src/lib/subedit/gui/command_label.cpp src/lib/subedit/gui/window_actions.cpp
 msgid "Undo"
 msgstr "Afturkalla"
 
-#: src/lib/subedit/gui/command_label.cpp
-#: src/lib/subedit/gui/window_actions.cpp
+#: src/lib/subedit/gui/command_label.cpp src/lib/subedit/gui/window_actions.cpp
 msgid "Redo"
 msgstr "Endurgera"
 
@@ -4165,8 +4118,8 @@ msgid ""
 "What the reading ran into, and what is wrong with the subtitles — click for "
 "the list"
 msgstr ""
-"Það sem lesturinn rakst á og það sem er athugavert við skjátextana — smelltu"
-" til að sjá listann"
+"Það sem lesturinn rakst á og það sem er athugavert við skjátextana — smelltu "
+"til að sjá listann"
 
 #: src/lib/subedit/gui/diagnostics_button.cpp
 msgid "%1 diagnostic"
@@ -4186,8 +4139,7 @@ msgstr "Láta tímabil ekki skarast"
 msgid "Repair subtitles"
 msgstr "Lagfæra skjátexta"
 
-#. TRANSLATORS: the unit after the number of a spin box, with its space: « 50
-#. ms ».
+#. TRANSLATORS: the unit after the number of a spin box, with its space: « 50 ms ».
 #: src/lib/subedit/gui/disjoint_dialog.cpp
 #: src/lib/subedit/gui/transcription_preview_dialog.cpp
 msgid " ms"
@@ -4195,8 +4147,8 @@ msgstr " ms"
 
 #: src/lib/subedit/gui/disjoint_dialog.cpp
 msgid ""
-"An interval shorter than this is taken over by a neighbour. Zero keeps every"
-" interval."
+"An interval shorter than this is taken over by a neighbour. Zero keeps every "
+"interval."
 msgstr ""
 "Bil sem er styttra en þetta er tekið yfir af nágranna. Núll heldur hverju "
 "bili."
@@ -4227,9 +4179,9 @@ msgstr ""
 
 #: src/lib/subedit/gui/disjoint_dialog.cpp
 msgid ""
-"Overlapping subtitles are cut where they overlap, and what shows together is"
-" merged line by line, the earliest first. Nothing is shortened or "
-"lengthened. Each change can be undone."
+"Overlapping subtitles are cut where they overlap, and what shows together is "
+"merged line by line, the earliest first. Nothing is shortened or lengthened. "
+"Each change can be undone."
 msgstr ""
 "Skjátextar sem skarast eru skornir þar sem þeir skarast, og það sem sést "
 "saman er sameinað línu fyrir línu, það elsta fyrst. Ekkert er stytt eða "
@@ -4288,8 +4240,8 @@ msgstr "Vandamál fundin í þessari skrá"
 
 #: src/lib/subedit/gui/fixes_proposal_dialog.cpp
 msgid ""
-"Opening this file found something that can be put right. Each correction can"
-" be undone."
+"Opening this file found something that can be put right. Each correction can "
+"be undone."
 msgstr ""
 "Við opnun þessarar skrár fannst eitthvað sem hægt er að laga. Hægt er að "
 "afturkalla hverja leiðréttingu."
@@ -4310,15 +4262,14 @@ msgstr[0] ""
 "Sameina endurtekna skjátexta: skjátexti sem endurtekur þann sem hann "
 "snertir: %1"
 msgstr[1] ""
-"Sameina endurtekna skjátexta: skjátextar sem endurtaka þann sem þeir snerta:"
-" %1"
+"Sameina endurtekna skjátexta: skjátextar sem endurtaka þann sem þeir snerta: "
+"%1"
 
 #: src/lib/subedit/gui/fixes_proposal_dialog.cpp
 msgid "Sort the subtitles: not in order of start (%1 subtitle out of place)"
 msgid_plural ""
 "Sort the subtitles: not in order of start (%1 subtitles out of place)"
-msgstr[0] ""
-"Raða skjátextunum: ekki í röð eftir upphafi (skjátexti úr stað: %1)"
+msgstr[0] "Raða skjátextunum: ekki í röð eftir upphafi (skjátexti úr stað: %1)"
 msgstr[1] ""
 "Raða skjátextunum: ekki í röð eftir upphafi (skjátextar úr stað: %1)"
 
@@ -4356,8 +4307,7 @@ msgstr "Myndskeiðið tilgreinir"
 msgid "The file was read at"
 msgstr "Skráin var lesin á"
 
-#. TRANSLATORS: %1 is the number of subtitles the file has, too few to
-#. measure.
+#. TRANSLATORS: %1 is the number of subtitles the file has, too few to measure.
 #: src/lib/subedit/gui/grid_analysis_dialog.cpp
 msgid "Too few subtitles to tell: %1 of them."
 msgstr "Of fáir skjátextar til að greina: %1."
@@ -4370,14 +4320,12 @@ msgid ""
 msgstr ""
 "Ekkert rammatíðninet skýrir þessar tímasetningar. Næsta tilgáta nær %1."
 
-#. TRANSLATORS: %1 is a frame rate, %2 how clean the grid is (« clean »), %3 a
-#. share.
+#. TRANSLATORS: %1 is a frame rate, %2 how clean the grid is (« clean »), %3 a share.
 #: src/lib/subedit/gui/grid_analysis_dialog.cpp
 msgid "Written on a %1 fps grid — %2, %3."
 msgstr "Skrifað á %1 fps neti — %2, %3."
 
-#. TRANSLATORS: %1 is a number of subtitle starts, %2 a length of time, «
-#. 1:32:05 ».
+#. TRANSLATORS: %1 is a number of subtitle starts, %2 a length of time, « 1:32:05 ».
 #: src/lib/subedit/gui/grid_analysis_dialog.cpp
 msgid "Measured on %1 start, over %2."
 msgid_plural "Measured on %1 starts, over %2."
@@ -4469,8 +4417,7 @@ msgstr "Skipta orðum"
 msgid "Language:"
 msgstr "Tungumál:"
 
-#. TRANSLATORS: %1 is the name of the file; `[*]` is where Qt puts the mark of
-#. unsaved
+#. TRANSLATORS: %1 is the name of the file; `[*]` is where Qt puts the mark of unsaved
 #. changes, and stays as it is.
 #: src/lib/subedit/gui/main_window.cpp
 msgid "%1[*] — subedit"
@@ -4523,8 +4470,7 @@ msgstr "Ekki var hægt að lesa %1."
 #. TRANSLATORS: %1 is the path a link of the manual names.
 #: src/lib/subedit/gui/manual_window.cpp
 msgid ""
-"%1 is not part of the installed manual; it lives in the project's "
-"repository."
+"%1 is not part of the installed manual; it lives in the project's repository."
 msgstr ""
 "%1 er ekki hluti af uppsettu handbókinni; það er í geymslu verkefnisins."
 
@@ -4617,8 +4563,7 @@ msgstr "Hlé"
 msgid "Play"
 msgstr "Spila"
 
-#. TRANSLATORS: the interface language that follows the environment, LANGUAGE
-#. and LANG.
+#. TRANSLATORS: the interface language that follows the environment, LANGUAGE and LANG.
 #: src/lib/subedit/gui/preferences_dialog.cpp
 msgid "System default"
 msgstr "Sjálfgefið kerfisins"
@@ -4649,8 +4594,7 @@ msgstr "Skoða…"
 msgid "Preferences"
 msgstr "Kjörstillingar"
 
-#. TRANSLATORS: the unit after a number of frames, with its space: « 2 frames
-#. ».
+#. TRANSLATORS: the unit after a number of frames, with its space: « 2 frames ».
 #: src/lib/subedit/gui/preferences_dialog.cpp
 msgid " frames"
 msgstr " rammar"
@@ -4754,8 +4698,7 @@ msgstr "Leitað í: %1"
 msgid "Search wrapped around"
 msgstr "Leit hélt áfram frá byrjun"
 
-#. TRANSLATORS: a filter of the file dialog; %1 lists the patterns, « *.srt
-#. *.vtt ».
+#. TRANSLATORS: a filter of the file dialog; %1 lists the patterns, « *.srt *.vtt ».
 #: src/lib/subedit/gui/qt_prompts.cpp
 msgid "Subtitles (%1)"
 msgstr "Skjátextar (%1)"
@@ -4764,8 +4707,7 @@ msgstr "Skjátextar (%1)"
 msgid "All files (*)"
 msgstr "Allar skrár (*)"
 
-#. TRANSLATORS: a filter of the file dialog; %1 lists the patterns, « *.mkv
-#. *.mp4 ».
+#. TRANSLATORS: a filter of the file dialog; %1 lists the patterns, « *.mkv *.mp4 ».
 #: src/lib/subedit/gui/qt_prompts.cpp
 msgid "Videos (%1)"
 msgstr "Myndskeið (%1)"
@@ -4941,8 +4883,7 @@ msgid "Find and replace"
 msgstr "Finna og skipta út"
 
 # From Gaupol.
-#: src/lib/subedit/gui/search_dialog.cpp
-#: src/lib/subedit/gui/window_actions.cpp
+#: src/lib/subedit/gui/search_dialog.cpp src/lib/subedit/gui/window_actions.cpp
 msgid "Find"
 msgstr "Finna"
 
@@ -5039,8 +4980,8 @@ msgstr "Skipta við skjátexta"
 
 #: src/lib/subedit/gui/split_project_dialog.cpp
 msgid ""
-"The subtitles from this one on move to a new project, opened in a tab of its"
-" own."
+"The subtitles from this one on move to a new project, opened in a tab of its "
+"own."
 msgstr ""
 "Skjátextarnir frá þessum og áfram flytjast í nýtt verkefni, sem opnast í "
 "eigin flipa."
@@ -5171,21 +5112,21 @@ msgstr ""
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
 msgid ""
-"A time as HH:MM:SS, for example 00:02:00. Leave both empty to transcribe the"
-" whole film."
+"A time as HH:MM:SS, for example 00:02:00. Leave both empty to transcribe the "
+"whole film."
 msgstr ""
 "Tími á sniðinu HH:MM:SS, til dæmis 00:02:00. Skildu bæði eftir tóm til að "
 "umrita alla kvikmyndina."
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
 msgid ""
-"The audio of the film open in this window is transcribed into subtitles that"
-" replace the ones of the project. The work runs in the background and can be"
-" cancelled."
+"The audio of the film open in this window is transcribed into subtitles that "
+"replace the ones of the project. The work runs in the background and can be "
+"cancelled."
 msgstr ""
-"Hljóð kvikmyndarinnar sem er opin í þessum glugga er umritað í skjátexta sem"
-" koma í stað skjátexta verkefnisins. Vinnslan fer fram í bakgrunni og hægt "
-"er að hætta við hana."
+"Hljóð kvikmyndarinnar sem er opin í þessum glugga er umritað í skjátexta sem "
+"koma í stað skjátexta verkefnisins. Vinnslan fer fram í bakgrunni og hægt er "
+"að hætta við hana."
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
 msgid "Audio track"
@@ -5276,8 +5217,7 @@ msgstr "Tungumálið sem þú valdir er notað."
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
 msgid "Proposed from the language the file declares for this track."
-msgstr ""
-"Lagt til út frá tungumálinu sem skráin gefur upp fyrir þessa hljóðrás."
+msgstr "Lagt til út frá tungumálinu sem skráin gefur upp fyrir þessa hljóðrás."
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
 msgid ""
@@ -5302,8 +5242,8 @@ msgstr "Forskoðun umritunar"
 
 #: src/lib/subedit/gui/transcription_preview_dialog.cpp
 msgid ""
-"Partial result: the work stopped at %1. What was obtained up to there can be"
-" applied or ignored."
+"Partial result: the work stopped at %1. What was obtained up to there can be "
+"applied or ignored."
 msgstr ""
 "Hlutaniðurstaða: vinnan stöðvaðist við %1. Það sem fékkst fram að því má "
 "virkja eða hunsa."
@@ -5782,26 +5722,33 @@ msgctxt "toolbar"
 msgid "Main"
 msgstr "Aðalstika"
 
+#~ msgid "subedit-cli: %1"
+#~ msgstr "subedit-cli: %1"
+
+#~ msgid "subedit-cli: unknown failure"
+#~ msgstr "subedit-cli: óþekkt bilun"
+
 #~ msgid "subedit-cli sync"
 #~ msgstr "subedit-cli sync"
 
 #~ msgid ""
-#~ "%1 of the %2 pieces are only notes in brackets, such as [MUSIC PLAYING]: the"
-#~ " language used (%3) is probably not the one spoken, and the engine may have "
-#~ "translated the speech. Run it again with the language typed."
+#~ "%1 of the %2 pieces are only notes in brackets, such as [MUSIC PLAYING]: "
+#~ "the language used (%3) is probably not the one spoken, and the engine may "
+#~ "have translated the speech. Run it again with the language typed."
 #~ msgstr ""
 #~ "%1 af %2 hlutum eru aðeins athugasemdir í hornklofum, eins og [MUSIC "
-#~ "PLAYING]: tungumálið sem var notað (%3) er líklega ekki það sem er talað, og"
-#~ " vélin kann að hafa þýtt talmálið. Keyrðu aftur með tungumálið skrifað inn."
+#~ "PLAYING]: tungumálið sem var notað (%3) er líklega ekki það sem er talað, "
+#~ "og vélin kann að hafa þýtt talmálið. Keyrðu aftur með tungumálið skrifað "
+#~ "inn."
 
 #~ msgid ""
-#~ "A language code such as fr, en, de, es or it (fra and eng work too). Leave "
-#~ "it empty to let the model detect the language from the first 30 seconds of "
-#~ "sound."
+#~ "A language code such as fr, en, de, es or it (fra and eng work too). "
+#~ "Leave it empty to let the model detect the language from the first 30 "
+#~ "seconds of sound."
 #~ msgstr ""
-#~ "Tungumálskóði eins og fr, en, de, es eða it (fra og eng virka líka). Hafðu "
-#~ "hann tóman til að láta líkanið greina tungumálið af fyrstu 30 sekúndum "
-#~ "hljóðsins."
+#~ "Tungumálskóði eins og fr, en, de, es eða it (fra og eng virka líka). "
+#~ "Hafðu hann tóman til að láta líkanið greina tungumálið af fyrstu 30 "
+#~ "sekúndum hljóðsins."
 
 #~ msgid "estimating the time left…"
 #~ msgstr "áætla tímann sem eftir er…"
@@ -5810,11 +5757,11 @@ msgstr "Aðalstika"
 #~ msgstr "Þetta líkan getur ekki greint tungumálið: sláðu það inn."
 
 #~ msgid ""
-#~ "The file declares no language for this track: the model will detect it from "
-#~ "the sound. Type it if you know it."
+#~ "The file declares no language for this track: the model will detect it "
+#~ "from the sound. Type it if you know it."
 #~ msgstr ""
-#~ "Skráin gefur ekki upp tungumál fyrir þessa hljóðrás: líkanið greinir það af "
-#~ "hljóðinu. Sláðu það inn ef þú veist það."
+#~ "Skráin gefur ekki upp tungumál fyrir þessa hljóðrás: líkanið greinir það "
+#~ "af hljóðinu. Sláðu það inn ef þú veist það."
 
 #~ msgid "Beginning"
 #~ msgstr "Upphaf"
@@ -5826,5 +5773,5 @@ msgstr "Aðalstika"
 #~ "The model file the engine reads. It is not shipped with the program: the "
 #~ "manual says where to find one."
 #~ msgstr ""
-#~ "Líkanaskráin sem vélin les. Hún fylgir ekki forritinu: handbókin segir hvar "
-#~ "hægt er að finna eina."
+#~ "Líkanaskráin sem vélin les. Hún fylgir ekki forritinu: handbókin segir "
+#~ "hvar hægt er að finna eina."

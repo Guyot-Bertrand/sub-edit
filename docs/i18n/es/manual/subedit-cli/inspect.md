@@ -57,7 +57,7 @@ Un valor que no nombra nada es un error de uso, y por tanto código `1`:
 <!-- example: subedit-cli inspect --frame-rate douze film.sub; echo $? -->
 ```console
 $ subedit-cli inspect --frame-rate douze film.sub; echo $?
---frame-rate: "douze" is not a frame rate: expected frames per second, like 25 or 23.976
+[subedit] [inspect] [-] error: --frame-rate: "douze" is not a frame rate: expected frames per second, like 25 or 23.976
 1
 ```
 

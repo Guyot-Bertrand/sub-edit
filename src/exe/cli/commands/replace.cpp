@@ -67,7 +67,7 @@ ExitCode runReplace(const ReplaceOptions& options,
         options.pattern,
         core::SearchOptions{.regex = options.regex, .ignoreCase = !options.caseSensitive});
     if (!pattern) {
-        return refuse(pattern.error());
+        return refuse(reporter, pattern.error());
     }
 
     const std::expected<PreparedWriting, std::string> prepared =
@@ -79,7 +79,7 @@ ExitCode runReplace(const ReplaceOptions& options,
                         .translation = &options.translation},
                        options.destination);
     if (!prepared) {
-        return refuse(prepared.error());
+        return refuse(reporter, prepared.error());
     }
 
     return replaceIn(files,

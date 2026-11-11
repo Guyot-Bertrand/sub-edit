@@ -70,3 +70,8 @@ constexpr std::string_view kFontPrefix = "fn"; // expect: exempt:markup
 
 // path: src/lib/subedit/cli/json.cpp
 out = *flag ? "true" : "false"; // expect: exempt:json
+
+// path: src/lib/subedit/cli/reporter.cpp
+case Key::Source: return "source"; // expect: exempt:narration-key
+out << "[subedit] [" << command; // expect: exempt:narration-key
+return "the line could not be written"; // expect: counted

@@ -34,6 +34,7 @@ using subedit::e2e::CliRun;
 using subedit::e2e::invoke;
 using subedit::e2e::invokeShipped;
 using subedit::e2e::Locale;
+using subedit::e2e::refusal;
 using subedit::e2e::Scratch;
 using subedit::e2e::writeSrt;
 
@@ -123,7 +124,7 @@ TEST_CASE("a usage error, a failure and a summary are in every language that shi
     DYNAMIC_SECTION("language " << language) {
         const Words words{language};
         const CliRun usage = invokeShipped(userOf(language), kUsageError);
-        CHECK(usage.errors == words.of(kUsageMessage) + "\n");
+        CHECK(usage.errors == refusal("shift", words.of(kUsageMessage)));
         CHECK(usage.errors != invoke(kUsageError).errors);
         CHECK(usage.exitCode == invoke(kUsageError).exitCode);
 
@@ -226,7 +227,9 @@ TEST_CASE("the help, a usage error and a batch say the French words the catalogu
 
     const CliRun usage = invokeShipped(kFrench, kUsageError);
     CHECK(usage.errors ==
-          "shift demande --by, ou --to-grid pour calculer la quantité à partir des positions\n");
+          refusal(
+              "shift",
+              "shift demande --by, ou --to-grid pour calculer la quantité à partir des positions"));
     CHECK(invokeShipped(Locale{.lang = "fr_FR.UTF-8"}, kUsageError).errors == usage.errors);
 
     const Scratch scratch;

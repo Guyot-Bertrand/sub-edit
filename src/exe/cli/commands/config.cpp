@@ -79,11 +79,12 @@ ExitCode runConfig(const ConfigOptions& options,
         return showDefaultSettings(reporter);
     }
     if (disabled) {
-        return refuse(core::translate("--no-config has nothing to write to"));
+        return refuse(reporter, core::translate("--no-config has nothing to write to"));
     }
     // Neither --config nor a home to resolve the user's file in.
     if (shared.target.empty()) {
         return refuse(
+            reporter,
             core::translate("no settings file could be located; give one with --config FILE"));
     }
 

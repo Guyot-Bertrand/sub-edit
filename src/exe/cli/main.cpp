@@ -4,6 +4,7 @@
 // read in application.cpp; what the tool decides lives in subedit_cli.
 
 #include <subedit/cli/exit_code.hpp>
+#include <subedit/cli/reporter.hpp>
 #include <subedit/core/i18n/language.hpp>
 #include <subedit/core/i18n/messages.hpp>
 #include <subedit/platform/locations.hpp>
@@ -12,6 +13,16 @@
 #include <iostream>
 
 #include "application.hpp"
+
+namespace {
+
+/// The reporter of a failure nobody foresaw: at level 0, since an error is said whatever the
+/// level asked, and under no subcommand.
+subedit::cli::Reporter lastResort() {
+    return subedit::cli::Reporter{std::cerr, 0};
+}
+
+} // namespace
 
 int main(int argc, char** argv) {
     using subedit::cli::ExitCode;
@@ -32,13 +43,12 @@ int main(int argc, char** argv) {
             subedit::core::installCatalogue(std::move(found->catalogue), found->name);
         return toInt(subedit::cli::run(argc, argv));
     } catch (const std::exception& error) {
-        // TRANSLATORS: %1 is the reason of a failure the program did not foresee.
-        std::cerr << subedit::core::substitute(subedit::core::translate("subedit-cli: %1"),
-                                               {error.what()})
-                  << '\n';
+        // A line of the standard error like any other, about no subcommand and no element: which
+        // one was running is not known here.
+        lastResort().error(error.what());
         return toInt(ExitCode::AllFailed);
     } catch (...) {
-        std::cerr << subedit::core::translate("subedit-cli: unknown failure") << '\n';
+        lastResort().error(subedit::core::translate("unknown failure"));
         return toInt(ExitCode::AllFailed);
     }
 }

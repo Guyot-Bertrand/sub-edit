@@ -114,13 +114,14 @@ leest, stelt `LANGUAGE=en` in (of `LC_ALL=C`) — of leest `--format json`, dat 
 | de namen van correctiepatronen die `correct --enable` en `--disable` accepteren | een patroon wordt aangeroepen met de Engelse naam die zijn bestand bevat |
 | de namen van formaten en coderingen | een formaat wordt bij zijn naam genoemd |
 | de eigen diagnostische meldingen van CLI11 — een ontbrekend verplicht argument, een onbekende optie, een waarde die een optie niet accepteert — en zijn `Run with --help for more information.` | verwoord binnen de parser waarop de opdrachtregel is gebouwd; ze blijven Engels |
+| het kader van een foutregel: `[subedit]`, de subopdracht, `[-]`, de sleutel `error` | een script vindt wat er waar misging zonder de woorden te lezen; alleen het bericht wordt vertaald |
 
 Het Engels vragen, wat de omgeving ook is:
 
 <!-- example: LC_ALL=C LANGUAGE=fr subedit-cli shift --output-dir out a.srt; echo "code=$?" -->
 ```console
 $ LC_ALL=C LANGUAGE=fr subedit-cli shift --output-dir out a.srt; echo "code=$?"
-shift needs --by, or --to-grid to work the amount out from the positions
+[subedit] [shift] [-] error: shift needs --by, or --to-grid to work the amount out from the positions
 code=1
 ```
 
@@ -212,7 +213,7 @@ aan.
 <!-- example: printf '1\n00:00:01,000 --> 00:00:01,200\nUn.\n\n' > a.srt; subedit-cli --config mine.conf adjust --dry-run a.srt; echo "code=$?" -->
 ```console
 $ printf '1\n00:00:01,000 --> 00:00:01,200\nUn.\n\n' > a.srt; subedit-cli --config mine.conf adjust --dry-run a.srt; echo "code=$?"
-settings file not found: mine.conf
+[subedit] [adjust] [-] error: settings file not found: mine.conf
 code=1
 ```
 
@@ -226,7 +227,7 @@ wordt niet uitgevoerd, en `-q` en `-v` veranderen niets.
 <!-- example: subedit-cli --version | head -n 1 -->
 ```console
 $ subedit-cli --version | head -n 1
-subedit 1.2.4
+subedit 1.2.5
 ```
 
 Het geheel, op een machine met ICU 74.2 en Enchant 2.3.3 — de nummers zijn die van de machine:
@@ -855,7 +856,7 @@ verwerkt — het weigeren is beter dan niets verwerken en `0` teruggeven:
 <!-- example: mkdir films; printf '1\n00:00:01,000 --> 00:00:02,000\nUn.\n\n' > films/a.srt; subedit-cli inspect films; echo "code=$?" -->
 ```console
 $ mkdir films; printf '1\n00:00:01,000 --> 00:00:02,000\nUn.\n\n' > films/a.srt; subedit-cli inspect films; echo "code=$?"
-films: is a directory: use --recursive
+[subedit] [inspect] [-] error: films: is a directory: use --recursive
 code=1
 ```
 
@@ -926,3 +927,13 @@ reeks half verwerkt achter.
 | `--align-method` zonder `-t` | `--align-method needs a translation file: use -t` |
 | `-t` met meerdere invoeren, of een map | `-t names one file but several inputs were given: use one invocation per pair` |
 | vertaling identiek aan het hoofdbestand | `<translation>: the file is already open as the main document` |
+
+**Elke fout is een regel van dezelfde vorm**, `[subedit] [<command>] [-] error: <message>`: de subopdracht die de parser had bereikt, `-` als hij er geen had bereikt, en een bericht van meerdere regels op meerdere regels geschreven, elk met zijn kader. Een diagnose van CLI11 wordt net zo ingedeeld:
+
+<!-- example: subedit-cli shift --bogus a.srt; echo "code=$?" -->
+```console
+$ subedit-cli shift --bogus a.srt; echo "code=$?"
+[subedit] [shift] [-] error: The following argument was not expected: --bogus
+[subedit] [shift] [-] error: Run with --help for more information.
+code=1
+```

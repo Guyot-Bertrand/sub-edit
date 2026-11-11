@@ -51,7 +51,7 @@ ExitCode runDialogueDashes(const DialogueDashesOptions& options,
                            const Reporter& reporter) {
     const std::expected<bool, std::string> dashed = dashesDirectionOf(options.add, options.remove);
     if (!dashed) {
-        return refuse(dashed.error());
+        return refuse(reporter, dashed.error());
     }
 
     const std::expected<PreparedWriting, std::string> prepared =
@@ -63,7 +63,7 @@ ExitCode runDialogueDashes(const DialogueDashesOptions& options,
                         .translation = &options.translation},
                        options.destination);
     if (!prepared) {
-        return refuse(prepared.error());
+        return refuse(reporter, prepared.error());
     }
 
     return dialogueDashesIn(files,

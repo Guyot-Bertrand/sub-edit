@@ -45,8 +45,7 @@ msgid "First person pronoun"
 msgstr "第一人称代词"
 
 # From Gaupol.
-#: packaging/patterns/Latn-en.common-error
-#: packaging/patterns/Latn.common-error
+#: packaging/patterns/Latn-en.common-error packaging/patterns/Latn.common-error
 msgid "Add or remove space between a number and the associated unit"
 msgstr "添加或删除数字和关联单位之间的空格"
 
@@ -84,8 +83,7 @@ msgid "Replace zero with letter \"O\" in an upper case word"
 msgstr "将 0 替换为大写单词中的字母“O”"
 
 # From Gaupol.
-#: packaging/patterns/Latn-en.common-error
-#: packaging/patterns/Latn.common-error
+#: packaging/patterns/Latn-en.common-error packaging/patterns/Latn.common-error
 msgid "Space between number and unit"
 msgstr "数字和单位之间的空格"
 
@@ -106,8 +104,7 @@ msgstr "大写单词中的零"
 # From Gaupol.
 #: packaging/patterns/Latn-en.hearing-impaired
 msgid ""
-"Replace the uppercase name of the speaker before a colon with a dialogue "
-"dash"
+"Replace the uppercase name of the speaker before a colon with a dialogue dash"
 msgstr "将冒号前大写的说话者的姓名替换为对话破折号"
 
 # From Gaupol.
@@ -156,14 +153,12 @@ msgid "Title"
 msgstr "称号"
 
 # From Gaupol.
-#: packaging/patterns/Latn-fi.common-error
-#: packaging/patterns/Latn.common-error
+#: packaging/patterns/Latn-fi.common-error packaging/patterns/Latn.common-error
 msgid "Add space after various punctuation marks"
 msgstr "在各种标点符号后添加空格"
 
 # From Gaupol.
-#: packaging/patterns/Latn-fi.common-error
-#: packaging/patterns/Latn.common-error
+#: packaging/patterns/Latn-fi.common-error packaging/patterns/Latn.common-error
 msgid "Space after punctuation marks"
 msgstr "标点符号后的空格"
 
@@ -177,8 +172,7 @@ msgid "Add spaces around guillemets"
 msgstr "在法式引号周围添加空格"
 
 # From Gaupol.
-#: packaging/patterns/Latn-fr.common-error
-#: packaging/patterns/Latn.common-error
+#: packaging/patterns/Latn-fr.common-error packaging/patterns/Latn.common-error
 msgid "Space before punctuation marks"
 msgstr "标点符号前的空格"
 
@@ -227,7 +221,8 @@ msgstr "在音符字符和歌词之间添加空格"
 
 # From Gaupol.
 #: packaging/patterns/Latn.common-error
-msgid "Change the various spellings of 12-hour periods to \"a.m.\" and \"p.m.\""
+msgid ""
+"Change the various spellings of 12-hour periods to \"a.m.\" and \"p.m.\""
 msgstr "将 12 小时制时间的各种拼写更改为“a.m.”和“p.m.”"
 
 # From Gaupol.
@@ -678,8 +673,7 @@ msgstr "值，须为 config list 所述的可接受值"
 
 #: src/exe/cli/commands/config.cpp
 msgid ""
-"Put KEY back to its default in the settings file, keeping every other "
-"setting"
+"Put KEY back to its default in the settings file, keeping every other setting"
 msgstr "将设置文件中的 KEY 恢复为默认值，并保留其他所有设置"
 
 #: src/exe/cli/commands/config.cpp
@@ -743,8 +737,7 @@ msgid "The tasks to run, in a list: none is chosen beforehand"
 msgstr "要运行的任务列表：事先不选择任何任务"
 
 #: src/exe/cli/commands/correct.cpp
-msgid ""
-"The cascade of patterns the tasks read: Zyyy, Latn, Latn-en, Latn-en-US"
+msgid "The cascade of patterns the tasks read: Zyyy, Latn, Latn-en, Latn-en-US"
 msgstr "任务所读取的模式层级：Zyyy、Latn、Latn-en、Latn-en-US"
 
 #: src/exe/cli/commands/correct.cpp
@@ -927,8 +920,7 @@ msgstr "pair 需要叠加到主文件上的翻译文件：请使用 -t"
 
 #: src/exe/cli/commands/repair.cpp
 msgid ""
-"Join the repeated subtitles, put them in order, then make the ranges "
-"disjoint"
+"Join the repeated subtitles, put them in order, then make the ranges disjoint"
 msgstr "合并重复的字幕，排序，再使时间段互不重叠"
 
 #: src/exe/cli/commands/repair.cpp
@@ -985,8 +977,7 @@ msgid "Frame rate to align on: 25, 23.976"
 msgstr "对齐所依据的帧率：25、23.976"
 
 #: src/exe/cli/commands/sort.cpp
-msgid ""
-"Put the subtitles in the order of their start, keeping ties as they are"
+msgid "Put the subtitles in the order of their start, keeping ties as they are"
 msgstr "按开始时间对字幕排序，开始时间相同的保持原有顺序"
 
 #: src/exe/cli/commands/sort.cpp
@@ -1084,21 +1075,27 @@ msgstr "把提取出的音频保存到此文件"
 #: src/exe/cli/commands/sync.cpp
 msgid ""
 "How the subtitles are put in line: speech (from when there is speech, "
-"whatever the language) or words (from the words heard); the alignment.method"
-" setting by default"
-msgstr "字幕对齐的方式：speech（依据何时有语音，与语言无关）或 words（依据听到的词）；默认为 alignment.method 设置"
+"whatever the language) or words (from the words heard); the alignment.method "
+"setting by default"
+msgstr ""
+"字幕对齐的方式：speech（依据何时有语音，与语言无关）或 words（依据听到的"
+"词）；默认为 alignment.method 设置"
 
 #: src/exe/cli/commands/sync.cpp
 msgid ""
-"Share of a subtitle's words that must be heard, in percent; the "
-"alignment.min-match setting by default"
-msgstr "一条字幕中必须被听到的词所占的比例，以百分比表示；默认为 alignment.min-match 设置"
+"Share of a subtitle's words that must be heard, in percent; the alignment."
+"min-match setting by default"
+msgstr ""
+"一条字幕中必须被听到的词所占的比例，以百分比表示；默认为 alignment.min-match "
+"设置"
 
 #: src/exe/cli/commands/sync.cpp
 msgid ""
-"How far a subtitle may move from its neighbours' shift before it is flagged,"
-" in milliseconds; the alignment.doubt-gap setting by default"
-msgstr "一条字幕的位移与相邻字幕的位移相差多远才会被标记，以毫秒表示；默认为 alignment.doubt-gap 设置"
+"How far a subtitle may move from its neighbours' shift before it is flagged, "
+"in milliseconds; the alignment.doubt-gap setting by default"
+msgstr ""
+"一条字幕的位移与相邻字幕的位移相差多远才会被标记，以毫秒表示；默认为 "
+"alignment.doubt-gap 设置"
 
 #: src/exe/cli/commands/sync.cpp
 msgid "Write the subtitles to check to this file"
@@ -1126,9 +1123,11 @@ msgstr "视频的音轨，从 0 开始计数；默认为第一条"
 
 #: src/exe/cli/commands/transcribe.cpp
 msgid ""
-"Do not write sounds as notes, such as (phone ringing); the "
-"transcription.suppress-notes setting by default"
-msgstr "不要把声音写成注释，例如 (phone ringing)；默认遵循设置 transcription.suppress-notes"
+"Do not write sounds as notes, such as (phone ringing); the transcription."
+"suppress-notes setting by default"
+msgstr ""
+"不要把声音写成注释，例如 (phone ringing)；默认遵循设置 transcription."
+"suppress-notes"
 
 #: src/exe/cli/commands/transcribe.cpp
 msgid "Write sounds as notes, against the setting"
@@ -1163,28 +1162,21 @@ msgstr "较早的参考点，格式为 <index>=<time>：1=00:00:01.000"
 msgid "Later reference, as <index>=<time>: 3=00:00:10.000"
 msgstr "较晚的参考点，格式为 <index>=<time>：3=00:00:10.000"
 
-#. TRANSLATORS: %1 is the reason of a failure the program did not foresee.
 #: src/exe/cli/main.cpp
-msgid "subedit-cli: %1"
-msgstr "subedit-cli：%1"
+msgid "unknown failure"
+msgstr "未知故障"
 
-#: src/exe/cli/main.cpp
-msgid "subedit-cli: unknown failure"
-msgstr "subedit-cli：未知故障"
-
-#. TRANSLATORS: %1 is what the user typed. « off » is a value of the option,
-#. as typed.
+#. TRANSLATORS: %1 is what the user typed. « off » is a value of the option, as typed.
 #: src/lib/subedit/cli/adjusting.cpp
 msgid ""
 "--speed: \"%1\" is not a reading speed: expected a number of characters per "
 "second above zero, like 15 or 12.5, or off"
-msgstr "--speed：“%1”不是阅读速度：应为大于零的每秒字符数，如 15 或 12.5，或 off"
+msgstr ""
+"--speed：“%1”不是阅读速度：应为大于零的每秒字符数，如 15 或 12.5，或 off"
 
-#. TRANSLATORS: %1 is an option, such as --minimum; %2 why its value does not
-#. read.
+#. TRANSLATORS: %1 is an option, such as --minimum; %2 why its value does not read.
 #. TRANSLATORS: %1 is the file, or what a message is about; %2 the message.
-#. TRANSLATORS: %1 is Undo or Redo, %2 the operation it undoes or redoes, such
-#. as shifting.
+#. TRANSLATORS: %1 is Undo or Redo, %2 the operation it undoes or redoes, such as shifting.
 #. TRANSLATORS: %1 is a file's path, %2 what went wrong with it.
 #: src/lib/subedit/cli/adjusting.cpp src/lib/subedit/cli/batch.cpp
 #: src/lib/subedit/cli/configuring.cpp src/lib/subedit/cli/conversion.cpp
@@ -1213,17 +1205,17 @@ msgstr "%1 和 %2 含义相反；请只给出其中一个"
 #: src/lib/subedit/cli/adjusting.cpp
 msgid ""
 "--lengthen, --no-lengthen, --shorten and --no-shorten say which way the "
-"reading speed may move an end, and --speed off switches the reading speed "
-"off"
+"reading speed may move an end, and --speed off switches the reading speed off"
 msgstr ""
-"--lengthen、--no-lengthen、--shorten 和 --no-shorten 指明阅读速度可以向哪个方向移动结束时间，而 "
-"--speed off 会关闭阅读速度"
+"--lengthen、--no-lengthen、--shorten 和 --no-shorten 指明阅读速度可以向哪个方"
+"向移动结束时间，而 --speed off 会关闭阅读速度"
 
 #: src/lib/subedit/cli/adjusting.cpp
 msgid ""
 "adjust has nothing to adjust to: every constraint is off, or the reading "
 "speed is told to move no end"
-msgstr "adjust 没有可调整的依据：所有约束都已关闭，或阅读速度被设为不移动任何结束时间"
+msgstr ""
+"adjust 没有可调整的依据：所有约束都已关闭，或阅读速度被设为不移动任何结束时间"
 
 #. TRANSLATORS: %1 positions moved, by at most %2 milliseconds.
 #: src/lib/subedit/cli/aligning.cpp
@@ -1238,8 +1230,7 @@ msgid "%1 subtitle aligned on %2 fps, %3"
 msgid_plural "%1 subtitles aligned on %2 fps, %3"
 msgstr[0] "%1 条字幕已对齐到 %2 fps，%3"
 
-#. TRANSLATORS: %1 is the file written, %2 a number of subtitles (« 12
-#. subtitles »)
+#. TRANSLATORS: %1 is the file written, %2 a number of subtitles (« 12 subtitles »)
 #. and %3 a number of files (« 3 files »).
 #: src/lib/subedit/cli/appending.cpp
 msgid "%1: %2 from %3"
@@ -1339,8 +1330,7 @@ msgid "%1 of %2 file transformed"
 msgid_plural "%1 of %2 files transformed"
 msgstr[0] "已变换 %2 个文件中的 %1 个"
 
-#. TRANSLATORS: %1 is the summary of a batch, such as « 1 of 3 files shifted
-#. »; %2
+#. TRANSLATORS: %1 is the summary of a batch, such as « 1 of 3 files shifted »; %2
 #. how many files of it failed.
 #: src/lib/subedit/cli/batch.cpp
 msgid "%1, %2 failed"
@@ -1422,9 +1412,11 @@ msgstr "%1 已恢复为默认值（%2）"
 
 #: src/lib/subedit/cli/conversion.cpp
 msgid ""
-"writing frames needs a frame rate, and the positions fall on no grid to take"
-" one from — give --frame-rate"
-msgstr "以帧为单位写入需要帧率，而这些位置不落在任何网格上，无从推断——请给出 --frame-rate"
+"writing frames needs a frame rate, and the positions fall on no grid to take "
+"one from — give --frame-rate"
+msgstr ""
+"以帧为单位写入需要帧率，而这些位置不落在任何网格上，无从推断——请给出 --frame-"
+"rate"
 
 #. TRANSLATORS: %1 is a file, %2 a frame rate.
 #: src/lib/subedit/cli/conversion.cpp
@@ -1435,8 +1427,7 @@ msgstr "%1：按 %2 以帧计数，这是各位置所落的网格"
 msgid "%1 has no byte order mark to write"
 msgstr "%1 没有可写入的字节顺序标记"
 
-#. TRANSLATORS: %1 is a file, %2 and %3 numbers of bytes. English says « bytes
-#. »
+#. TRANSLATORS: %1 is a file, %2 and %3 numbers of bytes. English says « bytes »
 #. whatever the count; the form is chosen by %2.
 #: src/lib/subedit/cli/conversion.cpp src/lib/subedit/cli/writing.cpp
 msgid "%1: %2 bytes read, %3 would be written"
@@ -1472,8 +1463,7 @@ msgid ""
 "no longer matches"
 msgstr "--in-place 不能更改格式：文件的名称将与其内容不再相符"
 
-#. TRANSLATORS: %1 is --enable or --disable, %2 what the user typed, %3 a
-#. pattern code.
+#. TRANSLATORS: %1 is --enable or --disable, %2 what the user typed, %3 a pattern code.
 #: src/lib/subedit/cli/correcting.cpp
 msgid "%1: \"%2\" names no pattern of the tasks given, under the code %3"
 msgstr "%1：“%2”在代码 %3 下与所给任务的任何模式都不匹配"
@@ -1485,11 +1475,10 @@ msgid ""
 "%1: \"%2\" names patterns of several types: write type:name, with the type "
 "one of common-error, capitalization, hearing-impaired, line-break"
 msgstr ""
-"%1：“%2”匹配了多种类型的模式：请写成 type:name，其中 type 为 common-"
-"error、capitalization、hearing-impaired 或 line-break 之一"
+"%1：“%2”匹配了多种类型的模式：请写成 type:name，其中 type 为 common-error、"
+"capitalization、hearing-impaired 或 line-break 之一"
 
-#. TRANSLATORS: %1 is the name of a pattern, %2 why it gave up, %3 a subtitle
-#. number.
+#. TRANSLATORS: %1 is the name of a pattern, %2 why it gave up, %3 a subtitle number.
 #: src/lib/subedit/cli/correcting.cpp
 msgid "pattern \"%1\" (%2) was not applied to subtitle %3"
 msgstr "模式“%1”（%2）未应用于第 %3 条字幕"
@@ -1523,7 +1512,8 @@ msgid ""
 "--code: \"%1\" is not a pattern code: expected Script[-language[-COUNTRY]], "
 "like Zyyy, Latn or Latn-en-US"
 msgstr ""
-"--code：“%1”不是模式代码：应为 Script[-language[-COUNTRY]]，如 Zyyy、Latn 或 Latn-en-US"
+"--code：“%1”不是模式代码：应为 Script[-language[-COUNTRY]]，如 Zyyy、Latn 或 "
+"Latn-en-US"
 
 #: src/lib/subedit/cli/correcting.cpp
 msgid "--classes: \"%1\" is not a class: expected human, ocr or human,ocr"
@@ -1531,8 +1521,8 @@ msgstr "--classes：“%1”不是类别：应为 human、ocr 或 human,ocr"
 
 #: src/lib/subedit/cli/correcting.cpp
 msgid ""
-"--language is for the tasks join-words and split-words, which were not asked"
-" for"
+"--language is for the tasks join-words and split-words, which were not asked "
+"for"
 msgstr "--language 用于 join-words 和 split-words 任务，而没有请求这些任务"
 
 #. TRANSLATORS: %1 is the list of tasks the user gave.
@@ -1543,8 +1533,8 @@ msgstr "检查单词的任务需要 --language：%1"
 #. TRANSLATORS: %1 is what the user typed.
 #: src/lib/subedit/cli/correcting.cpp
 msgid ""
-"--language: \"%1\" is not a language: expected a locale code, like fr, en_US"
-" or sr@Latn"
+"--language: \"%1\" is not a language: expected a locale code, like fr, en_US "
+"or sr@Latn"
 msgstr "--language：“%1”不是语言：应为区域设置代码，如 fr、en_US 或 sr@Latn"
 
 #: src/lib/subedit/cli/correcting.cpp
@@ -1560,7 +1550,9 @@ msgstr "%1 用于 line-break 任务，而没有请求该任务"
 msgid ""
 "--max-length is required by the task line-break: Gaupol's 24 is a width in "
 "ems, and has no value in characters"
-msgstr "line-break 任务需要 --max-length：Gaupol 的 24 是以 em 计的宽度，换算成字符没有意义"
+msgstr ""
+"line-break 任务需要 --max-length：Gaupol 的 24 是以 em 计的宽度，换算成字符没"
+"有意义"
 
 #. TRANSLATORS: %1 is what the user typed.
 #: src/lib/subedit/cli/correcting.cpp
@@ -1589,8 +1581,7 @@ msgstr "“%1”同时被提供给 --enable 和 --disable：请二选一"
 
 #. TRANSLATORS: %1 is a task, as typed; %2 a pattern code.
 #: src/lib/subedit/cli/correcting.cpp
-msgid ""
-"%1: no pattern is active under the code %2; switch one on with --enable"
+msgid "%1: no pattern is active under the code %2; switch one on with --enable"
 msgstr "%1：代码 %2 下没有启用任何模式；请用 --enable 启用一个"
 
 #: src/lib/subedit/cli/correcting.cpp
@@ -1637,15 +1628,13 @@ msgstr "%1，%2"
 msgid "line %1: %2, %3"
 msgstr "第 %1 行：%2，%3"
 
-#. TRANSLATORS: %1 is what a reading met, %2 an excerpt of the file, %3 how
-#. serious
+#. TRANSLATORS: %1 is what a reading met, %2 an excerpt of the file, %3 how serious
 #. it is.
 #: src/lib/subedit/cli/diagnostics.cpp
 msgid "%1 (\"%2\"), %3"
 msgstr "%1（“%2”），%3"
 
-#. TRANSLATORS: %1 is a line number, %2 what a reading met on it, %3 an
-#. excerpt
+#. TRANSLATORS: %1 is a line number, %2 what a reading met on it, %3 an excerpt
 #. of the file, %4 how serious it is.
 #: src/lib/subedit/cli/diagnostics.cpp
 msgid "line %1: %2 (\"%3\"), %4"
@@ -1668,8 +1657,8 @@ msgstr "--minimum：“%1”不是大于或等于零的时长"
 #. TRANSLATORS: %1 is what the user typed.
 #: src/lib/subedit/cli/disjoining.cpp
 msgid ""
-"--max-lines: \"%1\" is not a number of lines: expected a whole number, 0 for"
-" no limit"
+"--max-lines: \"%1\" is not a number of lines: expected a whole number, 0 for "
+"no limit"
 msgstr "--max-lines：“%1”不是行数：应为整数，0 表示不限制"
 
 #. TRANSLATORS: %1 is a directory the user named.
@@ -1767,8 +1756,7 @@ msgstr "请写成 N-M，或用 N- 表示到末尾，从 1 开始计数且包含�
 msgid "it ends before it starts"
 msgstr "结束早于开始"
 
-#. TRANSLATORS: %1 is the range typed, %2 how many subtitles the file has.
-#. English
+#. TRANSLATORS: %1 is the range typed, %2 how many subtitles the file has. English
 #. writes the number alone; the form is chosen by %2.
 #: src/lib/subedit/cli/index_grammar.cpp
 msgid "range %1 starts after the last subtitle: the file has %2"
@@ -1781,8 +1769,7 @@ msgid "range %1 ends after the last subtitle: the file has %2"
 msgid_plural "range %1 ends after the last subtitle: the file has %2"
 msgstr[0] "范围 %1 结束于最后一条字幕之后：文件共有 %2 条"
 
-#. TRANSLATORS: %1 is a kind of line ending, %2 the line where another kind
-#. starts.
+#. TRANSLATORS: %1 is a kind of line ending, %2 the line where another kind starts.
 #: src/lib/subedit/cli/inspection.cpp
 msgid "%1, mixed from line %2"
 msgstr "%1，从第 %2 行起混用"
@@ -1819,8 +1806,7 @@ msgstr "帧率网格：%1（字幕太少，无法判断）"
 msgid "frame rate grid: %1 (best candidate at %2)"
 msgstr "帧率网格：%1（最佳候选为 %2）"
 
-#. TRANSLATORS: %1 is a frame rate, %2 the verdict on the grid, %3 a
-#. percentage.
+#. TRANSLATORS: %1 is a frame rate, %2 the verdict on the grid, %3 a percentage.
 #: src/lib/subedit/cli/inspection.cpp
 msgid "frame rate grid: %1 fps, %2 (%3)"
 msgstr "帧率网格：%1 fps，%2（%3）"
@@ -1853,8 +1839,7 @@ msgid "off the grid: %1 of %2 start, in %3"
 msgid_plural "off the grid: %1 of %2 starts, in %3"
 msgstr[0] "偏离网格：%2 个开始时间中的 %1 个，分布在 %3"
 
-#: src/lib/subedit/cli/inspection.cpp
-#: src/lib/subedit/core/wording/analysis.cpp
+#: src/lib/subedit/cli/inspection.cpp src/lib/subedit/core/wording/analysis.cpp
 msgid "none"
 msgstr "无"
 
@@ -2100,9 +2085,10 @@ msgstr[0] "第 %1 条字幕超出末尾：文件共有 %2 条字幕"
 #. TRANSLATORS: %1 is a subtitle number.
 #: src/lib/subedit/cli/transforming.cpp
 msgid ""
-"--first and --last both name subtitle %1, and two references on one subtitle"
-" define no transform"
-msgstr "--first 和 --last 都指向第 %1 条字幕，同一条字幕上的两个参考点无法确定变换"
+"--first and --last both name subtitle %1, and two references on one subtitle "
+"define no transform"
+msgstr ""
+"--first 和 --last 都指向第 %1 条字幕，同一条字幕上的两个参考点无法确定变换"
 
 #: src/lib/subedit/cli/transforming.cpp
 msgid ""
@@ -2114,8 +2100,7 @@ msgid ""
 "subtitle %1 would land before the origin, which no subtitle file can hold"
 msgstr "第 %1 条字幕将落在原点之前，字幕文件无法保存这样的位置"
 
-#. TRANSLATORS: %1 subtitles were transformed; %2 and %3 are the two
-#. references, as
+#. TRANSLATORS: %1 subtitles were transformed; %2 and %3 are the two references, as
 #. typed: 1=00:00:01.000.
 #: src/lib/subedit/cli/transforming.cpp
 msgid "%1 subtitle transformed onto %2 and %3"
@@ -2140,9 +2125,11 @@ msgstr "毫秒数，一个大于等于 0 的整数"
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid ""
-"a pattern code, Script[-language[-COUNTRY]], not empty: Zyyy, Latn, Latn-en,"
-" Latn-en-US"
-msgstr "模式代码，Script[-language[-COUNTRY]]，不能为空：Zyyy、Latn、Latn-en、Latn-en-US"
+"a pattern code, Script[-language[-COUNTRY]], not empty: Zyyy, Latn, Latn-en, "
+"Latn-en-US"
+msgstr ""
+"模式代码，Script[-language[-COUNTRY]]，不能为空：Zyyy、Latn、Latn-en、Latn-"
+"en-US"
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "a number above 0, decimals allowed: 24, 42.5"
@@ -2309,8 +2296,7 @@ msgid "Whether the window's hearing-impaired task acts on text in brackets."
 msgstr "窗口的听障任务是否处理方括号中的文本。"
 
 #: src/lib/subedit/core/config/operation_settings.cpp
-msgid ""
-"Whether the window's hearing-impaired task acts on text in parentheses."
+msgid "Whether the window's hearing-impaired task acts on text in parentheses."
 msgstr "窗口的听障任务是否处理圆括号中的文本。"
 
 #: src/lib/subedit/core/config/operation_settings.cpp
@@ -2328,8 +2314,8 @@ msgstr "窗口是否以 em 而不是字符来衡量行。"
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid ""
-"Whether the window's line-break task leaves alone a subtitle whose lines are"
-" short enough."
+"Whether the window's line-break task leaves alone a subtitle whose lines are "
+"short enough."
 msgstr "窗口的换行任务是否不处理各行都足够短的字幕。"
 
 #: src/lib/subedit/core/config/operation_settings.cpp
@@ -2340,8 +2326,8 @@ msgstr "字幕可以拥有且仍不被窗口的换行任务处理的最长行。
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid ""
-"Whether the window's line-break task leaves alone a subtitle with few enough"
-" lines."
+"Whether the window's line-break task leaves alone a subtitle with few enough "
+"lines."
 msgstr "窗口的换行任务是否不处理行数足够少的字幕。"
 
 #: src/lib/subedit/core/config/operation_settings.cpp
@@ -2368,9 +2354,11 @@ msgstr "窗口的合并/拆分单词任务据以检查单词的词典。"
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid ""
-"a locale code, two lower-case letters, then optionally _ and two upper-case,"
-" then optionally @ and a script: fr, en_US, sr@Latn"
-msgstr "区域设置代码，两个小写字母，然后可选地加 _ 和两个大写字母，然后可选地加 @ 和一个文字：fr、en_US、sr@Latn"
+"a locale code, two lower-case letters, then optionally _ and two upper-case, "
+"then optionally @ and a script: fr, en_US, sr@Latn"
+msgstr ""
+"区域设置代码，两个小写字母，然后可选地加 _ 和两个大写字母，然后可选地加 @ 和"
+"一个文字：fr、en_US、sr@Latn"
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid ""
@@ -2542,8 +2530,7 @@ msgid "an unterminated group name"
 msgstr "未终止的组名"
 
 #: src/lib/subedit/core/text/python_regex_syntax.cpp
-msgid ""
-"the group name '%1' is not letters and digits, which is all ICU accepts"
+msgid "the group name '%1' is not letters and digits, which is all ICU accepts"
 msgstr "组名“%1”不是字母和数字，而 ICU 只接受这些"
 
 #: src/lib/subedit/core/text/python_regex_syntax.cpp
@@ -2604,13 +2591,17 @@ msgstr[0] "在音频中没有找到这 %1 条字幕中的任何一条：音频�
 msgid ""
 "Finding where there is speech needs a voice-activity model: name one in the "
 "transcription.vad-model setting."
-msgstr "查找语音所在位置需要语音活动模型：请在 transcription.vad-model 设置中指定一个。"
+msgstr ""
+"查找语音所在位置需要语音活动模型：请在 transcription.vad-model 设置中指定一"
+"个。"
 
 #: src/lib/subedit/core/wording/alignment.cpp
 msgid ""
-"Finding where there is speech needs the program whisper-vad-speech-segments,"
-" which comes with whisper.cpp, and it was not found."
-msgstr "查找语音所在位置需要程序 whisper-vad-speech-segments（随 whisper.cpp 提供），但未找到它。"
+"Finding where there is speech needs the program whisper-vad-speech-segments, "
+"which comes with whisper.cpp, and it was not found."
+msgstr ""
+"查找语音所在位置需要程序 whisper-vad-speech-segments（随 whisper.cpp 提供），"
+"但未找到它。"
 
 #: src/lib/subedit/core/wording/alignment.cpp
 msgid ""
@@ -2620,14 +2611,15 @@ msgstr "声音与字幕的共同之处太少，无法对齐：影片是否正确
 
 #: src/lib/subedit/core/wording/alignment.cpp
 msgid ""
-"Only the file as a whole was put in line with the speech, not each subtitle:"
-" one that is out of place by itself, or a title shown over a silence, may "
+"Only the file as a whole was put in line with the speech, not each subtitle: "
+"one that is out of place by itself, or a title shown over a silence, may "
 "still be wrong. Check the result."
-msgstr "只是把文件作为一个整体与语音对齐，而不是逐条字幕对齐：单独错位的字幕，或在静音处显示的标题，仍可能有误。请检查结果。"
+msgstr ""
+"只是把文件作为一个整体与语音对齐，而不是逐条字幕对齐：单独错位的字幕，或在静"
+"音处显示的标题，仍可能有误。请检查结果。"
 
 #: src/lib/subedit/core/wording/alignment.cpp
-msgid ""
-"The frame rate of the file was put right: its times were divided by %1."
+msgid "The frame rate of the file was put right: its times were divided by %1."
 msgstr "文件的帧率已被纠正：其时间已除以 %1。"
 
 #: src/lib/subedit/core/wording/alignment.cpp
@@ -2639,8 +2631,7 @@ msgid "%1 of %2 subtitle placed on the audio, %3 to check"
 msgid_plural "%1 of %2 subtitles placed on the audio, %3 to check"
 msgstr[0] "%2 条字幕中有 %1 条已按音频定位，%3 条需检查"
 
-#. TRANSLATORS: %1 is a sentence, such as « 40 of 42 subtitles placed on the
-#. audio, 2 to
+#. TRANSLATORS: %1 is a sentence, such as « 40 of 42 subtitles placed on the audio, 2 to
 #. check »; %2 and %3 are lengths in seconds, such as « -2.400 s ».
 #: src/lib/subedit/core/wording/alignment.cpp
 msgid "%1; median shift %2, drift %3"
@@ -3138,7 +3129,8 @@ msgstr[0] "%1 条字幕已移动"
 msgid ""
 "Cannot split at subtitle %1: subtitle %2 would fall before the start of the "
 "video. Cut somewhere else."
-msgstr "无法在第 %1 条字幕处拆分：第 %2 条字幕将落在视频开头之前。请换个位置切分。"
+msgstr ""
+"无法在第 %1 条字幕处拆分：第 %2 条字幕将落在视频开头之前。请换个位置切分。"
 
 #. TRANSLATORS: %1 is an operation, such as « shifting », %2 a count, %3
 #. a length in seconds.
@@ -3153,8 +3145,8 @@ msgid ""
 "%1 of %2 subtitle aligned to %3 fps; the document is still read on a %4 fps "
 "grid"
 msgid_plural ""
-"%1 of %2 subtitles aligned to %3 fps; the document is still read on a %4 fps"
-" grid"
+"%1 of %2 subtitles aligned to %3 fps; the document is still read on a %4 fps "
+"grid"
 msgstr[0] "%2 条字幕中的 %1 条已对齐到 %3 fps；文档仍按 %4 fps 网格读取"
 
 #: src/lib/subedit/core/wording/editing.cpp
@@ -3265,8 +3257,8 @@ msgstr "没有名为“%1”的编码"
 #. TRANSLATORS: %1 is the name the user gave for an encoding.
 #: src/lib/subedit/core/wording/formats.cpp
 msgid ""
-"\"%1\" writes a byte order mark of its own; name the byte order, as UTF-16LE"
-" and UTF-16BE do"
+"\"%1\" writes a byte order mark of its own; name the byte order, as UTF-16LE "
+"and UTF-16BE do"
 msgstr "“%1”自带字节顺序标记；请指明字节顺序，如 UTF-16LE 和 UTF-16BE"
 
 #: src/lib/subedit/core/wording/formats.cpp
@@ -3463,15 +3455,18 @@ msgid_plural "%1 subtitles kept from a partial transcription, up to %2"
 msgstr[0] "从部分转录中保留了 %1 条字幕，直到 %2"
 
 #: src/lib/subedit/core/wording/transcription.cpp
-msgid "\"%1\" is not a time: write it as 2:00, 1:02:03 or 2:00.5, or in seconds"
+msgid ""
+"\"%1\" is not a time: write it as 2:00, 1:02:03 or 2:00.5, or in seconds"
 msgstr "“%1”不是时间：请写成 2:00、1:02:03 或 2:00.5，或以秒为单位"
 
 #: src/lib/subedit/core/wording/transcription.cpp
 msgid ""
 "This model is for English only: whatever language the film speaks, the "
-"result will be English, or notes in brackets. Choose a multilingual model in"
-" the preferences."
-msgstr "此模型仅适用于英语：无论影片说的是什么语言，结果都将是英语或方括号里的注释。请在首选项中选择多语言模型。"
+"result will be English, or notes in brackets. Choose a multilingual model in "
+"the preferences."
+msgstr ""
+"此模型仅适用于英语：无论影片说的是什么语言，结果都将是英语或方括号里的注释。"
+"请在首选项中选择多语言模型。"
 
 #: src/lib/subedit/core/wording/transcription.cpp
 msgid "the engine %1 cannot be told not to write sounds as notes"
@@ -3486,7 +3481,8 @@ msgid "the voice-activity model %1 does not exist"
 msgstr "语音活动模型 %1 不存在"
 
 #: src/lib/subedit/core/wording/transcription.cpp
-msgid "\"%1\" is not a language code: write two letters, such as fr, en, de or es"
+msgid ""
+"\"%1\" is not a language code: write two letters, such as fr, en, de or es"
 msgstr "“%1”不是语言代码：请输入两个字母，例如 fr、en、de 或 es"
 
 #: src/lib/subedit/core/wording/transcription.cpp
@@ -3604,8 +3600,8 @@ msgid ""
 "the lines sit %1 later than the subtitles; moved back, %2 line would attach "
 "instead of %3"
 msgid_plural ""
-"the lines sit %1 later than the subtitles; moved back, %2 lines would attach"
-" instead of %3"
+"the lines sit %1 later than the subtitles; moved back, %2 lines would attach "
+"instead of %3"
 msgstr[0] "这些行比字幕晚 %1；若向前移回，将有 %2 行能附加，而不是 %3 行"
 
 #: src/lib/subedit/core/wording/translation.cpp
@@ -3621,15 +3617,13 @@ msgstr[0] "这些行比字幕早 %1；若向后移动，将有 %2 行能附加�
 msgid "the file is already open as the main document"
 msgstr "该文件已作为主文档打开"
 
-#. TRANSLATORS: %1 is the version of a library the program runs against, %2
-#. the version it
+#. TRANSLATORS: %1 is the version of a library the program runs against, %2 the version it
 #. was compiled with — « 74.2 (built with 74.2) ».
 #: src/lib/subedit/core/wording/version.cpp
 msgid "%1 (built with %2)"
 msgstr "%1（构建于 %2）"
 
-#. TRANSLATORS: %1 is the list of the interface languages installed, by code —
-#. « en, fr ».
+#. TRANSLATORS: %1 is the list of the interface languages installed, by code — « en, fr ».
 #: src/lib/subedit/core/wording/version.cpp
 msgid "Languages: %1"
 msgstr "语言：%1"
@@ -3638,7 +3632,8 @@ msgstr "语言：%1"
 msgid ""
 "positions cannot be shown in frames: the file is not counted in frames, the "
 "video declares no frame rate, and the positions fall on no grid"
-msgstr "无法以帧显示位置：文件不是以帧计数，视频未声明帧率，且位置不落在任何网格上"
+msgstr ""
+"无法以帧显示位置：文件不是以帧计数，视频未声明帧率，且位置不落在任何网格上"
 
 #: src/lib/subedit/core/wording/video.cpp
 msgid "the rate the video declares"
@@ -3661,9 +3656,11 @@ msgstr "位置为帧编号，按 %1 fps 计数，%2"
 #: src/lib/subedit/core/wording/video.cpp
 msgid ""
 "no frame rate to count a frame by: the video declares none, the file is not "
-"counted in frames, and its positions fall on no grid. Associate a video that"
-" declares one."
-msgstr "没有可用于按帧计数的帧率：视频未声明帧率，文件不是以帧计数，且其位置不落在任何网格上。请关联一个声明了帧率的视频。"
+"counted in frames, and its positions fall on no grid. Associate a video that "
+"declares one."
+msgstr ""
+"没有可用于按帧计数的帧率：视频未声明帧率，文件不是以帧计数，且其位置不落在任"
+"何网格上。请关联一个声明了帧率的视频。"
 
 #: src/lib/subedit/core/wording/video.cpp
 msgid "No video"
@@ -3691,31 +3688,26 @@ msgstr "依据 GPL 第 3 版或更高版本授权。"
 msgid "About subedit"
 msgstr "关于 subedit"
 
-#. TRANSLATORS: the heading of the column of the libraries' names, in « About
-#. subedit ».
+#. TRANSLATORS: the heading of the column of the libraries' names, in « About subedit ».
 #: src/lib/subedit/gui/about_dialog.cpp
 msgid "Library"
 msgstr "库"
 
-#. TRANSLATORS: the heading of the version of a library the program runs
-#. against.
+#. TRANSLATORS: the heading of the version of a library the program runs against.
 #: src/lib/subedit/gui/about_dialog.cpp
 msgid "Loaded"
 msgstr "已加载"
 
-#. TRANSLATORS: the heading of the version of a library the program was
-#. compiled with.
+#. TRANSLATORS: the heading of the version of a library the program was compiled with.
 #: src/lib/subedit/gui/about_dialog.cpp
 msgid "Built with"
 msgstr "构建所用版本"
 
-#: src/lib/subedit/gui/command_label.cpp
-#: src/lib/subedit/gui/window_actions.cpp
+#: src/lib/subedit/gui/command_label.cpp src/lib/subedit/gui/window_actions.cpp
 msgid "Undo"
 msgstr "撤销"
 
-#: src/lib/subedit/gui/command_label.cpp
-#: src/lib/subedit/gui/window_actions.cpp
+#: src/lib/subedit/gui/command_label.cpp src/lib/subedit/gui/window_actions.cpp
 msgid "Redo"
 msgstr "重做"
 
@@ -3927,8 +3919,7 @@ msgstr "使时间段互不重叠"
 msgid "Repair subtitles"
 msgstr "修复字幕"
 
-#. TRANSLATORS: the unit after the number of a spin box, with its space: « 50
-#. ms ».
+#. TRANSLATORS: the unit after the number of a spin box, with its space: « 50 ms ».
 #: src/lib/subedit/gui/disjoint_dialog.cpp
 #: src/lib/subedit/gui/transcription_preview_dialog.cpp
 msgid " ms"
@@ -3936,8 +3927,8 @@ msgstr " ms"
 
 #: src/lib/subedit/gui/disjoint_dialog.cpp
 msgid ""
-"An interval shorter than this is taken over by a neighbour. Zero keeps every"
-" interval."
+"An interval shorter than this is taken over by a neighbour. Zero keeps every "
+"interval."
 msgstr "短于此值的间隔将由相邻字幕吸收。设为零则保留所有间隔。"
 
 #: src/lib/subedit/gui/disjoint_dialog.cpp
@@ -3957,14 +3948,17 @@ msgid ""
 "what shows together is merged line by line, the earliest first. Nothing is "
 "shortened or lengthened. Each change can be undone."
 msgstr ""
-"首先合并相互重复的字幕，其余按开始时间排序。重叠的字幕在重叠处被裁剪，同时显示的内容逐行合并，较早的在前。不会缩短或延长任何字幕。每项更改都可以撤销。"
+"首先合并相互重复的字幕，其余按开始时间排序。重叠的字幕在重叠处被裁剪，同时显"
+"示的内容逐行合并，较早的在前。不会缩短或延长任何字幕。每项更改都可以撤销。"
 
 #: src/lib/subedit/gui/disjoint_dialog.cpp
 msgid ""
-"Overlapping subtitles are cut where they overlap, and what shows together is"
-" merged line by line, the earliest first. Nothing is shortened or "
-"lengthened. Each change can be undone."
-msgstr "重叠的字幕在重叠处被裁剪，同时显示的内容逐行合并，较早的在前。不会缩短或延长任何字幕。每项更改都可以撤销。"
+"Overlapping subtitles are cut where they overlap, and what shows together is "
+"merged line by line, the earliest first. Nothing is shortened or lengthened. "
+"Each change can be undone."
+msgstr ""
+"重叠的字幕在重叠处被裁剪，同时显示的内容逐行合并，较早的在前。不会缩短或延长"
+"任何字幕。每项更改都可以撤销。"
 
 #: src/lib/subedit/gui/disjoint_dialog.cpp
 msgid "Shortest interval kept"
@@ -4019,8 +4013,8 @@ msgstr "在此文件中发现的问题"
 
 #: src/lib/subedit/gui/fixes_proposal_dialog.cpp
 msgid ""
-"Opening this file found something that can be put right. Each correction can"
-" be undone."
+"Opening this file found something that can be put right. Each correction can "
+"be undone."
 msgstr "打开此文件时发现了可以纠正的问题。每项更正都可以撤销。"
 
 #: src/lib/subedit/gui/fixes_proposal_dialog.cpp
@@ -4074,8 +4068,7 @@ msgstr "视频声明的帧率"
 msgid "The file was read at"
 msgstr "读取文件时采用的帧率"
 
-#. TRANSLATORS: %1 is the number of subtitles the file has, too few to
-#. measure.
+#. TRANSLATORS: %1 is the number of subtitles the file has, too few to measure.
 #: src/lib/subedit/gui/grid_analysis_dialog.cpp
 msgid "Too few subtitles to tell: %1 of them."
 msgstr "字幕太少，无法判断：仅 %1 条。"
@@ -4087,14 +4080,12 @@ msgid ""
 "%1."
 msgstr "没有任何帧率网格能解释这些位置。最接近的候选达到 %1。"
 
-#. TRANSLATORS: %1 is a frame rate, %2 how clean the grid is (« clean »), %3 a
-#. share.
+#. TRANSLATORS: %1 is a frame rate, %2 how clean the grid is (« clean »), %3 a share.
 #: src/lib/subedit/gui/grid_analysis_dialog.cpp
 msgid "Written on a %1 fps grid — %2, %3."
 msgstr "按 %1 fps 网格写成——%2，%3。"
 
-#. TRANSLATORS: %1 is a number of subtitle starts, %2 a length of time, «
-#. 1:32:05 ».
+#. TRANSLATORS: %1 is a number of subtitle starts, %2 a length of time, « 1:32:05 ».
 #: src/lib/subedit/gui/grid_analysis_dialog.cpp
 msgid "Measured on %1 start, over %2."
 msgid_plural "Measured on %1 starts, over %2."
@@ -4184,8 +4175,7 @@ msgstr "拆分单词"
 msgid "Language:"
 msgstr "语言："
 
-#. TRANSLATORS: %1 is the name of the file; `[*]` is where Qt puts the mark of
-#. unsaved
+#. TRANSLATORS: %1 is the name of the file; `[*]` is where Qt puts the mark of unsaved
 #. changes, and stays as it is.
 #: src/lib/subedit/gui/main_window.cpp
 msgid "%1[*] — subedit"
@@ -4237,8 +4227,7 @@ msgstr "无法读取 %1。"
 #. TRANSLATORS: %1 is the path a link of the manual names.
 #: src/lib/subedit/gui/manual_window.cpp
 msgid ""
-"%1 is not part of the installed manual; it lives in the project's "
-"repository."
+"%1 is not part of the installed manual; it lives in the project's repository."
 msgstr "%1 不属于已安装的手册；它位于项目的代码仓库中。"
 
 #: src/lib/subedit/gui/mpv_player.cpp
@@ -4329,8 +4318,7 @@ msgstr "暂停"
 msgid "Play"
 msgstr "播放"
 
-#. TRANSLATORS: the interface language that follows the environment, LANGUAGE
-#. and LANG.
+#. TRANSLATORS: the interface language that follows the environment, LANGUAGE and LANG.
 #: src/lib/subedit/gui/preferences_dialog.cpp
 msgid "System default"
 msgstr "系统默认"
@@ -4361,8 +4349,7 @@ msgstr "浏览…"
 msgid "Preferences"
 msgstr "首选项"
 
-#. TRANSLATORS: the unit after a number of frames, with its space: « 2 frames
-#. ».
+#. TRANSLATORS: the unit after a number of frames, with its space: « 2 frames ».
 #: src/lib/subedit/gui/preferences_dialog.cpp
 msgid " frames"
 msgstr " 帧"
@@ -4426,7 +4413,9 @@ msgstr "语音活动模型"
 msgid ""
 "Sounds such as (phone ringing) or [MUSIC PLAYING] are not written. Turn it "
 "off to keep them, for subtitles for the hard of hearing."
-msgstr "不会写出 (phone ringing) 或 [MUSIC PLAYING] 之类的声音。关闭此项即可保留它们，用于听障人士字幕。"
+msgstr ""
+"不会写出 (phone ringing) 或 [MUSIC PLAYING] 之类的声音。关闭此项即可保留它"
+"们，用于听障人士字幕。"
 
 # From Gaupol.
 #: src/lib/subedit/gui/preferences_dialog.cpp
@@ -4460,8 +4449,7 @@ msgstr "搜索范围：%1"
 msgid "Search wrapped around"
 msgstr "搜索已从头继续"
 
-#. TRANSLATORS: a filter of the file dialog; %1 lists the patterns, « *.srt
-#. *.vtt ».
+#. TRANSLATORS: a filter of the file dialog; %1 lists the patterns, « *.srt *.vtt ».
 #: src/lib/subedit/gui/qt_prompts.cpp
 msgid "Subtitles (%1)"
 msgstr "字幕 (%1)"
@@ -4470,8 +4458,7 @@ msgstr "字幕 (%1)"
 msgid "All files (*)"
 msgstr "所有文件 (*)"
 
-#. TRANSLATORS: a filter of the file dialog; %1 lists the patterns, « *.mkv
-#. *.mp4 ».
+#. TRANSLATORS: a filter of the file dialog; %1 lists the patterns, « *.mkv *.mp4 ».
 #: src/lib/subedit/gui/qt_prompts.cpp
 msgid "Videos (%1)"
 msgstr "视频 (%1)"
@@ -4645,8 +4632,7 @@ msgid "Find and replace"
 msgstr "查找和替换"
 
 # From Gaupol.
-#: src/lib/subedit/gui/search_dialog.cpp
-#: src/lib/subedit/gui/window_actions.cpp
+#: src/lib/subedit/gui/search_dialog.cpp src/lib/subedit/gui/window_actions.cpp
 msgid "Find"
 msgstr "查找"
 
@@ -4743,8 +4729,8 @@ msgstr "在此字幕处拆分"
 
 #: src/lib/subedit/gui/split_project_dialog.cpp
 msgid ""
-"The subtitles from this one on move to a new project, opened in a tab of its"
-" own."
+"The subtitles from this one on move to a new project, opened in a tab of its "
+"own."
 msgstr "从这条字幕起的字幕将移到新项目，并在单独的标签页中打开。"
 
 #. TRANSLATORS: %1 is Main or Translation, the text an operation aims at.
@@ -4868,20 +4854,24 @@ msgid ""
 "Choose the language of the speech. \"Detect\" lets the model find it from "
 "the first 30 seconds of sound, which a film that opens with music can get "
 "wrong."
-msgstr "选择语音的语言。“检测”让模型根据声音的前 30 秒来判断，以音乐开头的影片可能会判断错误。"
+msgstr ""
+"选择语音的语言。“检测”让模型根据声音的前 30 秒来判断，以音乐开头的影片可能会"
+"判断错误。"
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
 msgid ""
-"A time as HH:MM:SS, for example 00:02:00. Leave both empty to transcribe the"
-" whole film."
+"A time as HH:MM:SS, for example 00:02:00. Leave both empty to transcribe the "
+"whole film."
 msgstr "格式为 HH:MM:SS 的时间，例如 00:02:00。两项都留空则转录整部影片。"
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
 msgid ""
-"The audio of the film open in this window is transcribed into subtitles that"
-" replace the ones of the project. The work runs in the background and can be"
-" cancelled."
-msgstr "此窗口中打开的影片的音频会被转录为字幕，并替换项目中的字幕。该工作在后台运行，可以取消。"
+"The audio of the film open in this window is transcribed into subtitles that "
+"replace the ones of the project. The work runs in the background and can be "
+"cancelled."
+msgstr ""
+"此窗口中打开的影片的音频会被转录为字幕，并替换项目中的字幕。该工作在后台运"
+"行，可以取消。"
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
 msgid "Audio track"
@@ -4925,7 +4915,9 @@ msgid ""
 "in this window. Nothing but their times changes. The work runs in the "
 "background and can be cancelled, and the result is shown before it is "
 "applied."
-msgstr "项目的字幕会被移动，以与此窗口所打开影片的音频相匹配。只有时间会改变。工作在后台运行，可以取消，并且结果会在应用之前先展示出来。"
+msgstr ""
+"项目的字幕会被移动，以与此窗口所打开影片的音频相匹配。只有时间会改变。工作在"
+"后台运行，可以取消，并且结果会在应用之前先展示出来。"
 
 #: src/lib/subedit/gui/transcribe_dialog.cpp
 msgid ""
@@ -4971,7 +4963,8 @@ msgid ""
 "can choose wrongly, and the speech is then translated into that language. "
 "Choose the language if you know it."
 msgstr ""
-"文件没有声明此音轨的语言：模型将从前 30 秒的声音中检测。如果影片以音乐或静音开头，可能会选错，语音随后会被翻译成该语言。如果知道语言，请选择。"
+"文件没有声明此音轨的语言：模型将从前 30 秒的声音中检测。如果影片以音乐或静音"
+"开头，可能会选错，语音随后会被翻译成该语言。如果知道语言，请选择。"
 
 #: src/lib/subedit/gui/transcription_preview_dialog.cpp
 msgid "Keep these values as settings"
@@ -4984,8 +4977,8 @@ msgstr "转录预览"
 
 #: src/lib/subedit/gui/transcription_preview_dialog.cpp
 msgid ""
-"Partial result: the work stopped at %1. What was obtained up to there can be"
-" applied or ignored."
+"Partial result: the work stopped at %1. What was obtained up to there can be "
+"applied or ignored."
 msgstr "部分结果：工作在 %1 处停止。到此为止已得到的内容可以应用，也可以忽略。"
 
 #: src/lib/subedit/gui/transcription_preview_dialog.cpp
@@ -4996,7 +4989,8 @@ msgstr "在右侧选择一条字幕，即可看到它由哪些片段组成。"
 msgid ""
 "These values are now the settings of the application (transcription.*). "
 "Closing this window changes nothing more."
-msgstr "这些值现在是应用程序的设置（transcription.*）。关闭此窗口不会再更改任何内容。"
+msgstr ""
+"这些值现在是应用程序的设置（transcription.*）。关闭此窗口不会再更改任何内容。"
 
 #: src/lib/subedit/gui/transcription_preview_dialog.cpp
 msgid "Merge pieces closer than"
@@ -5468,22 +5462,31 @@ msgctxt "toolbar"
 msgid "Main"
 msgstr "主要"
 
+#~ msgid "subedit-cli: %1"
+#~ msgstr "subedit-cli：%1"
+
+#~ msgid "subedit-cli: unknown failure"
+#~ msgstr "subedit-cli：未知故障"
+
 #~ msgid "subedit-cli sync"
 #~ msgstr "subedit-cli sync"
 
 #~ msgid ""
-#~ "%1 of the %2 pieces are only notes in brackets, such as [MUSIC PLAYING]: the"
-#~ " language used (%3) is probably not the one spoken, and the engine may have "
-#~ "translated the speech. Run it again with the language typed."
+#~ "%1 of the %2 pieces are only notes in brackets, such as [MUSIC PLAYING]: "
+#~ "the language used (%3) is probably not the one spoken, and the engine may "
+#~ "have translated the speech. Run it again with the language typed."
 #~ msgstr ""
-#~ "%2 个片段中有 %1 个只是方括号里的注释，例如 [MUSIC "
-#~ "PLAYING]：所用语言（%3）很可能不是实际说的语言，引擎可能已把语音翻译了。请输入语言后重新运行。"
+#~ "%2 个片段中有 %1 个只是方括号里的注释，例如 [MUSIC PLAYING]：所用语言"
+#~ "（%3）很可能不是实际说的语言，引擎可能已把语音翻译了。请输入语言后重新运"
+#~ "行。"
 
 #~ msgid ""
-#~ "A language code such as fr, en, de, es or it (fra and eng work too). Leave "
-#~ "it empty to let the model detect the language from the first 30 seconds of "
-#~ "sound."
-#~ msgstr "语言代码，例如 fr、en、de、es 或 it（fra 和 eng 也可以）。留空则由模型从前 30 秒的声音中检测语言。"
+#~ "A language code such as fr, en, de, es or it (fra and eng work too). "
+#~ "Leave it empty to let the model detect the language from the first 30 "
+#~ "seconds of sound."
+#~ msgstr ""
+#~ "语言代码，例如 fr、en、de、es 或 it（fra 和 eng 也可以）。留空则由模型从"
+#~ "前 30 秒的声音中检测语言。"
 
 #~ msgid "estimating the time left…"
 #~ msgstr "正在估算剩余时间…"
@@ -5492,8 +5495,8 @@ msgstr "主要"
 #~ msgstr "此模型无法检测语言：请输入语言。"
 
 #~ msgid ""
-#~ "The file declares no language for this track: the model will detect it from "
-#~ "the sound. Type it if you know it."
+#~ "The file declares no language for this track: the model will detect it "
+#~ "from the sound. Type it if you know it."
 #~ msgstr "文件未为此音轨声明语言：模型将根据声音检测。如果您知道,请输入。"
 
 #~ msgid "Beginning"

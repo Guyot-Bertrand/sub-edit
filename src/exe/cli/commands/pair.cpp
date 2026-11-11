@@ -41,6 +41,7 @@ ExitCode runPair(const PairOptions& options,
                  const Reporter& reporter) {
     if (options.translation.file.empty()) {
         return refuse(
+            reporter,
             core::translate("pair needs the translation file to lay over the main one: use -t"));
     }
 
@@ -52,7 +53,7 @@ ExitCode runPair(const PairOptions& options,
                        {.files = mains, .translation = &options.translation, .withDocument = false},
                        options.destination);
     if (!prepared) {
-        return refuse(prepared.error());
+        return refuse(reporter, prepared.error());
     }
 
     return writeTranslationAt(

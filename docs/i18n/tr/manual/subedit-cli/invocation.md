@@ -114,13 +114,14 @@ inspecter et recaler des fichiers de sous-titres.” ile başlar. Metin çıktı
 | `correct --enable` ve `--disable` seçeneklerinin aldığı düzeltme desenlerinin adları | bir desen, dosyasının taşıdığı İngilizce adla çağrılır |
 | biçimlerin ve kodlamaların adları | bir biçim adıyla çağrılır |
 | CLI11'in kendi tanılama iletileri — eksik zorunlu bağımsız değişken, bilinmeyen seçenek, bir seçeneğin kabul etmediği değer — ve `Run with --help for more information.` | komut satırının üzerine kurulduğu ayrıştırıcının içinde yazılmıştır; İngilizce kalırlar |
+| bir hata satırının çerçevesi: `[subedit]`, alt komut, `[-]`, `error` anahtarı | bir betik sözcükleri okumadan neyin nerede başarısız olduğunu bulur; yalnızca ileti çevrilir |
 
 Ortam ne olursa olsun İngilizce istemek:
 
 <!-- example: LC_ALL=C LANGUAGE=fr subedit-cli shift --output-dir out a.srt; echo "code=$?" -->
 ```console
 $ LC_ALL=C LANGUAGE=fr subedit-cli shift --output-dir out a.srt; echo "code=$?"
-shift needs --by, or --to-grid to work the amount out from the positions
+[subedit] [shift] [-] error: shift needs --by, or --to-grid to work the amount out from the positions
 code=1
 ```
 
@@ -212,7 +213,7 @@ oluşturur.
 <!-- example: printf '1\n00:00:01,000 --> 00:00:01,200\nUn.\n\n' > a.srt; subedit-cli --config mine.conf adjust --dry-run a.srt; echo "code=$?" -->
 ```console
 $ printf '1\n00:00:01,000 --> 00:00:01,200\nUn.\n\n' > a.srt; subedit-cli --config mine.conf adjust --dry-run a.srt; echo "code=$?"
-settings file not found: mine.conf
+[subedit] [adjust] [-] error: settings file not found: mine.conf
 code=1
 ```
 
@@ -226,7 +227,7 @@ dilleri, standart çıktıda; araç `0` koduyla durur. Birlikte verilen bir alt 
 <!-- example: subedit-cli --version | head -n 1 -->
 ```console
 $ subedit-cli --version | head -n 1
-subedit 1.2.4
+subedit 1.2.5
 ```
 
 ICU 74.2 ve Enchant 2.3.3 bulunan bir makinede tamamı — sayılar makineninkilerdir:
@@ -848,7 +849,7 @@ işlenmez — hiçbir şey işlememek ve `0` döndürmektense reddetmek daha iyi
 <!-- example: mkdir films; printf '1\n00:00:01,000 --> 00:00:02,000\nUn.\n\n' > films/a.srt; subedit-cli inspect films; echo "code=$?" -->
 ```console
 $ mkdir films; printf '1\n00:00:01,000 --> 00:00:02,000\nUn.\n\n' > films/a.srt; subedit-cli inspect films; echo "code=$?"
-films: is a directory: use --recursive
+[subedit] [inspect] [-] error: films: is a directory: use --recursive
 code=1
 ```
 
@@ -919,3 +920,13 @@ yarım işlenmiş bırakmaz.
 | `-t` olmadan `--align-method` | `--align-method needs a translation file: use -t` |
 | birkaç girdi ya da bir dizinle `-t` | `-t names one file but several inputs were given: use one invocation per pair` |
 | ana dosyayla aynı olan çeviri | `<translation>: the file is already open as the main document` |
+
+**Her hata aynı biçimde bir satırdır**, `[subedit] [<command>] [-] error: <message>`: ayrıştırıcının ulaştığı alt komut, hiçbirine ulaşmadıysa `-`, ve birkaç satırlık bir ileti her biri kendi çerçevesiyle birkaç satıra yazılır. CLI11'in bir tanısı da aynı şekilde sınıflandırılır:
+
+<!-- example: subedit-cli shift --bogus a.srt; echo "code=$?" -->
+```console
+$ subedit-cli shift --bogus a.srt; echo "code=$?"
+[subedit] [shift] [-] error: The following argument was not expected: --bogus
+[subedit] [shift] [-] error: Run with --help for more information.
+code=1
+```

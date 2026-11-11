@@ -134,7 +134,7 @@ ExitCode runCorrect(const CorrectOptions& options,
     // A file named and not there is a mistake in the command line, not a
     // request for the defaults.
     if (const std::optional<std::string> missing = missingNamedFile(shared)) {
-        return refuse(*missing);
+        return refuse(reporter, *missing);
     }
     announceSettings(reporter, shared);
     // Everything that can be refused is, before a file is read. The file gives
@@ -148,7 +148,7 @@ ExitCode runCorrect(const CorrectOptions& options,
         [] { return std::make_unique<core::EnchantSpellProvider>(); },
         shared.values.correction);
     if (!run) {
-        return refuse(run.error());
+        return refuse(reporter, run.error());
     }
 
     const std::expected<PreparedWriting, std::string> prepared =
@@ -160,7 +160,7 @@ ExitCode runCorrect(const CorrectOptions& options,
                         .translation = &options.translation},
                        options.destination);
     if (!prepared) {
-        return refuse(prepared.error());
+        return refuse(reporter, prepared.error());
     }
 
     return correctIn(files,

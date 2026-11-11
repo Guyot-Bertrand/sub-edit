@@ -60,17 +60,19 @@ ExitCode runAppend(const AppendOptions& options,
                    const Reporter& reporter) {
     if (options.files.size() < 2) {
         return refuse(
+            reporter,
             core::translate("append needs a base file and at least one file to put after it"));
     }
     if (options.output.empty() && !options.dryRun) {
         return refuse(
+            reporter,
             core::translate("no destination given: append writes one file, use --output"));
     }
 
     const std::expected<Destination, std::string> destination =
         Destination::from(options.output, "", false, 1, options.dryRun);
     if (!destination) {
-        return refuse(destination.error());
+        return refuse(reporter, destination.error());
     }
     return appendAll(
         files, options.files, reading, *destination, reporter, options.sort, options.disjoint);

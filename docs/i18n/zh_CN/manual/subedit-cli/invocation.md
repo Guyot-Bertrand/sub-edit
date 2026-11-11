@@ -101,13 +101,14 @@ Subcommands:
 | `correct --enable` 和 `--disable` 所接受的纠正模式名称 | 模式以其文件中的英文名称调用 |
 | 格式和编码的名称 | 格式以其名称调用 |
 | CLI11 自身的诊断信息——缺少必需参数、未知选项、选项不接受的值——以及它的 `Run with --help for more information.` | 措辞写在命令行所基于的解析器内部；它们保持英语 |
+| 错误行的框架：`[subedit]`、子命令、`[-]`、键 `error` | 脚本无需读懂文字即可找出什么失败、在哪里失败；只有消息会被翻译 |
 
 无论环境如何，都要求使用英语：
 
 <!-- example: LC_ALL=C LANGUAGE=fr subedit-cli shift --output-dir out a.srt; echo "code=$?" -->
 ```console
 $ LC_ALL=C LANGUAGE=fr subedit-cli shift --output-dir out a.srt; echo "code=$?"
-shift needs --by, or --to-grid to work the amount out from the positions
+[subedit] [shift] [-] error: shift needs --by, or --to-grid to work the amount out from the positions
 code=1
 ```
 
@@ -166,7 +167,7 @@ $XDG_CONFIG_HOME/subedit/settings.conf
 <!-- example: printf '1\n00:00:01,000 --> 00:00:01,200\nUn.\n\n' > a.srt; subedit-cli --config mine.conf adjust --dry-run a.srt; echo "code=$?" -->
 ```console
 $ printf '1\n00:00:01,000 --> 00:00:01,200\nUn.\n\n' > a.srt; subedit-cli --config mine.conf adjust --dry-run a.srt; echo "code=$?"
-settings file not found: mine.conf
+[subedit] [adjust] [-] error: settings file not found: mine.conf
 code=1
 ```
 
@@ -177,7 +178,7 @@ code=1
 <!-- example: subedit-cli --version | head -n 1 -->
 ```console
 $ subedit-cli --version | head -n 1
-subedit 1.2.4
+subedit 1.2.5
 ```
 
 完整输出如下，机器上装有 ICU 74.2 和 Enchant 2.3.3——数字取决于具体机器：
@@ -600,7 +601,7 @@ Au revoir.
 <!-- example: mkdir films; printf '1\n00:00:01,000 --> 00:00:02,000\nUn.\n\n' > films/a.srt; subedit-cli inspect films; echo "code=$?" -->
 ```console
 $ mkdir films; printf '1\n00:00:01,000 --> 00:00:02,000\nUn.\n\n' > films/a.srt; subedit-cli inspect films; echo "code=$?"
-films: is a directory: use --recursive
+[subedit] [inspect] [-] error: films: is a directory: use --recursive
 code=1
 ```
 
@@ -660,3 +661,13 @@ $ man -L fr subedit-cli-shift
 | 使用 `--align-method` 却没有 `-t` | `--align-method needs a translation file: use -t` |
 | 对多个输入或目录使用 `-t` | `-t names one file but several inputs were given: use one invocation per pair` |
 | 翻译与主文件相同 | `<translation>: the file is already open as the main document` |
+
+**每个错误都是同一形式的一行**，`[subedit] [<command>] [-] error: <message>`：解析器已到达的子命令，若尚未到达任何子命令则为 `-`；多行消息写成多行，每行都带有其框架。CLI11 的诊断信息也以同样方式归类：
+
+<!-- example: subedit-cli shift --bogus a.srt; echo "code=$?" -->
+```console
+$ subedit-cli shift --bogus a.srt; echo "code=$?"
+[subedit] [shift] [-] error: The following argument was not expected: --bogus
+[subedit] [shift] [-] error: Run with --help for more information.
+code=1
+```

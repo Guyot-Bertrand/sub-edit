@@ -197,6 +197,11 @@ CliRun invokeProgram(const std::string& program,
 /// which a text-mode read would be free to touch.
 [[nodiscard]] std::string contentOf(const std::filesystem::path& path);
 
+/// The line a refusal of the whole run writes on the standard error,
+/// `[subedit] [<command>] [-] error: <why>` and its line end — `-` for a command the parser did not
+/// reach (#826).
+[[nodiscard]] std::string refusal(std::string_view command, std::string_view why);
+
 /// Where two texts first part ways, worded for a person, or nothing if they are
 /// the same bytes.
 ///

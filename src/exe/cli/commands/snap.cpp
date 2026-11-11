@@ -44,7 +44,7 @@ ExitCode runSnap(const SnapOptions& options,
                  const Reporter& reporter) {
     const std::expected<core::FrameRate, std::string> rate = parseFrameRate(options.rate);
     if (!rate) {
-        return refuse(rate.error());
+        return refuse(reporter, rate.error());
     }
 
     const std::expected<PreparedWriting, std::string> prepared =
@@ -53,7 +53,7 @@ ExitCode runSnap(const SnapOptions& options,
                        {.files = options.files, .recursive = options.recursive},
                        options.destination);
     if (!prepared) {
-        return refuse(prepared.error());
+        return refuse(reporter, prepared.error());
     }
 
     return alignAll(files, prepared->inputs.paths, reading, *rate, prepared->destination, reporter);

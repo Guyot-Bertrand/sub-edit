@@ -120,7 +120,7 @@ ExitCode runConvert(const ConvertOptions& options,
     const std::expected<core::ReadingChoices, std::string> choices =
         readingWith(reading, options.frameRate);
     if (!choices) {
-        return refuse(choices.error());
+        return refuse(reporter, choices.error());
     }
 
     const std::expected<PreparedWriting, std::string> prepared =
@@ -129,7 +129,7 @@ ExitCode runConvert(const ConvertOptions& options,
                        {.files = options.files, .recursive = options.recursive},
                        options.destination);
     if (!prepared) {
-        return refuse(prepared.error());
+        return refuse(reporter, prepared.error());
     }
 
     // Refused rather than obeyed: in place there is no second name to carry the
@@ -137,13 +137,13 @@ ExitCode runConvert(const ConvertOptions& options,
     // longer justifies.
     if (const std::optional<std::string> refused =
             refusalOfInPlaceRename(options.destination.inPlace, prepared->inputs.paths, target)) {
-        return refuse(*refused);
+        return refuse(reporter, *refused);
     }
 
     const std::expected<WriteShape, std::string> shape =
         writeShapeOf(options.lineEndings, options.encoding, options.bom, options.noBom);
     if (!shape) {
-        return refuse(shape.error());
+        return refuse(reporter, shape.error());
     }
 
     return convertAll(files,

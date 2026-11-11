@@ -26,6 +26,7 @@ using subedit::e2e::corpus;
 using subedit::e2e::enchantHome;
 using subedit::e2e::invoke;
 using subedit::e2e::MatchesFile;
+using subedit::e2e::refusal;
 using subedit::e2e::Scratch;
 using subedit::e2e::TestDictionary;
 using subedit::e2e::UserPatterns;
@@ -1002,8 +1003,8 @@ TEST_CASE("a language nobody has is refused, with the window's sentence, and not
     CHECK(run.exitCode == 1);
     // The note before it says no settings file was found (spec 15, S6).
     CHECK(run.errors == "settings: " + configHome() +
-                            "/subedit/settings.conf not found, defaults used\n"
-                            "no dictionary for qq_QQ\n");
+                            "/subedit/settings.conf not found, defaults used\n" +
+                            refusal("correct", "no dictionary for qq_QQ"));
     CHECK(run.output.empty());
     CHECK_FALSE(std::filesystem::exists(out));
 

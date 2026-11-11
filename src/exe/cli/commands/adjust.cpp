@@ -84,14 +84,14 @@ ExitCode runAdjust(const AdjustCommandOptions& options,
     // A file named and not there is a mistake in the command line, not a
     // request for the defaults.
     if (const std::optional<std::string> missing = missingNamedFile(shared)) {
-        return refuse(*missing);
+        return refuse(reporter, *missing);
     }
     announceSettings(reporter, shared);
     // An option beats the file, which beats the core default (spec 15, S8).
     const std::expected<core::DurationConstraints, std::string> constraints =
         constraintsOf(options.constraints, shared.values.durationAdjustment);
     if (!constraints) {
-        return refuse(constraints.error());
+        return refuse(reporter, constraints.error());
     }
 
     const std::expected<PreparedWriting, std::string> prepared = prepareWriting(
@@ -100,7 +100,7 @@ ExitCode runAdjust(const AdjustCommandOptions& options,
         {.files = options.files, .recursive = options.recursive, .range = &options.range},
         options.destination);
     if (!prepared) {
-        return refuse(prepared.error());
+        return refuse(reporter, prepared.error());
     }
 
     return adjustAll(files,

@@ -139,7 +139,7 @@ errore di elaborazione.
 <!-- example: printf '1\n00:00:01,000 --> 00:00:03,000\nUn.\n\n' > a.srt; subedit-cli transform --first 2=1.000 --last 2=4.000 --output b.srt a.srt; echo "code=$?" -->
 ```console
 $ printf '1\n00:00:01,000 --> 00:00:03,000\nUn.\n\n' > a.srt; subedit-cli transform --first 2=1.000 --last 2=4.000 --output b.srt a.srt; echo "code=$?"
---first and --last both name subtitle 2, and two references on one subtitle define no transform
+[subedit] [transform] [-] error: --first and --last both name subtitle 2, and two references on one subtitle define no transform
 code=1
 ```
 
