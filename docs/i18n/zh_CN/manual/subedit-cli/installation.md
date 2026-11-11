@@ -41,7 +41,7 @@ error: Failed dependencies:
 
 `sudo dnf install ./subedit-<version>-1.fc43.x86_64.rpm` 会取得这些库（只要它们存在）。
 
-**应选用与所用 Fedora 对应的那个 `.rpm`**：文件名中带有版本，即 `fc42`、`fc43`、`fc44`。每一个都在对应的 Fedora 上、针对它的 ICU 构建——`cat /etc/fedora-release` 会说明该选哪一个。来自其他 Fedora 的 `.rpm` 会要求当前系统没有的 ICU。
+**应选用与所用 Fedora 对应的那个 `.rpm`**：文件名中带有版本，即 `fc43`、`fc44`、`fc45`。每一个都在对应的 Fedora 上、针对它的 ICU 构建——`cat /etc/fedora-release` 会说明该选哪一个。来自其他 Fedora 的 `.rpm` 会要求当前系统没有的 ICU。
 
 | 依赖项 | `.deb` | `.rpm` | 约束 |
 | :--------- | :----- | :----- | :--------- |
@@ -56,7 +56,7 @@ error: Failed dependencies:
 | 发行版 | 结果 |
 | :----------- | :---------------- |
 | Ubuntu 24.04 | `.deb` 可以安装：那里的 ICU 版本为 74 |
-| Fedora 42、43、44 | 对应其版本的 `.rpm`（`…fc42…`、`…fc43…`、`…fc44…`）**通过 `dnf`** 安装，针对该 Fedora 的 ICU 构建 |
+| Fedora 43、44、45 | 对应其版本的 `.rpm`（`…fc43…`、`…fc44…`、`…fc45…`）**通过 `dnf`** 安装，针对该 Fedora 的 ICU 构建 |
 | Fedora rawhide（下一个版本）以及其他 `.rpm` 发行版 | **不行**：没有为它们构建 `.rpm`——请从源代码构建 |
 | ICU 版本不是 74 的任何 Debian 或 Ubuntu 发行版 | **不行**：`.deb` 要求 `libicu74`——请从源代码构建 |
 

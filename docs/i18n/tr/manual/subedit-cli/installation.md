@@ -53,7 +53,7 @@ error: Failed dependencies:
 kütüphaneleri getirir.
 
 **Alınacak `.rpm`, kendi Fedora sürümünüzünkidir**: dosya adı
-sürümü taşır, `fc42`, `fc43`, `fc44`. Her biri o Fedora üzerinde, onun
+sürümü taşır, `fc43`, `fc44`, `fc45`. Her biri o Fedora üzerinde, onun
 ICU'suna karşı derlenir — hangisini alacağınızı `cat /etc/fedora-release` söyler. Başka bir
 Fedora'nın `.rpm` dosyası, sizde bulunmayan bir ICU ister.
 
@@ -76,7 +76,7 @@ ayrı ayrı, onun ICU'suna karşı derlenmesinin nedeni budur**; `.deb`, Ubuntu 
 | Dağıtım | Ne sağlar |
 | :----------- | :---------------- |
 | Ubuntu 24.04 | `.deb` kurulur: orada ICU sürümü 74 olarak bulunur |
-| Fedora 42, 43, 44 | sürümünün `.rpm` dosyası (`…fc42…`, `…fc43…`, `…fc44…`) **`dnf` aracılığıyla** kurulur, o Fedora'nın ICU'suna karşı derlenmiştir |
+| Fedora 43, 44, 45 | sürümünün `.rpm` dosyası (`…fc43…`, `…fc44…`, `…fc45…`) **`dnf` aracılığıyla** kurulur, o Fedora'nın ICU'suna karşı derlenmiştir |
 | Fedora rawhide (bir sonraki sürüm), diğer `.rpm` dağıtımları | **hayır**: onlar için `.rpm` derlenmez — kaynaktan derleyin |
 | ICU sürümü 74 olmayan her Debian ya da Ubuntu dağıtımı | **hayır**: `.deb`, `libicu74` ister — kaynaktan derleyin |
 

@@ -9,6 +9,12 @@ do not edit it by hand.
 
 ## Unreleased
 
+### Continuous integration
+
+- **ci** — Build the .rpm for Fedora 43 to 45, drop 42
+
+## 1.2.0 — 2026-11-01
+
 ### Added
 
 - **core** — Match a text to the words an engine heard
@@ -28,6 +34,7 @@ do not edit it by hand.
 ### Fixed
 
 - **core** — Bound what a file or the detector can make it allocate
+- **doc** — Remove screenshot candidates committed by mistake
 
 ## 1.1.2 — 2026-10-27
 

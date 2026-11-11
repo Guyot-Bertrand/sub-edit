@@ -41,7 +41,7 @@ error: Failed dependencies:
 
 A `sudo dnf install ./subedit-<version>-1.fc43.x86_64.rpm` letölti ezeket a könyvtárakat, ahol léteznek.
 
-**A használandó `.rpm` az adott Fedoráé**: a fájlnév hordozza a verziót, `fc42`, `fc43`, `fc44`. Mindegyik az adott Fedorán készül, az ottani ICU-val szemben — a `cat /etc/fedora-release` megmondja, melyiket kell venni. Egy másik Fedora `.rpm` csomagja olyan ICU-t kér, amilyen a gépen nincs.
+**A használandó `.rpm` az adott Fedoráé**: a fájlnév hordozza a verziót, `fc43`, `fc44`, `fc45`. Mindegyik az adott Fedorán készül, az ottani ICU-val szemben — a `cat /etc/fedora-release` megmondja, melyiket kell venni. Egy másik Fedora `.rpm` csomagja olyan ICU-t kér, amilyen a gépen nincs.
 
 | Függőség | `.deb` | `.rpm` | Megkötés |
 | :--------- | :----- | :----- | :--------- |
@@ -56,7 +56,7 @@ A `sudo dnf install ./subedit-<version>-1.fc43.x86_64.rpm` letölti ezeket a kö
 | Disztribúció | Mit kap |
 | :----------- | :---------------- |
 | Ubuntu 24.04 | a `.deb` települ: az ICU ott a 74-es verzió |
-| Fedora 42, 43, 44 | a verziójának `.rpm` csomagja (`…fc42…`, `…fc43…`, `…fc44…`) települ **a `dnf`-en át**, az adott Fedora ICU-jával szemben fordítva |
+| Fedora 43, 44, 45 | a verziójának `.rpm` csomagja (`…fc43…`, `…fc44…`, `…fc45…`) települ **a `dnf`-en át**, az adott Fedora ICU-jával szemben fordítva |
 | Fedora rawhide (a következő), a többi `.rpm`-disztribúció | **nem**: számukra nem készül `.rpm` — fordítás forráskódból |
 | bármely Debian- vagy Ubuntu-disztribúció, amelynek az ICU-ja nem a 74-es verzió | **nem**: a `.deb` a `libicu74` csomagot követeli meg — fordítás forráskódból |
 

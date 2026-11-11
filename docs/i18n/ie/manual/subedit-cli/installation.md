@@ -53,7 +53,7 @@ error: Failed dependencies:
 bibliotecas, u les existe.
 
 **Li `.rpm` a prender es ti de vor Fedora**: li nómine del file porta li
-version, `fc42`, `fc43`, `fc44`. Chascun es construet sur ti Fedora, contra
+version, `fc43`, `fc44`, `fc45`. Chascun es construet sur ti Fedora, contra
 su ICU — `cat /etc/fedora-release` di qual prender. Un `.rpm` de un altri
 Fedora demanda un ICU quel vor machine ne have.
 
@@ -76,7 +76,7 @@ chascun Fedora publicat**, contra su ICU; li `.deb` es construet sur Ubuntu 24.0
 | Distribution | Quo it dona |
 | :----------- | :---------------- |
 | Ubuntu 24.04 | li `.deb` se installa: ICU es ibi al version 74 |
-| Fedora 42, 43, 44 | li `.rpm` de su version (`…fc42…`, `…fc43…`, `…fc44…`) se installa **per `dnf`**, construet contra li ICU de ti Fedora |
+| Fedora 43, 44, 45 | li `.rpm` de su version (`…fc43…`, `…fc44…`, `…fc45…`) se installa **per `dnf`**, construet contra li ICU de ti Fedora |
 | Fedora rawhide (li sequent), li altri distributiones `.rpm` | **no**: null `.rpm` es construet por les — compilar ex li code-fonte |
 | quelcunc distribution Debian o Ubuntu de quel ICU ne es al version 74 | **no**: li `.deb` besona `libicu74` — compilar ex li code-fonte |
 

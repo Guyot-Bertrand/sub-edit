@@ -53,7 +53,7 @@ error: Failed dependencies:
 bibliotecas, onde existirem.
 
 **O `.rpm` a tomar é o do seu Fedora**: o nome do ficheiro traz a
-versão, `fc42`, `fc43`, `fc44`. Cada um é compilado nesse Fedora, contra
+versão, `fc43`, `fc44`, `fc45`. Cada um é compilado nesse Fedora, contra
 o seu ICU — `cat /etc/fedora-release` diz qual tomar. Um `.rpm` de outro
 Fedora pede um ICU que a máquina não tem.
 
@@ -76,7 +76,7 @@ cada Fedora publicado**, contra o seu ICU; o `.deb` é compilado no Ubuntu 24.04
 | Distribuição | O que dá |
 | :----------- | :---------------- |
 | Ubuntu 24.04 | o `.deb` instala-se: o ICU está aí na versão 74 |
-| Fedora 42, 43, 44 | o `.rpm` da sua versão (`…fc42…`, `…fc43…`, `…fc44…`) instala-se **através do `dnf`**, compilado contra o ICU desse Fedora |
+| Fedora 43, 44, 45 | o `.rpm` da sua versão (`…fc43…`, `…fc44…`, `…fc45…`) instala-se **através do `dnf`**, compilado contra o ICU desse Fedora |
 | Fedora rawhide (o seguinte), as outras distribuições `.rpm` | **não**: nenhum `.rpm` é compilado para elas — compilar a partir do código-fonte |
 | qualquer distribuição Debian ou Ubuntu cujo ICU não esteja na versão 74 | **não**: o `.deb` exige `libicu74` — compilar a partir do código-fonte |
 

@@ -178,6 +178,8 @@ file      src/lib/subedit/core/transcription/whisper_cpp_engine.cpp [a-z]{2,3}|a
 # The codes of languages as ICU names them: whisper.cpp's old Javanese and the reader's default (#794).
 file      src/lib/subedit/core/transcription/language_display.cpp jw|jv|en
 file      src/lib/subedit/core/io/json_reader.cpp true|false|null|bfnrt
+# The segment lines whisper.cpp's voice activity detection prints, which the speech detector reads (#820).
+file      src/lib/subedit/core/transcription/speech_detector.cpp Speech segment\s|start =\s|end =\s
 
 [error-detail] The English `detail` of a `TranscriptionError`: what was asked or what the engine said, for the record and for the person who reads a bug report, which `core/wording/` puts after the sentence it words itself (`the transcription failed: %1`). Not a message for a reader (#813).
 file      src/lib/subedit/core/transcription/transcript_matching_aligner.cpp the engine gives no timed words, which the alignment is built on

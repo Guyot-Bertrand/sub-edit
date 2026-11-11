@@ -53,7 +53,7 @@ Polecenie `sudo dnf install ./subedit-<version>-1.fc43.x86_64.rpm` pobiera te
 biblioteki, tam gdzie istnieją.
 
 **Należy wziąć `.rpm` odpowiedni dla swojej Fedory**: nazwa pliku zawiera
-wersję, `fc42`, `fc43`, `fc44`. Każdy jest budowany w tej właśnie Fedorze, względem
+wersję, `fc43`, `fc44`, `fc45`. Każdy jest budowany w tej właśnie Fedorze, względem
 jej ICU — `cat /etc/fedora-release` mówi, który wziąć. Plik `.rpm` z innej
 Fedory wymaga ICU, którego nie ma Twoja.
 
@@ -76,7 +76,7 @@ każdej wydanej Fedorze**, względem jej ICU; `.deb` jest budowany w Ubuntu 24.0
 | Dystrybucja | Co daje |
 | :----------- | :---------------- |
 | Ubuntu 24.04 | `.deb` się instaluje: ICU jest tam w wersji 74 |
-| Fedora 42, 43, 44 | `.rpm` jej wersji (`…fc42…`, `…fc43…`, `…fc44…`) instaluje się **przez `dnf`**, zbudowany względem ICU tej Fedory |
+| Fedora 43, 44, 45 | `.rpm` jej wersji (`…fc43…`, `…fc44…`, `…fc45…`) instaluje się **przez `dnf`**, zbudowany względem ICU tej Fedory |
 | Fedora rawhide (następna), inne dystrybucje z `.rpm` | **nie**: dla nich żaden `.rpm` nie jest budowany — zbuduj ze źródeł |
 | każda dystrybucja Debiana lub Ubuntu, której ICU nie jest w wersji 74 | **nie**: `.deb` wymaga `libicu74` — zbuduj ze źródeł |
 

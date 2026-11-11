@@ -53,7 +53,7 @@ error: Failed dependencies:
 biblioteques, allà on existeixen.
 
 **El `.rpm` que heu d'agafar és el de la vostra Fedora**: el nom del fitxer porta la
-versió, `fc42`, `fc43`, `fc44`. Cadascun es compila en aquesta Fedora, contra
+versió, `fc43`, `fc44`, `fc45`. Cadascun es compila en aquesta Fedora, contra
 la seva ICU — `cat /etc/fedora-release` diu quin cal agafar. Un `.rpm` d'una altra
 Fedora demana una ICU que la vostra no té.
 
@@ -76,7 +76,7 @@ cada Fedora publicada**, contra la seva ICU; el `.deb` es compila a Ubuntu 24.04
 | Distribució | Què dona |
 | :----------- | :---------------- |
 | Ubuntu 24.04 | el `.deb` s'instal·la: ICU hi és a la versió 74 |
-| Fedora 42, 43, 44 | el `.rpm` de la seva versió (`…fc42…`, `…fc43…`, `…fc44…`) s'instal·la **amb `dnf`**, compilat contra la ICU d'aquesta Fedora |
+| Fedora 43, 44, 45 | el `.rpm` de la seva versió (`…fc43…`, `…fc44…`, `…fc45…`) s'instal·la **amb `dnf`**, compilat contra la ICU d'aquesta Fedora |
 | Fedora rawhide (la següent), les altres distribucions `.rpm` | **no**: no s'hi compila cap `.rpm` — compileu des del codi font |
 | qualsevol distribució Debian o Ubuntu la ICU de la qual no sigui a la versió 74 | **no**: el `.deb` requereix `libicu74` — compileu des del codi font |
 

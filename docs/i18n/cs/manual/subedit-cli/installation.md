@@ -53,7 +53,7 @@ error: Failed dependencies:
 knihovny stáhne, pokud existují.
 
 **Vezměte `.rpm` pro svou Fedoru**: název souboru nese
-verzi, `fc42`, `fc43`, `fc44`. Každý se sestavuje na dané Fedoře, proti
+verzi, `fc43`, `fc44`, `fc45`. Každý se sestavuje na dané Fedoře, proti
 její ICU — `cat /etc/fedora-release` řekne, který vzít. `.rpm` z jiné
 Fedory žádá ICU, kterou ta vaše nemá.
 
@@ -76,7 +76,7 @@ každé vydané Fedoře**, proti její ICU; `.deb` se sestavuje na Ubuntu 24.04.
 | Distribuce | Výsledek |
 | :----------- | :---------------- |
 | Ubuntu 24.04 | `.deb` se nainstaluje: ICU je tam ve verzi 74 |
-| Fedora 42, 43, 44 | `.rpm` její verze (`…fc42…`, `…fc43…`, `…fc44…`) se nainstaluje **pomocí `dnf`**, sestavený proti ICU dané Fedory |
+| Fedora 43, 44, 45 | `.rpm` její verze (`…fc43…`, `…fc44…`, `…fc45…`) se nainstaluje **pomocí `dnf`**, sestavený proti ICU dané Fedory |
 | Fedora rawhide (příští verze), ostatní distribuce s `.rpm` | **ne**: žádný `.rpm` se pro ně nesestavuje — sestavte ze zdrojového kódu |
 | jakákoli distribuce Debian nebo Ubuntu, jejíž ICU není ve verzi 74 | **ne**: `.deb` vyžaduje `libicu74` — sestavte ze zdrojového kódu |
 

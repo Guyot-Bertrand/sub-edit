@@ -53,7 +53,7 @@ error: Failed dependencies:
 söfn, þar sem þau eru til.
 
 **`.rpm`-pakkinn sem á að taka er sá fyrir þína Fedora**: skráarheitið ber
-útgáfuna, `fc42`, `fc43`, `fc44`. Hver þeirra er smíðuð á þeirri Fedora, gegn
+útgáfuna, `fc43`, `fc44`, `fc45`. Hver þeirra er smíðuð á þeirri Fedora, gegn
 ICU hennar — `cat /etc/fedora-release` segir hver á að verða fyrir valinu. `.rpm` frá annarri
 Fedora biður um ICU sem þín hefur ekki.
 
@@ -76,7 +76,7 @@ hverri útgefinni Fedora**, gegn ICU hennar; `.deb` er smíðaður á Ubuntu 24.
 | Dreifing | Hvað hún fær |
 | :----------- | :---------------- |
 | Ubuntu 24.04 | `.deb` setst upp: ICU er þar í útgáfu 74 |
-| Fedora 42, 43, 44 | `.rpm` fyrir útgáfu hennar (`…fc42…`, `…fc43…`, `…fc44…`) setst upp **í gegnum `dnf`**, smíðaður gegn ICU þeirrar Fedora |
+| Fedora 43, 44, 45 | `.rpm` fyrir útgáfu hennar (`…fc43…`, `…fc44…`, `…fc45…`) setst upp **í gegnum `dnf`**, smíðaður gegn ICU þeirrar Fedora |
 | Fedora rawhide (sú næsta), aðrar `.rpm`-dreifingar | **nei**: enginn `.rpm` er smíðaður fyrir þær — smíðaðu úr frumkóða |
 | hver Debian- eða Ubuntu-dreifing þar sem ICU er ekki í útgáfu 74 | **nei**: `.deb` krefst `libicu74` — smíðaðu úr frumkóða |
 

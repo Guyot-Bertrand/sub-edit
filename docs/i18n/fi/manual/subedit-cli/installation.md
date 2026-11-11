@@ -53,7 +53,7 @@ error: Failed dependencies:
 kirjastot, jos ne ovat olemassa.
 
 **Valitse oman Fedorasi `.rpm`**: tiedostonimessä on
-versio, `fc42`, `fc43`, `fc44`. Kukin käännetään kyseisessä Fedorassa sen
+versio, `fc43`, `fc44`, `fc45`. Kukin käännetään kyseisessä Fedorassa sen
 ICU:ta vasten — `cat /etc/fedora-release` kertoo, mikä valita. Toisen
 Fedoran `.rpm` vaatii ICU:n, jota sinun järjestelmässäsi ei ole.
 
@@ -76,7 +76,7 @@ jokaisessa julkaistussa Fedorassa**, sen omaa ICU:ta vasten; `.deb` käännetä�
 | Jakelu | Mitä se antaa |
 | :----------- | :---------------- |
 | Ubuntu 24.04 | `.deb` asentuu: ICU on siinä versiossa 74 |
-| Fedora 42, 43, 44 | sen version `.rpm` (`…fc42…`, `…fc43…`, `…fc44…`) asentuu **komennolla `dnf`**, käännettynä kyseisen Fedoran ICU:ta vasten |
+| Fedora 43, 44, 45 | sen version `.rpm` (`…fc43…`, `…fc44…`, `…fc45…`) asentuu **komennolla `dnf`**, käännettynä kyseisen Fedoran ICU:ta vasten |
 | Fedora rawhide (seuraava versio), muut jakelut, joissa käytetään paketteja `.rpm` | **ei**: niille ei käännetä pakettia `.rpm` — käännä lähdekoodista |
 | mikä tahansa Debian- tai Ubuntu-jakelu, jonka ICU ei ole versiossa 74 | **ei**: `.deb` vaatii paketin `libicu74` — käännä lähdekoodista |
 
