@@ -11,8 +11,14 @@ do not edit it by hand.
 
 ### Documentation
 
-- **doc** — Evaluate Parakeet and Nemotron as engines
 - **cli** — Scope the narration format, one fact per line
+- **cli** — Link the narration spec to its five issues
+
+## 1.2.3 — 2026-11-11
+
+### Documentation
+
+- **doc** — Evaluate Parakeet and Nemotron as engines
 
 ## 1.2.2 — 2026-11-11
 

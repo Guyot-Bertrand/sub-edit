@@ -1,6 +1,6 @@
 # The narration of the command line, one fact per line
 
-**Status: scoped (#806).** This document fixes the shape of what `subedit-cli` writes on the standard error, and splits the work
+**Status: scoped (#806), split into #826 to #830.** This document fixes the shape of what `subedit-cli` writes on the standard error, and splits the work
 into issues. It changes neither the standard output nor the JSON records.
 
 What the request asks: one information per line, each line prefixed with the program and the subcommand, so that it reads better in
@@ -227,11 +227,11 @@ $ subedit-cli -q hearing-impaired --output-dir o b.srt bad.srt c.srt
 
 | Issue | Content |
 | :---- | :------ |
-| 1 | **The reporter**: the grammar, the element (`forItem`), the source before an error, the split of lines, the `[-]` lines; and the four direct writers of D5. The old `say`/`failed` stay, so that nothing else moves. |
-| 2 | **The path of the rewriting subcommands**: `rewriting.cpp`, `writing.cpp`, `diagnostics.cpp`, `batch.cpp`, `records.cpp`, `shared_settings.cpp`, `expansion.cpp` — most subcommands at once. |
-| 3 | **The other batches and the runs with one record**: `conversion.cpp`, `inspection.cpp`, `correcting.cpp`, `appending.cpp`, `splitting.cpp`, `configuring.cpp`. |
-| 4 | **The speech**: `transcribing.cpp`, `syncing.cpp`, the progress. |
-| 5 | **The close**: the old API removed, the manual's promise and levels, the CHANGELOG. |
+| [#826](https://github.com/Guyot-Bertrand/sub-edit/issues/826) | **The reporter**: the grammar, the element (`forItem`), the source before an error, the split of lines, the `[-]` lines; and the four direct writers of D5. The old `say`/`failed` stay, so that nothing else moves. |
+| [#827](https://github.com/Guyot-Bertrand/sub-edit/issues/827) | **The path of the rewriting subcommands**: `rewriting.cpp`, `writing.cpp`, `diagnostics.cpp`, `batch.cpp`, `records.cpp`, `shared_settings.cpp`, `expansion.cpp` — most subcommands at once. |
+| [#828](https://github.com/Guyot-Bertrand/sub-edit/issues/828) | **The other batches and the runs with one record**: `conversion.cpp`, `inspection.cpp`, `correcting.cpp`, `appending.cpp`, `splitting.cpp`, `configuring.cpp`. |
+| [#829](https://github.com/Guyot-Bertrand/sub-edit/issues/829) | **The speech**: `transcribing.cpp`, `syncing.cpp`, the progress. |
+| [#830](https://github.com/Guyot-Bertrand/sub-edit/issues/830) | **The close**: the old API removed, the manual's promise and levels, the CHANGELOG. |
 
 **Between issues 1 and 5 the text is mixed**: some subcommands narrate in the new grammar, others in the old. It is acceptable
 because the text is not promised until issue 5, which is the one that promises it; the versions in between say so in the CHANGELOG.
