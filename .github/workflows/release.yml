@@ -139,7 +139,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        fedora: ['42', '43', '44']
+        fedora: ['43', '44', '45']
     container: fedora:${{ matrix.fedora }}
     env:
       TAG: ${{ inputs.tag || github.ref_name }}

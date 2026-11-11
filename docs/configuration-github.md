@@ -222,7 +222,7 @@ figure frozen in this document would go stale, that one does not.
 `.github/workflows/fedora.yml`, every Tuesday at 4:00, and by hand through
 *Actions → fedora → Run workflow* — issue #266.
 
-**What it does:** builds the `.rpm`, installs it on a `fedora:42` container, and
+**What it does:** builds the `.rpm`, installs it on a `fedora:43` container, and
 runs what comes out of it. It is the only check in the repository that plays a
 real package manager transaction; everything else inspects the package without
 installing it, and a package can be flawless on inspection and refused at

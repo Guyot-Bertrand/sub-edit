@@ -67,7 +67,7 @@ source "$(dirname "${BASH_SOURCE[0]}")/lib/output.sh"
 # **A named version, never `latest`.** An image that changes underfoot would
 # make a failure impossible to replay, and would make this repository bear the
 # accidents of a moving distribution.
-image="fedora:42"
+image="fedora:43"
 build_dir="${REPO_ROOT}/build/release"
 
 usage() {
@@ -75,7 +75,7 @@ usage() {
 usage: check-rpm.sh [--build-dir <directory>] [--image <image>]
 
   --build-dir  the tree where the .rpm is found (default: build/release)
-  --image      the Fedora image to run          (default: fedora:42)
+  --image      the Fedora image to run          (default: fedora:43)
 USAGE
     exit 2
 }

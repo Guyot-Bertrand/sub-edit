@@ -50,7 +50,7 @@ error: Failed dependencies:
 libraries, where they exist.
 
 **The `.rpm` to take is the one of your Fedora**: the file name carries the
-version, `fc42`, `fc43`, `fc44`. Each one is built on that Fedora, against
+version, `fc43`, `fc44`, `fc45`. Each one is built on that Fedora, against
 its ICU — `cat /etc/fedora-release` says which one to take. An `.rpm` from another
 Fedora asks for an ICU yours does not have.
 
@@ -73,7 +73,7 @@ every released Fedora**, against its ICU; the `.deb` is built on Ubuntu 24.04.
 | Distribution | What it gives |
 | :----------- | :---------------- |
 | Ubuntu 24.04 | the `.deb` installs: ICU is at version 74 there |
-| Fedora 42, 43, 44 | the `.rpm` of its version (`…fc42…`, `…fc43…`, `…fc44…`) installs **through `dnf`**, built against the ICU of that Fedora |
+| Fedora 43, 44, 45 | the `.rpm` of its version (`…fc43…`, `…fc44…`, `…fc45…`) installs **through `dnf`**, built against the ICU of that Fedora |
 | Fedora rawhide (the next one), the other `.rpm` distributions | **no**: no `.rpm` is built for them — build from source |
 | any Debian or Ubuntu distribution whose ICU is not at version 74 | **no**: the `.deb` requires `libicu74` — build from source |
 
