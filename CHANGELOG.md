@@ -9,6 +9,12 @@ do not edit it by hand.
 
 ## Unreleased
 
+### Documentation
+
+- **doc** — Evaluate Parakeet and Nemotron as engines
+
+## 1.2.2 — 2026-11-11
+
 ### Continuous integration
 
 - **ci** — Build the .rpm for Fedora 43 to 45, drop 42
