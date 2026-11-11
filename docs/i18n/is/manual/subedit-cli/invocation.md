@@ -114,13 +114,14 @@ stillir `LANGUAGE=en` (eða `LC_ALL=C`) — eða les `--format json`, sem breyti
 | heiti leiðréttingarmynstra sem `correct --enable` og `--disable` taka við | mynstur er kallað ensku heiti sem skrá þess ber |
 | heiti sniða og stafakóðana | snið er kallað sínu heiti |
 | eigin greiningarboð CLI11 — nauðsynleg röksemd vantar, óþekktur valkostur, gildi sem valkostur tekur ekki við — og `Run with --help for more information.` | orðuð inni í þáttaranum sem skipanalínan er smíðuð á; þau haldast ensk |
+| rammi villulínu: `[subedit]`, undirskipunin, `[-]`, lykillinn `error` | skrifta finnur hvað brást og hvar án þess að lesa orðin; aðeins skilaboðin eru þýdd |
 
 Að biðja um ensku, hvert sem umhverfið er:
 
 <!-- example: LC_ALL=C LANGUAGE=fr subedit-cli shift --output-dir out a.srt; echo "code=$?" -->
 ```console
 $ LC_ALL=C LANGUAGE=fr subedit-cli shift --output-dir out a.srt; echo "code=$?"
-shift needs --by, or --to-grid to work the amount out from the positions
+[subedit] [shift] [-] error: shift needs --by, or --to-grid to work the amount out from the positions
 code=1
 ```
 
@@ -212,7 +213,7 @@ til.
 <!-- example: printf '1\n00:00:01,000 --> 00:00:01,200\nUn.\n\n' > a.srt; subedit-cli --config mine.conf adjust --dry-run a.srt; echo "code=$?" -->
 ```console
 $ printf '1\n00:00:01,000 --> 00:00:01,200\nUn.\n\n' > a.srt; subedit-cli --config mine.conf adjust --dry-run a.srt; echo "code=$?"
-settings file not found: mine.conf
+[subedit] [adjust] [-] error: settings file not found: mine.conf
 code=1
 ```
 
@@ -226,7 +227,7 @@ ekki keyrð, og `-q` og `-v` breyta engu.
 <!-- example: subedit-cli --version | head -n 1 -->
 ```console
 $ subedit-cli --version | head -n 1
-subedit 1.2.4
+subedit 1.2.5
 ```
 
 Allt úttakið, á vél með ICU 74.2 og Enchant 2.3.3 — tölurnar eru vélarinnar:
@@ -856,7 +857,7 @@ unnið — að hafna henni er betra en að vinna ekkert og skila `0`:
 <!-- example: mkdir films; printf '1\n00:00:01,000 --> 00:00:02,000\nUn.\n\n' > films/a.srt; subedit-cli inspect films; echo "code=$?" -->
 ```console
 $ mkdir films; printf '1\n00:00:01,000 --> 00:00:02,000\nUn.\n\n' > films/a.srt; subedit-cli inspect films; echo "code=$?"
-films: is a directory: use --recursive
+[subedit] [inspect] [-] error: films: is a directory: use --recursive
 code=1
 ```
 
@@ -927,3 +928,13 @@ runu hálfunna.
 | `--align-method` án `-t` | `--align-method needs a translation file: use -t` |
 | `-t` með mörgum inntaksskrám, eða möppu | `-t names one file but several inputs were given: use one invocation per pair` |
 | þýðing eins og aðalskráin | `<translation>: the file is already open as the main document` |
+
+**Sérhver villa er lína af sama sniði**, `[subedit] [<command>] [-] error: <message>`: undirskipunin sem þáttarinn var kominn að, `-` ef hann var ekki kominn að neinni, og margra lína skilaboð skrifuð í mörgum línum, hver með sinn ramma. Greining CLI11 er flokkuð á sama hátt:
+
+<!-- example: subedit-cli shift --bogus a.srt; echo "code=$?" -->
+```console
+$ subedit-cli shift --bogus a.srt; echo "code=$?"
+[subedit] [shift] [-] error: The following argument was not expected: --bogus
+[subedit] [shift] [-] error: Run with --help for more information.
+code=1
+```

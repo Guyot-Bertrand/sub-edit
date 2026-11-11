@@ -114,13 +114,14 @@ inspecter et recaler des fichiers de sous-titres.“ Скрипта која ч�
 | имена образаца исправке које примају `correct --enable` и `--disable` | образац се зове енглеским именом које његова датотека садржи |
 | имена формата и кодирања | формат се зове својим именом |
 | сопствене дијагностике библиотеке CLI11 — недостајући обавезан аргумент, непозната опција, вредност коју опција не прихвата — и њено `Run with --help for more information.` | срочене унутар рашчлањивача на којем је командна линија изграђена; остају енглеске |
+| оквир реда грешке: `[subedit]`, потпрограм, `[-]`, кључ `error` | скрипта налази шта је и где пукло без читања речи; преводи се само порука |
 
 Тражење енглеског, ма какво било окружење:
 
 <!-- example: LC_ALL=C LANGUAGE=fr subedit-cli shift --output-dir out a.srt; echo "code=$?" -->
 ```console
 $ LC_ALL=C LANGUAGE=fr subedit-cli shift --output-dir out a.srt; echo "code=$?"
-shift needs --by, or --to-grid to work the amount out from the positions
+[subedit] [shift] [-] error: shift needs --by, or --to-grid to work the amount out from the positions
 code=1
 ```
 
@@ -212,7 +213,7 @@ $XDG_CONFIG_HOME/subedit/settings.conf
 <!-- example: printf '1\n00:00:01,000 --> 00:00:01,200\nUn.\n\n' > a.srt; subedit-cli --config mine.conf adjust --dry-run a.srt; echo "code=$?" -->
 ```console
 $ printf '1\n00:00:01,000 --> 00:00:01,200\nUn.\n\n' > a.srt; subedit-cli --config mine.conf adjust --dry-run a.srt; echo "code=$?"
-settings file not found: mine.conf
+[subedit] [adjust] [-] error: settings file not found: mine.conf
 code=1
 ```
 
@@ -226,7 +227,7 @@ code=1
 <!-- example: subedit-cli --version | head -n 1 -->
 ```console
 $ subedit-cli --version | head -n 1
-subedit 1.2.4
+subedit 1.2.5
 ```
 
 Све заједно, на машини са ICU 74.2 и Enchant 2.3.3 — бројеви су машинини:
@@ -855,7 +856,7 @@ Au revoir.
 <!-- example: mkdir films; printf '1\n00:00:01,000 --> 00:00:02,000\nUn.\n\n' > films/a.srt; subedit-cli inspect films; echo "code=$?" -->
 ```console
 $ mkdir films; printf '1\n00:00:01,000 --> 00:00:02,000\nUn.\n\n' > films/a.srt; subedit-cli inspect films; echo "code=$?"
-films: is a directory: use --recursive
+[subedit] [inspect] [-] error: films: is a directory: use --recursive
 code=1
 ```
 
@@ -926,3 +927,13 @@ $ man -L fr subedit-cli-shift
 | `--align-method` без `-t` | `--align-method needs a translation file: use -t` |
 | `-t` са више улаза, или директоријумом | `-t names one file but several inputs were given: use one invocation per pair` |
 | превод идентичан главној датотеци | `<translation>: the file is already open as the main document` |
+
+**Свака грешка је ред истог облика**, `[subedit] [<command>] [-] error: <message>`: потпрограм до ког је анализатор стигао, `-` ако није стигао ни до једног, а порука од више редова пише се у више редова, сваки са својим оквиром. Дијагностика CLI11 сврстава се на исти начин:
+
+<!-- example: subedit-cli shift --bogus a.srt; echo "code=$?" -->
+```console
+$ subedit-cli shift --bogus a.srt; echo "code=$?"
+[subedit] [shift] [-] error: The following argument was not expected: --bogus
+[subedit] [shift] [-] error: Run with --help for more information.
+code=1
+```

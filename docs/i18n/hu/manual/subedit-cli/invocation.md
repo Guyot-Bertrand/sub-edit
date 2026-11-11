@@ -101,13 +101,14 @@ A `LANG=fr_FR.UTF-8` beállítással a `subedit-cli --help` kimenete így kezdő
 | a javítási minták nevei, amelyeket a `correct --enable` és a `--disable` kapcsoló vesz fel | a mintát az angol név hívja, amelyet a fájlja tartalmaz |
 | a formátumok és kódolások nevei | a formátumot a neve hívja |
 | a CLI11 saját diagnosztikája — hiányzó kötelező argumentum, ismeretlen kapcsoló, olyan érték, amelyet egy kapcsoló nem fogad el — és a `Run with --help for more information.` | abban az elemzőben fogalmazott, amelyre a parancssor épül; angolok maradnak |
+| egy hibasor kerete: `[subedit]`, az alparancs, `[-]`, az `error` kulcs | egy szkript a szavak olvasása nélkül megtalálja, mi és hol hibázott; csak az üzenet fordított |
 
 Az angol kérése, bármi legyen a környezet:
 
 <!-- example: LC_ALL=C LANGUAGE=fr subedit-cli shift --output-dir out a.srt; echo "code=$?" -->
 ```console
 $ LC_ALL=C LANGUAGE=fr subedit-cli shift --output-dir out a.srt; echo "code=$?"
-shift needs --by, or --to-grid to work the amount out from the positions
+[subedit] [shift] [-] error: shift needs --by, or --to-grid to work the amount out from the positions
 code=1
 ```
 
@@ -167,7 +168,7 @@ A [`--format json`](#szkript-által-olvasható-kimenet) kapcsolóval az `adjust`
 <!-- example: printf '1\n00:00:01,000 --> 00:00:01,200\nUn.\n\n' > a.srt; subedit-cli --config mine.conf adjust --dry-run a.srt; echo "code=$?" -->
 ```console
 $ printf '1\n00:00:01,000 --> 00:00:01,200\nUn.\n\n' > a.srt; subedit-cli --config mine.conf adjust --dry-run a.srt; echo "code=$?"
-settings file not found: mine.conf
+[subedit] [adjust] [-] error: settings file not found: mine.conf
 code=1
 ```
 
@@ -178,7 +179,7 @@ code=1
 <!-- example: subedit-cli --version | head -n 1 -->
 ```console
 $ subedit-cli --version | head -n 1
-subedit 1.2.4
+subedit 1.2.5
 ```
 
 Az egész, egy ICU 74.2 és Enchant 2.3.3 verziójú gépen — a számok a gép számai:
@@ -601,7 +602,7 @@ Minden alparancs több elérési utat is elfogad, kivéve az [`append`](append.m
 <!-- example: mkdir films; printf '1\n00:00:01,000 --> 00:00:02,000\nUn.\n\n' > films/a.srt; subedit-cli inspect films; echo "code=$?" -->
 ```console
 $ mkdir films; printf '1\n00:00:01,000 --> 00:00:02,000\nUn.\n\n' > films/a.srt; subedit-cli inspect films; echo "code=$?"
-films: is a directory: use --recursive
+[subedit] [inspect] [-] error: films: is a directory: use --recursive
 code=1
 ```
 
@@ -661,3 +662,13 @@ A használati hibát **bármely feldolgozás előtt** észlelik: sosem hagy fél
 | `--align-method` a `-t` nélkül | `--align-method needs a translation file: use -t` |
 | `-t` több bemenettel, vagy könyvtárral | `-t names one file but several inputs were given: use one invocation per pair` |
 | a főfájllal azonos fordítás | `<translation>: the file is already open as the main document` |
+
+**Minden hiba azonos alakú sor**, `[subedit] [<command>] [-] error: <message>`: az alparancs, ameddig az elemző eljutott, `-`, ha egyikig sem, és a többsoros üzenet több sorban, mindegyik a saját keretével. A CLI11 diagnosztikája ugyanígy kerül besorolásra:
+
+<!-- example: subedit-cli shift --bogus a.srt; echo "code=$?" -->
+```console
+$ subedit-cli shift --bogus a.srt; echo "code=$?"
+[subedit] [shift] [-] error: The following argument was not expected: --bogus
+[subedit] [shift] [-] error: Run with --help for more information.
+code=1
+```

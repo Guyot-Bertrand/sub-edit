@@ -25,7 +25,7 @@ Notkunarvilla, kóði `1`, engin skrá unnin né skrifuð:
 <!-- example: mkdir films; printf '1\n00:00:01,000 --> 00:00:02,000\nUn.\n\n' > films/a.srt; subedit-cli inspect films; echo "code=$?" -->
 ```console
 $ mkdir films; printf '1\n00:00:01,000 --> 00:00:02,000\nUn.\n\n' > films/a.srt; subedit-cli inspect films; echo "code=$?"
-films: is a directory: use --recursive
+[subedit] [inspect] [-] error: films: is a directory: use --recursive
 code=1
 ```
 

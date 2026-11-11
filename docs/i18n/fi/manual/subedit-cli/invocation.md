@@ -114,13 +114,14 @@ sanoja, asettaa `LANGUAGE=en` (tai `LC_ALL=C`) — tai lukee muotoa `--format js
 | korjauslausekkeiden nimet, jotka `correct --enable` ja `--disable` ottavat | lausekkeeseen viitataan englanninkielisellä nimellä, joka sen tiedostossa on |
 | muotojen ja merkistökoodausten nimet | muotoon viitataan sen nimellä |
 | CLI11:n omat huomautukset — puuttuva pakollinen argumentti, tuntematon valitsin, arvo, jota valitsin ei hyväksy — ja sen `Run with --help for more information.` | ne on muotoiltu sen jäsentimen sisällä, jonka päälle komentorivi on rakennettu; ne pysyvät englanninkielisinä |
+| virherivin kehys: `[subedit]`, alikomento, `[-]`, avain `error` | skripti löytää, mikä ja missä epäonnistui, lukematta sanoja; vain viesti käännetään |
 
 Englannin pyytäminen ympäristöstä riippumatta:
 
 <!-- example: LC_ALL=C LANGUAGE=fr subedit-cli shift --output-dir out a.srt; echo "code=$?" -->
 ```console
 $ LC_ALL=C LANGUAGE=fr subedit-cli shift --output-dir out a.srt; echo "code=$?"
-shift needs --by, or --to-grid to work the amount out from the positions
+[subedit] [shift] [-] error: shift needs --by, or --to-grid to work the amount out from the positions
 code=1
 ```
 
@@ -212,7 +213,7 @@ luo sen.
 <!-- example: printf '1\n00:00:01,000 --> 00:00:01,200\nUn.\n\n' > a.srt; subedit-cli --config mine.conf adjust --dry-run a.srt; echo "code=$?" -->
 ```console
 $ printf '1\n00:00:01,000 --> 00:00:01,200\nUn.\n\n' > a.srt; subedit-cli --config mine.conf adjust --dry-run a.srt; echo "code=$?"
-settings file not found: mine.conf
+[subedit] [adjust] [-] error: settings file not found: mine.conf
 code=1
 ```
 
@@ -226,7 +227,7 @@ ei ajeta, eivätkä `-q` ja `-v` muuta mitään.
 <!-- example: subedit-cli --version | head -n 1 -->
 ```console
 $ subedit-cli --version | head -n 1
-subedit 1.2.4
+subedit 1.2.5
 ```
 
 Koko tuloste koneella, jossa on ICU 74.2 ja Enchant 2.3.3 — numerot ovat koneen omia:
@@ -856,7 +857,7 @@ käsitellä — sen hylkääminen on parempi kuin olla käsittelemättä mitää
 <!-- example: mkdir films; printf '1\n00:00:01,000 --> 00:00:02,000\nUn.\n\n' > films/a.srt; subedit-cli inspect films; echo "code=$?" -->
 ```console
 $ mkdir films; printf '1\n00:00:01,000 --> 00:00:02,000\nUn.\n\n' > films/a.srt; subedit-cli inspect films; echo "code=$?"
-films: is a directory: use --recursive
+[subedit] [inspect] [-] error: films: is a directory: use --recursive
 code=1
 ```
 
@@ -927,3 +928,13 @@ erää puolittain käsitellyksi.
 | `--align-method` ilman valitsinta `-t` | `--align-method needs a translation file: use -t` |
 | `-t` usealla syötteellä tai hakemistolla | `-t names one file but several inputs were given: use one invocation per pair` |
 | päätiedoston kanssa identtinen käännös | `<translation>: the file is already open as the main document` |
+
+**Jokainen virhe on samanmuotoinen rivi**, `[subedit] [<command>] [-] error: <message>`: alikomento, johon jäsennin oli ehtinyt, `-`, jos se ei ollut ehtinyt mihinkään, ja monirivinen viesti kirjoitetaan monelle riville, kukin omalla kehyksellään. CLI11:n diagnostiikka luokitellaan samoin:
+
+<!-- example: subedit-cli shift --bogus a.srt; echo "code=$?" -->
+```console
+$ subedit-cli shift --bogus a.srt; echo "code=$?"
+[subedit] [shift] [-] error: The following argument was not expected: --bogus
+[subedit] [shift] [-] error: Run with --help for more information.
+code=1
+```

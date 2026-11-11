@@ -62,7 +62,7 @@ ExitCode runInspect(const InspectOptions& options,
     const std::expected<core::ReadingChoices, std::string> choices =
         readingWith(reading, options.frameRate);
     if (!choices) {
-        return refuse(choices.error());
+        return refuse(reporter, choices.error());
     }
 
     const std::expected<Prepared, std::string> prepared =
@@ -73,7 +73,7 @@ ExitCode runInspect(const InspectOptions& options,
                  .translation = &options.translation,
                  .withDocument = false});
     if (!prepared) {
-        return refuse(prepared.error());
+        return refuse(reporter, prepared.error());
     }
 
     return inspectAll(files,

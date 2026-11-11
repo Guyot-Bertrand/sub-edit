@@ -142,7 +142,7 @@ lancement. Un code mal écrit est une erreur d'usage :
 <!-- example: printf '1\n00:00:01,000 --> 00:00:02,000\nBonjour\n\n' > a.srt; subedit-cli --no-config correct --tasks common-errors --code francais --output b.srt a.srt; echo "code=$?" -->
 ```console
 $ printf '1\n00:00:01,000 --> 00:00:02,000\nBonjour\n\n' > a.srt; subedit-cli --no-config correct --tasks common-errors --code francais --output b.srt a.srt; echo "code=$?"
---code: "francais" is not a pattern code: expected Script[-language[-COUNTRY]], like Zyyy, Latn or Latn-en-US
+[subedit] [correct] [-] error: --code: "francais" is not a pattern code: expected Script[-language[-COUNTRY]], like Zyyy, Latn or Latn-en-US
 code=1
 ```
 
@@ -172,7 +172,7 @@ refuse et le dit, plutôt que de se taire :
 <!-- example: printf '1\n00:00:01,000 --> 00:00:02,000\nhel lo\n\n' > a.srt; subedit-cli --no-config correct --tasks join-words --language qq_QQ --output b.srt a.srt; echo "code=$?" -->
 ```console
 $ printf '1\n00:00:01,000 --> 00:00:02,000\nhel lo\n\n' > a.srt; subedit-cli --no-config correct --tasks join-words --language qq_QQ --output b.srt a.srt; echo "code=$?"
-no dictionary for qq_QQ
+[subedit] [correct] [-] error: no dictionary for qq_QQ
 code=1
 ```
 
@@ -192,7 +192,7 @@ le dire** ; il n'y a donc **aucune longueur par défaut**, et `--max-length` est
 <!-- example: printf '1\n00:00:01,000 --> 00:00:03,000\nUn texte\n\n' > a.srt; subedit-cli --no-config correct --tasks line-break --code Latn-en --output b.srt a.srt; echo "code=$?" -->
 ```console
 $ printf '1\n00:00:01,000 --> 00:00:03,000\nUn texte\n\n' > a.srt; subedit-cli --no-config correct --tasks line-break --code Latn-en --output b.srt a.srt; echo "code=$?"
---max-length is required by the task line-break: Gaupol's 24 is a width in ems, and has no value in characters
+[subedit] [correct] [-] error: --max-length is required by the task line-break: Gaupol's 24 is a width in ems, and has no value in characters
 code=1
 ```
 
@@ -252,7 +252,7 @@ réponse qui se dit, pas un succès silencieux :
 <!-- example: printf '1\n00:00:01,000 --> 00:00:02,000\n[Bruit] Bonjour\n\n' > a.srt; subedit-cli --no-config correct --tasks mentions --code Latn --output b.srt a.srt; echo "code=$?" -->
 ```console
 $ printf '1\n00:00:01,000 --> 00:00:02,000\n[Bruit] Bonjour\n\n' > a.srt; subedit-cli --no-config correct --tasks mentions --code Latn --output b.srt a.srt; echo "code=$?"
-mentions: no pattern is active under the code Latn; switch one on with --enable
+[subedit] [correct] [-] error: mentions: no pattern is active under the code Latn; switch one on with --enable
 code=1
 ```
 

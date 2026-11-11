@@ -50,7 +50,7 @@ ExitCode runItalics(const ItalicsOptions& options,
                     const Reporter& reporter) {
     const std::expected<bool, std::string> italic = italicsDirectionOf(options.on, options.off);
     if (!italic) {
-        return refuse(italic.error());
+        return refuse(reporter, italic.error());
     }
 
     const std::expected<PreparedWriting, std::string> prepared =
@@ -62,7 +62,7 @@ ExitCode runItalics(const ItalicsOptions& options,
                         .translation = &options.translation},
                        options.destination);
     if (!prepared) {
-        return refuse(prepared.error());
+        return refuse(reporter, prepared.error());
     }
 
     return italicsIn(files,

@@ -183,3 +183,6 @@ file      src/lib/subedit/core/transcription/speech_detector.cpp Speech segment\
 
 [error-detail] The English `detail` of a `TranscriptionError`: what was asked or what the engine said, for the record and for the person who reads a bug report, which `core/wording/` puts after the sentence it words itself (`the transcription failed: %1`). Not a message for a reader (#813).
 file      src/lib/subedit/core/transcription/transcript_matching_aligner.cpp the engine gives no timed words, which the alignment is built on
+
+[narration-key] The constants of a line of the standard error, `[subedit] [<command>] [<i>/<n>] <key>: <value>`: the name of the program and the closed list of keys a line is filed under. A script relies on them whatever the language; only the value of a sentence is translated (#806, #826).
+file      src/lib/subedit/cli/reporter.cpp [a-z]+|\[subedit\] \[

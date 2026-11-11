@@ -53,17 +53,17 @@ ExitCode runTransform(const TransformOptions& options,
                       const Reporter& reporter) {
     const std::expected<Reference, std::string> first = parseReference(options.first);
     if (!first) {
-        return refuse(first.error());
+        return refuse(reporter, first.error());
     }
 
     const std::expected<Reference, std::string> last = parseReference(options.last);
     if (!last) {
-        return refuse(last.error());
+        return refuse(reporter, last.error());
     }
 
     const std::expected<Transform, std::string> transform = Transform::between(*first, *last);
     if (!transform) {
-        return refuse(transform.error());
+        return refuse(reporter, transform.error());
     }
 
     const std::expected<PreparedWriting, std::string> prepared =
@@ -72,7 +72,7 @@ ExitCode runTransform(const TransformOptions& options,
                        {.files = options.files, .recursive = options.recursive},
                        options.destination);
     if (!prepared) {
-        return refuse(prepared.error());
+        return refuse(reporter, prepared.error());
     }
 
     return transformAll(

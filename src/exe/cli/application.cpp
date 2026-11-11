@@ -17,6 +17,7 @@
 #include <iostream>
 #include <memory>
 #include <optional>
+#include <sstream>
 #include <string>
 #include <vector>
 
@@ -74,6 +75,15 @@ void headSubcommands(CLI::App& app) {
     std::vector<core::Library> linked = core::coreLibraries();
     linked.push_back({.name = "CLI11", .loaded = CLI11_VERSION, .built = CLI11_VERSION});
     return linked;
+}
+
+/// The reporter of a refusal written before the subcommand runs: at level 0, an error being said
+/// whatever the level, and under the name of the subcommand the parser reached — none when it
+/// reached none, which the line writes `-`.
+[[nodiscard]] Reporter refusing(const CLI::App& app) {
+    const std::vector<CLI::App*> named = app.get_subcommands();
+    return Reporter{std::cerr, 0}.forCommand(named.empty() ? std::string{}
+                                                           : named.front()->get_name());
 }
 
 } // namespace
@@ -166,8 +176,15 @@ ExitCode run(int argc, char** argv) {
     } catch (const CLI::ParseError& error) {
         // CLI11 has its own exit codes; ours are the four of the manual. Help
         // leaves through here because CLI11 signals it as an exception, and it
-        // keeps code 0.
-        return app.exit(error) == 0 ? ExitCode::Success : ExitCode::Usage;
+        // keeps code 0, on the standard output: it is the answer. **A complaint
+        // is a line of the standard error like any other**: CLI11 words it, in
+        // English, and the reporter files it — each of its lines an `error`.
+        std::ostringstream complaint;
+        const int code = app.exit(error, std::cout, complaint);
+        if (!complaint.str().empty()) {
+            refusing(app).error(complaint.str());
+        }
+        return code == 0 ? ExitCode::Success : ExitCode::Usage;
     }
 
     // The answer, before anything else is weighed, as CLI11's own flag was: `-q -v` beside it is
@@ -182,13 +199,13 @@ ExitCode run(int argc, char** argv) {
 
     const std::expected<int, std::string> level = levelFrom(quiet, verboseCount);
     if (!level) {
-        return refuse(level.error());
+        return refuse(refusing(app), level.error());
     }
 
     // An empty name names no file: taken as not given, it would fall back on
     // the user's own file, the one `--config` was given to avoid.
     if (configOption->count() > 0 && configFile.empty()) {
-        return refuse(core::translate("--config needs a file name"));
+        return refuse(refusing(app), core::translate("--config needs a file name"));
     }
 
     // Before the help and before any subcommand: the list is the whole answer, and
@@ -211,7 +228,7 @@ ExitCode run(int argc, char** argv) {
     if (!reading.empty()) {
         const std::expected<core::Encoding, std::string> named = encodingNamed(reading);
         if (!named) {
-            return refuse(named.error());
+            return refuse(refusing(app), named.error());
         }
         encoding = *named;
     }

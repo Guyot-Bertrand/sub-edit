@@ -124,7 +124,7 @@ ExitCode runSync(SyncCommandOptions& options,
                  const Reporter& reporter,
                  const SharedSettings& shared) {
     if (const std::optional<std::string> missing = missingNamedFile(shared))
-        return refuse(*missing);
+        return refuse(reporter, *missing);
 
     if (options.audioTrack >= 0)
         options.request.audioTrack = options.audioTrack;
@@ -139,7 +139,7 @@ ExitCode runSync(SyncCommandOptions& options,
                        {.files = options.files, .recursive = options.recursive},
                        options.destination);
     if (!prepared)
-        return refuse(prepared.error());
+        return refuse(reporter, prepared.error());
 
     const char* const path = std::getenv("PATH");
     const std::string searchPath = path != nullptr ? path : "";

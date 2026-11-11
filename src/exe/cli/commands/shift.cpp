@@ -58,13 +58,13 @@ ExitCode runShift(const ShiftOptions& options,
                        {.files = options.files, .recursive = options.recursive},
                        options.destination);
     if (!prepared) {
-        return refuse(prepared.error());
+        return refuse(reporter, prepared.error());
     }
 
     const std::expected<std::optional<core::Duration>, std::string> by =
         shiftAmountOf(options.toGrid, options.by);
     if (!by) {
-        return refuse(by.error());
+        return refuse(reporter, by.error());
     }
     if (!by->has_value()) {
         return shiftOntoGridAll(

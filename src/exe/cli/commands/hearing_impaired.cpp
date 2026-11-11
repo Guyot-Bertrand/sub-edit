@@ -56,7 +56,7 @@ ExitCode runHearingImpaired(const HearingImpairedOptions& options,
                         .translation = &options.translation},
                        options.destination);
     if (!prepared) {
-        return refuse(prepared.error());
+        return refuse(reporter, prepared.error());
     }
 
     return removeHearingImpairedIn(files,

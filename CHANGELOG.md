@@ -9,10 +9,21 @@ do not edit it by hand.
 
 ## Unreleased
 
+### Added
+
+- **cli** — Give the standard error its line grammar, errors first
+
+## 1.2.4 — 2026-11-11
+
+### Documentation
+
+- **cli** — Scope the narration format, one fact per line
+
+## 1.2.3 — 2026-11-11
+
 ### Documentation
 
 - **doc** — Evaluate Parakeet and Nemotron as engines
-- **cli** — Scope the narration format, one fact per line
 
 ## 1.2.2 — 2026-11-11
 

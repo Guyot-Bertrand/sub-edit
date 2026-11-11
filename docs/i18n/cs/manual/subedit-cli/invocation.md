@@ -114,13 +114,14 @@ výstupu, nastaví `LANGUAGE=en` (nebo `LC_ALL=C`) — nebo čte `--format json`
 | názvy opravných vzorů, které přijímají `correct --enable` a `--disable` | vzor se volá anglickým názvem, který obsahuje jeho soubor |
 | názvy formátů a kódování | formát se volá svým názvem |
 | vlastní hlášení CLI11 — chybějící povinný argument, neznámá volba, hodnota, kterou volba nepřijímá — a jeho `Run with --help for more information.` | jsou formulována uvnitř analyzátoru, na kterém je příkazový řádek postaven; zůstávají anglicky |
+| rámec chybového řádku: `[subedit]`, podpříkaz, `[-]`, klíč `error` | skript zjistí, co a kde selhalo, aniž by četl slova; přeložena je jen zpráva |
 
 Vyžádání angličtiny bez ohledu na prostředí:
 
 <!-- example: LC_ALL=C LANGUAGE=fr subedit-cli shift --output-dir out a.srt; echo "code=$?" -->
 ```console
 $ LC_ALL=C LANGUAGE=fr subedit-cli shift --output-dir out a.srt; echo "code=$?"
-shift needs --by, or --to-grid to work the amount out from the positions
+[subedit] [shift] [-] error: shift needs --by, or --to-grid to work the amount out from the positions
 code=1
 ```
 
@@ -212,7 +213,7 @@ přesto vytvoří.
 <!-- example: printf '1\n00:00:01,000 --> 00:00:01,200\nUn.\n\n' > a.srt; subedit-cli --config mine.conf adjust --dry-run a.srt; echo "code=$?" -->
 ```console
 $ printf '1\n00:00:01,000 --> 00:00:01,200\nUn.\n\n' > a.srt; subedit-cli --config mine.conf adjust --dry-run a.srt; echo "code=$?"
-settings file not found: mine.conf
+[subedit] [adjust] [-] error: settings file not found: mine.conf
 code=1
 ```
 
@@ -226,7 +227,7 @@ nespustí a `-q` ani `-v` nic nemění.
 <!-- example: subedit-cli --version | head -n 1 -->
 ```console
 $ subedit-cli --version | head -n 1
-subedit 1.2.4
+subedit 1.2.5
 ```
 
 Celý výstup na počítači s ICU 74.2 a Enchant 2.3.3 — čísla jsou čísla daného počítače:
@@ -856,7 +857,7 @@ nezpracuje — odmítnout ho je lepší než nezpracovat nic a vrátit `0`:
 <!-- example: mkdir films; printf '1\n00:00:01,000 --> 00:00:02,000\nUn.\n\n' > films/a.srt; subedit-cli inspect films; echo "code=$?" -->
 ```console
 $ mkdir films; printf '1\n00:00:01,000 --> 00:00:02,000\nUn.\n\n' > films/a.srt; subedit-cli inspect films; echo "code=$?"
-films: is a directory: use --recursive
+[subedit] [inspect] [-] error: films: is a directory: use --recursive
 code=1
 ```
 
@@ -927,3 +928,13 @@ dávku zpracovanou napůl.
 | `--align-method` bez `-t` | `--align-method needs a translation file: use -t` |
 | `-t` s několika vstupy nebo s adresářem | `-t names one file but several inputs were given: use one invocation per pair` |
 | překlad totožný s hlavním souborem | `<translation>: the file is already open as the main document` |
+
+**Každá chyba je řádek stejného tvaru**, `[subedit] [<command>] [-] error: <message>`: podpříkaz, ke kterému se analyzátor dostal, `-`, pokud se nedostal k žádnému, a víceřádková zpráva zapsaná na více řádků, každý se svým rámcem. Diagnostika CLI11 je zařazena stejně:
+
+<!-- example: subedit-cli shift --bogus a.srt; echo "code=$?" -->
+```console
+$ subedit-cli shift --bogus a.srt; echo "code=$?"
+[subedit] [shift] [-] error: The following argument was not expected: --bogus
+[subedit] [shift] [-] error: Run with --help for more information.
+code=1
+```

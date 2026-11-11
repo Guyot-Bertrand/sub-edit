@@ -100,6 +100,9 @@ void describeDocument(CLI::App* command, TranslationOptions& options);
 /// Every value the subcommands read can be refused, and each refusal was written
 /// out in four lines, nine times over. Named once, a usage error stops being a
 /// shape one has to recognise.
-ExitCode refuse(std::string_view why);
+///
+/// Through `reporter`, as every line of the standard error: a usage error is a line about the run,
+/// `[subedit] [<command>] [-] error: <why>`.
+ExitCode refuse(const Reporter& reporter, std::string_view why);
 
 } // namespace subedit::cli

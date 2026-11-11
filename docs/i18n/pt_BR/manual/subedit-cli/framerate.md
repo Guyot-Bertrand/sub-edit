@@ -159,7 +159,7 @@ recusas todas vêm antes da primeira leitura.
 <!-- example: printf '1\n00:00:01,010 --> 00:00:02,020\nUn.\n\n' > a.srt; subedit-cli framerate --from 0 --to 25 --output b.srt a.srt; echo "code=$?" -->
 ```console
 $ printf '1\n00:00:01,010 --> 00:00:02,020\nUn.\n\n' > a.srt; subedit-cli framerate --from 0 --to 25 --output b.srt a.srt; echo "code=$?"
-"0" is not a frame rate: a frame rate must be strictly positive; nothing runs at that speed
+[subedit] [framerate] [-] error: "0" is not a frame rate: a frame rate must be strictly positive; nothing runs at that speed
 code=1
 ```
 

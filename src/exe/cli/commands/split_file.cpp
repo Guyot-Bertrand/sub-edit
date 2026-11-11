@@ -71,11 +71,14 @@ ExitCode runSplitFile(const SplitFileOptions& options,
                       const std::optional<core::Encoding>& reading,
                       const Reporter& reporter) {
     if (!options.dryRun && (options.head.empty() || options.tail.empty())) {
-        return refuse(core::translate(
-            "no destination given: split-file writes two files, use --head and --tail"));
+        return refuse(
+            reporter,
+            core::translate(
+                "no destination given: split-file writes two files, use --head and --tail"));
     }
     if (options.dryRun && options.head.empty() != options.tail.empty()) {
         return refuse(
+            reporter,
             core::translate("--head and --tail go together: give both, or neither with --dry-run"));
     }
 

@@ -370,6 +370,10 @@ int nextScratch() {
 
 } // namespace
 
+std::string refusal(std::string_view command, std::string_view why) {
+    return "[subedit] [" + std::string{command} + "] [-] error: " + std::string{why} + "\n";
+}
+
 std::string configHome() {
     return privateConfigHome().path().string();
 }

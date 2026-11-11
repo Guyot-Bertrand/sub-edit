@@ -27,6 +27,7 @@ using subedit::e2e::invoke;
 using subedit::e2e::invokeIn;
 using subedit::e2e::invokeInEveryLanguage;
 using subedit::e2e::Locale;
+using subedit::e2e::refusal;
 using subedit::e2e::russian;
 using subedit::e2e::Scratch;
 using subedit::e2e::UserPatterns;
@@ -40,8 +41,8 @@ namespace {
 const std::vector<std::string> kUsageError{"shift", "--output-dir", "out", "a.srt"};
 
 /// What the fixture says for that error.
-constexpr const char* kUsageErrorInRussian =
-    "shift требует --by или --to-grid, чтобы вычислить величину по позициям\n";
+const std::string kUsageErrorInRussian =
+    refusal("shift", "shift требует --by или --to-grid, чтобы вычислить величину по позициям");
 
 /// What a pattern file is: its bytes and the time it was last written.
 struct FileState {
@@ -110,7 +111,8 @@ TEST_CASE("a usage error follows the language, and its exit code does not", "[e2
     const CliRun run = invokeIn(russian(), kUsageError);
 
     CHECK(english.errors ==
-          "shift needs --by, or --to-grid to work the amount out from the positions\n");
+          refusal("shift",
+                  "shift needs --by, or --to-grid to work the amount out from the positions"));
     CHECK(run.errors == kUsageErrorInRussian);
     CHECK(run.exitCode == english.exitCode);
     CHECK(run.output.empty());

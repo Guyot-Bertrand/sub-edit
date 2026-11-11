@@ -51,12 +51,12 @@ ExitCode runFrameRate(const FrameRateOptions& options,
                       const Reporter& reporter) {
     const std::expected<core::FrameRate, std::string> from = parseFrameRate(options.from);
     if (!from) {
-        return refuse(from.error());
+        return refuse(reporter, from.error());
     }
 
     const std::expected<core::FrameRate, std::string> to = parseFrameRate(options.to);
     if (!to) {
-        return refuse(to.error());
+        return refuse(reporter, to.error());
     }
 
     const std::expected<PreparedWriting, std::string> prepared =
@@ -65,7 +65,7 @@ ExitCode runFrameRate(const FrameRateOptions& options,
                        {.files = options.files, .recursive = options.recursive},
                        options.destination);
     if (!prepared) {
-        return refuse(prepared.error());
+        return refuse(reporter, prepared.error());
     }
 
     return convertFrameRateAll(

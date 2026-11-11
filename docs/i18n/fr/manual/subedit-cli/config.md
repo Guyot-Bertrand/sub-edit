@@ -248,6 +248,6 @@ general.theme is a display preference; set it in the window
 code=1
 cannot read 'fast' for duration-adjust.speed; subedit-cli config list says what it accepts
 code=1
---no-config has nothing to write to
+[subedit] [config] [-] error: --no-config has nothing to write to
 code=1
 ```

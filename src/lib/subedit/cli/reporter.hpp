@@ -2,13 +2,46 @@
 
 // Telling the user what is happening, at the level of detail they asked for.
 
+#include <cstddef>
 #include <iosfwd>
+#include <memory>
 #include <string>
 #include <string_view>
 
 namespace subedit::cli {
 
 class Json;
+
+/// What a line of narration is about: the closed list of `docs/specs/cli-narration.md` (D3).
+///
+/// **A key is a constant, never translated**, like the name of a subcommand: a script relies on
+/// `dest:` whatever the language. Only the value of a sentence is translated. A key is added
+/// with the table of the spec, never here alone.
+enum class Key {
+    Source,
+    Translation,
+    Media,
+    Format,
+    Encoding,
+    Bom,
+    LineEndings,
+    BytesRead,
+    Diagnostic,
+    Alignment,
+    Progress,
+    Warning,
+    Error,
+    Result,
+    BytesWritten,
+    Dest,
+    Tail,
+    Settings,
+    Walk,
+    Summary,
+};
+
+/// The name `key` is written under — `line-endings` for `Key::LineEndings`.
+[[nodiscard]] std::string_view nameOf(Key key);
 
 /// The four levels of narration, and the stream they go to.
 ///
@@ -59,6 +92,31 @@ public:
     /// The same reporter, knowing which subcommand is speaking.
     [[nodiscard]] Reporter forCommand(std::string command) const;
 
+    /// The same reporter, speaking of one element of the batch: the `position`-th of `count`,
+    /// counted from one, whose input is `source`.
+    ///
+    /// **The element is identified by its position, not by its path** — a path may hold any
+    /// character, a position nothing to escape, and it is the order the records are written in.
+    ///
+    /// **Its `source` line is written by the reporter**, just before the first line the element
+    /// writes, at whatever level that line is: an element begins with its input, and under
+    /// `--quiet` an error never comes without it. Every reporter derived from this one shares
+    /// that, so that the source is said once. A caller writes `Key::Source` only for a second
+    /// input of the same element (`append`).
+    [[nodiscard]] Reporter
+    forItem(std::size_t position, std::size_t count, std::string source) const;
+
+    /// Writes `value` under `key` when the asked-for level reaches `atLeast`, as
+    /// `[subedit] [<command>] [<i>/<n>] <key>: <value>`.
+    ///
+    /// A `-` stands for a command not yet known, and for the element of a line about the whole
+    /// run. **A sentence that holds line ends is one line per physical line**, each with the
+    /// prefix and the key; **a path is one line whatever it holds**, its line ends written `\n`.
+    void tell(int atLeast, Key key, std::string_view value) const;
+
+    /// Writes `value` under `Key::Error`, whatever the level, `--quiet` included.
+    void error(std::string_view value) const;
+
     /// Whether a record is wanted for each file (`--format json`).
     [[nodiscard]] bool recording() const { return m_records != nullptr; }
 
@@ -69,11 +127,23 @@ public:
     void record(const Json& record) const;
 
 private:
+    /// The element a reporter speaks of, shared by every reporter derived from it.
+    struct Item {
+        std::size_t position = 0;
+        std::size_t count = 0;
+        std::string source;
+        bool announced = false;
+    };
+
+    void write(Key key, std::string_view value) const;
+    void writeLine(Key key, std::string_view value) const;
+
     std::ostream* m_errors;
     int m_level;
     std::ostream* m_records = nullptr;
     std::ostream* m_text = nullptr;
     std::string m_command;
+    std::shared_ptr<Item> m_item;
 };
 
 } // namespace subedit::cli

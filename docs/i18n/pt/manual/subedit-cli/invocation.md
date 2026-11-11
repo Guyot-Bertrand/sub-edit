@@ -114,13 +114,14 @@ de texto define `LANGUAGE=en` (ou `LC_ALL=C`) — ou lê `--format json`, que nu
 | os nomes dos padrões de correção que `correct --enable` e `--disable` recebem | um padrão é chamado pelo nome inglês que o seu ficheiro contém |
 | os nomes dos formatos e das codificações | um formato é chamado pelo seu nome |
 | os diagnósticos do próprio CLI11 — um argumento obrigatório em falta, uma opção desconhecida, um valor que uma opção não aceita — e o seu `Run with --help for more information.` | redigidos dentro do analisador sobre o qual a linha de comandos é construída; permanecem em inglês |
+| a moldura de uma linha de erro: `[subedit]`, o subcomando, `[-]`, a chave `error` | um script encontra o que falhou, e onde, sem ler as palavras; só a mensagem é traduzida |
 
 Pedir o inglês, seja qual for o ambiente:
 
 <!-- example: LC_ALL=C LANGUAGE=fr subedit-cli shift --output-dir out a.srt; echo "code=$?" -->
 ```console
 $ LC_ALL=C LANGUAGE=fr subedit-cli shift --output-dir out a.srt; echo "code=$?"
-shift needs --by, or --to-grid to work the amount out from the positions
+[subedit] [shift] [-] error: shift needs --by, or --to-grid to work the amount out from the positions
 code=1
 ```
 
@@ -212,7 +213,7 @@ criá-lo.
 <!-- example: printf '1\n00:00:01,000 --> 00:00:01,200\nUn.\n\n' > a.srt; subedit-cli --config mine.conf adjust --dry-run a.srt; echo "code=$?" -->
 ```console
 $ printf '1\n00:00:01,000 --> 00:00:01,200\nUn.\n\n' > a.srt; subedit-cli --config mine.conf adjust --dry-run a.srt; echo "code=$?"
-settings file not found: mine.conf
+[subedit] [adjust] [-] error: settings file not found: mine.conf
 code=1
 ```
 
@@ -226,7 +227,7 @@ não é executado, e `-q` e `-v` não mudam nada.
 <!-- example: subedit-cli --version | head -n 1 -->
 ```console
 $ subedit-cli --version | head -n 1
-subedit 1.2.4
+subedit 1.2.5
 ```
 
 O conjunto completo, numa máquina com ICU 74.2 e Enchant 2.3.3 — os números são os da máquina:
@@ -856,7 +857,7 @@ processado — recusá-la é melhor do que não processar nada e devolver `0`:
 <!-- example: mkdir films; printf '1\n00:00:01,000 --> 00:00:02,000\nUn.\n\n' > films/a.srt; subedit-cli inspect films; echo "code=$?" -->
 ```console
 $ mkdir films; printf '1\n00:00:01,000 --> 00:00:02,000\nUn.\n\n' > films/a.srt; subedit-cli inspect films; echo "code=$?"
-films: is a directory: use --recursive
+[subedit] [inspect] [-] error: films: is a directory: use --recursive
 code=1
 ```
 
@@ -927,3 +928,13 @@ lote processado a meio.
 | `--align-method` sem `-t` | `--align-method needs a translation file: use -t` |
 | `-t` com várias entradas, ou uma pasta | `-t names one file but several inputs were given: use one invocation per pair` |
 | tradução idêntica ao ficheiro principal | `<translation>: the file is already open as the main document` |
+
+**Todo o erro é uma linha da mesma forma**, `[subedit] [<command>] [-] error: <message>`: o subcomando a que o analisador tinha chegado, `-` se não tinha chegado a nenhum, e uma mensagem de várias linhas escrita em várias linhas, cada uma com a sua moldura. Um diagnóstico do CLI11 é classificado da mesma maneira:
+
+<!-- example: subedit-cli shift --bogus a.srt; echo "code=$?" -->
+```console
+$ subedit-cli shift --bogus a.srt; echo "code=$?"
+[subedit] [shift] [-] error: The following argument was not expected: --bogus
+[subedit] [shift] [-] error: Run with --help for more information.
+code=1
+```
