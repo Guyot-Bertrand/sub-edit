@@ -83,10 +83,10 @@ a fájl, utána a beépített alapértelmezés; hogy hol van a fájl, a `--confi
   visszaadja a Gaupol soraszámát. A `--keep-blank-subtitles` és a `--remove-blank-subtitles` együtt
   használati hiba.
 - **A fájlban mindkét osztály kikapcsolása figyelmen kívül marad, és ezt jelzi** az 1. szinten —
-  `settings: correction.human and correction.ocr are both false, ignored` —: a `--classes` nem tudná kiírni, és
+  `warning: setting correction.human and correction.ocr are both false, ignored` —: a `--classes` nem tudná kiírni, és
   a common-errors számára nem hagyna tennivalót. Helyette mindkét osztály alkalmazásra kerül.
 - **Az 1 és 1000 közé nem eső sorszámot a program egyáltalán nem olvassa be a fájlból**: a fájl olvasója
-  elutasítja — `settings: correction.line-break.max-lines: cannot read 'N', default kept`, az 1. szinten —,
+  elutasítja — `warning: setting correction.line-break.max-lines: cannot read 'N', default kept`, az 1. szinten —,
   és a beépített 3 érvényes.
 
 A lap példái `--no-config` kapcsolóval futnak, hogy azt mutassák, mit tesznek a beépített
@@ -146,7 +146,7 @@ code=1
 ```
 A mintákat, amelyeket a felhasználó a `$XDG_DATA_HOME/subedit/patterns` (vagy a
 `~/.local/share/subedit/patterns`) könyvtárba tesz, **hozzáadódnak a szállított mintákhoz**, mint az
-ablakban, és az 1. szinten jelzi a program a nem olvasható szállított mintát: `patterns: <file>, line N (<reason>)`.
+ablakban, és az 1. szinten jelzi a program a nem olvasható szállított mintát: `warning: patterns: <file>, line N (<reason>)`.
 
 ### Szavak egyesítése és szétválasztása, és a szótár
 

@@ -84,10 +84,10 @@ um hvar hún er, `--config` og `--no-config`.
   gefur aftur línur Gaupol. `--keep-blank-subtitles` og `--remove-blank-subtitles` saman eru
   notkunarvilla.
 - **Báðum flokkum slökkt í skránni er hunsað, og sagt frá því** á stigi 1 —
-  `settings: correction.human and correction.ocr are both false, ignored` —: `--classes` gæti ekki skrifað það, og það myndi
+  `warning: setting correction.human and correction.ocr are both false, ignored` —: `--classes` gæti ekki skrifað það, og það myndi
   skilja common-errors eftir án verks. Báðum flokkum er beitt í staðinn.
 - **Línufjöldi utan 1 til 1000 er alls ekki lesinn úr skránni**: lesari skrárinnar
-  hafnar honum — `settings: correction.line-break.max-lines: cannot read 'N', default kept`, á
+  hafnar honum — `warning: setting correction.line-break.max-lines: cannot read 'N', default kept`, á
   stigi 1 — og innbyggða gildið 3 er notað.
 
 Dæmin á þessari síðu eru keyrð með `--no-config`, til að þau sýni hvað innbyggðu
@@ -148,7 +148,7 @@ code=1
 
 Mynstrin sem notandinn setur í `$XDG_DATA_HOME/subedit/patterns` (eða
 `~/.local/share/subedit/patterns`) **bætast við mynstrin sem fylgja**, eins og í
-glugganum, og mynstur sem fylgir og ekki er hægt að lesa er nefnt á stigi 1: `patterns: <file>, line N (<reason>)`.
+glugganum, og mynstur sem fylgir og ekki er hægt að lesa er nefnt á stigi 1: `warning: patterns: <file>, line N (<reason>)`.
 
 ### Sameining og skipting orða, og orðabókin
 

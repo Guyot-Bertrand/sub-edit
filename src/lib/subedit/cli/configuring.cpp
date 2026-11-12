@@ -46,20 +46,21 @@ template<typename Change>
                                Change change) {
     core::SettingsRead read = core::readSettings(files, path);
     if (const std::expected<void, std::string> changed = change(read.settings); !changed) {
-        reporter.failed(changed.error());
+        reporter.error(changed.error());
         return ExitCode::Usage;
     }
     if (read.unreadable) {
         // TRANSLATORS: %1 is the settings file, %2 why it could not be read.
-        reporter.failed(core::substitute(core::translate("%1: %2; nothing written"),
-                                         {path.string(), core::reasonOf(read.unreadable->kind)}));
+        reporter.error(core::substitute(core::translate("%1: %2; nothing written"),
+                                        {path.string(), core::reasonOf(read.unreadable->kind)}));
         return ExitCode::AllFailed;
     }
     // Said at the default level: the rewrite loses what the file held, and a
     // loss is not a detail.
     for (const core::SettingsDiagnostic& diagnostic : read.diagnostics) {
-        reporter.say(
+        reporter.tell(
             1,
+            Key::Warning,
             // TRANSLATORS: %1 is a settings key, %2 the value the file gave it.
             core::substitute(core::translate("%1: unreadable value '%2' replaced by its default"),
                              {diagnostic.key, diagnostic.value}));
@@ -67,7 +68,7 @@ template<typename Change>
     if (const std::expected<void, core::FileError> saved =
             core::writeSettings(files, path, read.settings);
         !saved) {
-        reporter.failed(core::substitute(
+        reporter.error(core::substitute(
             core::translate("%1: %2"), {path.string(), core::reasonOfWriting(saved.error().kind)}));
         return ExitCode::AllFailed;
     }
@@ -182,7 +183,7 @@ ExitCode setSetting(core::FileSystem& files,
         return set;
     });
     if (code == ExitCode::Success)
-        reporter.say(1, std::string{key} + " = " + now);
+        reporter.tell(1, Key::Result, std::string{key} + " = " + now);
     return code;
 }
 
@@ -199,8 +200,10 @@ ExitCode unsetSetting(core::FileSystem& files,
     });
     if (code == ExitCode::Success)
         // TRANSLATORS: %1 is a settings key, %2 the default it now has.
-        reporter.say(1,
-                     core::substitute(core::translate("%1 reset to its default (%2)"), {key, now}));
+        reporter.tell(
+            1,
+            Key::Result,
+            core::substitute(core::translate("%1 reset to its default (%2)"), {key, now}));
     return code;
 }
 

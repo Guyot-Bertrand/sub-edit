@@ -194,8 +194,10 @@ dat bij elke aanroep verschijnt, is een rapport dat niemand leest.
 <!-- example: printf '1\n00:00:01,000 --> 00:00:03,500\n<i>sur deux</i>\nlignes\n\n' > a.srt; subedit-cli convert --to lrc --output b.lrc a.srt -->
 ```console
 $ printf '1\n00:00:01,000 --> 00:00:03,500\n<i>sur deux</i>\nlignes\n\n' > a.srt; subedit-cli convert --to lrc --output b.lrc a.srt
-a.srt: 1 subtitle written as LRC -> b.lrc
-a.srt: ends are not carried by LRC, line breaks were joined in 1 subtitle, 1 tag dropped
+[subedit] [convert] [1/1] source: a.srt
+[subedit] [convert] [1/1] warning: ends are not carried by LRC, line breaks were joined in 1 subtitle, 1 tag dropped
+[subedit] [convert] [1/1] result: 1 subtitle converted to LRC, UTF-8, no BOM, LF line endings
+[subedit] [convert] [1/1] dest: b.lrc
 ```
 
 De regel verschijnt op het standaardniveau van uitvoerigheid, en op elk niveau erboven.
@@ -278,7 +280,9 @@ omzetting een bewust bewaard stukje informatie verliezen.
 <!-- example: printf '1\n00:00:01,000 --> 00:00:03,000\nBonjour.\n\n' > a.srt; subedit-cli convert --to vtt --output b.vtt a.srt; cat b.vtt -->
 ```console
 $ printf '1\n00:00:01,000 --> 00:00:03,000\nBonjour.\n\n' > a.srt; subedit-cli convert --to vtt --output b.vtt a.srt; cat b.vtt
-a.srt: 1 subtitle written as WebVTT -> b.vtt
+[subedit] [convert] [1/1] source: a.srt
+[subedit] [convert] [1/1] result: 1 subtitle converted to WebVTT, UTF-8, no BOM, LF line endings
+[subedit] [convert] [1/1] dest: b.vtt
 WEBVTT
 
 00:01.000 --> 00:03.000
@@ -291,19 +295,19 @@ Bonjour.
 niet aangeraakt, en wat wordt geschreven, is wat [`sort`](sort.md) ervan zou hebben gemaakt — stabiel, twee ondertitels die samen beginnen, behouden hun volgorde.
 
 **Nooit standaard**: de volgorde van een bestand is die van zijn auteur zolang er niets anders wordt gevraagd. Met de optie meldt elk bestand het op het
-eerste niveau van de toelichting, `<path>: N subtitles moved` of `<path>: already in order`, en het `--format json`-record bevat een
+eerste niveau van de toelichting, `result: N subtitles moved` of `result: already in order`, en het `--format json`-record bevat een
 telling `moved` — **afwezig zonder de optie**, om de vorm van wat bestaande scripts lezen niet te wijzigen.
 
 ## De bereiken niet-overlappend maken
 
 `--disjoint` knipt de overlappende ondertitels af zodat geen bereik nog een ander overlapt, **op dezelfde kopie als het sorteren**: het gelezen bestand wordt niet aangeraakt.
 
-Nooit standaard. De optie doet wat [`disjoint`](disjoint.md) doet, **met zijn standaardinstellingen**, vóór het schrijven, na het sorteren. Ze heeft een geordend bestand nodig: anders wordt ze geweigerd, en `--sort` — dat eerst komt — zet het vooraf op volgorde. Het bestand meldt het op het eerste niveau van de toelichting (`<path>: N subtitles split, M merged`), en het `--format json`-record bevat de tellingen `split` en `merged`, **afwezig zonder de optie**.
+Nooit standaard. De optie doet wat [`disjoint`](disjoint.md) doet, **met zijn standaardinstellingen**, vóór het schrijven, na het sorteren. Ze heeft een geordend bestand nodig: anders wordt ze geweigerd, en `--sort` — dat eerst komt — zet het vooraf op volgorde. Het bestand meldt het op het eerste niveau van de toelichting (`result: N subtitles split, M merged`), en het `--format json`-record bevat de tellingen `split` en `merged`, **afwezig zonder de optie**.
 
 **`--join-repeats` komt vóór het sorteren en het knippen**: een tekst die in opeenvolgende stukken is geknipt, wordt eerst weer opgebouwd (zie
 [`join-repeats`](join-repeats.md)), daarna worden de ondertitels gesorteerd, daarna worden de bereiken niet-overlappend gemaakt. **`--repair` is alle drie tegelijk**,
 zoals [`repair`](repair.md), met de standaardinstellingen van het knippen. Met `--join-repeats` meldt elk bestand
-`<path>: N repeated subtitles joined` op het eerste niveau van de toelichting, en het `--format json`-record bevat `counts.joined` — **afwezig zonder de optie**.
+`result: N repeated subtitles joined` op het eerste niveau van de toelichting, en het `--format json`-record bevat `counts.joined` — **afwezig zonder de optie**.
 
 ## Uitvoer
 
@@ -313,9 +317,9 @@ Op de foutuitvoer, naargelang het niveau:
 
 | Niveau | Wat er wordt toegevoegd |
 | :----- | :-------------- |
-| 1 | `<path>: N subtitles written as WebVTT -> <destination>` |
-| 2 | `<path>: SubRip -> WebVTT, UTF-8, no BOM, LF line endings` — de genoemde codering is die welke is geschreven |
-| 3 | `<path>: N bytes read, M written`, daarna **elke leesmelding** — zie [Aanroep](invocation.md#diagnostische-meldingen-lezen) |
+| 1 | `source: <path>`, `result: N subtitles converted to WebVTT, UTF-8, no BOM, LF line endings`, `dest: <destination>` |
+| 2 | `format: SubRip`, `encoding: UTF-8`, `bom: absent`, `line-endings: LF` — die van het gelezen bestand |
+| 3 | `bytes-read: N`, `bytes-written: M`, daarna **elke leesmelding** — zie [Aanroep](invocation.md#diagnostische-meldingen-lezen) |
 
 ### In JSON
 

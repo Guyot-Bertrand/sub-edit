@@ -194,8 +194,10 @@ které se objeví při každém volání, je hlášení, které nikdo nečte.
 <!-- example: printf '1\n00:00:01,000 --> 00:00:03,500\n<i>sur deux</i>\nlignes\n\n' > a.srt; subedit-cli convert --to lrc --output b.lrc a.srt -->
 ```console
 $ printf '1\n00:00:01,000 --> 00:00:03,500\n<i>sur deux</i>\nlignes\n\n' > a.srt; subedit-cli convert --to lrc --output b.lrc a.srt
-a.srt: 1 subtitle written as LRC -> b.lrc
-a.srt: ends are not carried by LRC, line breaks were joined in 1 subtitle, 1 tag dropped
+[subedit] [convert] [1/1] source: a.srt
+[subedit] [convert] [1/1] warning: ends are not carried by LRC, line breaks were joined in 1 subtitle, 1 tag dropped
+[subedit] [convert] [1/1] result: 1 subtitle converted to LRC, UTF-8, no BOM, LF line endings
+[subedit] [convert] [1/1] dest: b.lrc
 ```
 
 Řádek se objeví na výchozí úrovni výpisu a na každé vyšší.
@@ -278,7 +280,9 @@ převodu ztratilo informaci, která se uchovává záměrně.
 <!-- example: printf '1\n00:00:01,000 --> 00:00:03,000\nBonjour.\n\n' > a.srt; subedit-cli convert --to vtt --output b.vtt a.srt; cat b.vtt -->
 ```console
 $ printf '1\n00:00:01,000 --> 00:00:03,000\nBonjour.\n\n' > a.srt; subedit-cli convert --to vtt --output b.vtt a.srt; cat b.vtt
-a.srt: 1 subtitle written as WebVTT -> b.vtt
+[subedit] [convert] [1/1] source: a.srt
+[subedit] [convert] [1/1] result: 1 subtitle converted to WebVTT, UTF-8, no BOM, LF line endings
+[subedit] [convert] [1/1] dest: b.vtt
 WEBVTT
 
 00:01.000 --> 00:03.000
@@ -291,19 +295,19 @@ Bonjour.
 nikdo nedotkne a zapíše se to, co by z něj udělal [`sort`](sort.md) — stabilně, dva titulky, které začínají současně, si zachovají své pořadí.
 
 **Nikdy ve výchozím stavu**: pořadí souboru patří jeho autorovi, dokud se nežádá nic jiného. S touto volbou to každý soubor ohlásí na
-první úrovni výpisu, `<path>: N subtitles moved` nebo `<path>: already in order`, a záznam `--format json` nese
+první úrovni výpisu, `result: N subtitles moved` nebo `result: already in order`, a záznam `--format json` nese
 počet `moved` — **bez volby chybí**, aby se nezměnil tvar toho, co čtou existující skripty.
 
 ## Převedení rozsahů na disjunktní
 
 `--disjoint` rozdělí překrývající se titulky tak, aby se už žádný rozsah nepřekrýval s jiným, **na téže kopii jako řazení**: přečteného souboru se nikdo nedotkne.
 
-Nikdy ve výchozím stavu. Volba dělá to, co dělá [`disjoint`](disjoint.md), **s jeho výchozím nastavením**, před zápisem, po řazení. Potřebuje seřazený soubor: jinak se odmítne, a `--sort` — které přichází první — ho předem seřadí. Soubor to ohlásí na první úrovni výpisu (`<path>: N subtitles split, M merged`) a záznam `--format json` nese počty `split` a `merged`, **bez volby chybějí**.
+Nikdy ve výchozím stavu. Volba dělá to, co dělá [`disjoint`](disjoint.md), **s jeho výchozím nastavením**, před zápisem, po řazení. Potřebuje seřazený soubor: jinak se odmítne, a `--sort` — které přichází první — ho předem seřadí. Soubor to ohlásí na první úrovni výpisu (`result: N subtitles split, M merged`) a záznam `--format json` nese počty `split` a `merged`, **bez volby chybějí**.
 
 **`--join-repeats` přichází před řazením a dělením**: text rozdělený na po sobě jdoucí části se nejprve znovu sestaví (viz
 [`join-repeats`](join-repeats.md)), pak se titulky seřadí, pak se rozsahy převedou na disjunktní. **`--repair` je všechno tři najednou**,
 jako [`repair`](repair.md), s výchozím nastavením dělení. S `--join-repeats` každý soubor ohlásí
-`<path>: N repeated subtitles joined` na první úrovni výpisu a záznam `--format json` nese `counts.joined` — **bez volby chybí**.
+`result: N repeated subtitles joined` na první úrovni výpisu a záznam `--format json` nese `counts.joined` — **bez volby chybí**.
 
 ## Výstup
 
@@ -313,9 +317,9 @@ Na chybovém výstupu, podle úrovně:
 
 | Úroveň | Co se přidá |
 | :----- | :-------------- |
-| 1 | `<path>: N subtitles written as WebVTT -> <destination>` |
-| 2 | `<path>: SubRip -> WebVTT, UTF-8, no BOM, LF line endings` — uvedené kódování je to zapsané |
-| 3 | `<path>: N bytes read, M written`, pak **každé hlášení při čtení** — viz [Spuštění](invocation.md#hlášení-při-čtení) |
+| 1 | `source: <path>`, `result: N subtitles converted to WebVTT, UTF-8, no BOM, LF line endings`, `dest: <destination>` |
+| 2 | `format: SubRip`, `encoding: UTF-8`, `bom: absent`, `line-endings: LF` — údaje přečteného souboru |
+| 3 | `bytes-read: N`, `bytes-written: M`, pak **každé hlášení při čtení** — viz [Spuštění](invocation.md#hlášení-při-čtení) |
 
 ### Ve formátu JSON
 

@@ -194,8 +194,10 @@ que aparece a cada chamada é um relatório que ninguém lê.
 <!-- example: printf '1\n00:00:01,000 --> 00:00:03,500\n<i>sur deux</i>\nlignes\n\n' > a.srt; subedit-cli convert --to lrc --output b.lrc a.srt -->
 ```console
 $ printf '1\n00:00:01,000 --> 00:00:03,500\n<i>sur deux</i>\nlignes\n\n' > a.srt; subedit-cli convert --to lrc --output b.lrc a.srt
-a.srt: 1 subtitle written as LRC -> b.lrc
-a.srt: ends are not carried by LRC, line breaks were joined in 1 subtitle, 1 tag dropped
+[subedit] [convert] [1/1] source: a.srt
+[subedit] [convert] [1/1] warning: ends are not carried by LRC, line breaks were joined in 1 subtitle, 1 tag dropped
+[subedit] [convert] [1/1] result: 1 subtitle converted to LRC, UTF-8, no BOM, LF line endings
+[subedit] [convert] [1/1] dest: b.lrc
 ```
 
 A linha aparece no nível de detalhamento padrão e em todos os acima dele.
@@ -278,7 +280,9 @@ conversão, uma informação conservada de propósito.
 <!-- example: printf '1\n00:00:01,000 --> 00:00:03,000\nBonjour.\n\n' > a.srt; subedit-cli convert --to vtt --output b.vtt a.srt; cat b.vtt -->
 ```console
 $ printf '1\n00:00:01,000 --> 00:00:03,000\nBonjour.\n\n' > a.srt; subedit-cli convert --to vtt --output b.vtt a.srt; cat b.vtt
-a.srt: 1 subtitle written as WebVTT -> b.vtt
+[subedit] [convert] [1/1] source: a.srt
+[subedit] [convert] [1/1] result: 1 subtitle converted to WebVTT, UTF-8, no BOM, LF line endings
+[subedit] [convert] [1/1] dest: b.vtt
 WEBVTT
 
 00:01.000 --> 00:03.000
@@ -291,19 +295,19 @@ Bonjour.
 é tocado, e o que é gravado é o que [`sort`](sort.md) teria feito dele — de forma estável, duas legendas que começam juntas mantêm sua ordem.
 
 **Nunca por padrão**: a ordem de um arquivo é a de seu autor enquanto nada mais for pedido. Com a opção, cada arquivo informa isso, no
-primeiro nível de narração, `<path>: N subtitles moved` ou `<path>: already in order`, e o registro de `--format json` traz uma
+primeiro nível de narração, `result: N subtitles moved` ou `result: already in order`, e o registro de `--format json` traz uma
 contagem `moved` — **ausente sem a opção**, para não mudar a forma do que os scripts existentes leem.
 
 ## Tornar os intervalos disjuntos
 
 `--disjoint` corta as legendas que se sobrepõem para que nenhum intervalo se sobreponha mais a outro, **sobre a mesma cópia da ordenação**: o arquivo lido não é tocado.
 
-Nunca por padrão. A opção faz o que [`disjoint`](disjoint.md) faz, **com seus valores padrão**, antes de gravar, depois da ordenação. Ela exige um arquivo em ordem: caso contrário é recusada, e `--sort` — que vem primeiro — o coloca em ordem antes. O arquivo informa isso no primeiro nível de narração (`<path>: N subtitles split, M merged`), e o registro de `--format json` traz as contagens `split` e `merged`, **ausentes sem a opção**.
+Nunca por padrão. A opção faz o que [`disjoint`](disjoint.md) faz, **com seus valores padrão**, antes de gravar, depois da ordenação. Ela exige um arquivo em ordem: caso contrário é recusada, e `--sort` — que vem primeiro — o coloca em ordem antes. O arquivo informa isso no primeiro nível de narração (`result: N subtitles split, M merged`), e o registro de `--format json` traz as contagens `split` e `merged`, **ausentes sem a opção**.
 
 **`--join-repeats` vem antes da ordenação e do corte**: um texto cortado em pedaços que se sucedem é reconstruído primeiro (veja
 [`join-repeats`](join-repeats.md)), depois as legendas são ordenadas e, por fim, os intervalos são tornados disjuntos. **`--repair` é os três de uma vez**,
 como [`repair`](repair.md), com os valores padrão do corte. Com `--join-repeats`, cada arquivo informa
-`<path>: N repeated subtitles joined` no primeiro nível de narração, e o registro de `--format json` traz `counts.joined` — **ausente sem a opção**.
+`result: N repeated subtitles joined` no primeiro nível de narração, e o registro de `--format json` traz `counts.joined` — **ausente sem a opção**.
 
 ## Saída
 
@@ -313,9 +317,9 @@ No erro padrão, conforme o nível:
 
 | Nível | O que se acrescenta |
 | :----- | :-------------- |
-| 1 | `<path>: N subtitles written as WebVTT -> <destination>` |
-| 2 | `<path>: SubRip -> WebVTT, UTF-8, no BOM, LF line endings` — a codificação nomeada é a que foi gravada |
-| 3 | `<path>: N bytes read, M written`, depois **todos os diagnósticos de leitura** — veja [Invocação](invocation.md#diagnósticos-de-leitura) |
+| 1 | `source: <path>`, `result: N subtitles converted to WebVTT, UTF-8, no BOM, LF line endings`, `dest: <destination>` |
+| 2 | `format: SubRip`, `encoding: UTF-8`, `bom: absent`, `line-endings: LF` — os do arquivo lido |
+| 3 | `bytes-read: N`, `bytes-written: M`, depois **todos os diagnósticos de leitura** — veja [Invocação](invocation.md#diagnósticos-de-leitura) |
 
 ### Em JSON
 

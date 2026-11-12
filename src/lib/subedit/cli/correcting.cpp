@@ -712,9 +712,11 @@ prepareCorrection(core::FileSystem& files,
     core::PatternCatalogue catalogue =
         core::readPatternCatalogue(files, installedPatterns, userPatterns);
     for (const core::PatternDiagnostic& diagnostic : catalogue.diagnostics()) {
-        // TRANSLATORS: %1 is what was wrong with a pattern file.
-        reporter.say(
-            1, core::substitute(core::translate("patterns: %1"), {core::describe(diagnostic)}));
+        reporter.tell(
+            1,
+            Key::Warning,
+            // TRANSLATORS: %1 is what was wrong with a pattern file.
+            core::substitute(core::translate("patterns: %1"), {core::describe(diagnostic)}));
     }
 
     std::expected<core::CorrectionSettings, std::string> settings =
@@ -726,9 +728,10 @@ prepareCorrection(core::FileSystem& files,
     // (A number of lines out of bounds never gets this far: the file's reader
     // refuses it, and says so.)
     if (settings->commonErrors.enabled && options.classes.empty() && fileClassesBothOff(shared)) {
-        reporter.say(1,
-                     core::translate("settings: correction.human and correction.ocr are both "
-                                     "false, ignored"));
+        reporter.tell(1,
+                      Key::Warning,
+                      core::translate("setting correction.human and correction.ocr are both "
+                                      "false, ignored"));
     }
 
     CorrectionRun run{.catalogue = std::move(catalogue), .settings = *std::move(settings)};

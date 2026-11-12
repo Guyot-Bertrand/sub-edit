@@ -63,7 +63,10 @@ a ler, ou escribir a cola sobre a cabeza, rexéitase antes de ler nada, código 
 <!-- example: printf '1\n00:00:01,000 --> 00:00:02,000\nun\n\n2\n00:00:03,000 --> 00:00:04,000\ndeux\n\n3\n00:00:06,000 --> 00:00:07,000\ntrois\n\n4\n00:00:08,000 --> 00:00:09,000\nquatre\n\n' > film.srt; subedit-cli split-file --at 3 --head tete.srt --tail queue.srt film.srt; cat queue.srt -->
 ```console
 $ printf '1\n00:00:01,000 --> 00:00:02,000\nun\n\n2\n00:00:03,000 --> 00:00:04,000\ndeux\n\n3\n00:00:06,000 --> 00:00:07,000\ntrois\n\n4\n00:00:08,000 --> 00:00:09,000\nquatre\n\n' > film.srt; subedit-cli split-file --at 3 --head tete.srt --tail queue.srt film.srt; cat queue.srt
-film.srt: split at subtitle 3: 2 subtitles in the head, 2 subtitles in the tail -> tete.srt, queue.srt
+[subedit] [split-file] [1/1] source: film.srt
+[subedit] [split-file] [1/1] result: split at subtitle 3: 2 subtitles in the head, 2 subtitles in the tail
+[subedit] [split-file] [1/1] dest: tete.srt
+[subedit] [split-file] [1/1] tail: queue.srt
 1
 00:00:02,000 --> 00:00:03,000
 trois
@@ -82,12 +85,12 @@ A opción `--at` numera os subtítulos **tal como os dá o ficheiro**. Nun fiche
 no tempo. A opción `--sort` pon os subtítulos na orde dos seus inicios **antes de xulgar o corte** (de forma estable, como fai [`sort`](sort.md)), e
 `--at` conta despois nesa orde.
 
-Nunca por defecto. Coa opción, o ficheiro di no primeiro nivel de narración cantos subtítulos se moveron (`<path>: N subtitles moved`
-ou `<path>: already in order`), e o rexistro `--format json` leva un reconto `moved`, **ausente sen a opción**.
+Nunca por defecto. Coa opción, o ficheiro di no primeiro nivel de narración cantos subtítulos se moveron (`result: N subtitles moved`
+ou `result: already in order`), e o rexistro `--format json` leva un reconto `moved`, **ausente sen a opción**.
 
 ## Facer as franxas disxuntas
 
-Nunca por defecto. A opción fai o que fai [`disjoint`](disjoint.md), **cos seus valores predeterminados**, antes de xulgar o corte e despois da ordenación: `--at` conta no que iso dá. Necesita un ficheiro ordenado: se non, rexéitase, e `--sort`, que vai primeiro, ordénao previamente. O ficheiro dio no primeiro nivel de narración (`<path>: N subtitles split, M merged`), e o rexistro `--format json` leva os recontos `split` e `merged`, **ausentes sen a opción**.
+Nunca por defecto. A opción fai o que fai [`disjoint`](disjoint.md), **cos seus valores predeterminados**, antes de xulgar o corte e despois da ordenación: `--at` conta no que iso dá. Necesita un ficheiro ordenado: se non, rexéitase, e `--sort`, que vai primeiro, ordénao previamente. O ficheiro dio no primeiro nivel de narración (`result: N subtitles split, M merged`), e o rexistro `--format json` leva os recontos `split` e `merged`, **ausentes sen a opción**.
 
 ## Cando se rexeita o corte
 
@@ -112,9 +115,9 @@ cola baleira. Un ficheiro dun só subtítulo non se pode cortar.
 
 | Nivel | O que se engade na saída de erro |
 | :----- | :------------------------------------- |
-| 1 | `<path>: split at subtitle N: H subtitles in the head, T subtitles in the tail -> <head>, <tail>`; con `--dry-run`, `(dry run, nothing written)` en lugar de `-> …` |
-| 2 | `<path>: SubRip, UTF-8, no BOM, LF line endings kept` — o formato, a codificación, a marca e os finais de liña do ficheiro lido, repostos tal como estaban |
-| 3 | `<path>: N bytes read, H and T written`, e despois **todos os diagnósticos de lectura** — véxase [Invocación](invocation.md#diagnósticos-de-lectura) |
+| 1 | `source: <path>`, `result: split at subtitle N: H subtitles in the head, T subtitles in the tail`, `dest: <head>`, `tail: <tail>`; con `--dry-run`, `(dry run, nothing written)` en lugar de `dest: <head>` |
+| 2 | `format: SubRip`, `encoding: UTF-8`, `bom: absent`, `line-endings: LF` — o formato, a codificación, a marca e os finais de liña do ficheiro lido, repostos tal como estaban |
+| 3 | `bytes-read: N`, `bytes-written: H`, `bytes-written: T`, e despois **todos os diagnósticos de lectura** — véxase [Invocación](invocation.md#diagnósticos-de-lectura) |
 
 ### En JSON
 

@@ -63,7 +63,10 @@ Options:
 <!-- example: printf '1\n00:00:01,000 --> 00:00:02,000\nun\n\n2\n00:00:03,000 --> 00:00:04,000\ndeux\n\n3\n00:00:06,000 --> 00:00:07,000\ntrois\n\n4\n00:00:08,000 --> 00:00:09,000\nquatre\n\n' > film.srt; subedit-cli split-file --at 3 --head tete.srt --tail queue.srt film.srt; cat queue.srt -->
 ```console
 $ printf '1\n00:00:01,000 --> 00:00:02,000\nun\n\n2\n00:00:03,000 --> 00:00:04,000\ndeux\n\n3\n00:00:06,000 --> 00:00:07,000\ntrois\n\n4\n00:00:08,000 --> 00:00:09,000\nquatre\n\n' > film.srt; subedit-cli split-file --at 3 --head tete.srt --tail queue.srt film.srt; cat queue.srt
-film.srt: split at subtitle 3: 2 subtitles in the head, 2 subtitles in the tail -> tete.srt, queue.srt
+[subedit] [split-file] [1/1] source: film.srt
+[subedit] [split-file] [1/1] result: split at subtitle 3: 2 subtitles in the head, 2 subtitles in the tail
+[subedit] [split-file] [1/1] dest: tete.srt
+[subedit] [split-file] [1/1] tail: queue.srt
 1
 00:00:02,000 --> 00:00:03,000
 trois
@@ -82,12 +85,12 @@ který začínal v 6 s, začíná ve 2 s.
 dřívější. `--sort` seřadí titulky podle jejich začátků **před posouzením dělení** — stabilně, jako to dělá [`sort`](sort.md) — a
 `--at` pak počítá v tomto pořadí.
 
-Nikdy ve výchozím stavu. S volbou soubor řekne na první úrovni výpisu, kolik titulků se přesunulo (`<path>: N subtitles moved`
-nebo `<path>: already in order`), a záznam `--format json` nese počet `moved`, **který bez volby chybí**.
+Nikdy ve výchozím stavu. S volbou soubor řekne na první úrovni výpisu, kolik titulků se přesunulo (`result: N subtitles moved`
+nebo `result: already in order`), a záznam `--format json` nese počet `moved`, **který bez volby chybí**.
 
 ## Převedení rozsahů na disjunktní
 
-Nikdy ve výchozím stavu. Volba udělá to, co dělá [`disjoint`](disjoint.md), **s jeho výchozím nastavením**, před posouzením dělení, po seřazení: `--at` počítá v tom, co z toho vzejde. Potřebuje seřazený soubor: jinak se odmítne, a `--sort` — který přichází první — ho předem seřadí. Soubor to řekne na první úrovni výpisu (`<path>: N subtitles split, M merged`) a záznam `--format json` nese počty `split` a `merged`, **které bez volby chybí**.
+Nikdy ve výchozím stavu. Volba udělá to, co dělá [`disjoint`](disjoint.md), **s jeho výchozím nastavením**, před posouzením dělení, po seřazení: `--at` počítá v tom, co z toho vzejde. Potřebuje seřazený soubor: jinak se odmítne, a `--sort` — který přichází první — ho předem seřadí. Soubor to řekne na první úrovni výpisu (`result: N subtitles split, M merged`) a záznam `--format json` nese počty `split` a `merged`, **které bez volby chybí**.
 
 ## Když se dělení odmítne
 
@@ -112,9 +115,9 @@ druhou část. Soubor s jediným titulkem rozdělit nelze.
 
 | Úroveň | Co se přidá na chybový výstup |
 | :----- | :------------------------------------- |
-| 1 | `<path>: split at subtitle N: H subtitles in the head, T subtitles in the tail -> <head>, <tail>`; s `--dry-run` místo `-> …` `(dry run, nothing written)` |
-| 2 | `<path>: SubRip, UTF-8, no BOM, LF line endings kept` — formát, kódování, značka a konce řádků přečteného souboru, vrácené tak, jak byly |
-| 3 | `<path>: N bytes read, H and T written`, pak **každé hlášení při čtení** — viz [Spuštění](invocation.md#hlášení-při-čtení) |
+| 1 | `source: <path>`, `result: split at subtitle N: H subtitles in the head, T subtitles in the tail`, `dest: <head>`, `tail: <tail>`; s `--dry-run` místo `dest: <head>` `(dry run, nothing written)` |
+| 2 | `format: SubRip`, `encoding: UTF-8`, `bom: absent`, `line-endings: LF` — formát, kódování, značka a konce řádků přečteného souboru, vrácené tak, jak byly |
+| 3 | `bytes-read: N`, `bytes-written: H`, `bytes-written: T`, pak **každé hlášení při čtení** — viz [Spuštění](invocation.md#hlášení-při-čtení) |
 
 ### Ve formátu JSON
 

@@ -39,7 +39,7 @@ Subcommands:
 | :---------- | :----------- | :--- |
 | `config list` | writes every operation key, with what it is for, what it accepts, its default and who uses it — **no value** | reads none |
 | `config show` | writes the file used and whether it exists, then every operation key with its value, where the value comes from, and its default | reads it |
-| `config set KEY VALUE` | checks `VALUE`, then rewrites the file with `KEY = VALUE`, keeping every other setting | reads and writes it |
+| `config set KEY VALUE` | checks `VALUE`, then rewrites the file with `result: KEY = VALUE`, keeping every other setting | reads and writes it |
 | `config unset KEY` | puts `KEY` back to its default, written commented out as the file always writes a default | reads and writes it |
 
 | Option | Required | Values | Default |
@@ -152,7 +152,7 @@ holds with a value it cannot read shows its default. Display preferences are not
 <!-- example: subedit-cli --config mine/settings.conf config set duration-adjust.speed 12; subedit-cli --config mine/settings.conf config show | head -4 -->
 ```console
 $ subedit-cli --config mine/settings.conf config set duration-adjust.speed 12; subedit-cli --config mine/settings.conf config show | head -4
-duration-adjust.speed = 12
+[subedit] [config] [-] result: duration-adjust.speed = 12
 File: mine/settings.conf (found)
 duration-adjust.speed = 12   [file]   (default 15)
 duration-adjust.lengthen = true   [default]
@@ -178,7 +178,7 @@ then one object per key: `key`, `value`, `source` (`"file"` or `"default"`), `de
 <!-- example: subedit-cli --config mine/settings.conf config set duration-adjust.speed 12; subedit-cli --format json --config mine/settings.conf config show | head -2 -->
 ```console
 $ subedit-cli --config mine/settings.conf config set duration-adjust.speed 12; subedit-cli --format json --config mine/settings.conf config show | head -2
-duration-adjust.speed = 12
+[subedit] [config] [-] result: duration-adjust.speed = 12
 {"schema":1,"command":"config","file":"mine/settings.conf","exists":true}
 {"schema":1,"command":"config","key":"duration-adjust.speed","value":"12","source":"file","default":"15","used_by":"subedit-cli adjust; Adjust Durations…","surface":"both"}
 ```
@@ -194,20 +194,20 @@ Both **rewrite the file whole and atomically**: every display preference already
 the operation block comes first and the display block second, each under its banner. **A value
 the file could not read, and an unknown key, are not kept** — the rewrite is the window's, which
 drops them too. **Each value dropped is said**, on the standard error at the default level, display
-preferences included: `<key>: unreadable value '<value>' replaced by its default`. The file and
+preferences included: `warning: <key>: unreadable value '<value>' replaced by its default`. The file and
 its directory are created when missing.
 
-The confirmation goes to the standard error, at the default level: `KEY = VALUE` for `set`,
-`KEY reset to its default (DEFAULT)` for `unset`.
+The confirmation goes to the standard error, at the default level: `result: KEY = VALUE` for `set`,
+`result: KEY reset to its default (DEFAULT)` for `unset`.
 
 <!-- example: subedit-cli --config mine/settings.conf config set duration-adjust.gap-ms 100; grep -e '^[a-z]' -e '^# [A-Z][a-z]* [a-z]*:' mine/settings.conf; subedit-cli --config mine/settings.conf config unset duration-adjust.gap-ms; grep gap-ms mine/settings.conf -->
 ```console
 $ subedit-cli --config mine/settings.conf config set duration-adjust.gap-ms 100; grep -e '^[a-z]' -e '^# [A-Z][a-z]* [a-z]*:' mine/settings.conf; subedit-cli --config mine/settings.conf config unset duration-adjust.gap-ms; grep gap-ms mine/settings.conf
-duration-adjust.gap-ms = 100
+[subedit] [config] [-] result: duration-adjust.gap-ms = 100
 # Operation settings: shared by the window and the command line (subedit-cli reads these).
 duration-adjust.gap-ms = 100
 # Display preferences: the window's own, the command line never reads them.
-duration-adjust.gap-ms reset to its default (0)
+[subedit] [config] [-] result: duration-adjust.gap-ms reset to its default (0)
 #duration-adjust.gap-ms = 0
 #transcription.merge-gap-ms = 400
 ```
@@ -238,9 +238,9 @@ duration-adjust.gap-ms reset to its default (0)
 <!-- example: subedit-cli --config mine/settings.conf config set general.theme dark; echo "code=$?"; subedit-cli --config mine/settings.conf config set duration-adjust.speed fast; echo "code=$?"; subedit-cli --no-config config unset duration-adjust.speed; echo "code=$?" -->
 ```console
 $ subedit-cli --config mine/settings.conf config set general.theme dark; echo "code=$?"; subedit-cli --config mine/settings.conf config set duration-adjust.speed fast; echo "code=$?"; subedit-cli --no-config config unset duration-adjust.speed; echo "code=$?"
-general.theme is a display preference; set it in the window
+[subedit] [config] [-] error: general.theme is a display preference; set it in the window
 code=1
-cannot read 'fast' for duration-adjust.speed; subedit-cli config list says what it accepts
+[subedit] [config] [-] error: cannot read 'fast' for duration-adjust.speed; subedit-cli config list says what it accepts
 code=1
 [subedit] [config] [-] error: --no-config has nothing to write to
 code=1

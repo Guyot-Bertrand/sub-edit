@@ -67,8 +67,11 @@ sobreescriu, com arreu.
 <!-- example: printf '1\n00:00:01,000 --> 00:00:02,000\nun\n\n2\n00:00:03,000 --> 00:00:04,000\ndeux\n\n' > partie1.srt; printf '1\n00:00:00,500 --> 00:00:01,500\ntrois\n\n' > partie2.srt; subedit-cli append --output film.srt partie1.srt partie2.srt; cat film.srt -->
 ```console
 $ printf '1\n00:00:01,000 --> 00:00:02,000\nun\n\n2\n00:00:03,000 --> 00:00:04,000\ndeux\n\n' > partie1.srt; printf '1\n00:00:00,500 --> 00:00:01,500\ntrois\n\n' > partie2.srt; subedit-cli append --output film.srt partie1.srt partie2.srt; cat film.srt
-partie2.srt: appended 1 subtitle
-partie1.srt: 3 subtitles from 2 files -> film.srt
+[subedit] [append] [1/1] source: partie1.srt
+[subedit] [append] [1/1] source: partie2.srt
+[subedit] [append] [1/1] result: appended 1 subtitle
+[subedit] [append] [1/1] result: 3 subtitles from 2 files
+[subedit] [append] [1/1] dest: film.srt
 1
 00:00:01,000 --> 00:00:02,000
 un
@@ -96,7 +99,7 @@ el registre de `--format json` porta un recompte `moved`, **absent sense l'opci�
 
 ## Fer disjuntes les franges
 
-Mai per defecte. L'opció fa el que fa [`disjoint`](disjoint.md), **amb els seus paràmetres per defecte**, un cop tot afegit, sobre el conjunt. Necessita un fitxer en ordre: altrament es refusa, i `--sort` — que va primer — l'ordena abans. El fitxer ho diu al primer nivell de narració (`<path>: N subtitles split, M merged`), i el registre de `--format json` porta els recomptes `split` i `merged`, **absents sense l'opció**.
+Mai per defecte. L'opció fa el que fa [`disjoint`](disjoint.md), **amb els seus paràmetres per defecte**, un cop tot afegit, sobre el conjunt. Necessita un fitxer en ordre: altrament es refusa, i `--sort` — que va primer — l'ordena abans. El fitxer ho diu al primer nivell de narració (`result: N subtitles split, M merged`), i el registre de `--format json` porta els recomptes `split` i `merged`, **absents sense l'opció**.
 
 ## Quan els formats són diferents
 
@@ -118,9 +121,9 @@ que ja sigui en aquest format, o convertiu-lo després amb [`convert`](convert.m
 
 | Nivell | Què s'afegeix a la sortida d'error |
 | :----- | :------------------------------------- |
-| 1 | una línia per fitxer afegit — `<path>: appended N subtitles`, seguida, quan el format ha costat alguna cosa, de `; <source format> into <base format>: <what is lost>` — i després `<base>: N subtitles from M files -> <destination>` (amb `--dry-run`, `(dry run, nothing written)` en lloc de `-> <destination>`) |
-| 2 | `<base>: SubRip, UTF-8, no BOM, LF line endings kept` — el format, la codificació, la marca i els finals de línia de la base, restituïts tal com eren |
-| 3 | `<base>: N bytes read, M written` (tots els fitxers junts), i després **cada diagnòstic de lectura** — vegeu [Invocació](invocation.md#diagnòstics-de-lectura) |
+| 1 | una línia per fitxer afegit — `source: <path>`, `result: appended N subtitles`, seguida, quan el format ha costat alguna cosa, de `; <source format> into <base format>: <what is lost>` — i després `result: N subtitles from M files`, `dest: <destination>` (amb `--dry-run`, `(dry run, nothing written)` en lloc de `dest: <destination>`) |
+| 2 | `format: SubRip`, `encoding: UTF-8`, `bom: absent`, `line-endings: LF` — el format, la codificació, la marca i els finals de línia del fitxer llegit, restituïts tal com eren |
+| 3 | `bytes-read: N`, `bytes-written: M`, i després **cada diagnòstic de lectura** — vegeu [Invocació](invocation.md#diagnòstics-de-lectura) |
 
 ### En JSON
 

@@ -63,7 +63,10 @@ gerade liest, oder den Rest über den Anfang zu schreiben, wird abgelehnt, bevor
 <!-- example: printf '1\n00:00:01,000 --> 00:00:02,000\nun\n\n2\n00:00:03,000 --> 00:00:04,000\ndeux\n\n3\n00:00:06,000 --> 00:00:07,000\ntrois\n\n4\n00:00:08,000 --> 00:00:09,000\nquatre\n\n' > film.srt; subedit-cli split-file --at 3 --head tete.srt --tail queue.srt film.srt; cat queue.srt -->
 ```console
 $ printf '1\n00:00:01,000 --> 00:00:02,000\nun\n\n2\n00:00:03,000 --> 00:00:04,000\ndeux\n\n3\n00:00:06,000 --> 00:00:07,000\ntrois\n\n4\n00:00:08,000 --> 00:00:09,000\nquatre\n\n' > film.srt; subedit-cli split-file --at 3 --head tete.srt --tail queue.srt film.srt; cat queue.srt
-film.srt: split at subtitle 3: 2 subtitles in the head, 2 subtitles in the tail -> tete.srt, queue.srt
+[subedit] [split-file] [1/1] source: film.srt
+[subedit] [split-file] [1/1] result: split at subtitle 3: 2 subtitles in the head, 2 subtitles in the tail
+[subedit] [split-file] [1/1] dest: tete.srt
+[subedit] [split-file] [1/1] tail: queue.srt
 1
 00:00:02,000 --> 00:00:03,000
 trois
@@ -82,12 +85,12 @@ der bei 6 s begann, beginnt bei 2 s.
 frühere Hälfte. `--sort` bringt die Untertitel **vor der Beurteilung des Schnitts** in die Reihenfolge ihrer Anfänge — stabil, wie es [`sort`](sort.md) tut —, und
 `--at` zählt dann in dieser Reihenfolge.
 
-Nie standardmäßig. Mit der Option sagt die Datei auf der ersten Ausführlichkeitsstufe, wie viele Untertitel sich bewegt haben (`<path>: N subtitles moved`
-oder `<path>: already in order`), und der Datensatz von `--format json` enthält eine Zählung `moved`, **die ohne die Option fehlt**.
+Nie standardmäßig. Mit der Option sagt die Datei auf der ersten Ausführlichkeitsstufe, wie viele Untertitel sich bewegt haben (`result: N subtitles moved`
+oder `result: already in order`), und der Datensatz von `--format json` enthält eine Zählung `moved`, **die ohne die Option fehlt**.
 
 ## Bereiche überschneidungsfrei machen
 
-Nie standardmäßig. Die Option tut, was [`disjoint`](disjoint.md) tut, **mit dessen Standardeinstellungen**, vor der Beurteilung des Schnitts, nach dem Ordnen: `--at` zählt in dem, was sich daraus ergibt. Sie braucht eine geordnete Datei: Andernfalls wird sie abgelehnt, und `--sort` — das zuerst kommt — ordnet sie vorher. Die Datei sagt es auf der ersten Ausführlichkeitsstufe (`<path>: N subtitles split, M merged`), und der Datensatz von `--format json` enthält die Zählungen `split` und `merged`, **die ohne die Option fehlen**.
+Nie standardmäßig. Die Option tut, was [`disjoint`](disjoint.md) tut, **mit dessen Standardeinstellungen**, vor der Beurteilung des Schnitts, nach dem Ordnen: `--at` zählt in dem, was sich daraus ergibt. Sie braucht eine geordnete Datei: Andernfalls wird sie abgelehnt, und `--sort` — das zuerst kommt — ordnet sie vorher. Die Datei sagt es auf der ersten Ausführlichkeitsstufe (`result: N subtitles split, M merged`), und der Datensatz von `--format json` enthält die Zählungen `split` und `merged`, **die ohne die Option fehlen**.
 
 ## Wenn der Schnitt abgelehnt wird
 
@@ -112,9 +115,9 @@ Rest hinterließe. Eine Datei mit einem einzigen Untertitel kann nicht geschnitt
 
 | Stufe | Was auf der Fehlerausgabe hinzukommt |
 | :----- | :------------------------------------- |
-| 1 | `<path>: split at subtitle N: H subtitles in the head, T subtitles in the tail -> <head>, <tail>`; mit `--dry-run` steht `(dry run, nothing written)` an der Stelle von `-> …` |
-| 2 | `<path>: SubRip, UTF-8, no BOM, LF line endings kept` — das Format, die Kodierung, die Marke und die Zeilenenden der gelesenen Datei, so wiederhergestellt, wie sie waren |
-| 3 | `<path>: N bytes read, H and T written`, dann **jede Diagnose beim Lesen** — siehe [Aufruf](invocation.md#diagnosen-beim-lesen) |
+| 1 | `source: <path>`, `result: split at subtitle N: H subtitles in the head, T subtitles in the tail`, `dest: <head>`, `tail: <tail>`; mit `--dry-run` steht `(dry run, nothing written)` an der Stelle von `dest: <head>` |
+| 2 | `format: SubRip`, `encoding: UTF-8`, `bom: absent`, `line-endings: LF` — das Format, die Kodierung, die Marke und die Zeilenenden der gelesenen Datei, so wiederhergestellt, wie sie waren |
+| 3 | `bytes-read: N`, `bytes-written: H`, `bytes-written: T`, dann **jede Diagnose beim Lesen** — siehe [Aufruf](invocation.md#diagnosen-beim-lesen) |
 
 ### In JSON
 

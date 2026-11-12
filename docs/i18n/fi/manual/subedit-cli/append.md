@@ -67,8 +67,11 @@ kirjoitetaan yli, kuten kaikkialla.
 <!-- example: printf '1\n00:00:01,000 --> 00:00:02,000\nun\n\n2\n00:00:03,000 --> 00:00:04,000\ndeux\n\n' > partie1.srt; printf '1\n00:00:00,500 --> 00:00:01,500\ntrois\n\n' > partie2.srt; subedit-cli append --output film.srt partie1.srt partie2.srt; cat film.srt -->
 ```console
 $ printf '1\n00:00:01,000 --> 00:00:02,000\nun\n\n2\n00:00:03,000 --> 00:00:04,000\ndeux\n\n' > partie1.srt; printf '1\n00:00:00,500 --> 00:00:01,500\ntrois\n\n' > partie2.srt; subedit-cli append --output film.srt partie1.srt partie2.srt; cat film.srt
-partie2.srt: appended 1 subtitle
-partie1.srt: 3 subtitles from 2 files -> film.srt
+[subedit] [append] [1/1] source: partie1.srt
+[subedit] [append] [1/1] source: partie2.srt
+[subedit] [append] [1/1] result: appended 1 subtitle
+[subedit] [append] [1/1] result: 3 subtitles from 2 files
+[subedit] [append] [1/1] dest: film.srt
 1
 00:00:01,000 --> 00:00:02,000
 un
@@ -96,7 +99,7 @@ Ei koskaan oletuksena. Valitsimen kanssa pohja kertoo sen kerronnan ensimmäisel
 
 ## Aikavälien päällekkäisyyksien poistaminen
 
-Ei koskaan oletuksena. Valitsin tekee saman kuin [`disjoint`](disjoint.md) **sen oletusasetuksin**, kun kaikki on lisätty perään, koko tulokselle. Se tarvitsee järjestyksessä olevan tiedoston: muuten se hylätään, ja `--sort` — joka tulee ensin — järjestää sen etukäteen. Tiedosto kertoo sen kerronnan ensimmäisellä tasolla (`<path>: N subtitles split, M merged`), ja `--format json` -tietueessa ovat laskurit `split` ja `merged`, **jotka puuttuvat ilman valitsinta**.
+Ei koskaan oletuksena. Valitsin tekee saman kuin [`disjoint`](disjoint.md) **sen oletusasetuksin**, kun kaikki on lisätty perään, koko tulokselle. Se tarvitsee järjestyksessä olevan tiedoston: muuten se hylätään, ja `--sort` — joka tulee ensin — järjestää sen etukäteen. Tiedosto kertoo sen kerronnan ensimmäisellä tasolla (`result: N subtitles split, M merged`), ja `--format json` -tietueessa ovat laskurit `split` ja `merged`, **jotka puuttuvat ilman valitsinta**.
 
 ## Kun muodot eroavat
 
@@ -118,9 +121,9 @@ joka on jo tuossa muodossa, tai muunna jälkikäteen alikomennolla [`convert`](c
 
 | Taso | Mitä virhetulosteeseen lisätään |
 | :----- | :------------------------------------- |
-| 1 | yksi rivi kutakin perään lisättyä tiedostoa kohden — `<path>: appended N subtitles`, jonka perään, kun muoto maksoi jotain, `; <source format> into <base format>: <what is lost>` — sitten `<base>: N subtitles from M files -> <destination>` (valitsimella `--dry-run` merkintä `(dry run, nothing written)` merkinnän `-> <destination>` sijaan) |
-| 2 | `<base>: SubRip, UTF-8, no BOM, LF line endings kept` — pohjan muoto, merkistökoodaus, merkki ja rivinvaihdot palautettuina ennalleen |
-| 3 | `<base>: N bytes read, M written` (kaikki tiedostot yhteensä), sitten **jokainen huomautus luettaessa** — katso [Käynnistys](invocation.md#huomautukset-luettaessa) |
+| 1 | yksi rivi kutakin perään lisättyä tiedostoa kohden — `source: <path>`, `result: appended N subtitles`, jonka perään, kun muoto maksoi jotain, `; <source format> into <base format>: <what is lost>` — sitten `result: N subtitles from M files`, `dest: <destination>` (valitsimella `--dry-run` merkintä `(dry run, nothing written)` merkinnän `dest: <destination>` sijaan) |
+| 2 | `format: SubRip`, `encoding: UTF-8`, `bom: absent`, `line-endings: LF` — luetun tiedoston muoto, merkistökoodaus, merkki ja rivinvaihdot palautettuina ennalleen |
+| 3 | `bytes-read: N`, `bytes-written: M`, sitten **jokainen huomautus luettaessa** — katso [Käynnistys](invocation.md#huomautukset-luettaessa) |
 
 ### JSON-muodossa
 

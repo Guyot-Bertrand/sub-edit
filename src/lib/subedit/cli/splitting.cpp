@@ -18,6 +18,7 @@
 #include <subedit/core/model/source_file.hpp>
 #include <subedit/core/model/subtitle_index.hpp>
 #include <subedit/core/wording/counts.hpp>
+#include <subedit/core/wording/editing.hpp>
 #include <subedit/core/wording/formats.hpp>
 
 #include <array>
@@ -59,7 +60,7 @@ struct Arranged {
     Arranged arranged;
     if (request.sort) {
         arranged.reordered = sortedIn(session);
-        reporter.say(1, narrationOfSort(path, arranged.reordered));
+        reporter.tell(1, Key::Result, core::noticeOfSort(arranged.reordered));
     }
     if (request.disjoint) {
         const std::expected<core::DisjointReport, Failure> made = disjointedIn(session);
@@ -68,7 +69,7 @@ struct Arranged {
             return std::nullopt;
         }
         arranged.cut = *made;
-        reporter.say(1, narrationOfDisjoint(path, *made));
+        reporter.tell(1, Key::Result, core::noticeOfDisjoint(*made));
     }
     return arranged;
 }
@@ -87,7 +88,7 @@ ExitCode splitFile(core::FileSystem& files,
     // **Before any file is read**: what the command line says is judged on the
     // command line alone.
     if (!head.empty() && sameFile(files, head, tail)) {
-        reporter.failed(
+        reporter.error(
             // TRANSLATORS: %1 is a file the user named.
             core::substitute(core::translate("%1: named as both the head and the tail"),
                              {head.string()}));
@@ -97,22 +98,25 @@ ExitCode splitFile(core::FileSystem& files,
         if (!out.empty()) {
             if (const std::optional<std::string> refused =
                     overwrittenInput(files, out, std::span{&path, 1})) {
-                reporter.failed(*refused);
+                reporter.error(*refused);
                 return ExitCode::Usage;
             }
         }
     }
 
-    std::optional<core::OpenedFile> opened = openReporting(files, path, reading, reporter);
+    // **One element** (D2): the run writes one record, its two files on `dest` and `tail`.
+    const Reporter item = reporter.forItem(1, 1, path);
+    std::optional<core::OpenedFile> opened = openReporting(files, path, reading, item);
     if (!opened) {
         return ExitCode::AllFailed;
     }
+    narrateRead(item, opened->bytes, opened->project.sourceFile(), opened->diagnostics);
 
     // **A cut needs a subtitle on each side**: from the second to the last, as
     // the box of the window offers them.
     core::Session session{std::move(opened->project)};
     // **Before the cut is judged**: `--at` counts in the order that is cut.
-    const std::optional<Arranged> arranged = arrangedBy(session, request, path, reporter);
+    const std::optional<Arranged> arranged = arrangedBy(session, request, path, item);
     if (!arranged.has_value()) {
         return ExitCode::AllFailed;
     }
@@ -121,7 +125,7 @@ ExitCode splitFile(core::FileSystem& files,
     const std::size_t total = session.project().count();
     if (request.at < 2 || request.at > total) {
         reportFailure(
-            reporter,
+            item,
             path,
             Failure{
                 "at-out-of-bounds", [&] {
@@ -153,10 +157,10 @@ ExitCode splitFile(core::FileSystem& files,
     std::expected<core::SplitProject, core::SplitRefusal> split =
         core::splitProject(session.project(), from);
     if (!split) {
-        reportFailure(reporter, path, Failure{"split-overlap", [&] {
-                                                  return core::refusalOfSplit(
-                                                      request.at, split.error().before.value() + 1);
-                                              }});
+        reportFailure(item, path, Failure{"split-overlap", [&] {
+                                              return core::refusalOfSplit(
+                                                  request.at, split.error().before.value() + 1);
+                                          }});
         return ExitCode::AllFailed;
     }
     (void)session.apply(std::move(split->command));
@@ -175,7 +179,7 @@ ExitCode splitFile(core::FileSystem& files,
     // Both directories are made before either file is written.
     if (!dryRun) {
         const std::array<std::filesystem::path, 2> outputs{head, tail};
-        if (const std::optional<ExitCode> failed = createDirectoriesFor(files, outputs, reporter)) {
+        if (const std::optional<ExitCode> failed = createDirectoriesFor(files, outputs, item)) {
             return *failed;
         }
     }
@@ -183,35 +187,21 @@ ExitCode splitFile(core::FileSystem& files,
         const std::expected<std::size_t, Failure> written =
             writeHalf(files, half.out, half.project, dryRun);
         if (!written) {
-            reportFailure(reporter, path, written.error());
+            reportFailure(item, path, written.error());
             return ExitCode::AllFailed;
         }
         half.bytes = *written;
     }
 
-    const core::SourceFile& source = stays.sourceFile();
-    narrateKept(
-        reporter,
-        path,
-        opened->bytes,
-        // TRANSLATORS: %1 and %2 are the numbers of bytes of the head and the tail.
-        core::substitute(core::translate("%1 and %2"),
-                         {std::to_string(halves[0].bytes), std::to_string(halves[1].bytes)}),
-        dryRun,
-        source,
-        opened->diagnostics);
-
     const std::size_t kept = stays.count();
     const std::size_t moved = split->tail.count();
     const std::string made =
-        // TRANSLATORS: %1 is a file, %2 the subtitle the tail starts at, %3 and %4 numbers of
-        // subtitles (« 12 subtitles »).
-        core::substitute(
-            core::translate("%1: split at subtitle %2: %3 in the head, %4 in the tail"),
-            {path,
-             std::to_string(request.at),
-             core::countOf(kept, core::Counted::Subtitle),
-             core::countOf(moved, core::Counted::Subtitle)});
+        // TRANSLATORS: %1 is the subtitle the tail starts at, %2 and %3 numbers of subtitles
+        // (« 12 subtitles »).
+        core::substitute(core::translate("split at subtitle %1: %2 in the head, %3 in the tail"),
+                         {std::to_string(request.at),
+                          core::countOf(kept, core::Counted::Subtitle),
+                          core::countOf(moved, core::Counted::Subtitle)});
     std::vector<Count> counts{{"subtitles", static_cast<std::int64_t>(total)},
                               {"head", static_cast<std::int64_t>(kept)},
                               {"tail", static_cast<std::int64_t>(moved)}};
@@ -220,7 +210,10 @@ ExitCode splitFile(core::FileSystem& files,
         counts.emplace_back("moved", static_cast<std::int64_t>(reordered));
     addCountsOfDisjoint(counts, cut);
     if (dryRun) {
-        reporter.say(1, core::substitute(core::translate("%1 (dry run, nothing written)"), {made}));
+        item.tell(1,
+                  Key::Result,
+                  // TRANSLATORS: %1 is what was done to a file, which was not written.
+                  core::substitute(core::translate("%1 (dry run, nothing written)"), {made}));
         reporter.record(dryRunRecord(reporter.command(),
                                      path,
                                      counts,
@@ -228,10 +221,12 @@ ExitCode splitFile(core::FileSystem& files,
                                      std::nullopt,
                                      {{"tail", Json{nullptr}}}));
     } else {
-        reporter.say(1,
-                     // TRANSLATORS: %1 is what was done, %2 and %3 the two files written.
-                     core::substitute(core::translate("%1 -> %2, %3"),
-                                      {made, head.string(), tail.string()}));
+        // Each file after its size, as a rewriting writes its one.
+        item.tell(1, Key::Result, made);
+        item.tell(3, Key::BytesWritten, std::to_string(halves[0].bytes));
+        item.tell(1, Key::Dest, head.string());
+        item.tell(3, Key::BytesWritten, std::to_string(halves[1].bytes));
+        item.tell(1, Key::Tail, tail.string());
         reporter.record(writtenRecord(reporter.command(),
                                       path,
                                       head,

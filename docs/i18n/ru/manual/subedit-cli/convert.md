@@ -194,8 +194,10 @@ Gaupol, — и уровень `-vvv` сообщает об этом:
 <!-- example: printf '1\n00:00:01,000 --> 00:00:03,500\n<i>sur deux</i>\nlignes\n\n' > a.srt; subedit-cli convert --to lrc --output b.lrc a.srt -->
 ```console
 $ printf '1\n00:00:01,000 --> 00:00:03,500\n<i>sur deux</i>\nlignes\n\n' > a.srt; subedit-cli convert --to lrc --output b.lrc a.srt
-a.srt: 1 subtitle written as LRC -> b.lrc
-a.srt: ends are not carried by LRC, line breaks were joined in 1 subtitle, 1 tag dropped
+[subedit] [convert] [1/1] source: a.srt
+[subedit] [convert] [1/1] warning: ends are not carried by LRC, line breaks were joined in 1 subtitle, 1 tag dropped
+[subedit] [convert] [1/1] result: 1 subtitle converted to LRC, UTF-8, no BOM, LF line endings
+[subedit] [convert] [1/1] dest: b.lrc
 ```
 
 Строка выводится на уровне подробности по умолчанию и на каждом уровне выше.
@@ -278,7 +280,9 @@ WebVTT внутри: файл, имя которого лжёт, сбивает 
 <!-- example: printf '1\n00:00:01,000 --> 00:00:03,000\nBonjour.\n\n' > a.srt; subedit-cli convert --to vtt --output b.vtt a.srt; cat b.vtt -->
 ```console
 $ printf '1\n00:00:01,000 --> 00:00:03,000\nBonjour.\n\n' > a.srt; subedit-cli convert --to vtt --output b.vtt a.srt; cat b.vtt
-a.srt: 1 subtitle written as WebVTT -> b.vtt
+[subedit] [convert] [1/1] source: a.srt
+[subedit] [convert] [1/1] result: 1 subtitle converted to WebVTT, UTF-8, no BOM, LF line endings
+[subedit] [convert] [1/1] dest: b.vtt
 WEBVTT
 
 00:01.000 --> 00:03.000
@@ -291,19 +295,19 @@ Bonjour.
 не затрагивается, а записывается то, что получилось бы у [`sort`](sort.md) — устойчиво, два субтитра, начинающиеся одновременно, сохраняют свой порядок.
 
 **Никогда по умолчанию**: порядок файла — это порядок его автора, пока не запрошено иное. С параметром каждый файл сообщает об этом на
-первом уровне пояснений: `<path>: N subtitles moved` или `<path>: already in order`, а запись `--format json` содержит счётчик
+первом уровне пояснений: `result: N subtitles moved` или `result: already in order`, а запись `--format json` содержит счётчик
 `moved` — **отсутствующий без параметра**, чтобы не менять форму того, что читают существующие скрипты.
 
 ## Устранение перекрытий диапазонов
 
 `--disjoint` обрезает перекрывающиеся субтитры, чтобы ни один диапазон больше не перекрывал другой, **над той же копией, что и сортировка**: прочитанный файл не затрагивается.
 
-Никогда по умолчанию. Параметр делает то, что делает [`disjoint`](disjoint.md), **с его настройками по умолчанию**, перед записью, после сортировки. Ему нужен упорядоченный файл: иначе он отклоняется, а `--sort`, который выполняется первым, предварительно наводит порядок. Файл сообщает об этом на первом уровне пояснений (`<path>: N subtitles split, M merged`), а запись `--format json` содержит счётчики `split` и `merged`, **отсутствующие без параметра**.
+Никогда по умолчанию. Параметр делает то, что делает [`disjoint`](disjoint.md), **с его настройками по умолчанию**, перед записью, после сортировки. Ему нужен упорядоченный файл: иначе он отклоняется, а `--sort`, который выполняется первым, предварительно наводит порядок. Файл сообщает об этом на первом уровне пояснений (`result: N subtitles split, M merged`), а запись `--format json` содержит счётчики `split` и `merged`, **отсутствующие без параметра**.
 
 **`--join-repeats` выполняется до сортировки и обрезки**: текст, разрезанный на идущие подряд части, сначала собирается заново (см.
 [`join-repeats`](join-repeats.md)), затем субтитры сортируются, затем диапазоны делаются непересекающимися. **`--repair` — это все три сразу**,
 как [`repair`](repair.md), с настройками обрезки по умолчанию. С `--join-repeats` каждый файл сообщает
-`<path>: N repeated subtitles joined` на первом уровне пояснений, а запись `--format json` содержит `counts.joined` — **отсутствующий без параметра**.
+`result: N repeated subtitles joined` на первом уровне пояснений, а запись `--format json` содержит `counts.joined` — **отсутствующий без параметра**.
 
 ## Вывод
 
@@ -313,9 +317,9 @@ Bonjour.
 
 | Уровень | Что добавляется |
 | :----- | :-------------- |
-| 1 | `<path>: N subtitles written as WebVTT -> <destination>` |
-| 2 | `<path>: SubRip -> WebVTT, UTF-8, no BOM, LF line endings` — названная кодировка — это та, в которой записано |
-| 3 | `<path>: N bytes read, M written`, затем **все диагностические сообщения чтения** — см. [Запуск](invocation.md#чтение-диагностических-сообщений) |
+| 1 | `source: <path>`, `result: N subtitles converted to WebVTT, UTF-8, no BOM, LF line endings`, `dest: <destination>` |
+| 2 | `format: SubRip`, `encoding: UTF-8`, `bom: absent`, `line-endings: LF` — данные прочитанного файла |
+| 3 | `bytes-read: N`, `bytes-written: M`, затем **все диагностические сообщения чтения** — см. [Запуск](invocation.md#чтение-диагностических-сообщений) |
 
 ### В формате JSON
 

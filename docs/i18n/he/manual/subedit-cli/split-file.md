@@ -53,7 +53,10 @@ Options:
 <!-- example: printf '1\n00:00:01,000 --> 00:00:02,000\nun\n\n2\n00:00:03,000 --> 00:00:04,000\ndeux\n\n3\n00:00:06,000 --> 00:00:07,000\ntrois\n\n4\n00:00:08,000 --> 00:00:09,000\nquatre\n\n' > film.srt; subedit-cli split-file --at 3 --head tete.srt --tail queue.srt film.srt; cat queue.srt -->
 ```console
 $ printf '1\n00:00:01,000 --> 00:00:02,000\nun\n\n2\n00:00:03,000 --> 00:00:04,000\ndeux\n\n3\n00:00:06,000 --> 00:00:07,000\ntrois\n\n4\n00:00:08,000 --> 00:00:09,000\nquatre\n\n' > film.srt; subedit-cli split-file --at 3 --head tete.srt --tail queue.srt film.srt; cat queue.srt
-film.srt: split at subtitle 3: 2 subtitles in the head, 2 subtitles in the tail -> tete.srt, queue.srt
+[subedit] [split-file] [1/1] source: film.srt
+[subedit] [split-file] [1/1] result: split at subtitle 3: 2 subtitles in the head, 2 subtitles in the tail
+[subedit] [split-file] [1/1] dest: tete.srt
+[subedit] [split-file] [1/1] tail: queue.srt
 1
 00:00:02,000 --> 00:00:03,000
 trois
@@ -69,11 +72,11 @@ quatre
 
 `--at` ממספרת את הכתוביות **כפי שהקובץ נותן אותן**. בקובץ שסדרו שבור, הראש אינו אפוא החצי המוקדם ביותר בזמן. `--sort` מציבה את הכתוביות בסדר ההתחלות שלהן **לפני שיפוט החיתוך** — יציב, כמו ש-[`sort`](sort.md) עושה — ואז `--at` סופרת בסדר הזה.
 
-לעולם לא כברירת מחדל. עם האפשרות, הקובץ אומר ברמת הדיווח הראשונה כמה כתוביות זזו (`<path>: N subtitles moved` או `<path>: already in order`), ורשומת `--format json` נושאת מניין `moved`, **שנעדר בלי האפשרות**.
+לעולם לא כברירת מחדל. עם האפשרות, הקובץ אומר ברמת הדיווח הראשונה כמה כתוביות זזו (`result: N subtitles moved` או `result: already in order`), ורשומת `--format json` נושאת מניין `moved`, **שנעדר בלי האפשרות**.
 
 ## הפיכת הטווחים לזרים
 
-לעולם לא כברירת מחדל. האפשרות עושה את מה ש-[`disjoint`](disjoint.md) עושה, **עם הגדרות ברירת המחדל שלה**, לפני שיפוט החיתוך, אחרי המיון: `--at` סופרת במה שזה נותן. היא צריכה קובץ ממוין: אחרת היא נדחית, ו-`--sort` — שבאה קודם — ממיינת אותו מראש. הקובץ אומר זאת ברמת הדיווח הראשונה (`<path>: N subtitles split, M merged`), ורשומת `--format json` נושאת את המניינים `split` ו-`merged`, **שנעדרים בלי האפשרות**.
+לעולם לא כברירת מחדל. האפשרות עושה את מה ש-[`disjoint`](disjoint.md) עושה, **עם הגדרות ברירת המחדל שלה**, לפני שיפוט החיתוך, אחרי המיון: `--at` סופרת במה שזה נותן. היא צריכה קובץ ממוין: אחרת היא נדחית, ו-`--sort` — שבאה קודם — ממיינת אותו מראש. הקובץ אומר זאת ברמת הדיווח הראשונה (`result: N subtitles split, M merged`), ורשומת `--format json` נושאת את המניינים `split` ו-`merged`, **שנעדרים בלי האפשרות**.
 
 ## כשהחיתוך נדחה
 
@@ -93,9 +96,9 @@ o.srt: Cannot split at subtitle 3: subtitle 3 would fall before the start of the
 
 | רמה | מה נוסף בפלט השגיאה |
 | :----- | :------------------------------------- |
-| 1 | `<path>: split at subtitle N: H subtitles in the head, T subtitles in the tail -> <head>, <tail>`; עם `--dry-run`, `(dry run, nothing written)` במקום `-> …` |
-| 2 | `<path>: SubRip, UTF-8, no BOM, LF line endings kept` — הפורמט, הקידוד, הסימן וסוף השורה של הקובץ שנקרא, שהוחזרו כפי שהיו |
-| 3 | `<path>: N bytes read, H and T written`, ואחריה **כל אבחון קריאה** — ראו [הפעלה](invocation.md#אבחוני-קריאה) |
+| 1 | `source: <path>`, `result: split at subtitle N: H subtitles in the head, T subtitles in the tail`, `dest: <head>`, `tail: <tail>`; עם `--dry-run`, `(dry run, nothing written)` במקום `dest: <head>` |
+| 2 | `format: SubRip`, `encoding: UTF-8`, `bom: absent`, `line-endings: LF` — הפורמט, הקידוד, הסימן וסוף השורה של הקובץ שנקרא, שהוחזרו כפי שהיו |
+| 3 | `bytes-read: N`, `bytes-written: H`, `bytes-written: T`, ואחריה **כל אבחון קריאה** — ראו [הפעלה](invocation.md#אבחוני-קריאה) |
 
 ### ב-JSON
 

@@ -100,7 +100,7 @@ TEST_CASE("a file that is not UTF-8 opens, and the encoding read is said", "[e2e
 
     CHECK(run.exitCode == 0);
     CHECK_THAT(run.output, ContainsSubstring("  subtitles: 3\n"));
-    CHECK_THAT(run.errors, ContainsSubstring("SubRip, KOI8-R, no BOM, LF line endings"));
+    CHECK_THAT(run.errors, ContainsSubstring("] encoding: KOI8-R\n"));
 }
 
 TEST_CASE("an encoding nobody declared is one of the diagnostics of the reading",

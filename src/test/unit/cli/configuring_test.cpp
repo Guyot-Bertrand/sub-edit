@@ -222,7 +222,7 @@ TEST_CASE("config set writes the value and keeps the display preferences", "[con
     const auto read = subedit::core::readSettings(files, kPath);
     CHECK(read.settings.durationAdjustment.charactersPerSecond == 12.0);
     CHECK(read.settings.maximised);
-    CHECK(err.str() == "duration-adjust.speed = 12\n");
+    CHECK(err.str() == "[subedit] [-] [-] result: duration-adjust.speed = 12\n");
 }
 
 TEST_CASE("config set says nothing when quiet", "[config]") {
@@ -286,8 +286,8 @@ TEST_CASE("config set on an unreadable file fails and writes nothing", "[config]
     CHECK(setSetting(files, kPath, "duration-adjust.speed", "12", reporter) == ExitCode::AllFailed);
 
     CHECK(*files.readFile(kPath) == "window.maximised = true\n");
-    CHECK(err.str() ==
-          "/c/subedit/settings.conf: cannot be opened: permission denied; nothing written\n");
+    CHECK(err.str() == "[subedit] [-] [-] error: /c/subedit/settings.conf: cannot be opened: "
+                       "permission denied; nothing written\n");
 }
 
 TEST_CASE("config set whose write fails says why", "[config]") {
@@ -299,7 +299,8 @@ TEST_CASE("config set whose write fails says why", "[config]") {
     CHECK(setSetting(files, kPath, "duration-adjust.speed", "12", reporter) == ExitCode::AllFailed);
 
     CHECK_FALSE(files.contentOf(kPath).has_value());
-    CHECK(err.str() == "/c/subedit/settings.conf: cannot be written: permission denied\n");
+    CHECK(err.str() == "[subedit] [-] [-] error: /c/subedit/settings.conf: cannot be written: "
+                       "permission denied\n");
 }
 
 TEST_CASE("config set rewrites an unreadable value as its default, and says so", "[config]") {
@@ -349,7 +350,8 @@ TEST_CASE("config unset restores the default and leaves it commented", "[config]
     CHECK(read.settings.durationAdjustment.charactersPerSecond ==
           subedit::core::Settings{}.durationAdjustment.charactersPerSecond);
     CHECK(read.settings.maximised);
-    CHECK(err.str() == "duration-adjust.speed reset to its default (15)\n");
+    CHECK(err.str() ==
+          "[subedit] [-] [-] result: duration-adjust.speed reset to its default (15)\n");
 }
 
 TEST_CASE("config unset on a key already at its default succeeds", "[config]") {
@@ -362,7 +364,8 @@ TEST_CASE("config unset on a key already at its default succeeds", "[config]") {
     REQUIRE(files.contentOf(kPath).has_value());
     CHECK_THAT(files.contentOf(kPath).value_or(""),
                ContainsSubstring("\n#duration-adjust.gap-ms = 0\n"));
-    CHECK(err.str() == "duration-adjust.gap-ms reset to its default (0)\n");
+    CHECK(err.str() ==
+          "[subedit] [-] [-] result: duration-adjust.gap-ms reset to its default (0)\n");
 }
 
 TEST_CASE("config unset refuses a key that is not an operation key", "[config]") {
@@ -386,6 +389,6 @@ TEST_CASE("config unset on an unreadable file fails and writes nothing", "[confi
     CHECK(unsetSetting(files, kPath, "duration-adjust.speed", reporter) == ExitCode::AllFailed);
 
     CHECK(*files.readFile(kPath) == "duration-adjust.speed = 12\n");
-    CHECK(err.str() ==
-          "/c/subedit/settings.conf: cannot be opened: permission denied; nothing written\n");
+    CHECK(err.str() == "[subedit] [-] [-] error: /c/subedit/settings.conf: cannot be opened: "
+                       "permission denied; nothing written\n");
 }

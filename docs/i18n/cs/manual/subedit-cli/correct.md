@@ -85,10 +85,10 @@ kde se nachází, a `--config` a `--no-config`.
   vrátí počet řádků Gaupolu. `--keep-blank-subtitles` a `--remove-blank-subtitles` současně jsou
   chybou použití.
 - **Obě třídy vypnuté v souboru se ignorují, a hlásí se to** na úrovni 1 —
-  `settings: correction.human and correction.ocr are both false, ignored` —: `--classes` by to zapsat nedokázala a úloze
+  `warning: setting correction.human and correction.ocr are both false, ignored` —: `--classes` by to zapsat nedokázala a úloze
   common-errors by to nenechalo nic na práci. Místo toho se použijí obě třídy.
 - **Počet řádků mimo rozsah 1 až 1000 se ze souboru vůbec nepřečte**: čtečka souboru
-  ho odmítne — `settings: correction.line-break.max-lines: cannot read 'N', default kept`, na
+  ho odmítne — `warning: setting correction.line-break.max-lines: cannot read 'N', default kept`, na
   úrovni 1 — a použije se vestavěná hodnota 3.
 
 Příklady na této stránce se spouštějí s `--no-config`, aby ukazovaly, co dělají vestavěné
@@ -149,7 +149,7 @@ code=1
 
 Vzory, které uživatel uloží do `$XDG_DATA_HOME/subedit/patterns` (nebo
 `~/.local/share/subedit/patterns`), **se přidávají k dodávaným vzorům**, stejně jako v
-okně, a dodávaný vzor, který nelze přečíst, se ohlásí na úrovni 1: `patterns: <file>, line N (<reason>)`.
+okně, a dodávaný vzor, který nelze přečíst, se ohlásí na úrovni 1: `warning: patterns: <file>, line N (<reason>)`.
 
 ### Spojování a rozdělování slov a slovník
 

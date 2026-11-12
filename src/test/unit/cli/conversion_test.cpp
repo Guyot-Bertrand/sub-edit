@@ -304,7 +304,10 @@ TEST_CASE("the narration says what was written and where", "[cli][conversion]") 
                                  Destination::from("", "out", false, 1).value(),
                                  Reporter{errors, 1}));
 
-    CHECK(errors.str() == "a.srt: 2 subtitles written as WebVTT -> out/a.vtt\n");
+    CHECK(errors.str() == "[subedit] [-] [1/1] source: a.srt\n"
+                          "[subedit] [-] [1/1] result: 2 subtitles converted to WebVTT, UTF-8, no "
+                          "BOM, LF line endings\n"
+                          "[subedit] [-] [1/1] dest: out/a.vtt\n");
 }
 
 TEST_CASE("a file without its closing blank line gains one", "[cli][conversion]") {
@@ -430,7 +433,9 @@ TEST_CASE("without a rate, writing frames takes the grid the positions fall on",
 
     CHECK(run.code == ExitCode::Success);
     CHECK(run.written.starts_with("{13}{38}Subtitle 1.\n{26}{51}Subtitle 2.\n"));
-    CHECK_THAT(run.errors, ContainsSubstring("counted in frames at 25"));
+    CHECK_THAT(
+        run.errors,
+        ContainsSubstring("] warning: counted in frames at 25, the grid the positions fall on\n"));
 }
 
 TEST_CASE("without a rate and without a grid, writing frames is refused",
@@ -462,7 +467,7 @@ TEST_CASE("a conversion that loses nothing says nothing about it", "[cli][conver
     // is add a report of a loss that did not happen.
     const Run run = convertAloud(kSubRip, SubtitleFormat::WebVtt, ".vtt");
 
-    CHECK_THAT(run.errors, ContainsSubstring("2 subtitles written as WebVTT"));
+    CHECK_THAT(run.errors, ContainsSubstring("] result: 2 subtitles converted to WebVTT"));
     CHECK_FALSE(run.errors.contains("dropped"));
     CHECK_FALSE(run.errors.contains("not carried"));
 }
@@ -523,8 +528,10 @@ TEST_CASE("a conversion run dry writes nothing and says so", "[cli][conversion][
     CHECK_FALSE(files.contentOf("out/deep/a.vtt").has_value());
     CHECK(files.directoriesAsked().empty());
     CHECK_THAT(errors.str(),
-               ContainsSubstring("1 subtitle converted to WebVTT (dry run, nothing written)"));
-    CHECK_THAT(errors.str(), ContainsSubstring("would be written"));
+               ContainsSubstring("] result: 1 subtitle converted to WebVTT, UTF-8, no BOM, LF line "
+                                 "endings (dry run, nothing written)\n"));
+    CHECK_FALSE(errors.str().contains("] dest: "));
+    CHECK_FALSE(errors.str().contains("] bytes-written: "));
     CHECK_THAT(records.str(), ContainsSubstring("\"dry_run\":true,\"destination\":null"));
 }
 
@@ -590,7 +597,7 @@ TEST_CASE(
     CHECK(files.contentOf("out/a.srt").value_or("") ==
           "1\n00:00:01,000 --> 00:00:02,000\nearly\n\n"
           "2\n00:00:05,000 --> 00:00:06,000\nlate\n\n");
-    CHECK_THAT(errors.str(), ContainsSubstring("a.srt: 2 subtitles moved"));
+    CHECK_THAT(errors.str(), ContainsSubstring("] result: 2 subtitles moved\n"));
     CHECK_THAT(records.str(), ContainsSubstring("\"moved\":2"));
 }
 
@@ -634,5 +641,5 @@ TEST_CASE("sorting on request a file already in order says so and changes nothin
 
     CHECK(code == ExitCode::Success);
     CHECK(files.contentOf("out/a.srt").value_or("") == kSubRip);
-    CHECK_THAT(errors.str(), ContainsSubstring("a.srt: already in order"));
+    CHECK_THAT(errors.str(), ContainsSubstring("] result: already in order\n"));
 }

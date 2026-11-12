@@ -193,8 +193,10 @@ görünen bir rapor, kimsenin okumadığı bir rapordur.
 <!-- example: printf '1\n00:00:01,000 --> 00:00:03,500\n<i>sur deux</i>\nlignes\n\n' > a.srt; subedit-cli convert --to lrc --output b.lrc a.srt -->
 ```console
 $ printf '1\n00:00:01,000 --> 00:00:03,500\n<i>sur deux</i>\nlignes\n\n' > a.srt; subedit-cli convert --to lrc --output b.lrc a.srt
-a.srt: 1 subtitle written as LRC -> b.lrc
-a.srt: ends are not carried by LRC, line breaks were joined in 1 subtitle, 1 tag dropped
+[subedit] [convert] [1/1] source: a.srt
+[subedit] [convert] [1/1] warning: ends are not carried by LRC, line breaks were joined in 1 subtitle, 1 tag dropped
+[subedit] [convert] [1/1] result: 1 subtitle converted to LRC, UTF-8, no BOM, LF line endings
+[subedit] [convert] [1/1] dest: b.lrc
 ```
 
 Satır varsayılan ayrıntı düzeyinde ve üstündeki her düzeyde görünür.
@@ -277,7 +279,9 @@ dönüştürmede bilerek saklanmış bir bilgiyi kaybettirirdi.
 <!-- example: printf '1\n00:00:01,000 --> 00:00:03,000\nBonjour.\n\n' > a.srt; subedit-cli convert --to vtt --output b.vtt a.srt; cat b.vtt -->
 ```console
 $ printf '1\n00:00:01,000 --> 00:00:03,000\nBonjour.\n\n' > a.srt; subedit-cli convert --to vtt --output b.vtt a.srt; cat b.vtt
-a.srt: 1 subtitle written as WebVTT -> b.vtt
+[subedit] [convert] [1/1] source: a.srt
+[subedit] [convert] [1/1] result: 1 subtitle converted to WebVTT, UTF-8, no BOM, LF line endings
+[subedit] [convert] [1/1] dest: b.vtt
 WEBVTT
 
 00:01.000 --> 00:03.000
@@ -290,19 +294,19 @@ Bonjour.
 dokunulmaz ve yazılan, [`sort`](sort.md) komutunun ondan yapacağı şeydir — kararlı, birlikte başlayan iki altyazı sırasını korur.
 
 **Varsayılan olarak asla**: başka bir şey istenmedikçe bir dosyanın sırası yazarınındır. Seçenekle her dosya bunu, ilk
-anlatım düzeyinde, `<path>: N subtitles moved` veya `<path>: already in order` diyerek söyler ve `--format json` kaydı bir
+anlatım düzeyinde, `result: N subtitles moved` veya `result: already in order` diyerek söyler ve `--format json` kaydı bir
 `moved` sayısı taşır — **seçenek olmadan bulunmaz**; böylece mevcut betiklerin okuduğu şeklin biçimi değişmez.
 
 ## Aralıkları ayrık yapma
 
 `--disjoint`, çakışan altyazıları artık hiçbir aralık bir diğeriyle çakışmayacak biçimde keser, **sıralamayla aynı kopya üzerinde**: okunan dosyaya dokunulmaz.
 
-Varsayılan olarak asla. Seçenek, yazmadan önce, sıralamadan sonra, [`disjoint`](disjoint.md) komutunun **varsayılan ayarlarıyla** yaptığını yapar. Sıralı bir dosya gerekir: aksi halde reddedilir ve ondan önce gelen `--sort` onu önceden sıraya sokar. Dosya bunu ilk anlatım düzeyinde bildirir (`<path>: N subtitles split, M merged`); `--format json` kaydı da `split` ve `merged` sayılarını taşır, **seçenek olmadan bulunmaz**.
+Varsayılan olarak asla. Seçenek, yazmadan önce, sıralamadan sonra, [`disjoint`](disjoint.md) komutunun **varsayılan ayarlarıyla** yaptığını yapar. Sıralı bir dosya gerekir: aksi halde reddedilir ve ondan önce gelen `--sort` onu önceden sıraya sokar. Dosya bunu ilk anlatım düzeyinde bildirir (`result: N subtitles split, M merged`); `--format json` kaydı da `split` ve `merged` sayılarını taşır, **seçenek olmadan bulunmaz**.
 
 **`--join-repeats` sıralamadan ve kesmeden önce gelir**: art arda gelen parçalara kesilmiş bir metin önce yeniden kurulur (bkz.
 [`join-repeats`](join-repeats.md)), sonra altyazılar sıralanır, sonra aralıklar ayrık yapılır. **`--repair` üçü birden demektir**,
 [`repair`](repair.md) gibi, kesmenin varsayılan ayarlarıyla. `--join-repeats` ile her dosya ilk anlatım düzeyinde
-`<path>: N repeated subtitles joined` der ve `--format json` kaydı `counts.joined` taşır — **seçenek olmadan bulunmaz**.
+`result: N repeated subtitles joined` der ve `--format json` kaydı `counts.joined` taşır — **seçenek olmadan bulunmaz**.
 
 ## Çıktı
 
@@ -312,9 +316,9 @@ Hata çıktısında, düzeye göre:
 
 | Düzey | Ne eklenir |
 | :----- | :-------------- |
-| 1 | `<path>: N subtitles written as WebVTT -> <destination>` |
-| 2 | `<path>: SubRip -> WebVTT, UTF-8, no BOM, LF line endings` — adı geçen kodlama yazılandır |
-| 3 | `<path>: N bytes read, M written`, ardından **her okuma tanılaması** — bkz. [Çalıştırma](invocation.md#tanılama-iletilerini-okuma) |
+| 1 | `source: <path>`, `result: N subtitles converted to WebVTT, UTF-8, no BOM, LF line endings`, `dest: <destination>` |
+| 2 | `format: SubRip`, `encoding: UTF-8`, `bom: absent`, `line-endings: LF` — okunan dosyanınkiler |
+| 3 | `bytes-read: N`, `bytes-written: M`, ardından **her okuma tanılaması** — bkz. [Çalıştırma](invocation.md#tanılama-iletilerini-okuma) |
 
 ### JSON biçiminde
 

@@ -44,7 +44,52 @@ TEST_CASE("each file is shifted from the end of what precedes it, not from the b
     CHECK(files.contentOf("all.srt").value_or("") == "1\n00:00:01,000 --> 00:00:02,000\none\n\n"
                                                      "2\n00:00:03,000 --> 00:00:04,000\none\n\n"
                                                      "3\n00:00:05,000 --> 00:00:06,000\none\n\n");
-    CHECK_THAT(errors.str(), ContainsSubstring("3 subtitles from 3 files -> all.srt"));
+    CHECK_THAT(errors.str(),
+               ContainsSubstring("] result: 3 subtitles from 3 files\n"
+                                 "[subedit] [-] [1/1] dest: all.srt\n"));
+}
+
+TEST_CASE("an append is one element, each input with its source and what was read of it",
+          "[cli][appending]") {
+    InMemoryFileSystem files;
+    files.addFile("a.srt", kOne);
+    files.addFile("b.srt", kOne);
+    std::ostringstream errors;
+
+    static_cast<void>(appendAll(files,
+                                {"a.srt", "b.srt"},
+                                std::nullopt,
+                                Destination::from("all.srt", "", false, 1).value(),
+                                Reporter{errors, 2}.forCommand("append")));
+
+    CHECK(errors.str() == "[subedit] [append] [1/1] source: a.srt\n"
+                          "[subedit] [append] [1/1] format: SubRip\n"
+                          "[subedit] [append] [1/1] encoding: UTF-8\n"
+                          "[subedit] [append] [1/1] bom: absent\n"
+                          "[subedit] [append] [1/1] line-endings: LF\n"
+                          "[subedit] [append] [1/1] source: b.srt\n"
+                          "[subedit] [append] [1/1] format: SubRip\n"
+                          "[subedit] [append] [1/1] encoding: UTF-8\n"
+                          "[subedit] [append] [1/1] bom: absent\n"
+                          "[subedit] [append] [1/1] line-endings: LF\n"
+                          "[subedit] [append] [1/1] result: appended 1 subtitle\n"
+                          "[subedit] [append] [1/1] result: 2 subtitles from 2 files\n"
+                          "[subedit] [append] [1/1] dest: all.srt\n");
+}
+
+TEST_CASE("an input that cannot be read is named, after the base's source", "[cli][appending]") {
+    InMemoryFileSystem files;
+    files.addFile("a.srt", kOne);
+    std::ostringstream errors;
+
+    CHECK(appendAll(files,
+                    {"a.srt", "absent.srt"},
+                    std::nullopt,
+                    Destination::from("all.srt", "", false, 1).value(),
+                    Reporter{errors, 0}.forCommand("append")) == ExitCode::AllFailed);
+
+    CHECK(errors.str() == "[subedit] [append] [1/1] source: a.srt\n"
+                          "[subedit] [append] [1/1] error: absent.srt: does not exist\n");
 }
 
 TEST_CASE("the record carries the totals and one entry per appended file",
@@ -176,6 +221,6 @@ TEST_CASE("sorting on request puts the appended subtitles in order, and says how
     CHECK(code == ExitCode::Success);
     CHECK_THAT(files.contentOf("all.srt").value_or(""),
                ContainsSubstring("00:00:01,000 --> 00:00:02,000\nearly"));
-    CHECK_THAT(errors.str(), ContainsSubstring("a.srt: 3 subtitles moved"));
+    CHECK_THAT(errors.str(), ContainsSubstring("] result: 3 subtitles moved\n"));
     CHECK_THAT(records.str(), ContainsSubstring("\"moved\":3"));
 }

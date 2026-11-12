@@ -86,10 +86,10 @@ sempre**, despois o ficheiro, despois o valor predeterminado integrado; véxase
   baleirados, `--max-lines 3` devolve as liñas de Gaupol. `--keep-blank-subtitles` e
   `--remove-blank-subtitles` xuntas son un erro de uso.
 - **As dúas clases desactivadas no ficheiro ignóranse, e dise** no nivel 1 —
-  `settings: correction.human and correction.ocr are both false, ignored` —: `--classes` non o podería escribir, e
+  `warning: setting correction.human and correction.ocr are both false, ignored` —: `--classes` non o podería escribir, e
   deixaría a tarefa common-errors sen nada que facer. Aplícanse as dúas clases no seu lugar.
 - **Un número de liñas fóra de 1 a 1000 non se le en absoluto do ficheiro**: o lector do
-  ficheiro rexéitao — `settings: correction.line-break.max-lines: cannot read 'N', default kept`,
+  ficheiro rexéitao — `warning: setting correction.line-break.max-lines: cannot read 'N', default kept`,
   no nivel 1 — e úsase o 3 integrado.
 
 Os exemplos desta páxina execútanse con `--no-config`, para que digan o que fan os valores
@@ -150,7 +150,7 @@ code=1
 
 Os padróns que o usuario pon en `$XDG_DATA_HOME/subedit/patterns` (ou
 `~/.local/share/subedit/patterns`) **engádense aos padróns distribuídos**, como na xanela, e un
-padrón distribuído que non se pode ler indícase no nivel 1: `patterns: <file>, line N (<reason>)`.
+padrón distribuído que non se pode ler indícase no nivel 1: `warning: patterns: <file>, line N (<reason>)`.
 
 ### Unir e dividir palabras, e o dicionario
 

@@ -63,7 +63,10 @@ leest, of de staart over de kop schrijven, wordt geweigerd voordat er iets wordt
 <!-- example: printf '1\n00:00:01,000 --> 00:00:02,000\nun\n\n2\n00:00:03,000 --> 00:00:04,000\ndeux\n\n3\n00:00:06,000 --> 00:00:07,000\ntrois\n\n4\n00:00:08,000 --> 00:00:09,000\nquatre\n\n' > film.srt; subedit-cli split-file --at 3 --head tete.srt --tail queue.srt film.srt; cat queue.srt -->
 ```console
 $ printf '1\n00:00:01,000 --> 00:00:02,000\nun\n\n2\n00:00:03,000 --> 00:00:04,000\ndeux\n\n3\n00:00:06,000 --> 00:00:07,000\ntrois\n\n4\n00:00:08,000 --> 00:00:09,000\nquatre\n\n' > film.srt; subedit-cli split-file --at 3 --head tete.srt --tail queue.srt film.srt; cat queue.srt
-film.srt: split at subtitle 3: 2 subtitles in the head, 2 subtitles in the tail -> tete.srt, queue.srt
+[subedit] [split-file] [1/1] source: film.srt
+[subedit] [split-file] [1/1] result: split at subtitle 3: 2 subtitles in the head, 2 subtitles in the tail
+[subedit] [split-file] [1/1] dest: tete.srt
+[subedit] [split-file] [1/1] tail: queue.srt
 1
 00:00:02,000 --> 00:00:03,000
 trois
@@ -82,12 +85,12 @@ die op 6 s begon, begint op 2 s.
 in de tijd ligt. `--sort` zet de ondertitels in de volgorde van hun begin **voordat de knip wordt beoordeeld** — stabiel, zoals [`sort`](sort.md) doet — en
 `--at` telt dan in die volgorde.
 
-Nooit standaard. Met de optie zegt het bestand op het eerste niveau van de toelichting hoeveel ondertitels zijn verplaatst (`<path>: N subtitles moved`
-of `<path>: already in order`), en het record van `--format json` draagt een telling `moved`, **afwezig zonder de optie**.
+Nooit standaard. Met de optie zegt het bestand op het eerste niveau van de toelichting hoeveel ondertitels zijn verplaatst (`result: N subtitles moved`
+of `result: already in order`), en het record van `--format json` draagt een telling `moved`, **afwezig zonder de optie**.
 
 ## De bereiken niet-overlappend maken
 
-Nooit standaard. De optie doet wat [`disjoint`](disjoint.md) doet, **met zijn standaardinstellingen**, voordat de knip wordt beoordeeld, na het sorteren: `--at` telt in wat dat oplevert. Ze heeft een geordend bestand nodig: anders wordt ze geweigerd, en `--sort` — dat eerst komt — zet het vooraf in volgorde. Het bestand zegt dat op het eerste niveau van de toelichting (`<path>: N subtitles split, M merged`), en het record van `--format json` draagt de tellingen `split` en `merged`, **afwezig zonder de optie**.
+Nooit standaard. De optie doet wat [`disjoint`](disjoint.md) doet, **met zijn standaardinstellingen**, voordat de knip wordt beoordeeld, na het sorteren: `--at` telt in wat dat oplevert. Ze heeft een geordend bestand nodig: anders wordt ze geweigerd, en `--sort` — dat eerst komt — zet het vooraf in volgorde. Het bestand zegt dat op het eerste niveau van de toelichting (`result: N subtitles split, M merged`), en het record van `--format json` draagt de tellingen `split` en `merged`, **afwezig zonder de optie**.
 
 ## Wanneer de knip wordt geweigerd
 
@@ -112,9 +115,9 @@ staart zou geven. Een bestand van één enkele ondertitel kan niet worden geknip
 
 | Niveau | Wat er op de foutuitvoer wordt toegevoegd |
 | :----- | :------------------------------------- |
-| 1 | `<path>: split at subtitle N: H subtitles in the head, T subtitles in the tail -> <head>, <tail>`; met `--dry-run`, `(dry run, nothing written)` in plaats van `-> …` |
-| 2 | `<path>: SubRip, UTF-8, no BOM, LF line endings kept` — het formaat, de codering, de markering en de regeleinden van het gelezen bestand, teruggezet zoals ze waren |
-| 3 | `<path>: N bytes read, H and T written`, daarna **elke diagnostische melding van het lezen** — zie [Aanroep](invocation.md#diagnostische-meldingen-lezen) |
+| 1 | `source: <path>`, `result: split at subtitle N: H subtitles in the head, T subtitles in the tail`, `dest: <head>`, `tail: <tail>`; met `--dry-run`, `(dry run, nothing written)` in plaats van `dest: <head>` |
+| 2 | `format: SubRip`, `encoding: UTF-8`, `bom: absent`, `line-endings: LF` — het formaat, de codering, de markering en de regeleinden van het gelezen bestand, teruggezet zoals ze waren |
+| 3 | `bytes-read: N`, `bytes-written: H`, `bytes-written: T`, daarna **elke diagnostische melding van het lezen** — zie [Aanroep](invocation.md#diagnostische-meldingen-lezen) |
 
 ### In JSON
 

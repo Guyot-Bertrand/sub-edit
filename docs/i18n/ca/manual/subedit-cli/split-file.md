@@ -63,7 +63,10 @@ llegint, o escriure la cua sobre el cap, es refusa abans de llegir res, codi `1`
 <!-- example: printf '1\n00:00:01,000 --> 00:00:02,000\nun\n\n2\n00:00:03,000 --> 00:00:04,000\ndeux\n\n3\n00:00:06,000 --> 00:00:07,000\ntrois\n\n4\n00:00:08,000 --> 00:00:09,000\nquatre\n\n' > film.srt; subedit-cli split-file --at 3 --head tete.srt --tail queue.srt film.srt; cat queue.srt -->
 ```console
 $ printf '1\n00:00:01,000 --> 00:00:02,000\nun\n\n2\n00:00:03,000 --> 00:00:04,000\ndeux\n\n3\n00:00:06,000 --> 00:00:07,000\ntrois\n\n4\n00:00:08,000 --> 00:00:09,000\nquatre\n\n' > film.srt; subedit-cli split-file --at 3 --head tete.srt --tail queue.srt film.srt; cat queue.srt
-film.srt: split at subtitle 3: 2 subtitles in the head, 2 subtitles in the tail -> tete.srt, queue.srt
+[subedit] [split-file] [1/1] source: film.srt
+[subedit] [split-file] [1/1] result: split at subtitle 3: 2 subtitles in the head, 2 subtitles in the tail
+[subedit] [split-file] [1/1] dest: tete.srt
+[subedit] [split-file] [1/1] tail: queue.srt
 1
 00:00:02,000 --> 00:00:03,000
 trois
@@ -82,12 +85,12 @@ que començava a 6 s, comença a 2 s.
 en el temps. `--sort` posa els subtítols en l'ordre dels seus començaments **abans de jutjar el tall** — de manera estable, com ho fa [`sort`](sort.md) —, i
 aleshores `--at` compta en aquest ordre.
 
-Mai per defecte. Amb l'opció, el fitxer diu al primer nivell de narració quants subtítols s'han mogut (`<path>: N subtitles moved`
-o `<path>: already in order`), i el registre de `--format json` porta un recompte `moved`, **absent sense l'opció**.
+Mai per defecte. Amb l'opció, el fitxer diu al primer nivell de narració quants subtítols s'han mogut (`result: N subtitles moved`
+o `result: already in order`), i el registre de `--format json` porta un recompte `moved`, **absent sense l'opció**.
 
 ## Fer disjuntes les franges
 
-Mai per defecte. L'opció fa el que fa [`disjoint`](disjoint.md), **amb els seus paràmetres per defecte**, abans de jutjar el tall, després de l'ordenació: `--at` compta en el que això dona. Necessita un fitxer en ordre: altrament es refusa, i `--sort` — que va primer — l'ordena abans. El fitxer ho diu al primer nivell de narració (`<path>: N subtitles split, M merged`), i el registre de `--format json` porta els recomptes `split` i `merged`, **absents sense l'opció**.
+Mai per defecte. L'opció fa el que fa [`disjoint`](disjoint.md), **amb els seus paràmetres per defecte**, abans de jutjar el tall, després de l'ordenació: `--at` compta en el que això dona. Necessita un fitxer en ordre: altrament es refusa, i `--sort` — que va primer — l'ordena abans. El fitxer ho diu al primer nivell de narració (`result: N subtitles split, M merged`), i el registre de `--format json` porta els recomptes `split` i `merged`, **absents sense l'opció**.
 
 ## Quan el tall es refusa
 
@@ -112,9 +115,9 @@ buida. Un fitxer d'un sol subtítol no es pot tallar.
 
 | Nivell | Què s'afegeix a la sortida d'error |
 | :----- | :------------------------------------- |
-| 1 | `<path>: split at subtitle N: H subtitles in the head, T subtitles in the tail -> <head>, <tail>`; amb `--dry-run`, `(dry run, nothing written)` en lloc de `-> …` |
-| 2 | `<path>: SubRip, UTF-8, no BOM, LF line endings kept` — el format, la codificació, la marca i els finals de línia del fitxer llegit, restituïts tal com eren |
-| 3 | `<path>: N bytes read, H and T written`, i després **cada diagnòstic de lectura** — vegeu [Invocació](invocation.md#diagnòstics-de-lectura) |
+| 1 | `source: <path>`, `result: split at subtitle N: H subtitles in the head, T subtitles in the tail`, `dest: <head>`, `tail: <tail>`; amb `--dry-run`, `(dry run, nothing written)` en lloc de `dest: <head>` |
+| 2 | `format: SubRip`, `encoding: UTF-8`, `bom: absent`, `line-endings: LF` — el format, la codificació, la marca i els finals de línia del fitxer llegit, restituïts tal com eren |
+| 3 | `bytes-read: N`, `bytes-written: H`, `bytes-written: T`, i després **cada diagnòstic de lectura** — vegeu [Invocació](invocation.md#diagnòstics-de-lectura) |
 
 ### En JSON
 

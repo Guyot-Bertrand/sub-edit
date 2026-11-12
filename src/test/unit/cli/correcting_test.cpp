@@ -737,9 +737,10 @@ TEST_CASE("both classes off in the file is ignored, and said", "[cli][correct][s
         files, Reporter{errors, 1}, options, "/shipped", "/user", englishOnly(opened), file);
     REQUIRE(run.has_value());
     CHECK(run->settings.ocr);
-    CHECK_THAT(errors.str(),
-               ContainsSubstring(
-                   "settings: correction.human and correction.ocr are both false, ignored\n"));
+    CHECK_THAT(
+        errors.str(),
+        ContainsSubstring(
+            "[-] warning: setting correction.human and correction.ocr are both false, ignored\n"));
 
     // With --classes the file plays no part, and nothing is said.
     options.classes = "ocr";

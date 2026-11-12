@@ -67,8 +67,11 @@ Options:
 <!-- example: printf '1\n00:00:01,000 --> 00:00:02,000\nun\n\n2\n00:00:03,000 --> 00:00:04,000\ndeux\n\n' > partie1.srt; printf '1\n00:00:00,500 --> 00:00:01,500\ntrois\n\n' > partie2.srt; subedit-cli append --output film.srt partie1.srt partie2.srt; cat film.srt -->
 ```console
 $ printf '1\n00:00:01,000 --> 00:00:02,000\nun\n\n2\n00:00:03,000 --> 00:00:04,000\ndeux\n\n' > partie1.srt; printf '1\n00:00:00,500 --> 00:00:01,500\ntrois\n\n' > partie2.srt; subedit-cli append --output film.srt partie1.srt partie2.srt; cat film.srt
-partie2.srt: appended 1 subtitle
-partie1.srt: 3 subtitles from 2 files -> film.srt
+[subedit] [append] [1/1] source: partie1.srt
+[subedit] [append] [1/1] source: partie2.srt
+[subedit] [append] [1/1] result: appended 1 subtitle
+[subedit] [append] [1/1] result: 3 subtitles from 2 files
+[subedit] [append] [1/1] dest: film.srt
 1
 00:00:01,000 --> 00:00:02,000
 un
@@ -96,7 +99,7 @@ trois
 
 ## הפיכת הטווחים לזרים
 
-לעולם לא כברירת מחדל. האפשרות עושה מה ש-[`disjoint`](disjoint.md) עושה, **עם הגדרות ברירת המחדל שלו**, לאחר שהכול נוסף, על השלם. היא צריכה קובץ ממוין: אחרת היא נדחית, ו-`--sort` — שבא קודם — מסדר אותו מראש. הקובץ אומר זאת ברמת הקריינות הראשונה (`<path>: N subtitles split, M merged`), והרשומה של `--format json` נושאת את ספירות `split` ו-`merged`, **חסרות בלי האפשרות**.
+לעולם לא כברירת מחדל. האפשרות עושה מה ש-[`disjoint`](disjoint.md) עושה, **עם הגדרות ברירת המחדל שלו**, לאחר שהכול נוסף, על השלם. היא צריכה קובץ ממוין: אחרת היא נדחית, ו-`--sort` — שבא קודם — מסדר אותו מראש. הקובץ אומר זאת ברמת הקריינות הראשונה (`result: N subtitles split, M merged`), והרשומה של `--format json` נושאת את ספירות `split` ו-`merged`, **חסרות בלי האפשרות**.
 
 ## כשהפורמטים שונים
 
@@ -118,9 +121,9 @@ SubRip בלי לאבד דבר, לא להפך. כדי לבחור את פורמט 
 
 | רמה | מה מתווסף בפלט השגיאה |
 | :----- | :------------------------------------- |
-| 1 | שורה אחת לכל קובץ שנוסף — `<path>: appended N subtitles`, ואחריה, כשהפורמט עלה במשהו, `; <source format> into <base format>: <what is lost>` — ואז `<base>: N subtitles from M files -> <destination>` (עם `--dry-run`, `(dry run, nothing written)` במקום `-> <destination>`) |
-| 2 | `<base>: SubRip, UTF-8, no BOM, LF line endings kept` — הפורמט, הקידוד, הסימן וסוף השורה של הבסיס, מוחזרים כפי שהיו |
-| 3 | `<base>: N bytes read, M written` (כל הקבצים יחד), ואחריו **כל אבחוני הקריאה** — ראו [הפעלה](invocation.md#אבחוני-קריאה) |
+| 1 | שורה אחת לכל קובץ שנוסף — `source: <path>`, `result: appended N subtitles`, ואחריה, כשהפורמט עלה במשהו, `; <source format> into <base format>: <what is lost>` — ואז `result: N subtitles from M files`, `dest: <destination>` (עם `--dry-run`, `(dry run, nothing written)` במקום `dest: <destination>`) |
+| 2 | `format: SubRip`, `encoding: UTF-8`, `bom: absent`, `line-endings: LF` — הפורמט, הקידוד, הסימן וסוף השורה של הקובץ שנקרא, שהוחזרו כפי שהיו |
+| 3 | `bytes-read: N`, `bytes-written: M`, ואחריה **כל אבחון קריאה** — ראו [הפעלה](invocation.md#אבחוני-קריאה) |
 
 ### ב-JSON
 

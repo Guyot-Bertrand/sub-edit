@@ -85,10 +85,10 @@ dosya, sonra yerleşik varsayılan; dosyanın nerede olduğu, `--config` ve `--n
   Gaupol’un satırlarını geri verir. `--keep-blank-subtitles` ve `--remove-blank-subtitles` birlikte
   kullanım hatasıdır.
 - **Dosyada iki sınıfın da kapalı olması yok sayılır ve bildirilir**, düzey 1’de —
-  `settings: correction.human and correction.ocr are both false, ignored` —: `--classes` bunu yazamazdı ve
+  `warning: setting correction.human and correction.ocr are both false, ignored` —: `--classes` bunu yazamazdı ve
   common-errors görevine yapacak bir şey bırakmazdı. Bunun yerine iki sınıf da uygulanır.
 - **1 ile 1000 arasında olmayan bir satır sayısı dosyadan hiç okunmaz**: dosyanın okuyucusu
-  onu reddeder — `settings: correction.line-break.max-lines: cannot read 'N', default kept`, düzey
+  onu reddeder — `warning: setting correction.line-break.max-lines: cannot read 'N', default kept`, düzey
   1’de — ve yerleşik 3 değeri kullanılır.
 
 Bu sayfadaki örnekler `--no-config` ile çalıştırılır; böylece onları çalıştıran makinenin
@@ -149,7 +149,7 @@ code=1
 
 Kullanıcının `$XDG_DATA_HOME/subedit/patterns` dizinine (veya
 `~/.local/share/subedit/patterns` dizinine) koyduğu desenler, pencerede olduğu gibi **gönderilen desenlere eklenir**
-ve okunamayan gönderilmiş bir desen düzey 1’de bildirilir: `patterns: <file>, line N (<reason>)`.
+ve okunamayan gönderilmiş bir desen düzey 1’de bildirilir: `warning: patterns: <file>, line N (<reason>)`.
 
 ### Sözcükleri birleştirme ve bölme, ve sözlük
 

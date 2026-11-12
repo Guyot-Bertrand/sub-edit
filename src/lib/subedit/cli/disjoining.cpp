@@ -91,10 +91,6 @@ std::expected<core::DisjointReport, Failure> disjointedInPlace(core::Project& pr
     return made->report;
 }
 
-std::string narrationOfDisjoint(const std::string& path, const core::DisjointReport& report) {
-    return core::substitute(core::translate("%1: %2"), {path, core::noticeOfDisjoint(report)});
-}
-
 std::vector<Count> fullCountsOfDisjoint(const core::DisjointReport& report) {
     const auto count = [](std::size_t number) { return static_cast<std::int64_t>(number); };
     return {{"split", count(report.split)},

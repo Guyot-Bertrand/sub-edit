@@ -63,7 +63,10 @@ felülírását, vagy a vég fejre írását bármi beolvasása előtt elutasít
 <!-- example: printf '1\n00:00:01,000 --> 00:00:02,000\nun\n\n2\n00:00:03,000 --> 00:00:04,000\ndeux\n\n3\n00:00:06,000 --> 00:00:07,000\ntrois\n\n4\n00:00:08,000 --> 00:00:09,000\nquatre\n\n' > film.srt; subedit-cli split-file --at 3 --head tete.srt --tail queue.srt film.srt; cat queue.srt -->
 ```console
 $ printf '1\n00:00:01,000 --> 00:00:02,000\nun\n\n2\n00:00:03,000 --> 00:00:04,000\ndeux\n\n3\n00:00:06,000 --> 00:00:07,000\ntrois\n\n4\n00:00:08,000 --> 00:00:09,000\nquatre\n\n' > film.srt; subedit-cli split-file --at 3 --head tete.srt --tail queue.srt film.srt; cat queue.srt
-film.srt: split at subtitle 3: 2 subtitles in the head, 2 subtitles in the tail -> tete.srt, queue.srt
+[subedit] [split-file] [1/1] source: film.srt
+[subedit] [split-file] [1/1] result: split at subtitle 3: 2 subtitles in the head, 2 subtitles in the tail
+[subedit] [split-file] [1/1] dest: tete.srt
+[subedit] [split-file] [1/1] tail: queue.srt
 1
 00:00:02,000 --> 00:00:03,000
 trois
@@ -82,12 +85,12 @@ Az `--at` a feliratsorokat **úgy számozza, ahogyan a fájl adja őket**. Egy o
 fele. A `--sort` a feliratsorokat a kezdetük sorrendjébe teszi **a vágás megítélése előtt** — stabilan, ahogyan a [`sort`](sort.md) —, és
 az `--at` ezután ebben a sorrendben számol.
 
-Alapértelmezés szerint soha. A kapcsolóval a fájl az első tájékoztatási szinten közli, hány feliratsor mozdult el (`<path>: N subtitles moved`
-vagy `<path>: already in order`), és a `--format json` rekord `moved` számot hordoz, **a kapcsoló nélkül hiányzik**.
+Alapértelmezés szerint soha. A kapcsolóval a fájl az első tájékoztatási szinten közli, hány feliratsor mozdult el (`result: N subtitles moved`
+vagy `result: already in order`), és a `--format json` rekord `moved` számot hordoz, **a kapcsoló nélkül hiányzik**.
 
 ## A tartományok átfedésmentessé tétele
 
-Alapértelmezés szerint soha. A kapcsoló azt teszi, amit a [`disjoint`](disjoint.md), **az alapértelmezett beállításaival**, a vágás megítélése előtt, a rendezés után: az `--at` az így kapottban számol. Rendezett fájl kell hozzá: különben elutasítja, és a `--sort` — amely előbb jön — előtte rendezi. A fájl az első tájékoztatási szinten közli ezt (`<path>: N subtitles split, M merged`), és a `--format json` rekord `split` és `merged` számot hordoz, **a kapcsoló nélkül hiányzik**.
+Alapértelmezés szerint soha. A kapcsoló azt teszi, amit a [`disjoint`](disjoint.md), **az alapértelmezett beállításaival**, a vágás megítélése előtt, a rendezés után: az `--at` az így kapottban számol. Rendezett fájl kell hozzá: különben elutasítja, és a `--sort` — amely előbb jön — előtte rendezi. A fájl az első tájékoztatási szinten közli ezt (`result: N subtitles split, M merged`), és a `--format json` rekord `split` és `merged` számot hordoz, **a kapcsoló nélkül hiányzik**.
 
 ## Amikor a vágást elutasítja
 
@@ -112,9 +115,9 @@ hagyna. Az egyetlen feliratsorból álló fájl nem vágható.
 
 | Szint | Mi kerül még a hibakimenetre |
 | :----- | :------------------------------------- |
-| 1 | `<path>: split at subtitle N: H subtitles in the head, T subtitles in the tail -> <head>, <tail>`; a `--dry-run` esetén `(dry run, nothing written)` áll a `-> …` helyén |
-| 2 | `<path>: SubRip, UTF-8, no BOM, LF line endings kept` — a beolvasott fájl formátuma, kódolása, jelölője és sorvége, úgy visszaírva, ahogyan volt |
-| 3 | `<path>: N bytes read, H and T written`, majd **minden olvasási diagnosztika** — lásd [Indítás](invocation.md#olvasási-diagnosztika) |
+| 1 | `source: <path>`, `result: split at subtitle N: H subtitles in the head, T subtitles in the tail`, `dest: <head>`, `tail: <tail>`; a `--dry-run` esetén `(dry run, nothing written)` áll a `dest: <head>` helyén |
+| 2 | `format: SubRip`, `encoding: UTF-8`, `bom: absent`, `line-endings: LF` — a beolvasott fájl formátuma, kódolása, jelölője és sorvége, úgy visszaírva, ahogyan volt |
+| 3 | `bytes-read: N`, `bytes-written: H`, `bytes-written: T`, majd **minden olvasási diagnosztika** — lásd [Indítás](invocation.md#olvasási-diagnosztika) |
 
 ### JSON-ban
 

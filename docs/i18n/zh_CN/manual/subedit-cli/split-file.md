@@ -53,7 +53,10 @@ Options:
 <!-- example: printf '1\n00:00:01,000 --> 00:00:02,000\nun\n\n2\n00:00:03,000 --> 00:00:04,000\ndeux\n\n3\n00:00:06,000 --> 00:00:07,000\ntrois\n\n4\n00:00:08,000 --> 00:00:09,000\nquatre\n\n' > film.srt; subedit-cli split-file --at 3 --head tete.srt --tail queue.srt film.srt; cat queue.srt -->
 ```console
 $ printf '1\n00:00:01,000 --> 00:00:02,000\nun\n\n2\n00:00:03,000 --> 00:00:04,000\ndeux\n\n3\n00:00:06,000 --> 00:00:07,000\ntrois\n\n4\n00:00:08,000 --> 00:00:09,000\nquatre\n\n' > film.srt; subedit-cli split-file --at 3 --head tete.srt --tail queue.srt film.srt; cat queue.srt
-film.srt: split at subtitle 3: 2 subtitles in the head, 2 subtitles in the tail -> tete.srt, queue.srt
+[subedit] [split-file] [1/1] source: film.srt
+[subedit] [split-file] [1/1] result: split at subtitle 3: 2 subtitles in the head, 2 subtitles in the tail
+[subedit] [split-file] [1/1] dest: tete.srt
+[subedit] [split-file] [1/1] tail: queue.srt
 1
 00:00:02,000 --> 00:00:03,000
 trois
@@ -69,11 +72,11 @@ quatre
 
 `--at` 按**文件给出的顺序**给字幕编号。因此在顺序被打乱的文件上，前半部分未必是时间上较早的那一半。`--sort` 会**在判断切分之前**先按开始时间给字幕排序——与 [`sort`](sort.md) 一样是稳定的——`--at` 随后按这个顺序计数。
 
-默认从不这样做。使用该选项时，文件会在第一级说明中指出有多少条字幕被移动（`<path>: N subtitles moved` 或 `<path>: already in order`），而 `--format json` 的记录会带有 `moved` 计数，**不使用该选项时没有这一项**。
+默认从不这样做。使用该选项时，文件会在第一级说明中指出有多少条字幕被移动（`result: N subtitles moved` 或 `result: already in order`），而 `--format json` 的记录会带有 `moved` 计数，**不使用该选项时没有这一项**。
 
 ## 使时间范围互不重叠
 
-默认从不这样做。该选项会在判断切分之前、排序之后，按**默认设置**执行 [`disjoint`](disjoint.md) 所做的事：`--at` 按其结果计数。它要求文件已经有序：否则会被拒绝，而排在它前面的 `--sort` 可以事先把文件排好序。文件会在第一级说明中指出这一点（`<path>: N subtitles split, M merged`），而 `--format json` 的记录会带有 `split` 和 `merged` 计数，**不使用该选项时没有这些项**。
+默认从不这样做。该选项会在判断切分之前、排序之后，按**默认设置**执行 [`disjoint`](disjoint.md) 所做的事：`--at` 按其结果计数。它要求文件已经有序：否则会被拒绝，而排在它前面的 `--sort` 可以事先把文件排好序。文件会在第一级说明中指出这一点（`result: N subtitles split, M merged`），而 `--format json` 的记录会带有 `split` 和 `merged` 计数，**不使用该选项时没有这些项**。
 
 ## 拒绝切分的情形
 
@@ -93,9 +96,9 @@ o.srt: Cannot split at subtitle 3: subtitle 3 would fall before the start of the
 
 | 级别 | 在标准错误输出上追加的内容 |
 | :----- | :------------------------------------- |
-| 1 | `<path>: split at subtitle N: H subtitles in the head, T subtitles in the tail -> <head>, <tail>`；使用 `--dry-run` 时，以 `(dry run, nothing written)` 取代 `-> …` |
-| 2 | `<path>: SubRip, UTF-8, no BOM, LF line endings kept`——所读文件的格式、编码、标记和行尾符，原样保留 |
-| 3 | `<path>: N bytes read, H and T written`，然后是**每一条读取诊断信息**——参见[调用](invocation.md#读取诊断信息) |
+| 1 | `source: <path>`, `result: split at subtitle N: H subtitles in the head, T subtitles in the tail`, `dest: <head>`, `tail: <tail>`；使用 `--dry-run` 时，以 `(dry run, nothing written)` 取代 `dest: <head>` |
+| 2 | `format: SubRip`, `encoding: UTF-8`, `bom: absent`, `line-endings: LF`——所读文件的格式、编码、标记和行尾符，原样保留 |
+| 3 | `bytes-read: N`, `bytes-written: H`, `bytes-written: T`，然后是**每一条读取诊断信息**——参见[调用](invocation.md#读取诊断信息) |
 
 ### 以 JSON 输出
 

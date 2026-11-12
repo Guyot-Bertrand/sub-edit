@@ -42,7 +42,7 @@ Subcommands:
 | :---------- | :----------- | :--- |
 | `config list` | כותבת כל מפתח פעולה, עם מה שהוא משמש לו, מה שהוא מקבל, ברירת המחדל שלו ומי משתמש בו — **בלי ערך** | אינה קוראת אותו |
 | `config show` | כותבת את הקובץ שבשימוש והאם הוא קיים, ואז כל מפתח פעולה עם ערכו, מקור הערך וברירת המחדל שלו | קוראת אותו |
-| `config set KEY VALUE` | בודקת את `VALUE`, ואז כותבת את הקובץ מחדש עם `KEY = VALUE`, ושומרת על כל שאר ההגדרות | קוראת וכותבת אותו |
+| `config set KEY VALUE` | בודקת את `VALUE`, ואז כותבת את הקובץ מחדש עם `result: KEY = VALUE`, ושומרת על כל שאר ההגדרות | קוראת וכותבת אותו |
 | `config unset KEY` | מחזירה את `KEY` לברירת המחדל שלו, כתובה כהערה כפי שהקובץ כותב תמיד ברירת מחדל | קוראת וכותבת אותו |
 
 | אפשרות | חובה | ערכים | ברירת מחדל |
@@ -156,7 +156,7 @@ $ subedit-cli --format json config list | head -1
 <!-- example: subedit-cli --config mine/settings.conf config set duration-adjust.speed 12; subedit-cli --config mine/settings.conf config show | head -4 -->
 ```console
 $ subedit-cli --config mine/settings.conf config set duration-adjust.speed 12; subedit-cli --config mine/settings.conf config show | head -4
-duration-adjust.speed = 12
+[subedit] [config] [-] result: duration-adjust.speed = 12
 File: mine/settings.conf (found)
 duration-adjust.speed = 12   [file]   (default 15)
 duration-adjust.lengthen = true   [default]
@@ -182,7 +182,7 @@ duration-adjust.speed = 15   [default]
 <!-- example: subedit-cli --config mine/settings.conf config set duration-adjust.speed 12; subedit-cli --format json --config mine/settings.conf config show | head -2 -->
 ```console
 $ subedit-cli --config mine/settings.conf config set duration-adjust.speed 12; subedit-cli --format json --config mine/settings.conf config show | head -2
-duration-adjust.speed = 12
+[subedit] [config] [-] result: duration-adjust.speed = 12
 {"schema":1,"command":"config","file":"mine/settings.conf","exists":true}
 {"schema":1,"command":"config","key":"duration-adjust.speed","value":"12","source":"file","default":"15","used_by":"subedit-cli adjust; Adjust Durations…","surface":"both"}
 ```
@@ -198,20 +198,20 @@ duration-adjust.speed = 12
 גוש הפעולות בא ראשון וגוש התצוגה שני, כל אחד תחת כרזתו. **ערך
 שהקובץ לא הצליח לקרוא, ומפתח לא מוכר, אינם נשמרים** — הכתיבה מחדש היא של החלון, שמשמיט גם
 אותם. **כל ערך שהושמט נאמר**, בשגיאה הסטנדרטית ברמת ברירת המחדל, העדפות
-התצוגה בכלל זה: `<key>: unreadable value '<value>' replaced by its default`. הקובץ
+התצוגה בכלל זה: `warning: <key>: unreadable value '<value>' replaced by its default`. הקובץ
 ותיקייתו נוצרים כשהם חסרים.
 
-האישור הולך לשגיאה הסטנדרטית, ברמת ברירת המחדל: `KEY = VALUE` ב-`set`,
-`KEY reset to its default (DEFAULT)` ב-`unset`.
+האישור הולך לשגיאה הסטנדרטית, ברמת ברירת המחדל: `result: KEY = VALUE` ב-`set`,
+`result: KEY reset to its default (DEFAULT)` ב-`unset`.
 
 <!-- example: subedit-cli --config mine/settings.conf config set duration-adjust.gap-ms 100; grep -e '^[a-z]' -e '^# [A-Z][a-z]* [a-z]*:' mine/settings.conf; subedit-cli --config mine/settings.conf config unset duration-adjust.gap-ms; grep gap-ms mine/settings.conf -->
 ```console
 $ subedit-cli --config mine/settings.conf config set duration-adjust.gap-ms 100; grep -e '^[a-z]' -e '^# [A-Z][a-z]* [a-z]*:' mine/settings.conf; subedit-cli --config mine/settings.conf config unset duration-adjust.gap-ms; grep gap-ms mine/settings.conf
-duration-adjust.gap-ms = 100
+[subedit] [config] [-] result: duration-adjust.gap-ms = 100
 # Operation settings: shared by the window and the command line (subedit-cli reads these).
 duration-adjust.gap-ms = 100
 # Display preferences: the window's own, the command line never reads them.
-duration-adjust.gap-ms reset to its default (0)
+[subedit] [config] [-] result: duration-adjust.gap-ms reset to its default (0)
 #duration-adjust.gap-ms = 0
 #transcription.merge-gap-ms = 400
 ```
@@ -242,9 +242,9 @@ duration-adjust.gap-ms reset to its default (0)
 <!-- example: subedit-cli --config mine/settings.conf config set general.theme dark; echo "code=$?"; subedit-cli --config mine/settings.conf config set duration-adjust.speed fast; echo "code=$?"; subedit-cli --no-config config unset duration-adjust.speed; echo "code=$?" -->
 ```console
 $ subedit-cli --config mine/settings.conf config set general.theme dark; echo "code=$?"; subedit-cli --config mine/settings.conf config set duration-adjust.speed fast; echo "code=$?"; subedit-cli --no-config config unset duration-adjust.speed; echo "code=$?"
-general.theme is a display preference; set it in the window
+[subedit] [config] [-] error: general.theme is a display preference; set it in the window
 code=1
-cannot read 'fast' for duration-adjust.speed; subedit-cli config list says what it accepts
+[subedit] [config] [-] error: cannot read 'fast' for duration-adjust.speed; subedit-cli config list says what it accepts
 code=1
 [subedit] [config] [-] error: --no-config has nothing to write to
 code=1

@@ -194,8 +194,10 @@ joka ilmestyy joka kutsulla, on raportti, jota kukaan ei lue.
 <!-- example: printf '1\n00:00:01,000 --> 00:00:03,500\n<i>sur deux</i>\nlignes\n\n' > a.srt; subedit-cli convert --to lrc --output b.lrc a.srt -->
 ```console
 $ printf '1\n00:00:01,000 --> 00:00:03,500\n<i>sur deux</i>\nlignes\n\n' > a.srt; subedit-cli convert --to lrc --output b.lrc a.srt
-a.srt: 1 subtitle written as LRC -> b.lrc
-a.srt: ends are not carried by LRC, line breaks were joined in 1 subtitle, 1 tag dropped
+[subedit] [convert] [1/1] source: a.srt
+[subedit] [convert] [1/1] warning: ends are not carried by LRC, line breaks were joined in 1 subtitle, 1 tag dropped
+[subedit] [convert] [1/1] result: 1 subtitle converted to LRC, UTF-8, no BOM, LF line endings
+[subedit] [convert] [1/1] dest: b.lrc
 ```
 
 Rivi näkyy oletustasolla ja jokaisella sitä korkeammalla tasolla.
@@ -278,7 +280,9 @@ muunnoksessa tarkoituksella säilytetyn tiedon.
 <!-- example: printf '1\n00:00:01,000 --> 00:00:03,000\nBonjour.\n\n' > a.srt; subedit-cli convert --to vtt --output b.vtt a.srt; cat b.vtt -->
 ```console
 $ printf '1\n00:00:01,000 --> 00:00:03,000\nBonjour.\n\n' > a.srt; subedit-cli convert --to vtt --output b.vtt a.srt; cat b.vtt
-a.srt: 1 subtitle written as WebVTT -> b.vtt
+[subedit] [convert] [1/1] source: a.srt
+[subedit] [convert] [1/1] result: 1 subtitle converted to WebVTT, UTF-8, no BOM, LF line endings
+[subedit] [convert] [1/1] dest: b.vtt
 WEBVTT
 
 00:01.000 --> 00:03.000
@@ -291,19 +295,19 @@ Bonjour.
 kosketa, ja kirjoitettu on sitä, mitä alikomento [`sort`](sort.md) olisi siitä tehnyt — vakaa järjestys: kaksi yhtä aikaa alkavaa kappaletta säilyttää järjestyksensä.
 
 **Ei koskaan oletuksena**: tiedoston järjestys on sen tekijän, niin kauan kuin muuta ei pyydetä. Valitsimen kanssa kukin tiedosto kertoo
-ensimmäisellä kerronnan tasolla `<path>: N subtitles moved` tai `<path>: already in order`, ja valitsimen `--format json` tietueessa on
+ensimmäisellä kerronnan tasolla `result: N subtitles moved` tai `result: already in order`, ja valitsimen `--format json` tietueessa on
 laskuri `moved` — **puuttuu ilman valitsinta**, jotta olemassa olevien skriptien lukeman tiedon rakenne ei muutu.
 
 ## Aikavälien päällekkäisyyksien poistaminen
 
 `--disjoint` leikkaa päällekkäiset kappaleet niin, ettei mikään aikaväli enää mene toisen päälle, **samalle kopiolle kuin järjestäminen**: luettuun tiedostoon ei kosketa.
 
-Ei koskaan oletuksena. Valitsin tekee saman kuin [`disjoint`](disjoint.md) **oletusasetuksillaan** ennen kirjoittamista, järjestämisen jälkeen. Se vaatii järjestyksessä olevan tiedoston: muuten se hylätään, ja `--sort` — joka tulee ensin — järjestää tiedoston etukäteen. Tiedosto kertoo sen ensimmäisellä kerronnan tasolla (`<path>: N subtitles split, M merged`), ja valitsimen `--format json` tietueessa ovat laskurit `split` ja `merged`, jotka **puuttuvat ilman valitsinta**.
+Ei koskaan oletuksena. Valitsin tekee saman kuin [`disjoint`](disjoint.md) **oletusasetuksillaan** ennen kirjoittamista, järjestämisen jälkeen. Se vaatii järjestyksessä olevan tiedoston: muuten se hylätään, ja `--sort` — joka tulee ensin — järjestää tiedoston etukäteen. Tiedosto kertoo sen ensimmäisellä kerronnan tasolla (`result: N subtitles split, M merged`), ja valitsimen `--format json` tietueessa ovat laskurit `split` ja `merged`, jotka **puuttuvat ilman valitsinta**.
 
 **`--join-repeats` tulee ennen järjestämistä ja leikkaamista**: peräkkäisiin paloihin leikattu teksti kootaan ensin uudelleen (katso
 [`join-repeats`](join-repeats.md)), sitten kappaleet järjestetään ja sitten aikavälien päällekkäisyydet poistetaan. **`--repair` on kaikki kolme kerralla**,
 kuten [`repair`](repair.md), leikkaamisen oletusasetuksin. Valitsimella `--join-repeats` kukin tiedosto kertoo
-`<path>: N repeated subtitles joined` ensimmäisellä kerronnan tasolla, ja valitsimen `--format json` tietueessa on `counts.joined` — **puuttuu ilman valitsinta**.
+`result: N repeated subtitles joined` ensimmäisellä kerronnan tasolla, ja valitsimen `--format json` tietueessa on `counts.joined` — **puuttuu ilman valitsinta**.
 
 ## Tuloste
 
@@ -313,9 +317,9 @@ Virhetulosteeseen tason mukaan:
 
 | Taso | Mitä lisätään |
 | :----- | :-------------- |
-| 1 | `<path>: N subtitles written as WebVTT -> <destination>` |
-| 2 | `<path>: SubRip -> WebVTT, UTF-8, no BOM, LF line endings` — nimetty merkistökoodaus on kirjoitettu |
-| 3 | `<path>: N bytes read, M written`, sitten **jokainen huomautus luettaessa** — katso [Käynnistys](invocation.md#huomautukset-luettaessa) |
+| 1 | `source: <path>`, `result: N subtitles converted to WebVTT, UTF-8, no BOM, LF line endings`, `dest: <destination>` |
+| 2 | `format: SubRip`, `encoding: UTF-8`, `bom: absent`, `line-endings: LF` — luetun tiedoston tiedot |
+| 3 | `bytes-read: N`, `bytes-written: M`, sitten **jokainen huomautus luettaessa** — katso [Käynnistys](invocation.md#huomautukset-luettaessa) |
 
 ### JSON-muodossa
 

@@ -345,9 +345,9 @@ $ printf '{25}{50}Un.\n{75}{100}Deux.\n' > f.sub; subedit-cli --format json insp
 
 | Уровень | Что добавляется |
 | :----- | :-------------- |
-| 1 | `<path>: N subtitles` |
-| 2 | `<path>: SubRip, UTF-8, no BOM, LF line endings` |
-| 3 | `<path>: N bytes read`, `<path>: N diagnostic(s) while reading`, затем **каждое из них** — см. [Запуск](invocation.md#чтение-диагностических-сообщений) |
+| 1 | `source: <path>`, `result: N subtitles` |
+| 2 | `format: SubRip`, `encoding: UTF-8`, `bom: absent`, `line-endings: LF` |
+| 3 | `bytes-read: N`, затем **все диагностические сообщения чтения** — см. [Запуск](invocation.md#чтение-диагностических-сообщений) |
 
 ## Коды завершения
 
@@ -379,6 +379,7 @@ $ printf '{25}{50}Un.\n{75}{100}Deux.\n' > f.sub; subedit-cli --format json insp
 <!-- example: : > vide.srt; subedit-cli inspect vide.srt; echo "code=$?" -->
 ```console
 $ : > vide.srt; subedit-cli inspect vide.srt; echo "code=$?"
-vide.srt: is in no format this tool knows
+[subedit] [inspect] [1/1] source: vide.srt
+[subedit] [inspect] [1/1] error: is in no format this tool knows
 code=2
 ```

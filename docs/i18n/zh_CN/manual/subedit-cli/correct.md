@@ -70,8 +70,8 @@ Options:
 | `correction.line-break.max-lines` | `line-break` 的最大行数 | `--max-lines` |
 
 - **这四项都有一个不论文件怎么说都能撤销它的选项**：`--classes human,ocr` 同时应用两个类别，`--remove-blank-subtitles` 删除被清空的字幕，`--max-lines 3` 恢复 Gaupol 的行数。`--keep-blank-subtitles` 与 `--remove-blank-subtitles` 同用属于用法错误。
-- **文件中两个类别都关闭，会被忽略，并会说明**，在级别 1 时——`settings: correction.human and correction.ocr are both false, ignored`——：`--classes` 写不出这种情况，而且这会使 common-errors 无事可做。此时会改为同时应用两个类别。
-- **不在 1 到 1000 范围内的行数，根本不会从文件中读取**：文件的读取器会拒绝它——在级别 1 时为 `settings: correction.line-break.max-lines: cannot read 'N', default kept`——并使用内置的 3。
+- **文件中两个类别都关闭，会被忽略，并会说明**，在级别 1 时——`warning: setting correction.human and correction.ocr are both false, ignored`——：`--classes` 写不出这种情况，而且这会使 common-errors 无事可做。此时会改为同时应用两个类别。
+- **不在 1 到 1000 范围内的行数，根本不会从文件中读取**：文件的读取器会拒绝它——在级别 1 时为 `warning: setting correction.line-break.max-lines: cannot read 'N', default kept`——并使用内置的 3。
 
 本页的示例都带 `--no-config` 运行，这样它们体现的就是内置默认值的效果，而与运行它们的机器上的设置无关。
 
@@ -120,7 +120,7 @@ $ printf '1\n00:00:01,000 --> 00:00:02,000\nBonjour\n\n' > a.srt; subedit-cli --
 code=1
 ```
 
-用户放在 `$XDG_DATA_HOME/subedit/patterns`（或 `~/.local/share/subedit/patterns`）中的模式，会像在窗口中一样**添加到随附的模式之上**，而无法读取的随附模式会在级别 1 时说明：`patterns: <file>, line N (<reason>)`。
+用户放在 `$XDG_DATA_HOME/subedit/patterns`（或 `~/.local/share/subedit/patterns`）中的模式，会像在窗口中一样**添加到随附的模式之上**，而无法读取的随附模式会在级别 1 时说明：`warning: patterns: <file>, line N (<reason>)`。
 
 ### 单词的连接与拆分，以及词典
 

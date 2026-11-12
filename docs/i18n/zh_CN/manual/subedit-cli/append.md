@@ -55,8 +55,11 @@ Options:
 <!-- example: printf '1\n00:00:01,000 --> 00:00:02,000\nun\n\n2\n00:00:03,000 --> 00:00:04,000\ndeux\n\n' > partie1.srt; printf '1\n00:00:00,500 --> 00:00:01,500\ntrois\n\n' > partie2.srt; subedit-cli append --output film.srt partie1.srt partie2.srt; cat film.srt -->
 ```console
 $ printf '1\n00:00:01,000 --> 00:00:02,000\nun\n\n2\n00:00:03,000 --> 00:00:04,000\ndeux\n\n' > partie1.srt; printf '1\n00:00:00,500 --> 00:00:01,500\ntrois\n\n' > partie2.srt; subedit-cli append --output film.srt partie1.srt partie2.srt; cat film.srt
-partie2.srt: appended 1 subtitle
-partie1.srt: 3 subtitles from 2 files -> film.srt
+[subedit] [append] [1/1] source: partie1.srt
+[subedit] [append] [1/1] source: partie2.srt
+[subedit] [append] [1/1] result: appended 1 subtitle
+[subedit] [append] [1/1] result: 3 subtitles from 2 files
+[subedit] [append] [1/1] dest: film.srt
 1
 00:00:01,000 --> 00:00:02,000
 un
@@ -80,7 +83,7 @@ trois
 
 ## 使时间范围互不重叠
 
-默认不执行。该选项的作用与 [`disjoint`](disjoint.md) 相同，使用的是**它的默认设置**，在全部追加完毕之后，对整体执行。它要求文件已排好顺序：否则会被拒绝，而排在它前面执行的 `--sort` 会事先把文件排好顺序。文件会在第一级输出中说明这一点（`<path>: N subtitles split, M merged`），而 `--format json` 的记录中带有 `split` 和 `merged` 计数，**不使用该选项时没有这两项**。
+默认不执行。该选项的作用与 [`disjoint`](disjoint.md) 相同，使用的是**它的默认设置**，在全部追加完毕之后，对整体执行。它要求文件已排好顺序：否则会被拒绝，而排在它前面执行的 `--sort` 会事先把文件排好顺序。文件会在第一级输出中说明这一点（`result: N subtitles split, M merged`），而 `--format json` 的记录中带有 `split` 和 `merged` 计数，**不使用该选项时没有这两项**。
 
 ## 格式不同时
 
@@ -98,9 +101,9 @@ d.ass: appended 1 subtitle; Advanced SSA into SubRip: 1 tag dropped, the header 
 
 | 级别 | 在错误输出中增加的内容 |
 | :----- | :------------------------------------- |
-| 1 | 每个被追加的文件一行——`<path>: appended N subtitles`，格式带来损失时，后面接 `; <source format> into <base format>: <what is lost>`——然后是 `<base>: N subtitles from M files -> <destination>`（使用 `--dry-run` 时，用 `(dry run, nothing written)` 代替 `-> <destination>`） |
-| 2 | `<base>: SubRip, UTF-8, no BOM, LF line endings kept`——基准文件的格式、编码、标记和行尾符，并按原样写回 |
-| 3 | `<base>: N bytes read, M written`（所有文件合计），然后是**每一条读取诊断信息**——参见[调用](invocation.md#读取诊断信息) |
+| 1 | 每个被追加的文件一行——`source: <path>`, `result: appended N subtitles`，格式带来损失时，后面接 `; <source format> into <base format>: <what is lost>`——然后是 `result: N subtitles from M files`, `dest: <destination>`（使用 `--dry-run` 时，用 `(dry run, nothing written)` 代替 `dest: <destination>`） |
+| 2 | `format: SubRip`, `encoding: UTF-8`, `bom: absent`, `line-endings: LF`——所读文件的格式、编码、标记和行尾符，原样保留 |
+| 3 | `bytes-read: N`, `bytes-written: M`，然后是**每一条读取诊断信息**——参见[调用](invocation.md#读取诊断信息) |
 
 ### 以 JSON 输出
 

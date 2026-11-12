@@ -85,10 +85,10 @@ para saber onde ele fica, `--config` e `--no-config`.
   devolve as linhas do Gaupol. `--keep-blank-subtitles` e `--remove-blank-subtitles` juntas são um
   erro de uso.
 - **As duas classes desativadas no arquivo são ignoradas, e isso é informado** no nível 1 —
-  `settings: correction.human and correction.ocr are both false, ignored` —: `--classes` não conseguiria escrevê-lo, e ele
+  `warning: setting correction.human and correction.ocr are both false, ignored` —: `--classes` não conseguiria escrevê-lo, e ele
   deixaria common-errors sem nada a fazer. As duas classes são aplicadas em seu lugar.
 - **Um número de linhas fora do intervalo de 1 a 1000 não é lido do arquivo de modo algum**: o leitor do arquivo
-  o recusa — `settings: correction.line-break.max-lines: cannot read 'N', default kept`, no
+  o recusa — `warning: setting correction.line-break.max-lines: cannot read 'N', default kept`, no
   nível 1 — e o 3 embutido é usado.
 
 Os exemplos desta página são executados com `--no-config`, para mostrar o que os valores
@@ -149,7 +149,7 @@ code=1
 
 Os padrões que o usuário coloca em `$XDG_DATA_HOME/subedit/patterns` (ou
 `~/.local/share/subedit/patterns`) **são acrescentados aos padrões fornecidos**, como na
-janela, e um padrão fornecido que não possa ser lido é informado no nível 1: `patterns: <file>, line N (<reason>)`.
+janela, e um padrão fornecido que não possa ser lido é informado no nível 1: `warning: patterns: <file>, line N (<reason>)`.
 
 ### União e divisão de palavras, e o dicionário
 

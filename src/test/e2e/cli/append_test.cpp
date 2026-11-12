@@ -64,8 +64,11 @@ TEST_CASE("two files come out one after the other, the second shifted by the end
 
     CHECK(run.exitCode == 0);
     CHECK_THAT(contentOf(out), MatchesFile(corpus("attendus/append/deux-fichiers.srt")));
-    CHECK_THAT(run.errors, ContainsSubstring("b.srt: appended 1 subtitle"));
-    CHECK_THAT(run.errors, ContainsSubstring("3 subtitles from 2 files -> "));
+    // One element: the second input has its own `source` line, and what was done with it after.
+    CHECK_THAT(run.errors, ContainsSubstring("[1/1] source: " + second + "\n"));
+    CHECK_THAT(run.errors, ContainsSubstring("[1/1] result: appended 1 subtitle\n"));
+    CHECK_THAT(run.errors, ContainsSubstring("[1/1] result: 3 subtitles from 2 files\n"));
+    CHECK_THAT(run.errors, ContainsSubstring("[1/1] dest: " + out + "\n"));
 }
 
 TEST_CASE("three files in two formats come out in the format of the first",
@@ -94,7 +97,7 @@ TEST_CASE("what crossing into the format of the first costs is said, file by fil
 
     CHECK(run.exitCode == 0);
     CHECK_THAT(run.errors,
-               ContainsSubstring("d.ass: appended 1 subtitle; Advanced SSA into SubRip: "
+               ContainsSubstring("] result: appended 1 subtitle; Advanced SSA into SubRip: "
                                  "1 tag dropped, the header was dropped"));
 }
 

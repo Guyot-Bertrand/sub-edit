@@ -137,7 +137,7 @@ TEST_CASE("the join option on convert joins the repeats before writing, and coun
     CHECK(code == ExitCode::Success);
     CHECK(files.contentOf("out/a.srt").value_or("") ==
           "1\n00:00:01,000 --> 00:00:06,000\nAlpha\n\n2\n00:00:01,000 --> 00:00:06,000\nBeta\n\n");
-    CHECK_THAT(errors.str(), ContainsSubstring("a.srt: 2 repeated subtitles joined"));
+    CHECK_THAT(errors.str(), ContainsSubstring("] result: 2 repeated subtitles joined\n"));
     CHECK_THAT(records.str(), ContainsSubstring("\"joined\":2"));
 }
 

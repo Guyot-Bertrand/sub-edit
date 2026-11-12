@@ -232,7 +232,7 @@ TEST_CASE("config set then show then unset round-trips through the file", "[e2e]
     const CliRun set = invoke({"--config", file, "config", "set", "duration-adjust.speed", "12"});
     REQUIRE(set.exitCode == 0);
     CHECK(set.output.empty());
-    CHECK(set.errors == "duration-adjust.speed = 12\n");
+    CHECK(set.errors == "[subedit] [config] [-] result: duration-adjust.speed = 12\n");
     CHECK_THAT(contentOf(file), ContainsSubstring("duration-adjust.speed = 12\n"));
 
     const CliRun shown = invoke({"--config", file, "config", "show"});
@@ -243,7 +243,8 @@ TEST_CASE("config set then show then unset round-trips through the file", "[e2e]
 
     const CliRun unset = invoke({"--config", file, "config", "unset", "duration-adjust.speed"});
     REQUIRE(unset.exitCode == 0);
-    CHECK(unset.errors == "duration-adjust.speed reset to its default (15)\n");
+    CHECK(unset.errors ==
+          "[subedit] [config] [-] result: duration-adjust.speed reset to its default (15)\n");
 
     const CliRun again = invoke({"--config", file, "config", "show"});
     CHECK(again.exitCode == 0);

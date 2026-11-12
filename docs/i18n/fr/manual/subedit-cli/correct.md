@@ -83,11 +83,11 @@ toujours**, puis le fichier, puis le défaut intégré ; voir
   `--max-lines 3` rend les lignes de Gaupol. `--keep-blank-subtitles` et
   `--remove-blank-subtitles` ensemble sont une erreur d'usage.
 - **Les deux classes éteintes dans le fichier sont ignorées, et c'est dit** au niveau 1 —
-  `settings: correction.human and correction.ocr are both false, ignored` — : `--classes` ne
+  `warning: setting correction.human and correction.ocr are both false, ignored` — : `--classes` ne
   saurait l'écrire, et cela ne laisserait rien à faire aux erreurs courantes. Les deux classes
   sont appliquées à la place.
 - **Un nombre de lignes hors de 1 à 1000 n'est pas lu du tout dans le fichier** : le lecteur du
-  fichier le refuse — `settings: correction.line-break.max-lines: cannot read 'N', default kept`,
+  fichier le refuse — `warning: setting correction.line-break.max-lines: cannot read 'N', default kept`,
   au niveau 1 — et le 3 intégré est employé.
 
 Les exemples de cette page sont exécutés avec `--no-config`, pour qu'ils disent ce que font les
@@ -148,7 +148,7 @@ code=1
 
 Les motifs que l'utilisateur dépose dans `$XDG_DATA_HOME/subedit/patterns` (ou
 `~/.local/share/subedit/patterns`) **s'ajoutent aux motifs livrés**, comme dans la
-fenêtre, et un motif livré qui ne se lit pas est dit au niveau 1 : `patterns: <file>, line N (<reason>)`.
+fenêtre, et un motif livré qui ne se lit pas est dit au niveau 1 : `warning: patterns: <file>, line N (<reason>)`.
 
 ### La jonction et la scission de mots, et le dictionnaire
 

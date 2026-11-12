@@ -345,9 +345,9 @@ Na saída de erros, consoante o nível pedido:
 
 | Nível | O que se acrescenta |
 | :----- | :-------------- |
-| 1 | `<path>: N subtitles` |
-| 2 | `<path>: SubRip, UTF-8, no BOM, LF line endings` |
-| 3 | `<path>: N bytes read`, `<path>: N diagnostic(s) while reading`, e depois **cada um deles** — ver [Invocação](invocation.md#ler-os-diagnósticos) |
+| 1 | `source: <path>`, `result: N subtitles` |
+| 2 | `format: SubRip`, `encoding: UTF-8`, `bom: absent`, `line-endings: LF` |
+| 3 | `bytes-read: N`, e depois **todos os diagnósticos de leitura** — ver [Invocação](invocation.md#ler-os-diagnósticos) |
 
 ## Códigos de saída
 
@@ -379,6 +379,7 @@ Um ficheiro vazio não corresponde a nenhum formato. Não é comunicado como vaz
 <!-- example: : > vide.srt; subedit-cli inspect vide.srt; echo "code=$?" -->
 ```console
 $ : > vide.srt; subedit-cli inspect vide.srt; echo "code=$?"
-vide.srt: is in no format this tool knows
+[subedit] [inspect] [1/1] source: vide.srt
+[subedit] [inspect] [1/1] error: is in no format this tool knows
 code=2
 ```

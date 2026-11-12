@@ -63,7 +63,10 @@ tai loppuosan kirjoittaminen alkuosan päälle hylätään ennen kuin mitään l
 <!-- example: printf '1\n00:00:01,000 --> 00:00:02,000\nun\n\n2\n00:00:03,000 --> 00:00:04,000\ndeux\n\n3\n00:00:06,000 --> 00:00:07,000\ntrois\n\n4\n00:00:08,000 --> 00:00:09,000\nquatre\n\n' > film.srt; subedit-cli split-file --at 3 --head tete.srt --tail queue.srt film.srt; cat queue.srt -->
 ```console
 $ printf '1\n00:00:01,000 --> 00:00:02,000\nun\n\n2\n00:00:03,000 --> 00:00:04,000\ndeux\n\n3\n00:00:06,000 --> 00:00:07,000\ntrois\n\n4\n00:00:08,000 --> 00:00:09,000\nquatre\n\n' > film.srt; subedit-cli split-file --at 3 --head tete.srt --tail queue.srt film.srt; cat queue.srt
-film.srt: split at subtitle 3: 2 subtitles in the head, 2 subtitles in the tail -> tete.srt, queue.srt
+[subedit] [split-file] [1/1] source: film.srt
+[subedit] [split-file] [1/1] result: split at subtitle 3: 2 subtitles in the head, 2 subtitles in the tail
+[subedit] [split-file] [1/1] dest: tete.srt
+[subedit] [split-file] [1/1] tail: queue.srt
 1
 00:00:02,000 --> 00:00:03,000
 trois
@@ -82,12 +85,12 @@ joka alkoi kohdasta 6 s, alkaa kohdasta 2 s.
 aikaisempi puolisko. `--sort` järjestää kappaleet alkujensa mukaan **ennen leikkauksen arviointia** — vakaasti, kuten [`sort`](sort.md) tekee —, ja
 `--at` laskee sitten tässä järjestyksessä.
 
-Ei koskaan oletuksena. Valitsimen kanssa tiedosto kertoo kerronnan ensimmäisellä tasolla, kuinka monta kappaletta siirtyi (`<path>: N subtitles moved`
-tai `<path>: already in order`), ja `--format json` -tietueessa on laskuri `moved`, **joka puuttuu ilman valitsinta**.
+Ei koskaan oletuksena. Valitsimen kanssa tiedosto kertoo kerronnan ensimmäisellä tasolla, kuinka monta kappaletta siirtyi (`result: N subtitles moved`
+tai `result: already in order`), ja `--format json` -tietueessa on laskuri `moved`, **joka puuttuu ilman valitsinta**.
 
 ## Aikavälien päällekkäisyyksien poistaminen
 
-Ei koskaan oletuksena. Valitsin tekee saman kuin [`disjoint`](disjoint.md) **sen oletusasetuksin** ennen leikkauksen arviointia, järjestämisen jälkeen: `--at` laskee siitä, mitä tämä antaa. Se tarvitsee järjestyksessä olevan tiedoston: muuten se hylätään, ja `--sort` — joka tulee ensin — järjestää sen etukäteen. Tiedosto kertoo sen kerronnan ensimmäisellä tasolla (`<path>: N subtitles split, M merged`), ja `--format json` -tietueessa ovat laskurit `split` ja `merged`, **jotka puuttuvat ilman valitsinta**.
+Ei koskaan oletuksena. Valitsin tekee saman kuin [`disjoint`](disjoint.md) **sen oletusasetuksin** ennen leikkauksen arviointia, järjestämisen jälkeen: `--at` laskee siitä, mitä tämä antaa. Se tarvitsee järjestyksessä olevan tiedoston: muuten se hylätään, ja `--sort` — joka tulee ensin — järjestää sen etukäteen. Tiedosto kertoo sen kerronnan ensimmäisellä tasolla (`result: N subtitles split, M merged`), ja `--format json` -tietueessa ovat laskurit `split` ja `merged`, **jotka puuttuvat ilman valitsinta**.
 
 ## Kun leikkaus hylätään
 
@@ -112,9 +115,9 @@ tyhjäksi. Yhden kappaleen tiedostoa ei voi leikata.
 
 | Taso | Mitä virhetulosteeseen lisätään |
 | :----- | :------------------------------------- |
-| 1 | `<path>: split at subtitle N: H subtitles in the head, T subtitles in the tail -> <head>, <tail>`; valitsimella `--dry-run` merkintä `(dry run, nothing written)` merkinnän `-> …` sijaan |
-| 2 | `<path>: SubRip, UTF-8, no BOM, LF line endings kept` — luetun tiedoston muoto, merkistökoodaus, merkki ja rivinvaihdot palautettuina ennalleen |
-| 3 | `<path>: N bytes read, H and T written`, sitten **jokainen huomautus luettaessa** — katso [Käynnistys](invocation.md#huomautukset-luettaessa) |
+| 1 | `source: <path>`, `result: split at subtitle N: H subtitles in the head, T subtitles in the tail`, `dest: <head>`, `tail: <tail>`; valitsimella `--dry-run` merkintä `(dry run, nothing written)` merkinnän `dest: <head>` sijaan |
+| 2 | `format: SubRip`, `encoding: UTF-8`, `bom: absent`, `line-endings: LF` — luetun tiedoston muoto, merkistökoodaus, merkki ja rivinvaihdot palautettuina ennalleen |
+| 3 | `bytes-read: N`, `bytes-written: H`, `bytes-written: T`, sitten **jokainen huomautus luettaessa** — katso [Käynnistys](invocation.md#huomautukset-luettaessa) |
 
 ### JSON-muodossa
 

@@ -194,8 +194,10 @@ Gaupol — а ниво `-vvv` то каже:
 <!-- example: printf '1\n00:00:01,000 --> 00:00:03,500\n<i>sur deux</i>\nlignes\n\n' > a.srt; subedit-cli convert --to lrc --output b.lrc a.srt -->
 ```console
 $ printf '1\n00:00:01,000 --> 00:00:03,500\n<i>sur deux</i>\nlignes\n\n' > a.srt; subedit-cli convert --to lrc --output b.lrc a.srt
-a.srt: 1 subtitle written as LRC -> b.lrc
-a.srt: ends are not carried by LRC, line breaks were joined in 1 subtitle, 1 tag dropped
+[subedit] [convert] [1/1] source: a.srt
+[subedit] [convert] [1/1] warning: ends are not carried by LRC, line breaks were joined in 1 subtitle, 1 tag dropped
+[subedit] [convert] [1/1] result: 1 subtitle converted to LRC, UTF-8, no BOM, LF line endings
+[subedit] [convert] [1/1] dest: b.lrc
 ```
 
 Ред се појављује на подразумеваном нивоу опширности и на свакоме изнад њега.
@@ -278,7 +280,9 @@ WebVTT — датотека чије име лаже збуњује сваки �
 <!-- example: printf '1\n00:00:01,000 --> 00:00:03,000\nBonjour.\n\n' > a.srt; subedit-cli convert --to vtt --output b.vtt a.srt; cat b.vtt -->
 ```console
 $ printf '1\n00:00:01,000 --> 00:00:03,000\nBonjour.\n\n' > a.srt; subedit-cli convert --to vtt --output b.vtt a.srt; cat b.vtt
-a.srt: 1 subtitle written as WebVTT -> b.vtt
+[subedit] [convert] [1/1] source: a.srt
+[subedit] [convert] [1/1] result: 1 subtitle converted to WebVTT, UTF-8, no BOM, LF line endings
+[subedit] [convert] [1/1] dest: b.vtt
 WEBVTT
 
 00:01.000 --> 00:03.000
@@ -291,19 +295,19 @@ Bonjour.
 се не дира, а записује се оно што би од ње направила подкоманда [`sort`](sort.md) — стабилно, два титла која почињу заједно задржавају свој редослед.
 
 **Никада подразумевано**: редослед датотеке је редослед њеног аутора све док се ништа друго не тражи. Уз опцију, свака датотека то јавља, на
-првом нивоу приповедања, `<path>: N subtitles moved` или `<path>: already in order`, а запис `--format json` носи број
+првом нивоу приповедања, `result: N subtitles moved` или `result: already in order`, а запис `--format json` носи број
 `moved` — **одсутан без опције**, да се не мења облик онога што постојеће скрипте читају.
 
 ## Раздвајање интервала
 
 `--disjoint` сече титлове који се преклапају тако да ниједан интервал више не прекрива други, **на истој копији као и ређање**: прочитана датотека се не дира.
 
-Никада подразумевано. Опција ради оно што ради [`disjoint`](disjoint.md), **са својим подразумеваним поставкама**, пре писања, после ређања. Потребна јој је уређена датотека: у супротном се одбија, а `--sort` — који долази први — доводи је у ред унапред. Датотека то јавља на првом нивоу приповедања (`<path>: N subtitles split, M merged`), а запис `--format json` носи бројеве `split` и `merged`, **одсутне без опције**.
+Никада подразумевано. Опција ради оно што ради [`disjoint`](disjoint.md), **са својим подразумеваним поставкама**, пре писања, после ређања. Потребна јој је уређена датотека: у супротном се одбија, а `--sort` — који долази први — доводи је у ред унапред. Датотека то јавља на првом нивоу приповедања (`result: N subtitles split, M merged`), а запис `--format json` носи бројеве `split` и `merged`, **одсутне без опције**.
 
 **`--join-repeats` долази пре ређања и сечења**: текст исечен на делове који иду један за другим прво се поново гради (види
 [`join-repeats`](join-repeats.md)), затим се титлови ређају, затим се интервали раздвајају. **`--repair` је сва три одједном**,
 као [`repair`](repair.md), са подразумеваним поставкама сечења. Уз `--join-repeats` свака датотека јавља
-`<path>: N repeated subtitles joined` на првом нивоу приповедања, а запис `--format json` носи `counts.joined` — **одсутан без опције**.
+`result: N repeated subtitles joined` на првом нивоу приповедања, а запис `--format json` носи `counts.joined` — **одсутан без опције**.
 
 ## Излаз
 
@@ -313,9 +317,9 @@ Bonjour.
 
 | Ниво | Шта се додаје |
 | :----- | :-------------- |
-| 1 | `<path>: N subtitles written as WebVTT -> <destination>` |
-| 2 | `<path>: SubRip -> WebVTT, UTF-8, no BOM, LF line endings` — именовано кодирање је оно које се записује |
-| 3 | `<path>: N bytes read, M written`, затим **свака дијагностика читања** — види [Покретање](invocation.md#читање-дијагностике) |
+| 1 | `source: <path>`, `result: N subtitles converted to WebVTT, UTF-8, no BOM, LF line endings`, `dest: <destination>` |
+| 2 | `format: SubRip`, `encoding: UTF-8`, `bom: absent`, `line-endings: LF` — подаци прочитане датотеке |
+| 3 | `bytes-read: N`, `bytes-written: M`, затим **свака дијагностика читања** — види [Покретање](invocation.md#читање-дијагностике) |
 
 ### У JSON-у
 

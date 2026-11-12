@@ -6,6 +6,7 @@
 [subedit] [snap] [1/1] result: 2 subtitles aligned on 10 fps, 0 positions moved, by at most 0 ms (dry run, nothing written)
 [subedit] [hearing-impaired] [1/1] source: <scratch>/in/a.srt
 [subedit] [hearing-impaired] [1/1] result: no mention to remove (dry run, nothing written)
-<scratch>/in/a.srt: 2 subtitles converted to WebVTT (dry run, nothing written)
+[subedit] [convert] [1/1] source: <scratch>/in/a.srt
+[subedit] [convert] [1/1] result: 2 subtitles converted to WebVTT, UTF-8, no BOM, LF line endings (dry run, nothing written)
 [subedit] [shift] [1/1] source: <scratch>/in/a.srt
 [subedit] [shift] [1/1] result: 2 subtitles shifted by 1.000 s (dry run, nothing written)

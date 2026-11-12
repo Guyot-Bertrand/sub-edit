@@ -67,8 +67,11 @@ her yerde olduğu gibi üzerine yazılır.
 <!-- example: printf '1\n00:00:01,000 --> 00:00:02,000\nun\n\n2\n00:00:03,000 --> 00:00:04,000\ndeux\n\n' > partie1.srt; printf '1\n00:00:00,500 --> 00:00:01,500\ntrois\n\n' > partie2.srt; subedit-cli append --output film.srt partie1.srt partie2.srt; cat film.srt -->
 ```console
 $ printf '1\n00:00:01,000 --> 00:00:02,000\nun\n\n2\n00:00:03,000 --> 00:00:04,000\ndeux\n\n' > partie1.srt; printf '1\n00:00:00,500 --> 00:00:01,500\ntrois\n\n' > partie2.srt; subedit-cli append --output film.srt partie1.srt partie2.srt; cat film.srt
-partie2.srt: appended 1 subtitle
-partie1.srt: 3 subtitles from 2 files -> film.srt
+[subedit] [append] [1/1] source: partie1.srt
+[subedit] [append] [1/1] source: partie2.srt
+[subedit] [append] [1/1] result: appended 1 subtitle
+[subedit] [append] [1/1] result: 3 subtitles from 2 files
+[subedit] [append] [1/1] dest: film.srt
 1
 00:00:01,000 --> 00:00:02,000
 un
@@ -96,7 +99,7 @@ Varsayılan olarak asla. Seçenekle, taban bunu ilk anlatım düzeyinde bildirir
 
 ## Aralıkları ayrık yapma
 
-Varsayılan olarak asla. Seçenek, her şey eklendikten sonra, bütün üzerinde [`disjoint`](disjoint.md) komutunun **varsayılan ayarlarıyla** yaptığını yapar. Sıralı bir dosya gerekir: aksi halde reddedilir ve ondan önce gelen `--sort` onu önceden sıraya sokar. Dosya bunu ilk anlatım düzeyinde bildirir (`<path>: N subtitles split, M merged`); `--format json` kaydı da `split` ve `merged` sayılarını taşır, **seçenek olmadan bulunmaz**.
+Varsayılan olarak asla. Seçenek, her şey eklendikten sonra, bütün üzerinde [`disjoint`](disjoint.md) komutunun **varsayılan ayarlarıyla** yaptığını yapar. Sıralı bir dosya gerekir: aksi halde reddedilir ve ondan önce gelen `--sort` onu önceden sıraya sokar. Dosya bunu ilk anlatım düzeyinde bildirir (`result: N subtitles split, M merged`); `--format json` kaydı da `split` ve `merged` sayılarını taşır, **seçenek olmadan bulunmaz**.
 
 ## Biçimler farklı olduğunda
 
@@ -118,9 +121,9 @@ zaten o biçimde olan bir dosya koyun veya sonradan [`convert`](convert.md) ile 
 
 | Düzey | Hata çıktısına eklenenler |
 | :----- | :------------------------------------- |
-| 1 | eklenen her dosya için bir satır — `<path>: appended N subtitles`, biçim bir şeye mal olduysa ardından `; <source format> into <base format>: <what is lost>` — sonra `<base>: N subtitles from M files -> <destination>` (`--dry-run` ile `-> <destination>` yerine `(dry run, nothing written)`) |
-| 2 | `<base>: SubRip, UTF-8, no BOM, LF line endings kept` — tabanın biçimi, kodlaması, işareti ve satır sonları, olduğu gibi geri konur |
-| 3 | `<base>: N bytes read, M written` (tüm dosyalar birlikte), ardından **her okuma tanılaması** — bkz. [Çalıştırma](invocation.md#tanılama-iletilerini-okuma) |
+| 1 | eklenen her dosya için bir satır — `source: <path>`, `result: appended N subtitles`, biçim bir şeye mal olduysa ardından `; <source format> into <base format>: <what is lost>` — sonra `result: N subtitles from M files`, `dest: <destination>` (`--dry-run` ile `dest: <destination>` yerine `(dry run, nothing written)`) |
+| 2 | `format: SubRip`, `encoding: UTF-8`, `bom: absent`, `line-endings: LF` — okunan dosyanın biçimi, kodlaması, işareti ve satır sonları, olduğu gibi geri konarak |
+| 3 | `bytes-read: N`, `bytes-written: M`, ardından **her okuma tanılama iletisi** — bkz. [Çalıştırma](invocation.md#tanılama-iletilerini-okuma) |
 
 ### JSON biçiminde
 

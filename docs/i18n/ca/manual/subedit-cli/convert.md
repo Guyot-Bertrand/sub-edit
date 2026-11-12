@@ -194,8 +194,10 @@ que apareix a cada crida és un informe que ningú no llegeix.
 <!-- example: printf '1\n00:00:01,000 --> 00:00:03,500\n<i>sur deux</i>\nlignes\n\n' > a.srt; subedit-cli convert --to lrc --output b.lrc a.srt -->
 ```console
 $ printf '1\n00:00:01,000 --> 00:00:03,500\n<i>sur deux</i>\nlignes\n\n' > a.srt; subedit-cli convert --to lrc --output b.lrc a.srt
-a.srt: 1 subtitle written as LRC -> b.lrc
-a.srt: ends are not carried by LRC, line breaks were joined in 1 subtitle, 1 tag dropped
+[subedit] [convert] [1/1] source: a.srt
+[subedit] [convert] [1/1] warning: ends are not carried by LRC, line breaks were joined in 1 subtitle, 1 tag dropped
+[subedit] [convert] [1/1] result: 1 subtitle converted to LRC, UTF-8, no BOM, LF line endings
+[subedit] [convert] [1/1] dest: b.lrc
 ```
 
 La línia apareix al nivell de verbositat per defecte, i a tots els superiors.
@@ -278,7 +280,9 @@ conversió, una informació conservada expressament.
 <!-- example: printf '1\n00:00:01,000 --> 00:00:03,000\nBonjour.\n\n' > a.srt; subedit-cli convert --to vtt --output b.vtt a.srt; cat b.vtt -->
 ```console
 $ printf '1\n00:00:01,000 --> 00:00:03,000\nBonjour.\n\n' > a.srt; subedit-cli convert --to vtt --output b.vtt a.srt; cat b.vtt
-a.srt: 1 subtitle written as WebVTT -> b.vtt
+[subedit] [convert] [1/1] source: a.srt
+[subedit] [convert] [1/1] result: 1 subtitle converted to WebVTT, UTF-8, no BOM, LF line endings
+[subedit] [convert] [1/1] dest: b.vtt
 WEBVTT
 
 00:01.000 --> 00:03.000
@@ -291,19 +295,19 @@ Bonjour.
 es toca, i el que s'escriu és el que n'hauria fet [`sort`](sort.md) — estable: dos subtítols que comencen alhora conserven el seu ordre.
 
 **Mai per defecte**: l'ordre d'un fitxer és el del seu autor mentre no es demani res més. Amb l'opció, cada fitxer ho diu, al
-primer nivell de narració, `<path>: N subtitles moved` o `<path>: already in order`, i el registre `--format json` porta un recompte
+primer nivell de narració, `result: N subtitles moved` o `result: already in order`, i el registre `--format json` porta un recompte
 `moved` — **absent sense l'opció**, per no canviar la forma del que llegeixen els scripts existents.
 
 ## Fer disjuntes les franges
 
 `--disjoint` talla els subtítols que s'encavalquen perquè cap franja no s'encavalqui ja amb una altra, **sobre la mateixa còpia que l'ordenació**: el fitxer llegit no es toca.
 
-Mai per defecte. L'opció fa el que fa [`disjoint`](disjoint.md), **amb els seus paràmetres per defecte**, abans d'escriure, després de l'ordenació. Necessita un fitxer en ordre: altrament es refusa, i `--sort` — que va primer — el posa en ordre abans. El fitxer ho diu al primer nivell de narració (`<path>: N subtitles split, M merged`), i el registre `--format json` porta els recomptes `split` i `merged`, **absents sense l'opció**.
+Mai per defecte. L'opció fa el que fa [`disjoint`](disjoint.md), **amb els seus paràmetres per defecte**, abans d'escriure, després de l'ordenació. Necessita un fitxer en ordre: altrament es refusa, i `--sort` — que va primer — el posa en ordre abans. El fitxer ho diu al primer nivell de narració (`result: N subtitles split, M merged`), i el registre `--format json` porta els recomptes `split` i `merged`, **absents sense l'opció**.
 
 **`--join-repeats` va abans de l'ordenació i del tall**: un text tallat en fragments que se segueixen es reconstrueix primer (vegeu
 [`join-repeats`](join-repeats.md)), després s'ordenen els subtítols, i després es fan disjuntes les franges. **`--repair` és les tres coses alhora**,
 com [`repair`](repair.md), amb els paràmetres per defecte del tall. Amb `--join-repeats`, cada fitxer diu
-`<path>: N repeated subtitles joined` al primer nivell de narració, i el registre `--format json` porta `counts.joined` — **absent sense l'opció**.
+`result: N repeated subtitles joined` al primer nivell de narració, i el registre `--format json` porta `counts.joined` — **absent sense l'opció**.
 
 ## Sortida
 
@@ -313,9 +317,9 @@ A la sortida d'error, segons el nivell:
 
 | Nivell | Què s'hi afegeix |
 | :----- | :-------------- |
-| 1 | `<path>: N subtitles written as WebVTT -> <destination>` |
-| 2 | `<path>: SubRip -> WebVTT, UTF-8, no BOM, LF line endings` — la codificació anomenada és l'escrita |
-| 3 | `<path>: N bytes read, M written`, i després **cada diagnòstic de lectura** — vegeu [Invocació](invocation.md#diagnòstics-de-lectura) |
+| 1 | `source: <path>`, `result: N subtitles converted to WebVTT, UTF-8, no BOM, LF line endings`, `dest: <destination>` |
+| 2 | `format: SubRip`, `encoding: UTF-8`, `bom: absent`, `line-endings: LF` — els del fitxer llegit |
+| 3 | `bytes-read: N`, `bytes-written: M`, i després **cada diagnòstic de lectura** — vegeu [Invocació](invocation.md#diagnòstics-de-lectura) |
 
 ### En JSON
 

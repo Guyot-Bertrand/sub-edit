@@ -64,8 +64,11 @@ en train de lire est refusé avant que rien soit lu, code `1`. `--output` exista
 <!-- example: printf '1\n00:00:01,000 --> 00:00:02,000\nun\n\n2\n00:00:03,000 --> 00:00:04,000\ndeux\n\n' > partie1.srt; printf '1\n00:00:00,500 --> 00:00:01,500\ntrois\n\n' > partie2.srt; subedit-cli append --output film.srt partie1.srt partie2.srt; cat film.srt -->
 ```console
 $ printf '1\n00:00:01,000 --> 00:00:02,000\nun\n\n2\n00:00:03,000 --> 00:00:04,000\ndeux\n\n' > partie1.srt; printf '1\n00:00:00,500 --> 00:00:01,500\ntrois\n\n' > partie2.srt; subedit-cli append --output film.srt partie1.srt partie2.srt; cat film.srt
-partie2.srt: appended 1 subtitle
-partie1.srt: 3 subtitles from 2 files -> film.srt
+[subedit] [append] [1/1] source: partie1.srt
+[subedit] [append] [1/1] source: partie2.srt
+[subedit] [append] [1/1] result: appended 1 subtitle
+[subedit] [append] [1/1] result: 3 subtitles from 2 files
+[subedit] [append] [1/1] dest: film.srt
 1
 00:00:01,000 --> 00:00:02,000
 un
@@ -93,7 +96,7 @@ l'enregistrement `--format json` porte un compte `moved`, **absent sans l'option
 
 ## Rendre les plages disjointes
 
-Jamais par défaut. L'option fait ce que fait [`disjoint`](disjoint.md), **avec ses réglages par défaut**, une fois tout ajouté, sur l'ensemble. Il faut un fichier dans l'ordre : sinon il est refusé, et `--sort` — qui passe avant — le met d'abord en ordre. Le fichier le dit au premier niveau de narration (`<path>: N subtitles split, M merged`), et l'enregistrement `--format json` porte les comptes `split` et `merged`, **absents sans l'option**.
+Jamais par défaut. L'option fait ce que fait [`disjoint`](disjoint.md), **avec ses réglages par défaut**, une fois tout ajouté, sur l'ensemble. Il faut un fichier dans l'ordre : sinon il est refusé, et `--sort` — qui passe avant — le met d'abord en ordre. Le fichier le dit au premier niveau de narration (`result: N subtitles split, M merged`), et l'enregistrement `--format json` porte les comptes `split` et `merged`, **absents sans l'option**.
 
 ## Quand les formats diffèrent
 
@@ -115,9 +118,9 @@ qui est déjà dans ce format, ou l'on convertit ensuite avec [`convert`](conver
 
 | Niveau | Ce qui s'ajoute sur la sortie d'erreur |
 | :----- | :------------------------------------- |
-| 1 | une ligne par fichier ajouté — `<path>: appended N subtitles`, suivie, quand le format a coûté quelque chose, de `; <source format> into <base format>: <what is lost>` — puis `<base>: N subtitles from M files -> <destination>` (avec `--dry-run`, `(dry run, nothing written)` à la place de `-> <destination>`) |
-| 2 | `<base>: SubRip, UTF-8, no BOM, LF line endings kept` — le format, l'encodage, la marque et les fins de ligne de la base, remis tels quels |
-| 3 | `<base>: N bytes read, M written` (tous les fichiers ensemble), puis **chaque diagnostic de lecture** — voir [Invocation](invocation.md#les-diagnostics-de-lecture) |
+| 1 | une ligne par fichier ajouté — `source: <path>`, `result: appended N subtitles`, suivie, quand le format a coûté quelque chose, de `; <source format> into <base format>: <what is lost>` — puis `result: N subtitles from M files`, `dest: <destination>` (avec `--dry-run`, `(dry run, nothing written)` à la place de `dest: <destination>`) |
+| 2 | `format: SubRip`, `encoding: UTF-8`, `bom: absent`, `line-endings: LF` — le format, l'encodage, la marque et les fins de ligne du fichier lu, remis tels quels |
+| 3 | `bytes-read: N`, `bytes-written: M`, puis **chaque diagnostic de lecture** — voir [Invocation](invocation.md#les-diagnostics-de-lecture) |
 
 ### En JSON
 
