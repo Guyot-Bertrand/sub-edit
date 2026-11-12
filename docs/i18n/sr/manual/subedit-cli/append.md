@@ -67,8 +67,11 @@ Options:
 <!-- example: printf '1\n00:00:01,000 --> 00:00:02,000\nun\n\n2\n00:00:03,000 --> 00:00:04,000\ndeux\n\n' > partie1.srt; printf '1\n00:00:00,500 --> 00:00:01,500\ntrois\n\n' > partie2.srt; subedit-cli append --output film.srt partie1.srt partie2.srt; cat film.srt -->
 ```console
 $ printf '1\n00:00:01,000 --> 00:00:02,000\nun\n\n2\n00:00:03,000 --> 00:00:04,000\ndeux\n\n' > partie1.srt; printf '1\n00:00:00,500 --> 00:00:01,500\ntrois\n\n' > partie2.srt; subedit-cli append --output film.srt partie1.srt partie2.srt; cat film.srt
-partie2.srt: appended 1 subtitle
-partie1.srt: 3 subtitles from 2 files -> film.srt
+[subedit] [append] [1/1] source: partie1.srt
+[subedit] [append] [1/1] source: partie2.srt
+[subedit] [append] [1/1] result: appended 1 subtitle
+[subedit] [append] [1/1] result: 3 subtitles from 2 files
+[subedit] [append] [1/1] dest: film.srt
 1
 00:00:01,000 --> 00:00:02,000
 un
@@ -96,7 +99,7 @@ trois
 
 ## Раздвајање интервала
 
-Никада подразумевано. Опција ради оно што ради [`disjoint`](disjoint.md), **са својим подразумеваним поставкама**, пошто је све прикачено, над целином. Потребна јој је уређена датотека: у супротном се одбија, а `--sort` — који долази први — доводи је у ред унапред. Датотека то јавља на првом нивоу приповедања (`<path>: N subtitles split, M merged`), а запис `--format json` носи бројеве `split` и `merged`, **одсутне без опције**.
+Никада подразумевано. Опција ради оно што ради [`disjoint`](disjoint.md), **са својим подразумеваним поставкама**, пошто је све прикачено, над целином. Потребна јој је уређена датотека: у супротном се одбија, а `--sort` — који долази први — доводи је у ред унапред. Датотека то јавља на првом нивоу приповедања (`result: N subtitles split, M merged`), а запис `--format json` носи бројеве `split` и `merged`, **одсутне без опције**.
 
 ## Када се формати разликују
 
@@ -118,9 +121,9 @@ SubRip датотеку без губитка, а не обрнуто. Да би
 
 | Ниво | Шта се додаје на излаз за грешке |
 | :----- | :------------------------------------- |
-| 1 | једна линија по прикаченој датотеци — `<path>: appended N subtitles`, а затим, када је формат нешто коштао, `; <source format> into <base format>: <what is lost>` — затим `<base>: N subtitles from M files -> <destination>` (уз `--dry-run`, `(dry run, nothing written)` уместо `-> <destination>`) |
-| 2 | `<base>: SubRip, UTF-8, no BOM, LF line endings kept` — формат, кодирање, ознака и завршеци редова основе, враћени какви су били |
-| 3 | `<base>: N bytes read, M written` (све датотеке заједно), затим **свака дијагностика читања** — види [Покретање](invocation.md#читање-дијагностике) |
+| 1 | једна линија по прикаченој датотеци — `source: <path>`, `result: appended N subtitles`, а затим, када је формат нешто коштао, `; <source format> into <base format>: <what is lost>` — затим `result: N subtitles from M files`, `dest: <destination>` (уз `--dry-run`, `(dry run, nothing written)` уместо `dest: <destination>`) |
+| 2 | `format: SubRip`, `encoding: UTF-8`, `bom: absent`, `line-endings: LF` — формат, кодирање, ознака и завршеци редова прочитане датотеке, враћени какви су били |
+| 3 | `bytes-read: N`, `bytes-written: M`, затим **свака дијагностика читања** — види [Покретање](invocation.md#читање-дијагностике) |
 
 ### У JSON-у
 

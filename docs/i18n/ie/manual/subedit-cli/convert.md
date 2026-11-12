@@ -194,8 +194,10 @@ quel apari a chascun appelle es un raporte quel nequi lee.
 <!-- example: printf '1\n00:00:01,000 --> 00:00:03,500\n<i>sur deux</i>\nlignes\n\n' > a.srt; subedit-cli convert --to lrc --output b.lrc a.srt -->
 ```console
 $ printf '1\n00:00:01,000 --> 00:00:03,500\n<i>sur deux</i>\nlignes\n\n' > a.srt; subedit-cli convert --to lrc --output b.lrc a.srt
-a.srt: 1 subtitle written as LRC -> b.lrc
-a.srt: ends are not carried by LRC, line breaks were joined in 1 subtitle, 1 tag dropped
+[subedit] [convert] [1/1] source: a.srt
+[subedit] [convert] [1/1] warning: ends are not carried by LRC, line breaks were joined in 1 subtitle, 1 tag dropped
+[subedit] [convert] [1/1] result: 1 subtitle converted to LRC, UTF-8, no BOM, LF line endings
+[subedit] [convert] [1/1] dest: b.lrc
 ```
 
 Li linea apari al nivelle de verbosité predefinit, e a chascun nivelle supra.
@@ -278,7 +280,9 @@ conversion, un information conservat expressimen.
 <!-- example: printf '1\n00:00:01,000 --> 00:00:03,000\nBonjour.\n\n' > a.srt; subedit-cli convert --to vtt --output b.vtt a.srt; cat b.vtt -->
 ```console
 $ printf '1\n00:00:01,000 --> 00:00:03,000\nBonjour.\n\n' > a.srt; subedit-cli convert --to vtt --output b.vtt a.srt; cat b.vtt
-a.srt: 1 subtitle written as WebVTT -> b.vtt
+[subedit] [convert] [1/1] source: a.srt
+[subedit] [convert] [1/1] result: 1 subtitle converted to WebVTT, UTF-8, no BOM, LF line endings
+[subedit] [convert] [1/1] dest: b.vtt
 WEBVTT
 
 00:01.000 --> 00:03.000
@@ -291,19 +295,19 @@ Bonjour.
 tuchat, e quo es scrit es quo [`sort`](sort.md) haverea fat — stabil, du subtitules quel comensa together conserva lor órdine.
 
 **Nequande per predefinit**: li órdine de un file es celi de su autor tam long quam nullcos altri es demandat. Con li option, chascun file di it, al
-unesim nivelle de narration, `<path>: N subtitles moved` o `<path>: already in order`, e li registre `--format json` porta un cuntage
+unesim nivelle de narration, `result: N subtitles moved` o `result: already in order`, e li registre `--format json` porta un cuntage
 `moved` — **absent sin li option**, por ne changear li forme de quo li scripts existent lee.
 
 ## Far disjuncte li intervalles
 
 `--disjoint` decupe li subtitules superponent por que null intervalle superpone plu un altri, **sur li sam copie quam li ordination**: li file leet ne es tuchat.
 
-Nequande per predefinit. Li option fa quo [`disjoint`](disjoint.md) fa, **con su parametres predefinit**, ante scrir, pos li ordination. It besona un file in órdine: si no, it es refusat, e `--sort` — quel veni unesim — mette it in órdine ante. Li file di it al unesim nivelle de narration (`<path>: N subtitles split, M merged`), e li registre `--format json` porta li cuntages `split` e `merged`, **absent sin li option**.
+Nequande per predefinit. Li option fa quo [`disjoint`](disjoint.md) fa, **con su parametres predefinit**, ante scrir, pos li ordination. It besona un file in órdine: si no, it es refusat, e `--sort` — quel veni unesim — mette it in órdine ante. Li file di it al unesim nivelle de narration (`result: N subtitles split, M merged`), e li registre `--format json` porta li cuntages `split` e `merged`, **absent sin li option**.
 
 **`--join-repeats` veni ante li ordination e li decuperation**: un textu decupat in peces queles seque se es unesim reconstructet (vide
 [`join-repeats`](join-repeats.md)), poy li subtitules es ordinat, poy li intervalles fat disjuncte. **`--repair` es omni tri in un vice**,
 quam [`repair`](repair.md), con li parametres predefinit del decuperation. Con `--join-repeats`, chascun file di
-`<path>: N repeated subtitles joined` al unesim nivelle de narration, e li registre `--format json` porta `counts.joined` — **absent sin li option**.
+`result: N repeated subtitles joined` al unesim nivelle de narration, e li registre `--format json` porta `counts.joined` — **absent sin li option**.
 
 ## Output
 
@@ -313,9 +317,9 @@ Sur li output de error, secun li nivelle:
 
 | Nivelle | Quo es adjuntet |
 | :----- | :-------------- |
-| 1 | `<path>: N subtitles written as WebVTT -> <destination>` |
-| 2 | `<path>: SubRip -> WebVTT, UTF-8, no BOM, LF line endings` — li codification nominat es celi scrit |
-| 3 | `<path>: N bytes read, M written`, poy **chascun diagnose de lectura** — vide [Invocation](invocation.md#diagnoses-de-lectura) |
+| 1 | `source: <path>`, `result: N subtitles converted to WebVTT, UTF-8, no BOM, LF line endings`, `dest: <destination>` |
+| 2 | `format: SubRip`, `encoding: UTF-8`, `bom: absent`, `line-endings: LF` — ti del file leet |
+| 3 | `bytes-read: N`, `bytes-written: M`, poy **chascun diagnose de lectura** — vide [Invocation](invocation.md#diagnoses-de-lectura) |
 
 ### In JSON
 

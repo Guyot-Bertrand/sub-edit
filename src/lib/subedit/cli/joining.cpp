@@ -40,10 +40,6 @@ core::JoinReport joinedInPlace(core::Project& project) {
     return joined.report;
 }
 
-std::string narrationOfJoin(const std::string& path, const core::JoinReport& report) {
-    return core::substitute(core::translate("%1: %2"), {path, core::noticeOfJoin(report)});
-}
-
 ExitCode joinAll(core::FileSystem& files,
                  const std::vector<std::string>& paths,
                  const std::optional<core::Encoding>& reading,

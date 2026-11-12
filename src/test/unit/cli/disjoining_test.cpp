@@ -207,7 +207,7 @@ TEST_CASE("the disjoint option on convert cuts on a copy and counts it",
 
     CHECK(code == ExitCode::Success);
     CHECK(files.contentOf("out/a.srt").value_or("") == kCut);
-    CHECK_THAT(errors.str(), ContainsSubstring("a.srt: 2 subtitles split, 1 merged"));
+    CHECK_THAT(errors.str(), ContainsSubstring("] result: 2 subtitles split, 1 merged"));
     CHECK_THAT(records.str(), ContainsSubstring("\"split\":2"));
 }
 
@@ -264,7 +264,7 @@ TEST_CASE("the disjoint option on append cuts the whole once it is put together"
 
     CHECK(code == ExitCode::Success);
     CHECK_THAT(files.contentOf("all.srt").value_or(""), ContainsSubstring("A\nB"));
-    CHECK_THAT(errors.str(), ContainsSubstring("a.srt: 2 subtitles split, 1 merged"));
+    CHECK_THAT(errors.str(), ContainsSubstring("] result: 2 subtitles split, 1 merged"));
     CHECK_THAT(records.str(), ContainsSubstring("\"merged\":1"));
 }
 
@@ -307,7 +307,7 @@ TEST_CASE("the disjoint option on split-file cuts before the cut is judged",
     CHECK(code == ExitCode::Success);
     CHECK_THAT(files.contentOf("out/h.srt").value_or(""), ContainsSubstring("A\nB"));
     CHECK_THAT(files.contentOf("out/t.srt").value_or(""), ContainsSubstring("C"));
-    CHECK_THAT(errors.str(), ContainsSubstring("a.srt: 2 subtitles split, 1 merged"));
+    CHECK_THAT(errors.str(), ContainsSubstring("] result: 2 subtitles split, 1 merged"));
     CHECK_THAT(records.str(), ContainsSubstring("\"split\":2"));
 }
 

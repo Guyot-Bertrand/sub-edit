@@ -63,7 +63,10 @@ está a ler, ou escrever a cauda sobre a cabeça, é recusado antes de se ler fo
 <!-- example: printf '1\n00:00:01,000 --> 00:00:02,000\nun\n\n2\n00:00:03,000 --> 00:00:04,000\ndeux\n\n3\n00:00:06,000 --> 00:00:07,000\ntrois\n\n4\n00:00:08,000 --> 00:00:09,000\nquatre\n\n' > film.srt; subedit-cli split-file --at 3 --head tete.srt --tail queue.srt film.srt; cat queue.srt -->
 ```console
 $ printf '1\n00:00:01,000 --> 00:00:02,000\nun\n\n2\n00:00:03,000 --> 00:00:04,000\ndeux\n\n3\n00:00:06,000 --> 00:00:07,000\ntrois\n\n4\n00:00:08,000 --> 00:00:09,000\nquatre\n\n' > film.srt; subedit-cli split-file --at 3 --head tete.srt --tail queue.srt film.srt; cat queue.srt
-film.srt: split at subtitle 3: 2 subtitles in the head, 2 subtitles in the tail -> tete.srt, queue.srt
+[subedit] [split-file] [1/1] source: film.srt
+[subedit] [split-file] [1/1] result: split at subtitle 3: 2 subtitles in the head, 2 subtitles in the tail
+[subedit] [split-file] [1/1] dest: tete.srt
+[subedit] [split-file] [1/1] tail: queue.srt
 1
 00:00:02,000 --> 00:00:03,000
 trois
@@ -82,12 +85,12 @@ que começava aos 6 s, passa a começar aos 2 s.
 no tempo. `--sort` põe as legendas pela ordem dos seus inícios **antes de avaliar o corte** — de forma estável, como o faz [`sort`](sort.md) —, e
 `--at` conta então nessa ordem.
 
-Nunca por predefinição. Com a opção, o ficheiro diz, no primeiro nível de narração, quantas legendas se moveram (`<path>: N subtitles moved`
-ou `<path>: already in order`), e o registo de `--format json` traz uma contagem `moved`, **ausente sem a opção**.
+Nunca por predefinição. Com a opção, o ficheiro diz, no primeiro nível de narração, quantas legendas se moveram (`result: N subtitles moved`
+ou `result: already in order`), e o registo de `--format json` traz uma contagem `moved`, **ausente sem a opção**.
 
 ## Tornar os intervalos disjuntos
 
-Nunca por predefinição. A opção faz o que [`disjoint`](disjoint.md) faz, **com as suas definições predefinidas**, antes de avaliar o corte, depois da ordenação: `--at` conta no que daí resulta. Exige um ficheiro ordenado: caso contrário é recusada, e `--sort` — que vem primeiro — põe-no antes por ordem. O ficheiro di-lo no primeiro nível de narração (`<path>: N subtitles split, M merged`), e o registo de `--format json` traz as contagens `split` e `merged`, **ausentes sem a opção**.
+Nunca por predefinição. A opção faz o que [`disjoint`](disjoint.md) faz, **com as suas definições predefinidas**, antes de avaliar o corte, depois da ordenação: `--at` conta no que daí resulta. Exige um ficheiro ordenado: caso contrário é recusada, e `--sort` — que vem primeiro — põe-no antes por ordem. O ficheiro di-lo no primeiro nível de narração (`result: N subtitles split, M merged`), e o registo de `--format json` traz as contagens `split` e `merged`, **ausentes sem a opção**.
 
 ## Quando o corte é recusado
 
@@ -112,9 +115,9 @@ vazia. Um ficheiro com uma única legenda não pode ser cortado.
 
 | Nível | O que se acrescenta à saída de erros |
 | :----- | :------------------------------------- |
-| 1 | `<path>: split at subtitle N: H subtitles in the head, T subtitles in the tail -> <head>, <tail>`; com `--dry-run`, `(dry run, nothing written)` no lugar de `-> …` |
-| 2 | `<path>: SubRip, UTF-8, no BOM, LF line endings kept` — o formato, a codificação, a marca e os fins de linha do ficheiro lido, repostos como estavam |
-| 3 | `<path>: N bytes read, H and T written`, depois **todos os diagnósticos de leitura** — ver [Invocação](invocation.md#ler-os-diagnósticos) |
+| 1 | `source: <path>`, `result: split at subtitle N: H subtitles in the head, T subtitles in the tail`, `dest: <head>`, `tail: <tail>`; com `--dry-run`, `(dry run, nothing written)` no lugar de `dest: <head>` |
+| 2 | `format: SubRip`, `encoding: UTF-8`, `bom: absent`, `line-endings: LF` — o formato, a codificação, a marca e os fins de linha do ficheiro lido, repostos como estavam |
+| 3 | `bytes-read: N`, `bytes-written: H`, `bytes-written: T`, depois **todos os diagnósticos de leitura** — ver [Invocação](invocation.md#ler-os-diagnósticos) |
 
 ### Em JSON
 

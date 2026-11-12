@@ -1255,11 +1255,8 @@ msgstr ""
 #. TRANSLATORS: %1 is Undo or Redo, %2 the operation it undoes or redoes, such as shifting.
 #. TRANSLATORS: %1 is a file's path, %2 what went wrong with it.
 #: src/lib/subedit/cli/adjusting.cpp src/lib/subedit/cli/batch.cpp
-#: src/lib/subedit/cli/configuring.cpp src/lib/subedit/cli/conversion.cpp
-#: src/lib/subedit/cli/disjoining.cpp src/lib/subedit/cli/inspection.cpp
-#: src/lib/subedit/cli/joining.cpp src/lib/subedit/cli/records.cpp
-#: src/lib/subedit/cli/sorting.cpp src/lib/subedit/gui/command_label.cpp
-#: src/lib/subedit/gui/invocation.cpp
+#: src/lib/subedit/cli/configuring.cpp src/lib/subedit/cli/records.cpp
+#: src/lib/subedit/gui/command_label.cpp src/lib/subedit/gui/invocation.cpp
 msgid "%1: %2"
 msgstr "%1: %2"
 
@@ -1310,21 +1307,17 @@ msgid_plural "%1 subtitles aligned on %2 fps, %3"
 msgstr[0] "%1 kappale kohdistettu, ruutunopeus %2 fps, %3"
 msgstr[1] "%1 kappaletta kohdistettu, ruutunopeus %2 fps, %3"
 
-#. TRANSLATORS: %1 is the file written, %2 a number of subtitles (« 12 subtitles »)
-#. and %3 a number of files (« 3 files »).
+#. TRANSLATORS: %1 is a number of subtitles (« 12 subtitles »), %2 a number of files
+#. (« 3 files »).
 #: src/lib/subedit/cli/appending.cpp
-msgid "%1: %2 from %3"
-msgstr "%1: %2, lähteenä %3"
+msgid "%1 from %2"
+msgstr "%1, lähteenä %2"
 
 #. TRANSLATORS: %1 is what was done to a file, which was not written.
-#: src/lib/subedit/cli/appending.cpp src/lib/subedit/cli/rewriting.cpp
-#: src/lib/subedit/cli/splitting.cpp
+#: src/lib/subedit/cli/appending.cpp src/lib/subedit/cli/conversion.cpp
+#: src/lib/subedit/cli/rewriting.cpp src/lib/subedit/cli/splitting.cpp
 msgid "%1 (dry run, nothing written)"
 msgstr "%1 (koeajo, mitään ei kirjoitettu)"
-
-#: src/lib/subedit/cli/appending.cpp
-msgid "%1 -> %2"
-msgstr "%1 -> %2"
 
 #. TRANSLATORS: %1 of %2 files were done; the form is chosen by %2.
 #: src/lib/subedit/cli/batch.cpp
@@ -1518,45 +1511,22 @@ msgstr ""
 "ruutujen kirjoittaminen vaatii ruutunopeuden, eivätkä kohdat ole millään "
 "ruudukolla, josta sen voisi päätellä — anna --frame-rate"
 
-#. TRANSLATORS: %1 is a file, %2 a frame rate.
+#. TRANSLATORS: %1 is a frame rate.
 #: src/lib/subedit/cli/conversion.cpp
-msgid "%1: counted in frames at %2, the grid the positions fall on"
-msgstr "%1: ruutuina, ruutunopeus %2, ruudukko, jolla kohdat ovat"
+msgid "counted in frames at %1, the grid the positions fall on"
+msgstr "ruutuina, ruutunopeus %1, ruudukko, jolla kohdat ovat"
 
 #: src/lib/subedit/cli/conversion.cpp
 msgid "%1 has no byte order mark to write"
 msgstr "%1: ei kirjoitettavaa tavujärjestysmerkkiä"
 
-#. TRANSLATORS: %1 is a file, %2 and %3 numbers of bytes. English says « bytes »
-#. whatever the count; the form is chosen by %2.
-#: src/lib/subedit/cli/conversion.cpp src/lib/subedit/cli/writing.cpp
-msgid "%1: %2 bytes read, %3 would be written"
-msgid_plural "%1: %2 bytes read, %3 would be written"
-msgstr[0] "%1: luettu tavuja %2, kirjoitettaisiin %3"
-msgstr[1] "%1: luettu tavuja %2, kirjoitettaisiin %3"
-
-#: src/lib/subedit/cli/conversion.cpp src/lib/subedit/cli/writing.cpp
-msgid "%1: %2 bytes read, %3 written"
-msgid_plural "%1: %2 bytes read, %3 written"
-msgstr[0] "%1: luettu tavuja %2, kirjoitettu %3"
-msgstr[1] "%1: luettu tavuja %2, kirjoitettu %3"
-
+#. TRANSLATORS: %1 a number of subtitles, %2 a format, %3 an encoding, %4 a kind of line
+#. ending.
 #: src/lib/subedit/cli/conversion.cpp
-msgid "%1: %2 -> %3, %4, %5 line endings"
-msgstr "%1: %2 -> %3, %4, rivinvaihdot %5"
-
-#: src/lib/subedit/cli/conversion.cpp
-msgid "%1: %2 subtitle converted to %3 (dry run, nothing written)"
-msgid_plural "%1: %2 subtitles converted to %3 (dry run, nothing written)"
-msgstr[0] "%1: %2 kappale muunnettu muotoon %3 (koeajo, mitään ei kirjoitettu)"
-msgstr[1] ""
-"%1: %2 kappaletta muunnettu muotoon %3 (koeajo, mitään ei kirjoitettu)"
-
-#: src/lib/subedit/cli/conversion.cpp
-msgid "%1: %2 subtitle written as %3 -> %4"
-msgid_plural "%1: %2 subtitles written as %3 -> %4"
-msgstr[0] "%1: %2 kappale kirjoitettu muodossa %3 -> %4"
-msgstr[1] "%1: %2 kappaletta kirjoitettu muodossa %3 -> %4"
+msgid "%1 subtitle converted to %2, %3, %4 line endings"
+msgid_plural "%1 subtitles converted to %2, %3, %4 line endings"
+msgstr[0] "%1 kappale muunnettu muotoon %2, %3, rivinvaihdot %4"
+msgstr[1] "%1 kappaletta muunnettu muotoon %2, %3, rivinvaihdot %4"
 
 #: src/lib/subedit/cli/conversion.cpp
 msgid "--bom and --no-bom ask for opposite things; give one or the other"
@@ -1701,14 +1671,14 @@ msgstr ""
 "%1: koodilla %2 ei ole yhtään käytössä olevaa lauseketta; ota jokin käyttöön "
 "valitsimella --enable"
 
+#. TRANSLATORS: %1 is what was wrong with a pattern file.
 #: src/lib/subedit/cli/correcting.cpp
 msgid "patterns: %1"
 msgstr "lausekkeet: %1"
 
 #: src/lib/subedit/cli/correcting.cpp
-msgid "settings: correction.human and correction.ocr are both false, ignored"
-msgstr ""
-"asetukset: correction.human ja correction.ocr ovat molemmat false, ohitettu"
+msgid "setting correction.human and correction.ocr are both false, ignored"
+msgstr "asetukset correction.human ja correction.ocr ovat molemmat false, ohitettu"
 
 #. TRANSLATORS: %1 is the file that would be written, %2 the input it is.
 #: src/lib/subedit/cli/destination.cpp
@@ -1980,23 +1950,6 @@ msgstr[1] "ruudukon ulkopuolella: alkukohtia %1/%2, %3"
 msgid "none"
 msgstr "ei mitään"
 
-#: src/lib/subedit/cli/inspection.cpp
-msgid "%1: %2 bytes read"
-msgid_plural "%1: %2 bytes read"
-msgstr[0] "%1: luettu tavuja %2"
-msgstr[1] "%1: luettu tavuja %2"
-
-#. TRANSLATORS: %1 is a file, %2 a number of diagnostics.
-#: src/lib/subedit/cli/inspection.cpp
-msgid "%1: %2 diagnostic while reading"
-msgid_plural "%1: %2 diagnostics while reading"
-msgstr[0] "%1: %2 huomautus luettaessa"
-msgstr[1] "%1: %2 huomautusta luettaessa"
-
-#: src/lib/subedit/cli/inspection.cpp
-msgid "%1: %2, %3, %4 line endings"
-msgstr "%1: %2, %3, rivinvaihdot %4"
-
 #. TRANSLATORS: the lines of the report of `inspect`; %1 is the value of each.
 #: src/lib/subedit/cli/inspection.cpp
 msgid "format: %1"
@@ -2154,19 +2107,11 @@ msgstr[0] ""
 msgstr[1] ""
 "--at %1: tiedostossa on %2 kappaletta, ja loppuosa voi alkaa kohdista 2–%2"
 
-#. TRANSLATORS: %1 and %2 are the numbers of bytes of the head and the tail.
+#. TRANSLATORS: %1 is the subtitle the tail starts at, %2 and %3 numbers of subtitles
+#. (« 12 subtitles »).
 #: src/lib/subedit/cli/splitting.cpp
-msgid "%1 and %2"
-msgstr "%1 ja %2"
-
-#: src/lib/subedit/cli/splitting.cpp
-msgid "%1: split at subtitle %2: %3 in the head, %4 in the tail"
-msgstr "%1: jaettu kappaleen %2 kohdalta: alkuosassa %3, loppuosassa %4"
-
-#. TRANSLATORS: %1 is what was done, %2 and %3 the two files written.
-#: src/lib/subedit/cli/splitting.cpp
-msgid "%1 -> %2, %3"
-msgstr "%1 -> %2, %3"
+msgid "split at subtitle %1: %2 in the head, %3 in the tail"
+msgstr "jaettu kappaleen %1 kohdalta: alkuosassa %2, loppuosassa %3"
 
 #: src/lib/subedit/cli/syncing.cpp
 msgid "--report names one file: give one subtitle file when you use it"
@@ -2264,10 +2209,6 @@ msgstr[1] "%1 kappaletta muunnettu viitekohtiin %2 ja %3"
 #: src/lib/subedit/cli/verbosity.cpp
 msgid "--quiet and -v ask for opposite things; give one or the other"
 msgstr "--quiet ja -v pyytävät vastakkaisia asioita; anna vain toinen"
-
-#: src/lib/subedit/cli/writing.cpp
-msgid "%1: %2, %3, %4 line endings kept"
-msgstr "%1: %2, %3, rivinvaihdot %4 säilytetty"
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "true or false"
@@ -5787,6 +5728,53 @@ msgstr "Kursiivi"
 msgctxt "toolbar"
 msgid "Main"
 msgstr "Päätyökalurivi"
+
+#~ msgid "%1 -> %2"
+#~ msgstr "%1 -> %2"
+
+#~ msgid "%1: %2 bytes read, %3 would be written"
+#~ msgid_plural "%1: %2 bytes read, %3 would be written"
+#~ msgstr[0] "%1: luettu tavuja %2, kirjoitettaisiin %3"
+#~ msgstr[1] "%1: luettu tavuja %2, kirjoitettaisiin %3"
+
+#~ msgid "%1: %2 bytes read, %3 written"
+#~ msgid_plural "%1: %2 bytes read, %3 written"
+#~ msgstr[0] "%1: luettu tavuja %2, kirjoitettu %3"
+#~ msgstr[1] "%1: luettu tavuja %2, kirjoitettu %3"
+
+#~ msgid "%1: %2 -> %3, %4, %5 line endings"
+#~ msgstr "%1: %2 -> %3, %4, rivinvaihdot %5"
+
+#~ msgid "%1: %2 subtitle converted to %3 (dry run, nothing written)"
+#~ msgid_plural "%1: %2 subtitles converted to %3 (dry run, nothing written)"
+#~ msgstr[0] ""
+#~ "%1: %2 kappale muunnettu muotoon %3 (koeajo, mitään ei kirjoitettu)"
+#~ msgstr[1] ""
+#~ "%1: %2 kappaletta muunnettu muotoon %3 (koeajo, mitään ei kirjoitettu)"
+
+#~ msgid "%1: %2 subtitle written as %3 -> %4"
+#~ msgid_plural "%1: %2 subtitles written as %3 -> %4"
+#~ msgstr[0] "%1: %2 kappale kirjoitettu muodossa %3 -> %4"
+#~ msgstr[1] "%1: %2 kappaletta kirjoitettu muodossa %3 -> %4"
+
+#~ msgid "%1: %2 bytes read"
+#~ msgid_plural "%1: %2 bytes read"
+#~ msgstr[0] "%1: luettu tavuja %2"
+#~ msgstr[1] "%1: luettu tavuja %2"
+
+#~ msgid "%1: %2 diagnostic while reading"
+#~ msgid_plural "%1: %2 diagnostics while reading"
+#~ msgstr[0] "%1: %2 huomautus luettaessa"
+#~ msgstr[1] "%1: %2 huomautusta luettaessa"
+
+#~ msgid "%1 and %2"
+#~ msgstr "%1 ja %2"
+
+#~ msgid "%1 -> %2, %3"
+#~ msgstr "%1 -> %2, %3"
+
+#~ msgid "%1: %2, %3, %4 line endings kept"
+#~ msgstr "%1: %2, %3, rivinvaihdot %4 säilytetty"
 
 #~ msgid "%1: %2 (dry run, nothing written)"
 #~ msgstr "%1: %2 (koeajo, mitään ei kirjoitettu)"

@@ -85,10 +85,10 @@ dazu, wo sie liegt, sowie zu `--config` und `--no-config`.
   stellt die Zeilen von Gaupol wieder her. `--keep-blank-subtitles` und `--remove-blank-subtitles` zusammen sind ein
   Aufruffehler.
 - **Beide Klassen in der Datei ausgeschaltet wird ignoriert, und das wird gesagt**, auf Stufe 1 —
-  `settings: correction.human and correction.ocr are both false, ignored` —: `--classes` könnte es nicht schreiben, und es würde
+  `warning: setting correction.human and correction.ocr are both false, ignored` —: `--classes` könnte es nicht schreiben, und es würde
   common-errors nichts zu tun lassen. Stattdessen werden beide Klassen angewendet.
 - **Eine Zeilenzahl außerhalb von 1 bis 1000 wird gar nicht aus der Datei gelesen**: Das Lesen der Datei
-  lehnt sie ab — `settings: correction.line-break.max-lines: cannot read 'N', default kept`, auf
+  lehnt sie ab — `warning: setting correction.line-break.max-lines: cannot read 'N', default kept`, auf
   Stufe 1 —, und der eingebaute Wert 3 wird verwendet.
 
 Die Beispiele dieser Seite werden mit `--no-config` ausgeführt, damit sie zeigen, was die eingebauten
@@ -149,7 +149,7 @@ code=1
 
 Die Muster, die der Benutzer in `$XDG_DATA_HOME/subedit/patterns` (oder
 `~/.local/share/subedit/patterns`) ablegt, **kommen zu den mitgelieferten Mustern hinzu**, wie im
-Fenster, und ein mitgeliefertes Muster, das nicht gelesen werden kann, wird auf Stufe 1 gemeldet: `patterns: <file>, line N (<reason>)`.
+Fenster, und ein mitgeliefertes Muster, das nicht gelesen werden kann, wird auf Stufe 1 gemeldet: `warning: patterns: <file>, line N (<reason>)`.
 
 ### Wörter zusammenfügen und trennen, und das Wörterbuch
 

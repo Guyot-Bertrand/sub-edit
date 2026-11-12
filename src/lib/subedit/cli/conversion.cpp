@@ -21,6 +21,7 @@
 #include <subedit/core/wording/analysis.hpp>
 #include <subedit/core/wording/conversion.hpp>
 #include <subedit/core/wording/counts.hpp>
+#include <subedit/core/wording/editing.hpp>
 #include <subedit/core/wording/formats.hpp>
 
 #include <algorithm>
@@ -51,7 +52,6 @@ using core::SubtitleFormat;
 [[nodiscard]] std::expected<core::FrameRate, Failure>
 frameRateForFrames(const core::Project& project,
                    const std::optional<core::FrameRate>& asked,
-                   const std::string& path,
                    const Reporter& reporter) {
     if (asked.has_value())
         return *asked;
@@ -66,11 +66,13 @@ frameRateForFrames(const core::Project& project,
                     }});
     }
 
-    reporter.say(2,
-                 core::substitute(
-                     // TRANSLATORS: %1 is a file, %2 a frame rate.
-                     core::translate("%1: counted in frames at %2, the grid the positions fall on"),
-                     {path, core::nameOf(deduced.retained.rate)}));
+    // A rate the user did not give: the conversion goes on with the one it found.
+    reporter.tell(1,
+                  Key::Warning,
+                  core::substitute(
+                      // TRANSLATORS: %1 is a frame rate.
+                      core::translate("counted in frames at %1, the grid the positions fall on"),
+                      {core::nameOf(deduced.retained.rate)}));
     return deduced.retained.rate;
 }
 
@@ -160,6 +162,7 @@ bool convertFile(core::FileSystem& files,
     }
 
     const core::SourceFile& source = opened->project.sourceFile();
+    narrateRead(reporter, opened->bytes, source, opened->diagnostics);
 
     // Empty means "as the source had it": the model kept both so that a
     // conversion would not throw them away.
@@ -197,7 +200,7 @@ bool convertFile(core::FileSystem& files,
         // **The one thing this surface answers for itself**, because it can
         // refuse: the window always has a rate to offer, a batch may have none.
         const std::expected<core::FrameRate, Failure> settled =
-            frameRateForFrames(opened->project, reading.frameRate, path, reporter);
+            frameRateForFrames(opened->project, reading.frameRate, reporter);
         if (!settled.has_value()) {
             reportFailure(reporter, path, settled.error());
             return false;
@@ -236,47 +239,37 @@ bool convertFile(core::FileSystem& files,
         return false;
     }
 
-    reporter.say(
-        3,
-        core::substitute(dryRun ? core::translatePlural("%1: %2 bytes read, %3 would be written",
-                                                        "%1: %2 bytes read, %3 would be written",
-                                                        opened->bytes)
-                                : core::translatePlural("%1: %2 bytes read, %3 written",
-                                                        "%1: %2 bytes read, %3 written",
-                                                        opened->bytes),
-                         {path, std::to_string(opened->bytes), std::to_string(*written)}));
-    sayDiagnostics(reporter, path, opened->diagnostics);
     if (arranged->joined.has_value())
-        reporter.say(1, narrationOfJoin(path, *arranged->joined));
+        reporter.tell(1, Key::Result, core::noticeOfJoin(*arranged->joined));
     if (preparation.sort)
-        reporter.say(1, narrationOfSort(path, arranged->moved));
+        reporter.tell(1, Key::Result, core::noticeOfSort(arranged->moved));
     if (arranged->cut.has_value())
-        reporter.say(1, narrationOfDisjoint(path, *arranged->cut));
-    reporter.say(
-        2,
-        // TRANSLATORS: %1 is a file, %2 and %3 formats, %4 an encoding, %5 a kind of line ending.
-        core::substitute(
-            core::translate("%1: %2 -> %3, %4, %5 line endings"),
-            {path, nameOf(source.format), nameOf(target), nameOf(encoding), nameOf(newline)}));
-    const std::size_t count = converted.subtitles.size();
-    reporter.say(
-        1,
-        // TRANSLATORS: %1 is a file, %2 a number of subtitles, %3 a format, %4 the file written.
-        dryRun ? core::substitute(core::translatePlural(
-                                      "%1: %2 subtitle converted to %3 (dry run, nothing written)",
-                                      "%1: %2 subtitles converted to %3 (dry run, nothing written)",
-                                      count),
-                                  {path, std::to_string(count), nameOf(target)})
-               : core::substitute(core::translatePlural("%1: %2 subtitle written as %3 -> %4",
-                                                        "%1: %2 subtitles written as %3 -> %4",
-                                                        count),
-                                  {path, std::to_string(count), nameOf(target), out.string()}));
-    // **Said last, and only when there is something to say.** A conversion that
-    // loses nothing is silent, which is what makes the line worth reading when
-    // it does appear.
+        reporter.tell(1, Key::Result, core::noticeOfDisjoint(*arranged->cut));
+    // **Said before the result, and only when there is something to say.** A conversion that
+    // loses nothing is silent, which is what makes the line worth reading when it does appear.
     if (const std::string notice = core::noticeOf(converted.loss, source.format, target);
         !notice.empty())
-        reporter.say(1, core::substitute(core::translate("%1: %2"), {path, notice}));
+        reporter.tell(1, Key::Warning, notice);
+    const std::size_t count = converted.subtitles.size();
+    // The shape written, in the sentence: `format`, `encoding` and `line-endings` are those of
+    // the file read.
+    const std::string made = core::substitute(
+        // TRANSLATORS: %1 a number of subtitles, %2 a format, %3 an encoding, %4 a kind of line
+        // ending.
+        core::translatePlural("%1 subtitle converted to %2, %3, %4 line endings",
+                              "%1 subtitles converted to %2, %3, %4 line endings",
+                              count),
+        {std::to_string(count), nameOf(target), nameOf(encoding), nameOf(newline)});
+    if (dryRun) {
+        reporter.tell(1,
+                      Key::Result,
+                      // TRANSLATORS: %1 is what was done to a file, which was not written.
+                      core::substitute(core::translate("%1 (dry run, nothing written)"), {made}));
+    } else {
+        reporter.tell(1, Key::Result, made);
+        reporter.tell(3, Key::BytesWritten, std::to_string(*written));
+        reporter.tell(1, Key::Dest, out.string());
+    }
     if (dryRun) {
         reporter.record(dryRunRecord(reporter.command(),
                                      path,
@@ -366,7 +359,8 @@ ExitCode convertAll(core::FileSystem& files,
     }
 
     std::size_t done = 0;
-    for (const Job& job : *jobs) {
+    for (std::size_t at = 0; at < jobs->size(); ++at) {
+        const Job& job = (*jobs)[at];
         if (convertFile(files,
                         job,
                         reading,
@@ -374,7 +368,7 @@ ExitCode convertAll(core::FileSystem& files,
                         shape,
                         Preparation{.join = join, .sort = sort, .disjoint = disjoint},
                         destination.isDryRun(),
-                        reporter)) {
+                        reporter.forItem(at + 1, jobs->size(), job.input))) {
             ++done;
         }
     }

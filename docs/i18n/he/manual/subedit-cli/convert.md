@@ -194,8 +194,10 @@ file.lrc: carries no end times; each one was taken from the next start, settled 
 <!-- example: printf '1\n00:00:01,000 --> 00:00:03,500\n<i>sur deux</i>\nlignes\n\n' > a.srt; subedit-cli convert --to lrc --output b.lrc a.srt -->
 ```console
 $ printf '1\n00:00:01,000 --> 00:00:03,500\n<i>sur deux</i>\nlignes\n\n' > a.srt; subedit-cli convert --to lrc --output b.lrc a.srt
-a.srt: 1 subtitle written as LRC -> b.lrc
-a.srt: ends are not carried by LRC, line breaks were joined in 1 subtitle, 1 tag dropped
+[subedit] [convert] [1/1] source: a.srt
+[subedit] [convert] [1/1] warning: ends are not carried by LRC, line breaks were joined in 1 subtitle, 1 tag dropped
+[subedit] [convert] [1/1] result: 1 subtitle converted to LRC, UTF-8, no BOM, LF line endings
+[subedit] [convert] [1/1] dest: b.lrc
 ```
 
 השורה מופיעה ברמת הפירוט של ברירת המחדל, ובכל אחת מעליה.
@@ -278,7 +280,9 @@ WebVTT — קובץ ששמו משקר מכשיל כל כלי אחר.
 <!-- example: printf '1\n00:00:01,000 --> 00:00:03,000\nBonjour.\n\n' > a.srt; subedit-cli convert --to vtt --output b.vtt a.srt; cat b.vtt -->
 ```console
 $ printf '1\n00:00:01,000 --> 00:00:03,000\nBonjour.\n\n' > a.srt; subedit-cli convert --to vtt --output b.vtt a.srt; cat b.vtt
-a.srt: 1 subtitle written as WebVTT -> b.vtt
+[subedit] [convert] [1/1] source: a.srt
+[subedit] [convert] [1/1] result: 1 subtitle converted to WebVTT, UTF-8, no BOM, LF line endings
+[subedit] [convert] [1/1] dest: b.vtt
 WEBVTT
 
 00:01.000 --> 00:03.000
@@ -291,19 +295,19 @@ Bonjour.
 אין נוגעים בו, ומה שנכתב הוא מה ש-[`sort`](sort.md) היה עושה ממנו — יציב, שתי כתוביות שמתחילות יחד שומרות על סדרן.
 
 **לעולם לא כברירת מחדל**: סדר הקובץ הוא של מחברו כל עוד לא ביקשו דבר אחר. עם האפשרות, כל קובץ אומר זאת, ברמת
-הקריינות הראשונה, `<path>: N subtitles moved` או `<path>: already in order`, והרשומה של `--format json` נושאת ספירת
+הקריינות הראשונה, `result: N subtitles moved` או `result: already in order`, והרשומה של `--format json` נושאת ספירת
 `moved` — **חסרה בלי האפשרות**, כדי לא לשנות את צורת מה שסקריפטים קיימים קוראים.
 
 ## הפיכת הטווחים לזרים
 
 `--disjoint` חותך את הכתוביות החופפות כך שאף טווח לא יחפוף עוד טווח אחר, **על אותו עותק כמו המיון**: הקובץ שנקרא אין נוגעים בו.
 
-לעולם לא כברירת מחדל. האפשרות עושה מה ש-[`disjoint`](disjoint.md) עושה, **עם הגדרות ברירת המחדל שלו**, לפני הכתיבה, אחרי המיון. היא צריכה קובץ ממוין: אחרת היא נדחית, ו-`--sort` — שבא קודם — מסדר אותו מראש. הקובץ אומר זאת ברמת הקריינות הראשונה (`<path>: N subtitles split, M merged`), והרשומה של `--format json` נושאת את ספירות `split` ו-`merged`, **חסרות בלי האפשרות**.
+לעולם לא כברירת מחדל. האפשרות עושה מה ש-[`disjoint`](disjoint.md) עושה, **עם הגדרות ברירת המחדל שלו**, לפני הכתיבה, אחרי המיון. היא צריכה קובץ ממוין: אחרת היא נדחית, ו-`--sort` — שבא קודם — מסדר אותו מראש. הקובץ אומר זאת ברמת הקריינות הראשונה (`result: N subtitles split, M merged`), והרשומה של `--format json` נושאת את ספירות `split` ו-`merged`, **חסרות בלי האפשרות**.
 
 **`--join-repeats` בא לפני המיון והחיתוך**: טקסט שנחתך לחלקים הבאים בזה אחר זה נבנה מחדש תחילה (ראו
 [`join-repeats`](join-repeats.md)), אחר כך הכתוביות ממוינות, ואחר כך הטווחים נעשים זרים. **`--repair` הוא שלושתם בבת אחת**,
 כמו [`repair`](repair.md), עם הגדרות ברירת המחדל של החיתוך. עם `--join-repeats`, כל קובץ אומר
-`<path>: N repeated subtitles joined` ברמת הקריינות הראשונה, והרשומה של `--format json` נושאת `counts.joined` — **חסרה בלי האפשרות**.
+`result: N repeated subtitles joined` ברמת הקריינות הראשונה, והרשומה של `--format json` נושאת `counts.joined` — **חסרה בלי האפשרות**.
 
 ## פלט
 
@@ -313,9 +317,9 @@ Bonjour.
 
 | רמה | מה מתווסף |
 | :----- | :-------------- |
-| 1 | `<path>: N subtitles written as WebVTT -> <destination>` |
-| 2 | `<path>: SubRip -> WebVTT, UTF-8, no BOM, LF line endings` — הקידוד הנקוב הוא זה שנכתב |
-| 3 | `<path>: N bytes read, M written`, ואחריו **כל אבחוני הקריאה** — ראו [הפעלה](invocation.md#אבחוני-קריאה) |
+| 1 | `source: <path>`, `result: N subtitles converted to WebVTT, UTF-8, no BOM, LF line endings`, `dest: <destination>` |
+| 2 | `format: SubRip`, `encoding: UTF-8`, `bom: absent`, `line-endings: LF` — של הקובץ שנקרא |
+| 3 | `bytes-read: N`, `bytes-written: M`, ואחריו **כל אבחוני הקריאה** — ראו [הפעלה](invocation.md#אבחוני-קריאה) |
 
 ### ב-JSON
 

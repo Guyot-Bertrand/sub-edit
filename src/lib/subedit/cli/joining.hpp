@@ -26,10 +26,6 @@ class Reporter;
 /// what it did — what `--join-repeats` does on the commands that carry it.
 [[nodiscard]] subedit::core::JoinReport joinedInPlace(subedit::core::Project& project);
 
-/// What `--join-repeats` says about one file, at the first level.
-[[nodiscard]] std::string narrationOfJoin(const std::string& path,
-                                          const subedit::core::JoinReport& report);
-
 /// Joins the repeated subtitles of every path, and says how many were.
 ///
 /// A repeat is a subtitle with the text, the translation and the extras of

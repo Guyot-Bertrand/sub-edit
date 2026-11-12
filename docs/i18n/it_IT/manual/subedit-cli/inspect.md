@@ -345,9 +345,9 @@ Sull'errore standard, secondo il livello richiesto:
 
 | Livello | Che cosa si aggiunge |
 | :----- | :-------------- |
-| 1 | `<path>: N subtitles` |
-| 2 | `<path>: SubRip, UTF-8, no BOM, LF line endings` |
-| 3 | `<path>: N bytes read`, `<path>: N diagnostic(s) while reading`, poi **ciascuno di essi** — vedere [Invocazione](invocation.md#diagnostica-di-lettura) |
+| 1 | `source: <path>`, `result: N subtitles` |
+| 2 | `format: SubRip`, `encoding: UTF-8`, `bom: absent`, `line-endings: LF` |
+| 3 | `bytes-read: N`, poi **ogni diagnostica di lettura** — vedere [Invocazione](invocation.md#diagnostica-di-lettura) |
 
 ## Codici di uscita
 
@@ -379,6 +379,7 @@ viene rifiutato, e nominato.
 <!-- example: : > vide.srt; subedit-cli inspect vide.srt; echo "code=$?" -->
 ```console
 $ : > vide.srt; subedit-cli inspect vide.srt; echo "code=$?"
-vide.srt: is in no format this tool knows
+[subedit] [inspect] [1/1] source: vide.srt
+[subedit] [inspect] [1/1] error: is in no format this tool knows
 code=2
 ```

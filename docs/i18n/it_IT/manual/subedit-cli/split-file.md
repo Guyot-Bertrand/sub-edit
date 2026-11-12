@@ -63,7 +63,10 @@ leggendo, o scrivere la coda sopra la testa, viene rifiutato prima che venga let
 <!-- example: printf '1\n00:00:01,000 --> 00:00:02,000\nun\n\n2\n00:00:03,000 --> 00:00:04,000\ndeux\n\n3\n00:00:06,000 --> 00:00:07,000\ntrois\n\n4\n00:00:08,000 --> 00:00:09,000\nquatre\n\n' > film.srt; subedit-cli split-file --at 3 --head tete.srt --tail queue.srt film.srt; cat queue.srt -->
 ```console
 $ printf '1\n00:00:01,000 --> 00:00:02,000\nun\n\n2\n00:00:03,000 --> 00:00:04,000\ndeux\n\n3\n00:00:06,000 --> 00:00:07,000\ntrois\n\n4\n00:00:08,000 --> 00:00:09,000\nquatre\n\n' > film.srt; subedit-cli split-file --at 3 --head tete.srt --tail queue.srt film.srt; cat queue.srt
-film.srt: split at subtitle 3: 2 subtitles in the head, 2 subtitles in the tail -> tete.srt, queue.srt
+[subedit] [split-file] [1/1] source: film.srt
+[subedit] [split-file] [1/1] result: split at subtitle 3: 2 subtitles in the head, 2 subtitles in the tail
+[subedit] [split-file] [1/1] dest: tete.srt
+[subedit] [split-file] [1/1] tail: queue.srt
 1
 00:00:02,000 --> 00:00:03,000
 trois
@@ -82,12 +85,12 @@ che iniziava a 6 s, inizia a 2 s.
 nel tempo. `--sort` mette i sottotitoli nell'ordine dei loro inizi **prima di giudicare il taglio** — in modo stabile, come fa [`sort`](sort.md) —, e
 `--at` conta poi in quell'ordine.
 
-Mai per impostazione predefinita. Con l'opzione, il file dice al primo livello di narrazione quanti sottotitoli si sono spostati (`<path>: N subtitles moved`
-oppure `<path>: already in order`), e il record di `--format json` porta un conteggio `moved`, **assente senza l'opzione**.
+Mai per impostazione predefinita. Con l'opzione, il file dice al primo livello di narrazione quanti sottotitoli si sono spostati (`result: N subtitles moved`
+oppure `result: already in order`), e il record di `--format json` porta un conteggio `moved`, **assente senza l'opzione**.
 
 ## Rendere disgiunti gli intervalli
 
-Mai per impostazione predefinita. L'opzione fa ciò che fa [`disjoint`](disjoint.md), **con le sue impostazioni predefinite**, prima di giudicare il taglio, dopo l'ordinamento: `--at` conta in ciò che ne risulta. Richiede un file in ordine: altrimenti viene rifiutata, e `--sort` — che viene prima — lo mette prima in ordine. Il file lo dice al primo livello di narrazione (`<path>: N subtitles split, M merged`), e il record di `--format json` porta i conteggi `split` e `merged`, **assenti senza l'opzione**.
+Mai per impostazione predefinita. L'opzione fa ciò che fa [`disjoint`](disjoint.md), **con le sue impostazioni predefinite**, prima di giudicare il taglio, dopo l'ordinamento: `--at` conta in ciò che ne risulta. Richiede un file in ordine: altrimenti viene rifiutata, e `--sort` — che viene prima — lo mette prima in ordine. Il file lo dice al primo livello di narrazione (`result: N subtitles split, M merged`), e il record di `--format json` porta i conteggi `split` e `merged`, **assenti senza l'opzione**.
 
 ## Quando il taglio viene rifiutato
 
@@ -112,9 +115,9 @@ vuota. Un file di un solo sottotitolo non può essere tagliato.
 
 | Livello | Che cosa si aggiunge sull'output di errore |
 | :----- | :------------------------------------- |
-| 1 | `<path>: split at subtitle N: H subtitles in the head, T subtitles in the tail -> <head>, <tail>`; con `--dry-run`, `(dry run, nothing written)` al posto di `-> …` |
-| 2 | `<path>: SubRip, UTF-8, no BOM, LF line endings kept` — il formato, la codifica, l'indicatore e i terminatori di riga del file letto, rimessi com'erano |
-| 3 | `<path>: N bytes read, H and T written`, poi **ogni diagnostica di lettura** — vedi [Invocazione](invocation.md#diagnostica-di-lettura) |
+| 1 | `source: <path>`, `result: split at subtitle N: H subtitles in the head, T subtitles in the tail`, `dest: <head>`, `tail: <tail>`; con `--dry-run`, `(dry run, nothing written)` al posto di `dest: <head>` |
+| 2 | `format: SubRip`, `encoding: UTF-8`, `bom: absent`, `line-endings: LF` — il formato, la codifica, l'indicatore e i terminatori di riga del file letto, rimessi com'erano |
+| 3 | `bytes-read: N`, `bytes-written: H`, `bytes-written: T`, poi **ogni diagnostica di lettura** — vedi [Invocazione](invocation.md#diagnostica-di-lettura) |
 
 ### In JSON
 

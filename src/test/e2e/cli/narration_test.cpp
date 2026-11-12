@@ -48,17 +48,13 @@ const std::string kUnreadable = corpus("malformes/vide.srt");
 /// block is numbered 7 where 2 was due.
 const std::string kNumbering = corpus("malformes/numerotation-incoherente.srt");
 
-/// What that one diagnostic is owed, in full.
+/// What that one diagnostic is owed, in full: under the key `diagnostic`, the file named by the
+/// element's `source` line.
 ///
 /// Line 6 and not 5, where the « 7 » sits: a diagnostic about a block is
 /// anchored on the block, that is on its timing line. Only the diagnostics
 /// about a single line — an unreadable timestamp, text before the first one —
 /// point at themselves.
-const std::string kNumberingSaid =
-    ": line 6: SubRip numbers that do not follow (\"7\"), settled by the reader\n";
-
-/// The same diagnostic, said by a subcommand that speaks the grammar of #806: under the key
-/// `diagnostic`, the file named by the element's `source` line.
 const std::string kNumberingTold =
     "] diagnostic: line 6: SubRip numbers that do not follow (\"7\"), settled by the reader\n";
 
@@ -79,16 +75,18 @@ TEST_CASE("the default level accounts for each file", "[e2e][CLI-OUTPUT-04]") {
     const CliRun run = invoke({"inspect", kGood});
 
     CHECK(run.exitCode == 0);
-    CHECK_THAT(run.errors, ContainsSubstring(kGood + ": 2 subtitles\n"));
+    CHECK_THAT(run.errors, ContainsSubstring("[1/1] source: " + kGood + "\n"));
+    CHECK_THAT(run.errors, ContainsSubstring("[1/1] result: 2 subtitles\n"));
 }
 
 TEST_CASE("silence keeps the errors", "[e2e][CLI-OUTPUT-02]") {
     const CliRun quiet = invoke({"--quiet", "inspect", kUnreadable});
 
-    CHECK_THAT(quiet.errors, ContainsSubstring(kUnreadable));
-    // Nothing else: what raises the alarm survives, what merely recounts does
-    // not.
-    CHECK(lines(quiet.errors).size() == 1);
+    // The error, and the `source` line it never comes without: what raises the alarm survives,
+    // what merely recounts does not.
+    CHECK_THAT(quiet.errors, ContainsSubstring("[1/1] source: " + kUnreadable + "\n"));
+    CHECK_THAT(quiet.errors, ContainsSubstring("[1/1] error: "));
+    CHECK(lines(quiet.errors).size() == 2);
 }
 
 TEST_CASE("silence drops the narration", "[e2e][CLI-OUTPUT-02]") {
@@ -146,17 +144,21 @@ TEST_CASE("a single -v is the default level", "[e2e][CLI-OUTPUT-04]") {
 TEST_CASE("the second level says what was recognised", "[e2e][CLI-OUTPUT-03]") {
     const CliRun run = invoke({"-vv", "inspect", kGood});
 
-    CHECK_THAT(run.errors, ContainsSubstring(kGood + ": SubRip, UTF-8, no BOM, LF line endings\n"));
+    CHECK_THAT(run.errors,
+               ContainsSubstring("[subedit] [inspect] [1/1] format: SubRip\n"
+                                 "[subedit] [inspect] [1/1] encoding: UTF-8\n"
+                                 "[subedit] [inspect] [1/1] bom: absent\n"
+                                 "[subedit] [inspect] [1/1] line-endings: LF\n"));
 }
 
 TEST_CASE("the third level names each diagnostic, not only how many", "[e2e][CLI-OUTPUT-06]") {
-    // « 1 diagnostic while reading » leaves the reader with a number and no way
-    // to learn what it was. The count stays — it is the summary — and each one
-    // is now named under it.
+    // « 1 diagnostic while reading » left the reader with a number and no way
+    // to learn what it was. Each one is named, a line each; the count is the
+    // number of those lines.
     const CliRun run = invoke({"-vvv", "inspect", kNumbering});
 
-    CHECK_THAT(run.errors, ContainsSubstring(kNumbering + ": 1 diagnostic while reading\n"));
-    CHECK_THAT(run.errors, ContainsSubstring(kNumbering + kNumberingSaid));
+    CHECK_THAT(run.errors, ContainsSubstring("[1/1] source: " + kNumbering + "\n"));
+    CHECK_THAT(run.errors, ContainsSubstring(kNumberingTold));
 }
 
 TEST_CASE("the diagnostics stay at the level that details", "[e2e][CLI-OUTPUT-06]") {
@@ -191,7 +193,7 @@ TEST_CASE("converting reports them too", "[e2e][CLI-OUTPUT-06]") {
         invoke({"-vvv", "convert", "--to", "vtt", "--output-dir", scratch.path(), kNumbering});
 
     CHECK(run.exitCode == 0);
-    CHECK_THAT(run.errors, ContainsSubstring(kNumbering + kNumberingSaid));
+    CHECK_THAT(run.errors, ContainsSubstring(kNumberingTold));
 }
 
 TEST_CASE("the second level says the byte order mark, whichever subcommand",
@@ -200,19 +202,23 @@ TEST_CASE("the second level says the byte order mark, whichever subcommand",
     // One shape for the three, in one order: format, encoding, mark, endings.
     // The mark is the property most easily lost and the least visible; saying
     // it for two subcommands out of three was the worst of both.
-    CHECK_THAT(invoke({"-vv", "inspect", kGood}).errors,
-               ContainsSubstring(kGood + ": SubRip, UTF-8, no BOM, LF line endings\n"));
-
-    // One fact a line for a subcommand that speaks the grammar of #806, the words as names.
-    CHECK_THAT(invoke({"-vv", "shift", "--by", "1", "--output-dir", scratch.path(), kGood}).errors,
-               ContainsSubstring("[subedit] [shift] [1/1] format: SubRip\n"
-                                 "[subedit] [shift] [1/1] encoding: UTF-8\n"
-                                 "[subedit] [shift] [1/1] bom: absent\n"
-                                 "[subedit] [shift] [1/1] line-endings: LF\n"));
-
-    CHECK_THAT(
-        invoke({"-vv", "convert", "--to", "vtt", "--output-dir", scratch.path(), kGood}).errors,
-        ContainsSubstring(kGood + ": SubRip -> WebVTT, UTF-8, no BOM, LF line endings\n"));
+    // One fact a line, the words as names.
+    for (const std::vector<std::string>& asked :
+         {std::vector<std::string>{"inspect", kGood},
+          std::vector<std::string>{"shift", "--by", "1", "--output-dir", scratch.path(), kGood},
+          std::vector<std::string>{
+              "convert", "--to", "vtt", "--output-dir", scratch.path(), kGood}}) {
+        std::vector<std::string> loud{"-vv"};
+        loud.insert(loud.end(), asked.begin(), asked.end());
+        const std::string prefix = "[subedit] [" + asked.front() + "] [1/1] ";
+        std::string expected;
+        for (const char* fact :
+             {"format: SubRip\n", "encoding: UTF-8\n", "bom: absent\n", "line-endings: LF\n"}) {
+            expected += prefix;
+            expected += fact;
+        }
+        CHECK_THAT(invoke(loud).errors, ContainsSubstring(expected));
+    }
 }
 
 TEST_CASE("a single file gets no summary", "[e2e][CLI-OUTPUT-05]") {

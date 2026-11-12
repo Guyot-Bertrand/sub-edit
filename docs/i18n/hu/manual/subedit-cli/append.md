@@ -65,8 +65,11 @@ felülíródik, mint mindenhol.
 <!-- example: printf '1\n00:00:01,000 --> 00:00:02,000\nun\n\n2\n00:00:03,000 --> 00:00:04,000\ndeux\n\n' > partie1.srt; printf '1\n00:00:00,500 --> 00:00:01,500\ntrois\n\n' > partie2.srt; subedit-cli append --output film.srt partie1.srt partie2.srt; cat film.srt -->
 ```console
 $ printf '1\n00:00:01,000 --> 00:00:02,000\nun\n\n2\n00:00:03,000 --> 00:00:04,000\ndeux\n\n' > partie1.srt; printf '1\n00:00:00,500 --> 00:00:01,500\ntrois\n\n' > partie2.srt; subedit-cli append --output film.srt partie1.srt partie2.srt; cat film.srt
-partie2.srt: appended 1 subtitle
-partie1.srt: 3 subtitles from 2 files -> film.srt
+[subedit] [append] [1/1] source: partie1.srt
+[subedit] [append] [1/1] source: partie2.srt
+[subedit] [append] [1/1] result: appended 1 subtitle
+[subedit] [append] [1/1] result: 3 subtitles from 2 files
+[subedit] [append] [1/1] dest: film.srt
 1
 00:00:01,000 --> 00:00:02,000
 un
@@ -93,7 +96,7 @@ a `--format json` rekord tartalmaz egy `moved` számlálót, amely **a kapcsoló
 
 ## A tartományok átfedésmentessé tétele
 
-Alapértelmezés szerint soha. A kapcsoló azt teszi, amit a [`disjoint`](disjoint.md) **az alapértelmezett beállításaival**, miután minden hozzá van fűzve, az egészen. Rendezett fájlra van szüksége: különben a program elutasítja, és a `--sort` — amely előbb fut — előtte sorrendbe állítja. A fájl ezt jelzi az első narrációs szinten (`<path>: N subtitles split, M merged`), és a `--format json` rekord tartalmazza a `split` és a `merged` számlálót, amelyek **a kapcsoló nélkül hiányoznak**.
+Alapértelmezés szerint soha. A kapcsoló azt teszi, amit a [`disjoint`](disjoint.md) **az alapértelmezett beállításaival**, miután minden hozzá van fűzve, az egészen. Rendezett fájlra van szüksége: különben a program elutasítja, és a `--sort` — amely előbb fut — előtte sorrendbe állítja. A fájl ezt jelzi az első narrációs szinten (`result: N subtitles split, M merged`), és a `--format json` rekord tartalmazza a `split` és a `merged` számlálót, amelyek **a kapcsoló nélkül hiányoznak**.
 
 ## Ha a formátumok eltérnek
 
@@ -114,9 +117,9 @@ amely már abban a formátumban van, vagy utólag át kell alakítani a [`conver
 
 | Szint | Mi kerül még a hibakimenetre |
 | :----- | :------------------------------------- |
-| 1 | hozzáfűzött fájlonként egy sor — `<path>: appended N subtitles`, amelyet, ha a formátum valamibe került, `; <source format> into <base format>: <what is lost>` követ — majd `<base>: N subtitles from M files -> <destination>` (a `--dry-run` esetén `(dry run, nothing written)` áll a `-> <destination>` helyén) |
-| 2 | `<base>: SubRip, UTF-8, no BOM, LF line endings kept` — az alap formátuma, kódolása, jelölője és sorvégei, az eredetiek szerint visszaírva |
-| 3 | `<base>: N bytes read, M written` (az összes fájl együtt), majd **minden olvasási diagnosztika** — lásd: [Indítás](invocation.md#olvasási-diagnosztika) |
+| 1 | hozzáfűzött fájlonként egy sor — `source: <path>`, `result: appended N subtitles`, amelyet, ha a formátum valamibe került, `; <source format> into <base format>: <what is lost>` követ — majd `result: N subtitles from M files`, `dest: <destination>` (a `--dry-run` esetén `(dry run, nothing written)` áll a `dest: <destination>` helyén) |
+| 2 | `format: SubRip`, `encoding: UTF-8`, `bom: absent`, `line-endings: LF` — a beolvasott fájl formátuma, kódolása, jelölője és sorvége, úgy visszaírva, ahogyan volt |
+| 3 | `bytes-read: N`, `bytes-written: M`, majd **minden olvasási diagnosztika** — lásd [Indítás](invocation.md#olvasási-diagnosztika) |
 
 ### JSON-ban
 

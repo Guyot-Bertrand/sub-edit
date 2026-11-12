@@ -85,10 +85,10 @@ Options:
   возвращает строки Gaupol. `--keep-blank-subtitles` и `--remove-blank-subtitles` вместе — это
   ошибка использования.
 - **Оба класса, отключённые в файле, игнорируются, и об этом сообщается** на уровне 1 —
-  `settings: correction.human and correction.ocr are both false, ignored` —: `--classes` не смог бы этого записать, и
+  `warning: setting correction.human and correction.ocr are both false, ignored` —: `--classes` не смог бы этого записать, и
   common-errors было бы нечего делать. Вместо этого применяются оба класса.
 - **Число строк вне диапазона от 1 до 1000 из файла не читается вовсе**: читатель файла
-  его отклоняет — `settings: correction.line-break.max-lines: cannot read 'N', default kept`, на
+  его отклоняет — `warning: setting correction.line-break.max-lines: cannot read 'N', default kept`, на
   уровне 1, — и используется встроенное значение 3.
 
 Примеры на этой странице выполнены с `--no-config`, чтобы они показывали, что делают встроенные
@@ -149,7 +149,7 @@ code=1
 
 Шаблоны, которые пользователь кладёт в `$XDG_DATA_HOME/subedit/patterns` (или
 `~/.local/share/subedit/patterns`), **добавляются к поставляемым шаблонам**, как в
-окне, а поставляемый шаблон, который не удаётся прочитать, упоминается на уровне 1: `patterns: <file>, line N (<reason>)`.
+окне, а поставляемый шаблон, который не удаётся прочитать, упоминается на уровне 1: `warning: patterns: <file>, line N (<reason>)`.
 
 ### Объединение и разделение слов и словарь
 

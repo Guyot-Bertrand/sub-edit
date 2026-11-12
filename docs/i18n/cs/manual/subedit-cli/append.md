@@ -67,8 +67,11 @@ přepíše, jako všude.
 <!-- example: printf '1\n00:00:01,000 --> 00:00:02,000\nun\n\n2\n00:00:03,000 --> 00:00:04,000\ndeux\n\n' > partie1.srt; printf '1\n00:00:00,500 --> 00:00:01,500\ntrois\n\n' > partie2.srt; subedit-cli append --output film.srt partie1.srt partie2.srt; cat film.srt -->
 ```console
 $ printf '1\n00:00:01,000 --> 00:00:02,000\nun\n\n2\n00:00:03,000 --> 00:00:04,000\ndeux\n\n' > partie1.srt; printf '1\n00:00:00,500 --> 00:00:01,500\ntrois\n\n' > partie2.srt; subedit-cli append --output film.srt partie1.srt partie2.srt; cat film.srt
-partie2.srt: appended 1 subtitle
-partie1.srt: 3 subtitles from 2 files -> film.srt
+[subedit] [append] [1/1] source: partie1.srt
+[subedit] [append] [1/1] source: partie2.srt
+[subedit] [append] [1/1] result: appended 1 subtitle
+[subedit] [append] [1/1] result: 3 subtitles from 2 files
+[subedit] [append] [1/1] dest: film.srt
 1
 00:00:01,000 --> 00:00:02,000
 un
@@ -96,7 +99,7 @@ záznam `--format json` nese počet `moved`, **který bez volby chybí**.
 
 ## Převedení rozsahů na disjunktní
 
-Nikdy ve výchozím stavu. Volba udělá to, co dělá [`disjoint`](disjoint.md), **s jeho výchozím nastavením**, jakmile je vše připojeno, na celku. Potřebuje seřazený soubor: jinak se odmítne, a `--sort` — který přichází první — ho předem seřadí. Soubor to řekne na první úrovni výpisu (`<path>: N subtitles split, M merged`) a záznam `--format json` nese počty `split` a `merged`, **které bez volby chybí**.
+Nikdy ve výchozím stavu. Volba udělá to, co dělá [`disjoint`](disjoint.md), **s jeho výchozím nastavením**, jakmile je vše připojeno, na celku. Potřebuje seřazený soubor: jinak se odmítne, a `--sort` — který přichází první — ho předem seřadí. Soubor to řekne na první úrovni výpisu (`result: N subtitles split, M merged`) a záznam `--format json` nese počty `split` a `merged`, **které bez volby chybí**.
 
 ## Když se formáty liší
 
@@ -118,9 +121,9 @@ který už v tomto formátu je, nebo ho poté převeďte pomocí [`convert`](con
 
 | Úroveň | Co se přidá na chybový výstup |
 | :----- | :------------------------------------- |
-| 1 | jeden řádek na každý připojený soubor — `<path>: appended N subtitles`, za nímž, když formát něco stál, následuje `; <source format> into <base format>: <what is lost>` — pak `<base>: N subtitles from M files -> <destination>` (s `--dry-run` místo `-> <destination>` `(dry run, nothing written)`) |
-| 2 | `<base>: SubRip, UTF-8, no BOM, LF line endings kept` — formát, kódování, značka a konce řádků základu, vrácené tak, jak byly |
-| 3 | `<base>: N bytes read, M written` (všechny soubory dohromady), pak **každé hlášení při čtení** — viz [Spuštění](invocation.md#hlášení-při-čtení) |
+| 1 | jeden řádek na každý připojený soubor — `source: <path>`, `result: appended N subtitles`, za nímž, když formát něco stál, následuje `; <source format> into <base format>: <what is lost>` — pak `result: N subtitles from M files`, `dest: <destination>` (s `--dry-run` místo `dest: <destination>` `(dry run, nothing written)`) |
+| 2 | `format: SubRip`, `encoding: UTF-8`, `bom: absent`, `line-endings: LF` — formát, kódování, značka a konce řádků přečteného souboru, vrácené tak, jak byly |
+| 3 | `bytes-read: N`, `bytes-written: M`, pak **každé hlášení při čtení** — viz [Spuštění](invocation.md#hlášení-při-čtení) |
 
 ### Ve formátu JSON
 

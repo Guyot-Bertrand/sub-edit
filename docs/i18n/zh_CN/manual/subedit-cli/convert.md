@@ -162,8 +162,10 @@ file.lrc: carries no end times; each one was taken from the next start, settled 
 <!-- example: printf '1\n00:00:01,000 --> 00:00:03,500\n<i>sur deux</i>\nlignes\n\n' > a.srt; subedit-cli convert --to lrc --output b.lrc a.srt -->
 ```console
 $ printf '1\n00:00:01,000 --> 00:00:03,500\n<i>sur deux</i>\nlignes\n\n' > a.srt; subedit-cli convert --to lrc --output b.lrc a.srt
-a.srt: 1 subtitle written as LRC -> b.lrc
-a.srt: ends are not carried by LRC, line breaks were joined in 1 subtitle, 1 tag dropped
+[subedit] [convert] [1/1] source: a.srt
+[subedit] [convert] [1/1] warning: ends are not carried by LRC, line breaks were joined in 1 subtitle, 1 tag dropped
+[subedit] [convert] [1/1] result: 1 subtitle converted to LRC, UTF-8, no BOM, LF line endings
+[subedit] [convert] [1/1] dest: b.lrc
 ```
 
 这一行出现在默认的详细级别，以及更高的每个级别。各项按如下顺序排列：
@@ -222,7 +224,9 @@ $ subedit-cli convert --to srt --to-encoding UTF-16 --output copie.srt film.srt
 <!-- example: printf '1\n00:00:01,000 --> 00:00:03,000\nBonjour.\n\n' > a.srt; subedit-cli convert --to vtt --output b.vtt a.srt; cat b.vtt -->
 ```console
 $ printf '1\n00:00:01,000 --> 00:00:03,000\nBonjour.\n\n' > a.srt; subedit-cli convert --to vtt --output b.vtt a.srt; cat b.vtt
-a.srt: 1 subtitle written as WebVTT -> b.vtt
+[subedit] [convert] [1/1] source: a.srt
+[subedit] [convert] [1/1] result: 1 subtitle converted to WebVTT, UTF-8, no BOM, LF line endings
+[subedit] [convert] [1/1] dest: b.vtt
 WEBVTT
 
 00:01.000 --> 00:03.000
@@ -233,15 +237,15 @@ Bonjour.
 
 `--sort` 会把文件**按开始时间的顺序**写出，不论目标格式是什么。排序是**在副本上**进行的：所读文件不会被触动，写出的内容就是 [`sort`](sort.md) 会得到的结果——稳定排序，同时开始的两条字幕保持原有顺序。
 
-**默认不排序**：只要没有别的要求，文件的顺序就是作者的顺序。使用该选项时，每个文件会在第一级输出中说明，写为 `<path>: N subtitles moved` 或 `<path>: already in order`，而 `--format json` 的记录中带有 `moved` 计数——**不使用该选项时没有这一项**，以免改变现有脚本所读取内容的形状。
+**默认不排序**：只要没有别的要求，文件的顺序就是作者的顺序。使用该选项时，每个文件会在第一级输出中说明，写为 `result: N subtitles moved` 或 `result: already in order`，而 `--format json` 的记录中带有 `moved` 计数——**不使用该选项时没有这一项**，以免改变现有脚本所读取内容的形状。
 
 ## 使时间范围互不重叠
 
 `--disjoint` 会截短相互重叠的字幕，使任何时间范围都不再与另一个重叠，**使用的副本与排序相同**：所读文件不会被触动。
 
-默认不执行。该选项的作用与 [`disjoint`](disjoint.md) 相同，使用的是**它的默认设置**，在写入之前、排序之后进行。它要求文件已排好顺序：否则会被拒绝，而排在它前面执行的 `--sort` 会事先把文件排好顺序。文件会在第一级输出中说明这一点（`<path>: N subtitles split, M merged`），而 `--format json` 的记录中带有 `split` 和 `merged` 计数，**不使用该选项时没有这两项**。
+默认不执行。该选项的作用与 [`disjoint`](disjoint.md) 相同，使用的是**它的默认设置**，在写入之前、排序之后进行。它要求文件已排好顺序：否则会被拒绝，而排在它前面执行的 `--sort` 会事先把文件排好顺序。文件会在第一级输出中说明这一点（`result: N subtitles split, M merged`），而 `--format json` 的记录中带有 `split` 和 `merged` 计数，**不使用该选项时没有这两项**。
 
-**`--join-repeats` 排在排序和截短之前**：先重建被切成依次出现的若干片段的文本（参见 [`join-repeats`](join-repeats.md)），然后对字幕排序，再使时间范围互不重叠。**`--repair` 一次完成这三步**，与 [`repair`](repair.md) 相同，截短使用默认设置。使用 `--join-repeats` 时，每个文件会在第一级输出中说明 `<path>: N repeated subtitles joined`，而 `--format json` 的记录中带有 `counts.joined`——**不使用该选项时没有这一项**。
+**`--join-repeats` 排在排序和截短之前**：先重建被切成依次出现的若干片段的文本（参见 [`join-repeats`](join-repeats.md)），然后对字幕排序，再使时间范围互不重叠。**`--repair` 一次完成这三步**，与 [`repair`](repair.md) 相同，截短使用默认设置。使用 `--join-repeats` 时，每个文件会在第一级输出中说明 `result: N repeated subtitles joined`，而 `--format json` 的记录中带有 `counts.joined`——**不使用该选项时没有这一项**。
 
 ## 输出
 
@@ -251,9 +255,9 @@ Bonjour.
 
 | 级别 | 增加的内容 |
 | :----- | :-------------- |
-| 1 | `<path>: N subtitles written as WebVTT -> <destination>` |
-| 2 | `<path>: SubRip -> WebVTT, UTF-8, no BOM, LF line endings`——所指的编码就是写出的编码 |
-| 3 | `<path>: N bytes read, M written`，然后是**每一条读取诊断信息**——参见[调用](invocation.md#读取诊断信息) |
+| 1 | `source: <path>`, `result: N subtitles converted to WebVTT, UTF-8, no BOM, LF line endings`, `dest: <destination>` |
+| 2 | `format: SubRip`, `encoding: UTF-8`, `bom: absent`, `line-endings: LF`——读取的文件的信息 |
+| 3 | `bytes-read: N`, `bytes-written: M`，然后是**每一条读取诊断信息**——参见[调用](invocation.md#读取诊断信息) |
 
 ### 以 JSON 输出
 

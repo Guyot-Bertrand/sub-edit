@@ -54,6 +54,44 @@ TEST_CASE("the tail is brought back by the end of the head, and both halves are 
     CHECK_THAT(records.str(), ContainsSubstring("\"tail\":\"out/t.srt\""));
 }
 
+TEST_CASE("a split is one element, the head on dest and the tail on tail, each after its size",
+          "[cli][splitting]") {
+    InMemoryFileSystem files;
+    files.addFile("a.srt", kThree);
+    std::ostringstream errors;
+
+    CHECK(splitFile(files, cutAt(3), std::nullopt, Reporter{errors, 3}.forCommand("split-file")) ==
+          ExitCode::Success);
+
+    CHECK(errors.str() ==
+          "[subedit] [split-file] [1/1] source: a.srt\n"
+          "[subedit] [split-file] [1/1] format: SubRip\n"
+          "[subedit] [split-file] [1/1] encoding: UTF-8\n"
+          "[subedit] [split-file] [1/1] bom: absent\n"
+          "[subedit] [split-file] [1/1] line-endings: LF\n"
+          "[subedit] [split-file] [1/1] bytes-read: 113\n"
+          "[subedit] [split-file] [1/1] result: split at subtitle 3: 2 subtitles in the head, 1 "
+          "subtitle in the tail\n"
+          "[subedit] [split-file] [1/1] bytes-written: 74\n"
+          "[subedit] [split-file] [1/1] dest: out/h.srt\n"
+          "[subedit] [split-file] [1/1] bytes-written: 39\n"
+          "[subedit] [split-file] [1/1] tail: out/t.srt\n");
+}
+
+TEST_CASE("a refusal on the command line alone is about no element", "[cli][splitting]") {
+    InMemoryFileSystem files;
+    files.addFile("a.srt", kThree);
+    std::ostringstream errors;
+    SplitRequest same = cutAt(2);
+    same.tail = same.head;
+
+    CHECK(splitFile(files, same, std::nullopt, Reporter{errors, 1}.forCommand("split-file")) ==
+          ExitCode::Usage);
+
+    CHECK(errors.str() ==
+          "[subedit] [split-file] [-] error: out/h.srt: named as both the head and the tail\n");
+}
+
 TEST_CASE("a cut that is not between two subtitles is refused", "[cli][splitting][CLI-PSPLIT-01]") {
     InMemoryFileSystem files;
     files.addFile("a.srt", kThree);
@@ -160,6 +198,6 @@ TEST_CASE("sorting on request cuts on the time order, and the cut counts in it",
     CHECK_THAT(files.contentOf("out/h.srt").value_or(""), ContainsSubstring("first"));
     CHECK_THAT(files.contentOf("out/h.srt").value_or(""), ContainsSubstring("second"));
     CHECK_THAT(files.contentOf("out/t.srt").value_or(""), ContainsSubstring("last"));
-    CHECK_THAT(errors.str(), ContainsSubstring("a.srt: 3 subtitles moved"));
+    CHECK_THAT(errors.str(), ContainsSubstring("] result: 3 subtitles moved\n"));
     CHECK_THAT(records.str(), ContainsSubstring("\"moved\":3"));
 }

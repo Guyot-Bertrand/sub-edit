@@ -187,8 +187,10 @@ informe que ninguén le.
 <!-- example: printf '1\n00:00:01,000 --> 00:00:03,500\n<i>sur deux</i>\nlignes\n\n' > a.srt; subedit-cli convert --to lrc --output b.lrc a.srt -->
 ```console
 $ printf '1\n00:00:01,000 --> 00:00:03,500\n<i>sur deux</i>\nlignes\n\n' > a.srt; subedit-cli convert --to lrc --output b.lrc a.srt
-a.srt: 1 subtitle written as LRC -> b.lrc
-a.srt: ends are not carried by LRC, line breaks were joined in 1 subtitle, 1 tag dropped
+[subedit] [convert] [1/1] source: a.srt
+[subedit] [convert] [1/1] warning: ends are not carried by LRC, line breaks were joined in 1 subtitle, 1 tag dropped
+[subedit] [convert] [1/1] result: 1 subtitle converted to LRC, UTF-8, no BOM, LF line endings
+[subedit] [convert] [1/1] dest: b.lrc
 ```
 
 A liña aparece no nivel de detalle predeterminado, e en todos os superiores. Os elementos, nesta
@@ -269,7 +271,9 @@ conversión, unha información conservada adrede.
 <!-- example: printf '1\n00:00:01,000 --> 00:00:03,000\nBonjour.\n\n' > a.srt; subedit-cli convert --to vtt --output b.vtt a.srt; cat b.vtt -->
 ```console
 $ printf '1\n00:00:01,000 --> 00:00:03,000\nBonjour.\n\n' > a.srt; subedit-cli convert --to vtt --output b.vtt a.srt; cat b.vtt
-a.srt: 1 subtitle written as WebVTT -> b.vtt
+[subedit] [convert] [1/1] source: a.srt
+[subedit] [convert] [1/1] result: 1 subtitle converted to WebVTT, UTF-8, no BOM, LF line endings
+[subedit] [convert] [1/1] dest: b.vtt
 WEBVTT
 
 00:01.000 --> 00:03.000
@@ -283,8 +287,8 @@ ordenación faise **sobre unha copia**: o ficheiro lido non se toca, e o que se 
 [`sort`](sort.md) faría del — estable, dous subtítulos que comezan á vez conservan a súa orde.
 
 **Nunca de maneira predeterminada**: a orde dun ficheiro é a do seu autor mentres non se pida
-outra cousa. Coa opción, cada ficheiro dio, no primeiro nivel de narración, `<path>: N subtitles moved` ou
-`<path>: already in order`, e o rexistro `--format json` leva un reconto `moved` — **ausente sen a opción**,
+outra cousa. Coa opción, cada ficheiro dio, no primeiro nivel de narración, `result: N subtitles moved` ou
+`result: already in order`, e o rexistro `--format json` leva un reconto `moved` — **ausente sen a opción**,
 para non cambiar a forma do que len os scripts existentes.
 
 ## Facer as franxas disxuntas
@@ -295,14 +299,14 @@ para non cambiar a forma do que len os scripts existentes.
 Nunca de maneira predeterminada. A opción fai o que fai [`disjoint`](disjoint.md), **cos seus
 axustes predeterminados**, antes de escribir, despois da ordenación. Necesita un ficheiro
 ordenado: se non, rexéitase, e `--sort` — que vai primeiro — ordénao antes. O ficheiro dio no
-primeiro nivel de narración (`<path>: N subtitles split, M merged`), e o rexistro `--format json`
+primeiro nivel de narración (`result: N subtitles split, M merged`), e o rexistro `--format json`
 leva os recontos `split` e `merged`, **ausentes sen a opción**.
 
 **`--join-repeats` vai antes da ordenación e do corte**: un texto cortado en anacos que se
 suceden reconstrúese primeiro (véxase [`join-repeats`](join-repeats.md)), despois ordénanse os
 subtítulos, e despois fanse disxuntas as franxas. **`--repair` son as tres á vez**, como
 [`repair`](repair.md), cos axustes predeterminados do corte. Con `--join-repeats`, cada ficheiro di
-`<path>: N repeated subtitles joined` no primeiro nivel de narración, e o rexistro `--format json`
+`result: N repeated subtitles joined` no primeiro nivel de narración, e o rexistro `--format json`
 leva `counts.joined` — **ausente sen a opción**.
 
 ## Saída
@@ -314,9 +318,9 @@ Na saída de erro, segundo o nivel:
 
 | Nivel | O que se engade |
 | :----- | :-------------- |
-| 1 | `<path>: N subtitles written as WebVTT -> <destination>` |
-| 2 | `<path>: SubRip -> WebVTT, UTF-8, no BOM, LF line endings` — a codificación nomeada é a escrita |
-| 3 | `<path>: N bytes read, M written`, e despois **cada diagnóstico de lectura** — véxase [Invocación](invocation.md#diagnósticos-de-lectura) |
+| 1 | `source: <path>`, `result: N subtitles converted to WebVTT, UTF-8, no BOM, LF line endings`, `dest: <destination>` |
+| 2 | `format: SubRip`, `encoding: UTF-8`, `bom: absent`, `line-endings: LF` — os do ficheiro lido |
+| 3 | `bytes-read: N`, `bytes-written: M`, e despois **cada diagnóstico de lectura** — véxase [Invocación](invocation.md#diagnósticos-de-lectura) |
 
 ### En JSON
 

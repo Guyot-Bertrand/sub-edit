@@ -85,10 +85,10 @@ missä se on, `--config` ja `--no-config`.
   palauttaa Gaupolin rivimäärän. `--keep-blank-subtitles` ja `--remove-blank-subtitles` yhdessä ovat
   käyttövirhe.
 - **Jos tiedostossa molemmat luokat ovat pois päältä, se ohitetaan ja kerrotaan** tasolla 1 —
-  `settings: correction.human and correction.ocr are both false, ignored` —: `--classes` ei voisi kirjoittaa sitä, eikä se jättäisi
+  `warning: setting correction.human and correction.ocr are both false, ignored` —: `--classes` ei voisi kirjoittaa sitä, eikä se jättäisi
   tehtävälle common-errors mitään tehtävää. Sen sijaan sovelletaan molempia luokkia.
 - **Rivimäärää, joka ei ole väliltä 1–1 000, ei lueta tiedostosta lainkaan**: tiedoston lukija
-  hylkää sen — `settings: correction.line-break.max-lines: cannot read 'N', default kept` tasolla
+  hylkää sen — `warning: setting correction.line-break.max-lines: cannot read 'N', default kept` tasolla
   1 — ja käytetään sisäänrakennettua arvoa 3.
 
 Tämän sivun esimerkit ajetaan valitsimella `--no-config`, jotta ne kertovat, mitä sisäänrakennetut
@@ -149,7 +149,7 @@ code=1
 
 Lausekkeet, jotka käyttäjä panee hakemistoon `$XDG_DATA_HOME/subedit/patterns` (tai
 `~/.local/share/subedit/patterns`), **lisätään toimitettuihin lausekkeisiin** kuten
-ikkunassa, ja toimitettu lauseke, jota ei voi lukea, kerrotaan tasolla 1: `patterns: <file>, line N (<reason>)`.
+ikkunassa, ja toimitettu lauseke, jota ei voi lukea, kerrotaan tasolla 1: `warning: patterns: <file>, line N (<reason>)`.
 
 ### Sanojen yhdistäminen ja jakaminen sekä sanakirja
 

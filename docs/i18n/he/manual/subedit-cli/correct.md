@@ -85,10 +85,10 @@ Options:
   מחזיר את שורותיו של Gaupol. `--keep-blank-subtitles` ו-`--remove-blank-subtitles` יחד הן
   שגיאת שימוש.
 - **שני הסוגים כבויים בקובץ — מתעלמים מכך, ואומרים זאת** ברמה 1 —
-  `settings: correction.human and correction.ocr are both false, ignored` —: `--classes` לא יכולה לכתוב זאת, וזה היה
+  `warning: setting correction.human and correction.ocr are both false, ignored` —: `--classes` לא יכולה לכתוב זאת, וזה היה
   משאיר ל-common-errors דבר לעשות. מוחלים במקומם שני הסוגים.
 - **מספר שורות מחוץ לטווח 1 עד 1000 אינו נקרא מהקובץ כלל**: הקורא של הקובץ
-  דוחה אותו — `settings: correction.line-break.max-lines: cannot read 'N', default kept`, ברמה
+  דוחה אותו — `warning: setting correction.line-break.max-lines: cannot read 'N', default kept`, ברמה
   1 — ומשתמשים ב-3 המובנה.
 
 הדוגמאות בדף זה מורצות עם `--no-config`, כדי שיאמרו מה עושות ברירות המחדל
@@ -149,7 +149,7 @@ code=1
 
 התבניות שהמשתמש מניח ב-`$XDG_DATA_HOME/subedit/patterns` (או
 `~/.local/share/subedit/patterns`) **מתווספות לתבניות שנשלחות עם הכלי**, כמו
-בחלון, ותבנית שנשלחת עם הכלי ואי אפשר לקרוא אותה נאמרת ברמה 1: `patterns: <file>, line N (<reason>)`.
+בחלון, ותבנית שנשלחת עם הכלי ואי אפשר לקרוא אותה נאמרת ברמה 1: `warning: patterns: <file>, line N (<reason>)`.
 
 ### צירוף ופיצול מילים, והמילון
 

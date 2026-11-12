@@ -67,8 +67,11 @@ scrit sur, quam in omni loc.
 <!-- example: printf '1\n00:00:01,000 --> 00:00:02,000\nun\n\n2\n00:00:03,000 --> 00:00:04,000\ndeux\n\n' > partie1.srt; printf '1\n00:00:00,500 --> 00:00:01,500\ntrois\n\n' > partie2.srt; subedit-cli append --output film.srt partie1.srt partie2.srt; cat film.srt -->
 ```console
 $ printf '1\n00:00:01,000 --> 00:00:02,000\nun\n\n2\n00:00:03,000 --> 00:00:04,000\ndeux\n\n' > partie1.srt; printf '1\n00:00:00,500 --> 00:00:01,500\ntrois\n\n' > partie2.srt; subedit-cli append --output film.srt partie1.srt partie2.srt; cat film.srt
-partie2.srt: appended 1 subtitle
-partie1.srt: 3 subtitles from 2 files -> film.srt
+[subedit] [append] [1/1] source: partie1.srt
+[subedit] [append] [1/1] source: partie2.srt
+[subedit] [append] [1/1] result: appended 1 subtitle
+[subedit] [append] [1/1] result: 3 subtitles from 2 files
+[subedit] [append] [1/1] dest: film.srt
 1
 00:00:01,000 --> 00:00:02,000
 un
@@ -96,7 +99,7 @@ li registre `--format json` porta un cuntage `moved`, **absent sin li option**.
 
 ## Far disjuncte li intervalles
 
-Nequande per predefinit. Li option fa quo [`disjoint`](disjoint.md) fa, **con su parametres predefinit**, pos que omnicos es apendet, sur li total. It besona un file in órdine: si no, it es refusat, e `--sort` — quel veni unesim — mette it in órdine ante. Li file di it al unesim nivelle de narration (`<path>: N subtitles split, M merged`), e li registre `--format json` porta li cuntages `split` e `merged`, **absent sin li option**.
+Nequande per predefinit. Li option fa quo [`disjoint`](disjoint.md) fa, **con su parametres predefinit**, pos que omnicos es apendet, sur li total. It besona un file in órdine: si no, it es refusat, e `--sort` — quel veni unesim — mette it in órdine ante. Li file di it al unesim nivelle de narration (`result: N subtitles split, M merged`), e li registre `--format json` porta li cuntages `split` e `merged`, **absent sin li option**.
 
 ## Quande li formates diffère
 
@@ -118,9 +121,9 @@ ja in ti formate, o converte pos con [`convert`](convert.md).
 
 | Nivelle | Quo es adjuntet al output de error |
 | :----- | :------------------------------------- |
-| 1 | un linea per file apendet — `<path>: appended N subtitles`, sequet, quande li formate ha costat alquo, per `; <source format> into <base format>: <what is lost>` — poy `<base>: N subtitles from M files -> <destination>` (con `--dry-run`, `(dry run, nothing written)` vice `-> <destination>`) |
-| 2 | `<base>: SubRip, UTF-8, no BOM, LF line endings kept` — li formate, li codification, li marca e li fines de linea del basa, remisset quam ili esset |
-| 3 | `<base>: N bytes read, M written` (omni files together), poy **chascun diagnose de lectura** — vide [Invocation](invocation.md#diagnoses-de-lectura) |
+| 1 | un linea per file apendet — `source: <path>`, `result: appended N subtitles`, sequet, quande li formate ha costat alquo, per `; <source format> into <base format>: <what is lost>` — poy `result: N subtitles from M files`, `dest: <destination>` (con `--dry-run`, `(dry run, nothing written)` vice `dest: <destination>`) |
+| 2 | `format: SubRip`, `encoding: UTF-8`, `bom: absent`, `line-endings: LF` — li formate, li codification, li marca e li fines de linea del file leet, remetet quam les esset |
+| 3 | `bytes-read: N`, `bytes-written: M`, poy **omni diagnose de lectura** — vide [Invocation](invocation.md#diagnoses-de-lectura) |
 
 ### In JSON
 

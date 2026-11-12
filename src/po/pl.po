@@ -1261,11 +1261,8 @@ msgstr ""
 #. TRANSLATORS: %1 is Undo or Redo, %2 the operation it undoes or redoes, such as shifting.
 #. TRANSLATORS: %1 is a file's path, %2 what went wrong with it.
 #: src/lib/subedit/cli/adjusting.cpp src/lib/subedit/cli/batch.cpp
-#: src/lib/subedit/cli/configuring.cpp src/lib/subedit/cli/conversion.cpp
-#: src/lib/subedit/cli/disjoining.cpp src/lib/subedit/cli/inspection.cpp
-#: src/lib/subedit/cli/joining.cpp src/lib/subedit/cli/records.cpp
-#: src/lib/subedit/cli/sorting.cpp src/lib/subedit/gui/command_label.cpp
-#: src/lib/subedit/gui/invocation.cpp
+#: src/lib/subedit/cli/configuring.cpp src/lib/subedit/cli/records.cpp
+#: src/lib/subedit/gui/command_label.cpp src/lib/subedit/gui/invocation.cpp
 msgid "%1: %2"
 msgstr "%1: %2"
 
@@ -1320,21 +1317,17 @@ msgstr[1] "Wyrównano %1 napisy do %2 fps, %3"
 msgstr[2] "Wyrównano %1 napisów do %2 fps, %3"
 msgstr[3] "Wyrównano %1 napisu do %2 fps, %3"
 
-#. TRANSLATORS: %1 is the file written, %2 a number of subtitles (« 12 subtitles »)
-#. and %3 a number of files (« 3 files »).
+#. TRANSLATORS: %1 is a number of subtitles (« 12 subtitles »), %2 a number of files
+#. (« 3 files »).
 #: src/lib/subedit/cli/appending.cpp
-msgid "%1: %2 from %3"
-msgstr "%1: %2; źródła: %3"
+msgid "%1 from %2"
+msgstr "%1; źródła: %2"
 
 #. TRANSLATORS: %1 is what was done to a file, which was not written.
-#: src/lib/subedit/cli/appending.cpp src/lib/subedit/cli/rewriting.cpp
-#: src/lib/subedit/cli/splitting.cpp
+#: src/lib/subedit/cli/appending.cpp src/lib/subedit/cli/conversion.cpp
+#: src/lib/subedit/cli/rewriting.cpp src/lib/subedit/cli/splitting.cpp
 msgid "%1 (dry run, nothing written)"
 msgstr "%1 (próba, nic nie zapisano)"
-
-#: src/lib/subedit/cli/appending.cpp
-msgid "%1 -> %2"
-msgstr "%1 -> %2"
 
 #. TRANSLATORS: %1 of %2 files were done; the form is chosen by %2.
 #: src/lib/subedit/cli/batch.cpp
@@ -1564,52 +1557,24 @@ msgstr ""
 "zapis w klatkach wymaga liczby klatek na sekundę, a pozycje nie leżą na "
 "żadnej siatce, z której można ją wziąć — podaj --frame-rate"
 
-#. TRANSLATORS: %1 is a file, %2 a frame rate.
+#. TRANSLATORS: %1 is a frame rate.
 #: src/lib/subedit/cli/conversion.cpp
-msgid "%1: counted in frames at %2, the grid the positions fall on"
-msgstr "%1: liczone w klatkach przy %2, na siatce, na której leżą pozycje"
+msgid "counted in frames at %1, the grid the positions fall on"
+msgstr "liczone w klatkach przy %1, na siatce, na której leżą pozycje"
 
 #: src/lib/subedit/cli/conversion.cpp
 msgid "%1 has no byte order mark to write"
 msgstr "%1 nie ma znacznika kolejności bajtów do zapisania"
 
-#. TRANSLATORS: %1 is a file, %2 and %3 numbers of bytes. English says « bytes »
-#. whatever the count; the form is chosen by %2.
-#: src/lib/subedit/cli/conversion.cpp src/lib/subedit/cli/writing.cpp
-msgid "%1: %2 bytes read, %3 would be written"
-msgid_plural "%1: %2 bytes read, %3 would be written"
-msgstr[0] "%1: odczytano bajtów: %2, zostałoby zapisanych: %3"
-msgstr[1] "%1: odczytano bajtów: %2, zostałoby zapisanych: %3"
-msgstr[2] "%1: odczytano bajtów: %2, zostałoby zapisanych: %3"
-msgstr[3] "%1: odczytano bajtów: %2, zostałoby zapisanych: %3"
-
-#: src/lib/subedit/cli/conversion.cpp src/lib/subedit/cli/writing.cpp
-msgid "%1: %2 bytes read, %3 written"
-msgid_plural "%1: %2 bytes read, %3 written"
-msgstr[0] "%1: odczytano bajtów: %2, zapisano: %3"
-msgstr[1] "%1: odczytano bajtów: %2, zapisano: %3"
-msgstr[2] "%1: odczytano bajtów: %2, zapisano: %3"
-msgstr[3] "%1: odczytano bajtów: %2, zapisano: %3"
-
+#. TRANSLATORS: %1 a number of subtitles, %2 a format, %3 an encoding, %4 a kind of line
+#. ending.
 #: src/lib/subedit/cli/conversion.cpp
-msgid "%1: %2 -> %3, %4, %5 line endings"
-msgstr "%1: %2 -> %3, %4, zakończenia wierszy: %5"
-
-#: src/lib/subedit/cli/conversion.cpp
-msgid "%1: %2 subtitle converted to %3 (dry run, nothing written)"
-msgid_plural "%1: %2 subtitles converted to %3 (dry run, nothing written)"
-msgstr[0] "%1: przekonwertowano %2 napis na %3 (próba, nic nie zapisano)"
-msgstr[1] "%1: przekonwertowano %2 napisy na %3 (próba, nic nie zapisano)"
-msgstr[2] "%1: przekonwertowano %2 napisów na %3 (próba, nic nie zapisano)"
-msgstr[3] "%1: przekonwertowano %2 napisu na %3 (próba, nic nie zapisano)"
-
-#: src/lib/subedit/cli/conversion.cpp
-msgid "%1: %2 subtitle written as %3 -> %4"
-msgid_plural "%1: %2 subtitles written as %3 -> %4"
-msgstr[0] "%1: zapisano %2 napis jako %3 -> %4"
-msgstr[1] "%1: zapisano %2 napisy jako %3 -> %4"
-msgstr[2] "%1: zapisano %2 napisów jako %3 -> %4"
-msgstr[3] "%1: zapisano %2 napisu jako %3 -> %4"
+msgid "%1 subtitle converted to %2, %3, %4 line endings"
+msgid_plural "%1 subtitles converted to %2, %3, %4 line endings"
+msgstr[0] "przekonwertowano %1 napis na %2, %3, zakończenia wierszy: %4"
+msgstr[1] "przekonwertowano %1 napisy na %2, %3, zakończenia wierszy: %4"
+msgstr[2] "przekonwertowano %1 napisów na %2, %3, zakończenia wierszy: %4"
+msgstr[3] "przekonwertowano %1 napisu na %2, %3, zakończenia wierszy: %4"
 
 #: src/lib/subedit/cli/conversion.cpp
 msgid "--bom and --no-bom ask for opposite things; give one or the other"
@@ -1756,14 +1721,14 @@ msgid "%1: no pattern is active under the code %2; switch one on with --enable"
 msgstr ""
 "%1: żaden wzorzec nie jest aktywny pod kodem %2; włącz jakiś przez --enable"
 
+#. TRANSLATORS: %1 is what was wrong with a pattern file.
 #: src/lib/subedit/cli/correcting.cpp
 msgid "patterns: %1"
 msgstr "wzorce: %1"
 
 #: src/lib/subedit/cli/correcting.cpp
-msgid "settings: correction.human and correction.ocr are both false, ignored"
-msgstr ""
-"ustawienia: correction.human i correction.ocr mają wartość false, zignorowano"
+msgid "setting correction.human and correction.ocr are both false, ignored"
+msgstr "ustawienia correction.human i correction.ocr mają wartość false, zignorowano"
 
 #. TRANSLATORS: %1 is the file that would be written, %2 the input it is.
 #: src/lib/subedit/cli/destination.cpp
@@ -2038,27 +2003,6 @@ msgstr[3] "poza siatką: %1 z %2 początku, serie: %3"
 msgid "none"
 msgstr "brak"
 
-#: src/lib/subedit/cli/inspection.cpp
-msgid "%1: %2 bytes read"
-msgid_plural "%1: %2 bytes read"
-msgstr[0] "%1: odczytano bajtów: %2"
-msgstr[1] "%1: odczytano bajtów: %2"
-msgstr[2] "%1: odczytano bajtów: %2"
-msgstr[3] "%1: odczytano bajtów: %2"
-
-#. TRANSLATORS: %1 is a file, %2 a number of diagnostics.
-#: src/lib/subedit/cli/inspection.cpp
-msgid "%1: %2 diagnostic while reading"
-msgid_plural "%1: %2 diagnostics while reading"
-msgstr[0] "%1: diagnostyk podczas odczytu: %2"
-msgstr[1] "%1: diagnostyk podczas odczytu: %2"
-msgstr[2] "%1: diagnostyk podczas odczytu: %2"
-msgstr[3] "%1: diagnostyk podczas odczytu: %2"
-
-#: src/lib/subedit/cli/inspection.cpp
-msgid "%1: %2, %3, %4 line endings"
-msgstr "%1: %2, %3, zakończenia wierszy: %4"
-
 #. TRANSLATORS: the lines of the report of `inspect`; %1 is the value of each.
 #: src/lib/subedit/cli/inspection.cpp
 msgid "format: %1"
@@ -2232,19 +2176,11 @@ msgstr[3] ""
 "--at %1: liczba napisów w pliku wynosi %2, a część końcowa może zaczynać się "
 "od napisu od 2 do %2"
 
-#. TRANSLATORS: %1 and %2 are the numbers of bytes of the head and the tail.
+#. TRANSLATORS: %1 is the subtitle the tail starts at, %2 and %3 numbers of subtitles
+#. (« 12 subtitles »).
 #: src/lib/subedit/cli/splitting.cpp
-msgid "%1 and %2"
-msgstr "%1 i %2"
-
-#: src/lib/subedit/cli/splitting.cpp
-msgid "%1: split at subtitle %2: %3 in the head, %4 in the tail"
-msgstr "%1: podzielono przy napisie %2: %3 w części początkowej, %4 w końcowej"
-
-#. TRANSLATORS: %1 is what was done, %2 and %3 the two files written.
-#: src/lib/subedit/cli/splitting.cpp
-msgid "%1 -> %2, %3"
-msgstr "%1 -> %2, %3"
+msgid "split at subtitle %1: %2 in the head, %3 in the tail"
+msgstr "podzielono przy napisie %1: %2 w części początkowej, %3 w końcowej"
 
 #: src/lib/subedit/cli/syncing.cpp
 msgid "--report names one file: give one subtitle file when you use it"
@@ -2346,10 +2282,6 @@ msgstr[3] "Przekształcono %1 napisu na %2 i %3"
 #: src/lib/subedit/cli/verbosity.cpp
 msgid "--quiet and -v ask for opposite things; give one or the other"
 msgstr "--quiet i -v żądają przeciwnych rzeczy; podaj jedno albo drugie"
-
-#: src/lib/subedit/cli/writing.cpp
-msgid "%1: %2, %3, %4 line endings kept"
-msgstr "%1: %2, %3, zakończenia wierszy %4 zachowane"
 
 #: src/lib/subedit/core/config/operation_settings.cpp
 msgid "true or false"
@@ -5980,6 +5912,63 @@ msgstr "Kursywa"
 msgctxt "toolbar"
 msgid "Main"
 msgstr "Główny"
+
+#~ msgid "%1 -> %2"
+#~ msgstr "%1 -> %2"
+
+#~ msgid "%1: %2 bytes read, %3 would be written"
+#~ msgid_plural "%1: %2 bytes read, %3 would be written"
+#~ msgstr[0] "%1: odczytano bajtów: %2, zostałoby zapisanych: %3"
+#~ msgstr[1] "%1: odczytano bajtów: %2, zostałoby zapisanych: %3"
+#~ msgstr[2] "%1: odczytano bajtów: %2, zostałoby zapisanych: %3"
+#~ msgstr[3] "%1: odczytano bajtów: %2, zostałoby zapisanych: %3"
+
+#~ msgid "%1: %2 bytes read, %3 written"
+#~ msgid_plural "%1: %2 bytes read, %3 written"
+#~ msgstr[0] "%1: odczytano bajtów: %2, zapisano: %3"
+#~ msgstr[1] "%1: odczytano bajtów: %2, zapisano: %3"
+#~ msgstr[2] "%1: odczytano bajtów: %2, zapisano: %3"
+#~ msgstr[3] "%1: odczytano bajtów: %2, zapisano: %3"
+
+#~ msgid "%1: %2 -> %3, %4, %5 line endings"
+#~ msgstr "%1: %2 -> %3, %4, zakończenia wierszy: %5"
+
+#~ msgid "%1: %2 subtitle converted to %3 (dry run, nothing written)"
+#~ msgid_plural "%1: %2 subtitles converted to %3 (dry run, nothing written)"
+#~ msgstr[0] "%1: przekonwertowano %2 napis na %3 (próba, nic nie zapisano)"
+#~ msgstr[1] "%1: przekonwertowano %2 napisy na %3 (próba, nic nie zapisano)"
+#~ msgstr[2] "%1: przekonwertowano %2 napisów na %3 (próba, nic nie zapisano)"
+#~ msgstr[3] "%1: przekonwertowano %2 napisu na %3 (próba, nic nie zapisano)"
+
+#~ msgid "%1: %2 subtitle written as %3 -> %4"
+#~ msgid_plural "%1: %2 subtitles written as %3 -> %4"
+#~ msgstr[0] "%1: zapisano %2 napis jako %3 -> %4"
+#~ msgstr[1] "%1: zapisano %2 napisy jako %3 -> %4"
+#~ msgstr[2] "%1: zapisano %2 napisów jako %3 -> %4"
+#~ msgstr[3] "%1: zapisano %2 napisu jako %3 -> %4"
+
+#~ msgid "%1: %2 bytes read"
+#~ msgid_plural "%1: %2 bytes read"
+#~ msgstr[0] "%1: odczytano bajtów: %2"
+#~ msgstr[1] "%1: odczytano bajtów: %2"
+#~ msgstr[2] "%1: odczytano bajtów: %2"
+#~ msgstr[3] "%1: odczytano bajtów: %2"
+
+#~ msgid "%1: %2 diagnostic while reading"
+#~ msgid_plural "%1: %2 diagnostics while reading"
+#~ msgstr[0] "%1: diagnostyk podczas odczytu: %2"
+#~ msgstr[1] "%1: diagnostyk podczas odczytu: %2"
+#~ msgstr[2] "%1: diagnostyk podczas odczytu: %2"
+#~ msgstr[3] "%1: diagnostyk podczas odczytu: %2"
+
+#~ msgid "%1 and %2"
+#~ msgstr "%1 i %2"
+
+#~ msgid "%1 -> %2, %3"
+#~ msgstr "%1 -> %2, %3"
+
+#~ msgid "%1: %2, %3, %4 line endings kept"
+#~ msgstr "%1: %2, %3, zakończenia wierszy %4 zachowane"
 
 #~ msgid "%1: %2 (dry run, nothing written)"
 #~ msgstr "%1: %2 (próba, nic nie zapisano)"

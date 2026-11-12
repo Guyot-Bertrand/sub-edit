@@ -66,8 +66,11 @@ skrifað yfir, eins og alls staðar.
 <!-- example: printf '1\n00:00:01,000 --> 00:00:02,000\nun\n\n2\n00:00:03,000 --> 00:00:04,000\ndeux\n\n' > partie1.srt; printf '1\n00:00:00,500 --> 00:00:01,500\ntrois\n\n' > partie2.srt; subedit-cli append --output film.srt partie1.srt partie2.srt; cat film.srt -->
 ```console
 $ printf '1\n00:00:01,000 --> 00:00:02,000\nun\n\n2\n00:00:03,000 --> 00:00:04,000\ndeux\n\n' > partie1.srt; printf '1\n00:00:00,500 --> 00:00:01,500\ntrois\n\n' > partie2.srt; subedit-cli append --output film.srt partie1.srt partie2.srt; cat film.srt
-partie2.srt: appended 1 subtitle
-partie1.srt: 3 subtitles from 2 files -> film.srt
+[subedit] [append] [1/1] source: partie1.srt
+[subedit] [append] [1/1] source: partie2.srt
+[subedit] [append] [1/1] result: appended 1 subtitle
+[subedit] [append] [1/1] result: 3 subtitles from 2 files
+[subedit] [append] [1/1] dest: film.srt
 1
 00:00:01,000 --> 00:00:02,000
 un
@@ -95,7 +98,7 @@ Aldrei sjálfgefið. Með valkostinum segir grunnurinn frá því á fyrsta frá
 
 ## Að losa tímabilin við skörun
 
-Aldrei sjálfgefið. Valkosturinn gerir það sem [`disjoint`](disjoint.md) gerir, **með sjálfgefnum stillingum þess**, þegar öllu hefur verið bætt við, á heildina. Hann krefst skrár í réttri röð: annars er honum hafnað, og `--sort` — sem kemur á undan — kemur henni í röð áður. Skráin segir frá því á fyrsta frásagnarstigi (`<path>: N subtitles split, M merged`), og `--format json`-færslan ber talningarnar `split` og `merged`, **sem vantar án valkostsins**.
+Aldrei sjálfgefið. Valkosturinn gerir það sem [`disjoint`](disjoint.md) gerir, **með sjálfgefnum stillingum þess**, þegar öllu hefur verið bætt við, á heildina. Hann krefst skrár í réttri röð: annars er honum hafnað, og `--sort` — sem kemur á undan — kemur henni í röð áður. Skráin segir frá því á fyrsta frásagnarstigi (`result: N subtitles split, M merged`), og `--format json`-færslan ber talningarnar `split` og `merged`, **sem vantar án valkostsins**.
 
 ## Þegar sniðin eru ólík
 
@@ -117,9 +120,9 @@ sem er þegar á því sniði, eða umbreyta á eftir með [`convert`](convert.m
 
 | Stig | Hverju er bætt við villuúttakið |
 | :----- | :------------------------------------- |
-| 1 | ein lína fyrir hverja skrá sem er bætt við — `<path>: appended N subtitles`, og þegar sniðið kostaði eitthvað fylgir `; <source format> into <base format>: <what is lost>` — síðan `<base>: N subtitles from M files -> <destination>` (með `--dry-run` kemur `(dry run, nothing written)` í stað `-> <destination>`) |
-| 2 | `<base>: SubRip, UTF-8, no BOM, LF line endings kept` — snið, stafakóðun, merki og línulok grunnsins, sett aftur eins og þau voru |
-| 3 | `<base>: N bytes read, M written` (allar skrárnar saman), síðan **hvert lesgreiningarboð** — sjá [Ræsing](invocation.md#að-lesa-greiningarboð) |
+| 1 | ein lína fyrir hverja skrá sem er bætt við — `source: <path>`, `result: appended N subtitles`, og þegar sniðið kostaði eitthvað fylgir `; <source format> into <base format>: <what is lost>` — síðan `result: N subtitles from M files`, `dest: <destination>` (með `--dry-run` kemur `(dry run, nothing written)` í stað `dest: <destination>`) |
+| 2 | `format: SubRip`, `encoding: UTF-8`, `bom: absent`, `line-endings: LF` — snið, stafakóðun, merki og línulok skrárinnar sem var lesin, sett aftur eins og þau voru |
+| 3 | `bytes-read: N`, `bytes-written: M`, síðan **sérhvert greiningarboð við lestur** — sjá [Ræsing](invocation.md#að-lesa-greiningarboð) |
 
 ### Á JSON-sniði
 

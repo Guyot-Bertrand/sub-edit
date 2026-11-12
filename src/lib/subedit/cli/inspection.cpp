@@ -6,6 +6,7 @@
 #include <subedit/cli/pairing.hpp>
 #include <subedit/cli/records.hpp>
 #include <subedit/cli/reporter.hpp>
+#include <subedit/cli/writing.hpp>
 #include <subedit/core/analysis/anomaly.hpp>
 #include <subedit/core/analysis/frame_rate_deduction.hpp>
 #include <subedit/core/analysis/grid_verdict.hpp>
@@ -431,34 +432,13 @@ bool inspectFile(const core::FileSystem& files,
     const core::Project& project = opened->project;
     const core::SourceFile& source = project.sourceFile();
 
-    reporter.say(3,
-                 // TRANSLATORS: %1 is a file, %2 a number of bytes.
-                 core::substitute(
-                     core::translatePlural("%1: %2 bytes read", "%1: %2 bytes read", opened->bytes),
-                     {path, std::to_string(opened->bytes)}));
-    // Most detailed first, least detailed last: that order is what makes each
-    // level contain the one below it line for line.
-    reporter.say(3,
-                 // TRANSLATORS: %1 is a file, %2 a number of diagnostics.
-                 core::substitute(core::translatePlural("%1: %2 diagnostic while reading",
-                                                        "%1: %2 diagnostics while reading",
-                                                        opened->diagnostics.size()),
-                                  {path, std::to_string(opened->diagnostics.size())}));
-    sayDiagnostics(reporter, path, opened->diagnostics);
-    reporter.say(
-        2,
-        // TRANSLATORS: %1 is a file, %2 a format, %3 an encoding, %4 a kind of line ending.
-        core::substitute(
-            core::translate("%1: %2, %3, %4 line endings"),
-            {path, nameOf(source.format), nameOf(source.encoding), nameOf(source.newline)}));
-    reporter.say(1,
-                 core::substitute(
-                     core::translate("%1: %2"),
-                     {path, core::countOf(project.subtitles().size(), core::Counted::Subtitle)}));
-    if (alignment) {
-        reporter.say(
-            1, core::substitute(core::translate("%1: %2"), {path, core::noticeOf(*alignment)}));
-    }
+    if (pairing)
+        reporter.tell(1, Key::Translation, pairing->translation);
+    narrateRead(reporter, opened->bytes, source, opened->diagnostics);
+    if (alignment)
+        reporter.tell(1, Key::Alignment, core::noticeOf(*alignment));
+    reporter.tell(
+        1, Key::Result, core::countOf(project.subtitles().size(), core::Counted::Subtitle));
 
     // The description as a record, and not as lines: what the text says for a
     // human, the record says as keys, and the two never both go to the output.
@@ -524,8 +504,15 @@ ExitCode inspectAll(const core::FileSystem& files,
                     const std::optional<Pairing>& pairing,
                     bool detailed) {
     std::size_t done = 0;
-    for (const std::string& path : paths) {
-        if (inspectFile(files, path, reading, out, reporter, pairing, detailed)) {
+    for (std::size_t at = 0; at < paths.size(); ++at) {
+        const std::string& path = paths[at];
+        if (inspectFile(files,
+                        path,
+                        reading,
+                        out,
+                        reporter.forItem(at + 1, paths.size(), path),
+                        pairing,
+                        detailed)) {
             ++done;
         }
     }

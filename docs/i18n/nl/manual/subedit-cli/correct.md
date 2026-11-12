@@ -85,10 +85,10 @@ voor de plaats ervan, `--config` en `--no-config`.
   geeft de regels van Gaupol terug. `--keep-blank-subtitles` en `--remove-blank-subtitles` samen zijn een
   gebruiksfout.
 - **Beide klassen uit in het bestand wordt genegeerd, en gemeld** op niveau 1 —
-  `settings: correction.human and correction.ocr are both false, ignored` —: `--classes` kan het niet schrijven, en het zou
+  `warning: setting correction.human and correction.ocr are both false, ignored` —: `--classes` kan het niet schrijven, en het zou
   common-errors niets te doen laten. In plaats daarvan worden beide klassen toegepast.
 - **Een aantal regels buiten 1 tot 1000 wordt helemaal niet uit het bestand gelezen**: de lezer van het bestand
-  weigert het — `settings: correction.line-break.max-lines: cannot read 'N', default kept`, op
+  weigert het — `warning: setting correction.line-break.max-lines: cannot read 'N', default kept`, op
   niveau 1 — en de ingebouwde 3 wordt gebruikt.
 
 De voorbeelden op deze pagina worden uitgevoerd met `--no-config`, zodat ze laten zien wat de ingebouwde
@@ -149,7 +149,7 @@ code=1
 
 De patronen die de gebruiker in `$XDG_DATA_HOME/subedit/patterns` (of
 `~/.local/share/subedit/patterns`) zet, **worden toegevoegd aan de meegeleverde patronen**, zoals in het
-venster, en een meegeleverd patroon dat niet kan worden gelezen, wordt op niveau 1 gemeld: `patterns: <file>, line N (<reason>)`.
+venster, en een meegeleverd patroon dat niet kan worden gelezen, wordt op niveau 1 gemeld: `warning: patterns: <file>, line N (<reason>)`.
 
 ### Woorden samenvoegen en splitsen, en het woordenboek
 

@@ -70,18 +70,4 @@ void narrateRead(const Reporter& reporter,
                  const subedit::core::SourceFile& source,
                  std::span<const subedit::core::Diagnostic> diagnostics);
 
-/// Says how a file that was written back as it was found went, at the levels that
-/// narrate it: at level three the bytes read and written, then what the reading had
-/// to decide, and at level two the shape kept.
-///
-/// `written` is the size or sizes, already worded (« 120 », « 120 and 98 »). The old text,
-/// for `append` and `split-file` until they speak the grammar of #806 (`narrateRead`).
-void narrateKept(const Reporter& reporter,
-                 std::string_view path,
-                 std::size_t bytesRead,
-                 const std::string& written,
-                 bool dryRun,
-                 const subedit::core::SourceFile& source,
-                 std::span<const subedit::core::Diagnostic> diagnostics);
-
 } // namespace subedit::cli

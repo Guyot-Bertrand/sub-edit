@@ -63,7 +63,10 @@ lesa, eða að skrifa halann yfir hausinn, er hafnað áður en nokkuð er lesi�
 <!-- example: printf '1\n00:00:01,000 --> 00:00:02,000\nun\n\n2\n00:00:03,000 --> 00:00:04,000\ndeux\n\n3\n00:00:06,000 --> 00:00:07,000\ntrois\n\n4\n00:00:08,000 --> 00:00:09,000\nquatre\n\n' > film.srt; subedit-cli split-file --at 3 --head tete.srt --tail queue.srt film.srt; cat queue.srt -->
 ```console
 $ printf '1\n00:00:01,000 --> 00:00:02,000\nun\n\n2\n00:00:03,000 --> 00:00:04,000\ndeux\n\n3\n00:00:06,000 --> 00:00:07,000\ntrois\n\n4\n00:00:08,000 --> 00:00:09,000\nquatre\n\n' > film.srt; subedit-cli split-file --at 3 --head tete.srt --tail queue.srt film.srt; cat queue.srt
-film.srt: split at subtitle 3: 2 subtitles in the head, 2 subtitles in the tail -> tete.srt, queue.srt
+[subedit] [split-file] [1/1] source: film.srt
+[subedit] [split-file] [1/1] result: split at subtitle 3: 2 subtitles in the head, 2 subtitles in the tail
+[subedit] [split-file] [1/1] dest: tete.srt
+[subedit] [split-file] [1/1] tail: queue.srt
 1
 00:00:02,000 --> 00:00:03,000
 trois
@@ -82,12 +85,12 @@ sem byrjaði á 6 s, byrjar á 2 s.
 í tíma. `--sort` raðar skjátextunum eftir upphöfum þeirra **áður en skurðurinn er metinn** — stöðugt, eins og [`sort`](sort.md) gerir —, og
 `--at` telur þá í þeirri röð.
 
-Aldrei sjálfgefið. Með valkostinum segir skráin á fyrsta stigi frásagnar hversu margir skjátextar færðust (`<path>: N subtitles moved`
-eða `<path>: already in order`), og færslan fyrir `--format json` ber talninguna `moved`, **fjarverandi án valkostsins**.
+Aldrei sjálfgefið. Með valkostinum segir skráin á fyrsta stigi frásagnar hversu margir skjátextar færðust (`result: N subtitles moved`
+eða `result: already in order`), og færslan fyrir `--format json` ber talninguna `moved`, **fjarverandi án valkostsins**.
 
 ## Að losa tímabilin við skörun
 
-Aldrei sjálfgefið. Valkosturinn gerir það sem [`disjoint`](disjoint.md) gerir, **með sjálfgefnum stillingum þess**, áður en skurðurinn er metinn, á eftir röðuninni: `--at` telur í því sem það gefur. Hann þarf skrá í réttri röð: annars er honum hafnað, og `--sort` — sem kemur fyrst — raðar skránni fyrirfram. Skráin segir frá því á fyrsta stigi frásagnar (`<path>: N subtitles split, M merged`), og færslan fyrir `--format json` ber talningarnar `split` og `merged`, **fjarverandi án valkostsins**.
+Aldrei sjálfgefið. Valkosturinn gerir það sem [`disjoint`](disjoint.md) gerir, **með sjálfgefnum stillingum þess**, áður en skurðurinn er metinn, á eftir röðuninni: `--at` telur í því sem það gefur. Hann þarf skrá í réttri röð: annars er honum hafnað, og `--sort` — sem kemur fyrst — raðar skránni fyrirfram. Skráin segir frá því á fyrsta stigi frásagnar (`result: N subtitles split, M merged`), og færslan fyrir `--format json` ber talningarnar `split` og `merged`, **fjarverandi án valkostsins**.
 
 ## Þegar skurði er hafnað
 
@@ -112,9 +115,9 @@ hala. Ekki er hægt að skera skrá með einum skjátexta.
 
 | Stig | Hvað bætist við á villuúttakið |
 | :----- | :------------------------------------- |
-| 1 | `<path>: split at subtitle N: H subtitles in the head, T subtitles in the tail -> <head>, <tail>`; með `--dry-run`, `(dry run, nothing written)` í stað `-> …` |
-| 2 | `<path>: SubRip, UTF-8, no BOM, LF line endings kept` — snið, stafakóðun, merki og línulok skrárinnar sem var lesin, sett aftur eins og þau voru |
-| 3 | `<path>: N bytes read, H and T written`, síðan **sérhvert greiningarboð við lestur** — sjá [Ræsing](invocation.md#að-lesa-greiningarboð) |
+| 1 | `source: <path>`, `result: split at subtitle N: H subtitles in the head, T subtitles in the tail`, `dest: <head>`, `tail: <tail>`; með `--dry-run`, `(dry run, nothing written)` í stað `dest: <head>` |
+| 2 | `format: SubRip`, `encoding: UTF-8`, `bom: absent`, `line-endings: LF` — snið, stafakóðun, merki og línulok skrárinnar sem var lesin, sett aftur eins og þau voru |
+| 3 | `bytes-read: N`, `bytes-written: H`, `bytes-written: T`, síðan **sérhvert greiningarboð við lestur** — sjá [Ræsing](invocation.md#að-lesa-greiningarboð) |
 
 ### Á JSON-sniði
 

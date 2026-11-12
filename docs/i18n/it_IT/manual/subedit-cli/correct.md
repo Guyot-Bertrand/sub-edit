@@ -85,10 +85,10 @@ per sapere dov'è, `--config` e `--no-config`.
   ripristina le righe di Gaupol. `--keep-blank-subtitles` e `--remove-blank-subtitles` insieme sono un
   errore di utilizzo.
 - **Entrambe le classi disattivate nel file vengono ignorate, e lo si dice** al livello 1 —
-  `settings: correction.human and correction.ocr are both false, ignored` —: `--classes` non potrebbe scriverlo, e
+  `warning: setting correction.human and correction.ocr are both false, ignored` —: `--classes` non potrebbe scriverlo, e
   non lascerebbe nulla da fare a common-errors. Vengono applicate invece entrambe le classi.
 - **Un numero di righe fuori dall'intervallo da 1 a 1000 non viene affatto letto dal file**: il lettore del file
-  lo rifiuta — `settings: correction.line-break.max-lines: cannot read 'N', default kept`, al
+  lo rifiuta — `warning: setting correction.line-break.max-lines: cannot read 'N', default kept`, al
   livello 1 — e si usa il 3 incorporato.
 
 Gli esempi di questa pagina sono eseguiti con `--no-config`, in modo che mostrino che cosa fanno i valori
@@ -149,7 +149,7 @@ code=1
 
 I modelli che l'utente mette in `$XDG_DATA_HOME/subedit/patterns` (oppure
 `~/.local/share/subedit/patterns`) **si aggiungono ai modelli forniti**, come nella
-finestra, e un modello fornito che non può essere letto viene segnalato al livello 1: `patterns: <file>, line N (<reason>)`.
+finestra, e un modello fornito che non può essere letto viene segnalato al livello 1: `warning: patterns: <file>, line N (<reason>)`.
 
 ### Unione e divisione di parole, e il dizionario
 

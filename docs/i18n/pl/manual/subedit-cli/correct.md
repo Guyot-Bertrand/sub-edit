@@ -85,10 +85,10 @@ gdzie jest plik, oraz `--config` i `--no-config`.
   przywraca linie Gaupola. `--keep-blank-subtitles` i `--remove-blank-subtitles` razem to
   błąd użycia.
 - **Obie klasy wyłączone w pliku są ignorowane, i mówi się o tym** na poziomie 1 —
-  `settings: correction.human and correction.ocr are both false, ignored` —: `--classes` nie mogłoby tego zapisać, a
+  `warning: setting correction.human and correction.ocr are both false, ignored` —: `--classes` nie mogłoby tego zapisać, a
   common-errors nie miałoby nic do roboty. Stosowane są zamiast tego obie klasy.
 - **Liczba linii spoza przedziału od 1 do 1000 w ogóle nie jest odczytywana z pliku**: czytnik pliku
-  ją odrzuca — `settings: correction.line-break.max-lines: cannot read 'N', default kept`, na
+  ją odrzuca — `warning: setting correction.line-break.max-lines: cannot read 'N', default kept`, na
   poziomie 1 — i używane jest wbudowane 3.
 
 Przykłady na tej stronie uruchomiono z `--no-config`, aby pokazywały, co robią wbudowane
@@ -149,7 +149,7 @@ code=1
 
 Wzorce, które użytkownik umieszcza w `$XDG_DATA_HOME/subedit/patterns` (lub
 `~/.local/share/subedit/patterns`), **są dodawane do wzorców dostarczonych**, tak jak w
-oknie, a dostarczony wzorzec, którego nie da się odczytać, jest zgłaszany na poziomie 1: `patterns: <file>, line N (<reason>)`.
+oknie, a dostarczony wzorzec, którego nie da się odczytać, jest zgłaszany na poziomie 1: `warning: patterns: <file>, line N (<reason>)`.
 
 ### Łączenie i dzielenie wyrazów oraz słownik
 

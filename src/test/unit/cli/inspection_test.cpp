@@ -198,10 +198,14 @@ TEST_CASE("the narration deepens with the level", "[cli][inspection]") {
         return errors.str();
     };
 
-    CHECK(narrate(1) == "a.srt: 2 subtitles\n");
-    CHECK_THAT(narrate(2), ContainsSubstring("a.srt: SubRip, UTF-8, no BOM, LF line endings\n"));
-    CHECK_THAT(narrate(3), ContainsSubstring("bytes read"));
-    CHECK_THAT(narrate(3), ContainsSubstring("diagnostics while reading"));
+    // Outside a batch, the lines are about no element: the batch gives each its `source`.
+    CHECK(narrate(1) == "[subedit] [-] [-] result: 2 subtitles\n");
+    CHECK(narrate(2) == "[subedit] [-] [-] format: SubRip\n"
+                        "[subedit] [-] [-] encoding: UTF-8\n"
+                        "[subedit] [-] [-] bom: absent\n"
+                        "[subedit] [-] [-] line-endings: LF\n"
+                        "[subedit] [-] [-] result: 2 subtitles\n");
+    CHECK_THAT(narrate(3), ContainsSubstring("] bytes-read: "));
 }
 
 TEST_CASE("a batch keeps going after a failure", "[cli][inspection]") {
@@ -216,6 +220,25 @@ TEST_CASE("a batch keeps going after a failure", "[cli][inspection]") {
     CHECK(code == ExitCode::SomeFailed);
     CHECK_THAT(out.str(), ContainsSubstring("good.srt\n"));
     CHECK_THAT(errors.str(), ContainsSubstring("1 of 2 files inspected, 1 failed\n"));
+}
+
+TEST_CASE("each file inspected is an element, the report staying on the output",
+          "[cli][inspection]") {
+    InMemoryFileSystem files;
+    files.addFile("good.srt", kTwoSubtitles);
+    std::ostringstream out;
+    std::ostringstream errors;
+
+    static_cast<void>(inspectAll(
+        files, {"absent.srt", "good.srt"}, {}, out, Reporter{errors, 1}.forCommand("inspect")));
+
+    // The failure does not repeat its path: the `source` line before it has said it.
+    CHECK(errors.str() == "[subedit] [inspect] [1/2] source: absent.srt\n"
+                          "[subedit] [inspect] [1/2] error: does not exist\n"
+                          "[subedit] [inspect] [2/2] source: good.srt\n"
+                          "[subedit] [inspect] [2/2] result: 2 subtitles\n"
+                          "[subedit] [inspect] [-] summary: 1 of 2 files inspected, 1 failed\n");
+    CHECK_FALSE(out.str().contains("[subedit]"));
 }
 
 TEST_CASE("a batch where nothing survives says so", "[cli][inspection]") {

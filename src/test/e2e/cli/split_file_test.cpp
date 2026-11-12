@@ -66,8 +66,10 @@ TEST_CASE("a file is cut at the subtitle given, the tail brought back to the ori
     CHECK_THAT(contentOf(head), MatchesFile(corpus("attendus/split/coupe-tete.srt")));
     CHECK_THAT(contentOf(tail), MatchesFile(corpus("attendus/split/coupe-queue.srt")));
     CHECK_THAT(run.errors,
-               ContainsSubstring("split at subtitle 3: 2 subtitles in the head, "
-                                 "2 subtitles in the tail -> "));
+               ContainsSubstring("[1/1] result: split at subtitle 3: 2 subtitles in the head, "
+                                 "2 subtitles in the tail\n"));
+    CHECK_THAT(run.errors, ContainsSubstring("[1/1] dest: " + head + "\n"));
+    CHECK_THAT(run.errors, ContainsSubstring("[1/1] tail: " + tail + "\n"));
 }
 
 TEST_CASE("append then split-file gives the files back", "[e2e][CLI-PSPLIT-01][CLI-APPEND-01]") {
@@ -216,5 +218,7 @@ TEST_CASE("a file that cannot be read fails with the code of a file that failed"
                                scratch.of("t.srt")});
 
     CHECK(run.exitCode == 2);
-    CHECK_THAT(run.errors, ContainsSubstring("absent.srt: does not exist"));
+    CHECK_THAT(
+        run.errors,
+        ContainsSubstring("absent.srt\n[subedit] [split-file] [1/1] error: does not exist\n"));
 }

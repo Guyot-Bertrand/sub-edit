@@ -345,9 +345,9 @@ $ printf '{25}{50}Un.\n{75}{100}Deux.\n' > f.sub; subedit-cli --format json insp
 
 | Stig | Hvað bætist við |
 | :----- | :-------------- |
-| 1 | `<path>: N subtitles` |
-| 2 | `<path>: SubRip, UTF-8, no BOM, LF line endings` |
-| 3 | `<path>: N bytes read`, `<path>: N diagnostic(s) while reading`, síðan **hvert þeirra** — sjá [Ræsing](invocation.md#að-lesa-greiningarboð) |
+| 1 | `source: <path>`, `result: N subtitles` |
+| 2 | `format: SubRip`, `encoding: UTF-8`, `bom: absent`, `line-endings: LF` |
+| 3 | `bytes-read: N`, síðan **sérhvert greiningarboð við lestur** — sjá [Ræsing](invocation.md#að-lesa-greiningarboð) |
 
 ## Skilakóðar
 
@@ -379,6 +379,7 @@ henni er hafnað og hún nefnd.
 <!-- example: : > vide.srt; subedit-cli inspect vide.srt; echo "code=$?" -->
 ```console
 $ : > vide.srt; subedit-cli inspect vide.srt; echo "code=$?"
-vide.srt: is in no format this tool knows
+[subedit] [inspect] [1/1] source: vide.srt
+[subedit] [inspect] [1/1] error: is in no format this tool knows
 code=2
 ```

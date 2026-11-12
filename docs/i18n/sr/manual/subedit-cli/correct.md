@@ -85,10 +85,10 @@ Options:
   враћа Gaupol-ове редове. `--keep-blank-subtitles` и `--remove-blank-subtitles` заједно су
   грешка у употреби.
 - **Обе класе искључене у датотеци се занемарују, и то се јавља** на нивоу 1 —
-  `settings: correction.human and correction.ocr are both false, ignored` —: `--classes` то не би могла да запише, а
+  `warning: setting correction.human and correction.ocr are both false, ignored` —: `--classes` то не би могла да запише, а
   задатку common-errors не би остало ништа да ради. Уместо тога се примењују обе класе.
 - **Број редова ван распона од 1 до 1000 се из датотеке уопште не чита**: читач датотеке
-  га одбија — `settings: correction.line-break.max-lines: cannot read 'N', default kept`, на
+  га одбија — `warning: setting correction.line-break.max-lines: cannot read 'N', default kept`, на
   нивоу 1 — и користи се уграђених 3.
 
 Примери на овој страници извршени су са `--no-config`, да би показали шта раде уграђене
@@ -149,7 +149,7 @@ code=1
 
 Обрасци које корисник ставља у `$XDG_DATA_HOME/subedit/patterns` (или
 `~/.local/share/subedit/patterns`) **додају се испорученим обрасцима**, као у
-прозору, а испоручени образац који не може да се прочита јавља се на нивоу 1: `patterns: <file>, line N (<reason>)`.
+прозору, а испоручени образац који не може да се прочита јавља се на нивоу 1: `warning: patterns: <file>, line N (<reason>)`.
 
 ### Спајање и дељење речи, и речник
 

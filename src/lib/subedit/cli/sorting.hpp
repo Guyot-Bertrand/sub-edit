@@ -50,9 +50,4 @@ class Reporter;
 /// converts and writes without ever opening a session.
 [[nodiscard]] std::size_t sortedInPlace(subedit::core::Project& project);
 
-/// What `--sort` says about one file: how many subtitles moved, or that the
-/// order was right. One line, at the first level, for every command that has
-/// the option.
-[[nodiscard]] std::string narrationOfSort(const std::string& path, std::size_t moved);
-
 } // namespace subedit::cli

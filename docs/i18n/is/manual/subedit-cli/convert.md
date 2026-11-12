@@ -192,8 +192,10 @@ sem birtist við hvert kall er skýrsla sem enginn les.
 <!-- example: printf '1\n00:00:01,000 --> 00:00:03,500\n<i>sur deux</i>\nlignes\n\n' > a.srt; subedit-cli convert --to lrc --output b.lrc a.srt -->
 ```console
 $ printf '1\n00:00:01,000 --> 00:00:03,500\n<i>sur deux</i>\nlignes\n\n' > a.srt; subedit-cli convert --to lrc --output b.lrc a.srt
-a.srt: 1 subtitle written as LRC -> b.lrc
-a.srt: ends are not carried by LRC, line breaks were joined in 1 subtitle, 1 tag dropped
+[subedit] [convert] [1/1] source: a.srt
+[subedit] [convert] [1/1] warning: ends are not carried by LRC, line breaks were joined in 1 subtitle, 1 tag dropped
+[subedit] [convert] [1/1] result: 1 subtitle converted to LRC, UTF-8, no BOM, LF line endings
+[subedit] [convert] [1/1] dest: b.lrc
 ```
 
 Línan birtist á sjálfgefnu nákvæmnisstigi, og á hverju stigi þar fyrir ofan.
@@ -276,7 +278,9 @@ umbreytingu, upplýsingum sem eru geymdar af ásettu ráði.
 <!-- example: printf '1\n00:00:01,000 --> 00:00:03,000\nBonjour.\n\n' > a.srt; subedit-cli convert --to vtt --output b.vtt a.srt; cat b.vtt -->
 ```console
 $ printf '1\n00:00:01,000 --> 00:00:03,000\nBonjour.\n\n' > a.srt; subedit-cli convert --to vtt --output b.vtt a.srt; cat b.vtt
-a.srt: 1 subtitle written as WebVTT -> b.vtt
+[subedit] [convert] [1/1] source: a.srt
+[subedit] [convert] [1/1] result: 1 subtitle converted to WebVTT, UTF-8, no BOM, LF line endings
+[subedit] [convert] [1/1] dest: b.vtt
 WEBVTT
 
 00:01.000 --> 00:03.000
@@ -289,19 +293,19 @@ Bonjour.
 ekki snert, og það sem er skrifað er það sem [`sort`](sort.md) hefði gert úr henni — stöðugt, tveir skjátextar sem byrja saman halda röð sinni.
 
 **Aldrei sjálfgefið**: röð skráar er höfundar hennar svo lengi sem ekki er beðið um annað. Með valkostinum segir hver skrá frá því, á
-fyrsta frásagnarstigi, `<path>: N subtitles moved` eða `<path>: already in order`, og `--format json`-færslan ber
+fyrsta frásagnarstigi, `result: N subtitles moved` eða `result: already in order`, og `--format json`-færslan ber
 talninguna `moved` — **sem vantar án valkostsins**, til að breyta ekki lögun þess sem núverandi skriftur lesa.
 
 ## Að losa tímabilin við skörun
 
 `--disjoint` sker skjátexta sem skarast þannig að ekkert tímabil skarist lengur við annað, **á sama afriti og röðunin**: skráin sem var lesin er ekki snert.
 
-Aldrei sjálfgefið. Valkosturinn gerir það sem [`disjoint`](disjoint.md) gerir, **með sjálfgefnum stillingum þess**, áður en skrifað er, eftir röðunina. Hann krefst skrár í réttri röð: annars er honum hafnað, og `--sort` — sem kemur á undan — kemur henni í röð áður. Skráin segir frá því á fyrsta frásagnarstigi (`<path>: N subtitles split, M merged`), og `--format json`-færslan ber talningarnar `split` og `merged`, **sem vantar án valkostsins**.
+Aldrei sjálfgefið. Valkosturinn gerir það sem [`disjoint`](disjoint.md) gerir, **með sjálfgefnum stillingum þess**, áður en skrifað er, eftir röðunina. Hann krefst skrár í réttri röð: annars er honum hafnað, og `--sort` — sem kemur á undan — kemur henni í röð áður. Skráin segir frá því á fyrsta frásagnarstigi (`result: N subtitles split, M merged`), og `--format json`-færslan ber talningarnar `split` og `merged`, **sem vantar án valkostsins**.
 
 **`--join-repeats` kemur á undan röðuninni og skurðinum**: texti sem er skorinn í búta sem fylgja hver öðrum er endurbyggður fyrst (sjá
 [`join-repeats`](join-repeats.md)), síðan eru skjátextarnir raðaðir, síðan eru tímabilin gerð án skörunar. **`--repair` er allt þrennt í einu**,
 eins og [`repair`](repair.md), með sjálfgefnum stillingum skurðarins. Með `--join-repeats` segir hver skrá
-`<path>: N repeated subtitles joined` á fyrsta frásagnarstigi, og `--format json`-færslan ber `counts.joined` — **sem vantar án valkostsins**.
+`result: N repeated subtitles joined` á fyrsta frásagnarstigi, og `--format json`-færslan ber `counts.joined` — **sem vantar án valkostsins**.
 
 ## Úttak
 
@@ -311,9 +315,9 @@ eins og [`repair`](repair.md), með sjálfgefnum stillingum skurðarins. Með `-
 
 | Stig | Hverju er bætt við |
 | :----- | :-------------- |
-| 1 | `<path>: N subtitles written as WebVTT -> <destination>` |
-| 2 | `<path>: SubRip -> WebVTT, UTF-8, no BOM, LF line endings` — stafakóðunin sem er nefnd er sú sem er skrifuð |
-| 3 | `<path>: N bytes read, M written`, síðan **hvert lesgreiningarboð** — sjá [Ræsing](invocation.md#að-lesa-greiningarboð) |
+| 1 | `source: <path>`, `result: N subtitles converted to WebVTT, UTF-8, no BOM, LF line endings`, `dest: <destination>` |
+| 2 | `format: SubRip`, `encoding: UTF-8`, `bom: absent`, `line-endings: LF` — þau sem lesna skráin hefur |
+| 3 | `bytes-read: N`, `bytes-written: M`, síðan **hvert lesgreiningarboð** — sjá [Ræsing](invocation.md#að-lesa-greiningarboð) |
 
 ### Á JSON-sniði
 

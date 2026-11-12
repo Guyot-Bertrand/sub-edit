@@ -34,10 +34,6 @@ std::size_t sortedInPlace(core::Project& project) {
     return moved;
 }
 
-std::string narrationOfSort(const std::string& path, std::size_t moved) {
-    return core::substitute(core::translate("%1: %2"), {path, core::noticeOfSort(moved)});
-}
-
 ExitCode sortAll(core::FileSystem& files,
                  const std::vector<std::string>& paths,
                  const std::optional<core::Encoding>& reading,

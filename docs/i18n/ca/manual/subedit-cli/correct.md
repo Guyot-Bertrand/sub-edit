@@ -85,10 +85,10 @@ per saber on és, `--config` i `--no-config`.
   torna les línies de Gaupol. `--keep-blank-subtitles` i `--remove-blank-subtitles` alhora són un
   error d'ús.
 - **Que les dues classes estiguin desactivades al fitxer s'ignora, i es diu** al nivell 1 —
-  `settings: correction.human and correction.ocr are both false, ignored` —: `--classes` no ho podria escriure, i
+  `warning: setting correction.human and correction.ocr are both false, ignored` —: `--classes` no ho podria escriure, i
   deixaria common-errors sense res a fer. En lloc d'això s'apliquen les dues classes.
 - **Un nombre de línies fora de l'interval d'1 a 1000 no es llegeix del fitxer en absolut**: el lector del fitxer
-  el refusa — `settings: correction.line-break.max-lines: cannot read 'N', default kept`, al
+  el refusa — `warning: setting correction.line-break.max-lines: cannot read 'N', default kept`, al
   nivell 1 — i s'usa el 3 integrat.
 
 Els exemples d'aquesta pàgina s'executen amb `--no-config`, perquè diguin què fan els valors per
@@ -149,7 +149,7 @@ code=1
 
 Els patrons que l'usuari posa a `$XDG_DATA_HOME/subedit/patterns` (o a
 `~/.local/share/subedit/patterns`) **s'afegeixen als patrons distribuïts**, com a la
-finestra, i un patró distribuït que no es pot llegir es diu al nivell 1: `patterns: <file>, line N (<reason>)`.
+finestra, i un patró distribuït que no es pot llegir es diu al nivell 1: `warning: patterns: <file>, line N (<reason>)`.
 
 ### Unir i separar paraules, i el diccionari
 

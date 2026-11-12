@@ -60,7 +60,10 @@ de lire, ou écrire la queue sur la tête, est refusé avant que rien soit lu, c
 <!-- example: printf '1\n00:00:01,000 --> 00:00:02,000\nun\n\n2\n00:00:03,000 --> 00:00:04,000\ndeux\n\n3\n00:00:06,000 --> 00:00:07,000\ntrois\n\n4\n00:00:08,000 --> 00:00:09,000\nquatre\n\n' > film.srt; subedit-cli split-file --at 3 --head tete.srt --tail queue.srt film.srt; cat queue.srt -->
 ```console
 $ printf '1\n00:00:01,000 --> 00:00:02,000\nun\n\n2\n00:00:03,000 --> 00:00:04,000\ndeux\n\n3\n00:00:06,000 --> 00:00:07,000\ntrois\n\n4\n00:00:08,000 --> 00:00:09,000\nquatre\n\n' > film.srt; subedit-cli split-file --at 3 --head tete.srt --tail queue.srt film.srt; cat queue.srt
-film.srt: split at subtitle 3: 2 subtitles in the head, 2 subtitles in the tail -> tete.srt, queue.srt
+[subedit] [split-file] [1/1] source: film.srt
+[subedit] [split-file] [1/1] result: split at subtitle 3: 2 subtitles in the head, 2 subtitles in the tail
+[subedit] [split-file] [1/1] dest: tete.srt
+[subedit] [split-file] [1/1] tail: queue.srt
 1
 00:00:02,000 --> 00:00:03,000
 trois
@@ -79,12 +82,12 @@ qui commençait à 6 s, commence à 2 s.
 tôt dans le temps. `--sort` met les sous-titres dans l'ordre de leurs débuts **avant de juger la coupure** — stable, comme [`sort`](sort.md) —, et
 `--at` compte alors dans cet ordre.
 
-Jamais par défaut. Avec l'option, le fichier dit au premier niveau de narration combien de sous-titres ont bougé (`<path>: N subtitles moved`
-ou `<path>: already in order`), et l'enregistrement `--format json` porte un compte `moved`, **absent sans l'option**.
+Jamais par défaut. Avec l'option, le fichier dit au premier niveau de narration combien de sous-titres ont bougé (`result: N subtitles moved`
+ou `result: already in order`), et l'enregistrement `--format json` porte un compte `moved`, **absent sans l'option**.
 
 ## Rendre les plages disjointes
 
-Jamais par défaut. L'option fait ce que fait [`disjoint`](disjoint.md), **avec ses réglages par défaut**, avant de juger la coupure, après le tri : `--at` compte dans ce que cela donne. Il faut un fichier dans l'ordre : sinon il est refusé, et `--sort` — qui passe avant — le met d'abord en ordre. Le fichier le dit au premier niveau de narration (`<path>: N subtitles split, M merged`), et l'enregistrement `--format json` porte les comptes `split` et `merged`, **absents sans l'option**.
+Jamais par défaut. L'option fait ce que fait [`disjoint`](disjoint.md), **avec ses réglages par défaut**, avant de juger la coupure, après le tri : `--at` compte dans ce que cela donne. Il faut un fichier dans l'ordre : sinon il est refusé, et `--sort` — qui passe avant — le met d'abord en ordre. Le fichier le dit au premier niveau de narration (`result: N subtitles split, M merged`), et l'enregistrement `--format json` porte les comptes `split` et `merged`, **absents sans l'option**.
 
 ## Quand la coupure est refusée
 
@@ -109,9 +112,9 @@ vide. Un fichier d'un seul sous-titre ne se coupe pas.
 
 | Niveau | Ce qui s'ajoute sur la sortie d'erreur |
 | :----- | :------------------------------------- |
-| 1 | `<path>: split at subtitle N: H subtitles in the head, T subtitles in the tail -> <head>, <tail>` ; avec `--dry-run`, `(dry run, nothing written)` à la place de `-> …` |
-| 2 | `<path>: SubRip, UTF-8, no BOM, LF line endings kept` — le format, l'encodage, la marque et les fins de ligne du fichier lu, remis tels quels |
-| 3 | `<path>: N bytes read, H and T written`, puis **chaque diagnostic de lecture** — voir [Invocation](invocation.md#les-diagnostics-de-lecture) |
+| 1 | `source: <path>`, `result: split at subtitle N: H subtitles in the head, T subtitles in the tail`, `dest: <head>`, `tail: <tail>` ; avec `--dry-run`, `(dry run, nothing written)` à la place de `dest: <head>` |
+| 2 | `format: SubRip`, `encoding: UTF-8`, `bom: absent`, `line-endings: LF` — le format, l'encodage, la marque et les fins de ligne du fichier lu, remis tels quels |
+| 3 | `bytes-read: N`, `bytes-written: H`, `bytes-written: T`, puis **chaque diagnostic de lecture** — voir [Invocation](invocation.md#les-diagnostics-de-lecture) |
 
 ### En JSON
 

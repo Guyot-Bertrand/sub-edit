@@ -63,7 +63,10 @@ Options:
 <!-- example: printf '1\n00:00:01,000 --> 00:00:02,000\nun\n\n2\n00:00:03,000 --> 00:00:04,000\ndeux\n\n3\n00:00:06,000 --> 00:00:07,000\ntrois\n\n4\n00:00:08,000 --> 00:00:09,000\nquatre\n\n' > film.srt; subedit-cli split-file --at 3 --head tete.srt --tail queue.srt film.srt; cat queue.srt -->
 ```console
 $ printf '1\n00:00:01,000 --> 00:00:02,000\nun\n\n2\n00:00:03,000 --> 00:00:04,000\ndeux\n\n3\n00:00:06,000 --> 00:00:07,000\ntrois\n\n4\n00:00:08,000 --> 00:00:09,000\nquatre\n\n' > film.srt; subedit-cli split-file --at 3 --head tete.srt --tail queue.srt film.srt; cat queue.srt
-film.srt: split at subtitle 3: 2 subtitles in the head, 2 subtitles in the tail -> tete.srt, queue.srt
+[subedit] [split-file] [1/1] source: film.srt
+[subedit] [split-file] [1/1] result: split at subtitle 3: 2 subtitles in the head, 2 subtitles in the tail
+[subedit] [split-file] [1/1] dest: tete.srt
+[subedit] [split-file] [1/1] tail: queue.srt
 1
 00:00:02,000 --> 00:00:03,000
 trois
@@ -82,12 +85,12 @@ quatre
 по времени. `--sort` ставит субтитры в порядок их начал **до оценки разреза** (устойчиво, как это делает [`sort`](sort.md)), и
 `--at` затем считает в этом порядке.
 
-По умолчанию — никогда. С этим параметром файл сообщает на первом уровне пояснений, сколько субтитров переместилось (`<path>: N subtitles moved`
-или `<path>: already in order`), а запись `--format json` содержит счётчик `moved`, **отсутствующий без параметра**.
+По умолчанию — никогда. С этим параметром файл сообщает на первом уровне пояснений, сколько субтитров переместилось (`result: N subtitles moved`
+или `result: already in order`), а запись `--format json` содержит счётчик `moved`, **отсутствующий без параметра**.
 
 ## Устранение перекрытий диапазонов
 
-По умолчанию — никогда. Параметр делает то же, что [`disjoint`](disjoint.md), **с его настройками по умолчанию**, до оценки разреза, после сортировки: `--at` считает в том, что получилось. Нужен файл с правильным порядком, иначе параметр отклоняется, а `--sort`, который выполняется первым, предварительно наводит порядок. Файл сообщает об этом на первом уровне пояснений (`<path>: N subtitles split, M merged`), а запись `--format json` содержит счётчики `split` и `merged`, **отсутствующие без параметра**.
+По умолчанию — никогда. Параметр делает то же, что [`disjoint`](disjoint.md), **с его настройками по умолчанию**, до оценки разреза, после сортировки: `--at` считает в том, что получилось. Нужен файл с правильным порядком, иначе параметр отклоняется, а `--sort`, который выполняется первым, предварительно наводит порядок. Файл сообщает об этом на первом уровне пояснений (`result: N subtitles split, M merged`), а запись `--format json` содержит счётчики `split` и `merged`, **отсутствующие без параметра**.
 
 ## Когда разрез отклоняется
 
@@ -112,9 +115,9 @@ o.srt: Cannot split at subtitle 3: subtitle 3 would fall before the start of the
 
 | Уровень | Что добавляется в поток ошибок |
 | :----- | :------------------------------------- |
-| 1 | `<path>: split at subtitle N: H subtitles in the head, T subtitles in the tail -> <head>, <tail>`; при `--dry-run` вместо `-> …` выводится `(dry run, nothing written)` |
-| 2 | `<path>: SubRip, UTF-8, no BOM, LF line endings kept` — формат, кодировка, метка и символы конца строки прочитанного файла, возвращённые как были |
-| 3 | `<path>: N bytes read, H and T written`, затем **все диагностические сообщения чтения**; см. [Запуск](invocation.md#чтение-диагностических-сообщений) |
+| 1 | `source: <path>`, `result: split at subtitle N: H subtitles in the head, T subtitles in the tail`, `dest: <head>`, `tail: <tail>`; при `--dry-run` вместо `dest: <head>` выводится `(dry run, nothing written)` |
+| 2 | `format: SubRip`, `encoding: UTF-8`, `bom: absent`, `line-endings: LF` — формат, кодировка, метка и символы конца строки прочитанного файла, возвращённые как были |
+| 3 | `bytes-read: N`, `bytes-written: H`, `bytes-written: T`, затем **все диагностические сообщения чтения**; см. [Запуск](invocation.md#чтение-диагностических-сообщений) |
 
 ### В формате JSON
 

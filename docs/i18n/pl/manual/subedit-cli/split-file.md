@@ -63,7 +63,10 @@ czyta, albo zapis końca nad początkiem jest odrzucany, zanim cokolwiek zostani
 <!-- example: printf '1\n00:00:01,000 --> 00:00:02,000\nun\n\n2\n00:00:03,000 --> 00:00:04,000\ndeux\n\n3\n00:00:06,000 --> 00:00:07,000\ntrois\n\n4\n00:00:08,000 --> 00:00:09,000\nquatre\n\n' > film.srt; subedit-cli split-file --at 3 --head tete.srt --tail queue.srt film.srt; cat queue.srt -->
 ```console
 $ printf '1\n00:00:01,000 --> 00:00:02,000\nun\n\n2\n00:00:03,000 --> 00:00:04,000\ndeux\n\n3\n00:00:06,000 --> 00:00:07,000\ntrois\n\n4\n00:00:08,000 --> 00:00:09,000\nquatre\n\n' > film.srt; subedit-cli split-file --at 3 --head tete.srt --tail queue.srt film.srt; cat queue.srt
-film.srt: split at subtitle 3: 2 subtitles in the head, 2 subtitles in the tail -> tete.srt, queue.srt
+[subedit] [split-file] [1/1] source: film.srt
+[subedit] [split-file] [1/1] result: split at subtitle 3: 2 subtitles in the head, 2 subtitles in the tail
+[subedit] [split-file] [1/1] dest: tete.srt
+[subedit] [split-file] [1/1] tail: queue.srt
 1
 00:00:02,000 --> 00:00:03,000
 trois
@@ -82,12 +85,12 @@ który zaczynał się w 6 s, zaczyna się w 2 s.
 w czasie. `--sort` ustawia napisy w kolejności ich początków **przed oceną cięcia** — stabilnie, jak robi to [`sort`](sort.md) —, a
 `--at` liczy wtedy w tej kolejności.
 
-Nigdy domyślnie. Z tą opcją plik mówi na pierwszym poziomie komentarza, ile napisów się przesunęło (`<path>: N subtitles moved`
-lub `<path>: already in order`), a rekord `--format json` zawiera licznik `moved`, **nieobecny bez tej opcji**.
+Nigdy domyślnie. Z tą opcją plik mówi na pierwszym poziomie komentarza, ile napisów się przesunęło (`result: N subtitles moved`
+lub `result: already in order`), a rekord `--format json` zawiera licznik `moved`, **nieobecny bez tej opcji**.
 
 ## Usuwanie nakładania się zakresów
 
-Nigdy domyślnie. Opcja robi to, co [`disjoint`](disjoint.md), **z jego ustawieniami domyślnymi**, przed oceną cięcia, po sortowaniu: `--at` liczy w tym, co z tego wyjdzie. Wymaga pliku we właściwej kolejności: w przeciwnym razie jest odrzucana, a `--sort` — który działa pierwszy — ustawia go wcześniej we właściwej kolejności. Plik mówi o tym na pierwszym poziomie komentarza (`<path>: N subtitles split, M merged`), a rekord `--format json` zawiera liczniki `split` i `merged`, **nieobecne bez tej opcji**.
+Nigdy domyślnie. Opcja robi to, co [`disjoint`](disjoint.md), **z jego ustawieniami domyślnymi**, przed oceną cięcia, po sortowaniu: `--at` liczy w tym, co z tego wyjdzie. Wymaga pliku we właściwej kolejności: w przeciwnym razie jest odrzucana, a `--sort` — który działa pierwszy — ustawia go wcześniej we właściwej kolejności. Plik mówi o tym na pierwszym poziomie komentarza (`result: N subtitles split, M merged`), a rekord `--format json` zawiera liczniki `split` i `merged`, **nieobecne bez tej opcji**.
 
 ## Gdy cięcie jest odrzucane
 
@@ -112,9 +115,9 @@ koniec. Pliku o jednym napisie nie można ciąć.
 
 | Poziom | Co jest dodawane na wyjściu błędów |
 | :----- | :------------------------------------- |
-| 1 | `<path>: split at subtitle N: H subtitles in the head, T subtitles in the tail -> <head>, <tail>`; z `--dry-run` zamiast `-> …` pojawia się `(dry run, nothing written)` |
-| 2 | `<path>: SubRip, UTF-8, no BOM, LF line endings kept` — format, kodowanie, znacznik i końce linii odczytanego pliku, przywrócone takie, jakie były |
-| 3 | `<path>: N bytes read, H and T written`, potem **każdy komunikat diagnostyczny odczytu** — zobacz [Uruchamianie](invocation.md#odczyt-komunikatów-diagnostycznych) |
+| 1 | `source: <path>`, `result: split at subtitle N: H subtitles in the head, T subtitles in the tail`, `dest: <head>`, `tail: <tail>`; z `--dry-run` zamiast `dest: <head>` pojawia się `(dry run, nothing written)` |
+| 2 | `format: SubRip`, `encoding: UTF-8`, `bom: absent`, `line-endings: LF` — format, kodowanie, znacznik i końce linii odczytanego pliku, przywrócone takie, jakie były |
+| 3 | `bytes-read: N`, `bytes-written: H`, `bytes-written: T`, potem **każdy komunikat diagnostyczny odczytu** — zobacz [Uruchamianie](invocation.md#odczyt-komunikatów-diagnostycznych) |
 
 ### W formacie JSON
 

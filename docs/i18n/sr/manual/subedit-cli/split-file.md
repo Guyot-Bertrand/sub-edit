@@ -63,7 +63,10 @@ Options:
 <!-- example: printf '1\n00:00:01,000 --> 00:00:02,000\nun\n\n2\n00:00:03,000 --> 00:00:04,000\ndeux\n\n3\n00:00:06,000 --> 00:00:07,000\ntrois\n\n4\n00:00:08,000 --> 00:00:09,000\nquatre\n\n' > film.srt; subedit-cli split-file --at 3 --head tete.srt --tail queue.srt film.srt; cat queue.srt -->
 ```console
 $ printf '1\n00:00:01,000 --> 00:00:02,000\nun\n\n2\n00:00:03,000 --> 00:00:04,000\ndeux\n\n3\n00:00:06,000 --> 00:00:07,000\ntrois\n\n4\n00:00:08,000 --> 00:00:09,000\nquatre\n\n' > film.srt; subedit-cli split-file --at 3 --head tete.srt --tail queue.srt film.srt; cat queue.srt
-film.srt: split at subtitle 3: 2 subtitles in the head, 2 subtitles in the tail -> tete.srt, queue.srt
+[subedit] [split-file] [1/1] source: film.srt
+[subedit] [split-file] [1/1] result: split at subtitle 3: 2 subtitles in the head, 2 subtitles in the tail
+[subedit] [split-file] [1/1] dest: tete.srt
+[subedit] [split-file] [1/1] tail: queue.srt
 1
 00:00:02,000 --> 00:00:03,000
 trois
@@ -82,12 +85,12 @@ quatre
 у времену. `--sort` поставља титлове по редоследу њихових почетака **пре просуђивања реза** — стабилно, као што то ради [`sort`](sort.md) —, а
 `--at` тада броји по том редоследу.
 
-Никада по подразумеваној вредности. Уз опцију, датотека на првом нивоу приповедања каже колико је титлова померено (`<path>: N subtitles moved`
-или `<path>: already in order`), а запис `--format json` садржи број `moved`, **одсутан без опције**.
+Никада по подразумеваној вредности. Уз опцију, датотека на првом нивоу приповедања каже колико је титлова померено (`result: N subtitles moved`
+или `result: already in order`), а запис `--format json` садржи број `moved`, **одсутан без опције**.
 
 ## Раздвајање интервала
 
-Никада по подразумеваној вредности. Опција ради оно што ради [`disjoint`](disjoint.md), **са његовим подразумеваним поставкама**, пре просуђивања реза, после ређања: `--at` броји у ономе што тиме остане. Потребна је уређена датотека: у супротном се одбија, а `--sort` — који долази први — унапред је доводи у ред. Датотека то каже на првом нивоу приповедања (`<path>: N subtitles split, M merged`), а запис `--format json` садржи бројеве `split` и `merged`, **одсутне без опције**.
+Никада по подразумеваној вредности. Опција ради оно што ради [`disjoint`](disjoint.md), **са његовим подразумеваним поставкама**, пре просуђивања реза, после ређања: `--at` броји у ономе што тиме остане. Потребна је уређена датотека: у супротном се одбија, а `--sort` — који долази први — унапред је доводи у ред. Датотека то каже на првом нивоу приповедања (`result: N subtitles split, M merged`), а запис `--format json` садржи бројеве `split` и `merged`, **одсутне без опције**.
 
 ## Када се рез одбија
 
@@ -112,9 +115,9 @@ o.srt: Cannot split at subtitle 3: subtitle 3 would fall before the start of the
 
 | Ниво | Шта се додаје на стандардној грешци |
 | :----- | :------------------------------------- |
-| 1 | `<path>: split at subtitle N: H subtitles in the head, T subtitles in the tail -> <head>, <tail>`; уз `--dry-run`, `(dry run, nothing written)` уместо `-> …` |
-| 2 | `<path>: SubRip, UTF-8, no BOM, LF line endings kept` — формат, кодирање, ознака и завршеци редова прочитане датотеке, враћени какви су били |
-| 3 | `<path>: N bytes read, H and T written`, затим **свака дијагностика читања** — види [Покретање](invocation.md#читање-дијагностике) |
+| 1 | `source: <path>`, `result: split at subtitle N: H subtitles in the head, T subtitles in the tail`, `dest: <head>`, `tail: <tail>`; уз `--dry-run`, `(dry run, nothing written)` уместо `dest: <head>` |
+| 2 | `format: SubRip`, `encoding: UTF-8`, `bom: absent`, `line-endings: LF` — формат, кодирање, ознака и завршеци редова прочитане датотеке, враћени какви су били |
+| 3 | `bytes-read: N`, `bytes-written: H`, `bytes-written: T`, затим **свака дијагностика читања** — види [Покретање](invocation.md#читање-дијагностике) |
 
 ### У JSON-у
 

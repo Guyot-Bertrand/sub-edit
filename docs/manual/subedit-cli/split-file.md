@@ -60,7 +60,10 @@ reading, or writing the tail over the head, is refused before anything is read, 
 <!-- example: printf '1\n00:00:01,000 --> 00:00:02,000\nun\n\n2\n00:00:03,000 --> 00:00:04,000\ndeux\n\n3\n00:00:06,000 --> 00:00:07,000\ntrois\n\n4\n00:00:08,000 --> 00:00:09,000\nquatre\n\n' > film.srt; subedit-cli split-file --at 3 --head tete.srt --tail queue.srt film.srt; cat queue.srt -->
 ```console
 $ printf '1\n00:00:01,000 --> 00:00:02,000\nun\n\n2\n00:00:03,000 --> 00:00:04,000\ndeux\n\n3\n00:00:06,000 --> 00:00:07,000\ntrois\n\n4\n00:00:08,000 --> 00:00:09,000\nquatre\n\n' > film.srt; subedit-cli split-file --at 3 --head tete.srt --tail queue.srt film.srt; cat queue.srt
-film.srt: split at subtitle 3: 2 subtitles in the head, 2 subtitles in the tail -> tete.srt, queue.srt
+[subedit] [split-file] [1/1] source: film.srt
+[subedit] [split-file] [1/1] result: split at subtitle 3: 2 subtitles in the head, 2 subtitles in the tail
+[subedit] [split-file] [1/1] dest: tete.srt
+[subedit] [split-file] [1/1] tail: queue.srt
 1
 00:00:02,000 --> 00:00:03,000
 trois
@@ -79,12 +82,12 @@ which started at 6 s, starts at 2 s.
 in time. `--sort` puts the subtitles in the order of their starts **before judging the cut** — stable, as [`sort`](sort.md) does —, and
 `--at` then counts in that order.
 
-Never by default. With the option, the file says at the first narration level how many subtitles moved (`<path>: N subtitles moved`
-or `<path>: already in order`), and the `--format json` record carries a `moved` count, **absent without the option**.
+Never by default. With the option, the file says at the first narration level how many subtitles moved (`result: N subtitles moved`
+or `result: already in order`), and the `--format json` record carries a `moved` count, **absent without the option**.
 
 ## Making the ranges disjoint
 
-Never by default. The option does what [`disjoint`](disjoint.md) does, **with its default settings**, before judging the cut, after the sort: `--at` counts in what that gives. It needs a file in order: otherwise it is refused, and `--sort` — which comes first — puts it in order beforehand. The file says so at the first narration level (`<path>: N subtitles split, M merged`), and the `--format json` record carries the `split` and `merged` counts, **absent without the option**.
+Never by default. The option does what [`disjoint`](disjoint.md) does, **with its default settings**, before judging the cut, after the sort: `--at` counts in what that gives. It needs a file in order: otherwise it is refused, and `--sort` — which comes first — puts it in order beforehand. The file says so at the first narration level (`result: N subtitles split, M merged`), and the `--format json` record carries the `split` and `merged` counts, **absent without the option**.
 
 ## When the cut is refused
 
@@ -109,9 +112,9 @@ tail. A file of a single subtitle cannot be cut.
 
 | Level | What is added on the error output |
 | :----- | :------------------------------------- |
-| 1 | `<path>: split at subtitle N: H subtitles in the head, T subtitles in the tail -> <head>, <tail>`; with `--dry-run`, `(dry run, nothing written)` in place of `-> …` |
-| 2 | `<path>: SubRip, UTF-8, no BOM, LF line endings kept` — the format, the encoding, the mark and the line endings of the file read, put back as they were |
-| 3 | `<path>: N bytes read, H and T written`, then **every reading diagnostic** — see [Invocation](invocation.md#reading-diagnostics) |
+| 1 | `source: <path>`, `result: split at subtitle N: H subtitles in the head, T subtitles in the tail`, `dest: <head>`, `tail: <tail>`; with `--dry-run`, `(dry run, nothing written)` in place of `dest: <head>` |
+| 2 | `format: SubRip`, `encoding: UTF-8`, `bom: absent`, `line-endings: LF` — the format, the encoding, the mark and the line endings of the file read, put back as they were |
+| 3 | `bytes-read: N`, `bytes-written: H`, `bytes-written: T`, then **every reading diagnostic** — see [Invocation](invocation.md#reading-diagnostics) |
 
 ### In JSON
 

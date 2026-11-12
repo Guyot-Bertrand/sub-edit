@@ -82,10 +82,10 @@ for where it is, `--config` and `--no-config`.
   gives back Gaupol's lines. `--keep-blank-subtitles` and `--remove-blank-subtitles` together are a
   usage error.
 - **Both classes off in the file is ignored, and said** at level 1 —
-  `settings: correction.human and correction.ocr are both false, ignored` —: `--classes` could not write it, and it would
+  `warning: setting correction.human and correction.ocr are both false, ignored` —: `--classes` could not write it, and it would
   leave common-errors nothing to do. Both classes are applied instead.
 - **A number of lines out of 1 to 1000 is not read from the file at all**: the file's reader
-  refuses it — `settings: correction.line-break.max-lines: cannot read 'N', default kept`, at
+  refuses it — `warning: setting correction.line-break.max-lines: cannot read 'N', default kept`, at
   level 1 — and the built-in 3 is used.
 
 The examples on this page are run with `--no-config`, so that they say what the built-in
@@ -146,7 +146,7 @@ code=1
 
 The patterns the user puts in `$XDG_DATA_HOME/subedit/patterns` (or
 `~/.local/share/subedit/patterns`) **are added to the shipped patterns**, as in the
-window, and a shipped pattern that cannot be read is said at level 1: `patterns: <file>, line N (<reason>)`.
+window, and a shipped pattern that cannot be read is said at level 1: `warning: patterns: <file>, line N (<reason>)`.
 
 ### Joining and splitting words, and the dictionary
 

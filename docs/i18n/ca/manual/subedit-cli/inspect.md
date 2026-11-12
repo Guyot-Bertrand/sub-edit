@@ -345,9 +345,9 @@ A la sortida d'error, segons el nivell demanat:
 
 | Nivell | Què s'hi afegeix |
 | :----- | :-------------- |
-| 1 | `<path>: N subtitles` |
-| 2 | `<path>: SubRip, UTF-8, no BOM, LF line endings` |
-| 3 | `<path>: N bytes read`, `<path>: N diagnostic(s) while reading`, i després **cadascun d'ells** — vegeu [Invocació](invocation.md#diagnòstics-de-lectura) |
+| 1 | `source: <path>`, `result: N subtitles` |
+| 2 | `format: SubRip`, `encoding: UTF-8`, `bom: absent`, `line-endings: LF` |
+| 3 | `bytes-read: N`, i després **cada diagnòstic de lectura** — vegeu [Invocació](invocation.md#diagnòstics-de-lectura) |
 
 ## Codis de sortida
 
@@ -379,6 +379,7 @@ es refusa, i s'anomena.
 <!-- example: : > vide.srt; subedit-cli inspect vide.srt; echo "code=$?" -->
 ```console
 $ : > vide.srt; subedit-cli inspect vide.srt; echo "code=$?"
-vide.srt: is in no format this tool knows
+[subedit] [inspect] [1/1] source: vide.srt
+[subedit] [inspect] [1/1] error: is in no format this tool knows
 code=2
 ```

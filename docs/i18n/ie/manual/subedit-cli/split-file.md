@@ -63,7 +63,10 @@ lee, o scrir li cauda sur li cap, es refusat ante que alquo es leet, code `1`.
 <!-- example: printf '1\n00:00:01,000 --> 00:00:02,000\nun\n\n2\n00:00:03,000 --> 00:00:04,000\ndeux\n\n3\n00:00:06,000 --> 00:00:07,000\ntrois\n\n4\n00:00:08,000 --> 00:00:09,000\nquatre\n\n' > film.srt; subedit-cli split-file --at 3 --head tete.srt --tail queue.srt film.srt; cat queue.srt -->
 ```console
 $ printf '1\n00:00:01,000 --> 00:00:02,000\nun\n\n2\n00:00:03,000 --> 00:00:04,000\ndeux\n\n3\n00:00:06,000 --> 00:00:07,000\ntrois\n\n4\n00:00:08,000 --> 00:00:09,000\nquatre\n\n' > film.srt; subedit-cli split-file --at 3 --head tete.srt --tail queue.srt film.srt; cat queue.srt
-film.srt: split at subtitle 3: 2 subtitles in the head, 2 subtitles in the tail -> tete.srt, queue.srt
+[subedit] [split-file] [1/1] source: film.srt
+[subedit] [split-file] [1/1] result: split at subtitle 3: 2 subtitles in the head, 2 subtitles in the tail
+[subedit] [split-file] [1/1] dest: tete.srt
+[subedit] [split-file] [1/1] tail: queue.srt
 1
 00:00:02,000 --> 00:00:03,000
 trois
@@ -82,12 +85,12 @@ quel comensat a 6 s, comensa a 2 s.
 in tempore. `--sort` pone li subtitules in li órdine de lor comenses **ante judicar li decupation** — stabil, quam [`sort`](sort.md) fa —, e
 `--at` cunta poy in ti órdine.
 
-Nequande predefinit. Con li option, li file dis al prim nivelle de narration quant subtitules ha movet (`<path>: N subtitles moved`
-o `<path>: already in order`), e li registre `--format json` porta un cuntage `moved`, **absent sin li option**.
+Nequande predefinit. Con li option, li file dis al prim nivelle de narration quant subtitules ha movet (`result: N subtitles moved`
+o `result: already in order`), e li registre `--format json` porta un cuntage `moved`, **absent sin li option**.
 
 ## Far disjuncte li intervalles
 
-Nequande predefinit. Li option fa quo [`disjoint`](disjoint.md) fa, **con su parametres predefinit**, ante judicar li decupation, pos li ordination: `--at` cunta in quo to dona. It besona un file in órdine: altrimen it es refusat, e `--sort` — quel veni in prim — pone it in órdine ante. Li file dis it al prim nivelle de narration (`<path>: N subtitles split, M merged`), e li registre `--format json` porta li cuntages `split` e `merged`, **absent sin li option**.
+Nequande predefinit. Li option fa quo [`disjoint`](disjoint.md) fa, **con su parametres predefinit**, ante judicar li decupation, pos li ordination: `--at` cunta in quo to dona. It besona un file in órdine: altrimen it es refusat, e `--sort` — quel veni in prim — pone it in órdine ante. Li file dis it al prim nivelle de narration (`result: N subtitles split, M merged`), e li registre `--format json` porta li cuntages `split` e `merged`, **absent sin li option**.
 
 ## Quande li decupation es refusat
 
@@ -112,9 +115,9 @@ vacui. Un file de un sol subtitul ne posse esser decupat.
 
 | Nivelle | Quo es adjuntet al exeunte de error |
 | :----- | :------------------------------------- |
-| 1 | `<path>: split at subtitle N: H subtitles in the head, T subtitles in the tail -> <head>, <tail>`; con `--dry-run`, `(dry run, nothing written)` in loc de `-> …` |
-| 2 | `<path>: SubRip, UTF-8, no BOM, LF line endings kept` — li formate, li codification, li marca e li fines de linea del file leet, remetet quam les esset |
-| 3 | `<path>: N bytes read, H and T written`, poy **omni diagnose de lectura** — vide [Invocation](invocation.md#diagnoses-de-lectura) |
+| 1 | `source: <path>`, `result: split at subtitle N: H subtitles in the head, T subtitles in the tail`, `dest: <head>`, `tail: <tail>`; con `--dry-run`, `(dry run, nothing written)` in loc de `dest: <head>` |
+| 2 | `format: SubRip`, `encoding: UTF-8`, `bom: absent`, `line-endings: LF` — li formate, li codification, li marca e li fines de linea del file leet, remetet quam les esset |
+| 3 | `bytes-read: N`, `bytes-written: H`, `bytes-written: T`, poy **omni diagnose de lectura** — vide [Invocation](invocation.md#diagnoses-de-lectura) |
 
 ### In JSON
 

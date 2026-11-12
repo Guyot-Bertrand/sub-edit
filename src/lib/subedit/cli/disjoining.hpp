@@ -59,10 +59,6 @@ disjointedIn(subedit::core::Session& session);
 [[nodiscard]] std::expected<subedit::core::DisjointReport, Failure>
 disjointedInPlace(subedit::core::Project& project);
 
-/// What `--disjoint` says about one file, at the first level.
-[[nodiscard]] std::string narrationOfDisjoint(const std::string& path,
-                                              const subedit::core::DisjointReport& report);
-
 /// Every count of the operation, for the command that is about it.
 [[nodiscard]] std::vector<Count> fullCountsOfDisjoint(const subedit::core::DisjointReport& report);
 

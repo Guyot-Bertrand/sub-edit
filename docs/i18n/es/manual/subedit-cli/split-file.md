@@ -63,7 +63,10 @@ leyendo, o escribir la cola sobre la cabeza, se rechaza antes de leer nada, cód
 <!-- example: printf '1\n00:00:01,000 --> 00:00:02,000\nun\n\n2\n00:00:03,000 --> 00:00:04,000\ndeux\n\n3\n00:00:06,000 --> 00:00:07,000\ntrois\n\n4\n00:00:08,000 --> 00:00:09,000\nquatre\n\n' > film.srt; subedit-cli split-file --at 3 --head tete.srt --tail queue.srt film.srt; cat queue.srt -->
 ```console
 $ printf '1\n00:00:01,000 --> 00:00:02,000\nun\n\n2\n00:00:03,000 --> 00:00:04,000\ndeux\n\n3\n00:00:06,000 --> 00:00:07,000\ntrois\n\n4\n00:00:08,000 --> 00:00:09,000\nquatre\n\n' > film.srt; subedit-cli split-file --at 3 --head tete.srt --tail queue.srt film.srt; cat queue.srt
-film.srt: split at subtitle 3: 2 subtitles in the head, 2 subtitles in the tail -> tete.srt, queue.srt
+[subedit] [split-file] [1/1] source: film.srt
+[subedit] [split-file] [1/1] result: split at subtitle 3: 2 subtitles in the head, 2 subtitles in the tail
+[subedit] [split-file] [1/1] dest: tete.srt
+[subedit] [split-file] [1/1] tail: queue.srt
 1
 00:00:02,000 --> 00:00:03,000
 trois
@@ -82,12 +85,12 @@ que empezaba a los 6 s, empieza a los 2 s.
 en el tiempo. `--sort` pone los subtítulos en el orden de sus inicios **antes de juzgar el corte** —de forma estable, como hace [`sort`](sort.md)—, y
 `--at` cuenta entonces en ese orden.
 
-Nunca por defecto. Con la opción, el archivo indica en el primer nivel de narración cuántos subtítulos se han movido (`<path>: N subtitles moved`
-o `<path>: already in order`), y el registro `--format json` lleva un recuento `moved`, **ausente sin la opción**.
+Nunca por defecto. Con la opción, el archivo indica en el primer nivel de narración cuántos subtítulos se han movido (`result: N subtitles moved`
+o `result: already in order`), y el registro `--format json` lleva un recuento `moved`, **ausente sin la opción**.
 
 ## Hacer disjuntos los intervalos
 
-Nunca por defecto. La opción hace lo que hace [`disjoint`](disjoint.md), **con su configuración por defecto**, antes de juzgar el corte y después de ordenar: `--at` cuenta en lo que eso da. Necesita un archivo en orden: si no, se rechaza, y `--sort` —que va primero— lo pone en orden antes. El archivo lo indica en el primer nivel de narración (`<path>: N subtitles split, M merged`), y el registro `--format json` lleva los recuentos `split` y `merged`, **ausentes sin la opción**.
+Nunca por defecto. La opción hace lo que hace [`disjoint`](disjoint.md), **con su configuración por defecto**, antes de juzgar el corte y después de ordenar: `--at` cuenta en lo que eso da. Necesita un archivo en orden: si no, se rechaza, y `--sort` —que va primero— lo pone en orden antes. El archivo lo indica en el primer nivel de narración (`result: N subtitles split, M merged`), y el registro `--format json` lleva los recuentos `split` y `merged`, **ausentes sin la opción**.
 
 ## Cuando se rechaza el corte
 
@@ -112,9 +115,9 @@ vacía. Un archivo de un solo subtítulo no puede cortarse.
 
 | Nivel | Lo que se añade en la salida de error |
 | :----- | :------------------------------------- |
-| 1 | `<path>: split at subtitle N: H subtitles in the head, T subtitles in the tail -> <head>, <tail>`; con `--dry-run`, `(dry run, nothing written)` en lugar de `-> …` |
-| 2 | `<path>: SubRip, UTF-8, no BOM, LF line endings kept` — el formato, la codificación, la marca y los finales de línea del archivo leído, restituidos tal como estaban |
-| 3 | `<path>: N bytes read, H and T written`, y después **cada diagnóstico de lectura** — véase [Invocación](invocation.md#diagnósticos-de-lectura) |
+| 1 | `source: <path>`, `result: split at subtitle N: H subtitles in the head, T subtitles in the tail`, `dest: <head>`, `tail: <tail>`; con `--dry-run`, `(dry run, nothing written)` en lugar de `dest: <head>` |
+| 2 | `format: SubRip`, `encoding: UTF-8`, `bom: absent`, `line-endings: LF` — el formato, la codificación, la marca y los finales de línea del archivo leído, restituidos tal como estaban |
+| 3 | `bytes-read: N`, `bytes-written: H`, `bytes-written: T`, y después **cada diagnóstico de lectura** — véase [Invocación](invocation.md#diagnósticos-de-lectura) |
 
 ### En JSON
 

@@ -67,8 +67,11 @@ overschreven, zoals overal.
 <!-- example: printf '1\n00:00:01,000 --> 00:00:02,000\nun\n\n2\n00:00:03,000 --> 00:00:04,000\ndeux\n\n' > partie1.srt; printf '1\n00:00:00,500 --> 00:00:01,500\ntrois\n\n' > partie2.srt; subedit-cli append --output film.srt partie1.srt partie2.srt; cat film.srt -->
 ```console
 $ printf '1\n00:00:01,000 --> 00:00:02,000\nun\n\n2\n00:00:03,000 --> 00:00:04,000\ndeux\n\n' > partie1.srt; printf '1\n00:00:00,500 --> 00:00:01,500\ntrois\n\n' > partie2.srt; subedit-cli append --output film.srt partie1.srt partie2.srt; cat film.srt
-partie2.srt: appended 1 subtitle
-partie1.srt: 3 subtitles from 2 files -> film.srt
+[subedit] [append] [1/1] source: partie1.srt
+[subedit] [append] [1/1] source: partie2.srt
+[subedit] [append] [1/1] result: appended 1 subtitle
+[subedit] [append] [1/1] result: 3 subtitles from 2 files
+[subedit] [append] [1/1] dest: film.srt
 1
 00:00:01,000 --> 00:00:02,000
 un
@@ -96,7 +99,7 @@ het `--format json`-record bevat een telling `moved`, **afwezig zonder de optie*
 
 ## De bereiken niet-overlappend maken
 
-Nooit standaard. De optie doet wat [`disjoint`](disjoint.md) doet, **met zijn standaardinstellingen**, zodra alles is toegevoegd, op het geheel. Ze heeft een geordend bestand nodig: anders wordt ze geweigerd, en `--sort` — dat eerst komt — zet het vooraf op volgorde. Het bestand meldt het op het eerste niveau van de toelichting (`<path>: N subtitles split, M merged`), en het `--format json`-record bevat de tellingen `split` en `merged`, **afwezig zonder de optie**.
+Nooit standaard. De optie doet wat [`disjoint`](disjoint.md) doet, **met zijn standaardinstellingen**, zodra alles is toegevoegd, op het geheel. Ze heeft een geordend bestand nodig: anders wordt ze geweigerd, en `--sort` — dat eerst komt — zet het vooraf op volgorde. Het bestand meldt het op het eerste niveau van de toelichting (`result: N subtitles split, M merged`), en het `--format json`-record bevat de tellingen `split` en `merged`, **afwezig zonder de optie**.
 
 ## Wanneer de formaten verschillen
 
@@ -118,9 +121,9 @@ dat al in dat formaat is, of zet u daarna om met [`convert`](convert.md).
 
 | Niveau | Wat er op de foutuitvoer wordt toegevoegd |
 | :----- | :------------------------------------- |
-| 1 | één regel per achteraan toegevoegd bestand — `<path>: appended N subtitles`, gevolgd, wanneer het formaat iets kostte, door `; <source format> into <base format>: <what is lost>` — daarna `<base>: N subtitles from M files -> <destination>` (met `--dry-run`, `(dry run, nothing written)` in plaats van `-> <destination>`) |
-| 2 | `<base>: SubRip, UTF-8, no BOM, LF line endings kept` — het formaat, de codering, de markering en de regeleinden van de basis, teruggezet zoals ze waren |
-| 3 | `<base>: N bytes read, M written` (alle bestanden samen), daarna **elke leesmelding** — zie [Aanroep](invocation.md#diagnostische-meldingen-lezen) |
+| 1 | één regel per achteraan toegevoegd bestand — `source: <path>`, `result: appended N subtitles`, gevolgd, wanneer het formaat iets kostte, door `; <source format> into <base format>: <what is lost>` — daarna `result: N subtitles from M files`, `dest: <destination>` (met `--dry-run`, `(dry run, nothing written)` in plaats van `dest: <destination>`) |
+| 2 | `format: SubRip`, `encoding: UTF-8`, `bom: absent`, `line-endings: LF` — het formaat, de codering, de markering en de regeleinden van het gelezen bestand, teruggezet zoals ze waren |
+| 3 | `bytes-read: N`, `bytes-written: M`, daarna **elke diagnostische melding van het lezen** — zie [Aanroep](invocation.md#diagnostische-meldingen-lezen) |
 
 ### In JSON
 

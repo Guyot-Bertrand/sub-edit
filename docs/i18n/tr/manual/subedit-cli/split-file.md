@@ -63,7 +63,10 @@ ya da kuyruğu başın üzerine yazmak, hiçbir şey okunmadan önce reddedilir,
 <!-- example: printf '1\n00:00:01,000 --> 00:00:02,000\nun\n\n2\n00:00:03,000 --> 00:00:04,000\ndeux\n\n3\n00:00:06,000 --> 00:00:07,000\ntrois\n\n4\n00:00:08,000 --> 00:00:09,000\nquatre\n\n' > film.srt; subedit-cli split-file --at 3 --head tete.srt --tail queue.srt film.srt; cat queue.srt -->
 ```console
 $ printf '1\n00:00:01,000 --> 00:00:02,000\nun\n\n2\n00:00:03,000 --> 00:00:04,000\ndeux\n\n3\n00:00:06,000 --> 00:00:07,000\ntrois\n\n4\n00:00:08,000 --> 00:00:09,000\nquatre\n\n' > film.srt; subedit-cli split-file --at 3 --head tete.srt --tail queue.srt film.srt; cat queue.srt
-film.srt: split at subtitle 3: 2 subtitles in the head, 2 subtitles in the tail -> tete.srt, queue.srt
+[subedit] [split-file] [1/1] source: film.srt
+[subedit] [split-file] [1/1] result: split at subtitle 3: 2 subtitles in the head, 2 subtitles in the tail
+[subedit] [split-file] [1/1] dest: tete.srt
+[subedit] [split-file] [1/1] tail: queue.srt
 1
 00:00:02,000 --> 00:00:03,000
 trois
@@ -82,12 +85,12 @@ Başta kalan ikinci altyazı 4 sn'de biter: kuyruk 4 sn geriye gider ve 6 sn'de 
 `--sort`, **kesimi değerlendirmeden önce** altyazıları başlangıçlarının sırasına koyar — [`sort`](sort.md) komutunun yaptığı gibi kararlı olarak —
 ve `--at` bundan sonra bu sıraya göre sayar.
 
-Varsayılan olarak asla. Seçenekle, dosya ilk anlatım düzeyinde kaç altyazının yer değiştirdiğini bildirir (`<path>: N subtitles moved`
-ya da `<path>: already in order`) ve `--format json` kaydı, **seçenek olmadan bulunmayan** bir `moved` sayısı taşır.
+Varsayılan olarak asla. Seçenekle, dosya ilk anlatım düzeyinde kaç altyazının yer değiştirdiğini bildirir (`result: N subtitles moved`
+ya da `result: already in order`) ve `--format json` kaydı, **seçenek olmadan bulunmayan** bir `moved` sayısı taşır.
 
 ## Aralıkları ayrık yapma
 
-Varsayılan olarak asla. Seçenek, kesimi değerlendirmeden önce, sıralamadan sonra, [`disjoint`](disjoint.md) komutunun yaptığını **varsayılan ayarlarıyla** yapar: `--at`, bunun verdiğine göre sayar. Sıralı bir dosya gerekir: aksi hâlde reddedilir ve önce gelen `--sort` dosyayı önceden sıraya koyar. Dosya bunu ilk anlatım düzeyinde bildirir (`<path>: N subtitles split, M merged`) ve `--format json` kaydı, **seçenek olmadan bulunmayan** `split` ve `merged` sayılarını taşır.
+Varsayılan olarak asla. Seçenek, kesimi değerlendirmeden önce, sıralamadan sonra, [`disjoint`](disjoint.md) komutunun yaptığını **varsayılan ayarlarıyla** yapar: `--at`, bunun verdiğine göre sayar. Sıralı bir dosya gerekir: aksi hâlde reddedilir ve önce gelen `--sort` dosyayı önceden sıraya koyar. Dosya bunu ilk anlatım düzeyinde bildirir (`result: N subtitles split, M merged`) ve `--format json` kaydı, **seçenek olmadan bulunmayan** `split` ve `merged` sayılarını taşır.
 
 ## Kesme reddedildiğinde
 
@@ -112,9 +115,9 @@ kuyruk bırakırdı. Tek altyazılı bir dosya kesilemez.
 
 | Düzey | Hata çıktısına eklenenler |
 | :----- | :------------------------------------- |
-| 1 | `<path>: split at subtitle N: H subtitles in the head, T subtitles in the tail -> <head>, <tail>`; `--dry-run` ile `-> …` yerine `(dry run, nothing written)` |
-| 2 | `<path>: SubRip, UTF-8, no BOM, LF line endings kept` — okunan dosyanın biçimi, kodlaması, işareti ve satır sonları, olduğu gibi geri konarak |
-| 3 | `<path>: N bytes read, H and T written`, ardından **her okuma tanılama iletisi** — bkz. [Çalıştırma](invocation.md#tanılama-iletilerini-okuma) |
+| 1 | `source: <path>`, `result: split at subtitle N: H subtitles in the head, T subtitles in the tail`, `dest: <head>`, `tail: <tail>`; `--dry-run` ile `dest: <head>` yerine `(dry run, nothing written)` |
+| 2 | `format: SubRip`, `encoding: UTF-8`, `bom: absent`, `line-endings: LF` — okunan dosyanın biçimi, kodlaması, işareti ve satır sonları, olduğu gibi geri konarak |
+| 3 | `bytes-read: N`, `bytes-written: H`, `bytes-written: T`, ardından **her okuma tanılama iletisi** — bkz. [Çalıştırma](invocation.md#tanılama-iletilerini-okuma) |
 
 ### JSON biçiminde
 

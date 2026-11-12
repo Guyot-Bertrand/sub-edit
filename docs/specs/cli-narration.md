@@ -101,7 +101,7 @@ $ grep -F '[1/3]' log                     # everything about b.srt
 | `line-endings` | 2 | the line endings, by the same word as the report of `inspect` |
 | `bytes-read` | 3 | an integer |
 | `diagnostic` | 3 | one reading diagnostic, as today (`line 12: …`) |
-| `alignment` | 2 (1 for `pair`) | how a translation was laid |
+| `alignment` | 2 (1 for `pair` and `inspect`) | how a translation was laid |
 | `progress` | 1 | one line per update, the current sentence kept whole (`transcribe`, `sync`) |
 | `warning` | 1 | what the operation went on without |
 | `error` | 0 | why the element came to nothing |
@@ -119,9 +119,13 @@ $ grep -F '[1/3]' log                     # everything about b.srt
 | `warning` | 1 | a warning about no element |
 | `error` | 0 | a usage error, a refusal of the whole batch (a collision of destinations), a last-resort failure |
 | `summary` | 1 | how the batch ended, from two elements on |
+| `result` | 1 | what `config set` and `config unset` did |
 
 **The values of `format`, `encoding`, `bom` and `line-endings` are names, not sentences**, and are not translated: the
 three facts that share one line today (`SubRip, UTF-8, no BOM, LF line endings kept`) become four lines, one fact each.
+
+**`result` may be written more than once for one element**: a step asked for besides the operation (`--sort`,
+`--disjoint`, `--join-repeats`) and each file `append` adds have their own line, before the one that says what the run made.
 
 **The counts stay in the sentence of `result`, translated.** A line `counts: cleaned=1 removed=1` would duplicate the record,
 and make the text a second contract on the same data. A script that wants the numbers reads the JSON.

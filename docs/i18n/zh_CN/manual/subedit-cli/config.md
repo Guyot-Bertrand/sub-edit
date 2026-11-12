@@ -36,7 +36,7 @@ Subcommands:
 | :---------- | :----------- | :--- |
 | `config list` | 写出每个操作键，以及它的用途、可接受的取值、默认值和使用者——**不含取值** | 不读取 |
 | `config show` | 写出所用的文件及其是否存在，然后写出每个操作键及其取值、取值的来源和默认值 | 读取 |
-| `config set KEY VALUE` | 检查 `VALUE`，然后以 `KEY = VALUE` 重写文件，其余设置保持不变 | 读取并写入 |
+| `config set KEY VALUE` | 检查 `VALUE`，然后以 `result: KEY = VALUE` 重写文件，其余设置保持不变 | 读取并写入 |
 | `config unset KEY` | 让 `KEY` 恢复为默认值，写成注释掉的形式，与文件写入默认值时的做法一致 | 读取并写入 |
 
 | 选项 | 必需 | 取值 | 默认值 |
@@ -132,7 +132,7 @@ $ subedit-cli --format json config list | head -1
 <!-- example: subedit-cli --config mine/settings.conf config set duration-adjust.speed 12; subedit-cli --config mine/settings.conf config show | head -4 -->
 ```console
 $ subedit-cli --config mine/settings.conf config set duration-adjust.speed 12; subedit-cli --config mine/settings.conf config show | head -4
-duration-adjust.speed = 12
+[subedit] [config] [-] result: duration-adjust.speed = 12
 File: mine/settings.conf (found)
 duration-adjust.speed = 12   [file]   (default 15)
 duration-adjust.lengthen = true   [default]
@@ -153,7 +153,7 @@ duration-adjust.speed = 15   [default]
 <!-- example: subedit-cli --config mine/settings.conf config set duration-adjust.speed 12; subedit-cli --format json --config mine/settings.conf config show | head -2 -->
 ```console
 $ subedit-cli --config mine/settings.conf config set duration-adjust.speed 12; subedit-cli --format json --config mine/settings.conf config show | head -2
-duration-adjust.speed = 12
+[subedit] [config] [-] result: duration-adjust.speed = 12
 {"schema":1,"command":"config","file":"mine/settings.conf","exists":true}
 {"schema":1,"command":"config","key":"duration-adjust.speed","value":"12","source":"file","default":"15","used_by":"subedit-cli adjust; Adjust Durations…","surface":"both"}
 ```
@@ -162,18 +162,18 @@ duration-adjust.speed = 12
 
 **`set` 用文件自己的读取器检查取值**——即窗口使用的读取器——如果取值无法读取，就会在写入任何内容之前拒绝它。**`unset`** 把默认值以注释掉的形式写回：这样，即使以后的版本更改了默认值，该键也会跟随默认值。对已经是默认值的键执行 unset 会成功，且不作任何更改。
 
-两者都会**整体且原子地重写文件**：文件中已有的所有显示首选项都会保留，先写操作区块，再写显示区块，各有自己的标题注释。**文件无法读取的取值，以及未知的键，不会保留**——重写由窗口负责，窗口同样会丢弃它们。**每一个被丢弃的取值都会说明**，在默认级别写到标准错误，显示首选项也包括在内：`<key>: unreadable value '<value>' replaced by its default`。文件及其目录不存在时会创建。
+两者都会**整体且原子地重写文件**：文件中已有的所有显示首选项都会保留，先写操作区块，再写显示区块，各有自己的标题注释。**文件无法读取的取值，以及未知的键，不会保留**——重写由窗口负责，窗口同样会丢弃它们。**每一个被丢弃的取值都会说明**，在默认级别写到标准错误，显示首选项也包括在内：`warning: <key>: unreadable value '<value>' replaced by its default`。文件及其目录不存在时会创建。
 
-确认信息在默认级别写到标准错误：`set` 为 `KEY = VALUE`，`unset` 为 `KEY reset to its default (DEFAULT)`。
+确认信息在默认级别写到标准错误：`set` 为 `result: KEY = VALUE`，`unset` 为 `result: KEY reset to its default (DEFAULT)`。
 
 <!-- example: subedit-cli --config mine/settings.conf config set duration-adjust.gap-ms 100; grep -e '^[a-z]' -e '^# [A-Z][a-z]* [a-z]*:' mine/settings.conf; subedit-cli --config mine/settings.conf config unset duration-adjust.gap-ms; grep gap-ms mine/settings.conf -->
 ```console
 $ subedit-cli --config mine/settings.conf config set duration-adjust.gap-ms 100; grep -e '^[a-z]' -e '^# [A-Z][a-z]* [a-z]*:' mine/settings.conf; subedit-cli --config mine/settings.conf config unset duration-adjust.gap-ms; grep gap-ms mine/settings.conf
-duration-adjust.gap-ms = 100
+[subedit] [config] [-] result: duration-adjust.gap-ms = 100
 # Operation settings: shared by the window and the command line (subedit-cli reads these).
 duration-adjust.gap-ms = 100
 # Display preferences: the window's own, the command line never reads them.
-duration-adjust.gap-ms reset to its default (0)
+[subedit] [config] [-] result: duration-adjust.gap-ms reset to its default (0)
 #duration-adjust.gap-ms = 0
 #transcription.merge-gap-ms = 400
 ```
@@ -204,9 +204,9 @@ duration-adjust.gap-ms reset to its default (0)
 <!-- example: subedit-cli --config mine/settings.conf config set general.theme dark; echo "code=$?"; subedit-cli --config mine/settings.conf config set duration-adjust.speed fast; echo "code=$?"; subedit-cli --no-config config unset duration-adjust.speed; echo "code=$?" -->
 ```console
 $ subedit-cli --config mine/settings.conf config set general.theme dark; echo "code=$?"; subedit-cli --config mine/settings.conf config set duration-adjust.speed fast; echo "code=$?"; subedit-cli --no-config config unset duration-adjust.speed; echo "code=$?"
-general.theme is a display preference; set it in the window
+[subedit] [config] [-] error: general.theme is a display preference; set it in the window
 code=1
-cannot read 'fast' for duration-adjust.speed; subedit-cli config list says what it accepts
+[subedit] [config] [-] error: cannot read 'fast' for duration-adjust.speed; subedit-cli config list says what it accepts
 code=1
 [subedit] [config] [-] error: --no-config has nothing to write to
 code=1

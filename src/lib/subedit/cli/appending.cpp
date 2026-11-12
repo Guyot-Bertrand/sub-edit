@@ -19,6 +19,7 @@
 #include <subedit/core/model/source_file.hpp>
 #include <subedit/core/wording/conversion.hpp>
 #include <subedit/core/wording/counts.hpp>
+#include <subedit/core/wording/editing.hpp>
 #include <subedit/core/wording/formats.hpp>
 
 #include <algorithm>
@@ -73,7 +74,7 @@ ExitCode appendAll(core::FileSystem& files,
     const std::filesystem::path out = destination.pathFor(basePath, "");
     if (!out.empty()) {
         if (const std::optional<std::string> refused = overwrittenInput(files, out, paths)) {
-            reporter.failed(*refused);
+            reporter.error(*refused);
             return ExitCode::Usage;
         }
     }
@@ -83,25 +84,28 @@ ExitCode appendAll(core::FileSystem& files,
         return jobs.error();
     }
 
-    std::optional<core::OpenedFile> opened = openReporting(files, basePath, reading, reporter);
+    // **One element, whatever the number of inputs** (D2): the run writes one record. Each input
+    // after the base has its own `source` line, and the facts of its reading after it.
+    const Reporter item = reporter.forItem(1, 1, basePath);
+    std::optional<core::OpenedFile> opened = openReporting(files, basePath, reading, item);
     if (!opened) {
         return ExitCode::AllFailed;
     }
-    std::size_t bytesRead = opened->bytes;
     std::vector<core::Diagnostic> diagnostics = std::move(opened->diagnostics);
     core::Session session{std::move(opened->project)};
     const core::SourceFile source = session.project().sourceFile();
+    narrateRead(item, opened->bytes, source, diagnostics);
 
     std::size_t inserted = 0;
     core::ConversionLoss loss{};
     Json inputs = Json::array();
     for (const std::string& path : std::span{paths}.subspan(1)) {
-        std::optional<core::OpenedFile> next = openReporting(files, path, reading, reporter);
+        std::optional<core::OpenedFile> next = openReporting(files, path, reading, item);
         if (!next) {
             return ExitCode::AllFailed;
         }
-        bytesRead += next->bytes;
-        sayDiagnostics(reporter, path, next->diagnostics);
+        item.tell(1, Key::Source, path);
+        narrateRead(item, next->bytes, next->project.sourceFile(), next->diagnostics);
         diagnostics.insert(diagnostics.end(),
                            std::make_move_iterator(next->diagnostics.begin()),
                            std::make_move_iterator(next->diagnostics.end()));
@@ -117,12 +121,12 @@ ExitCode appendAll(core::FileSystem& files,
 
         // Never empty: a file that read holds at least one subtitle, the readers
         // refusing the rest, so there is always "appended N subtitles" to say.
-        reporter.say(1,
-                     path + ": " +
-                         core::noticeOfAppend(appended.inserted,
-                                              appended.loss,
-                                              next->project.sourceFile().format,
-                                              source.format));
+        item.tell(1,
+                  Key::Result,
+                  core::noticeOfAppend(appended.inserted,
+                                       appended.loss,
+                                       next->project.sourceFile().format,
+                                       source.format));
 
         std::vector<Count> counts = countsOfLoss(appended.loss);
         counts.insert(counts.begin(),
@@ -136,18 +140,18 @@ ExitCode appendAll(core::FileSystem& files,
     std::size_t moved = 0;
     if (sort) {
         moved = sortedIn(session);
-        reporter.say(1, narrationOfSort(basePath, moved));
+        item.tell(1, Key::Result, core::noticeOfSort(moved));
     }
     // After the sort: the groups are runs of neighbours.
     std::optional<core::DisjointReport> cut;
     if (disjoint) {
         const std::expected<core::DisjointReport, Failure> made = disjointedIn(session);
         if (!made.has_value()) {
-            reportFailure(reporter, basePath, made.error());
+            reportFailure(item, basePath, made.error());
             return ExitCode::AllFailed;
         }
         cut = *made;
-        reporter.say(1, narrationOfDisjoint(basePath, *cut));
+        item.tell(1, Key::Result, core::noticeOfDisjoint(*cut));
     }
 
     const core::WriteRequest request =
@@ -155,20 +159,16 @@ ExitCode appendAll(core::FileSystem& files,
     const std::expected<std::size_t, Failure> written =
         writeSubtitlesTo(files, out, source.format, request, dryRun);
     if (!written) {
-        reportFailure(reporter, basePath, written.error());
+        reportFailure(item, basePath, written.error());
         return ExitCode::AllFailed;
     }
 
-    narrateKept(
-        reporter, basePath, bytesRead, std::to_string(*written), dryRun, source, diagnostics);
-
     const std::size_t total = session.project().count();
     const std::string made =
-        // TRANSLATORS: %1 is the file written, %2 a number of subtitles (« 12 subtitles »)
-        // and %3 a number of files (« 3 files »).
-        core::substitute(core::translate("%1: %2 from %3"),
-                         {basePath,
-                          core::countOf(total, core::Counted::Subtitle),
+        // TRANSLATORS: %1 is a number of subtitles (« 12 subtitles »), %2 a number of files
+        // (« 3 files »).
+        core::substitute(core::translate("%1 from %2"),
+                         {core::countOf(total, core::Counted::Subtitle),
                           core::countOf(paths.size(), core::Counted::File)});
     std::vector<Count> counts{{"files", static_cast<std::int64_t>(paths.size())},
                               {"subtitles", static_cast<std::int64_t>(total)},
@@ -185,11 +185,16 @@ ExitCode appendAll(core::FileSystem& files,
     fields.emplace_back("inputs", std::move(inputs));
 
     if (dryRun) {
-        reporter.say(1, core::substitute(core::translate("%1 (dry run, nothing written)"), {made}));
+        item.tell(1,
+                  Key::Result,
+                  // TRANSLATORS: %1 is what was done to a file, which was not written.
+                  core::substitute(core::translate("%1 (dry run, nothing written)"), {made}));
         reporter.record(dryRunRecord(
             reporter.command(), basePath, counts, warningsOf(diagnostics), std::nullopt, fields));
     } else {
-        reporter.say(1, core::substitute(core::translate("%1 -> %2"), {made, out.string()}));
+        item.tell(1, Key::Result, made);
+        item.tell(3, Key::BytesWritten, std::to_string(*written));
+        item.tell(1, Key::Dest, out.string());
         reporter.record(writtenRecord(reporter.command(),
                                       basePath,
                                       out,

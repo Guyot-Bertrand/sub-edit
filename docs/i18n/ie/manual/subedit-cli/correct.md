@@ -85,10 +85,10 @@ por saver u it es, `--config` e `--no-config`.
   retrodona li lineas de Gaupol. `--keep-blank-subtitles` e `--remove-blank-subtitles` together es un
   error de usage.
 - **Ambi classes desactivat in li file es ignorat, e dit** al nivelle 1 —
-  `settings: correction.human and correction.ocr are both false, ignored` —: `--classes` ne posse scrir it, e it
+  `warning: setting correction.human and correction.ocr are both false, ignored` —: `--classes` ne posse scrir it, e it
   lassarea a common-errors nullcos a far. Ambi classes es aplicat vice it.
 - **Un númere de lineas foris 1 til 1000 ne es leet del file del tot**: li leetor del file
-  refusa it — `settings: correction.line-break.max-lines: cannot read 'N', default kept`, al
+  refusa it — `warning: setting correction.line-break.max-lines: cannot read 'N', default kept`, al
   nivelle 1 — e li 3 integrat es usat.
 
 Li exemples de ca págine es executet con `--no-config`, por que ili di quo li valores
@@ -149,7 +149,7 @@ code=1
 
 Li modelles quel li usator mette in `$XDG_DATA_HOME/subedit/patterns` (o
 `~/.local/share/subedit/patterns`) **es adjuntet al modelles livrat**, quam in li
-fenestre, e un modelle livrat quel ne posse esser leet es dit al nivelle 1: `patterns: <file>, line N (<reason>)`.
+fenestre, e un modelle livrat quel ne posse esser leet es dit al nivelle 1: `warning: patterns: <file>, line N (<reason>)`.
 
 ### Unir e separar paroles, e li dictionarium
 

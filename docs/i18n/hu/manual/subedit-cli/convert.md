@@ -190,8 +190,10 @@ amely minden híváskor megjelenik, olyan jelentés, amelyet senki sem olvas.
 <!-- example: printf '1\n00:00:01,000 --> 00:00:03,500\n<i>sur deux</i>\nlignes\n\n' > a.srt; subedit-cli convert --to lrc --output b.lrc a.srt -->
 ```console
 $ printf '1\n00:00:01,000 --> 00:00:03,500\n<i>sur deux</i>\nlignes\n\n' > a.srt; subedit-cli convert --to lrc --output b.lrc a.srt
-a.srt: 1 subtitle written as LRC -> b.lrc
-a.srt: ends are not carried by LRC, line breaks were joined in 1 subtitle, 1 tag dropped
+[subedit] [convert] [1/1] source: a.srt
+[subedit] [convert] [1/1] warning: ends are not carried by LRC, line breaks were joined in 1 subtitle, 1 tag dropped
+[subedit] [convert] [1/1] result: 1 subtitle converted to LRC, UTF-8, no BOM, LF line endings
+[subedit] [convert] [1/1] dest: b.lrc
 ```
 A sor az alapértelmezett bőbeszédűségi szinten jelenik meg, és minden magasabbon is.
 A tételek ebben a sorrendben:
@@ -271,7 +273,9 @@ mindkettőt megtartja olvasáskor; ha alapértelmezés szerint rákényszeríten
 <!-- example: printf '1\n00:00:01,000 --> 00:00:03,000\nBonjour.\n\n' > a.srt; subedit-cli convert --to vtt --output b.vtt a.srt; cat b.vtt -->
 ```console
 $ printf '1\n00:00:01,000 --> 00:00:03,000\nBonjour.\n\n' > a.srt; subedit-cli convert --to vtt --output b.vtt a.srt; cat b.vtt
-a.srt: 1 subtitle written as WebVTT -> b.vtt
+[subedit] [convert] [1/1] source: a.srt
+[subedit] [convert] [1/1] result: 1 subtitle converted to WebVTT, UTF-8, no BOM, LF line endings
+[subedit] [convert] [1/1] dest: b.vtt
 WEBVTT
 
 00:01.000 --> 00:03.000
@@ -283,19 +287,19 @@ A `--sort` a fájlt **a kezdetek sorrendjében** írja ki, bármi legyen a célf
 érintetlen marad, és az íródik ki, amit a [`sort`](sort.md) készítene belőle — stabilan, két együtt kezdődő feliratsor megtartja a sorrendjét.
 
 **Alapértelmezés szerint soha**: a fájl sorrendje a szerzőjéé, amíg más nem kéri. A kapcsolóval minden fájl ezt jelzi az
-első narrációs szinten: `<path>: N subtitles moved` vagy `<path>: already in order`, és a `--format json` rekord tartalmaz egy
+első narrációs szinten: `result: N subtitles moved` vagy `result: already in order`, és a `--format json` rekord tartalmaz egy
 `moved` számlálót — **a kapcsoló nélkül hiányzik**, hogy a meglévő szkriptek által olvasott alak ne változzon.
 
 ## A tartományok átfedésmentessé tétele
 
 A `--disjoint` levágja az átfedő feliratsorokat, hogy egyetlen tartomány se fedjen át többé egy másikat, **ugyanazon a másolaton, mint a rendezés**: a beolvasott fájl érintetlen marad.
 
-Alapértelmezés szerint soha. A kapcsoló azt teszi, amit a [`disjoint`](disjoint.md) **az alapértelmezett beállításaival**, íráskor, a rendezés után. Rendezett fájlra van szüksége: különben a program elutasítja, és a `--sort` — amely előbb fut — előtte sorrendbe állítja. A fájl ezt jelzi az első narrációs szinten (`<path>: N subtitles split, M merged`), és a `--format json` rekord tartalmazza a `split` és a `merged` számlálót, amelyek **a kapcsoló nélkül hiányoznak**.
+Alapértelmezés szerint soha. A kapcsoló azt teszi, amit a [`disjoint`](disjoint.md) **az alapértelmezett beállításaival**, íráskor, a rendezés után. Rendezett fájlra van szüksége: különben a program elutasítja, és a `--sort` — amely előbb fut — előtte sorrendbe állítja. A fájl ezt jelzi az első narrációs szinten (`result: N subtitles split, M merged`), és a `--format json` rekord tartalmazza a `split` és a `merged` számlálót, amelyek **a kapcsoló nélkül hiányoznak**.
 
 **A `--join-repeats` a rendezés és a vágás előtt jön**: az egymás után következő darabokra vágott szöveg előbb újraépül (lásd:
 [`join-repeats`](join-repeats.md)), majd a feliratsorok rendezésre kerülnek, majd a tartományok átfedésmentessé válnak. **A `--repair` mind a hármat egyszerre jelenti**,
 mint a [`repair`](repair.md), a vágás alapértelmezett beállításaival. A `--join-repeats` esetén minden fájl
-`<path>: N repeated subtitles joined` sort közöl az első narrációs szinten, és a `--format json` rekord tartalmazza a `counts.joined` mezőt — **a kapcsoló nélkül hiányzik**.
+`result: N repeated subtitles joined` sort közöl az első narrációs szinten, és a `--format json` rekord tartalmazza a `counts.joined` mezőt — **a kapcsoló nélkül hiányzik**.
 
 ## Kimenet
 
@@ -305,9 +309,9 @@ A hibakimeneten, a szint szerint:
 
 | Szint | Mi kerül hozzá |
 | :----- | :-------------- |
-| 1 | `<path>: N subtitles written as WebVTT -> <destination>` |
-| 2 | `<path>: SubRip -> WebVTT, UTF-8, no BOM, LF line endings` — a megnevezett kódolás a kiírt kódolás |
-| 3 | `<path>: N bytes read, M written`, majd **minden olvasási diagnosztika** — lásd: [Indítás](invocation.md#olvasási-diagnosztika) |
+| 1 | `source: <path>`, `result: N subtitles converted to WebVTT, UTF-8, no BOM, LF line endings`, `dest: <destination>` |
+| 2 | `format: SubRip`, `encoding: UTF-8`, `bom: absent`, `line-endings: LF` — a beolvasott fájl adatai |
+| 3 | `bytes-read: N`, `bytes-written: M`, majd **minden olvasási diagnosztika** — lásd: [Indítás](invocation.md#olvasási-diagnosztika) |
 
 ### JSON-ban
 
