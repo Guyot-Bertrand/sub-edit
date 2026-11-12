@@ -121,7 +121,9 @@ In practica, de 25 a 23,976, li factor es `1001/960`:
 <!-- example: printf '1\n00:00:01,010 --> 00:00:02,020\nUn.\n\n' > a.srt; subedit-cli framerate --from 25 --to 23.976 --output b.srt a.srt; cat b.srt -->
 ```console
 $ printf '1\n00:00:01,010 --> 00:00:02,020\nUn.\n\n' > a.srt; subedit-cli framerate --from 25 --to 23.976 --output b.srt a.srt; cat b.srt
-a.srt: 1 subtitle retimed from 25 to 24000/1001 fps -> b.srt
+[subedit] [framerate] [1/1] source: a.srt
+[subedit] [framerate] [1/1] result: 1 subtitle retimed from 25 to 24000/1001 fps
+[subedit] [framerate] [1/1] dest: b.srt
 1
 00:00:01,053 --> 00:00:02,106
 Un.
@@ -133,9 +135,9 @@ Un.
 
 | Nivelle | Quo es adjuntet al exeunte de error |
 | :----- | :------------------------------------- |
-| 1 | `<path>: N subtitles retimed from 25 to 24000/1001 fps -> <destination>` |
-| 2 | `<path>: SubRip, UTF-8, no BOM, LF line endings kept` — li formate, li codification, li marca e li fines de linea del file leet, remetit quam ili esset |
-| 3 | `<path>: N bytes read, M written`, pois **chascun diagnose de lectura** — vide [Invocation](invocation.md#diagnoses-de-lectura) |
+| 1 | `source: <path>`, `result: N subtitles retimed from 25 to 24000/1001 fps`, `dest: <destination>` |
+| 2 | `format: SubRip`, `encoding: UTF-8`, `bom: absent`, `line-endings: LF` — li formate, li codification, li marca e li fines de linea del file leet, remetit quam ili esset |
+| 3 | `bytes-read: N`, `bytes-written: M`, pois **chascun diagnose de lectura** — vide [Invocation](invocation.md#diagnoses-de-lectura) |
 
 **Li narration nomina li frequentie de fotogrammas exact, ne li etiquette scrit.** Scrir
 `23.976` in ti linea reportaret un conversion quel ne evenit; it es

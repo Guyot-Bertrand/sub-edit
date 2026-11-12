@@ -74,7 +74,9 @@ die Übersetzung geändert und geschrieben, und nur sie — siehe [Eine Überset
 <!-- example: printf '1\n00:00:01,000 --> 00:00:02,000\n<i>bon</i>jour marie\n\n2\n00:00:03,000 --> 00:00:04,000\n- BONJOUR MARIE\n\n' > a.srt; subedit-cli case --to title --output titre.srt a.srt; cat titre.srt -->
 ```console
 $ printf '1\n00:00:01,000 --> 00:00:02,000\n<i>bon</i>jour marie\n\n2\n00:00:03,000 --> 00:00:04,000\n- BONJOUR MARIE\n\n' > a.srt; subedit-cli case --to title --output titre.srt a.srt; cat titre.srt
-a.srt: 2 subtitles recased -> titre.srt
+[subedit] [case] [1/1] source: a.srt
+[subedit] [case] [1/1] result: 2 subtitles recased
+[subedit] [case] [1/1] dest: titre.srt
 1
 00:00:01,000 --> 00:00:02,000
 <i>Bon</i>jour Marie
@@ -90,7 +92,9 @@ sagt es:
 <!-- example: printf '1\n00:00:01,000 --> 00:00:02,000\nBONJOUR\n\n' > a.srt; subedit-cli case --to upper --output b.srt a.srt -->
 ```console
 $ printf '1\n00:00:01,000 --> 00:00:02,000\nBONJOUR\n\n' > a.srt; subedit-cli case --to upper --output b.srt a.srt
-a.srt: nothing to change -> b.srt
+[subedit] [case] [1/1] source: a.srt
+[subedit] [case] [1/1] result: nothing to change
+[subedit] [case] [1/1] dest: b.srt
 ```
 
 ## Ausgabe
@@ -100,9 +104,9 @@ a.srt: nothing to change -> b.srt
 
 | Stufe | Was auf der Fehlerausgabe hinzukommt |
 | :----- | :------------------------------------- |
-| 1 | `<path>: N subtitles recased -> <destination>`, oder `nothing to change` |
-| 2 | `<path>: SubRip, UTF-8, no BOM, LF line endings kept` — das Format, die Kodierung, die Marke und die Zeilenenden der gelesenen Datei, so wiederhergestellt, wie sie waren |
-| 3 | `<path>: N bytes read, M written`, dann **jede Diagnose beim Lesen** — siehe [Aufruf](invocation.md#diagnosen-beim-lesen) |
+| 1 | `source: <path>`, `result: N subtitles recased`, `dest: <destination>`, oder `nothing to change` |
+| 2 | `format: SubRip`, `encoding: UTF-8`, `bom: absent`, `line-endings: LF` — das Format, die Kodierung, die Marke und die Zeilenenden der gelesenen Datei, so wiederhergestellt, wie sie waren |
+| 3 | `bytes-read: N`, `bytes-written: M`, dann **jede Diagnose beim Lesen** — siehe [Aufruf](invocation.md#diagnosen-beim-lesen) |
 
 `N` ist die Anzahl der Untertitel, **deren Text sich geändert hat**, von der Operation selbst gelesen.
 

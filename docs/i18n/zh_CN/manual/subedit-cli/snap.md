@@ -68,9 +68,9 @@ Options:
 
 | 级别 | 在标准错误输出上追加的内容 |
 | :----- | :------------------------------------- |
-| 1 | `<path>: N subtitles aligned on 25 fps, M positions moved, by at most 20 ms -> <destination>` |
-| 2 | `<path>: SubRip, UTF-8, no BOM, LF line endings kept`——所读文件的格式、编码、标记和行尾符，原样保留 |
-| 3 | `<path>: N bytes read, M written`，然后是**每一条读取诊断信息**——参见[调用](invocation.md#读取诊断信息) |
+| 1 | `source: <path>`, `result: N subtitles aligned on 25 fps, M positions moved, by at most 20 ms`, `dest: <destination>` |
+| 2 | `format: SubRip`, `encoding: UTF-8`, `bom: absent`, `line-endings: LF`——所读文件的格式、编码、标记和行尾符，原样保留 |
+| 3 | `bytes-read: N`, `bytes-written: M`，然后是**每一条读取诊断信息**——参见[调用](invocation.md#读取诊断信息) |
 
 **这两个数字是这一行的重点**。在每秒 25 帧下，半帧是二十毫秒，这里不可能写出比它更大的数。想用 `framerate` 却输入了 `snap` 的人，会在本该看到秒数的地方读到“最多 20 ms”，立刻就能发觉。
 
@@ -81,7 +81,9 @@ Options:
 <!-- example: printf '1\n00:00:01,010 --> 00:00:03,020\nUn.\n\n' > a.srt; subedit-cli snap --rate 25 --output b.srt a.srt; cat b.srt -->
 ```console
 $ printf '1\n00:00:01,010 --> 00:00:03,020\nUn.\n\n' > a.srt; subedit-cli snap --rate 25 --output b.srt a.srt; cat b.srt
-a.srt: 1 subtitle aligned on 25 fps, 2 positions moved, by at most 20 ms -> b.srt
+[subedit] [snap] [1/1] source: a.srt
+[subedit] [snap] [1/1] result: 1 subtitle aligned on 25 fps, 2 positions moved, by at most 20 ms
+[subedit] [snap] [1/1] dest: b.srt
 1
 00:00:01,000 --> 00:00:03,040
 Un.

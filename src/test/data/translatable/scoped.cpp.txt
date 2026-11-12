@@ -75,3 +75,7 @@ out = *flag ? "true" : "false"; // expect: exempt:json
 case Key::Source: return "source"; // expect: exempt:narration-key
 out << "[subedit] [" << command; // expect: exempt:narration-key
 return "the line could not be written"; // expect: counted
+
+// path: src/lib/subedit/cli/writing.cpp
+reporter.tell(2, Key::Bom, marked ? "present" : "absent"); // expect: exempt:narration-key
+return "nothing was written"; // expect: counted

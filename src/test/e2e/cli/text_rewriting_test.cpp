@@ -101,7 +101,7 @@ TEST_CASE("title case puts a capital on each word and leaves the tags where they
     // The capital tag stays capital, the tag cutting a word still cuts it, and
     // what precedes the first letter — a dash — is not touched.
     CHECK_THAT(done.written, MatchesFile(corpus("attendus/texte/casse-titre.srt")));
-    CHECK_THAT(done.run.errors, ContainsSubstring(": 4 subtitles recased -> "));
+    CHECK_THAT(done.run.errors, ContainsSubstring("] result: 4 subtitles recased\n"));
 }
 
 TEST_CASE("each of the four cases changes what it should and nothing else", "[e2e][CLI-CASE-01]") {
@@ -163,7 +163,7 @@ TEST_CASE("a text already in the case asked for is nothing to change", "[e2e][CL
     const Rewritten done = rewrite(scratch, {"BONJOUR", "- SALUT"}, {"case", "--to", "upper"});
 
     CHECK(done.run.exitCode == 0);
-    CHECK_THAT(done.run.errors, ContainsSubstring(": nothing to change -> "));
+    CHECK_THAT(done.run.errors, ContainsSubstring("] result: nothing to change\n"));
     CHECK(done.written == srt({"BONJOUR", "- SALUT"}));
 }
 
@@ -176,7 +176,7 @@ TEST_CASE("italics --on wraps the text once, and a cut italic is made whole",
     CHECK(done.run.exitCode == 0);
     // Not wrapped twice where it already was, and one pair across the two lines.
     CHECK_THAT(done.written, MatchesFile(corpus("attendus/texte/italiques-on.srt")));
-    CHECK_THAT(done.run.errors, ContainsSubstring(": 3 subtitles put in italics -> "));
+    CHECK_THAT(done.run.errors, ContainsSubstring("] result: 3 subtitles put in italics\n"));
 }
 
 TEST_CASE("italics --off takes the italics out and touches nothing else", "[e2e][CLI-ITALIC-01]") {
@@ -186,7 +186,7 @@ TEST_CASE("italics --off takes the italics out and touches nothing else", "[e2e]
 
     CHECK(done.run.exitCode == 0);
     CHECK(done.written == srt({"bonjour marie", "bonjour marie", "Bonjour\nMarie", "Salut"}));
-    CHECK_THAT(done.run.errors, ContainsSubstring(": 2 subtitles taken out of italics -> "));
+    CHECK_THAT(done.run.errors, ContainsSubstring("] result: 2 subtitles taken out of italics\n"));
 }
 
 TEST_CASE("italics needs one way, and only one", "[e2e][CLI-ITALIC-01]") {
@@ -242,7 +242,7 @@ TEST_CASE("dialogue-dashes --add puts a hyphen at the head of each line, inside 
     // A dash already there is not doubled, and the tag that held the start of
     // the line still holds it.
     CHECK_THAT(done.written, MatchesFile(corpus("attendus/texte/tirets-add.srt")));
-    CHECK_THAT(done.run.errors, ContainsSubstring(": 3 subtitles dashed -> "));
+    CHECK_THAT(done.run.errors, ContainsSubstring("] result: 3 subtitles dashed\n"));
 }
 
 TEST_CASE("dialogue-dashes --remove takes the dashes off", "[e2e][CLI-DASH-01]") {
@@ -253,7 +253,7 @@ TEST_CASE("dialogue-dashes --remove takes the dashes off", "[e2e][CLI-DASH-01]")
     CHECK(done.run.exitCode == 0);
     CHECK(done.written ==
           srt({"Bonjour", "Bonjour\nMarie", "Salut", "<i>Bonjour</i>", "Bonjour\nMarie"}));
-    CHECK_THAT(done.run.errors, ContainsSubstring(": 2 subtitles undashed -> "));
+    CHECK_THAT(done.run.errors, ContainsSubstring("] result: 2 subtitles undashed\n"));
 }
 
 TEST_CASE("dialogue-dashes needs one way, and only one", "[e2e][CLI-DASH-01]") {

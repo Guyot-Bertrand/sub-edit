@@ -95,7 +95,9 @@ Kabuğun tırnaklarına dikkat edin: `'$1 EUR'` yazın, kabuğun `$1` ifadesini 
 <!-- example: printf '1\n00:00:01,000 --> 00:00:02,000\nPrix: 12 euros, et 7 euros.\n\n' > prix.srt; subedit-cli replace --regex '([0-9]+) euros' '$1 EUR' --output euros.srt prix.srt; cat euros.srt -->
 ```console
 $ printf '1\n00:00:01,000 --> 00:00:02,000\nPrix: 12 euros, et 7 euros.\n\n' > prix.srt; subedit-cli replace --regex '([0-9]+) euros' '$1 EUR' --output euros.srt prix.srt; cat euros.srt
-prix.srt: replaced 2 matches -> euros.srt
+[subedit] [replace] [1/1] source: prix.srt
+[subedit] [replace] [1/1] result: replaced 2 matches
+[subedit] [replace] [1/1] dest: euros.srt
 1
 00:00:01,000 --> 00:00:02,000
 Prix: 12 EUR, et 7 EUR.
@@ -108,7 +110,9 @@ Aranan sözcüğü bir etiketin kestiği bir metin:
 <!-- example: printf '1\n00:00:01,000 --> 00:00:02,000\n<i>Bon</i>jour tout le monde\n\n2\n00:00:03,000 --> 00:00:04,000\nBonjour <i>Marie</i>, ca va\n\n' > balises.srt; subedit-cli replace Bonjour Salut --output salut.srt balises.srt; cat salut.srt -->
 ```console
 $ printf '1\n00:00:01,000 --> 00:00:02,000\n<i>Bon</i>jour tout le monde\n\n2\n00:00:03,000 --> 00:00:04,000\nBonjour <i>Marie</i>, ca va\n\n' > balises.srt; subedit-cli replace Bonjour Salut --output salut.srt balises.srt; cat salut.srt
-balises.srt: replaced 2 matches -> salut.srt
+[subedit] [replace] [1/1] source: balises.srt
+[subedit] [replace] [1/1] result: replaced 2 matches
+[subedit] [replace] [1/1] dest: salut.srt
 1
 00:00:01,000 --> 00:00:02,000
 <i>Salut</i> tout le monde
@@ -138,8 +142,12 @@ Başarısızlık olmayan iki yanıt — çıkış kodu `0`'dır ve **dosya yine 
 <!-- example: printf '1\n00:00:01,000 --> 00:00:02,000\nBonjour\n\n' > a.srt; subedit-cli replace zzz x --output b.srt a.srt; subedit-cli replace Bonjour Bonjour --output c.srt a.srt -->
 ```console
 $ printf '1\n00:00:01,000 --> 00:00:02,000\nBonjour\n\n' > a.srt; subedit-cli replace zzz x --output b.srt a.srt; subedit-cli replace Bonjour Bonjour --output c.srt a.srt
-a.srt: "zzz" not found -> b.srt
-a.srt: nothing to change -> c.srt
+[subedit] [replace] [1/1] source: a.srt
+[subedit] [replace] [1/1] result: "zzz" not found
+[subedit] [replace] [1/1] dest: b.srt
+[subedit] [replace] [1/1] source: a.srt
+[subedit] [replace] [1/1] result: nothing to change
+[subedit] [replace] [1/1] dest: c.srt
 ```
 
 ## `--dry-run`
@@ -150,7 +158,8 @@ hâliyle — etiketler dahil — listeler:
 <!-- example: printf '1\n00:00:01,000 --> 00:00:02,000\n<i>Bon</i>jour tout le monde\n\n2\n00:00:03,000 --> 00:00:04,000\nBonjour <i>Marie</i>, ca va\n\n' > balises.srt; subedit-cli replace --dry-run Bonjour Salut balises.srt -->
 ```console
 $ printf '1\n00:00:01,000 --> 00:00:02,000\n<i>Bon</i>jour tout le monde\n\n2\n00:00:03,000 --> 00:00:04,000\nBonjour <i>Marie</i>, ca va\n\n' > balises.srt; subedit-cli replace --dry-run Bonjour Salut balises.srt
-balises.srt: replaced 2 matches (dry run, nothing written)
+[subedit] [replace] [1/1] source: balises.srt
+[subedit] [replace] [1/1] result: replaced 2 matches (dry run, nothing written)
 balises.srt: subtitle 1
 - <i>Bon</i>jour tout le monde
 + <i>Salut</i> tout le monde
@@ -169,9 +178,9 @@ değişiklik listesi.
 
 | Düzey | Hata çıktısına eklenenler |
 | :----- | :------------------------------------- |
-| 1 | `<path>: replaced N matches -> <destination>`, ya da `"<pattern>" not found`, ya da `nothing to change` |
-| 2 | `<path>: SubRip, UTF-8, no BOM, LF line endings kept` — okunan dosyanın biçimi, kodlaması, işareti ve satır sonları, olduğu gibi geri konarak |
-| 3 | `<path>: N bytes read, M written`, ardından **her okuma tanılama iletisi** — bkz. [Çalıştırma](invocation.md#tanılama-iletilerini-okuma) |
+| 1 | `source: <path>`, `result: replaced N matches`, `dest: <destination>`, ya da `"<pattern>" not found`, ya da `nothing to change` |
+| 2 | `format: SubRip`, `encoding: UTF-8`, `bom: absent`, `line-endings: LF` — okunan dosyanın biçimi, kodlaması, işareti ve satır sonları, olduğu gibi geri konarak |
+| 3 | `bytes-read: N`, `bytes-written: M`, ardından **her okuma tanılama iletisi** — bkz. [Çalıştırma](invocation.md#tanılama-iletilerini-okuma) |
 
 `N`, **metni değişen altyazılarda değiştirilen eşleşmeleri** sayar — pencerenin de
 söylediği sayı budur.

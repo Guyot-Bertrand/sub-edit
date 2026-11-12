@@ -59,7 +59,9 @@ Options:
 <!-- example: printf '1\n00:00:00,000 --> 00:00:05,000\nA\n\n2\n00:00:03,000 --> 00:00:08,000\nB\n\n' > chevauche.srt; subedit-cli disjoint --output disjoint.srt chevauche.srt; cat disjoint.srt -->
 ```console
 $ printf '1\n00:00:00,000 --> 00:00:05,000\nA\n\n2\n00:00:03,000 --> 00:00:08,000\nB\n\n' > chevauche.srt; subedit-cli disjoint --output disjoint.srt chevauche.srt; cat disjoint.srt
-chevauche.srt: 2 subtitles split, 1 merged -> disjoint.srt
+[subedit] [disjoint] [1/1] source: chevauche.srt
+[subedit] [disjoint] [1/1] result: 2 subtitles split, 1 merged
+[subedit] [disjoint] [1/1] dest: disjoint.srt
 1
 00:00:00,000 --> 00:00:03,000
 A
@@ -97,7 +99,9 @@ seconden:
 <!-- example: printf '1\n00:00:00,000 --> 00:00:03,000\nA\n\n2\n00:00:00,000 --> 00:00:03,000\nB\n\n3\n00:00:00,000 --> 00:00:03,000\nC\n\n' > trois.srt; subedit-cli disjoint --output fenetres.srt trois.srt; cat fenetres.srt -->
 ```console
 $ printf '1\n00:00:00,000 --> 00:00:03,000\nA\n\n2\n00:00:00,000 --> 00:00:03,000\nB\n\n3\n00:00:00,000 --> 00:00:03,000\nC\n\n' > trois.srt; subedit-cli disjoint --output fenetres.srt trois.srt; cat fenetres.srt
-trois.srt: 0 subtitles split, 1 merged; 1 shown in windows for holding too many lines -> fenetres.srt
+[subedit] [disjoint] [1/1] source: trois.srt
+[subedit] [disjoint] [1/1] result: 0 subtitles split, 1 merged; 1 shown in windows for holding too many lines
+[subedit] [disjoint] [1/1] dest: fenetres.srt
 1
 00:00:00,000 --> 00:00:01,500
 A
@@ -126,7 +130,8 @@ waarvan de begintijden niet op volgorde staan, wordt daarom **geweigerd**, en de
 <!-- example: printf '1\n00:00:03,000 --> 00:00:08,000\nB\n\n2\n00:00:00,000 --> 00:00:05,000\nA\n\n' > desordre.srt; subedit-cli disjoint --output x.srt desordre.srt; echo "code $?" -->
 ```console
 $ printf '1\n00:00:03,000 --> 00:00:08,000\nB\n\n2\n00:00:00,000 --> 00:00:05,000\nA\n\n' > desordre.srt; subedit-cli disjoint --output x.srt desordre.srt; echo "code $?"
-desordre.srt: The subtitles are not in the order of their start: sort them first. Use --sort to do that here.
+[subedit] [disjoint] [1/1] source: desordre.srt
+[subedit] [disjoint] [1/1] error: The subtitles are not in the order of their start: sort them first. Use --sort to do that here.
 code 2
 ```
 
@@ -141,9 +146,9 @@ de zin zegt `already disjoint`.
 
 | Niveau | Wat er op de foutuitvoer wordt toegevoegd |
 | :----- | :------------------------------------- |
-| 1 | `<path>: N subtitles split, M merged -> <destination>`, gevolgd na een `;` door wat niet volledig kon worden gedaan: `K shown in windows for holding too many lines`, `K very short taken over by a neighbour`, `K subtitles shorter than the limit left whole`, `K merged with styles or positions that differ, the first kept`, `K subtitles ending before the start left alone` — of `<path>: already disjoint -> <destination>` |
-| 2 | `<path>: SubRip, UTF-8, no BOM, LF line endings kept` |
-| 3 | `<path>: N bytes read, M written`, daarna **elke diagnostische melding bij het lezen** |
+| 1 | `source: <path>`, `result: N subtitles split, M merged`, `dest: <destination>`, gevolgd na een `;` door wat niet volledig kon worden gedaan: `K shown in windows for holding too many lines`, `K very short taken over by a neighbour`, `K subtitles shorter than the limit left whole`, `K merged with styles or positions that differ, the first kept`, `K subtitles ending before the start left alone` — of `source: <path>`, `result: already disjoint`, `dest: <destination>` |
+| 2 | `format: SubRip`, `encoding: UTF-8`, `bom: absent`, `line-endings: LF` |
+| 3 | `bytes-read: N`, `bytes-written: M`, daarna **elke diagnostische melding bij het lezen** |
 
 `N subtitles split` telt de oorspronkelijke ondertitels die in meerdere stukken zijn geknipt, `M merged` de stukken die
 meerdere ondertitels samen tonen.

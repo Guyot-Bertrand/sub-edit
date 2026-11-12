@@ -101,7 +101,9 @@ std::string failuresOf(const std::string& errors) {
     std::string kept;
     std::istringstream lines{errors};
     for (std::string line; std::getline(lines, line);) {
-        if (line.find("shifted by") == std::string::npos) {
+        // What was done, and the file written, differ by construction: a dry run writes none.
+        if (line.find("] result: ") == std::string::npos &&
+            line.find("] dest: ") == std::string::npos) {
             kept += line + '\n';
         }
     }

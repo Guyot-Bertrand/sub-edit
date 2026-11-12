@@ -73,7 +73,9 @@ Options:
 <!-- example: printf '1\n00:00:01,000 --> 00:00:02,000\n<i>bon</i>jour marie\n\n2\n00:00:03,000 --> 00:00:04,000\n- BONJOUR MARIE\n\n' > a.srt; subedit-cli case --to title --output titre.srt a.srt; cat titre.srt -->
 ```console
 $ printf '1\n00:00:01,000 --> 00:00:02,000\n<i>bon</i>jour marie\n\n2\n00:00:03,000 --> 00:00:04,000\n- BONJOUR MARIE\n\n' > a.srt; subedit-cli case --to title --output titre.srt a.srt; cat titre.srt
-a.srt: 2 subtitles recased -> titre.srt
+[subedit] [case] [1/1] source: a.srt
+[subedit] [case] [1/1] result: 2 subtitles recased
+[subedit] [case] [1/1] dest: titre.srt
 1
 00:00:01,000 --> 00:00:02,000
 <i>Bon</i>jour Marie
@@ -89,7 +91,9 @@ segir frá því:
 <!-- example: printf '1\n00:00:01,000 --> 00:00:02,000\nBONJOUR\n\n' > a.srt; subedit-cli case --to upper --output b.srt a.srt -->
 ```console
 $ printf '1\n00:00:01,000 --> 00:00:02,000\nBONJOUR\n\n' > a.srt; subedit-cli case --to upper --output b.srt a.srt
-a.srt: nothing to change -> b.srt
+[subedit] [case] [1/1] source: a.srt
+[subedit] [case] [1/1] result: nothing to change
+[subedit] [case] [1/1] dest: b.srt
 ```
 
 ## Úttak
@@ -99,9 +103,9 @@ breytingar, lýst í [Að sjá áður en skrifað er](invocation.md#að-sjá-á�
 
 | Stig | Hverju er bætt við villuúttakið |
 | :----- | :------------------------------------- |
-| 1 | `<path>: N subtitles recased -> <destination>`, eða `nothing to change` |
-| 2 | `<path>: SubRip, UTF-8, no BOM, LF line endings kept` — snið, stafakóðun, merki og línulok skrárinnar sem var lesin, sett aftur eins og þau voru |
-| 3 | `<path>: N bytes read, M written`, síðan **hvert lesgreiningarboð** — sjá [Ræsing](invocation.md#að-lesa-greiningarboð) |
+| 1 | `source: <path>`, `result: N subtitles recased`, `dest: <destination>`, eða `nothing to change` |
+| 2 | `format: SubRip`, `encoding: UTF-8`, `bom: absent`, `line-endings: LF` — snið, stafakóðun, merki og línulok skrárinnar sem var lesin, sett aftur eins og þau voru |
+| 3 | `bytes-read: N`, `bytes-written: M`, síðan **hvert lesgreiningarboð** — sjá [Ræsing](invocation.md#að-lesa-greiningarboð) |
 
 `N` er fjöldi skjátexta **sem texti breyttist í**, lesinn úr aðgerðinni sjálfri.
 

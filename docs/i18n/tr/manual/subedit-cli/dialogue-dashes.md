@@ -71,7 +71,9 @@ değiştirilen ve yazılan çeviridir, yalnızca o — bkz. [Bir çeviri](invoca
 <!-- example: printf '1\n00:00:01,000 --> 00:00:02,000\nBonjour\nMarie\n\n2\n00:00:03,000 --> 00:00:04,000\n<i>Salut</i>\n\n' > a.srt; subedit-cli dialogue-dashes --add --output t.srt a.srt; cat t.srt -->
 ```console
 $ printf '1\n00:00:01,000 --> 00:00:02,000\nBonjour\nMarie\n\n2\n00:00:03,000 --> 00:00:04,000\n<i>Salut</i>\n\n' > a.srt; subedit-cli dialogue-dashes --add --output t.srt a.srt; cat t.srt
-a.srt: 2 subtitles dashed -> t.srt
+[subedit] [dialogue-dashes] [1/1] source: a.srt
+[subedit] [dialogue-dashes] [1/1] result: 2 subtitles dashed
+[subedit] [dialogue-dashes] [1/1] dest: t.srt
 1
 00:00:01,000 --> 00:00:02,000
 - Bonjour
@@ -89,9 +91,9 @@ a.srt: 2 subtitles dashed -> t.srt
 
 | Düzey | Hata çıktısına eklenenler |
 | :----- | :------------------------------------- |
-| 1 | `<path>: N subtitles dashed -> <destination>`, veya `N subtitles undashed`, veya `nothing to change` |
-| 2 | `<path>: SubRip, UTF-8, no BOM, LF line endings kept` — okunan dosyanın biçimi, kodlaması, işareti ve satır sonları, olduğu gibi geri konur |
-| 3 | `<path>: N bytes read, M written`, ardından **her okuma tanılaması** — bkz. [Çalıştırma](invocation.md#tanılama-iletilerini-okuma) |
+| 1 | `source: <path>`, `result: N subtitles dashed`, `dest: <destination>`, veya `N subtitles undashed`, veya `nothing to change` |
+| 2 | `format: SubRip`, `encoding: UTF-8`, `bom: absent`, `line-endings: LF` — okunan dosyanın biçimi, kodlaması, işareti ve satır sonları, olduğu gibi geri konur |
+| 3 | `bytes-read: N`, `bytes-written: M`, ardından **her okuma tanılaması** — bkz. [Çalıştırma](invocation.md#tanılama-iletilerini-okuma) |
 
 `N`, **metni değişen** altyazıların sayısıdır; işlemin kendisinden okunur.
 

@@ -156,7 +156,9 @@ code=1
 <!-- example: printf '1\n00:00:01,000 --> 00:00:03,000\nWhen the rain stopped, we walked home under the dark sky of the old town.\n\n' > a.srt; subedit-cli --no-config correct --tasks line-break --code Latn-en --max-length 24 --output b.srt a.srt; cat b.srt -->
 ```console
 $ printf '1\n00:00:01,000 --> 00:00:03,000\nWhen the rain stopped, we walked home under the dark sky of the old town.\n\n' > a.srt; subedit-cli --no-config correct --tasks line-break --code Latn-en --max-length 24 --output b.srt a.srt; cat b.srt
-a.srt: Edited 1 and removed 0 subtitles -> b.srt
+[subedit] [correct] [1/1] source: a.srt
+[subedit] [correct] [1/1] result: Edited 1 and removed 0 subtitles
+[subedit] [correct] [1/1] dest: b.srt
 1
 00:00:01,000 --> 00:00:03,000
 When the rain
@@ -197,7 +199,9 @@ code=1
 <!-- example: printf '1\n00:00:01,000 --> 00:00:02,000\n[Bruit] Bonjour\n\n' > a.srt; subedit-cli --no-config correct --tasks mentions --code Latn --enable "Sound in brackets" --output b.srt a.srt; cat b.srt -->
 ```console
 $ printf '1\n00:00:01,000 --> 00:00:02,000\n[Bruit] Bonjour\n\n' > a.srt; subedit-cli --no-config correct --tasks mentions --code Latn --enable "Sound in brackets" --output b.srt a.srt; cat b.srt
-a.srt: Edited 1 and removed 0 subtitles -> b.srt
+[subedit] [correct] [1/1] source: a.srt
+[subedit] [correct] [1/1] result: Edited 1 and removed 0 subtitles
+[subedit] [correct] [1/1] dest: b.srt
 1
 00:00:01,000 --> 00:00:02,000
 Bonjour
@@ -212,7 +216,9 @@ Bonjour
 <!-- example: printf '1\n00:00:01,000 --> 00:00:02,000\neﬀet  de ﬁn\n\n2\n00:00:03,000 --> 00:00:04,000\nPropre.\n\n' > a.srt; subedit-cli --no-config correct --tasks common-errors --code Latn --output b.srt a.srt; cat b.srt -->
 ```console
 $ printf '1\n00:00:01,000 --> 00:00:02,000\neﬀet  de ﬁn\n\n2\n00:00:03,000 --> 00:00:04,000\nPropre.\n\n' > a.srt; subedit-cli --no-config correct --tasks common-errors --code Latn --output b.srt a.srt; cat b.srt
-a.srt: Edited 1 and removed 0 subtitles -> b.srt
+[subedit] [correct] [1/1] source: a.srt
+[subedit] [correct] [1/1] result: Edited 1 and removed 0 subtitles
+[subedit] [correct] [1/1] dest: b.srt
 1
 00:00:01,000 --> 00:00:02,000
 effet de fin
@@ -243,9 +249,9 @@ Propre.
 
 | 级别 | 在错误输出中增加的内容 |
 | :----- | :------------------------------------- |
-| 1 | `<path>: Edited N and removed M subtitles -> <destination>`，无法应用的模式，无法读取的模式文件——并且最先写出所读取的设置文件——`settings: read <path>`——以及其中被忽略的部分 |
-| 2 | `<path>: SubRip, UTF-8, no BOM, LF line endings kept` |
-| 3 | `<path>: N bytes read, M written`，然后是每一条读取诊断信息 |
+| 1 | `source: <path>`, `result: Edited N and removed M subtitles`, `dest: <destination>`，无法应用的模式，无法读取的模式文件——并且最先写出所读取的设置文件——`settings: <path>`——以及其中被忽略的部分 |
+| 2 | `format: SubRip`, `encoding: UTF-8`, `bom: absent`, `line-endings: LF` |
+| 3 | `bytes-read: N`, `bytes-written: M`，然后是每一条读取诊断信息 |
 
 在 JSON 中，`counts` 含有 `corrected`（更改的文本数）和 `removed`（删除的字幕数），`changes` 则是被触及的字幕。使用 `-t` 时，`alignment` 键说明翻译是如何对应的。`settings` 给出所读取的设置文件，没有读取则为 `null`。
 

@@ -135,7 +135,9 @@ Tout de suite !
 <!-- example: printf '1\n00:00:01,000 --> 00:00:03,000\n[Bruit de pas]\n\n2\n00:00:04,000 --> 00:00:06,000\nAttends [il tousse] Marie.\n\n3\n00:00:07,000 --> 00:00:09,000\nVoir [1] la note.\n\n' > a.srt; subedit-cli hearing-impaired --output b.srt a.srt; cat b.srt -->
 ```console
 $ printf '1\n00:00:01,000 --> 00:00:03,000\n[Bruit de pas]\n\n2\n00:00:04,000 --> 00:00:06,000\nAttends [il tousse] Marie.\n\n3\n00:00:07,000 --> 00:00:09,000\nVoir [1] la note.\n\n' > a.srt; subedit-cli hearing-impaired --output b.srt a.srt; cat b.srt
-a.srt: 1 subtitle cleaned, 1 removed -> b.srt
+[subedit] [hearing-impaired] [1/1] source: a.srt
+[subedit] [hearing-impaired] [1/1] result: 1 subtitle cleaned, 1 removed
+[subedit] [hearing-impaired] [1/1] dest: b.srt
 1
 00:00:04,000 --> 00:00:06,000
 Attends Marie.
@@ -157,7 +159,9 @@ Voir [1] la note.
 <!-- example: printf '1\n00:00:01,000 --> 00:00:03,000\nRien à signaler.\n\n' > a.srt; subedit-cli hearing-impaired --output b.srt a.srt -->
 ```console
 $ printf '1\n00:00:01,000 --> 00:00:03,000\nRien à signaler.\n\n' > a.srt; subedit-cli hearing-impaired --output b.srt a.srt
-a.srt: no mention to remove -> b.srt
+[subedit] [hearing-impaired] [1/1] source: a.srt
+[subedit] [hearing-impaired] [1/1] result: no mention to remove
+[subedit] [hearing-impaired] [1/1] dest: b.srt
 ```
 
 ## Излаз
@@ -166,9 +170,9 @@ a.srt: no mention to remove -> b.srt
 
 | Ниво | Шта се додаје на излаз грешака |
 | :----- | :------------------------------------- |
-| 1 | `<path>: N subtitles cleaned, M removed -> <destination>`, или `<path>: no mention to remove -> <destination>` |
-| 2 | `<path>: SubRip, UTF-8, no BOM, LF line endings kept` — формат, кодирање, ознака и завршеци редова прочитане датотеке, враћени какви су били |
-| 3 | `<path>: N bytes read, M written`, затим **свака дијагностика читања** — види [Покретање](invocation.md#читање-дијагностике) |
+| 1 | `source: <path>`, `result: N subtitles cleaned, M removed`, `dest: <destination>`, или `source: <path>`, `result: no mention to remove`, `dest: <destination>` |
+| 2 | `format: SubRip`, `encoding: UTF-8`, `bom: absent`, `line-endings: LF` — формат, кодирање, ознака и завршеци редова прочитане датотеке, враћени какви су били |
+| 3 | `bytes-read: N`, `bytes-written: M`, затим **свака дијагностика читања** — види [Покретање](invocation.md#читање-дијагностике) |
 
 `N` броји титлове чији се текст променио, а `M` оне које је уклањање
 потпуно испразнило и који су зато напустили датотеку.

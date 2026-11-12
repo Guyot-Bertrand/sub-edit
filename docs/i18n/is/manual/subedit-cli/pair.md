@@ -62,7 +62,10 @@ Options:
 <!-- example: printf '1\n00:00:01,000 --> 00:00:02,000\nHello.\n\n2\n00:00:03,000 --> 00:00:04,000\nBye.\n\n' > film.srt; printf '1\n00:00:01,300 --> 00:00:02,300\nBonjour.\n\n2\n00:00:03,300 --> 00:00:04,300\nAu revoir.\n\n' > film.fr.srt; subedit-cli pair film.srt -t film.fr.srt --output recale.fr.srt; cat recale.fr.srt -->
 ```console
 $ printf '1\n00:00:01,000 --> 00:00:02,000\nHello.\n\n2\n00:00:03,000 --> 00:00:04,000\nBye.\n\n' > film.srt; printf '1\n00:00:01,300 --> 00:00:02,300\nBonjour.\n\n2\n00:00:03,300 --> 00:00:04,300\nAu revoir.\n\n' > film.fr.srt; subedit-cli pair film.srt -t film.fr.srt --output recale.fr.srt; cat recale.fr.srt
-film.fr.srt: translation: 2 lines attached -> recale.fr.srt
+[subedit] [pair] [1/1] source: film.srt
+[subedit] [pair] [1/1] translation: film.fr.srt
+[subedit] [pair] [1/1] result: translation: 2 lines attached
+[subedit] [pair] [1/1] dest: recale.fr.srt
 1
 00:00:01,000 --> 00:00:02,000
 Bonjour.
@@ -101,9 +104,9 @@ hvora aðferð.
 
 | Stig | Hvað bætist við á villuúttakið |
 | :----- | :------------------------------------- |
-| 1 | `<translation>: translation: N lines attached; … -> <destination>` — **slóðin er slóð þýðingarinnar**, sem er skráin sem er skrifuð; með `--dry-run`, `(dry run, nothing written)` í stað `-> <destination>` |
-| 2 | `<translation>: SubRip, UTF-8, no BOM, LF line endings kept` — snið, stafakóðun, merki og línulok **þýðingarinnar**, sett aftur eins og þau voru |
-| 3 | `<translation>: N bytes read, M written`, síðan **sérhvert greiningarboð við lestur** aðalskrárinnar og þýðingarinnar — sjá [Ræsing](invocation.md#að-lesa-greiningarboð) |
+| 1 | `source: <path>`, `translation: <translation>`, `result: translation: N lines attached; …`, `dest: <destination>` — **aðalskráin, síðan þýðingin**; með `--dry-run` engin `dest` lína, og `(dry run, nothing written)` í lok `result` |
+| 2 | `format: SubRip`, `encoding: UTF-8`, `bom: absent`, `line-endings: LF` — snið, stafakóðun, merki og línulok **þýðingarinnar**, sett aftur eins og þau voru |
+| 3 | `bytes-read: N`, `bytes-written: M`, síðan **sérhvert greiningarboð við lestur** aðalskrárinnar og þýðingarinnar — sjá [Ræsing](invocation.md#að-lesa-greiningarboð) |
 
 ### Á JSON-sniði
 

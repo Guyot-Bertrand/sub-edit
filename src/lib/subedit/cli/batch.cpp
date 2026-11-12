@@ -19,7 +19,7 @@ std::expected<std::vector<Job>, ExitCode> arrange(core::FileSystem& files,
     std::expected<std::vector<Job>, std::string> planned =
         destination.plan(files, inputs, extension);
     if (!planned) {
-        reporter.failed(planned.error());
+        reporter.error(planned.error());
         return std::unexpected{ExitCode::Usage};
     }
 
@@ -52,7 +52,7 @@ std::optional<ExitCode> createDirectoriesFor(core::FileSystem& files,
         }
         if (const std::expected<void, core::FileError> created = files.createDirectories(directory);
             !created) {
-            reporter.failed(core::substitute(
+            reporter.error(core::substitute(
                 core::translate("%1: %2"),
                 {directory.string(), core::reasonOfCreating(created.error().kind)}));
             return ExitCode::AllFailed;
@@ -136,7 +136,7 @@ std::string summaryOf(Verb verb, std::size_t done, std::size_t total) {
 ExitCode tally(const Reporter& reporter, Verb verb, std::size_t done, std::size_t total) {
     const std::string summary = summaryOf(verb, done, total);
     if (!summary.empty()) {
-        reporter.say(1, summary);
+        reporter.tell(1, Key::Summary, summary);
     }
     return outcomeOf(done, total);
 }

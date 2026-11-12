@@ -174,7 +174,7 @@ TEST_CASE("the count says the texts changed and the subtitles removed, never the
                                in});
 
     CHECK(run.exitCode == 0);
-    CHECK_THAT(run.errors, ContainsSubstring("a.srt: Edited 2 and removed 0 subtitles -> "));
+    CHECK_THAT(run.errors, ContainsSubstring("] result: Edited 2 and removed 0 subtitles\n"));
     CHECK(contentOf(scratch.of("o.srt")) == srt({"effet et fin", "fin", "fin"}));
 }
 
@@ -529,7 +529,7 @@ TEST_CASE("the settings file can keep the emptied subtitles, and --no-config ign
                                in});
     CHECK(run.exitCode == 0);
     CHECK(contentOf(kept) == srt({"", "Hello"}));
-    CHECK_THAT(run.errors, ContainsSubstring("settings: read " + config + "\n"));
+    CHECK_THAT(run.errors, ContainsSubstring("[-] settings: " + config + "\n"));
     CHECK_THAT(run.output, ContainsSubstring("\"settings\":\"" + config + "\""));
 
     const CliRun ignored = invoke({"--format",
@@ -912,7 +912,7 @@ TEST_CASE("a word cut in two is joined by the dictionary, and only when one dire
     INFO(run.errors << " — a machine whose Enchant has no Hunspell engine cannot open the "
                        "dictionary of the test");
     CHECK(run.exitCode == 0);
-    CHECK_THAT(run.errors, ContainsSubstring("a.srt: Edited 1 and removed 0 subtitles -> "));
+    CHECK_THAT(run.errors, ContainsSubstring("] result: Edited 1 and removed 0 subtitles\n"));
     CHECK(contentOf(out) == srt({"hello world", "hello world"}));
 }
 
@@ -1002,7 +1002,7 @@ TEST_CASE("a language nobody has is refused, with the window's sentence, and not
 
     CHECK(run.exitCode == 1);
     // The note before it says no settings file was found (spec 15, S6).
-    CHECK(run.errors == "settings: " + configHome() +
+    CHECK(run.errors == "[subedit] [correct] [-] warning: settings file " + configHome() +
                             "/subedit/settings.conf not found, defaults used\n" +
                             refusal("correct", "no dictionary for qq_QQ"));
     CHECK(run.output.empty());

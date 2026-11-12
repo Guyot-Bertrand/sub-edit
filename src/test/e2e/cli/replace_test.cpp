@@ -98,7 +98,7 @@ TEST_CASE("plain text is replaced everywhere it is, whatever its case",
     // « Hello » and « hello » are one word when the case is ignored, which is
     // the default — as in the window.
     CHECK(done.written == srt({"bye bye.", kTexts[1], kTexts[2], kTexts[3], kTexts[4]}));
-    CHECK_THAT(done.run.errors, ContainsSubstring(": replaced 2 matches -> "));
+    CHECK_THAT(done.run.errors, ContainsSubstring("] result: replaced 2 matches\n"));
 }
 
 TEST_CASE("case sensitivity tells a capital from a small letter", "[e2e][CLI-REPLACE-03]") {
@@ -108,7 +108,7 @@ TEST_CASE("case sensitivity tells a capital from a small letter", "[e2e][CLI-REP
 
     CHECK(done.run.exitCode == 0);
     CHECK(done.written == srt({"Hello bye.", kTexts[1], kTexts[2], kTexts[3], kTexts[4]}));
-    CHECK_THAT(done.run.errors, ContainsSubstring(": replaced 1 match -> "));
+    CHECK_THAT(done.run.errors, ContainsSubstring("] result: replaced 1 match\n"));
 }
 
 TEST_CASE("an expression reads its groups in the replacement", "[e2e][CLI-REPLACE-02]") {
@@ -149,7 +149,7 @@ TEST_CASE("a pattern that is nowhere is said, and the file is written as it was"
     const Replaced done = replace(scratch, {"zzz", "x"});
 
     CHECK(done.run.exitCode == 0);
-    CHECK_THAT(done.run.errors, ContainsSubstring(": \"zzz\" not found -> "));
+    CHECK_THAT(done.run.errors, ContainsSubstring("] result: \"zzz\" not found\n"));
     CHECK(done.written == srt(kTexts));
 }
 
@@ -160,7 +160,7 @@ TEST_CASE("a match replaced by itself changes nothing, and is not 'not found'",
     const Replaced done = replace(scratch, {"Unrelated", "Unrelated"});
 
     CHECK(done.run.exitCode == 0);
-    CHECK_THAT(done.run.errors, ContainsSubstring(": nothing to change -> "));
+    CHECK_THAT(done.run.errors, ContainsSubstring("] result: nothing to change\n"));
     CHECK(done.written == srt(kTexts));
 }
 

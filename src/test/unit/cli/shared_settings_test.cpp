@@ -111,8 +111,9 @@ TEST_CASE("What was read is announced, with what it refused", "[shared-settings]
     REQUIRE(files.writeFile(kUser, "duration-adjust.speed = abc\n").has_value());
     const SharedSettings shared = loadSharedSettings(files, {.userPath = kUser});
     CHECK(announced(shared) ==
-          "settings: read /u/subedit/settings.conf\n"
-          "settings: duration-adjust.speed: cannot read 'abc', default kept\n");
+          "[subedit] [-] [-] settings: /u/subedit/settings.conf\n"
+          "[subedit] [-] [-] warning: setting duration-adjust.speed: cannot read 'abc', default "
+          "kept\n");
     CHECK(announced(shared, 0).empty());
     CHECK(settingsRecord(shared).dump() == "\"/u/subedit/settings.conf\"");
 }
@@ -120,7 +121,8 @@ TEST_CASE("What was read is announced, with what it refused", "[shared-settings]
 TEST_CASE("A file not read is announced as such, and recorded as null", "[shared-settings]") {
     const InMemoryFileSystem files;
     const SharedSettings missing = loadSharedSettings(files, {.userPath = kUser});
-    CHECK(announced(missing) == "settings: /u/subedit/settings.conf not found, defaults used\n");
+    CHECK(announced(missing) == "[subedit] [-] [-] warning: settings file "
+                                "/u/subedit/settings.conf not found, defaults used\n");
     CHECK(settingsRecord(missing).dump() == "null");
 
     const SharedSettings nowhere = loadSharedSettings(files, {});
@@ -138,6 +140,7 @@ TEST_CASE("A file not read is announced as such, and recorded as null", "[shared
     CHECK(unreadable.source == SettingsSource::Unreadable);
     CHECK(unreadable.values == subedit::core::OperationSettings{});
     CHECK(announced(unreadable) ==
-          "settings: /u/subedit/settings.conf unreadable, defaults used\n");
+          "[subedit] [-] [-] warning: settings file /u/subedit/settings.conf unreadable, "
+          "defaults used\n");
     CHECK(settingsRecord(unreadable).dump() == "null");
 }

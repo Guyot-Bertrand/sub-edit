@@ -62,7 +62,10 @@ Options:
 <!-- example: printf '1\n00:00:01,000 --> 00:00:02,000\nHello.\n\n2\n00:00:03,000 --> 00:00:04,000\nBye.\n\n' > film.srt; printf '1\n00:00:01,300 --> 00:00:02,300\nBonjour.\n\n2\n00:00:03,300 --> 00:00:04,300\nAu revoir.\n\n' > film.fr.srt; subedit-cli pair film.srt -t film.fr.srt --output recale.fr.srt; cat recale.fr.srt -->
 ```console
 $ printf '1\n00:00:01,000 --> 00:00:02,000\nHello.\n\n2\n00:00:03,000 --> 00:00:04,000\nBye.\n\n' > film.srt; printf '1\n00:00:01,300 --> 00:00:02,300\nBonjour.\n\n2\n00:00:03,300 --> 00:00:04,300\nAu revoir.\n\n' > film.fr.srt; subedit-cli pair film.srt -t film.fr.srt --output recale.fr.srt; cat recale.fr.srt
-film.fr.srt: translation: 2 lines attached -> recale.fr.srt
+[subedit] [pair] [1/1] source: film.srt
+[subedit] [pair] [1/1] translation: film.fr.srt
+[subedit] [pair] [1/1] result: translation: 2 lines attached
+[subedit] [pair] [1/1] dest: recale.fr.srt
 1
 00:00:01,000 --> 00:00:02,000
 Bonjour.
@@ -101,9 +104,9 @@ cada mètode.
 
 | Nivell | Què s'afegeix a la sortida d'error |
 | :----- | :------------------------------------- |
-| 1 | `<translation>: translation: N lines attached; … -> <destination>` — **el camí és el de la traducció**, que és el fitxer escrit; amb `--dry-run`, `(dry run, nothing written)` en lloc de `-> <destination>` |
-| 2 | `<translation>: SubRip, UTF-8, no BOM, LF line endings kept` — el format, la codificació, la marca i els finals de línia **de la traducció**, restituïts tal com eren |
-| 3 | `<translation>: N bytes read, M written`, i després **cada diagnòstic de lectura** del fitxer principal i de la traducció — vegeu [Invocació](invocation.md#diagnòstics-de-lectura) |
+| 1 | `source: <path>`, `translation: <translation>`, `result: translation: N lines attached; …`, `dest: <destination>` — **el fitxer principal, després la traducció**; amb `--dry-run`, cap línia `dest`, i `(dry run, nothing written)` al final de `result` |
+| 2 | `format: SubRip`, `encoding: UTF-8`, `bom: absent`, `line-endings: LF` — el format, la codificació, la marca i els finals de línia **de la traducció**, restituïts tal com eren |
+| 3 | `bytes-read: N`, `bytes-written: M`, i després **cada diagnòstic de lectura** del fitxer principal i de la traducció — vegeu [Invocació](invocation.md#diagnòstics-de-lectura) |
 
 ### En JSON
 

@@ -72,7 +72,9 @@ de vertaling die wordt gewijzigd en geschreven, en alleen die — zie [Een verta
 <!-- example: printf '1\n00:00:01,000 --> 00:00:02,000\n<i>bon</i>jour marie\n\n2\n00:00:03,000 --> 00:00:04,000\nBonjour\nMarie\n\n' > a.srt; subedit-cli italics --on --output i.srt a.srt; cat i.srt -->
 ```console
 $ printf '1\n00:00:01,000 --> 00:00:02,000\n<i>bon</i>jour marie\n\n2\n00:00:03,000 --> 00:00:04,000\nBonjour\nMarie\n\n' > a.srt; subedit-cli italics --on --output i.srt a.srt; cat i.srt
-a.srt: 2 subtitles put in italics -> i.srt
+[subedit] [italics] [1/1] source: a.srt
+[subedit] [italics] [1/1] result: 2 subtitles put in italics
+[subedit] [italics] [1/1] dest: i.srt
 1
 00:00:01,000 --> 00:00:02,000
 <i>bonjour marie</i>
@@ -94,7 +96,8 @@ manier, en zeggen niet hetzelfde over kleur.
 <!-- example: printf '00:00:01:Hello there\n00:00:03:Bye\n' > a.txt; subedit-cli italics --on --output-dir sortie a.txt; echo "code=$?" -->
 ```console
 $ printf '00:00:01:Hello there\n00:00:03:Bye\n' > a.txt; subedit-cli italics --on --output-dir sortie a.txt; echo "code=$?"
-a.txt: TMPlayer writes no style: there are no italics to put on
+[subedit] [italics] [1/1] source: a.txt
+[subedit] [italics] [1/1] error: TMPlayer writes no style: there are no italics to put on
 code=2
 ```
 
@@ -107,9 +110,9 @@ wijzigingen, beschreven in [Kijken voor het schrijven](invocation.md#kijken-voor
 
 | Niveau | Wat er op de foutuitvoer wordt toegevoegd |
 | :----- | :------------------------------------- |
-| 1 | `<path>: N subtitles put in italics -> <destination>`, of `N subtitles taken out of italics`, of `nothing to change` |
-| 2 | `<path>: SubRip, UTF-8, no BOM, LF line endings kept` — het formaat, de codering, de markering en de regeleinden van het gelezen bestand, teruggezet zoals ze waren |
-| 3 | `<path>: N bytes read, M written`, daarna **elke diagnostische melding bij het lezen** — zie [Aanroep](invocation.md#diagnostische-meldingen-lezen) |
+| 1 | `source: <path>`, `result: N subtitles put in italics`, `dest: <destination>`, of `N subtitles taken out of italics`, of `nothing to change` |
+| 2 | `format: SubRip`, `encoding: UTF-8`, `bom: absent`, `line-endings: LF` — het formaat, de codering, de markering en de regeleinden van het gelezen bestand, teruggezet zoals ze waren |
+| 3 | `bytes-read: N`, `bytes-written: M`, daarna **elke diagnostische melding bij het lezen** — zie [Aanroep](invocation.md#diagnostische-meldingen-lezen) |
 
 `N` is het aantal ondertitels **waarvan de tekst is veranderd**, afgelezen van de bewerking zelf.
 

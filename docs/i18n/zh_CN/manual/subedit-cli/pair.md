@@ -53,7 +53,10 @@ Options:
 <!-- example: printf '1\n00:00:01,000 --> 00:00:02,000\nHello.\n\n2\n00:00:03,000 --> 00:00:04,000\nBye.\n\n' > film.srt; printf '1\n00:00:01,300 --> 00:00:02,300\nBonjour.\n\n2\n00:00:03,300 --> 00:00:04,300\nAu revoir.\n\n' > film.fr.srt; subedit-cli pair film.srt -t film.fr.srt --output recale.fr.srt; cat recale.fr.srt -->
 ```console
 $ printf '1\n00:00:01,000 --> 00:00:02,000\nHello.\n\n2\n00:00:03,000 --> 00:00:04,000\nBye.\n\n' > film.srt; printf '1\n00:00:01,300 --> 00:00:02,300\nBonjour.\n\n2\n00:00:03,300 --> 00:00:04,300\nAu revoir.\n\n' > film.fr.srt; subedit-cli pair film.srt -t film.fr.srt --output recale.fr.srt; cat recale.fr.srt
-film.fr.srt: translation: 2 lines attached -> recale.fr.srt
+[subedit] [pair] [1/1] source: film.srt
+[subedit] [pair] [1/1] translation: film.fr.srt
+[subedit] [pair] [1/1] result: translation: 2 lines attached
+[subedit] [pair] [1/1] dest: recale.fr.srt
 1
 00:00:01,000 --> 00:00:02,000
 Bonjour.
@@ -83,9 +86,9 @@ Au revoir.
 
 | 级别 | 在标准错误输出上追加的内容 |
 | :----- | :------------------------------------- |
-| 1 | `<translation>: translation: N lines attached; … -> <destination>`——**路径是翻译的路径**，即写出的文件；使用 `--dry-run` 时，以 `(dry run, nothing written)` 取代 `-> <destination>` |
-| 2 | `<translation>: SubRip, UTF-8, no BOM, LF line endings kept`——**翻译的**格式、编码、标记和行尾符，原样保留 |
-| 3 | `<translation>: N bytes read, M written`，然后是主文件和翻译的**每一条读取诊断信息**——参见[调用](invocation.md#读取诊断信息) |
+| 1 | `source: <path>`, `translation: <translation>`, `result: translation: N lines attached; …`, `dest: <destination>` — **先是主文件，然后是翻译**；使用 `--dry-run` 时没有 `dest` 行，`(dry run, nothing written)` 位于 `result` 末尾 |
+| 2 | `format: SubRip`, `encoding: UTF-8`, `bom: absent`, `line-endings: LF`——**翻译的**格式、编码、标记和行尾符，原样保留 |
+| 3 | `bytes-read: N`, `bytes-written: M`，然后是主文件和翻译的**每一条读取诊断信息**——参见[调用](invocation.md#读取诊断信息) |
 
 ### 以 JSON 输出
 

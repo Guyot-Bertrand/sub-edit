@@ -121,7 +121,9 @@ W praktyce, przy zmianie z 25 na 23,976, współczynnik wynosi `1001/960`:
 <!-- example: printf '1\n00:00:01,010 --> 00:00:02,020\nUn.\n\n' > a.srt; subedit-cli framerate --from 25 --to 23.976 --output b.srt a.srt; cat b.srt -->
 ```console
 $ printf '1\n00:00:01,010 --> 00:00:02,020\nUn.\n\n' > a.srt; subedit-cli framerate --from 25 --to 23.976 --output b.srt a.srt; cat b.srt
-a.srt: 1 subtitle retimed from 25 to 24000/1001 fps -> b.srt
+[subedit] [framerate] [1/1] source: a.srt
+[subedit] [framerate] [1/1] result: 1 subtitle retimed from 25 to 24000/1001 fps
+[subedit] [framerate] [1/1] dest: b.srt
 1
 00:00:01,053 --> 00:00:02,106
 Un.
@@ -133,9 +135,9 @@ Un.
 
 | Poziom | Co jest dodawane na wyjściu błędów |
 | :----- | :------------------------------------- |
-| 1 | `<path>: N subtitles retimed from 25 to 24000/1001 fps -> <destination>` |
-| 2 | `<path>: SubRip, UTF-8, no BOM, LF line endings kept` — format, kodowanie, znacznik i końce linii odczytanego pliku, przywrócone takie, jakie były |
-| 3 | `<path>: N bytes read, M written`, a następnie **każdy komunikat diagnostyczny odczytu** — zobacz [Uruchamianie](invocation.md#odczyt-komunikatów-diagnostycznych) |
+| 1 | `source: <path>`, `result: N subtitles retimed from 25 to 24000/1001 fps`, `dest: <destination>` |
+| 2 | `format: SubRip`, `encoding: UTF-8`, `bom: absent`, `line-endings: LF` — format, kodowanie, znacznik i końce linii odczytanego pliku, przywrócone takie, jakie były |
+| 3 | `bytes-read: N`, `bytes-written: M`, a następnie **każdy komunikat diagnostyczny odczytu** — zobacz [Uruchamianie](invocation.md#odczyt-komunikatów-diagnostycznych) |
 
 **Komentarz podaje dokładną liczbę klatek na sekundę, a nie wpisaną etykietę.** Zapis
 `23.976` w tym wierszu zgłaszałby konwersję, która się nie odbyła; to

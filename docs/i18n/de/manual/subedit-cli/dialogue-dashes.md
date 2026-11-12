@@ -71,7 +71,9 @@ die Übersetzung geändert und geschrieben, und nur sie — siehe [Eine Überset
 <!-- example: printf '1\n00:00:01,000 --> 00:00:02,000\nBonjour\nMarie\n\n2\n00:00:03,000 --> 00:00:04,000\n<i>Salut</i>\n\n' > a.srt; subedit-cli dialogue-dashes --add --output t.srt a.srt; cat t.srt -->
 ```console
 $ printf '1\n00:00:01,000 --> 00:00:02,000\nBonjour\nMarie\n\n2\n00:00:03,000 --> 00:00:04,000\n<i>Salut</i>\n\n' > a.srt; subedit-cli dialogue-dashes --add --output t.srt a.srt; cat t.srt
-a.srt: 2 subtitles dashed -> t.srt
+[subedit] [dialogue-dashes] [1/1] source: a.srt
+[subedit] [dialogue-dashes] [1/1] result: 2 subtitles dashed
+[subedit] [dialogue-dashes] [1/1] dest: t.srt
 1
 00:00:01,000 --> 00:00:02,000
 - Bonjour
@@ -89,9 +91,9 @@ a.srt: 2 subtitles dashed -> t.srt
 
 | Stufe | Was auf der Fehlerausgabe hinzukommt |
 | :----- | :------------------------------------- |
-| 1 | `<path>: N subtitles dashed -> <destination>`, oder `N subtitles undashed`, oder `nothing to change` |
-| 2 | `<path>: SubRip, UTF-8, no BOM, LF line endings kept` — das Format, die Kodierung, die Marke und die Zeilenenden der gelesenen Datei, so wiederhergestellt, wie sie waren |
-| 3 | `<path>: N bytes read, M written`, dann **jede Diagnose beim Lesen** — siehe [Aufruf](invocation.md#diagnosen-beim-lesen) |
+| 1 | `source: <path>`, `result: N subtitles dashed`, `dest: <destination>`, oder `N subtitles undashed`, oder `nothing to change` |
+| 2 | `format: SubRip`, `encoding: UTF-8`, `bom: absent`, `line-endings: LF` — das Format, die Kodierung, die Marke und die Zeilenenden der gelesenen Datei, so wiederhergestellt, wie sie waren |
+| 3 | `bytes-read: N`, `bytes-written: M`, dann **jede Diagnose beim Lesen** — siehe [Aufruf](invocation.md#diagnosen-beim-lesen) |
 
 `N` ist die Anzahl der Untertitel, **deren Text sich geändert hat**, von der Operation selbst gelesen.
 

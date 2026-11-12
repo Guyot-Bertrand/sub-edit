@@ -54,7 +54,9 @@ Options:
 <!-- example: printf '1\n00:00:05,000 --> 00:00:06,000\ncinq\n\n2\n00:00:01,000 --> 00:00:02,000\nun\n\n3\n00:00:03,000 --> 00:00:04,000\ntrois\n\n' > desordre.srt; subedit-cli sort --output ordre.srt desordre.srt; cat ordre.srt -->
 ```console
 $ printf '1\n00:00:05,000 --> 00:00:06,000\ncinq\n\n2\n00:00:01,000 --> 00:00:02,000\nun\n\n3\n00:00:03,000 --> 00:00:04,000\ntrois\n\n' > desordre.srt; subedit-cli sort --output ordre.srt desordre.srt; cat ordre.srt
-desordre.srt: 3 subtitles moved -> ordre.srt
+[subedit] [sort] [1/1] source: desordre.srt
+[subedit] [sort] [1/1] result: 3 subtitles moved
+[subedit] [sort] [1/1] dest: ordre.srt
 1
 00:00:01,000 --> 00:00:02,000
 un
@@ -81,7 +83,9 @@ alparancs ír olykor fájlt, olykor meg semmit.
 <!-- example: printf '1\n00:00:01,000 --> 00:00:02,000\nun\n\n2\n00:00:03,000 --> 00:00:04,000\ntrois\n\n' > ordre.srt; subedit-cli sort --output copie.srt ordre.srt -->
 ```console
 $ printf '1\n00:00:01,000 --> 00:00:02,000\nun\n\n2\n00:00:03,000 --> 00:00:04,000\ntrois\n\n' > ordre.srt; subedit-cli sort --output copie.srt ordre.srt
-ordre.srt: already in order -> copie.srt
+[subedit] [sort] [1/1] source: ordre.srt
+[subedit] [sort] [1/1] result: already in order
+[subedit] [sort] [1/1] dest: copie.srt
 ```
 
 ## Kimenet
@@ -91,9 +95,9 @@ fájl, és ezt a tájékoztató sor mondja ki — lásd [Megnézés írás előt
 
 | Szint | Mi kerül még a hibakimenetre |
 | :----- | :------------------------------------- |
-| 1 | `<path>: N subtitles moved -> <destination>`, vagy `<path>: already in order -> <destination>` |
-| 2 | `<path>: SubRip, UTF-8, no BOM, LF line endings kept` — a beolvasott fájl formátuma, kódolása, jelölője és sorvége, úgy visszaírva, ahogyan volt |
-| 3 | `<path>: N bytes read, M written`, majd **minden olvasási diagnosztika** — lásd [Indítás](invocation.md#olvasási-diagnosztika) |
+| 1 | `source: <path>`, `result: N subtitles moved`, `dest: <destination>`, vagy `source: <path>`, `result: already in order`, `dest: <destination>` |
+| 2 | `format: SubRip`, `encoding: UTF-8`, `bom: absent`, `line-endings: LF` — a beolvasott fájl formátuma, kódolása, jelölője és sorvége, úgy visszaírva, ahogyan volt |
+| 3 | `bytes-read: N`, `bytes-written: M`, majd **minden olvasási diagnosztika** — lásd [Indítás](invocation.md#olvasási-diagnosztika) |
 
 ### JSON-ban
 

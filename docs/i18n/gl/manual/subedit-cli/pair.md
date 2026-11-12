@@ -62,7 +62,10 @@ Options:
 <!-- example: printf '1\n00:00:01,000 --> 00:00:02,000\nHello.\n\n2\n00:00:03,000 --> 00:00:04,000\nBye.\n\n' > film.srt; printf '1\n00:00:01,300 --> 00:00:02,300\nBonjour.\n\n2\n00:00:03,300 --> 00:00:04,300\nAu revoir.\n\n' > film.fr.srt; subedit-cli pair film.srt -t film.fr.srt --output recale.fr.srt; cat recale.fr.srt -->
 ```console
 $ printf '1\n00:00:01,000 --> 00:00:02,000\nHello.\n\n2\n00:00:03,000 --> 00:00:04,000\nBye.\n\n' > film.srt; printf '1\n00:00:01,300 --> 00:00:02,300\nBonjour.\n\n2\n00:00:03,300 --> 00:00:04,300\nAu revoir.\n\n' > film.fr.srt; subedit-cli pair film.srt -t film.fr.srt --output recale.fr.srt; cat recale.fr.srt
-film.fr.srt: translation: 2 lines attached -> recale.fr.srt
+[subedit] [pair] [1/1] source: film.srt
+[subedit] [pair] [1/1] translation: film.fr.srt
+[subedit] [pair] [1/1] result: translation: 2 lines attached
+[subedit] [pair] [1/1] dest: recale.fr.srt
 1
 00:00:01,000 --> 00:00:02,000
 Bonjour.
@@ -101,9 +104,9 @@ cada método.
 
 | Nivel | O que se engade na saída de erro |
 | :----- | :------------------------------------- |
-| 1 | `<translation>: translation: N lines attached; … -> <destination>` — **a ruta é a da tradución**, que é o ficheiro escrito; con `--dry-run`, `(dry run, nothing written)` en lugar de `-> <destination>` |
-| 2 | `<translation>: SubRip, UTF-8, no BOM, LF line endings kept` — o formato, a codificación, a marca e os finais de liña **da tradución**, repostos como estaban |
-| 3 | `<translation>: N bytes read, M written`, despois **cada diagnóstico de lectura** do ficheiro principal e da tradución — véxase [Invocación](invocation.md#diagnósticos-de-lectura) |
+| 1 | `source: <path>`, `translation: <translation>`, `result: translation: N lines attached; …`, `dest: <destination>` — **o ficheiro principal, despois a tradución**; con `--dry-run`, ningunha liña `dest`, e `(dry run, nothing written)` ao final de `result` |
+| 2 | `format: SubRip`, `encoding: UTF-8`, `bom: absent`, `line-endings: LF` — o formato, a codificación, a marca e os finais de liña **da tradución**, repostos como estaban |
+| 3 | `bytes-read: N`, `bytes-written: M`, despois **cada diagnóstico de lectura** do ficheiro principal e da tradución — véxase [Invocación](invocation.md#diagnósticos-de-lectura) |
 
 ### En JSON
 

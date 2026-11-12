@@ -188,10 +188,10 @@ sem ekki er hægt að lesa gefur sjálfgefnu gildin og segir frá því; gildi s
 
 | Tilvik | Lína |
 | :--- | :--- |
-| skráin var lesin | `settings: read <path>` |
-| ekki var hægt að lesa gildi í henni | `settings: <key>: cannot read '<value>', default kept` |
-| skrá notandans er ekki til | `settings: <path> not found, defaults used` |
-| ekki er hægt að lesa skrána | `settings: <path> unreadable, defaults used` |
+| skráin var lesin | `settings: <path>` |
+| ekki var hægt að lesa gildi í henni | `warning: setting <key>: cannot read '<value>', default kept` |
+| skrá notandans er ekki til | `warning: settings file <path> not found, defaults used` |
+| ekki er hægt að lesa skrána | `warning: settings file <path> unreadable, defaults used` |
 | `--no-config` | ekkert |
 
 Með [`--format json`](#úttak-sem-skriftur-geta-lesið) ber hlutur hverrar skrár hjá `adjust` og
@@ -227,7 +227,7 @@ ekki keyrð, og `-q` og `-v` breyta engu.
 <!-- example: subedit-cli --version | head -n 1 -->
 ```console
 $ subedit-cli --version | head -n 1
-subedit 1.2.5
+subedit 1.2.6
 ```
 
 Allt úttakið, á vél með ICU 74.2 og Enchant 2.3.3 — tölurnar eru vélarinnar:
@@ -484,13 +484,14 @@ skráin hefur ekki breyst.
   stafakóðun skrárinnar gat ekki skrifað lætur þurrkeyrslu bila eins og raunverulega keyrslu.
   **Að breytingar séu til breytir ekki kóðanum**: kóðarnir fjórir segja hvort tólið
   tókst, ekki hvort skráin er í samræmi.
-- **Frásögnin segir frá því.** Þar sem raunveruleg keyrsla skrifar `-> <destination>` skrifar þurrkeyrsla
+- **Frásögnin segir frá því.** Þar sem raunveruleg keyrsla skrifar `dest: <destination>` skrifar þurrkeyrsla
   `(dry run, nothing written)`.
 
 <!-- example: printf '1\n00:00:10,000 --> 00:00:12,000\nBonjour.\n\n' > a.srt; subedit-cli shift --by 1 --dry-run a.srt; ls -- *.srt -->
 ```console
 $ printf '1\n00:00:10,000 --> 00:00:12,000\nBonjour.\n\n' > a.srt; subedit-cli shift --by 1 --dry-run a.srt; ls -- *.srt
-a.srt: 1 subtitle shifted by 1.000 s (dry run, nothing written)
+[subedit] [shift] [1/1] source: a.srt
+[subedit] [shift] [1/1] result: 1 subtitle shifted by 1.000 s (dry run, nothing written)
 a.srt
 ```
 
@@ -520,7 +521,8 @@ breytingar**. Ein blokk fyrir hvern skjátexta sem breytist, í röð skráarinn
 <!-- example: printf '1\n00:00:01,000 --> 00:00:03,000\n[Bruit de pas]\n\n2\n00:00:04,000 --> 00:00:06,000\nAttends [il tousse] Marie.\n\n3\n00:00:07,000 --> 00:00:09,000\n- [Grincement]\n- Qui est là ?\n\n' > mentions.srt; subedit-cli hearing-impaired --dry-run mentions.srt -->
 ```console
 $ printf '1\n00:00:01,000 --> 00:00:03,000\n[Bruit de pas]\n\n2\n00:00:04,000 --> 00:00:06,000\nAttends [il tousse] Marie.\n\n3\n00:00:07,000 --> 00:00:09,000\n- [Grincement]\n- Qui est là ?\n\n' > mentions.srt; subedit-cli hearing-impaired --dry-run mentions.srt
-mentions.srt: 2 subtitles cleaned, 1 removed (dry run, nothing written)
+[subedit] [hearing-impaired] [1/1] source: mentions.srt
+[subedit] [hearing-impaired] [1/1] result: 2 subtitles cleaned, 1 removed (dry run, nothing written)
 mentions.srt: subtitle 1 (removed)
 - [Bruit de pas]
 mentions.srt: subtitle 2
@@ -570,11 +572,14 @@ altækur valkostur og er því ritaður á undan undirskipuninni; gildi annað e
 <!-- example: printf '1\n00:00:10,000 --> 00:00:12,000\nUn.\n\n' > a.srt; subedit-cli --format json shift --by 1 --output-dir sortie a.srt absent.srt; echo "code=$?" -->
 ```console
 $ printf '1\n00:00:10,000 --> 00:00:12,000\nUn.\n\n' > a.srt; subedit-cli --format json shift --by 1 --output-dir sortie a.srt absent.srt; echo "code=$?"
-a.srt: 1 subtitle shifted by 1.000 s -> sortie/a.srt
+[subedit] [shift] [1/2] source: a.srt
+[subedit] [shift] [1/2] result: 1 subtitle shifted by 1.000 s
+[subedit] [shift] [1/2] dest: sortie/a.srt
 {"schema":1,"command":"shift","file":"a.srt","ok":true,"dry_run":false,"destination":"sortie/a.srt","counts":{"subtitles":1,"shifted_by_ms":1000},"warnings":[]}
-absent.srt: does not exist
+[subedit] [shift] [2/2] source: absent.srt
+[subedit] [shift] [2/2] error: does not exist
 {"schema":1,"command":"shift","file":"absent.srt","ok":false,"error":{"kind":"not-found","message":"absent.srt: does not exist"}}
-1 of 2 files shifted, 1 failed
+[subedit] [shift] [-] summary: 1 of 2 files shifted, 1 failed
 code=3
 ```
 
@@ -828,7 +833,10 @@ lagðri á aðalskrána**, með sömu reglum og glugginn.
 <!-- example: printf '1\n00:00:01,000 --> 00:00:02,000\nHello.\n\n2\n00:00:03,000 --> 00:00:04,000\nBye.\n\n' > film.srt; printf '1\n00:00:01,000 --> 00:00:02,000\n[Un oiseau] Bonjour.\n\n2\n00:00:03,000 --> 00:00:04,000\nAu revoir.\n\n' > film.fr.srt; subedit-cli hearing-impaired film.srt -t film.fr.srt --document translation --output propre.fr.srt; cat propre.fr.srt -->
 ```console
 $ printf '1\n00:00:01,000 --> 00:00:02,000\nHello.\n\n2\n00:00:03,000 --> 00:00:04,000\nBye.\n\n' > film.srt; printf '1\n00:00:01,000 --> 00:00:02,000\n[Un oiseau] Bonjour.\n\n2\n00:00:03,000 --> 00:00:04,000\nAu revoir.\n\n' > film.fr.srt; subedit-cli hearing-impaired film.srt -t film.fr.srt --document translation --output propre.fr.srt; cat propre.fr.srt
-film.fr.srt: 1 subtitle cleaned, 0 removed -> propre.fr.srt
+[subedit] [hearing-impaired] [1/1] source: film.srt
+[subedit] [hearing-impaired] [1/1] translation: film.fr.srt
+[subedit] [hearing-impaired] [1/1] result: 1 subtitle cleaned, 0 removed
+[subedit] [hearing-impaired] [1/1] dest: propre.fr.srt
 1
 00:00:01,000 --> 00:00:02,000
 Bonjour.

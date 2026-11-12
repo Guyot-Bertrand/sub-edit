@@ -71,7 +71,9 @@ a tradução que é alterada e escrita, e só ela — ver [Uma tradução](invoc
 <!-- example: printf '1\n00:00:01,000 --> 00:00:02,000\nBonjour\nMarie\n\n2\n00:00:03,000 --> 00:00:04,000\n<i>Salut</i>\n\n' > a.srt; subedit-cli dialogue-dashes --add --output t.srt a.srt; cat t.srt -->
 ```console
 $ printf '1\n00:00:01,000 --> 00:00:02,000\nBonjour\nMarie\n\n2\n00:00:03,000 --> 00:00:04,000\n<i>Salut</i>\n\n' > a.srt; subedit-cli dialogue-dashes --add --output t.srt a.srt; cat t.srt
-a.srt: 2 subtitles dashed -> t.srt
+[subedit] [dialogue-dashes] [1/1] source: a.srt
+[subedit] [dialogue-dashes] [1/1] result: 2 subtitles dashed
+[subedit] [dialogue-dashes] [1/1] dest: t.srt
 1
 00:00:01,000 --> 00:00:02,000
 - Bonjour
@@ -89,9 +91,9 @@ alterações, descrita em [Ver antes de escrever](invocation.md#ver-antes-de-esc
 
 | Nível | O que se acrescenta à saída de erros |
 | :----- | :------------------------------------- |
-| 1 | `<path>: N subtitles dashed -> <destination>`, ou `N subtitles undashed`, ou `nothing to change` |
-| 2 | `<path>: SubRip, UTF-8, no BOM, LF line endings kept` — o formato, a codificação, a marca e os fins de linha do ficheiro lido, repostos como estavam |
-| 3 | `<path>: N bytes read, M written`, depois **cada diagnóstico de leitura** — ver [Invocação](invocation.md#ler-os-diagnósticos) |
+| 1 | `source: <path>`, `result: N subtitles dashed`, `dest: <destination>`, ou `N subtitles undashed`, ou `nothing to change` |
+| 2 | `format: SubRip`, `encoding: UTF-8`, `bom: absent`, `line-endings: LF` — o formato, a codificação, a marca e os fins de linha do ficheiro lido, repostos como estavam |
+| 3 | `bytes-read: N`, `bytes-written: M`, depois **cada diagnóstico de leitura** — ver [Invocação](invocation.md#ler-os-diagnósticos) |
 
 `N` é o número de legendas **cujo texto mudou**, lido da própria operação.
 

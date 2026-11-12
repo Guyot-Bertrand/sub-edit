@@ -64,7 +64,9 @@ Options:
 <!-- example: printf '1\n00:00:01,000 --> 00:00:02,000\n<i>bon</i>jour marie\n\n2\n00:00:03,000 --> 00:00:04,000\nBonjour\nMarie\n\n' > a.srt; subedit-cli italics --on --output i.srt a.srt; cat i.srt -->
 ```console
 $ printf '1\n00:00:01,000 --> 00:00:02,000\n<i>bon</i>jour marie\n\n2\n00:00:03,000 --> 00:00:04,000\nBonjour\nMarie\n\n' > a.srt; subedit-cli italics --on --output i.srt a.srt; cat i.srt
-a.srt: 2 subtitles put in italics -> i.srt
+[subedit] [italics] [1/1] source: a.srt
+[subedit] [italics] [1/1] result: 2 subtitles put in italics
+[subedit] [italics] [1/1] dest: i.srt
 1
 00:00:01,000 --> 00:00:02,000
 <i>bonjour marie</i>
@@ -82,7 +84,8 @@ Marie</i>
 <!-- example: printf '00:00:01:Hello there\n00:00:03:Bye\n' > a.txt; subedit-cli italics --on --output-dir sortie a.txt; echo "code=$?" -->
 ```console
 $ printf '00:00:01:Hello there\n00:00:03:Bye\n' > a.txt; subedit-cli italics --on --output-dir sortie a.txt; echo "code=$?"
-a.txt: TMPlayer writes no style: there are no italics to put on
+[subedit] [italics] [1/1] source: a.txt
+[subedit] [italics] [1/1] error: TMPlayer writes no style: there are no italics to put on
 code=2
 ```
 
@@ -94,9 +97,9 @@ code=2
 
 | 级别 | 在标准错误输出中追加的内容 |
 | :----- | :------------------------------------- |
-| 1 | `<path>: N subtitles put in italics -> <destination>`，或 `N subtitles taken out of italics`，或 `nothing to change` |
-| 2 | `<path>: SubRip, UTF-8, no BOM, LF line endings kept`——所读取文件的格式、编码、标记和行尾符，按原样写回 |
-| 3 | `<path>: N bytes read, M written`，随后是**每一条读取诊断信息**——参见[调用](invocation.md#读取诊断信息) |
+| 1 | `source: <path>`, `result: N subtitles put in italics`, `dest: <destination>`，或 `N subtitles taken out of italics`，或 `nothing to change` |
+| 2 | `format: SubRip`, `encoding: UTF-8`, `bom: absent`, `line-endings: LF`——所读取文件的格式、编码、标记和行尾符，按原样写回 |
+| 3 | `bytes-read: N`, `bytes-written: M`，随后是**每一条读取诊断信息**——参见[调用](invocation.md#读取诊断信息) |
 
 `N` 是**文本发生了变化**的字幕数，由操作本身读出。
 

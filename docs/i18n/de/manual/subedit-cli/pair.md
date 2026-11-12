@@ -62,7 +62,10 @@ Options:
 <!-- example: printf '1\n00:00:01,000 --> 00:00:02,000\nHello.\n\n2\n00:00:03,000 --> 00:00:04,000\nBye.\n\n' > film.srt; printf '1\n00:00:01,300 --> 00:00:02,300\nBonjour.\n\n2\n00:00:03,300 --> 00:00:04,300\nAu revoir.\n\n' > film.fr.srt; subedit-cli pair film.srt -t film.fr.srt --output recale.fr.srt; cat recale.fr.srt -->
 ```console
 $ printf '1\n00:00:01,000 --> 00:00:02,000\nHello.\n\n2\n00:00:03,000 --> 00:00:04,000\nBye.\n\n' > film.srt; printf '1\n00:00:01,300 --> 00:00:02,300\nBonjour.\n\n2\n00:00:03,300 --> 00:00:04,300\nAu revoir.\n\n' > film.fr.srt; subedit-cli pair film.srt -t film.fr.srt --output recale.fr.srt; cat recale.fr.srt
-film.fr.srt: translation: 2 lines attached -> recale.fr.srt
+[subedit] [pair] [1/1] source: film.srt
+[subedit] [pair] [1/1] translation: film.fr.srt
+[subedit] [pair] [1/1] result: translation: 2 lines attached
+[subedit] [pair] [1/1] dest: recale.fr.srt
 1
 00:00:01,000 --> 00:00:02,000
 Bonjour.
@@ -101,9 +104,9 @@ jede Methode erwarteten Datei.
 
 | Stufe | Was auf der Fehlerausgabe hinzukommt |
 | :----- | :------------------------------------- |
-| 1 | `<translation>: translation: N lines attached; … -> <destination>` — **der Pfad ist der der Übersetzung**, die die geschriebene Datei ist; mit `--dry-run` steht `(dry run, nothing written)` an der Stelle von `-> <destination>` |
-| 2 | `<translation>: SubRip, UTF-8, no BOM, LF line endings kept` — das Format, die Kodierung, die Marke und die Zeilenenden **der Übersetzung**, so wiederhergestellt, wie sie waren |
-| 3 | `<translation>: N bytes read, M written`, dann **jede Diagnose beim Lesen** der Hauptdatei und der Übersetzung — siehe [Aufruf](invocation.md#diagnosen-beim-lesen) |
+| 1 | `source: <path>`, `translation: <translation>`, `result: translation: N lines attached; …`, `dest: <destination>` — **die Hauptdatei, dann die Übersetzung**; mit `--dry-run` keine Zeile `dest`, und `(dry run, nothing written)` am Ende von `result` |
+| 2 | `format: SubRip`, `encoding: UTF-8`, `bom: absent`, `line-endings: LF` — das Format, die Kodierung, die Marke und die Zeilenenden **der Übersetzung**, so wiederhergestellt, wie sie waren |
+| 3 | `bytes-read: N`, `bytes-written: M`, dann **jede Diagnose beim Lesen** der Hauptdatei und der Übersetzung — siehe [Aufruf](invocation.md#diagnosen-beim-lesen) |
 
 ### In JSON
 

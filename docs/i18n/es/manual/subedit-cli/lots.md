@@ -57,11 +57,11 @@ su extensión, y solo se queja si su contenido no está en ningún formato.
 <!-- example: mkdir films; printf '1\n00:00:01,000 --> 00:00:02,000\nUn.\n\n' > films/a.srt; printf 'note\n' > films/LISEZMOI.txt; subedit-cli -vv inspect --recursive films 2>&1 | head -1 -->
 ```console
 $ mkdir films; printf '1\n00:00:01,000 --> 00:00:02,000\nUn.\n\n' > films/a.srt; printf 'note\n' > films/LISEZMOI.txt; subedit-cli -vv inspect --recursive films 2>&1 | head -1
-films: 1 file left aside, with no extension of a known format
+[subedit] [inspect] [-] walk: films: 1 file left aside, with no extension of a known format
 ```
 
 Un directorio que no contiene nada que recorrer lo dice en el nivel por defecto
-(`<directory>: holds no file in a format this tool walks for`) y no es un error.
+(`walk: <directory>: holds no file in a format this tool walks for`) y no es un error.
 
 ## Dónde escribe el recorrido
 
@@ -74,10 +74,16 @@ nivel que se quiera (`--output-dir sortie/films`).
 <!-- example: mkdir -p films/a/b; printf '1\n00:00:01,000 --> 00:00:02,000\nUn.\n\n' > films/x.srt; cp films/x.srt films/a/x.srt; cp films/x.srt films/a/b/y.srt; printf 'note\n' > films/LISEZMOI.txt; subedit-cli shift --by 1 --recursive --output-dir sortie films; find sortie -type f | sort -->
 ```console
 $ mkdir -p films/a/b; printf '1\n00:00:01,000 --> 00:00:02,000\nUn.\n\n' > films/x.srt; cp films/x.srt films/a/x.srt; cp films/x.srt films/a/b/y.srt; printf 'note\n' > films/LISEZMOI.txt; subedit-cli shift --by 1 --recursive --output-dir sortie films; find sortie -type f | sort
-films/a/b/y.srt: 1 subtitle shifted by 1.000 s -> sortie/a/b/y.srt
-films/a/x.srt: 1 subtitle shifted by 1.000 s -> sortie/a/x.srt
-films/x.srt: 1 subtitle shifted by 1.000 s -> sortie/x.srt
-3 of 3 files shifted
+[subedit] [shift] [1/3] source: films/a/b/y.srt
+[subedit] [shift] [1/3] result: 1 subtitle shifted by 1.000 s
+[subedit] [shift] [1/3] dest: sortie/a/b/y.srt
+[subedit] [shift] [2/3] source: films/a/x.srt
+[subedit] [shift] [2/3] result: 1 subtitle shifted by 1.000 s
+[subedit] [shift] [2/3] dest: sortie/a/x.srt
+[subedit] [shift] [3/3] source: films/x.srt
+[subedit] [shift] [3/3] result: 1 subtitle shifted by 1.000 s
+[subedit] [shift] [3/3] dest: sortie/x.srt
+[subedit] [shift] [-] summary: 3 of 3 files shifted
 sortie/a/b/y.srt
 sortie/a/x.srt
 sortie/x.srt
@@ -100,7 +106,7 @@ dos entradas y el destino nombrados.
 <!-- example: mkdir -p un/a deux/a; printf '1\n00:00:01,000 --> 00:00:02,000\nUn.\n\n' > un/a/x.srt; cp un/a/x.srt deux/a/x.srt; subedit-cli shift --by 1 -r --output-dir sortie un deux; echo "code=$?" -->
 ```console
 $ mkdir -p un/a deux/a; printf '1\n00:00:01,000 --> 00:00:02,000\nUn.\n\n' > un/a/x.srt; cp un/a/x.srt deux/a/x.srt; subedit-cli shift --by 1 -r --output-dir sortie un deux; echo "code=$?"
-sortie/a/x.srt: would be written by both un/a/x.srt and deux/a/x.srt
+[subedit] [shift] [-] error: sortie/a/x.srt: would be written by both un/a/x.srt and deux/a/x.srt
 code=1
 ```
 

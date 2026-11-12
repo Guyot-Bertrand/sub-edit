@@ -260,9 +260,9 @@ TEST_CASE("a write that fails in the middle of a batch is worded as a write, and
         invoke({"shift", "--by", "1", "--output-dir", scratch.of("out"), before, middle, after});
 
     CHECK(run.exitCode == 3);
-    CHECK_THAT(
-        run.errors,
-        ContainsSubstring(middle + ": " + scratch.of("out/middle.srt") + ": cannot be written"));
+    CHECK_THAT(run.errors,
+               ContainsSubstring("[2/3] source: " + middle + "\n[subedit] [shift] [2/3] error: " +
+                                 scratch.of("out/middle.srt") + ": cannot be written"));
     CHECK_THAT(run.errors, !ContainsSubstring("cannot be read"));
     CHECK_THAT(run.errors, ContainsSubstring("2 of 3 files shifted, 1 failed\n"));
     CHECK(std::filesystem::exists(scratch.of("out/before.srt")));
@@ -284,7 +284,10 @@ TEST_CASE(
         invoke({"shift", "--by", "1", "--output-dir", scratch.of("out"), before, broken, after});
 
     CHECK(run.exitCode == 3);
-    CHECK_THAT(run.errors, ContainsSubstring(broken + ": is in no format this tool knows"));
+    CHECK_THAT(
+        run.errors,
+        ContainsSubstring("[2/3] source: " + broken +
+                          "\n[subedit] [shift] [2/3] error: is in no format this tool knows"));
     CHECK_THAT(run.errors, ContainsSubstring("2 of 3 files shifted, 1 failed\n"));
     CHECK(contentOf(scratch.of("out/before.srt")) ==
           "1\n00:00:02,000 --> 00:00:02,500\nin/before.srt 1\n\n");

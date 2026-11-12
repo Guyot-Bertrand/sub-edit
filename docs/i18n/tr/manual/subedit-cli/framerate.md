@@ -120,7 +120,9 @@ Uygulamada, 25 fps hızından 23,976 fps hızına geçerken çarpan `1001/960` d
 <!-- example: printf '1\n00:00:01,010 --> 00:00:02,020\nUn.\n\n' > a.srt; subedit-cli framerate --from 25 --to 23.976 --output b.srt a.srt; cat b.srt -->
 ```console
 $ printf '1\n00:00:01,010 --> 00:00:02,020\nUn.\n\n' > a.srt; subedit-cli framerate --from 25 --to 23.976 --output b.srt a.srt; cat b.srt
-a.srt: 1 subtitle retimed from 25 to 24000/1001 fps -> b.srt
+[subedit] [framerate] [1/1] source: a.srt
+[subedit] [framerate] [1/1] result: 1 subtitle retimed from 25 to 24000/1001 fps
+[subedit] [framerate] [1/1] dest: b.srt
 1
 00:00:01,053 --> 00:00:02,106
 Un.
@@ -132,9 +134,9 @@ Un.
 
 | Düzey | Hata çıktısına eklenenler |
 | :----- | :------------------------------------- |
-| 1 | `<path>: N subtitles retimed from 25 to 24000/1001 fps -> <destination>` |
-| 2 | `<path>: SubRip, UTF-8, no BOM, LF line endings kept` — okunan dosyanın biçimi, kodlaması, işareti ve satır sonları, olduğu gibi geri konur |
-| 3 | `<path>: N bytes read, M written`, ardından **her okuma tanılama iletisi** — bkz. [Çalıştırma](invocation.md#tanılama-iletilerini-okuma) |
+| 1 | `source: <path>`, `result: N subtitles retimed from 25 to 24000/1001 fps`, `dest: <destination>` |
+| 2 | `format: SubRip`, `encoding: UTF-8`, `bom: absent`, `line-endings: LF` — okunan dosyanın biçimi, kodlaması, işareti ve satır sonları, olduğu gibi geri konur |
+| 3 | `bytes-read: N`, `bytes-written: M`, ardından **her okuma tanılama iletisi** — bkz. [Çalıştırma](invocation.md#tanılama-iletilerini-okuma) |
 
 **Anlatım, yazılan etiketi değil, tam kare hızını adlandırır.** O satırda
 `23.976` yazmak, gerçekleşmemiş bir dönüştürmeyi bildirmek olurdu; iki

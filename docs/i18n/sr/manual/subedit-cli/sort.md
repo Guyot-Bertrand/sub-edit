@@ -54,7 +54,9 @@ Options:
 <!-- example: printf '1\n00:00:05,000 --> 00:00:06,000\ncinq\n\n2\n00:00:01,000 --> 00:00:02,000\nun\n\n3\n00:00:03,000 --> 00:00:04,000\ntrois\n\n' > desordre.srt; subedit-cli sort --output ordre.srt desordre.srt; cat ordre.srt -->
 ```console
 $ printf '1\n00:00:05,000 --> 00:00:06,000\ncinq\n\n2\n00:00:01,000 --> 00:00:02,000\nun\n\n3\n00:00:03,000 --> 00:00:04,000\ntrois\n\n' > desordre.srt; subedit-cli sort --output ordre.srt desordre.srt; cat ordre.srt
-desordre.srt: 3 subtitles moved -> ordre.srt
+[subedit] [sort] [1/1] source: desordre.srt
+[subedit] [sort] [1/1] result: 3 subtitles moved
+[subedit] [sort] [1/1] dest: ordre.srt
 1
 00:00:01,000 --> 00:00:02,000
 un
@@ -81,7 +83,9 @@ cinq
 <!-- example: printf '1\n00:00:01,000 --> 00:00:02,000\nun\n\n2\n00:00:03,000 --> 00:00:04,000\ntrois\n\n' > ordre.srt; subedit-cli sort --output copie.srt ordre.srt -->
 ```console
 $ printf '1\n00:00:01,000 --> 00:00:02,000\nun\n\n2\n00:00:03,000 --> 00:00:04,000\ntrois\n\n' > ordre.srt; subedit-cli sort --output copie.srt ordre.srt
-ordre.srt: already in order -> copie.srt
+[subedit] [sort] [1/1] source: ordre.srt
+[subedit] [sort] [1/1] result: already in order
+[subedit] [sort] [1/1] dest: copie.srt
 ```
 
 ## Излаз
@@ -91,9 +95,9 @@ ordre.srt: already in order -> copie.srt
 
 | Ниво | Шта се додаје на стандардној грешци |
 | :----- | :------------------------------------- |
-| 1 | `<path>: N subtitles moved -> <destination>`, или `<path>: already in order -> <destination>` |
-| 2 | `<path>: SubRip, UTF-8, no BOM, LF line endings kept` — формат, кодирање, ознака и завршеци редова прочитане датотеке, враћени какви су били |
-| 3 | `<path>: N bytes read, M written`, затим **свака дијагностика читања** — види [Покретање](invocation.md#читање-дијагностике) |
+| 1 | `source: <path>`, `result: N subtitles moved`, `dest: <destination>`, или `source: <path>`, `result: already in order`, `dest: <destination>` |
+| 2 | `format: SubRip`, `encoding: UTF-8`, `bom: absent`, `line-endings: LF` — формат, кодирање, ознака и завршеци редова прочитане датотеке, враћени какви су били |
+| 3 | `bytes-read: N`, `bytes-written: M`, затим **свака дијагностика читања** — види [Покретање](invocation.md#читање-дијагностике) |
 
 ### У JSON-у
 

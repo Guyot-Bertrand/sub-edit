@@ -206,7 +206,9 @@ kytkevät sen pois, ja teksti luetaan silloin uudelleen yhtenä ja jaetaan uudel
 <!-- example: printf '1\n00:00:01,000 --> 00:00:03,000\nWhen the rain stopped, we walked home under the dark sky of the old town.\n\n' > a.srt; subedit-cli --no-config correct --tasks line-break --code Latn-en --max-length 24 --output b.srt a.srt; cat b.srt -->
 ```console
 $ printf '1\n00:00:01,000 --> 00:00:03,000\nWhen the rain stopped, we walked home under the dark sky of the old town.\n\n' > a.srt; subedit-cli --no-config correct --tasks line-break --code Latn-en --max-length 24 --output b.srt a.srt; cat b.srt
-a.srt: Edited 1 and removed 0 subtitles -> b.srt
+[subedit] [correct] [1/1] source: a.srt
+[subedit] [correct] [1/1] result: Edited 1 and removed 0 subtitles
+[subedit] [correct] [1/1] dest: b.srt
 1
 00:00:01,000 --> 00:00:03,000
 When the rain
@@ -262,7 +264,9 @@ Sama tiedosto, kun hakasulkeiden siivous on kytketty päälle:
 <!-- example: printf '1\n00:00:01,000 --> 00:00:02,000\n[Bruit] Bonjour\n\n' > a.srt; subedit-cli --no-config correct --tasks mentions --code Latn --enable "Sound in brackets" --output b.srt a.srt; cat b.srt -->
 ```console
 $ printf '1\n00:00:01,000 --> 00:00:02,000\n[Bruit] Bonjour\n\n' > a.srt; subedit-cli --no-config correct --tasks mentions --code Latn --enable "Sound in brackets" --output b.srt a.srt; cat b.srt
-a.srt: Edited 1 and removed 0 subtitles -> b.srt
+[subedit] [correct] [1/1] source: a.srt
+[subedit] [correct] [1/1] result: Edited 1 and removed 0 subtitles
+[subedit] [correct] [1/1] dest: b.srt
 1
 00:00:01,000 --> 00:00:02,000
 Bonjour
@@ -283,7 +287,9 @@ muutu, kirjoitetaan silti: annettu kohde on kirjoitettu kohde.
 <!-- example: printf '1\n00:00:01,000 --> 00:00:02,000\neﬀet  de ﬁn\n\n2\n00:00:03,000 --> 00:00:04,000\nPropre.\n\n' > a.srt; subedit-cli --no-config correct --tasks common-errors --code Latn --output b.srt a.srt; cat b.srt -->
 ```console
 $ printf '1\n00:00:01,000 --> 00:00:02,000\neﬀet  de ﬁn\n\n2\n00:00:03,000 --> 00:00:04,000\nPropre.\n\n' > a.srt; subedit-cli --no-config correct --tasks common-errors --code Latn --output b.srt a.srt; cat b.srt
-a.srt: Edited 1 and removed 0 subtitles -> b.srt
+[subedit] [correct] [1/1] source: a.srt
+[subedit] [correct] [1/1] result: Edited 1 and removed 0 subtitles
+[subedit] [correct] [1/1] dest: b.srt
 1
 00:00:01,000 --> 00:00:02,000
 effet de fin
@@ -323,9 +329,9 @@ ja `(removed)` ilman riviä `+` kappaleelle, jonka korjaus poistaisi; valitsimel
 
 | Taso | Mitä virhetulosteeseen lisätään |
 | :----- | :------------------------------------- |
-| 1 | `<path>: Edited N and removed M subtitles -> <destination>`, lausekkeet, joita ei voitu käyttää, lauseketiedostot, joita ei voi lukea — ja ensin luettu asetustiedosto — `settings: read <path>` — ja se, mitä siitä ohitettiin |
-| 2 | `<path>: SubRip, UTF-8, no BOM, LF line endings kept` |
-| 3 | `<path>: N bytes read, M written`, sitten jokainen huomautus luettaessa |
+| 1 | `source: <path>`, `result: Edited N and removed M subtitles`, `dest: <destination>`, lausekkeet, joita ei voitu käyttää, lauseketiedostot, joita ei voi lukea — ja ensin luettu asetustiedosto — `settings: <path>` — ja se, mitä siitä ohitettiin |
+| 2 | `format: SubRip`, `encoding: UTF-8`, `bom: absent`, `line-endings: LF` |
+| 3 | `bytes-read: N`, `bytes-written: M`, sitten jokainen huomautus luettaessa |
 
 JSON-muodossa `counts` sisältää kentät `corrected` (muuttuneet tekstit) ja `removed` (poistetut
 kappaleet), ja `changes` kosketut kappaleet. Valitsimella `-t` avain `alignment` kertoo, miten

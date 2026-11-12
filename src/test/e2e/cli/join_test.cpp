@@ -28,7 +28,7 @@ TEST_CASE("the pieces of one text come out as one subtitle", "[e2e][CLI-JOIN-01]
 
     CHECK(run.exitCode == 0);
     CHECK_THAT(contentOf(out), MatchesFile(corpus("attendus/join/segments-repetes.vtt")));
-    CHECK_THAT(run.errors, ContainsSubstring(": 2 repeated subtitles joined -> "));
+    CHECK_THAT(run.errors, ContainsSubstring("] result: 2 repeated subtitles joined\n"));
 }
 
 TEST_CASE("a second run joins nothing", "[e2e][CLI-JOIN-01]") {

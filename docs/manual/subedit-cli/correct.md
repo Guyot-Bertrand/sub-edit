@@ -203,7 +203,9 @@ switch it off, and the text is then read again as one and cut again:
 <!-- example: printf '1\n00:00:01,000 --> 00:00:03,000\nWhen the rain stopped, we walked home under the dark sky of the old town.\n\n' > a.srt; subedit-cli --no-config correct --tasks line-break --code Latn-en --max-length 24 --output b.srt a.srt; cat b.srt -->
 ```console
 $ printf '1\n00:00:01,000 --> 00:00:03,000\nWhen the rain stopped, we walked home under the dark sky of the old town.\n\n' > a.srt; subedit-cli --no-config correct --tasks line-break --code Latn-en --max-length 24 --output b.srt a.srt; cat b.srt
-a.srt: Edited 1 and removed 0 subtitles -> b.srt
+[subedit] [correct] [1/1] source: a.srt
+[subedit] [correct] [1/1] result: Edited 1 and removed 0 subtitles
+[subedit] [correct] [1/1] dest: b.srt
 1
 00:00:01,000 --> 00:00:03,000
 When the rain
@@ -259,7 +261,9 @@ The same file, with the square-bracket sweep switched on:
 <!-- example: printf '1\n00:00:01,000 --> 00:00:02,000\n[Bruit] Bonjour\n\n' > a.srt; subedit-cli --no-config correct --tasks mentions --code Latn --enable "Sound in brackets" --output b.srt a.srt; cat b.srt -->
 ```console
 $ printf '1\n00:00:01,000 --> 00:00:02,000\n[Bruit] Bonjour\n\n' > a.srt; subedit-cli --no-config correct --tasks mentions --code Latn --enable "Sound in brackets" --output b.srt a.srt; cat b.srt
-a.srt: Edited 1 and removed 0 subtitles -> b.srt
+[subedit] [correct] [1/1] source: a.srt
+[subedit] [correct] [1/1] result: Edited 1 and removed 0 subtitles
+[subedit] [correct] [1/1] dest: b.srt
 1
 00:00:01,000 --> 00:00:02,000
 Bonjour
@@ -280,7 +284,9 @@ changes is written all the same: a destination given is a destination written.
 <!-- example: printf '1\n00:00:01,000 --> 00:00:02,000\neﬀet  de ﬁn\n\n2\n00:00:03,000 --> 00:00:04,000\nPropre.\n\n' > a.srt; subedit-cli --no-config correct --tasks common-errors --code Latn --output b.srt a.srt; cat b.srt -->
 ```console
 $ printf '1\n00:00:01,000 --> 00:00:02,000\neﬀet  de ﬁn\n\n2\n00:00:03,000 --> 00:00:04,000\nPropre.\n\n' > a.srt; subedit-cli --no-config correct --tasks common-errors --code Latn --output b.srt a.srt; cat b.srt
-a.srt: Edited 1 and removed 0 subtitles -> b.srt
+[subedit] [correct] [1/1] source: a.srt
+[subedit] [correct] [1/1] result: Edited 1 and removed 0 subtitles
+[subedit] [correct] [1/1] dest: b.srt
 1
 00:00:01,000 --> 00:00:02,000
 effet de fin
@@ -320,9 +326,9 @@ and `(removed)` with no `+` line for a subtitle the correction would remove; wit
 
 | Level | What is added on the error output |
 | :----- | :------------------------------------- |
-| 1 | `<path>: Edited N and removed M subtitles -> <destination>`, the patterns that could not apply, the pattern files that cannot be read — and, first, the settings file read — `settings: read <path>` — and what of it was ignored |
-| 2 | `<path>: SubRip, UTF-8, no BOM, LF line endings kept` |
-| 3 | `<path>: N bytes read, M written`, then every reading diagnostic |
+| 1 | `source: <path>`, `result: Edited N and removed M subtitles`, `dest: <destination>`, the patterns that could not apply, the pattern files that cannot be read — and, first, the settings file read — `settings: <path>` — and what of it was ignored |
+| 2 | `format: SubRip`, `encoding: UTF-8`, `bom: absent`, `line-endings: LF` |
+| 3 | `bytes-read: N`, `bytes-written: M`, then every reading diagnostic |
 
 In JSON, `counts` carries `corrected` (the texts changed) and `removed` (the subtitles
 removed), and `changes` the subtitles touched. With `-t`, the `alignment` key says how the

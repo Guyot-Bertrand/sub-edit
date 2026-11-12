@@ -70,7 +70,8 @@ TEST_CASE("a failure is worded in the language for a person and in English for t
                                    reporter);
 
     CHECK(code == ExitCode::AllFailed);
-    CHECK(errors.str() == "absent.srt — не существует\n");
+    CHECK(errors.str() == "[subedit] [shift] [1/1] source: absent.srt\n"
+                          "[subedit] [shift] [1/1] error: не существует\n");
     CHECK(records.str() == R"({"schema":1,"command":"shift","file":"absent.srt","ok":false,)"
                            R"("error":{"kind":"not-found","message":"absent.srt: does not exist"}})"
                            "\n");

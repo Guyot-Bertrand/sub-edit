@@ -51,6 +51,23 @@ core::WriteRequest writeRequestOf(std::span<const core::Subtitle> subtitles,
     };
 }
 
+void narrateRead(const Reporter& reporter,
+                 std::size_t bytesRead,
+                 const core::SourceFile& source,
+                 std::span<const core::Diagnostic> diagnostics) {
+    reporter.tell(2, Key::Format, nameOf(source.format));
+    reporter.tell(2, Key::Encoding, source.encoding.charset());
+    // The words of the report of `inspect`, as names: a script reads them in every language.
+    reporter.tell(2,
+                  Key::Bom,
+                  source.encoding.byteOrderMark() == core::ByteOrderMark::Present ? "present"
+                                                                                  : "absent");
+    reporter.tell(2, Key::LineEndings, nameOf(source.newline));
+    reporter.tell(3, Key::BytesRead, std::to_string(bytesRead));
+    // The path is the element's `source` line: a diagnostic of an element does not repeat it.
+    sayDiagnostics(reporter, {}, diagnostics);
+}
+
 void narrateKept(const Reporter& reporter,
                  std::string_view path,
                  std::size_t bytesRead,

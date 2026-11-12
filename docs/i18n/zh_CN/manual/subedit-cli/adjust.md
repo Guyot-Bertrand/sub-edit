@@ -53,8 +53,9 @@ subedit-cli adjust [--speed CPS|off] [--shorten | --no-shorten] [--lengthen | --
 <!-- example: printf '1\n00:00:01,000 --> 00:00:01,200\nUn.\n\n' > a.srt; subedit-cli --config mine/settings.conf config set duration-adjust.speed 12 2>/dev/null; subedit-cli --config mine/settings.conf --format json adjust --dry-run a.srt -->
 ```console
 $ printf '1\n00:00:01,000 --> 00:00:01,200\nUn.\n\n' > a.srt; subedit-cli --config mine/settings.conf config set duration-adjust.speed 12 2>/dev/null; subedit-cli --config mine/settings.conf --format json adjust --dry-run a.srt
-settings: read mine/settings.conf
-a.srt: adjusted the durations of 1 subtitle (dry run, nothing written)
+[subedit] [adjust] [-] settings: mine/settings.conf
+[subedit] [adjust] [1/1] source: a.srt
+[subedit] [adjust] [1/1] result: adjusted the durations of 1 subtitle (dry run, nothing written)
 {"schema":1,"command":"adjust","file":"a.srt","ok":true,"dry_run":true,"destination":null,"counts":{"subtitles":1,"adjusted":1,"sacrificed":{"speed":0,"minimum":0,"gap":0}},"constraints":{"speed":{"cps":"12","lengthen":true,"shorten":false},"minimum_ms":1500,"maximum_ms":null,"gap_ms":0},"settings":"mine/settings.conf","warnings":[]}
 ```
 
@@ -128,7 +129,9 @@ Options:
 <!-- example: printf '1\n00:00:00,000 --> 00:00:00,400\nabcdefghijklmnopqrstuvwxyz1234\n\n2\n00:00:10,000 --> 00:00:14,000\nabcdefghijklmno\n\n3\n00:00:14,200 --> 00:00:14,300\nabc\n\n4\n00:00:15,000 --> 00:00:15,100\nabcdef\n\n' > courts.srt; subedit-cli --no-config adjust --output ajuste.srt courts.srt; grep -e '-->' ajuste.srt -->
 ```console
 $ printf '1\n00:00:00,000 --> 00:00:00,400\nabcdefghijklmnopqrstuvwxyz1234\n\n2\n00:00:10,000 --> 00:00:14,000\nabcdefghijklmno\n\n3\n00:00:14,200 --> 00:00:14,300\nabc\n\n4\n00:00:15,000 --> 00:00:15,100\nabcdef\n\n' > courts.srt; subedit-cli --no-config adjust --output ajuste.srt courts.srt; grep -e '-->' ajuste.srt
-courts.srt: adjusted the durations of 3 subtitles; could not satisfy the minimum duration in 1 subtitle -> ajuste.srt
+[subedit] [adjust] [1/1] source: courts.srt
+[subedit] [adjust] [1/1] result: adjusted the durations of 3 subtitles; could not satisfy the minimum duration in 1 subtitle
+[subedit] [adjust] [1/1] dest: ajuste.srt
 00:00:00,000 --> 00:00:02,000
 00:00:10,000 --> 00:00:14,000
 00:00:14,200 --> 00:00:15,000
@@ -142,7 +145,9 @@ courts.srt: adjusted the durations of 3 subtitles; could not satisfy the minimum
 <!-- example: printf '1\n00:00:00,000 --> 00:00:00,400\nabcdefghijklmnopqrstuvwxyz1234\n\n2\n00:00:10,000 --> 00:00:14,000\nabcdefghijklmno\n\n3\n00:00:14,200 --> 00:00:14,300\nabc\n\n4\n00:00:15,000 --> 00:00:15,100\nabcdef\n\n' > courts.srt; subedit-cli --no-config adjust --gap off --output libre.srt courts.srt; grep -e '-->' libre.srt -->
 ```console
 $ printf '1\n00:00:00,000 --> 00:00:00,400\nabcdefghijklmnopqrstuvwxyz1234\n\n2\n00:00:10,000 --> 00:00:14,000\nabcdefghijklmno\n\n3\n00:00:14,200 --> 00:00:14,300\nabc\n\n4\n00:00:15,000 --> 00:00:15,100\nabcdef\n\n' > courts.srt; subedit-cli --no-config adjust --gap off --output libre.srt courts.srt; grep -e '-->' libre.srt
-courts.srt: adjusted the durations of 3 subtitles -> libre.srt
+[subedit] [adjust] [1/1] source: courts.srt
+[subedit] [adjust] [1/1] result: adjusted the durations of 3 subtitles
+[subedit] [adjust] [1/1] dest: libre.srt
 00:00:00,000 --> 00:00:02,000
 00:00:10,000 --> 00:00:14,000
 00:00:14,200 --> 00:00:15,700
@@ -154,7 +159,9 @@ courts.srt: adjusted the durations of 3 subtitles -> libre.srt
 <!-- example: printf '1\n00:00:00,000 --> 00:00:00,400\nabcdefghijklmnopqrstuvwxyz1234\n\n2\n00:00:10,000 --> 00:00:14,000\nabcdefghijklmno\n\n3\n00:00:14,200 --> 00:00:14,300\nabc\n\n4\n00:00:15,000 --> 00:00:15,100\nabcdef\n\n' > courts.srt; subedit-cli --no-config adjust --speed off --minimum off --output intact.srt courts.srt -->
 ```console
 $ printf '1\n00:00:00,000 --> 00:00:00,400\nabcdefghijklmnopqrstuvwxyz1234\n\n2\n00:00:10,000 --> 00:00:14,000\nabcdefghijklmno\n\n3\n00:00:14,200 --> 00:00:14,300\nabc\n\n4\n00:00:15,000 --> 00:00:15,100\nabcdef\n\n' > courts.srt; subedit-cli --no-config adjust --speed off --minimum off --output intact.srt courts.srt
-courts.srt: no duration to adjust -> intact.srt
+[subedit] [adjust] [1/1] source: courts.srt
+[subedit] [adjust] [1/1] result: no duration to adjust
+[subedit] [adjust] [1/1] dest: intact.srt
 ```
 
 文件原样写出：**给出了输出位置，就会写入输出位置**。
@@ -165,9 +172,9 @@ courts.srt: no duration to adjust -> intact.srt
 
 | 级别 | 在错误输出中增加的内容 |
 | :----- | :------------------------------------- |
-| 1 | `<path>: adjusted the durations of N subtitles; could not satisfy …  -> <destination>`，或 `<path>: no duration to adjust -> <destination>`——并且最先写出所读取的设置文件——`settings: read <path>`——参见[设置文件](invocation.md#设置文件) |
-| 2 | `<path>: SubRip, UTF-8, no BOM, LF line endings kept`——所读文件的格式、编码、标记和行尾符，并按原样写回 |
-| 3 | `<path>: N bytes read, M written`，然后是**每一条读取诊断信息**——参见[调用](invocation.md#读取诊断信息) |
+| 1 | `source: <path>`, `result: adjusted the durations of N subtitles; could not satisfy … `, `dest: <destination>`，或 `source: <path>`, `result: no duration to adjust`, `dest: <destination>`——并且最先写出所读取的设置文件——`settings: <path>`——参见[设置文件](invocation.md#设置文件) |
+| 2 | `format: SubRip`, `encoding: UTF-8`, `bom: absent`, `line-endings: LF`——所读文件的格式、编码、标记和行尾符，并按原样写回 |
+| 3 | `bytes-read: N`, `bytes-written: M`，然后是**每一条读取诊断信息**——参见[调用](invocation.md#读取诊断信息) |
 
 这句话与窗口的一致：`N` 是结束时间发生移动的字幕数，其余部分在没有任何约束让步时不会出现，列出未能满足的约束——`the reading speed`、`the minimum duration`、`the gap`——以及涉及的字幕数。
 
@@ -189,7 +196,8 @@ courts.srt: no duration to adjust -> intact.srt
 <!-- example: printf '1\n00:00:00,000 --> 00:00:00,400\nabcdefghijklmnopqrstuvwxyz1234\n\n2\n00:00:10,000 --> 00:00:14,000\nabcdefghijklmno\n\n3\n00:00:14,200 --> 00:00:14,300\nabc\n\n4\n00:00:15,000 --> 00:00:15,100\nabcdef\n\n' > courts.srt; subedit-cli --no-config --format json adjust --dry-run --maximum 1.8 courts.srt -->
 ```console
 $ printf '1\n00:00:00,000 --> 00:00:00,400\nabcdefghijklmnopqrstuvwxyz1234\n\n2\n00:00:10,000 --> 00:00:14,000\nabcdefghijklmno\n\n3\n00:00:14,200 --> 00:00:14,300\nabc\n\n4\n00:00:15,000 --> 00:00:15,100\nabcdef\n\n' > courts.srt; subedit-cli --no-config --format json adjust --dry-run --maximum 1.8 courts.srt
-courts.srt: adjusted the durations of 4 subtitles; could not satisfy the reading speed in 1 subtitle, the minimum duration in 1 subtitle (dry run, nothing written)
+[subedit] [adjust] [1/1] source: courts.srt
+[subedit] [adjust] [1/1] result: adjusted the durations of 4 subtitles; could not satisfy the reading speed in 1 subtitle, the minimum duration in 1 subtitle (dry run, nothing written)
 {"schema":1,"command":"adjust","file":"courts.srt","ok":true,"dry_run":true,"destination":null,"counts":{"subtitles":4,"adjusted":4,"sacrificed":{"speed":1,"minimum":1,"gap":0}},"constraints":{"speed":{"cps":"15","lengthen":true,"shorten":false},"minimum_ms":1500,"maximum_ms":1800,"gap_ms":0},"settings":null,"warnings":[]}
 ```
 

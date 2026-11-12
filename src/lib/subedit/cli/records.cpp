@@ -212,7 +212,15 @@ Failure Failure::about(std::string_view prefix) const {
 
 void reportFailure(const Reporter& reporter, std::string_view file, const Failure& failure) {
     const Failure located = failure.about(file);
-    reporter.failed(located.message);
+    // The element's own `source` line names its input, and a failure of another file — the
+    // translation — names that file (rule 6 of D2). The record keeps the path whatever it is.
+    if (reporter.speaksOf(file)) {
+        reporter.error(failure.message);
+    } else if (reporter.speaksOfItem()) {
+        reporter.error(located.message);
+    } else {
+        reporter.failed(located.message);
+    }
     if (reporter.recording()) {
         // **English, whatever the language** (D3): the record is read by a script.
         reporter.record(failureRecord(reporter.command(), file, located.english, failure.kind));

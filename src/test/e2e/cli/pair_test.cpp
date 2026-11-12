@@ -101,9 +101,10 @@ TEST_CASE("the translation written is the expected one, for every pair and both 
                                             byNumber ? "attendu-numero.traduction.srt"
                                                      : "attendu-position.traduction.srt")));
             // Said at the default level: the alignment is the result.
-            CHECK_THAT(run.errors,
-                       ContainsSubstring(std::string{byNumber ? pair.byNumber : pair.byPosition} +
-                                         " -> "));
+            CHECK_THAT(
+                run.errors,
+                ContainsSubstring(
+                    "] result: " + std::string{byNumber ? pair.byNumber : pair.byPosition} + "\n"));
         }
     }
 }

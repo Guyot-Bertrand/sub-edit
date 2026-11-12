@@ -135,7 +135,9 @@ o contém não está vazia.
 <!-- example: printf '1\n00:00:01,000 --> 00:00:03,000\n[Bruit de pas]\n\n2\n00:00:04,000 --> 00:00:06,000\nAttends [il tousse] Marie.\n\n3\n00:00:07,000 --> 00:00:09,000\nVoir [1] la note.\n\n' > a.srt; subedit-cli hearing-impaired --output b.srt a.srt; cat b.srt -->
 ```console
 $ printf '1\n00:00:01,000 --> 00:00:03,000\n[Bruit de pas]\n\n2\n00:00:04,000 --> 00:00:06,000\nAttends [il tousse] Marie.\n\n3\n00:00:07,000 --> 00:00:09,000\nVoir [1] la note.\n\n' > a.srt; subedit-cli hearing-impaired --output b.srt a.srt; cat b.srt
-a.srt: 1 subtitle cleaned, 1 removed -> b.srt
+[subedit] [hearing-impaired] [1/1] source: a.srt
+[subedit] [hearing-impaired] [1/1] result: 1 subtitle cleaned, 1 removed
+[subedit] [hearing-impaired] [1/1] dest: b.srt
 1
 00:00:04,000 --> 00:00:06,000
 Attends Marie.
@@ -157,7 +159,9 @@ quais subcomandos às vezes produzem um arquivo e às vezes nada.
 <!-- example: printf '1\n00:00:01,000 --> 00:00:03,000\nRien à signaler.\n\n' > a.srt; subedit-cli hearing-impaired --output b.srt a.srt -->
 ```console
 $ printf '1\n00:00:01,000 --> 00:00:03,000\nRien à signaler.\n\n' > a.srt; subedit-cli hearing-impaired --output b.srt a.srt
-a.srt: no mention to remove -> b.srt
+[subedit] [hearing-impaired] [1/1] source: a.srt
+[subedit] [hearing-impaired] [1/1] result: no mention to remove
+[subedit] [hearing-impaired] [1/1] dest: b.srt
 ```
 
 ## Saída
@@ -166,9 +170,9 @@ a.srt: no mention to remove -> b.srt
 
 | Nível | O que se acrescenta na saída de erro |
 | :----- | :------------------------------------- |
-| 1 | `<path>: N subtitles cleaned, M removed -> <destination>`, ou `<path>: no mention to remove -> <destination>` |
-| 2 | `<path>: SubRip, UTF-8, no BOM, LF line endings kept` — o formato, a codificação, a marca e os finais de linha do arquivo lido, restituídos como estavam |
-| 3 | `<path>: N bytes read, M written`, depois **cada diagnóstico de leitura** — veja [Invocação](invocation.md#diagnósticos-de-leitura) |
+| 1 | `source: <path>`, `result: N subtitles cleaned, M removed`, `dest: <destination>`, ou `source: <path>`, `result: no mention to remove`, `dest: <destination>` |
+| 2 | `format: SubRip`, `encoding: UTF-8`, `bom: absent`, `line-endings: LF` — o formato, a codificação, a marca e os finais de linha do arquivo lido, restituídos como estavam |
+| 3 | `bytes-read: N`, `bytes-written: M`, depois **cada diagnóstico de leitura** — veja [Invocação](invocation.md#diagnósticos-de-leitura) |
 
 `N` conta as legendas cujo texto mudou, `M` aquelas que a remoção
 esvaziou por inteiro e que, por isso, saíram do arquivo.

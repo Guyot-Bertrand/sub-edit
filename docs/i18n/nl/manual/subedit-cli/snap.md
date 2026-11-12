@@ -80,9 +80,9 @@ het werk van [`convert`](convert.md).
 
 | Niveau | Wat er op de foutuitvoer wordt toegevoegd |
 | :----- | :------------------------------------- |
-| 1 | `<path>: N subtitles aligned on 25 fps, M positions moved, by at most 20 ms -> <destination>` |
-| 2 | `<path>: SubRip, UTF-8, no BOM, LF line endings kept` — het formaat, de codering, de markering en de regeleinden van het gelezen bestand, teruggezet zoals ze waren |
-| 3 | `<path>: N bytes read, M written`, daarna **elke diagnostische melding van het lezen** — zie [Aanroep](invocation.md#diagnostische-meldingen-lezen) |
+| 1 | `source: <path>`, `result: N subtitles aligned on 25 fps, M positions moved, by at most 20 ms`, `dest: <destination>` |
+| 2 | `format: SubRip`, `encoding: UTF-8`, `bom: absent`, `line-endings: LF` — het formaat, de codering, de markering en de regeleinden van het gelezen bestand, teruggezet zoals ze waren |
+| 3 | `bytes-read: N`, `bytes-written: M`, daarna **elke diagnostische melding van het lezen** — zie [Aanroep](invocation.md#diagnostische-meldingen-lezen) |
 
 **De twee getallen zijn de clou van de regel.** Een half frame bij 25 frames per
 seconde is twintig milliseconden, en niets groters kan daar worden geschreven. Wie
@@ -97,7 +97,9 @@ veelvoud van veertig milliseconden:
 <!-- example: printf '1\n00:00:01,010 --> 00:00:03,020\nUn.\n\n' > a.srt; subedit-cli snap --rate 25 --output b.srt a.srt; cat b.srt -->
 ```console
 $ printf '1\n00:00:01,010 --> 00:00:03,020\nUn.\n\n' > a.srt; subedit-cli snap --rate 25 --output b.srt a.srt; cat b.srt
-a.srt: 1 subtitle aligned on 25 fps, 2 positions moved, by at most 20 ms -> b.srt
+[subedit] [snap] [1/1] source: a.srt
+[subedit] [snap] [1/1] result: 1 subtitle aligned on 25 fps, 2 positions moved, by at most 20 ms
+[subedit] [snap] [1/1] dest: b.srt
 1
 00:00:01,000 --> 00:00:03,040
 Un.

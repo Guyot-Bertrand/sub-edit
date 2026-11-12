@@ -134,7 +134,9 @@ znika. Dopóki zostają dwa głosy, myślniki pozostają.
 <!-- example: printf '1\n00:00:01,000 --> 00:00:03,000\n[Bruit de pas]\n\n2\n00:00:04,000 --> 00:00:06,000\nAttends [il tousse] Marie.\n\n3\n00:00:07,000 --> 00:00:09,000\nVoir [1] la note.\n\n' > a.srt; subedit-cli hearing-impaired --output b.srt a.srt; cat b.srt -->
 ```console
 $ printf '1\n00:00:01,000 --> 00:00:03,000\n[Bruit de pas]\n\n2\n00:00:04,000 --> 00:00:06,000\nAttends [il tousse] Marie.\n\n3\n00:00:07,000 --> 00:00:09,000\nVoir [1] la note.\n\n' > a.srt; subedit-cli hearing-impaired --output b.srt a.srt; cat b.srt
-a.srt: 1 subtitle cleaned, 1 removed -> b.srt
+[subedit] [hearing-impaired] [1/1] source: a.srt
+[subedit] [hearing-impaired] [1/1] result: 1 subtitle cleaned, 1 removed
+[subedit] [hearing-impaired] [1/1] dest: b.srt
 1
 00:00:04,000 --> 00:00:06,000
 Attends Marie.
@@ -156,7 +158,9 @@ z podpoleceń czasem tworzy plik, a czasem nic.
 <!-- example: printf '1\n00:00:01,000 --> 00:00:03,000\nRien à signaler.\n\n' > a.srt; subedit-cli hearing-impaired --output b.srt a.srt -->
 ```console
 $ printf '1\n00:00:01,000 --> 00:00:03,000\nRien à signaler.\n\n' > a.srt; subedit-cli hearing-impaired --output b.srt a.srt
-a.srt: no mention to remove -> b.srt
+[subedit] [hearing-impaired] [1/1] source: a.srt
+[subedit] [hearing-impaired] [1/1] result: no mention to remove
+[subedit] [hearing-impaired] [1/1] dest: b.srt
 ```
 
 ## Wynik
@@ -165,9 +169,9 @@ a.srt: no mention to remove -> b.srt
 
 | Poziom | Co jest dodawane na wyjściu błędów |
 | :----- | :------------------------------------- |
-| 1 | `<path>: N subtitles cleaned, M removed -> <destination>`, albo `<path>: no mention to remove -> <destination>` |
-| 2 | `<path>: SubRip, UTF-8, no BOM, LF line endings kept` — format, kodowanie, znacznik i końce linii odczytanego pliku, przywrócone takie, jakie były |
-| 3 | `<path>: N bytes read, M written`, a następnie **każdy komunikat diagnostyczny odczytu** — zobacz [Uruchamianie](invocation.md#odczyt-komunikatów-diagnostycznych) |
+| 1 | `source: <path>`, `result: N subtitles cleaned, M removed`, `dest: <destination>`, albo `source: <path>`, `result: no mention to remove`, `dest: <destination>` |
+| 2 | `format: SubRip`, `encoding: UTF-8`, `bom: absent`, `line-endings: LF` — format, kodowanie, znacznik i końce linii odczytanego pliku, przywrócone takie, jakie były |
+| 3 | `bytes-read: N`, `bytes-written: M`, a następnie **każdy komunikat diagnostyczny odczytu** — zobacz [Uruchamianie](invocation.md#odczyt-komunikatów-diagnostycznych) |
 
 `N` zlicza napisy, których tekst się zmienił, `M` — te, które usunięcie
 opróżniło w całości i które dlatego opuściły plik.

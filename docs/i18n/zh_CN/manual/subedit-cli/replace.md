@@ -85,7 +85,9 @@ Options:
 <!-- example: printf '1\n00:00:01,000 --> 00:00:02,000\nPrix: 12 euros, et 7 euros.\n\n' > prix.srt; subedit-cli replace --regex '([0-9]+) euros' '$1 EUR' --output euros.srt prix.srt; cat euros.srt -->
 ```console
 $ printf '1\n00:00:01,000 --> 00:00:02,000\nPrix: 12 euros, et 7 euros.\n\n' > prix.srt; subedit-cli replace --regex '([0-9]+) euros' '$1 EUR' --output euros.srt prix.srt; cat euros.srt
-prix.srt: replaced 2 matches -> euros.srt
+[subedit] [replace] [1/1] source: prix.srt
+[subedit] [replace] [1/1] result: replaced 2 matches
+[subedit] [replace] [1/1] dest: euros.srt
 1
 00:00:01,000 --> 00:00:02,000
 Prix: 12 EUR, et 7 EUR.
@@ -98,7 +100,9 @@ Prix: 12 EUR, et 7 EUR.
 <!-- example: printf '1\n00:00:01,000 --> 00:00:02,000\n<i>Bon</i>jour tout le monde\n\n2\n00:00:03,000 --> 00:00:04,000\nBonjour <i>Marie</i>, ca va\n\n' > balises.srt; subedit-cli replace Bonjour Salut --output salut.srt balises.srt; cat salut.srt -->
 ```console
 $ printf '1\n00:00:01,000 --> 00:00:02,000\n<i>Bon</i>jour tout le monde\n\n2\n00:00:03,000 --> 00:00:04,000\nBonjour <i>Marie</i>, ca va\n\n' > balises.srt; subedit-cli replace Bonjour Salut --output salut.srt balises.srt; cat salut.srt
-balises.srt: replaced 2 matches -> salut.srt
+[subedit] [replace] [1/1] source: balises.srt
+[subedit] [replace] [1/1] result: replaced 2 matches
+[subedit] [replace] [1/1] dest: salut.srt
 1
 00:00:01,000 --> 00:00:02,000
 <i>Salut</i> tout le monde
@@ -124,8 +128,12 @@ Salut <i>Marie</i>, ca va
 <!-- example: printf '1\n00:00:01,000 --> 00:00:02,000\nBonjour\n\n' > a.srt; subedit-cli replace zzz x --output b.srt a.srt; subedit-cli replace Bonjour Bonjour --output c.srt a.srt -->
 ```console
 $ printf '1\n00:00:01,000 --> 00:00:02,000\nBonjour\n\n' > a.srt; subedit-cli replace zzz x --output b.srt a.srt; subedit-cli replace Bonjour Bonjour --output c.srt a.srt
-a.srt: "zzz" not found -> b.srt
-a.srt: nothing to change -> c.srt
+[subedit] [replace] [1/1] source: a.srt
+[subedit] [replace] [1/1] result: "zzz" not found
+[subedit] [replace] [1/1] dest: b.srt
+[subedit] [replace] [1/1] source: a.srt
+[subedit] [replace] [1/1] result: nothing to change
+[subedit] [replace] [1/1] dest: c.srt
 ```
 
 ## `--dry-run`
@@ -135,7 +143,8 @@ a.srt: nothing to change -> c.srt
 <!-- example: printf '1\n00:00:01,000 --> 00:00:02,000\n<i>Bon</i>jour tout le monde\n\n2\n00:00:03,000 --> 00:00:04,000\nBonjour <i>Marie</i>, ca va\n\n' > balises.srt; subedit-cli replace --dry-run Bonjour Salut balises.srt -->
 ```console
 $ printf '1\n00:00:01,000 --> 00:00:02,000\n<i>Bon</i>jour tout le monde\n\n2\n00:00:03,000 --> 00:00:04,000\nBonjour <i>Marie</i>, ca va\n\n' > balises.srt; subedit-cli replace --dry-run Bonjour Salut balises.srt
-balises.srt: replaced 2 matches (dry run, nothing written)
+[subedit] [replace] [1/1] source: balises.srt
+[subedit] [replace] [1/1] result: replaced 2 matches (dry run, nothing written)
 balises.srt: subtitle 1
 - <i>Bon</i>jour tout le monde
 + <i>Salut</i> tout le monde
@@ -152,9 +161,9 @@ balises.srt: subtitle 2
 
 | 级别 | 在标准错误输出上追加的内容 |
 | :----- | :------------------------------------- |
-| 1 | `<path>: replaced N matches -> <destination>`，或 `"<pattern>" not found`，或 `nothing to change` |
-| 2 | `<path>: SubRip, UTF-8, no BOM, LF line endings kept`——所读文件的格式、编码、标记和行尾符，原样保留 |
-| 3 | `<path>: N bytes read, M written`，然后是**每一条读取诊断信息**——参见[调用](invocation.md#读取诊断信息) |
+| 1 | `source: <path>`, `result: replaced N matches`, `dest: <destination>`，或 `"<pattern>" not found`，或 `nothing to change` |
+| 2 | `format: SubRip`, `encoding: UTF-8`, `bom: absent`, `line-endings: LF`——所读文件的格式、编码、标记和行尾符，原样保留 |
+| 3 | `bytes-read: N`, `bytes-written: M`，然后是**每一条读取诊断信息**——参见[调用](invocation.md#读取诊断信息) |
 
 `N` 统计的是**文本发生了改变的字幕中被替换的匹配项**——窗口报告的也是这个数。
 

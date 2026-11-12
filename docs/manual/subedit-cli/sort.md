@@ -51,7 +51,9 @@ Options:
 <!-- example: printf '1\n00:00:05,000 --> 00:00:06,000\ncinq\n\n2\n00:00:01,000 --> 00:00:02,000\nun\n\n3\n00:00:03,000 --> 00:00:04,000\ntrois\n\n' > desordre.srt; subedit-cli sort --output ordre.srt desordre.srt; cat ordre.srt -->
 ```console
 $ printf '1\n00:00:05,000 --> 00:00:06,000\ncinq\n\n2\n00:00:01,000 --> 00:00:02,000\nun\n\n3\n00:00:03,000 --> 00:00:04,000\ntrois\n\n' > desordre.srt; subedit-cli sort --output ordre.srt desordre.srt; cat ordre.srt
-desordre.srt: 3 subtitles moved -> ordre.srt
+[subedit] [sort] [1/1] source: desordre.srt
+[subedit] [sort] [1/1] result: 3 subtitles moved
+[subedit] [sort] [1/1] dest: ordre.srt
 1
 00:00:01,000 --> 00:00:02,000
 un
@@ -78,7 +80,9 @@ subcommands sometimes produce a file and sometimes nothing.
 <!-- example: printf '1\n00:00:01,000 --> 00:00:02,000\nun\n\n2\n00:00:03,000 --> 00:00:04,000\ntrois\n\n' > ordre.srt; subedit-cli sort --output copie.srt ordre.srt -->
 ```console
 $ printf '1\n00:00:01,000 --> 00:00:02,000\nun\n\n2\n00:00:03,000 --> 00:00:04,000\ntrois\n\n' > ordre.srt; subedit-cli sort --output copie.srt ordre.srt
-ordre.srt: already in order -> copie.srt
+[subedit] [sort] [1/1] source: ordre.srt
+[subedit] [sort] [1/1] result: already in order
+[subedit] [sort] [1/1] dest: copie.srt
 ```
 
 ## Output
@@ -88,9 +92,9 @@ no file, and the narration line says so — see [Seeing before writing](invocati
 
 | Level | What is added on the error output |
 | :----- | :------------------------------------- |
-| 1 | `<path>: N subtitles moved -> <destination>`, or `<path>: already in order -> <destination>` |
-| 2 | `<path>: SubRip, UTF-8, no BOM, LF line endings kept` — the format, the encoding, the mark and the line endings of the file read, put back as they were |
-| 3 | `<path>: N bytes read, M written`, then **every reading diagnostic** — see [Invocation](invocation.md#reading-diagnostics) |
+| 1 | `source: <path>`, `result: N subtitles moved`, `dest: <destination>`, or `source: <path>`, `result: already in order`, `dest: <destination>` |
+| 2 | `format: SubRip`, `encoding: UTF-8`, `bom: absent`, `line-endings: LF` — the format, the encoding, the mark and the line endings of the file read, put back as they were |
+| 3 | `bytes-read: N`, `bytes-written: M`, then **every reading diagnostic** — see [Invocation](invocation.md#reading-diagnostics) |
 
 ### In JSON
 

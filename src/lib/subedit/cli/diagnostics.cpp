@@ -56,7 +56,11 @@ void sayDiagnostics(const Reporter& reporter,
                     std::string_view path,
                     std::span<const core::Diagnostic> diagnostics) {
     for (const core::Diagnostic& diagnostic : diagnostics) {
-        reporter.say(kDiagnosticLevel, std::string{path} + ": " + reportOf(diagnostic));
+        if (reporter.speaksOfItem()) {
+            reporter.tell(kDiagnosticLevel, Key::Diagnostic, reportOf(diagnostic));
+        } else {
+            reporter.say(kDiagnosticLevel, std::string{path} + ": " + reportOf(diagnostic));
+        }
     }
 }
 

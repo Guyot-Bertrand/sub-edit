@@ -54,7 +54,9 @@ Options:
 <!-- example: printf '1\n00:00:05,000 --> 00:00:06,000\ncinq\n\n2\n00:00:01,000 --> 00:00:02,000\nun\n\n3\n00:00:03,000 --> 00:00:04,000\ntrois\n\n' > desordre.srt; subedit-cli sort --output ordre.srt desordre.srt; cat ordre.srt -->
 ```console
 $ printf '1\n00:00:05,000 --> 00:00:06,000\ncinq\n\n2\n00:00:01,000 --> 00:00:02,000\nun\n\n3\n00:00:03,000 --> 00:00:04,000\ntrois\n\n' > desordre.srt; subedit-cli sort --output ordre.srt desordre.srt; cat ordre.srt
-desordre.srt: 3 subtitles moved -> ordre.srt
+[subedit] [sort] [1/1] source: desordre.srt
+[subedit] [sort] [1/1] result: 3 subtitles moved
+[subedit] [sort] [1/1] dest: ordre.srt
 1
 00:00:01,000 --> 00:00:02,000
 un
@@ -81,7 +83,9 @@ subcomandes alquande produe un file e alquande null.
 <!-- example: printf '1\n00:00:01,000 --> 00:00:02,000\nun\n\n2\n00:00:03,000 --> 00:00:04,000\ntrois\n\n' > ordre.srt; subedit-cli sort --output copie.srt ordre.srt -->
 ```console
 $ printf '1\n00:00:01,000 --> 00:00:02,000\nun\n\n2\n00:00:03,000 --> 00:00:04,000\ntrois\n\n' > ordre.srt; subedit-cli sort --output copie.srt ordre.srt
-ordre.srt: already in order -> copie.srt
+[subedit] [sort] [1/1] source: ordre.srt
+[subedit] [sort] [1/1] result: already in order
+[subedit] [sort] [1/1] dest: copie.srt
 ```
 
 ## Output
@@ -91,9 +95,9 @@ file, e li linea de narration dis it — vide [Vider ante scrir](invocation.md#v
 
 | Nivelle | Quo es adjuntet al exeunte de error |
 | :----- | :------------------------------------- |
-| 1 | `<path>: N subtitles moved -> <destination>`, or `<path>: already in order -> <destination>` |
-| 2 | `<path>: SubRip, UTF-8, no BOM, LF line endings kept` — li formate, li codification, li marca e li fines de linea del file leet, remetet quam les esset |
-| 3 | `<path>: N bytes read, M written`, poy **omni diagnose de lectura** — vide [Invocation](invocation.md#diagnoses-de-lectura) |
+| 1 | `source: <path>`, `result: N subtitles moved`, `dest: <destination>`, or `source: <path>`, `result: already in order`, `dest: <destination>` |
+| 2 | `format: SubRip`, `encoding: UTF-8`, `bom: absent`, `line-endings: LF` — li formate, li codification, li marca e li fines de linea del file leet, remetet quam les esset |
+| 3 | `bytes-read: N`, `bytes-written: M`, poy **omni diagnose de lectura** — vide [Invocation](invocation.md#diagnoses-de-lectura) |
 
 ### In JSON
 

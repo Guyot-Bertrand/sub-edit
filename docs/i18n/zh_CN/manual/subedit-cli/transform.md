@@ -84,7 +84,9 @@ t′ = y₁ + (t − x₁) × r      with r = (y₂ − y₁) / (x₂ − x₁)
 <!-- example: printf '1\n00:00:01,000 --> 00:00:03,000\nUn.\n\n2\n00:00:05,001 --> 00:00:07,000\nDeux.\n\n3\n00:00:09,000 --> 00:00:11,000\nTrois.\n\n' > a.srt; subedit-cli transform --first 1=00:00:01.000 --last 3=00:00:10.000 --output b.srt a.srt; cat b.srt -->
 ```console
 $ printf '1\n00:00:01,000 --> 00:00:03,000\nUn.\n\n2\n00:00:05,001 --> 00:00:07,000\nDeux.\n\n3\n00:00:09,000 --> 00:00:11,000\nTrois.\n\n' > a.srt; subedit-cli transform --first 1=00:00:01.000 --last 3=00:00:10.000 --output b.srt a.srt; cat b.srt
-a.srt: 3 subtitles transformed onto 1=00:00:01.000 and 3=00:00:10.000 -> b.srt
+[subedit] [transform] [1/1] source: a.srt
+[subedit] [transform] [1/1] result: 3 subtitles transformed onto 1=00:00:01.000 and 3=00:00:10.000
+[subedit] [transform] [1/1] dest: b.srt
 1
 00:00:01,000 --> 00:00:03,250
 Un.
@@ -124,7 +126,8 @@ code=1
 <!-- example: printf '1\n00:00:01,000 --> 00:00:03,000\nUn.\n\n2\n00:00:05,000 --> 00:00:07,000\nDeux.\n\n' > a.srt; subedit-cli transform --first 1=1.000 --last 9=10.000 --output b.srt a.srt; echo "code=$?" -->
 ```console
 $ printf '1\n00:00:01,000 --> 00:00:03,000\nUn.\n\n2\n00:00:05,000 --> 00:00:07,000\nDeux.\n\n' > a.srt; subedit-cli transform --first 1=1.000 --last 9=10.000 --output b.srt a.srt; echo "code=$?"
-a.srt: subtitle 9 is past the end: the file holds 2 subtitles
+[subedit] [transform] [1/1] source: a.srt
+[subedit] [transform] [1/1] error: subtitle 9 is past the end: the file holds 2 subtitles
 code=2
 ```
 
@@ -138,9 +141,9 @@ code=2
 
 | 级别 | 在标准错误输出上追加的内容 |
 | :----- | :------------------------------------- |
-| 1 | `<path>: N subtitles transformed onto 1=00:00:01.000 and 3=00:00:10.000 -> <destination>` |
-| 2 | `<path>: SubRip, UTF-8, no BOM, LF line endings kept`——所读文件的格式、编码、标记和行尾符，原样保留 |
-| 3 | `<path>: N bytes read, M written`，然后是**每一条读取诊断信息**——参见[调用](invocation.md#读取诊断信息) |
+| 1 | `source: <path>`, `result: N subtitles transformed onto 1=00:00:01.000 and 3=00:00:10.000`, `dest: <destination>` |
+| 2 | `format: SubRip`, `encoding: UTF-8`, `bom: absent`, `line-endings: LF`——所读文件的格式、编码、标记和行尾符，原样保留 |
+| 3 | `bytes-read: N`, `bytes-written: M`，然后是**每一条读取诊断信息**——参见[调用](invocation.md#读取诊断信息) |
 
 参照点写回时一律使用小数点，无论输入时是怎样写的。
 

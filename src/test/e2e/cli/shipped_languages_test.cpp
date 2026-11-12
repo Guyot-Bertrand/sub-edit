@@ -148,10 +148,11 @@ TEST_CASE("a usage error, a failure and a summary are in every language that shi
         CHECK_THAT(batch.errors, ContainsSubstring(done.substr(0, duration)));
         CHECK_THAT(batch.errors, ContainsSubstring(done.substr(duration + 2)));
 
-        CHECK_THAT(
-            batch.errors,
-            ContainsSubstring(substitute(words.of("%1: %2"), {absent, words.of("does not exist")}) +
-                              "\n"));
+        // The failure does not repeat its file: the element's source line names it.
+        CHECK_THAT(batch.errors,
+                   ContainsSubstring("[2/2] source: " + absent +
+                                     "\n[subedit] [shift] [2/2] error: " +
+                                     std::string{words.of("does not exist")} + "\n"));
         const std::string summary =
             substitute(words.of("%1 of %2 file shifted", "%1 of %2 files shifted", 2), {"1", "2"});
         CHECK_THAT(
@@ -204,10 +205,8 @@ TEST_CASE("the output of --format json is the same bytes in every language that 
         CHECK(translated.output == english.output);
         CHECK_THAT(english.output, ContainsSubstring(": does not exist"));
         // While the same failure, said to a person, is in the language.
-        CHECK_THAT(
-            translated.errors,
-            ContainsSubstring(substitute(
-                words.of("%1: %2"), {scratch.of("in/absent.srt"), words.of("does not exist")})));
+        CHECK_THAT(translated.errors,
+                   ContainsSubstring("] error: " + std::string{words.of("does not exist")} + "\n"));
     }
 }
 
@@ -239,9 +238,12 @@ TEST_CASE("the help, a usage error and a batch say the French words the catalogu
         {"shift", "--by", "1", "--output-dir", scratch.of("out"), present, scratch.of("in/b.srt")});
     CHECK(batch.exitCode == 3);
     CHECK_THAT(batch.errors,
-               ContainsSubstring(present + " : 2 sous-titres décalés de 1.000 s -> " +
-                                 scratch.of("out/a.srt")));
-    CHECK_THAT(batch.errors, ContainsSubstring(scratch.of("in/b.srt") + " : n'existe pas\n"));
+               ContainsSubstring("[1/2] result: 2 sous-titres décalés de 1.000 s\n"
+                                 "[subedit] [shift] [1/2] dest: " +
+                                 scratch.of("out/a.srt") + "\n"));
+    CHECK_THAT(batch.errors,
+               ContainsSubstring("[2/2] source: " + scratch.of("in/b.srt") +
+                                 "\n[subedit] [shift] [2/2] error: n'existe pas\n"));
     CHECK_THAT(batch.errors, EndsWith("1 sur 2 fichiers décalés, 1 en échec\n"));
 
     const CliRun json = invokeShipped(kFrench,
@@ -254,5 +256,7 @@ TEST_CASE("the help, a usage error and a batch say the French words the catalogu
                                        "--output-dir",
                                        scratch.of("out"),
                                        scratch.of("in/absent.srt")});
-    CHECK_THAT(json.errors, ContainsSubstring(scratch.of("in/absent.srt") + " : n'existe pas"));
+    CHECK_THAT(json.errors,
+               ContainsSubstring("[1/1] source: " + scratch.of("in/absent.srt") +
+                                 "\n[subedit] [shift] [1/1] error: n'existe pas\n"));
 }

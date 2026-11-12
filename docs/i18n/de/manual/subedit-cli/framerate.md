@@ -121,7 +121,9 @@ In der Praxis, von 25 auf 23,976, ist der Faktor `1001/960`:
 <!-- example: printf '1\n00:00:01,010 --> 00:00:02,020\nUn.\n\n' > a.srt; subedit-cli framerate --from 25 --to 23.976 --output b.srt a.srt; cat b.srt -->
 ```console
 $ printf '1\n00:00:01,010 --> 00:00:02,020\nUn.\n\n' > a.srt; subedit-cli framerate --from 25 --to 23.976 --output b.srt a.srt; cat b.srt
-a.srt: 1 subtitle retimed from 25 to 24000/1001 fps -> b.srt
+[subedit] [framerate] [1/1] source: a.srt
+[subedit] [framerate] [1/1] result: 1 subtitle retimed from 25 to 24000/1001 fps
+[subedit] [framerate] [1/1] dest: b.srt
 1
 00:00:01,053 --> 00:00:02,106
 Un.
@@ -133,9 +135,9 @@ Un.
 
 | Stufe | Was auf der Fehlerausgabe hinzukommt |
 | :----- | :------------------------------------- |
-| 1 | `<path>: N subtitles retimed from 25 to 24000/1001 fps -> <destination>` |
-| 2 | `<path>: SubRip, UTF-8, no BOM, LF line endings kept` — das Format, die Kodierung, die Marke und die Zeilenenden der gelesenen Datei, so wiederhergestellt, wie sie waren |
-| 3 | `<path>: N bytes read, M written`, dann **jede Diagnose beim Lesen** — siehe [Aufruf](invocation.md#diagnosen-beim-lesen) |
+| 1 | `source: <path>`, `result: N subtitles retimed from 25 to 24000/1001 fps`, `dest: <destination>` |
+| 2 | `format: SubRip`, `encoding: UTF-8`, `bom: absent`, `line-endings: LF` — das Format, die Kodierung, die Marke und die Zeilenenden der gelesenen Datei, so wiederhergestellt, wie sie waren |
+| 3 | `bytes-read: N`, `bytes-written: M`, dann **jede Diagnose beim Lesen** — siehe [Aufruf](invocation.md#diagnosen-beim-lesen) |
 
 **Die Verlaufsmeldungen nennen die exakte Bildrate, nicht die eingegebene Bezeichnung.** In dieser Zeile
 `23.976` zu schreiben, würde eine Umrechnung melden, die nicht stattgefunden hat; es ist

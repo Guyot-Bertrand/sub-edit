@@ -55,7 +55,7 @@ TEST_CASE("the tally writes the summary and returns the code", "[cli][batch]") {
     const Reporter reporter{errors, 1};
 
     CHECK(tally(reporter, Verb::Inspected, 1, 2) == ExitCode::SomeFailed);
-    CHECK(errors.str() == "1 of 2 files inspected, 1 failed\n");
+    CHECK(errors.str() == "[subedit] [-] [-] summary: 1 of 2 files inspected, 1 failed\n");
 }
 
 TEST_CASE("the tally says nothing under silence", "[cli][batch]") {
@@ -127,7 +127,7 @@ TEST_CASE("a directory that cannot be made stops the batch with code 2, said onc
 
     REQUIRE_FALSE(jobs.has_value());
     CHECK(jobs.error() == ExitCode::AllFailed);
-    CHECK(errors.str() == "out: cannot be created: permission denied\n");
+    CHECK(errors.str() == "[subedit] [-] [-] error: out: cannot be created: permission denied\n");
 }
 
 TEST_CASE("arranging a dry run makes no directory, and a refused plan is refused",

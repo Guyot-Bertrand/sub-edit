@@ -47,7 +47,9 @@ Options:
 <!-- example: printf '1\n00:00:05,000 --> 00:00:06,000\ncinq\n\n2\n00:00:01,000 --> 00:00:02,000\nun\n\n3\n00:00:03,000 --> 00:00:04,000\ntrois\n\n' > desordre.srt; subedit-cli sort --output ordre.srt desordre.srt; cat ordre.srt -->
 ```console
 $ printf '1\n00:00:05,000 --> 00:00:06,000\ncinq\n\n2\n00:00:01,000 --> 00:00:02,000\nun\n\n3\n00:00:03,000 --> 00:00:04,000\ntrois\n\n' > desordre.srt; subedit-cli sort --output ordre.srt desordre.srt; cat ordre.srt
-desordre.srt: 3 subtitles moved -> ordre.srt
+[subedit] [sort] [1/1] source: desordre.srt
+[subedit] [sort] [1/1] result: 3 subtitles moved
+[subedit] [sort] [1/1] dest: ordre.srt
 1
 00:00:01,000 --> 00:00:02,000
 un
@@ -70,7 +72,9 @@ cinq
 <!-- example: printf '1\n00:00:01,000 --> 00:00:02,000\nun\n\n2\n00:00:03,000 --> 00:00:04,000\ntrois\n\n' > ordre.srt; subedit-cli sort --output copie.srt ordre.srt -->
 ```console
 $ printf '1\n00:00:01,000 --> 00:00:02,000\nun\n\n2\n00:00:03,000 --> 00:00:04,000\ntrois\n\n' > ordre.srt; subedit-cli sort --output copie.srt ordre.srt
-ordre.srt: already in order -> copie.srt
+[subedit] [sort] [1/1] source: ordre.srt
+[subedit] [sort] [1/1] result: already in order
+[subedit] [sort] [1/1] dest: copie.srt
 ```
 
 ## 输出
@@ -79,9 +83,9 @@ ordre.srt: already in order -> copie.srt
 
 | 级别 | 在标准错误输出上追加的内容 |
 | :----- | :------------------------------------- |
-| 1 | `<path>: N subtitles moved -> <destination>`，或 `<path>: already in order -> <destination>` |
-| 2 | `<path>: SubRip, UTF-8, no BOM, LF line endings kept`——所读文件的格式、编码、标记和行尾符，原样保留 |
-| 3 | `<path>: N bytes read, M written`，然后是**每一条读取诊断信息**——参见[调用](invocation.md#读取诊断信息) |
+| 1 | `source: <path>`, `result: N subtitles moved`, `dest: <destination>`，或 `source: <path>`, `result: already in order`, `dest: <destination>` |
+| 2 | `format: SubRip`, `encoding: UTF-8`, `bom: absent`, `line-endings: LF`——所读文件的格式、编码、标记和行尾符，原样保留 |
+| 3 | `bytes-read: N`, `bytes-written: M`，然后是**每一条读取诊断信息**——参见[调用](invocation.md#读取诊断信息) |
 
 ### 以 JSON 输出
 

@@ -206,7 +206,9 @@ schalten es aus, und der Text wird dann wieder als Ganzes gelesen und neu geschn
 <!-- example: printf '1\n00:00:01,000 --> 00:00:03,000\nWhen the rain stopped, we walked home under the dark sky of the old town.\n\n' > a.srt; subedit-cli --no-config correct --tasks line-break --code Latn-en --max-length 24 --output b.srt a.srt; cat b.srt -->
 ```console
 $ printf '1\n00:00:01,000 --> 00:00:03,000\nWhen the rain stopped, we walked home under the dark sky of the old town.\n\n' > a.srt; subedit-cli --no-config correct --tasks line-break --code Latn-en --max-length 24 --output b.srt a.srt; cat b.srt
-a.srt: Edited 1 and removed 0 subtitles -> b.srt
+[subedit] [correct] [1/1] source: a.srt
+[subedit] [correct] [1/1] result: Edited 1 and removed 0 subtitles
+[subedit] [correct] [1/1] dest: b.srt
 1
 00:00:01,000 --> 00:00:03,000
 When the rain
@@ -262,7 +264,9 @@ Dieselbe Datei, mit eingeschaltetem Durchgang für eckige Klammern:
 <!-- example: printf '1\n00:00:01,000 --> 00:00:02,000\n[Bruit] Bonjour\n\n' > a.srt; subedit-cli --no-config correct --tasks mentions --code Latn --enable "Sound in brackets" --output b.srt a.srt; cat b.srt -->
 ```console
 $ printf '1\n00:00:01,000 --> 00:00:02,000\n[Bruit] Bonjour\n\n' > a.srt; subedit-cli --no-config correct --tasks mentions --code Latn --enable "Sound in brackets" --output b.srt a.srt; cat b.srt
-a.srt: Edited 1 and removed 0 subtitles -> b.srt
+[subedit] [correct] [1/1] source: a.srt
+[subedit] [correct] [1/1] result: Edited 1 and removed 0 subtitles
+[subedit] [correct] [1/1] dest: b.srt
 1
 00:00:01,000 --> 00:00:02,000
 Bonjour
@@ -283,7 +287,9 @@ Texte und entfernte Untertitel, **niemals Treffer**. Eine Datei, in der sich nic
 <!-- example: printf '1\n00:00:01,000 --> 00:00:02,000\neﬀet  de ﬁn\n\n2\n00:00:03,000 --> 00:00:04,000\nPropre.\n\n' > a.srt; subedit-cli --no-config correct --tasks common-errors --code Latn --output b.srt a.srt; cat b.srt -->
 ```console
 $ printf '1\n00:00:01,000 --> 00:00:02,000\neﬀet  de ﬁn\n\n2\n00:00:03,000 --> 00:00:04,000\nPropre.\n\n' > a.srt; subedit-cli --no-config correct --tasks common-errors --code Latn --output b.srt a.srt; cat b.srt
-a.srt: Edited 1 and removed 0 subtitles -> b.srt
+[subedit] [correct] [1/1] source: a.srt
+[subedit] [correct] [1/1] result: Edited 1 and removed 0 subtitles
+[subedit] [correct] [1/1] dest: b.srt
 1
 00:00:01,000 --> 00:00:02,000
 effet de fin
@@ -323,9 +329,9 @@ und `(removed)` ohne `+`-Zeile für einen Untertitel, den die Korrektur entferne
 
 | Stufe | Was auf der Fehlerausgabe hinzukommt |
 | :----- | :------------------------------------- |
-| 1 | `<path>: Edited N and removed M subtitles -> <destination>`, die Muster, die nicht angewendet werden konnten, die Musterdateien, die nicht gelesen werden können — und zuerst die gelesene Einstellungsdatei — `settings: read <path>` — und was davon ignoriert wurde |
-| 2 | `<path>: SubRip, UTF-8, no BOM, LF line endings kept` |
-| 3 | `<path>: N bytes read, M written`, dann jede Diagnose beim Lesen |
+| 1 | `source: <path>`, `result: Edited N and removed M subtitles`, `dest: <destination>`, die Muster, die nicht angewendet werden konnten, die Musterdateien, die nicht gelesen werden können — und zuerst die gelesene Einstellungsdatei — `settings: <path>` — und was davon ignoriert wurde |
+| 2 | `format: SubRip`, `encoding: UTF-8`, `bom: absent`, `line-endings: LF` |
+| 3 | `bytes-read: N`, `bytes-written: M`, dann jede Diagnose beim Lesen |
 
 In JSON enthält `counts` die Schlüssel `corrected` (die geänderten Texte) und `removed` (die entfernten
 Untertitel), und `changes` die berührten Untertitel. Mit `-t` sagt der Schlüssel `alignment`, wie die

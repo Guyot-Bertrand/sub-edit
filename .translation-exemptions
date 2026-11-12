@@ -186,3 +186,5 @@ file      src/lib/subedit/core/transcription/transcript_matching_aligner.cpp the
 
 [narration-key] The constants of a line of the standard error, `[subedit] [<command>] [<i>/<n>] <key>: <value>`: the name of the program and the closed list of keys a line is filed under. A script relies on them whatever the language; only the value of a sentence is translated (#806, #826).
 file      src/lib/subedit/cli/reporter.cpp [a-z]+|\[subedit\] \[
+# The two values of the line `bom`, names as the format and the encoding are (#827).
+file      src/lib/subedit/cli/writing.cpp present|absent

@@ -101,7 +101,9 @@ spostamento, e non ne ha la proprietà.
 <!-- example: printf '1\n00:00:01,000 --> 00:00:03,000\nUn.\n\n2\n00:00:05,001 --> 00:00:07,000\nDeux.\n\n3\n00:00:09,000 --> 00:00:11,000\nTrois.\n\n' > a.srt; subedit-cli transform --first 1=00:00:01.000 --last 3=00:00:10.000 --output b.srt a.srt; cat b.srt -->
 ```console
 $ printf '1\n00:00:01,000 --> 00:00:03,000\nUn.\n\n2\n00:00:05,001 --> 00:00:07,000\nDeux.\n\n3\n00:00:09,000 --> 00:00:11,000\nTrois.\n\n' > a.srt; subedit-cli transform --first 1=00:00:01.000 --last 3=00:00:10.000 --output b.srt a.srt; cat b.srt
-a.srt: 3 subtitles transformed onto 1=00:00:01.000 and 3=00:00:10.000 -> b.srt
+[subedit] [transform] [1/1] source: a.srt
+[subedit] [transform] [1/1] result: 3 subtitles transformed onto 1=00:00:01.000 and 3=00:00:10.000
+[subedit] [transform] [1/1] dest: b.srt
 1
 00:00:01,000 --> 00:00:03,250
 Un.
@@ -149,7 +151,8 @@ stesso tempo che cosa si sarebbe potuto scrivere:
 <!-- example: printf '1\n00:00:01,000 --> 00:00:03,000\nUn.\n\n2\n00:00:05,000 --> 00:00:07,000\nDeux.\n\n' > a.srt; subedit-cli transform --first 1=1.000 --last 9=10.000 --output b.srt a.srt; echo "code=$?" -->
 ```console
 $ printf '1\n00:00:01,000 --> 00:00:03,000\nUn.\n\n2\n00:00:05,000 --> 00:00:07,000\nDeux.\n\n' > a.srt; subedit-cli transform --first 1=1.000 --last 9=10.000 --output b.srt a.srt; echo "code=$?"
-a.srt: subtitle 9 is past the end: the file holds 2 subtitles
+[subedit] [transform] [1/1] source: a.srt
+[subedit] [transform] [1/1] error: subtitle 9 is past the end: the file holds 2 subtitles
 code=2
 ```
 
@@ -167,9 +170,9 @@ scritto, il codice è `2`, e il messaggio indica il sottotitolo in difetto.
 
 | Livello | Che cosa si aggiunge sull'output di errore |
 | :----- | :------------------------------------- |
-| 1 | `<path>: N subtitles transformed onto 1=00:00:01.000 and 3=00:00:10.000 -> <destination>` |
-| 2 | `<path>: SubRip, UTF-8, no BOM, LF line endings kept` — il formato, la codifica, l'indicatore e i terminatori di riga del file letto, rimessi com'erano |
-| 3 | `<path>: N bytes read, M written`, poi **ogni diagnostica di lettura** — vedi [Invocazione](invocation.md#diagnostica-di-lettura) |
+| 1 | `source: <path>`, `result: N subtitles transformed onto 1=00:00:01.000 and 3=00:00:10.000`, `dest: <destination>` |
+| 2 | `format: SubRip`, `encoding: UTF-8`, `bom: absent`, `line-endings: LF` — il formato, la codifica, l'indicatore e i terminatori di riga del file letto, rimessi com'erano |
+| 3 | `bytes-read: N`, `bytes-written: M`, poi **ogni diagnostica di lettura** — vedi [Invocazione](invocation.md#diagnostica-di-lettura) |
 
 I riferimenti vengono riscritti con il punto decimale, comunque siano stati digitati.
 

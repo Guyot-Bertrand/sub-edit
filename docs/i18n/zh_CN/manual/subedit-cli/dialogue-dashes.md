@@ -65,7 +65,9 @@ Options:
 <!-- example: printf '1\n00:00:01,000 --> 00:00:02,000\nBonjour\nMarie\n\n2\n00:00:03,000 --> 00:00:04,000\n<i>Salut</i>\n\n' > a.srt; subedit-cli dialogue-dashes --add --output t.srt a.srt; cat t.srt -->
 ```console
 $ printf '1\n00:00:01,000 --> 00:00:02,000\nBonjour\nMarie\n\n2\n00:00:03,000 --> 00:00:04,000\n<i>Salut</i>\n\n' > a.srt; subedit-cli dialogue-dashes --add --output t.srt a.srt; cat t.srt
-a.srt: 2 subtitles dashed -> t.srt
+[subedit] [dialogue-dashes] [1/1] source: a.srt
+[subedit] [dialogue-dashes] [1/1] result: 2 subtitles dashed
+[subedit] [dialogue-dashes] [1/1] dest: t.srt
 1
 00:00:01,000 --> 00:00:02,000
 - Bonjour
@@ -82,9 +84,9 @@ a.srt: 2 subtitles dashed -> t.srt
 
 | 级别 | 在错误输出中增加的内容 |
 | :----- | :------------------------------------- |
-| 1 | `<path>: N subtitles dashed -> <destination>`，或 `N subtitles undashed`，或 `nothing to change` |
-| 2 | `<path>: SubRip, UTF-8, no BOM, LF line endings kept`——所读文件的格式、编码、标记和行尾符，并按原样写回 |
-| 3 | `<path>: N bytes read, M written`，然后是**每一条读取诊断信息**——参见[调用](invocation.md#读取诊断信息) |
+| 1 | `source: <path>`, `result: N subtitles dashed`, `dest: <destination>`，或 `N subtitles undashed`，或 `nothing to change` |
+| 2 | `format: SubRip`, `encoding: UTF-8`, `bom: absent`, `line-endings: LF`——所读文件的格式、编码、标记和行尾符，并按原样写回 |
+| 3 | `bytes-read: N`, `bytes-written: M`，然后是**每一条读取诊断信息**——参见[调用](invocation.md#读取诊断信息) |
 
 `N` 是**文本发生了更改**的字幕数，由操作本身统计得出。
 

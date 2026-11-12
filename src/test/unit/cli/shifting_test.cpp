@@ -119,7 +119,8 @@ TEST_CASE("a shift landing exactly on the origin is allowed", "[cli][shifting]")
 
 TEST_CASE("the narration says what moved and by how much", "[cli][shifting]") {
     CHECK_THAT(shift(kTwo, 2'999).errors,
-               ContainsSubstring("a.srt: 2 subtitles shifted by 2.999 s -> out/a.srt\n"));
+               ContainsSubstring("[1/1] result: 2 subtitles shifted by 2.999 s\n"
+                                 "[subedit] [-] [1/1] dest: out/a.srt\n"));
 }
 
 TEST_CASE("a backward shift is narrated with its sign", "[cli][shifting]") {

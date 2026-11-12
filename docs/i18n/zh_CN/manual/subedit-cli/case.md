@@ -69,7 +69,9 @@ Options:
 <!-- example: printf '1\n00:00:01,000 --> 00:00:02,000\n<i>bon</i>jour marie\n\n2\n00:00:03,000 --> 00:00:04,000\n- BONJOUR MARIE\n\n' > a.srt; subedit-cli case --to title --output titre.srt a.srt; cat titre.srt -->
 ```console
 $ printf '1\n00:00:01,000 --> 00:00:02,000\n<i>bon</i>jour marie\n\n2\n00:00:03,000 --> 00:00:04,000\n- BONJOUR MARIE\n\n' > a.srt; subedit-cli case --to title --output titre.srt a.srt; cat titre.srt
-a.srt: 2 subtitles recased -> titre.srt
+[subedit] [case] [1/1] source: a.srt
+[subedit] [case] [1/1] result: 2 subtitles recased
+[subedit] [case] [1/1] dest: titre.srt
 1
 00:00:01,000 --> 00:00:02,000
 <i>Bon</i>jour Marie
@@ -84,7 +86,9 @@ a.srt: 2 subtitles recased -> titre.srt
 <!-- example: printf '1\n00:00:01,000 --> 00:00:02,000\nBONJOUR\n\n' > a.srt; subedit-cli case --to upper --output b.srt a.srt -->
 ```console
 $ printf '1\n00:00:01,000 --> 00:00:02,000\nBONJOUR\n\n' > a.srt; subedit-cli case --to upper --output b.srt a.srt
-a.srt: nothing to change -> b.srt
+[subedit] [case] [1/1] source: a.srt
+[subedit] [case] [1/1] result: nothing to change
+[subedit] [case] [1/1] dest: b.srt
 ```
 
 ## 输出
@@ -93,9 +97,9 @@ a.srt: nothing to change -> b.srt
 
 | 级别 | 在错误输出中增加的内容 |
 | :----- | :------------------------------------- |
-| 1 | `<path>: N subtitles recased -> <destination>`，或 `nothing to change` |
-| 2 | `<path>: SubRip, UTF-8, no BOM, LF line endings kept`——所读文件的格式、编码、标记和行尾符，并按原样写回 |
-| 3 | `<path>: N bytes read, M written`，然后是**每一条读取诊断信息**——参见[调用](invocation.md#读取诊断信息) |
+| 1 | `source: <path>`, `result: N subtitles recased`, `dest: <destination>`，或 `nothing to change` |
+| 2 | `format: SubRip`, `encoding: UTF-8`, `bom: absent`, `line-endings: LF`——所读文件的格式、编码、标记和行尾符，并按原样写回 |
+| 3 | `bytes-read: N`, `bytes-written: M`，然后是**每一条读取诊断信息**——参见[调用](invocation.md#读取诊断信息) |
 
 `N` 是**文本发生了更改**的字幕数，由操作本身统计得出。
 

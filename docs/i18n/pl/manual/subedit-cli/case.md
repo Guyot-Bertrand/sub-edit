@@ -74,7 +74,9 @@ zmieniane i zapisywane jest tłumaczenie, i tylko ono — zob. [Tłumaczenie](in
 <!-- example: printf '1\n00:00:01,000 --> 00:00:02,000\n<i>bon</i>jour marie\n\n2\n00:00:03,000 --> 00:00:04,000\n- BONJOUR MARIE\n\n' > a.srt; subedit-cli case --to title --output titre.srt a.srt; cat titre.srt -->
 ```console
 $ printf '1\n00:00:01,000 --> 00:00:02,000\n<i>bon</i>jour marie\n\n2\n00:00:03,000 --> 00:00:04,000\n- BONJOUR MARIE\n\n' > a.srt; subedit-cli case --to title --output titre.srt a.srt; cat titre.srt
-a.srt: 2 subtitles recased -> titre.srt
+[subedit] [case] [1/1] source: a.srt
+[subedit] [case] [1/1] result: 2 subtitles recased
+[subedit] [case] [1/1] dest: titre.srt
 1
 00:00:01,000 --> 00:00:02,000
 <i>Bon</i>jour Marie
@@ -90,7 +92,9 @@ mówi o tym:
 <!-- example: printf '1\n00:00:01,000 --> 00:00:02,000\nBONJOUR\n\n' > a.srt; subedit-cli case --to upper --output b.srt a.srt -->
 ```console
 $ printf '1\n00:00:01,000 --> 00:00:02,000\nBONJOUR\n\n' > a.srt; subedit-cli case --to upper --output b.srt a.srt
-a.srt: nothing to change -> b.srt
+[subedit] [case] [1/1] source: a.srt
+[subedit] [case] [1/1] result: nothing to change
+[subedit] [case] [1/1] dest: b.srt
 ```
 
 ## Wynik
@@ -100,9 +104,9 @@ zmian, opisana w [Podgląd przed zapisem](invocation.md#podgląd-przed-zapisem).
 
 | Poziom | Co jest dodawane na wyjściu błędów |
 | :----- | :------------------------------------- |
-| 1 | `<path>: N subtitles recased -> <destination>` lub `nothing to change` |
-| 2 | `<path>: SubRip, UTF-8, no BOM, LF line endings kept` — format, kodowanie, znacznik i końce linii odczytanego pliku, przywrócone takie, jakie były |
-| 3 | `<path>: N bytes read, M written`, a następnie **każdy komunikat diagnostyczny odczytu** — zob. [Uruchamianie](invocation.md#odczyt-komunikatów-diagnostycznych) |
+| 1 | `source: <path>`, `result: N subtitles recased`, `dest: <destination>` lub `nothing to change` |
+| 2 | `format: SubRip`, `encoding: UTF-8`, `bom: absent`, `line-endings: LF` — format, kodowanie, znacznik i końce linii odczytanego pliku, przywrócone takie, jakie były |
+| 3 | `bytes-read: N`, `bytes-written: M`, a następnie **każdy komunikat diagnostyczny odczytu** — zob. [Uruchamianie](invocation.md#odczyt-komunikatów-diagnostycznych) |
 
 `N` to liczba napisów, **których tekst się zmienił**, odczytana z samej operacji.
 

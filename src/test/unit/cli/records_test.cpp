@@ -147,7 +147,9 @@ TEST_CASE("a shift before the origin is refused with its kind", "[cli][records]"
     CHECK(said.code == ExitCode::AllFailed);
     CHECK_THAT(said.records,
                ContainsSubstring(R"("ok":false,"error":{"kind":"before-the-origin")"));
-    CHECK_THAT(said.errors, ContainsSubstring("a.srt: "));
+    // The file is named by the element's source line, not repeated before the reason.
+    CHECK_THAT(said.errors, ContainsSubstring("[1/1] source: a.srt\n"));
+    CHECK_THAT(said.errors, ContainsSubstring("[1/1] error: subtitle 1 would start"));
 }
 
 TEST_CASE("a shift onto a grid that is not there is refused with its kind", "[cli][records]") {
