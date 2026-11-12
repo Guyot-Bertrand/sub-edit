@@ -96,7 +96,9 @@ Uważaj na cudzysłowy powłoki: `'$1 EUR'`, a nie `"$1 EUR"`, które pozwoliło
 <!-- example: printf '1\n00:00:01,000 --> 00:00:02,000\nPrix: 12 euros, et 7 euros.\n\n' > prix.srt; subedit-cli replace --regex '([0-9]+) euros' '$1 EUR' --output euros.srt prix.srt; cat euros.srt -->
 ```console
 $ printf '1\n00:00:01,000 --> 00:00:02,000\nPrix: 12 euros, et 7 euros.\n\n' > prix.srt; subedit-cli replace --regex '([0-9]+) euros' '$1 EUR' --output euros.srt prix.srt; cat euros.srt
-prix.srt: replaced 2 matches -> euros.srt
+[subedit] [replace] [1/1] source: prix.srt
+[subedit] [replace] [1/1] result: replaced 2 matches
+[subedit] [replace] [1/1] dest: euros.srt
 1
 00:00:01,000 --> 00:00:02,000
 Prix: 12 EUR, et 7 EUR.
@@ -109,7 +111,9 @@ Tekst, w którym znacznik przecina szukane słowo:
 <!-- example: printf '1\n00:00:01,000 --> 00:00:02,000\n<i>Bon</i>jour tout le monde\n\n2\n00:00:03,000 --> 00:00:04,000\nBonjour <i>Marie</i>, ca va\n\n' > balises.srt; subedit-cli replace Bonjour Salut --output salut.srt balises.srt; cat salut.srt -->
 ```console
 $ printf '1\n00:00:01,000 --> 00:00:02,000\n<i>Bon</i>jour tout le monde\n\n2\n00:00:03,000 --> 00:00:04,000\nBonjour <i>Marie</i>, ca va\n\n' > balises.srt; subedit-cli replace Bonjour Salut --output salut.srt balises.srt; cat salut.srt
-balises.srt: replaced 2 matches -> salut.srt
+[subedit] [replace] [1/1] source: balises.srt
+[subedit] [replace] [1/1] result: replaced 2 matches
+[subedit] [replace] [1/1] dest: salut.srt
 1
 00:00:01,000 --> 00:00:02,000
 <i>Salut</i> tout le monde
@@ -139,8 +143,12 @@ bo podane miejsce docelowe to miejsce docelowe zapisane:
 <!-- example: printf '1\n00:00:01,000 --> 00:00:02,000\nBonjour\n\n' > a.srt; subedit-cli replace zzz x --output b.srt a.srt; subedit-cli replace Bonjour Bonjour --output c.srt a.srt -->
 ```console
 $ printf '1\n00:00:01,000 --> 00:00:02,000\nBonjour\n\n' > a.srt; subedit-cli replace zzz x --output b.srt a.srt; subedit-cli replace Bonjour Bonjour --output c.srt a.srt
-a.srt: "zzz" not found -> b.srt
-a.srt: nothing to change -> c.srt
+[subedit] [replace] [1/1] source: a.srt
+[subedit] [replace] [1/1] result: "zzz" not found
+[subedit] [replace] [1/1] dest: b.srt
+[subedit] [replace] [1/1] source: a.srt
+[subedit] [replace] [1/1] result: nothing to change
+[subedit] [replace] [1/1] dest: c.srt
 ```
 
 ## `--dry-run`
@@ -151,7 +159,8 @@ jak jest w pliku — łącznie ze znacznikami:
 <!-- example: printf '1\n00:00:01,000 --> 00:00:02,000\n<i>Bon</i>jour tout le monde\n\n2\n00:00:03,000 --> 00:00:04,000\nBonjour <i>Marie</i>, ca va\n\n' > balises.srt; subedit-cli replace --dry-run Bonjour Salut balises.srt -->
 ```console
 $ printf '1\n00:00:01,000 --> 00:00:02,000\n<i>Bon</i>jour tout le monde\n\n2\n00:00:03,000 --> 00:00:04,000\nBonjour <i>Marie</i>, ca va\n\n' > balises.srt; subedit-cli replace --dry-run Bonjour Salut balises.srt
-balises.srt: replaced 2 matches (dry run, nothing written)
+[subedit] [replace] [1/1] source: balises.srt
+[subedit] [replace] [1/1] result: replaced 2 matches (dry run, nothing written)
 balises.srt: subtitle 1
 - <i>Bon</i>jour tout le monde
 + <i>Salut</i> tout le monde
@@ -170,9 +179,9 @@ zmian powyżej.
 
 | Poziom | Co jest dodawane na wyjściu błędów |
 | :----- | :------------------------------------- |
-| 1 | `<path>: replaced N matches -> <destination>`, lub `"<pattern>" not found`, lub `nothing to change` |
-| 2 | `<path>: SubRip, UTF-8, no BOM, LF line endings kept` — format, kodowanie, znacznik i końce linii odczytanego pliku, przywrócone takie, jakie były |
-| 3 | `<path>: N bytes read, M written`, potem **każdy komunikat diagnostyczny odczytu** — zobacz [Uruchamianie](invocation.md#odczyt-komunikatów-diagnostycznych) |
+| 1 | `source: <path>`, `result: replaced N matches`, `dest: <destination>`, lub `"<pattern>" not found`, lub `nothing to change` |
+| 2 | `format: SubRip`, `encoding: UTF-8`, `bom: absent`, `line-endings: LF` — format, kodowanie, znacznik i końce linii odczytanego pliku, przywrócone takie, jakie były |
+| 3 | `bytes-read: N`, `bytes-written: M`, potem **każdy komunikat diagnostyczny odczytu** — zobacz [Uruchamianie](invocation.md#odczyt-komunikatów-diagnostycznych) |
 
 `N` liczy **dopasowania zastąpione w napisach, których tekst się zmienił** — jest to
 liczba, którą podaje także okno.

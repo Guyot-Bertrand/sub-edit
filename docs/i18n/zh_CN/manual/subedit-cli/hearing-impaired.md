@@ -106,7 +106,9 @@ Tout de suite !
 <!-- example: printf '1\n00:00:01,000 --> 00:00:03,000\n[Bruit de pas]\n\n2\n00:00:04,000 --> 00:00:06,000\nAttends [il tousse] Marie.\n\n3\n00:00:07,000 --> 00:00:09,000\nVoir [1] la note.\n\n' > a.srt; subedit-cli hearing-impaired --output b.srt a.srt; cat b.srt -->
 ```console
 $ printf '1\n00:00:01,000 --> 00:00:03,000\n[Bruit de pas]\n\n2\n00:00:04,000 --> 00:00:06,000\nAttends [il tousse] Marie.\n\n3\n00:00:07,000 --> 00:00:09,000\nVoir [1] la note.\n\n' > a.srt; subedit-cli hearing-impaired --output b.srt a.srt; cat b.srt
-a.srt: 1 subtitle cleaned, 1 removed -> b.srt
+[subedit] [hearing-impaired] [1/1] source: a.srt
+[subedit] [hearing-impaired] [1/1] result: 1 subtitle cleaned, 1 removed
+[subedit] [hearing-impaired] [1/1] dest: b.srt
 1
 00:00:04,000 --> 00:00:06,000
 Attends Marie.
@@ -125,7 +127,9 @@ Voir [1] la note.
 <!-- example: printf '1\n00:00:01,000 --> 00:00:03,000\nRien à signaler.\n\n' > a.srt; subedit-cli hearing-impaired --output b.srt a.srt -->
 ```console
 $ printf '1\n00:00:01,000 --> 00:00:03,000\nRien à signaler.\n\n' > a.srt; subedit-cli hearing-impaired --output b.srt a.srt
-a.srt: no mention to remove -> b.srt
+[subedit] [hearing-impaired] [1/1] source: a.srt
+[subedit] [hearing-impaired] [1/1] result: no mention to remove
+[subedit] [hearing-impaired] [1/1] dest: b.srt
 ```
 
 ## 输出
@@ -134,9 +138,9 @@ a.srt: no mention to remove -> b.srt
 
 | 级别 | 在标准错误输出中追加的内容 |
 | :----- | :------------------------------------- |
-| 1 | `<path>: N subtitles cleaned, M removed -> <destination>`，或 `<path>: no mention to remove -> <destination>` |
-| 2 | `<path>: SubRip, UTF-8, no BOM, LF line endings kept`——所读取文件的格式、编码、标记和行尾符，按原样写回 |
-| 3 | `<path>: N bytes read, M written`，随后是**每一条读取诊断信息**——参见[调用](invocation.md#读取诊断信息) |
+| 1 | `source: <path>`, `result: N subtitles cleaned, M removed`, `dest: <destination>`，或 `source: <path>`, `result: no mention to remove`, `dest: <destination>` |
+| 2 | `format: SubRip`, `encoding: UTF-8`, `bom: absent`, `line-endings: LF`——所读取文件的格式、编码、标记和行尾符，按原样写回 |
+| 3 | `bytes-read: N`, `bytes-written: M`，随后是**每一条读取诊断信息**——参见[调用](invocation.md#读取诊断信息) |
 
 `N` 统计文本发生变化的字幕数，`M` 统计被删除操作完全清空、因而离开了文件的字幕数。
 

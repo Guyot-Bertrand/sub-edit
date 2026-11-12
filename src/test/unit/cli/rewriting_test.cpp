@@ -157,9 +157,10 @@ TEST_CASE("a range a file does not hold fails that file before the operation, an
     CHECK_FALSE(files.contentOf("out/short.srt").has_value());
     CHECK(files.contentOf("out/long.srt").has_value());
     // Said even quietly, naming the file and the bound it does not have.
-    CHECK_THAT(
-        errors.str(),
-        ContainsSubstring("short.srt: range 2-6 ends after the last subtitle: the file has 3"));
+    CHECK_THAT(errors.str(),
+               ContainsSubstring("[1/2] source: short.srt\n"
+                                 "[subedit] [-] [1/2] error: range 2-6 ends after the last "
+                                 "subtitle: the file has 3\n"));
 }
 
 TEST_CASE("a range a file does not hold is a failure of kind range-out-of-bounds in json",
@@ -182,4 +183,83 @@ TEST_CASE("a range a file does not hold is a failure of kind range-out-of-bounds
     CHECK_THAT(records.str(), ContainsSubstring("\"ok\":false"));
     CHECK_THAT(records.str(), ContainsSubstring("\"kind\":\"range-out-of-bounds\""));
     CHECK(spy.selections.empty());
+}
+
+TEST_CASE("an element says what was read one fact a line, then what was done and where",
+          "[cli][rewriting][CLI-OUTPUT-03]") {
+    InMemoryFileSystem files;
+    files.addFile("a.srt", srt(2));
+    std::ostringstream errors;
+    Spy spy;
+
+    const ExitCode code = rewriteAll(files,
+                                     {"a.srt"},
+                                     std::nullopt,
+                                     Destination::from("", "out", false, 1).value(),
+                                     Reporter{errors, 3}.forCommand("shift"),
+                                     Verb::Shifted,
+                                     spy.operation());
+
+    CHECK(code == ExitCode::Success);
+    // The names of the format, the encoding, the mark and the line endings, never sentences:
+    // the same words in every language. A single input is `1/1`, and gets no summary.
+    CHECK(errors.str() == "[subedit] [shift] [1/1] source: a.srt\n"
+                          "[subedit] [shift] [1/1] format: SubRip\n"
+                          "[subedit] [shift] [1/1] encoding: UTF-8\n"
+                          "[subedit] [shift] [1/1] bom: absent\n"
+                          "[subedit] [shift] [1/1] line-endings: LF\n"
+                          "[subedit] [shift] [1/1] bytes-read: " +
+                              std::to_string(srt(2).size()) +
+                              "\n"
+                              "[subedit] [shift] [1/1] result: looked at\n"
+                              "[subedit] [shift] [1/1] bytes-written: " +
+                              std::to_string(srt(2).size()) +
+                              "\n"
+                              "[subedit] [shift] [1/1] dest: out/a.srt\n");
+}
+
+TEST_CASE("quietly, a batch says only its failure, after the source it is about",
+          "[cli][rewriting][CLI-BATCH-02]") {
+    InMemoryFileSystem files;
+    files.addFile("a.srt", srt(2));
+    files.addFile("c.srt", srt(1));
+    std::ostringstream errors;
+    Spy spy;
+
+    const ExitCode code = rewriteAll(files,
+                                     {"a.srt", "absent.srt", "c.srt"},
+                                     std::nullopt,
+                                     Destination::from("", "out", false, 3).value(),
+                                     Reporter{errors, 0}.forCommand("shift"),
+                                     Verb::Shifted,
+                                     spy.operation());
+
+    CHECK(code == ExitCode::SomeFailed);
+    CHECK(errors.str() == "[subedit] [shift] [2/3] source: absent.srt\n"
+                          "[subedit] [shift] [2/3] error: does not exist\n");
+}
+
+TEST_CASE("a dry run writes no dest, and its result says so", "[cli][rewriting][CLI-DRYRUN-01]") {
+    InMemoryFileSystem files;
+    files.addFile("a.srt", srt(2));
+    files.addFile("b.srt", srt(1));
+    std::ostringstream errors;
+    Spy spy;
+
+    const ExitCode code = rewriteAll(files,
+                                     {"a.srt", "b.srt"},
+                                     std::nullopt,
+                                     Destination::from("", "out", false, 2, true).value(),
+                                     Reporter{errors, 3}.forCommand("shift"),
+                                     Verb::Shifted,
+                                     spy.operation());
+
+    CHECK(code == ExitCode::Success);
+    CHECK_THAT(errors.str(),
+               ContainsSubstring("[subedit] [shift] [2/2] result: looked at (dry run, nothing "
+                                 "written)\n"));
+    CHECK_THAT(errors.str(), !ContainsSubstring("dest:"));
+    CHECK_THAT(errors.str(), !ContainsSubstring("bytes-written:"));
+    // The batch's end is about the run, not about an element.
+    CHECK_THAT(errors.str(), ContainsSubstring("[subedit] [shift] [-] summary: 2 of 2 files "));
 }

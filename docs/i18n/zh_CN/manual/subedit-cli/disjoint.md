@@ -57,7 +57,9 @@ Options:
 <!-- example: printf '1\n00:00:00,000 --> 00:00:05,000\nA\n\n2\n00:00:03,000 --> 00:00:08,000\nB\n\n' > chevauche.srt; subedit-cli disjoint --output disjoint.srt chevauche.srt; cat disjoint.srt -->
 ```console
 $ printf '1\n00:00:00,000 --> 00:00:05,000\nA\n\n2\n00:00:03,000 --> 00:00:08,000\nB\n\n' > chevauche.srt; subedit-cli disjoint --output disjoint.srt chevauche.srt; cat disjoint.srt
-chevauche.srt: 2 subtitles split, 1 merged -> disjoint.srt
+[subedit] [disjoint] [1/1] source: chevauche.srt
+[subedit] [disjoint] [1/1] result: 2 subtitles split, 1 merged
+[subedit] [disjoint] [1/1] dest: disjoint.srt
 1
 00:00:00,000 --> 00:00:03,000
 A
@@ -85,7 +87,9 @@ B
 <!-- example: printf '1\n00:00:00,000 --> 00:00:03,000\nA\n\n2\n00:00:00,000 --> 00:00:03,000\nB\n\n3\n00:00:00,000 --> 00:00:03,000\nC\n\n' > trois.srt; subedit-cli disjoint --output fenetres.srt trois.srt; cat fenetres.srt -->
 ```console
 $ printf '1\n00:00:00,000 --> 00:00:03,000\nA\n\n2\n00:00:00,000 --> 00:00:03,000\nB\n\n3\n00:00:00,000 --> 00:00:03,000\nC\n\n' > trois.srt; subedit-cli disjoint --output fenetres.srt trois.srt; cat fenetres.srt
-trois.srt: 0 subtitles split, 1 merged; 1 shown in windows for holding too many lines -> fenetres.srt
+[subedit] [disjoint] [1/1] source: trois.srt
+[subedit] [disjoint] [1/1] result: 0 subtitles split, 1 merged; 1 shown in windows for holding too many lines
+[subedit] [disjoint] [1/1] dest: fenetres.srt
 1
 00:00:00,000 --> 00:00:01,500
 A
@@ -110,7 +114,8 @@ C
 <!-- example: printf '1\n00:00:03,000 --> 00:00:08,000\nB\n\n2\n00:00:00,000 --> 00:00:05,000\nA\n\n' > desordre.srt; subedit-cli disjoint --output x.srt desordre.srt; echo "code $?" -->
 ```console
 $ printf '1\n00:00:03,000 --> 00:00:08,000\nB\n\n2\n00:00:00,000 --> 00:00:05,000\nA\n\n' > desordre.srt; subedit-cli disjoint --output x.srt desordre.srt; echo "code $?"
-desordre.srt: The subtitles are not in the order of their start: sort them first. Use --sort to do that here.
+[subedit] [disjoint] [1/1] source: desordre.srt
+[subedit] [disjoint] [1/1] error: The subtitles are not in the order of their start: sort them first. Use --sort to do that here.
 code 2
 ```
 
@@ -124,9 +129,9 @@ code 2
 
 | 级别 | 在标准错误输出中追加的内容 |
 | :----- | :------------------------------------- |
-| 1 | `<path>: N subtitles split, M merged -> <destination>`，其后用 `;` 接上未能完整完成的事项：`K shown in windows for holding too many lines`、`K very short taken over by a neighbour`、`K subtitles shorter than the limit left whole`、`K merged with styles or positions that differ, the first kept`、`K subtitles ending before the start left alone`——或者 `<path>: already disjoint -> <destination>` |
-| 2 | `<path>: SubRip, UTF-8, no BOM, LF line endings kept` |
-| 3 | `<path>: N bytes read, M written`，随后是**每一条读取诊断信息** |
+| 1 | `source: <path>`, `result: N subtitles split, M merged`, `dest: <destination>`，其后用 `;` 接上未能完整完成的事项：`K shown in windows for holding too many lines`、`K very short taken over by a neighbour`、`K subtitles shorter than the limit left whole`、`K merged with styles or positions that differ, the first kept`、`K subtitles ending before the start left alone`——或者 `source: <path>`, `result: already disjoint`, `dest: <destination>` |
+| 2 | `format: SubRip`, `encoding: UTF-8`, `bom: absent`, `line-endings: LF` |
+| 3 | `bytes-read: N`, `bytes-written: M`，随后是**每一条读取诊断信息** |
 
 `N subtitles split` 统计的是被切成多个片段的原始字幕数，`M merged` 统计的是同时显示多条字幕的片段数。
 

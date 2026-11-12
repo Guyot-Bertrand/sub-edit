@@ -72,8 +72,9 @@ frá stillingunum sem voru raunverulega notaðar, hvaðan sem þær komu, og `se
 <!-- example: printf '1\n00:00:01,000 --> 00:00:01,200\nUn.\n\n' > a.srt; subedit-cli --config mine/settings.conf config set duration-adjust.speed 12 2>/dev/null; subedit-cli --config mine/settings.conf --format json adjust --dry-run a.srt -->
 ```console
 $ printf '1\n00:00:01,000 --> 00:00:01,200\nUn.\n\n' > a.srt; subedit-cli --config mine/settings.conf config set duration-adjust.speed 12 2>/dev/null; subedit-cli --config mine/settings.conf --format json adjust --dry-run a.srt
-settings: read mine/settings.conf
-a.srt: adjusted the durations of 1 subtitle (dry run, nothing written)
+[subedit] [adjust] [-] settings: mine/settings.conf
+[subedit] [adjust] [1/1] source: a.srt
+[subedit] [adjust] [1/1] result: adjusted the durations of 1 subtitle (dry run, nothing written)
 {"schema":1,"command":"adjust","file":"a.srt","ok":true,"dry_run":true,"destination":null,"counts":{"subtitles":1,"adjusted":1,"sacrificed":{"speed":0,"minimum":0,"gap":0}},"constraints":{"speed":{"cps":"12","lengthen":true,"shorten":false},"minimum_ms":1500,"maximum_ms":null,"gap_ms":0},"settings":"mine/settings.conf","warnings":[]}
 ```
 
@@ -165,7 +166,9 @@ talið sem lágmark.
 <!-- example: printf '1\n00:00:00,000 --> 00:00:00,400\nabcdefghijklmnopqrstuvwxyz1234\n\n2\n00:00:10,000 --> 00:00:14,000\nabcdefghijklmno\n\n3\n00:00:14,200 --> 00:00:14,300\nabc\n\n4\n00:00:15,000 --> 00:00:15,100\nabcdef\n\n' > courts.srt; subedit-cli --no-config adjust --output ajuste.srt courts.srt; grep -e '-->' ajuste.srt -->
 ```console
 $ printf '1\n00:00:00,000 --> 00:00:00,400\nabcdefghijklmnopqrstuvwxyz1234\n\n2\n00:00:10,000 --> 00:00:14,000\nabcdefghijklmno\n\n3\n00:00:14,200 --> 00:00:14,300\nabc\n\n4\n00:00:15,000 --> 00:00:15,100\nabcdef\n\n' > courts.srt; subedit-cli --no-config adjust --output ajuste.srt courts.srt; grep -e '-->' ajuste.srt
-courts.srt: adjusted the durations of 3 subtitles; could not satisfy the minimum duration in 1 subtitle -> ajuste.srt
+[subedit] [adjust] [1/1] source: courts.srt
+[subedit] [adjust] [1/1] result: adjusted the durations of 3 subtitles; could not satisfy the minimum duration in 1 subtitle
+[subedit] [adjust] [1/1] dest: ajuste.srt
 00:00:00,000 --> 00:00:02,000
 00:00:10,000 --> 00:00:14,000
 00:00:14,200 --> 00:00:15,000
@@ -180,7 +183,9 @@ Ef slökkt er á bilinu vinnur lágmarkið — og skjátextarnir tveir skarast:
 <!-- example: printf '1\n00:00:00,000 --> 00:00:00,400\nabcdefghijklmnopqrstuvwxyz1234\n\n2\n00:00:10,000 --> 00:00:14,000\nabcdefghijklmno\n\n3\n00:00:14,200 --> 00:00:14,300\nabc\n\n4\n00:00:15,000 --> 00:00:15,100\nabcdef\n\n' > courts.srt; subedit-cli --no-config adjust --gap off --output libre.srt courts.srt; grep -e '-->' libre.srt -->
 ```console
 $ printf '1\n00:00:00,000 --> 00:00:00,400\nabcdefghijklmnopqrstuvwxyz1234\n\n2\n00:00:10,000 --> 00:00:14,000\nabcdefghijklmno\n\n3\n00:00:14,200 --> 00:00:14,300\nabc\n\n4\n00:00:15,000 --> 00:00:15,100\nabcdef\n\n' > courts.srt; subedit-cli --no-config adjust --gap off --output libre.srt courts.srt; grep -e '-->' libre.srt
-courts.srt: adjusted the durations of 3 subtitles -> libre.srt
+[subedit] [adjust] [1/1] source: courts.srt
+[subedit] [adjust] [1/1] result: adjusted the durations of 3 subtitles
+[subedit] [adjust] [1/1] dest: libre.srt
 00:00:00,000 --> 00:00:02,000
 00:00:10,000 --> 00:00:14,000
 00:00:14,200 --> 00:00:15,700
@@ -192,7 +197,9 @@ Og engu er fórnað né lagað þegar skráin passar þegar innan marka sinna:
 <!-- example: printf '1\n00:00:00,000 --> 00:00:00,400\nabcdefghijklmnopqrstuvwxyz1234\n\n2\n00:00:10,000 --> 00:00:14,000\nabcdefghijklmno\n\n3\n00:00:14,200 --> 00:00:14,300\nabc\n\n4\n00:00:15,000 --> 00:00:15,100\nabcdef\n\n' > courts.srt; subedit-cli --no-config adjust --speed off --minimum off --output intact.srt courts.srt -->
 ```console
 $ printf '1\n00:00:00,000 --> 00:00:00,400\nabcdefghijklmnopqrstuvwxyz1234\n\n2\n00:00:10,000 --> 00:00:14,000\nabcdefghijklmno\n\n3\n00:00:14,200 --> 00:00:14,300\nabc\n\n4\n00:00:15,000 --> 00:00:15,100\nabcdef\n\n' > courts.srt; subedit-cli --no-config adjust --speed off --minimum off --output intact.srt courts.srt
-courts.srt: no duration to adjust -> intact.srt
+[subedit] [adjust] [1/1] source: courts.srt
+[subedit] [adjust] [1/1] result: no duration to adjust
+[subedit] [adjust] [1/1] dest: intact.srt
 ```
 
 Skráin er skrifuð eins og hún er: **áfangastaður sem er gefinn er áfangastaður sem er skrifaður**.
@@ -203,9 +210,9 @@ Skráin er skrifuð eins og hún er: **áfangastaður sem er gefinn er áfangast
 
 | Stig | Hverju er bætt við villuúttakið |
 | :----- | :------------------------------------- |
-| 1 | `<path>: adjusted the durations of N subtitles; could not satisfy …  -> <destination>`, eða `<path>: no duration to adjust -> <destination>` — og fyrst stillingaskráin sem var lesin — `settings: read <path>` — sjá [Stillingaskráin](invocation.md#stillingaskráin) |
-| 2 | `<path>: SubRip, UTF-8, no BOM, LF line endings kept` — snið, stafakóðun, merki og línulok skrárinnar sem var lesin, sett aftur eins og þau voru |
-| 3 | `<path>: N bytes read, M written`, síðan **hvert lesgreiningarboð** — sjá [Ræsing](invocation.md#að-lesa-greiningarboð) |
+| 1 | `source: <path>`, `result: adjusted the durations of N subtitles; could not satisfy … `, `dest: <destination>`, eða `source: <path>`, `result: no duration to adjust`, `dest: <destination>` — og fyrst stillingaskráin sem var lesin — `settings: <path>` — sjá [Stillingaskráin](invocation.md#stillingaskráin) |
+| 2 | `format: SubRip`, `encoding: UTF-8`, `bom: absent`, `line-endings: LF` — snið, stafakóðun, merki og línulok skrárinnar sem var lesin, sett aftur eins og þau voru |
+| 3 | `bytes-read: N`, `bytes-written: M`, síðan **hvert lesgreiningarboð** — sjá [Ræsing](invocation.md#að-lesa-greiningarboð) |
 
 Setningin er gluggans: `N` er fjöldi skjátexta þar sem endirinn færðist, og
 afgangurinn, sem vantar þegar ekkert varð að víkja, telur upp það sem hélst ekki — `the reading speed`,
@@ -231,7 +238,8 @@ meðtöldum: tvo útreikninga á sömu skjátextum má þá bera saman án þess
 <!-- example: printf '1\n00:00:00,000 --> 00:00:00,400\nabcdefghijklmnopqrstuvwxyz1234\n\n2\n00:00:10,000 --> 00:00:14,000\nabcdefghijklmno\n\n3\n00:00:14,200 --> 00:00:14,300\nabc\n\n4\n00:00:15,000 --> 00:00:15,100\nabcdef\n\n' > courts.srt; subedit-cli --no-config --format json adjust --dry-run --maximum 1.8 courts.srt -->
 ```console
 $ printf '1\n00:00:00,000 --> 00:00:00,400\nabcdefghijklmnopqrstuvwxyz1234\n\n2\n00:00:10,000 --> 00:00:14,000\nabcdefghijklmno\n\n3\n00:00:14,200 --> 00:00:14,300\nabc\n\n4\n00:00:15,000 --> 00:00:15,100\nabcdef\n\n' > courts.srt; subedit-cli --no-config --format json adjust --dry-run --maximum 1.8 courts.srt
-courts.srt: adjusted the durations of 4 subtitles; could not satisfy the reading speed in 1 subtitle, the minimum duration in 1 subtitle (dry run, nothing written)
+[subedit] [adjust] [1/1] source: courts.srt
+[subedit] [adjust] [1/1] result: adjusted the durations of 4 subtitles; could not satisfy the reading speed in 1 subtitle, the minimum duration in 1 subtitle (dry run, nothing written)
 {"schema":1,"command":"adjust","file":"courts.srt","ok":true,"dry_run":true,"destination":null,"counts":{"subtitles":4,"adjusted":4,"sacrificed":{"speed":1,"minimum":1,"gap":0}},"constraints":{"speed":{"cps":"15","lengthen":true,"shorten":false},"minimum_ms":1500,"maximum_ms":1800,"gap_ms":0},"settings":null,"warnings":[]}
 ```
 

@@ -72,7 +72,9 @@ la traduzione a essere modificata e scritta, e soltanto essa — vedere [Una tra
 <!-- example: printf '1\n00:00:01,000 --> 00:00:02,000\n<i>bon</i>jour marie\n\n2\n00:00:03,000 --> 00:00:04,000\nBonjour\nMarie\n\n' > a.srt; subedit-cli italics --on --output i.srt a.srt; cat i.srt -->
 ```console
 $ printf '1\n00:00:01,000 --> 00:00:02,000\n<i>bon</i>jour marie\n\n2\n00:00:03,000 --> 00:00:04,000\nBonjour\nMarie\n\n' > a.srt; subedit-cli italics --on --output i.srt a.srt; cat i.srt
-a.srt: 2 subtitles put in italics -> i.srt
+[subedit] [italics] [1/1] source: a.srt
+[subedit] [italics] [1/1] result: 2 subtitles put in italics
+[subedit] [italics] [1/1] dest: i.srt
 1
 00:00:01,000 --> 00:00:02,000
 <i>bonjour marie</i>
@@ -94,7 +96,8 @@ modo, e non dicono la stessa cosa a proposito del colore.
 <!-- example: printf '00:00:01:Hello there\n00:00:03:Bye\n' > a.txt; subedit-cli italics --on --output-dir sortie a.txt; echo "code=$?" -->
 ```console
 $ printf '00:00:01:Hello there\n00:00:03:Bye\n' > a.txt; subedit-cli italics --on --output-dir sortie a.txt; echo "code=$?"
-a.txt: TMPlayer writes no style: there are no italics to put on
+[subedit] [italics] [1/1] source: a.txt
+[subedit] [italics] [1/1] error: TMPlayer writes no style: there are no italics to put on
 code=2
 ```
 
@@ -107,9 +110,9 @@ modifiche, descritto in [Vedere prima di scrivere](invocation.md#vedere-prima-di
 
 | Livello | Che cosa si aggiunge sull'errore standard |
 | :----- | :------------------------------------- |
-| 1 | `<path>: N subtitles put in italics -> <destination>`, oppure `N subtitles taken out of italics`, oppure `nothing to change` |
-| 2 | `<path>: SubRip, UTF-8, no BOM, LF line endings kept` — il formato, la codifica, l'indicatore e i terminatori di riga del file letto, rimessi com'erano |
-| 3 | `<path>: N bytes read, M written`, poi **ogni messaggio diagnostico di lettura** — vedere [Invocazione](invocation.md#diagnostica-di-lettura) |
+| 1 | `source: <path>`, `result: N subtitles put in italics`, `dest: <destination>`, oppure `N subtitles taken out of italics`, oppure `nothing to change` |
+| 2 | `format: SubRip`, `encoding: UTF-8`, `bom: absent`, `line-endings: LF` — il formato, la codifica, l'indicatore e i terminatori di riga del file letto, rimessi com'erano |
+| 3 | `bytes-read: N`, `bytes-written: M`, poi **ogni messaggio diagnostico di lettura** — vedere [Invocazione](invocation.md#diagnostica-di-lettura) |
 
 `N` è il numero di sottotitoli **il cui testo è cambiato**, ricavato dall'operazione stessa.
 

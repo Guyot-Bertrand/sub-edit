@@ -42,7 +42,29 @@ TEST_CASE("the translation is written at the positions of the main file, and the
     CHECK(code == ExitCode::Success);
     CHECK(files.contentOf("out/fr.srt").value_or("") == "1\n00:00:01,000 --> 00:00:02,000\nun\n\n");
     CHECK_THAT(errors.str(),
-               ContainsSubstring("fr.srt: translation: 1 line attached -> out/fr.srt"));
+               ContainsSubstring("[1/1] source: main.srt\n"
+                                 "[subedit] [pair] [1/1] translation: fr.srt\n"
+                                 "[subedit] [pair] [1/1] result: translation: 1 line attached\n"
+                                 "[subedit] [pair] [1/1] dest: out/fr.srt\n"));
     CHECK_THAT(records.str(), ContainsSubstring("\"counts\":{\"subtitles\":1}"));
     CHECK_THAT(records.str(), ContainsSubstring("\"attached\":1"));
+}
+
+TEST_CASE("a translation that cannot be read is named in the failure, the main file being the "
+          "source",
+          "[cli][translation-writing][CLI-PAIR-01]") {
+    InMemoryFileSystem files;
+    files.addFile("main.srt", "1\n00:00:01,000 --> 00:00:02,000\none\n\n");
+    std::ostringstream errors;
+
+    const ExitCode code = writeTranslationAt(files,
+                                             "main.srt",
+                                             std::nullopt,
+                                             Destination::from("out/fr.srt", "", false, 1).value(),
+                                             Reporter{errors, 0}.forCommand("pair"),
+                                             Pairing{.translation = "fr.srt"});
+
+    CHECK(code == ExitCode::AllFailed);
+    CHECK(errors.str() == "[subedit] [pair] [1/1] source: main.srt\n"
+                          "[subedit] [pair] [1/1] error: fr.srt: does not exist\n");
 }

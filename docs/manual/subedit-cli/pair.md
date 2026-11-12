@@ -59,7 +59,10 @@ Options:
 <!-- example: printf '1\n00:00:01,000 --> 00:00:02,000\nHello.\n\n2\n00:00:03,000 --> 00:00:04,000\nBye.\n\n' > film.srt; printf '1\n00:00:01,300 --> 00:00:02,300\nBonjour.\n\n2\n00:00:03,300 --> 00:00:04,300\nAu revoir.\n\n' > film.fr.srt; subedit-cli pair film.srt -t film.fr.srt --output recale.fr.srt; cat recale.fr.srt -->
 ```console
 $ printf '1\n00:00:01,000 --> 00:00:02,000\nHello.\n\n2\n00:00:03,000 --> 00:00:04,000\nBye.\n\n' > film.srt; printf '1\n00:00:01,300 --> 00:00:02,300\nBonjour.\n\n2\n00:00:03,300 --> 00:00:04,300\nAu revoir.\n\n' > film.fr.srt; subedit-cli pair film.srt -t film.fr.srt --output recale.fr.srt; cat recale.fr.srt
-film.fr.srt: translation: 2 lines attached -> recale.fr.srt
+[subedit] [pair] [1/1] source: film.srt
+[subedit] [pair] [1/1] translation: film.fr.srt
+[subedit] [pair] [1/1] result: translation: 2 lines attached
+[subedit] [pair] [1/1] dest: recale.fr.srt
 1
 00:00:01,000 --> 00:00:02,000
 Bonjour.
@@ -98,9 +101,9 @@ each method.
 
 | Level | What is added on the error output |
 | :----- | :------------------------------------- |
-| 1 | `<translation>: translation: N lines attached; … -> <destination>` — **the path is that of the translation**, which is the file written; with `--dry-run`, `(dry run, nothing written)` in place of `-> <destination>` |
-| 2 | `<translation>: SubRip, UTF-8, no BOM, LF line endings kept` — the format, the encoding, the mark and the line endings **of the translation**, put back as they were |
-| 3 | `<translation>: N bytes read, M written`, then **every reading diagnostic** of the main file and of the translation — see [Invocation](invocation.md#reading-diagnostics) |
+| 1 | `source: <path>`, `translation: <translation>`, `result: translation: N lines attached; …`, `dest: <destination>` — **the main file, then the translation**; with `--dry-run`, no `dest` line, and `(dry run, nothing written)` at the end of `result` |
+| 2 | `format: SubRip`, `encoding: UTF-8`, `bom: absent`, `line-endings: LF` — the format, the encoding, the mark and the line endings **of the translation**, put back as they were |
+| 3 | `bytes-read: N`, `bytes-written: M`, then **every reading diagnostic** of the main file and of the translation — see [Invocation](invocation.md#reading-diagnostics) |
 
 ### In JSON
 

@@ -96,7 +96,9 @@ Cuidado con las comillas del shell: `'$1 EUR'`, y no `"$1 EUR"`, que dejaría qu
 <!-- example: printf '1\n00:00:01,000 --> 00:00:02,000\nPrix: 12 euros, et 7 euros.\n\n' > prix.srt; subedit-cli replace --regex '([0-9]+) euros' '$1 EUR' --output euros.srt prix.srt; cat euros.srt -->
 ```console
 $ printf '1\n00:00:01,000 --> 00:00:02,000\nPrix: 12 euros, et 7 euros.\n\n' > prix.srt; subedit-cli replace --regex '([0-9]+) euros' '$1 EUR' --output euros.srt prix.srt; cat euros.srt
-prix.srt: replaced 2 matches -> euros.srt
+[subedit] [replace] [1/1] source: prix.srt
+[subedit] [replace] [1/1] result: replaced 2 matches
+[subedit] [replace] [1/1] dest: euros.srt
 1
 00:00:01,000 --> 00:00:02,000
 Prix: 12 EUR, et 7 EUR.
@@ -109,7 +111,9 @@ Un texto en el que una etiqueta corta la palabra buscada:
 <!-- example: printf '1\n00:00:01,000 --> 00:00:02,000\n<i>Bon</i>jour tout le monde\n\n2\n00:00:03,000 --> 00:00:04,000\nBonjour <i>Marie</i>, ca va\n\n' > balises.srt; subedit-cli replace Bonjour Salut --output salut.srt balises.srt; cat salut.srt -->
 ```console
 $ printf '1\n00:00:01,000 --> 00:00:02,000\n<i>Bon</i>jour tout le monde\n\n2\n00:00:03,000 --> 00:00:04,000\nBonjour <i>Marie</i>, ca va\n\n' > balises.srt; subedit-cli replace Bonjour Salut --output salut.srt balises.srt; cat salut.srt
-balises.srt: replaced 2 matches -> salut.srt
+[subedit] [replace] [1/1] source: balises.srt
+[subedit] [replace] [1/1] result: replaced 2 matches
+[subedit] [replace] [1/1] dest: salut.srt
 1
 00:00:01,000 --> 00:00:02,000
 <i>Salut</i> tout le monde
@@ -139,8 +143,12 @@ de todos modos**, porque un destino indicado es un destino escrito:
 <!-- example: printf '1\n00:00:01,000 --> 00:00:02,000\nBonjour\n\n' > a.srt; subedit-cli replace zzz x --output b.srt a.srt; subedit-cli replace Bonjour Bonjour --output c.srt a.srt -->
 ```console
 $ printf '1\n00:00:01,000 --> 00:00:02,000\nBonjour\n\n' > a.srt; subedit-cli replace zzz x --output b.srt a.srt; subedit-cli replace Bonjour Bonjour --output c.srt a.srt
-a.srt: "zzz" not found -> b.srt
-a.srt: nothing to change -> c.srt
+[subedit] [replace] [1/1] source: a.srt
+[subedit] [replace] [1/1] result: "zzz" not found
+[subedit] [replace] [1/1] dest: b.srt
+[subedit] [replace] [1/1] source: a.srt
+[subedit] [replace] [1/1] result: nothing to change
+[subedit] [replace] [1/1] dest: c.srt
 ```
 
 ## `--dry-run`
@@ -151,7 +159,8 @@ están en el archivo, etiquetas incluidas:
 <!-- example: printf '1\n00:00:01,000 --> 00:00:02,000\n<i>Bon</i>jour tout le monde\n\n2\n00:00:03,000 --> 00:00:04,000\nBonjour <i>Marie</i>, ca va\n\n' > balises.srt; subedit-cli replace --dry-run Bonjour Salut balises.srt -->
 ```console
 $ printf '1\n00:00:01,000 --> 00:00:02,000\n<i>Bon</i>jour tout le monde\n\n2\n00:00:03,000 --> 00:00:04,000\nBonjour <i>Marie</i>, ca va\n\n' > balises.srt; subedit-cli replace --dry-run Bonjour Salut balises.srt
-balises.srt: replaced 2 matches (dry run, nothing written)
+[subedit] [replace] [1/1] source: balises.srt
+[subedit] [replace] [1/1] result: replaced 2 matches (dry run, nothing written)
 balises.srt: subtitle 1
 - <i>Bon</i>jour tout le monde
 + <i>Salut</i> tout le monde
@@ -170,9 +179,9 @@ cambios de arriba.
 
 | Nivel | Lo que se añade en la salida de error |
 | :----- | :------------------------------------- |
-| 1 | `<path>: replaced N matches -> <destination>`, o `"<pattern>" not found`, o `nothing to change` |
-| 2 | `<path>: SubRip, UTF-8, no BOM, LF line endings kept` — el formato, la codificación, la marca y los finales de línea del archivo leído, restituidos tal como estaban |
-| 3 | `<path>: N bytes read, M written`, y después **cada diagnóstico de lectura** — véase [Invocación](invocation.md#diagnósticos-de-lectura) |
+| 1 | `source: <path>`, `result: replaced N matches`, `dest: <destination>`, o `"<pattern>" not found`, o `nothing to change` |
+| 2 | `format: SubRip`, `encoding: UTF-8`, `bom: absent`, `line-endings: LF` — el formato, la codificación, la marca y los finales de línea del archivo leído, restituidos tal como estaban |
+| 3 | `bytes-read: N`, `bytes-written: M`, y después **cada diagnóstico de lectura** — véase [Invocación](invocation.md#diagnósticos-de-lectura) |
 
 `N` cuenta **las coincidencias reemplazadas en los subtítulos cuyo texto cambió**: es también
 el número que indica la ventana.

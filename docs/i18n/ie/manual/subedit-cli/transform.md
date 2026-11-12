@@ -101,7 +101,9 @@ displaciament, e ne have su propriété.
 <!-- example: printf '1\n00:00:01,000 --> 00:00:03,000\nUn.\n\n2\n00:00:05,001 --> 00:00:07,000\nDeux.\n\n3\n00:00:09,000 --> 00:00:11,000\nTrois.\n\n' > a.srt; subedit-cli transform --first 1=00:00:01.000 --last 3=00:00:10.000 --output b.srt a.srt; cat b.srt -->
 ```console
 $ printf '1\n00:00:01,000 --> 00:00:03,000\nUn.\n\n2\n00:00:05,001 --> 00:00:07,000\nDeux.\n\n3\n00:00:09,000 --> 00:00:11,000\nTrois.\n\n' > a.srt; subedit-cli transform --first 1=00:00:01.000 --last 3=00:00:10.000 --output b.srt a.srt; cat b.srt
-a.srt: 3 subtitles transformed onto 1=00:00:01.000 and 3=00:00:10.000 -> b.srt
+[subedit] [transform] [1/1] source: a.srt
+[subedit] [transform] [1/1] result: 3 subtitles transformed onto 1=00:00:01.000 and 3=00:00:10.000
+[subedit] [transform] [1/1] dest: b.srt
 1
 00:00:01,000 --> 00:00:03,250
 Un.
@@ -149,7 +151,8 @@ quo posset haver esset scrit:
 <!-- example: printf '1\n00:00:01,000 --> 00:00:03,000\nUn.\n\n2\n00:00:05,000 --> 00:00:07,000\nDeux.\n\n' > a.srt; subedit-cli transform --first 1=1.000 --last 9=10.000 --output b.srt a.srt; echo "code=$?" -->
 ```console
 $ printf '1\n00:00:01,000 --> 00:00:03,000\nUn.\n\n2\n00:00:05,000 --> 00:00:07,000\nDeux.\n\n' > a.srt; subedit-cli transform --first 1=1.000 --last 9=10.000 --output b.srt a.srt; echo "code=$?"
-a.srt: subtitle 9 is past the end: the file holds 2 subtitles
+[subedit] [transform] [1/1] source: a.srt
+[subedit] [transform] [1/1] error: subtitle 9 is past the end: the file holds 2 subtitles
 code=2
 ```
 
@@ -167,9 +170,9 @@ scrit, li code es `2`, e li missage nomina li subtitul in fallida.
 
 | Nivelle | Quo es adjuntet al exeunte de error |
 | :----- | :------------------------------------- |
-| 1 | `<path>: N subtitles transformed onto 1=00:00:01.000 and 3=00:00:10.000 -> <destination>` |
-| 2 | `<path>: SubRip, UTF-8, no BOM, LF line endings kept` — li formate, li codification, li marca e li fines de linea del file leet, remetet quam les esset |
-| 3 | `<path>: N bytes read, M written`, poy **omni diagnose de lectura** — vide [Invocation](invocation.md#diagnoses-de-lectura) |
+| 1 | `source: <path>`, `result: N subtitles transformed onto 1=00:00:01.000 and 3=00:00:10.000`, `dest: <destination>` |
+| 2 | `format: SubRip`, `encoding: UTF-8`, `bom: absent`, `line-endings: LF` — li formate, li codification, li marca e li fines de linea del file leet, remetet quam les esset |
+| 3 | `bytes-read: N`, `bytes-written: M`, poy **omni diagnose de lectura** — vide [Invocation](invocation.md#diagnoses-de-lectura) |
 
 Li referenties es scrit retro con li punctu decimal, quelcunc qualmen les esset tipat.
 

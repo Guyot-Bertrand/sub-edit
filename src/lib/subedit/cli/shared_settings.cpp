@@ -1,3 +1,4 @@
+#include <subedit/cli/reporter.hpp>
 #include <subedit/cli/shared_settings.hpp>
 #include <subedit/core/i18n/messages.hpp>
 
@@ -52,30 +53,32 @@ void announceSettings(const Reporter& reporter, const SharedSettings& shared) {
     case SettingsSource::Disabled:
         return;
     case SettingsSource::Read:
-        // TRANSLATORS: %1 is the settings file.
-        reporter.say(1, core::substitute(core::translate("settings: read %1"), {path}));
+        reporter.tell(1, Key::Settings, path);
         for (const core::SettingsDiagnostic& diagnostic : shared.diagnostics) {
-            reporter.say(
+            reporter.tell(
                 1,
-                // TRANSLATORS: %1 is a settings key, %2 the value the file gave it.
-                core::substitute(core::translate("settings: %1: cannot read '%2', default kept"),
+                Key::Warning,
+                // TRANSLATORS: %1 is a key of the settings file, %2 the value the file gave it.
+                core::substitute(core::translate("setting %1: cannot read '%2', default kept"),
                                  {diagnostic.key, diagnostic.value}));
         }
         return;
     case SettingsSource::Missing:
         if (!path.empty()) {
-            reporter.say(
+            reporter.tell(
                 1,
+                Key::Warning,
                 // TRANSLATORS: %1 is the settings file.
-                core::substitute(core::translate("settings: %1 not found, defaults used"), {path}));
+                core::substitute(core::translate("settings file %1 not found, defaults used"),
+                                 {path}));
         }
         return;
-    case SettingsSource::Unreadable:
-        reporter.say(
-            1,
-            // TRANSLATORS: %1 is the settings file.
-            core::substitute(core::translate("settings: %1 unreadable, defaults used"), {path}));
+    case SettingsSource::Unreadable: {
+        // TRANSLATORS: %1 is the settings file.
+        const auto said = core::translate("settings file %1 unreadable, defaults used");
+        reporter.tell(1, Key::Warning, core::substitute(said, {path}));
         return;
+    }
     }
 }
 

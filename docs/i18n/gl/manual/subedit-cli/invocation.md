@@ -188,10 +188,10 @@ clave descoñecida ignórase. O ficheiro nunca o escriben `adjust` nin `correct`
 
 | Caso | Liña |
 | :--- | :--- |
-| leuse o ficheiro | `settings: read <path>` |
-| non se puido ler un valor do ficheiro | `settings: <key>: cannot read '<value>', default kept` |
-| o ficheiro do usuario non existe | `settings: <path> not found, defaults used` |
-| o ficheiro non se pode ler | `settings: <path> unreadable, defaults used` |
+| leuse o ficheiro | `settings: <path>` |
+| non se puido ler un valor do ficheiro | `warning: setting <key>: cannot read '<value>', default kept` |
+| o ficheiro do usuario non existe | `warning: settings file <path> not found, defaults used` |
+| o ficheiro non se pode ler | `warning: settings file <path> unreadable, defaults used` |
 | `--no-config` | nada |
 
 Con [`--format json`](#saída-que-pode-ler-un-script), o obxecto de cada ficheiro de `adjust` e de
@@ -227,7 +227,7 @@ non se executa, e `-q` e `-v` non cambian nada.
 <!-- example: subedit-cli --version | head -n 1 -->
 ```console
 $ subedit-cli --version | head -n 1
-subedit 1.2.5
+subedit 1.2.6
 ```
 
 Completa, nunha máquina con ICU 74.2 e Enchant 2.3.3 — os números son os da máquina:
@@ -484,13 +484,14 @@ ficheiro non cambie.
   a codificación do ficheiro non puido escribir fai fallar unha simulación como fai fallar unha execución real.
   **Que haxa cambios non cambia o código**: os catro códigos din se a ferramenta
   tivo éxito, non se o ficheiro é conforme.
-- **A narración dio.** Onde unha execución real escribe `-> <destination>`, unha
+- **A narración dio.** Onde unha execución real escribe `dest: <destination>`, unha
   simulación escribe `(dry run, nothing written)`.
 
 <!-- example: printf '1\n00:00:10,000 --> 00:00:12,000\nBonjour.\n\n' > a.srt; subedit-cli shift --by 1 --dry-run a.srt; ls -- *.srt -->
 ```console
 $ printf '1\n00:00:10,000 --> 00:00:12,000\nBonjour.\n\n' > a.srt; subedit-cli shift --by 1 --dry-run a.srt; ls -- *.srt
-a.srt: 1 subtitle shifted by 1.000 s (dry run, nothing written)
+[subedit] [shift] [1/1] source: a.srt
+[subedit] [shift] [1/1] result: 1 subtitle shifted by 1.000 s (dry run, nothing written)
 a.srt
 ```
 
@@ -520,7 +521,8 @@ propostos**. Un bloque por subtítulo cambiado, na orde do ficheiro:
 <!-- example: printf '1\n00:00:01,000 --> 00:00:03,000\n[Bruit de pas]\n\n2\n00:00:04,000 --> 00:00:06,000\nAttends [il tousse] Marie.\n\n3\n00:00:07,000 --> 00:00:09,000\n- [Grincement]\n- Qui est là ?\n\n' > mentions.srt; subedit-cli hearing-impaired --dry-run mentions.srt -->
 ```console
 $ printf '1\n00:00:01,000 --> 00:00:03,000\n[Bruit de pas]\n\n2\n00:00:04,000 --> 00:00:06,000\nAttends [il tousse] Marie.\n\n3\n00:00:07,000 --> 00:00:09,000\n- [Grincement]\n- Qui est là ?\n\n' > mentions.srt; subedit-cli hearing-impaired --dry-run mentions.srt
-mentions.srt: 2 subtitles cleaned, 1 removed (dry run, nothing written)
+[subedit] [hearing-impaired] [1/1] source: mentions.srt
+[subedit] [hearing-impaired] [1/1] result: 2 subtitles cleaned, 1 removed (dry run, nothing written)
 mentions.srt: subtitle 1 (removed)
 - [Bruit de pas]
 mentions.srt: subtitle 2
@@ -570,11 +572,14 @@ opción global, e polo tanto escríbese antes da suborde; un valor distinto de
 <!-- example: printf '1\n00:00:10,000 --> 00:00:12,000\nUn.\n\n' > a.srt; subedit-cli --format json shift --by 1 --output-dir sortie a.srt absent.srt; echo "code=$?" -->
 ```console
 $ printf '1\n00:00:10,000 --> 00:00:12,000\nUn.\n\n' > a.srt; subedit-cli --format json shift --by 1 --output-dir sortie a.srt absent.srt; echo "code=$?"
-a.srt: 1 subtitle shifted by 1.000 s -> sortie/a.srt
+[subedit] [shift] [1/2] source: a.srt
+[subedit] [shift] [1/2] result: 1 subtitle shifted by 1.000 s
+[subedit] [shift] [1/2] dest: sortie/a.srt
 {"schema":1,"command":"shift","file":"a.srt","ok":true,"dry_run":false,"destination":"sortie/a.srt","counts":{"subtitles":1,"shifted_by_ms":1000},"warnings":[]}
-absent.srt: does not exist
+[subedit] [shift] [2/2] source: absent.srt
+[subedit] [shift] [2/2] error: does not exist
 {"schema":1,"command":"shift","file":"absent.srt","ok":false,"error":{"kind":"not-found","message":"absent.srt: does not exist"}}
-1 of 2 files shifted, 1 failed
+[subedit] [shift] [-] summary: 1 of 2 files shifted, 1 failed
 code=3
 ```
 
@@ -828,7 +833,10 @@ a súa disposición sobre o seu ficheiro principal**, coas mesmas regras que a x
 <!-- example: printf '1\n00:00:01,000 --> 00:00:02,000\nHello.\n\n2\n00:00:03,000 --> 00:00:04,000\nBye.\n\n' > film.srt; printf '1\n00:00:01,000 --> 00:00:02,000\n[Un oiseau] Bonjour.\n\n2\n00:00:03,000 --> 00:00:04,000\nAu revoir.\n\n' > film.fr.srt; subedit-cli hearing-impaired film.srt -t film.fr.srt --document translation --output propre.fr.srt; cat propre.fr.srt -->
 ```console
 $ printf '1\n00:00:01,000 --> 00:00:02,000\nHello.\n\n2\n00:00:03,000 --> 00:00:04,000\nBye.\n\n' > film.srt; printf '1\n00:00:01,000 --> 00:00:02,000\n[Un oiseau] Bonjour.\n\n2\n00:00:03,000 --> 00:00:04,000\nAu revoir.\n\n' > film.fr.srt; subedit-cli hearing-impaired film.srt -t film.fr.srt --document translation --output propre.fr.srt; cat propre.fr.srt
-film.fr.srt: 1 subtitle cleaned, 0 removed -> propre.fr.srt
+[subedit] [hearing-impaired] [1/1] source: film.srt
+[subedit] [hearing-impaired] [1/1] translation: film.fr.srt
+[subedit] [hearing-impaired] [1/1] result: 1 subtitle cleaned, 0 removed
+[subedit] [hearing-impaired] [1/1] dest: propre.fr.srt
 1
 00:00:01,000 --> 00:00:02,000
 Bonjour.

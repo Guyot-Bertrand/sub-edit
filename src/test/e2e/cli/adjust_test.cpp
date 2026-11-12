@@ -149,12 +149,15 @@ TEST_CASE("the gap wins over the minimum, and what gave way is said",
     // Subtitle 3 is held to 15.000 by the gap — the minimum would have made it
     // 15.700, over the start of the next — and the report names the minimum.
     // The note before it says no settings file was found (spec 15, S6).
-    CHECK(run.errors ==
-          "settings: " + configHome() + "/subedit/settings.conf not found, defaults used\n" +
-              input +
-              ": adjusted the durations of 3 subtitles; could not satisfy the minimum "
-              "duration in 1 subtitle -> " +
-              scratch.of("out/d.srt") + "\n");
+    CHECK(run.errors == "[subedit] [adjust] [-] warning: settings file " + configHome() +
+                            "/subedit/settings.conf not found, defaults used\n"
+                            "[subedit] [adjust] [1/1] source: " +
+                            input +
+                            "\n"
+                            "[subedit] [adjust] [1/1] result: adjusted the durations of 3 "
+                            "subtitles; could not satisfy the minimum duration in 1 subtitle\n"
+                            "[subedit] [adjust] [1/1] dest: " +
+                            scratch.of("out/d.srt") + "\n");
 }
 
 TEST_CASE("a file within its limits says there was nothing to adjust", "[e2e][CLI-ADJUST-04]") {
@@ -165,7 +168,7 @@ TEST_CASE("a file within its limits says there was nothing to adjust", "[e2e][CL
         {"adjust", "--speed", "off", "--minimum", "off", "--output-dir", scratch.of("out"), input});
 
     CHECK(run.exitCode == 0);
-    CHECK_THAT(run.errors, ContainsSubstring(": no duration to adjust -> "));
+    CHECK_THAT(run.errors, ContainsSubstring("] result: no duration to adjust\n"));
     // Written all the same: a destination given is a destination written.
     CHECK(contentOf(scratch.of("out/d.srt")) == kInput);
 }
@@ -478,11 +481,11 @@ TEST_CASE("a note names the settings file read, at the default verbosity",
         invoke({"--config", config, "adjust", "--output-dir", scratch.of("out"), input});
 
     CHECK(run.exitCode == 0);
-    CHECK_THAT(run.errors, ContainsSubstring("settings: read " + config + "\n"));
+    CHECK_THAT(run.errors, ContainsSubstring("[-] settings: " + config + "\n"));
     // A value it cannot read is named, and its default kept.
     CHECK_THAT(run.errors,
-               ContainsSubstring("settings: duration-adjust.minimum-ms: cannot read 'soon', "
-                                 "default kept\n"));
+               ContainsSubstring("[-] warning: setting duration-adjust.minimum-ms: cannot read "
+                                 "'soon', default kept\n"));
     // The minimum kept at its default: case A.
     CHECK(endsOf(contentOf(scratch.of("out/d.srt"))) ==
           std::vector<std::string>{"00:00:02,000", "00:00:14,000", "00:00:15,000", "00:00:16,500"});

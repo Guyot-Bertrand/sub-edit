@@ -175,8 +175,8 @@ TEST_CASE("the format of the file read is kept", "[cli][transforming]") {
 
 TEST_CASE("the narration says what moved and onto what", "[cli][transforming]") {
     CHECK_THAT(transform(kThree, at(1, 1'000), at(3, 10'000)).errors,
-               ContainsSubstring("a.srt: 3 subtitles transformed onto 1=00:00:01.000 and "
-                                 "3=00:00:10.000 -> out/a.srt\n"));
+               ContainsSubstring("[1/1] result: 3 subtitles transformed onto 1=00:00:01.000 and "
+                                 "3=00:00:10.000\n"));
 }
 
 TEST_CASE("a batch transforms what it can and counts the rest", "[cli][transforming]") {

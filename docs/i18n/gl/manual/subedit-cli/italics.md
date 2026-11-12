@@ -72,7 +72,9 @@ Options:
 <!-- example: printf '1\n00:00:01,000 --> 00:00:02,000\n<i>bon</i>jour marie\n\n2\n00:00:03,000 --> 00:00:04,000\nBonjour\nMarie\n\n' > a.srt; subedit-cli italics --on --output i.srt a.srt; cat i.srt -->
 ```console
 $ printf '1\n00:00:01,000 --> 00:00:02,000\n<i>bon</i>jour marie\n\n2\n00:00:03,000 --> 00:00:04,000\nBonjour\nMarie\n\n' > a.srt; subedit-cli italics --on --output i.srt a.srt; cat i.srt
-a.srt: 2 subtitles put in italics -> i.srt
+[subedit] [italics] [1/1] source: a.srt
+[subedit] [italics] [1/1] result: 2 subtitles put in italics
+[subedit] [italics] [1/1] dest: i.srt
 1
 00:00:01,000 --> 00:00:02,000
 <i>bonjour marie</i>
@@ -94,7 +96,8 @@ xeito, e non din o mesmo sobre a cor.
 <!-- example: printf '00:00:01:Hello there\n00:00:03:Bye\n' > a.txt; subedit-cli italics --on --output-dir sortie a.txt; echo "code=$?" -->
 ```console
 $ printf '00:00:01:Hello there\n00:00:03:Bye\n' > a.txt; subedit-cli italics --on --output-dir sortie a.txt; echo "code=$?"
-a.txt: TMPlayer writes no style: there are no italics to put on
+[subedit] [italics] [1/1] source: a.txt
+[subedit] [italics] [1/1] error: TMPlayer writes no style: there are no italics to put on
 code=2
 ```
 
@@ -107,9 +110,9 @@ cambios, descrita en [Ver antes de escribir](invocation.md#ver-antes-de-escribir
 
 | Nivel | O que se engade na saída de erro |
 | :----- | :------------------------------------- |
-| 1 | `<path>: N subtitles put in italics -> <destination>`, ou `N subtitles taken out of italics`, ou `nothing to change` |
-| 2 | `<path>: SubRip, UTF-8, no BOM, LF line endings kept` — o formato, a codificación, a marca e os finais de liña do ficheiro lido, repostos como estaban |
-| 3 | `<path>: N bytes read, M written`, despois **cada diagnóstico de lectura** — véxase [Invocación](invocation.md#diagnósticos-de-lectura) |
+| 1 | `source: <path>`, `result: N subtitles put in italics`, `dest: <destination>`, ou `N subtitles taken out of italics`, ou `nothing to change` |
+| 2 | `format: SubRip`, `encoding: UTF-8`, `bom: absent`, `line-endings: LF` — o formato, a codificación, a marca e os finais de liña do ficheiro lido, repostos como estaban |
+| 3 | `bytes-read: N`, `bytes-written: M`, despois **cada diagnóstico de lectura** — véxase [Invocación](invocation.md#diagnósticos-de-lectura) |
 
 `N` é o número de subtítulos **cuxo texto cambiou**, lido da propia operación.
 

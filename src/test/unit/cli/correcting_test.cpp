@@ -271,7 +271,8 @@ TEST_CASE("a run says what the window says, and writes the file", "[cli][correct
 
     CHECK(run.code == ExitCode::Success);
     CHECK_THAT(run.errors,
-               ContainsSubstring("a.srt: Edited 1 and removed 0 subtitles -> out/a.srt"));
+               ContainsSubstring("[1/1] result: Edited 1 and removed 0 subtitles\n"
+                                 "[subedit] [-] [1/1] dest: out/a.srt\n"));
     CHECK(run.written == srt("fin"));
 }
 
@@ -306,8 +307,11 @@ TEST_CASE("a translation is corrected and written, and not the main file", "[cli
                 Pairing{.translation = "a.fr.srt", .method = TranslationMethod::Number});
 
     CHECK(run.code == ExitCode::Success);
+    CHECK_THAT(run.errors, ContainsSubstring("[1/1] source: a.srt\n"));
+    CHECK_THAT(run.errors, ContainsSubstring("[1/1] translation: a.fr.srt\n"));
     CHECK_THAT(run.errors,
-               ContainsSubstring("a.fr.srt: Edited 1 and removed 0 subtitles -> out/a.fr.srt"));
+               ContainsSubstring("[1/1] result: Edited 1 and removed 0 subtitles\n"
+                                 "[subedit] [-] [1/1] dest: out/a.fr.srt\n"));
     CHECK(run.written == srt("fr fin"));
 }
 

@@ -129,9 +129,13 @@ TEST_CASE("a failure and the narration of a batch follow the language, in all th
         {"shift", "--by", "1", "--output-dir", scratch.of("out"), present, scratch.of("in/b.srt")});
     CHECK(pair.exitCode == 3);
     CHECK_THAT(pair.errors,
-               ContainsSubstring(present + ": 2 субтитра сдвинуто на 1.000 s → " +
-                                 scratch.of("out/a.srt")));
-    CHECK_THAT(pair.errors, ContainsSubstring(scratch.of("in/b.srt") + " — не существует\n"));
+               ContainsSubstring("[1/2] result: 2 субтитра сдвинуто на 1.000 s\n"
+                                 "[subedit] [shift] [1/2] dest: " +
+                                 scratch.of("out/a.srt") + "\n"));
+    // The failure does not repeat its file: the element's source line names it.
+    CHECK_THAT(pair.errors,
+               ContainsSubstring("[2/2] source: " + scratch.of("in/b.srt") +
+                                 "\n[subedit] [shift] [2/2] error: не существует\n"));
     CHECK_THAT(pair.errors, EndsWith("сдвинуто 1 из 2 файлов (форма 2–4), 1 с ошибкой\n"));
 
     // Twenty-one files and five: the first form and the third. No form is an
@@ -228,8 +232,13 @@ TEST_CASE("the output of --format json is the same bytes in every language, fail
                                  R"(: does not exist"})"));
     // While the same failures, said to a person, are not.
     const CliRun run = invokeIn(russian(), arguments);
-    CHECK_THAT(run.errors, ContainsSubstring(scratch.of("in/absent.srt") + " — не существует"));
-    CHECK_THAT(run.errors, ContainsSubstring(broken + " — не в известном программе формате"));
+    CHECK_THAT(run.errors,
+               ContainsSubstring("source: " + scratch.of("in/absent.srt") +
+                                 "\n[subedit] [shift] [2/3] error: не существует\n"));
+    CHECK_THAT(run.errors,
+               ContainsSubstring("source: " + broken +
+                                 "\n[subedit] [shift] [3/3] error: не в известном программе "
+                                 "формате\n"));
 }
 
 TEST_CASE("a pattern that gives up is named in the language, a user's own as written",

@@ -39,9 +39,13 @@ bool rewriteFile(core::FileSystem& files,
                  const ChangingOperation& operation,
                  const std::string& mainPath,
                  const std::optional<Pairing>& pairing) {
-    // What is reported is the file that is written: the translation when there
-    // is one, which is also the input the destination was planned from.
+    // What the record names is the file that is written: the translation when there is one,
+    // which is also the input the destination was planned from. The narration names the main
+    // file as the element's `source`, and the translation on a line of its own.
     const std::string& path = job.input;
+    if (pairing) {
+        reporter.tell(1, Key::Translation, pairing->translation);
+    }
     std::optional<core::OpenedFile> opened = openReporting(files, mainPath, reading, reporter);
     if (!opened) {
         return false;
@@ -70,6 +74,7 @@ bool rewriteFile(core::FileSystem& files,
     // **Of the document that is written**, after the pairing: the translation's
     // own file is only known once it is attached.
     const core::SourceFile source = session.project().sourceFile(document);
+    narrateRead(reporter, opened->bytes, source, diagnostics);
 
     // **Before the operation, and before anything is changed**: a range the file
     // does not hold is a mistake about the file, said while it is untouched.
@@ -113,27 +118,25 @@ bool rewriteFile(core::FileSystem& files,
         return false;
     }
 
-    narrateKept(
-        reporter, path, opened->bytes, std::to_string(*written), dryRun, source, diagnostics);
     // Said once: an operation whose sentence already is the alignment (`pair`)
     // has said it at level one.
     if (alignment && done->sentence != core::noticeOf(*alignment)) {
-        reporter.say(
-            2, core::substitute(core::translate("%1: %2"), {path, core::noticeOf(*alignment)}));
+        reporter.tell(2, Key::Alignment, core::noticeOf(*alignment));
     }
     // What the operation went on without is data: said at level 1 whatever the
     // rest, and in every record.
     Json warnings = warningsOf(diagnostics);
     for (const Warning& warning : done->warnings) {
-        reporter.say(1, core::substitute(core::translate("%1: %2"), {path, warning.detail}));
+        reporter.tell(1, Key::Warning, warning.detail);
         // English in the record, whatever the language (D3).
         warnings.push(Json::object().set("kind", warning.kind).set("detail", warning.english));
     }
     if (dryRun) {
-        reporter.say(1,
-                     // TRANSLATORS: %1 is a file, %2 what was done to it.
-                     core::substitute(core::translate("%1: %2 (dry run, nothing written)"),
-                                      {path, done->sentence}));
+        reporter.tell(
+            1,
+            Key::Result,
+            // TRANSLATORS: %1 is what was done to a file, which was not written.
+            core::substitute(core::translate("%1 (dry run, nothing written)"), {done->sentence}));
         if (done->changes) {
             reporter.result(textOf(path, *done->changes));
         }
@@ -146,10 +149,9 @@ bool rewriteFile(core::FileSystem& files,
         return true;
     }
 
-    reporter.say(
-        1,
-        // TRANSLATORS: %1 is a file, %2 what was done to it, %3 the file written.
-        core::substitute(core::translate("%1: %2 -> %3"), {path, done->sentence, out.string()}));
+    reporter.tell(1, Key::Result, done->sentence);
+    reporter.tell(3, Key::BytesWritten, std::to_string(*written));
+    reporter.tell(1, Key::Dest, out.string());
     // The diagnostics are data: they go into the record at every level, where the
     // narration keeps them for the third.
     reporter.record(writtenRecord(reporter.command(),
@@ -192,7 +194,7 @@ ExitCode rewriteAll(core::FileSystem& files,
                         reading,
                         destination.isDryRun(),
                         range,
-                        reporter,
+                        reporter.forItem(at + 1, jobs->size(), paths[at]),
                         operation,
                         paths[at],
                         pairing)) {

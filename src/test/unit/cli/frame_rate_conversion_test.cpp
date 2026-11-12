@@ -124,8 +124,7 @@ TEST_CASE("the narration says which two rates were used", "[cli][frame-rate]") {
     // The exact rate, not the word that named it: "23.976" is a label, and the
     // line that reports what happened has to report what happened.
     CHECK_THAT(convert(kTwo, kPal, kNtscFilm).errors,
-               ContainsSubstring("a.srt: 2 subtitles retimed from 25 to 24000/1001 fps "
-                                 "-> out/a.srt\n"));
+               ContainsSubstring("[1/1] result: 2 subtitles retimed from 25 to 24000/1001 fps\n"));
 }
 
 TEST_CASE("a batch retimes what it can and counts the rest", "[cli][frame-rate]") {

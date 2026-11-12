@@ -102,21 +102,23 @@ std::expected<Inputs, std::string> expandInputs(const core::FileSystem& files,
         inputs.roots.emplace_back(path);
 
         if (state.keptHere == 0) {
-            reporter.say(1,
-                         core::substitute(
-                             // TRANSLATORS: %1 is a directory.
-                             core::translate("%1: holds no file in a format this tool walks for"),
-                             {path}));
+            reporter.tell(1,
+                          Key::Walk,
+                          core::substitute(
+                              // TRANSLATORS: %1 is a directory.
+                              core::translate("%1: holds no file in a format this tool walks for"),
+                              {path}));
         }
         if (state.leftAside > 0) {
-            reporter.say(2,
-                         core::substitute(
-                             // TRANSLATORS: %1 is a directory, %2 a number of files in it.
-                             core::translatePlural(
-                                 "%1: %2 file left aside, with no extension of a known format",
-                                 "%1: %2 files left aside, with no extension of a known format",
-                                 state.leftAside),
-                             {path, std::to_string(state.leftAside)}));
+            reporter.tell(2,
+                          Key::Walk,
+                          core::substitute(
+                              // TRANSLATORS: %1 is a directory, %2 a number of files in it.
+                              core::translatePlural(
+                                  "%1: %2 file left aside, with no extension of a known format",
+                                  "%1: %2 files left aside, with no extension of a known format",
+                                  state.leftAside),
+                              {path, std::to_string(state.leftAside)}));
         }
     }
     return inputs;

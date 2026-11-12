@@ -50,7 +50,9 @@ Options:
 <!-- example: printf '1\n00:00:01,000 --> 00:00:02,000\nAlpha\n\n2\n00:00:02,000 --> 00:00:04,000\nAlpha\n\n3\n00:00:01,000 --> 00:00:04,000\nBeta\n\n' > segments.srt; subedit-cli repair --output repare.srt segments.srt; cat repare.srt -->
 ```console
 $ printf '1\n00:00:01,000 --> 00:00:02,000\nAlpha\n\n2\n00:00:02,000 --> 00:00:04,000\nAlpha\n\n3\n00:00:01,000 --> 00:00:04,000\nBeta\n\n' > segments.srt; subedit-cli repair --output repare.srt segments.srt; cat repare.srt
-segments.srt: 1 repeated subtitle joined; already in order; 0 subtitles split, 1 merged -> repare.srt
+[subedit] [repair] [1/1] source: segments.srt
+[subedit] [repair] [1/1] result: 1 repeated subtitle joined; already in order; 0 subtitles split, 1 merged
+[subedit] [repair] [1/1] dest: repare.srt
 1
 00:00:01,000 --> 00:00:04,000
 Alpha

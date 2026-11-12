@@ -74,7 +74,9 @@ Options:
 <!-- example: printf '1\n00:00:01,000 --> 00:00:02,000\n<i>bon</i>jour marie\n\n2\n00:00:03,000 --> 00:00:04,000\n- BONJOUR MARIE\n\n' > a.srt; subedit-cli case --to title --output titre.srt a.srt; cat titre.srt -->
 ```console
 $ printf '1\n00:00:01,000 --> 00:00:02,000\n<i>bon</i>jour marie\n\n2\n00:00:03,000 --> 00:00:04,000\n- BONJOUR MARIE\n\n' > a.srt; subedit-cli case --to title --output titre.srt a.srt; cat titre.srt
-a.srt: 2 subtitles recased -> titre.srt
+[subedit] [case] [1/1] source: a.srt
+[subedit] [case] [1/1] result: 2 subtitles recased
+[subedit] [case] [1/1] dest: titre.srt
 1
 00:00:01,000 --> 00:00:02,000
 <i>Bon</i>jour Marie
@@ -90,7 +92,9 @@ dio:
 <!-- example: printf '1\n00:00:01,000 --> 00:00:02,000\nBONJOUR\n\n' > a.srt; subedit-cli case --to upper --output b.srt a.srt -->
 ```console
 $ printf '1\n00:00:01,000 --> 00:00:02,000\nBONJOUR\n\n' > a.srt; subedit-cli case --to upper --output b.srt a.srt
-a.srt: nothing to change -> b.srt
+[subedit] [case] [1/1] source: a.srt
+[subedit] [case] [1/1] result: nothing to change
+[subedit] [case] [1/1] dest: b.srt
 ```
 
 ## Saída
@@ -100,9 +104,9 @@ cambios, descrita en [Ver antes de escribir](invocation.md#ver-antes-de-escribir
 
 | Nivel | O que se engade na saída de erro |
 | :----- | :------------------------------------- |
-| 1 | `<path>: N subtitles recased -> <destination>`, ou `nothing to change` |
-| 2 | `<path>: SubRip, UTF-8, no BOM, LF line endings kept` — o formato, a codificación, a marca e os finais de liña do ficheiro lido, repostos como estaban |
-| 3 | `<path>: N bytes read, M written`, despois **cada diagnóstico de lectura** — véxase [Invocación](invocation.md#diagnósticos-de-lectura) |
+| 1 | `source: <path>`, `result: N subtitles recased`, `dest: <destination>`, ou `nothing to change` |
+| 2 | `format: SubRip`, `encoding: UTF-8`, `bom: absent`, `line-endings: LF` — o formato, a codificación, a marca e os finais de liña do ficheiro lido, repostos como estaban |
+| 3 | `bytes-read: N`, `bytes-written: M`, despois **cada diagnóstico de lectura** — véxase [Invocación](invocation.md#diagnósticos-de-lectura) |
 
 `N` é o número de subtítulos **cuxo texto cambiou**, lido da propia operación.
 

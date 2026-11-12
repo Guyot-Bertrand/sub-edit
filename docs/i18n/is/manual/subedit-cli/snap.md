@@ -80,9 +80,9 @@ Snið skrárinnar sem er lesin er **varðveitt**: að breyta sniði er verk
 
 | Stig | Hvað bætist við á villuúttakið |
 | :----- | :------------------------------------- |
-| 1 | `<path>: N subtitles aligned on 25 fps, M positions moved, by at most 20 ms -> <destination>` |
-| 2 | `<path>: SubRip, UTF-8, no BOM, LF line endings kept` — snið, stafakóðun, merki og línulok skrárinnar sem var lesin, sett aftur eins og þau voru |
-| 3 | `<path>: N bytes read, M written`, síðan **sérhvert greiningarboð við lestur** — sjá [Ræsing](invocation.md#að-lesa-greiningarboð) |
+| 1 | `source: <path>`, `result: N subtitles aligned on 25 fps, M positions moved, by at most 20 ms`, `dest: <destination>` |
+| 2 | `format: SubRip`, `encoding: UTF-8`, `bom: absent`, `line-endings: LF` — snið, stafakóðun, merki og línulok skrárinnar sem var lesin, sett aftur eins og þau voru |
+| 3 | `bytes-read: N`, `bytes-written: M`, síðan **sérhvert greiningarboð við lestur** — sjá [Ræsing](invocation.md#að-lesa-greiningarboð) |
 
 **Tölurnar tvær eru tilgangur línunnar.** Hálfur rammi á 25 römmum á
 sekúndu er tuttugu millisekúndur, og ekkert stærra getur verið skrifað þar. Sá sem
@@ -97,7 +97,9 @@ margfeldi af fjörutíu millisekúndum:
 <!-- example: printf '1\n00:00:01,010 --> 00:00:03,020\nUn.\n\n' > a.srt; subedit-cli snap --rate 25 --output b.srt a.srt; cat b.srt -->
 ```console
 $ printf '1\n00:00:01,010 --> 00:00:03,020\nUn.\n\n' > a.srt; subedit-cli snap --rate 25 --output b.srt a.srt; cat b.srt
-a.srt: 1 subtitle aligned on 25 fps, 2 positions moved, by at most 20 ms -> b.srt
+[subedit] [snap] [1/1] source: a.srt
+[subedit] [snap] [1/1] result: 1 subtitle aligned on 25 fps, 2 positions moved, by at most 20 ms
+[subedit] [snap] [1/1] dest: b.srt
 1
 00:00:01,000 --> 00:00:03,040
 Un.

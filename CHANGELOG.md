@@ -12,6 +12,7 @@ do not edit it by hand.
 ### Added
 
 - **cli** — Give the standard error its line grammar, errors first
+- **cli** — Narrate the rewriting subcommands one fact a line
 
 ## 1.2.4 — 2026-11-11
 

@@ -1174,8 +1174,8 @@ msgstr ""
 #: src/lib/subedit/cli/configuring.cpp src/lib/subedit/cli/conversion.cpp
 #: src/lib/subedit/cli/disjoining.cpp src/lib/subedit/cli/inspection.cpp
 #: src/lib/subedit/cli/joining.cpp src/lib/subedit/cli/records.cpp
-#: src/lib/subedit/cli/rewriting.cpp src/lib/subedit/cli/sorting.cpp
-#: src/lib/subedit/gui/command_label.cpp src/lib/subedit/gui/invocation.cpp
+#: src/lib/subedit/cli/sorting.cpp src/lib/subedit/gui/command_label.cpp
+#: src/lib/subedit/gui/invocation.cpp
 msgid "%1: %2"
 msgstr "%1: %2"
 
@@ -1233,7 +1233,9 @@ msgstr[2] "%1 כתוביות הוצמדו ל־%2 פריימים לשנייה, %3
 msgid "%1: %2 from %3"
 msgstr "%1: %2 מתוך %3"
 
-#: src/lib/subedit/cli/appending.cpp src/lib/subedit/cli/splitting.cpp
+#. TRANSLATORS: %1 is what was done to a file, which was not written.
+#: src/lib/subedit/cli/appending.cpp src/lib/subedit/cli/rewriting.cpp
+#: src/lib/subedit/cli/splitting.cpp
 msgid "%1 (dry run, nothing written)"
 msgstr "%1 (הרצת ניסיון, דבר לא נכתב)"
 
@@ -1992,40 +1994,25 @@ msgstr "--frame-rate: %1"
 msgid "pattern: %1"
 msgstr "תבנית: %1"
 
-#. TRANSLATORS: %1 is a file, %2 what was done to it.
-#: src/lib/subedit/cli/rewriting.cpp
-msgid "%1: %2 (dry run, nothing written)"
-msgstr "%1: %2 (הרצת ניסיון, דבר לא נכתב)"
-
-#. TRANSLATORS: %1 is a file, %2 what was done to it, %3 the file written.
-#: src/lib/subedit/cli/rewriting.cpp src/lib/subedit/cli/transcribing.cpp
-msgid "%1: %2 -> %3"
-msgstr "%1: %2 -> %3"
-
 #. TRANSLATORS: %1 is the settings file named by --config.
 #: src/lib/subedit/cli/shared_settings.cpp
 msgid "settings file not found: %1"
 msgstr "קובץ ההגדרות לא נמצא: %1"
 
-#. TRANSLATORS: %1 is the settings file.
+#. TRANSLATORS: %1 is a key of the settings file, %2 the value the file gave it.
 #: src/lib/subedit/cli/shared_settings.cpp
-msgid "settings: read %1"
-msgstr "הגדרות: %1 נקרא"
-
-#. TRANSLATORS: %1 is a settings key, %2 the value the file gave it.
-#: src/lib/subedit/cli/shared_settings.cpp
-msgid "settings: %1: cannot read '%2', default kept"
-msgstr "הגדרות: %1: לא ניתן לקרוא את '%2', ברירת המחדל נשמרה"
+msgid "setting %1: cannot read '%2', default kept"
+msgstr "הגדרה %1: לא ניתן לקרוא את '%2', ברירת המחדל נשמרה"
 
 #. TRANSLATORS: %1 is the settings file.
 #: src/lib/subedit/cli/shared_settings.cpp
-msgid "settings: %1 not found, defaults used"
-msgstr "הגדרות: %1 לא נמצא, נעשה שימוש בברירות המחדל"
+msgid "settings file %1 not found, defaults used"
+msgstr "קובץ ההגדרות %1 לא נמצא, נעשה שימוש בברירות המחדל"
 
 #. TRANSLATORS: %1 is the settings file.
 #: src/lib/subedit/cli/shared_settings.cpp
-msgid "settings: %1 unreadable, defaults used"
-msgstr "הגדרות: %1 בלתי קריא, נעשה שימוש בברירות המחדל"
+msgid "settings file %1 unreadable, defaults used"
+msgstr "קובץ ההגדרות %1 בלתי קריא, נעשה שימוש בברירות המחדל"
 
 #: src/lib/subedit/cli/shifting.cpp
 msgid "%1 subtitle shifted by %2"
@@ -2141,6 +2128,11 @@ msgstr "צפויות שניות כמו 2.999, או חותמת זמן כמו 00:0
 #: src/lib/subedit/cli/transcribing.cpp
 msgid "%1 is required"
 msgstr "%1 נדרש"
+
+#. TRANSLATORS: %1 is a file, %2 what was done to it, %3 the file written.
+#: src/lib/subedit/cli/transcribing.cpp
+msgid "%1: %2 -> %3"
+msgstr "%1: %2 -> %3"
 
 #: src/lib/subedit/cli/transforming.cpp
 msgid "subtitle %1 is past the end: the file holds %2 subtitle"
@@ -5656,6 +5648,12 @@ msgstr "נטוי"
 msgctxt "toolbar"
 msgid "Main"
 msgstr "ראשי"
+
+#~ msgid "%1: %2 (dry run, nothing written)"
+#~ msgstr "%1: %2 (הרצת ניסיון, דבר לא נכתב)"
+
+#~ msgid "settings: read %1"
+#~ msgstr "הגדרות: %1 נקרא"
 
 #~ msgid "subedit-cli: %1"
 #~ msgstr "subedit-cli: %1"

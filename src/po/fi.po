@@ -1258,8 +1258,8 @@ msgstr ""
 #: src/lib/subedit/cli/configuring.cpp src/lib/subedit/cli/conversion.cpp
 #: src/lib/subedit/cli/disjoining.cpp src/lib/subedit/cli/inspection.cpp
 #: src/lib/subedit/cli/joining.cpp src/lib/subedit/cli/records.cpp
-#: src/lib/subedit/cli/rewriting.cpp src/lib/subedit/cli/sorting.cpp
-#: src/lib/subedit/gui/command_label.cpp src/lib/subedit/gui/invocation.cpp
+#: src/lib/subedit/cli/sorting.cpp src/lib/subedit/gui/command_label.cpp
+#: src/lib/subedit/gui/invocation.cpp
 msgid "%1: %2"
 msgstr "%1: %2"
 
@@ -1316,7 +1316,9 @@ msgstr[1] "%1 kappaletta kohdistettu, ruutunopeus %2 fps, %3"
 msgid "%1: %2 from %3"
 msgstr "%1: %2, lähteenä %3"
 
-#: src/lib/subedit/cli/appending.cpp src/lib/subedit/cli/splitting.cpp
+#. TRANSLATORS: %1 is what was done to a file, which was not written.
+#: src/lib/subedit/cli/appending.cpp src/lib/subedit/cli/rewriting.cpp
+#: src/lib/subedit/cli/splitting.cpp
 msgid "%1 (dry run, nothing written)"
 msgstr "%1 (koeajo, mitään ei kirjoitettu)"
 
@@ -2075,40 +2077,25 @@ msgstr "--frame-rate: %1"
 msgid "pattern: %1"
 msgstr "lauseke: %1"
 
-#. TRANSLATORS: %1 is a file, %2 what was done to it.
-#: src/lib/subedit/cli/rewriting.cpp
-msgid "%1: %2 (dry run, nothing written)"
-msgstr "%1: %2 (koeajo, mitään ei kirjoitettu)"
-
-#. TRANSLATORS: %1 is a file, %2 what was done to it, %3 the file written.
-#: src/lib/subedit/cli/rewriting.cpp src/lib/subedit/cli/transcribing.cpp
-msgid "%1: %2 -> %3"
-msgstr "%1: %2 -> %3"
-
 #. TRANSLATORS: %1 is the settings file named by --config.
 #: src/lib/subedit/cli/shared_settings.cpp
 msgid "settings file not found: %1"
 msgstr "asetustiedostoa ei löytynyt: %1"
 
-#. TRANSLATORS: %1 is the settings file.
+#. TRANSLATORS: %1 is a key of the settings file, %2 the value the file gave it.
 #: src/lib/subedit/cli/shared_settings.cpp
-msgid "settings: read %1"
-msgstr "asetukset: luettu %1"
-
-#. TRANSLATORS: %1 is a settings key, %2 the value the file gave it.
-#: src/lib/subedit/cli/shared_settings.cpp
-msgid "settings: %1: cannot read '%2', default kept"
-msgstr "asetukset: %1: arvoa '%2' ei voi lukea, oletus säilytetty"
+msgid "setting %1: cannot read '%2', default kept"
+msgstr "asetus %1: arvoa '%2' ei voi lukea, oletus säilytetty"
 
 #. TRANSLATORS: %1 is the settings file.
 #: src/lib/subedit/cli/shared_settings.cpp
-msgid "settings: %1 not found, defaults used"
-msgstr "asetukset: %1 ei löytynyt, käytetty oletuksia"
+msgid "settings file %1 not found, defaults used"
+msgstr "asetustiedostoa %1 ei löytynyt, käytetty oletuksia"
 
 #. TRANSLATORS: %1 is the settings file.
 #: src/lib/subedit/cli/shared_settings.cpp
-msgid "settings: %1 unreadable, defaults used"
-msgstr "asetukset: %1 lukukelvoton, käytetty oletuksia"
+msgid "settings file %1 unreadable, defaults used"
+msgstr "asetustiedosto %1 on lukukelvoton, käytetty oletuksia"
 
 #: src/lib/subedit/cli/shifting.cpp
 msgid "%1 subtitle shifted by %2"
@@ -2232,6 +2219,11 @@ msgstr "odotettiin sekunteja, kuten 2.999, tai aikaleimaa, kuten 00:00:07.001"
 #: src/lib/subedit/cli/transcribing.cpp
 msgid "%1 is required"
 msgstr "%1 vaaditaan"
+
+#. TRANSLATORS: %1 is a file, %2 what was done to it, %3 the file written.
+#: src/lib/subedit/cli/transcribing.cpp
+msgid "%1: %2 -> %3"
+msgstr "%1: %2 -> %3"
 
 #: src/lib/subedit/cli/transforming.cpp
 msgid "subtitle %1 is past the end: the file holds %2 subtitle"
@@ -5795,6 +5787,12 @@ msgstr "Kursiivi"
 msgctxt "toolbar"
 msgid "Main"
 msgstr "Päätyökalurivi"
+
+#~ msgid "%1: %2 (dry run, nothing written)"
+#~ msgstr "%1: %2 (koeajo, mitään ei kirjoitettu)"
+
+#~ msgid "settings: read %1"
+#~ msgstr "asetukset: luettu %1"
 
 #~ msgid "subedit-cli: %1"
 #~ msgstr "subedit-cli: %1"

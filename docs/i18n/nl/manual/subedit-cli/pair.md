@@ -62,7 +62,10 @@ Options:
 <!-- example: printf '1\n00:00:01,000 --> 00:00:02,000\nHello.\n\n2\n00:00:03,000 --> 00:00:04,000\nBye.\n\n' > film.srt; printf '1\n00:00:01,300 --> 00:00:02,300\nBonjour.\n\n2\n00:00:03,300 --> 00:00:04,300\nAu revoir.\n\n' > film.fr.srt; subedit-cli pair film.srt -t film.fr.srt --output recale.fr.srt; cat recale.fr.srt -->
 ```console
 $ printf '1\n00:00:01,000 --> 00:00:02,000\nHello.\n\n2\n00:00:03,000 --> 00:00:04,000\nBye.\n\n' > film.srt; printf '1\n00:00:01,300 --> 00:00:02,300\nBonjour.\n\n2\n00:00:03,300 --> 00:00:04,300\nAu revoir.\n\n' > film.fr.srt; subedit-cli pair film.srt -t film.fr.srt --output recale.fr.srt; cat recale.fr.srt
-film.fr.srt: translation: 2 lines attached -> recale.fr.srt
+[subedit] [pair] [1/1] source: film.srt
+[subedit] [pair] [1/1] translation: film.fr.srt
+[subedit] [pair] [1/1] result: translation: 2 lines attached
+[subedit] [pair] [1/1] dest: recale.fr.srt
 1
 00:00:01,000 --> 00:00:02,000
 Bonjour.
@@ -101,9 +104,9 @@ elke methode.
 
 | Niveau | Wat er op de foutuitvoer wordt toegevoegd |
 | :----- | :------------------------------------- |
-| 1 | `<translation>: translation: N lines attached; … -> <destination>` — **het pad is dat van de vertaling**, het geschreven bestand; met `--dry-run`, `(dry run, nothing written)` in plaats van `-> <destination>` |
-| 2 | `<translation>: SubRip, UTF-8, no BOM, LF line endings kept` — het formaat, de codering, de markering en de regeleinden **van de vertaling**, teruggezet zoals ze waren |
-| 3 | `<translation>: N bytes read, M written`, daarna **elke diagnostische melding van het lezen** van het hoofdbestand en van de vertaling — zie [Aanroep](invocation.md#diagnostische-meldingen-lezen) |
+| 1 | `source: <path>`, `translation: <translation>`, `result: translation: N lines attached; …`, `dest: <destination>` — **eerst het hoofdbestand, dan de vertaling**; met `--dry-run` geen regel `dest`, en `(dry run, nothing written)` aan het eind van `result` |
+| 2 | `format: SubRip`, `encoding: UTF-8`, `bom: absent`, `line-endings: LF` — het formaat, de codering, de markering en de regeleinden **van de vertaling**, teruggezet zoals ze waren |
+| 3 | `bytes-read: N`, `bytes-written: M`, daarna **elke diagnostische melding van het lezen** van het hoofdbestand en van de vertaling — zie [Aanroep](invocation.md#diagnostische-meldingen-lezen) |
 
 ### In JSON
 

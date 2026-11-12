@@ -117,6 +117,19 @@ public:
     /// Writes `value` under `Key::Error`, whatever the level, `--quiet` included.
     void error(std::string_view value) const;
 
+    /// Whether this reporter speaks of one element of the batch (`forItem`).
+    ///
+    /// **Read by the narration shared with the subcommands not yet moved to the grammar**
+    /// (#806): a helper they share with those that have moved speaks the old text to the
+    /// first and the new one to the second, until #830 removes the old.
+    [[nodiscard]] bool speaksOfItem() const { return m_item != nullptr; }
+
+    /// Whether this reporter speaks of the element whose input is `file`: a sentence about it
+    /// need not name it, its `source` line does.
+    [[nodiscard]] bool speaksOf(std::string_view file) const {
+        return m_item != nullptr && m_item->source == file;
+    }
+
     /// Whether a record is wanted for each file (`--format json`).
     [[nodiscard]] bool recording() const { return m_records != nullptr; }
 

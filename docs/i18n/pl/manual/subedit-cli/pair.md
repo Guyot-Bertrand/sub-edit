@@ -62,7 +62,10 @@ Options:
 <!-- example: printf '1\n00:00:01,000 --> 00:00:02,000\nHello.\n\n2\n00:00:03,000 --> 00:00:04,000\nBye.\n\n' > film.srt; printf '1\n00:00:01,300 --> 00:00:02,300\nBonjour.\n\n2\n00:00:03,300 --> 00:00:04,300\nAu revoir.\n\n' > film.fr.srt; subedit-cli pair film.srt -t film.fr.srt --output recale.fr.srt; cat recale.fr.srt -->
 ```console
 $ printf '1\n00:00:01,000 --> 00:00:02,000\nHello.\n\n2\n00:00:03,000 --> 00:00:04,000\nBye.\n\n' > film.srt; printf '1\n00:00:01,300 --> 00:00:02,300\nBonjour.\n\n2\n00:00:03,300 --> 00:00:04,300\nAu revoir.\n\n' > film.fr.srt; subedit-cli pair film.srt -t film.fr.srt --output recale.fr.srt; cat recale.fr.srt
-film.fr.srt: translation: 2 lines attached -> recale.fr.srt
+[subedit] [pair] [1/1] source: film.srt
+[subedit] [pair] [1/1] translation: film.fr.srt
+[subedit] [pair] [1/1] result: translation: 2 lines attached
+[subedit] [pair] [1/1] dest: recale.fr.srt
 1
 00:00:01,000 --> 00:00:02,000
 Bonjour.
@@ -101,9 +104,9 @@ każdej metody.
 
 | Poziom | Co jest dodawane na wyjściu błędów |
 | :----- | :------------------------------------- |
-| 1 | `<translation>: translation: N lines attached; … -> <destination>` — **ścieżka jest ścieżką tłumaczenia**, czyli zapisywanego pliku; z `--dry-run` zamiast `-> <destination>` pojawia się `(dry run, nothing written)` |
-| 2 | `<translation>: SubRip, UTF-8, no BOM, LF line endings kept` — format, kodowanie, znacznik i końce linii **tłumaczenia**, przywrócone takie, jakie były |
-| 3 | `<translation>: N bytes read, M written`, potem **każdy komunikat diagnostyczny odczytu** pliku głównego i tłumaczenia — zobacz [Uruchamianie](invocation.md#odczyt-komunikatów-diagnostycznych) |
+| 1 | `source: <path>`, `translation: <translation>`, `result: translation: N lines attached; …`, `dest: <destination>` — **najpierw plik główny, potem tłumaczenie**; z `--dry-run` brak wiersza `dest`, a `(dry run, nothing written)` na końcu `result` |
+| 2 | `format: SubRip`, `encoding: UTF-8`, `bom: absent`, `line-endings: LF` — format, kodowanie, znacznik i końce linii **tłumaczenia**, przywrócone takie, jakie były |
+| 3 | `bytes-read: N`, `bytes-written: M`, potem **każdy komunikat diagnostyczny odczytu** pliku głównego i tłumaczenia — zobacz [Uruchamianie](invocation.md#odczyt-komunikatów-diagnostycznych) |
 
 ### W formacie JSON
 

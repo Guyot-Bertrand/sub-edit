@@ -66,7 +66,9 @@ un fotograma enteiro.
 <!-- example: k=0; while [ $k -lt 12 ]; do s=$((1000 + k*47000 + (k%3)*40 + 7)); e=$((s+2000)); k=$((k+1)); printf '%d\n%02d:%02d:%02d,%03d --> %02d:%02d:%02d,%03d\nRéplique %d.\n\n' $k $((s/3600000)) $((s/60000%60)) $((s/1000%60)) $((s%1000)) $((e/3600000)) $((e/60000%60)) $((e/1000%60)) $((e%1000)) $k; done > decale.srt; subedit-cli shift --to-grid --output recale.srt decale.srt -->
 ```console
 $ k=0; while [ $k -lt 12 ]; do s=$((1000 + k*47000 + (k%3)*40 + 7)); e=$((s+2000)); k=$((k+1)); printf '%d\n%02d:%02d:%02d,%03d --> %02d:%02d:%02d,%03d\nRéplique %d.\n\n' $k $((s/3600000)) $((s/60000%60)) $((s/1000%60)) $((s%1000)) $((e/3600000)) $((e/60000%60)) $((e/1000%60)) $((e%1000)) $k; done > decale.srt; subedit-cli shift --to-grid --output recale.srt decale.srt
-decale.srt: 12 subtitles shifted by -0.007 s onto their 25 fps grid -> recale.srt
+[subedit] [shift] [1/1] source: decale.srt
+[subedit] [shift] [1/1] result: 12 subtitles shifted by -0.007 s onto their 25 fps grid
+[subedit] [shift] [1/1] dest: recale.srt
 ```
 
 **Un ficheiro que non está en ningunha grade coñecida rexéitase, e dise por que.** Non
@@ -107,7 +109,9 @@ se pediu.
 <!-- example: printf '1\n00:00:10,000 --> 00:00:12,000\nBonjour.\n\n' > a.srt; subedit-cli shift --by -7.001 --output b.srt a.srt; cat b.srt -->
 ```console
 $ printf '1\n00:00:10,000 --> 00:00:12,000\nBonjour.\n\n' > a.srt; subedit-cli shift --by -7.001 --output b.srt a.srt; cat b.srt
-a.srt: 1 subtitle shifted by -7.001 s -> b.srt
+[subedit] [shift] [1/1] source: a.srt
+[subedit] [shift] [1/1] result: 1 subtitle shifted by -7.001 s
+[subedit] [shift] [1/1] dest: b.srt
 1
 00:00:02,999 --> 00:00:04,999
 Bonjour.
@@ -128,7 +132,8 @@ modelo en memoria.
 <!-- example: printf '1\n00:00:01,000 --> 00:00:03,000\nBonjour.\n\n' > a.srt; subedit-cli shift --by -7.001 --output b.srt a.srt; echo "code=$?" -->
 ```console
 $ printf '1\n00:00:01,000 --> 00:00:03,000\nBonjour.\n\n' > a.srt; subedit-cli shift --by -7.001 --output b.srt a.srt; echo "code=$?"
-a.srt: subtitle 1 would start before the origin, which no subtitle file can hold
+[subedit] [shift] [1/1] source: a.srt
+[subedit] [shift] [1/1] error: subtitle 1 would start before the origin, which no subtitle file can hold
 code=2
 ```
 
@@ -138,9 +143,9 @@ code=2
 
 | Nivel | O que se engade na saída de erro |
 | :----- | :------------------------------------- |
-| 1 | `<path>: N subtitles shifted by 2.999 s -> <destination>` |
-| 2 | `<path>: SubRip, UTF-8, no BOM, LF line endings kept` — o formato, a codificación, a marca e os finais de liña do ficheiro lido, repostos tal como estaban |
-| 3 | `<path>: N bytes read, M written`, e despois **todos os diagnósticos de lectura** — véxase [Invocación](invocation.md#diagnósticos-de-lectura) |
+| 1 | `source: <path>`, `result: N subtitles shifted by 2.999 s`, `dest: <destination>` |
+| 2 | `format: SubRip`, `encoding: UTF-8`, `bom: absent`, `line-endings: LF` — o formato, a codificación, a marca e os finais de liña do ficheiro lido, repostos tal como estaban |
+| 3 | `bytes-read: N`, `bytes-written: M`, e despois **todos os diagnósticos de lectura** — véxase [Invocación](invocation.md#diagnósticos-de-lectura) |
 
 ### En JSON
 

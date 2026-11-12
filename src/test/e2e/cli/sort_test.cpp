@@ -60,7 +60,7 @@ TEST_CASE("a file out of order comes out in the order of its starts", "[e2e][CLI
     CHECK(run.exitCode == 0);
     // Renumbered from one, texts moved with their positions.
     CHECK_THAT(contentOf(out), MatchesFile(corpus("attendus/sort/desordre.srt")));
-    CHECK_THAT(run.errors, ContainsSubstring(": 3 subtitles moved -> "));
+    CHECK_THAT(run.errors, ContainsSubstring("] result: 3 subtitles moved\n"));
 }
 
 TEST_CASE("two subtitles that start together keep the order the file gave them",
@@ -75,7 +75,7 @@ TEST_CASE("two subtitles that start together keep the order the file gave them",
     // « b-first » stays before « b-second »: neither precedes the other, so
     // moving them would be a decision nobody asked for.
     CHECK_THAT(contentOf(out), MatchesFile(corpus("attendus/sort/egalite.srt")));
-    CHECK_THAT(run.errors, ContainsSubstring(": 2 subtitles moved -> "));
+    CHECK_THAT(run.errors, ContainsSubstring("] result: 2 subtitles moved\n"));
 }
 
 TEST_CASE("a file already in order is written all the same, and says so", "[e2e][CLI-SORT-02]") {
@@ -86,7 +86,7 @@ TEST_CASE("a file already in order is written all the same, and says so", "[e2e]
     const CliRun run = invoke({"sort", "--output", out, input});
 
     CHECK(run.exitCode == 0);
-    CHECK_THAT(run.errors, ContainsSubstring(": already in order -> "));
+    CHECK_THAT(run.errors, ContainsSubstring("] result: already in order\n"));
     CHECK(contentOf(out) == kOrdered);
 }
 

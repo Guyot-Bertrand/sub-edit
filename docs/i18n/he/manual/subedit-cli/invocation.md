@@ -152,10 +152,10 @@ $XDG_CONFIG_HOME/subedit/settings.conf
 
 | מקרה | שורה |
 | :--- | :--- |
-| הקובץ נקרא | `settings: read <path>` |
-| ערך בו לא ניתן היה לקרוא | `settings: <key>: cannot read '<value>', default kept` |
-| קובץ המשתמש אינו קיים | `settings: <path> not found, defaults used` |
-| הקובץ אינו ניתן לקריאה | `settings: <path> unreadable, defaults used` |
+| הקובץ נקרא | `settings: <path>` |
+| ערך בו לא ניתן היה לקרוא | `warning: setting <key>: cannot read '<value>', default kept` |
+| קובץ המשתמש אינו קיים | `warning: settings file <path> not found, defaults used` |
+| הקובץ אינו ניתן לקריאה | `warning: settings file <path> unreadable, defaults used` |
 | `--no-config` | דבר |
 
 עם [`--format json`](#פלט-שסקריפט-יכול-לקרוא), האובייקט של כל קובץ של `adjust` ו-`correct` נושא את `settings`: הנתיב שנקרא, או `null` כשלא נקרא אף אחד.
@@ -179,7 +179,7 @@ code=1
 <!-- example: subedit-cli --version | head -n 1 -->
 ```console
 $ subedit-cli --version | head -n 1
-subedit 1.2.5
+subedit 1.2.6
 ```
 
 הפלט במלואו, במחשב עם ICU 74.2 ו-Enchant 2.3.3 — המספרים הם של המחשב:
@@ -344,12 +344,13 @@ avec-bom.srt: a byte order mark that contradicts the encoding asked for ("UTF-16
 - **היא אינה כותבת קובץ ואינה יוצרת תיקייה**, כולל עם `--in-place`: קובץ הקלט נשאר כפי שהיה.
 - **היא אינה דורשת יעד.** אפשר לתת אחד, ו**הוא נבדק אז כמו בלי `--dry-run`**: שני קלטים לאותו יעד, קלט שהיה נדרס, `--output` על אצווה, שתי דרכים לומר לאן — שורת פקודה שנדחית בלי `--dry-run` נדחית גם איתה, באותו משפט ובאותו קוד `1`.
 - **קוד היציאה הוא של הרצה אמיתית**: `0` כשהכול חושב, `2` או `3` כשלא ניתן היה לקרוא או לעבד קבצים, `1` לשימוש. תו שקידוד הקובץ לא יכול היה לכתוב מכשיל הרצת ניסיון כפי שהוא מכשיל הרצה אמיתית. **העובדה שיש שינויים אינה משנה את הקוד**: ארבעת הקודים אומרים אם הכלי הצליח, לא אם הקובץ תקין.
-- **הדיווח אומר זאת.** במקום שבו הרצה אמיתית כותבת `-> <destination>`, הרצת ניסיון כותבת `(dry run, nothing written)`.
+- **הדיווח אומר זאת.** במקום שבו הרצה אמיתית כותבת `dest: <destination>`, הרצת ניסיון כותבת `(dry run, nothing written)`.
 
 <!-- example: printf '1\n00:00:10,000 --> 00:00:12,000\nBonjour.\n\n' > a.srt; subedit-cli shift --by 1 --dry-run a.srt; ls -- *.srt -->
 ```console
 $ printf '1\n00:00:10,000 --> 00:00:12,000\nBonjour.\n\n' > a.srt; subedit-cli shift --by 1 --dry-run a.srt; ls -- *.srt
-a.srt: 1 subtitle shifted by 1.000 s (dry run, nothing written)
+[subedit] [shift] [1/1] source: a.srt
+[subedit] [shift] [1/1] result: 1 subtitle shifted by 1.000 s (dry run, nothing written)
 a.srt
 ```
 
@@ -371,7 +372,8 @@ a.srt
 <!-- example: printf '1\n00:00:01,000 --> 00:00:03,000\n[Bruit de pas]\n\n2\n00:00:04,000 --> 00:00:06,000\nAttends [il tousse] Marie.\n\n3\n00:00:07,000 --> 00:00:09,000\n- [Grincement]\n- Qui est là ?\n\n' > mentions.srt; subedit-cli hearing-impaired --dry-run mentions.srt -->
 ```console
 $ printf '1\n00:00:01,000 --> 00:00:03,000\n[Bruit de pas]\n\n2\n00:00:04,000 --> 00:00:06,000\nAttends [il tousse] Marie.\n\n3\n00:00:07,000 --> 00:00:09,000\n- [Grincement]\n- Qui est là ?\n\n' > mentions.srt; subedit-cli hearing-impaired --dry-run mentions.srt
-mentions.srt: 2 subtitles cleaned, 1 removed (dry run, nothing written)
+[subedit] [hearing-impaired] [1/1] source: mentions.srt
+[subedit] [hearing-impaired] [1/1] result: 2 subtitles cleaned, 1 removed (dry run, nothing written)
 mentions.srt: subtitle 1 (removed)
 - [Bruit de pas]
 mentions.srt: subtitle 2
@@ -409,11 +411,14 @@ $ subedit-cli inspect *.srt > rapport.txt
 <!-- example: printf '1\n00:00:10,000 --> 00:00:12,000\nUn.\n\n' > a.srt; subedit-cli --format json shift --by 1 --output-dir sortie a.srt absent.srt; echo "code=$?" -->
 ```console
 $ printf '1\n00:00:10,000 --> 00:00:12,000\nUn.\n\n' > a.srt; subedit-cli --format json shift --by 1 --output-dir sortie a.srt absent.srt; echo "code=$?"
-a.srt: 1 subtitle shifted by 1.000 s -> sortie/a.srt
+[subedit] [shift] [1/2] source: a.srt
+[subedit] [shift] [1/2] result: 1 subtitle shifted by 1.000 s
+[subedit] [shift] [1/2] dest: sortie/a.srt
 {"schema":1,"command":"shift","file":"a.srt","ok":true,"dry_run":false,"destination":"sortie/a.srt","counts":{"subtitles":1,"shifted_by_ms":1000},"warnings":[]}
-absent.srt: does not exist
+[subedit] [shift] [2/2] source: absent.srt
+[subedit] [shift] [2/2] error: does not exist
 {"schema":1,"command":"shift","file":"absent.srt","ok":false,"error":{"kind":"not-found","message":"absent.srt: does not exist"}}
-1 of 2 files shifted, 1 failed
+[subedit] [shift] [-] summary: 1 of 2 files shifted, 1 failed
 code=3
 ```
 
@@ -581,7 +586,10 @@ a.srt: line 9: a line that fits nowhere, left as it stands
 <!-- example: printf '1\n00:00:01,000 --> 00:00:02,000\nHello.\n\n2\n00:00:03,000 --> 00:00:04,000\nBye.\n\n' > film.srt; printf '1\n00:00:01,000 --> 00:00:02,000\n[Un oiseau] Bonjour.\n\n2\n00:00:03,000 --> 00:00:04,000\nAu revoir.\n\n' > film.fr.srt; subedit-cli hearing-impaired film.srt -t film.fr.srt --document translation --output propre.fr.srt; cat propre.fr.srt -->
 ```console
 $ printf '1\n00:00:01,000 --> 00:00:02,000\nHello.\n\n2\n00:00:03,000 --> 00:00:04,000\nBye.\n\n' > film.srt; printf '1\n00:00:01,000 --> 00:00:02,000\n[Un oiseau] Bonjour.\n\n2\n00:00:03,000 --> 00:00:04,000\nAu revoir.\n\n' > film.fr.srt; subedit-cli hearing-impaired film.srt -t film.fr.srt --document translation --output propre.fr.srt; cat propre.fr.srt
-film.fr.srt: 1 subtitle cleaned, 0 removed -> propre.fr.srt
+[subedit] [hearing-impaired] [1/1] source: film.srt
+[subedit] [hearing-impaired] [1/1] translation: film.fr.srt
+[subedit] [hearing-impaired] [1/1] result: 1 subtitle cleaned, 0 removed
+[subedit] [hearing-impaired] [1/1] dest: propre.fr.srt
 1
 00:00:01,000 --> 00:00:02,000
 Bonjour.

@@ -56,7 +56,9 @@ Options:
 <!-- example: printf '1\n00:00:01,000 --> 00:00:02,000\nAlpha\n\n2\n00:00:02,000 --> 00:00:04,000\nAlpha\n\n3\n00:00:04,000 --> 00:00:06,000\nAlpha\n\n4\n00:00:08,000 --> 00:00:09,000\nBeta\n\n' > morceaux.srt; subedit-cli join-repeats --output joint.srt morceaux.srt; cat joint.srt -->
 ```console
 $ printf '1\n00:00:01,000 --> 00:00:02,000\nAlpha\n\n2\n00:00:02,000 --> 00:00:04,000\nAlpha\n\n3\n00:00:04,000 --> 00:00:06,000\nAlpha\n\n4\n00:00:08,000 --> 00:00:09,000\nBeta\n\n' > morceaux.srt; subedit-cli join-repeats --output joint.srt morceaux.srt; cat joint.srt
-morceaux.srt: 2 repeated subtitles joined -> joint.srt
+[subedit] [join-repeats] [1/1] source: morceaux.srt
+[subedit] [join-repeats] [1/1] result: 2 repeated subtitles joined
+[subedit] [join-repeats] [1/1] dest: joint.srt
 1
 00:00:01,000 --> 00:00:06,000
 Alpha
@@ -75,9 +77,9 @@ ist geblieben. Ein zweiter Durchgang ändert nichts und sagt es: `no repeated su
 
 | Stufe | Was auf der Fehlerausgabe hinzukommt |
 | :----- | :------------------------------------- |
-| 1 | `<path>: N repeated subtitles joined -> <destination>`, oder `<path>: no repeated subtitles -> <destination>` |
-| 2 | `<path>: SubRip, UTF-8, no BOM, LF line endings kept` |
-| 3 | `<path>: N bytes read, M written`, dann **jede Diagnose beim Lesen** |
+| 1 | `source: <path>`, `result: N repeated subtitles joined`, `dest: <destination>`, oder `source: <path>`, `result: no repeated subtitles`, `dest: <destination>` |
+| 2 | `format: SubRip`, `encoding: UTF-8`, `bom: absent`, `line-endings: LF` |
+| 3 | `bytes-read: N`, `bytes-written: M`, dann **jede Diagnose beim Lesen** |
 
 ### In JSON
 

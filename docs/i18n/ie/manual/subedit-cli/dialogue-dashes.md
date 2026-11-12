@@ -71,7 +71,9 @@ li traduction quel es changeat e scrit, e solmen it — vide [Un traduction](inv
 <!-- example: printf '1\n00:00:01,000 --> 00:00:02,000\nBonjour\nMarie\n\n2\n00:00:03,000 --> 00:00:04,000\n<i>Salut</i>\n\n' > a.srt; subedit-cli dialogue-dashes --add --output t.srt a.srt; cat t.srt -->
 ```console
 $ printf '1\n00:00:01,000 --> 00:00:02,000\nBonjour\nMarie\n\n2\n00:00:03,000 --> 00:00:04,000\n<i>Salut</i>\n\n' > a.srt; subedit-cli dialogue-dashes --add --output t.srt a.srt; cat t.srt
-a.srt: 2 subtitles dashed -> t.srt
+[subedit] [dialogue-dashes] [1/1] source: a.srt
+[subedit] [dialogue-dashes] [1/1] result: 2 subtitles dashed
+[subedit] [dialogue-dashes] [1/1] dest: t.srt
 1
 00:00:01,000 --> 00:00:02,000
 - Bonjour
@@ -89,9 +91,9 @@ changes, descrit in [Vider ante scrir](invocation.md#vider-ante-scrir).
 
 | Nivelle | Quo es adjuntet al output de error |
 | :----- | :------------------------------------- |
-| 1 | `<path>: N subtitles dashed -> <destination>`, o `N subtitles undashed`, o `nothing to change` |
-| 2 | `<path>: SubRip, UTF-8, no BOM, LF line endings kept` — li formate, li codification, li marca e li fines de linea del file leet, remisset quam ili esset |
-| 3 | `<path>: N bytes read, M written`, poy **chascun diagnose de lectura** — vide [Invocation](invocation.md#diagnoses-de-lectura) |
+| 1 | `source: <path>`, `result: N subtitles dashed`, `dest: <destination>`, o `N subtitles undashed`, o `nothing to change` |
+| 2 | `format: SubRip`, `encoding: UTF-8`, `bom: absent`, `line-endings: LF` — li formate, li codification, li marca e li fines de linea del file leet, remisset quam ili esset |
+| 3 | `bytes-read: N`, `bytes-written: M`, poy **chascun diagnose de lectura** — vide [Invocation](invocation.md#diagnoses-de-lectura) |
 
 `N` es li númere de subtitules **queles textu ha changeat**, leet del operation self.
 

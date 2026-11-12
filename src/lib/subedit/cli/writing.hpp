@@ -58,12 +58,24 @@ writeRequestOf(std::span<const subedit::core::Subtitle> subtitles,
                subedit::core::Document document,
                const subedit::core::SourceFile& source);
 
+/// Says what reading an element found, one fact a line: at level two its format, encoding,
+/// byte order mark and line endings, by their names; at level three the bytes read, then what
+/// the reading had to decide.
+///
+/// **Before the operation**, right after the element's `source`: the grammar of #806 (D3 of
+/// `docs/specs/cli-narration.md`) writes what was read before what was done. `reporter` speaks
+/// of the element (`Reporter::forItem`).
+void narrateRead(const Reporter& reporter,
+                 std::size_t bytesRead,
+                 const subedit::core::SourceFile& source,
+                 std::span<const subedit::core::Diagnostic> diagnostics);
+
 /// Says how a file that was written back as it was found went, at the levels that
 /// narrate it: at level three the bytes read and written, then what the reading had
 /// to decide, and at level two the shape kept.
 ///
-/// `written` is the size or sizes, already worded (« 120 », « 120 and 98 »). Written once
-/// for the three subcommands that keep the shape: a libellé changed here changes for all.
+/// `written` is the size or sizes, already worded (« 120 », « 120 and 98 »). The old text,
+/// for `append` and `split-file` until they speak the grammar of #806 (`narrateRead`).
 void narrateKept(const Reporter& reporter,
                  std::string_view path,
                  std::size_t bytesRead,

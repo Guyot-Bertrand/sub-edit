@@ -62,7 +62,10 @@ Options:
 <!-- example: printf '1\n00:00:01,000 --> 00:00:02,000\nHello.\n\n2\n00:00:03,000 --> 00:00:04,000\nBye.\n\n' > film.srt; printf '1\n00:00:01,300 --> 00:00:02,300\nBonjour.\n\n2\n00:00:03,300 --> 00:00:04,300\nAu revoir.\n\n' > film.fr.srt; subedit-cli pair film.srt -t film.fr.srt --output recale.fr.srt; cat recale.fr.srt -->
 ```console
 $ printf '1\n00:00:01,000 --> 00:00:02,000\nHello.\n\n2\n00:00:03,000 --> 00:00:04,000\nBye.\n\n' > film.srt; printf '1\n00:00:01,300 --> 00:00:02,300\nBonjour.\n\n2\n00:00:03,300 --> 00:00:04,300\nAu revoir.\n\n' > film.fr.srt; subedit-cli pair film.srt -t film.fr.srt --output recale.fr.srt; cat recale.fr.srt
-film.fr.srt: translation: 2 lines attached -> recale.fr.srt
+[subedit] [pair] [1/1] source: film.srt
+[subedit] [pair] [1/1] translation: film.fr.srt
+[subedit] [pair] [1/1] result: translation: 2 lines attached
+[subedit] [pair] [1/1] dest: recale.fr.srt
 1
 00:00:01,000 --> 00:00:02,000
 Bonjour.
@@ -101,9 +104,9 @@ cada método.
 
 | Nivel | Lo que se añade en la salida de error |
 | :----- | :------------------------------------- |
-| 1 | `<translation>: translation: N lines attached; … -> <destination>` — **la ruta es la de la traducción**, que es el archivo escrito; con `--dry-run`, `(dry run, nothing written)` en lugar de `-> <destination>` |
-| 2 | `<translation>: SubRip, UTF-8, no BOM, LF line endings kept` — el formato, la codificación, la marca y los finales de línea **de la traducción**, restituidos tal como estaban |
-| 3 | `<translation>: N bytes read, M written`, y después **cada diagnóstico de lectura** del archivo principal y de la traducción — véase [Invocación](invocation.md#diagnósticos-de-lectura) |
+| 1 | `source: <path>`, `translation: <translation>`, `result: translation: N lines attached; …`, `dest: <destination>` — **el archivo principal, luego la traducción**; con `--dry-run`, ninguna línea `dest`, y `(dry run, nothing written)` al final de `result` |
+| 2 | `format: SubRip`, `encoding: UTF-8`, `bom: absent`, `line-endings: LF` — el formato, la codificación, la marca y los finales de línea **de la traducción**, restituidos tal como estaban |
+| 3 | `bytes-read: N`, `bytes-written: M`, y después **cada diagnóstico de lectura** del archivo principal y de la traducción — véase [Invocación](invocation.md#diagnósticos-de-lectura) |
 
 ### En JSON
 

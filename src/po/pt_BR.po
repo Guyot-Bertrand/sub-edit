@@ -1205,8 +1205,8 @@ msgstr ""
 #: src/lib/subedit/cli/configuring.cpp src/lib/subedit/cli/conversion.cpp
 #: src/lib/subedit/cli/disjoining.cpp src/lib/subedit/cli/inspection.cpp
 #: src/lib/subedit/cli/joining.cpp src/lib/subedit/cli/records.cpp
-#: src/lib/subedit/cli/rewriting.cpp src/lib/subedit/cli/sorting.cpp
-#: src/lib/subedit/gui/command_label.cpp src/lib/subedit/gui/invocation.cpp
+#: src/lib/subedit/cli/sorting.cpp src/lib/subedit/gui/command_label.cpp
+#: src/lib/subedit/gui/invocation.cpp
 msgid "%1: %2"
 msgstr "%1: %2"
 
@@ -1265,7 +1265,9 @@ msgstr[2] "%1 legendas alinhadas em %2 fps, %3"
 msgid "%1: %2 from %3"
 msgstr "%1: %2 de %3"
 
-#: src/lib/subedit/cli/appending.cpp src/lib/subedit/cli/splitting.cpp
+#. TRANSLATORS: %1 is what was done to a file, which was not written.
+#: src/lib/subedit/cli/appending.cpp src/lib/subedit/cli/rewriting.cpp
+#: src/lib/subedit/cli/splitting.cpp
 msgid "%1 (dry run, nothing written)"
 msgstr "%1 (simulação, nada escrito)"
 
@@ -2048,40 +2050,25 @@ msgstr "--frame-rate: %1"
 msgid "pattern: %1"
 msgstr "padrão: %1"
 
-#. TRANSLATORS: %1 is a file, %2 what was done to it.
-#: src/lib/subedit/cli/rewriting.cpp
-msgid "%1: %2 (dry run, nothing written)"
-msgstr "%1: %2 (simulação, nada escrito)"
-
-#. TRANSLATORS: %1 is a file, %2 what was done to it, %3 the file written.
-#: src/lib/subedit/cli/rewriting.cpp src/lib/subedit/cli/transcribing.cpp
-msgid "%1: %2 -> %3"
-msgstr "%1: %2 -> %3"
-
 #. TRANSLATORS: %1 is the settings file named by --config.
 #: src/lib/subedit/cli/shared_settings.cpp
 msgid "settings file not found: %1"
 msgstr "arquivo de configurações não encontrado: %1"
 
-#. TRANSLATORS: %1 is the settings file.
+#. TRANSLATORS: %1 is a key of the settings file, %2 the value the file gave it.
 #: src/lib/subedit/cli/shared_settings.cpp
-msgid "settings: read %1"
-msgstr "configurações: %1 lido"
-
-#. TRANSLATORS: %1 is a settings key, %2 the value the file gave it.
-#: src/lib/subedit/cli/shared_settings.cpp
-msgid "settings: %1: cannot read '%2', default kept"
-msgstr "configurações: %1: não foi possível ler '%2', padrão mantido"
+msgid "setting %1: cannot read '%2', default kept"
+msgstr "configuração %1: não foi possível ler '%2', padrão mantido"
 
 #. TRANSLATORS: %1 is the settings file.
 #: src/lib/subedit/cli/shared_settings.cpp
-msgid "settings: %1 not found, defaults used"
-msgstr "configurações: %1 não encontrado, usados os padrões"
+msgid "settings file %1 not found, defaults used"
+msgstr "arquivo de configurações %1 não encontrado, usados os padrões"
 
 #. TRANSLATORS: %1 is the settings file.
 #: src/lib/subedit/cli/shared_settings.cpp
-msgid "settings: %1 unreadable, defaults used"
-msgstr "configurações: %1 ilegível, usados os padrões"
+msgid "settings file %1 unreadable, defaults used"
+msgstr "arquivo de configurações %1 ilegível, usados os padrões"
 
 #: src/lib/subedit/cli/shifting.cpp
 msgid "%1 subtitle shifted by %2"
@@ -2212,6 +2199,11 @@ msgstr "esperado segundos como 2.999, ou um carimbo de tempo como 00:00:07.001"
 #: src/lib/subedit/cli/transcribing.cpp
 msgid "%1 is required"
 msgstr "%1 é obrigatório"
+
+#. TRANSLATORS: %1 is a file, %2 what was done to it, %3 the file written.
+#: src/lib/subedit/cli/transcribing.cpp
+msgid "%1: %2 -> %3"
+msgstr "%1: %2 -> %3"
 
 #: src/lib/subedit/cli/transforming.cpp
 msgid "subtitle %1 is past the end: the file holds %2 subtitle"
@@ -5841,6 +5833,12 @@ msgstr "Itálico"
 msgctxt "toolbar"
 msgid "Main"
 msgstr "Principal"
+
+#~ msgid "%1: %2 (dry run, nothing written)"
+#~ msgstr "%1: %2 (simulação, nada escrito)"
+
+#~ msgid "settings: read %1"
+#~ msgstr "configurações: %1 lido"
 
 #~ msgid "subedit-cli: %1"
 #~ msgstr "subedit-cli: %1"

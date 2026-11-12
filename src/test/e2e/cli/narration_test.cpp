@@ -57,6 +57,11 @@ const std::string kNumbering = corpus("malformes/numerotation-incoherente.srt");
 const std::string kNumberingSaid =
     ": line 6: SubRip numbers that do not follow (\"7\"), settled by the reader\n";
 
+/// The same diagnostic, said by a subcommand that speaks the grammar of #806: under the key
+/// `diagnostic`, the file named by the element's `source` line.
+const std::string kNumberingTold =
+    "] diagnostic: line 6: SubRip numbers that do not follow (\"7\"), settled by the reader\n";
+
 } // namespace
 
 TEST_CASE("the report goes to standard output and the narration to standard error",
@@ -176,7 +181,8 @@ TEST_CASE("a subcommand that writes reports what the reader had to decide",
         invoke({"-vvv", "shift", "--by", "1", "--output-dir", scratch.path(), kNumbering});
 
     CHECK(run.exitCode == 0);
-    CHECK_THAT(run.errors, ContainsSubstring(kNumbering + kNumberingSaid));
+    CHECK_THAT(run.errors, ContainsSubstring("[1/1] source: " + kNumbering + "\n"));
+    CHECK_THAT(run.errors, ContainsSubstring(kNumberingTold));
 }
 
 TEST_CASE("converting reports them too", "[e2e][CLI-OUTPUT-06]") {
@@ -197,8 +203,12 @@ TEST_CASE("the second level says the byte order mark, whichever subcommand",
     CHECK_THAT(invoke({"-vv", "inspect", kGood}).errors,
                ContainsSubstring(kGood + ": SubRip, UTF-8, no BOM, LF line endings\n"));
 
+    // One fact a line for a subcommand that speaks the grammar of #806, the words as names.
     CHECK_THAT(invoke({"-vv", "shift", "--by", "1", "--output-dir", scratch.path(), kGood}).errors,
-               ContainsSubstring(kGood + ": SubRip, UTF-8, no BOM, LF line endings kept\n"));
+               ContainsSubstring("[subedit] [shift] [1/1] format: SubRip\n"
+                                 "[subedit] [shift] [1/1] encoding: UTF-8\n"
+                                 "[subedit] [shift] [1/1] bom: absent\n"
+                                 "[subedit] [shift] [1/1] line-endings: LF\n"));
 
     CHECK_THAT(
         invoke({"-vv", "convert", "--to", "vtt", "--output-dir", scratch.path(), kGood}).errors,
