@@ -66,6 +66,10 @@ private:
 /// the identifier a script can test. Shared with `sync`, which listens the same way.
 [[nodiscard]] Failure failureOf(const core::MediaTranscriptionError& error);
 
+/// `text` with the pointer to the installation page on a line of its own (D4 of #806): the window
+/// shows the two on one line, the standard error writes each physical line under its key.
+[[nodiscard]] std::string withPointerApart(std::string text);
+
 /// Reads the language and the range the person asked for into `request`, or says what cannot be
 /// read, as the exit code to leave with. Empty texts ask for nothing.
 [[nodiscard]] std::optional<ExitCode> readListenerChoices(const std::string& languageName,

@@ -162,7 +162,7 @@ decalatge constant, i gran per a un fitxer que anava tard cada vegada més al ll
 
 | Nivell | Què es diu a la sortida d'error |
 | :---- | :------------------------------- |
-| 1 | `<file>: N of M subtitles placed on the audio, K to check; median shift X s, drift Y s -> <destination>` — i, quan s'ha corregit una freqüència de fotogrames, la raó; amb `speech`, **l'advertència del que no fa**, en una línia pròpia |
+| 1 | `source: <file>`, `media: <audio>`, `result: N of M subtitles placed on the audio, K to check; median shift X s, drift Y s`, `dest: <destination>` — i, quan s'ha corregit una freqüència de fotogrames, la raó; amb `speech`, **l'advertència del que no fa**, en una línia pròpia |
 | 2 | el pas i el progrés, com per a [`transcribe`](transcribe.md#sortida) |
 
 ### En JSON

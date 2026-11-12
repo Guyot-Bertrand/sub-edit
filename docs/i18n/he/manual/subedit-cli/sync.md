@@ -151,7 +151,7 @@ Options:
 
 | רמה | מה נאמר בפלט השגיאה |
 | :---- | :------------------------------- |
-| 1 | `<file>: N of M subtitles placed on the audio, K to check; median shift X s, drift Y s -> <destination>` — וכשקצב פריימים תוקן, גם היחס; עם `speech`, **האזהרה על מה שהיא אינה עושה**, בשורה משלה |
+| 1 | `source: <file>`, `media: <audio>`, `result: N of M subtitles placed on the audio, K to check; median shift X s, drift Y s`, `dest: <destination>` — וכשקצב פריימים תוקן, גם היחס; עם `speech`, **האזהרה על מה שהיא אינה עושה**, בשורה משלה |
 | 2 | השלב וההתקדמות, כמו ב-[`transcribe`](transcribe.md#פלט) |
 
 ### ב-JSON

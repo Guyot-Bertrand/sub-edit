@@ -173,6 +173,28 @@ TEST_CASE("a file is re-timed on an audio file, as it is when ffmpeg is not ther
     CHECK_THAT(world.errors.str(), ContainsSubstring("12 of 12 subtitles placed on the audio"));
 }
 
+TEST_CASE("the media is said under the element, after the subtitle file it re-times",
+          "[cli][sync]") {
+    World world{"offset-plus-2400"};
+
+    REQUIRE(world.run(world.listening()) == ExitCode::Success);
+
+    const std::string said = world.errors.str();
+    CHECK(said.starts_with("[subedit] [sync] [1/1] source: " + world.subtitles.string() + "\n" +
+                           "[subedit] [sync] [1/1] media: " + world.audio.string() + "\n"));
+    CHECK_THAT(said, ContainsSubstring("[subedit] [sync] [1/1] result: 12 of 12 subtitles placed"));
+    CHECK(said.ends_with("[subedit] [sync] [1/1] dest: " + world.output.string() + "\n"));
+}
+
+TEST_CASE("a refusal of the options is about no element", "[cli][sync]") {
+    World world{"offset-plus-2400"};
+
+    CHECK(world.run(SyncOptions{}) == ExitCode::Usage);
+
+    CHECK(world.errors.str().starts_with("[subedit] [sync] [-] error: "));
+    CHECK_FALSE(world.errors.str().contains("source:"));
+}
+
 TEST_CASE("the audio must come from a film or from a file, and not from both", "[cli][sync]") {
     World world{"offset-plus-2400"};
 
@@ -378,6 +400,10 @@ TEST_CASE("the speech method is refused, before any work, without its program or
     noTool.vadModel = model.string();
     CHECK(world.run(noTool) == ExitCode::AllFailed);
     CHECK_THAT(world.errors.str(), ContainsSubstring("whisper-vad-speech-segments"));
+    // The pointer to the installation page on a line of its own, under the same key.
+    CHECK_THAT(
+        world.errors.str(),
+        ContainsSubstring("it was not found.\n[subedit] [sync] [-] error: See the manual page"));
     CHECK_FALSE(std::filesystem::exists(world.output));
 }
 

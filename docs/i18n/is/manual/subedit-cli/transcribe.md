@@ -184,9 +184,9 @@ textaformið, ekkert er skrifað með [`--format json`](invocation.md#úttak-sem
 
 | Stig | Hvað bætist við á villuúttakið |
 | :---- | :-------------------------------- |
-| 1 | `<input>: N subtitles transcribed, language: xx -> <output>` |
-| 2 | skrefið og framvindan, ein lína fyrir hvert prósent: `extracting the audio…`, síðan `transcribing…`, síðan `transcribing: 25%, 0:12:30 of 0:50:00, about 38 min left, elapsed: 0:05:12` — prósentan, staðan sem náðst hefur í hljóðinu, tíminn sem eftir er og tíminn sem liðinn er; **línan er sögð aftur á tíu sekúndna fresti þegar ekkert nýtt hefur borist**, svo að löng bið sé ekki tekin fyrir frost |
-| 3 | og hver nýr texti sem vélin fær, `last text: …` |
+| 1 | `source: <input>`, `result: N subtitles transcribed, language: xx`, `dest: <output>` |
+| 2 | skrefið og framvindan, ein lína fyrir hvert prósent: `progress: extracting the audio…`, síðan `progress: transcribing…`, síðan `progress: transcribing: 25%, 0:12:30 of 0:50:00, about 38 min left, elapsed: 0:05:12` — prósentan, staðan sem náðst hefur í hljóðinu, tíminn sem eftir er og tíminn sem liðinn er; **línan er sögð aftur á tíu sekúndna fresti þegar ekkert nýtt hefur borist**, svo að löng bið sé ekki tekin fyrir frost |
+| 3 | og hver nýr texti sem vélin fær, `progress: last text: …` |
 
 **Prósentan er staða vélarinnar í hljóðinu, ekki talning á hennar eigin gluggum**: vélin skrifar það sem hún hefur
 umritað jafnóðum, og skipunin les hvar hún er stödd, svo talan hreyfist frá fyrstu mínútu. (Framvinda vélarinnar

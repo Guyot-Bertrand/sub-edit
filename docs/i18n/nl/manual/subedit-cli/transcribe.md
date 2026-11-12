@@ -186,9 +186,9 @@ de tekstvorm, er wordt niets geschreven met [`--format json`](invocation.md#uitv
 
 | Niveau | Wat er op de foutuitvoer wordt toegevoegd |
 | :----- | :------------------------------------- |
-| 1 | `<input>: N subtitles transcribed, language: xx -> <output>` |
-| 2 | de stap en de voortgang, een regel per procent: `extracting the audio…`, dan `transcribing…`, dan `transcribing: 25%, 0:12:30 of 0:50:00, about 38 min left, elapsed: 0:05:12` — het procent, de bereikte positie in de audio, de resterende tijd en de verstreken tijd; **de regel wordt elke tien seconden herhaald als er niets nieuws is gekomen**, zodat een lange wachttijd niet voor een vastloper wordt gehouden |
-| 3 | en elke nieuwe tekst die de engine krijgt, `last text: …` |
+| 1 | `source: <input>`, `result: N subtitles transcribed, language: xx`, `dest: <output>` |
+| 2 | de stap en de voortgang, een regel per procent: `progress: extracting the audio…`, dan `progress: transcribing…`, dan `progress: transcribing: 25%, 0:12:30 of 0:50:00, about 38 min left, elapsed: 0:05:12` — het procent, de bereikte positie in de audio, de resterende tijd en de verstreken tijd; **de regel wordt elke tien seconden herhaald als er niets nieuws is gekomen**, zodat een lange wachttijd niet voor een vastloper wordt gehouden |
+| 3 | en elke nieuwe tekst die de engine krijgt, `progress: last text: …` |
 
 **Het procent is de positie van de engine in de audio, niet een telling van zijn eigen vensters**: de engine schrijft wat hij
 heeft getranscribeerd gaandeweg, en de opdracht leest hoe ver die is, zodat het getal vanaf de eerste minuut beweegt. (De eigen

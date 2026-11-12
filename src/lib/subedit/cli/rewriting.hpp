@@ -107,6 +107,10 @@ struct Request {
     /// paired — what an operation whose result **is** the alignment has to say.
     /// Nothing without a pairing.
     std::optional<subedit::core::TranslationOutcome> alignment{};
+
+    /// The reporter of the element the operation acts on, for an operation that speaks while
+    /// it works — the progress of `sync` (#806). Never null when the loop calls.
+    const Reporter* reporter = nullptr;
 };
 
 /// An operation that can list what it changes, and acts on a selection.

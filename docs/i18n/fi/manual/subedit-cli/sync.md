@@ -162,7 +162,7 @@ myöhässä yhä enemmän elokuvan edetessä.
 
 | Taso | Mitä virhetulosteeseen lisätään |
 | :---- | :-------------------------------- |
-| 1 | `<file>: N of M subtitles placed on the audio, K to check; median shift X s, drift Y s -> <destination>` — ja kun ruutunopeus korjattiin, suhdeluku; menetelmällä `speech` **varoitus siitä, mitä se ei tee**, omalla rivillään |
+| 1 | `source: <file>`, `media: <audio>`, `result: N of M subtitles placed on the audio, K to check; median shift X s, drift Y s`, `dest: <destination>` — ja kun ruutunopeus korjattiin, suhdeluku; menetelmällä `speech` **varoitus siitä, mitä se ei tee**, omalla rivillään |
 | 2 | vaihe ja eteneminen, kuten komennolla [`transcribe`](transcribe.md#tuloste) |
 
 ### JSON-muodossa

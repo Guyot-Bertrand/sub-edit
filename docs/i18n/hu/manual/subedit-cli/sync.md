@@ -159,7 +159,7 @@ többet késett.
 
 | Szint | Mi kerül még a hibakimenetre |
 | :---- | :------------------------------- |
-| 1 | `<file>: N of M subtitles placed on the audio, K to check; median shift X s, drift Y s -> <destination>` — és, ha egy képkockasebesség helyre lett hozva, az arány; a `speech` esetén **annak figyelmeztetése, amit nem tesz**, külön sorban |
+| 1 | `source: <file>`, `media: <audio>`, `result: N of M subtitles placed on the audio, K to check; median shift X s, drift Y s`, `dest: <destination>` — és, ha egy képkockasebesség helyre lett hozva, az arány; a `speech` esetén **annak figyelmeztetése, amit nem tesz**, külön sorban |
 | 2 | a lépés és az előrehaladás, mint a [`transcribe`](transcribe.md#kimenet) esetén |
 
 ### JSON-ban

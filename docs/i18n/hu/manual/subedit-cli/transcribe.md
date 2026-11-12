@@ -185,9 +185,9 @@ a szöveges alak létezik, a [`--format json`](invocation.md#szkript-által-olva
 
 | Szint | Mi kerül még a hibakimenetre |
 | :---- | :-------------------------------- |
-| 1 | `<input>: N subtitles transcribed, language: xx -> <output>` |
-| 2 | a lépés és az előrehaladás, százalékonként egy sor: `extracting the audio…`, majd `transcribing…`, majd `transcribing: 25%, 0:12:30 of 0:50:00, about 38 min left, elapsed: 0:05:12` — a százalék, a hangban elért pozíció, a hátralévő idő és az eltelt idő; **a sort tíz másodpercenként újra kiírja, ha semmi új nem érkezett**, hogy a hosszú várakozást ne tekintsék lefagyásnak |
-| 3 | és minden új szöveg, amelyet a motor megkap, `last text: …` |
+| 1 | `source: <input>`, `result: N subtitles transcribed, language: xx`, `dest: <output>` |
+| 2 | a lépés és az előrehaladás, százalékonként egy sor: `progress: extracting the audio…`, majd `progress: transcribing…`, majd `progress: transcribing: 25%, 0:12:30 of 0:50:00, about 38 min left, elapsed: 0:05:12` — a százalék, a hangban elért pozíció, a hátralévő idő és az eltelt idő; **a sort tíz másodpercenként újra kiírja, ha semmi új nem érkezett**, hogy a hosszú várakozást ne tekintsék lefagyásnak |
+| 3 | és minden új szöveg, amelyet a motor megkap, `progress: last text: …` |
 
 **A százalék a motor pozíciója a hangban, nem a saját ablakainak száma**: a motor menet közben kiírja, amit leiratozott,
 a parancs pedig kiolvassa, hol tart, így a szám már az első percben mozog. (A motor saját előrehaladása

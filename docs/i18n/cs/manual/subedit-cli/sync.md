@@ -161,7 +161,7 @@ během filmu opožďoval čím dál víc.
 
 | Úroveň | Co se řekne na chybovém výstupu |
 | :---- | :------------------------------- |
-| 1 | `<file>: N of M subtitles placed on the audio, K to check; median shift X s, drift Y s -> <destination>` — a když byla opravena snímková frekvence, poměr; u `speech` **upozornění na to, co nedělá**, na samostatném řádku |
+| 1 | `source: <file>`, `media: <audio>`, `result: N of M subtitles placed on the audio, K to check; median shift X s, drift Y s`, `dest: <destination>` — a když byla opravena snímková frekvence, poměr; u `speech` **upozornění na to, co nedělá**, na samostatném řádku |
 | 2 | krok a průběh, jako u [`transcribe`](transcribe.md#výstup) |
 
 ### Ve formátu JSON

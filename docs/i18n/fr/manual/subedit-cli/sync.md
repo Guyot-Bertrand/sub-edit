@@ -162,7 +162,7 @@ grande pour un fichier de plus en plus en retard le long du film.
 
 | Niveau | Ce qui est dit sur la sortie d'erreur |
 | :----- | :------------------------------------ |
-| 1 | `<file>: N of M subtitles placed on the audio, K to check; median shift X s, drift Y s -> <destination>` — et, quand une cadence d'images a été corrigée, le rapport ; avec `speech`, **l'avertissement de ce qu'elle ne fait pas**, sur une ligne à part |
+| 1 | `source: <file>`, `media: <audio>`, `result: N of M subtitles placed on the audio, K to check; median shift X s, drift Y s`, `dest: <destination>` — et, quand une cadence d'images a été corrigée, le rapport ; avec `speech`, **l'avertissement de ce qu'elle ne fait pas**, sur une ligne à part |
 | 2 | l'étape et la progression, comme pour [`transcribe`](transcribe.md#sortie) |
 
 ### En JSON

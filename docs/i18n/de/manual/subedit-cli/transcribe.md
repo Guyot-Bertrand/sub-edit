@@ -185,9 +185,9 @@ die Textform, mit [`--format json`](invocation.md#ausgabe-die-ein-skript-lesen-k
 
 | Stufe | Was auf der Fehlerausgabe hinzukommt |
 | :---- | :-------------------------------- |
-| 1 | `<input>: N subtitles transcribed, language: xx -> <output>` |
-| 2 | der Schritt und der Fortschritt, eine Zeile pro Prozent: `extracting the audio…`, dann `transcribing…`, dann `transcribing: 25%, 0:12:30 of 0:50:00, about 38 min left, elapsed: 0:05:12` — das Prozent, die erreichte Position im Audio, die verbleibende Zeit und die vergangene Zeit; **die Zeile wird alle zehn Sekunden wiederholt, wenn nichts Neues gekommen ist**, damit ein langes Warten nicht für ein Einfrieren gehalten wird |
-| 3 | und jeder neue Text, den die Engine erhält, `last text: …` |
+| 1 | `source: <input>`, `result: N subtitles transcribed, language: xx`, `dest: <output>` |
+| 2 | der Schritt und der Fortschritt, eine Zeile pro Prozent: `progress: extracting the audio…`, dann `progress: transcribing…`, dann `progress: transcribing: 25%, 0:12:30 of 0:50:00, about 38 min left, elapsed: 0:05:12` — das Prozent, die erreichte Position im Audio, die verbleibende Zeit und die vergangene Zeit; **die Zeile wird alle zehn Sekunden wiederholt, wenn nichts Neues gekommen ist**, damit ein langes Warten nicht für ein Einfrieren gehalten wird |
+| 3 | und jeder neue Text, den die Engine erhält, `progress: last text: …` |
 
 **Das Prozent ist die Position der Engine im Audio, nicht eine Zählung ihrer eigenen Fenster**: Die Engine schreibt, was sie
 transkribiert hat, fortlaufend, und der Befehl liest, wie weit das gekommen ist, sodass sich die Zahl von der ersten

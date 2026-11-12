@@ -186,9 +186,9 @@ form only, nothing is written with [`--format json`](invocation.md#output-a-scri
 
 | Level | What is added on the error output |
 | :---- | :-------------------------------- |
-| 1 | `<input>: N subtitles transcribed, language: xx -> <output>` |
-| 2 | the step and the progress, one line for each percent: `extracting the audio…`, then `transcribing…`, then `transcribing: 25%, 0:12:30 of 0:50:00, about 38 min left, elapsed: 0:05:12` — the percent, the position reached in the audio, the time left, and the time spent; **the line is said again every ten seconds when nothing new has come**, so that a long wait is not taken for a freeze |
-| 3 | and each new text the engine obtains, `last text: …` |
+| 1 | `source: <input>`, `result: N subtitles transcribed, language: xx`, `dest: <output>` |
+| 2 | the step and the progress, one line for each percent: `progress: extracting the audio…`, then `progress: transcribing…`, then `progress: transcribing: 25%, 0:12:30 of 0:50:00, about 38 min left, elapsed: 0:05:12` — the percent, the position reached in the audio, the time left, and the time spent; **the line is said again every ten seconds when nothing new has come**, so that a long wait is not taken for a freeze |
+| 3 | and each new text the engine obtains, `progress: last text: …` |
 
 **The percent is the engine's position in the audio, not a count of its own windows**: the engine writes what it
 has transcribed as it goes, and the command reads where that has got to, so that the figure moves from the first

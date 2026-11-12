@@ -164,7 +164,7 @@ spóźniał się coraz bardziej w trakcie filmu.
 
 | Poziom | Co jest dodawane na wyjściu błędów |
 | :---- | :------------------------------- |
-| 1 | `<file>: N of M subtitles placed on the audio, K to check; median shift X s, drift Y s -> <destination>` — a gdy poprawiono liczbę klatek na sekundę, także stosunek; z `speech` **ostrzeżenie o tym, czego nie robi**, w osobnym wierszu |
+| 1 | `source: <file>`, `media: <audio>`, `result: N of M subtitles placed on the audio, K to check; median shift X s, drift Y s`, `dest: <destination>` — a gdy poprawiono liczbę klatek na sekundę, także stosunek; z `speech` **ostrzeżenie o tym, czego nie robi**, w osobnym wierszu |
 | 2 | etap i postęp, jak dla [`transcribe`](transcribe.md#wynik) |
 
 ### W formacie JSON

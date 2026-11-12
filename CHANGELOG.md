@@ -14,6 +14,7 @@ do not edit it by hand.
 - **cli** — Give the standard error its line grammar, errors first
 - **cli** — Narrate the rewriting subcommands one fact a line
 - **cli** — Narrate the other batches and the one-record runs
+- **cli** — Narrate the transcription and the sync
 
 ## 1.2.4 — 2026-11-11
 

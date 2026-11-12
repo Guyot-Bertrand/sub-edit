@@ -184,9 +184,9 @@ forme textual, nequo es scrit con [`--format json`](invocation.md#un-output-quel
 
 | Nivelle | Quo es adjuntet al exeunte de error |
 | :---- | :-------------------------------- |
-| 1 | `<input>: N subtitles transcribed, language: xx -> <output>` |
-| 2 | li pass e li progress, un linea per procent: `extracting the audio…`, pois `transcribing…`, pois `transcribing: 25%, 0:12:30 of 0:50:00, about 38 min left, elapsed: 0:05:12` — li procent, li position atinget in li audio, li témpor restant, e li témpor passat; **li linea es dit denov chascun dece secondes quande nequo nov ha venit**, por que un long atende ne esset prenet por un blocage |
-| 3 | e chascun nov textu quel li motor obtene, `last text: …` |
+| 1 | `source: <input>`, `result: N subtitles transcribed, language: xx`, `dest: <output>` |
+| 2 | li pass e li progress, un linea per procent: `progress: extracting the audio…`, pois `progress: transcribing…`, pois `progress: transcribing: 25%, 0:12:30 of 0:50:00, about 38 min left, elapsed: 0:05:12` — li procent, li position atinget in li audio, li témpor restant, e li témpor passat; **li linea es dit denov chascun dece secondes quande nequo nov ha venit**, por que un long atende ne esset prenet por un blocage |
+| 3 | e chascun nov textu quel li motor obtene, `progress: last text: …` |
 
 **Li procent es li position del motor in li audio, ne un conte de su proprie fenestres**: li motor scri quo it ha
 transcrit durant que it labora, e li comande lee u it es, tal que li númere move ja del prim minute. (Li progress

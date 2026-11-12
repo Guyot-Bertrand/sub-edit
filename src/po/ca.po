@@ -1658,7 +1658,8 @@ msgstr "patrons: %1"
 
 #: src/lib/subedit/cli/correcting.cpp
 msgid "setting correction.human and correction.ocr are both false, ignored"
-msgstr "paràmetres correction.human i correction.ocr són tots dos false, s'ignoren"
+msgstr ""
+"paràmetres correction.human i correction.ocr són tots dos false, s'ignoren"
 
 #. TRANSLATORS: %1 is the file that would be written, %2 the input it is.
 #: src/lib/subedit/cli/destination.cpp
@@ -2146,11 +2147,6 @@ msgstr ""
 #: src/lib/subedit/cli/transcribing.cpp
 msgid "%1 is required"
 msgstr "%1 és obligatori"
-
-#. TRANSLATORS: %1 is a file, %2 what was done to it, %3 the file written.
-#: src/lib/subedit/cli/transcribing.cpp
-msgid "%1: %2 -> %3"
-msgstr "%1: %2 -> %3"
 
 #: src/lib/subedit/cli/transforming.cpp
 msgid "subtitle %1 is past the end: the file holds %2 subtitle"
@@ -5696,6 +5692,9 @@ msgstr "Cursiva"
 msgctxt "toolbar"
 msgid "Main"
 msgstr "Principal"
+
+#~ msgid "%1: %2 -> %3"
+#~ msgstr "%1: %2 -> %3"
 
 #~ msgid "%1 -> %2"
 #~ msgstr "%1 -> %2"

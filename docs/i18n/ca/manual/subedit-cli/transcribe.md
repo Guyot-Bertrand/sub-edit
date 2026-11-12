@@ -185,9 +185,9 @@ en forma de text, no s'escriu res amb [`--format json`](invocation.md#sortida-ll
 
 | Nivell | Què s'afegeix a la sortida d'error |
 | :---- | :-------------------------------- |
-| 1 | `<input>: N subtitles transcribed, language: xx -> <output>` |
-| 2 | el pas i el progrés, una línia per cada tant per cent: `extracting the audio…`, després `transcribing…`, després `transcribing: 25%, 0:12:30 of 0:50:00, about 38 min left, elapsed: 0:05:12` — el tant per cent, la posició assolida a l'àudio, el temps que queda i el temps transcorregut; **la línia es torna a dir cada deu segons quan no ha arribat res de nou**, perquè una espera llarga no es prengui per un bloqueig |
-| 3 | i cada text nou que obté el motor, `last text: …` |
+| 1 | `source: <input>`, `result: N subtitles transcribed, language: xx`, `dest: <output>` |
+| 2 | el pas i el progrés, una línia per cada tant per cent: `progress: extracting the audio…`, després `progress: transcribing…`, després `progress: transcribing: 25%, 0:12:30 of 0:50:00, about 38 min left, elapsed: 0:05:12` — el tant per cent, la posició assolida a l'àudio, el temps que queda i el temps transcorregut; **la línia es torna a dir cada deu segons quan no ha arribat res de nou**, perquè una espera llarga no es prengui per un bloqueig |
+| 3 | i cada text nou que obté el motor, `progress: last text: …` |
 
 **El tant per cent és la posició del motor a l'àudio, no un recompte de les seves finestres**: el motor escriu el que ha
 transcrit a mesura que avança, i l'ordre llegeix fins on ha arribat, de manera que la xifra es mou des del primer

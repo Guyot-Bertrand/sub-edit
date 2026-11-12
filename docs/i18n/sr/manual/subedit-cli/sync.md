@@ -160,7 +160,7 @@ Options:
 
 | Ниво | Шта се каже на излазу за грешке |
 | :---- | :------------------------------- |
-| 1 | `<file>: N of M subtitles placed on the audio, K to check; median shift X s, drift Y s -> <destination>` — и, када је брзина сличица исправљена, однос; са `speech`, **упозорење о ономе што не ради**, у посебном реду |
+| 1 | `source: <file>`, `media: <audio>`, `result: N of M subtitles placed on the audio, K to check; median shift X s, drift Y s`, `dest: <destination>` — и, када је брзина сличица исправљена, однос; са `speech`, **упозорење о ономе што не ради**, у посебном реду |
 | 2 | корак и напредак, као код [`transcribe`](transcribe.md#излаз) |
 
 ### У JSON-у

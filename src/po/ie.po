@@ -2113,11 +2113,6 @@ msgstr "expectat secundes quam 2.999, o un horodate quam 00:00:07.001"
 msgid "%1 is required"
 msgstr "%1 es obligatori"
 
-#. TRANSLATORS: %1 is a file, %2 what was done to it, %3 the file written.
-#: src/lib/subedit/cli/transcribing.cpp
-msgid "%1: %2 -> %3"
-msgstr "%1: %2 -> %3"
-
 #: src/lib/subedit/cli/transforming.cpp
 msgid "subtitle %1 is past the end: the file holds %2 subtitle"
 msgid_plural "subtitle %1 is past the end: the file holds %2 subtitles"
@@ -5654,6 +5649,9 @@ msgstr "Italic"
 msgctxt "toolbar"
 msgid "Main"
 msgstr "Principal"
+
+#~ msgid "%1: %2 -> %3"
+#~ msgstr "%1: %2 -> %3"
 
 #~ msgid "%1 -> %2"
 #~ msgstr "%1 -> %2"

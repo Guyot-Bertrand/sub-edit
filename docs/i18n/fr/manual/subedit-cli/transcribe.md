@@ -182,9 +182,9 @@ qui ne peut lister ses langues n'en liste aucune. Un modèle non donné ou absen
 
 | Niveau | Ce qui s'ajoute sur la sortie d'erreur |
 | :----- | :------------------------------------- |
-| 1 | `<input>: N subtitles transcribed, language: xx -> <output>` |
-| 2 | l'étape et la progression, une ligne par pour cent : `extracting the audio…`, puis `transcribing…`, puis `transcribing: 25%, 0:12:30 of 0:50:00, about 38 min left, elapsed: 0:05:12` — le pour cent, la position atteinte dans l'audio, le temps restant, et le temps écoulé ; **la ligne est redite toutes les dix secondes quand rien de neuf n'est venu**, pour qu'une longue attente ne soit pas prise pour un blocage |
-| 3 | et chaque nouveau texte que le moteur obtient, `last text: …` |
+| 1 | `source: <input>`, `result: N subtitles transcribed, language: xx`, `dest: <output>` |
+| 2 | l'étape et la progression, une ligne par pour cent : `progress: extracting the audio…`, puis `progress: transcribing…`, puis `progress: transcribing: 25%, 0:12:30 of 0:50:00, about 38 min left, elapsed: 0:05:12` — le pour cent, la position atteinte dans l'audio, le temps restant, et le temps écoulé ; **la ligne est redite toutes les dix secondes quand rien de neuf n'est venu**, pour qu'une longue attente ne soit pas prise pour un blocage |
+| 3 | et chaque nouveau texte que le moteur obtient, `progress: last text: …` |
 
 **Le pour cent est la position du moteur dans l'audio, non un compte de ses propres fenêtres** : le moteur écrit ce qu'il a
 transcrit au fur et à mesure, et la commande lit où il en est, de sorte que le chiffre bouge dès la première minute. (La

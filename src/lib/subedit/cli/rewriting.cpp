@@ -99,7 +99,8 @@ bool rewriteFile(core::FileSystem& files,
                                       Request{.changes = dryRun || reporter.recording(),
                                               .selection = std::move(selection),
                                               .document = document,
-                                              .alignment = alignment});
+                                              .alignment = alignment,
+                                              .reporter = &reporter});
     if (done && pairing && alignment) {
         done->fields.emplace_back("alignment", alignmentOf(*pairing, *alignment));
     }

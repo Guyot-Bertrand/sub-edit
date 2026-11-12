@@ -160,7 +160,7 @@ immer mehr zu spät war.
 
 | Stufe | Was auf der Fehlerausgabe gesagt wird |
 | :---- | :------------------------------- |
-| 1 | `<file>: N of M subtitles placed on the audio, K to check; median shift X s, drift Y s -> <destination>` — und, wenn eine Bildrate zurechtgerückt wurde, das Verhältnis; mit `speech` **die Warnung vor dem, was er nicht leistet**, in einer eigenen Zeile |
+| 1 | `source: <file>`, `media: <audio>`, `result: N of M subtitles placed on the audio, K to check; median shift X s, drift Y s`, `dest: <destination>` — und, wenn eine Bildrate zurechtgerückt wurde, das Verhältnis; mit `speech` **die Warnung vor dem, was er nicht leistet**, in einer eigenen Zeile |
 | 2 | der Schritt und der Fortschritt, wie bei [`transcribe`](transcribe.md#ausgabe) |
 
 ### In JSON

@@ -186,9 +186,9 @@ forma testuale, nulla viene scritto con [`--format json`](invocation.md#un-outpu
 
 | Livello | Che cosa si aggiunge sull'output di errore |
 | :----- | :------------------------------------- |
-| 1 | `<input>: N subtitles transcribed, language: xx -> <output>` |
-| 2 | la fase e l'avanzamento, una riga per ogni percento: `extracting the audio…`, poi `transcribing…`, poi `transcribing: 25%, 0:12:30 of 0:50:00, about 38 min left, elapsed: 0:05:12` — il percento, la posizione raggiunta nell'audio, il tempo rimanente e il tempo trascorso; **la riga viene ripetuta ogni dieci secondi quando non è arrivato nulla di nuovo**, in modo che una lunga attesa non sia scambiata per un blocco |
-| 3 | e ogni nuovo testo ottenuto dal motore, `last text: …` |
+| 1 | `source: <input>`, `result: N subtitles transcribed, language: xx`, `dest: <output>` |
+| 2 | la fase e l'avanzamento, una riga per ogni percento: `progress: extracting the audio…`, poi `progress: transcribing…`, poi `progress: transcribing: 25%, 0:12:30 of 0:50:00, about 38 min left, elapsed: 0:05:12` — il percento, la posizione raggiunta nell'audio, il tempo rimanente e il tempo trascorso; **la riga viene ripetuta ogni dieci secondi quando non è arrivato nulla di nuovo**, in modo che una lunga attesa non sia scambiata per un blocco |
+| 3 | e ogni nuovo testo ottenuto dal motore, `progress: last text: …` |
 
 **Il percento è la posizione del motore nell'audio, non un conteggio delle sue finestre**: il motore scrive ciò che ha
 trascritto man mano, e il comando legge a che punto è arrivato, in modo che la cifra si muova fin dal primo minuto. (L'avanzamento
