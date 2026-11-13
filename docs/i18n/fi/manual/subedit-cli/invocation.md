@@ -113,7 +113,6 @@ sanoja, asettaa `LANGUAGE=en` (tai `LC_ALL=C`) — tai lukee muotoa `--format js
 | kirjoitettavat nimet: alikomennot, valitsimet, niiden arvot (`off`, `srt`), metamuuttujat (`FILE`, `TEXT`, `OPTIONS`) | kerran kirjoitettu komentorivi toimii kaikilla kielillä |
 | korjauslausekkeiden nimet, jotka `correct --enable` ja `--disable` ottavat | lausekkeeseen viitataan englanninkielisellä nimellä, joka sen tiedostossa on |
 | muotojen ja merkistökoodausten nimet | muotoon viitataan sen nimellä |
-| CLI11:n omat huomautukset — puuttuva pakollinen argumentti, tuntematon valitsin, arvo, jota valitsin ei hyväksy — ja sen `Run with --help for more information.` | ne on muotoiltu sen jäsentimen sisällä, jonka päälle komentorivi on rakennettu; ne pysyvät englanninkielisinä |
 | virherivin kehys: `[subedit]`, alikomento, `[-]`, avain `error` | skripti löytää, mikä ja missä epäonnistui, lukematta sanoja; vain viesti käännetään |
 
 Englannin pyytäminen ympäristöstä riippumatta:
@@ -227,7 +226,7 @@ ei ajeta, eivätkä `-q` ja `-v` muuta mitään.
 <!-- example: subedit-cli --version | head -n 1 -->
 ```console
 $ subedit-cli --version | head -n 1
-subedit 1.2.8
+subedit 1.2.9
 ```
 
 Koko tuloste koneella, jossa on ICU 74.2 ja Enchant 2.3.3 — numerot ovat koneen omia:
@@ -456,8 +455,8 @@ säilyttävät luetun tiedoston muodon ja siten sen tiedostopäätteen.
 | kaksi syötettä, yksi kohde | `<destination>: would be written by both <input> and <input>` |
 | syötteen päälle kirjoitettaisiin | `<destination>: would be written over the input <input>` — sama lause alikomennoille [`append`](append.md) ja [`split-file`](split-file.md) |
 | tulostehakemistoa ei voi luoda | `<directory>: cannot be created: permission denied` tai `: cannot be created` |
-| kohteeseen ei voi kirjoittaa | `<path>: <destination>: cannot be written: permission denied` tai `: cannot be written` |
-| kirjoitettavasta merkistökoodauksesta puuttuva merkki | `<path>: holds a character the chosen encoding cannot write` |
+| kohteeseen ei voi kirjoittaa | `<destination>: cannot be written: permission denied` tai `: cannot be written` |
+| kirjoitettavasta merkistökoodauksesta puuttuva merkki | `holds a character the chosen encoding cannot write` |
 
 **Viimeinen ansaitsee lauseen.** Tiedosto kirjoitetaan takaisin **samalla merkistökoodauksella,
 jolla se luettiin**, kuten rivinvaihtojensa ja merkkinsä kanssa. Jos
@@ -695,21 +694,76 @@ josta ilmoitetaan CHANGELOGissa ja täällä.
 
 ## Kerronnan tasot
 
+**Virhetulosteen jokaisella rivillä on sama muoto**, niin kerronnassa kuin virheissä:
+
+```
+[subedit] [<command>] [<i>/<n>] <key>: <value>
+```
+
+| Osa | Mitä se kertoo |
+| :----- | :------------- |
+| `<command>` | alikomento sellaisena kuin se kirjoitettiin; `-`, kun sitä ei vielä tiedetä |
+| `<i>/<n>` | elementti, josta rivi kertoo, `n`:stä `i`:s; `-` riville, joka koskee koko ajoa |
+| `<key>` | mitä rivi sanoo |
+| `<value>` | nimi, luku, polku tai lause |
+
+**Elementti on se, mikä kirjoittaa yhden JSON-tietueen**: yksi syöte, tai koko ajo komennoilla [`append`](append.md), [`split-file`](split-file.md) ja [`pair`](pair.md). Se lasketaan yhdestä alkaen syötteiden järjestyksessä, joka on tietueiden järjestys; yksi syöte on `[1/1]`.
+
+<!-- example: printf '1\n00:00:01,000 --> 00:00:02,000\n[Door]\nHello.\n\n2\n00:00:03,000 --> 00:00:04,000\n[Music]\n\n' > b.srt; printf 'nothing to read\n' > bad.srt; printf '1\n00:00:01,000 --> 00:00:02,000\nHi.\n\n' > c.srt; subedit-cli hearing-impaired --output-dir o b.srt bad.srt c.srt; echo "code=$?" -->
+```console
+$ printf '1\n00:00:01,000 --> 00:00:02,000\n[Door]\nHello.\n\n2\n00:00:03,000 --> 00:00:04,000\n[Music]\n\n' > b.srt; printf 'nothing to read\n' > bad.srt; printf '1\n00:00:01,000 --> 00:00:02,000\nHi.\n\n' > c.srt; subedit-cli hearing-impaired --output-dir o b.srt bad.srt c.srt; echo "code=$?"
+[subedit] [hearing-impaired] [1/3] source: b.srt
+[subedit] [hearing-impaired] [1/3] result: 1 subtitle cleaned, 1 removed
+[subedit] [hearing-impaired] [1/3] dest: o/b.srt
+[subedit] [hearing-impaired] [2/3] source: bad.srt
+[subedit] [hearing-impaired] [2/3] error: is in no format this tool knows
+[subedit] [hearing-impaired] [3/3] source: c.srt
+[subedit] [hearing-impaired] [3/3] result: no mention to remove
+[subedit] [hearing-impaired] [3/3] dest: o/c.srt
+[subedit] [hearing-impaired] [-] summary: 2 of 3 files cleaned, 1 failed
+code=3
+```
+
 Jokainen taso **sisältää edellisen**: pykälän nouseminen lisää, ei koskaan
 korvaa.
 
 | Taso | Miten | Mitä virhetuloste sisältää |
 | :----- | :------ | :------------------------------ |
-| 0 | `--quiet` | ei mitään **virheitä lukuun ottamatta** |
-| 1 | oletuksena tai `-v` | yksi rivi kutakin käsiteltyä tiedostoa kohden ja yhteenveto heti, kun tiedostoja on useita |
-| 2 | `-vv` | ja mitä tunnistettiin: muoto, merkistökoodaus, BOM, rivinvaihdot |
-| 3 | `-vvv` | ja vianetsinnän jälki: luetut ja kirjoitetut tavut sekä **jokainen lukemisen huomautus** |
+| 0 | `--quiet` | vain `error`-rivit, kukin elementtinsä `source`-rivin jälkeen |
+| 1 | oletuksena tai `-v` | `source`, `translation`, `media`, `warning`, `result`, `dest`, `tail`; ja ajosta `settings`, `walk` sekä kahdesta elementistä alkaen `summary` |
+| 2 | `-vv` | ja `format`, `encoding`, `bom`, `line-endings`, `alignment`, `progress` |
+| 3 | `-vvv` | ja `bytes-read`, `bytes-written` sekä jokainen `diagnostic` |
+
+Kahden avaimen taso riippuu alikomennosta: `alignment` on tasolla 1 komennoille `pair` ja `inspect`, ja `progress` tasolla 3 viimeksi kuullulle tekstille.
 
 **Virheitä ei koskaan vaienneta, ei myöskään valitsimella `--quiet`.** Komento, joka epäonnistuu
 hiljaa, ei jättäisi jälkeensä muuta kuin paluuarvonsa.
 
 Yhteenveto näkyy vasta kahdesta tiedostosta alkaen: yhdellä syötteellä se vain
 toistaisi edellisen rivin.
+
+**Mikä pätee jokaiseen elementtiin:**
+
+- sen `source`-rivi tulee ensin, eikä virhe tule koskaan ilman sitä, ei edes valitsimella `--quiet`;
+- `dest` kirjoitetaan jokaisesta onnistumisesta, joka kirjoittaa, myös valitsimella `--in-place`, eikä koskaan valitsimella `--dry-run`, joka ei kirjoita mitään;
+- `result` voi tulla useammin kuin kerran: toimenpiteen lisäksi pyydetyllä vaiheella (`--sort`, `--disjoint`, `--join-repeats`) ja jokaisella tiedostolla, jonka `append` lisää, on oma rivinsä;
+- virhe ei toista lähteen polkua; se nimeää tiedoston, jota se koskee, kun se on jokin muu, kuten käännös tai kohde.
+
+### Elementin löytäminen nimellä
+
+**Elementin tunnistaa paikka, ei polku**: polussa voi olla mikä tahansa merkki, paikassa ei ole mitään suojattavaa, ja elementin rivit pysyvät yhdessä `grep`-haun jälkeen. Yhden tiedoston rivit löytyvät kahdessa vaiheessa:
+
+```console
+$ subedit-cli hearing-impaired --output-dir o *.srt 2> log
+$ grep -F '] source: b.srt' log           # [subedit] [hearing-impaired] [1/3] source: b.srt
+$ grep -F '[1/3]' log                     # everything about b.srt
+```
+
+### Mitä kerronta lupaa
+
+**Luvattu**: rivin muoto; `<i>/<n>`:n merkitys ja sen yhteys JSON-tietueiden järjestykseen; avaimet ja kunkin taso; yllä olevat säännöt.
+
+**Ei luvattu**: lauseena olevan arvon teksti — `result`, `warning`, `error`, `progress`, `summary`, `walk` —, joka käännetään ja muotoillaan tarvittaessa uudelleen: skripti lukee luvut JSONista. Eikä eri elementtien rivien järjestys, jos erä joskus käsittelee niitä rinnakkain.
 
 ## Huomautukset luettaessa
 
@@ -719,9 +773,8 @@ mihin lukija törmäsi, tulostetaan **tasolla 3**, yksi rivi kutakin huomautusta
 virhetulosteeseen:
 
 ```
-a.srt: 2 diagnostics while reading
-a.srt: line 6: SubRip numbers that do not follow ("7"), settled by the reader
-a.srt: line 9: a line that fits nowhere, left as it stands
+[subedit] [inspect] [1/1] diagnostic: line 6: SubRip numbers that do not follow ("7"), settled by the reader
+[subedit] [inspect] [1/1] diagnostic: line 9: a line that fits nowhere, left as it stands
 ```
 
 Kaikki kahdeksantoista alikomentoa ilmoittavat niistä, ei vain [`inspect`](inspect.md):
@@ -925,12 +978,12 @@ erää puolittain käsitellyksi.
 | `--quiet` ja `-v` yhdessä | `--quiet and -v ask for opposite things; give one or the other` |
 | `--config` ja `--no-config` yhdessä | `--config excludes --no-config` |
 | `--config` tyhjällä nimellä | `--config needs a file name` |
-| puuttuva tiedosto | `<path>: does not exist` |
-| lukukelvoton tiedosto | `<path>: cannot be opened: permission denied` |
+| puuttuva tiedosto | `does not exist` |
+| lukukelvoton tiedosto | `cannot be opened: permission denied` |
 | merkistökoodaus, joka kirjoittaa oman merkkinsä | `"<name>" writes a byte order mark of its own; name the byte order, as UTF-16LE and UTF-16BE do` |
-| tavut, joita ei voi purkaa | `<path>: cannot be decoded in the chosen encoding` |
-| tunnistamaton muoto | `<path>: is in no format this tool knows` |
-| ei mitään kappaleelta näyttävää | `<path>: holds nothing recognisable as a subtitle` |
+| tavut, joita ei voi purkaa | `cannot be decoded in the chosen encoding` |
+| tunnistamaton muoto | `is in no format this tool knows` |
+| ei mitään kappaleelta näyttävää | `holds nothing recognisable as a subtitle` |
 | `--document translation` ilman valitsinta `-t` | `--document translation needs the translation file: use -t` |
 | `-t` ilman valitsinta `--document translation` | `-t names a translation to change: use --document translation` |
 | `--align-method` ilman valitsinta `-t` | `--align-method needs a translation file: use -t` |

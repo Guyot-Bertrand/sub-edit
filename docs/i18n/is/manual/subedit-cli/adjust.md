@@ -262,7 +262,7 @@ sumar, `1` við notkunarvillu. Skrá sem passar þegar innan marka sinna er unni
 | núll eða neikvætt hámark | `--maximum: "0" is not a duration above zero` |
 | tímabil illa skrifað | `--range: "…" is not a range: write it N-M, or N- to go to the end, counted from 1 and inclusive` |
 | tímabil sem endar áður en það byrjar | `--range: "5-3" is not a range: it ends before it starts` |
-| tímabil utan skrárinnar | `<path>: range N-M starts after the last subtitle: the file has K`, eða `… ends after …` |
+| tímabil utan skrárinnar | `range N-M starts after the last subtitle: the file has K`, eða `… ends after …` |
 
 Villur áfangastaðarins eru sameiginlegar undirskipununum sem skrifa:
 sjá [Ræsing](invocation.md#áfangastaðurinn).

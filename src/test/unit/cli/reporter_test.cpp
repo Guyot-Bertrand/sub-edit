@@ -5,24 +5,25 @@
 
 #include <sstream>
 
+using subedit::cli::Key;
 using subedit::cli::Reporter;
 
 TEST_CASE("a line is written when the level reaches its own", "[cli][reporter]") {
     std::ostringstream errors;
     const Reporter reporter{errors, 2};
 
-    reporter.say(1, "coarse");
-    reporter.say(2, "finer");
+    reporter.tell(1, Key::Result, "coarse");
+    reporter.tell(2, Key::Format, "finer");
 
-    CHECK(errors.str() == "coarse\nfiner\n");
+    CHECK(errors.str() == "[subedit] [-] [-] result: coarse\n[subedit] [-] [-] format: finer\n");
 }
 
 TEST_CASE("a line above the level is dropped", "[cli][reporter]") {
     std::ostringstream errors;
     const Reporter reporter{errors, 1};
 
-    reporter.say(2, "detail");
-    reporter.say(3, "debug");
+    reporter.tell(2, Key::Format, "detail");
+    reporter.tell(3, Key::BytesRead, "12");
 
     CHECK(errors.str().empty());
 }
@@ -31,7 +32,7 @@ TEST_CASE("silence drops every narration", "[cli][reporter]") {
     std::ostringstream errors;
     const Reporter reporter{errors, 0};
 
-    reporter.say(1, "what happened");
+    reporter.tell(1, Key::Result, "what happened");
 
     CHECK(errors.str().empty());
 }
@@ -40,26 +41,27 @@ TEST_CASE("silence keeps the failures", "[cli][reporter]") {
     std::ostringstream errors;
     const Reporter reporter{errors, 0};
 
-    reporter.failed("file.srt: does not exist");
+    reporter.error("file.srt: does not exist");
 
     // A command failing in silence leaves its exit code as the only clue, and
     // turns every incident into an investigation.
-    CHECK(errors.str() == "file.srt: does not exist\n");
+    CHECK(errors.str() == "[subedit] [-] [-] error: file.srt: does not exist\n");
 }
 
 TEST_CASE("each level keeps every line of the one below", "[cli][reporter]") {
     const auto narrate = [](int level) {
         std::ostringstream errors;
         const Reporter reporter{errors, level};
-        reporter.say(3, "debug");
-        reporter.say(2, "detail");
-        reporter.say(1, "outcome");
+        reporter.tell(1, Key::Result, "outcome");
+        reporter.tell(2, Key::Format, "detail");
+        reporter.tell(3, Key::BytesRead, "12");
         return errors.str();
     };
 
-    CHECK(narrate(1) == "outcome\n");
-    CHECK(narrate(2) == "detail\noutcome\n");
-    CHECK(narrate(3) == "debug\ndetail\noutcome\n");
+    CHECK(narrate(1) == "[subedit] [-] [-] result: outcome\n");
+    CHECK(narrate(2) == "[subedit] [-] [-] result: outcome\n[subedit] [-] [-] format: detail\n");
+    CHECK(narrate(3) == "[subedit] [-] [-] result: outcome\n[subedit] [-] [-] format: detail\n"
+                        "[subedit] [-] [-] bytes-read: 12\n");
 }
 
 TEST_CASE("the level is readable", "[cli][reporter]") {
@@ -106,8 +108,6 @@ TEST_CASE("the records are the result when they are wanted, and the text is not 
 
 // The grammar of a line (#826, spec `cli-narration.md`):
 // `[subedit] [<command>] [<i>/<n>] <key>: <value>`.
-
-using subedit::cli::Key;
 
 TEST_CASE("a line about the run writes a dash where the element would be", "[cli][reporter]") {
     std::ostringstream errors;

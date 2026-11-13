@@ -333,10 +333,10 @@ only some, `1` on a usage error.
 | :------------------ | :------ |
 | `--bom` with `--no-bom` | `--bom and --no-bom ask for opposite things; give one or the other` |
 | `--in-place` that changes the format | `--in-place cannot change the format: the file would keep a name its content no longer matches` |
-| `--bom` on an encoding that has none | `<path>: <encoding> has no byte order mark to write` |
+| `--bom` on an encoding that has none | `<encoding> has no byte order mark to write` |
 | `--to-encoding` naming an unknown encoding | `no encoding is named "<name>"` |
 | `--to-encoding` naming an encoding that writes its own mark | `"<name>" writes a byte order mark of its own; name the byte order, as UTF-16LE and UTF-16BE do` |
-| character missing from the encoding written | `<path>: holds a character the chosen encoding cannot write` |
+| character missing from the encoding written | `holds a character the chosen encoding cannot write` |
 
 **Refusing `--bom` on an encoding that carries none is not
 pedantry.** A byte order mark exists for the Unicode encodings and

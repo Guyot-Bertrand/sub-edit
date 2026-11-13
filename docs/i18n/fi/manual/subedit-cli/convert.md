@@ -336,10 +336,10 @@ vain osa, `1` käyttövirheessä.
 | :------------------ | :------ |
 | `--bom` yhdessä valitsimen `--no-bom` kanssa | `--bom and --no-bom ask for opposite things; give one or the other` |
 | `--in-place`, joka vaihtaa muodon | `--in-place cannot change the format: the file would keep a name its content no longer matches` |
-| `--bom` merkistökoodaukselle, jossa sitä ei ole | `<path>: <encoding> has no byte order mark to write` |
+| `--bom` merkistökoodaukselle, jossa sitä ei ole | `<encoding> has no byte order mark to write` |
 | `--to-encoding`, joka nimeää tuntemattoman merkistökoodauksen | `no encoding is named "<name>"` |
 | `--to-encoding`, joka nimeää oman merkkinsä kirjoittavan merkistökoodauksen | `"<name>" writes a byte order mark of its own; name the byte order, as UTF-16LE and UTF-16BE do` |
-| merkki, joka puuttuu kirjoitettavasta merkistökoodauksesta | `<path>: holds a character the chosen encoding cannot write` |
+| merkki, joka puuttuu kirjoitettavasta merkistökoodauksesta | `holds a character the chosen encoding cannot write` |
 
 **Valitsimen `--bom` hylkääminen merkistökoodaukselle, jossa sitä ei ole, ei ole
 pikkutarkkuutta.** Tavujärjestysmerkki on olemassa Unicode-merkistökoodauksille eikä

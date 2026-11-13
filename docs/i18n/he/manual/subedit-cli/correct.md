@@ -315,7 +315,7 @@ Propre.
 | `grew the text too long` | הטקסט חרג ממה שכתובית יכולה להכיל |
 
 ברמה 1, בפלט השגיאה:
-`<path>: pattern "<name>" (<reason>) was not applied to subtitle N` — בלי הסוף כשהתבנית מושמטת בכל טקסט. **המספר הוא
+`warning: pattern "<name>" (<reason>) was not applied to subtitle N` — בלי הסוף כשהתבנית מושמטת בכל טקסט. **המספר הוא
 של הקובץ**, יהיו אשר יהיו המשימות שהסירו כתוביות קודם. ב-JSON, זו
 אזהרת `pattern-failed` של הקובץ, ש-`detail` שלה נושא את המשפט. **תבנית
 שוויתרו עליה אינה קובץ שנכשל**: הקובץ נכתב, וקוד היציאה הוא `0`.

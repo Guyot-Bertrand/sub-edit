@@ -91,7 +91,7 @@ Chaque fichier est décalé **à partir de la fin de ce qui le précède** : l'o
 met le résultat dans l'ordre des débuts, **en une fois, après le dernier ajout**, comme le ferait [`sort`](sort.md) — stable, et sans rien changer
 au contenu.
 
-Jamais par défaut. Avec l'option, la base le dit au premier niveau de narration, `<base>: N subtitles moved` ou `<base>: already in order`, et
+Jamais par défaut. Avec l'option, la base le dit au premier niveau de narration, `result: N subtitles moved` ou `result: already in order`, et
 l'enregistrement `--format json` porte un compte `moved`, **absent sans l'option**.
 
 ## Rendre les plages disjointes
@@ -158,8 +158,8 @@ Un échec est un objet lui aussi, **un seul** : celui du premier fichier qui n'a
 | un seul fichier donné | `append needs a base file and at least one file to put after it` |
 | ni `--output` ni `--dry-run` | `no destination given: append writes one file, use --output` |
 | `--output` désigne une entrée | `<destination>: would be written over the input <input>` |
-| un fichier absent, illisible ou d'un format inconnu | `<path>: does not exist`, `<path>: is in no format this tool knows`… — les mêmes que partout |
+| un fichier absent, illisible ou d'un format inconnu | `does not exist`, `is in no format this tool knows`… — les mêmes que partout |
 
 **Un fichier vide ne s'ajoute pas** : aucun format ne se lit sans un sous-titre au moins, et le fichier est
-refusé comme tout fichier qui ne se lit pas — `<path>: holds nothing recognisable as a subtitle` —, ce qui
+refusé comme tout fichier qui ne se lit pas — `holds nothing recognisable as a subtitle` —, ce qui
 arrête le lancement et n'écrit rien.

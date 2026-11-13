@@ -163,7 +163,7 @@ code=2
 | децимални зарез | `"…" is not a time: use a decimal point and not a comma, in every language` |
 | финије од милисекунде | `"…" is not a time: positions are held to the millisecond, no finer` |
 | текст који није трајање | `"…" is not a time: expected seconds like 2.999, or a timestamp like 00:00:07.001` |
-| померање пре почетка | `<path>: subtitle N would start before the origin, which no subtitle file can hold` |
+| померање пре почетка | `subtitle N would start before the origin, which no subtitle file can hold` |
 
 **Ништа се не пише без једне од три опције одредишта**, а њихове
 грешке заједничке су подкомандама које пишу:

@@ -94,7 +94,7 @@ Cada archivo se desplaza **desde el final de lo que lo precede**: el orden que p
 pone el resultado en el orden de los inicios, **de una sola vez, tras la última adición**, como lo haría [`sort`](sort.md): de forma estable, y sin cambiar nada
 del contenido.
 
-Nunca por defecto. Con la opción, la base lo indica en el primer nivel de narración, `<base>: N subtitles moved` o `<base>: already in order`, y
+Nunca por defecto. Con la opción, la base lo indica en el primer nivel de narración, `result: N subtitles moved` o `result: already in order`, y
 el registro `--format json` lleva un recuento `moved`, **ausente sin la opción**.
 
 ## Hacer disjuntos los intervalos
@@ -161,8 +161,8 @@ Un fallo también es un objeto, **uno solo**: el del primer archivo que no pudo 
 | un solo archivo indicado | `append needs a base file and at least one file to put after it` |
 | ni `--output` ni `--dry-run` | `no destination given: append writes one file, use --output` |
 | `--output` nombra una entrada | `<destination>: would be written over the input <input>` |
-| un archivo ausente, ilegible o de formato desconocido | `<path>: does not exist`, `<path>: is in no format this tool knows`… — lo mismo que en todas partes |
+| un archivo ausente, ilegible o de formato desconocido | `does not exist`, `is in no format this tool knows`… — lo mismo que en todas partes |
 
 **Un archivo vacío no se añade**: ningún formato lee sin al menos un subtítulo, y el archivo se
-rechaza como cualquier archivo que no puede leerse —`<path>: holds nothing recognisable as a subtitle`—, lo que
+rechaza como cualquier archivo que no puede leerse —`holds nothing recognisable as a subtitle`—, lo que
 detiene la ejecución y no escribe nada.

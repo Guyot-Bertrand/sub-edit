@@ -141,7 +141,7 @@ half).
 | only one of the two, with `--dry-run` | `--head and --tail go together: give both, or neither with --dry-run` |
 | the two destinations are the same file | `<path>: named as both the head and the tail` |
 | a destination is the input | `<path>: would be written over the input <input>` |
-| `--at` outside the file | `<file>: --at 9: the file holds 3 subtitles, and the tail can start from 2 to 3` |
-| a file of one subtitle | `<file>: a file of 1 subtitle cannot be split: a cut needs a subtitle on each side` |
-| overlap | `<file>: Cannot split at subtitle N: subtitle M would fall before the start of the video. Cut somewhere else.` |
-| a file missing, unreadable or of an unknown format | `<path>: does not exist`… — the same as everywhere |
+| `--at` outside the file | `--at 9: the file holds 3 subtitles, and the tail can start from 2 to 3` |
+| a file of one subtitle | `a file of 1 subtitle cannot be split: a cut needs a subtitle on each side` |
+| overlap | `Cannot split at subtitle N: subtitle M would fall before the start of the video. Cut somewhere else.` |
+| a file missing, unreadable or of an unknown format | `does not exist`… — the same as everywhere |

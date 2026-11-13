@@ -260,3 +260,19 @@ TEST_CASE("the help, a usage error and a batch say the French words the catalogu
                ContainsSubstring("[1/1] source: " + scratch.of("in/absent.srt") +
                                  "\n[subedit] [shift] [1/1] error: n'existe pas\n"));
 }
+
+TEST_CASE("the parser's complaints are in the language asked for", "[e2e][CLI-I18N-01]") {
+    // CLI11 words them in English; the tool says them again in the user's words (#830), the
+    // names typed left as typed.
+    const CliRun unknown = invokeShipped(kFrench, {"shift", "--bogus", "a.srt"});
+    CHECK(unknown.exitCode == 1);
+    CHECK(unknown.errors == refusal("shift", "L'argument suivant n'était pas attendu : --bogus") +
+                                refusal("shift", "Lancez avec --help pour plus d'informations."));
+
+    CHECK_THAT(invokeShipped(kFrench, {"convert", "a.srt"}).errors,
+               ContainsSubstring("[subedit] [convert] [-] error: --to est requis\n"));
+    CHECK_THAT(invokeShipped(kFrench, {"--format", "yaml", "inspect", "a.srt"}).errors,
+               ContainsSubstring("error: --format : yaml n'est pas dans {text,json}\n"));
+    CHECK_THAT(invokeShipped(kFrench, {"config"}).errors,
+               ContainsSubstring("[subedit] [config] [-] error: Une sous-commande est requise\n"));
+}

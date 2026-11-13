@@ -94,7 +94,7 @@ Každý soubor se posune **od konce toho, co mu předchází**: pořadí, které
 seřadí výsledek podle začátků, **najednou, po posledním připojení**, jako by to udělal [`sort`](sort.md) — stabilně a beze změny čehokoli
 v obsahu.
 
-Nikdy ve výchozím stavu. S volbou to základ řekne na první úrovni výpisu, `<base>: N subtitles moved` nebo `<base>: already in order`, a
+Nikdy ve výchozím stavu. S volbou to základ řekne na první úrovni výpisu, `result: N subtitles moved` nebo `result: already in order`, a
 záznam `--format json` nese počet `moved`, **který bez volby chybí**.
 
 ## Převedení rozsahů na disjunktní
@@ -161,8 +161,8 @@ Selhání je také objekt, **jediný**: objekt prvního souboru, který nešlo p
 | zadán jediný soubor | `append needs a base file and at least one file to put after it` |
 | ani `--output`, ani `--dry-run` | `no destination given: append writes one file, use --output` |
 | `--output` jmenuje vstup | `<destination>: would be written over the input <input>` |
-| soubor chybí, je nečitelný nebo v neznámém formátu | `<path>: does not exist`, `<path>: is in no format this tool knows`… — totéž co všude |
+| soubor chybí, je nečitelný nebo v neznámém formátu | `does not exist`, `is in no format this tool knows`… — totéž co všude |
 
 **Prázdný soubor se nepřipojí**: žádný formát nečte bez alespoň jednoho titulku a soubor se
-odmítne jako každý soubor, který nelze přečíst — `<path>: holds nothing recognisable as a subtitle` —, což
+odmítne jako každý soubor, který nelze přečíst — `holds nothing recognisable as a subtitle` —, což
 běh zastaví a nic nezapíše.

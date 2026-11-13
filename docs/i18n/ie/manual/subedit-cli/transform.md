@@ -195,9 +195,9 @@ solmen alcunes, `1` in cas de un error de usage.
 | index quel ne es un númere intere | `"…" is not a subtitle number: expected a whole number, counted from 1 as the file shows them` |
 | tempore ínvalid | les de [`shift`](shift.md) |
 | `--first` e `--last` sur li sam index | `--first and --last both name subtitle N, and two references on one subtitle define no transform` |
-| index foris li limites | `<path>: subtitle N is past the end: the file holds M subtitles` |
-| du subtitules comensante ensemble | `<path>: subtitles N and M start at the same moment, so they define no transform` |
-| position ante li origine | `<path>: subtitle N would land before the origin, which no subtitle file can hold` |
+| index foris li limites | `subtitle N is past the end: the file holds M subtitles` |
+| du subtitules comensante ensemble | `subtitles N and M start at the same moment, so they define no transform` |
+| position ante li origine | `subtitle N would land before the origin, which no subtitle file can hold` |
 
 **Nequo es scrit sin un del tri optiones de destination**, e lor
 errores es comun a su li subcomandes quel scri:

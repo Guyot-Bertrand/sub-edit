@@ -144,7 +144,7 @@ meitat).
 | només una de les dues, amb `--dry-run` | `--head and --tail go together: give both, or neither with --dry-run` |
 | les dues destinacions són el mateix fitxer | `<path>: named as both the head and the tail` |
 | una destinació és l'entrada | `<path>: would be written over the input <input>` |
-| `--at` fora del fitxer | `<file>: --at 9: the file holds 3 subtitles, and the tail can start from 2 to 3` |
-| un fitxer d'un subtítol | `<file>: a file of 1 subtitle cannot be split: a cut needs a subtitle on each side` |
-| encavalcament | `<file>: Cannot split at subtitle N: subtitle M would fall before the start of the video. Cut somewhere else.` |
-| un fitxer que falta, il·legible o d'un format desconegut | `<path>: does not exist`… — el mateix que arreu |
+| `--at` fora del fitxer | `--at 9: the file holds 3 subtitles, and the tail can start from 2 to 3` |
+| un fitxer d'un subtítol | `a file of 1 subtitle cannot be split: a cut needs a subtitle on each side` |
+| encavalcament | `Cannot split at subtitle N: subtitle M would fall before the start of the video. Cut somewhere else.` |
+| un fitxer que falta, il·legible o d'un format desconegut | `does not exist`… — el mateix que arreu |

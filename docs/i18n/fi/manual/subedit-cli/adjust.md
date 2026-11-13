@@ -262,7 +262,7 @@ osa, `1` käyttövirheessä. Tiedosto, joka on jo rajojensa sisällä, on käsit
 | nolla tai negatiivinen enimmäiskesto | `--maximum: "0" is not a duration above zero` |
 | väärin kirjoitettu aikaväli | `--range: "…" is not a range: write it N-M, or N- to go to the end, counted from 1 and inclusive` |
 | aikaväli, joka päättyy ennen kuin alkaa | `--range: "5-3" is not a range: it ends before it starts` |
-| tiedoston ulkopuolinen aikaväli | `<path>: range N-M starts after the last subtitle: the file has K` tai `… ends after …` |
+| tiedoston ulkopuolinen aikaväli | `range N-M starts after the last subtitle: the file has K` tai `… ends after …` |
 
 Kohteen virheet ovat yhteisiä kaikille kirjoittaville alikomennoille:
 katso [Käynnistys](invocation.md#kohde).

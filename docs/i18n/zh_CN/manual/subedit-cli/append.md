@@ -79,7 +79,7 @@ trois
 
 每个文件都**从它前面内容的结束处**开始移动：因此可能出现顺序问题的，是文件本身的顺序。`--sort` 会在**最后一次追加之后一次性**把结果按开始时间排好顺序，效果与 [`sort`](sort.md) 相同——稳定排序，且不改变任何内容。
 
-默认不排序。使用该选项时，基准文件会在第一级输出中说明，写为 `<base>: N subtitles moved` 或 `<base>: already in order`，而 `--format json` 的记录中带有 `moved` 计数，**不使用该选项时没有这一项**。
+默认不排序。使用该选项时，基准文件会在第一级输出中说明，写为 `result: N subtitles moved` 或 `result: already in order`，而 `--format json` 的记录中带有 `moved` 计数，**不使用该选项时没有这一项**。
 
 ## 使时间范围互不重叠
 
@@ -137,6 +137,6 @@ d.ass: appended 1 subtitle; Advanced SSA into SubRip: 1 tag dropped, the header 
 | 只给出了一个文件 | `append needs a base file and at least one file to put after it` |
 | 既没有 `--output` 也没有 `--dry-run` | `no destination given: append writes one file, use --output` |
 | `--output` 指定了某个输入 | `<destination>: would be written over the input <input>` |
-| 文件不存在、无法读取或格式未知 | `<path>: does not exist`、`<path>: is in no format this tool knows`……——与别处相同 |
+| 文件不存在、无法读取或格式未知 | `does not exist`、`is in no format this tool knows`……——与别处相同 |
 
-**空文件不会被追加**：没有任何一种格式能在没有至少一条字幕的情况下读取，因此这样的文件会像任何无法读取的文件一样被拒绝——`<path>: holds nothing recognisable as a subtitle`——这会使运行停止，且不写入任何内容。
+**空文件不会被追加**：没有任何一种格式能在没有至少一条字幕的情况下读取，因此这样的文件会像任何无法读取的文件一样被拒绝——`holds nothing recognisable as a subtitle`——这会使运行停止，且不写入任何内容。

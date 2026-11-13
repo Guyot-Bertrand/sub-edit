@@ -346,11 +346,11 @@ máis arriba. `inspect` non escribe nada que se poida rexeitar.
 | O que o provoca | Mensaxe |
 | :------------------ | :------ |
 | ningún camiño indicado | `files is required`, seguido dunha indicación cara a `--help` |
-| ficheiro ausente | `<path>: does not exist` |
-| ficheiro ilexible | `<path>: cannot be opened: permission denied` |
-| bytes que non se descodifican | `<path>: cannot be decoded in the chosen encoding` |
-| formato non recoñecido | `<path>: is in no format this tool knows` |
-| nada que se pareza a un subtítulo | `<path>: holds nothing recognisable as a subtitle` |
+| ficheiro ausente | `does not exist` |
+| ficheiro ilexible | `cannot be opened: permission denied` |
+| bytes que non se descodifican | `cannot be decoded in the chosen encoding` |
+| formato non recoñecido | `is in no format this tool knows` |
+| nada que se pareza a un subtítulo | `holds nothing recognisable as a subtitle` |
 
 Son as mesmas mensaxes para as dezasete subordes: a receita para abrir escríbese unha soa vez,
 no núcleo.

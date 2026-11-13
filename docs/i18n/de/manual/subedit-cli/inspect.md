@@ -362,11 +362,11 @@ die von `-t`: siehe oben. `inspect` schreibt nichts, was abgelehnt werden könnt
 | Was ihn auslöst | Meldung |
 | :------------------ | :------ |
 | kein Pfad angegeben | `files is required`, gefolgt von einem Verweis auf `--help` |
-| fehlende Datei | `<path>: does not exist` |
-| unlesbare Datei | `<path>: cannot be opened: permission denied` |
-| Bytes, die sich nicht dekodieren lassen | `<path>: cannot be decoded in the chosen encoding` |
-| Format nicht erkannt | `<path>: is in no format this tool knows` |
-| nichts, das wie ein Untertitel aussieht | `<path>: holds nothing recognisable as a subtitle` |
+| fehlende Datei | `does not exist` |
+| unlesbare Datei | `cannot be opened: permission denied` |
+| Bytes, die sich nicht dekodieren lassen | `cannot be decoded in the chosen encoding` |
+| Format nicht erkannt | `is in no format this tool knows` |
+| nichts, das wie ein Untertitel aussieht | `holds nothing recognisable as a subtitle` |
 
 Es sind dieselben Meldungen für die siebzehn Unterbefehle: Das Rezept zum Öffnen
 ist einmal geschrieben, im Kern.

@@ -262,7 +262,7 @@ alcunes, `1` in cas de error de usage. Un file quel ja intra in su limites es tr
 | maximum zero o negativ | `--maximum: "0" is not a duration above zero` |
 | intervalle mal scrit | `--range: "…" is not a range: write it N-M, or N- to go to the end, counted from 1 and inclusive` |
 | intervalle quel fini ante su comense | `--range: "5-3" is not a range: it ends before it starts` |
-| intervalle foris li file | `<path>: range N-M starts after the last subtitle: the file has K`, o `… ends after …` |
+| intervalle foris li file | `range N-M starts after the last subtitle: the file has K`, o `… ends after …` |
 
 Li errores del destination es comun al subcomandes quel scri:
 vide [Invocation](invocation.md#li-destination).

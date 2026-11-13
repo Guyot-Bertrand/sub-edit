@@ -164,7 +164,7 @@ Die van het hulpprogramma: `0` als elk bestand is geschreven, `2` als geen enkel
 | decimale komma | `"…" is not a time: use a decimal point and not a comma, in every language` |
 | fijner dan de milliseconde | `"…" is not a time: positions are held to the millisecond, no finer` |
 | tekst die geen duur is | `"…" is not a time: expected seconds like 2.999, or a timestamp like 00:00:07.001` |
-| verschuiving vóór de oorsprong | `<path>: subtitle N would start before the origin, which no subtitle file can hold` |
+| verschuiving vóór de oorsprong | `subtitle N would start before the origin, which no subtitle file can hold` |
 
 **Zonder een van de drie bestemmingsopties wordt niets geschreven**, en hun
 fouten zijn gemeenschappelijk voor de subcommando's die schrijven:

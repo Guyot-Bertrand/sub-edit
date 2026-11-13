@@ -362,11 +362,11 @@ $ printf '{25}{50}Un.\n{75}{100}Deux.\n' > f.sub; subedit-cli --format json insp
 | Что её вызывает | Сообщение |
 | :------------------ | :------ |
 | путь не указан | `files is required`, затем указание на `--help` |
-| отсутствующий файл | `<path>: does not exist` |
-| нечитаемый файл | `<path>: cannot be opened: permission denied` |
-| байты, которые не декодируются | `<path>: cannot be decoded in the chosen encoding` |
-| формат не распознан | `<path>: is in no format this tool knows` |
-| ничего, похожего на субтитр | `<path>: holds nothing recognisable as a subtitle` |
+| отсутствующий файл | `does not exist` |
+| нечитаемый файл | `cannot be opened: permission denied` |
+| байты, которые не декодируются | `cannot be decoded in the chosen encoding` |
+| формат не распознан | `is in no format this tool knows` |
+| ничего, похожего на субтитр | `holds nothing recognisable as a subtitle` |
 
 Эти сообщения одинаковы для всех семнадцати подкоманд: порядок открытия
 файла записан один раз, в ядре.

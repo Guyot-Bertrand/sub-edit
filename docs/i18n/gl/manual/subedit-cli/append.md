@@ -94,7 +94,7 @@ Cada ficheiro desprázase **desde o final do que o precede**: a orde que pode ro
 pon o resultado na orde dos inicios, **dunha soa vez, despois da última adición**, como faría [`sort`](sort.md): de forma estable, e sen cambiar nada
 no contido.
 
-Nunca por defecto. Coa opción, a base dio no primeiro nivel de narración, `<base>: N subtitles moved` ou `<base>: already in order`, e
+Nunca por defecto. Coa opción, a base dio no primeiro nivel de narración, `result: N subtitles moved` ou `result: already in order`, e
 o rexistro `--format json` leva un reconto `moved`, **ausente sen a opción**.
 
 ## Facer as franxas disxuntas
@@ -161,8 +161,8 @@ Un fallo tamén é un obxecto, **un só**: o do primeiro ficheiro que non se pui
 | un só ficheiro dado | `append needs a base file and at least one file to put after it` |
 | nin `--output` nin `--dry-run` | `no destination given: append writes one file, use --output` |
 | `--output` nomea unha entrada | `<destination>: would be written over the input <input>` |
-| un ficheiro que falta, ilexible ou dun formato descoñecido | `<path>: does not exist`, `<path>: is in no format this tool knows`… — o mesmo que en todas partes |
+| un ficheiro que falta, ilexible ou dun formato descoñecido | `does not exist`, `is in no format this tool knows`… — o mesmo que en todas partes |
 
 **Un ficheiro baleiro non se engade**: ningún formato le sen polo menos un subtítulo, e o ficheiro
-rexéitase como calquera ficheiro que non se pode ler (`<path>: holds nothing recognisable as a subtitle`), o que
+rexéitase como calquera ficheiro que non se pode ler (`holds nothing recognisable as a subtitle`), o que
 detén a execución e non escribe nada.

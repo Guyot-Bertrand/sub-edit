@@ -336,10 +336,10 @@ Bonjour.
 | :------------------ | :------ |
 | `--bom` уз `--no-bom` | `--bom and --no-bom ask for opposite things; give one or the other` |
 | `--in-place` који мења формат | `--in-place cannot change the format: the file would keep a name its content no longer matches` |
-| `--bom` над кодирањем које је нема | `<path>: <encoding> has no byte order mark to write` |
+| `--bom` над кодирањем које је нема | `<encoding> has no byte order mark to write` |
 | `--to-encoding` са непознатим кодирањем | `no encoding is named "<name>"` |
 | `--to-encoding` са кодирањем које пише сопствену ознаку | `"<name>" writes a byte order mark of its own; name the byte order, as UTF-16LE and UTF-16BE do` |
-| знак којег нема у кодирању које се записује | `<path>: holds a character the chosen encoding cannot write` |
+| знак којег нема у кодирању које се записује | `holds a character the chosen encoding cannot write` |
 
 **Одбијање `--bom` над кодирањем које је не носи није
 педантерија.** Ознака редоследа бајтова постоји за Unicode кодирања и

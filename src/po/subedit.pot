@@ -1273,6 +1273,63 @@ msgstr ""
 msgid "%1: subtitle %2"
 msgstr ""
 
+#. TRANSLATORS: %1 is what was typed on the command line and nothing takes, as typed.
+#: src/lib/subedit/cli/complaint.cpp
+msgid "The following argument was not expected: %1"
+msgid_plural "The following arguments were not expected: %1"
+msgstr[0] ""
+msgstr[1] ""
+
+#: src/lib/subedit/cli/complaint.cpp
+msgid "A subcommand is required"
+msgstr ""
+
+#. TRANSLATORS: %1 is an option or an argument, as named in --help.
+#: src/lib/subedit/cli/complaint.cpp src/lib/subedit/cli/transcribing.cpp
+msgid "%1 is required"
+msgstr ""
+
+#. TRANSLATORS: %1 and %2 are two options, as typed.
+#: src/lib/subedit/cli/complaint.cpp
+msgid "%1 excludes %2"
+msgstr ""
+
+#. TRANSLATORS: %1 is an option given with too few values after it, %2 how many it
+#. needs, %3 their metavariable as --help shows it (TEXT, N).
+#: src/lib/subedit/cli/complaint.cpp
+msgid "%1: %2 required %3 missing"
+msgstr ""
+
+#. TRANSLATORS: %1 is an option, %2 the most values it takes, %3 how many were given.
+#: src/lib/subedit/cli/complaint.cpp
+msgid "%1: At Most %2 required but received %3"
+msgstr ""
+
+#. TRANSLATORS: %1 is an option, %2 the fewest values it takes, %3 how many were given.
+#: src/lib/subedit/cli/complaint.cpp
+msgid "%1: At least %2 required but received %3"
+msgstr ""
+
+#. TRANSLATORS: %1 is an option, %2 the value given, %3 the values it takes, between
+#. commas.
+#: src/lib/subedit/cli/complaint.cpp
+msgid "%1: %2 not in {%3}"
+msgstr ""
+
+#. TRANSLATORS: %1 is an option, %2 the value given.
+#: src/lib/subedit/cli/complaint.cpp
+msgid "%1: Value %2 is not a number zero or greater"
+msgstr ""
+
+#. TRANSLATORS: %1 is an option, %2 the value given, %3 and %4 the bounds of what it takes.
+#: src/lib/subedit/cli/complaint.cpp
+msgid "%1: Value %2 not in range [%3 - %4]"
+msgstr ""
+
+#: src/lib/subedit/cli/complaint.cpp
+msgid "Run with --help for more information."
+msgstr ""
+
 #. TRANSLATORS: %1 is the settings file, %2 why it could not be read.
 #: src/lib/subedit/cli/configuring.cpp
 msgid "%1: %2; nothing written"
@@ -1933,10 +1990,6 @@ msgstr ""
 
 #: src/lib/subedit/cli/time_grammar.cpp
 msgid "expected seconds like 2.999, or a timestamp like 00:00:07.001"
-msgstr ""
-
-#: src/lib/subedit/cli/transcribing.cpp
-msgid "%1 is required"
 msgstr ""
 
 #: src/lib/subedit/cli/transforming.cpp

@@ -315,7 +315,7 @@ okno: stránka potvrzení vzor pojmenuje jen jednou, bez textu.
 | `grew the text too long` | text přesáhl to, co titulek dokáže pojmout |
 
 Na úrovni 1, na chybovém výstupu: 
-`<path>: pattern "<name>" (<reason>) was not applied to subtitle N` — bez konce, když se vzor odloží pro všechny texty. **Číslo je číslem
+`warning: pattern "<name>" (<reason>) was not applied to subtitle N` — bez konce, když se vzor odloží pro všechny texty. **Číslo je číslem
 souboru**, ať úlohy předtím odstranily jakékoli titulky. Ve formátu JSON jde o
 varování souboru `pattern-failed`, jehož `detail` nese tuto větu. **Vzor,
 který to vzdal, neznamená neúspěšný soubor**: soubor se zapíše a návratový kód je `0`.

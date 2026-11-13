@@ -163,7 +163,7 @@ aðeins sumar, `1` við notkunarvillu.
 | tugabrotskomma | `"…" is not a time: use a decimal point and not a comma, in every language` |
 | fínna en millisekúnda | `"…" is not a time: positions are held to the millisecond, no finer` |
 | texti sem er ekki tímalengd | `"…" is not a time: expected seconds like 2.999, or a timestamp like 00:00:07.001` |
-| færsla fyrir upphafspunkt | `<path>: subtitle N would start before the origin, which no subtitle file can hold` |
+| færsla fyrir upphafspunkt | `subtitle N would start before the origin, which no subtitle file can hold` |
 
 **Ekkert er skrifað án eins af valkostunum þremur um áfangastað**, og villur
 þeirra eru sameiginlegar undirskipununum sem skrifa:

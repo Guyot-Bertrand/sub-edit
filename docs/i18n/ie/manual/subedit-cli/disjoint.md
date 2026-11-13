@@ -178,7 +178,7 @@ null, `3` si solmen alcun, `1` in cas de error de usage.
 
 | Quo les causa | Missage |
 | :------------------- | :------ |
-| un file foris de órdine sin `--sort` | `<path>: The subtitles are not in the order of their start: sort them first. Use --sort to do that here.` |
+| un file foris de órdine sin `--sort` | `The subtitles are not in the order of their start: sort them first. Use --sort to do that here.` |
 | `--minimum` ne es un duration, o es negativ | `--minimum: …` |
 | `--max-lines` ne es un númere integri | `--max-lines: "…" is not a number of lines: expected a whole number, 0 for no limit` |
 

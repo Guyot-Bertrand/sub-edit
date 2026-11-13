@@ -362,11 +362,11 @@ błędy opcji `-t`: zobacz wyżej. `inspect` nie zapisuje niczego, co mogłoby z
 | Co to wywołuje | Komunikat |
 | :------------------ | :------ |
 | nie podano ścieżki | `files is required`, a po nim odsyłacz do `--help` |
-| brakujący plik | `<path>: does not exist` |
-| nieczytelny plik | `<path>: cannot be opened: permission denied` |
-| bajty, których nie da się zdekodować | `<path>: cannot be decoded in the chosen encoding` |
-| format nierozpoznany | `<path>: is in no format this tool knows` |
-| nic, co przypominałoby napis | `<path>: holds nothing recognisable as a subtitle` |
+| brakujący plik | `does not exist` |
+| nieczytelny plik | `cannot be opened: permission denied` |
+| bajty, których nie da się zdekodować | `cannot be decoded in the chosen encoding` |
+| format nierozpoznany | `is in no format this tool knows` |
+| nic, co przypominałoby napis | `holds nothing recognisable as a subtitle` |
 
 To te same komunikaty dla siedemnastu podpoleceń: przepis na otwarcie
 jest zapisany raz, w rdzeniu.

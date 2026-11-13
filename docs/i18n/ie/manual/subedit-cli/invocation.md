@@ -113,7 +113,6 @@ output textu fixa `LANGUAGE=en` (o `LC_ALL=C`) — o leer `--format json`, quel 
 | li nómines tipat: subcomandes, optiones, lor valores (`off`, `srt`), metavariabiles (`FILE`, `TEXT`, `OPTIONS`) | un linea de comande scrit un vez functiona sub chascun lingue |
 | li nómines de modelles de correction quel `correct --enable` e `--disable` prende | un modelle es nominat per li nómine anglesi quel su file contene |
 | li nómines de formates e de codifications | un formate es nominat per su nómine |
-| li diagnoses propri de CLI11 — un argument obligatori mancant, un option inconosset, un valore quel un option ne accepta — e su `Run with --help for more information.` | formulat in li analisator sur quel li linea de comande es construet; les resta in anglesi |
 | li cadre de un linea de errore: `[subedit]`, li subcomande, `[-]`, li clave `error` | un scripte trova quo ha fallit, e u, sin leer li paroles; solmen li missage es traductet |
 
 Demandar anglesi, quel que sia li ambient:
@@ -227,7 +226,7 @@ ne es executet, e `-q` e `-v` changea nequo.
 <!-- example: subedit-cli --version | head -n 1 -->
 ```console
 $ subedit-cli --version | head -n 1
-subedit 1.2.8
+subedit 1.2.9
 ```
 
 Li tot, sur un machine con ICU 74.2 e Enchant 2.3.3 — li númeres es ti del machine:
@@ -456,8 +455,8 @@ altres conserva li formate del file leet, e dunc su extension.
 | du inputs, un destination | `<destination>: would be written by both <input> and <input>` |
 | un input esset scrit sur | `<destination>: would be written over the input <input>` — li sam frase por [`append`](append.md) e [`split-file`](split-file.md) |
 | directoria de output quel ne posse esser creat | `<directory>: cannot be created: permission denied`, o `: cannot be created` |
-| destination quel ne posse esser scrit | `<path>: <destination>: cannot be written: permission denied`, o `: cannot be written` |
-| character mancant in li codification scrit | `<path>: holds a character the chosen encoding cannot write` |
+| destination quel ne posse esser scrit | `<destination>: cannot be written: permission denied`, o `: cannot be written` |
+| character mancant in li codification scrit | `holds a character the chosen encoding cannot write` |
 
 **Li ultim merita un frase.** Un file es scrit retro in **li codification in quel it
 esset leet**, quam it es con su fines de linea e su marca. Si un
@@ -695,21 +694,76 @@ anunciat in li CHANGELOG e ci.
 
 ## Nivelles de narration
 
+**Chascun linea del exida de errores have li sam forma**, por li narration quam por li errores:
+
+```
+[subedit] [<command>] [<i>/<n>] <key>: <value>
+```
+
+| Parte | Quo it di |
+| :----- | :------------- |
+| `<command>` | li subcomande, quam tippat; `-` ante que it es conosset |
+| `<i>/<n>` | li element pri quel li linea parla, li `i`-esim de `n`; `-` por un linea pri li tot execution |
+| `<key>` | to quo li linea di |
+| `<value>` | un nómine, un númere, un rute o un frase |
+
+**Un element es to quo scri un registre JSON**: un intrada, o li tot execution por [`append`](append.md), [`split-file`](split-file.md) e [`pair`](pair.md). It es contat ex 1, in li órdine del intradas, quel es li órdine del registres; un sol intrada es `[1/1]`.
+
+<!-- example: printf '1\n00:00:01,000 --> 00:00:02,000\n[Door]\nHello.\n\n2\n00:00:03,000 --> 00:00:04,000\n[Music]\n\n' > b.srt; printf 'nothing to read\n' > bad.srt; printf '1\n00:00:01,000 --> 00:00:02,000\nHi.\n\n' > c.srt; subedit-cli hearing-impaired --output-dir o b.srt bad.srt c.srt; echo "code=$?" -->
+```console
+$ printf '1\n00:00:01,000 --> 00:00:02,000\n[Door]\nHello.\n\n2\n00:00:03,000 --> 00:00:04,000\n[Music]\n\n' > b.srt; printf 'nothing to read\n' > bad.srt; printf '1\n00:00:01,000 --> 00:00:02,000\nHi.\n\n' > c.srt; subedit-cli hearing-impaired --output-dir o b.srt bad.srt c.srt; echo "code=$?"
+[subedit] [hearing-impaired] [1/3] source: b.srt
+[subedit] [hearing-impaired] [1/3] result: 1 subtitle cleaned, 1 removed
+[subedit] [hearing-impaired] [1/3] dest: o/b.srt
+[subedit] [hearing-impaired] [2/3] source: bad.srt
+[subedit] [hearing-impaired] [2/3] error: is in no format this tool knows
+[subedit] [hearing-impaired] [3/3] source: c.srt
+[subedit] [hearing-impaired] [3/3] result: no mention to remove
+[subedit] [hearing-impaired] [3/3] dest: o/c.srt
+[subedit] [hearing-impaired] [-] summary: 2 of 3 files cleaned, 1 failed
+code=3
+```
+
 Chascun nivelle **contene li precedent**: munter un gradu adjunte, nequande
 remplacia.
 
 | Nivelle | Qualmen | Quo li exeunte de error porta |
 | :----- | :------ | :------------------------------ |
-| 0 | `--quiet` | nequo, **except li errores** |
-| 1 | predefinit, o `-v` | un linea per file tractat, e un summarie tam tost que hay plu files |
-| 2 | `-vv` | e quo esset recognosset: formate, codification, BOM, fines de linea |
-| 3 | `-vvv` | e li traca de debuggage: bytes leet e scrit, e **chascun diagnose de lectura** |
+| 0 | `--quiet` | solmen li lineas `error`, chascun pos li linea `source` de su element |
+| 1 | predefinit, o `-v` | `source`, `translation`, `media`, `warning`, `result`, `dest`, `tail`; e pri li execution, `settings`, `walk` e, ex du elementes, `summary` |
+| 2 | `-vv` | e `format`, `encoding`, `bom`, `line-endings`, `alignment`, `progress` |
+| 3 | `-vvv` | e `bytes-read`, `bytes-written`, e chascun `diagnostic` |
+
+Du claves changea nivelle secun li subcomande: `alignment` es al nivelle 1 por `pair` e `inspect`, e `progress` al nivelle 3 por li ultim textu audit.
 
 **Li errores es nequande tacet, `--quiet` includet.** Un comande quel falie
 in silentie ne lassarea ma su code de exeunte.
 
 Li summarie apare solmen de du files: sur un sol input, it
 repetirea li linea ante it.
+
+**Quo vale por chascun element:**
+
+- su linea `source` veni prim, e un errore nequande veni sin it, anc con `--quiet`;
+- `dest` es scrit a chascun successe quel scri, anc con `--in-place`, e nequande con `--dry-run`, quel scri nequó;
+- `result` posse venir plu quam un vez: un passu demandat in plu del operation (`--sort`, `--disjoint`, `--join-repeats`) e chascun file quel `append` adjunte have su propri linea;
+- un errore ne repete li rute del fonte; it nomina li file pri quel it parla quande it es un altri, quam li traduction o li destination.
+
+### Trovar un element per su nómine
+
+**Li position, ne li rute, identifica li element**: un rute posse contener quelcunc caractere, un position have nequó a escapar, e li lineas de un element resta junt pos un `grep`. Trovar li lineas de un file prende du passus:
+
+```console
+$ subedit-cli hearing-impaired --output-dir o *.srt 2> log
+$ grep -F '] source: b.srt' log           # [subedit] [hearing-impaired] [1/3] source: b.srt
+$ grep -F '[1/3]' log                     # everything about b.srt
+```
+
+### Quo li narration promesse
+
+**Promesset**: li forma de un linea; li signification de `<i>/<n>` e su ligation con li órdine del registres JSON; li claves e li nivelle de chascun; li regules in supra.
+
+**Ne promesset**: li textu de un valore quel es un frase — `result`, `warning`, `error`, `progress`, `summary`, `walk` —, quel es traductet e reformulat quande it deve: un scripte lee li númeres in li JSON. Ni li órdine del lineas de diferent elementes, si un lote un die tracta les in parallel.
 
 ## Diagnoses de lectura
 
@@ -719,9 +773,8 @@ it ha incontrat es exeunte al **nivelle 3**, un linea per diagnose, sur li exeun
 error:
 
 ```
-a.srt: 2 diagnostics while reading
-a.srt: line 6: SubRip numbers that do not follow ("7"), settled by the reader
-a.srt: line 9: a line that fits nowhere, left as it stands
+[subedit] [inspect] [1/1] diagnostic: line 6: SubRip numbers that do not follow ("7"), settled by the reader
+[subedit] [inspect] [1/1] diagnostic: line 9: a line that fits nowhere, left as it stands
 ```
 
 Chascun del dece-ott subcomandes les reporta, ne solmen [`inspect`](inspect.md):
@@ -925,12 +978,12 @@ lot tractat a mitá.
 | `--quiet` con `-v` | `--quiet and -v ask for opposite things; give one or the other` |
 | `--config` con `--no-config` | `--config excludes --no-config` |
 | `--config` con un nómine vacui | `--config needs a file name` |
-| file mancant | `<path>: does not exist` |
-| file illegibil | `<path>: cannot be opened: permission denied` |
+| file mancant | `does not exist` |
+| file illegibil | `cannot be opened: permission denied` |
 | codification quel scri su propri marca | `"<name>" writes a byte order mark of its own; name the byte order, as UTF-16LE and UTF-16BE do` |
-| bytes quel ne decodar se | `<path>: cannot be decoded in the chosen encoding` |
-| formate ne recognoscet | `<path>: is in no format this tool knows` |
-| nequo quel sembla un subtitul | `<path>: holds nothing recognisable as a subtitle` |
+| bytes quel ne decodar se | `cannot be decoded in the chosen encoding` |
+| formate ne recognoscet | `is in no format this tool knows` |
+| nequo quel sembla un subtitul | `holds nothing recognisable as a subtitle` |
 | `--document translation` sin `-t` | `--document translation needs the translation file: use -t` |
 | `-t` sin `--document translation` | `-t names a translation to change: use --document translation` |
 | `--align-method` sin `-t` | `--align-method needs a translation file: use -t` |

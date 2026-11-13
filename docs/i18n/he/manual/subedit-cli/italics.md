@@ -117,7 +117,7 @@ code=2
 | :------------------ | :------ |
 | לא `--on` ולא `--off` | `italics needs --on to put the texts in italics, or --off` |
 | שתיהן | `--on and --off say opposite things; give one of them` |
-| פורמט בלי סגנון | `<path>: TMPlayer writes no style: there are no italics to put on` (או `take out`) |
+| פורמט בלי סגנון | `TMPlayer writes no style: there are no italics to put on` (או `take out`) |
 | טווח שנכתב לא נכון או מחוץ לקובץ | ראו [`adjust`](adjust.md#--range) |
 
 השגיאות של היעד משותפות לתת-הפקודות שכותבות: ראו [הפעלה](invocation.md#היעד).

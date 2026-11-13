@@ -130,7 +130,7 @@ Ceux de l'outil : `0` si tous les fichiers ont été traités — un fichier où
 | :------------------ | :------ |
 | ni `--on` ni `--off` | `italics needs --on to put the texts in italics, or --off` |
 | les deux | `--on and --off say opposite things; give one of them` |
-| un format sans style | `<path>: TMPlayer writes no style: there are no italics to put on` (ou `take out`) |
+| un format sans style | `TMPlayer writes no style: there are no italics to put on` (ou `take out`) |
 | plage mal écrite ou hors du fichier | voir [`adjust`](adjust.md#--range) |
 
 Les erreurs de la destination sont communes aux sous-commandes qui écrivent :

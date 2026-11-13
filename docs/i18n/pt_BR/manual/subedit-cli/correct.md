@@ -315,7 +315,7 @@ janela: a página de confirmação nomeia o padrão uma só vez, sem o texto.
 | `grew the text too long` | o texto ultrapassou o que uma legenda pode conter |
 
 No nível 1, no erro padrão: 
-`<path>: pattern "<name>" (<reason>) was not applied to subtitle N` — sem o final quando o padrão é deixado de lado para todos os textos. **O número é o
+`warning: pattern "<name>" (<reason>) was not applied to subtitle N` — sem o final quando o padrão é deixado de lado para todos os textos. **O número é o
 do arquivo**, sejam quais forem as tarefas que removeram legendas antes. Em JSON, é
 um aviso `pattern-failed` do arquivo, cujo `detail` traz a frase. **Um padrão
 abandonado não é um arquivo com falha**: o arquivo é gravado, e o código de saída é `0`.

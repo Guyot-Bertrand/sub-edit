@@ -362,11 +362,11 @@ $ printf '{25}{50}Un.\n{75}{100}Deux.\n' > f.sub; subedit-cli --format json insp
 | Шта је изазива | Порука |
 | :------------------ | :------ |
 | није задата путања | `files is required`, а за њим упућивање на `--help` |
-| датотека недостаје | `<path>: does not exist` |
-| нечитљива датотека | `<path>: cannot be opened: permission denied` |
-| бајтови који се не декодирају | `<path>: cannot be decoded in the chosen encoding` |
-| формат није препознат | `<path>: is in no format this tool knows` |
-| ништа што личи на титл | `<path>: holds nothing recognisable as a subtitle` |
+| датотека недостаје | `does not exist` |
+| нечитљива датотека | `cannot be opened: permission denied` |
+| бајтови који се не декодирају | `cannot be decoded in the chosen encoding` |
+| формат није препознат | `is in no format this tool knows` |
+| ништа што личи на титл | `holds nothing recognisable as a subtitle` |
 
 То су исте поруке за свих седамнаест подкоманди: рецепт за отварање
 написан је једном, у језгру.

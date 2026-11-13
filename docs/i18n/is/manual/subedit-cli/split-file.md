@@ -144,7 +144,7 @@ helmings).
 | aðeins annað af tveimur, með `--dry-run` | `--head and --tail go together: give both, or neither with --dry-run` |
 | áfangastaðirnir tveir eru sama skráin | `<path>: named as both the head and the tail` |
 | áfangastaður er inntakið | `<path>: would be written over the input <input>` |
-| `--at` utan skrárinnar | `<file>: --at 9: the file holds 3 subtitles, and the tail can start from 2 to 3` |
-| skrá með einum skjátexta | `<file>: a file of 1 subtitle cannot be split: a cut needs a subtitle on each side` |
-| skörun | `<file>: Cannot split at subtitle N: subtitle M would fall before the start of the video. Cut somewhere else.` |
-| skrá vantar, er ólæsileg eða á óþekktu sniði | `<path>: does not exist`… — það sama og alls staðar |
+| `--at` utan skrárinnar | `--at 9: the file holds 3 subtitles, and the tail can start from 2 to 3` |
+| skrá með einum skjátexta | `a file of 1 subtitle cannot be split: a cut needs a subtitle on each side` |
+| skörun | `Cannot split at subtitle N: subtitle M would fall before the start of the video. Cut somewhere else.` |
+| skrá vantar, er ólæsileg eða á óþekktu sniði | `does not exist`… — það sama og alls staðar |

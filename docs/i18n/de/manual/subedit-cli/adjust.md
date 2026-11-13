@@ -263,7 +263,7 @@ einige, `1` bei einem Aufruffehler. Eine Datei, die schon innerhalb ihrer Grenze
 | Maximum null oder negativ | `--maximum: "0" is not a duration above zero` |
 | falsch geschriebener Bereich | `--range: "…" is not a range: write it N-M, or N- to go to the end, counted from 1 and inclusive` |
 | Bereich, der endet, bevor er beginnt | `--range: "5-3" is not a range: it ends before it starts` |
-| Bereich außerhalb der Datei | `<path>: range N-M starts after the last subtitle: the file has K`, oder `… ends after …` |
+| Bereich außerhalb der Datei | `range N-M starts after the last subtitle: the file has K`, oder `… ends after …` |
 
 Die Fehler des Ziels sind den Unterbefehlen gemeinsam, die schreiben:
 siehe [Aufruf](invocation.md#das-ziel).

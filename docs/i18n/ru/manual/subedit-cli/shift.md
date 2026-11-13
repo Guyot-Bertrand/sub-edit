@@ -162,7 +162,7 @@ code=2
 | десятичная запятая | `"…" is not a time: use a decimal point and not a comma, in every language` |
 | точнее миллисекунды | `"…" is not a time: positions are held to the millisecond, no finer` |
 | текст, не являющийся длительностью | `"…" is not a time: expected seconds like 2.999, or a timestamp like 00:00:07.001` |
-| сдвиг до начала отсчёта | `<path>: subtitle N would start before the origin, which no subtitle file can hold` |
+| сдвиг до начала отсчёта | `subtitle N would start before the origin, which no subtitle file can hold` |
 
 **Без одного из трёх параметров места назначения ничего не записывается**, а
 ошибки, связанные с ним, общие для подкоманд, которые записывают:

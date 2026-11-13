@@ -133,7 +133,7 @@ Työkalun paluuarvot: `0`, jos jokainen tiedosto käsiteltiin — tiedosto, joss
 | :------------------ | :------ |
 | ei `--on` eikä `--off` | `italics needs --on to put the texts in italics, or --off` |
 | molemmat | `--on and --off say opposite things; give one of them` |
-| muoto, jossa ei ole tyylejä | `<path>: TMPlayer writes no style: there are no italics to put on` (tai `take out`) |
+| muoto, jossa ei ole tyylejä | `TMPlayer writes no style: there are no italics to put on` (tai `take out`) |
 | väli kirjoitettu väärin tai tiedoston ulkopuolella | katso [`adjust`](adjust.md#--range) |
 
 Kohteen virheet ovat yhteisiä kaikille kirjoittaville alikomennoille:

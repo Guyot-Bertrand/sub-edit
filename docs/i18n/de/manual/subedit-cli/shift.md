@@ -163,7 +163,7 @@ nur einige, `1` bei einem Aufruffehler.
 | Dezimalkomma | `"…" is not a time: use a decimal point and not a comma, in every language` |
 | feiner als die Millisekunde | `"…" is not a time: positions are held to the millisecond, no finer` |
 | Text, der keine Dauer ist | `"…" is not a time: expected seconds like 2.999, or a timestamp like 00:00:07.001` |
-| Verschiebung vor den Nullpunkt | `<path>: subtitle N would start before the origin, which no subtitle file can hold` |
+| Verschiebung vor den Nullpunkt | `subtitle N would start before the origin, which no subtitle file can hold` |
 
 **Ohne eine der drei Zieloptionen wird nichts geschrieben**, und ihre
 Fehler sind den Unterbefehlen gemeinsam, die schreiben:

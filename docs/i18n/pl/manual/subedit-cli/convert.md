@@ -336,10 +336,10 @@ tylko niektóre, `1` przy błędzie użycia.
 | :------------------ | :------ |
 | `--bom` z `--no-bom` | `--bom and --no-bom ask for opposite things; give one or the other` |
 | `--in-place` zmieniające format | `--in-place cannot change the format: the file would keep a name its content no longer matches` |
-| `--bom` dla kodowania, które go nie ma | `<path>: <encoding> has no byte order mark to write` |
+| `--bom` dla kodowania, które go nie ma | `<encoding> has no byte order mark to write` |
 | `--to-encoding` podające nieznane kodowanie | `no encoding is named "<name>"` |
 | `--to-encoding` podające kodowanie, które zapisuje własny znacznik | `"<name>" writes a byte order mark of its own; name the byte order, as UTF-16LE and UTF-16BE do` |
-| znak, którego brak w zapisywanym kodowaniu | `<path>: holds a character the chosen encoding cannot write` |
+| znak, którego brak w zapisywanym kodowaniu | `holds a character the chosen encoding cannot write` |
 
 **Odrzucanie `--bom` dla kodowania, które go nie niesie, nie jest
 pedanterią.** Znacznik kolejności bajtów istnieje dla kodowań Unicode i

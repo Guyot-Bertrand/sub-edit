@@ -133,7 +133,7 @@ Með [`--format json`](invocation.md#úttak-sem-skriftur-geta-lesið) ber hlutur
 | :------------------ | :------ |
 | hvorki `--on` né `--off` | `italics needs --on to put the texts in italics, or --off` |
 | báðir | `--on and --off say opposite things; give one of them` |
-| snið án stíls | `<path>: TMPlayer writes no style: there are no italics to put on` (eða `take out`) |
+| snið án stíls | `TMPlayer writes no style: there are no italics to put on` (eða `take out`) |
 | bil rangt ritað eða utan skrárinnar | sjá [`adjust`](adjust.md#--range) |
 
 Villur áfangastaðarins eru sameiginlegar undirskipunum sem skrifa:

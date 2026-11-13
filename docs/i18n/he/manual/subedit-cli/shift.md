@@ -133,6 +133,6 @@ code=2
 | פסיק עשרוני | `"…" is not a time: use a decimal point and not a comma, in every language` |
 | עדין מאלפית שנייה | `"…" is not a time: positions are held to the millisecond, no finer` |
 | טקסט שאינו משך | `"…" is not a time: expected seconds like 2.999, or a timestamp like 00:00:07.001` |
-| הזזה לפני נקודת האפס | `<path>: subtitle N would start before the origin, which no subtitle file can hold` |
+| הזזה לפני נקודת האפס | `subtitle N would start before the origin, which no subtitle file can hold` |
 
 **דבר אינו נכתב בלי אחת משלוש אפשרויות היעד**, ושגיאותיהן משותפות לתת-הפקודות שכותבות: ראו [הפעלה](invocation.md#היעד).

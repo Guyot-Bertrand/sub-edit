@@ -362,11 +362,11 @@ aðeins sumar, `1` við notkunarvillu.
 | Hvað kallar þær fram | Skilaboð |
 | :------------------ | :------ |
 | engin slóð gefin | `files is required`, og á eftir vísun í `--help` |
-| skrá vantar | `<path>: does not exist` |
-| skrá ekki læsileg | `<path>: cannot be opened: permission denied` |
-| bæti sem ekki afkóðast | `<path>: cannot be decoded in the chosen encoding` |
-| snið ekki þekkt | `<path>: is in no format this tool knows` |
-| ekkert sem líkist skjátexta | `<path>: holds nothing recognisable as a subtitle` |
+| skrá vantar | `does not exist` |
+| skrá ekki læsileg | `cannot be opened: permission denied` |
+| bæti sem ekki afkóðast | `cannot be decoded in the chosen encoding` |
+| snið ekki þekkt | `is in no format this tool knows` |
+| ekkert sem líkist skjátexta | `holds nothing recognisable as a subtitle` |
 
 Þetta eru sömu skilaboð fyrir undirskipanirnar sautján: uppskriftin að því að opna
 er skrifuð einu sinni, í kjarnanum.

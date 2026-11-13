@@ -177,7 +177,7 @@ engin, `3` ef aðeins sumar, `1` við notkunarvillu.
 
 | Hvað kallar þær fram | Skilaboð |
 | :------------------- | :------ |
-| skrá í rangri röð án `--sort` | `<path>: The subtitles are not in the order of their start: sort them first. Use --sort to do that here.` |
+| skrá í rangri röð án `--sort` | `The subtitles are not in the order of their start: sort them first. Use --sort to do that here.` |
 | `--minimum` er ekki tímalengd, eða er neikvætt | `--minimum: …` |
 | `--max-lines` er ekki heil tala | `--max-lines: "…" is not a number of lines: expected a whole number, 0 for no limit` |
 

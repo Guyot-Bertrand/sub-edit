@@ -100,7 +100,6 @@ Subcommands:
 | השמות שמקלידים: תת-פקודות, אפשרויות, הערכים שלהן (`off`, `srt`), משתני מטא (`FILE`, `TEXT`, `OPTIONS`) | שורת פקודה שנכתבה פעם אחת עובדת בכל שפה |
 | שמות תבניות התיקון ש-`correct --enable` ו-`--disable` מקבלות | תבנית נקראת בשם האנגלי שהקובץ שלה מכיל |
 | שמות הפורמטים והקידודים | פורמט נקרא בשמו |
-| האבחונים של CLI11 עצמה — ארגומנט חובה חסר, אפשרות לא מוכרת, ערך שאפשרות אינה מקבלת — ו-`Run with --help for more information.` שלה | מנוסחים בתוך המנתח שעליו שורת הפקודה בנויה; הם נשארים באנגלית |
 | המסגרת של שורת שגיאה: `[subedit]`, תת-הפקודה, `[-]`, המפתח `error` | סקריפט מוצא מה נכשל והיכן בלי לקרוא את המילים; רק ההודעה מתורגמת |
 
 בקשת אנגלית, יהיו אשר יהיו תנאי הסביבה:
@@ -179,7 +178,7 @@ code=1
 <!-- example: subedit-cli --version | head -n 1 -->
 ```console
 $ subedit-cli --version | head -n 1
-subedit 1.2.8
+subedit 1.2.9
 ```
 
 הפלט במלואו, במחשב עם ICU 74.2 ו-Enchant 2.3.3 — המספרים הם של המחשב:
@@ -332,8 +331,8 @@ avec-bom.srt: a byte order mark that contradicts the encoding asked for ("UTF-16
 | שני קלטים, יעד אחד | `<destination>: would be written by both <input> and <input>` |
 | קלט היה נדרס | `<destination>: would be written over the input <input>` — אותו משפט עבור [`append`](append.md) ו-[`split-file`](split-file.md) |
 | תיקיית פלט שאי אפשר ליצור | `<directory>: cannot be created: permission denied`, או `: cannot be created` |
-| יעד שאי אפשר לכתוב | `<path>: <destination>: cannot be written: permission denied`, או `: cannot be written` |
-| תו שחסר בקידוד הנכתב | `<path>: holds a character the chosen encoding cannot write` |
+| יעד שאי אפשר לכתוב | `<destination>: cannot be written: permission denied`, או `: cannot be written` |
+| תו שחסר בקידוד הנכתב | `holds a character the chosen encoding cannot write` |
 
 **האחרונה ראויה למשפט.** קובץ נכתב בחזרה ב**קידוד שבו נקרא**, כמו עם סוף השורה והסימן שלו. אם שינוי הכניס לתוכו תו שהקידוד הזה אינו מכיר — `ł` ב-Latin-1 —, הכתיבה נכשלת ו**דבר אינו נכתב**. החלפתו ב-`?` הייתה אובדן טקסט לעיני מי שכתב אותו זה עתה.
 
@@ -498,27 +497,81 @@ code=3
 
 ## רמות הדיווח
 
+**לכל שורה בפלט השגיאות יש אותה צורה**, לסיפור כמו לשגיאות:
+
+```
+[subedit] [<command>] [<i>/<n>] <key>: <value>
+```
+
+| חלק | מה הוא אומר |
+| :----- | :------------- |
+| `<command>` | תת־הפקודה כפי שהוקלדה; `-` לפני שהיא ידועה |
+| `<i>/<n>` | הרכיב שהשורה מדברת עליו, ה־`i` מתוך `n`; `-` לשורה על הריצה כולה |
+| `<key>` | מה שהשורה אומרת |
+| `<value>` | שם, מספר, נתיב או משפט |
+
+**רכיב הוא מה שכותב רשומת JSON אחת**: קלט אחד, או הריצה כולה עבור [`append`](append.md), [`split-file`](split-file.md) ו־[`pair`](pair.md). הוא נספר מ־1, בסדר הקלטים, שהוא סדר הרשומות; קלט יחיד הוא `[1/1]`.
+
+<!-- example: printf '1\n00:00:01,000 --> 00:00:02,000\n[Door]\nHello.\n\n2\n00:00:03,000 --> 00:00:04,000\n[Music]\n\n' > b.srt; printf 'nothing to read\n' > bad.srt; printf '1\n00:00:01,000 --> 00:00:02,000\nHi.\n\n' > c.srt; subedit-cli hearing-impaired --output-dir o b.srt bad.srt c.srt; echo "code=$?" -->
+```console
+$ printf '1\n00:00:01,000 --> 00:00:02,000\n[Door]\nHello.\n\n2\n00:00:03,000 --> 00:00:04,000\n[Music]\n\n' > b.srt; printf 'nothing to read\n' > bad.srt; printf '1\n00:00:01,000 --> 00:00:02,000\nHi.\n\n' > c.srt; subedit-cli hearing-impaired --output-dir o b.srt bad.srt c.srt; echo "code=$?"
+[subedit] [hearing-impaired] [1/3] source: b.srt
+[subedit] [hearing-impaired] [1/3] result: 1 subtitle cleaned, 1 removed
+[subedit] [hearing-impaired] [1/3] dest: o/b.srt
+[subedit] [hearing-impaired] [2/3] source: bad.srt
+[subedit] [hearing-impaired] [2/3] error: is in no format this tool knows
+[subedit] [hearing-impaired] [3/3] source: c.srt
+[subedit] [hearing-impaired] [3/3] result: no mention to remove
+[subedit] [hearing-impaired] [3/3] dest: o/c.srt
+[subedit] [hearing-impaired] [-] summary: 2 of 3 files cleaned, 1 failed
+code=3
+```
+
 כל רמה **מכילה את הקודמת**: עלייה בדרגה מוסיפה, לעולם אינה מחליפה.
 
 | רמה | איך | מה פלט השגיאות נושא |
 | :----- | :------ | :------------------------------ |
-| 0 | `--quiet` | דבר, **פרט לשגיאות** |
-| 1 | כברירת מחדל, או `-v` | שורה אחת לכל קובץ שעובד, וסיכום ברגע שיש כמה |
-| 2 | `-vv` | ומה שזוהה: פורמט, קידוד, BOM, סוף שורה |
-| 3 | `-vvv` | ועקבות איתור התקלות: בתים שנקראו ונכתבו, ו**כל אבחון קריאה** |
+| 0 | `--quiet` | שורות `error` בלבד, כל אחת אחרי שורת ה־`source` של הרכיב שלה |
+| 1 | כברירת מחדל, או `-v` | `source`, `translation`, `media`, `warning`, `result`, `dest`, `tail`; ועל הריצה, `settings`, `walk` ומשני רכיבים ומעלה `summary` |
+| 2 | `-vv` | וגם `format`, `encoding`, `bom`, `line-endings`, `alignment`, `progress` |
+| 3 | `-vvv` | וגם `bytes-read`, `bytes-written` וכל `diagnostic` |
+
+שני מפתחות משנים רמה לפי תת־הפקודה: `alignment` ברמה 1 עבור `pair` ו־`inspect`, ו־`progress` ברמה 3 עבור הטקסט האחרון שנשמע.
 
 **שגיאות אינן מושתקות לעולם, גם עם `--quiet`.** פקודה שנכשלת בשקט לא הייתה משאירה דבר מלבד קוד היציאה שלה.
 
 הסיכום מופיע רק מקבצים שניים: בקלט יחיד הוא היה חוזר על השורה שלפניו.
+
+**מה שתקף לכל רכיב:**
+
+- שורת ה־`source` שלו באה ראשונה, ושגיאה לעולם אינה באה בלעדיה, גם עם `--quiet`;
+- `dest` נכתבת בכל הצלחה שכותבת, גם עם `--in-place`, ולעולם לא עם `--dry-run`, שאינו כותב דבר;
+- `result` יכולה להופיע יותר מפעם אחת: צעד שהתבקש בנוסף לפעולה (`--sort`, `--disjoint`, `--join-repeats`) וכל קובץ ש־`append` מוסיף מקבלים שורה משלהם;
+- שגיאה אינה חוזרת על נתיב המקור; היא נוקבת בשם הקובץ שהיא עוסקת בו כשמדובר בקובץ אחר, כמו התרגום או היעד.
+
+### מציאת רכיב לפי שמו
+
+**המיקום, ולא הנתיב, מזהה את הרכיב**: נתיב יכול להכיל כל תו, למיקום אין מה להימלט, ושורות הרכיב נשארות יחד אחרי `grep`. מציאת השורות של קובץ אחד נעשית בשני צעדים:
+
+```console
+$ subedit-cli hearing-impaired --output-dir o *.srt 2> log
+$ grep -F '] source: b.srt' log           # [subedit] [hearing-impaired] [1/3] source: b.srt
+$ grep -F '[1/3]' log                     # everything about b.srt
+```
+
+### מה שהסיפור מבטיח
+
+**מובטח**: צורת השורה; המשמעות של `<i>/<n>` והקשר שלה לסדר רשומות ה־JSON; המפתחות והרמה של כל אחד; הכללים שלמעלה.
+
+**לא מובטח**: הטקסט של ערך שהוא משפט — `result`, `warning`, `error`, `progress`, `summary`, `walk` —, שמתורגם ומנוסח מחדש כשצריך: סקריפט קורא את המספרים ב־JSON. וגם לא סדר השורות של רכיבים שונים, אם אצווה תעבד אותם פעם במקביל.
 
 ## אבחוני קריאה
 
 פורמטי כתוביות נקראים **כמיטב היכולת**: מול חריגה, הקורא אינו עוצר — הוא מכריע, או משאיר את הדברים כפי שהם, ואומר זאת. מה שנתקלו בו מוצג ב**רמה 3**, שורה אחת לכל אבחון, בפלט השגיאות:
 
 ```
-a.srt: 2 diagnostics while reading
-a.srt: line 6: SubRip numbers that do not follow ("7"), settled by the reader
-a.srt: line 9: a line that fits nowhere, left as it stands
+[subedit] [inspect] [1/1] diagnostic: line 6: SubRip numbers that do not follow ("7"), settled by the reader
+[subedit] [inspect] [1/1] diagnostic: line 9: a line that fits nowhere, left as it stands
 ```
 
 כל שמונה עשרה תת-הפקודות מדווחות עליהם, לא רק [`inspect`](inspect.md): קובץ שנקרא כמיטב היכולת ואחר כך נכתב בחזרה עבר את אותן החלטות, ושתיקה עליהן הייתה גורמת להאמין שדבר לא קרה.
@@ -659,12 +712,12 @@ $ man -L fr subedit-cli-shift
 | `--quiet` עם `-v` | `--quiet and -v ask for opposite things; give one or the other` |
 | `--config` עם `--no-config` | `--config excludes --no-config` |
 | `--config` עם שם ריק | `--config needs a file name` |
-| קובץ חסר | `<path>: does not exist` |
-| קובץ שאי אפשר לקרוא | `<path>: cannot be opened: permission denied` |
+| קובץ חסר | `does not exist` |
+| קובץ שאי אפשר לקרוא | `cannot be opened: permission denied` |
 | קידוד שכותב סימן משלו | `"<name>" writes a byte order mark of its own; name the byte order, as UTF-16LE and UTF-16BE do` |
-| בתים שאי אפשר לפענח | `<path>: cannot be decoded in the chosen encoding` |
-| פורמט שלא זוהה | `<path>: is in no format this tool knows` |
-| אין דבר שנראה ככתובית | `<path>: holds nothing recognisable as a subtitle` |
+| בתים שאי אפשר לפענח | `cannot be decoded in the chosen encoding` |
+| פורמט שלא זוהה | `is in no format this tool knows` |
+| אין דבר שנראה ככתובית | `holds nothing recognisable as a subtitle` |
 | `--document translation` בלי `-t` | `--document translation needs the translation file: use -t` |
 | `-t` בלי `--document translation` | `-t names a translation to change: use --document translation` |
 | `--align-method` בלי `-t` | `--align-method needs a translation file: use -t` |

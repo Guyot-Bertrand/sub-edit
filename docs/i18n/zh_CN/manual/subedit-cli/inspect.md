@@ -281,11 +281,11 @@ $ printf '{25}{50}Un.\n{75}{100}Deux.\n' > f.sub; subedit-cli --format json insp
 | 触发条件 | 消息 |
 | :------------------ | :------ |
 | 没有给出路径 | `files is required`，其后是指向 `--help` 的提示 |
-| 文件不存在 | `<path>: does not exist` |
-| 文件无法读取 | `<path>: cannot be opened: permission denied` |
-| 字节无法解码 | `<path>: cannot be decoded in the chosen encoding` |
-| 格式无法识别 | `<path>: is in no format this tool knows` |
-| 没有任何像字幕的内容 | `<path>: holds nothing recognisable as a subtitle` |
+| 文件不存在 | `does not exist` |
+| 文件无法读取 | `cannot be opened: permission denied` |
+| 字节无法解码 | `cannot be decoded in the chosen encoding` |
+| 格式无法识别 | `is in no format this tool knows` |
+| 没有任何像字幕的内容 | `holds nothing recognisable as a subtitle` |
 
 十七个子命令的消息都相同：打开文件的流程只在核心中写了一次。
 

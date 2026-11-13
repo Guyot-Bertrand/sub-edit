@@ -133,7 +133,7 @@ Ti del instrument: `0` si chascun file esset tractat — un file u nequo changea
 | :------------------ | :------ |
 | ni `--on` ni `--off` | `italics needs --on to put the texts in italics, or --off` |
 | ambi | `--on and --off say opposite things; give one of them` |
-| un formate sin stil | `<path>: TMPlayer writes no style: there are no italics to put on` (o `take out`) |
+| un formate sin stil | `TMPlayer writes no style: there are no italics to put on` (o `take out`) |
 | intervallo mal scrit o foris li file | vide [`adjust`](adjust.md#--range) |
 
 Li errores del destination es comun al subcomandes quel scri:

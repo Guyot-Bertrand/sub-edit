@@ -94,7 +94,7 @@ Elk bestand wordt verschoven **vanaf het einde van wat eraan voorafgaat**: de vo
 zet het resultaat op volgorde van de begintijden, **in één keer, na de laatste toevoeging**, zoals [`sort`](sort.md) zou doen — stabiel, en zonder iets aan de
 inhoud te wijzigen.
 
-Nooit standaard. Met de optie meldt de basis het op het eerste niveau van de toelichting, `<base>: N subtitles moved` of `<base>: already in order`, en
+Nooit standaard. Met de optie meldt de basis het op het eerste niveau van de toelichting, `result: N subtitles moved` of `result: already in order`, en
 het `--format json`-record bevat een telling `moved`, **afwezig zonder de optie**.
 
 ## De bereiken niet-overlappend maken
@@ -161,8 +161,8 @@ Een mislukking is ook een object, **één enkel**: dat van het eerste bestand da
 | één enkel bestand opgegeven | `append needs a base file and at least one file to put after it` |
 | noch `--output` noch `--dry-run` | `no destination given: append writes one file, use --output` |
 | `--output` noemt een invoerbestand | `<destination>: would be written over the input <input>` |
-| een bestand dat ontbreekt, onleesbaar is of een onbekend formaat heeft | `<path>: does not exist`, `<path>: is in no format this tool knows`… — hetzelfde als overal |
+| een bestand dat ontbreekt, onleesbaar is of een onbekend formaat heeft | `does not exist`, `is in no format this tool knows`… — hetzelfde als overal |
 
 **Een leeg bestand wordt niet achteraan toegevoegd**: geen enkel formaat leest zonder ten minste één ondertitel, en het bestand wordt
-geweigerd zoals elk bestand dat niet kan worden gelezen — `<path>: holds nothing recognisable as a subtitle` —, wat
+geweigerd zoals elk bestand dat niet kan worden gelezen — `holds nothing recognisable as a subtitle` —, wat
 de run stopt en niets schrijft.

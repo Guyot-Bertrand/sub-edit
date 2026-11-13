@@ -144,7 +144,7 @@ mitá).
 | solmen un del du, con `--dry-run` | `--head and --tail go together: give both, or neither with --dry-run` |
 | li du destinationes es li sam file | `<path>: named as both the head and the tail` |
 | un destination es li input | `<path>: would be written over the input <input>` |
-| `--at` foris li file | `<file>: --at 9: the file holds 3 subtitles, and the tail can start from 2 to 3` |
-| un file de un subtitul | `<file>: a file of 1 subtitle cannot be split: a cut needs a subtitle on each side` |
-| superposition | `<file>: Cannot split at subtitle N: subtitle M would fall before the start of the video. Cut somewhere else.` |
-| un file manca, es illegibil o de un formate ne conosset | `<path>: does not exist`… — li sam quam omniloc |
+| `--at` foris li file | `--at 9: the file holds 3 subtitles, and the tail can start from 2 to 3` |
+| un file de un subtitul | `a file of 1 subtitle cannot be split: a cut needs a subtitle on each side` |
+| superposition | `Cannot split at subtitle N: subtitle M would fall before the start of the video. Cut somewhere else.` |
+| un file manca, es illegibil o de un formate ne conosset | `does not exist`… — li sam quam omniloc |

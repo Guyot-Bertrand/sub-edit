@@ -1,5 +1,6 @@
 #include "application.hpp"
 
+#include <subedit/cli/complaint.hpp>
 #include <subedit/cli/encoding_grammar.hpp>
 #include <subedit/cli/encoding_listing.hpp>
 #include <subedit/cli/reporter.hpp>
@@ -31,10 +32,8 @@ namespace {
 /// D3): the headings, the help flag's description, `REQUIRED`. CLI11 lets each be
 /// replaced, and a help whose descriptions are translated and whose headings are not
 /// reads as half done. Its *diagnostics* — a missing required option, an unknown flag —
-/// are left in English on purpose, as the manual says (`invocation.md`, Language): they
-/// are worded inside CLI11, and replacing them would mean rewording every error it can
-/// raise. The metavariables (`TEXT`, `OPTIONS`, `SUBCOMMAND`) are typed-like names and
-/// stay as they are, like ours.
+/// are said again in our words by `complaintIn`, after the parse. The metavariables (`TEXT`,
+/// `OPTIONS`, `SUBCOMMAND`) are typed-like names and stay as they are, like ours.
 ///
 /// Before any option and any subcommand: a subcommand copies its parent's help flag,
 /// formatter and option defaults when it is made.
@@ -84,6 +83,27 @@ void headSubcommands(CLI::App& app) {
     const std::vector<CLI::App*> named = app.get_subcommands();
     return Reporter{std::cerr, 0}.forCommand(named.empty() ? std::string{}
                                                            : named.front()->get_name());
+}
+
+/// Which template CLI11 built `error` from, for `complaintIn` to read it back. The order
+/// matters only where one type derives from another, and none of these do.
+[[nodiscard]] ComplaintKind kindOf(const CLI::ParseError& error) {
+    if (dynamic_cast<const CLI::ExtrasError*>(&error) != nullptr) {
+        return ComplaintKind::Unexpected;
+    }
+    if (dynamic_cast<const CLI::RequiredError*>(&error) != nullptr) {
+        return ComplaintKind::Required;
+    }
+    if (dynamic_cast<const CLI::ExcludesError*>(&error) != nullptr) {
+        return ComplaintKind::Excludes;
+    }
+    if (dynamic_cast<const CLI::ArgumentMismatch*>(&error) != nullptr) {
+        return ComplaintKind::Count;
+    }
+    if (dynamic_cast<const CLI::ValidationError*>(&error) != nullptr) {
+        return ComplaintKind::Validation;
+    }
+    return ComplaintKind::Other;
 }
 
 } // namespace
@@ -176,15 +196,19 @@ ExitCode run(int argc, char** argv) {
     } catch (const CLI::ParseError& error) {
         // CLI11 has its own exit codes; ours are the four of the manual. Help
         // leaves through here because CLI11 signals it as an exception, and it
-        // keeps code 0, on the standard output: it is the answer. **A complaint
-        // is a line of the standard error like any other**: CLI11 words it, in
-        // English, and the reporter files it — each of its lines an `error`.
-        std::ostringstream complaint;
-        const int code = app.exit(error, std::cout, complaint);
-        if (!complaint.str().empty()) {
-            refusing(app).error(complaint.str());
+        // keeps code 0, on the standard output: it is the answer.
+        if (error.get_exit_code() == 0) {
+            std::ostringstream unused;
+            (void)app.exit(error, std::cout, unused);
+            return ExitCode::Success;
         }
-        return code == 0 ? ExitCode::Success : ExitCode::Usage;
+        // **A complaint is a line of the standard error like any other**, in the
+        // user's language: CLI11 words it in English, `complaintIn` reads the
+        // names back out of its sentence and says it again in ours.
+        const Reporter reporter = refusing(app);
+        reporter.error(complaintIn(kindOf(error), error.what()));
+        reporter.error(helpHint());
+        return ExitCode::Usage;
     }
 
     // The answer, before anything else is weighed, as CLI11's own flag was: `-q -v` beside it is

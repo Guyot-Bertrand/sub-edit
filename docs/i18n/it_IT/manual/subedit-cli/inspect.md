@@ -362,11 +362,11 @@ quelli di `-t`: vedere più sopra. `inspect` non scrive nulla che possa essere r
 | Che cosa lo provoca | Messaggio |
 | :------------------ | :------ |
 | nessun percorso indicato | `files is required`, seguito da un rimando a `--help` |
-| file mancante | `<path>: does not exist` |
-| file illeggibile | `<path>: cannot be opened: permission denied` |
-| byte che non si decodificano | `<path>: cannot be decoded in the chosen encoding` |
-| formato non riconosciuto | `<path>: is in no format this tool knows` |
-| nulla che somigli a un sottotitolo | `<path>: holds nothing recognisable as a subtitle` |
+| file mancante | `does not exist` |
+| file illeggibile | `cannot be opened: permission denied` |
+| byte che non si decodificano | `cannot be decoded in the chosen encoding` |
+| formato non riconosciuto | `is in no format this tool knows` |
+| nulla che somigli a un sottotitolo | `holds nothing recognisable as a subtitle` |
 
 Sono gli stessi messaggi per i diciassette sottocomandi: la procedura di apertura
 è scritta una sola volta, nel nucleo.

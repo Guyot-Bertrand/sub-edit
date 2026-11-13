@@ -335,10 +335,10 @@ bazıları yazıldıysa `3`, kullanım hatasında `1`.
 | :------------------ | :------ |
 | `--no-bom` ile `--bom` | `--bom and --no-bom ask for opposite things; give one or the other` |
 | biçimi değiştiren `--in-place` | `--in-place cannot change the format: the file would keep a name its content no longer matches` |
-| hiçbir işaret taşımayan bir kodlamada `--bom` | `<path>: <encoding> has no byte order mark to write` |
+| hiçbir işaret taşımayan bir kodlamada `--bom` | `<encoding> has no byte order mark to write` |
 | bilinmeyen bir kodlamayı adlandıran `--to-encoding` | `no encoding is named "<name>"` |
 | kendi işaretini yazan bir kodlamayı adlandıran `--to-encoding` | `"<name>" writes a byte order mark of its own; name the byte order, as UTF-16LE and UTF-16BE do` |
-| yazılan kodlamada bulunmayan karakter | `<path>: holds a character the chosen encoding cannot write` |
+| yazılan kodlamada bulunmayan karakter | `holds a character the chosen encoding cannot write` |
 
 **Hiçbir işaret taşımayan bir kodlamada `--bom` seçeneğini reddetmek
 titizlik değildir.** Bayt sırası işareti Unicode kodlamaları için vardır,

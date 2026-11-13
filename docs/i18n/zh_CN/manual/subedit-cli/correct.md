@@ -241,7 +241,7 @@ Propre.
 | `never settled` | `Repeat` 在一百遍之后仍在更改文本 |
 | `grew the text too long` | 文本超出了一条字幕所能容纳的范围 |
 
-在级别 1，写到错误输出：`<path>: pattern "<name>" (<reason>) was not applied to subtitle N`——如果该模式对所有文本都被搁置，则没有末尾部分。**其中的编号是文件中的编号**，不论之前有哪些任务删除了字幕。在 JSON 中，它是文件的一条 `pattern-failed` 警告，其 `detail` 含有这句话。**放弃的模式不算文件失败**：文件会写出，退出码为 `0`。
+在级别 1，写到错误输出：`warning: pattern "<name>" (<reason>) was not applied to subtitle N`——如果该模式对所有文本都被搁置，则没有末尾部分。**其中的编号是文件中的编号**，不论之前有哪些任务删除了字幕。在 JSON 中，它是文件的一条 `pattern-failed` 警告，其 `detail` 含有这句话。**放弃的模式不算文件失败**：文件会写出，退出码为 `0`。
 
 ## 输出
 

@@ -357,11 +357,11 @@ Bir okumanın hataları — dosyanın ve `-t` verildiğinde çevirinin — ve
 | Neyin tetiklediği | İleti |
 | :------------------ | :------ |
 | yol verilmedi | `files is required`, ardından `--help` işaretçisi |
-| eksik dosya | `<path>: does not exist` |
-| okunamayan dosya | `<path>: cannot be opened: permission denied` |
-| kodu çözülemeyen baytlar | `<path>: cannot be decoded in the chosen encoding` |
-| tanınmayan biçim | `<path>: is in no format this tool knows` |
-| altyazıya benzeyen hiçbir şey yok | `<path>: holds nothing recognisable as a subtitle` |
+| eksik dosya | `does not exist` |
+| okunamayan dosya | `cannot be opened: permission denied` |
+| kodu çözülemeyen baytlar | `cannot be decoded in the chosen encoding` |
+| tanınmayan biçim | `is in no format this tool knows` |
+| altyazıya benzeyen hiçbir şey yok | `holds nothing recognisable as a subtitle` |
 
 Bunlar on yedi alt komut için aynı iletilerdir: açma tarifi
 çekirdekte bir kez yazılmıştır.

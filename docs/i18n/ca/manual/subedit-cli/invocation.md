@@ -114,7 +114,6 @@ de text defineix `LANGUAGE=en` (o `LC_ALL=C`) — o llegeix `--format json`, que
 | els noms que s'escriuen: subordres, opcions, els seus valors (`off`, `srt`), metavariables (`FILE`, `TEXT`, `OPTIONS`) | una línia d'ordres escrita una vegada funciona en totes les llengües |
 | els noms dels patrons de correcció que accepten `correct --enable` i `--disable` | un patró es crida pel nom anglès que conté el seu fitxer |
 | els noms dels formats i de les codificacions | un format es crida pel seu nom |
-| els diagnòstics propis de CLI11 — un argument obligatori que falta, una opció desconeguda, un valor que una opció no accepta — i el seu `Run with --help for more information.` | es redacten dins de l'analitzador sobre el qual està construïda la línia d'ordres; es queden en anglès |
 | el marc d'una línia d'error: `[subedit]`, la subordre, `[-]`, la clau `error` | un script troba què ha fallat, i on, sense llegir les paraules; només es tradueix el missatge |
 
 Demanar l'anglès, sigui quin sigui l'entorn:
@@ -228,7 +227,7 @@ no s'executa, i `-q` i `-v` no hi canvien res.
 <!-- example: subedit-cli --version | head -n 1 -->
 ```console
 $ subedit-cli --version | head -n 1
-subedit 1.2.8
+subedit 1.2.9
 ```
 
 La sortida sencera, en una màquina amb ICU 74.2 i Enchant 2.3.3 — els números són els de la màquina:
@@ -457,8 +456,8 @@ altres conserven el format del fitxer llegit, i per tant la seva extensió.
 | dues entrades, una destinació | `<destination>: would be written by both <input> and <input>` |
 | una entrada se sobreescriuria | `<destination>: would be written over the input <input>` — la mateixa frase per a [`append`](append.md) i [`split-file`](split-file.md) |
 | directori de sortida que no es pot crear | `<directory>: cannot be created: permission denied`, o `: cannot be created` |
-| destinació que no es pot escriure | `<path>: <destination>: cannot be written: permission denied`, o `: cannot be written` |
-| caràcter que falta a la codificació escrita | `<path>: holds a character the chosen encoding cannot write` |
+| destinació que no es pot escriure | `<destination>: cannot be written: permission denied`, o `: cannot be written` |
+| caràcter que falta a la codificació escrita | `holds a character the chosen encoding cannot write` |
 
 **L'últim mereix una frase.** Un fitxer es torna a escriure en **la codificació en què
 es va llegir**, com passa amb els seus finals de línia i la seva marca. Si un
@@ -696,21 +695,76 @@ anunciada al CHANGELOG i aquí.
 
 ## Nivells de narració
 
+**Cada línia de la sortida d'error té la mateixa forma**, per a la narració com per als errors:
+
+```
+[subedit] [<command>] [<i>/<n>] <key>: <value>
+```
+
+| Part | Què diu |
+| :----- | :------------- |
+| `<command>` | la subordre, tal com s'ha escrit; `-` abans que se sàpiga |
+| `<i>/<n>` | l'element del qual parla la línia, l'`i`-è de `n`; `-` per a una línia sobre tota l'execució |
+| `<key>` | el que diu la línia |
+| `<value>` | un nom, un nombre, un camí o una frase |
+
+**Un element és el que escriu un registre JSON**: una entrada, o tota l'execució per a [`append`](append.md), [`split-file`](split-file.md) i [`pair`](pair.md). Es compta des d'1, en l'ordre de les entrades, que és l'ordre dels registres; una sola entrada és `[1/1]`.
+
+<!-- example: printf '1\n00:00:01,000 --> 00:00:02,000\n[Door]\nHello.\n\n2\n00:00:03,000 --> 00:00:04,000\n[Music]\n\n' > b.srt; printf 'nothing to read\n' > bad.srt; printf '1\n00:00:01,000 --> 00:00:02,000\nHi.\n\n' > c.srt; subedit-cli hearing-impaired --output-dir o b.srt bad.srt c.srt; echo "code=$?" -->
+```console
+$ printf '1\n00:00:01,000 --> 00:00:02,000\n[Door]\nHello.\n\n2\n00:00:03,000 --> 00:00:04,000\n[Music]\n\n' > b.srt; printf 'nothing to read\n' > bad.srt; printf '1\n00:00:01,000 --> 00:00:02,000\nHi.\n\n' > c.srt; subedit-cli hearing-impaired --output-dir o b.srt bad.srt c.srt; echo "code=$?"
+[subedit] [hearing-impaired] [1/3] source: b.srt
+[subedit] [hearing-impaired] [1/3] result: 1 subtitle cleaned, 1 removed
+[subedit] [hearing-impaired] [1/3] dest: o/b.srt
+[subedit] [hearing-impaired] [2/3] source: bad.srt
+[subedit] [hearing-impaired] [2/3] error: is in no format this tool knows
+[subedit] [hearing-impaired] [3/3] source: c.srt
+[subedit] [hearing-impaired] [3/3] result: no mention to remove
+[subedit] [hearing-impaired] [3/3] dest: o/c.srt
+[subedit] [hearing-impaired] [-] summary: 2 of 3 files cleaned, 1 failed
+code=3
+```
+
 Cada nivell **conté l'anterior**: pujar un graó afegeix, mai no
 reemplaça.
 
 | Nivell | Com | Què porta la sortida d'error |
 | :----- | :------ | :------------------------------ |
-| 0 | `--quiet` | res, **excepte els errors** |
-| 1 | per defecte, o `-v` | una línia per fitxer processat, i un resum tan bon punt n'hi ha diversos |
-| 2 | `-vv` | i el que s'ha reconegut: format, codificació, BOM, finals de línia |
-| 3 | `-vvv` | i la traça de depuració: bytes llegits i escrits, i **cada diagnòstic de lectura** |
+| 0 | `--quiet` | només les línies `error`, cadascuna després de la línia `source` del seu element |
+| 1 | per defecte, o `-v` | `source`, `translation`, `media`, `warning`, `result`, `dest`, `tail`; i sobre l'execució, `settings`, `walk` i, a partir de dos elements, `summary` |
+| 2 | `-vv` | i `format`, `encoding`, `bom`, `line-endings`, `alignment`, `progress` |
+| 3 | `-vvv` | i `bytes-read`, `bytes-written`, i cada `diagnostic` |
+
+Dues claus canvien de nivell segons la subordre: `alignment` és al nivell 1 per a `pair` i `inspect`, i `progress` al nivell 3 per a l'últim text sentit.
 
 **Els errors no se silencien mai, `--quiet` inclòs.** Una ordre que falla
 en silenci no deixaria res més que el seu codi de sortida.
 
 El resum només apareix a partir de dos fitxers: amb una sola entrada,
 repetiria la línia anterior.
+
+**El que val per a cada element:**
+
+- la seva línia `source` va primer, i un error no ve mai sense ella, `--quiet` inclòs;
+- `dest` s'escriu a cada èxit que escriu, també amb `--in-place`, i mai amb `--dry-run`, que no escriu res;
+- `result` pot sortir més d'un cop: un pas demanat a més de l'operació (`--sort`, `--disjoint`, `--join-repeats`) i cada fitxer que `append` afegeix tenen la seva pròpia línia;
+- un error no repeteix el camí de la font; anomena el fitxer del qual parla quan és un altre, com la traducció o la destinació.
+
+### Trobar un element pel seu nom
+
+**La posició, i no el camí, identifica l'element**: un camí pot contenir qualsevol caràcter, una posició no té res a escapar, i les línies d'un element es mantenen juntes després d'un `grep`. Trobar les línies d'un fitxer es fa en dos passos:
+
+```console
+$ subedit-cli hearing-impaired --output-dir o *.srt 2> log
+$ grep -F '] source: b.srt' log           # [subedit] [hearing-impaired] [1/3] source: b.srt
+$ grep -F '[1/3]' log                     # everything about b.srt
+```
+
+### El que promet la narració
+
+**Promès**: la forma d'una línia; el sentit de `<i>/<n>` i el seu lligam amb l'ordre dels registres JSON; les claus i el nivell de cadascuna; les regles d'aquí dalt.
+
+**No promès**: el text d'un valor que és una frase — `result`, `warning`, `error`, `progress`, `summary`, `walk` —, que es tradueix i es reformula quan cal: un script llegeix els nombres al JSON. Ni l'ordre de les línies d'elements diferents, si un lot mai els processa en paral·lel.
 
 ## Diagnòstics de lectura
 
@@ -720,9 +774,8 @@ ha trobat s'emet al **nivell 3**, una línia per diagnòstic, a la sortida
 d'error:
 
 ```
-a.srt: 2 diagnostics while reading
-a.srt: line 6: SubRip numbers that do not follow ("7"), settled by the reader
-a.srt: line 9: a line that fits nowhere, left as it stands
+[subedit] [inspect] [1/1] diagnostic: line 6: SubRip numbers that do not follow ("7"), settled by the reader
+[subedit] [inspect] [1/1] diagnostic: line 9: a line that fits nowhere, left as it stands
 ```
 
 Les divuit subordres els informen, no només [`inspect`](inspect.md):
@@ -926,12 +979,12 @@ lot mig processat.
 | `--quiet` amb `-v` | `--quiet and -v ask for opposite things; give one or the other` |
 | `--config` amb `--no-config` | `--config excludes --no-config` |
 | `--config` amb un nom buit | `--config needs a file name` |
-| fitxer que falta | `<path>: does not exist` |
-| fitxer il·legible | `<path>: cannot be opened: permission denied` |
+| fitxer que falta | `does not exist` |
+| fitxer il·legible | `cannot be opened: permission denied` |
 | codificació que escriu la seva pròpia marca | `"<name>" writes a byte order mark of its own; name the byte order, as UTF-16LE and UTF-16BE do` |
-| bytes que no es descodifiquen | `<path>: cannot be decoded in the chosen encoding` |
-| format no reconegut | `<path>: is in no format this tool knows` |
-| res que sembli un subtítol | `<path>: holds nothing recognisable as a subtitle` |
+| bytes que no es descodifiquen | `cannot be decoded in the chosen encoding` |
+| format no reconegut | `is in no format this tool knows` |
+| res que sembli un subtítol | `holds nothing recognisable as a subtitle` |
 | `--document translation` sense `-t` | `--document translation needs the translation file: use -t` |
 | `-t` sense `--document translation` | `-t names a translation to change: use --document translation` |
 | `--align-method` sense `-t` | `--align-method needs a translation file: use -t` |

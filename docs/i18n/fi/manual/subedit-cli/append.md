@@ -94,7 +94,7 @@ Kutakin tiedostoa siirretään **sitä edeltävän osan lopusta**: järjestys, j
 järjestää tuloksen alkujen mukaan **yhdellä kertaa viimeisen perään lisäyksen jälkeen**, kuten [`sort`](sort.md) tekisi — vakaasti ja muuttamatta mitään
 sisällöstä.
 
-Ei koskaan oletuksena. Valitsimen kanssa pohja kertoo sen kerronnan ensimmäisellä tasolla, `<base>: N subtitles moved` tai `<base>: already in order`, ja
+Ei koskaan oletuksena. Valitsimen kanssa pohja kertoo sen kerronnan ensimmäisellä tasolla, `result: N subtitles moved` tai `result: already in order`, ja
 `--format json` -tietueessa on laskuri `moved`, **joka puuttuu ilman valitsinta**.
 
 ## Aikavälien päällekkäisyyksien poistaminen
@@ -161,8 +161,8 @@ Myös epäonnistuminen on objekti, **yksi ainoa**: ensimmäisen tiedoston, jota 
 | vain yksi tiedosto annettu | `append needs a base file and at least one file to put after it` |
 | ei valitsinta `--output` eikä `--dry-run` | `no destination given: append writes one file, use --output` |
 | `--output` nimeää syötteen | `<destination>: would be written over the input <input>` |
-| tiedosto puuttuu, on lukukelvoton tai tuntematonta muotoa | `<path>: does not exist`, `<path>: is in no format this tool knows`… — samat kuin kaikkialla |
+| tiedosto puuttuu, on lukukelvoton tai tuntematonta muotoa | `does not exist`, `is in no format this tool knows`… — samat kuin kaikkialla |
 
 **Tyhjää tiedostoa ei lisätä perään**: mikään muoto ei lue ilman vähintään yhtä kappaletta, ja tiedosto
-hylätään kuten mikä tahansa tiedosto, jota ei voi lukea — `<path>: holds nothing recognisable as a subtitle` —, mikä
+hylätään kuten mikä tahansa tiedosto, jota ei voi lukea — `holds nothing recognisable as a subtitle` —, mikä
 pysäyttää ajon eikä kirjoita mitään.

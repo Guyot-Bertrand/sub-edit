@@ -336,10 +336,10 @@ jen některé, `1` při chybě použití.
 | :------------------ | :------ |
 | `--bom` s `--no-bom` | `--bom and --no-bom ask for opposite things; give one or the other` |
 | `--in-place`, které mění formát | `--in-place cannot change the format: the file would keep a name its content no longer matches` |
-| `--bom` u kódování, které žádnou nemá | `<path>: <encoding> has no byte order mark to write` |
+| `--bom` u kódování, které žádnou nemá | `<encoding> has no byte order mark to write` |
 | `--to-encoding` s neznámým kódováním | `no encoding is named "<name>"` |
 | `--to-encoding` s kódováním, které zapisuje vlastní značku | `"<name>" writes a byte order mark of its own; name the byte order, as UTF-16LE and UTF-16BE do` |
-| znak, který v zapisovaném kódování chybí | `<path>: holds a character the chosen encoding cannot write` |
+| znak, který v zapisovaném kódování chybí | `holds a character the chosen encoding cannot write` |
 
 **Odmítnutí `--bom` u kódování, které žádnou nenese, není
 puntičkářství.** Značka pořadí bajtů existuje pro kódování Unicode a

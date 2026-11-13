@@ -91,7 +91,7 @@ Each file is shifted **from the end of what precedes it**: the order that can br
 puts the result in the order of the starts, **in one go, after the last append**, as [`sort`](sort.md) would — stable, and without changing anything
 in the content.
 
-Never by default. With the option, the base says so at the first narration level, `<base>: N subtitles moved` or `<base>: already in order`, and
+Never by default. With the option, the base says so at the first narration level, `result: N subtitles moved` or `result: already in order`, and
 the `--format json` record carries a `moved` count, **absent without the option**.
 
 ## Making the ranges disjoint
@@ -158,8 +158,8 @@ A failure is an object too, **a single one**: that of the first file that could 
 | a single file given | `append needs a base file and at least one file to put after it` |
 | neither `--output` nor `--dry-run` | `no destination given: append writes one file, use --output` |
 | `--output` names an input | `<destination>: would be written over the input <input>` |
-| a file missing, unreadable or of an unknown format | `<path>: does not exist`, `<path>: is in no format this tool knows`… — the same as everywhere |
+| a file missing, unreadable or of an unknown format | `does not exist`, `is in no format this tool knows`… — the same as everywhere |
 
 **An empty file is not appended**: no format reads without at least one subtitle, and the file is
-refused like any file that cannot be read — `<path>: holds nothing recognisable as a subtitle` —, which
+refused like any file that cannot be read — `holds nothing recognisable as a subtitle` —, which
 stops the run and writes nothing.

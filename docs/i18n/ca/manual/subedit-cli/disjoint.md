@@ -178,7 +178,7 @@ no se n'ha tractat cap, `3` si només alguns, `1` en un error d'ús.
 
 | Què els provoca | Missatge |
 | :------------------- | :------ |
-| un fitxer fora d'ordre sense `--sort` | `<path>: The subtitles are not in the order of their start: sort them first. Use --sort to do that here.` |
+| un fitxer fora d'ordre sense `--sort` | `The subtitles are not in the order of their start: sort them first. Use --sort to do that here.` |
 | `--minimum` no és una durada, o és negatiu | `--minimum: …` |
 | `--max-lines` no és un nombre enter | `--max-lines: "…" is not a number of lines: expected a whole number, 0 for no limit` |
 

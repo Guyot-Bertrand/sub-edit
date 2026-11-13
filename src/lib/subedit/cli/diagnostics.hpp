@@ -32,13 +32,13 @@ inline constexpr int kDiagnosticLevel = 3;
 /// screen. Neither is ours to trust.
 [[nodiscard]] std::string reportOf(const subedit::core::Diagnostic& diagnostic);
 
-/// Says every diagnostic of a read, each on its own line, prefixed by `path`.
+/// Says every diagnostic of a read, each on its own line under the key `diagnostic`: the file is
+/// the one the element's `source` line named.
 ///
-/// Shared by the five subcommands rather than written where each one reads a
+/// Shared by every subcommand rather than written where each one reads a
 /// file: ADR 0008 has the core read at best effort and report what it had to
 /// decide, and a promise honoured by one caller out of five is not honoured.
 void sayDiagnostics(const Reporter& reporter,
-                    std::string_view path,
                     std::span<const subedit::core::Diagnostic> diagnostics);
 
 } // namespace subedit::cli

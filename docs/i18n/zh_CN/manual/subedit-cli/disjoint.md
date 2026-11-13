@@ -158,7 +158,7 @@ code 2
 
 | 触发条件 | 消息 |
 | :------------------- | :------ |
-| 文件顺序混乱且没有 `--sort` | `<path>: The subtitles are not in the order of their start: sort them first. Use --sort to do that here.` |
+| 文件顺序混乱且没有 `--sort` | `The subtitles are not in the order of their start: sort them first. Use --sort to do that here.` |
 | `--minimum` 不是持续时间，或为负数 | `--minimum: …` |
 | `--max-lines` 不是整数 | `--max-lines: "…" is not a number of lines: expected a whole number, 0 for no limit` |
 

@@ -359,11 +359,11 @@ those of `-t`: see above. `inspect` writes nothing that could be refused.
 | What triggers it | Message |
 | :------------------ | :------ |
 | no path given | `files is required`, followed by a pointer to `--help` |
-| missing file | `<path>: does not exist` |
-| unreadable file | `<path>: cannot be opened: permission denied` |
-| bytes that do not decode | `<path>: cannot be decoded in the chosen encoding` |
-| format not recognised | `<path>: is in no format this tool knows` |
-| nothing that looks like a subtitle | `<path>: holds nothing recognisable as a subtitle` |
+| missing file | `does not exist` |
+| unreadable file | `cannot be opened: permission denied` |
+| bytes that do not decode | `cannot be decoded in the chosen encoding` |
+| format not recognised | `is in no format this tool knows` |
+| nothing that looks like a subtitle | `holds nothing recognisable as a subtitle` |
 
 These are the same messages for the seventeen subcommands: the recipe for opening
 is written once, in the core.

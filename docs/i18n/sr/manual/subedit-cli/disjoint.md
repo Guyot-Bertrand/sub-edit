@@ -178,7 +178,7 @@ code 2
 
 | Шта их изазива | Порука |
 | :------------------- | :------ |
-| неуређена датотека без `--sort` | `<path>: The subtitles are not in the order of their start: sort them first. Use --sort to do that here.` |
+| неуређена датотека без `--sort` | `The subtitles are not in the order of their start: sort them first. Use --sort to do that here.` |
 | `--minimum` није трајање или је негативан | `--minimum: …` |
 | `--max-lines` није цео број | `--max-lines: "…" is not a number of lines: expected a whole number, 0 for no limit` |
 

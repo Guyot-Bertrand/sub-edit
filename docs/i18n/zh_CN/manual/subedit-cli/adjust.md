@@ -219,6 +219,6 @@ $ printf '1\n00:00:00,000 --> 00:00:00,400\nabcdefghijklmnopqrstuvwxyz1234\n\n2\
 | 最长持续时间为零或为负 | `--maximum: "0" is not a duration above zero` |
 | 范围写法有误 | `--range: "…" is not a range: write it N-M, or N- to go to the end, counted from 1 and inclusive` |
 | 范围的结束位置在开始位置之前 | `--range: "5-3" is not a range: it ends before it starts` |
-| 范围超出文件 | `<path>: range N-M starts after the last subtitle: the file has K`，或 `… ends after …` |
+| 范围超出文件 | `range N-M starts after the last subtitle: the file has K`，或 `… ends after …` |
 
 输出位置的错误是所有会写入文件的子命令共有的：参见[调用](invocation.md#输出位置)。

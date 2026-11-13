@@ -133,7 +133,7 @@ Kódy nástroje: `0`, pokud byly zpracovány všechny soubory — soubor, v něm
 | :------------------ | :------ |
 | ani `--on`, ani `--off` | `italics needs --on to put the texts in italics, or --off` |
 | obě | `--on and --off say opposite things; give one of them` |
-| formát bez stylu | `<path>: TMPlayer writes no style: there are no italics to put on` (nebo `take out`) |
+| formát bez stylu | `TMPlayer writes no style: there are no italics to put on` (nebo `take out`) |
 | rozsah špatně zapsaný nebo mimo soubor | viz [`adjust`](adjust.md#--range) |
 
 Chyby cíle zápisu jsou společné podpříkazům, které zapisují:

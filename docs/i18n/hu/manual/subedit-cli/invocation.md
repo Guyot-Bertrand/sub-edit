@@ -100,7 +100,6 @@ A `LANG=fr_FR.UTF-8` beállítással a `subedit-cli --help` kimenete így kezdő
 | a beírt nevek: alparancsok, kapcsolók, azok értékei (`off`, `srt`), metaváltozók (`FILE`, `TEXT`, `OPTIONS`) | az egyszer megírt parancssor minden nyelven működik |
 | a javítási minták nevei, amelyeket a `correct --enable` és a `--disable` kapcsoló vesz fel | a mintát az angol név hívja, amelyet a fájlja tartalmaz |
 | a formátumok és kódolások nevei | a formátumot a neve hívja |
-| a CLI11 saját diagnosztikája — hiányzó kötelező argumentum, ismeretlen kapcsoló, olyan érték, amelyet egy kapcsoló nem fogad el — és a `Run with --help for more information.` | abban az elemzőben fogalmazott, amelyre a parancssor épül; angolok maradnak |
 | egy hibasor kerete: `[subedit]`, az alparancs, `[-]`, az `error` kulcs | egy szkript a szavak olvasása nélkül megtalálja, mi és hol hibázott; csak az üzenet fordított |
 
 Az angol kérése, bármi legyen a környezet:
@@ -179,7 +178,7 @@ code=1
 <!-- example: subedit-cli --version | head -n 1 -->
 ```console
 $ subedit-cli --version | head -n 1
-subedit 1.2.8
+subedit 1.2.9
 ```
 
 Az egész, egy ICU 74.2 és Enchant 2.3.3 verziójú gépen — a számok a gép számai:
@@ -332,8 +331,8 @@ Két útvonal akkor nevezi meg ugyanazt a fájlt, ha a rendszer ezt mondja, nem 
 | két bemenet, egy cél | `<destination>: would be written by both <input> and <input>` |
 | egy bemenet felülíródna | `<destination>: would be written over the input <input>` — ugyanez a mondat az [`append`](append.md) és a [`split-file`](split-file.md) esetén |
 | nem létrehozható kimeneti könyvtár | `<directory>: cannot be created: permission denied`, vagy `: cannot be created` |
-| nem írható cél | `<path>: <destination>: cannot be written: permission denied`, vagy `: cannot be written` |
-| a megírt kódolásból hiányzó karakter | `<path>: holds a character the chosen encoding cannot write` |
+| nem írható cél | `<destination>: cannot be written: permission denied`, vagy `: cannot be written` |
+| a megírt kódolásból hiányzó karakter | `holds a character the chosen encoding cannot write` |
 
 **Az utolsó megér egy mondatot.** A fájl **abban a kódolásban íródik vissza, amelyben olvasták**, ahogy a sorvégeivel és a jelölőjével is. Ha egy módosítás olyan karaktert vitt bele, amelyet ez a kódolás nem ismer — például egy `ł` karaktert Latin-1-ben —, az írás hibázik, és **semmi sem íródik**. Ha `?` karakterre cserélnék, az szöveg elvesztése lenne annak szeme láttára, aki az imént megírta.
 
@@ -498,27 +497,81 @@ Az `error.kind` ezek egyike; **az olvasó az ismeretlen azonosítót „más”-
 
 ## Beszámolási szintek
 
+**A hibakimenet minden sora ugyanolyan alakú**, az elbeszélésnél és a hibáknál egyaránt:
+
+```
+[subedit] [<command>] [<i>/<n>] <key>: <value>
+```
+
+| Rész | Mit mond |
+| :----- | :------------- |
+| `<command>` | az alparancs, ahogy begépelték; `-`, amíg nem ismert |
+| `<i>/<n>` | az elem, amelyről a sor szól, `n` közül az `i`-edik; `-` az egész futásról szóló sornál |
+| `<key>` | amit a sor mond |
+| `<value>` | egy név, egy szám, egy útvonal vagy egy mondat |
+
+**Elem az, ami egy JSON-rekordot ír**: egy bemenet, vagy az egész futás az [`append`](append.md), a [`split-file`](split-file.md) és a [`pair`](pair.md) esetén. 1-től számozódik, a bemenetek sorrendjében, ami a rekordok sorrendje; egyetlen bemenet `[1/1]`.
+
+<!-- example: printf '1\n00:00:01,000 --> 00:00:02,000\n[Door]\nHello.\n\n2\n00:00:03,000 --> 00:00:04,000\n[Music]\n\n' > b.srt; printf 'nothing to read\n' > bad.srt; printf '1\n00:00:01,000 --> 00:00:02,000\nHi.\n\n' > c.srt; subedit-cli hearing-impaired --output-dir o b.srt bad.srt c.srt; echo "code=$?" -->
+```console
+$ printf '1\n00:00:01,000 --> 00:00:02,000\n[Door]\nHello.\n\n2\n00:00:03,000 --> 00:00:04,000\n[Music]\n\n' > b.srt; printf 'nothing to read\n' > bad.srt; printf '1\n00:00:01,000 --> 00:00:02,000\nHi.\n\n' > c.srt; subedit-cli hearing-impaired --output-dir o b.srt bad.srt c.srt; echo "code=$?"
+[subedit] [hearing-impaired] [1/3] source: b.srt
+[subedit] [hearing-impaired] [1/3] result: 1 subtitle cleaned, 1 removed
+[subedit] [hearing-impaired] [1/3] dest: o/b.srt
+[subedit] [hearing-impaired] [2/3] source: bad.srt
+[subedit] [hearing-impaired] [2/3] error: is in no format this tool knows
+[subedit] [hearing-impaired] [3/3] source: c.srt
+[subedit] [hearing-impaired] [3/3] result: no mention to remove
+[subedit] [hearing-impaired] [3/3] dest: o/c.srt
+[subedit] [hearing-impaired] [-] summary: 2 of 3 files cleaned, 1 failed
+code=3
+```
+
 Minden szint **tartalmazza az előzőt**: egy fokkal feljebb lépve hozzátesz, sosem cserél.
 
 | Szint | Hogyan | Mit hordoz a hibakimenet |
 | :----- | :------ | :------------------------------ |
-| 0 | `--quiet` | semmit, **a hibák kivételével** |
-| 1 | alapértelmezés szerint, vagy `-v` | feldolgozott fájlonként egy sor, és összegzés, amint több van |
-| 2 | `-vv` | és amit felismertek: formátum, kódolás, BOM, sorvégek |
-| 3 | `-vvv` | és a hibakeresési nyom: olvasott és írt bájtok, és **minden olvasási diagnosztika** |
+| 0 | `--quiet` | csak az `error` sorok, mindegyik az eleme `source` sora után |
+| 1 | alapértelmezés szerint, vagy `-v` | `source`, `translation`, `media`, `warning`, `result`, `dest`, `tail`; a futásról pedig `settings`, `walk` és két elemtől `summary` |
+| 2 | `-vv` | és `format`, `encoding`, `bom`, `line-endings`, `alignment`, `progress` |
+| 3 | `-vvv` | és `bytes-read`, `bytes-written`, valamint minden `diagnostic` |
+
+Két kulcs szintje az alparancstól függ: az `alignment` a `pair` és az `inspect` esetén az 1. szinten van, a `progress` pedig az utoljára hallott szövegnél a 3. szinten.
 
 **A hibákat soha nem hallgatják el**, a `--quiet` kapcsolóval sem. Az a parancs, amely némán hibázik, a kilépési kódján kívül semmit sem hagyna.
 
 Az összegzés csak két fájltól jelenik meg: egyetlen bemenetnél megismételné az előtte álló sort.
+
+**Ami minden elemre érvényes:**
+
+- a `source` sora jön elsőként, és hiba sosem jön nélküle, `--quiet` mellett sem;
+- a `dest` minden író sikernél megjelenik, `--in-place` mellett is, és sosem `--dry-run` mellett, amely semmit sem ír;
+- a `result` többször is jöhet: a művelet mellett kért lépésnek (`--sort`, `--disjoint`, `--join-repeats`) és minden fájlnak, amelyet az `append` hozzáad, saját sora van;
+- a hiba nem ismétli a forrás útvonalát; megnevezi a fájlt, amelyről szól, ha az egy másik, például a fordítás vagy a cél.
+
+### Elem keresése a neve alapján
+
+**Az elemet a helye azonosítja, nem az útvonala**: egy útvonal bármilyen karaktert tartalmazhat, egy helyen nincs mit escape-elni, és egy elem sorai egy `grep` után is együtt maradnak. Egy fájl sorait két lépésben lehet megtalálni:
+
+```console
+$ subedit-cli hearing-impaired --output-dir o *.srt 2> log
+$ grep -F '] source: b.srt' log           # [subedit] [hearing-impaired] [1/3] source: b.srt
+$ grep -F '[1/3]' log                     # everything about b.srt
+```
+
+### Amit az elbeszélés ígér
+
+**Ígérve**: a sor alakja; az `<i>/<n>` jelentése és kapcsolata a JSON-rekordok sorrendjével; a kulcsok és mindegyik szintje; a fenti szabályok.
+
+**Nincs ígérve**: a mondatot tartalmazó érték szövege — `result`, `warning`, `error`, `progress`, `summary`, `walk` —, amelyet lefordítanak és szükség szerint átfogalmaznak: egy szkript a számokat a JSON-ból olvassa. Sem a különböző elemek sorainak sorrendje, ha egy köteg egyszer párhuzamosan dolgozná fel őket.
 
 ## Olvasási diagnosztika
 
 A feliratformátumokat **a lehető legjobban** olvassák: az anomália előtt az olvasó nem áll meg — dönt, vagy úgy hagyja a dolgokat, ahogy vannak, és ezt közli. Amibe beleütközött, azt a **3. szinten** adja ki, diagnosztikánként egy sorban, a hibakimeneten:
 
 ```
-a.srt: 2 diagnostics while reading
-a.srt: line 6: SubRip numbers that do not follow ("7"), settled by the reader
-a.srt: line 9: a line that fits nowhere, left as it stands
+[subedit] [inspect] [1/1] diagnostic: line 6: SubRip numbers that do not follow ("7"), settled by the reader
+[subedit] [inspect] [1/1] diagnostic: line 9: a line that fits nowhere, left as it stands
 ```
 
 Mind a tizennyolc alparancs jelenti őket, nemcsak az [`inspect`](inspect.md): a lehető legjobban beolvasott, majd visszaírt fájl ugyanezeken a döntéseken ment át, és ha csendben maradnának, azt lehetne hinni, hogy nem történt semmi.
@@ -659,12 +712,12 @@ A használati hibát **bármely feldolgozás előtt** észlelik: sosem hagy fél
 | `--quiet` a `-v` kapcsolóval | `--quiet and -v ask for opposite things; give one or the other` |
 | `--config` a `--no-config` kapcsolóval | `--config excludes --no-config` |
 | `--config` üres névvel | `--config needs a file name` |
-| hiányzó fájl | `<path>: does not exist` |
-| olvashatatlan fájl | `<path>: cannot be opened: permission denied` |
+| hiányzó fájl | `does not exist` |
+| olvashatatlan fájl | `cannot be opened: permission denied` |
 | saját jelölőt író kódolás | `"<name>" writes a byte order mark of its own; name the byte order, as UTF-16LE and UTF-16BE do` |
-| nem dekódolható bájtok | `<path>: cannot be decoded in the chosen encoding` |
-| fel nem ismert formátum | `<path>: is in no format this tool knows` |
-| semmi, ami feliratsorra hasonlítana | `<path>: holds nothing recognisable as a subtitle` |
+| nem dekódolható bájtok | `cannot be decoded in the chosen encoding` |
+| fel nem ismert formátum | `is in no format this tool knows` |
+| semmi, ami feliratsorra hasonlítana | `holds nothing recognisable as a subtitle` |
 | `--document translation` a `-t` nélkül | `--document translation needs the translation file: use -t` |
 | `-t` a `--document translation` nélkül | `-t names a translation to change: use --document translation` |
 | `--align-method` a `-t` nélkül | `--align-method needs a translation file: use -t` |

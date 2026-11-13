@@ -336,10 +336,10 @@ apenas alguns, `1` em caso de erro de utilização.
 | :------------------ | :------ |
 | `--bom` com `--no-bom` | `--bom and --no-bom ask for opposite things; give one or the other` |
 | `--in-place` que muda o formato | `--in-place cannot change the format: the file would keep a name its content no longer matches` |
-| `--bom` numa codificação que não tem nenhuma | `<path>: <encoding> has no byte order mark to write` |
+| `--bom` numa codificação que não tem nenhuma | `<encoding> has no byte order mark to write` |
 | `--to-encoding` que nomeia uma codificação desconhecida | `no encoding is named "<name>"` |
 | `--to-encoding` que nomeia uma codificação que escreve a sua própria marca | `"<name>" writes a byte order mark of its own; name the byte order, as UTF-16LE and UTF-16BE do` |
-| caráter em falta na codificação escrita | `<path>: holds a character the chosen encoding cannot write` |
+| caráter em falta na codificação escrita | `holds a character the chosen encoding cannot write` |
 
 **Recusar `--bom` numa codificação que não tem nenhuma não é
 pedantismo.** Uma marca de ordem de bytes existe para as codificações Unicode e

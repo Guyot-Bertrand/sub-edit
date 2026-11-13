@@ -163,7 +163,7 @@ solmen alcunes, `1` in cas de un error de usage.
 | comma decimal | `"…" is not a time: use a decimal point and not a comma, in every language` |
 | plu fin que li millisecunda | `"…" is not a time: positions are held to the millisecond, no finer` |
 | textu quel ne es un duration | `"…" is not a time: expected seconds like 2.999, or a timestamp like 00:00:07.001` |
-| displaciament ante li origine | `<path>: subtitle N would start before the origin, which no subtitle file can hold` |
+| displaciament ante li origine | `subtitle N would start before the origin, which no subtitle file can hold` |
 
 **Nequo es scrit sin un del tri optiones de destination**, e lor
 errores es comun a su li subcomandes quel scri:

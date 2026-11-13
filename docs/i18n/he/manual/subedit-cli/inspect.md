@@ -281,11 +281,11 @@ $ printf '{25}{50}Un.\n{75}{100}Deux.\n' > f.sub; subedit-cli --format json insp
 | מה גורם לה | הודעה |
 | :------------------ | :------ |
 | לא ניתן נתיב | `files is required`, ואחריה הפניה ל-`--help` |
-| קובץ חסר | `<path>: does not exist` |
-| קובץ שאי אפשר לקרוא | `<path>: cannot be opened: permission denied` |
-| בתים שאי אפשר לפענח | `<path>: cannot be decoded in the chosen encoding` |
-| פורמט שלא זוהה | `<path>: is in no format this tool knows` |
-| אין דבר שנראה ככתובית | `<path>: holds nothing recognisable as a subtitle` |
+| קובץ חסר | `does not exist` |
+| קובץ שאי אפשר לקרוא | `cannot be opened: permission denied` |
+| בתים שאי אפשר לפענח | `cannot be decoded in the chosen encoding` |
+| פורמט שלא זוהה | `is in no format this tool knows` |
+| אין דבר שנראה ככתובית | `holds nothing recognisable as a subtitle` |
 
 אלו אותן הודעות לשבע עשרה תת-הפקודות: המתכון לפתיחה כתוב פעם אחת, בליבה.
 

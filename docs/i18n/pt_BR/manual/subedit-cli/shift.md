@@ -163,7 +163,7 @@ apenas alguns, `1` em caso de erro de uso.
 | vírgula decimal | `"…" is not a time: use a decimal point and not a comma, in every language` |
 | mais fino que o milissegundo | `"…" is not a time: positions are held to the millisecond, no finer` |
 | texto que não é uma duração | `"…" is not a time: expected seconds like 2.999, or a timestamp like 00:00:07.001` |
-| deslocamento antes da origem | `<path>: subtitle N would start before the origin, which no subtitle file can hold` |
+| deslocamento antes da origem | `subtitle N would start before the origin, which no subtitle file can hold` |
 
 **Nada é gravado sem uma das três opções de destino**, e os erros delas
 são comuns aos subcomandos que gravam:

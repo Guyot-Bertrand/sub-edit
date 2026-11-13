@@ -192,9 +192,9 @@ only some, `1` on a usage error.
 | index that is not a whole number | `"…" is not a subtitle number: expected a whole number, counted from 1 as the file shows them` |
 | invalid time | those of [`shift`](shift.md) |
 | `--first` and `--last` on the same index | `--first and --last both name subtitle N, and two references on one subtitle define no transform` |
-| index out of bounds | `<path>: subtitle N is past the end: the file holds M subtitles` |
-| two subtitles starting together | `<path>: subtitles N and M start at the same moment, so they define no transform` |
-| position before the origin | `<path>: subtitle N would land before the origin, which no subtitle file can hold` |
+| index out of bounds | `subtitle N is past the end: the file holds M subtitles` |
+| two subtitles starting together | `subtitles N and M start at the same moment, so they define no transform` |
+| position before the origin | `subtitle N would land before the origin, which no subtitle file can hold` |
 
 **Nothing is written without one of the three destination options**, and their
 errors are common to the subcommands that write:

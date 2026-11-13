@@ -315,7 +315,7 @@ finestra: la pagina di conferma nomina il modello una sola volta, senza il testo
 | `grew the text too long` | il testo ha superato ciò che un sottotitolo può contenere |
 
 Al livello 1, sull'output degli errori:
-`<path>: pattern "<name>" (<reason>) was not applied to subtitle N` — senza la parte finale quando il modello è messo da parte per ogni testo. **Il numero è
+`warning: pattern "<name>" (<reason>) was not applied to subtitle N` — senza la parte finale quando il modello è messo da parte per ogni testo. **Il numero è
 quello del file**, qualunque siano le operazioni che hanno rimosso sottotitoli prima. In JSON, è
 un avviso `pattern-failed` del file, il cui `detail` contiene la frase. **Un modello
 abbandonato non è un file fallito**: il file viene scritto, e il codice di uscita è `0`.

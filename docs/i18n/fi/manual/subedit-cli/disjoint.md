@@ -178,7 +178,7 @@ yhtäkään ei, `3`, jos vain osa, `1` käyttövirheessä.
 
 | Mikä ne aiheuttaa | Viesti |
 | :------------------- | :------ |
-| epäjärjestyksessä oleva tiedosto ilman valitsinta `--sort` | `<path>: The subtitles are not in the order of their start: sort them first. Use --sort to do that here.` |
+| epäjärjestyksessä oleva tiedosto ilman valitsinta `--sort` | `The subtitles are not in the order of their start: sort them first. Use --sort to do that here.` |
 | `--minimum` ei ole kesto tai on negatiivinen | `--minimum: …` |
 | `--max-lines` ei ole kokonaisluku | `--max-lines: "…" is not a number of lines: expected a whole number, 0 for no limit` |
 

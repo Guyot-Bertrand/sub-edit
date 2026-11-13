@@ -336,10 +336,10 @@ solmen alcunes, `1` in cas de error de usage.
 | :------------------ | :------ |
 | `--bom` con `--no-bom` | `--bom and --no-bom ask for opposite things; give one or the other` |
 | `--in-place` quel changea li formate | `--in-place cannot change the format: the file would keep a name its content no longer matches` |
-| `--bom` sur un codification quel have null | `<path>: <encoding> has no byte order mark to write` |
+| `--bom` sur un codification quel have null | `<encoding> has no byte order mark to write` |
 | `--to-encoding` nominante un codification inconosset | `no encoding is named "<name>"` |
 | `--to-encoding` nominante un codification quel scri su propri marca | `"<name>" writes a byte order mark of its own; name the byte order, as UTF-16LE and UTF-16BE do` |
-| character mancant in li codification scrit | `<path>: holds a character the chosen encoding cannot write` |
+| character mancant in li codification scrit | `holds a character the chosen encoding cannot write` |
 
 **Refusar `--bom` sur un codification quel porta null ne es
 pedantie.** Un marca de órdine de bytes existe por li codificationes Unicode e

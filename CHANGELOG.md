@@ -15,6 +15,7 @@ do not edit it by hand.
 - **cli** — Narrate the rewriting subcommands one fact a line
 - **cli** — Narrate the other batches and the one-record runs
 - **cli** — Narrate the transcription and the sync
+- **cli** — Promise the narration and remove the old reporter API
 
 ## 1.2.4 — 2026-11-11
 

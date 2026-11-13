@@ -336,10 +336,10 @@ nur einige, `1` bei einem Aufruffehler.
 | :------------------ | :------ |
 | `--bom` mit `--no-bom` | `--bom and --no-bom ask for opposite things; give one or the other` |
 | `--in-place`, das das Format ändert | `--in-place cannot change the format: the file would keep a name its content no longer matches` |
-| `--bom` bei einer Kodierung, die keine hat | `<path>: <encoding> has no byte order mark to write` |
+| `--bom` bei einer Kodierung, die keine hat | `<encoding> has no byte order mark to write` |
 | `--to-encoding`, das eine unbekannte Kodierung nennt | `no encoding is named "<name>"` |
 | `--to-encoding`, das eine Kodierung nennt, die ihre eigene Marke schreibt | `"<name>" writes a byte order mark of its own; name the byte order, as UTF-16LE and UTF-16BE do` |
-| in der geschriebenen Kodierung fehlendes Zeichen | `<path>: holds a character the chosen encoding cannot write` |
+| in der geschriebenen Kodierung fehlendes Zeichen | `holds a character the chosen encoding cannot write` |
 
 **`--bom` bei einer Kodierung abzulehnen, die keine trägt, ist keine
 Pedanterie.** Eine Byte-Reihenfolge-Marke gibt es für die Unicode-Kodierungen und

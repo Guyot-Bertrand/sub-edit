@@ -133,7 +133,7 @@ Os da ferramenta: `0` se todos os arquivos foram processados — um arquivo em q
 | :------------------ | :------ |
 | nem `--on` nem `--off` | `italics needs --on to put the texts in italics, or --off` |
 | as duas | `--on and --off say opposite things; give one of them` |
-| um formato sem estilo | `<path>: TMPlayer writes no style: there are no italics to put on` (ou `take out`) |
+| um formato sem estilo | `TMPlayer writes no style: there are no italics to put on` (ou `take out`) |
 | intervalo mal escrito ou fora do arquivo | veja [`adjust`](adjust.md#--range) |
 
 Os erros do destino são comuns aos subcomandos que gravam:

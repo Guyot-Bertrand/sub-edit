@@ -86,12 +86,6 @@ std::string_view nameOf(Key key) {
     std::unreachable();
 }
 
-void Reporter::say(int atLeast, std::string_view line) const {
-    if (m_level >= atLeast) {
-        *m_errors << line << '\n';
-    }
-}
-
 Reporter Reporter::withRecords(std::ostream& out) const {
     Reporter copy = *this;
     copy.m_records = &out;
@@ -166,10 +160,6 @@ void Reporter::record(const Json& record) const {
     if (m_records != nullptr) {
         *m_records << record.dump() << '\n';
     }
-}
-
-void Reporter::failed(std::string_view line) const {
-    *m_errors << line << '\n';
 }
 
 } // namespace subedit::cli

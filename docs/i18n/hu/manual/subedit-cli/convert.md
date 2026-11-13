@@ -328,10 +328,10 @@ csak néhányé, `1` használati hiba esetén.
 | :------------------ | :------ |
 | `--bom` a `--no-bom` mellett | `--bom and --no-bom ask for opposite things; give one or the other` |
 | a formátumot megváltoztató `--in-place` | `--in-place cannot change the format: the file would keep a name its content no longer matches` |
-| `--bom` olyan kódoláson, amelynek nincs | `<path>: <encoding> has no byte order mark to write` |
+| `--bom` olyan kódoláson, amelynek nincs | `<encoding> has no byte order mark to write` |
 | ismeretlen kódolást megnevező `--to-encoding` | `no encoding is named "<name>"` |
 | saját jelölőt író kódolást megnevező `--to-encoding` | `"<name>" writes a byte order mark of its own; name the byte order, as UTF-16LE and UTF-16BE do` |
-| a kiírt kódolásból hiányzó karakter | `<path>: holds a character the chosen encoding cannot write` |
+| a kiírt kódolásból hiányzó karakter | `holds a character the chosen encoding cannot write` |
 
 **A `--bom` elutasítása olyan kódoláson, amely nem hordoz ilyet, nem
 szőrszálhasogatás.** A bájtsorrend-jelölő az Unicode kódolásokhoz létezik, és

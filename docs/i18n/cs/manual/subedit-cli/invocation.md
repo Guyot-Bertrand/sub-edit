@@ -113,7 +113,6 @@ výstupu, nastaví `LANGUAGE=en` (nebo `LC_ALL=C`) — nebo čte `--format json`
 | zadávané názvy: podpříkazy, volby, jejich hodnoty (`off`, `srt`), metaproměnné (`FILE`, `TEXT`, `OPTIONS`) | jednou napsaný příkazový řádek funguje v každém jazyce |
 | názvy opravných vzorů, které přijímají `correct --enable` a `--disable` | vzor se volá anglickým názvem, který obsahuje jeho soubor |
 | názvy formátů a kódování | formát se volá svým názvem |
-| vlastní hlášení CLI11 — chybějící povinný argument, neznámá volba, hodnota, kterou volba nepřijímá — a jeho `Run with --help for more information.` | jsou formulována uvnitř analyzátoru, na kterém je příkazový řádek postaven; zůstávají anglicky |
 | rámec chybového řádku: `[subedit]`, podpříkaz, `[-]`, klíč `error` | skript zjistí, co a kde selhalo, aniž by četl slova; přeložena je jen zpráva |
 
 Vyžádání angličtiny bez ohledu na prostředí:
@@ -227,7 +226,7 @@ nespustí a `-q` ani `-v` nic nemění.
 <!-- example: subedit-cli --version | head -n 1 -->
 ```console
 $ subedit-cli --version | head -n 1
-subedit 1.2.8
+subedit 1.2.9
 ```
 
 Celý výstup na počítači s ICU 74.2 a Enchant 2.3.3 — čísla jsou čísla daného počítače:
@@ -456,8 +455,8 @@ ostatní zachovávají formát přečteného souboru, a tedy i jeho příponu.
 | dva vstupy, jeden cíl | `<destination>: would be written by both <input> and <input>` |
 | vstup by se přepsal | `<destination>: would be written over the input <input>` — stejná věta pro [`append`](append.md) a [`split-file`](split-file.md) |
 | výstupní adresář, který nelze vytvořit | `<directory>: cannot be created: permission denied`, nebo `: cannot be created` |
-| cíl, do kterého nelze zapisovat | `<path>: <destination>: cannot be written: permission denied`, nebo `: cannot be written` |
-| znak, který v zapisovaném kódování chybí | `<path>: holds a character the chosen encoding cannot write` |
+| cíl, do kterého nelze zapisovat | `<destination>: cannot be written: permission denied`, nebo `: cannot be written` |
+| znak, který v zapisovaném kódování chybí | `holds a character the chosen encoding cannot write` |
 
 **Poslední si zaslouží větu.** Soubor se zapisuje zpět v **kódování, ve kterém
 byl přečten**, stejně jako se zachovají jeho konce řádků a jeho značka. Pokud
@@ -695,21 +694,76 @@ oznámený v CHANGELOG a zde.
 
 ## Úrovně výpisu
 
+**Každý řádek chybového výstupu má stejný tvar**, u vyprávění stejně jako u chyb:
+
+```
+[subedit] [<command>] [<i>/<n>] <key>: <value>
+```
+
+| Část | Co říká |
+| :----- | :------------- |
+| `<command>` | podpříkaz, jak byl napsán; `-`, dokud není znám |
+| `<i>/<n>` | prvek, o kterém řádek mluví, `i`-tý z `n`; `-` pro řádek o celém běhu |
+| `<key>` | co řádek říká |
+| `<value>` | název, číslo, cesta nebo věta |
+
+**Prvek je to, co zapisuje jeden záznam JSON**: jeden vstup, nebo celý běh u [`append`](append.md), [`split-file`](split-file.md) a [`pair`](pair.md). Počítá se od 1, v pořadí vstupů, které je pořadím záznamů; jediný vstup je `[1/1]`.
+
+<!-- example: printf '1\n00:00:01,000 --> 00:00:02,000\n[Door]\nHello.\n\n2\n00:00:03,000 --> 00:00:04,000\n[Music]\n\n' > b.srt; printf 'nothing to read\n' > bad.srt; printf '1\n00:00:01,000 --> 00:00:02,000\nHi.\n\n' > c.srt; subedit-cli hearing-impaired --output-dir o b.srt bad.srt c.srt; echo "code=$?" -->
+```console
+$ printf '1\n00:00:01,000 --> 00:00:02,000\n[Door]\nHello.\n\n2\n00:00:03,000 --> 00:00:04,000\n[Music]\n\n' > b.srt; printf 'nothing to read\n' > bad.srt; printf '1\n00:00:01,000 --> 00:00:02,000\nHi.\n\n' > c.srt; subedit-cli hearing-impaired --output-dir o b.srt bad.srt c.srt; echo "code=$?"
+[subedit] [hearing-impaired] [1/3] source: b.srt
+[subedit] [hearing-impaired] [1/3] result: 1 subtitle cleaned, 1 removed
+[subedit] [hearing-impaired] [1/3] dest: o/b.srt
+[subedit] [hearing-impaired] [2/3] source: bad.srt
+[subedit] [hearing-impaired] [2/3] error: is in no format this tool knows
+[subedit] [hearing-impaired] [3/3] source: c.srt
+[subedit] [hearing-impaired] [3/3] result: no mention to remove
+[subedit] [hearing-impaired] [3/3] dest: o/c.srt
+[subedit] [hearing-impaired] [-] summary: 2 of 3 files cleaned, 1 failed
+code=3
+```
+
 Každá úroveň **obsahuje předchozí**: o stupeň výš se přidává, nikdy
 nenahrazuje.
 
 | Úroveň | Jak | Co nese chybový výstup |
 | :----- | :------ | :------------------------------ |
-| 0 | `--quiet` | nic, **kromě chyb** |
-| 1 | ve výchozím stavu, nebo `-v` | jeden řádek na každý zpracovaný soubor a souhrn, jakmile je souborů několik |
-| 2 | `-vv` | a co bylo rozpoznáno: formát, kódování, BOM, konce řádků |
-| 3 | `-vvv` | a ladicí výpis: přečtené a zapsané bajty a **každé hlášení při čtení** |
+| 0 | `--quiet` | jen řádky `error`, každý po řádku `source` svého prvku |
+| 1 | ve výchozím stavu, nebo `-v` | `source`, `translation`, `media`, `warning`, `result`, `dest`, `tail`; a o běhu `settings`, `walk` a od dvou prvků `summary` |
+| 2 | `-vv` | a `format`, `encoding`, `bom`, `line-endings`, `alignment`, `progress` |
+| 3 | `-vvv` | a `bytes-read`, `bytes-written` a každý `diagnostic` |
+
+Dva klíče mění úroveň podle podpříkazu: `alignment` je na úrovni 1 u `pair` a `inspect` a `progress` na úrovni 3 pro poslední slyšený text.
 
 **Chyby se nikdy neumlčují, ani s `--quiet`.** Příkaz, který by selhal
 potichu, by nezanechal nic než svůj návratový kód.
 
 Souhrn se objeví až od dvou souborů: u jediného vstupu by
 opakoval řádek před sebou.
+
+**Co platí pro každý prvek:**
+
+- jeho řádek `source` je první a chyba nikdy nepřijde bez něj, ani s `--quiet`;
+- `dest` se zapisuje při každém úspěchu, který zapisuje, i s `--in-place`, a nikdy s `--dry-run`, který nezapisuje nic;
+- `result` může přijít víckrát: krok vyžádaný navíc k operaci (`--sort`, `--disjoint`, `--join-repeats`) a každý soubor, který `append` přidá, mají vlastní řádek;
+- chyba neopakuje cestu zdroje; jmenuje soubor, o který jde, je-li jiný, například překlad nebo cíl.
+
+### Jak najít prvek podle jména
+
+**Prvek určuje pozice, ne cesta**: cesta může obsahovat jakýkoli znak, pozice nemá co escapovat a řádky prvku zůstanou po `grep` pohromadě. Řádky jednoho souboru najdete ve dvou krocích:
+
+```console
+$ subedit-cli hearing-impaired --output-dir o *.srt 2> log
+$ grep -F '] source: b.srt' log           # [subedit] [hearing-impaired] [1/3] source: b.srt
+$ grep -F '[1/3]' log                     # everything about b.srt
+```
+
+### Co vyprávění slibuje
+
+**Slíbeno**: tvar řádku; význam `<i>/<n>` a jeho vztah k pořadí záznamů JSON; klíče a úroveň každého z nich; pravidla výše.
+
+**Neslíbeno**: text hodnoty, která je větou — `result`, `warning`, `error`, `progress`, `summary`, `walk` —, jenž se překládá a podle potřeby přeformuluje: skript čte čísla v JSON. Ani pořadí řádků různých prvků, pokud je dávka někdy zpracuje souběžně.
 
 ## Hlášení při čtení
 
@@ -719,9 +773,8 @@ narazila, se vypíše na **úrovni 3**, jeden řádek na hlášení, na chybový
 výstup:
 
 ```
-a.srt: 2 diagnostics while reading
-a.srt: line 6: SubRip numbers that do not follow ("7"), settled by the reader
-a.srt: line 9: a line that fits nowhere, left as it stands
+[subedit] [inspect] [1/1] diagnostic: line 6: SubRip numbers that do not follow ("7"), settled by the reader
+[subedit] [inspect] [1/1] diagnostic: line 9: a line that fits nowhere, left as it stands
 ```
 
 Hlásí je všech osmnáct podpříkazů, nejen [`inspect`](inspect.md):
@@ -925,12 +978,12 @@ dávku zpracovanou napůl.
 | `--quiet` s `-v` | `--quiet and -v ask for opposite things; give one or the other` |
 | `--config` s `--no-config` | `--config excludes --no-config` |
 | `--config` s prázdným názvem | `--config needs a file name` |
-| chybějící soubor | `<path>: does not exist` |
-| nečitelný soubor | `<path>: cannot be opened: permission denied` |
+| chybějící soubor | `does not exist` |
+| nečitelný soubor | `cannot be opened: permission denied` |
 | kódování, které zapisuje vlastní značku | `"<name>" writes a byte order mark of its own; name the byte order, as UTF-16LE and UTF-16BE do` |
-| bajty, které nelze dekódovat | `<path>: cannot be decoded in the chosen encoding` |
-| nerozpoznaný formát | `<path>: is in no format this tool knows` |
-| nic, co by vypadalo jako titulek | `<path>: holds nothing recognisable as a subtitle` |
+| bajty, které nelze dekódovat | `cannot be decoded in the chosen encoding` |
+| nerozpoznaný formát | `is in no format this tool knows` |
+| nic, co by vypadalo jako titulek | `holds nothing recognisable as a subtitle` |
 | `--document translation` bez `-t` | `--document translation needs the translation file: use -t` |
 | `-t` bez `--document translation` | `-t names a translation to change: use --document translation` |
 | `--align-method` bez `-t` | `--align-method needs a translation file: use -t` |

@@ -317,7 +317,7 @@ ventana: la página de confirmación nombra el patrón una sola vez, sin el text
 | `grew the text too long` | el texto superó lo que un subtítulo puede contener |
 
 En el nivel 1, en la salida de error: 
-`<path>: pattern "<name>" (<reason>) was not applied to subtitle N`, sin el final cuando el patrón se deja de lado para todos los textos. **El número es el del
+`warning: pattern "<name>" (<reason>) was not applied to subtitle N`, sin el final cuando el patrón se deja de lado para todos los textos. **El número es el del
 archivo**, sean cuales sean las tareas que eliminaron subtítulos antes. En JSON, es
 una advertencia `pattern-failed` del archivo, cuyo `detail` lleva la frase. **Un patrón
 abandonado no es un archivo fallido**: el archivo se escribe, y el código de salida es `0`.

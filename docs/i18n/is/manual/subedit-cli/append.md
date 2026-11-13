@@ -93,7 +93,7 @@ Hver skrá er færð **frá enda þess sem fer á undan henni**: röðin sem get
 raðar niðurstöðunni eftir upphafi, **í einu lagi, eftir síðustu viðbót**, eins og [`sort`](sort.md) myndi gera — stöðugt, og án þess að breyta neinu
 í innihaldinu.
 
-Aldrei sjálfgefið. Með valkostinum segir grunnurinn frá því á fyrsta frásagnarstigi, `<base>: N subtitles moved` eða `<base>: already in order`, og
+Aldrei sjálfgefið. Með valkostinum segir grunnurinn frá því á fyrsta frásagnarstigi, `result: N subtitles moved` eða `result: already in order`, og
 `--format json`-færslan ber talninguna `moved`, **sem vantar án valkostsins**.
 
 ## Að losa tímabilin við skörun
@@ -160,8 +160,8 @@ Bilun er líka hlutur, **einn einasti**: hlutur fyrstu skrárinnar sem ekki var 
 | aðeins ein skrá gefin | `append needs a base file and at least one file to put after it` |
 | hvorki `--output` né `--dry-run` | `no destination given: append writes one file, use --output` |
 | `--output` nefnir inntak | `<destination>: would be written over the input <input>` |
-| skrá vantar, er ólæsileg eða á óþekktu sniði | `<path>: does not exist`, `<path>: is in no format this tool knows`… — eins og alls staðar |
+| skrá vantar, er ólæsileg eða á óþekktu sniði | `does not exist`, `is in no format this tool knows`… — eins og alls staðar |
 
 **Tómri skrá er ekki bætt við**: ekkert snið les án að minnsta kosti eins skjátexta, og skránni er
-hafnað eins og hverri skrá sem ekki er hægt að lesa — `<path>: holds nothing recognisable as a subtitle` —, sem
+hafnað eins og hverri skrá sem ekki er hægt að lesa — `holds nothing recognisable as a subtitle` —, sem
 stöðvar keyrsluna og skrifar ekkert.

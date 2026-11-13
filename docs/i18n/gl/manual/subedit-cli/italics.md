@@ -133,7 +133,7 @@ Os da ferramenta: `0` se se procesaron todos os ficheiros — un ficheiro onde n
 | :------------------ | :------ |
 | nin `--on` nin `--off` | `italics needs --on to put the texts in italics, or --off` |
 | as dúas | `--on and --off say opposite things; give one of them` |
-| un formato sen estilo | `<path>: TMPlayer writes no style: there are no italics to put on` (ou `take out`) |
+| un formato sen estilo | `TMPlayer writes no style: there are no italics to put on` (ou `take out`) |
 | franxa mal escrita ou fóra do ficheiro | véxase [`adjust`](adjust.md#--range) |
 
 Os erros do destino son comúns ás subordes que escriben:

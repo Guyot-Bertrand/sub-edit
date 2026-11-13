@@ -94,7 +94,7 @@ Chascun file es displaciat **ex li fin de quo precede it**: li órdine quel poss
 mette li resultate in li órdine del comenses, **in un vice, pos li ultim apension**, quam [`sort`](sort.md) fa — stabil, e sin changear nullcos
 in li contenete.
 
-Nequande per predefinit. Con li option, li basa di it al unesim nivelle de narration, `<base>: N subtitles moved` o `<base>: already in order`, e
+Nequande per predefinit. Con li option, li basa di it al unesim nivelle de narration, `result: N subtitles moved` o `result: already in order`, e
 li registre `--format json` porta un cuntage `moved`, **absent sin li option**.
 
 ## Far disjuncte li intervalles
@@ -161,8 +161,8 @@ Un fallimente es anc un objecte, **un sol**: celi del unesim file quel ne posse 
 | un sol file dat | `append needs a base file and at least one file to put after it` |
 | ni `--output` ni `--dry-run` | `no destination given: append writes one file, use --output` |
 | `--output` nómina un input | `<destination>: would be written over the input <input>` |
-| un file mancant, illegibil o de un formate inconosset | `<path>: does not exist`, `<path>: is in no format this tool knows`… — li sam quam in omni loc |
+| un file mancant, illegibil o de un formate inconosset | `does not exist`, `is in no format this tool knows`… — li sam quam in omni loc |
 
 **Un file vacui ne es apendet**: null formate lee sin al minus un subtitul, e li file es
-refusat quam omni file quel ne posse esser leet — `<path>: holds nothing recognisable as a subtitle` —, quo
+refusat quam omni file quel ne posse esser leet — `holds nothing recognisable as a subtitle` —, quo
 halta li execution e scri nullcos.

@@ -1470,6 +1470,63 @@ msgstr "%1: Untertitel %2 (Übersetzung)"
 msgid "%1: subtitle %2"
 msgstr "%1: Untertitel %2"
 
+#. TRANSLATORS: %1 is what was typed on the command line and nothing takes, as typed.
+#: src/lib/subedit/cli/complaint.cpp
+msgid "The following argument was not expected: %1"
+msgid_plural "The following arguments were not expected: %1"
+msgstr[0] "Das folgende Argument wurde nicht erwartet: %1"
+msgstr[1] "Die folgenden Argumente wurden nicht erwartet: %1"
+
+#: src/lib/subedit/cli/complaint.cpp
+msgid "A subcommand is required"
+msgstr "Ein Unterbefehl ist erforderlich"
+
+#. TRANSLATORS: %1 is an option or an argument, as named in --help.
+#: src/lib/subedit/cli/complaint.cpp src/lib/subedit/cli/transcribing.cpp
+msgid "%1 is required"
+msgstr "%1 ist erforderlich"
+
+#. TRANSLATORS: %1 and %2 are two options, as typed.
+#: src/lib/subedit/cli/complaint.cpp
+msgid "%1 excludes %2"
+msgstr "%1 schließt %2 aus"
+
+#. TRANSLATORS: %1 is an option given with too few values after it, %2 how many it
+#. needs, %3 their metavariable as --help shows it (TEXT, N).
+#: src/lib/subedit/cli/complaint.cpp
+msgid "%1: %2 required %3 missing"
+msgstr "%1: %2 erforderliche(s) %3 fehlt"
+
+#. TRANSLATORS: %1 is an option, %2 the most values it takes, %3 how many were given.
+#: src/lib/subedit/cli/complaint.cpp
+msgid "%1: At Most %2 required but received %3"
+msgstr "%1: höchstens %2 erforderlich, aber %3 erhalten"
+
+#. TRANSLATORS: %1 is an option, %2 the fewest values it takes, %3 how many were given.
+#: src/lib/subedit/cli/complaint.cpp
+msgid "%1: At least %2 required but received %3"
+msgstr "%1: mindestens %2 erforderlich, aber %3 erhalten"
+
+#. TRANSLATORS: %1 is an option, %2 the value given, %3 the values it takes, between
+#. commas.
+#: src/lib/subedit/cli/complaint.cpp
+msgid "%1: %2 not in {%3}"
+msgstr "%1: %2 ist nicht in {%3}"
+
+#. TRANSLATORS: %1 is an option, %2 the value given.
+#: src/lib/subedit/cli/complaint.cpp
+msgid "%1: Value %2 is not a number zero or greater"
+msgstr "%1: Der Wert %2 ist keine Zahl größer oder gleich null"
+
+#. TRANSLATORS: %1 is an option, %2 the value given, %3 and %4 the bounds of what it takes.
+#: src/lib/subedit/cli/complaint.cpp
+msgid "%1: Value %2 not in range [%3 - %4]"
+msgstr "%1: Der Wert %2 liegt nicht im Bereich [%3 - %4]"
+
+#: src/lib/subedit/cli/complaint.cpp
+msgid "Run with --help for more information."
+msgstr "Mit --help aufrufen, um mehr zu erfahren."
+
 #. TRANSLATORS: %1 is the settings file, %2 why it could not be read.
 #: src/lib/subedit/cli/configuring.cpp
 msgid "%1: %2; nothing written"
@@ -2192,10 +2249,6 @@ msgstr "der Wert ist zu groß, da Positionen in Millisekunden gezählt werden"
 msgid "expected seconds like 2.999, or a timestamp like 00:00:07.001"
 msgstr ""
 "erwartet werden Sekunden wie 2.999 oder ein Zeitstempel wie 00:00:07.001"
-
-#: src/lib/subedit/cli/transcribing.cpp
-msgid "%1 is required"
-msgstr "%1 ist erforderlich"
 
 #: src/lib/subedit/cli/transforming.cpp
 msgid "subtitle %1 is past the end: the file holds %2 subtitle"
@@ -5793,8 +5846,11 @@ msgctxt "toolbar"
 msgid "Main"
 msgstr "Hauptleiste"
 
-#~ msgid "%1: %2 -> %3"
-#~ msgstr "%1: %2 -> %3"
+#~ msgid "%1 requires %2"
+#~ msgstr "%1 erfordert %2"
+
+#~ msgid "Could not convert: %1 = %2"
+#~ msgstr "Konnte nicht umgewandelt werden: %1 = %2"
 
 #~ msgid "%1 -> %2"
 #~ msgstr "%1 -> %2"
@@ -5803,11 +5859,6 @@ msgstr "Hauptleiste"
 #~ msgid_plural "%1: %2 bytes read, %3 would be written"
 #~ msgstr[0] "%1: %2 Byte gelesen, %3 würden geschrieben"
 #~ msgstr[1] "%1: %2 Byte gelesen, %3 würden geschrieben"
-
-#~ msgid "%1: %2 bytes read, %3 written"
-#~ msgid_plural "%1: %2 bytes read, %3 written"
-#~ msgstr[0] "%1: %2 Byte gelesen, %3 geschrieben"
-#~ msgstr[1] "%1: %2 Byte gelesen, %3 geschrieben"
 
 #~ msgid "%1: %2 -> %3, %4, %5 line endings"
 #~ msgstr "%1: %2 -> %3, %4, Zeilenenden %5"
@@ -5818,11 +5869,6 @@ msgstr "Hauptleiste"
 #~ "%1: %2 Untertitel nach %3 konvertiert (Probelauf, nichts geschrieben)"
 #~ msgstr[1] ""
 #~ "%1: %2 Untertitel nach %3 konvertiert (Probelauf, nichts geschrieben)"
-
-#~ msgid "%1: %2 subtitle written as %3 -> %4"
-#~ msgid_plural "%1: %2 subtitles written as %3 -> %4"
-#~ msgstr[0] "%1: %2 Untertitel als %3 geschrieben -> %4"
-#~ msgstr[1] "%1: %2 Untertitel als %3 geschrieben -> %4"
 
 #~ msgid "%1: %2 bytes read"
 #~ msgid_plural "%1: %2 bytes read"

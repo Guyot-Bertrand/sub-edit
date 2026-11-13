@@ -94,7 +94,7 @@ Cada arquivo é deslocado **a partir do fim do que vem antes dele**: a ordem que
 coloca o resultado na ordem dos inícios, **de uma só vez, depois do último anexo**, como [`sort`](sort.md) faria — de forma estável e sem alterar nada
 no conteúdo.
 
-Nunca por padrão. Com a opção, a base informa isso no primeiro nível de narração, `<base>: N subtitles moved` ou `<base>: already in order`, e
+Nunca por padrão. Com a opção, a base informa isso no primeiro nível de narração, `result: N subtitles moved` ou `result: already in order`, e
 o registro de `--format json` traz uma contagem `moved`, **ausente sem a opção**.
 
 ## Tornar os intervalos disjuntos
@@ -161,8 +161,8 @@ Uma falha também é um objeto, **um único**: o do primeiro arquivo que não p�
 | um único arquivo dado | `append needs a base file and at least one file to put after it` |
 | nem `--output` nem `--dry-run` | `no destination given: append writes one file, use --output` |
 | `--output` nomeia uma entrada | `<destination>: would be written over the input <input>` |
-| um arquivo ausente, ilegível ou de formato desconhecido | `<path>: does not exist`, `<path>: is in no format this tool knows`… — o mesmo que em todo lugar |
+| um arquivo ausente, ilegível ou de formato desconhecido | `does not exist`, `is in no format this tool knows`… — o mesmo que em todo lugar |
 
 **Um arquivo vazio não é anexado**: nenhum formato é lido sem pelo menos uma legenda, e o arquivo é
-recusado como qualquer arquivo que não possa ser lido — `<path>: holds nothing recognisable as a subtitle` —, o que
+recusado como qualquer arquivo que não possa ser lido — `holds nothing recognisable as a subtitle` —, o que
 interrompe a execução e não grava nada.

@@ -195,9 +195,9 @@ vain osa, `1` käyttövirheessä.
 | indeksi, joka ei ole kokonaisluku | `"…" is not a subtitle number: expected a whole number, counted from 1 as the file shows them` |
 | virheellinen aika | samat kuin alikomennolla [`shift`](shift.md) |
 | `--first` ja `--last` samalla indeksillä | `--first and --last both name subtitle N, and two references on one subtitle define no transform` |
-| rajojen ulkopuolinen indeksi | `<path>: subtitle N is past the end: the file holds M subtitles` |
-| kaksi yhtä aikaa alkavaa kappaletta | `<path>: subtitles N and M start at the same moment, so they define no transform` |
-| alkukohtaa edeltävä kohta | `<path>: subtitle N would land before the origin, which no subtitle file can hold` |
+| rajojen ulkopuolinen indeksi | `subtitle N is past the end: the file holds M subtitles` |
+| kaksi yhtä aikaa alkavaa kappaletta | `subtitles N and M start at the same moment, so they define no transform` |
+| alkukohtaa edeltävä kohta | `subtitle N would land before the origin, which no subtitle file can hold` |
 
 **Mitään ei kirjoiteta ilman jotakin kolmesta kohdevalitsimesta**, ja niiden
 virheet ovat yhteisiä kaikille kirjoittaville alikomennoille:

@@ -263,7 +263,7 @@ alcuni, `1` per un errore di utilizzo. Un file che rispetta già i suoi limiti �
 | massimo nullo o negativo | `--maximum: "0" is not a duration above zero` |
 | intervallo scritto male | `--range: "…" is not a range: write it N-M, or N- to go to the end, counted from 1 and inclusive` |
 | intervallo che finisce prima di cominciare | `--range: "5-3" is not a range: it ends before it starts` |
-| intervallo fuori dal file | `<path>: range N-M starts after the last subtitle: the file has K`, oppure `… ends after …` |
+| intervallo fuori dal file | `range N-M starts after the last subtitle: the file has K`, oppure `… ends after …` |
 
 Gli errori della destinazione sono comuni ai sottocomandi che scrivono:
 vedi [Invocazione](invocation.md#la-destinazione).

@@ -263,7 +263,7 @@ $ printf '1\n00:00:00,000 --> 00:00:00,400\nabcdefghijklmnopqrstuvwxyz1234\n\n2\
 | нула или негативно најдуже трајање | `--maximum: "0" is not a duration above zero` |
 | лоше написан интервал | `--range: "…" is not a range: write it N-M, or N- to go to the end, counted from 1 and inclusive` |
 | интервал који се завршава пре почетка | `--range: "5-3" is not a range: it ends before it starts` |
-| интервал изван датотеке | `<path>: range N-M starts after the last subtitle: the file has K`, или `… ends after …` |
+| интервал изван датотеке | `range N-M starts after the last subtitle: the file has K`, или `… ends after …` |
 
 Грешке одредишта заједничке су подкомандама које пишу:
 види [Покретање](invocation.md#одредиште).

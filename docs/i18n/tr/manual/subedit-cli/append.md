@@ -94,7 +94,7 @@ Her dosya **kendinden öncekinin bitişinden** başlayarak kaydırılır: bozula
 sonucu başlangıçların sırasına koyar, **tek seferde, son eklemeden sonra**, tıpkı [`sort`](sort.md) gibi — kararlı biçimde ve içerikte hiçbir şeyi
 değiştirmeden.
 
-Varsayılan olarak asla. Seçenekle, taban bunu ilk anlatım düzeyinde bildirir: `<base>: N subtitles moved` veya `<base>: already in order`;
+Varsayılan olarak asla. Seçenekle, taban bunu ilk anlatım düzeyinde bildirir: `result: N subtitles moved` veya `result: already in order`;
 `--format json` kaydı da bir `moved` sayısı taşır, **seçenek olmadan bulunmaz**.
 
 ## Aralıkları ayrık yapma
@@ -161,8 +161,8 @@ Bir hata da bir nesnedir, **tek bir** nesne: okunamayan ilk dosyanınki.
 | tek bir dosya verildi | `append needs a base file and at least one file to put after it` |
 | ne `--output` ne `--dry-run` | `no destination given: append writes one file, use --output` |
 | `--output` bir girdiyi adlandırıyor | `<destination>: would be written over the input <input>` |
-| eksik, okunamayan veya bilinmeyen biçimde bir dosya | `<path>: does not exist`, `<path>: is in no format this tool knows`… — her yerdekiyle aynı |
+| eksik, okunamayan veya bilinmeyen biçimde bir dosya | `does not exist`, `is in no format this tool knows`… — her yerdekiyle aynı |
 
 **Boş bir dosya eklenmez**: hiçbir biçim en az bir altyazı olmadan okumaz ve dosya,
-okunamayan her dosya gibi reddedilir — `<path>: holds nothing recognisable as a subtitle` —; bu
+okunamayan her dosya gibi reddedilir — `holds nothing recognisable as a subtitle` —; bu
 çalışmayı durdurur ve hiçbir şey yazmaz.

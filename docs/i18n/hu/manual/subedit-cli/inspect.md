@@ -281,11 +281,11 @@ Az olvasás hibái — a fájlé, és a fordításé, ha a `-t` meg van adva —
 | Mi váltja ki | Üzenet |
 | :------------------ | :------ |
 | nincs megadott elérési út | `files is required`, utána a `--help` kapcsolóra utaló megjegyzés |
-| hiányzó fájl | `<path>: does not exist` |
-| olvashatatlan fájl | `<path>: cannot be opened: permission denied` |
-| nem dekódolható bájtok | `<path>: cannot be decoded in the chosen encoding` |
-| fel nem ismert formátum | `<path>: is in no format this tool knows` |
-| semmi, ami feliratsorra hasonlítana | `<path>: holds nothing recognisable as a subtitle` |
+| hiányzó fájl | `does not exist` |
+| olvashatatlan fájl | `cannot be opened: permission denied` |
+| nem dekódolható bájtok | `cannot be decoded in the chosen encoding` |
+| fel nem ismert formátum | `is in no format this tool knows` |
+| semmi, ami feliratsorra hasonlítana | `holds nothing recognisable as a subtitle` |
 
 Ezek ugyanazok az üzenetek mind a tizenhét alparancsnál: a megnyitás receptje egyszer van megírva, a magban.
 

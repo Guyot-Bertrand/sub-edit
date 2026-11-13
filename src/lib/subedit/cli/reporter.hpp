@@ -55,27 +55,13 @@ public:
     /// `level` is 0 for `--quiet`, 1 by default, 2 for `-vv`, 3 for `-vvv`.
     Reporter(std::ostream& errors, int level) : m_errors{&errors}, m_level{level} {}
 
-    /// Writes `line` when the asked-for level reaches `atLeast`.
-    ///
-    /// Callers emit their most detailed line first and their least detailed
-    /// last, which is what makes each level contain the one below it word for
-    /// word rather than merely resemble it.
-    void say(int atLeast, std::string_view line) const;
-
-    /// Writes `line` whatever the level, `--quiet` included.
-    ///
-    /// A command that fails in silence leaves its exit code as the only clue,
-    /// and turns every incident into an investigation. "Nothing" means nothing
-    /// of what recounts; what raises the alarm stays.
-    void failed(std::string_view line) const;
-
     [[nodiscard]] int level() const { return m_level; }
 
     /// The same reporter, also writing one record per file to `out`.
     ///
     /// **Records are the result, narration is the account** — the split the
     /// class keeps for a human holds for a script: `out` is standard output, and
-    /// what `say` writes stays on standard error whatever the level, unchanged.
+    /// what `tell` writes stays on standard error whatever the level, unchanged.
     [[nodiscard]] Reporter withRecords(std::ostream& out) const;
 
     /// The same reporter, also able to write the text of a result to `out`.
@@ -115,14 +101,11 @@ public:
     void tell(int atLeast, Key key, std::string_view value) const;
 
     /// Writes `value` under `Key::Error`, whatever the level, `--quiet` included.
-    void error(std::string_view value) const;
-
-    /// Whether this reporter speaks of one element of the batch (`forItem`).
     ///
-    /// **Read by the narration shared with the subcommands not yet moved to the grammar**
-    /// (#806): a helper they share with those that have moved speaks the old text to the
-    /// first and the new one to the second, until #830 removes the old.
-    [[nodiscard]] bool speaksOfItem() const { return m_item != nullptr; }
+    /// A command that fails in silence leaves its exit code as the only clue, and turns every
+    /// incident into an investigation. "Nothing" means nothing of what recounts; what raises the
+    /// alarm stays.
+    void error(std::string_view value) const;
 
     /// Whether this reporter speaks of the element whose input is `file`: a sentence about it
     /// need not name it, its `source` line does.

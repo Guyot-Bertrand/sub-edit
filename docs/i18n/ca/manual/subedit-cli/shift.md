@@ -163,7 +163,7 @@ només alguns, `1` en un error d'ús.
 | coma decimal | `"…" is not a time: use a decimal point and not a comma, in every language` |
 | més fi que el mil·lisegon | `"…" is not a time: positions are held to the millisecond, no finer` |
 | text que no és una durada | `"…" is not a time: expected seconds like 2.999, or a timestamp like 00:00:07.001` |
-| desplaçament abans de l'origen | `<path>: subtitle N would start before the origin, which no subtitle file can hold` |
+| desplaçament abans de l'origen | `subtitle N would start before the origin, which no subtitle file can hold` |
 
 **No s'escriu res sense una de les tres opcions de destinació**, i els seus
 errors són comuns a les subordres que escriuen:

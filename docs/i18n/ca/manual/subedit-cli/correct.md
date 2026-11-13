@@ -315,7 +315,7 @@ finestra: la pàgina de confirmació anomena el patró una sola vegada, sense el
 | `grew the text too long` | el text ha superat el que un subtítol pot contenir |
 
 Al nivell 1, a la sortida d'error: 
-`<path>: pattern "<name>" (<reason>) was not applied to subtitle N` — sense el final quan el patró s'aparta per a tots els textos. **El número és el
+`warning: pattern "<name>" (<reason>) was not applied to subtitle N` — sense el final quan el patró s'aparta per a tots els textos. **El número és el
 del fitxer**, siguin quines siguin les tasques que hagin suprimit subtítols abans. En JSON, és
 un avís `pattern-failed` del fitxer, el `detail` del qual porta la frase. **Un patró
 abandonat no és un fitxer fallit**: el fitxer s'escriu, i el codi de sortida és `0`.

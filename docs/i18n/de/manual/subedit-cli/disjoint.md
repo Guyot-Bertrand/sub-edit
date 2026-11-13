@@ -178,7 +178,7 @@ keine, `3`, wenn nur einige, `1` bei einem Aufruffehler.
 
 | Was sie auslöst | Meldung |
 | :------------------- | :------ |
-| eine ungeordnete Datei ohne `--sort` | `<path>: The subtitles are not in the order of their start: sort them first. Use --sort to do that here.` |
+| eine ungeordnete Datei ohne `--sort` | `The subtitles are not in the order of their start: sort them first. Use --sort to do that here.` |
 | `--minimum` ist keine Dauer oder ist negativ | `--minimum: …` |
 | `--max-lines` ist keine ganze Zahl | `--max-lines: "…" is not a number of lines: expected a whole number, 0 for no limit` |
 

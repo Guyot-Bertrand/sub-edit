@@ -336,10 +336,10 @@ Bonjour.
 | :------------------ | :------ |
 | `--bom` עם `--no-bom` | `--bom and --no-bom ask for opposite things; give one or the other` |
 | `--in-place` שמשנה את הפורמט | `--in-place cannot change the format: the file would keep a name its content no longer matches` |
-| `--bom` על קידוד שאין לו כזה | `<path>: <encoding> has no byte order mark to write` |
+| `--bom` על קידוד שאין לו כזה | `<encoding> has no byte order mark to write` |
 | `--to-encoding` הנוקב בקידוד לא מוכר | `no encoding is named "<name>"` |
 | `--to-encoding` הנוקב בקידוד שכותב סימן משלו | `"<name>" writes a byte order mark of its own; name the byte order, as UTF-16LE and UTF-16BE do` |
-| תו חסר בקידוד שנכתב | `<path>: holds a character the chosen encoding cannot write` |
+| תו חסר בקידוד שנכתב | `holds a character the chosen encoding cannot write` |
 
 **הסירוב ל-`--bom` על קידוד שאינו נושא כזה אינו
 קטנוניות.** סימן סדר בתים קיים בקידודי Unicode

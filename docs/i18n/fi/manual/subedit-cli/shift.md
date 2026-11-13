@@ -163,7 +163,7 @@ vain osa, `1` käyttövirheessä.
 | desimaalipilkku | `"…" is not a time: use a decimal point and not a comma, in every language` |
 | millisekuntia hienojakoisempi | `"…" is not a time: positions are held to the millisecond, no finer` |
 | teksti, joka ei ole kesto | `"…" is not a time: expected seconds like 2.999, or a timestamp like 00:00:07.001` |
-| siirto ennen alkukohtaa | `<path>: subtitle N would start before the origin, which no subtitle file can hold` |
+| siirto ennen alkukohtaa | `subtitle N would start before the origin, which no subtitle file can hold` |
 
 **Mitään ei kirjoiteta ilman jotakin kolmesta kohdevalitsimesta**, ja niiden
 virheet ovat yhteisiä kaikille kirjoittaville alikomennoille:
