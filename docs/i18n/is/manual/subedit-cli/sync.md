@@ -162,7 +162,7 @@ sífellt meira eftir því sem leið á myndskeiðið.
 
 | Stig | Hvað bætist við á villuúttakið |
 | :---- | :------------------------------- |
-| 1 | `<file>: N of M subtitles placed on the audio, K to check; median shift X s, drift Y s -> <destination>` — og, þegar rammatíðni var löguð, hlutfallið; með `speech`, **viðvörunin um það sem hún gerir ekki**, í sérlínu |
+| 1 | `source: <file>`, `media: <audio>`, `result: N of M subtitles placed on the audio, K to check; median shift X s, drift Y s`, `dest: <destination>` — og, þegar rammatíðni var löguð, hlutfallið; með `speech`, **viðvörunin um það sem hún gerir ekki**, í sérlínu |
 | 2 | skrefið og framvindan, eins og hjá [`transcribe`](transcribe.md#úttak) |
 
 ### Á JSON-sniði

@@ -163,7 +163,7 @@ grande per un file che era in ritardo sempre di più lungo il film.
 
 | Livello | Che cosa viene detto sull'output di errore |
 | :---- | :------------------------------- |
-| 1 | `<file>: N of M subtitles placed on the audio, K to check; median shift X s, drift Y s -> <destination>` — e, quando una frequenza di fotogrammi è stata corretta, il rapporto; con `speech`, **l'avvertimento su ciò che non fa**, su una riga a parte |
+| 1 | `source: <file>`, `media: <audio>`, `result: N of M subtitles placed on the audio, K to check; median shift X s, drift Y s`, `dest: <destination>` — e, quando una frequenza di fotogrammi è stata corretta, il rapporto; con `speech`, **l'avvertimento su ciò che non fa**, su una riga a parte |
 | 2 | la fase e l'avanzamento, come per [`transcribe`](transcribe.md#output) |
 
 ### In JSON

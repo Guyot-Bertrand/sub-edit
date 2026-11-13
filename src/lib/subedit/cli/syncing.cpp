@@ -78,7 +78,7 @@ void writeReport(core::FileSystem& files,
         text += std::to_string(flag.number) + '\t' + flag.words + '\n';
     core::ensureDirectory(files, std::filesystem::path{path}.parent_path());
     if (const auto written = core::writeAtomically(files, path, text); !written)
-        reporter.failed(path + ": " + std::string{core::reasonOfWriting(written.error().kind)});
+        reporter.error(path + ": " + std::string{core::reasonOfWriting(written.error().kind)});
 }
 
 [[nodiscard]] std::vector<Count> countsOf(const core::AlignmentReport& report, std::size_t moved) {
@@ -175,18 +175,40 @@ struct SyncRun {
     const core::TranscriptMatchingAligner& aligner;
     std::string_view searchPath;
     core::MediaAlignmentRequest& request;
-    const core::TranscriptionObserver& observer;
+    const std::function<bool()>& cancelled;
     const core::DoubtLimits& limits;
     const SyncOptions& options;
-    const Reporter& reporter;
 };
 
-[[nodiscard]] OperationOutcome syncOneFile(const SyncRun& run, core::Session& session) {
+/// The progress of the work on one element, said under its position, and the `media` line before
+/// it.
+template<typename Work>
+[[nodiscard]] auto listening(const Reporter& item,
+                             const std::string& media,
+                             const std::function<bool()>& cancelled,
+                             Work work) {
+    item.tell(1, Key::Media, media);
+    ProgressNarration narration{item};
+    const core::TranscriptionObserver observer{
+        .advanced =
+            [&narration](const core::TranscriptionProgress& progress) { narration(progress); },
+        .cancelled = cancelled,
+        .waiting = [&narration] { narration.idle(); }};
+    return work(observer);
+}
+
+[[nodiscard]] OperationOutcome
+syncOneFile(const SyncRun& run, core::Session& session, const Reporter& item) {
     const core::LinesToSynchronize looked = core::subtitlesBeginningIn(
         session.project(), run.request.media.start, run.request.media.end);
     run.request.lines = looked.lines;
-    const auto matched =
-        core::alignMedia(run.files, run.aligner, run.searchPath, run.request, run.observer);
+    const auto matched = listening(
+        item,
+        run.request.media.input,
+        run.cancelled,
+        [&](const core::TranscriptionObserver& observer) {
+            return core::alignMedia(run.files, run.aligner, run.searchPath, run.request, observer);
+        });
     if (!matched)
         return std::unexpected(failureOf(matched.error()));
 
@@ -198,7 +220,7 @@ struct SyncRun {
                                                   " " + core::speechMethodIgnoresLanguage();
                                        }});
 
-    return conclude(run.files, run.options, run.reporter, session, plan);
+    return conclude(run.files, run.options, item, session, plan);
 }
 
 /// Everything one file of the batch needs to be laid on the speech.
@@ -207,13 +229,13 @@ struct SpeechRun {
     const core::SpeechDetector& detector;
     std::string_view searchPath;
     core::SpeechAlignmentRequest& request;
-    const core::TranscriptionObserver& observer;
+    const std::function<bool()>& cancelled;
     const core::DoubtLimits& limits;
     const SyncOptions& options;
-    const Reporter& reporter;
 };
 
-[[nodiscard]] OperationOutcome speechOneFile(const SpeechRun& run, core::Session& session) {
+[[nodiscard]] OperationOutcome
+speechOneFile(const SpeechRun& run, core::Session& session, const Reporter& item) {
     const core::Project& project = session.project();
     const core::LinesToSynchronize looked =
         core::subtitlesBeginningIn(project, run.request.media.start, run.request.media.end);
@@ -222,8 +244,14 @@ struct SpeechRun {
         const core::Subtitle& subtitle = project.subtitleAt(core::SubtitleIndex::fromValue(at));
         run.request.lines.push_back({.start = subtitle.start, .end = subtitle.end});
     }
-    const auto aligned = core::alignMediaOnSpeech(
-        run.files, run.detector, run.searchPath, run.request, run.observer);
+    const auto aligned =
+        listening(item,
+                  run.request.media.input,
+                  run.cancelled,
+                  [&](const core::TranscriptionObserver& observer) {
+                      return core::alignMediaOnSpeech(
+                          run.files, run.detector, run.searchPath, run.request, observer);
+                  });
     if (!aligned)
         return std::unexpected(failureOf(aligned.error()));
     if (!aligned->correction.fitted() && !looked.lines.empty())
@@ -232,7 +260,7 @@ struct SpeechRun {
 
     const core::SynchronizationPlan plan =
         core::planSynchronization(project, looked.subtitles, aligned->matches, run.limits);
-    OperationResult result = conclude(run.files, run.options, run.reporter, session, plan);
+    OperationResult result = conclude(run.files, run.options, item, session, plan);
     if (aligned->correction.ratio != 1.0)
         result.sentence += " " + core::frameRateCorrectedText(aligned->correction.ratio);
     // Said every time: what this method does not do is what a person would otherwise expect of it.
@@ -258,11 +286,11 @@ ExitCode syncOnWords(core::FileSystem& files,
     const std::string engineName = options.engine.empty() ? transcription.engine : options.engine;
     const core::TranscriptionEngine* const listener = engines.find(engineName);
     if (listener == nullptr) {
-        reporter.failed(core::noSuchTranscriptionEngine(engineName));
+        reporter.error(core::noSuchTranscriptionEngine(engineName));
         return ExitCode::Usage;
     }
     if (core::makeAlignmentEngine(alignment.engine, *listener) == nullptr) {
-        reporter.failed(core::noSuchAlignmentEngine(alignment.engine));
+        reporter.error(core::noSuchAlignmentEngine(alignment.engine));
         return ExitCode::Usage;
     }
 
@@ -278,22 +306,16 @@ ExitCode syncOnWords(core::FileSystem& files,
         .partialBelow = core::kDefaultPartialBelow,
         .gapMilliseconds = options.doubtGapMilliseconds.value_or(alignment.doubtGapMilliseconds)};
 
-    ProgressNarration narration{reporter};
-    const core::TranscriptionObserver observer{
-        .advanced =
-            [&narration](const core::TranscriptionProgress& progress) { narration(progress); },
-        .cancelled = cancelled,
-        .waiting = [&narration] { narration.idle(); }};
-
     const SyncRun run{.files = files,
                       .aligner = aligner,
                       .searchPath = searchPath,
                       .request = request,
-                      .observer = observer,
+                      .cancelled = cancelled,
                       .limits = limits,
-                      .options = options,
-                      .reporter = reporter};
-    const Operation sync = [&run](core::Session& session) { return syncOneFile(run, session); };
+                      .options = options};
+    const ChangingOperation sync = [&run](core::Session& session, const Request& asked) {
+        return syncOneFile(run, session, *asked.reporter);
+    };
 
     return rewriteAll(files, paths, reading, destination, reporter, Verb::Retimed, sync);
 }
@@ -312,16 +334,16 @@ ExitCode syncOnSpeech(core::FileSystem& files,
     const std::filesystem::path& voiceModel =
         options.vadModel.empty() ? transcription.vadModel : std::filesystem::path{options.vadModel};
     if (voiceModel.empty()) {
-        reporter.failed(core::speechNeedsTheVoiceModel());
+        reporter.error(withPointerApart(core::speechNeedsTheVoiceModel()));
         return ExitCode::AllFailed;
     }
     if (!files.exists(voiceModel)) {
-        reporter.failed(core::voiceModelNotFound(voiceModel.string()));
+        reporter.error(core::voiceModelNotFound(voiceModel.string()));
         return ExitCode::AllFailed;
     }
     const std::optional<std::filesystem::path> tool = core::findVadTool(files, searchPath);
     if (!tool) {
-        reporter.failed(core::speechNeedsTheVoiceTool());
+        reporter.error(withPointerApart(core::speechNeedsTheVoiceTool()));
         return ExitCode::AllFailed;
     }
     const core::WhisperVadDetector detector{*tool};
@@ -339,22 +361,16 @@ ExitCode syncOnSpeech(core::FileSystem& files,
     const core::DoubtLimits limits{
         .partialBelow = core::kDefaultPartialBelow,
         .gapMilliseconds = options.doubtGapMilliseconds.value_or(alignment.doubtGapMilliseconds)};
-    ProgressNarration narration{reporter};
-    const core::TranscriptionObserver observer{
-        .advanced =
-            [&narration](const core::TranscriptionProgress& progress) { narration(progress); },
-        .cancelled = cancelled,
-        .waiting = [&narration] { narration.idle(); }};
-
     const SpeechRun run{.files = files,
                         .detector = detector,
                         .searchPath = searchPath,
                         .request = request,
-                        .observer = observer,
+                        .cancelled = cancelled,
                         .limits = limits,
-                        .options = options,
-                        .reporter = reporter};
-    const Operation sync = [&run](core::Session& session) { return speechOneFile(run, session); };
+                        .options = options};
+    const ChangingOperation sync = [&run](core::Session& session, const Request& asked) {
+        return speechOneFile(run, session, *asked.reporter);
+    };
     return rewriteAll(files, paths, reading, destination, reporter, Verb::Retimed, sync);
 }
 
@@ -372,11 +388,11 @@ ExitCode syncAll(core::FileSystem& files,
                  const Reporter& reporter,
                  const std::function<bool()>& cancelled) {
     if (options.video.empty() == options.audio.empty()) {
-        reporter.failed(core::needsOneAudioSource());
+        reporter.error(core::needsOneAudioSource());
         return ExitCode::Usage;
     }
     if (!options.report.empty() && paths.size() > 1) {
-        reporter.failed(std::string{
+        reporter.error(std::string{
             core::translate("--report names one file: give one subtitle file when you use it")});
         return ExitCode::Usage;
     }

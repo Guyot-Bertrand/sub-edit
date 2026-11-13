@@ -148,9 +148,9 @@ de	German
 
 | 级别 | 在标准错误输出上追加的内容 |
 | :----- | :------------------------------------- |
-| 1 | `<input>: N subtitles transcribed, language: xx -> <output>` |
-| 2 | 步骤和进度，每个百分点一行：`extracting the audio…`，然后是 `transcribing…`，再然后是 `transcribing: 25%, 0:12:30 of 0:50:00, about 38 min left, elapsed: 0:05:12`——百分比、在音频中到达的位置、剩余时间和已用时间；**没有新内容时，这一行每十秒重复一次**，以免长时间的等待被当成卡死 |
-| 3 | 以及引擎每得到一段新文本，`last text: …` |
+| 1 | `source: <input>`, `result: N subtitles transcribed, language: xx`, `dest: <output>` |
+| 2 | 步骤和进度，每个百分点一行：`progress: extracting the audio…`，然后是 `progress: transcribing…`，再然后是 `progress: transcribing: 25%, 0:12:30 of 0:50:00, about 38 min left, elapsed: 0:05:12`——百分比、在音频中到达的位置、剩余时间和已用时间；**没有新内容时，这一行每十秒重复一次**，以免长时间的等待被当成卡死 |
+| 3 | 以及引擎每得到一段新文本，`progress: last text: …` |
 
 **百分比是引擎在音频中的位置，而不是它自己窗口的计数**：引擎边转录边写出已转录的内容，命令读取它进行到哪里，因此数字从第一分钟起就在变化。（引擎自己的进度要在完成一个三十秒窗口之后，以音频的 5 % 为一步到来：单独看，在处理器上用大模型处理长影片时，它可能在 0 % 停留一刻钟。）**剩余时间一开始不显示**：做完足够多的工作、可以外推时才给出，并且依据最后一分钟的速度，而不是整个运行过程的平均值。
 

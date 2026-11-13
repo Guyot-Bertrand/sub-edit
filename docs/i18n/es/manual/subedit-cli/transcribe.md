@@ -185,9 +185,9 @@ la forma de texto, no se escribe nada con [`--format json`](invocation.md#una-sa
 
 | Nivel | Lo que se añade en la salida de error |
 | :---- | :-------------------------------- |
-| 1 | `<input>: N subtitles transcribed, language: xx -> <output>` |
-| 2 | el paso y el progreso, una línea por cada por ciento: `extracting the audio…`, luego `transcribing…`, luego `transcribing: 25%, 0:12:30 of 0:50:00, about 38 min left, elapsed: 0:05:12` — el por ciento, la posición alcanzada en el audio, el tiempo restante y el tiempo transcurrido; **la línea se repite cada diez segundos cuando no ha llegado nada nuevo**, para que una espera larga no se tome por un bloqueo |
-| 3 | y cada texto nuevo que obtiene el motor, `last text: …` |
+| 1 | `source: <input>`, `result: N subtitles transcribed, language: xx`, `dest: <output>` |
+| 2 | el paso y el progreso, una línea por cada por ciento: `progress: extracting the audio…`, luego `progress: transcribing…`, luego `progress: transcribing: 25%, 0:12:30 of 0:50:00, about 38 min left, elapsed: 0:05:12` — el por ciento, la posición alcanzada en el audio, el tiempo restante y el tiempo transcurrido; **la línea se repite cada diez segundos cuando no ha llegado nada nuevo**, para que una espera larga no se tome por un bloqueo |
+| 3 | y cada texto nuevo que obtiene el motor, `progress: last text: …` |
 
 **El por ciento es la posición del motor en el audio, no un recuento de sus ventanas**: el motor escribe lo que ha
 transcrito a medida que avanza, y el comando lee hasta dónde ha llegado, de modo que la cifra se mueve desde el primer

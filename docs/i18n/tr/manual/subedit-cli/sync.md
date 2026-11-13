@@ -160,7 +160,7 @@ ilk onda birininkinin çıkarılmasıdır: sabit bir kayma için sıfıra yakın
 
 | Düzey | Hata çıktısına eklenenler |
 | :---- | :------------------------------- |
-| 1 | `<file>: N of M subtitles placed on the audio, K to check; median shift X s, drift Y s -> <destination>` — ve bir kare hızı düzeltildiyse, oran; `speech` ile, **yapmadığı şeyin uyarısı**, kendi satırında |
+| 1 | `source: <file>`, `media: <audio>`, `result: N of M subtitles placed on the audio, K to check; median shift X s, drift Y s`, `dest: <destination>` — ve bir kare hızı düzeltildiyse, oran; `speech` ile, **yapmadığı şeyin uyarısı**, kendi satırında |
 | 2 | adım ve ilerleme, [`transcribe`](transcribe.md#çıktı) için olduğu gibi |
 
 ### JSON biçiminde

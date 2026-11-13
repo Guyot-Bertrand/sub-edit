@@ -2016,11 +2016,6 @@ msgstr "应为类似 2.999 的秒数，或类似 00:00:07.001 的时间戳"
 msgid "%1 is required"
 msgstr "必须提供 %1"
 
-#. TRANSLATORS: %1 is a file, %2 what was done to it, %3 the file written.
-#: src/lib/subedit/cli/transcribing.cpp
-msgid "%1: %2 -> %3"
-msgstr "%1：%2 -> %3"
-
 #: src/lib/subedit/cli/transforming.cpp
 msgid "subtitle %1 is past the end: the file holds %2 subtitle"
 msgid_plural "subtitle %1 is past the end: the file holds %2 subtitles"
@@ -5401,6 +5396,9 @@ msgstr "斜体"
 msgctxt "toolbar"
 msgid "Main"
 msgstr "主要"
+
+#~ msgid "%1: %2 -> %3"
+#~ msgstr "%1：%2 -> %3"
 
 #~ msgid "%1 -> %2"
 #~ msgstr "%1 -> %2"

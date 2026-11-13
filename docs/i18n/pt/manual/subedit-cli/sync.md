@@ -162,7 +162,7 @@ cada vez mais atrasado ao longo do filme.
 
 | Nível | O que se diz na saída de erros |
 | :---- | :------------------------------- |
-| 1 | `<file>: N of M subtitles placed on the audio, K to check; median shift X s, drift Y s -> <destination>` — e, quando uma taxa de fotogramas foi corrigida, a razão; com `speech`, **o aviso do que não faz**, numa linha própria |
+| 1 | `source: <file>`, `media: <audio>`, `result: N of M subtitles placed on the audio, K to check; median shift X s, drift Y s`, `dest: <destination>` — e, quando uma taxa de fotogramas foi corrigida, a razão; com `speech`, **o aviso do que não faz**, numa linha própria |
 | 2 | a etapa e o progresso, como para [`transcribe`](transcribe.md#saída) |
 
 ### Em JSON

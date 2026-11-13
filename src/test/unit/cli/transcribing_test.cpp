@@ -118,6 +118,55 @@ TEST_CASE("an engine nobody registered is a usage error", "[cli][transcribe]") {
     CHECK_THAT(world.errors.str(), ContainsSubstring("no transcription engine is called other"));
 }
 
+TEST_CASE("a refusal of the command line is about no element", "[cli][transcribe]") {
+    World world;
+
+    CHECK(world.run({.input = world.audio.string(),
+                     .output = world.output.string(),
+                     .engine = "other"}) == ExitCode::Usage);
+
+    CHECK(world.errors.str().starts_with(
+        "[subedit] [transcribe] [-] error: no transcription engine is called other"));
+}
+
+TEST_CASE("a transcription is one element: its source, its progress, its result, its dest",
+          "[cli][transcribe]") {
+    World world;
+    world.settings.language = "fr";
+
+    REQUIRE(world.run({.input = world.audio.string(), .output = world.output.string()}, 2) ==
+            ExitCode::Success);
+
+    const std::string said = world.errors.str();
+    const std::string prefix = "[subedit] [transcribe] [1/1] ";
+    CHECK(said.starts_with(prefix + "source: " + world.audio.string() + "\n"));
+    CHECK_THAT(said, ContainsSubstring(prefix + "progress: transcribing: 100%"));
+    CHECK_THAT(said, ContainsSubstring(prefix + "result: "));
+    CHECK(said.ends_with(prefix + "dest: " + world.output.string() + "\n"));
+    // Every line of the element under its position, and none about the run.
+    std::istringstream lines{said};
+    for (std::string line; std::getline(lines, line);)
+        CHECK(line.starts_with(prefix));
+}
+
+TEST_CASE("an error of several lines writes the prefix and the key on each", "[cli][transcribe]") {
+    World world;
+
+    CHECK(world.run({.input = world.video.string(), .output = world.output.string()}, 0) ==
+          ExitCode::AllFailed);
+
+    const std::string said = world.errors.str();
+    CHECK(said.starts_with("[subedit] [transcribe] [1/1] source: " + world.video.string() + "\n"));
+    std::istringstream lines{said};
+    std::string line;
+    std::getline(lines, line);
+    std::size_t errors = 0;
+    for (; std::getline(lines, line); ++errors)
+        CHECK(line.starts_with("[subedit] [transcribe] [1/1] error: "));
+    // The tool missing, then the pointer to the page that installs it.
+    CHECK(errors >= 2);
+}
+
 TEST_CASE("an audio file is read as it is when ffmpeg is not there", "[cli][transcribe]") {
     World world;
 

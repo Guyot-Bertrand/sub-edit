@@ -164,7 +164,7 @@ plu durant li film.
 
 | Nivelle | Quo es dit sur li exeunte de error |
 | :---- | :-------------------------------- |
-| 1 | `<file>: N of M subtitles placed on the audio, K to check; median shift X s, drift Y s -> <destination>` — e, quande un frequentie de images esset corriget, li proportion; con `speech`, **li avise de quo it ne fa**, sur un linea a part |
+| 1 | `source: <file>`, `media: <audio>`, `result: N of M subtitles placed on the audio, K to check; median shift X s, drift Y s`, `dest: <destination>` — e, quande un frequentie de images esset corriget, li proportion; con `speech`, **li avise de quo it ne fa**, sur un linea a part |
 | 2 | li pass e li progress, quam por [`transcribe`](transcribe.md#output) |
 
 ### In JSON

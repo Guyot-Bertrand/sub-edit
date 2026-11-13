@@ -186,9 +186,9 @@ postać tekstowa, nic nie jest zapisywane z [`--format json`](invocation.md#wyni
 
 | Poziom | Co jest dodawane na wyjściu błędów |
 | :----- | :------------------------------------- |
-| 1 | `<input>: N subtitles transcribed, language: xx -> <output>` |
-| 2 | etap i postęp, jeden wiersz na każdy procent: `extracting the audio…`, potem `transcribing…`, potem `transcribing: 25%, 0:12:30 of 0:50:00, about 38 min left, elapsed: 0:05:12` — procent, osiągnięta pozycja w dźwięku, pozostały czas i upłynięty czas; **wiersz jest powtarzany co dziesięć sekund, gdy nie nadeszło nic nowego**, aby długiego oczekiwania nie wziąć za zawieszenie |
-| 3 | oraz każdy nowy tekst, który silnik otrzymuje, `last text: …` |
+| 1 | `source: <input>`, `result: N subtitles transcribed, language: xx`, `dest: <output>` |
+| 2 | etap i postęp, jeden wiersz na każdy procent: `progress: extracting the audio…`, potem `progress: transcribing…`, potem `progress: transcribing: 25%, 0:12:30 of 0:50:00, about 38 min left, elapsed: 0:05:12` — procent, osiągnięta pozycja w dźwięku, pozostały czas i upłynięty czas; **wiersz jest powtarzany co dziesięć sekund, gdy nie nadeszło nic nowego**, aby długiego oczekiwania nie wziąć za zawieszenie |
+| 3 | oraz każdy nowy tekst, który silnik otrzymuje, `progress: last text: …` |
 
 **Procent to pozycja silnika w dźwięku, a nie liczba jego własnych okien**: silnik zapisuje to, co przetranskrybował, na bieżąco,
 a polecenie odczytuje, dokąd to dotarło, tak że liczba rusza od pierwszej minuty. (Własny postęp silnika przychodzi co 5 % dźwięku,

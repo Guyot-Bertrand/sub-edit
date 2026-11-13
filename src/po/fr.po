@@ -1716,7 +1716,8 @@ msgstr "motifs : %1"
 
 #: src/lib/subedit/cli/correcting.cpp
 msgid "setting correction.human and correction.ocr are both false, ignored"
-msgstr "réglages correction.human et correction.ocr valent tous deux false, ignorés"
+msgstr ""
+"réglages correction.human et correction.ocr valent tous deux false, ignorés"
 
 #. TRANSLATORS: %1 is the file that would be written, %2 the input it is.
 #: src/lib/subedit/cli/destination.cpp
@@ -2209,11 +2210,6 @@ msgstr ""
 #: src/lib/subedit/cli/transcribing.cpp
 msgid "%1 is required"
 msgstr "%1 est requis"
-
-#. TRANSLATORS: %1 is a file, %2 what was done to it, %3 the file written.
-#: src/lib/subedit/cli/transcribing.cpp
-msgid "%1: %2 -> %3"
-msgstr "%1 : %2 -> %3"
 
 #: src/lib/subedit/cli/transforming.cpp
 msgid "subtitle %1 is past the end: the file holds %2 subtitle"
@@ -5810,6 +5806,9 @@ msgstr "Italique"
 msgctxt "toolbar"
 msgid "Main"
 msgstr "Principale"
+
+#~ msgid "%1: %2 -> %3"
+#~ msgstr "%1 : %2 -> %3"
 
 #~ msgid "%1 -> %2"
 #~ msgstr "%1 -> %2"

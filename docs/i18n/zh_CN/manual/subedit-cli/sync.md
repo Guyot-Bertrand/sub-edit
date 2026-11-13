@@ -126,7 +126,7 @@ Options:
 
 | 级别 | 在标准错误输出上说明的内容 |
 | :---- | :------------------------------- |
-| 1 | `<file>: N of M subtitles placed on the audio, K to check; median shift X s, drift Y s -> <destination>` ——以及在纠正了帧率时，说明比例；使用 `speech` 时，还有**它不做什么的警告**，单独占一行 |
+| 1 | `source: <file>`, `media: <audio>`, `result: N of M subtitles placed on the audio, K to check; median shift X s, drift Y s`, `dest: <destination>` ——以及在纠正了帧率时，说明比例；使用 `speech` 时，还有**它不做什么的警告**，单独占一行 |
 | 2 | 步骤和进度，与 [`transcribe`](transcribe.md#输出)相同 |
 
 ### 以 JSON 输出

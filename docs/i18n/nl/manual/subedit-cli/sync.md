@@ -161,7 +161,7 @@ meer te laat was naarmate de film vorderde.
 
 | Niveau | Wat er op de foutuitvoer wordt gezegd |
 | :---- | :------------------------------- |
-| 1 | `<file>: N of M subtitles placed on the audio, K to check; median shift X s, drift Y s -> <destination>` — en, wanneer een framesnelheid is rechtgezet, de verhouding; met `speech` **de waarschuwing van wat het niet doet**, op een eigen regel |
+| 1 | `source: <file>`, `media: <audio>`, `result: N of M subtitles placed on the audio, K to check; median shift X s, drift Y s`, `dest: <destination>` — en, wanneer een framesnelheid is rechtgezet, de verhouding; met `speech` **de waarschuwing van wat het niet doet**, op een eigen regel |
 | 2 | de stap en de voortgang, zoals bij [`transcribe`](transcribe.md#uitvoer) |
 
 ### In JSON

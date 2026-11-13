@@ -159,7 +159,7 @@ more and more along the film.
 
 | Level | What is said on the error output |
 | :---- | :------------------------------- |
-| 1 | `<file>: N of M subtitles placed on the audio, K to check; median shift X s, drift Y s -> <destination>` — and, when a frame rate was put right, the ratio; with `speech`, **the warning of what it does not do**, on a line of its own |
+| 1 | `source: <file>`, `media: <audio>`, `result: N of M subtitles placed on the audio, K to check; median shift X s, drift Y s`, `dest: <destination>` — and, when a frame rate was put right, the ratio; with `speech`, **the warning of what it does not do**, on a line of its own |
 | 2 | the step and the progress, as for [`transcribe`](transcribe.md#output) |
 
 ### In JSON

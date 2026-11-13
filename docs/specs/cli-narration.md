@@ -94,7 +94,7 @@ $ grep -F '[1/3]' log                     # everything about b.srt
 | :-- | :---- | :---- |
 | `source` | 1 (and 0 before an error) | the input, as given or as the walk composed it |
 | `translation` | 1 | the translation file (`-t`, `pair`) |
-| `media` | 1 | the audio or video file (`sync`) |
+| `media` | 1 | the audio or video file (`sync`), written when the work on it begins, after what was read of the subtitle file |
 | `format` | 2 | the format recognised, by its name (`SubRip`) |
 | `encoding` | 2 | the encoding, by its name (`UTF-8`) |
 | `bom` | 2 | the byte-order mark, by the same word as the report of `inspect` |
@@ -102,7 +102,7 @@ $ grep -F '[1/3]' log                     # everything about b.srt
 | `bytes-read` | 3 | an integer |
 | `diagnostic` | 3 | one reading diagnostic, as today (`line 12: …`) |
 | `alignment` | 2 (1 for `pair` and `inspect`) | how a translation was laid |
-| `progress` | 1 | one line per update, the current sentence kept whole (`transcribe`, `sync`) |
+| `progress` | 2 (3 for the last text heard) | one line per update, the current sentence kept whole (`transcribe`, `sync`) |
 | `warning` | 1 | what the operation went on without |
 | `error` | 0 | why the element came to nothing |
 | `result` | 1 | what was done, the counts included: `1 subtitle cleaned, 1 removed` |

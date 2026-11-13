@@ -159,7 +159,7 @@ Options:
 
 | Уровень | Что выводится в поток ошибок |
 | :---- | :------------------------------- |
-| 1 | `<file>: N of M subtitles placed on the audio, K to check; median shift X s, drift Y s -> <destination>` — и, если исправлена частота кадров, её отношение; при `speech` — **предупреждение о том, чего она не делает**, отдельной строкой |
+| 1 | `source: <file>`, `media: <audio>`, `result: N of M subtitles placed on the audio, K to check; median shift X s, drift Y s`, `dest: <destination>` — и, если исправлена частота кадров, её отношение; при `speech` — **предупреждение о том, чего она не делает**, отдельной строкой |
 | 2 | этап и ход работы, как для [`transcribe`](transcribe.md#вывод) |
 
 ### В формате JSON

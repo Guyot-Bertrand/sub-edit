@@ -163,7 +163,7 @@ para un ficheiro que ía tarde cada vez máis ao longo da película.
 
 | Nivel | O que se di na saída de erro |
 | :---- | :------------------------------- |
-| 1 | `<file>: N of M subtitles placed on the audio, K to check; median shift X s, drift Y s -> <destination>` — e, cando se corrixiu unha taxa de fotogramas, a razón; con `speech`, **o aviso do que non fai**, nunha liña propia |
+| 1 | `source: <file>`, `media: <audio>`, `result: N of M subtitles placed on the audio, K to check; median shift X s, drift Y s`, `dest: <destination>` — e, cando se corrixiu unha taxa de fotogramas, a razón; con `speech`, **o aviso do que non fai**, nunha liña propia |
 | 2 | o paso e o progreso, como para [`transcribe`](transcribe.md#saída) |
 
 ### En JSON

@@ -165,7 +165,7 @@ desfase constante, y grande para un archivo que iba cada vez más tarde a lo lar
 
 | Nivel | Lo que se dice en la salida de error |
 | :---- | :------------------------------- |
-| 1 | `<file>: N of M subtitles placed on the audio, K to check; median shift X s, drift Y s -> <destination>` — y, cuando se corrigió una velocidad de fotogramas, la proporción; con `speech`, **la advertencia de lo que no hace**, en una línea aparte |
+| 1 | `source: <file>`, `media: <audio>`, `result: N of M subtitles placed on the audio, K to check; median shift X s, drift Y s`, `dest: <destination>` — y, cuando se corrigió una velocidad de fotogramas, la proporción; con `speech`, **la advertencia de lo que no hace**, en una línea aparte |
 | 2 | el paso y el progreso, como en [`transcribe`](transcribe.md#salida) |
 
 ### En JSON

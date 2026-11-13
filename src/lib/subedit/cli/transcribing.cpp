@@ -91,18 +91,27 @@ constexpr double kPercent = 100.0;
 
 } // namespace
 
+std::string withPointerApart(std::string text) {
+    const std::string pointer = " " + core::installationGuidePointer();
+    if (text.ends_with(pointer))
+        text.replace(text.size() - pointer.size(), 1, "\n");
+    return text;
+}
+
 /// What a transcription that came to nothing said: the words for the surface, and for the
 /// record the identifier a script can test.
 Failure failureOf(const core::MediaTranscriptionError& error) {
     if (const auto* audio = std::get_if<core::AudioPreparationError>(&error.cause))
         return Failure{idOf(audio->kind), [&] {
-                           std::string text = core::audioPreparationErrorText(*audio);
+                           std::string text =
+                               withPointerApart(core::audioPreparationErrorText(*audio));
                            if (audio->kind == core::AudioPreparationErrorKind::NoSuchTrack)
                                text += "\n" + core::audioTracksText(error.tracks);
                            return text;
                        }};
     const auto& engine = std::get<core::TranscriptionError>(error.cause);
-    return Failure{idOf(engine.kind), [&] { return core::transcriptionErrorText(engine); }};
+    return Failure{idOf(engine.kind),
+                   [&] { return withPointerApart(core::transcriptionErrorText(engine)); }};
 }
 
 ProgressNarration::ProgressNarration(const Reporter& reporter,
@@ -129,7 +138,7 @@ void ProgressNarration::operator()(const core::TranscriptionProgress& progress) 
     }
     if (!progress.lastText.empty() && progress.lastText != m_lastText) {
         m_lastText = progress.lastText;
-        m_reporter.say(3, core::lastTextLine(m_lastText));
+        m_reporter.tell(3, Key::Progress, core::lastTextLine(m_lastText));
     }
 }
 
@@ -147,7 +156,7 @@ void ProgressNarration::say(const core::TranscriptionProgress& progress, Clock::
              m_remaining.left(now),
              std::chrono::duration_cast<std::chrono::seconds>(now - m_started)))
         line += (line.empty() ? "" : ", ") + part;
-    m_reporter.say(2, line);
+    m_reporter.tell(2, Key::Progress, line);
 }
 
 namespace {
@@ -159,7 +168,7 @@ namespace {
     const auto capabilities =
         engine.capabilitiesFor(model.empty() ? std::nullopt : std::optional{model});
     if (!capabilities) {
-        reporter.failed(core::transcriptionErrorText(capabilities.error()));
+        reporter.error(withPointerApart(core::transcriptionErrorText(capabilities.error())));
         return ExitCode::AllFailed;
     }
     const std::string reader{core::interfaceLanguageName()};
@@ -175,12 +184,12 @@ namespace {
          {std::pair<const std::string&, std::string_view>{options.input, "input"},
           std::pair<const std::string&, std::string_view>{options.output, "--output"}}) {
         if (value.empty()) {
-            reporter.failed(core::substitute(core::translate("%1 is required"), {name}));
+            reporter.error(core::substitute(core::translate("%1 is required"), {name}));
             return ExitCode::Usage;
         }
     }
     if (options.suppressNotes && options.keepNotes) {
-        reporter.failed(core::substitute(
+        reporter.error(core::substitute(
             // TRANSLATORS: %1 and %2 are two options, such as --shorten and --no-shorten.
             core::translate("%1 and %2 say opposite things; give one of them"),
             {"--suppress-notes", "--keep-notes"}));
@@ -199,7 +208,7 @@ std::optional<ExitCode> readListenerChoices(const std::string& languageName,
     if (!languageName.empty()) {
         request.language = core::readLanguageCode(languageName);
         if (!request.language) {
-            reporter.failed(core::notALanguageCode(languageName));
+            reporter.error(core::notALanguageCode(languageName));
             return ExitCode::Usage;
         }
     }
@@ -210,12 +219,12 @@ std::optional<ExitCode> readListenerChoices(const std::string& languageName,
             continue;
         bound = core::readRangeBound(text);
         if (!bound) {
-            reporter.failed(core::notATimeInRange(text));
+            reporter.error(core::notATimeInRange(text));
             return ExitCode::Usage;
         }
     }
     if (!core::isRangePossible(request.start, request.end)) {
-        reporter.failed(core::emptyRange());
+        reporter.error(core::emptyRange());
         return ExitCode::Usage;
     }
     return std::nullopt;
@@ -232,13 +241,13 @@ std::optional<ExitCode> checkVoiceModel(const std::string& vadOption,
                                         const Reporter& reporter) {
     if (capabilities != nullptr && !capabilities->voiceActivity) {
         if (!vadOption.empty()) {
-            reporter.failed(core::engineCannotDetectVoice(engineName));
+            reporter.error(core::engineCannotDetectVoice(engineName));
             return ExitCode::Usage;
         }
         request.vadModel.reset();
     }
     if (request.vadModel && !vadOption.empty() && !files.exists(*request.vadModel)) {
-        reporter.failed(core::voiceModelNotFound(request.vadModel->string()));
+        reporter.error(core::voiceModelNotFound(request.vadModel->string()));
         return ExitCode::Usage;
     }
     return std::nullopt;
@@ -254,7 +263,7 @@ ExitCode transcribeFile(core::FileSystem& files,
     const std::string engineName = options.engine.empty() ? settings.engine : options.engine;
     const core::TranscriptionEngine* const engine = engines.find(engineName);
     if (engine == nullptr) {
-        reporter.failed(core::noSuchTranscriptionEngine(engineName));
+        reporter.error(core::noSuchTranscriptionEngine(engineName));
         return ExitCode::Usage;
     }
 
@@ -294,7 +303,7 @@ ExitCode transcribeFile(core::FileSystem& files,
     // only a setting says is dropped without a word, since a setting is written for all the
     // engines.
     if (options.suppressNotes && capabilities && !capabilities->suppressNotes) {
-        reporter.failed(core::engineCannotSuppressNotes(engineName));
+        reporter.error(core::engineCannotSuppressNotes(engineName));
         return ExitCode::Usage;
     }
 
@@ -307,12 +316,15 @@ ExitCode transcribeFile(core::FileSystem& files,
                             reporter))
         return *refused;
 
+    // **One element, the input** (D2): what was refused above was the command line's, said under
+    // `[-]`; from here on the lines are about the file transcribed.
+    const Reporter item = reporter.forItem(1, 1, options.input);
     // A model for English alone writes everything as English: said before the long work, not after.
     if (capabilities && !capabilities->languageDetection && capabilities->languages.size() == 1 &&
         capabilities->languages.front() == "en")
-        reporter.say(1, core::noticeOfEnglishOnlyModel());
+        item.tell(1, Key::Warning, core::noticeOfEnglishOnlyModel());
 
-    ProgressNarration narration{reporter};
+    ProgressNarration narration{item};
     const core::TranscriptionObserver observer{
         .advanced =
             [&narration](const core::TranscriptionProgress& progress) { narration(progress); },
@@ -320,7 +332,7 @@ ExitCode transcribeFile(core::FileSystem& files,
         .waiting = [&narration] { narration.idle(); }};
     const auto transcribed = core::transcribeMedia(files, *engine, searchPath, request, observer);
     if (!transcribed) {
-        reportFailure(reporter, options.input, failureOf(transcribed.error()));
+        reportFailure(item, options.input, failureOf(transcribed.error()));
         return ExitCode::AllFailed;
     }
 
@@ -332,16 +344,16 @@ ExitCode transcribeFile(core::FileSystem& files,
     const core::SubtitleFormat format = formatToWrite(options);
     const auto written = writeSubtitlesTo(files, options.output, format, {.subtitles = subtitles});
     if (!written) {
-        reportFailure(reporter, options.input, written.error().about(options.input));
+        // The failure names the file it could not write; the record keeps the input before it.
+        reportFailure(item, options.input, written.error());
         return ExitCode::AllFailed;
     }
 
     const std::string language = transcribed->language.value_or(std::string{});
     const std::string sentence = core::noticeOfTranscription(subtitles.size(), language);
-    reporter.say(1,
-                 // TRANSLATORS: %1 is a file, %2 what was done to it, %3 the file written.
-                 core::substitute(core::translate("%1: %2 -> %3"),
-                                  {options.input, sentence, options.output}));
+    item.tell(1, Key::Result, sentence);
+    item.tell(3, Key::BytesWritten, std::to_string(*written));
+    item.tell(1, Key::Dest, options.output);
 
     Fields fields;
     fields.emplace_back("language", language);

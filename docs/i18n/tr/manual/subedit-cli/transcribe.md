@@ -178,9 +178,9 @@ biçimi vardır, [`--format json`](invocation.md#bir-betiğin-okuyabileceği-ç�
 
 | Düzey | Hata çıktısına eklenenler |
 | :----- | :------------------------------------- |
-| 1 | `<input>: N subtitles transcribed, language: xx -> <output>` |
-| 2 | adım ve ilerleme, her yüzde için bir satır: `extracting the audio…`, sonra `transcribing…`, sonra `transcribing: 25%, 0:12:30 of 0:50:00, about 38 min left, elapsed: 0:05:12` — yüzde, seste ulaşılan konum, kalan süre ve geçen süre; **yeni bir şey gelmediğinde satır her on saniyede bir yeniden söylenir**, uzun bir bekleme donma sanılmasın diye |
-| 3 | ve motorun elde ettiği her yeni metin, `last text: …` |
+| 1 | `source: <input>`, `result: N subtitles transcribed, language: xx`, `dest: <output>` |
+| 2 | adım ve ilerleme, her yüzde için bir satır: `progress: extracting the audio…`, sonra `progress: transcribing…`, sonra `progress: transcribing: 25%, 0:12:30 of 0:50:00, about 38 min left, elapsed: 0:05:12` — yüzde, seste ulaşılan konum, kalan süre ve geçen süre; **yeni bir şey gelmediğinde satır her on saniyede bir yeniden söylenir**, uzun bir bekleme donma sanılmasın diye |
+| 3 | ve motorun elde ettiği her yeni metin, `progress: last text: …` |
 
 **Yüzde, motorun seste bulunduğu konumdur, kendi pencerelerinin sayısı değil**: motor yazıya döktüğünü ilerledikçe yazar, komut da ne kadar ilerlediğini okur; böylece rakam ilk dakikadan itibaren hareket eder. (Motorun kendi ilerlemesi, otuz saniyelik bir pencere bittikten sonra, sesin %5'lik adımlarıyla gelir: tek başına, bir işlemcide büyük bir modelle uzun bir filmde çeyrek saat boyunca %0'da kalabilir.) **Kalan süre başlangıçta sessizdir**: tahmin yürütmeye yetecek kadar iş yapıldığında verilir ve tüm çalışmanın ortalamasını değil, son dakikanın hızını izler.
 

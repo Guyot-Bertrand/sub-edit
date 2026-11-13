@@ -185,9 +185,9 @@ textová podoba, s [`--format json`](invocation.md#výstup-čitelný-pro-skript)
 
 | Úroveň | Co se přidá na chybový výstup |
 | :---- | :-------------------------------- |
-| 1 | `<input>: N subtitles transcribed, language: xx -> <output>` |
-| 2 | krok a průběh, jeden řádek na každé procento: `extracting the audio…`, pak `transcribing…`, pak `transcribing: 25%, 0:12:30 of 0:50:00, about 38 min left, elapsed: 0:05:12` — procento, dosažená pozice ve zvuku, zbývající čas a uplynulý čas; **řádek se zopakuje každých deset sekund, když nepřišlo nic nového**, aby dlouhé čekání nebylo považováno za zamrznutí |
-| 3 | a každý nový text, který nástroj získá, `last text: …` |
+| 1 | `source: <input>`, `result: N subtitles transcribed, language: xx`, `dest: <output>` |
+| 2 | krok a průběh, jeden řádek na každé procento: `progress: extracting the audio…`, pak `progress: transcribing…`, pak `progress: transcribing: 25%, 0:12:30 of 0:50:00, about 38 min left, elapsed: 0:05:12` — procento, dosažená pozice ve zvuku, zbývající čas a uplynulý čas; **řádek se zopakuje každých deset sekund, když nepřišlo nic nového**, aby dlouhé čekání nebylo považováno za zamrznutí |
+| 3 | a každý nový text, který nástroj získá, `progress: last text: …` |
 
 **Procento je pozice nástroje ve zvuku, ne počet jeho oken**: nástroj průběžně zapisuje, co
 přepsal, a příkaz čte, kam to došlo, takže číslo se hýbe od první
