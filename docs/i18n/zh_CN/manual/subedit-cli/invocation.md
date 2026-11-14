@@ -100,7 +100,6 @@ Subcommands:
 | 键入的名称：子命令、选项及其取值（`off`、`srt`）、元变量（`FILE`、`TEXT`、`OPTIONS`） | 一条命令行写一次，在任何语言下都能运行 |
 | `correct --enable` 和 `--disable` 所接受的纠正模式名称 | 模式以其文件中的英文名称调用 |
 | 格式和编码的名称 | 格式以其名称调用 |
-| CLI11 自身的诊断信息——缺少必需参数、未知选项、选项不接受的值——以及它的 `Run with --help for more information.` | 措辞写在命令行所基于的解析器内部；它们保持英语 |
 | 错误行的框架：`[subedit]`、子命令、`[-]`、键 `error` | 脚本无需读懂文字即可找出什么失败、在哪里失败；只有消息会被翻译 |
 
 无论环境如何，都要求使用英语：
@@ -178,7 +177,7 @@ code=1
 <!-- example: subedit-cli --version | head -n 1 -->
 ```console
 $ subedit-cli --version | head -n 1
-subedit 1.2.8
+subedit 1.2.9
 ```
 
 完整输出如下，机器上装有 ICU 74.2 和 Enchant 2.3.3——数字取决于具体机器：
@@ -331,8 +330,8 @@ Gaupol 也是这样做的——它用标记所指明的编码重新开始读取�
 | 两个输入，一个输出位置 | `<destination>: would be written by both <input> and <input>` |
 | 某个输入会被覆盖 | `<destination>: would be written over the input <input>`——[`append`](append.md) 和 [`split-file`](split-file.md) 的句子相同 |
 | 无法创建输出目录 | `<directory>: cannot be created: permission denied`，或 `: cannot be created` |
-| 无法写入输出位置 | `<path>: <destination>: cannot be written: permission denied`，或 `: cannot be written` |
-| 所写入的编码中缺少某个字符 | `<path>: holds a character the chosen encoding cannot write` |
+| 无法写入输出位置 | `<destination>: cannot be written: permission denied`，或 `: cannot be written` |
+| 所写入的编码中缺少某个字符 | `holds a character the chosen encoding cannot write` |
 
 **最后一条值得多说一句**。文件会以**读取时所用的编码**写回，行尾符和标记也是如此。如果某项更改带入了该编码不认识的字符——比如 Latin-1 中的 `ł`——写入就会失败，**不会写入任何内容**。用 `?` 来代替它，等于当着刚刚写下它的人的面丢失文本。
 
@@ -497,27 +496,81 @@ code=3
 
 ## 说明级别
 
+**错误输出的每一行形式相同**，叙述与错误皆然：
+
+```
+[subedit] [<command>] [<i>/<n>] <key>: <value>
+```
+
+| 部分 | 含义 |
+| :----- | :------------- |
+| `<command>` | 子命令，按输入的样子；尚不知道时为 `-` |
+| `<i>/<n>` | 该行所说的元素，`n` 个中的第 `i` 个；关于整次运行的行为 `-` |
+| `<key>` | 该行所说的内容 |
+| `<value>` | 一个名称、数字、路径或句子 |
+
+**元素就是写出一条 JSON 记录的东西**：一个输入，或者对 [`append`](append.md)、[`split-file`](split-file.md) 和 [`pair`](pair.md) 而言的整次运行。它从 1 开始，按输入的顺序计数，也就是记录的顺序；单个输入为 `[1/1]`。
+
+<!-- example: printf '1\n00:00:01,000 --> 00:00:02,000\n[Door]\nHello.\n\n2\n00:00:03,000 --> 00:00:04,000\n[Music]\n\n' > b.srt; printf 'nothing to read\n' > bad.srt; printf '1\n00:00:01,000 --> 00:00:02,000\nHi.\n\n' > c.srt; subedit-cli hearing-impaired --output-dir o b.srt bad.srt c.srt; echo "code=$?" -->
+```console
+$ printf '1\n00:00:01,000 --> 00:00:02,000\n[Door]\nHello.\n\n2\n00:00:03,000 --> 00:00:04,000\n[Music]\n\n' > b.srt; printf 'nothing to read\n' > bad.srt; printf '1\n00:00:01,000 --> 00:00:02,000\nHi.\n\n' > c.srt; subedit-cli hearing-impaired --output-dir o b.srt bad.srt c.srt; echo "code=$?"
+[subedit] [hearing-impaired] [1/3] source: b.srt
+[subedit] [hearing-impaired] [1/3] result: 1 subtitle cleaned, 1 removed
+[subedit] [hearing-impaired] [1/3] dest: o/b.srt
+[subedit] [hearing-impaired] [2/3] source: bad.srt
+[subedit] [hearing-impaired] [2/3] error: is in no format this tool knows
+[subedit] [hearing-impaired] [3/3] source: c.srt
+[subedit] [hearing-impaired] [3/3] result: no mention to remove
+[subedit] [hearing-impaired] [3/3] dest: o/c.srt
+[subedit] [hearing-impaired] [-] summary: 2 of 3 files cleaned, 1 failed
+code=3
+```
+
 每个级别**包含前一个级别**：每升一级只增加，不替换。
 
 | 级别 | 方式 | 标准错误输出的内容 |
 | :----- | :------ | :------------------------------ |
-| 0 | `--quiet` | 无，**错误除外** |
-| 1 | 默认，或 `-v` | 每处理一个文件一行；有多个文件时，再加一行汇总 |
-| 2 | `-vv` | 再加上所识别的内容：格式、编码、BOM、行尾符 |
-| 3 | `-vvv` | 再加上调试跟踪：读取和写入的字节数，以及**每一条读取诊断信息** |
+| 0 | `--quiet` | 只有 `error` 行，每行都在其元素的 `source` 行之后 |
+| 1 | 默认，或 `-v` | `source`、`translation`、`media`、`warning`、`result`、`dest`、`tail`；以及关于运行的 `settings`、`walk`，从两个元素起还有 `summary` |
+| 2 | `-vv` | 以及 `format`、`encoding`、`bom`、`line-endings`、`alignment`、`progress` |
+| 3 | `-vvv` | 以及 `bytes-read`、`bytes-written` 和每一条 `diagnostic` |
+
+有两个键的级别随子命令而变：`alignment` 对 `pair` 和 `inspect` 在第 1 级，`progress` 对最后听到的文本在第 3 级。
 
 **错误绝不会被屏蔽，`--quiet` 也不例外**。一个悄悄失败的命令，除了退出码之外什么也不会留下。
 
 汇总从两个文件起才会出现：只有一个输入时，它会重复前面那一行。
+
+**对每个元素都成立的规则：**
+
+- 它的 `source` 行最先出现，错误从不脱离它单独出现，`--quiet` 也不例外；
+- 每次有写入的成功都会写出 `dest`，`--in-place` 也一样；`--dry-run` 不写任何东西，因此从不写出它；
+- `result` 可以出现多次：在操作之外额外要求的步骤（`--sort`、`--disjoint`、`--join-repeats`）以及 `append` 添加的每个文件都有自己的一行；
+- 错误不重复来源的路径；当涉及的是另一个文件（例如翻译或目标）时，会说出那个文件。
+
+### 按名称找到一个元素
+
+**标识元素的是位置，而不是路径**：路径可以包含任何字符，位置没有需要转义的东西，而且一个元素的各行在 `grep` 之后仍在一起。找到一个文件的各行需要两步：
+
+```console
+$ subedit-cli hearing-impaired --output-dir o *.srt 2> log
+$ grep -F '] source: b.srt' log           # [subedit] [hearing-impaired] [1/3] source: b.srt
+$ grep -F '[1/3]' log                     # everything about b.srt
+```
+
+### 叙述所承诺的内容
+
+**承诺的**：行的形式；`<i>/<n>` 的含义及其与 JSON 记录顺序的关系；各个键及其级别；上述规则。
+
+**不承诺的**：作为句子的值的文本——`result`、`warning`、`error`、`progress`、`summary`、`walk`——它会被翻译，必要时会被改写：脚本应从 JSON 中读取数字。也不承诺不同元素各行的顺序，如果将来某个批次并行处理它们的话。
 
 ## 读取诊断信息
 
 字幕格式会被**尽可能好地**读取：遇到异常时，读取器不会停止——它会作出决定，或者保持原样，并说明这一点。它所遇到的内容在**级别 3** 输出，每条诊断信息一行，输出到标准错误：
 
 ```
-a.srt: 2 diagnostics while reading
-a.srt: line 6: SubRip numbers that do not follow ("7"), settled by the reader
-a.srt: line 9: a line that fits nowhere, left as it stands
+[subedit] [inspect] [1/1] diagnostic: line 6: SubRip numbers that do not follow ("7"), settled by the reader
+[subedit] [inspect] [1/1] diagnostic: line 9: a line that fits nowhere, left as it stands
 ```
 
 全部十八个子命令都会报告它们，而不只是 [`inspect`](inspect.md)：一个被尽可能好地读取、然后又被写回的文件，经历了同样的决定，对此保持沉默会让人误以为什么也没有发生。
@@ -658,12 +711,12 @@ $ man -L fr subedit-cli-shift
 | `--quiet` 与 `-v` 同时使用 | `--quiet and -v ask for opposite things; give one or the other` |
 | `--config` 与 `--no-config` 同时使用 | `--config excludes --no-config` |
 | `--config` 带有空名称 | `--config needs a file name` |
-| 文件不存在 | `<path>: does not exist` |
-| 文件无法读取 | `<path>: cannot be opened: permission denied` |
+| 文件不存在 | `does not exist` |
+| 文件无法读取 | `cannot be opened: permission denied` |
 | 会写入自己的标记的编码 | `"<name>" writes a byte order mark of its own; name the byte order, as UTF-16LE and UTF-16BE do` |
-| 字节无法解码 | `<path>: cannot be decoded in the chosen encoding` |
-| 格式无法识别 | `<path>: is in no format this tool knows` |
-| 没有任何像字幕的内容 | `<path>: holds nothing recognisable as a subtitle` |
+| 字节无法解码 | `cannot be decoded in the chosen encoding` |
+| 格式无法识别 | `is in no format this tool knows` |
+| 没有任何像字幕的内容 | `holds nothing recognisable as a subtitle` |
 | 使用 `--document translation` 却没有 `-t` | `--document translation needs the translation file: use -t` |
 | 使用 `-t` 却没有 `--document translation` | `-t names a translation to change: use --document translation` |
 | 使用 `--align-method` 却没有 `-t` | `--align-method needs a translation file: use -t` |

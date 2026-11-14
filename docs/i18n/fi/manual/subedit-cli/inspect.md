@@ -362,11 +362,11 @@ valitsimen `-t` virheet: katso yllä. `inspect` ei kirjoita mitään, mikä voit
 | Mikä sen aiheuttaa | Viesti |
 | :------------------ | :------ |
 | polkua ei annettu | `files is required` ja sen perässä viittaus valitsimeen `--help` |
-| puuttuva tiedosto | `<path>: does not exist` |
-| lukukelvoton tiedosto | `<path>: cannot be opened: permission denied` |
-| tavut, joita ei voi purkaa | `<path>: cannot be decoded in the chosen encoding` |
-| tunnistamaton muoto | `<path>: is in no format this tool knows` |
-| ei mitään kappaleelta näyttävää | `<path>: holds nothing recognisable as a subtitle` |
+| puuttuva tiedosto | `does not exist` |
+| lukukelvoton tiedosto | `cannot be opened: permission denied` |
+| tavut, joita ei voi purkaa | `cannot be decoded in the chosen encoding` |
+| tunnistamaton muoto | `is in no format this tool knows` |
+| ei mitään kappaleelta näyttävää | `holds nothing recognisable as a subtitle` |
 
 Viestit ovat samat kaikille seitsemälletoista alikomennolle: avaamisen resepti
 on kirjoitettu kerran, ytimeen.

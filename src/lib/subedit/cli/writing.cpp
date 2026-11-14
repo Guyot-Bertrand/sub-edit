@@ -65,7 +65,7 @@ void narrateRead(const Reporter& reporter,
     reporter.tell(2, Key::LineEndings, nameOf(source.newline));
     reporter.tell(3, Key::BytesRead, std::to_string(bytesRead));
     // The path is the element's `source` line: a diagnostic of an element does not repeat it.
-    sayDiagnostics(reporter, {}, diagnostics);
+    sayDiagnostics(reporter, diagnostics);
 }
 
 } // namespace subedit::cli

@@ -133,6 +133,6 @@ code=2
 | 小数点使用了逗号 | `"…" is not a time: use a decimal point and not a comma, in every language` |
 | 精度细于毫秒 | `"…" is not a time: positions are held to the millisecond, no finer` |
 | 文本不是持续时间 | `"…" is not a time: expected seconds like 2.999, or a timestamp like 00:00:07.001` |
-| 移动到起点之前 | `<path>: subtitle N would start before the origin, which no subtitle file can hold` |
+| 移动到起点之前 | `subtitle N would start before the origin, which no subtitle file can hold` |
 
 **不指定三个输出选项之一，就不会写入任何内容**，这些选项的错误是所有会写入的子命令共有的：参见[调用](invocation.md#输出位置)。

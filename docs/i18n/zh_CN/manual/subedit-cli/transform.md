@@ -165,8 +165,8 @@ code=2
 | 序号不是整数 | `"…" is not a subtitle number: expected a whole number, counted from 1 as the file shows them` |
 | 时间无效 | 与 [`shift`](shift.md) 的相同 |
 | `--first` 和 `--last` 指向同一序号 | `--first and --last both name subtitle N, and two references on one subtitle define no transform` |
-| 序号越界 | `<path>: subtitle N is past the end: the file holds M subtitles` |
-| 两条字幕同时开始 | `<path>: subtitles N and M start at the same moment, so they define no transform` |
-| 位置早于起点 | `<path>: subtitle N would land before the origin, which no subtitle file can hold` |
+| 序号越界 | `subtitle N is past the end: the file holds M subtitles` |
+| 两条字幕同时开始 | `subtitles N and M start at the same moment, so they define no transform` |
+| 位置早于起点 | `subtitle N would land before the origin, which no subtitle file can hold` |
 
 **不指定三个输出选项之一，就不会写入任何内容**，这些选项的错误是所有会写入的子命令共有的：参见[调用](invocation.md#输出位置)。

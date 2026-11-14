@@ -263,7 +263,7 @@ sommige, `1` bij een gebruiksfout. Een bestand dat al binnen zijn limieten past,
 | nul of negatief maximum | `--maximum: "0" is not a duration above zero` |
 | slecht geschreven bereik | `--range: "…" is not a range: write it N-M, or N- to go to the end, counted from 1 and inclusive` |
 | bereik dat eindigt voor het begint | `--range: "5-3" is not a range: it ends before it starts` |
-| bereik buiten het bestand | `<path>: range N-M starts after the last subtitle: the file has K`, of `… ends after …` |
+| bereik buiten het bestand | `range N-M starts after the last subtitle: the file has K`, of `… ends after …` |
 
 De fouten van de bestemming zijn gemeenschappelijk voor de subcommando's die schrijven:
 zie [Aanroep](invocation.md#de-bestemming).

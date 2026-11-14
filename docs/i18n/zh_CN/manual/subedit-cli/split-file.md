@@ -122,7 +122,7 @@ o.srt: Cannot split at subtitle 3: subtitle 3 would fall before the start of the
 | 使用 `--dry-run` 时只给了两者之一 | `--head and --tail go together: give both, or neither with --dry-run` |
 | 两个输出位置是同一个文件 | `<path>: named as both the head and the tail` |
 | 某个输出位置就是输入 | `<path>: would be written over the input <input>` |
-| `--at` 超出文件范围 | `<file>: --at 9: the file holds 3 subtitles, and the tail can start from 2 to 3` |
-| 只有一条字幕的文件 | `<file>: a file of 1 subtitle cannot be split: a cut needs a subtitle on each side` |
-| 重叠 | `<file>: Cannot split at subtitle N: subtitle M would fall before the start of the video. Cut somewhere else.` |
-| 文件缺失、不可读或格式未知 | `<path>: does not exist`……——与其他地方相同 |
+| `--at` 超出文件范围 | `--at 9: the file holds 3 subtitles, and the tail can start from 2 to 3` |
+| 只有一条字幕的文件 | `a file of 1 subtitle cannot be split: a cut needs a subtitle on each side` |
+| 重叠 | `Cannot split at subtitle N: subtitle M would fall before the start of the video. Cut somewhere else.` |
+| 文件缺失、不可读或格式未知 | `does not exist`……——与其他地方相同 |

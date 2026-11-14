@@ -262,7 +262,7 @@ seulement, `1` sur une erreur d'usage. Un fichier qui tient déjà dans ses limi
 | maximum nul ou négatif | `--maximum: "0" is not a duration above zero` |
 | plage mal écrite | `--range: "…" is not a range: write it N-M, or N- to go to the end, counted from 1 and inclusive` |
 | plage qui finit avant de commencer | `--range: "5-3" is not a range: it ends before it starts` |
-| plage hors du fichier | `<path>: range N-M starts after the last subtitle: the file has K`, ou `… ends after …` |
+| plage hors du fichier | `range N-M starts after the last subtitle: the file has K`, ou `… ends after …` |
 
 Les erreurs de la destination sont communes aux sous-commandes qui écrivent :
 voir [Invocation](invocation.md#la-destination).

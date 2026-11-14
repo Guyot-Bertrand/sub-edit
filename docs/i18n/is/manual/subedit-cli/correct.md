@@ -314,7 +314,7 @@ glugginn: staðfestingarsíðan nefnir mynstrið aðeins einu sinni, án textans
 | `grew the text too long` | textinn fór fram úr því sem skjátexti getur geymt |
 
 Á stigi 1, á villuúttakinu: 
-`<path>: pattern "<name>" (<reason>) was not applied to subtitle N` — án endisins þegar mynstrið er lagt til hliðar fyrir alla texta. **Númerið er
+`warning: pattern "<name>" (<reason>) was not applied to subtitle N` — án endisins þegar mynstrið er lagt til hliðar fyrir alla texta. **Númerið er
 skrárinnar**, hver verk sem fjarlægðu skjátexta á undan. Á JSON-sniði er það
 `pattern-failed`-viðvörun skrárinnar, þar sem `detail` ber setninguna. **Mynstur sem er
 gefið upp á bátinn er ekki skrá sem brást**: skráin er skrifuð og skilakóðinn er `0`.

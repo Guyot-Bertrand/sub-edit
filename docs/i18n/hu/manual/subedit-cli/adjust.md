@@ -255,7 +255,7 @@ néhányé, `1` használati hiba esetén. Az a fájl, amely már belefér a korl
 | nulla vagy negatív legnagyobb időtartam | `--maximum: "0" is not a duration above zero` |
 | rosszul írt tartomány | `--range: "…" is not a range: write it N-M, or N- to go to the end, counted from 1 and inclusive` |
 | a kezdete előtt végződő tartomány | `--range: "5-3" is not a range: it ends before it starts` |
-| a fájlon kívüli tartomány | `<path>: range N-M starts after the last subtitle: the file has K`, vagy `… ends after …` |
+| a fájlon kívüli tartomány | `range N-M starts after the last subtitle: the file has K`, vagy `… ends after …` |
 
 A cél hibái közösek az író alparancsokban:
 lásd: [Indítás](invocation.md#a-cél).

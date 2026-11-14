@@ -163,7 +163,7 @@ solo algunos, `1` en caso de error de uso.
 | coma decimal | `"…" is not a time: use a decimal point and not a comma, in every language` |
 | más fino que el milisegundo | `"…" is not a time: positions are held to the millisecond, no finer` |
 | texto que no es una duración | `"…" is not a time: expected seconds like 2.999, or a timestamp like 00:00:07.001` |
-| desplazamiento anterior al origen | `<path>: subtitle N would start before the origin, which no subtitle file can hold` |
+| desplazamiento anterior al origen | `subtitle N would start before the origin, which no subtitle file can hold` |
 
 **No se escribe nada sin una de las tres opciones de destino**, y sus
 errores son comunes a los subcomandos que escriben:

@@ -260,7 +260,7 @@ some, `1` on a usage error. A file that already fits within its limits is proces
 | zero or negative maximum | `--maximum: "0" is not a duration above zero` |
 | badly written range | `--range: "…" is not a range: write it N-M, or N- to go to the end, counted from 1 and inclusive` |
 | range that ends before it starts | `--range: "5-3" is not a range: it ends before it starts` |
-| range outside the file | `<path>: range N-M starts after the last subtitle: the file has K`, or `… ends after …` |
+| range outside the file | `range N-M starts after the last subtitle: the file has K`, or `… ends after …` |
 
 The errors of the destination are common to the subcommands that write:
 see [Invocation](invocation.md#the-destination).

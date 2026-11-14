@@ -133,7 +133,7 @@ code=2
 | :------------------ | :------ |
 | не указан ни `--on`, ни `--off` | `italics needs --on to put the texts in italics, or --off` |
 | указаны оба | `--on and --off say opposite things; give one of them` |
-| формат без стиля | `<path>: TMPlayer writes no style: there are no italics to put on` (или `take out`) |
+| формат без стиля | `TMPlayer writes no style: there are no italics to put on` (или `take out`) |
 | диапазон записан неверно или выходит за пределы файла | см. [`adjust`](adjust.md#--range) |
 
 Ошибки места назначения общие для подкоманд, которые записывают:

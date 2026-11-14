@@ -94,7 +94,7 @@ trois
 מסדר את התוצאה לפי ההתחלות, **במכה אחת, אחרי ההוספה האחרונה**, כמו ש-[`sort`](sort.md) היה עושה — יציב, בלי לשנות דבר
 בתוכן.
 
-לעולם לא כברירת מחדל. עם האפשרות, הבסיס אומר זאת ברמת הקריינות הראשונה, `<base>: N subtitles moved` או `<base>: already in order`, והרשומה
+לעולם לא כברירת מחדל. עם האפשרות, הבסיס אומר זאת ברמת הקריינות הראשונה, `result: N subtitles moved` או `result: already in order`, והרשומה
 של `--format json` נושאת ספירת `moved`, **חסרה בלי האפשרות**.
 
 ## הפיכת הטווחים לזרים
@@ -161,8 +161,8 @@ SubRip בלי לאבד דבר, לא להפך. כדי לבחור את פורמט 
 | ניתן קובץ אחד בלבד | `append needs a base file and at least one file to put after it` |
 | לא `--output` ולא `--dry-run` | `no destination given: append writes one file, use --output` |
 | `--output` נוקב בקלט | `<destination>: would be written over the input <input>` |
-| קובץ חסר, שאי אפשר לקרוא או שפורמטו לא מוכר | `<path>: does not exist`, `<path>: is in no format this tool knows`… — כמו בכל מקום |
+| קובץ חסר, שאי אפשר לקרוא או שפורמטו לא מוכר | `does not exist`, `is in no format this tool knows`… — כמו בכל מקום |
 
 **קובץ ריק אינו נוסף**: שום פורמט אינו נקרא בלי כתובית אחת לפחות, והקובץ
-נדחה כמו כל קובץ שאי אפשר לקרוא — `<path>: holds nothing recognisable as a subtitle` —, מה
+נדחה כמו כל קובץ שאי אפשר לקרוא — `holds nothing recognisable as a subtitle` —, מה
 שעוצר את ההרצה ואינו כותב דבר.

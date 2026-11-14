@@ -163,7 +163,7 @@ jen některé, `1` při chybě použití.
 | desetinná čárka | `"…" is not a time: use a decimal point and not a comma, in every language` |
 | jemnější než milisekunda | `"…" is not a time: positions are held to the millisecond, no finer` |
 | text, který není dobou trvání | `"…" is not a time: expected seconds like 2.999, or a timestamp like 00:00:07.001` |
-| posun před počátek | `<path>: subtitle N would start before the origin, which no subtitle file can hold` |
+| posun před počátek | `subtitle N would start before the origin, which no subtitle file can hold` |
 
 **Bez jedné ze tří voleb cíle zápisu se nic nezapíše** a jejich
 chyby jsou společné podpříkazům, které zapisují:

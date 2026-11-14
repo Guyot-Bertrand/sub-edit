@@ -163,7 +163,7 @@ sem, `3`, ha csak néhány, `1` használati hiba esetén.
 | tizedesvessző | `"…" is not a time: use a decimal point and not a comma, in every language` |
 | az ezredmásodpercnél finomabb érték | `"…" is not a time: positions are held to the millisecond, no finer` |
 | nem időtartam szöveg | `"…" is not a time: expected seconds like 2.999, or a timestamp like 00:00:07.001` |
-| a nullpont előtti eltolás | `<path>: subtitle N would start before the origin, which no subtitle file can hold` |
+| a nullpont előtti eltolás | `subtitle N would start before the origin, which no subtitle file can hold` |
 
 **A három célkapcsoló egyike nélkül semmi sem íródik ki**, és ezek
 hibái közösek az íráshoz használt alparancsokkal:

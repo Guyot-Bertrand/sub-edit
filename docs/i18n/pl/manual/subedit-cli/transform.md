@@ -195,9 +195,9 @@ tylko niektóre, `1` przy błędzie użycia.
 | indeks, który nie jest liczbą całkowitą | `"…" is not a subtitle number: expected a whole number, counted from 1 as the file shows them` |
 | nieprawidłowy czas | takie jak w [`shift`](shift.md) |
 | `--first` i `--last` z tym samym indeksem | `--first and --last both name subtitle N, and two references on one subtitle define no transform` |
-| indeks poza zakresem | `<path>: subtitle N is past the end: the file holds M subtitles` |
-| dwa napisy zaczynające się razem | `<path>: subtitles N and M start at the same moment, so they define no transform` |
-| pozycja przed początkiem osi czasu | `<path>: subtitle N would land before the origin, which no subtitle file can hold` |
+| indeks poza zakresem | `subtitle N is past the end: the file holds M subtitles` |
+| dwa napisy zaczynające się razem | `subtitles N and M start at the same moment, so they define no transform` |
+| pozycja przed początkiem osi czasu | `subtitle N would land before the origin, which no subtitle file can hold` |
 
 **Nic nie jest zapisywane bez jednej z trzech opcji miejsca docelowego**, a ich
 błędy są wspólne dla podpoleceń, które zapisują:

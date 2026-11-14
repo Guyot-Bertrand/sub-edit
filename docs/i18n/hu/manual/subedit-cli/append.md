@@ -91,7 +91,7 @@ Minden fájl **az előtte álló rész végétől** tolódik el: a sorrend tehá
 a kezdetek sorrendjébe állítja az eredményt, **egy menetben, az utolsó hozzáfűzés után**, ahogyan a [`sort`](sort.md) tenné — stabilan, a tartalom
 megváltoztatása nélkül.
 
-Alapértelmezés szerint soha. A kapcsolóval az alap ezt jelzi az első narrációs szinten: `<base>: N subtitles moved` vagy `<base>: already in order`, és
+Alapértelmezés szerint soha. A kapcsolóval az alap ezt jelzi az első narrációs szinten: `result: N subtitles moved` vagy `result: already in order`, és
 a `--format json` rekord tartalmaz egy `moved` számlálót, amely **a kapcsoló nélkül hiányzik**.
 
 ## A tartományok átfedésmentessé tétele
@@ -157,8 +157,8 @@ A hiba is objektum, **egyetlen**: azé az első fájlé, amely nem volt olvashat
 | egyetlen megadott fájl | `append needs a base file and at least one file to put after it` |
 | sem `--output`, sem `--dry-run` | `no destination given: append writes one file, use --output` |
 | az `--output` egy bemenetet nevez meg | `<destination>: would be written over the input <input>` |
-| hiányzó, olvashatatlan vagy ismeretlen formátumú fájl | `<path>: does not exist`, `<path>: is in no format this tool knows`… — ugyanaz, mint mindenhol |
+| hiányzó, olvashatatlan vagy ismeretlen formátumú fájl | `does not exist`, `is in no format this tool knows`… — ugyanaz, mint mindenhol |
 
 **Az üres fájlt nem fűzi hozzá a program**: egyetlen formátum sem olvasható legalább egy feliratsor nélkül, és a fájlt
-úgy utasítja el, mint bármely olvashatatlan fájlt — `<path>: holds nothing recognisable as a subtitle` —, ami
+úgy utasítja el, mint bármely olvashatatlan fájlt — `holds nothing recognisable as a subtitle` —, ami
 leállítja a futást, és semmit sem ír ki.

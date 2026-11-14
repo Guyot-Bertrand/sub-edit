@@ -263,7 +263,7 @@ $ printf '1\n00:00:00,000 --> 00:00:00,400\nabcdefghijklmnopqrstuvwxyz1234\n\n2\
 | нулевой или отрицательный максимум | `--maximum: "0" is not a duration above zero` |
 | неверно записанный диапазон | `--range: "…" is not a range: write it N-M, or N- to go to the end, counted from 1 and inclusive` |
 | диапазон, заканчивающийся раньше, чем начинается | `--range: "5-3" is not a range: it ends before it starts` |
-| диапазон за пределами файла | `<path>: range N-M starts after the last subtitle: the file has K` или `… ends after …` |
+| диапазон за пределами файла | `range N-M starts after the last subtitle: the file has K` или `… ends after …` |
 
 Ошибки места назначения общие для подкоманд, которые записывают:
 см. [Запуск](invocation.md#место-назначения).

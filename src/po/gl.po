@@ -1438,6 +1438,63 @@ msgstr "%1: subtítulo %2 (tradución)"
 msgid "%1: subtitle %2"
 msgstr "%1: subtítulo %2"
 
+#. TRANSLATORS: %1 is what was typed on the command line and nothing takes, as typed.
+#: src/lib/subedit/cli/complaint.cpp
+msgid "The following argument was not expected: %1"
+msgid_plural "The following arguments were not expected: %1"
+msgstr[0] "Non se agardaba o seguinte argumento: %1"
+msgstr[1] "Non se agardaban os seguintes argumentos: %1"
+
+#: src/lib/subedit/cli/complaint.cpp
+msgid "A subcommand is required"
+msgstr "Cómpre unha suborde"
+
+#. TRANSLATORS: %1 is an option or an argument, as named in --help.
+#: src/lib/subedit/cli/complaint.cpp src/lib/subedit/cli/transcribing.cpp
+msgid "%1 is required"
+msgstr "%1 é obrigatorio"
+
+#. TRANSLATORS: %1 and %2 are two options, as typed.
+#: src/lib/subedit/cli/complaint.cpp
+msgid "%1 excludes %2"
+msgstr "%1 exclúe %2"
+
+#. TRANSLATORS: %1 is an option given with too few values after it, %2 how many it
+#. needs, %3 their metavariable as --help shows it (TEXT, N).
+#: src/lib/subedit/cli/complaint.cpp
+msgid "%1: %2 required %3 missing"
+msgstr "%1: faltan %2 %3 requiridos"
+
+#. TRANSLATORS: %1 is an option, %2 the most values it takes, %3 how many were given.
+#: src/lib/subedit/cli/complaint.cpp
+msgid "%1: At Most %2 required but received %3"
+msgstr "%1: requírense como máximo %2, pero recibíronse %3"
+
+#. TRANSLATORS: %1 is an option, %2 the fewest values it takes, %3 how many were given.
+#: src/lib/subedit/cli/complaint.cpp
+msgid "%1: At least %2 required but received %3"
+msgstr "%1: requírense como mínimo %2, pero recibíronse %3"
+
+#. TRANSLATORS: %1 is an option, %2 the value given, %3 the values it takes, between
+#. commas.
+#: src/lib/subedit/cli/complaint.cpp
+msgid "%1: %2 not in {%3}"
+msgstr "%1: %2 non está en {%3}"
+
+#. TRANSLATORS: %1 is an option, %2 the value given.
+#: src/lib/subedit/cli/complaint.cpp
+msgid "%1: Value %2 is not a number zero or greater"
+msgstr "%1: o valor %2 non é un número maior ou igual a cero"
+
+#. TRANSLATORS: %1 is an option, %2 the value given, %3 and %4 the bounds of what it takes.
+#: src/lib/subedit/cli/complaint.cpp
+msgid "%1: Value %2 not in range [%3 - %4]"
+msgstr "%1: o valor %2 non está no intervalo [%3 - %4]"
+
+#: src/lib/subedit/cli/complaint.cpp
+msgid "Run with --help for more information."
+msgstr "Execute con --help para máis información."
+
 #. TRANSLATORS: %1 is the settings file, %2 why it could not be read.
 #: src/lib/subedit/cli/configuring.cpp
 msgid "%1: %2; nothing written"
@@ -2152,10 +2209,6 @@ msgstr ""
 msgid "expected seconds like 2.999, or a timestamp like 00:00:07.001"
 msgstr ""
 "agardábanse segundos como 2.999, ou unha marca de tempo como 00:00:07.001"
-
-#: src/lib/subedit/cli/transcribing.cpp
-msgid "%1 is required"
-msgstr "%1 é obrigatorio"
 
 #: src/lib/subedit/cli/transforming.cpp
 msgid "subtitle %1 is past the end: the file holds %2 subtitle"
@@ -5704,8 +5757,11 @@ msgctxt "toolbar"
 msgid "Main"
 msgstr "Principal"
 
-#~ msgid "%1: %2 -> %3"
-#~ msgstr "%1: %2 -> %3"
+#~ msgid "%1 requires %2"
+#~ msgstr "%1 require %2"
+
+#~ msgid "Could not convert: %1 = %2"
+#~ msgstr "Non se puido converter: %1 = %2"
 
 #~ msgid "%1 -> %2"
 #~ msgstr "%1 -> %2"
@@ -5714,11 +5770,6 @@ msgstr "Principal"
 #~ msgid_plural "%1: %2 bytes read, %3 would be written"
 #~ msgstr[0] "%1: %2 byte lido, escribiríanse %3"
 #~ msgstr[1] "%1: %2 bytes lidos, escribiríanse %3"
-
-#~ msgid "%1: %2 bytes read, %3 written"
-#~ msgid_plural "%1: %2 bytes read, %3 written"
-#~ msgstr[0] "%1: %2 byte lido, %3 escritos"
-#~ msgstr[1] "%1: %2 bytes lidos, %3 escritos"
 
 #~ msgid "%1: %2 -> %3, %4, %5 line endings"
 #~ msgstr "%1: %2 -> %3, %4, finais de liña %5"
@@ -5729,11 +5780,6 @@ msgstr "Principal"
 #~ "%1: %2 subtítulo convertido a %3 (simulación, non se escribiu nada)"
 #~ msgstr[1] ""
 #~ "%1: %2 subtítulos convertidos a %3 (simulación, non se escribiu nada)"
-
-#~ msgid "%1: %2 subtitle written as %3 -> %4"
-#~ msgid_plural "%1: %2 subtitles written as %3 -> %4"
-#~ msgstr[0] "%1: %2 subtítulo escrito como %3 -> %4"
-#~ msgstr[1] "%1: %2 subtítulos escritos como %3 -> %4"
 
 #~ msgid "%1: %2 bytes read"
 #~ msgid_plural "%1: %2 bytes read"

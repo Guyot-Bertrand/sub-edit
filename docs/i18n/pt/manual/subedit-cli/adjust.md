@@ -263,7 +263,7 @@ alguns, `1` em caso de erro de utilização. Um ficheiro que já cabe nos seus l
 | máximo nulo ou negativo | `--maximum: "0" is not a duration above zero` |
 | intervalo mal escrito | `--range: "…" is not a range: write it N-M, or N- to go to the end, counted from 1 and inclusive` |
 | intervalo que termina antes de começar | `--range: "5-3" is not a range: it ends before it starts` |
-| intervalo fora do ficheiro | `<path>: range N-M starts after the last subtitle: the file has K`, ou `… ends after …` |
+| intervalo fora do ficheiro | `range N-M starts after the last subtitle: the file has K`, ou `… ends after …` |
 
 Os erros do destino são comuns aos subcomandos que escrevem:
 ver [Invocação](invocation.md#o-destino).

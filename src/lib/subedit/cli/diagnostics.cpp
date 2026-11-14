@@ -52,16 +52,9 @@ std::string reportOf(const core::Diagnostic& diagnostic) {
                                   {line, kind, detail, severity});
 }
 
-void sayDiagnostics(const Reporter& reporter,
-                    std::string_view path,
-                    std::span<const core::Diagnostic> diagnostics) {
-    for (const core::Diagnostic& diagnostic : diagnostics) {
-        if (reporter.speaksOfItem()) {
-            reporter.tell(kDiagnosticLevel, Key::Diagnostic, reportOf(diagnostic));
-        } else {
-            reporter.say(kDiagnosticLevel, std::string{path} + ": " + reportOf(diagnostic));
-        }
-    }
+void sayDiagnostics(const Reporter& reporter, std::span<const core::Diagnostic> diagnostics) {
+    for (const core::Diagnostic& diagnostic : diagnostics)
+        reporter.tell(kDiagnosticLevel, Key::Diagnostic, reportOf(diagnostic));
 }
 
 } // namespace subedit::cli

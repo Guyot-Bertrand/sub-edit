@@ -334,10 +334,10 @@ aðeins sumar, `1` við notkunarvillu.
 | :------------------ | :------ |
 | `--bom` með `--no-bom` | `--bom and --no-bom ask for opposite things; give one or the other` |
 | `--in-place` sem breytir sniðinu | `--in-place cannot change the format: the file would keep a name its content no longer matches` |
-| `--bom` á stafakóðun sem hefur ekkert slíkt | `<path>: <encoding> has no byte order mark to write` |
+| `--bom` á stafakóðun sem hefur ekkert slíkt | `<encoding> has no byte order mark to write` |
 | `--to-encoding` sem nefnir óþekkta stafakóðun | `no encoding is named "<name>"` |
 | `--to-encoding` sem nefnir stafakóðun sem skrifar sitt eigið merki | `"<name>" writes a byte order mark of its own; name the byte order, as UTF-16LE and UTF-16BE do` |
-| stafur sem vantar í stafakóðunina sem er skrifuð | `<path>: holds a character the chosen encoding cannot write` |
+| stafur sem vantar í stafakóðunina sem er skrifuð | `holds a character the chosen encoding cannot write` |
 
 **Að hafna `--bom` á stafakóðun sem hefur ekkert slíkt er ekki
 smámunasemi.** Bætaröðunarmerki er til fyrir Unicode-stafakóðanir og

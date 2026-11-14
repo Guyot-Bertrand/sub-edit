@@ -144,7 +144,7 @@ helft).
 | slechts een van de twee, met `--dry-run` | `--head and --tail go together: give both, or neither with --dry-run` |
 | de twee bestemmingen zijn hetzelfde bestand | `<path>: named as both the head and the tail` |
 | een bestemming is de invoer | `<path>: would be written over the input <input>` |
-| `--at` buiten het bestand | `<file>: --at 9: the file holds 3 subtitles, and the tail can start from 2 to 3` |
-| een bestand van één ondertitel | `<file>: a file of 1 subtitle cannot be split: a cut needs a subtitle on each side` |
-| overlap | `<file>: Cannot split at subtitle N: subtitle M would fall before the start of the video. Cut somewhere else.` |
-| een bestand ontbreekt, is onleesbaar of heeft een onbekend formaat | `<path>: does not exist`… — hetzelfde als overal |
+| `--at` buiten het bestand | `--at 9: the file holds 3 subtitles, and the tail can start from 2 to 3` |
+| een bestand van één ondertitel | `a file of 1 subtitle cannot be split: a cut needs a subtitle on each side` |
+| overlap | `Cannot split at subtitle N: subtitle M would fall before the start of the video. Cut somewhere else.` |
+| een bestand ontbreekt, is onleesbaar of heeft een onbekend formaat | `does not exist`… — hetzelfde als overal |

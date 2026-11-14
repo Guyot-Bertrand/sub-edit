@@ -161,7 +161,7 @@ TEST_CASE("a file that is not there is named, and nothing is reported", "[cli][i
     CHECK_FALSE(inspectFile(files, "absent.srt", {}, out, Reporter{errors, 0}));
 
     CHECK(out.str().empty());
-    CHECK(errors.str() == "absent.srt: does not exist\n");
+    CHECK(errors.str() == "[subedit] [-] [-] error: absent.srt: does not exist\n");
 }
 
 TEST_CASE("bytes that decode nowhere are refused rather than mangled", "[cli][inspection]") {
@@ -261,7 +261,7 @@ TEST_CASE("a file that cannot be opened is told from one that is absent", "[cli]
 
     // Not "does not exist": the file is there, and telling the two apart is
     // what lets a caller know whether to look for a typo or for a chmod.
-    CHECK(errors.str() == "a.srt: cannot be opened: permission denied\n");
+    CHECK(errors.str() == "[subedit] [-] [-] error: a.srt: cannot be opened: permission denied\n");
 }
 
 TEST_CASE("a device that refuses for another reason says so", "[cli][inspection]") {
@@ -272,7 +272,7 @@ TEST_CASE("a device that refuses for another reason says so", "[cli][inspection]
     std::ostringstream errors;
 
     CHECK_FALSE(inspectFile(files, "a.srt", {}, out, Reporter{errors, 0}));
-    CHECK(errors.str() == "a.srt: cannot be read\n");
+    CHECK(errors.str() == "[subedit] [-] [-] error: a.srt: cannot be read\n");
 }
 
 TEST_CASE("a recognised format holding no subtitle is refused", "[cli][inspection]") {

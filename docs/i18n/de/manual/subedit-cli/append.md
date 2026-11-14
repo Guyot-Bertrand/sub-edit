@@ -94,7 +94,7 @@ Jede Datei wird **ab dem Ende dessen, was ihr vorangeht,** verschoben: Die Reihe
 bringt das Ergebnis in die Reihenfolge der Anfänge, **in einem Zug, nach dem letzten Anhängen**, wie es [`sort`](sort.md) täte — stabil und ohne etwas
 am Inhalt zu ändern.
 
-Nie standardmäßig. Mit der Option sagt es die Basis auf der ersten Ausführlichkeitsstufe, `<base>: N subtitles moved` oder `<base>: already in order`, und
+Nie standardmäßig. Mit der Option sagt es die Basis auf der ersten Ausführlichkeitsstufe, `result: N subtitles moved` oder `result: already in order`, und
 der Datensatz von `--format json` enthält eine Zählung `moved`, **die ohne die Option fehlt**.
 
 ## Bereiche überschneidungsfrei machen
@@ -161,8 +161,8 @@ Ein Fehlschlag ist ebenfalls ein Objekt, **ein einziges**: das der ersten Datei,
 | eine einzige Datei angegeben | `append needs a base file and at least one file to put after it` |
 | weder `--output` noch `--dry-run` | `no destination given: append writes one file, use --output` |
 | `--output` nennt eine Eingabe | `<destination>: would be written over the input <input>` |
-| eine Datei fehlt, ist unlesbar oder hat ein unbekanntes Format | `<path>: does not exist`, `<path>: is in no format this tool knows`… — dieselben wie überall |
+| eine Datei fehlt, ist unlesbar oder hat ein unbekanntes Format | `does not exist`, `is in no format this tool knows`… — dieselben wie überall |
 
 **Eine leere Datei wird nicht angehängt**: Kein Format liest ohne mindestens einen Untertitel, und die Datei wird
-wie jede Datei abgelehnt, die nicht gelesen werden kann — `<path>: holds nothing recognisable as a subtitle` —, was
+wie jede Datei abgelehnt, die nicht gelesen werden kann — `holds nothing recognisable as a subtitle` —, was
 den Lauf anhält und nichts schreibt.

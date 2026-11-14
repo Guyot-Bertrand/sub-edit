@@ -158,7 +158,7 @@ code 2
 
 | מה גורם להן | הודעה |
 | :------------------- | :------ |
-| קובץ שאינו ממוין בלי `--sort` | `<path>: The subtitles are not in the order of their start: sort them first. Use --sort to do that here.` |
+| קובץ שאינו ממוין בלי `--sort` | `The subtitles are not in the order of their start: sort them first. Use --sort to do that here.` |
 | `--minimum` אינו משך, או שלילי | `--minimum: …` |
 | `--max-lines` אינו מספר שלם | `--max-lines: "…" is not a number of lines: expected a whole number, 0 for no limit` |
 

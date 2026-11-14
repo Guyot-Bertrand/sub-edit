@@ -130,7 +130,7 @@ Those of the tool: `0` if every file was processed — a file where nothing chan
 | :------------------ | :------ |
 | neither `--on` nor `--off` | `italics needs --on to put the texts in italics, or --off` |
 | both | `--on and --off say opposite things; give one of them` |
-| a format without style | `<path>: TMPlayer writes no style: there are no italics to put on` (or `take out`) |
+| a format without style | `TMPlayer writes no style: there are no italics to put on` (or `take out`) |
 | range badly written or outside the file | see [`adjust`](adjust.md#--range) |
 
 The errors of the destination are common to the subcommands that write:

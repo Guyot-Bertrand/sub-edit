@@ -273,10 +273,10 @@ Bonjour.
 | :------------------ | :------ |
 | `--bom` 与 `--no-bom` 同用 | `--bom and --no-bom ask for opposite things; give one or the other` |
 | `--in-place` 会改变格式 | `--in-place cannot change the format: the file would keep a name its content no longer matches` |
-| 对没有标记的编码使用 `--bom` | `<path>: <encoding> has no byte order mark to write` |
+| 对没有标记的编码使用 `--bom` | `<encoding> has no byte order mark to write` |
 | `--to-encoding` 指定了未知编码 | `no encoding is named "<name>"` |
 | `--to-encoding` 指定了自带标记的编码 | `"<name>" writes a byte order mark of its own; name the byte order, as UTF-16LE and UTF-16BE do` |
-| 所写编码中没有该字符 | `<path>: holds a character the chosen encoding cannot write` |
+| 所写编码中没有该字符 | `holds a character the chosen encoding cannot write` |
 
 **拒绝对不带标记的编码使用 `--bom`，并不是吹毛求疵。** 字节序标记只存在于 Unicode 编码中，其他编码都没有：要求在 Windows-1252 文件中加上标记，就是要求一样并不存在的东西。文件会在没有标记的情况下写出，而没有人会知道这一请求并未得到满足。
 

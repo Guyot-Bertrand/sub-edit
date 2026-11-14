@@ -333,10 +333,10 @@ certains seulement, `1` sur une erreur d'usage.
 | :------------------ | :------ |
 | `--bom` avec `--no-bom` | `--bom and --no-bom ask for opposite things; give one or the other` |
 | `--in-place` qui change le format | `--in-place cannot change the format: the file would keep a name its content no longer matches` |
-| `--bom` sur un encodage qui n'en a pas | `<path>: <encoding> has no byte order mark to write` |
+| `--bom` sur un encodage qui n'en a pas | `<encoding> has no byte order mark to write` |
 | `--to-encoding` nommant un encodage inconnu | `no encoding is named "<name>"` |
 | `--to-encoding` nommant un encodage qui écrit sa propre marque | `"<name>" writes a byte order mark of its own; name the byte order, as UTF-16LE and UTF-16BE do` |
-| caractère absent de l'encodage écrit | `<path>: holds a character the chosen encoding cannot write` |
+| caractère absent de l'encodage écrit | `holds a character the chosen encoding cannot write` |
 
 **Le refus de `--bom` sur un encodage qui n'en porte pas n'est pas une
 pédanterie.** Une marque d'ordre des octets existe pour les encodages Unicode et

@@ -94,7 +94,7 @@ Cada fitxer es desplaça **a partir del final del que el precedeix**: l'ordre qu
 posa el resultat en l'ordre dels començaments, **d'una sola vegada, després de l'última addició**, com ho faria [`sort`](sort.md) — de manera estable, i sense canviar res
 del contingut.
 
-Mai per defecte. Amb l'opció, la base ho diu al primer nivell de narració, `<base>: N subtitles moved` o `<base>: already in order`, i
+Mai per defecte. Amb l'opció, la base ho diu al primer nivell de narració, `result: N subtitles moved` o `result: already in order`, i
 el registre de `--format json` porta un recompte `moved`, **absent sense l'opció**.
 
 ## Fer disjuntes les franges
@@ -161,8 +161,8 @@ Un error també és un objecte, **un de sol**: el del primer fitxer que no s'ha 
 | un sol fitxer donat | `append needs a base file and at least one file to put after it` |
 | ni `--output` ni `--dry-run` | `no destination given: append writes one file, use --output` |
 | `--output` anomena una entrada | `<destination>: would be written over the input <input>` |
-| un fitxer que falta, il·legible o d'un format desconegut | `<path>: does not exist`, `<path>: is in no format this tool knows`… — el mateix que arreu |
+| un fitxer que falta, il·legible o d'un format desconegut | `does not exist`, `is in no format this tool knows`… — el mateix que arreu |
 
 **Un fitxer buit no s'afegeix**: cap format no llegeix sense almenys un subtítol, i el fitxer es
-refusa com qualsevol fitxer que no es pot llegir — `<path>: holds nothing recognisable as a subtitle` —, cosa que
+refusa com qualsevol fitxer que no es pot llegir — `holds nothing recognisable as a subtitle` —, cosa que
 atura l'execució i no escriu res.

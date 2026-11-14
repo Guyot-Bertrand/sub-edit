@@ -362,11 +362,11 @@ os de `-t`: ver acima. O `inspect` não escreve nada que possa ser recusado.
 | O que os desencadeia | Mensagem |
 | :------------------ | :------ |
 | nenhum caminho indicado | `files is required`, seguido de uma indicação de `--help` |
-| ficheiro em falta | `<path>: does not exist` |
-| ficheiro ilegível | `<path>: cannot be opened: permission denied` |
-| bytes que não se descodificam | `<path>: cannot be decoded in the chosen encoding` |
-| formato não reconhecido | `<path>: is in no format this tool knows` |
-| nada que se pareça com uma legenda | `<path>: holds nothing recognisable as a subtitle` |
+| ficheiro em falta | `does not exist` |
+| ficheiro ilegível | `cannot be opened: permission denied` |
+| bytes que não se descodificam | `cannot be decoded in the chosen encoding` |
+| formato não reconhecido | `is in no format this tool knows` |
+| nada que se pareça com uma legenda | `holds nothing recognisable as a subtitle` |
 
 São as mesmas mensagens para os dezassete subcomandos: a receita de abertura
 está escrita uma só vez, no núcleo.

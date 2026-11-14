@@ -113,7 +113,6 @@ inspecter et recaler des fichiers de sous-titres.“ Скрипта која ч�
 | откуцана имена: подкоманде, опције, њихове вредности (`off`, `srt`), метапроменљиве (`FILE`, `TEXT`, `OPTIONS`) | командна линија написана једном ради на сваком језику |
 | имена образаца исправке које примају `correct --enable` и `--disable` | образац се зове енглеским именом које његова датотека садржи |
 | имена формата и кодирања | формат се зове својим именом |
-| сопствене дијагностике библиотеке CLI11 — недостајући обавезан аргумент, непозната опција, вредност коју опција не прихвата — и њено `Run with --help for more information.` | срочене унутар рашчлањивача на којем је командна линија изграђена; остају енглеске |
 | оквир реда грешке: `[subedit]`, потпрограм, `[-]`, кључ `error` | скрипта налази шта је и где пукло без читања речи; преводи се само порука |
 
 Тражење енглеског, ма какво било окружење:
@@ -227,7 +226,7 @@ code=1
 <!-- example: subedit-cli --version | head -n 1 -->
 ```console
 $ subedit-cli --version | head -n 1
-subedit 1.2.8
+subedit 1.2.9
 ```
 
 Све заједно, на машини са ICU 74.2 и Enchant 2.3.3 — бројеви су машинини:
@@ -456,8 +455,8 @@ avec-bom.srt: a byte order mark that contradicts the encoding asked for ("UTF-16
 | два улаза, једно одредиште | `<destination>: would be written by both <input> and <input>` |
 | улаз би био преписан | `<destination>: would be written over the input <input>` — иста реченица за [`append`](append.md) и [`split-file`](split-file.md) |
 | излазни директоријум који не може да се створи | `<directory>: cannot be created: permission denied`, или `: cannot be created` |
-| одредиште које не може да се запише | `<path>: <destination>: cannot be written: permission denied`, или `: cannot be written` |
-| знак којег нема у записаном кодирању | `<path>: holds a character the chosen encoding cannot write` |
+| одредиште које не може да се запише | `<destination>: cannot be written: permission denied`, или `: cannot be written` |
+| знак којег нема у записаном кодирању | `holds a character the chosen encoding cannot write` |
 
 **Последња заслужује једну реченицу.** Датотека се записује назад у **кодирању у којем је
 прочитана**, као и са својим завршецима редова и својом ознаком. Ако је
@@ -695,21 +694,76 @@ code=3
 
 ## Нивои приповедања
 
+**Сваки ред излаза за грешке има исти облик**, за причу као и за грешке:
+
+```
+[subedit] [<command>] [<i>/<n>] <key>: <value>
+```
+
+| Део | Шта казује |
+| :----- | :------------- |
+| `<command>` | потпрограм, онако како је откуцан; `-` док није познат |
+| `<i>/<n>` | елемент о коме ред говори, `i`-ти од `n`; `-` за ред о целом покретању |
+| `<key>` | шта ред каже |
+| `<value>` | име, број, путања или реченица |
+
+**Елемент је оно што записује један JSON запис**: један улаз, или цело покретање за [`append`](append.md), [`split-file`](split-file.md) и [`pair`](pair.md). Броји се од 1, редом улаза, што је ред записа; један улаз је `[1/1]`.
+
+<!-- example: printf '1\n00:00:01,000 --> 00:00:02,000\n[Door]\nHello.\n\n2\n00:00:03,000 --> 00:00:04,000\n[Music]\n\n' > b.srt; printf 'nothing to read\n' > bad.srt; printf '1\n00:00:01,000 --> 00:00:02,000\nHi.\n\n' > c.srt; subedit-cli hearing-impaired --output-dir o b.srt bad.srt c.srt; echo "code=$?" -->
+```console
+$ printf '1\n00:00:01,000 --> 00:00:02,000\n[Door]\nHello.\n\n2\n00:00:03,000 --> 00:00:04,000\n[Music]\n\n' > b.srt; printf 'nothing to read\n' > bad.srt; printf '1\n00:00:01,000 --> 00:00:02,000\nHi.\n\n' > c.srt; subedit-cli hearing-impaired --output-dir o b.srt bad.srt c.srt; echo "code=$?"
+[subedit] [hearing-impaired] [1/3] source: b.srt
+[subedit] [hearing-impaired] [1/3] result: 1 subtitle cleaned, 1 removed
+[subedit] [hearing-impaired] [1/3] dest: o/b.srt
+[subedit] [hearing-impaired] [2/3] source: bad.srt
+[subedit] [hearing-impaired] [2/3] error: is in no format this tool knows
+[subedit] [hearing-impaired] [3/3] source: c.srt
+[subedit] [hearing-impaired] [3/3] result: no mention to remove
+[subedit] [hearing-impaired] [3/3] dest: o/c.srt
+[subedit] [hearing-impaired] [-] summary: 2 of 3 files cleaned, 1 failed
+code=3
+```
+
 Сваки ниво **садржи претходни**: пењање за један степен додаје, никада не
 замењује.
 
 | Ниво | Како | Шта носи излаз грешака |
 | :----- | :------ | :------------------------------ |
-| 0 | `--quiet` | ништа, **осим грешака** |
-| 1 | подразумевано, или `-v` | један ред по обрађеној датотеци, и збир чим их има више |
-| 2 | `-vv` | и оно што је препознато: формат, кодирање, BOM, завршеци редова |
-| 3 | `-vvv` | и траг за отклањање грешака: прочитани и записани бајтови, и **свака дијагностика читања** |
+| 0 | `--quiet` | само редови `error`, сваки после реда `source` свог елемента |
+| 1 | подразумевано, или `-v` | `source`, `translation`, `media`, `warning`, `result`, `dest`, `tail`; а о покретању `settings`, `walk` и, од два елемента навише, `summary` |
+| 2 | `-vv` | и `format`, `encoding`, `bom`, `line-endings`, `alignment`, `progress` |
+| 3 | `-vvv` | и `bytes-read`, `bytes-written` и сваки `diagnostic` |
+
+Два кључа мењају ниво зависно од потпрограма: `alignment` је на нивоу 1 за `pair` и `inspect`, а `progress` на нивоу 3 за последњи чути текст.
 
 **Грешке се никада не ућуткују, укључујући `--quiet`.** Команда која пада
 нечујно не би оставила ништа осим свог излазног кода.
 
 Збир се појављује тек од две датотеке: на једном улазу би
 поновио ред пре себе.
+
+**Шта важи за сваки елемент:**
+
+- његов ред `source` долази први, и грешка никад не долази без њега, ни са `--quiet`;
+- `dest` се записује при сваком успеху који записује, и са `--in-place`, а никад са `--dry-run`, који ништа не записује;
+- `result` може доћи више пута: корак тражен поред операције (`--sort`, `--disjoint`, `--join-repeats`) и свака датотека коју `append` додаје имају свој ред;
+- грешка не понавља путању извора; именује датотеку о којој говори када је то друга, као превод или одредиште.
+
+### Проналажење елемента по имену
+
+**Положај, а не путања, одређује елемент**: путања може садржати било који знак, положај нема шта да избегава, а редови елемента остају заједно после `grep`. Редови једне датотеке налазе се у два корака:
+
+```console
+$ subedit-cli hearing-impaired --output-dir o *.srt 2> log
+$ grep -F '] source: b.srt' log           # [subedit] [hearing-impaired] [1/3] source: b.srt
+$ grep -F '[1/3]' log                     # everything about b.srt
+```
+
+### Шта прича обећава
+
+**Обећано**: облик реда; значење `<i>/<n>` и његова веза са редоследом JSON записа; кључеви и ниво сваког од њих; правила изнад.
+
+**Није обећано**: текст вредности која је реченица — `result`, `warning`, `error`, `progress`, `summary`, `walk` —, који се преводи и преформулише када треба: скрипта чита бројеве у JSON-у. Ни редослед редова различитих елемената, ако их пакет икад обради упоредо.
 
 ## Читање дијагностике
 
@@ -719,9 +773,8 @@ code=3
 грешака:
 
 ```
-a.srt: 2 diagnostics while reading
-a.srt: line 6: SubRip numbers that do not follow ("7"), settled by the reader
-a.srt: line 9: a line that fits nowhere, left as it stands
+[subedit] [inspect] [1/1] diagnostic: line 6: SubRip numbers that do not follow ("7"), settled by the reader
+[subedit] [inspect] [1/1] diagnostic: line 9: a line that fits nowhere, left as it stands
 ```
 
 Свих осамнаест подкоманди их јавља, не само [`inspect`](inspect.md):
@@ -924,12 +977,12 @@ $ man -L fr subedit-cli-shift
 | `--quiet` са `-v` | `--quiet and -v ask for opposite things; give one or the other` |
 | `--config` са `--no-config` | `--config excludes --no-config` |
 | `--config` са празним именом | `--config needs a file name` |
-| датотека недостаје | `<path>: does not exist` |
-| нечитљива датотека | `<path>: cannot be opened: permission denied` |
+| датотека недостаје | `does not exist` |
+| нечитљива датотека | `cannot be opened: permission denied` |
 | кодирање које пише сопствену ознаку | `"<name>" writes a byte order mark of its own; name the byte order, as UTF-16LE and UTF-16BE do` |
-| бајтови који се не декодирају | `<path>: cannot be decoded in the chosen encoding` |
-| формат није препознат | `<path>: is in no format this tool knows` |
-| ништа што личи на титл | `<path>: holds nothing recognisable as a subtitle` |
+| бајтови који се не декодирају | `cannot be decoded in the chosen encoding` |
+| формат није препознат | `is in no format this tool knows` |
+| ништа што личи на титл | `holds nothing recognisable as a subtitle` |
 | `--document translation` без `-t` | `--document translation needs the translation file: use -t` |
 | `-t` без `--document translation` | `-t names a translation to change: use --document translation` |
 | `--align-method` без `-t` | `--align-method needs a translation file: use -t` |

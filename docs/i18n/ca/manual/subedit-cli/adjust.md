@@ -263,7 +263,7 @@ alguns, `1` en un error d'ús. Un fitxer que ja és dins dels seus límits es co
 | màxim nul o negatiu | `--maximum: "0" is not a duration above zero` |
 | franja mal escrita | `--range: "…" is not a range: write it N-M, or N- to go to the end, counted from 1 and inclusive` |
 | franja que acaba abans de començar | `--range: "5-3" is not a range: it ends before it starts` |
-| franja fora del fitxer | `<path>: range N-M starts after the last subtitle: the file has K`, o `… ends after …` |
+| franja fora del fitxer | `range N-M starts after the last subtitle: the file has K`, o `… ends after …` |
 
 Els errors de la destinació són comuns a les subordres que escriuen:
 vegeu [Invocació](invocation.md#la-destinació).

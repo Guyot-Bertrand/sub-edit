@@ -192,9 +192,9 @@ certains seulement, `1` sur une erreur d'usage.
 | indice qui n'est pas un entier | `"…" is not a subtitle number: expected a whole number, counted from 1 as the file shows them` |
 | temps invalide | ceux de [`shift`](shift.md) |
 | `--first` et `--last` sur le même indice | `--first and --last both name subtitle N, and two references on one subtitle define no transform` |
-| indice hors bornes | `<path>: subtitle N is past the end: the file holds M subtitles` |
-| deux sous-titres commençant ensemble | `<path>: subtitles N and M start at the same moment, so they define no transform` |
-| position avant l'origine | `<path>: subtitle N would land before the origin, which no subtitle file can hold` |
+| indice hors bornes | `subtitle N is past the end: the file holds M subtitles` |
+| deux sous-titres commençant ensemble | `subtitles N and M start at the same moment, so they define no transform` |
+| position avant l'origine | `subtitle N would land before the origin, which no subtitle file can hold` |
 
 **Rien n'est écrit sans l'une des trois options de destination**, et ses
 erreurs sont communes aux sous-commandes qui écrivent :

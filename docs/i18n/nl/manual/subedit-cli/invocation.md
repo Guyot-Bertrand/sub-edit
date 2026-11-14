@@ -113,7 +113,6 @@ leest, stelt `LANGUAGE=en` in (of `LC_ALL=C`) — of leest `--format json`, dat 
 | de ingetypte namen: subcommando's, opties, hun waarden (`off`, `srt`), metavariabelen (`FILE`, `TEXT`, `OPTIONS`) | een opdrachtregel die één keer is geschreven, werkt onder elke taal |
 | de namen van correctiepatronen die `correct --enable` en `--disable` accepteren | een patroon wordt aangeroepen met de Engelse naam die zijn bestand bevat |
 | de namen van formaten en coderingen | een formaat wordt bij zijn naam genoemd |
-| de eigen diagnostische meldingen van CLI11 — een ontbrekend verplicht argument, een onbekende optie, een waarde die een optie niet accepteert — en zijn `Run with --help for more information.` | verwoord binnen de parser waarop de opdrachtregel is gebouwd; ze blijven Engels |
 | het kader van een foutregel: `[subedit]`, de subopdracht, `[-]`, de sleutel `error` | een script vindt wat er waar misging zonder de woorden te lezen; alleen het bericht wordt vertaald |
 
 Het Engels vragen, wat de omgeving ook is:
@@ -227,7 +226,7 @@ wordt niet uitgevoerd, en `-q` en `-v` veranderen niets.
 <!-- example: subedit-cli --version | head -n 1 -->
 ```console
 $ subedit-cli --version | head -n 1
-subedit 1.2.8
+subedit 1.2.9
 ```
 
 Het geheel, op een machine met ICU 74.2 en Enchant 2.3.3 — de nummers zijn die van de machine:
@@ -456,8 +455,8 @@ andere behouden het formaat van het gelezen bestand, en dus zijn extensie.
 | twee invoeren, een bestemming | `<destination>: would be written by both <input> and <input>` |
 | een invoer zou worden overschreven | `<destination>: would be written over the input <input>` — dezelfde zin voor [`append`](append.md) en [`split-file`](split-file.md) |
 | uitvoermap die niet kan worden aangemaakt | `<directory>: cannot be created: permission denied`, of `: cannot be created` |
-| bestemming die niet kan worden geschreven | `<path>: <destination>: cannot be written: permission denied`, of `: cannot be written` |
-| teken dat in de geschreven codering ontbreekt | `<path>: holds a character the chosen encoding cannot write` |
+| bestemming die niet kan worden geschreven | `<destination>: cannot be written: permission denied`, of `: cannot be written` |
+| teken dat in de geschreven codering ontbreekt | `holds a character the chosen encoding cannot write` |
 
 **De laatste verdient een zin.** Een bestand wordt teruggeschreven in **de codering waarin het
 is gelezen**, net als met zijn regeleinden en zijn markering. Als een
@@ -695,21 +694,76 @@ aangekondigd in de CHANGELOG en hier.
 
 ## Niveaus van toelichting
 
+**Elke regel van de foutuitvoer heeft dezelfde vorm**, voor het verslag als voor de fouten:
+
+```
+[subedit] [<command>] [<i>/<n>] <key>: <value>
+```
+
+| Deel | Wat het zegt |
+| :----- | :------------- |
+| `<command>` | de subopdracht, zoals getypt; `-` zolang die niet bekend is |
+| `<i>/<n>` | het element waarover de regel gaat, het `i`-de van `n`; `-` voor een regel over de hele uitvoering |
+| `<key>` | wat de regel zegt |
+| `<value>` | een naam, een getal, een pad of een zin |
+
+**Een element is wat één JSON-record schrijft**: één invoer, of de hele uitvoering bij [`append`](append.md), [`split-file`](split-file.md) en [`pair`](pair.md). Het wordt geteld vanaf 1, in de volgorde van de invoer, die de volgorde van de records is; één enkele invoer is `[1/1]`.
+
+<!-- example: printf '1\n00:00:01,000 --> 00:00:02,000\n[Door]\nHello.\n\n2\n00:00:03,000 --> 00:00:04,000\n[Music]\n\n' > b.srt; printf 'nothing to read\n' > bad.srt; printf '1\n00:00:01,000 --> 00:00:02,000\nHi.\n\n' > c.srt; subedit-cli hearing-impaired --output-dir o b.srt bad.srt c.srt; echo "code=$?" -->
+```console
+$ printf '1\n00:00:01,000 --> 00:00:02,000\n[Door]\nHello.\n\n2\n00:00:03,000 --> 00:00:04,000\n[Music]\n\n' > b.srt; printf 'nothing to read\n' > bad.srt; printf '1\n00:00:01,000 --> 00:00:02,000\nHi.\n\n' > c.srt; subedit-cli hearing-impaired --output-dir o b.srt bad.srt c.srt; echo "code=$?"
+[subedit] [hearing-impaired] [1/3] source: b.srt
+[subedit] [hearing-impaired] [1/3] result: 1 subtitle cleaned, 1 removed
+[subedit] [hearing-impaired] [1/3] dest: o/b.srt
+[subedit] [hearing-impaired] [2/3] source: bad.srt
+[subedit] [hearing-impaired] [2/3] error: is in no format this tool knows
+[subedit] [hearing-impaired] [3/3] source: c.srt
+[subedit] [hearing-impaired] [3/3] result: no mention to remove
+[subedit] [hearing-impaired] [3/3] dest: o/c.srt
+[subedit] [hearing-impaired] [-] summary: 2 of 3 files cleaned, 1 failed
+code=3
+```
+
 Elk niveau **bevat het vorige**: een stap hoger toevoegen vervangt nooit
 iets.
 
 | Niveau | Hoe | Wat de foutuitvoer bevat |
 | :----- | :------ | :------------------------------ |
-| 0 | `--quiet` | niets, **behalve de fouten** |
-| 1 | standaard, of `-v` | een regel per verwerkt bestand, en een samenvatting zodra het er meerdere zijn |
-| 2 | `-vv` | en wat is herkend: formaat, codering, BOM, regeleinden |
-| 3 | `-vvv` | en het debugspoor: gelezen en geschreven bytes, en **elke diagnostische melding bij het lezen** |
+| 0 | `--quiet` | alleen de regels `error`, elk na de regel `source` van zijn element |
+| 1 | standaard, of `-v` | `source`, `translation`, `media`, `warning`, `result`, `dest`, `tail`; en over de uitvoering `settings`, `walk` en, vanaf twee elementen, `summary` |
+| 2 | `-vv` | en `format`, `encoding`, `bom`, `line-endings`, `alignment`, `progress` |
+| 3 | `-vvv` | en `bytes-read`, `bytes-written`, en elke `diagnostic` |
+
+Twee sleutels wisselen van niveau per subopdracht: `alignment` staat op niveau 1 voor `pair` en `inspect`, en `progress` op niveau 3 voor de laatst gehoorde tekst.
 
 **Fouten worden nooit tot zwijgen gebracht**, `--quiet` inbegrepen. Een commando dat stilzwijgend
 mislukt, zou niets dan zijn afsluitcode achterlaten.
 
 De samenvatting verschijnt pas vanaf twee bestanden: bij een enkele invoer zou ze de regel
 ervoor herhalen.
+
+**Wat voor elk element geldt:**
+
+- zijn regel `source` komt eerst, en een fout komt nooit zonder die regel, ook met `--quiet`;
+- `dest` wordt geschreven bij elk succes dat schrijft, ook met `--in-place`, en nooit met `--dry-run`, dat niets schrijft;
+- `result` kan meer dan eens komen: een stap die naast de bewerking is gevraagd (`--sort`, `--disjoint`, `--join-repeats`) en elk bestand dat `append` toevoegt hebben hun eigen regel;
+- een fout herhaalt het pad van de bron niet; hij noemt het bestand waarover hij gaat als dat een ander is, zoals de vertaling of de bestemming.
+
+### Een element vinden aan zijn naam
+
+**De positie, niet het pad, wijst het element aan**: een pad kan elk teken bevatten, een positie hoeft niets te escapen, en de regels van een element blijven bij elkaar na een `grep`. De regels van één bestand vind je in twee stappen:
+
+```console
+$ subedit-cli hearing-impaired --output-dir o *.srt 2> log
+$ grep -F '] source: b.srt' log           # [subedit] [hearing-impaired] [1/3] source: b.srt
+$ grep -F '[1/3]' log                     # everything about b.srt
+```
+
+### Wat het verslag belooft
+
+**Beloofd**: de vorm van een regel; de betekenis van `<i>/<n>` en het verband met de volgorde van de JSON-records; de sleutels en het niveau van elk; de regels hierboven.
+
+**Niet beloofd**: de tekst van een waarde die een zin is — `result`, `warning`, `error`, `progress`, `summary`, `walk` —, die vertaald en zo nodig herschreven wordt: een script leest de getallen in de JSON. Evenmin de volgorde van de regels van verschillende elementen, mocht een reeks ze ooit parallel verwerken.
 
 ## Diagnostische meldingen lezen
 
@@ -718,9 +772,8 @@ lezer niet — hij beslist, of laat de zaken zoals ze staan, en zegt dat. Waarop
 stuitte, wordt uitgevoerd op **niveau 3**, een regel per diagnostische melding, op de foutuitvoer:
 
 ```
-a.srt: 2 diagnostics while reading
-a.srt: line 6: SubRip numbers that do not follow ("7"), settled by the reader
-a.srt: line 9: a line that fits nowhere, left as it stands
+[subedit] [inspect] [1/1] diagnostic: line 6: SubRip numbers that do not follow ("7"), settled by the reader
+[subedit] [inspect] [1/1] diagnostic: line 9: a line that fits nowhere, left as it stands
 ```
 
 Alle achttien subcommando's melden ze, niet alleen [`inspect`](inspect.md):
@@ -924,12 +977,12 @@ reeks half verwerkt achter.
 | `--quiet` met `-v` | `--quiet and -v ask for opposite things; give one or the other` |
 | `--config` met `--no-config` | `--config excludes --no-config` |
 | `--config` met een lege naam | `--config needs a file name` |
-| ontbrekend bestand | `<path>: does not exist` |
-| onleesbaar bestand | `<path>: cannot be opened: permission denied` |
+| ontbrekend bestand | `does not exist` |
+| onleesbaar bestand | `cannot be opened: permission denied` |
 | codering die een eigen markering schrijft | `"<name>" writes a byte order mark of its own; name the byte order, as UTF-16LE and UTF-16BE do` |
-| bytes die niet decoderen | `<path>: cannot be decoded in the chosen encoding` |
-| formaat niet herkend | `<path>: is in no format this tool knows` |
-| niets wat op een ondertitel lijkt | `<path>: holds nothing recognisable as a subtitle` |
+| bytes die niet decoderen | `cannot be decoded in the chosen encoding` |
+| formaat niet herkend | `is in no format this tool knows` |
+| niets wat op een ondertitel lijkt | `holds nothing recognisable as a subtitle` |
 | `--document translation` zonder `-t` | `--document translation needs the translation file: use -t` |
 | `-t` zonder `--document translation` | `-t names a translation to change: use --document translation` |
 | `--align-method` zonder `-t` | `--align-method needs a translation file: use -t` |

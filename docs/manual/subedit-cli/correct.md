@@ -312,7 +312,7 @@ window: the confirmation page names the pattern only once, without the text.
 | `grew the text too long` | the text went past what a subtitle can hold |
 
 At level 1, on the error output: 
-`<path>: pattern "<name>" (<reason>) was not applied to subtitle N` — without the end when the pattern is set aside for every text. **The number is the
+`warning: pattern "<name>" (<reason>) was not applied to subtitle N` — without the end when the pattern is set aside for every text. **The number is the
 file's**, whatever tasks removed subtitles before. In JSON, it is
 a `pattern-failed` warning of the file, whose `detail` carries the sentence. **A pattern
 given up is not a failed file**: the file is written, and the exit code is `0`.

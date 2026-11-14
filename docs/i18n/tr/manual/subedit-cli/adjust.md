@@ -262,7 +262,7 @@ bazıları işlendiyse `3`, kullanım hatasında `1`. Zaten sınırlarının iç
 | sıfır veya negatif azami süre | `--maximum: "0" is not a duration above zero` |
 | kötü yazılmış aralık | `--range: "…" is not a range: write it N-M, or N- to go to the end, counted from 1 and inclusive` |
 | bitmeden başlayan aralık | `--range: "5-3" is not a range: it ends before it starts` |
-| dosyanın dışında kalan aralık | `<path>: range N-M starts after the last subtitle: the file has K`, veya `… ends after …` |
+| dosyanın dışında kalan aralık | `range N-M starts after the last subtitle: the file has K`, veya `… ends after …` |
 
 Hedef hataları, yazan alt komutlar için ortaktır:
 bkz. [Çalıştırma](invocation.md#hedef).

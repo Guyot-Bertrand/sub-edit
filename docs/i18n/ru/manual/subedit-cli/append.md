@@ -94,7 +94,7 @@ trois
 упорядочивает результат по началу, **за один проход, после последнего добавления**, как это сделала бы подкоманда [`sort`](sort.md) — устойчиво и без изменения
 содержимого.
 
-Никогда по умолчанию. С этим параметром основа сообщает об этом на первом уровне пояснений: `<base>: N subtitles moved` или `<base>: already in order`, а
+Никогда по умолчанию. С этим параметром основа сообщает об этом на первом уровне пояснений: `result: N subtitles moved` или `result: already in order`, а
 запись `--format json` содержит счётчик `moved`, **отсутствующий без параметра**.
 
 ## Устранение перекрытий диапазонов
@@ -161,8 +161,8 @@ d.ass: appended 1 subtitle; Advanced SSA into SubRip: 1 tag dropped, the header 
 | указан единственный файл | `append needs a base file and at least one file to put after it` |
 | ни `--output`, ни `--dry-run` | `no destination given: append writes one file, use --output` |
 | `--output` называет входной файл | `<destination>: would be written over the input <input>` |
-| файл отсутствует, нечитаем или в неизвестном формате | `<path>: does not exist`, `<path>: is in no format this tool knows`… — те же, что везде |
+| файл отсутствует, нечитаем или в неизвестном формате | `does not exist`, `is in no format this tool knows`… — те же, что везде |
 
 **Пустой файл не добавляется**: ни один формат не читается без хотя бы одного субтитра, и файл
-отклоняется, как любой файл, который не удаётся прочитать, — `<path>: holds nothing recognisable as a subtitle` —, что
+отклоняется, как любой файл, который не удаётся прочитать, — `holds nothing recognisable as a subtitle` —, что
 останавливает запуск и ничего не записывает.

@@ -26,7 +26,7 @@ Diagnostic at(int line, DiagnosticKind kind, Severity severity, std::string deta
 
 std::string said(const std::vector<Diagnostic>& diagnostics, int level) {
     std::ostringstream errors;
-    sayDiagnostics(Reporter{errors, level}, "a.srt", diagnostics);
+    sayDiagnostics(Reporter{errors, level}, diagnostics);
     return errors.str();
 }
 
@@ -83,10 +83,10 @@ TEST_CASE("diagnostics are said one by one, at the level that details", "[cli][d
 
     const std::string third = said(two, 3);
     CHECK_THAT(third,
-               ContainsSubstring("a.srt: line 3: a SubRip block without its number, "
+               ContainsSubstring("] diagnostic: line 3: a SubRip block without its number, "
                                  "settled by the reader\n"));
     CHECK_THAT(third,
-               ContainsSubstring("a.srt: line 7: a line that fits nowhere, "
+               ContainsSubstring("] diagnostic: line 7: a line that fits nowhere, "
                                  "left as it stands\n"));
 }
 

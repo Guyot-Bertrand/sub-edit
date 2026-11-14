@@ -362,11 +362,11 @@ die van `-t`: zie hierboven. `inspect` schrijft niets wat kan worden geweigerd.
 | Wat het veroorzaakt | Melding |
 | :------------------ | :------ |
 | geen pad opgegeven | `files is required`, gevolgd door een verwijzing naar `--help` |
-| ontbrekend bestand | `<path>: does not exist` |
-| onleesbaar bestand | `<path>: cannot be opened: permission denied` |
-| bytes die niet decoderen | `<path>: cannot be decoded in the chosen encoding` |
-| formaat niet herkend | `<path>: is in no format this tool knows` |
-| niets wat op een ondertitel lijkt | `<path>: holds nothing recognisable as a subtitle` |
+| ontbrekend bestand | `does not exist` |
+| onleesbaar bestand | `cannot be opened: permission denied` |
+| bytes die niet decoderen | `cannot be decoded in the chosen encoding` |
+| formaat niet herkend | `is in no format this tool knows` |
+| niets wat op een ondertitel lijkt | `holds nothing recognisable as a subtitle` |
 
 Dit zijn dezelfde meldingen voor de zeventien subcommando's: het recept om te openen
 is één keer geschreven, in de kern.

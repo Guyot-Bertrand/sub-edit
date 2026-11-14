@@ -315,7 +315,7 @@ Fenster: Die Bestätigungsseite nennt das Muster nur einmal, ohne den Text.
 | `grew the text too long` | der Text ging über das hinaus, was ein Untertitel fassen kann |
 
 Auf Stufe 1, auf der Fehlerausgabe: 
-`<path>: pattern "<name>" (<reason>) was not applied to subtitle N` — ohne das Ende, wenn das Muster für jeden Text beiseitegelegt wird. **Die Nummer ist die der
+`warning: pattern "<name>" (<reason>) was not applied to subtitle N` — ohne das Ende, wenn das Muster für jeden Text beiseitegelegt wird. **Die Nummer ist die der
 Datei**, unabhängig davon, welche Aufgaben zuvor Untertitel entfernt haben. In JSON ist es
 eine Warnung `pattern-failed` der Datei, deren `detail` den Satz enthält. **Ein
 aufgegebenes Muster ist keine gescheiterte Datei**: Die Datei wird geschrieben, und der Exit-Code ist `0`.

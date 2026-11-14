@@ -195,9 +195,9 @@ code=2
 | индекс који није цео број | `"…" is not a subtitle number: expected a whole number, counted from 1 as the file shows them` |
 | неисправно време | оне из подкоманде [`shift`](shift.md) |
 | `--first` и `--last` на истом индексу | `--first and --last both name subtitle N, and two references on one subtitle define no transform` |
-| индекс ван граница | `<path>: subtitle N is past the end: the file holds M subtitles` |
-| два титла која почињу заједно | `<path>: subtitles N and M start at the same moment, so they define no transform` |
-| положај пре почетка | `<path>: subtitle N would land before the origin, which no subtitle file can hold` |
+| индекс ван граница | `subtitle N is past the end: the file holds M subtitles` |
+| два титла која почињу заједно | `subtitles N and M start at the same moment, so they define no transform` |
+| положај пре почетка | `subtitle N would land before the origin, which no subtitle file can hold` |
 
 **Ништа се не пише без једне од три опције одредишта**, а њихове
 грешке заједничке су подкомандама које пишу:

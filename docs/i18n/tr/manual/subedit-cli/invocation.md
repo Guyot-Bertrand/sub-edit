@@ -113,7 +113,6 @@ inspecter et recaler des fichiers de sous-titres.” ile başlar. Metin çıktı
 | yazılan adlar: alt komutlar, seçenekler, değerleri (`off`, `srt`), üst değişkenler (`FILE`, `TEXT`, `OPTIONS`) | bir kez yazılan komut satırı her dilde çalışır |
 | `correct --enable` ve `--disable` seçeneklerinin aldığı düzeltme desenlerinin adları | bir desen, dosyasının taşıdığı İngilizce adla çağrılır |
 | biçimlerin ve kodlamaların adları | bir biçim adıyla çağrılır |
-| CLI11'in kendi tanılama iletileri — eksik zorunlu bağımsız değişken, bilinmeyen seçenek, bir seçeneğin kabul etmediği değer — ve `Run with --help for more information.` | komut satırının üzerine kurulduğu ayrıştırıcının içinde yazılmıştır; İngilizce kalırlar |
 | bir hata satırının çerçevesi: `[subedit]`, alt komut, `[-]`, `error` anahtarı | bir betik sözcükleri okumadan neyin nerede başarısız olduğunu bulur; yalnızca ileti çevrilir |
 
 Ortam ne olursa olsun İngilizce istemek:
@@ -227,7 +226,7 @@ dilleri, standart çıktıda; araç `0` koduyla durur. Birlikte verilen bir alt 
 <!-- example: subedit-cli --version | head -n 1 -->
 ```console
 $ subedit-cli --version | head -n 1
-subedit 1.2.8
+subedit 1.2.9
 ```
 
 ICU 74.2 ve Enchant 2.3.3 bulunan bir makinede tamamı — sayılar makineninkilerdir:
@@ -454,8 +453,8 @@ uzantısını korur.
 | iki girdi, tek hedef | `<destination>: would be written by both <input> and <input>` |
 | bir girdinin üzerine yazılacak | `<destination>: would be written over the input <input>` — [`append`](append.md) ve [`split-file`](split-file.md) için aynı cümle |
 | oluşturulamayan çıktı dizini | `<directory>: cannot be created: permission denied` ya da `: cannot be created` |
-| yazılamayan hedef | `<path>: <destination>: cannot be written: permission denied` ya da `: cannot be written` |
-| yazılan kodlamada olmayan karakter | `<path>: holds a character the chosen encoding cannot write` |
+| yazılamayan hedef | `<destination>: cannot be written: permission denied` ya da `: cannot be written` |
+| yazılan kodlamada olmayan karakter | `holds a character the chosen encoding cannot write` |
 
 **Sonuncu bir cümleyi hak eder.** Bir dosya, satır sonları ve işaretiyle birlikte,
 **okunduğu kodlamayla** geri yazılır. Bir
@@ -692,21 +691,76 @@ CHANGELOG'da ve burada duyurulur.
 
 ## Anlatım düzeyleri
 
+**Hata çıktısının her satırı aynı biçimdedir**, anlatımda da hatalarda da:
+
+```
+[subedit] [<command>] [<i>/<n>] <key>: <value>
+```
+
+| Parça | Ne söyler |
+| :----- | :------------- |
+| `<command>` | yazıldığı biçimiyle alt komut; bilinmeden önce `-` |
+| `<i>/<n>` | satırın sözünü ettiği öğe, `n` içinden `i`. öğe; tüm çalıştırma hakkındaki bir satır için `-` |
+| `<key>` | satırın söylediği |
+| `<value>` | bir ad, bir sayı, bir yol ya da bir cümle |
+
+**Öğe, bir JSON kaydı yazan şeydir**: bir girdi ya da [`append`](append.md), [`split-file`](split-file.md) ve [`pair`](pair.md) için tüm çalıştırma. 1'den başlayarak, kayıtların sırası olan girdilerin sırasıyla sayılır; tek bir girdi `[1/1]` olur.
+
+<!-- example: printf '1\n00:00:01,000 --> 00:00:02,000\n[Door]\nHello.\n\n2\n00:00:03,000 --> 00:00:04,000\n[Music]\n\n' > b.srt; printf 'nothing to read\n' > bad.srt; printf '1\n00:00:01,000 --> 00:00:02,000\nHi.\n\n' > c.srt; subedit-cli hearing-impaired --output-dir o b.srt bad.srt c.srt; echo "code=$?" -->
+```console
+$ printf '1\n00:00:01,000 --> 00:00:02,000\n[Door]\nHello.\n\n2\n00:00:03,000 --> 00:00:04,000\n[Music]\n\n' > b.srt; printf 'nothing to read\n' > bad.srt; printf '1\n00:00:01,000 --> 00:00:02,000\nHi.\n\n' > c.srt; subedit-cli hearing-impaired --output-dir o b.srt bad.srt c.srt; echo "code=$?"
+[subedit] [hearing-impaired] [1/3] source: b.srt
+[subedit] [hearing-impaired] [1/3] result: 1 subtitle cleaned, 1 removed
+[subedit] [hearing-impaired] [1/3] dest: o/b.srt
+[subedit] [hearing-impaired] [2/3] source: bad.srt
+[subedit] [hearing-impaired] [2/3] error: is in no format this tool knows
+[subedit] [hearing-impaired] [3/3] source: c.srt
+[subedit] [hearing-impaired] [3/3] result: no mention to remove
+[subedit] [hearing-impaired] [3/3] dest: o/c.srt
+[subedit] [hearing-impaired] [-] summary: 2 of 3 files cleaned, 1 failed
+code=3
+```
+
 Her düzey **bir öncekini içerir**: bir kademe yükselmek ekler, asla
 yerine geçmez.
 
 | Düzey | Nasıl | Hata çıktısının taşıdığı |
 | :----- | :------ | :------------------------------ |
-| 0 | `--quiet` | hiçbir şey, **hatalar dışında** |
-| 1 | varsayılan olarak, ya da `-v` | işlenen dosya başına bir satır ve birden çok dosya olur olmaz bir özet |
-| 2 | `-vv` | ve tanınanlar: biçim, kodlama, BOM, satır sonları |
-| 3 | `-vvv` | ve hata ayıklama izi: okunan ve yazılan baytlar ve **her okuma tanılama iletisi** |
+| 0 | `--quiet` | yalnızca `error` satırları, her biri kendi öğesinin `source` satırından sonra |
+| 1 | varsayılan olarak, ya da `-v` | `source`, `translation`, `media`, `warning`, `result`, `dest`, `tail`; çalıştırma hakkında da `settings`, `walk` ve iki öğeden itibaren `summary` |
+| 2 | `-vv` | ve `format`, `encoding`, `bom`, `line-endings`, `alignment`, `progress` |
+| 3 | `-vvv` | ve `bytes-read`, `bytes-written` ile her `diagnostic` |
+
+İki anahtarın düzeyi alt komuta göre değişir: `alignment`, `pair` ve `inspect` için 1. düzeydedir; `progress` ise son duyulan metin için 3. düzeydedir.
 
 **Hatalar asla susturulmaz**, `--quiet` dahil. Sessizce başarısız olan bir komut
 çıkış kodundan başka bir şey bırakmazdı.
 
 Özet yalnızca iki dosyadan itibaren görünür: tek bir girdide, kendinden önceki satırı
 yinelerdi.
+
+**Her öğe için geçerli olanlar:**
+
+- `source` satırı önce gelir ve bir hata hiçbir zaman onsuz gelmez, `--quiet` ile bile;
+- `dest`, yazan her başarıda yazılır, `--in-place` ile de; hiçbir şey yazmayan `--dry-run` ile ise asla;
+- `result` birden çok kez gelebilir: işleme ek olarak istenen bir adımın (`--sort`, `--disjoint`, `--join-repeats`) ve `append` ile eklenen her dosyanın kendi satırı vardır;
+- bir hata kaynağın yolunu yinelemez; söz konusu dosya başkaysa, örneğin çeviri ya da hedefse, onun adını verir.
+
+### Bir öğeyi adıyla bulmak
+
+**Öğeyi yol değil, konum tanımlar**: bir yol her karakteri içerebilir, bir konumun kaçırılacak bir şeyi yoktur ve bir öğenin satırları bir `grep` sonrasında da bir arada kalır. Bir dosyanın satırları iki adımda bulunur:
+
+```console
+$ subedit-cli hearing-impaired --output-dir o *.srt 2> log
+$ grep -F '] source: b.srt' log           # [subedit] [hearing-impaired] [1/3] source: b.srt
+$ grep -F '[1/3]' log                     # everything about b.srt
+```
+
+### Anlatımın vaat ettikleri
+
+**Vaat edilen**: bir satırın biçimi; `<i>/<n>` ifadesinin anlamı ve JSON kayıtlarının sırasıyla bağı; anahtarlar ve her birinin düzeyi; yukarıdaki kurallar.
+
+**Vaat edilmeyen**: cümle olan bir değerin metni — `result`, `warning`, `error`, `progress`, `summary`, `walk` —; bu metin çevrilir ve gerektiğinde yeniden yazılır: bir betik sayıları JSON'dan okur. Bir toplu iş onları bir gün paralel işlerse, farklı öğelerin satırlarının sırası da.
 
 ## Tanılama iletilerini okuma
 
@@ -716,9 +770,8 @@ okuyucu durmaz — karar verir ya da işleri olduğu gibi bırakır ve bunu söy
 çıktısına yazılır:
 
 ```
-a.srt: 2 diagnostics while reading
-a.srt: line 6: SubRip numbers that do not follow ("7"), settled by the reader
-a.srt: line 9: a line that fits nowhere, left as it stands
+[subedit] [inspect] [1/1] diagnostic: line 6: SubRip numbers that do not follow ("7"), settled by the reader
+[subedit] [inspect] [1/1] diagnostic: line 9: a line that fits nowhere, left as it stands
 ```
 
 On sekiz alt komutun hepsi bunları bildirir, yalnızca [`inspect`](inspect.md) değil:
@@ -917,12 +970,12 @@ yarım işlenmiş bırakmaz.
 | `-v` ile `--quiet` | `--quiet and -v ask for opposite things; give one or the other` |
 | `--no-config` ile `--config` | `--config excludes --no-config` |
 | boş adla `--config` | `--config needs a file name` |
-| eksik dosya | `<path>: does not exist` |
-| okunamayan dosya | `<path>: cannot be opened: permission denied` |
+| eksik dosya | `does not exist` |
+| okunamayan dosya | `cannot be opened: permission denied` |
 | kendi işaretini yazan kodlama | `"<name>" writes a byte order mark of its own; name the byte order, as UTF-16LE and UTF-16BE do` |
-| kodu çözülemeyen baytlar | `<path>: cannot be decoded in the chosen encoding` |
-| tanınmayan biçim | `<path>: is in no format this tool knows` |
-| altyazıya benzeyen hiçbir şey yok | `<path>: holds nothing recognisable as a subtitle` |
+| kodu çözülemeyen baytlar | `cannot be decoded in the chosen encoding` |
+| tanınmayan biçim | `is in no format this tool knows` |
+| altyazıya benzeyen hiçbir şey yok | `holds nothing recognisable as a subtitle` |
 | `-t` olmadan `--document translation` | `--document translation needs the translation file: use -t` |
 | `--document translation` olmadan `-t` | `-t names a translation to change: use --document translation` |
 | `-t` olmadan `--align-method` | `--align-method needs a translation file: use -t` |

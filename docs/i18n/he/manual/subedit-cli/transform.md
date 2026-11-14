@@ -165,8 +165,8 @@ code=2
 | אינדקס שאינו מספר שלם | `"…" is not a subtitle number: expected a whole number, counted from 1 as the file shows them` |
 | זמן לא תקף | אלה של [`shift`](shift.md) |
 | `--first` ו-`--last` על אותו אינדקס | `--first and --last both name subtitle N, and two references on one subtitle define no transform` |
-| אינדקס מחוץ לגבולות | `<path>: subtitle N is past the end: the file holds M subtitles` |
-| שתי כתוביות שמתחילות יחד | `<path>: subtitles N and M start at the same moment, so they define no transform` |
-| מיקום לפני נקודת האפס | `<path>: subtitle N would land before the origin, which no subtitle file can hold` |
+| אינדקס מחוץ לגבולות | `subtitle N is past the end: the file holds M subtitles` |
+| שתי כתוביות שמתחילות יחד | `subtitles N and M start at the same moment, so they define no transform` |
+| מיקום לפני נקודת האפס | `subtitle N would land before the origin, which no subtitle file can hold` |
 
 **דבר אינו נכתב בלי אחת משלוש אפשרויות היעד**, ושגיאותיהן משותפות לתת-הפקודות שכותבות: ראו [הפעלה](invocation.md#היעד).

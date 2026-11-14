@@ -264,7 +264,7 @@ considérase procesado.
 | máximo cero ou negativo | `--maximum: "0" is not a duration above zero` |
 | franxa mal escrita | `--range: "…" is not a range: write it N-M, or N- to go to the end, counted from 1 and inclusive` |
 | franxa que remata antes de comezar | `--range: "5-3" is not a range: it ends before it starts` |
-| franxa fóra do ficheiro | `<path>: range N-M starts after the last subtitle: the file has K`, ou `… ends after …` |
+| franxa fóra do ficheiro | `range N-M starts after the last subtitle: the file has K`, ou `… ends after …` |
 
 Os erros do destino son comúns ás subordes que escriben:
 véxase [Invocación](invocation.md#o-destino).

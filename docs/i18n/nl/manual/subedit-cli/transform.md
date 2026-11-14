@@ -195,9 +195,9 @@ Die van het hulpprogramma: `0` als elk bestand is geschreven, `2` als geen enkel
 | index die geen geheel getal is | `"…" is not a subtitle number: expected a whole number, counted from 1 as the file shows them` |
 | ongeldige tijd | die van [`shift`](shift.md) |
 | `--first` en `--last` op dezelfde index | `--first and --last both name subtitle N, and two references on one subtitle define no transform` |
-| index buiten de grenzen | `<path>: subtitle N is past the end: the file holds M subtitles` |
-| twee ondertitels die samen beginnen | `<path>: subtitles N and M start at the same moment, so they define no transform` |
-| positie vóór de oorsprong | `<path>: subtitle N would land before the origin, which no subtitle file can hold` |
+| index buiten de grenzen | `subtitle N is past the end: the file holds M subtitles` |
+| twee ondertitels die samen beginnen | `subtitles N and M start at the same moment, so they define no transform` |
+| positie vóór de oorsprong | `subtitle N would land before the origin, which no subtitle file can hold` |
 
 **Zonder een van de drie bestemmingsopties wordt niets geschreven**, en hun
 fouten zijn gemeenschappelijk voor de subcommando's die schrijven:

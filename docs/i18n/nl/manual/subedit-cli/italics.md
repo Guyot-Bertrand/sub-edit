@@ -133,7 +133,7 @@ Die van het hulpprogramma: `0` als elk bestand is verwerkt — een bestand waari
 | :------------------ | :------ |
 | noch `--on` noch `--off` | `italics needs --on to put the texts in italics, or --off` |
 | beide | `--on and --off say opposite things; give one of them` |
-| een formaat zonder stijl | `<path>: TMPlayer writes no style: there are no italics to put on` (of `take out`) |
+| een formaat zonder stijl | `TMPlayer writes no style: there are no italics to put on` (of `take out`) |
 | bereik slecht geschreven of buiten het bestand | zie [`adjust`](adjust.md#--range) |
 
 De fouten van de bestemming zijn gemeenschappelijk voor de subcommando's die schrijven:

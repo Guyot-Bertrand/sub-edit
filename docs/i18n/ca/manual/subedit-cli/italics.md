@@ -133,7 +133,7 @@ Els de l'eina: `0` si s'han tractat tots els fitxers — un fitxer on no canvia 
 | :------------------ | :------ |
 | ni `--on` ni `--off` | `italics needs --on to put the texts in italics, or --off` |
 | tots dos | `--on and --off say opposite things; give one of them` |
-| un format sense estil | `<path>: TMPlayer writes no style: there are no italics to put on` (o `take out`) |
+| un format sense estil | `TMPlayer writes no style: there are no italics to put on` (o `take out`) |
 | franja mal escrita o fora del fitxer | vegeu [`adjust`](adjust.md#--range) |
 
 Els errors de la destinació són comuns a les subordres que escriuen:

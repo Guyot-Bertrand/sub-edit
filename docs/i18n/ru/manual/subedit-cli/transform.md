@@ -195,9 +195,9 @@ code=2
 | индекс не является целым числом | `"…" is not a subtitle number: expected a whole number, counted from 1 as the file shows them` |
 | неверное время | те же, что у [`shift`](shift.md) |
 | `--first` и `--last` с одним и тем же индексом | `--first and --last both name subtitle N, and two references on one subtitle define no transform` |
-| индекс за пределами допустимого | `<path>: subtitle N is past the end: the file holds M subtitles` |
-| два субтитра, начинающиеся одновременно | `<path>: subtitles N and M start at the same moment, so they define no transform` |
-| позиция до начала отсчёта | `<path>: subtitle N would land before the origin, which no subtitle file can hold` |
+| индекс за пределами допустимого | `subtitle N is past the end: the file holds M subtitles` |
+| два субтитра, начинающиеся одновременно | `subtitles N and M start at the same moment, so they define no transform` |
+| позиция до начала отсчёта | `subtitle N would land before the origin, which no subtitle file can hold` |
 
 **Без одного из трёх параметров места назначения ничего не записывается**, а
 ошибки, связанные с ним, общие для подкоманд, которые записывают:

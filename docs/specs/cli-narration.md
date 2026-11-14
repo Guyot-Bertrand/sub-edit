@@ -154,7 +154,7 @@ The reporter splits; no message writes a prefix itself.
 | Today | Where | Becomes |
 | :---- | :---- | :------ |
 | `Reporter::say`, `Reporter::failed` — 72 calls in 15 files | `src/lib/subedit/cli/` | the keys of D3 |
-| the usage errors of the argument parser | `app.exit(error)`, `src/exe/cli/application.cpp` | `[subedit] [<command> or -] [-] error:` — the text of CLI11, English, kept |
+| the usage errors of the argument parser | `src/exe/cli/application.cpp` | `[subedit] [<command> or -] [-] error:` — CLI11's sentence said again in the user's language by `cli::complaintIn` (#830); in English, CLI11's words |
 | `refuse()` | `src/exe/cli/commands/command.cpp` | `[subedit] [<command>] [-] error:` |
 | the last-resort handlers (`subedit-cli: %1`, `unknown failure`) | `src/exe/cli/main.cpp` | `[subedit] [-] [-] error:` |
 

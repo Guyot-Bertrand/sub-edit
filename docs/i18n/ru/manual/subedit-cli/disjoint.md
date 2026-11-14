@@ -178,7 +178,7 @@ code 2
 
 | Что их вызывает | Сообщение |
 | :------------------- | :------ |
-| файл с нарушенным порядком без `--sort` | `<path>: The subtitles are not in the order of their start: sort them first. Use --sort to do that here.` |
+| файл с нарушенным порядком без `--sort` | `The subtitles are not in the order of their start: sort them first. Use --sort to do that here.` |
 | `--minimum` не является длительностью или отрицателен | `--minimum: …` |
 | `--max-lines` не является целым числом | `--max-lines: "…" is not a number of lines: expected a whole number, 0 for no limit` |
 

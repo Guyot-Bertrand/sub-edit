@@ -263,7 +263,7 @@ některé, `1` při chybě použití. Soubor, který se už vejde do svých mez�
 | nulové nebo záporné maximum | `--maximum: "0" is not a duration above zero` |
 | špatně zapsaný rozsah | `--range: "…" is not a range: write it N-M, or N- to go to the end, counted from 1 and inclusive` |
 | rozsah, který končí dříve, než začíná | `--range: "5-3" is not a range: it ends before it starts` |
-| rozsah mimo soubor | `<path>: range N-M starts after the last subtitle: the file has K` nebo `… ends after …` |
+| rozsah mimo soubor | `range N-M starts after the last subtitle: the file has K` nebo `… ends after …` |
 
 Chyby cíle zápisu jsou společné podpříkazům, které zapisují:
 viz [Spuštění](invocation.md#cíl-zápisu).

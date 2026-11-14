@@ -163,7 +163,7 @@ solo alcuni, `1` in caso di errore d'uso.
 | virgola decimale | `"…" is not a time: use a decimal point and not a comma, in every language` |
 | più fine del millisecondo | `"…" is not a time: positions are held to the millisecond, no finer` |
 | testo che non è una durata | `"…" is not a time: expected seconds like 2.999, or a timestamp like 00:00:07.001` |
-| spostamento prima dell'origine | `<path>: subtitle N would start before the origin, which no subtitle file can hold` |
+| spostamento prima dell'origine | `subtitle N would start before the origin, which no subtitle file can hold` |
 
 **Nulla viene scritto senza una delle tre opzioni di destinazione**, e i relativi
 errori sono comuni ai sottocomandi che scrivono:

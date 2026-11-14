@@ -133,7 +133,7 @@ code=2
 | :------------------ | :------ |
 | ни `--on` ни `--off` | `italics needs --on to put the texts in italics, or --off` |
 | обе | `--on and --off say opposite things; give one of them` |
-| формат без стила | `<path>: TMPlayer writes no style: there are no italics to put on` (или `take out`) |
+| формат без стила | `TMPlayer writes no style: there are no italics to put on` (или `take out`) |
 | интервал лоше написан или ван датотеке | види [`adjust`](adjust.md#--range) |
 
 Грешке одредишта заједничке су подкомандама које пишу:

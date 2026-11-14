@@ -175,7 +175,7 @@ none, `3` if only some, `1` on a usage error.
 
 | What triggers them | Message |
 | :------------------- | :------ |
-| a file out of order without `--sort` | `<path>: The subtitles are not in the order of their start: sort them first. Use --sort to do that here.` |
+| a file out of order without `--sort` | `The subtitles are not in the order of their start: sort them first. Use --sort to do that here.` |
 | `--minimum` is not a duration, or is negative | `--minimum: …` |
 | `--max-lines` is not a whole number | `--max-lines: "…" is not a number of lines: expected a whole number, 0 for no limit` |
 

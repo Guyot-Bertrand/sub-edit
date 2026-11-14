@@ -1419,6 +1419,64 @@ msgstr "%1: титл %2 (превод)"
 msgid "%1: subtitle %2"
 msgstr "%1: титл %2"
 
+#. TRANSLATORS: %1 is what was typed on the command line and nothing takes, as typed.
+#: src/lib/subedit/cli/complaint.cpp
+msgid "The following argument was not expected: %1"
+msgid_plural "The following arguments were not expected: %1"
+msgstr[0] "Следећи аргумент није очекиван: %1"
+msgstr[1] "Следећи аргументи нису очекивани: %1"
+msgstr[2] "Следећи аргументи нису очекивани: %1"
+
+#: src/lib/subedit/cli/complaint.cpp
+msgid "A subcommand is required"
+msgstr "Потребна је подкоманда"
+
+#. TRANSLATORS: %1 is an option or an argument, as named in --help.
+#: src/lib/subedit/cli/complaint.cpp src/lib/subedit/cli/transcribing.cpp
+msgid "%1 is required"
+msgstr "%1 је обавезно"
+
+#. TRANSLATORS: %1 and %2 are two options, as typed.
+#: src/lib/subedit/cli/complaint.cpp
+msgid "%1 excludes %2"
+msgstr "%1 искључује %2"
+
+#. TRANSLATORS: %1 is an option given with too few values after it, %2 how many it
+#. needs, %3 their metavariable as --help shows it (TEXT, N).
+#: src/lib/subedit/cli/complaint.cpp
+msgid "%1: %2 required %3 missing"
+msgstr "%1: недостаје обавезних %3: %2"
+
+#. TRANSLATORS: %1 is an option, %2 the most values it takes, %3 how many were given.
+#: src/lib/subedit/cli/complaint.cpp
+msgid "%1: At Most %2 required but received %3"
+msgstr "%1: потребно највише %2, а примљено %3"
+
+#. TRANSLATORS: %1 is an option, %2 the fewest values it takes, %3 how many were given.
+#: src/lib/subedit/cli/complaint.cpp
+msgid "%1: At least %2 required but received %3"
+msgstr "%1: потребно најмање %2, а примљено %3"
+
+#. TRANSLATORS: %1 is an option, %2 the value given, %3 the values it takes, between
+#. commas.
+#: src/lib/subedit/cli/complaint.cpp
+msgid "%1: %2 not in {%3}"
+msgstr "%1: %2 није у {%3}"
+
+#. TRANSLATORS: %1 is an option, %2 the value given.
+#: src/lib/subedit/cli/complaint.cpp
+msgid "%1: Value %2 is not a number zero or greater"
+msgstr "%1: вредност %2 није број већи од нуле или једнак нули"
+
+#. TRANSLATORS: %1 is an option, %2 the value given, %3 and %4 the bounds of what it takes.
+#: src/lib/subedit/cli/complaint.cpp
+msgid "%1: Value %2 not in range [%3 - %4]"
+msgstr "%1: вредност %2 није у опсегу [%3 - %4]"
+
+#: src/lib/subedit/cli/complaint.cpp
+msgid "Run with --help for more information."
+msgstr "Покрените са --help за више информација."
+
 #. TRANSLATORS: %1 is the settings file, %2 why it could not be read.
 #: src/lib/subedit/cli/configuring.cpp
 msgid "%1: %2; nothing written"
@@ -2135,10 +2193,6 @@ msgstr "превелико је да би се држало, јер се пол�
 #: src/lib/subedit/cli/time_grammar.cpp
 msgid "expected seconds like 2.999, or a timestamp like 00:00:07.001"
 msgstr "очекују се секунде као 2.999, или временска ознака као 00:00:07.001"
-
-#: src/lib/subedit/cli/transcribing.cpp
-msgid "%1 is required"
-msgstr "%1 је обавезно"
 
 #: src/lib/subedit/cli/transforming.cpp
 msgid "subtitle %1 is past the end: the file holds %2 subtitle"
@@ -5695,8 +5749,11 @@ msgctxt "toolbar"
 msgid "Main"
 msgstr "Главни"
 
-#~ msgid "%1: %2 -> %3"
-#~ msgstr "%1: %2 -> %3"
+#~ msgid "%1 requires %2"
+#~ msgstr "%1 захтева %2"
+
+#~ msgid "Could not convert: %1 = %2"
+#~ msgstr "Претварање није успело: %1 = %2"
 
 #~ msgid "%1 -> %2"
 #~ msgstr "%1 -> %2"
@@ -5706,12 +5763,6 @@ msgstr "Главни"
 #~ msgstr[0] "%1: прочитано бајтова: %2, било би записано: %3"
 #~ msgstr[1] "%1: прочитано бајтова: %2, било би записано: %3"
 #~ msgstr[2] "%1: прочитано бајтова: %2, било би записано: %3"
-
-#~ msgid "%1: %2 bytes read, %3 written"
-#~ msgid_plural "%1: %2 bytes read, %3 written"
-#~ msgstr[0] "%1: прочитано бајтова: %2, записано: %3"
-#~ msgstr[1] "%1: прочитано бајтова: %2, записано: %3"
-#~ msgstr[2] "%1: прочитано бајтова: %2, записано: %3"
 
 #~ msgid "%1: %2 -> %3, %4, %5 line endings"
 #~ msgstr "%1: %2 -> %3, %4, крајеви редова %5"
@@ -5724,12 +5775,6 @@ msgstr "Главни"
 #~ "%1: титлова претворено у %3: %2 (пробни рад, ништа није записано)"
 #~ msgstr[2] ""
 #~ "%1: титлова претворено у %3: %2 (пробни рад, ништа није записано)"
-
-#~ msgid "%1: %2 subtitle written as %3 -> %4"
-#~ msgid_plural "%1: %2 subtitles written as %3 -> %4"
-#~ msgstr[0] "%1: титлова записано као %3: %2 -> %4"
-#~ msgstr[1] "%1: титлова записано као %3: %2 -> %4"
-#~ msgstr[2] "%1: титлова записано као %3: %2 -> %4"
 
 #~ msgid "%1: %2 bytes read"
 #~ msgid_plural "%1: %2 bytes read"

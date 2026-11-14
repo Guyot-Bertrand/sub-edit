@@ -144,7 +144,7 @@ poloviny).
 | jen jedna ze dvou, s `--dry-run` | `--head and --tail go together: give both, or neither with --dry-run` |
 | oba cíle zápisu jsou týž soubor | `<path>: named as both the head and the tail` |
 | cíl zápisu je vstupem | `<path>: would be written over the input <input>` |
-| `--at` mimo soubor | `<file>: --at 9: the file holds 3 subtitles, and the tail can start from 2 to 3` |
-| soubor s jedním titulkem | `<file>: a file of 1 subtitle cannot be split: a cut needs a subtitle on each side` |
-| překryv | `<file>: Cannot split at subtitle N: subtitle M would fall before the start of the video. Cut somewhere else.` |
-| soubor chybí, je nečitelný nebo v neznámém formátu | `<path>: does not exist`… — totéž co všude |
+| `--at` mimo soubor | `--at 9: the file holds 3 subtitles, and the tail can start from 2 to 3` |
+| soubor s jedním titulkem | `a file of 1 subtitle cannot be split: a cut needs a subtitle on each side` |
+| překryv | `Cannot split at subtitle N: subtitle M would fall before the start of the video. Cut somewhere else.` |
+| soubor chybí, je nečitelný nebo v neznámém formátu | `does not exist`… — totéž co všude |

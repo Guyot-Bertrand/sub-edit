@@ -122,7 +122,7 @@ o.srt: Cannot split at subtitle 3: subtitle 3 would fall before the start of the
 | רק אחד משניהם, עם `--dry-run` | `--head and --tail go together: give both, or neither with --dry-run` |
 | שני היעדים הם אותו קובץ | `<path>: named as both the head and the tail` |
 | יעד הוא הקלט | `<path>: would be written over the input <input>` |
-| `--at` מחוץ לקובץ | `<file>: --at 9: the file holds 3 subtitles, and the tail can start from 2 to 3` |
-| קובץ של כתובית אחת | `<file>: a file of 1 subtitle cannot be split: a cut needs a subtitle on each side` |
-| חפיפה | `<file>: Cannot split at subtitle N: subtitle M would fall before the start of the video. Cut somewhere else.` |
-| קובץ חסר, שאינו ניתן לקריאה או בפורמט לא מוכר | `<path>: does not exist`… — כמו בכל מקום |
+| `--at` מחוץ לקובץ | `--at 9: the file holds 3 subtitles, and the tail can start from 2 to 3` |
+| קובץ של כתובית אחת | `a file of 1 subtitle cannot be split: a cut needs a subtitle on each side` |
+| חפיפה | `Cannot split at subtitle N: subtitle M would fall before the start of the video. Cut somewhere else.` |
+| קובץ חסר, שאינו ניתן לקריאה או בפורמט לא מוכר | `does not exist`… — כמו בכל מקום |

@@ -133,7 +133,7 @@ hiçbiri işlenmediyse `2`, yalnızca bazıları işlendiyse `3`, kullanım hata
 | :------------------ | :------ |
 | ne `--on` ne `--off` | `italics needs --on to put the texts in italics, or --off` |
 | ikisi birden | `--on and --off say opposite things; give one of them` |
-| stili olmayan bir biçim | `<path>: TMPlayer writes no style: there are no italics to put on` (ya da `take out`) |
+| stili olmayan bir biçim | `TMPlayer writes no style: there are no italics to put on` (ya da `take out`) |
 | yanlış yazılmış ya da dosyanın dışında kalan aralık | bkz. [`adjust`](adjust.md#--range) |
 
 Hedefin hataları, yazan alt komutlar için ortaktır:

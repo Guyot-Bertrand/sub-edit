@@ -336,10 +336,10 @@ slechts sommige, `1` bij een gebruiksfout.
 | :------------------ | :------ |
 | `--bom` met `--no-bom` | `--bom and --no-bom ask for opposite things; give one or the other` |
 | `--in-place` dat het formaat wijzigt | `--in-place cannot change the format: the file would keep a name its content no longer matches` |
-| `--bom` op een codering die er geen heeft | `<path>: <encoding> has no byte order mark to write` |
+| `--bom` op een codering die er geen heeft | `<encoding> has no byte order mark to write` |
 | `--to-encoding` die een onbekende codering noemt | `no encoding is named "<name>"` |
 | `--to-encoding` die een codering noemt die haar eigen markering schrijft | `"<name>" writes a byte order mark of its own; name the byte order, as UTF-16LE and UTF-16BE do` |
-| teken dat in de geschreven codering ontbreekt | `<path>: holds a character the chosen encoding cannot write` |
+| teken dat in de geschreven codering ontbreekt | `holds a character the chosen encoding cannot write` |
 
 **`--bom` weigeren op een codering die er geen heeft, is geen
 pedanterie.** Een bytevolgordemarkering bestaat voor de Unicode-coderingen en

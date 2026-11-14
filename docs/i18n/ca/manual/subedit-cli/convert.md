@@ -336,10 +336,10 @@ només alguns, `1` en un error d'ús.
 | :------------------ | :------ |
 | `--bom` amb `--no-bom` | `--bom and --no-bom ask for opposite things; give one or the other` |
 | `--in-place` que canvia el format | `--in-place cannot change the format: the file would keep a name its content no longer matches` |
-| `--bom` sobre una codificació que no en té | `<path>: <encoding> has no byte order mark to write` |
+| `--bom` sobre una codificació que no en té | `<encoding> has no byte order mark to write` |
 | `--to-encoding` que anomena una codificació desconeguda | `no encoding is named "<name>"` |
 | `--to-encoding` que anomena una codificació que escriu la seva pròpia marca | `"<name>" writes a byte order mark of its own; name the byte order, as UTF-16LE and UTF-16BE do` |
-| caràcter que falta a la codificació escrita | `<path>: holds a character the chosen encoding cannot write` |
+| caràcter que falta a la codificació escrita | `holds a character the chosen encoding cannot write` |
 
 **Refusar `--bom` sobre una codificació que no en porta no és
 pedanteria.** Una marca d'ordre de bytes existeix per a les codificacions Unicode i

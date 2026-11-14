@@ -178,7 +178,7 @@ non se procesou ningún, `3` se só algúns, `1` nun erro de uso.
 
 | O que os provoca | Mensaxe |
 | :------------------- | :------ |
-| un ficheiro fóra de orde sen `--sort` | `<path>: The subtitles are not in the order of their start: sort them first. Use --sort to do that here.` |
+| un ficheiro fóra de orde sen `--sort` | `The subtitles are not in the order of their start: sort them first. Use --sort to do that here.` |
 | `--minimum` non é unha duración, ou é negativa | `--minimum: …` |
 | `--max-lines` non é un número enteiro | `--max-lines: "…" is not a number of lines: expected a whole number, 0 for no limit` |
 

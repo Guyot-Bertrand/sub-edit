@@ -362,11 +362,11 @@ ti de `-t`: vide supra. `inspect` scri nequo quel posse esser refusat.
 | Quo it causa | Missage |
 | :------------------ | :------ |
 | null camine donat | `files is required`, sequet de un indication a `--help` |
-| file mancant | `<path>: does not exist` |
-| file illegibil | `<path>: cannot be opened: permission denied` |
-| bytes quel ne decodar se | `<path>: cannot be decoded in the chosen encoding` |
-| formate ne recognoscet | `<path>: is in no format this tool knows` |
-| nequo quel sembla un subtitul | `<path>: holds nothing recognisable as a subtitle` |
+| file mancant | `does not exist` |
+| file illegibil | `cannot be opened: permission denied` |
+| bytes quel ne decodar se | `cannot be decoded in the chosen encoding` |
+| formate ne recognoscet | `is in no format this tool knows` |
+| nequo quel sembla un subtitul | `holds nothing recognisable as a subtitle` |
 
 Ti es li sam missages por li dissette subcomandes: li recepte por aperter
 es scrit un vez, in li core.

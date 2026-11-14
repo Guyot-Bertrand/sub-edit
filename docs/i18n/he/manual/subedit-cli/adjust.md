@@ -261,7 +261,7 @@ $ printf '1\n00:00:00,000 --> 00:00:00,400\nabcdefghijklmnopqrstuvwxyz1234\n\n2\
 | מקסימום אפס או שלילי | `--maximum: "0" is not a duration above zero` |
 | טווח שנכתב לא נכון | `--range: "…" is not a range: write it N-M, or N- to go to the end, counted from 1 and inclusive` |
 | טווח שמסתיים לפני שהוא מתחיל | `--range: "5-3" is not a range: it ends before it starts` |
-| טווח מחוץ לקובץ | `<path>: range N-M starts after the last subtitle: the file has K`, או `… ends after …` |
+| טווח מחוץ לקובץ | `range N-M starts after the last subtitle: the file has K`, או `… ends after …` |
 
 שגיאות היעד משותפות לתת-הפקודות שכותבות:
 ראו [הפעלה](invocation.md#היעד).

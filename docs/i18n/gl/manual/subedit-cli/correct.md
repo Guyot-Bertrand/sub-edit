@@ -315,7 +315,7 @@ nomea o padrón unha soa vez, sen o texto.
 | `grew the text too long` | o texto superou o que pode conter un subtítulo |
 
 No nivel 1, na saída de erro: 
-`<path>: pattern "<name>" (<reason>) was not applied to subtitle N` — sen o final cando o padrón se deixa de lado para todos os textos. **O número é o
+`warning: pattern "<name>" (<reason>) was not applied to subtitle N` — sen o final cando o padrón se deixa de lado para todos os textos. **O número é o
 do ficheiro**, sexan cales sexan as tarefas que eliminaron subtítulos antes. En JSON, é un
 aviso `pattern-failed` do ficheiro, cuxo `detail` leva a frase. **Un padrón abandonado non é un
 ficheiro fallido**: o ficheiro escríbese, e o código de saída é `0`.

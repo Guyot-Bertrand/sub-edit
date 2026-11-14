@@ -362,11 +362,11 @@ chyby `-t`: viz výše. `inspect` nezapisuje nic, co by mohlo být odmítnuto.
 | Co to způsobí | Hlášení |
 | :------------------ | :------ |
 | není zadána žádná cesta | `files is required`, následované odkazem na `--help` |
-| chybějící soubor | `<path>: does not exist` |
-| nečitelný soubor | `<path>: cannot be opened: permission denied` |
-| bajty, které nelze dekódovat | `<path>: cannot be decoded in the chosen encoding` |
-| nerozpoznaný formát | `<path>: is in no format this tool knows` |
-| nic, co by vypadalo jako titulek | `<path>: holds nothing recognisable as a subtitle` |
+| chybějící soubor | `does not exist` |
+| nečitelný soubor | `cannot be opened: permission denied` |
+| bajty, které nelze dekódovat | `cannot be decoded in the chosen encoding` |
+| nerozpoznaný formát | `is in no format this tool knows` |
+| nic, co by vypadalo jako titulek | `holds nothing recognisable as a subtitle` |
 
 Pro všech sedmnáct podpříkazů jsou to stejná hlášení: postup otevírání
 je zapsán jednou, v jádře.

@@ -314,7 +314,7 @@ onay sayfası deseni yalnızca bir kez, metin olmadan adlandırır.
 | `grew the text too long` | metin bir altyazının alabileceğinden uzun oldu |
 
 Düzey 1’de, hata çıktısında:
-`<path>: pattern "<name>" (<reason>) was not applied to subtitle N` — desen her metin için bir kenara bırakıldığında sonu olmadan. **Numara
+`warning: pattern "<name>" (<reason>) was not applied to subtitle N` — desen her metin için bir kenara bırakıldığında sonu olmadan. **Numara
 dosyanınkidir**, önce hangi görevler altyazı kaldırmış olursa olsun. JSON’da bu,
 dosyanın bir `pattern-failed` uyarısıdır ve `detail` alanı cümleyi taşır. **Vazgeçilen bir desen
 başarısız bir dosya değildir**: dosya yazılır ve çıkış kodu `0` olur.

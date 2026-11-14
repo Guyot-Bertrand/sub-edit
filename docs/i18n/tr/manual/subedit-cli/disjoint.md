@@ -177,7 +177,7 @@ işlenmediyse `2`, yalnızca bazıları işlendiyse `3`, kullanım hatasında `1
 
 | Neyin tetiklediği | İleti |
 | :------------------- | :------ |
-| `--sort` olmadan sırasız bir dosya | `<path>: The subtitles are not in the order of their start: sort them first. Use --sort to do that here.` |
+| `--sort` olmadan sırasız bir dosya | `The subtitles are not in the order of their start: sort them first. Use --sort to do that here.` |
 | `--minimum` bir süre değil ya da negatif | `--minimum: …` |
 | `--max-lines` bir tam sayı değil | `--max-lines: "…" is not a number of lines: expected a whole number, 0 for no limit` |
 

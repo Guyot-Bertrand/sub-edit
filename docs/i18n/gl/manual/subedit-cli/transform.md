@@ -195,9 +195,9 @@ só se escribiron algúns, `1` nun erro de uso.
 | índice que non é un número enteiro | `"…" is not a subtitle number: expected a whole number, counted from 1 as the file shows them` |
 | tempo non válido | os de [`shift`](shift.md) |
 | `--first` e `--last` no mesmo índice | `--first and --last both name subtitle N, and two references on one subtitle define no transform` |
-| índice fóra dos límites | `<path>: subtitle N is past the end: the file holds M subtitles` |
-| dous subtítulos que comezan xuntos | `<path>: subtitles N and M start at the same moment, so they define no transform` |
-| posición antes da orixe | `<path>: subtitle N would land before the origin, which no subtitle file can hold` |
+| índice fóra dos límites | `subtitle N is past the end: the file holds M subtitles` |
+| dous subtítulos que comezan xuntos | `subtitles N and M start at the same moment, so they define no transform` |
+| posición antes da orixe | `subtitle N would land before the origin, which no subtitle file can hold` |
 
 **Non se escribe nada sen unha das tres opcións de destino**, e os seus
 erros son comúns ás subordes que escriben:

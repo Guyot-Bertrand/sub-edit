@@ -314,7 +314,7 @@ fenêtre : la page de confirmation nomme le motif une seule fois, sans le texte.
 | `grew the text too long` | le texte dépassait ce qu'un sous-titre peut tenir |
 
 Au niveau 1, sur la sortie d'erreur : 
-`<path>: pattern "<name>" (<reason>) was not applied to subtitle N` — sans la fin quand le motif est écarté pour tous les textes. **Le numéro est celui du
+`warning: pattern "<name>" (<reason>) was not applied to subtitle N` — sans la fin quand le motif est écarté pour tous les textes. **Le numéro est celui du
 fichier**, quelles que soient les tâches qui ont retiré des sous-titres avant. En JSON, c'est
 un avertissement `pattern-failed` du fichier, dont `detail` porte la phrase. **Un motif
 abandonné n'est pas un fichier en échec** : le fichier est écrit, et le code de retour est `0`.

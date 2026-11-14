@@ -163,7 +163,7 @@ tylko niektóre, `1` przy błędzie użycia.
 | przecinek dziesiętny | `"…" is not a time: use a decimal point and not a comma, in every language` |
 | dokładniej niż do milisekundy | `"…" is not a time: positions are held to the millisecond, no finer` |
 | tekst, który nie jest czasem trwania | `"…" is not a time: expected seconds like 2.999, or a timestamp like 00:00:07.001` |
-| przesunięcie przed początkiem osi czasu | `<path>: subtitle N would start before the origin, which no subtitle file can hold` |
+| przesunięcie przed początkiem osi czasu | `subtitle N would start before the origin, which no subtitle file can hold` |
 
 **Nic nie jest zapisywane bez jednej z trzech opcji miejsca docelowego**, a ich
 błędy są wspólne dla podpoleceń, które zapisują:

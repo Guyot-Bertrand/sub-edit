@@ -362,11 +362,11 @@ els de `-t`: vegeu més amunt. `inspect` no escriu res que pugui ser refusat.
 | Què el provoca | Missatge |
 | :------------------ | :------ |
 | cap camí donat | `files is required`, seguit d'una indicació cap a `--help` |
-| fitxer inexistent | `<path>: does not exist` |
-| fitxer il·legible | `<path>: cannot be opened: permission denied` |
-| bytes que no es descodifiquen | `<path>: cannot be decoded in the chosen encoding` |
-| format no reconegut | `<path>: is in no format this tool knows` |
-| res que sembli un subtítol | `<path>: holds nothing recognisable as a subtitle` |
+| fitxer inexistent | `does not exist` |
+| fitxer il·legible | `cannot be opened: permission denied` |
+| bytes que no es descodifiquen | `cannot be decoded in the chosen encoding` |
+| format no reconegut | `is in no format this tool knows` |
+| res que sembli un subtítol | `holds nothing recognisable as a subtitle` |
 
 Són els mateixos missatges per a les disset subordres: la recepta per obrir
 s'escriu una sola vegada, al nucli.

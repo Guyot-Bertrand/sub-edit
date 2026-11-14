@@ -195,9 +195,9 @@ bazıları yazıldıysa `3`, kullanım hatasında `1`.
 | tam sayı olmayan dizin | `"…" is not a subtitle number: expected a whole number, counted from 1 as the file shows them` |
 | geçersiz süre | [`shift`](shift.md) komutundakiler |
 | aynı dizinde `--first` ve `--last` | `--first and --last both name subtitle N, and two references on one subtitle define no transform` |
-| sınırın dışında dizin | `<path>: subtitle N is past the end: the file holds M subtitles` |
-| birlikte başlayan iki altyazı | `<path>: subtitles N and M start at the same moment, so they define no transform` |
-| başlangıçtan önceki konum | `<path>: subtitle N would land before the origin, which no subtitle file can hold` |
+| sınırın dışında dizin | `subtitle N is past the end: the file holds M subtitles` |
+| birlikte başlayan iki altyazı | `subtitles N and M start at the same moment, so they define no transform` |
+| başlangıçtan önceki konum | `subtitle N would land before the origin, which no subtitle file can hold` |
 
 **Üç hedef seçeneğinden biri olmadan hiçbir şey yazılmaz** ve bunların
 hataları yazan alt komutlar için ortaktır:

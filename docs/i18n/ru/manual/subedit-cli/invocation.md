@@ -113,7 +113,6 @@ inspecter et recaler des fichiers de sous-titres.» Скрипт, который
 | вводимые имена: подкоманды, параметры, их значения (`off`, `srt`), метапеременные (`FILE`, `TEXT`, `OPTIONS`) | командная строка, написанная один раз, работает на любом языке |
 | названия шаблонов исправления, которые принимают `correct --enable` и `--disable` | шаблон называется английским именем, которое хранит его файл |
 | названия форматов и кодировок | формат называется своим именем |
-| собственные диагностические сообщения CLI11 (отсутствующий обязательный аргумент, неизвестный параметр, недопустимое для параметра значение) и его `Run with --help for more information.` | сформулированы внутри анализатора, на котором построена командная строка; остаются английскими |
 | рамка строки ошибки: `[subedit]`, подкоманда, `[-]`, ключ `error` | скрипт находит, что и где не удалось, не читая слов; переводится только сообщение |
 
 Запрос английского при любом окружении:
@@ -227,7 +226,7 @@ code=1
 <!-- example: subedit-cli --version | head -n 1 -->
 ```console
 $ subedit-cli --version | head -n 1
-subedit 1.2.8
+subedit 1.2.9
 ```
 
 Полный вывод на машине с ICU 74.2 и Enchant 2.3.3 (номера версий зависят от машины):
@@ -456,8 +455,8 @@ avec-bom.srt: a byte order mark that contradicts the encoding asked for ("UTF-16
 | два входных файла, одно место назначения | `<destination>: would be written by both <input> and <input>` |
 | входной файл был бы перезаписан | `<destination>: would be written over the input <input>` — то же предложение для [`append`](append.md) и [`split-file`](split-file.md) |
 | выходной каталог, который нельзя создать | `<directory>: cannot be created: permission denied` или `: cannot be created` |
-| место назначения, в которое нельзя записать | `<path>: <destination>: cannot be written: permission denied` или `: cannot be written` |
-| символ, отсутствующий в записываемой кодировке | `<path>: holds a character the chosen encoding cannot write` |
+| место назначения, в которое нельзя записать | `<destination>: cannot be written: permission denied` или `: cannot be written` |
+| символ, отсутствующий в записываемой кодировке | `holds a character the chosen encoding cannot write` |
 
 **Последний случай заслуживает пояснения.** Файл записывается обратно в **той кодировке, в которой
 был прочитан**, так же как с его символами конца строки и меткой. Если
@@ -695,21 +694,76 @@ code=3
 
 ## Уровни пояснений
 
+**Каждая строка вывода ошибок имеет одну и ту же форму**, и для рассказа, и для ошибок:
+
+```
+[subedit] [<command>] [<i>/<n>] <key>: <value>
+```
+
+| Часть | Что сообщает |
+| :----- | :------------- |
+| `<command>` | подкоманда в том виде, как её набрали; `-`, пока она неизвестна |
+| `<i>/<n>` | элемент, о котором говорит строка, `i`-й из `n`; `-` для строки обо всём запуске |
+| `<key>` | что говорит строка |
+| `<value>` | имя, число, путь или фраза |
+
+**Элемент — это то, что записывает одну запись JSON**: один вход или весь запуск для [`append`](append.md), [`split-file`](split-file.md) и [`pair`](pair.md). Он считается с 1, в порядке входов, который совпадает с порядком записей; единственный вход — это `[1/1]`.
+
+<!-- example: printf '1\n00:00:01,000 --> 00:00:02,000\n[Door]\nHello.\n\n2\n00:00:03,000 --> 00:00:04,000\n[Music]\n\n' > b.srt; printf 'nothing to read\n' > bad.srt; printf '1\n00:00:01,000 --> 00:00:02,000\nHi.\n\n' > c.srt; subedit-cli hearing-impaired --output-dir o b.srt bad.srt c.srt; echo "code=$?" -->
+```console
+$ printf '1\n00:00:01,000 --> 00:00:02,000\n[Door]\nHello.\n\n2\n00:00:03,000 --> 00:00:04,000\n[Music]\n\n' > b.srt; printf 'nothing to read\n' > bad.srt; printf '1\n00:00:01,000 --> 00:00:02,000\nHi.\n\n' > c.srt; subedit-cli hearing-impaired --output-dir o b.srt bad.srt c.srt; echo "code=$?"
+[subedit] [hearing-impaired] [1/3] source: b.srt
+[subedit] [hearing-impaired] [1/3] result: 1 subtitle cleaned, 1 removed
+[subedit] [hearing-impaired] [1/3] dest: o/b.srt
+[subedit] [hearing-impaired] [2/3] source: bad.srt
+[subedit] [hearing-impaired] [2/3] error: is in no format this tool knows
+[subedit] [hearing-impaired] [3/3] source: c.srt
+[subedit] [hearing-impaired] [3/3] result: no mention to remove
+[subedit] [hearing-impaired] [3/3] dest: o/c.srt
+[subedit] [hearing-impaired] [-] summary: 2 of 3 files cleaned, 1 failed
+code=3
+```
+
 Каждый уровень **включает предыдущий**: повышение на ступень добавляет, но никогда не
 заменяет.
 
 | Уровень | Как | Что содержит поток ошибок |
 | :----- | :------ | :------------------------------ |
-| 0 | `--quiet` | ничего, **кроме ошибок** |
-| 1 | по умолчанию или `-v` | одну строку на каждый обработанный файл и итог, как только файлов несколько |
-| 2 | `-vv` | а также то, что было распознано: формат, кодировка, BOM, символы конца строки |
-| 3 | `-vvv` | а также отладочную трассировку: прочитанные и записанные байты и **каждое диагностическое сообщение чтения** |
+| 0 | `--quiet` | только строки `error`, каждая после строки `source` своего элемента |
+| 1 | по умолчанию или `-v` | `source`, `translation`, `media`, `warning`, `result`, `dest`, `tail`; и о запуске — `settings`, `walk` и, начиная с двух элементов, `summary` |
+| 2 | `-vv` | и `format`, `encoding`, `bom`, `line-endings`, `alignment`, `progress` |
+| 3 | `-vvv` | и `bytes-read`, `bytes-written` и каждая `diagnostic` |
+
+Два ключа меняют уровень в зависимости от подкоманды: `alignment` находится на уровне 1 для `pair` и `inspect`, а `progress` — на уровне 3 для последнего услышанного текста.
 
 **Ошибки не подавляются никогда, включая `--quiet`.** Команда, которая завершается неудачей
 молча, оставила бы лишь код завершения.
 
 Итог появляется только начиная с двух файлов: для одного входного файла он
 повторял бы предыдущую строку.
+
+**Что верно для каждого элемента:**
+
+- его строка `source` идёт первой, и ошибка никогда не приходит без неё, даже с `--quiet`;
+- `dest` пишется при каждом успехе, который что-то записывает, и при `--in-place` тоже, и никогда при `--dry-run`, который ничего не записывает;
+- `result` может встречаться несколько раз: шаг, запрошенный помимо операции (`--sort`, `--disjoint`, `--join-repeats`), и каждый файл, добавленный `append`, получают свою строку;
+- ошибка не повторяет путь источника; она называет файл, о котором идёт речь, если это другой файл, например перевод или место назначения.
+
+### Как найти элемент по имени
+
+**Элемент определяется позицией, а не путём**: путь может содержать любой символ, позиции нечего экранировать, а строки элемента остаются вместе после `grep`. Строки одного файла находятся в два шага:
+
+```console
+$ subedit-cli hearing-impaired --output-dir o *.srt 2> log
+$ grep -F '] source: b.srt' log           # [subedit] [hearing-impaired] [1/3] source: b.srt
+$ grep -F '[1/3]' log                     # everything about b.srt
+```
+
+### Что обещает рассказ
+
+**Обещано**: форма строки; смысл `<i>/<n>` и его связь с порядком записей JSON; ключи и уровень каждого из них; правила выше.
+
+**Не обещано**: текст значения, которое является фразой, — `result`, `warning`, `error`, `progress`, `summary`, `walk`, — его переводят и при необходимости переформулируют: скрипт читает числа в JSON. И порядок строк разных элементов, если пакет когда-нибудь будет обрабатывать их параллельно.
 
 ## Чтение диагностических сообщений
 
@@ -719,9 +773,8 @@ code=3
 ошибок:
 
 ```
-a.srt: 2 diagnostics while reading
-a.srt: line 6: SubRip numbers that do not follow ("7"), settled by the reader
-a.srt: line 9: a line that fits nowhere, left as it stands
+[subedit] [inspect] [1/1] diagnostic: line 6: SubRip numbers that do not follow ("7"), settled by the reader
+[subedit] [inspect] [1/1] diagnostic: line 9: a line that fits nowhere, left as it stands
 ```
 
 Сообщают о них все восемнадцать подкоманд, а не только [`inspect`](inspect.md):
@@ -924,12 +977,12 @@ $ man -L fr subedit-cli-shift
 | `--quiet` с `-v` | `--quiet and -v ask for opposite things; give one or the other` |
 | `--config` с `--no-config` | `--config excludes --no-config` |
 | `--config` с пустым именем | `--config needs a file name` |
-| отсутствующий файл | `<path>: does not exist` |
-| нечитаемый файл | `<path>: cannot be opened: permission denied` |
+| отсутствующий файл | `does not exist` |
+| нечитаемый файл | `cannot be opened: permission denied` |
 | кодировка, которая записывает собственную метку | `"<name>" writes a byte order mark of its own; name the byte order, as UTF-16LE and UTF-16BE do` |
-| байты, которые не декодируются | `<path>: cannot be decoded in the chosen encoding` |
-| формат не распознан | `<path>: is in no format this tool knows` |
-| ничего, похожего на субтитр | `<path>: holds nothing recognisable as a subtitle` |
+| байты, которые не декодируются | `cannot be decoded in the chosen encoding` |
+| формат не распознан | `is in no format this tool knows` |
+| ничего, похожего на субтитр | `holds nothing recognisable as a subtitle` |
 | `--document translation` без `-t` | `--document translation needs the translation file: use -t` |
 | `-t` без `--document translation` | `-t names a translation to change: use --document translation` |
 | `--align-method` без `-t` | `--align-method needs a translation file: use -t` |

@@ -315,7 +315,7 @@ venster: de bevestigingspagina noemt het patroon maar één keer, zonder de teks
 | `grew the text too long` | de tekst ging voorbij wat een ondertitel kan bevatten |
 
 Op niveau 1, op de foutuitvoer: 
-`<path>: pattern "<name>" (<reason>) was not applied to subtitle N` — zonder het einde wanneer het patroon voor elke tekst terzijde wordt gelegd. **Het nummer is dat van het
+`warning: pattern "<name>" (<reason>) was not applied to subtitle N` — zonder het einde wanneer het patroon voor elke tekst terzijde wordt gelegd. **Het nummer is dat van het
 bestand**, welke taken er ook ondertitels hebben verwijderd. In JSON is het
 een waarschuwing `pattern-failed` van het bestand, waarvan `detail` de zin bevat. **Een opgegeven
 patroon is geen mislukt bestand**: het bestand wordt geschreven, en de afsluitcode is `0`.

@@ -117,7 +117,7 @@ Az eszköz kódjai: `0`, ha minden fájl feldolgozása megtörtént — az a fá
 | :------------------ | :------ |
 | sem az `--on`, sem az `--off` | `italics needs --on to put the texts in italics, or --off` |
 | mindkettő | `--on and --off say opposite things; give one of them` |
-| stílus nélküli formátum | `<path>: TMPlayer writes no style: there are no italics to put on` (vagy `take out`) |
+| stílus nélküli formátum | `TMPlayer writes no style: there are no italics to put on` (vagy `take out`) |
 | rosszul megírt vagy a fájlon kívüli tartomány | lásd [`adjust`](adjust.md#--range) |
 
 A cél hibái közösek az író alparancsokban: lásd [Indítás](invocation.md#a-cél).

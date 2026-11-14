@@ -144,7 +144,7 @@ felekéi).
 | csak az egyik a kettő közül, `--dry-run` esetén | `--head and --tail go together: give both, or neither with --dry-run` |
 | a két cél ugyanaz a fájl | `<path>: named as both the head and the tail` |
 | egy cél a bemenet | `<path>: would be written over the input <input>` |
-| a fájlon kívüli `--at` | `<file>: --at 9: the file holds 3 subtitles, and the tail can start from 2 to 3` |
-| egyetlen feliratsorból álló fájl | `<file>: a file of 1 subtitle cannot be split: a cut needs a subtitle on each side` |
-| átfedés | `<file>: Cannot split at subtitle N: subtitle M would fall before the start of the video. Cut somewhere else.` |
-| hiányzó, olvashatatlan vagy ismeretlen formátumú fájl | `<path>: does not exist`… — ugyanaz, mint mindenütt |
+| a fájlon kívüli `--at` | `--at 9: the file holds 3 subtitles, and the tail can start from 2 to 3` |
+| egyetlen feliratsorból álló fájl | `a file of 1 subtitle cannot be split: a cut needs a subtitle on each side` |
+| átfedés | `Cannot split at subtitle N: subtitle M would fall before the start of the video. Cut somewhere else.` |
+| hiányzó, olvashatatlan vagy ismeretlen formátumú fájl | `does not exist`… — ugyanaz, mint mindenütt |

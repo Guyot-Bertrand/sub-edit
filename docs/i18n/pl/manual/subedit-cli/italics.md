@@ -133,7 +133,7 @@ Takie jak w całym narzędziu: `0`, jeśli każdy plik został przetworzony — 
 | :------------------ | :------ |
 | ani `--on`, ani `--off` | `italics needs --on to put the texts in italics, or --off` |
 | obie | `--on and --off say opposite things; give one of them` |
-| format bez stylu | `<path>: TMPlayer writes no style: there are no italics to put on` (lub `take out`) |
+| format bez stylu | `TMPlayer writes no style: there are no italics to put on` (lub `take out`) |
 | zakres źle zapisany lub spoza pliku | zobacz [`adjust`](adjust.md#--range) |
 
 Błędy miejsca docelowego są wspólne dla podpoleceń, które zapisują:

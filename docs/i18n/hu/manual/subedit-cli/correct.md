@@ -306,7 +306,7 @@ ablak: a megerősítő lap csak egyszer nevezi meg a mintát, a szöveg nélkül
 | `grew the text too long` | a szöveg túlment azon, amit egy feliratsor elbír |
 
 Az 1. szinten, a hibakimeneten:
-`<path>: pattern "<name>" (<reason>) was not applied to subtitle N` — a vége nélkül, ha a minta minden szövegnél félre van téve. **A szám a
+`warning: pattern "<name>" (<reason>) was not applied to subtitle N` — a vége nélkül, ha a minta minden szövegnél félre van téve. **A szám a
 fájlé**, bármely feladat távolított is el feliratsorokat előtte. JSON-ban ez a fájl egy
 `pattern-failed` figyelmeztetése, amelynek `detail` mezője hordozza a mondatot. **A feladott
 minta nem hibás fájl**: a fájl kiíródik, és a kilépési kód `0`.

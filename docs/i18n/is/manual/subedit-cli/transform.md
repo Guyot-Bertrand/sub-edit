@@ -194,9 +194,9 @@ aðeins sumar, `1` við notkunarvillu.
 | vísir sem er ekki heiltala | `"…" is not a subtitle number: expected a whole number, counted from 1 as the file shows them` |
 | ógildur tími | þær sömu og hjá [`shift`](shift.md) |
 | `--first` og `--last` á sama vísi | `--first and --last both name subtitle N, and two references on one subtitle define no transform` |
-| vísir utan marka | `<path>: subtitle N is past the end: the file holds M subtitles` |
-| tveir skjátextar sem byrja saman | `<path>: subtitles N and M start at the same moment, so they define no transform` |
-| staðsetning fyrir upphafspunkt | `<path>: subtitle N would land before the origin, which no subtitle file can hold` |
+| vísir utan marka | `subtitle N is past the end: the file holds M subtitles` |
+| tveir skjátextar sem byrja saman | `subtitles N and M start at the same moment, so they define no transform` |
+| staðsetning fyrir upphafspunkt | `subtitle N would land before the origin, which no subtitle file can hold` |
 
 **Ekkert er skrifað án eins af valkostunum þremur um áfangastað**, og villur
 þeirra eru sameiginlegar undirskipununum sem skrifa:

@@ -144,7 +144,7 @@ o.srt: Cannot split at subtitle 3: subtitle 3 would fall before the start of the
 | только один из двух, при `--dry-run` | `--head and --tail go together: give both, or neither with --dry-run` |
 | оба места назначения — один и тот же файл | `<path>: named as both the head and the tail` |
 | место назначения — входной файл | `<path>: would be written over the input <input>` |
-| `--at` за пределами файла | `<file>: --at 9: the file holds 3 subtitles, and the tail can start from 2 to 3` |
-| файл из одного субтитра | `<file>: a file of 1 subtitle cannot be split: a cut needs a subtitle on each side` |
-| перекрытие | `<file>: Cannot split at subtitle N: subtitle M would fall before the start of the video. Cut somewhere else.` |
-| файл отсутствует, нечитаем или имеет неизвестный формат | `<path>: does not exist`… — то же, что везде |
+| `--at` за пределами файла | `--at 9: the file holds 3 subtitles, and the tail can start from 2 to 3` |
+| файл из одного субтитра | `a file of 1 subtitle cannot be split: a cut needs a subtitle on each side` |
+| перекрытие | `Cannot split at subtitle N: subtitle M would fall before the start of the video. Cut somewhere else.` |
+| файл отсутствует, нечитаем или имеет неизвестный формат | `does not exist`… — то же, что везде |

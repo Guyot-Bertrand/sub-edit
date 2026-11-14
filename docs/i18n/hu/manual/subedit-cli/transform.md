@@ -195,9 +195,9 @@ sem, `3`, ha csak néhány, `1` használati hiba esetén.
 | nem egész szám index | `"…" is not a subtitle number: expected a whole number, counted from 1 as the file shows them` |
 | érvénytelen idő | a [`shift`](shift.md) hibái |
 | a `--first` és a `--last` ugyanazon az indexen | `--first and --last both name subtitle N, and two references on one subtitle define no transform` |
-| határon kívüli index | `<path>: subtitle N is past the end: the file holds M subtitles` |
-| két egyszerre kezdődő feliratsor | `<path>: subtitles N and M start at the same moment, so they define no transform` |
-| nullpont előtti pozíció | `<path>: subtitle N would land before the origin, which no subtitle file can hold` |
+| határon kívüli index | `subtitle N is past the end: the file holds M subtitles` |
+| két egyszerre kezdődő feliratsor | `subtitles N and M start at the same moment, so they define no transform` |
+| nullpont előtti pozíció | `subtitle N would land before the origin, which no subtitle file can hold` |
 
 **A három célkapcsoló egyike nélkül semmi sem íródik ki**, és ezek
 hibái közösek az íráshoz használt alparancsokkal:

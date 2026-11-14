@@ -263,7 +263,7 @@ niektóre, `1` przy błędzie użycia. Plik, który mieści się już w swoich l
 | maksimum równe zero lub ujemne | `--maximum: "0" is not a duration above zero` |
 | źle zapisany zakres | `--range: "…" is not a range: write it N-M, or N- to go to the end, counted from 1 and inclusive` |
 | zakres, który kończy się przed początkiem | `--range: "5-3" is not a range: it ends before it starts` |
-| zakres poza plikiem | `<path>: range N-M starts after the last subtitle: the file has K` lub `… ends after …` |
+| zakres poza plikiem | `range N-M starts after the last subtitle: the file has K` lub `… ends after …` |
 
 Błędy miejsca docelowego są wspólne dla podpoleceń, które zapisują:
 zob. [Uruchamianie](invocation.md#miejsce-docelowe).

@@ -336,10 +336,10 @@ Bonjour.
 | :------------------ | :------ |
 | `--bom` с `--no-bom` | `--bom and --no-bom ask for opposite things; give one or the other` |
 | `--in-place`, меняющий формат | `--in-place cannot change the format: the file would keep a name its content no longer matches` |
-| `--bom` для кодировки, у которой метки нет | `<path>: <encoding> has no byte order mark to write` |
+| `--bom` для кодировки, у которой метки нет | `<encoding> has no byte order mark to write` |
 | `--to-encoding` называет неизвестную кодировку | `no encoding is named "<name>"` |
 | `--to-encoding` называет кодировку, которая записывает собственную метку | `"<name>" writes a byte order mark of its own; name the byte order, as UTF-16LE and UTF-16BE do` |
-| символ, отсутствующий в кодировке записи | `<path>: holds a character the chosen encoding cannot write` |
+| символ, отсутствующий в кодировке записи | `holds a character the chosen encoding cannot write` |
 
 **Отказ в `--bom` для кодировки, у которой метки нет, — это не
 педантизм.** Метка порядка байтов существует для кодировок Unicode и

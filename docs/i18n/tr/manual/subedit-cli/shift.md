@@ -163,7 +163,7 @@ bazıları yazıldıysa `3`, kullanım hatasında `1`.
 | ondalık virgül | `"…" is not a time: use a decimal point and not a comma, in every language` |
 | milisaniyeden daha ince | `"…" is not a time: positions are held to the millisecond, no finer` |
 | süre olmayan metin | `"…" is not a time: expected seconds like 2.999, or a timestamp like 00:00:07.001` |
-| başlangıçtan önceye kaydırma | `<path>: subtitle N would start before the origin, which no subtitle file can hold` |
+| başlangıçtan önceye kaydırma | `subtitle N would start before the origin, which no subtitle file can hold` |
 
 **Üç hedef seçeneğinden biri olmadan hiçbir şey yazılmaz** ve bunların
 hataları yazan alt komutlar için ortaktır:

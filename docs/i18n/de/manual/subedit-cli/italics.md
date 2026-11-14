@@ -133,7 +133,7 @@ Die des Werkzeugs: `0`, wenn jede Datei verarbeitet wurde — eine Datei, in der
 | :------------------ | :------ |
 | weder `--on` noch `--off` | `italics needs --on to put the texts in italics, or --off` |
 | beide | `--on and --off say opposite things; give one of them` |
-| ein Format ohne Stil | `<path>: TMPlayer writes no style: there are no italics to put on` (oder `take out`) |
+| ein Format ohne Stil | `TMPlayer writes no style: there are no italics to put on` (oder `take out`) |
 | Bereich falsch geschrieben oder außerhalb der Datei | siehe [`adjust`](adjust.md#--range) |
 
 Die Fehler des Ziels sind den Unterbefehlen gemeinsam, die schreiben:

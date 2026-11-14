@@ -178,7 +178,7 @@ Kódy nástroje: `0`, pokud byly zpracovány všechny soubory — soubor bez př
 
 | Co je způsobí | Hlášení |
 | :------------------- | :------ |
-| neseřazený soubor bez `--sort` | `<path>: The subtitles are not in the order of their start: sort them first. Use --sort to do that here.` |
+| neseřazený soubor bez `--sort` | `The subtitles are not in the order of their start: sort them first. Use --sort to do that here.` |
 | `--minimum` není doba trvání nebo je záporné | `--minimum: …` |
 | `--max-lines` není celé číslo | `--max-lines: "…" is not a number of lines: expected a whole number, 0 for no limit` |
 

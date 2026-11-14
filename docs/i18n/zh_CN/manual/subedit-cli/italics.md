@@ -117,7 +117,7 @@ code=2
 | :------------------ | :------ |
 | 既没有 `--on` 也没有 `--off` | `italics needs --on to put the texts in italics, or --off` |
 | 二者都有 | `--on and --off say opposite things; give one of them` |
-| 格式不支持样式 | `<path>: TMPlayer writes no style: there are no italics to put on`（或 `take out`） |
+| 格式不支持样式 | `TMPlayer writes no style: there are no italics to put on`（或 `take out`） |
 | 范围写法错误或超出文件 | 参见 [`adjust`](adjust.md#--range) |
 
 输出位置的错误是所有写入文件的子命令共有的：参见[调用](invocation.md#输出位置)。

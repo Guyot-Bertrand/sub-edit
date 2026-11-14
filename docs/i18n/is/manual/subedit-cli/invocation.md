@@ -113,7 +113,6 @@ stillir `LANGUAGE=en` (eða `LC_ALL=C`) — eða les `--format json`, sem breyti
 | nöfnin sem eru slegin inn: undirskipanir, valkostir, gildi þeirra (`off`, `srt`), breytuheiti (`FILE`, `TEXT`, `OPTIONS`) | skipanalína sem er skrifuð einu sinni virkar undir hverju tungumáli |
 | heiti leiðréttingarmynstra sem `correct --enable` og `--disable` taka við | mynstur er kallað ensku heiti sem skrá þess ber |
 | heiti sniða og stafakóðana | snið er kallað sínu heiti |
-| eigin greiningarboð CLI11 — nauðsynleg röksemd vantar, óþekktur valkostur, gildi sem valkostur tekur ekki við — og `Run with --help for more information.` | orðuð inni í þáttaranum sem skipanalínan er smíðuð á; þau haldast ensk |
 | rammi villulínu: `[subedit]`, undirskipunin, `[-]`, lykillinn `error` | skrifta finnur hvað brást og hvar án þess að lesa orðin; aðeins skilaboðin eru þýdd |
 
 Að biðja um ensku, hvert sem umhverfið er:
@@ -227,7 +226,7 @@ ekki keyrð, og `-q` og `-v` breyta engu.
 <!-- example: subedit-cli --version | head -n 1 -->
 ```console
 $ subedit-cli --version | head -n 1
-subedit 1.2.8
+subedit 1.2.9
 ```
 
 Allt úttakið, á vél með ICU 74.2 og Enchant 2.3.3 — tölurnar eru vélarinnar:
@@ -456,8 +455,8 @@ halda sniði skrárinnar sem var lesin og þar með endingu hennar.
 | tvær inntaksskrár, einn áfangastaður | `<destination>: would be written by both <input> and <input>` |
 | inntak yrði yfirskrifað | `<destination>: would be written over the input <input>` — sama setning fyrir [`append`](append.md) og [`split-file`](split-file.md) |
 | úttaksmappa sem ekki er hægt að búa til | `<directory>: cannot be created: permission denied`, eða `: cannot be created` |
-| áfangastaður sem ekki er hægt að skrifa | `<path>: <destination>: cannot be written: permission denied`, eða `: cannot be written` |
-| stafur sem vantar í stafakóðunina sem er skrifuð | `<path>: holds a character the chosen encoding cannot write` |
+| áfangastaður sem ekki er hægt að skrifa | `<destination>: cannot be written: permission denied`, eða `: cannot be written` |
+| stafur sem vantar í stafakóðunina sem er skrifuð | `holds a character the chosen encoding cannot write` |
 
 **Sú síðasta á skilið setningu.** Skrá er skrifuð til baka í **þeirri stafakóðun sem hún
 var lesin í**, eins og með línulok hennar og merki. Ef breyting
@@ -695,21 +694,76 @@ tilkynnt í CHANGELOG og hér.
 
 ## Stig frásagnar
 
+**Hver lína villuúttaksins hefur sama form**, jafnt frásögnin sem villurnar:
+
+```
+[subedit] [<command>] [<i>/<n>] <key>: <value>
+```
+
+| Hluti | Hvað hann segir |
+| :----- | :------------- |
+| `<command>` | undirskipunin eins og hún var slegin inn; `-` meðan hún er óþekkt |
+| `<i>/<n>` | einingin sem línan fjallar um, sú `i`-ta af `n`; `-` fyrir línu um alla keyrsluna |
+| `<key>` | það sem línan segir |
+| `<value>` | nafn, tala, slóð eða setning |
+
+**Eining er það sem skrifar eina JSON-færslu**: eitt inntak, eða öll keyrslan fyrir [`append`](append.md), [`split-file`](split-file.md) og [`pair`](pair.md). Hún er talin frá 1, í röð inntakanna, sem er röð færslnanna; eitt inntak er `[1/1]`.
+
+<!-- example: printf '1\n00:00:01,000 --> 00:00:02,000\n[Door]\nHello.\n\n2\n00:00:03,000 --> 00:00:04,000\n[Music]\n\n' > b.srt; printf 'nothing to read\n' > bad.srt; printf '1\n00:00:01,000 --> 00:00:02,000\nHi.\n\n' > c.srt; subedit-cli hearing-impaired --output-dir o b.srt bad.srt c.srt; echo "code=$?" -->
+```console
+$ printf '1\n00:00:01,000 --> 00:00:02,000\n[Door]\nHello.\n\n2\n00:00:03,000 --> 00:00:04,000\n[Music]\n\n' > b.srt; printf 'nothing to read\n' > bad.srt; printf '1\n00:00:01,000 --> 00:00:02,000\nHi.\n\n' > c.srt; subedit-cli hearing-impaired --output-dir o b.srt bad.srt c.srt; echo "code=$?"
+[subedit] [hearing-impaired] [1/3] source: b.srt
+[subedit] [hearing-impaired] [1/3] result: 1 subtitle cleaned, 1 removed
+[subedit] [hearing-impaired] [1/3] dest: o/b.srt
+[subedit] [hearing-impaired] [2/3] source: bad.srt
+[subedit] [hearing-impaired] [2/3] error: is in no format this tool knows
+[subedit] [hearing-impaired] [3/3] source: c.srt
+[subedit] [hearing-impaired] [3/3] result: no mention to remove
+[subedit] [hearing-impaired] [3/3] dest: o/c.srt
+[subedit] [hearing-impaired] [-] summary: 2 of 3 files cleaned, 1 failed
+code=3
+```
+
 Hvert stig **inniheldur það fyrra**: að fara upp um eitt bætir við, skiptir aldrei
 út.
 
 | Stig | Hvernig | Hvað villuúttakið ber |
 | :----- | :------ | :------------------------------ |
-| 0 | `--quiet` | ekkert, **nema villurnar** |
-| 1 | sjálfgefið, eða `-v` | ein lína fyrir hverja skrá sem er unnin, og samantekt um leið og þær eru fleiri en ein |
-| 2 | `-vv` | og það sem var þekkt: snið, stafakóðun, BOM, línulok |
-| 3 | `-vvv` | og rakningarslóðin: bæti lesin og skrifuð, og **öll greiningarboð lesturs** |
+| 0 | `--quiet` | aðeins `error`-línurnar, hver á eftir `source`-línu sinnar einingar |
+| 1 | sjálfgefið, eða `-v` | `source`, `translation`, `media`, `warning`, `result`, `dest`, `tail`; og um keyrsluna `settings`, `walk` og, frá tveimur einingum, `summary` |
+| 2 | `-vv` | og `format`, `encoding`, `bom`, `line-endings`, `alignment`, `progress` |
+| 3 | `-vvv` | og `bytes-read`, `bytes-written` og hver `diagnostic` |
+
+Tveir lyklar skipta um stig eftir undirskipun: `alignment` er á stigi 1 fyrir `pair` og `inspect`, og `progress` á stigi 3 fyrir síðasta texta sem heyrðist.
 
 **Villur eru aldrei þaggaðar, `--quiet` meðtalið.** Skipun sem bilar
 þegjandi myndi ekki skilja neitt eftir nema skilakóða sinn.
 
 Samantektin birtist aðeins frá tveimur skrám: á einni inntaksskrá myndi hún
 endurtaka línuna á undan.
+
+**Það sem gildir um hverja einingu:**
+
+- `source`-lína hennar kemur fyrst, og villa kemur aldrei án hennar, `--quiet` meðtalið;
+- `dest` er skrifuð við hvern árangur sem skrifar, líka með `--in-place`, og aldrei með `--dry-run`, sem skrifar ekkert;
+- `result` getur komið oftar en einu sinni: skref sem beðið er um auk aðgerðarinnar (`--sort`, `--disjoint`, `--join-repeats`) og hver skrá sem `append` bætir við fá sína eigin línu;
+- villa endurtekur ekki slóð upprunans; hún nefnir skrána sem hún fjallar um þegar það er önnur skrá, eins og þýðingin eða áfangastaðurinn.
+
+### Að finna einingu eftir nafni
+
+**Staðsetningin, ekki slóðin, auðkennir eininguna**: slóð getur innihaldið hvaða staf sem er, staðsetning hefur ekkert að verja, og línur einingar haldast saman eftir `grep`. Línur einnar skrár finnast í tveimur skrefum:
+
+```console
+$ subedit-cli hearing-impaired --output-dir o *.srt 2> log
+$ grep -F '] source: b.srt' log           # [subedit] [hearing-impaired] [1/3] source: b.srt
+$ grep -F '[1/3]' log                     # everything about b.srt
+```
+
+### Það sem frásögnin lofar
+
+**Lofað**: form línu; merking `<i>/<n>` og tengsl hennar við röð JSON-færslnanna; lyklarnir og stig hvers þeirra; reglurnar hér að ofan.
+
+**Ekki lofað**: texti gildis sem er setning — `result`, `warning`, `error`, `progress`, `summary`, `walk` —, sem er þýddur og umorðaður þegar þarf: skrifta les tölurnar í JSON. Né röð lína ólíkra eininga, ef runa vinnur þær einhvern tíma samhliða.
 
 ## Að lesa greiningarboð
 
@@ -719,9 +773,8 @@ hann rakst á er skrifað á **stigi 3**, ein lína fyrir hvert greiningarboð, 
 villuúttakið:
 
 ```
-a.srt: 2 diagnostics while reading
-a.srt: line 6: SubRip numbers that do not follow ("7"), settled by the reader
-a.srt: line 9: a line that fits nowhere, left as it stands
+[subedit] [inspect] [1/1] diagnostic: line 6: SubRip numbers that do not follow ("7"), settled by the reader
+[subedit] [inspect] [1/1] diagnostic: line 9: a line that fits nowhere, left as it stands
 ```
 
 Allar undirskipanirnar átján tilkynna þau, ekki aðeins [`inspect`](inspect.md):
@@ -925,12 +978,12 @@ runu hálfunna.
 | `--quiet` með `-v` | `--quiet and -v ask for opposite things; give one or the other` |
 | `--config` með `--no-config` | `--config excludes --no-config` |
 | `--config` með tómu heiti | `--config needs a file name` |
-| skrá vantar | `<path>: does not exist` |
-| skrá ekki læsileg | `<path>: cannot be opened: permission denied` |
+| skrá vantar | `does not exist` |
+| skrá ekki læsileg | `cannot be opened: permission denied` |
 | stafakóðun sem skrifar eigið merki | `"<name>" writes a byte order mark of its own; name the byte order, as UTF-16LE and UTF-16BE do` |
-| bæti sem ekki afkóðast | `<path>: cannot be decoded in the chosen encoding` |
-| snið ekki þekkt | `<path>: is in no format this tool knows` |
-| ekkert sem líkist skjátexta | `<path>: holds nothing recognisable as a subtitle` |
+| bæti sem ekki afkóðast | `cannot be decoded in the chosen encoding` |
+| snið ekki þekkt | `is in no format this tool knows` |
+| ekkert sem líkist skjátexta | `holds nothing recognisable as a subtitle` |
 | `--document translation` án `-t` | `--document translation needs the translation file: use -t` |
 | `-t` án `--document translation` | `-t names a translation to change: use --document translation` |
 | `--align-method` án `-t` | `--align-method needs a translation file: use -t` |

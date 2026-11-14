@@ -144,7 +144,7 @@ o.srt: Cannot split at subtitle 3: subtitle 3 would fall before the start of the
 | само једна од две, уз `--dry-run` | `--head and --tail go together: give both, or neither with --dry-run` |
 | оба одредишта су иста датотека | `<path>: named as both the head and the tail` |
 | одредиште је улаз | `<path>: would be written over the input <input>` |
-| `--at` ван датотеке | `<file>: --at 9: the file holds 3 subtitles, and the tail can start from 2 to 3` |
-| датотека са једним титлом | `<file>: a file of 1 subtitle cannot be split: a cut needs a subtitle on each side` |
-| преклапање | `<file>: Cannot split at subtitle N: subtitle M would fall before the start of the video. Cut somewhere else.` |
-| датотека недостаје, нечитљива је или непознатог формата | `<path>: does not exist`… — као свуда |
+| `--at` ван датотеке | `--at 9: the file holds 3 subtitles, and the tail can start from 2 to 3` |
+| датотека са једним титлом | `a file of 1 subtitle cannot be split: a cut needs a subtitle on each side` |
+| преклапање | `Cannot split at subtitle N: subtitle M would fall before the start of the video. Cut somewhere else.` |
+| датотека недостаје, нечитљива је или непознатог формата | `does not exist`… — као свуда |

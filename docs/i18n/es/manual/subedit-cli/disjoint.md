@@ -178,7 +178,7 @@ ninguno, `3` si solo algunos, `1` en caso de error de uso.
 
 | Qué los provoca | Mensaje |
 | :------------------- | :------ |
-| un archivo fuera de orden sin `--sort` | `<path>: The subtitles are not in the order of their start: sort them first. Use --sort to do that here.` |
+| un archivo fuera de orden sin `--sort` | `The subtitles are not in the order of their start: sort them first. Use --sort to do that here.` |
 | `--minimum` no es una duración, o es negativa | `--minimum: …` |
 | `--max-lines` no es un número entero | `--max-lines: "…" is not a number of lines: expected a whole number, 0 for no limit` |
 

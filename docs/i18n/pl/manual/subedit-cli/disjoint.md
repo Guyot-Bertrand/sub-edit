@@ -176,7 +176,7 @@ Takie jak w całym narzędziu: `0`, jeśli każdy plik został przetworzony — 
 
 | Co je wywołuje | Komunikat |
 | :------------------- | :------ |
-| plik poza kolejnością bez `--sort` | `<path>: The subtitles are not in the order of their start: sort them first. Use --sort to do that here.` |
+| plik poza kolejnością bez `--sort` | `The subtitles are not in the order of their start: sort them first. Use --sort to do that here.` |
 | `--minimum` nie jest czasem trwania lub jest ujemne | `--minimum: …` |
 | `--max-lines` nie jest liczbą całkowitą | `--max-lines: "…" is not a number of lines: expected a whole number, 0 for no limit` |
 

@@ -94,7 +94,7 @@ Każdy plik jest przesuwany **od końca tego, co go poprzedza**: kolejność, kt
 ustawia wynik w kolejności początków, **za jednym razem, po ostatnim dołączeniu**, tak jak zrobiłoby to [`sort`](sort.md) — stabilnie i bez zmiany czegokolwiek
 w zawartości.
 
-Nigdy domyślnie. Z tą opcją baza mówi o tym na pierwszym poziomie komentarza: `<base>: N subtitles moved` lub `<base>: already in order`, a
+Nigdy domyślnie. Z tą opcją baza mówi o tym na pierwszym poziomie komentarza: `result: N subtitles moved` lub `result: already in order`, a
 rekord `--format json` zawiera licznik `moved`, **nieobecny bez tej opcji**.
 
 ## Usuwanie nakładania się zakresów
@@ -161,8 +161,8 @@ Błąd to również obiekt, **jeden**: ten dotyczący pierwszego pliku, którego
 | podano pojedynczy plik | `append needs a base file and at least one file to put after it` |
 | ani `--output`, ani `--dry-run` | `no destination given: append writes one file, use --output` |
 | `--output` wskazuje plik wejściowy | `<destination>: would be written over the input <input>` |
-| plik nieistniejący, nieczytelny lub w nieznanym formacie | `<path>: does not exist`, `<path>: is in no format this tool knows`… — takie same jak wszędzie |
+| plik nieistniejący, nieczytelny lub w nieznanym formacie | `does not exist`, `is in no format this tool knows`… — takie same jak wszędzie |
 
 **Pusty plik nie jest dołączany**: żaden format nie odczytuje pliku bez co najmniej jednego napisu, a plik jest
-odrzucany jak każdy plik, którego nie da się odczytać — `<path>: holds nothing recognisable as a subtitle` —, co
+odrzucany jak każdy plik, którego nie da się odczytać — `holds nothing recognisable as a subtitle` —, co
 zatrzymuje przebieg i nic nie zapisuje.

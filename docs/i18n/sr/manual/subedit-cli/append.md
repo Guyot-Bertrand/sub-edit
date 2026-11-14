@@ -94,7 +94,7 @@ trois
 поређа резултат по почецима, **одједном, после последњег прикачивања**, као што би урадила подкоманда [`sort`](sort.md) — стабилно и без измене
 садржаја.
 
-Никада подразумевано. Уз опцију, основа то јавља на првом нивоу приповедања, `<base>: N subtitles moved` или `<base>: already in order`, а
+Никада подразумевано. Уз опцију, основа то јавља на првом нивоу приповедања, `result: N subtitles moved` или `result: already in order`, а
 запис `--format json` носи број `moved`, **одсутан без опције**.
 
 ## Раздвајање интервала
@@ -161,8 +161,8 @@ SubRip датотеку без губитка, а не обрнуто. Да би
 | задата једна датотека | `append needs a base file and at least one file to put after it` |
 | ни `--output` ни `--dry-run` | `no destination given: append writes one file, use --output` |
 | `--output` именује улаз | `<destination>: would be written over the input <input>` |
-| датотека која недостаје, не чита се или је непознатог формата | `<path>: does not exist`, `<path>: is in no format this tool knows`… — исто као свуда |
+| датотека која недостаје, не чита се или је непознатог формата | `does not exist`, `is in no format this tool knows`… — исто као свуда |
 
 **Празна датотека се не прикачује**: ниједан формат се не чита без бар једног титла, а датотека се
-одбија као свака датотека која не може да се прочита — `<path>: holds nothing recognisable as a subtitle` —, што
+одбија као свака датотека која не може да се прочита — `holds nothing recognisable as a subtitle` —, што
 зауставља извршавање и не пише ништа.

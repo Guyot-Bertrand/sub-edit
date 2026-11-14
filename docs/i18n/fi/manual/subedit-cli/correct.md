@@ -315,7 +315,7 @@ ikkuna: vahvistussivu nimeää lausekkeen vain kerran ilman tekstiä.
 | `grew the text too long` | teksti ylitti sen, mitä kappale voi sisältää |
 
 Tasolla 1 virhetulosteeseen: 
-`<path>: pattern "<name>" (<reason>) was not applied to subtitle N` — ilman loppuosaa, kun lauseke jätetään sivuun jokaisen tekstin osalta. **Numero on
+`warning: pattern "<name>" (<reason>) was not applied to subtitle N` — ilman loppuosaa, kun lauseke jätetään sivuun jokaisen tekstin osalta. **Numero on
 tiedoston numero** riippumatta siitä, mitkä tehtävät poistivat kappaleita aiemmin. JSON-muodossa se on
 tiedoston varoitus `pattern-failed`, jonka kenttä `detail` sisältää lauseen. **Lauseke,
 josta luovuttiin, ei ole epäonnistunut tiedosto**: tiedosto kirjoitetaan, ja paluuarvo on `0`.

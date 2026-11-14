@@ -160,7 +160,7 @@ only some, `1` on a usage error.
 | decimal comma | `"…" is not a time: use a decimal point and not a comma, in every language` |
 | finer than the millisecond | `"…" is not a time: positions are held to the millisecond, no finer` |
 | text that is not a duration | `"…" is not a time: expected seconds like 2.999, or a timestamp like 00:00:07.001` |
-| shift before the origin | `<path>: subtitle N would start before the origin, which no subtitle file can hold` |
+| shift before the origin | `subtitle N would start before the origin, which no subtitle file can hold` |
 
 **Nothing is written without one of the three destination options**, and their
 errors are common to the subcommands that write:

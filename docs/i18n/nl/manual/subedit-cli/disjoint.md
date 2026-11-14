@@ -177,7 +177,7 @@ geen enkel, `3` als slechts enkele, `1` bij een gebruiksfout.
 
 | Wat het veroorzaakt | Melding |
 | :------------------- | :------ |
-| een bestand buiten volgorde zonder `--sort` | `<path>: The subtitles are not in the order of their start: sort them first. Use --sort to do that here.` |
+| een bestand buiten volgorde zonder `--sort` | `The subtitles are not in the order of their start: sort them first. Use --sort to do that here.` |
 | `--minimum` is geen duur, of is negatief | `--minimum: …` |
 | `--max-lines` is geen geheel getal | `--max-lines: "…" is not a number of lines: expected a whole number, 0 for no limit` |
 

@@ -81,6 +81,8 @@ json` is byte-identical whatever the language (the versioned expected files of p
 CLI11's own diagnostics (a missing required option, an unknown flag) are English. Whether to replace them by our own
 messages is decided in [#663](https://github.com/Guyot-Bertrand/sub-edit/issues/663) and written in the manual: they stay
 English, worded inside the parser; the headings CLI11 puts in `--help` are translated, since it lets each be replaced.
+**Reversed in #830**: each diagnostic the tool can raise is read back out of CLI11's sentence and said again in the
+user's language (`cli::complaintIn`), the English msgid being CLI11's sentence word for word.
 
 ## D4 — Choosing the language
 
@@ -373,8 +375,7 @@ list, each verb its own plural sentence. Twenty-two literals were exempted rathe
 json`, a value typed on the command line or a key of CLI11's formatter. **The JSON record stays English** without a second copy of any sentence: a
 `Failure` (and a warning) is given the function that words it, called once as usual and once under
 `core::SourceLanguage`, a scope in which the translation functions answer in English; the record takes the second.
-**CLI11's own diagnostics stay English**, its help headings do not (point 1 of the open points, closed): the manual's
-*Language* section says so. The command line chooses its catalogue in `main`, as D4 says, from
+CLI11's own diagnostics were left in English (point 1 of the open points), until #830 translated them too. The command line chooses its catalogue in `main`, as D4 says, from
 `<bin>/../share/subedit/locale`.
 
 **Lowered by #664 to 381 literals in 68 files.** The shell of the window is at zero — the menus and their
@@ -647,7 +648,7 @@ scripts are independent of one another.
 ## Open points
 
 1. **CLI11's own messages** — decided in #663: left in English, and said in the manual; the headings of its help are
-   translated.
+   translated. Reversed in #830: the diagnostics are translated as well.
 2. **A catalogue per binary or one shared** — `subedit.mo` serves both executables in D1; if the command line's start-up
    cost shows the shared catalogue too large, split it (#684 measures).
 3. **Per-language screenshots** — settled by #672: one set per language, from `make manual`. Open for `he` and `zh_CN`:

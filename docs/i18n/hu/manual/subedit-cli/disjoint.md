@@ -158,7 +158,7 @@ Az eszköz kódjai: `0`, ha minden fájl feldolgozása megtörtént — az átfe
 
 | Mi váltja ki | Üzenet |
 | :------------------- | :------ |
-| rendezetlen fájl a `--sort` kapcsoló nélkül | `<path>: The subtitles are not in the order of their start: sort them first. Use --sort to do that here.` |
+| rendezetlen fájl a `--sort` kapcsoló nélkül | `The subtitles are not in the order of their start: sort them first. Use --sort to do that here.` |
 | a `--minimum` értéke nem időtartam, vagy negatív | `--minimum: …` |
 | a `--max-lines` értéke nem egész szám | `--max-lines: "…" is not a number of lines: expected a whole number, 0 for no limit` |
 

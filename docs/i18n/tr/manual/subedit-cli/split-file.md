@@ -144,7 +144,7 @@ yarınınki).
 | `--dry-run` ile ikisinden yalnızca biri | `--head and --tail go together: give both, or neither with --dry-run` |
 | iki hedef aynı dosya | `<path>: named as both the head and the tail` |
 | bir hedef girdidir | `<path>: would be written over the input <input>` |
-| dosyanın dışında `--at` | `<file>: --at 9: the file holds 3 subtitles, and the tail can start from 2 to 3` |
-| tek altyazılı bir dosya | `<file>: a file of 1 subtitle cannot be split: a cut needs a subtitle on each side` |
-| çakışma | `<file>: Cannot split at subtitle N: subtitle M would fall before the start of the video. Cut somewhere else.` |
-| eksik, okunamayan ya da bilinmeyen biçimde bir dosya | `<path>: does not exist`… — her yerdeki ile aynı |
+| dosyanın dışında `--at` | `--at 9: the file holds 3 subtitles, and the tail can start from 2 to 3` |
+| tek altyazılı bir dosya | `a file of 1 subtitle cannot be split: a cut needs a subtitle on each side` |
+| çakışma | `Cannot split at subtitle N: subtitle M would fall before the start of the video. Cut somewhere else.` |
+| eksik, okunamayan ya da bilinmeyen biçimde bir dosya | `does not exist`… — her yerdeki ile aynı |

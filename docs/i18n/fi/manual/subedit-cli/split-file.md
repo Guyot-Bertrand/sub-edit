@@ -144,7 +144,7 @@ puoliskon kappaleet).
 | vain toinen kahdesta, valitsimella `--dry-run` | `--head and --tail go together: give both, or neither with --dry-run` |
 | molemmat kohteet ovat sama tiedosto | `<path>: named as both the head and the tail` |
 | kohde on syöte | `<path>: would be written over the input <input>` |
-| `--at` tiedoston ulkopuolella | `<file>: --at 9: the file holds 3 subtitles, and the tail can start from 2 to 3` |
-| yhden kappaleen tiedosto | `<file>: a file of 1 subtitle cannot be split: a cut needs a subtitle on each side` |
-| päällekkäisyys | `<file>: Cannot split at subtitle N: subtitle M would fall before the start of the video. Cut somewhere else.` |
-| tiedosto puuttuu, on lukukelvoton tai tuntematonta muotoa | `<path>: does not exist`… — samat kuin kaikkialla |
+| `--at` tiedoston ulkopuolella | `--at 9: the file holds 3 subtitles, and the tail can start from 2 to 3` |
+| yhden kappaleen tiedosto | `a file of 1 subtitle cannot be split: a cut needs a subtitle on each side` |
+| päällekkäisyys | `Cannot split at subtitle N: subtitle M would fall before the start of the video. Cut somewhere else.` |
+| tiedosto puuttuu, on lukukelvoton tai tuntematonta muotoa | `does not exist`… — samat kuin kaikkialla |

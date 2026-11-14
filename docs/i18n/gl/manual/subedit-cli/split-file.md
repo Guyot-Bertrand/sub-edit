@@ -144,7 +144,7 @@ metade).
 | só unha das dúas, con `--dry-run` | `--head and --tail go together: give both, or neither with --dry-run` |
 | os dous destinos son o mesmo ficheiro | `<path>: named as both the head and the tail` |
 | un destino é a entrada | `<path>: would be written over the input <input>` |
-| `--at` fóra do ficheiro | `<file>: --at 9: the file holds 3 subtitles, and the tail can start from 2 to 3` |
-| un ficheiro dun só subtítulo | `<file>: a file of 1 subtitle cannot be split: a cut needs a subtitle on each side` |
-| solapamento | `<file>: Cannot split at subtitle N: subtitle M would fall before the start of the video. Cut somewhere else.` |
-| un ficheiro que falta, ilexible ou dun formato descoñecido | `<path>: does not exist`… — o mesmo que en todas partes |
+| `--at` fóra do ficheiro | `--at 9: the file holds 3 subtitles, and the tail can start from 2 to 3` |
+| un ficheiro dun só subtítulo | `a file of 1 subtitle cannot be split: a cut needs a subtitle on each side` |
+| solapamento | `Cannot split at subtitle N: subtitle M would fall before the start of the video. Cut somewhere else.` |
+| un ficheiro que falta, ilexible ou dun formato descoñecido | `does not exist`… — o mesmo que en todas partes |

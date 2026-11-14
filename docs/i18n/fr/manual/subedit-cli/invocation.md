@@ -113,7 +113,6 @@ script qui lit les mots de la sortie texte pose `LANGUAGE=en` (ou `LC_ALL=C`) �
 | les noms qu'on tape : sous-commandes, options, leurs valeurs (`off`, `srt`), métavariables (`FILE`, `TEXT`, `OPTIONS`) | une ligne de commande écrite une fois marche sous toutes les langues |
 | les noms des motifs de correction que prennent `correct --enable` et `--disable` | un motif s'appelle par le nom anglais que porte son fichier |
 | les noms des formats et des encodages | un format s'appelle par son nom |
-| les diagnostics propres à CLI11 — un argument requis manquant, une option inconnue, une valeur qu'une option n'accepte pas — et son `Run with --help for more information.` | formulés dans l'analyseur sur lequel la ligne de commande est bâtie ; ils restent en anglais |
 | le cadre d'une ligne d'erreur : `[subedit]`, la sous-commande, `[-]`, la clé `error` | un script trouve ce qui a échoué, et où, sans lire les mots ; seul le message est traduit |
 
 Demander l'anglais, quel que soit l'environnement :
@@ -232,7 +231,7 @@ code `0`. Une sous-commande donnée en plus n'est pas exécutée, et `-q` et `-v
 <!-- example: subedit-cli --version | head -n 1 -->
 ```console
 $ subedit-cli --version | head -n 1
-subedit 1.2.8
+subedit 1.2.9
 ```
 
 Le tout, sur une machine qui a ICU 74.2 et Enchant 2.3.3 — les numéros sont ceux de la machine :
@@ -462,8 +461,8 @@ autres conservent celui du fichier lu, donc son extension.
 | deux entrées, une destination | `<destination>: would be written by both <input> and <input>` |
 | une entrée serait écrasée | `<destination>: would be written over the input <input>` — la même phrase pour [`append`](append.md) et [`split-file`](split-file.md) |
 | dossier de sortie impossible à créer | `<directory>: cannot be created: permission denied`, ou `: cannot be created` |
-| destination non inscriptible | `<path>: <destination>: cannot be written: permission denied`, ou `: cannot be written` |
-| caractère absent de l'encodage écrit | `<path>: holds a character the chosen encoding cannot write` |
+| destination non inscriptible | `<destination>: cannot be written: permission denied`, ou `: cannot be written` |
+| caractère absent de l'encodage écrit | `holds a character the chosen encoding cannot write` |
 
 **Le dernier mérite une phrase.** Un fichier est réécrit dans **l'encodage où il
 a été lu**, comme il l'est avec ses fins de ligne et sa marque. Si une
@@ -701,21 +700,76 @@ annoncée au CHANGELOG et ici.
 
 ## Niveaux de narration
 
+**Chaque ligne de la sortie d'erreur a la même forme**, pour la narration comme pour les erreurs :
+
+```
+[subedit] [<command>] [<i>/<n>] <key>: <value>
+```
+
+| Partie | Ce qu'elle dit |
+| :----- | :------------- |
+| `<command>` | la sous-commande, telle que tapée ; `-` avant qu'elle soit connue |
+| `<i>/<n>` | l'élément dont parle la ligne, le `i`-ième de `n` ; `-` pour une ligne sur l'exécution entière |
+| `<key>` | ce que dit la ligne |
+| `<value>` | un nom, un nombre, un chemin ou une phrase |
+
+**Un élément est ce qui écrit un enregistrement JSON** : une entrée, ou l'exécution entière pour [`append`](append.md), [`split-file`](split-file.md) et [`pair`](pair.md). Il est compté à partir de 1, dans l'ordre des entrées, qui est l'ordre des enregistrements ; une entrée unique est `[1/1]`.
+
+<!-- example: printf '1\n00:00:01,000 --> 00:00:02,000\n[Door]\nHello.\n\n2\n00:00:03,000 --> 00:00:04,000\n[Music]\n\n' > b.srt; printf 'nothing to read\n' > bad.srt; printf '1\n00:00:01,000 --> 00:00:02,000\nHi.\n\n' > c.srt; subedit-cli hearing-impaired --output-dir o b.srt bad.srt c.srt; echo "code=$?" -->
+```console
+$ printf '1\n00:00:01,000 --> 00:00:02,000\n[Door]\nHello.\n\n2\n00:00:03,000 --> 00:00:04,000\n[Music]\n\n' > b.srt; printf 'nothing to read\n' > bad.srt; printf '1\n00:00:01,000 --> 00:00:02,000\nHi.\n\n' > c.srt; subedit-cli hearing-impaired --output-dir o b.srt bad.srt c.srt; echo "code=$?"
+[subedit] [hearing-impaired] [1/3] source: b.srt
+[subedit] [hearing-impaired] [1/3] result: 1 subtitle cleaned, 1 removed
+[subedit] [hearing-impaired] [1/3] dest: o/b.srt
+[subedit] [hearing-impaired] [2/3] source: bad.srt
+[subedit] [hearing-impaired] [2/3] error: is in no format this tool knows
+[subedit] [hearing-impaired] [3/3] source: c.srt
+[subedit] [hearing-impaired] [3/3] result: no mention to remove
+[subedit] [hearing-impaired] [3/3] dest: o/c.srt
+[subedit] [hearing-impaired] [-] summary: 2 of 3 files cleaned, 1 failed
+code=3
+```
+
 Chaque niveau **contient le précédent** : monter d'un cran ajoute, ne remplace
 jamais.
 
 | Niveau | Comment | Ce que la sortie d'erreur porte |
 | :----- | :------ | :------------------------------ |
-| 0 | `--quiet` | rien, **sauf les erreurs** |
-| 1 | par défaut, ou `-v` | une ligne par fichier traité, et un bilan dès qu'il y en a plusieurs |
-| 2 | `-vv` | et ce qui a été reconnu : format, encodage, BOM, fins de ligne |
-| 3 | `-vvv` | et la trace de mise au point : octets lus et écrits, et **chaque diagnostic de lecture** |
+| 0 | `--quiet` | les seules lignes `error`, chacune après la ligne `source` de son élément |
+| 1 | par défaut, ou `-v` | `source`, `translation`, `media`, `warning`, `result`, `dest`, `tail` ; et sur l'exécution, `settings`, `walk` et, à partir de deux éléments, `summary` |
+| 2 | `-vv` | et `format`, `encoding`, `bom`, `line-endings`, `alignment`, `progress` |
+| 3 | `-vvv` | et `bytes-read`, `bytes-written`, et chaque `diagnostic` |
+
+Deux clés changent de niveau selon la sous-commande : `alignment` est au niveau 1 pour `pair` et `inspect`, et `progress` au niveau 3 pour le dernier texte entendu.
 
 **Les erreurs ne sont jamais tues, `--quiet` compris.** Une commande qui échoue
 en silence ne laisserait que son code de retour.
 
 Le bilan n'apparaît qu'à partir de deux fichiers : sur une entrée unique, il
 répéterait la ligne qui le précède.
+
+**Ce qui vaut pour chaque élément :**
+
+- sa ligne `source` vient en premier, et une erreur ne vient jamais sans elle, `--quiet` compris ;
+- `dest` est écrite à chaque succès qui écrit, sous `--in-place` aussi, et jamais sous `--dry-run`, qui n'écrit rien ;
+- `result` peut venir plus d'une fois : une étape demandée en plus de l'opération (`--sort`, `--disjoint`, `--join-repeats`) et chaque fichier qu'`append` ajoute ont leur propre ligne ;
+- une erreur ne répète pas le chemin de la source ; elle nomme le fichier dont elle parle quand c'en est un autre, comme la traduction ou la destination.
+
+### Retrouver un élément par son nom
+
+**La position, et non le chemin, identifie l'élément** : un chemin peut contenir n'importe quel caractère, une position n'a rien à échapper, et les lignes d'un élément restent ensemble après un `grep`. Retrouver les lignes d'un fichier se fait en deux temps :
+
+```console
+$ subedit-cli hearing-impaired --output-dir o *.srt 2> log
+$ grep -F '] source: b.srt' log           # [subedit] [hearing-impaired] [1/3] source: b.srt
+$ grep -F '[1/3]' log                     # everything about b.srt
+```
+
+### Ce que la narration promet
+
+**Promis** : la forme d'une ligne ; le sens de `<i>/<n>` et son lien avec l'ordre des enregistrements JSON ; les clés et le niveau de chacune ; les règles ci-dessus.
+
+**Pas promis** : le texte d'une valeur qui est une phrase — `result`, `warning`, `error`, `progress`, `summary`, `walk` —, traduit et reformulé quand il le faut : un script lit les nombres dans le JSON. Ni l'ordre des lignes d'éléments différents, si un lot les traite un jour en parallèle.
 
 ## Les diagnostics de lecture
 
@@ -725,9 +779,8 @@ qu'il a rencontré sort au **niveau 3**, une ligne par diagnostic, sur la sortie
 d'erreur :
 
 ```
-a.srt: 2 diagnostics while reading
-a.srt: line 6: SubRip numbers that do not follow ("7"), settled by the reader
-a.srt: line 9: a line that fits nowhere, left as it stands
+[subedit] [inspect] [1/1] diagnostic: line 6: SubRip numbers that do not follow ("7"), settled by the reader
+[subedit] [inspect] [1/1] diagnostic: line 9: a line that fits nowhere, left as it stands
 ```
 
 Les dix-huit sous-commandes les rapportent, pas seulement [`inspect`](inspect.md) :
@@ -931,12 +984,12 @@ jamais un lot à moitié traité.
 | `--quiet` avec `-v` | `--quiet and -v ask for opposite things; give one or the other` |
 | `--config` avec `--no-config` | `--config excludes --no-config` |
 | `--config` avec un nom vide | `--config needs a file name` |
-| fichier absent | `<path>: does not exist` |
-| fichier illisible | `<path>: cannot be opened: permission denied` |
+| fichier absent | `does not exist` |
+| fichier illisible | `cannot be opened: permission denied` |
 | encodage qui écrit sa propre marque | `"<name>" writes a byte order mark of its own; name the byte order, as UTF-16LE and UTF-16BE do` |
-| octets qui ne se décodent pas | `<path>: cannot be decoded in the chosen encoding` |
-| format non reconnu | `<path>: is in no format this tool knows` |
-| rien qui ressemble à un sous-titre | `<path>: holds nothing recognisable as a subtitle` |
+| octets qui ne se décodent pas | `cannot be decoded in the chosen encoding` |
+| format non reconnu | `is in no format this tool knows` |
+| rien qui ressemble à un sous-titre | `holds nothing recognisable as a subtitle` |
 | `--document translation` sans `-t` | `--document translation needs the translation file: use -t` |
 | `-t` sans `--document translation` | `-t names a translation to change: use --document translation` |
 | `--align-method` sans `-t` | `--align-method needs a translation file: use -t` |

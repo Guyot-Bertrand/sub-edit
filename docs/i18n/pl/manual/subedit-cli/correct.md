@@ -315,7 +315,7 @@ okno: strona potwierdzenia nazywa wzorzec tylko raz, bez tekstu.
 | `grew the text too long` | tekst przekroczył to, co może pomieścić napis |
 
 Na poziomie 1, na wyjściu błędów:
-`<path>: pattern "<name>" (<reason>) was not applied to subtitle N` — bez końca, gdy wzorzec jest odsunięty dla każdego tekstu. **Numer jest numerem
+`warning: pattern "<name>" (<reason>) was not applied to subtitle N` — bez końca, gdy wzorzec jest odsunięty dla każdego tekstu. **Numer jest numerem
 w pliku**, niezależnie od tego, jakie zadania usunęły wcześniej napisy. W JSON jest to
 ostrzeżenie `pattern-failed` pliku, którego `detail` zawiera to zdanie. **Wzorzec, który
 się poddał, nie jest plikiem zakończonym błędem**: plik jest zapisywany, a kod wyjścia to `0`.

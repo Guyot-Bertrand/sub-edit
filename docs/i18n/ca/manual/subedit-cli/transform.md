@@ -195,9 +195,9 @@ només alguns, `1` en un error d'ús.
 | índex que no és un nombre enter | `"…" is not a subtitle number: expected a whole number, counted from 1 as the file shows them` |
 | temps no vàlid | els de [`shift`](shift.md) |
 | `--first` i `--last` sobre el mateix índex | `--first and --last both name subtitle N, and two references on one subtitle define no transform` |
-| índex fora de límits | `<path>: subtitle N is past the end: the file holds M subtitles` |
-| dos subtítols que comencen junts | `<path>: subtitles N and M start at the same moment, so they define no transform` |
-| posició abans de l'origen | `<path>: subtitle N would land before the origin, which no subtitle file can hold` |
+| índex fora de límits | `subtitle N is past the end: the file holds M subtitles` |
+| dos subtítols que comencen junts | `subtitles N and M start at the same moment, so they define no transform` |
+| posició abans de l'origen | `subtitle N would land before the origin, which no subtitle file can hold` |
 
 **No s'escriu res sense una de les tres opcions de destinació**, i els seus
 errors són comuns a les subordres que escriuen:

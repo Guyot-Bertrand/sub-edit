@@ -315,7 +315,7 @@ fenestre: li págine de confirmation nómina li modelle un sol vice, sin li text
 | `grew the text too long` | li textu ha passat quo un subtitul posse conter |
 
 Al nivelle 1, sur li output de error: 
-`<path>: pattern "<name>" (<reason>) was not applied to subtitle N` — sin li fin quande li modelle es mettet a un latere por chascun textu. **Li númere es celi del
+`warning: pattern "<name>" (<reason>) was not applied to subtitle N` — sin li fin quande li modelle es mettet a un latere por chascun textu. **Li númere es celi del
 file**, quel que taches ha removet subtitules ante. In JSON, it es
 un advertimente `pattern-failed` del file, quel `detail` porta li frase. **Un modelle
 abandonat ne es un file falit**: li file es scrit, e li code de exeunte es `0`.
