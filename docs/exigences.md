@@ -168,18 +168,18 @@ longer prove anything.
 | `GUI-ENC-01` | the window opens a non-UTF-8 file and displays the encoding retained | 8 | implemented |
 | `GUI-ENC-02` | `Save As…` chooses the encoding, the line ending and the BOM | 8 | implemented |
 | `GUI-ENC-03` | the settings remember the last writing encoding chosen | 8 | implemented |
-| `CLI-FORMAT-01` | each of the nine formats opens, and is rewritten byte for byte | 9 | implemented |
-| `CLI-FORMAT-02` | a file none of the nine claims is refused, without guessing | 9 | implemented |
-| `CLI-FORMAT-03` | `inspect` names the format read among the nine | 9 | implemented |
+| `CLI-FORMAT-01` | each format opens, and is rewritten byte for byte | 9 | implemented |
+| `CLI-FORMAT-02` | a file no format claims is refused, without guessing | 9 | implemented |
+| `CLI-FORMAT-03` | `inspect` names the format read | 9 | implemented |
 | `CLI-FORMAT-04` | a format without ends opens, its ends are inferred, and the reading says so | 9 | implemented |
 | `CLI-FRAMES-01` | a frame-based file opens at a declared frame rate, which the reading names | 9 | implemented |
 | `CLI-FRAMES-02` | `--frame-rate` imposes the frame rate, on reading as on writing | 9 | implemented |
-| `CLI-CONVERT-04` | `--to` accepts the nine formats | 9 | implemented |
+| `CLI-CONVERT-04` | `--to` accepts every format | 9 | implemented |
 | `CLI-CONVERT-05` | converting to a frame-based format without a frame rate takes the inferred grid, and says so | 9 | implemented |
 | `CLI-CONVERT-06` | with neither frame rate nor grid, a conversion to a frame-based format is refused | 9 | implemented |
 | `CLI-CONVERT-07` | a conversion that loses something says so, item by item | 9 | implemented |
-| `GUI-FORMAT-01` | the window opens the nine formats | 9 | implemented |
-| `GUI-FORMAT-02` | `Save As…` offers the nine formats | 9 | implemented |
+| `GUI-FORMAT-01` | the window opens every format | 9 | implemented |
+| `GUI-FORMAT-02` | `Save As…` offers every format | 9 | implemented |
 | `GUI-FORMAT-03` | saving to a lossy format announces what will be lost before writing | 9 | implemented |
 | `GUI-FRAMES-01` | opening a frame-based file announces the frame rate retained, and lets it be changed | 9 | implemented |
 | `GUI-ITALIC-01` | one action puts the selection in italics and takes it out, in the tags of the open format | 10 | implemented |
@@ -376,3 +376,8 @@ longer prove anything.
 | `CLI-SYNC-07` | `sync --method speech`, the default, lays the file on when there is speech without transcribing, whatever the language of the subtitles, and refuses, with nothing written, a missing voice-activity model or program, and a file that has too little in common with the sound | 23 | implemented |
 | `CLI-SYNC-08` | the warning that only the file as a whole was put in line is said every time `speech` runs, in the output and as a `speech-only` warning of the record | 23 | implemented |
 | `GUI-SYNC-05` | the dialog offers the method, speech first, says what speech does not do, and the preview repeats it; a file that does not fit the sound is refused with the reason | 23 | implemented |
+| `CLI-FORMAT-05` | a SAMI file opens in its first language, and the reading names the languages it left | 17 | planned |
+| `CLI-FORMAT-06` | a TTML or DFXP file opens whatever its time expressions, nested times included | 17 | planned |
+| `CLI-FORMAT-07` | a YouTube SBV file opens, and is rewritten byte for byte | 17 | planned |
+| `CLI-FRAMES-03` | a TTML file in frames or ticks opens at the rate it declares, or at TTML's default, and the reading names it | 17 | planned |
+| `GUI-FORMAT-04` | saving a SAMI file read with several languages announces the languages that will be lost before writing | 17 | planned |

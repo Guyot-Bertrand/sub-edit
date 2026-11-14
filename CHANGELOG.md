@@ -9,6 +9,10 @@ do not edit it by hand.
 
 ## Unreleased
 
+### Documentation
+
+- **format** — Scope phase 17, SBV, SAMI and TTML
+
 ### Tests
 
 - **format** — Hold every format list to the core, tooling of phase 17

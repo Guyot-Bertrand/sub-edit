@@ -62,6 +62,7 @@ the information that is missing six months later.
 | [0046](0046-a-port-for-transcription-engines.md) | A port for transcription engines, with capabilities per engine and model | accepted |
 | [0047](0047-align-by-matching-the-text-to-heard-words.md) | Align by matching the text to the words an engine hears | accepted |
 | [0048](0048-lay-the-file-on-the-speech-by-default.md) | Lay the file on the speech by default | accepted |
+| [0049](0049-expat-to-read-xml.md) | Expat to read XML | accepted |
 
 [0011](0011-numero-d-image-en-type-fort.md) complements
 [0006](0006-positions-en-millisecondes.md): it gives a type to the "frame
