@@ -1455,6 +1455,18 @@ intended audience.
 Each format moves the three usual measurements of phase 9: a row of the
 promise table, the detection score, the conversion matrix.
 
+**Scoped on 2026-11-14** ([#837](https://github.com/Guyot-Bertrand/sub-edit/issues/837), spec
+[`17-text-formats.md`](specs/17-text-formats.md), [ADR 0049](adr/0049-expat-to-read-xml.md)):
+
+- **three formats: YouTube SBV, SAMI and TTML** (with DFXP and IMSC); the private corpus holds none of the
+  candidates, so the list is argued from their known use; Spruce STL and SCC are evaluated with phase 18;
+- **text and times now, styles and positions in phase 18**, as phase 9 did for ASS: the raw text goes through a
+  round trip intact, the markup pivot translates what it knows, the rest is lost on conversion and said;
+- SAMI is read by a tolerant reader written by hand, in one language at a time; TTML with expat, the core's first XML
+  reader;
+- detection keeps "nothing rather than a guess", with two more declarations;
+- five requirements, five slices (#839 to #843).
+
 ## 18 — Advanced text formats
 
 Named styles, positioning, karaoke: reading, writing and conversion between
@@ -1474,6 +1486,9 @@ written, and calls for an ADR.
   first limits itself to the library and the command line.
 
 **A heavy phase, to be split at scoping** if measurement calls for it.
+
+**Spruce STL and SCC are evaluated here** (spec 17, D1): SCC's rows, columns and caption modes are positions, and
+Spruce STL is weighed with it.
 
 ## 19 — Embedded text tracks
 
