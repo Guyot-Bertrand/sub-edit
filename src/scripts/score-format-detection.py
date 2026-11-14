@@ -78,6 +78,7 @@ NAMED = {
     "mpl2": "MPL2",
     "tmplayer": "TMPlayer",
     "lrc": "LRC",
+    "sbv": "YouTube SBV",
 }
 
 # The extensions under which a subtitle file presents itself, **`.txt`
@@ -98,7 +99,7 @@ NAMED = {
 # What removing it costs is five more refusals, and a refusal is not an error:
 # it says that we do not know, which is true of a notes file. The journal names
 # them for what they are.
-SUBTITLE_SUFFIXES = (".srt", ".vtt", ".sub", ".ass", ".ssa", ".lrc", ".txt")
+SUBTITLE_SUFFIXES = (".srt", ".vtt", ".sub", ".ass", ".ssa", ".lrc", ".txt", ".sbv")
 
 # The shape of a format name, and nothing else will be read as an answer.
 # This is the guard of #290, taken over as is: a detector that complains on its
@@ -133,7 +134,7 @@ def label_of(path):
 
 
 def labelled_files():
-    """The labelled corpus: the scene in nine formats, and the valid files."""
+    """The labelled corpus: the scene in every format, and the valid files."""
     found = []
     for directory in ("formats", "valides"):
         for path in sorted((CORPUS / directory).iterdir()):

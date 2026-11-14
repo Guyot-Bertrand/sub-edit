@@ -8,8 +8,8 @@ programs that share the same core, and so the same rules and the same words.
 | `subedit-gui` | open a file, see it in a table, edit it, watch it against the film | [the window's manual](subedit-gui/index.md) |
 | `subedit-cli` | process files in batches, from a script, without an interface | [the command-line manual](subedit-cli/index.md) |
 
-Both read and write **the nine formats** — SubRip, WebVTT, SubViewer 2,
-Sub Station Alpha, Advanced SSA, MicroDVD, MPL2, TMPlayer, LRC — and
+Both read and write **the ten formats** — SubRip, WebVTT, SubViewer 2,
+Sub Station Alpha, Advanced SSA, MicroDVD, MPL2, TMPlayer, LRC, YouTube SBV — and
 recognise the format by its content rather than by its extension. **The encoding too
 is recognised by the content**: a file in Latin-1, in CP1252 or in UTF-16
 opens, what it was read as is said, and it is written back in its own — a

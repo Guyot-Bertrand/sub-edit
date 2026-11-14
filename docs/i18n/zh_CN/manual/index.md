@@ -10,8 +10,8 @@ subedit 可以读取、检查字幕文件，并重新调整其时间。它由两
 | `subedit-gui` | 打开文件，在表格中查看和编辑，并对照影片观看 | [窗口手册](subedit-gui/index.md) |
 | `subedit-cli` | 在脚本中批量处理文件，无需界面 | [命令行手册](subedit-cli/index.md) |
 
-两者都能读写**这九种格式**——SubRip、WebVTT、SubViewer 2、
-Sub Station Alpha、Advanced SSA、MicroDVD、MPL2、TMPlayer、LRC——并且根据内容而不是扩展名识别格式。**编码同样根据内容识别**：Latin-1、CP1252 或 UTF-16 编码的文件
+两者都能读写**这十种格式**——SubRip、WebVTT、SubViewer 2、
+Sub Station Alpha、Advanced SSA、MicroDVD、MPL2、TMPlayer、LRC、YouTube SBV——并且根据内容而不是扩展名识别格式。**编码同样根据内容识别**：Latin-1、CP1252 或 UTF-16 编码的文件
 可以正常打开，程序会说明读取时采用的编码，保存时再以文件原有的编码写回——文件打开后不作更改直接保存，一个字节也不会变。
 
 ## 从哪里开始

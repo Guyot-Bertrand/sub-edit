@@ -29,7 +29,7 @@ Positionals:
 Options:
   -h,--help                   Print this help message and exit
   -r,--recursive              Take directories as inputs, and every subtitle file in them
-  --to TEXT:{srt,vtt,subviewer2,ssa,ass,microdvd,mpl2,tmplayer,lrc} REQUIRED
+  --to TEXT:{srt,vtt,subviewer2,ssa,ass,microdvd,mpl2,tmplayer,lrc,sbv} REQUIRED
                               Format to write
   --line-endings TEXT:{unix,windows,mac}
                               Line endings to write; the source's by default
@@ -79,6 +79,7 @@ Options:
 | `microdvd` | MicroDVD | `.sub` |
 | `tmplayer` | TMPlayer | `.txt` |
 | `lrc` | LRC | `.lrc` |
+| `sbv` | YouTube SBV | `.sbv` |
 
 **Имя, а не расширение.** Два расширения обозначают по два формата:
 `.sub` — это ещё и MicroDVD, `.txt` — и MPL2, и
@@ -86,7 +87,7 @@ TMPlayer, — поэтому параметр, принимающий расши
 формат запрошен. Приведённые выше имена однозначны и совпадают с
 расширением везде, где однозначно и расширение.
 
-**Список закрыт.** Это список Gaupol, и все девять форматов в нём есть.
+**Список закрыт.** В нём девять форматов Gaupol и YouTube SBV, который Gaupol не читает.
 
 ## Два формата, у которых нет конца
 
@@ -177,6 +178,7 @@ Gaupol, — и уровень `-vvv` сообщает об этом:
 | MPL2 | `\` | `/` | `_` | `{C:$BBGGRR}` | `{F:NAME}` | `{S:N}` |
 | TMPlayer | — | — | — | — | — | — |
 | LRC | — | — | — | — | — | — |
+| YouTube SBV | — | — | — | — | — | — |
 
 **Прочерк — это объявленная потеря.** Преобразование цветного `.srt` в WebVTT убирает
 цвет и сообщает об этом; получившийся файл — это WebVTT, а не SubRip под чужой личиной.

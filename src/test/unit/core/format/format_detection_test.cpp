@@ -154,3 +154,19 @@ TEST_CASE("MicroDVD is recognised by two braced numbers opening a line", "[forma
     CHECK(detectFormat("{DEFAULT}{}{Sans}\n{25}{75}Une réplique.\n") == SubtitleFormat::MicroDvd);
     CHECK(detectFormat("[10][30]Une réplique.\n") == SubtitleFormat::Mpl2);
 }
+
+TEST_CASE("YouTube SBV is recognised by two stamps of three decimals", "[format][detection]") {
+    CHECK(detectFormat("0:00:01.000,0:00:03.000\nA line.\n") == SubtitleFormat::YouTubeSbv);
+    CHECK(detectFormat("00:00:01.000,00:00:03.000\nA line.\n") == SubtitleFormat::YouTubeSbv);
+
+    // **The neighbour it must not take**: SubViewer 2 writes two decimals and
+    // pads its hour. The same comma, the same order, and still another format.
+    CHECK(detectFormat("00:00:01.00,00:00:03.00\nA line.\n") == SubtitleFormat::SubViewer2);
+
+    // SubRip's arrow is what SubRip is recognised by, and SBV has none.
+    CHECK(detectFormat("00:00:01,000 --> 00:00:03,000\nA line.\n") == SubtitleFormat::SubRip);
+
+    // Two decimals on one side and three on the other is neither format.
+    CHECK_FALSE(detectFormat("0:00:01.000,0:00:03.00\nA line.\n").has_value());
+    CHECK_FALSE(detectFormat("0:00:01.000\nA line.\n").has_value());
+}

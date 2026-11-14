@@ -87,6 +87,7 @@ TARGET_OF = {
     "MicroDVD": "microdvd",
     "TMPlayer": "tmplayer",
     "LRC": "lrc",
+    "YouTube SBV": "sbv",
 }
 
 GREEN = "\033[32m"

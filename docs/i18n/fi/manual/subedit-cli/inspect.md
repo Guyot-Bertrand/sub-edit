@@ -124,7 +124,7 @@ exemple.srt
 
 | Kenttä | Mitä se kertoo |
 | :---- | :----------- |
-| `format` | jokin muodoista, jotka `--to` hyväksyy, kokonaan kirjoitettuna: `SubRip`, `WebVTT`, `SubViewer 2`, `Sub Station Alpha`, `Advanced SSA`, `MicroDVD`, `MPL2`, `TMPlayer`, `LRC` |
+| `format` | jokin muodoista, jotka `--to` hyväksyy, kokonaan kirjoitettuna: `SubRip`, `WebVTT`, `SubViewer 2`, `Sub Station Alpha`, `Advanced SSA`, `MicroDVD`, `MPL2`, `TMPlayer`, `LRC`, `YouTube SBV` |
 | `encoding` | luettu merkistökoodaus ja sen perässä **vastauksen lähde**: `, from its byte order mark`, jos tiedosto ilmoittaa sen, `, as asked for`, jos `--encoding` pakotti sen, `, detected`, jos se punnittiin |
 | `byte order mark` | `present` tai `absent` |
 | `line endings` | `LF`, `CRLF` tai `CR` ja sen perässä `, mixed from line N`, jos tiedosto sekoittaa niitä |

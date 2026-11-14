@@ -11,8 +11,8 @@ ohjelmasta, joilla on yhteinen ydin ja siksi samat säännöt ja samat sanat.
 | `subedit-gui` | tiedoston avaaminen, sen tarkasteleminen taulukossa, muokkaaminen ja katsominen elokuvan rinnalla | [ikkunan käyttöopas](subedit-gui/index.md) |
 | `subedit-cli` | tiedostojen käsittely erissä, skriptistä, ilman käyttöliittymää | [komentorivin käyttöopas](subedit-cli/index.md) |
 
-Molemmat lukevat ja kirjoittavat **yhdeksää muotoa** — SubRip, WebVTT, SubViewer 2,
-Sub Station Alpha, Advanced SSA, MicroDVD, MPL2, TMPlayer, LRC — ja
+Molemmat lukevat ja kirjoittavat **kymmentä muotoa** — SubRip, WebVTT, SubViewer 2,
+Sub Station Alpha, Advanced SSA, MicroDVD, MPL2, TMPlayer, LRC, YouTube SBV — ja
 tunnistavat muodon sisällöstä eikä tiedostopäätteestä. **Myös merkistökoodaus
 tunnistetaan sisällöstä**: Latin-1-, CP1252- tai UTF-16-koodattu tiedosto
 avautuu, ohjelma kertoo, minä se luettiin, ja se kirjoitetaan takaisin omassa koodauksessaan — tiedosto,

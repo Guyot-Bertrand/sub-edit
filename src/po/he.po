@@ -2512,6 +2512,7 @@ msgstr "אין שורה בסוגריים מרובעים"
 
 #: src/lib/subedit/core/format/sub_rip_reader.cpp
 #: src/lib/subedit/core/format/sub_viewer2_reader.cpp
+#: src/lib/subedit/core/format/youtube_sbv_reader.cpp
 msgid "no timestamp line"
 msgstr "אין שורת חותמת זמן"
 

@@ -131,7 +131,7 @@ existiu, feita em sua aba. `Save All As…` não existe: é uma sequência de
 
 ## Abertura
 
-A caixa de diálogo filtra **os nove formatos lidos**, uma entrada cada, e uma primeira
+A caixa de diálogo filtra **os dez formatos lidos**, uma entrada cada, e uma primeira
 entrada que os mostra todos. O formato é então reconhecido **pelo conteúdo, não pela
 extensão**: um `.txt` que contém SubRip abre, e o filtro não decide
 nada — apenas oculta arquivos.
@@ -147,6 +147,7 @@ nada — apenas oculta arquivos.
 | `MPL2` | `.txt` |
 | `TMPlayer` | `.txt` |
 | `LRC` | `.lrc` |
+| `YouTube SBV` | `.sbv` |
 
 **Duas extensões designam dois formatos cada** — `.sub` é SubViewer 2 e
 MicroDVD, `.txt` é MPL2 e TMPlayer. Isso não tem consequência ao abrir,

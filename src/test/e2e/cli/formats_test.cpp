@@ -1,4 +1,4 @@
-// The nine formats and the one frame rate, through the real binary.
+// Every format and the one frame rate, through the real binary.
 //
 // **The surface of phase 9, and nothing below it.** Every reader, every writer,
 // the markup pivot and the loss report were built and unit-tested one issue at
@@ -6,7 +6,7 @@
 // them. That is what this file asserts, and it is why its cases carry the
 // requirement tags of the phase rather than a tag of their own.
 //
-// The corpus is `formats/`: one scene, nine renderings, the same four subtitles
+// The corpus is `formats/`: one scene, one rendering per format, the same four subtitles
 // in each. Comparing a reading to a reading is what makes a round trip worth
 // asserting — see its LISEZMOI.
 
@@ -40,7 +40,7 @@ struct Rendering {
     std::string_view reported;
 };
 
-const std::vector<Rendering> kNine = {
+const std::vector<Rendering> kEveryFormat = {
     {.file = "formats/scene.srt", .option = "srt", .reported = "SubRip"},
     {.file = "formats/scene.vtt", .option = "vtt", .reported = "WebVTT"},
     {.file = "formats/scene.subviewer2.sub", .option = "subviewer2", .reported = "SubViewer 2"},
@@ -50,15 +50,16 @@ const std::vector<Rendering> kNine = {
     {.file = "formats/scene.mpl2.txt", .option = "mpl2", .reported = "MPL2"},
     {.file = "formats/scene.tmplayer.txt", .option = "tmplayer", .reported = "TMPlayer"},
     {.file = "formats/scene.lrc", .option = "lrc", .reported = "LRC"},
+    {.file = "formats/scene.sbv", .option = "sbv", .reported = "YouTube SBV"},
 };
 
 } // namespace
 
-TEST_CASE("each of the nine opens and comes back byte for byte", "[e2e][CLI-FORMAT-01]") {
+TEST_CASE("each format opens and comes back byte for byte", "[e2e][CLI-FORMAT-01]") {
     // **The strongest thing a format pair can promise**, and the one the phase
     // was built around: a file asked for nothing gives back the same bytes, its
     // header and its own oddities among them.
-    for (const Rendering& rendering : kNine) {
+    for (const Rendering& rendering : kEveryFormat) {
         INFO("format : " << rendering.reported);
         const Scratch scratch;
         const std::string out = scratch.of("again");
@@ -76,15 +77,15 @@ TEST_CASE("each of the nine opens and comes back byte for byte", "[e2e][CLI-FORM
     }
 }
 
-TEST_CASE("the format option accepts each of the nine, and nothing else", "[e2e][CLI-CONVERT-04]") {
-    // The other half of the closed set: the nine are offered, and a tenth name
+TEST_CASE("the format option accepts each format, and nothing else", "[e2e][CLI-CONVERT-04]") {
+    // The other half of the closed set: every format is offered, and another name
     // is refused by the option itself rather than by a reader that would have
     // to be written to say no.
     //
-    // **The rate is given to all nine**, so that this case is about `--to` and
-    // nothing else. Eight of them ignore it; MicroDVD without it would be
+    // **The rate is given to every format**, so that this case is about `--to` and
+    // nothing else. All but MicroDVD ignore it; MicroDVD without it would be
     // refused for want of a grid, which is a promise of its own further down.
-    for (const Rendering& rendering : kNine) {
+    for (const Rendering& rendering : kEveryFormat) {
         INFO("valeur : " << rendering.option);
         const Scratch scratch;
         const CliRun run = invoke({"--quiet",
@@ -103,14 +104,14 @@ TEST_CASE("the format option accepts each of the nine, and nothing else", "[e2e]
 
     const Scratch scratch;
     const CliRun refused = invoke(
-        {"convert", "--to", "sami", "--output", scratch.of("out"), corpus("formats/scene.srt")});
+        {"convert", "--to", "sub", "--output", scratch.of("out"), corpus("formats/scene.srt")});
 
     CHECK(refused.exitCode == 1);
     CHECK_THAT(refused.errors, ContainsSubstring("--to"));
 }
 
-TEST_CASE("inspect names the format it read, among the nine", "[e2e][CLI-FORMAT-03]") {
-    for (const Rendering& rendering : kNine) {
+TEST_CASE("inspect names the format it read", "[e2e][CLI-FORMAT-03]") {
+    for (const Rendering& rendering : kEveryFormat) {
         INFO("fichier : " << rendering.file);
         const CliRun run = invoke({"--quiet", "inspect", corpus(std::string{rendering.file})});
 
@@ -120,8 +121,27 @@ TEST_CASE("inspect names the format it read, among the nine", "[e2e][CLI-FORMAT-
     }
 }
 
+TEST_CASE("a YouTube SBV file opens as itself, and is rewritten byte for byte",
+          "[e2e][CLI-FORMAT-07]") {
+    // **The first format Gaupol does not read** (spec 17). Read under the
+    // extension it is found under, recognised by its content, said by its name,
+    // and written back without a byte moved — with nothing asked of the reader:
+    // the format is not given, it is found.
+    const std::string scene = corpus("formats/scene.sbv");
+    const CliRun reading = invoke({"--quiet", "inspect", scene});
+    CHECK(reading.exitCode == 0);
+    CHECK_THAT(reading.output, ContainsSubstring("  format: YouTube SBV\n"));
+    CHECK_THAT(reading.output, ContainsSubstring("  subtitles: 4\n"));
+
+    const Scratch scratch;
+    const std::string out = scratch.of("again.sbv");
+    const CliRun again = invoke({"--quiet", "convert", "--to", "sbv", "--output", out, scene});
+    CHECK(again.exitCode == 0);
+    CHECK(contentOf(out) == contentOf(scene));
+}
+
 TEST_CASE("a file no format claims is refused, without a supposition", "[e2e][CLI-FORMAT-02]") {
-    // **Refused rather than read as the least unlikely of the nine.** An empty
+    // **Refused rather than read as the least unlikely of the formats.** An empty
     // file fits none of them, and answering « SubRip, with no subtitle » would
     // be an invention dressed as a reading.
     const CliRun run = invoke({"inspect", corpus("malformes/vide.srt")});

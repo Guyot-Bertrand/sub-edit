@@ -124,7 +124,7 @@ exemple.srt
 
 | Camp | Què diu |
 | :---- | :----------- |
-| `format` | un dels formats que accepta `--to`, escrit sencer: `SubRip`, `WebVTT`, `SubViewer 2`, `Sub Station Alpha`, `Advanced SSA`, `MicroDVD`, `MPL2`, `TMPlayer`, `LRC` |
+| `format` | un dels formats que accepta `--to`, escrit sencer: `SubRip`, `WebVTT`, `SubViewer 2`, `Sub Station Alpha`, `Advanced SSA`, `MicroDVD`, `MPL2`, `TMPlayer`, `LRC`, `YouTube SBV` |
 | `encoding` | la codificació llegida, seguida de **d'on ve la resposta**: `, from its byte order mark` si el fitxer la declara, `, as asked for` si `--encoding` l'ha imposada, `, detected` si s'ha sospesat |
 | `byte order mark` | `present` o `absent` |
 | `line endings` | `LF`, `CRLF` o `CR`, seguit de `, mixed from line N` si el fitxer els barreja |

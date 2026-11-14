@@ -11,8 +11,8 @@ programów, które mają wspólny rdzeń, a więc te same reguły i te same sło
 | `subedit-gui` | otworzyć plik, zobaczyć go w tabeli, edytować go, śledzić go na tle filmu | [podręcznik okna](subedit-gui/index.md) |
 | `subedit-cli` | przetwarzać pliki partiami, ze skryptu, bez interfejsu | [podręcznik wiersza poleceń](subedit-cli/index.md) |
 
-Oba programy odczytują i zapisują **dziewięć formatów** — SubRip, WebVTT, SubViewer 2,
-Sub Station Alpha, Advanced SSA, MicroDVD, MPL2, TMPlayer, LRC — i
+Oba programy odczytują i zapisują **dziesięć formatów** — SubRip, WebVTT, SubViewer 2,
+Sub Station Alpha, Advanced SSA, MicroDVD, MPL2, TMPlayer, LRC, YouTube SBV — i
 rozpoznają format po zawartości, a nie po rozszerzeniu. **Kodowanie również
 jest rozpoznawane po zawartości**: plik w Latin-1, w CP1252 lub w UTF-16
 da się otworzyć, program mówi, jako jakie kodowanie go odczytał, a zapisuje go z powrotem w jego własnym — plik

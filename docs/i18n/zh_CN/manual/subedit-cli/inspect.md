@@ -108,7 +108,7 @@ exemple.srt
 
 | 字段 | 含义 |
 | :---- | :----------- |
-| `format` | `--to` 接受的格式之一，写出全称：`SubRip`、`WebVTT`、`SubViewer 2`、`Sub Station Alpha`、`Advanced SSA`、`MicroDVD`、`MPL2`、`TMPlayer`、`LRC` |
+| `format` | `--to` 接受的格式之一，写出全称：`SubRip`、`WebVTT`、`SubViewer 2`、`Sub Station Alpha`、`Advanced SSA`、`MicroDVD`、`MPL2`、`TMPlayer`、`LRC`、`YouTube SBV` |
 | `encoding` | 读取时采用的编码，其后注明**答案的来源**：文件声明了编码时为 `, from its byte order mark`，由 `--encoding` 强制指定时为 `, as asked for`，经过权衡得出时为 `, detected` |
 | `byte order mark` | `present` 或 `absent` |
 | `line endings` | `LF`、`CRLF` 或 `CR`；如果文件混用了几种，其后是 `, mixed from line N` |

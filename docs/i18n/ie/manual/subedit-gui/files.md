@@ -131,7 +131,7 @@ sempre havet, demandat sur su lingueta. `Save All As…` ne existe: it es un seq
 
 ## Aperter
 
-Li casse de dialog filtra **li nin formates leet**, un entrata chascun, e un prim
+Li casse de dialog filtra **li deci formates leet**, un entrata chascun, e un prim
 entrata quel les monstra omni. Li formate es tande recognoscet **per li contenete, ne per
 li extension**: un `.txt` quel contene SubRip aperte se, e li filtre ne decide
 nullcos — it solmen celar files.
@@ -147,6 +147,7 @@ nullcos — it solmen celar files.
 | `MPL2` | `.txt` |
 | `TMPlayer` | `.txt` |
 | `LRC` | `.lrc` |
+| `YouTube SBV` | `.sbv` |
 
 **Du extensiones designa du formates chascun** — `.sub` es SubViewer 2 e
 MicroDVD, `.txt` es MPL2 e TMPlayer. To ne have consequentie al apertion,

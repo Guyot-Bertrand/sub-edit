@@ -2613,6 +2613,7 @@ msgstr "žádný řádek v hranatých závorkách"
 
 #: src/lib/subedit/core/format/sub_rip_reader.cpp
 #: src/lib/subedit/core/format/sub_viewer2_reader.cpp
+#: src/lib/subedit/core/format/youtube_sbv_reader.cpp
 msgid "no timestamp line"
 msgstr "žádný řádek s časovou značkou"
 

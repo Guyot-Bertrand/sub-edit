@@ -131,7 +131,7 @@ gab, auf seinem Tab gestellt. `Save All As…` gibt es nicht: Es wäre eine Folg
 
 ## Öffnen
 
-Der Dialog filtert **die neun gelesenen Formate**, mit je einem Eintrag, dazu einen ersten
+Der Dialog filtert **die zehn gelesenen Formate**, mit je einem Eintrag, dazu einen ersten
 Eintrag, der sie alle zeigt. Das Format wird dann **am Inhalt erkannt, nicht an
 der Endung**: Eine `.txt`, die SubRip enthält, öffnet sich, und der Filter entscheidet
 nichts — er blendet nur Dateien aus.
@@ -147,6 +147,7 @@ nichts — er blendet nur Dateien aus.
 | `MPL2` | `.txt` |
 | `TMPlayer` | `.txt` |
 | `LRC` | `.lrc` |
+| `YouTube SBV` | `.sbv` |
 
 **Zwei Endungen bezeichnen je zwei Formate** — `.sub` ist SubViewer 2 und
 MicroDVD, `.txt` ist MPL2 und TMPlayer. Beim Öffnen hat das keine Folge,

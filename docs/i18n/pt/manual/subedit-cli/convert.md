@@ -29,7 +29,7 @@ Positionals:
 Options:
   -h,--help                   Print this help message and exit
   -r,--recursive              Take directories as inputs, and every subtitle file in them
-  --to TEXT:{srt,vtt,subviewer2,ssa,ass,microdvd,mpl2,tmplayer,lrc} REQUIRED
+  --to TEXT:{srt,vtt,subviewer2,ssa,ass,microdvd,mpl2,tmplayer,lrc,sbv} REQUIRED
                               Format to write
   --line-endings TEXT:{unix,windows,mac}
                               Line endings to write; the source's by default
@@ -79,6 +79,7 @@ Options:
 | `microdvd` | MicroDVD | `.sub` |
 | `tmplayer` | TMPlayer | `.txt` |
 | `lrc` | LRC | `.lrc` |
+| `sbv` | YouTube SBV | `.sbv` |
 
 **Um nome, e não uma extensão.** Duas extensões designam dois formatos
 cada uma — `.sub` é também a do MicroDVD, `.txt` a do MPL2 e a do
@@ -86,7 +87,7 @@ TMPlayer — pelo que uma opção que aceitasse extensões não saberia qual
 se pede. Os nomes acima não são ambíguos e coincidem com a
 extensão sempre que a extensão também não é ambígua.
 
-**A lista é fechada.** É a do Gaupol, e os nove nela constam.
+**A lista é fechada.** Contém os nove formatos do Gaupol, e o YouTube SBV, que o Gaupol não lê.
 
 ## Os dois formatos que não têm fim
 
@@ -177,6 +178,7 @@ coisas** — negrito, itálico, sublinhado, cor, tipo de letra e tamanho:
 | MPL2 | `\` | `/` | `_` | `{C:$BBGGRR}` | `{F:NAME}` | `{S:N}` |
 | TMPlayer | — | — | — | — | — | — |
 | LRC | — | — | — | — | — | — |
+| YouTube SBV | — | — | — | — | — | — |
 
 **Um “—” é uma perda anunciada.** Converter um `.srt` com cor para WebVTT retira
 a cor e di-lo; o ficheiro produzido é WebVTT, não SubRip disfarçado.

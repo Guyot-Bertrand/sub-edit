@@ -131,7 +131,7 @@ měli, položená na jeho kartě. `Save All As…` neexistuje: je to posloupnost
 
 ## Otevírání
 
-Dialog filtruje **devět čtených formátů**, každý jednou položkou, a první
+Dialog filtruje **deset čtených formátů**, každý jednou položkou, a první
 položkou, která ukazuje všechny. Formát se pak pozná **podle obsahu, ne podle
 přípony**: soubor `.txt`, který obsahuje SubRip, se otevře, a filtr o ničem
 nerozhoduje — jen skrývá soubory.
@@ -147,6 +147,7 @@ nerozhoduje — jen skrývá soubory.
 | `MPL2` | `.txt` |
 | `TMPlayer` | `.txt` |
 | `LRC` | `.lrc` |
+| `YouTube SBV` | `.sbv` |
 
 **Dvě přípony označují každá dva formáty** — `.sub` je SubViewer 2 a
 MicroDVD, `.txt` je MPL2 a TMPlayer. Při otevírání to nemá žádný následek,

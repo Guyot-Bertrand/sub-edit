@@ -131,7 +131,7 @@ sempre, plantejada a la seva pestanya. `Save All As…` no existeix: és una suc
 
 ## Obrir
 
-El diàleg filtra **els nou formats que es llegeixen**, una entrada cadascun, i una primera
+El diàleg filtra **els deu formats que es llegeixen**, una entrada cadascun, i una primera
 entrada que els mostra tots. El format es reconeix llavors **pel contingut, no per
 l'extensió**: un `.txt` que conté SubRip s'obre, i el filtre no decideix
 res — només amaga fitxers.
@@ -147,6 +147,7 @@ res — només amaga fitxers.
 | `MPL2` | `.txt` |
 | `TMPlayer` | `.txt` |
 | `LRC` | `.lrc` |
+| `YouTube SBV` | `.sbv` |
 
 **Dues extensions designen dos formats cadascuna** — `.sub` és SubViewer 2 i
 MicroDVD, `.txt` és MPL2 i TMPlayer. No té cap conseqüència en obrir,

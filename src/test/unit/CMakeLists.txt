@@ -148,6 +148,7 @@ add_executable(
     core/format/sub_rip_round_trip_test.cpp
     core/format/micro_dvd_test.cpp
     core/format/mpl2_test.cpp
+    core/format/youtube_sbv_test.cpp
     core/format/tm_player_test.cpp
     core/format/lrc_test.cpp
     core/format/deduced_ends_test.cpp

@@ -2667,6 +2667,7 @@ msgstr "нет строки в квадратных скобках"
 
 #: src/lib/subedit/core/format/sub_rip_reader.cpp
 #: src/lib/subedit/core/format/sub_viewer2_reader.cpp
+#: src/lib/subedit/core/format/youtube_sbv_reader.cpp
 msgid "no timestamp line"
 msgstr "нет строки с отметкой времени"
 

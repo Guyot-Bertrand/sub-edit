@@ -28,7 +28,7 @@ Positionals:
 Options:
   -h,--help                   Print this help message and exit
   -r,--recursive              Take directories as inputs, and every subtitle file in them
-  --to TEXT:{srt,vtt,subviewer2,ssa,ass,microdvd,mpl2,tmplayer,lrc} REQUIRED
+  --to TEXT:{srt,vtt,subviewer2,ssa,ass,microdvd,mpl2,tmplayer,lrc,sbv} REQUIRED
                               Format to write
   --line-endings TEXT:{unix,windows,mac}
                               Line endings to write; the source's by default
@@ -77,6 +77,7 @@ A `mac` a magányos kocsivisszát (`\r`) nevezi meg, a klasszikus Mac OS sorvég
 | `microdvd` | MicroDVD | `.sub` |
 | `tmplayer` | TMPlayer | `.txt` |
 | `lrc` | LRC | `.lrc` |
+| `sbv` | YouTube SBV | `.sbv` |
 
 **Név, és nem kiterjesztés.** Két kiterjesztés két-két formátumot nevez
 meg — a `.sub` a MicroDVD-é is, a `.txt` az MPL2-é és a
@@ -84,7 +85,7 @@ TMPlayeré —, így a kiterjesztést fogadó kapcsoló nem tudná, melyiket
 kérik. A fenti nevek egyértelműek, és egyeznek a
 kiterjesztéssel is ott, ahol a kiterjesztés is egyértelmű.
 
-**A lista zárt.** A Gaupol listája, és mind a kilenc szerepel benne.
+**A lista zárt.** A Gaupol kilenc formátuma szerepel benne, valamint a YouTube SBV, amelyet a Gaupol nem olvas.
 
 ## A két formátum, amely nem hordoz végpozíciót
 
@@ -173,6 +174,7 @@ dolog** — a félkövér, a dőlt betű, az aláhúzás, a szín, a betűtípus
 | MPL2 | `\` | `/` | `_` | `{C:$BBGGRR}` | `{F:NAME}` | `{S:N}` |
 | TMPlayer | — | — | — | — | — | — |
 | LRC | — | — | — | — | — | — |
+| YouTube SBV | — | — | — | — | — | — |
 
 **A gondolatjel bejelentett veszteség.** A színes `.srt` WebVTT-re alakítása eltávolítja
 a színt, és ezt közli; az előállított fájl WebVTT, nem álruhás SubRip.

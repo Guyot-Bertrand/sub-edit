@@ -29,6 +29,8 @@ std::string_view nameOf(SubtitleFormat format) {
         return "TMPlayer";
     case SubtitleFormat::Lrc:
         return "LRC";
+    case SubtitleFormat::YouTubeSbv:
+        return "YouTube SBV";
     }
     std::unreachable();
 }
@@ -53,6 +55,8 @@ std::string_view optionNameOf(SubtitleFormat format) {
         return "tmplayer";
     case SubtitleFormat::Lrc:
         return "lrc";
+    case SubtitleFormat::YouTubeSbv:
+        return "sbv";
     }
     std::unreachable();
 }
@@ -95,6 +99,8 @@ std::string_view extensionOf(SubtitleFormat format) {
         return ".txt";
     case SubtitleFormat::Lrc:
         return ".lrc";
+    case SubtitleFormat::YouTubeSbv:
+        return ".sbv";
     }
     std::unreachable();
 }

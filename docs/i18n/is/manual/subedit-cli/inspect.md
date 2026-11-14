@@ -124,7 +124,7 @@ exemple.srt
 
 | Svið | Hvað það segir |
 | :---- | :----------- |
-| `format` | eitt af sniðunum sem `--to` tekur við, ritað í heild: `SubRip`, `WebVTT`, `SubViewer 2`, `Sub Station Alpha`, `Advanced SSA`, `MicroDVD`, `MPL2`, `TMPlayer`, `LRC` |
+| `format` | eitt af sniðunum sem `--to` tekur við, ritað í heild: `SubRip`, `WebVTT`, `SubViewer 2`, `Sub Station Alpha`, `Advanced SSA`, `MicroDVD`, `MPL2`, `TMPlayer`, `LRC`, `YouTube SBV` |
 | `encoding` | stafakóðunin sem var lesin, og á eftir **hvaðan svarið kemur**: `, from its byte order mark` ef skráin lýsir henni yfir, `, as asked for` ef `--encoding` setti hana, `, detected` ef hún var vegin |
 | `byte order mark` | `present` eða `absent` |
 | `line endings` | `LF`, `CRLF` eða `CR`, og á eftir `, mixed from line N` ef skráin blandar þeim |

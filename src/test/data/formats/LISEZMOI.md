@@ -1,6 +1,6 @@
-# One scene, in nine formats
+# One scene, in every format
 
-Nine files that say **the same thing**: four lines of dialogue, at the same
+One file per format, and they say **the same thing**: four lines of dialogue, at the same
 positions, two of them on two lines and one in italics. What changes from one
 file to the next is the format, and only the format — this is the discipline
 of [`encodages/`](../encodages), which varies only the encoding.
@@ -40,13 +40,14 @@ the conditional promise below.
 | `scene.mpl2.txt` | MPL2 | `\|` | `/` at line start | carried | tenth |
 | `scene.tmplayer.txt` | TMPlayer | `\|` | **lost** | **absent** | second |
 | `scene.lrc` | LRC | **lost** | **lost** | **absent** | hundredth |
+| `scene.sbv` | YouTube SBV | ⏎ | **lost** | carried | ms |
 
 Three losses are visible to the eye in the files themselves, and that is on
 purpose: LRC renders the two two-line lines on a single line, LRC and
 TMPlayer carry no end, and neither has a vocabulary for
 italics. **The full declaration of these losses belongs to the conversion
-report** — issue #339; this table describes nine files, not
-seventy-two pairs.
+report** — issue #339; this table describes one file per format,
+not every pair.
 
 ## They are written by hand, and there will be no factory
 
@@ -73,6 +74,9 @@ do. The argument that founded the two factories does not carry over.
 examples Gaupol publishes with its code for the seven formats, and two files
 from the private corpus for MicroDVD and Advanced SSA. Read by a human, never linked:
 no test goes to fetch them where they are, and the private corpus is not cited.
+
+**YouTube SBV has no published specification** (phase 17): its rendering is written against the
+description on the platform's help page, and no other tool reads it to compare with.
 
 **The words, on the other hand, are our own.** The text of a real file is
 content, and the repository does not publish any; what is transcribed from a format is its

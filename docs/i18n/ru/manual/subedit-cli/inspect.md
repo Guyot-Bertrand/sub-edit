@@ -124,7 +124,7 @@ exemple.srt
 
 | Поле | Что сообщает |
 | :---- | :----------- |
-| `format` | один из форматов, принимаемых `--to`, в полном написании: `SubRip`, `WebVTT`, `SubViewer 2`, `Sub Station Alpha`, `Advanced SSA`, `MicroDVD`, `MPL2`, `TMPlayer`, `LRC` |
+| `format` | один из форматов, принимаемых `--to`, в полном написании: `SubRip`, `WebVTT`, `SubViewer 2`, `Sub Station Alpha`, `Advanced SSA`, `MicroDVD`, `MPL2`, `TMPlayer`, `LRC`, `YouTube SBV` |
 | `encoding` | прочитанная кодировка, затем **источник ответа**: `, from its byte order mark`, если её объявляет файл, `, as asked for`, если её навязал `--encoding`, `, detected`, если она была определена анализом |
 | `byte order mark` | `present` или `absent` |
 | `line endings` | `LF`, `CRLF` или `CR`, затем `, mixed from line N`, если файл их смешивает |

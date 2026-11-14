@@ -46,7 +46,7 @@ Positionals:
 Options:
   -h,--help                   Print this help message and exit
   --output FILE               Subtitle file to write
-  --to TEXT:{srt,vtt,subviewer2,ssa,ass,microdvd,mpl2,tmplayer,lrc}
+  --to TEXT:{srt,vtt,subviewer2,ssa,ass,microdvd,mpl2,tmplayer,lrc,sbv}
                               Format to write; the one the extension of --output says by default
   --audio-track N             Audio track of a video, counted from 0; the first by default
   --start TIME                Where to begin, as 2:00, 1:02:03 or seconds; the beginning by default

@@ -11,8 +11,8 @@ ugyanazt a magot használják, így ugyanazok a szabályaik és ugyanazok a szav
 | `subedit-gui` | fájl megnyitása, megtekintése táblázatban, szerkesztése, összevetése a filmmel | [az ablak kézikönyve](subedit-gui/index.md) |
 | `subedit-cli` | fájlok kötegelt feldolgozása szkriptből, felület nélkül | [a parancssori kézikönyv](subedit-cli/index.md) |
 
-Mindkettő **a kilenc formátumot** olvassa és írja — SubRip, WebVTT, SubViewer 2,
-Sub Station Alpha, Advanced SSA, MicroDVD, MPL2, TMPlayer, LRC — és
+Mindkettő **a tíz formátumot** olvassa és írja — SubRip, WebVTT, SubViewer 2,
+Sub Station Alpha, Advanced SSA, MicroDVD, MPL2, TMPlayer, LRC, YouTube SBV — és
 a formátumot a tartalmából ismeri fel, nem a kiterjesztéséből. **A kódolást is
 a tartalom alapján ismeri fel a program**: a Latin-1, CP1252 vagy UTF-16 kódolású
 fájl megnyílik, a program közli, milyen kódolásúként olvasta, és a fájl a saját kódolásában íródik vissza — a

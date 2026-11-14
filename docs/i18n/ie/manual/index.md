@@ -11,8 +11,8 @@ programmas queles partisse li sam nucleo, e dunc li sam regules e li sam paroles
 | `subedit-gui` | aperter un file, vider it in un tabelle, redacter it, observar it con li film | [li manual del fenestre](subedit-gui/index.md) |
 | `subedit-cli` | tractar files in lotes, ex un script, sin interfacie | [li manual del linea de comande](subedit-cli/index.md) |
 
-Ambi lee e scri **li nov formates** — SubRip, WebVTT, SubViewer 2,
-Sub Station Alpha, Advanced SSA, MicroDVD, MPL2, TMPlayer, LRC — e
+Ambi lee e scri **li deci formates** — SubRip, WebVTT, SubViewer 2,
+Sub Station Alpha, Advanced SSA, MicroDVD, MPL2, TMPlayer, LRC, YouTube SBV — e
 recognosce li formate per su contenete plu tosc quam per su extension. **Anc li codification
 es recognoscet per li contenete**: un file in Latin-1, in CP1252 o in UTF-16
 aperte se, it es dit quo it esset leet quam, e it es scrit denov in su propri codification — un

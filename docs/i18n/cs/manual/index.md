@@ -11,8 +11,8 @@ programy, které sdílejí stejné jádro, a tedy i stejná pravidla a stejná s
 | `subedit-gui` | otevřít soubor, prohlížet ho v tabulce, upravovat ho, sledovat ho spolu s filmem | [příručka okna](subedit-gui/index.md) |
 | `subedit-cli` | zpracovávat soubory v dávkách, ze skriptu, bez rozhraní | [příručka příkazového řádku](subedit-cli/index.md) |
 
-Oba čtou a zapisují **devět formátů** — SubRip, WebVTT, SubViewer 2,
-Sub Station Alpha, Advanced SSA, MicroDVD, MPL2, TMPlayer, LRC — a
+Oba čtou a zapisují **deset formátů** — SubRip, WebVTT, SubViewer 2,
+Sub Station Alpha, Advanced SSA, MicroDVD, MPL2, TMPlayer, LRC, YouTube SBV — a
 rozpoznávají formát podle obsahu, nikoli podle přípony. **Také kódování
 se rozpoznává podle obsahu**: soubor v kódování Latin-1, CP1252 nebo UTF-16
 se otevře, program sdělí, jak byl přečten, a zapíše ho zpět v jeho vlastním kódování —

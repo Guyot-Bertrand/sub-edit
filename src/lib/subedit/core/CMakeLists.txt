@@ -133,6 +133,9 @@ add_library(
     format/sub_viewer2_writer.cpp
     format/web_vtt_reader.cpp
     format/web_vtt_writer.cpp
+    format/youtube_sbv_reader.cpp
+    format/youtube_sbv_syntax.cpp
+    format/youtube_sbv_writer.cpp
     io/real_file_system.cpp
     io/temporary_directory.cpp
     libraries.cpp

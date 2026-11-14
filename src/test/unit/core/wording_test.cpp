@@ -310,6 +310,7 @@ TEST_CASE("every format has a name, and it is the one the outside world knows",
     CHECK(nameOf(SubtitleFormat::Mpl2) == "MPL2");
     CHECK(nameOf(SubtitleFormat::TMPlayer) == "TMPlayer");
     CHECK(nameOf(SubtitleFormat::Lrc) == "LRC");
+    CHECK(nameOf(SubtitleFormat::YouTubeSbv) == "YouTube SBV");
 }
 
 TEST_CASE("every format has an extension, and two of them are shared", "[cli][wording][format]") {
@@ -323,6 +324,7 @@ TEST_CASE("every format has an extension, and two of them are shared", "[cli][wo
     CHECK(extensionOf(SubtitleFormat::Mpl2) == ".txt");
     CHECK(extensionOf(SubtitleFormat::TMPlayer) == ".txt");
     CHECK(extensionOf(SubtitleFormat::Lrc) == ".lrc");
+    CHECK(extensionOf(SubtitleFormat::YouTubeSbv) == ".sbv");
 
     // **The sharing is the point of this case.** Going this way there is one
     // answer per format; going back there is none, which is why nothing in the
@@ -414,6 +416,7 @@ TEST_CASE("every format has a name a command line can take", "[cli][wording][for
     CHECK(optionNameOf(SubtitleFormat::Mpl2) == "mpl2");
     CHECK(optionNameOf(SubtitleFormat::TMPlayer) == "tmplayer");
     CHECK(optionNameOf(SubtitleFormat::Lrc) == "lrc");
+    CHECK(optionNameOf(SubtitleFormat::YouTubeSbv) == "sbv");
 }
 
 TEST_CASE("a name a command line takes leads back to its format", "[cli][wording][format]") {

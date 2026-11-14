@@ -11,8 +11,8 @@ subedit чита, прегледа и поново усклађује време
 | `subedit-gui` | отворити датотеку, видети је у табели, уређивати је, пратити је уз филм | [приручник прозора](subedit-gui/index.md) |
 | `subedit-cli` | обрађивати датотеке у серијама, из скрипте, без сучеља | [приручник командне линије](subedit-cli/index.md) |
 
-Оба читају и пишу **девет формата** — SubRip, WebVTT, SubViewer 2,
-Sub Station Alpha, Advanced SSA, MicroDVD, MPL2, TMPlayer, LRC — и
+Оба читају и пишу **десет формата** — SubRip, WebVTT, SubViewer 2,
+Sub Station Alpha, Advanced SSA, MicroDVD, MPL2, TMPlayer, LRC, YouTube SBV — и
 препознају формат по садржају, а не по наставку. **И кодирање се
 препознаје по садржају**: датотека у Latin-1, CP1252 или UTF-16
 се отвара, јавља се како је прочитана, и записује се назад у свом кодирању —

@@ -1,6 +1,6 @@
-// The scene, in nine formats, and what each format is promised.
+// The scene, in every format, and what each format is promised.
 //
-// `src/test/data/formats/` holds one scene written nine times over: four
+// `src/test/data/formats/` holds one scene written once per format: four
 // subtitles, at the same positions, two of them on two lines and one in
 // italics. Only the format changes from file to file, which is the discipline
 // `encodages/` follows for encodings — it is what lets one reading be compared
@@ -157,7 +157,7 @@ constexpr std::array<std::string_view, 4> kOneLine = {
     "Then the light comes.",
 };
 
-constexpr std::array<Promise, 9> kPromises = {
+constexpr std::array<Promise, 10> kPromises = {
     Promise{.file = "scene.srt",
             .name = "SubRip",
             .roundTrip = RoundTrip::Bytes,
@@ -204,6 +204,14 @@ constexpr std::array<Promise, 9> kPromises = {
             .roundTrip = RoundTrip::BytesEmptily,
             .texts = kOneLine,
             .ends = kInventedEnds},
+    // **Without italics, and that is the format, not a loss of the rendering**:
+    // SBV has no markup. The scene says the same thing in it all the same,
+    // since the line breaks and the ends are carried.
+    Promise{.file = "scene.sbv",
+            .name = "YouTube SBV",
+            .roundTrip = RoundTrip::Bytes,
+            .texts = kNoItalics,
+            .ends = kCarriedEnds},
 };
 
 /// The one file of the directory that is not a rendering of the scene.
