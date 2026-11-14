@@ -9,6 +9,12 @@ do not edit it by hand.
 
 ## Unreleased
 
+### Tests
+
+- **format** — Hold every format list to the core, tooling of phase 17
+
+## 1.2.9 — 2026-11-14
+
 ### Added
 
 - **cli** — Give the standard error its line grammar, errors first

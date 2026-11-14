@@ -106,6 +106,10 @@ text      0123456789abcdef|abcdefghijklmnopqrstuvwxyz
 statement (?:==|!=)\s*(?:[\w:]+\s*[({]\s*)?@|@\s*[)}]?\s*(?:==|!=)
 statement \.(?:find|rfind|starts_with|ends_with|startsWith|endsWith|contains|indexOf)\(\s*@
 statement \b(?:get|need|needText|refuseValue|numberOf|attributeOf)\(\s*@
+# The fragments of CLI11's English diagnostics that `complaintIn` cuts its sentences at, to read
+# the names and values back out of them (#830). They match what CLI11 wrote; what the user reads is
+# the translated sentence they are put back into.
+file      src/lib/subedit/cli/complaint.cpp (?: expected: | is required| excludes | missing| required |At Most |At least | required but received | not in \{|Value | not in range \[)
 
 [settings-file] The example values written into the settings file: data, read back by the program.
 call      writeOption
