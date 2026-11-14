@@ -11,8 +11,8 @@ programes que comparteixen el mateix nucli, i per tant les mateixes regles i les
 | `subedit-gui` | obrir un fitxer, veure'l en una taula, editar-lo, mirar-lo al costat de la pel·lícula | [el manual de la finestra](subedit-gui/index.md) |
 | `subedit-cli` | processar fitxers per lots, des d'un script, sense interfície | [el manual de la línia d'ordres](subedit-cli/index.md) |
 
-Tots dos llegeixen i escriuen **els nou formats** — SubRip, WebVTT, SubViewer 2,
-Sub Station Alpha, Advanced SSA, MicroDVD, MPL2, TMPlayer, LRC — i
+Tots dos llegeixen i escriuen **els deu formats** — SubRip, WebVTT, SubViewer 2,
+Sub Station Alpha, Advanced SSA, MicroDVD, MPL2, TMPlayer, LRC, YouTube SBV — i
 reconeixen el format pel contingut i no per l'extensió. **La codificació també
 es reconeix pel contingut**: un fitxer en Latin-1, en CP1252 o en UTF-16
 s'obre, es diu com s'ha llegit, i es torna a escriure en la seva pròpia codificació — un

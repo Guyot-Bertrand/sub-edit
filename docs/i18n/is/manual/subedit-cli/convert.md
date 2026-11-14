@@ -28,7 +28,7 @@ Positionals:
 Options:
   -h,--help                   Print this help message and exit
   -r,--recursive              Take directories as inputs, and every subtitle file in them
-  --to TEXT:{srt,vtt,subviewer2,ssa,ass,microdvd,mpl2,tmplayer,lrc} REQUIRED
+  --to TEXT:{srt,vtt,subviewer2,ssa,ass,microdvd,mpl2,tmplayer,lrc,sbv} REQUIRED
                               Format to write
   --line-endings TEXT:{unix,windows,mac}
                               Line endings to write; the source's by default
@@ -78,6 +78,7 @@ Options:
 | `microdvd` | MicroDVD | `.sub` |
 | `tmplayer` | TMPlayer | `.txt` |
 | `lrc` | LRC | `.lrc` |
+| `sbv` | YouTube SBV | `.sbv` |
 
 **Heiti, en ekki skráarending.** Tvær skráarendingar nefna tvö snið
 hvor — `.sub` er einnig MicroDVD, `.txt` er bæði MPL2 og
@@ -85,7 +86,7 @@ TMPlayer — svo valkostur sem tæki við skráarendingum vissi ekki hvora
 verið er að biðja um. Heitin hér að ofan eru ótvíræð og samsvara
 skráarendingunni alls staðar þar sem skráarendingin er líka ótvíræð.
 
-**Listinn er lokaður.** Hann er listi Gaupol, og öll sniðin níu eru í honum.
+**Listinn er lokaður.** Í honum eru sniðin níu úr Gaupol, og YouTube SBV, sem Gaupol les ekki.
 
 ## Sniðin tvö sem bera engan endi
 
@@ -175,6 +176,7 @@ atriði** — feitletur, skáletur, undirstrikun, litur, leturgerð og stærð:
 | MPL2 | `\` | `/` | `_` | `{C:$BBGGRR}` | `{F:NAME}` | `{S:N}` |
 | TMPlayer | — | — | — | — | — | — |
 | LRC | — | — | — | — | — | — |
+| YouTube SBV | — | — | — | — | — | — |
 
 **Strik er tilkynnt tap.** Umbreyting litaðrar `.srt` í WebVTT fjarlægir
 litinn og segir frá því; skráin sem er framleidd er WebVTT, ekki SubRip í dulargervi.

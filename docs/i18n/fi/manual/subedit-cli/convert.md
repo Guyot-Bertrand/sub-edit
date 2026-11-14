@@ -29,7 +29,7 @@ Positionals:
 Options:
   -h,--help                   Print this help message and exit
   -r,--recursive              Take directories as inputs, and every subtitle file in them
-  --to TEXT:{srt,vtt,subviewer2,ssa,ass,microdvd,mpl2,tmplayer,lrc} REQUIRED
+  --to TEXT:{srt,vtt,subviewer2,ssa,ass,microdvd,mpl2,tmplayer,lrc,sbv} REQUIRED
                               Format to write
   --line-endings TEXT:{unix,windows,mac}
                               Line endings to write; the source's by default
@@ -79,6 +79,7 @@ Options:
 | `microdvd` | MicroDVD | `.sub` |
 | `tmplayer` | TMPlayer | `.txt` |
 | `lrc` | LRC | `.lrc` |
+| `sbv` | YouTube SBV | `.sbv` |
 
 **Nimi eikä tiedostopääte.** Kaksi päätettä nimeää kumpikin kaksi
 muotoa — `.sub` on myös MicroDVD:n, `.txt` sekä MPL2:n että
@@ -86,7 +87,7 @@ TMPlayerin — joten päätteitä hyväksyvä valitsin ei tietäisi, mitä
 niistä pyydetään. Yllä olevat nimet ovat yksiselitteisiä ja vastaavat
 päätettä aina, kun päätekin on yksiselitteinen.
 
-**Luettelo on suljettu.** Se on Gaupolin luettelo, ja kaikki yhdeksän ovat siinä.
+**Luettelo on suljettu.** Siinä ovat Gaupolin yhdeksän muotoa sekä YouTube SBV, jota Gaupol ei lue.
 
 ## Kaksi muotoa, joissa ei ole loppukohtaa
 
@@ -177,6 +178,7 @@ asiaa** — lihavointi, kursiivi, alleviivaus, väri, fontti ja koko:
 | MPL2 | `\` | `/` | `_` | `{C:$BBGGRR}` | `{F:NAME}` | `{S:N}` |
 | TMPlayer | — | — | — | — | — | — |
 | LRC | — | — | — | — | — | — |
+| YouTube SBV | — | — | — | — | — | — |
 
 **Viiva on ilmoitettu menetys.** Värillisen tiedoston `.srt` muuntaminen WebVTT-muotoon poistaa
 värin ja kertoo sen; tuotettu tiedosto on WebVTT eikä naamioitu SubRip.

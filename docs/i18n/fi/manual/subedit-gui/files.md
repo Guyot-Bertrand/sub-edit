@@ -131,7 +131,7 @@ komentoja `Save As…`, jotka `Save All` jo kysyy yksi kerrallaan nimettömille 
 
 ## Avaaminen
 
-Valintaikkuna suodattaa **luettavat yhdeksän muotoa**, kullekin oma kohta, ja ensimmäinen
+Valintaikkuna suodattaa **luettavat kymmenen muotoa**, kullekin oma kohta, ja ensimmäinen
 kohta näyttää ne kaikki. Muoto tunnistetaan sitten **sisällöstä, ei
 tiedostopäätteestä**: `.txt`, joka sisältää SubRip-tekstitystä, avautuu, eikä suodatin ratkaise
 mitään — se vain piilottaa tiedostoja.
@@ -147,6 +147,7 @@ mitään — se vain piilottaa tiedostoja.
 | `MPL2` | `.txt` |
 | `TMPlayer` | `.txt` |
 | `LRC` | `.lrc` |
+| `YouTube SBV` | `.sbv` |
 
 **Kaksi tiedostopäätettä tarkoittaa kumpikin kahta muotoa** — `.sub` on SubViewer 2 ja
 MicroDVD, `.txt` on MPL2 ja TMPlayer. Avattaessa tällä ei ole merkitystä,

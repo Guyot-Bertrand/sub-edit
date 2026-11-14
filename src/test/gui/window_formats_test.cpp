@@ -1,12 +1,12 @@
-// The nine formats, seen from the window — issue #352.
+// Every format, seen from the window — issue #352.
 //
 // **The same promises the command line keeps, on the other surface.** What is
-// asserted here is what the window makes of a corpus file and of an answer: the
-// nine open, the nine can be written, and a format that will not carry
+// asserted here is what the window makes of a corpus file and of an answer:
+// every format opens, every format can be written, and a format that will not carry
 // everything says so while the answer can still be « no ».
 //
-// The bytes come from `formats/`, the versioned corpus of one scene in nine
-// renderings, and are handed to an `InMemoryFileSystem` — a real corpus for the
+// The bytes come from `formats/`, the versioned corpus of one scene in one
+// rendering per format, and are handed to an `InMemoryFileSystem` — a real corpus for the
 // content, a fake disk for the window, which is what every other window test
 // does.
 
@@ -55,7 +55,7 @@ struct Rendering {
     SubtitleFormat format;
 };
 
-constexpr std::array<Rendering, 9> kNine = {
+constexpr std::array<Rendering, 10> kEveryFormat = {
     Rendering{.file = "scene.srt", .format = SubtitleFormat::SubRip},
     Rendering{.file = "scene.vtt", .format = SubtitleFormat::WebVtt},
     Rendering{.file = "scene.subviewer2.sub", .format = SubtitleFormat::SubViewer2},
@@ -65,6 +65,7 @@ constexpr std::array<Rendering, 9> kNine = {
     Rendering{.file = "scene.mpl2.txt", .format = SubtitleFormat::Mpl2},
     Rendering{.file = "scene.tmplayer.txt", .format = SubtitleFormat::TMPlayer},
     Rendering{.file = "scene.lrc", .format = SubtitleFormat::Lrc},
+    Rendering{.file = "scene.sbv", .format = SubtitleFormat::YouTubeSbv},
 };
 
 /// The bytes of one corpus file, or a failed test.
@@ -98,8 +99,8 @@ constexpr std::array<Rendering, 9> kNine = {
 
 } // namespace
 
-TEST_CASE("the window opens each of the nine formats", "[gui][GUI-FORMAT-01]") {
-    for (const Rendering& rendering : kNine) {
+TEST_CASE("the window opens each format", "[gui][GUI-FORMAT-01]") {
+    for (const Rendering& rendering : kEveryFormat) {
         INFO("fichier : " << rendering.file);
         InMemoryFileSystem files;
         files.addFile(std::string{rendering.file}, corpus(rendering.file));
@@ -115,12 +116,12 @@ TEST_CASE("the window opens each of the nine formats", "[gui][GUI-FORMAT-01]") {
     }
 }
 
-TEST_CASE("saving as writes each of the nine, and they read back as themselves",
+TEST_CASE("saving as writes each format, and they read back as themselves",
           "[gui][GUI-FORMAT-02]") {
     // **The other direction of the same promise**, and the reading is what
     // judges it: a file written as MPL2 that came back SubRip would pass any
     // assertion made on its bytes alone.
-    for (const Rendering& rendering : kNine) {
+    for (const Rendering& rendering : kEveryFormat) {
         INFO("format : " << subedit::core::nameOf(rendering.format));
         InMemoryFileSystem files;
         files.addFile("scene.srt", corpus("scene.srt"));
@@ -256,7 +257,7 @@ TEST_CASE("opening a file counted in frames announces the rate nobody chose",
 }
 
 TEST_CASE("a document counted in time keeps the grid line", "[gui][GUI-FRAMES-01]") {
-    // The other side of the same choice: eight formats of nine count in time,
+    // The other side of the same choice: every format but MicroDVD counts in time,
     // and none of them loses the line the deduction is there to write.
     InMemoryFileSystem files;
     files.addFile("scene.srt", corpus("scene.srt"));

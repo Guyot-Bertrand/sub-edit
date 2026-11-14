@@ -11,8 +11,8 @@ subedit קורא קובצי כתוביות, בודק אותם ומתזמן או�
 | `subedit-gui` | לפתוח קובץ, לראות אותו בטבלה, לערוך אותו, לצפות בו מול הסרט | [מדריך החלון](subedit-gui/index.md) |
 | `subedit-cli` | לעבד קבצים באצווה, מתוך סקריפט, בלי ממשק | [מדריך שורת הפקודה](subedit-cli/index.md) |
 
-שתיהן קוראות וכותבות **את תשעת הפורמטים** — SubRip, WebVTT, SubViewer 2,
-Sub Station Alpha, Advanced SSA, MicroDVD, MPL2, TMPlayer, LRC — ומזהות
+שתיהן קוראות וכותבות **את עשרת הפורמטים** — SubRip, WebVTT, SubViewer 2,
+Sub Station Alpha, Advanced SSA, MicroDVD, MPL2, TMPlayer, LRC, YouTube SBV — ומזהות
 את הפורמט לפי התוכן ולא לפי הסיומת. **גם הקידוד מזוהה לפי התוכן**:
 קובץ ב-Latin-1, ב-CP1252 או ב-UTF-16 נפתח, נאמר כיצד הוא נקרא, והוא נכתב
 בחזרה בקידוד שלו — קובץ שנפתח ונשמר בלי שינוי אינו זז אפילו בבית אחד.

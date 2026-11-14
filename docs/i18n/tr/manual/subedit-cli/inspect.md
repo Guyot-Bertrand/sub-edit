@@ -122,7 +122,7 @@ exemple.srt
 
 | Alan | Ne söyler |
 | :---- | :----------- |
-| `format` | `--to` seçeneğinin kabul ettiği biçimlerden biri, tam yazılmış olarak: `SubRip`, `WebVTT`, `SubViewer 2`, `Sub Station Alpha`, `Advanced SSA`, `MicroDVD`, `MPL2`, `TMPlayer`, `LRC` |
+| `format` | `--to` seçeneğinin kabul ettiği biçimlerden biri, tam yazılmış olarak: `SubRip`, `WebVTT`, `SubViewer 2`, `Sub Station Alpha`, `Advanced SSA`, `MicroDVD`, `MPL2`, `TMPlayer`, `LRC`, `YouTube SBV` |
 | `encoding` | okunan kodlama, ardından **yanıtın nereden geldiği**: dosya bildiriyorsa `, from its byte order mark`, `--encoding` zorladıysa `, as asked for`, tartılarak bulunduysa `, detected` |
 | `byte order mark` | `present` veya `absent` |
 | `line endings` | `LF`, `CRLF` veya `CR`; dosya bunları karıştırıyorsa ardından `, mixed from line N` |

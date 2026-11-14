@@ -124,7 +124,7 @@ exemple.srt
 
 | Pole | Co říká |
 | :---- | :----------- |
-| `format` | jeden z formátů, které přijímá `--to`, vypsaný celý: `SubRip`, `WebVTT`, `SubViewer 2`, `Sub Station Alpha`, `Advanced SSA`, `MicroDVD`, `MPL2`, `TMPlayer`, `LRC` |
+| `format` | jeden z formátů, které přijímá `--to`, vypsaný celý: `SubRip`, `WebVTT`, `SubViewer 2`, `Sub Station Alpha`, `Advanced SSA`, `MicroDVD`, `MPL2`, `TMPlayer`, `LRC`, `YouTube SBV` |
 | `encoding` | přečtené kódování, za nímž následuje, **odkud odpověď pochází**: `, from its byte order mark`, pokud ho soubor deklaruje, `, as asked for`, pokud ho vynutilo `--encoding`, `, detected`, pokud bylo odhadnuto |
 | `byte order mark` | `present` nebo `absent` |
 | `line endings` | `LF`, `CRLF` nebo `CR`, za nímž následuje `, mixed from line N`, pokud je soubor míchá |

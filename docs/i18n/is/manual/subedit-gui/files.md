@@ -130,7 +130,7 @@ haft, spurð á flipa þess. `Save All As…` er ekki til: það er runa af
 
 ## Opnun
 
-Glugginn síar **níu sniðin sem eru lesin**, eina færslu fyrir hvert, og fyrsta
+Glugginn síar **tíu sniðin sem eru lesin**, eina færslu fyrir hvert, og fyrsta
 færslu sem sýnir þau öll. Sniðið er síðan greint **af innihaldinu, ekki af
 skráarendingunni**: `.txt` skrá sem inniheldur SubRip opnast, og sían ræður
 engu — hún felur aðeins skrár.
@@ -146,6 +146,7 @@ engu — hún felur aðeins skrár.
 | `MPL2` | `.txt` |
 | `TMPlayer` | `.txt` |
 | `LRC` | `.lrc` |
+| `YouTube SBV` | `.sbv` |
 
 **Tvær skráarendingar vísa á tvö snið hvor** — `.sub` er SubViewer 2 og
 MicroDVD, `.txt` er MPL2 og TMPlayer. Það hefur engar afleiðingar við opnun,

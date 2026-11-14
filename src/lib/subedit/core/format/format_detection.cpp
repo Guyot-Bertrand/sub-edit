@@ -4,6 +4,7 @@
 #include <subedit/core/format/mpl2_syntax.hpp>
 #include <subedit/core/format/sub_viewer2_syntax.hpp>
 #include <subedit/core/format/tm_player_syntax.hpp>
+#include <subedit/core/format/youtube_sbv_syntax.hpp>
 #include <subedit/core/text/lines.hpp>
 #include <subedit/core/time/timestamp.hpp>
 
@@ -100,6 +101,15 @@ std::optional<SubtitleFormat> detectFormat(std::string_view content) {
     if (std::ranges::any_of(
             lines, [](std::string_view line) { return parseSubViewer2TimeLine(line).has_value(); }))
         return SubtitleFormat::SubViewer2;
+
+    // **Two stamps and a comma again, and the stamps are what differ**: three
+    // decimals and an unpadded hour where SubViewer 2 writes two and pads. The
+    // two grammars accept no line in common, so the order between them decides
+    // nothing; this one comes second because it is the newer guest (spec 17,
+    // D6), and a confusion would show in the score before it showed here.
+    if (std::ranges::any_of(
+            lines, [](std::string_view line) { return parseYouTubeSbvTimeLine(line).has_value(); }))
+        return SubtitleFormat::YouTubeSbv;
 
     // Two bracketed whole numbers opening a line, and nothing else among the
     // nine is written that way: LRC opens on one bracket holding a time,

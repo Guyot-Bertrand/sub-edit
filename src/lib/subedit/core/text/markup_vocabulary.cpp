@@ -21,6 +21,7 @@ MarkupVocabulary vocabularyOf(SubtitleFormat format) {
         return MarkupVocabulary::Mpl2;
     case SubtitleFormat::TMPlayer:
     case SubtitleFormat::Lrc:
+    case SubtitleFormat::YouTubeSbv:
         return MarkupVocabulary::None;
     }
     std::unreachable();
@@ -74,6 +75,7 @@ StyleAbilities abilitiesOf(SubtitleFormat format) {
                               .size = true};
     case SubtitleFormat::TMPlayer:
     case SubtitleFormat::Lrc:
+    case SubtitleFormat::YouTubeSbv:
         return StyleAbilities{};
     }
     std::unreachable();

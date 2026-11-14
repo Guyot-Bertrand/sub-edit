@@ -28,7 +28,7 @@ Positionals:
 Options:
   -h,--help                   Print this help message and exit
   -r,--recursive              Take directories as inputs, and every subtitle file in them
-  --to TEXT:{srt,vtt,subviewer2,ssa,ass,microdvd,mpl2,tmplayer,lrc} REQUIRED
+  --to TEXT:{srt,vtt,subviewer2,ssa,ass,microdvd,mpl2,tmplayer,lrc,sbv} REQUIRED
                               Format to write
   --line-endings TEXT:{unix,windows,mac}
                               Line endings to write; the source's by default
@@ -78,10 +78,11 @@ Options:
 | `microdvd` | MicroDVD | `.sub` |
 | `tmplayer` | TMPlayer | `.txt` |
 | `lrc` | LRC | `.lrc` |
+| `sbv` | YouTube SBV | `.sbv` |
 
 **用的是名称，而不是扩展名。** 有两个扩展名各自对应两种格式——`.sub` 也是 MicroDVD 的扩展名，`.txt` 既是 MPL2 的，也是 TMPlayer 的——所以，如果选项接受扩展名，就无法知道要的是哪一种。上面的名称没有歧义，并且在扩展名本身没有歧义的地方，名称与扩展名一致。
 
-**这个列表是封闭的。** 它取自 Gaupol，九种格式全部在内。
+**这个列表是封闭的。** 它包含 Gaupol 的九种格式，以及 Gaupol 不读取的 YouTube SBV。
 
 ## 不带结束时间的两种格式
 
@@ -150,6 +151,7 @@ file.lrc: carries no end times; each one was taken from the next start, settled 
 | MPL2 | `\` | `/` | `_` | `{C:$BBGGRR}` | `{F:NAME}` | `{S:N}` |
 | TMPlayer | — | — | — | — | — | — |
 | LRC | — | — | — | — | — | — |
+| YouTube SBV | — | — | — | — | — | — |
 
 **破折号表示已声明的损失。** 把带颜色的 `.srt` 转换为 WebVTT 会去掉颜色并说明这一点；生成的文件是 WebVTT，而不是伪装的 SubRip。
 

@@ -73,7 +73,7 @@ palet.](captures/fermeture-projets.png)
 
 ## Açma
 
-İletişim kutusu **okunan dokuz biçimi** süzer, her biri için bir giriş ve hepsini gösteren bir ilk giriş. Biçim o zaman **içeriğe göre, uzantıya göre değil** tanınır: SubRip içeren bir `.txt` açılır ve süzgeç hiçbir şeye karar vermez — yalnızca dosyaları gizler.
+İletişim kutusu **okunan on biçimi** süzer, her biri için bir giriş ve hepsini gösteren bir ilk giriş. Biçim o zaman **içeriğe göre, uzantıya göre değil** tanınır: SubRip içeren bir `.txt` açılır ve süzgeç hiçbir şeye karar vermez — yalnızca dosyaları gizler.
 
 | Süzgeç girişi | Uzantı |
 | :----------- | :-------- |
@@ -86,6 +86,7 @@ palet.](captures/fermeture-projets.png)
 | `MPL2` | `.txt` |
 | `TMPlayer` | `.txt` |
 | `LRC` | `.lrc` |
+| `YouTube SBV` | `.sbv` |
 
 **İki uzantı her biri iki biçimi gösterir** — `.sub` SubViewer 2 ve MicroDVD’dir, `.txt` MPL2 ve TMPlayer’dır. Açarken bunun bir sonucu yoktur, çünkü içerik karar verir; kaydederken biçimi veren, seçilen girişin **adıdır**, deseni asla.
 

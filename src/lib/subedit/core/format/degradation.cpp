@@ -31,6 +31,7 @@ constexpr std::int64_t kSecond = 1000;
     switch (format) {
     case SubtitleFormat::SubRip:
     case SubtitleFormat::WebVtt:
+    case SubtitleFormat::YouTubeSbv:
         return kMillisecond;
     case SubtitleFormat::SubViewer2:
     case SubtitleFormat::SubStationAlpha:

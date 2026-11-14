@@ -124,7 +124,7 @@ exemple.srt
 
 | Поље | Шта каже |
 | :---- | :----------- |
-| `format` | један од формата које прихвата `--to`, исписан у целини: `SubRip`, `WebVTT`, `SubViewer 2`, `Sub Station Alpha`, `Advanced SSA`, `MicroDVD`, `MPL2`, `TMPlayer`, `LRC` |
+| `format` | један од формата које прихвата `--to`, исписан у целини: `SubRip`, `WebVTT`, `SubViewer 2`, `Sub Station Alpha`, `Advanced SSA`, `MicroDVD`, `MPL2`, `TMPlayer`, `LRC`, `YouTube SBV` |
 | `encoding` | прочитано кодирање, а за њим **одакле одговор долази**: `, from its byte order mark` ако га датотека декларише, `, as asked for` ако га је наметнуло `--encoding`, `, detected` ако је процењено |
 | `byte order mark` | `present` или `absent` |
 | `line endings` | `LF`, `CRLF` или `CR`, а за њим `, mixed from line N` ако их датотека меша |

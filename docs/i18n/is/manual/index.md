@@ -11,8 +11,8 @@ forrit sem deila sama kjarna og þar með sömu reglum og sömu orðum.
 | `subedit-gui` | opna skrá, sjá hana í töflu, breyta henni og bera hana saman við kvikmyndina | [handbók gluggans](subedit-gui/index.md) |
 | `subedit-cli` | vinna skrár í runum, úr skriftu, án viðmóts | [handbók skipanalínunnar](subedit-cli/index.md) |
 
-Bæði lesa og skrifa **sniðin níu** — SubRip, WebVTT, SubViewer 2,
-Sub Station Alpha, Advanced SSA, MicroDVD, MPL2, TMPlayer, LRC — og
+Bæði lesa og skrifa **sniðin tíu** — SubRip, WebVTT, SubViewer 2,
+Sub Station Alpha, Advanced SSA, MicroDVD, MPL2, TMPlayer, LRC, YouTube SBV — og
 þekkja sniðið á innihaldinu fremur en á skráarendingunni. **Stafakóðunin er
 einnig greind á innihaldinu**: skrá í Latin-1, í CP1252 eða í UTF-16
 opnast, sagt er hvernig hún var lesin og hún er skrifuð aftur í sinni eigin kóðun — skrá

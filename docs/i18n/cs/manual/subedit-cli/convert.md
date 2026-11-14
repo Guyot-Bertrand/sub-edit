@@ -29,7 +29,7 @@ Positionals:
 Options:
   -h,--help                   Print this help message and exit
   -r,--recursive              Take directories as inputs, and every subtitle file in them
-  --to TEXT:{srt,vtt,subviewer2,ssa,ass,microdvd,mpl2,tmplayer,lrc} REQUIRED
+  --to TEXT:{srt,vtt,subviewer2,ssa,ass,microdvd,mpl2,tmplayer,lrc,sbv} REQUIRED
                               Format to write
   --line-endings TEXT:{unix,windows,mac}
                               Line endings to write; the source's by default
@@ -79,6 +79,7 @@ Options:
 | `microdvd` | MicroDVD | `.sub` |
 | `tmplayer` | TMPlayer | `.txt` |
 | `lrc` | LRC | `.lrc` |
+| `sbv` | YouTube SBV | `.sbv` |
 
 **Název, a ne přípona.** Dvě přípony označují každá dva
 formáty — `.sub` patří také formátu MicroDVD, `.txt` formátům MPL2 a
@@ -86,7 +87,7 @@ TMPlayer — takže volba, která by přijímala přípony, by nevěděla, kter�
 se požaduje. Výše uvedené názvy jsou jednoznačné a shodují se s
 příponou všude, kde je jednoznačná i přípona.
 
-**Seznam je uzavřený.** Je to seznam Gaupolu a je v něm všech devět.
+**Seznam je uzavřený.** Obsahuje devět formátů Gaupolu a YouTube SBV, který Gaupol nečte.
 
 ## Dva formáty, které nenesou konec
 
@@ -177,6 +178,7 @@ věcí** — tučné písmo, kurzíva, podtržení, barva, písmo a velikost:
 | MPL2 | `\` | `/` | `_` | `{C:$BBGGRR}` | `{F:NAME}` | `{S:N}` |
 | TMPlayer | — | — | — | — | — | — |
 | LRC | — | — | — | — | — | — |
+| YouTube SBV | — | — | — | — | — | — |
 
 **Pomlčka je ohlášená ztráta.** Převod barevného `.srt` do WebVTT odstraní
 barvu a řekne to; vytvořený soubor je WebVTT, ne převlečený SubRip.

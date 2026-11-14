@@ -64,19 +64,19 @@ where it will have to be said, and deliberately.
 
 ## Labelled corpus
 
-`src/test/data/formats/`, the same scene in the nine formats — the label comes
-with the file, by construction — and `src/test/data/valides/`, ten files that
+`src/test/data/formats/`, the same scene in every format — the label comes
+with the file, by construction — and `src/test/data/valides/`, eleven files that
 their extension is enough to name.
 
 <!-- generated record: do not edit by hand -->
 
-    recognised formats: 19/19
+    recognised formats: 21/21
 
-Recorded on version 0.9.21, on 2026-09-09.
+Recorded on version 1.2.12, on 2026-11-14.
 
 | | Files |
 | :--- | -------: |
-| recognised | 19 |
+| recognised | 21 |
 | refused, for want of a reader | 0 |
 | **confused** | **0** |
 
@@ -91,6 +91,10 @@ that: the nine formats are there, the labelled corpus is recognised in full,
 and what the measurement keeps is what it had that mattered most from the first
 day — **a confusion fails on its own.** A full score is not relaxed; it is
 watched.
+
+**Phase 17 put it back to work** (spec 17, D6). YouTube SBV writes two stamps and
+a comma, the line SubViewer 2 writes with a decimal fewer: its rendering is
+recognised, SubViewer 2's still is, and the score stays without confusion.
 
 ## Private corpus — without labels
 

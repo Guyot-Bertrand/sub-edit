@@ -11,8 +11,8 @@ dolayısıyla aynı kuralları ve aynı sözcükleri paylaşan iki programdan ol
 | `subedit-gui` | bir dosyayı açmak, tabloda görmek, düzenlemek, filmle karşılaştırarak izlemek | [pencere kılavuzu](subedit-gui/index.md) |
 | `subedit-cli` | dosyaları toplu olarak, bir betikten, arayüz olmadan işlemek | [komut satırı kılavuzu](subedit-cli/index.md) |
 
-İkisi de **dokuz biçimi** — SubRip, WebVTT, SubViewer 2,
-Sub Station Alpha, Advanced SSA, MicroDVD, MPL2, TMPlayer, LRC — okur ve yazar;
+İkisi de **on biçimi** — SubRip, WebVTT, SubViewer 2,
+Sub Station Alpha, Advanced SSA, MicroDVD, MPL2, TMPlayer, LRC, YouTube SBV — okur ve yazar;
 biçimi uzantısından değil içeriğinden tanır. **Kodlama da
 içerikten tanınır**: Latin-1, CP1252 veya UTF-16 kodlamalı bir dosya
 açılır, hangi kodlamayla okunduğu bildirilir ve dosya kendi kodlamasıyla geri yazılır —

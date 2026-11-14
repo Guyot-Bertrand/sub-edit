@@ -130,7 +130,7 @@ hebben gehad, gesteld op zijn tabblad. `Save All As…` bestaat niet: het is een
 
 ## Openen
 
-Het dialoogvenster filtert **de negen gelezen formaten**, elk één item, en een eerste
+Het dialoogvenster filtert **de tien gelezen formaten**, elk één item, en een eerste
 item dat ze allemaal toont. Het formaat wordt dan herkend **aan de inhoud, niet aan
 de extensie**: een `.txt` die SubRip bevat, opent, en het filter beslist
 niets — het verbergt alleen bestanden.
@@ -146,6 +146,7 @@ niets — het verbergt alleen bestanden.
 | `MPL2` | `.txt` |
 | `TMPlayer` | `.txt` |
 | `LRC` | `.lrc` |
+| `YouTube SBV` | `.sbv` |
 
 **Twee extensies wijzen elk twee formaten aan** — `.sub` is SubViewer 2 en
 MicroDVD, `.txt` is MPL2 en TMPlayer. Dat heeft geen gevolgen bij het openen,

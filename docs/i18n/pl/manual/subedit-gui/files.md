@@ -131,7 +131,7 @@ było, zadane na jego karcie. `Save All As…` nie istnieje: to ciąg
 
 ## Otwieranie
 
-Okno dialogowe filtruje **dziewięć odczytywanych formatów**, po jednej pozycji na format, i pierwsza
+Okno dialogowe filtruje **dziesięć odczytywanych formatów**, po jednej pozycji na format, i pierwsza
 pozycja pokazuje je wszystkie. Format jest następnie rozpoznawany **po zawartości, a nie po
 rozszerzeniu**: plik `.txt`, który zawiera SubRip, zostaje otwarty, a filtr nie
 decyduje o niczym — tylko ukrywa pliki.
@@ -147,6 +147,7 @@ decyduje o niczym — tylko ukrywa pliki.
 | `MPL2` | `.txt` |
 | `TMPlayer` | `.txt` |
 | `LRC` | `.lrc` |
+| `YouTube SBV` | `.sbv` |
 
 **Dwa rozszerzenia wyznaczają po dwa formaty** — `.sub` to SubViewer 2 i
 MicroDVD, `.txt` to MPL2 i TMPlayer. Nie ma to znaczenia przy otwieraniu,

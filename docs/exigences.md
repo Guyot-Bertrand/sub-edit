@@ -378,6 +378,6 @@ longer prove anything.
 | `GUI-SYNC-05` | the dialog offers the method, speech first, says what speech does not do, and the preview repeats it; a file that does not fit the sound is refused with the reason | 23 | implemented |
 | `CLI-FORMAT-05` | a SAMI file opens in its first language, and the reading names the languages it left | 17 | planned |
 | `CLI-FORMAT-06` | a TTML or DFXP file opens whatever its time expressions, nested times included | 17 | planned |
-| `CLI-FORMAT-07` | a YouTube SBV file opens, and is rewritten byte for byte | 17 | planned |
+| `CLI-FORMAT-07` | a YouTube SBV file opens, and is rewritten byte for byte | 17 | implemented |
 | `CLI-FRAMES-03` | a TTML file in frames or ticks opens at the rate it declares, or at TTML's default, and the reading names it | 17 | planned |
 | `GUI-FORMAT-04` | saving a SAMI file read with several languages announces the languages that will be lost before writing | 17 | planned |

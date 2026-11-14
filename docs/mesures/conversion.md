@@ -48,27 +48,28 @@ byte for byte. Without it, a difference could come from the layout rather than
 from the passage.
 
 The corpus is that of `src/test/data/` — `valides/`, ten files that look
-nothing alike, and `formats/`, the same scene written nine times. The private
+nothing alike, and `formats/`, the same scene written once per format. The private
 corpus is not read: absent from one machine in two, it would make the same gate
 say two things.
 
 <!-- generated record: do not edit by hand -->
 
-    intact round trips: 58/126
+    intact round trips: 79/160
 
-Recorded on version 0.9.22, on 2026-09-09.
+Recorded on version 1.2.12, on 2026-11-14.
 
-| From \ Through | `ass` | `lrc` | `microdvd` | `mpl2` | `srt` | `ssa` | `subviewer2` | `tmplayer` | `vtt` |
-| :--- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| `ass` | — | 0/1 | · | 0/1 | 0/1 | 0/1 | 0/1 | 0/1 | 0/1 |
-| `lrc` | 1/1 | — | · | 1/1 | 1/1 | 1/1 | 1/1 | 1/1 | 1/1 |
-| `microdvd` | · | · | — | · | · | · | · | · | · |
-| `mpl2` | 1/1 | 0/1 | · | — | 1/1 | 1/1 | 1/1 | 0/1 | 1/1 |
-| `srt` | 5/8 | 0/8 | · | 4/8 | — | 5/8 | 5/8 | 0/8 | 6/8 |
-| `ssa` | 0/1 | 0/1 | · | 0/1 | 0/1 | — | 0/1 | 0/1 | 0/1 |
-| `subviewer2` | 0/1 | 0/1 | · | 0/1 | 0/1 | 0/1 | — | 0/1 | 0/1 |
-| `tmplayer` | 1/1 | 0/1 | · | 1/1 | 1/1 | 1/1 | 1/1 | — | 1/1 |
-| `vtt` | 3/4 | 0/4 | · | 3/4 | 3/4 | 3/4 | 3/4 | 0/4 | — |
+| From \ Through | `ass` | `lrc` | `microdvd` | `mpl2` | `sbv` | `srt` | `ssa` | `subviewer2` | `tmplayer` | `vtt` |
+| :--- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| `ass` | — | 0/1 | · | 0/1 | 0/1 | 0/1 | 0/1 | 0/1 | 0/1 | 0/1 |
+| `lrc` | 1/1 | — | · | 1/1 | 1/1 | 1/1 | 1/1 | 1/1 | 1/1 | 1/1 |
+| `microdvd` | · | · | — | · | · | · | · | · | · | · |
+| `mpl2` | 1/1 | 0/1 | · | — | 0/1 | 1/1 | 1/1 | 1/1 | 0/1 | 1/1 |
+| `sbv` | 1/1 | 0/1 | · | 1/1 | — | 1/1 | 1/1 | 1/1 | 0/1 | 1/1 |
+| `srt` | 6/9 | 0/9 | · | 5/9 | 6/9 | — | 6/9 | 6/9 | 0/9 | 7/9 |
+| `ssa` | 0/1 | 0/1 | · | 0/1 | 0/1 | 0/1 | — | 0/1 | 0/1 | 0/1 |
+| `subviewer2` | 0/1 | 0/1 | · | 0/1 | 0/1 | 0/1 | 0/1 | — | 0/1 | 0/1 |
+| `tmplayer` | 1/1 | 0/1 | · | 1/1 | 1/1 | 1/1 | 1/1 | 1/1 | — | 1/1 |
+| `vtt` | 3/4 | 0/4 | · | 3/4 | 2/4 | 3/4 | 3/4 | 3/4 | 0/4 | — |
 
 | File | Through | First line that does not come back |
 | :--- | :------ | :---------------------------------- |
@@ -76,12 +77,15 @@ Recorded on version 0.9.22, on 2026-09-09.
 | `valides/balises.srt` | `mpl2` | `<b>ATTENTION</b> — <font color="#ffff00">zone interdite</font>` |
 | `valides/balises.srt` | `tmplayer` | `00:00:01,000 --> 00:00:03,000` |
 | `valides/balises.srt` | `lrc` | `00:00:01,000 --> 00:00:03,000` |
+| `valides/balises.srt` | `sbv` | `<i>Le vent tomba d'un coup.</i>` |
 | `valides/cadence.srt` | `subviewer2` | `01:00:00,017 --> 01:00:02,000` |
 | `valides/cadence.srt` | `ssa` | `01:00:00,017 --> 01:00:02,000` |
 | `valides/cadence.srt` | `ass` | `01:00:00,017 --> 01:00:02,000` |
 | `valides/cadence.srt` | `mpl2` | `00:00:01,010 --> 00:00:02,020` |
 | `valides/cadence.srt` | `tmplayer` | `00:00:01,010 --> 00:00:02,020` |
 | `valides/cadence.srt` | `lrc` | `00:00:01,010 --> 00:00:02,020` |
+| `valides/chuchote.srt` | `tmplayer` | `00:00:01,000 --> 00:00:03,000` |
+| `valides/chuchote.srt` | `lrc` | `00:00:01,000 --> 00:00:03,000` |
 | `valides/complet.vtt` | `srt` | `WEBVTT - Dialogue` |
 | `valides/complet.vtt` | `subviewer2` | `WEBVTT - Dialogue` |
 | `valides/complet.vtt` | `ssa` | `WEBVTT - Dialogue` |
@@ -89,6 +93,7 @@ Recorded on version 0.9.22, on 2026-09-09.
 | `valides/complet.vtt` | `mpl2` | `WEBVTT - Dialogue` |
 | `valides/complet.vtt` | `tmplayer` | `WEBVTT - Dialogue` |
 | `valides/complet.vtt` | `lrc` | `WEBVTT - Dialogue` |
+| `valides/complet.vtt` | `sbv` | `WEBVTT - Dialogue` |
 | `valides/coordonnees.srt` | `vtt` | `00:00:01,000 --> 00:00:03,000  X1:040 X2:600 Y1:020 Y2:460` |
 | `valides/coordonnees.srt` | `subviewer2` | `00:00:01,000 --> 00:00:03,000  X1:040 X2:600 Y1:020 Y2:460` |
 | `valides/coordonnees.srt` | `ssa` | `00:00:01,000 --> 00:00:03,000  X1:040 X2:600 Y1:020 Y2:460` |
@@ -96,6 +101,7 @@ Recorded on version 0.9.22, on 2026-09-09.
 | `valides/coordonnees.srt` | `mpl2` | `00:00:01,000 --> 00:00:03,000  X1:040 X2:600 Y1:020 Y2:460` |
 | `valides/coordonnees.srt` | `tmplayer` | `00:00:01,000 --> 00:00:03,000  X1:040 X2:600 Y1:020 Y2:460` |
 | `valides/coordonnees.srt` | `lrc` | `00:00:01,000 --> 00:00:03,000  X1:040 X2:600 Y1:020 Y2:460` |
+| `valides/coordonnees.srt` | `sbv` | `00:00:01,000 --> 00:00:03,000  X1:040 X2:600 Y1:020 Y2:460` |
 | `valides/crlf-bom.srt` | `tmplayer` | `00:00:01,000 --> 00:00:03,000` |
 | `valides/crlf-bom.srt` | `lrc` | `00:00:01,000 --> 00:00:03,000` |
 | `valides/heures.vtt` | `tmplayer` | `00:00:01.000 --> 00:00:03.000` |
@@ -119,10 +125,15 @@ Recorded on version 0.9.22, on 2026-09-09.
 | `formats/scene.ass` | `mpl2` | `Title: The scene, in nine formats` |
 | `formats/scene.ass` | `tmplayer` | `Title: The scene, in nine formats` |
 | `formats/scene.ass` | `lrc` | `Title: The scene, in nine formats` |
+| `formats/scene.ass` | `sbv` | `Title: The scene, in nine formats` |
 | `formats/scene.mpl2.txt` | `tmplayer` | `[10][30]The harbour wakes before\|the town does.` |
 | `formats/scene.mpl2.txt` | `lrc` | `[10][30]The harbour wakes before\|the town does.` |
+| `formats/scene.mpl2.txt` | `sbv` | `[80][110]/A gull turns once above the mast\|/and settles.` |
+| `formats/scene.sbv` | `tmplayer` | `0:00:01.000,0:00:03.000` |
+| `formats/scene.sbv` | `lrc` | `0:00:01.000,0:00:03.000` |
 | `formats/scene.srt` | `tmplayer` | `00:00:01,000 --> 00:00:03,000` |
 | `formats/scene.srt` | `lrc` | `00:00:01,000 --> 00:00:03,000` |
+| `formats/scene.srt` | `sbv` | `<i>A gull turns once above the mast` |
 | `formats/scene.ssa` | `srt` | `Title: The scene, in nine formats` |
 | `formats/scene.ssa` | `vtt` | `Title: The scene, in nine formats` |
 | `formats/scene.ssa` | `subviewer2` | `Title: The scene, in nine formats` |
@@ -130,6 +141,7 @@ Recorded on version 0.9.22, on 2026-09-09.
 | `formats/scene.ssa` | `mpl2` | `Title: The scene, in nine formats` |
 | `formats/scene.ssa` | `tmplayer` | `Title: The scene, in nine formats` |
 | `formats/scene.ssa` | `lrc` | `Title: The scene, in nine formats` |
+| `formats/scene.ssa` | `sbv` | `Title: The scene, in nine formats` |
 | `formats/scene.subviewer2.sub` | `srt` | `[TITLE]The scene, in nine formats` |
 | `formats/scene.subviewer2.sub` | `vtt` | `[TITLE]The scene, in nine formats` |
 | `formats/scene.subviewer2.sub` | `ssa` | `[TITLE]The scene, in nine formats` |
@@ -137,11 +149,13 @@ Recorded on version 0.9.22, on 2026-09-09.
 | `formats/scene.subviewer2.sub` | `mpl2` | `[TITLE]The scene, in nine formats` |
 | `formats/scene.subviewer2.sub` | `tmplayer` | `[TITLE]The scene, in nine formats` |
 | `formats/scene.subviewer2.sub` | `lrc` | `[TITLE]The scene, in nine formats` |
+| `formats/scene.subviewer2.sub` | `sbv` | `[TITLE]The scene, in nine formats` |
 | `formats/scene.tmplayer.txt` | `lrc` | `00:00:01:The harbour wakes before\|the town does.` |
 | `formats/scene.vtt` | `tmplayer` | `00:01.000 --> 00:03.000` |
 | `formats/scene.vtt` | `lrc` | `00:01.000 --> 00:03.000` |
+| `formats/scene.vtt` | `sbv` | `<i>A gull turns once above the mast` |
 
-**26 pair(s) the conversion refuses to make** — a timed file to a frame-based format, with no grid and no frame rate given. A refusal is not a loss, and so does not enter the count above.
+**29 pair(s) the conversion refuses to make** — a timed file to a frame-based format, with no grid and no frame rate given. A refusal is not a loss, and so does not enter the count above.
 
 <!-- end of record -->
 
@@ -231,7 +245,7 @@ vocabulary — [ADR 0031](../adr/0031-pivot-de-balises-a-la-conversion.md).
 | Sub Station Alpha | SSA, Advanced SSA | `{\i1}…{\i0}` |
 | MicroDVD | MicroDVD | `{Y:i}`, to the end |
 | MPL2 | MPL2 | `/` at the start of the line |
-| none | TMPlayer, LRC | nowhere |
+| none | TMPlayer, LRC, YouTube SBV | nowhere |
 
 **A shared vocabulary is not a shared power.** SubRip and WebVTT write italic
 the same way and do not agree on colour; Sub Station Alpha does not write the
@@ -277,6 +291,7 @@ its two voice tags** going through SubRip.
 | MPL2 | carried | `\|` | `/` at the start of the line | tenth |
 | TMPlayer | **absent** | `\|` | **no vocabulary** | second |
 | LRC | **absent** | **absent** | **no vocabulary** | hundredth |
+| YouTube SBV | carried | carried | **no vocabulary** | millisecond |
 
 **Two formats have no end.** LRC and TMPlayer carry only one position per line;
 a reading invents the ends, and the invented end is what comes out of a round

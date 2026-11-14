@@ -21,6 +21,8 @@
 #include <subedit/core/format/web_vtt_reader.hpp>
 #include <subedit/core/format/web_vtt_writer.hpp>
 #include <subedit/core/format/write_error.hpp>
+#include <subedit/core/format/youtube_sbv_reader.hpp>
+#include <subedit/core/format/youtube_sbv_writer.hpp>
 #include <subedit/core/i18n/messages.hpp>
 #include <subedit/core/model/encoding.hpp>
 #include <subedit/core/model/subtitle_format.hpp>
@@ -81,6 +83,8 @@ namespace {
         return TMPlayerWriter{}.write(request);
     case SubtitleFormat::Lrc:
         return LrcWriter{}.write(request);
+    case SubtitleFormat::YouTubeSbv:
+        return YouTubeSbvWriter{}.write(request);
     }
     std::unreachable();
 }
@@ -107,6 +111,8 @@ readAs(SubtitleFormat format, std::string_view content, const ReadingChoices& ch
         return TMPlayerReader{}.read(content);
     case SubtitleFormat::Lrc:
         return LrcReader{}.read(content);
+    case SubtitleFormat::YouTubeSbv:
+        return YouTubeSbvReader{}.read(content);
     }
     std::unreachable();
 }

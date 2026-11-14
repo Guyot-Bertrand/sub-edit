@@ -121,7 +121,7 @@ exemple.srt
 
 | Campo | O que di |
 | :---- | :----------- |
-| `format` | un dos formatos que acepta `--to`, escrito por extenso: `SubRip`, `WebVTT`, `SubViewer 2`, `Sub Station Alpha`, `Advanced SSA`, `MicroDVD`, `MPL2`, `TMPlayer`, `LRC` |
+| `format` | un dos formatos que acepta `--to`, escrito por extenso: `SubRip`, `WebVTT`, `SubViewer 2`, `Sub Station Alpha`, `Advanced SSA`, `MicroDVD`, `MPL2`, `TMPlayer`, `LRC`, `YouTube SBV` |
 | `encoding` | a codificación lida, seguida de **onde vén a resposta**: `, from its byte order mark` se o ficheiro a declara, `, as asked for` se a impuxo `--encoding`, `, detected` se se sopesou |
 | `byte order mark` | `present` ou `absent` |
 | `line endings` | `LF`, `CRLF` ou `CR`, seguido de `, mixed from line N` se o ficheiro os mestura |

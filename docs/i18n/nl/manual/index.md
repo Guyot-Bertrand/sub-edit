@@ -11,8 +11,8 @@ programma's die dezelfde kern delen, en dus dezelfde regels en dezelfde woorden.
 | `subedit-gui` | een bestand openen, het in een tabel zien, het bewerken, het naast de film bekijken | [de handleiding van het venster](subedit-gui/index.md) |
 | `subedit-cli` | bestanden in bulk verwerken, vanuit een script, zonder interface | [de handleiding van de opdrachtregel](subedit-cli/index.md) |
 
-Beide lezen en schrijven **de negen formaten** — SubRip, WebVTT, SubViewer 2,
-Sub Station Alpha, Advanced SSA, MicroDVD, MPL2, TMPlayer, LRC — en
+Beide lezen en schrijven **de tien formaten** — SubRip, WebVTT, SubViewer 2,
+Sub Station Alpha, Advanced SSA, MicroDVD, MPL2, TMPlayer, LRC, YouTube SBV — en
 herkennen het formaat aan de inhoud in plaats van aan de extensie. **Ook de codering
 wordt aan de inhoud herkend**: een bestand in Latin-1, in CP1252 of in UTF-16
 wordt geopend, er wordt gemeld als wat het is gelezen, en het wordt in zijn eigen codering

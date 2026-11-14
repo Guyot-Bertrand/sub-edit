@@ -131,7 +131,7 @@ feltettek, a saját lapján. A `Save All As…` nem létezik: ez a
 
 ## Megnyitás
 
-A párbeszédablak **a kilenc olvasott formátumot** szűri, mindegyik külön elemmel, és
+A párbeszédablak **a tíz olvasott formátumot** szűri, mindegyik külön elemmel, és
 egy első elemmel, amely mindet mutatja. A formátumot ezután **a tartalom alapján ismeri fel a program, nem
 a kiterjesztés alapján**: a SubRipet tartalmazó `.txt` megnyílik, a szűrő pedig
 semmit sem dönt el — csak elrejt fájlokat.
@@ -147,6 +147,7 @@ semmit sem dönt el — csak elrejt fájlokat.
 | `MPL2` | `.txt` |
 | `TMPlayer` | `.txt` |
 | `LRC` | `.lrc` |
+| `YouTube SBV` | `.sbv` |
 
 **Két kiterjesztés két-két formátumot jelöl** — a `.sub` a SubViewer 2 és a
 MicroDVD, a `.txt` az MPL2 és a TMPlayer. Ennek nincs következménye megnyitáskor,

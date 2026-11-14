@@ -11,8 +11,8 @@ programas que compartilham o mesmo núcleo e, portanto, as mesmas regras e as me
 | `subedit-gui` | abrir um arquivo, vê-lo em uma tabela, editá-lo, acompanhá-lo junto com o filme | [o manual da janela](subedit-gui/index.md) |
 | `subedit-cli` | processar arquivos em lote, a partir de um script, sem interface | [o manual da linha de comando](subedit-cli/index.md) |
 
-Ambos leem e escrevem **os nove formatos** — SubRip, WebVTT, SubViewer 2,
-Sub Station Alpha, Advanced SSA, MicroDVD, MPL2, TMPlayer, LRC — e
+Ambos leem e escrevem **os dez formatos** — SubRip, WebVTT, SubViewer 2,
+Sub Station Alpha, Advanced SSA, MicroDVD, MPL2, TMPlayer, LRC, YouTube SBV — e
 reconhecem o formato pelo conteúdo, e não pela extensão. **A codificação também
 é reconhecida pelo conteúdo**: um arquivo em Latin-1, em CP1252 ou em UTF-16
 é aberto, informa-se como foi lido e ele é gravado de volta na própria codificação — um

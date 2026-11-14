@@ -124,7 +124,7 @@ exemple.srt
 
 | Campe | Quo it di |
 | :---- | :----------- |
-| `format` | un del formates quel `--to` accepta, scrit in plen: `SubRip`, `WebVTT`, `SubViewer 2`, `Sub Station Alpha`, `Advanced SSA`, `MicroDVD`, `MPL2`, `TMPlayer`, `LRC` |
+| `format` | un del formates quel `--to` accepta, scrit in plen: `SubRip`, `WebVTT`, `SubViewer 2`, `Sub Station Alpha`, `Advanced SSA`, `MicroDVD`, `MPL2`, `TMPlayer`, `LRC`, `YouTube SBV` |
 | `encoding` | li codification leet, sequet de **u li responde veni**: `, from its byte order mark` si li file declara it, `, as asked for` si `--encoding` imposit it, `, detected` si it esset pesat |
 | `byte order mark` | `present` o `absent` |
 | `line endings` | `LF`, `CRLF` o `CR`, sequet de `, mixed from line N` si li file mixtura les |

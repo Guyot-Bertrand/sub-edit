@@ -29,7 +29,7 @@ Positionals:
 Options:
   -h,--help                   Print this help message and exit
   -r,--recursive              Take directories as inputs, and every subtitle file in them
-  --to TEXT:{srt,vtt,subviewer2,ssa,ass,microdvd,mpl2,tmplayer,lrc} REQUIRED
+  --to TEXT:{srt,vtt,subviewer2,ssa,ass,microdvd,mpl2,tmplayer,lrc,sbv} REQUIRED
                               Format to write
   --line-endings TEXT:{unix,windows,mac}
                               Line endings to write; the source's by default
@@ -79,6 +79,7 @@ Options:
 | `microdvd` | MicroDVD | `.sub` |
 | `tmplayer` | TMPlayer | `.txt` |
 | `lrc` | LRC | `.lrc` |
+| `sbv` | YouTube SBV | `.sbv` |
 
 **Bir ad, uzantı değil.** İki uzantı ikişer biçimi adlandırır
 — `.sub` aynı zamanda MicroDVD’nin, `.txt` ise MPL2 ve
@@ -86,7 +87,7 @@ TMPlayer’ın uzantısıdır — dolayısıyla uzantı alan bir seçenek hangis
 istendiğini bilemezdi. Yukarıdaki adlar belirsiz değildir ve uzantının da
 belirsiz olmadığı her yerde uzantıyla örtüşür.
 
-**Liste kapalıdır.** Gaupol’un listesidir ve dokuzu da içinde yer alır.
+**Liste kapalıdır.** Gaupol’un dokuz biçimini ve Gaupol’un okumadığı YouTube SBV’yi içerir.
 
 ## Bitiş taşımayan iki biçim
 
@@ -176,6 +177,7 @@ yorumlamayı asla bilmeyecek bir dosyada. Geçenler **altı
 | MPL2 | `\` | `/` | `_` | `{C:$BBGGRR}` | `{F:NAME}` | `{S:N}` |
 | TMPlayer | — | — | — | — | — | — |
 | LRC | — | — | — | — | — | — |
+| YouTube SBV | — | — | — | — | — | — |
 
 **Bir çizgi, bildirilen bir kayıptır.** Renkli bir `.srt` dosyasını WebVTT’ye dönüştürmek
 rengi kaldırır ve bunu söyler; üretilen dosya WebVTT’dir, kılık değiştirmiş SubRip değil.

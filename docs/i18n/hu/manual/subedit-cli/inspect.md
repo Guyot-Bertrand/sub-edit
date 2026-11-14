@@ -108,7 +108,7 @@ exemple.srt
 
 | Mező | Mit mond |
 | :---- | :----------- |
-| `format` | a `--to` kapcsoló által elfogadott formátumok egyike, teljes névvel: `SubRip`, `WebVTT`, `SubViewer 2`, `Sub Station Alpha`, `Advanced SSA`, `MicroDVD`, `MPL2`, `TMPlayer`, `LRC` |
+| `format` | a `--to` kapcsoló által elfogadott formátumok egyike, teljes névvel: `SubRip`, `WebVTT`, `SubViewer 2`, `Sub Station Alpha`, `Advanced SSA`, `MicroDVD`, `MPL2`, `TMPlayer`, `LRC`, `YouTube SBV` |
 | `encoding` | az olvasott kódolás, utána **az, honnan származik a válasz**: `, from its byte order mark`, ha a fájl kijelenti, `, as asked for`, ha az `--encoding` kapcsoló írta elő, `, detected`, ha mérlegelték |
 | `byte order mark` | `present` vagy `absent` |
 | `line endings` | `LF`, `CRLF` vagy `CR`, utána `, mixed from line N`, ha a fájl keveri őket |

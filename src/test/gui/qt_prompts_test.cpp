@@ -37,7 +37,7 @@ using subedit::gui::videoFilters;
 } // namespace
 
 TEST_CASE("the save filter names the format it will be written in", "[gui][GUI-FORMAT-02]") {
-    // **Each of the nine, and read from the name.** Two extensions name two
+    // **Each format, and read from the name.** Two extensions name two
     // formats each — `.sub` is SubViewer 2 and MicroDVD, `.txt` is MPL2 and
     // TMPlayer — so a filter told apart by its pattern would write one of the
     // pair under the other's name.
@@ -61,17 +61,18 @@ TEST_CASE("a filter that names no format writes the one the project defaults to"
     CHECK(formatOfFilter(QStringLiteral("All files (*)")) == SubtitleFormat::SubRip);
 }
 
-TEST_CASE("the dialog offers the nine formats, and each names itself back",
+TEST_CASE("the dialog offers every format, and each names itself back",
           "[gui][GUI-FORMAT-01][GUI-FORMAT-02]") {
     // What holds the list and the recognition together: an entry added without
     // being recognised would write SubRip under somebody else's extension.
     const QStringList offered = subtitleFilters().split(QStringLiteral(";;"));
 
-    // Everything, the nine, and anything.
-    REQUIRE(offered.size() == 11);
-    CHECK(offered.at(10) == QStringLiteral("All files (*)"));
+    // Everything, every format, and anything.
+    const auto formats = static_cast<qsizetype>(subedit::core::kSubtitleFormats.size());
+    REQUIRE(offered.size() == formats + 2);
+    CHECK(offered.back() == QStringLiteral("All files (*)"));
 
-    // The nine sit between the two, in the order the vocabulary declares them.
+    // The formats sit between the two, in the order the vocabulary declares them.
     qsizetype row = 1;
     for (const SubtitleFormat format : subedit::core::kSubtitleFormats) {
         INFO("format : " << subedit::core::nameOf(format));
@@ -81,9 +82,9 @@ TEST_CASE("the dialog offers the nine formats, and each names itself back",
     }
 }
 
-TEST_CASE("the first entry shows every extension the nine carry, once each",
+TEST_CASE("the first entry shows every extension the formats carry, once each",
           "[gui][GUI-FORMAT-01]") {
-    // **The entry a user leaves selected**, so a file of any of the nine has to
+    // **The entry a user leaves selected**, so a file of any format has to
     // show through it. Once each, because two of the extensions are shared and
     // a pattern written twice is a pattern nobody reads.
     const QString everything = subtitleFilters().section(QStringLiteral(";;"), 0, 0);

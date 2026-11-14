@@ -108,7 +108,7 @@ exemple.srt
 
 | שדה | מה הוא אומר |
 | :---- | :----------- |
-| `format` | אחד הפורמטים ש-`--to` מקבלת, כתוב במלואו: `SubRip`, `WebVTT`, `SubViewer 2`, `Sub Station Alpha`, `Advanced SSA`, `MicroDVD`, `MPL2`, `TMPlayer`, `LRC` |
+| `format` | אחד הפורמטים ש-`--to` מקבלת, כתוב במלואו: `SubRip`, `WebVTT`, `SubViewer 2`, `Sub Station Alpha`, `Advanced SSA`, `MicroDVD`, `MPL2`, `TMPlayer`, `LRC`, `YouTube SBV` |
 | `encoding` | הקידוד שנקרא, ואחריו **מקור התשובה**: `, from its byte order mark` אם הקובץ מצהיר עליו, `, as asked for` אם `--encoding` כפתה אותו, `, detected` אם הוא נשקל |
 | `byte order mark` | `present` או `absent` |
 | `line endings` | `LF`, `CRLF` או `CR`, ואחריו `, mixed from line N` אם הקובץ מערבב ביניהם |
