@@ -174,6 +174,7 @@ add_executable(
     core/format/save_project_test.cpp
     core/format/corpus_test.cpp
     core/format/format_corpus_test.cpp
+    core/format/format_enumerations_test.cpp
     core/format/pairs_corpus_test.cpp
     core/format/encoded_corpus_test.cpp
     core/format/local_corpus_test.cpp)
@@ -197,6 +198,8 @@ target_compile_definitions(
             SUBEDIT_PATTERNS_DIR="${CMAKE_SOURCE_DIR}/packaging/patterns"
             SUBEDIT_COMPILED_I18N_DIR="${CMAKE_CURRENT_BINARY_DIR}/i18n"
             SUBEDIT_LOCAL_DATA_DIR="${CMAKE_SOURCE_DIR}/src/data"
+            SUBEDIT_MANUAL_DIR="${CMAKE_SOURCE_DIR}/docs/manual"
+            SUBEDIT_SCRIPTS_DIR="${CMAKE_SOURCE_DIR}/src/scripts"
             SUBEDIT_FAKE_PLAYER_BINARY="$<TARGET_FILE:subedit_fake_player>"
             SUBEDIT_FAKE_TRANSCRIBER_BINARY="$<TARGET_FILE:subedit_fake_transcriber>")
 

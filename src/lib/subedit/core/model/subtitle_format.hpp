@@ -14,8 +14,10 @@ namespace subedit::core {
 ///
 /// **Nine since phase 9, and the order is the one the spec tables use** —
 /// roughly from the richest to the poorest, which is also the order in which
-/// the readers are written. The list is closed: it is Gaupol's, and matching it
-/// is the whole point of the project.
+/// the readers are written. The nine are Gaupol's, all of them; phase 17 adds
+/// formats Gaupol does not read. A format added here has its rendering of the
+/// scene, its rows in the manual and its extension in the detection probe, or
+/// `format_corpus_test` and `format_enumerations_test` fail.
 enum class SubtitleFormat {
     SubRip,
     WebVtt,

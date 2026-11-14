@@ -71,7 +71,7 @@ Options:
 | :-- | :----- | :--------------- |
 | `srt` | SubRip | `.srt` |
 | `vtt` | WebVTT | `.vtt` |
-| `subviewer2` | SubViewer 2.0 | `.sub` |
+| `subviewer2` | SubViewer 2 | `.sub` |
 | `ssa` | Sub Station Alpha | `.ssa` |
 | `ass` | Advanced SSA | `.ass` |
 | `mpl2` | MPL2 | `.txt` |

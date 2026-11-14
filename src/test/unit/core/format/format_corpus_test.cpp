@@ -20,6 +20,7 @@
 #include <subedit/core/format/write_error.hpp>
 #include <subedit/core/io/real_file_system.hpp>
 #include <subedit/core/model/subtitle.hpp>
+#include <subedit/core/model/subtitle_format.hpp>
 #include <subedit/core/time/frame_rate.hpp>
 #include <subedit/core/wording/formats.hpp>
 
@@ -221,7 +222,7 @@ constexpr std::string_view kReadme = "LISEZMOI.md";
     const RealFileSystem files;
     std::expected<std::string, subedit::core::FileError> content = files.readFile(path);
     if (!content.has_value()) {
-        FAIL("rendu de la scène introuvable : " + path.string());
+        FAIL("no rendering of the scene at " + path.string());
         return {};
     }
     return *std::move(content);
@@ -259,6 +260,26 @@ TEST_CASE("the scene directory and the promise table name the same files",
     std::ranges::sort(promised);
 
     CHECK(renderings() == promised);
+}
+
+TEST_CASE("every format the core knows has its rendering of the scene", "[format][corpus][scene]") {
+    // The guard above holds the directory and the table together; this one holds the table to the
+    // core. A tenth format added to `SubtitleFormat` without its rendering would be measured by
+    // none of the three tools of phase 9 — the promise, the detection score, the conversion
+    // matrix — and nothing would say so (#836).
+    std::vector<std::string_view> known;
+    known.reserve(subedit::core::kSubtitleFormats.size());
+    for (const subedit::core::SubtitleFormat format : subedit::core::kSubtitleFormats)
+        known.push_back(nameOf(format));
+    std::ranges::sort(known);
+
+    std::vector<std::string_view> promised;
+    promised.reserve(kPromises.size());
+    for (const Promise& promise : kPromises)
+        promised.push_back(promise.name);
+    std::ranges::sort(promised);
+
+    CHECK(promised == known);
 }
 
 TEST_CASE("the promise table says the same thing twice, and agrees with itself",
